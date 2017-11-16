@@ -28,9 +28,9 @@ public class CommandDTO {
 
     private String fileName;
 
-    private String commandArgs;
+    private String[] commandArgs;
 
-    public CommandDTO(String command, String filePath, String fileName, String args) {
+    public CommandDTO(String command, String filePath, String fileName, String[] args) {
         this.command = command;
         this.filePath = filePath;
         this.fileName = fileName;
@@ -61,11 +61,11 @@ public class CommandDTO {
         this.fileName = fileName;
     }
 
-    public String getCommandArgs() {
-        return commandArgs;
+    public String[] getCommandArgs() {
+        return commandArgs.clone();
     }
 
-    public void setCommandArgs(String commandArgs) {
+    public void setCommandArgs(String[] commandArgs) {
         this.commandArgs = commandArgs;
     }
 }

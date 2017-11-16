@@ -1,6 +1,6 @@
 {
   "name": "ballerina-composer",
-  "version": "0.94.0",
+  "version": "0.95.1",
   "description": "A web based tool for creating integrations in ballerina language.",
   "scripts": {
     "clean": "rimraf dist",
@@ -63,6 +63,7 @@
     "progress-bar-webpack-plugin": "^1.10.0",
     "react-notification-system": "^0.2.15",
     "react-test-renderer": "^15.6.1",
+    "redux": "^3.7.2",
     "rimraf": "^2.6.2",
     "sass-loader": "^6.0.3",
     "shelljs": "^0.7.6",

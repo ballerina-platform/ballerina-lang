@@ -2,7 +2,8 @@ PackageDeclaration
    : package <packageName-joined-by.>* ;
 
 Import
-   : import <packageName-joined-by.>* ;
+   : <userDefinedAlias?>    import <packageName-joined-by.>* as <alias.value> ;
+   :                        import <packageName-joined-by.>* ;
 
 Identifier
    : <value>
@@ -23,8 +24,9 @@ Annotation
    ;
 
 AnnotationAttachment
-   : @ <packageAlias.value> : <annotationName.value> { <attributes-joined-by,>* }
-   | @ <annotationName.value> { <attributes-joined-by,>* }
+   : <builtin?> @                        <annotationName.value> { <attributes-joined-by,>* }
+   :            @ <packageAlias.value> : <annotationName.value> { <attributes-joined-by,>* }
+   |            @ <annotationName.value>                        { <attributes-joined-by,>* }
    ;
 
 AnnotationAttachmentAttribute

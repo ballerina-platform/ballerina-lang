@@ -381,6 +381,7 @@ class SizingUtil {
         cmp.annotation = new SimpleBBox();
         cmp.argParameterHolder = {};
         cmp.returnParameterHolder = {};
+        cmp.receiver = new SimpleBBox();
 
         // initialize the annotation status.
         if (_.isNil(viewState.showAnnotationContainer)) {
@@ -460,7 +461,7 @@ class SizingUtil {
                 + this.getParameterTypeWidth(node.getReturnParameters()) + 120;
         }
         // here we add the public/private falg, remove and hide button width to the header.
-        cmp.heading.w += viewState.titleWidth + 100 + (this.config.panel.buttonWidth * 3);
+        cmp.heading.w += viewState.titleWidth + 280 + (this.config.panel.buttonWidth * 3);
 
         // Set the size of the connector declarations
         const statements = node.body.statements;
@@ -473,6 +474,12 @@ class SizingUtil {
                     statement.viewState.bBox.h = node.viewState.components.defaultWorker.h;
                 }
             });
+        }
+
+        if (TreeUtil.isFunction(node) && !TreeUtil.isMainFunction(node)) {
+            if (node.getReceiver()) {
+                cmp.receiver.w = this.getTextWidth(node.getReceiver().getTypeNode().getTypeName().value, 0).w + 50;
+            }
         }
         // add panel gutter to panelBody
         cmp.panelBody.w += cmp.defaultWorker.w + (this.config.panel.wrapper.gutter.h * 2);

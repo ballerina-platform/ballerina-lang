@@ -17,7 +17,6 @@ package org.ballerinalang.composer.service.workspace.app;
 
 import com.google.inject.AbstractModule;
 import org.ballerinalang.composer.service.workspace.Workspace;
-import org.ballerinalang.composer.service.workspace.cloud.CloudWorkspace;
 import org.ballerinalang.composer.service.workspace.local.LocalFSWorkspace;
 
 /**
@@ -25,18 +24,8 @@ import org.ballerinalang.composer.service.workspace.local.LocalFSWorkspace;
  */
 public class WorkspaceServiceModule extends AbstractModule {
 
-    private boolean isCloudMode;
-
-    public WorkspaceServiceModule(boolean isCloudMode) {
-       this.isCloudMode = isCloudMode;
-    }
-
     @Override
     protected void configure() {
-        if (isCloudMode) {
-            bind(Workspace.class).to(CloudWorkspace.class);
-        } else {
-            bind(Workspace.class).to(LocalFSWorkspace.class);
-        }
+        bind(Workspace.class).to(LocalFSWorkspace.class);
     }
 }

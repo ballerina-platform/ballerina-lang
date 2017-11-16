@@ -26,23 +26,39 @@ import LaunchManager from 'plugins/debugger/LaunchManager';
 
 import './http-service-decorator.scss';
 
-const HttpServiceDecorator = ({ message, command }) => {
-    // TODO : This command dispatch should ideally be invoked when a service type application is running(not main
-    // function). Hence this type of commands should be pluggable for launch manager on commands.
-    command.dispatch(TOOLBAR_COMMANDS.UPDATE_TOOL_BAR);
-    return (<div className='console-http-service-decorator'>
-        <Linkify properties={{ target: '_blank' }}>{message.message}</Linkify>
-        <Button
-            bsStyle='primary'
-            disabled={!LaunchManager.active}
-            onClick={() => {
-                command.dispatch(TRY_IT_COMMANDS.SHOW_TRY_IT);
-            }}
-        >
-            Try-It
+/**
+ * Component for http service message in the console.
+ * @class HttpServiceDecorator
+ * @extends {React.Component}
+ */
+class HttpServiceDecorator extends React.Component {
+    /**
+     * @override
+     */
+    componentDidMount() {
+        this.props.command.dispatch(TOOLBAR_COMMANDS.UPDATE_TOOL_BAR);
+    }
+
+    /**
+     * Renders the message.
+     * @returns {ReactElement} The view.
+     * @memberof HttpServiceDecorator
+     */
+    render() {
+        return (<div className='console-http-service-decorator'>
+            <Linkify properties={{ target: '_blank' }}>{this.props.message.message}</Linkify>
+            <Button
+                bsStyle='primary'
+                disabled={!LaunchManager.active}
+                onClick={() => {
+                    this.props.command.dispatch(TRY_IT_COMMANDS.SHOW_TRY_IT);
+                }}
+            >
+                Try-It
         </Button>
-    </div>);
-};
+        </div>);
+    }
+}
 
 HttpServiceDecorator.propTypes = {
     message: PropTypes.instanceOf(Object).isRequired,

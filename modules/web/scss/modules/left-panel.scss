@@ -13,7 +13,7 @@
         @extend .unseletable-content;
         float: left;
         padding: 8.5px 0 8.5px 5px;
-        text-transform: uppercase;
+        text-transform: capitalize;
         color: #c7c7c7;
         font-size: 14px;
         text-align: left;
@@ -23,7 +23,6 @@
         margin: 8.5px 10px 0 0;
         & i.fw {
             opacity: 0.3;
-            color: #6D6D6D;
             padding:10px;
             font-size: 11px;
             margin-top: -10px;

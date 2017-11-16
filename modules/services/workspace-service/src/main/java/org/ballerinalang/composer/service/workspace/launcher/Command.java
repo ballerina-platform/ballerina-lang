@@ -28,6 +28,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,8 +41,7 @@ public class Command {
     private String fileName;
     private String filePath;
     private boolean debug = false;
-    private String commandArgs;
-    private LauncherConstants.ProgramType type;
+    private String[] commandArgs;
     private int port;
     private Process program;
     private boolean errorOutputEnabled = true;
@@ -48,20 +49,18 @@ public class Command {
     private String packagePath = null;
     private static final Logger logger = LoggerFactory.getLogger(Command.class);
 
-    public Command(LauncherConstants.ProgramType type, String fileName, String filePath, boolean debug) {
+    public Command(String fileName, String filePath, boolean debug) {
         this.fileName = fileName;
         this.filePath = filePath;
         this.debug = debug;
-        this.type = type;
 
         if (debug) {
             this.port = LaunchUtils.getFreePort();
         }
     }
 
-    public Command(LauncherConstants.ProgramType type, String fileName, String filePath, String commandArgs, boolean
-            debug) {
-        this(type, fileName, filePath, debug);
+    public Command(String fileName, String filePath, String[] commandArgs, boolean debug) {
+        this(fileName, filePath, debug);
         this.commandArgs = commandArgs;
     }
 
@@ -89,14 +88,6 @@ public class Command {
         this.debug = debug;
     }
 
-    public LauncherConstants.ProgramType getType() {
-        return type;
-    }
-
-    public void setType(LauncherConstants.ProgramType type) {
-        this.type = type;
-    }
-
     public int getPort() {
         return port;
     }
@@ -105,43 +96,45 @@ public class Command {
         this.port = port;
     }
 
-    public String getCommandArgs() {
+    public String[] getCommandArgs() {
         return commandArgs;
     }
 
-    public void setCommandArgs(String commandArgs) {
+    public void setCommandArgs(String[] commandArgs) {
         this.commandArgs = commandArgs;
     }
 
-    @Override
-    public String toString() {
-        String ballerinaBin, ballerinaCommand, programType, scriptLocation, debugSwitch = "",
-                commandArgs = "";
-        int port = -1;
+    /**
+     * Construct the command array to be executed
+     * @return String[] command array
+     */
+    public String[] getCommandArray() {
+        List<String> commandList = new ArrayList<>();
+        String scriptLocation = getScriptLocation();
 
-        // path to bin directory
-        ballerinaBin = System.getProperty("ballerina.home") + File.separator + "bin" + File.separator;
+        // path to ballerina
+        String ballerinaExecute = System.getProperty("ballerina.home") + File.separator + "bin" + File.separator +
+                                  "ballerina";
 
         if (LaunchUtils.isWindows()) {
-            ballerinaCommand = "ballerina.bat run ";
-        } else {
-            ballerinaCommand = "ballerina run ";
+            ballerinaExecute += ".bat";
         }
+        commandList.add(ballerinaExecute);
+        commandList.add("run");
 
-        if (type == LauncherConstants.ProgramType.RUN) {
-            programType = "";
-        } else {
-            programType = "-s ";
+        commandList.add(scriptLocation);
+
+        if (packagePath != null) {
+            commandList.add(packagePath);
         }
-
-        scriptLocation = getScript();
 
         if (debug) {
-            debugSwitch = " --ballerina.debug " + this.port;
+            commandList.add("--ballerina.debug");
+            commandList.add(String.valueOf(this.port));
         }
 
         if (this.commandArgs != null) {
-            commandArgs = " " + this.commandArgs;
+            commandList.addAll(Arrays.asList(this.commandArgs));
         }
 
         BallerinaFile ballerinaFile = WorkspaceUtils.getBallerinaFile(filePath, fileName);
@@ -164,13 +157,7 @@ public class Command {
                 }
             }
         }
-        if (packagePath == null) {
-            return ballerinaBin + ballerinaCommand + programType + scriptLocation + debugSwitch + commandArgs;
-        } else {
-            return ballerinaBin + ballerinaCommand + programType + " " + packagePath + debugSwitch
-                    + commandArgs;
-        }
-
+        return commandList.toArray(new String[0]);
     }
 
     public String getPackageDir() {
@@ -178,15 +165,14 @@ public class Command {
     }
 
     public String getCommandIdentifier() {
-        String ballerinaCommand, programType;
         if (this.packagePath == null) {
-            return this.getScript();
+            return this.getScriptLocation();
         } else {
             return this.packagePath;
         }
     }
 
-    public String getScript() {
+    public String getScriptLocation() {
         return this.filePath + File.separator + fileName;
     }
 

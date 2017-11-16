@@ -1,3 +1,22 @@
+/**
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
 let join;
 const tab = '    ';
 
@@ -75,8 +94,14 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             return dent() + w() + 'package' + a(' ')
                  + join(node.packageName, pretty, replaceLambda, l, w, '', '.') + w() + ';';
         case 'Import':
-            return dent() + w() + 'import' + a(' ')
+            if (node.userDefinedAlias && node.packageName && node.alias.value) {
+                return dent() + w() + 'import' + a(' ')
+                 + join(node.packageName, pretty, replaceLambda, l, w, '', '.') + w(' ') + 'as' + w(' ')
+                 + node.alias.value + w() + ';';
+            } else {
+                return dent() + w() + 'import' + a(' ')
                  + join(node.packageName, pretty, replaceLambda, l, w, '', '.') + w() + ';';
+            }
         case 'Identifier':
             return w() + node.value;
         case 'Abort':
@@ -112,7 +137,11 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + w() + '}';
             }
         case 'AnnotationAttachment':
-            if (node.packageAlias.value && node.annotationName.value
+            if (node.builtin && node.annotationName.value && node.attributes) {
+                return dent() + w() + '@' + w() + node.annotationName.value + w(' ')
+                 + '{' + indent()
+                 + join(node.attributes, pretty, replaceLambda, l, w, '', ',') + outdent() + w() + '}';
+            } else if (node.packageAlias.value && node.annotationName.value
                          && node.attributes) {
                 return dent() + w() + '@' + w() + node.packageAlias.value + w() + ':'
                  + w() + node.annotationName.value + w(' ') + '{' + indent()

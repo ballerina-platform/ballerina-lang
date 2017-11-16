@@ -25,7 +25,7 @@ import { COMMANDS } from './constants';
 export function getCommandDefinitions(plugin) {
     return [
         {
-            id: COMMANDS.OPEN_REFRENCE,
+            id: COMMANDS.OPEN_EXAMPLE,
             shortcut: {
                 default: 'f1',
             },

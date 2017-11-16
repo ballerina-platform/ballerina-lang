@@ -105,7 +105,7 @@ class LaunchManager extends EventChannel {
             this.active = true;
             this.trigger('execution-started');
         }
-        if (message.code === 'EXECUTION_STOPED' || message.code === 'EXECUTION_TERMINATED') {
+        if (message.code === 'EXECUTION_STOPPED' || message.code === 'EXECUTION_TERMINATED') {
             this.active = false;
             this.trigger('execution-ended');
             this.channel.close();
@@ -130,12 +130,6 @@ class LaunchManager extends EventChannel {
             return;
         }
         this.trigger('print-message', message);
-        // if (message.code === 'TRY_IT_URL') {
-        //     this.tryItUrl = message.message;
-        //     this.trigger('try-it-url-received', message.message);
-        //     this.application.commandManager.dispatch('try-it-url-received', message.message);
-        // return;
-        // }
     }
 }
 

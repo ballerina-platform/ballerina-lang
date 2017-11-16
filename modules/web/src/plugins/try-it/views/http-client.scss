@@ -16,7 +16,7 @@
  * under the License.
  */
 
-@mixin dropdown() {
+@mixin bootstrap-dropdown() {
     position: relative;
     .dropdown {
         .dropdown-toggle{
@@ -61,6 +61,50 @@
         top: 10px;
         color: #2b7b5e;
         cursor: pointer;
+    }
+}
+
+@mixin autosuggest-dropdown() {
+    .react-autosuggest__container {
+        .inputContainer {
+            border: none;
+            border-bottom: 1px solid #555;
+            input[type=text]{
+                color: #fff;
+            }
+            i {
+                color: #2b7b5e;
+                cursor: pointer;
+            }
+        }
+        .react-autosuggest__suggestions-container--open {
+            background: #585858;
+            color: #f1f1f1;
+            ul {
+                li {
+                    cursor: pointer;
+                }
+                li:hover {
+                    font-weight: bold;
+                }
+            }
+        }
+    }
+    .react-autosuggest__container {
+        float: left;
+        color: black;
+        position: relative;
+    }
+    .react-autosuggest__input {
+        padding: 1px 10px;
+        border-right: 1px solid #333;
+    }
+    .react-autosuggest__suggestions-container {
+        z-index: 10000;
+        overflow: visible;
+        background: #E2E2E5;
+        width: 187px;
+        position: absolute
     }
 }
 
@@ -152,13 +196,19 @@
             background-color: #434343;
             box-shadow: none;
         }
-        .dropdown-wrapper {
-            @include dropdown();
-            width: 220px;
-            .dropdown .dropdown-toggle {
-                background-color: #434343;
-                border-bottom: 1px solid #555;
+        @include autosuggest-dropdown();
+        .react-autosuggest__container {
+            .inputContainer {
+                input[type=text]{
+                    color: #fff;
+                    background-color: #434343;
+                    border: 0 solid #333;
+                    width: 555px;
+                }
             }
+        }
+        .react-autosuggest__suggestions-container {
+            width: 560px;
         }
     }
 }
@@ -359,33 +409,16 @@ hr{
         height: 45px;
         .http-client-request-method-wrapper {
             float: left;
+            @include autosuggest-dropdown();
             .react-autosuggest__container {
                 .inputContainer {
-                    height: 33px;
                     padding: 6px;
-                    border: none;
-                    border-bottom: 1px solid #555;
+                    height: 33px;
                     input[type=text]{
                         color: #fff;
                         background-color: #333;
                         border: 0 solid #333;
                         width: 85px;
-                    }
-                    i {
-                        color: #2b7b5e;
-                        cursor: pointer;
-                    }
-                }
-                .react-autosuggest__suggestions-container--open {
-                    background: #585858;
-                    color: #f1f1f1;
-                    ul {
-                        li {
-                            cursor: pointer;
-                        }
-                        li:hover {
-                            font-weight: bold;
-                        }
                     }
                 }
             }
@@ -398,24 +431,8 @@ hr{
         .selectors {
             float: left;
             .dropdown-wrapper {
-                @include dropdown();
+                @include bootstrap-dropdown();
             }
-        }
-        .react-autosuggest__container {
-            float: left;
-            color: black;
-            position: relative;
-        }
-        .react-autosuggest__input {
-            padding: 1px 10px;
-            border-right: 1px solid #333;
-        }
-        .react-autosuggest__suggestions-container {
-            z-index: 10000;
-            overflow: visible;
-            background: #E2E2E5;
-            width: 187px;
-            position: absolute
         }
         .url-separator {
             float: left;

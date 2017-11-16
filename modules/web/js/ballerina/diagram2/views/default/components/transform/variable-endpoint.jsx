@@ -62,6 +62,19 @@ export default class VariableEndpoint extends React.Component {
 
         className += ` transform-endpoint-${variable.endpointKind}`
 
+        let typeDisplayName = ': ';
+        if (variable.typeName) {
+            if (variable.typeName.indexOf('$anonStruct$') !== -1) {
+                typeDisplayName = '';
+            } else {
+                typeDisplayName += variable.typeName;
+            }
+        } else if (variable.type) {
+            typeDisplayName += variable.type;
+        } else {
+            typeDisplayName = '';
+        }
+
         if (variable.type === 'struct') {
             iconType = 'fw-struct';
             className += ' transform-endpoint-struct';
@@ -98,43 +111,10 @@ export default class VariableEndpoint extends React.Component {
         treebuilders.pop();
         treebuilders.reverse();
 
-        return (
-            <div className={className}>
-                <span >
-                    { treebuilders }
-                    {(level > 0 ) && <span className='tree-view-icon' />}
-                    {(variable.type === 'struct') &&
-                    <span
-                        className='folder'
-                        onClick={(e) => { onClick && onClick(variable.name); }}
-                    />}
-                    <span className='variable-icon'>
-                        <i className={`transform-endpoint-icon fw ${iconType}`} />
-                    </span>
-                    {!this.state.onEdit && (
-                    <span className='endpoint-content' onClick={(e) => { onClick && onClick(variable.name); }}>
-                        {!this.state.onEdit && variable.displayName &&
-                            <span className='endpoint-name'>
-                                {variable.displayName}
-                            </span>
-                        }
-                        {!this.state.onEdit &&
-                        <span className='endpoint-type'>
-                            {variable.typeName && variable.typeName.indexOf('$anonStruct$') !== -1 ? ''
-                              : ' : ' + (variable.typeName || variable.type)}
-                        </span>
-                        }
-                        {this.props.variable.varDeclarationString && !this.state.onEdit &&
-                            <span className='variable-edit-button'>
-                                <i className='btn fw fw-edit' onClick={this.onEdit} />
-                            </span>
-                        }
-
-                    </span>
-                    )}
-                </span>
-                { this.state.onEdit &&
-                <div className='transform-edit-panel'>
+        let endpointContent;
+        if (this.state.onEdit) {
+            endpointContent = (
+                <span className='transform-edit-panel'>
                     <VariableTypeDropdown
                         value={this.state.varType}
                         placeholder='type'
@@ -157,8 +137,46 @@ export default class VariableEndpoint extends React.Component {
                     <span>
                         <i className='btn fw fw-check' onClick={this.onComplete} />
                     </span>
-                </div>
-                }
+                </span>
+            );
+        } else {
+            endpointContent = (
+                <span className='endpoint-content' onClick={(e) => { onClick && onClick(variable.name); }}>
+                    { treebuilders }
+                    {(level > 0 ) && <span className='tree-view-icon' />}
+                    {(variable.type === 'struct') &&
+                    <span
+                        className='folder'
+                        onClick={(e) => { onClick && onClick(variable.name); }}
+                    />}
+                    <span className='variable-icon'>
+                        <i className={`transform-endpoint-icon fw ${iconType}`} />
+                    </span>
+                    {variable.displayName &&
+                        <span className='endpoint-name'>
+                            {variable.displayName}:
+                        </span>
+                    }
+                    <span className='endpoint-type'>
+                        {typeDisplayName}
+                    </span>
+                    {this.props.variable.varDeclarationString && !this.state.onEdit &&
+                        <span className='variable-edit-button'>
+                            <i className='btn fw fw-edit' onClick={this.onEdit} />
+                        </span>
+                    }
+
+                </span>
+            );
+        }
+
+        return (
+            <div className={className}>
+                <span >
+                    <span className='endpoint-content-container'>
+                        { endpointContent }
+                    </span>
+                </span>
                 <span
                     id={variable.id + '-button'}
                     className='btn connect-point'

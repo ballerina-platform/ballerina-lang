@@ -157,7 +157,7 @@ class SwaggerParser {
         const configAnnotation = SwaggerParser.createAnnotationAttachment(httpAlias, 'configuration');
         if (!_.isNil(this._swaggerJson.basePath)) {
             const basePathValue = NodeFactory.createLiteral();
-            basePathValue.setValue(`"${this._swaggerJson.basePath}"`);
+            basePathValue.setValue(JSON.stringify(this._swaggerJson.basePath));
             SwaggerParser.setAnnotationAttribute(configAnnotation, 'basePath', basePathValue);
         }
 
@@ -165,7 +165,7 @@ class SwaggerParser {
             const hostAndPort = this._swaggerJson.host.split(':');
 
             const hostBValue = NodeFactory.createLiteral();
-            hostBValue.setValue(`"${hostAndPort[0]}"`);
+            hostBValue.setValue(JSON.stringify(hostAndPort[0]));
             SwaggerParser.setAnnotationAttribute(configAnnotation, 'host', hostBValue);
 
             if (hostAndPort.length > 1) {
@@ -202,7 +202,7 @@ class SwaggerParser {
             const consumeValues = [];
             swaggerConsumesDefinitions.forEach((consumeEntry) => {
                 const consumesValue = NodeFactory.createLiteral();
-                consumesValue.setValue(`"${consumeEntry}"`);
+                consumesValue.setValue(JSON.stringify(consumeEntry));
                 consumeValues.push(consumesValue);
             });
             SwaggerParser.addNodesAsArrayedAttribute(consumesAnnotation, 'value', consumeValues);
@@ -233,7 +233,7 @@ class SwaggerParser {
             const producesValues = [];
             swaggerProducesDefinitions.forEach((producesEntry) => {
                 const producesValue = NodeFactory.createLiteral();
-                producesValue.setValue(`"${producesEntry}"`);
+                producesValue.setValue(JSON.stringify(producesEntry));
                 producesValues.push(producesValue);
             });
             SwaggerParser.addNodesAsArrayedAttribute(producesAnnotation, 'value', producesValues);
@@ -260,25 +260,25 @@ class SwaggerParser {
 
         if (!_.isNil(this._swaggerJson.info.title)) {
             const titleValue = NodeFactory.createLiteral();
-            titleValue.setValue(`"${this._swaggerJson.info.title}"`);
+            titleValue.setValue(JSON.stringify(this._swaggerJson.info.title));
             SwaggerParser.setAnnotationAttribute(serviceInfoAnnotation, 'title', titleValue);
         }
 
         if (!_.isNil(this._swaggerJson.info.version)) {
             const versionValue = NodeFactory.createLiteral();
-            versionValue.setValue(`"${this._swaggerJson.info.version}"`);
+            versionValue.setValue(JSON.stringify(this._swaggerJson.info.version));
             SwaggerParser.setAnnotationAttribute(serviceInfoAnnotation, 'serviceVersion', versionValue);
         }
 
         if (!_.isNil(this._swaggerJson.info.description)) {
             const descriptionValue = NodeFactory.createLiteral();
-            descriptionValue.setValue(`"${this._swaggerJson.info.description}"`);
+            descriptionValue.setValue(JSON.stringify(this._swaggerJson.info.description));
             SwaggerParser.setAnnotationAttribute(serviceInfoAnnotation, 'description', descriptionValue);
         }
 
         if (!_.isNil(this._swaggerJson.info.termsOfService)) {
             const termOfServiceValue = NodeFactory.createLiteral();
-            termOfServiceValue.setValue(`"${this._swaggerJson.info.termsOfService}"`);
+            termOfServiceValue.setValue(JSON.stringify(this._swaggerJson.info.termsOfService));
             SwaggerParser.setAnnotationAttribute(serviceInfoAnnotation, 'termsOfService', termOfServiceValue);
         }
 
@@ -286,19 +286,19 @@ class SwaggerParser {
             const contactAnnotation = SwaggerParser.createAnnotationAttachment(swaggerAlias, 'Contact');
             if (!_.isNil(this._swaggerJson.info.contact.name)) {
                 const nameValue = NodeFactory.createLiteral();
-                nameValue.setValue(`"${this._swaggerJson.info.contact.name}"`);
+                nameValue.setValue(JSON.stringify(this._swaggerJson.info.contact.name));
                 SwaggerParser.setAnnotationAttribute(contactAnnotation, 'name', nameValue);
             }
 
             if (!_.isNil(this._swaggerJson.info.contact.url)) {
                 const urlValue = NodeFactory.createLiteral();
-                urlValue.setValue(`"${this._swaggerJson.info.contact.url}"`);
+                urlValue.setValue(JSON.stringify(this._swaggerJson.info.contact.url));
                 SwaggerParser.setAnnotationAttribute(contactAnnotation, 'url', urlValue);
             }
 
             if (!_.isNil(this._swaggerJson.info.contact.email)) {
                 const emailValue = NodeFactory.createLiteral();
-                emailValue.setValue(`"${this._swaggerJson.info.contact.email}"`);
+                emailValue.setValue(JSON.stringify(this._swaggerJson.info.contact.email));
                 SwaggerParser.setAnnotationAttribute(contactAnnotation, 'email', emailValue);
             }
 
@@ -310,13 +310,13 @@ class SwaggerParser {
 
             if (!_.isNil(this._swaggerJson.info.license.name)) {
                 const nameValue = NodeFactory.createLiteral();
-                nameValue.setValue(`"${this._swaggerJson.info.license.name}"`);
+                nameValue.setValue(JSON.stringify(this._swaggerJson.info.license.name));
                 SwaggerParser.setAnnotationAttribute(licenseAnnotation, 'name', nameValue);
             }
 
             if (!_.isNil(this._swaggerJson.info.license.url)) {
                 const urlValue = NodeFactory.createLiteral();
-                urlValue.setValue(`"${this._swaggerJson.info.license.url}"`);
+                urlValue.setValue(JSON.stringify(this._swaggerJson.info.license.url));
                 SwaggerParser.setAnnotationAttribute(licenseAnnotation, 'url', urlValue);
             }
 
@@ -328,13 +328,13 @@ class SwaggerParser {
 
             if (!_.isNil(this._swaggerJson.externalDocs.description)) {
                 const descriptionValue = NodeFactory.createLiteral();
-                descriptionValue.setValue(`"${this._swaggerJson.externalDocs.description}"`);
+                descriptionValue.setValue(JSON.stringify(this._swaggerJson.externalDocs.description));
                 SwaggerParser.setAnnotationAttribute(externalDocsAnnotation, 'description', descriptionValue);
             }
 
             if (!_.isNil(this._swaggerJson.externalDocs.url)) {
                 const urlValue = NodeFactory.createLiteral();
-                urlValue.setValue(`"${this._swaggerJson.externalDocs.url}"`);
+                urlValue.setValue(JSON.stringify(this._swaggerJson.externalDocs.url));
                 SwaggerParser.setAnnotationAttribute(externalDocsAnnotation, 'url', urlValue);
             }
 
@@ -346,13 +346,13 @@ class SwaggerParser {
 
             if (!_.isNil(this._swaggerJson.info['x-organization'].name)) {
                 const nameValue = NodeFactory.createLiteral();
-                nameValue.setValue(`"${this._swaggerJson.info['x-organization'].name}"`);
+                nameValue.setValue(JSON.stringify(this._swaggerJson.info['x-organization'].name));
                 SwaggerParser.setAnnotationAttribute(organizationAnnotation, 'name', nameValue);
             }
 
             if (!_.isNil(this._swaggerJson.info['x-organization'].url)) {
                 const urlValue = NodeFactory.createLiteral();
-                urlValue.setValue(`"${this._swaggerJson.info['x-organization'].url}"`);
+                urlValue.setValue(JSON.stringify(this._swaggerJson.info['x-organization'].url));
                 SwaggerParser.setAnnotationAttribute(organizationAnnotation, 'url', urlValue);
             }
 
@@ -366,13 +366,13 @@ class SwaggerParser {
 
                 if (!_.isNil(developer.name)) {
                     const nameValue = NodeFactory.createLiteral();
-                    nameValue.setValue(`"${developer.name}"`);
+                    nameValue.setValue(JSON.stringify(developer.name));
                     SwaggerParser.setAnnotationAttribute(developerAnnotation, 'name', nameValue);
                 }
 
                 if (!_.isNil(developer.email)) {
                     const emailValue = NodeFactory.createLiteral();
-                    emailValue.setValue(`"${developer.email}"`);
+                    emailValue.setValue(JSON.stringify(developer.email));
                     SwaggerParser.setAnnotationAttribute(developerAnnotation, 'email', emailValue);
                 }
                 developerBValues.push(developerAnnotation);
@@ -388,13 +388,13 @@ class SwaggerParser {
 
                 if (!_.isNil(tag.name)) {
                     const nameValue = NodeFactory.createLiteral();
-                    nameValue.setValue(`"${tag.name}"`);
+                    nameValue.setValue(JSON.stringify(tag.name));
                     SwaggerParser.setAnnotationAttribute(tagAnnotation, 'name', nameValue);
                 }
 
                 if (!_.isNil(tag.description)) {
                     const descriptionValue = NodeFactory.createLiteral();
-                    descriptionValue.setValue(`"${tag.description}"`);
+                    descriptionValue.setValue(JSON.stringify(tag.description));
                     SwaggerParser.setAnnotationAttribute(tagAnnotation, 'description', descriptionValue);
                 }
                 tagBValues.push(tagAnnotation);
@@ -424,7 +424,7 @@ class SwaggerParser {
 
         if (!_.isNil(this._swaggerJson.swagger)) {
             const versionValue = NodeFactory.createLiteral();
-            versionValue.setValue(`"${this._swaggerJson.swagger}"`);
+            versionValue.setValue(JSON.stringify(this._swaggerJson.swagger));
             SwaggerParser.setAnnotationAttribute(swaggerAnnotation, 'swaggerVersion', versionValue);
         }
 
@@ -449,7 +449,7 @@ class SwaggerParser {
 
         if (!_.isNil(this._swaggerJson.host)) {
             const hostValue = NodeFactory.createLiteral();
-            hostValue.setValue(`"${this._swaggerJson.host}"`);
+            hostValue.setValue(JSON.stringify(this._swaggerJson.host));
             SwaggerParser.setAnnotationAttribute(serviceConfigAnnotation, 'host', hostValue);
         }
 
@@ -457,7 +457,7 @@ class SwaggerParser {
             const schemeBValues = [];
             this._swaggerJson.schemes.forEach((schemeEntry) => {
                 const schemeValue = NodeFactory.createLiteral();
-                schemeValue.setValue(`"${schemeEntry}"`);
+                schemeValue.setValue(JSON.stringify(schemeEntry));
                 schemeBValues.push(schemeValue);
             });
             SwaggerParser.addNodesAsArrayedAttribute(serviceConfigAnnotation, 'schemes', schemeBValues);
@@ -515,12 +515,12 @@ class SwaggerParser {
         const httpMethodsBValues = [];
         if (httpMethodAsString !== 'x-MULTI') {
             const singleHttpMethod = NodeFactory.createLiteral();
-            singleHttpMethod.setValue(`"${httpMethodAsString.toUpperCase()}"`);
+            singleHttpMethod.setValue(JSON.stringify(httpMethodAsString.toUpperCase()));
             httpMethodsBValues.push(singleHttpMethod);
         } else {
             httpMethodJsonObject['x-METHODS'].forEach((httpMethod) => {
                 const httpMethodLiteral = NodeFactory.createLiteral();
-                httpMethodLiteral.setValue(`"${httpMethod.toUpperCase()}"`);
+                httpMethodLiteral.setValue(JSON.stringify(httpMethod.toUpperCase()));
                 httpMethodsBValues.push(httpMethodLiteral);
             });
         }
@@ -528,7 +528,7 @@ class SwaggerParser {
 
         if (!_.isNil(pathString)) {
             const pathBValue = NodeFactory.createLiteral();
-            pathBValue.setValue(`"${pathString}"`);
+            pathBValue.setValue(JSON.stringify(pathString));
             SwaggerParser.setAnnotationAttribute(resourceConfigAnnotation, 'path', pathBValue);
         }
 
@@ -536,7 +536,7 @@ class SwaggerParser {
             const produceValues = [];
             httpMethodJsonObject.produces.forEach((produceEntry) => {
                 const produceValue = NodeFactory.createLiteral();
-                produceValue.setValue(`"${produceEntry}"`);
+                produceValue.setValue(JSON.stringify(produceEntry));
                 produceValues.push(produceValue);
             });
             SwaggerParser.addNodesAsArrayedAttribute(resourceConfigAnnotation, 'produces', produceValues);
@@ -546,7 +546,7 @@ class SwaggerParser {
             const consumeValues = [];
             httpMethodJsonObject.consumes.forEach((consumeEntry) => {
                 const consumeValue = NodeFactory.createLiteral();
-                consumeValue.setValue(`"${consumeEntry}"`);
+                consumeValue.setValue(JSON.stringify(consumeEntry));
                 consumeValues.push(consumeValue);
             });
             SwaggerParser.addNodesAsArrayedAttribute(resourceConfigAnnotation, 'consumes', consumeValues);
@@ -579,7 +579,7 @@ class SwaggerParser {
             const schemeBValues = [];
             this._swaggerJson.schemes.forEach((schemeEntry) => {
                 const schemeValue = NodeFactory.createLiteral();
-                schemeValue.setValue(`"${schemeEntry}"`);
+                schemeValue.setValue(JSON.stringify(schemeEntry));
                 schemeBValues.push(schemeValue);
             });
             SwaggerParser.addNodesAsArrayedAttribute(resourceConfigAnnotation, 'schemes', schemeBValues);
@@ -625,7 +625,7 @@ class SwaggerParser {
                     parameterName.setValue(swaggerParameter.name);
 
                     const nameValue = NodeFactory.createLiteral();
-                    nameValue.setValue(`"${swaggerParameter.name}"`);
+                    nameValue.setValue(JSON.stringify(swaggerParameter.name));
 
                     const parameter = NodeFactory.createVariable({
                         typeNode: parameterType,
@@ -659,19 +659,19 @@ class SwaggerParser {
 
                 if (!_.isNil(parameter.in)) {
                     const inValue = NodeFactory.createLiteral();
-                    inValue.setValue(`"${parameter.in}"`);
+                    inValue.setValue(JSON.stringify(parameter.in));
                     SwaggerParser.setAnnotationAttribute(responseAnnotation, 'in', inValue);
                 }
 
                 if (!_.isNil(parameter.name)) {
                     const nameValue = NodeFactory.createLiteral();
-                    nameValue.setValue(`"${parameter.name}"`);
+                    nameValue.setValue(JSON.stringify(parameter.name));
                     SwaggerParser.setAnnotationAttribute(responseAnnotation, 'name', nameValue);
                 }
 
                 if (!_.isNil(parameter.description)) {
                     const descriptionValue = NodeFactory.createLiteral();
-                    descriptionValue.setValue(`"${parameter.description}"`);
+                    descriptionValue.setValue(JSON.stringify(parameter.description));
                     SwaggerParser.setAnnotationAttribute(responseAnnotation, 'description', descriptionValue);
                 }
 
@@ -689,19 +689,19 @@ class SwaggerParser {
 
                 if (!_.isNil(parameter.type)) {
                     const typeValue = NodeFactory.createLiteral();
-                    typeValue.setValue(`"${parameter.type}"`);
+                    typeValue.setValue(JSON.stringify(parameter.type));
                     SwaggerParser.setAnnotationAttribute(responseAnnotation, 'parameterType', typeValue);
                 }
 
                 if (!_.isNil(parameter.format)) {
                     const formatValue = NodeFactory.createLiteral();
-                    formatValue.setValue(`"${parameter.format}"`);
+                    formatValue.setValue(JSON.stringify(parameter.format));
                     SwaggerParser.setAnnotationAttribute(responseAnnotation, 'format', formatValue);
                 }
 
                 if (!_.isNil(parameter.collectionFormat)) {
                     const collectionFormatValue = NodeFactory.createLiteral();
-                    collectionFormatValue.setValue(`"${parameter.collectionFormat}"`);
+                    collectionFormatValue.setValue(JSON.stringify(parameter.collectionFormat));
                     SwaggerParser.setAnnotationAttribute(responseAnnotation, 'collectionFormat',
                         collectionFormatValue);
                 }
@@ -741,7 +741,7 @@ class SwaggerParser {
             const tagValues = [];
             httpMethodJsonObject.tags.forEach((tagEntry) => {
                 const tagValue = NodeFactory.createLiteral();
-                tagValue.setValue(`"${tagEntry}"`);
+                tagValue.setValue(JSON.stringify(tagEntry));
                 tagValues.push(tagValue);
             });
             SwaggerParser.addNodesAsArrayedAttribute(resourceInfoAnnotation, 'tags', tagValues);
@@ -749,13 +749,13 @@ class SwaggerParser {
 
         if (!_.isNil(httpMethodJsonObject.summary)) {
             const summaryBValue = NodeFactory.createLiteral();
-            summaryBValue.setValue(`"${httpMethodJsonObject.summary}"`);
+            summaryBValue.setValue(JSON.stringify(httpMethodJsonObject.summary));
             SwaggerParser.setAnnotationAttribute(resourceInfoAnnotation, 'summary', summaryBValue);
         }
 
         if (!_.isNil(httpMethodJsonObject.description)) {
             const descriptionBValue = NodeFactory.createLiteral();
-            descriptionBValue.setValue(`"${httpMethodJsonObject.description}"`);
+            descriptionBValue.setValue(JSON.stringify(httpMethodJsonObject.description));
             SwaggerParser.setAnnotationAttribute(resourceInfoAnnotation, 'description', descriptionBValue);
         }
 
@@ -764,13 +764,13 @@ class SwaggerParser {
 
             if (!_.isNil(httpMethodJsonObject.externalDocs.description)) {
                 const descriptionBValue = NodeFactory.createLiteral();
-                descriptionBValue.setValue(`"${httpMethodJsonObject.externalDocs.description}"`);
+                descriptionBValue.setValue(JSON.stringify(httpMethodJsonObject.externalDocs.description));
                 SwaggerParser.setAnnotationAttribute(externalDocAnnotation, 'description', descriptionBValue);
             }
 
             if (!_.isNil(httpMethodJsonObject.externalDocs.url)) {
                 const urlBValue = NodeFactory.createLiteral();
-                urlBValue.setValue(`"${httpMethodJsonObject.externalDocs.url}"`);
+                urlBValue.setValue(JSON.stringify(httpMethodJsonObject.externalDocs.url));
                 SwaggerParser.setAnnotationAttribute(externalDocAnnotation, 'url', urlBValue);
             }
 
@@ -808,13 +808,13 @@ class SwaggerParser {
 
                 if (!_.isNil(code)) {
                     const codeBValue = NodeFactory.createLiteral();
-                    codeBValue.setValue(`"${code}"`);
+                    codeBValue.setValue(JSON.stringify(code));
                     SwaggerParser.setAnnotationAttribute(responseAnnotation, 'code', codeBValue);
                 }
 
                 if (!_.isNil(code)) {
                     const descriptionBValue = NodeFactory.createLiteral();
-                    descriptionBValue.setValue(`"${codeObj.description}"`);
+                    descriptionBValue.setValue(JSON.stringify(codeObj.description));
                     SwaggerParser.setAnnotationAttribute(responseAnnotation, 'description', descriptionBValue);
                 }
                 responseAnnotations.push(responseAnnotation);

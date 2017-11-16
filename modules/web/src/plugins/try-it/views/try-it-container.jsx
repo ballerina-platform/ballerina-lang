@@ -22,6 +22,7 @@ import PropTypes from 'prop-types';
 import { parseFile } from 'api-client/api-client';
 import TreeBuilder from 'ballerina/model/tree-builder';
 import File from 'core/workspace/model/file';
+import { Nav, NavItem } from 'react-bootstrap';
 import HttpClient from './http-client';
 
 import './try-it-container.scss';
@@ -34,19 +35,62 @@ import './try-it-container.scss';
  */
 class TryItContainer extends React.Component {
 
+    /**
+     * Creates an instance of TryItContainer.
+     * @param {Object} props Component properties.
+     * @memberof TryItContainer
+     */
     constructor(props) {
         super(props);
         this.state = {
+            selectedClientType: undefined,
             compilationUnit: undefined,
         };
+
+        this.onClientTypeSelect = this.onClientTypeSelect.bind(this);
     }
 
+    /**
+     * @override
+     */
     componentDidMount() {
-        this.updateView();
+        this.updateCompilationUnit();
         this.forceUpdate();
     }
 
-    updateView() {
+    /**
+     * Event handler when a client type is selected.
+     * @param {string} eventKey The client type.
+     * @memberof TryItContainer
+     */
+    onClientTypeSelect(eventKey) {
+        this.setState({
+            selectedClientType: eventKey,
+        });
+    }
+
+    /**
+     * Filters services base on protocol.
+     * @param {string} type The protocol to filter by.
+     * @returns {ServiceNode[]} Filtered services.
+     * @memberof TryItContainer
+     */
+    filterServices(type) {
+        if (this.state.compilationUnit) {
+            const services = this.state.compilationUnit.filterTopLevelNodes({ kind: 'Service' });
+            return services.filter((serviceNode) => {
+                return serviceNode.getProtocolPackageIdentifier().getValue() === type;
+            });
+        } else {
+            return [];
+        }
+    }
+
+    /**
+     * Updates the compilation unit for the recieved file.
+     * @memberof TryItContainer
+     */
+    updateCompilationUnit() {
         if (this.props.balFile) {
             parseFile(this.props.balFile)
                 .then((jsonTree) => {
@@ -56,8 +100,7 @@ class TryItContainer extends React.Component {
                             compilationUnit: ast,
                         });
                     }
-                }).catch((error) => {
-                    console.log(error);
+                }).catch(() => {
                     this.setState({
                         compilationUnit: undefined,
                     });
@@ -70,12 +113,62 @@ class TryItContainer extends React.Component {
      * @returns {ReactElement} The client.
      * @memberof TryItContainer
      */
-    renderClient() {
-        // if (this.props.serviceDefinition.getProtocolPkgName() === 'http') {
-        return (<HttpClient compilationUnit={this.state.compilationUnit} />);
-        // } else {
-            // return (null);
-        // }
+    renderClientTypePills() {
+        const httpServices = this.filterServices('http');
+        const wsServices = this.filterServices('ws');
+        const jmsServices = this.filterServices('jms');
+        let activeKey;
+        if (this.state.selectedClientType === undefined) {
+            if (httpServices.length > 0) {
+                activeKey = 'http';
+            } else if (wsServices.length > 0) {
+                activeKey = 'ws';
+            } else if (jmsServices.length > 0) {
+                activeKey = 'jms';
+            } else {
+                return (<span>No Services Found!</span>);
+            }
+        } else {
+            activeKey = this.state.selectedClientType;
+        }
+        return (<Nav bsStyle="pills" activeKey={activeKey} onSelect={this.onClientTypeSelect}>
+            {httpServices.length > 0 ? <NavItem eventKey={'http'}>Try-It for Http</NavItem> : (null)}
+            {wsServices.length > 0 ? <NavItem eventKey={'ws'}>Try-It for Websockets</NavItem> : (null)}
+            {jmsServices.length > 0 ? <NavItem eventKey={'jms'}>Try-It for JMS</NavItem> : (null)}
+        </Nav>);
+    }
+
+    /**
+     * Renders the client view.
+     * @returns {ReactElement} The view.
+     * @memberof TryItContainer
+     */
+    renderClientView() {
+        const httpServices = this.filterServices('http');
+        const wsServices = this.filterServices('ws');
+        const jmsServices = this.filterServices('jms');
+        let clientType = '';
+        if (this.state.selectedClientType === undefined) {
+            if (httpServices.length > 0) {
+                clientType = 'http';
+            } else if (wsServices.length > 0) {
+                clientType = 'ws';
+            } else if (jmsServices.length > 0) {
+                clientType = 'jms';
+            }
+        } else {
+            clientType = this.state.selectedClientType;
+        }
+
+        if (clientType === 'http') {
+            return (<HttpClient serviceNodes={httpServices} />);
+        } else if (clientType === 'ws') {
+            return (<span>Websocket client is not yet supported.</span>);
+        } else if (clientType === 'jms') {
+            return (<span>JMS client is not yet supported.</span>);
+        } else {
+            return (null);
+        }
     }
 
     /**
@@ -84,9 +177,13 @@ class TryItContainer extends React.Component {
      * @memberof TryItContainer
      */
     render() {
-        const client = this.renderClient();
+        const clientTypePills = this.renderClientTypePills();
+        const clientView = this.renderClientView();
         return (<div className='try-it-container'>
-            {client}
+            <div className='client-type-pills-wrapper'>
+                {clientTypePills}
+            </div>
+            {clientView}
         </div>);
     }
 }

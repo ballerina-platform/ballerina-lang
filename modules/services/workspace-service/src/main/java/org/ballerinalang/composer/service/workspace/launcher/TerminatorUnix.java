@@ -31,20 +31,25 @@ public class TerminatorUnix implements Terminator {
     private Command command;
     private static final Logger logger = LoggerFactory.getLogger(TerminatorUnix.class);
 
+    TerminatorUnix() {
+
+    }
+
     TerminatorUnix(Command command) {
         this.command = command;
     }
 
     /**
-     *
      * @param script absolute path of ballerina file running
      * @return find process command
      */
     private String[] getFindProcessCommand(String script) {
+
         String[] cmd = {
                 "/bin/sh",
                 "-c",
-                "ps -ef | grep " + script + " | grep run | grep ballerina | grep -v 'grep' | awk '{print $2}'"
+                "ps -ef -o pid,args | grep " +
+                        script + " | grep run | grep ballerina | grep -v 'grep' | awk '{print $1}'"
         };
         return cmd;
     }
@@ -83,6 +88,7 @@ public class TerminatorUnix implements Terminator {
 
     /**
      * Terminate running ballerina program
+     *
      * @param pid - process id
      */
     public void kill(int pid) {
@@ -98,17 +104,19 @@ public class TerminatorUnix implements Terminator {
             logger.error("Launcher was unable to terminate process:" + pid + ".");
         }
     }
+
     /**
      * Terminate running all child processes for a given pid
+     *
      * @param pid - process id
      */
-    private void killChildProcesses(int pid) {
+    void killChildProcesses(int pid) {
         BufferedReader reader = null;
         try {
             Process findChildProcess = Runtime.getRuntime().exec(String.format("pgrep -P %d", pid));
             findChildProcess.waitFor();
             reader = new BufferedReader(new InputStreamReader(findChildProcess.getInputStream(),
-                        Charset.defaultCharset()));
+                    Charset.defaultCharset()));
             String line;
             int childProcessID;
             while ((line = reader.readLine()) != null) {

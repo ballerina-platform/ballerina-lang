@@ -85,10 +85,6 @@ class SwaggerView extends React.Component {
         this.swaggerAce = undefined;
         this.resourceMappings = new Map();
         this.onEditorChange = this.onEditorChange.bind(this);
-        this.tryItUrl = undefined;
-        props.commandProxy.on('try-it-url-received', (url) => {
-            this.tryItUrl = url;
-        }, this);
 
         props.commandProxy.on('save', () => {
             this.updateService();

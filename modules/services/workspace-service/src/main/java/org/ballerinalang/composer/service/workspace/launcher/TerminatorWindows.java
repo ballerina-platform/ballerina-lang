@@ -46,13 +46,13 @@ public class TerminatorWindows implements Terminator {
      * Terminate running ballerina program
      */
     public void terminate() {
-        String script = command.getScript();
+        String scriptLocation = command.getScriptLocation();
         String findProcessCommand = getFindProcessCommand();
         try {
             Process findProcess = Runtime.getRuntime().exec(findProcessCommand);
             findProcess.waitFor();
         } catch (Throwable e) {
-            logger.error("Launcher was unable to find the process ID for " + script + ".");
+            logger.error("Launcher was unable to find the process ID for " + scriptLocation + ".");
         }
     }
 }

@@ -66,7 +66,7 @@ export function fetchConfigs() {
  */
 export function parseFile(file) {
     const payload = {
-        fileName: file.name,
+        fileName: file.name + '.' + file.extension,
         filePath: file.path,
         packageName: file.packageName,
         content: file.content,

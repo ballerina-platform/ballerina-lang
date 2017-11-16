@@ -21,7 +21,6 @@ import org.ballerinalang.composer.service.workspace.swagger.model.SwaggerService
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
@@ -61,9 +60,8 @@ public class SwaggerApiServiceImpl {
             // Generate the swagger definitions using ballerina source.
             String swaggerDefinition = SwaggerConverterUtils.generateSwaggerDefinitions(ballerinaSource, serviceName);
             swaggerServiceContainer.setSwaggerDefinition(swaggerDefinition);
-            
             return Response.ok().entity(swaggerServiceContainer).header("Access-Control-Allow-Origin", '*').build();
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             logger.error("Error while processing service definition at converter service" + ex.getMessage());
             JsonObject entity = new JsonObject();
             entity.addProperty("Error", ex.toString());

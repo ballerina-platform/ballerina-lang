@@ -18,6 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import CompoundStatementDecorator from './compound-statement-decorator';
 import FragmentUtils from './../../../../../utils/fragment-utils';
 import TreeBuilder from './../../../../../model/tree-builder';
@@ -49,6 +50,7 @@ class CatchNode extends React.Component {
      * @param {String} newCondition - new condition to be applied to catch block.
      * */
     setCatchCondition(newCondition) {
+        newCondition = _.trimEnd(newCondition, ';');
         const fragmentJson = FragmentUtils.createArgumentParameterFragment(newCondition);
         const parsedJson = FragmentUtils.parseFragment(fragmentJson);
         const newNode = TreeBuilder.build(parsedJson, this.props.model.parent, this.props.model.parent.kind);

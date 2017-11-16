@@ -77,12 +77,12 @@ class DebuggerPlugin extends Plugin {
     getArgumentConfigs() {
         const activeEditor = this.appContext.editor.getActiveEditor();
 
-        let configArgumentsStr = '';
+        let configArguments;
         const uniqueID = this.getFileUniqueID(activeEditor.file);
         if (activeEditor && activeEditor.file) {
-            configArgumentsStr = this.appContext.pref.get(`launcher-app-configs-${uniqueID}`) || '';
+            configArguments = this.appContext.pref.get(`launcher-app-configs-${uniqueID}`) || [];
         }
-        return configArgumentsStr;
+        return configArguments;
     }
 
     /**
@@ -110,16 +110,16 @@ class DebuggerPlugin extends Plugin {
                     region: REGIONS.LEFT_PANEL,
                     // region specific options for left-panel views
                     regionOptions: {
-                        activityBarIcon: 'start',
-                        panelTitle: 'Run',
+                        activityBarIcon: 'bug',
+                        panelTitle: 'Debugger',
                         panelActions: [
                             {
-                                icon: 'configarations',
+                                icon: 'configurations',
                                 handleAction: () => {
                                     const { command: { dispatch } } = this.appContext;
                                     dispatch(COMMAND_IDS.SHOW_LAUNCHER_CONFIG_DIALOG, {});
                                 },
-                                description: 'Show Launch Config Dialog',
+                                description: 'Configure Application Arguments',
                             },
                             {
                                 icon: 'console',
@@ -128,7 +128,7 @@ class DebuggerPlugin extends Plugin {
                                     dispatch(LAYOUT_COMMANDS.TOGGLE_BOTTOM_PANEL);
                                 },
                                 description: 'Toggle Console',
-                            },   
+                            },
                         ],
                     },
                     displayOnLoad: true,
@@ -160,12 +160,12 @@ class DebuggerPlugin extends Plugin {
                     propsProvider: () => {
                         const activeEditor = this.appContext.editor.getActiveEditor();
                         const uniqueID = this.getFileUniqueID(activeEditor.file);
-                        const configArguments = this.getArgumentConfigs().split(' ') || [];
+                        const configArguments = this.getArgumentConfigs() || [];
                         return {
                             debuggerPlugin: this,
                             configArguments,
                             onSaveConfigs: (newConfigArguments = []) => {
-                                this.appContext.pref.put(`launcher-app-configs-${uniqueID}`, newConfigArguments.join(' '));
+                                this.appContext.pref.put(`launcher-app-configs-${uniqueID}`, newConfigArguments);
                             },
                         };
                     },

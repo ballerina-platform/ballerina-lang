@@ -13,7 +13,11 @@
     "before packageName": "",
     "after packageName": "",
     "before ;": "",
-    "after ;": ""
+    "after ;": "",
+    "before as": " ",
+    "after as": "",
+    "before alias": " ",
+    "after alias": ""
   },
   "Identifier": {
     "before value": "",

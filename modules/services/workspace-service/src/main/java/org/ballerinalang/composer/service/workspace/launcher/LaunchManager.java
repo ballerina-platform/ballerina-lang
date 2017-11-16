@@ -49,7 +49,7 @@ public class LaunchManager {
     private Command command;
 
     private String startedServiceURL;
-    
+
     private String port = StringUtils.EMPTY;
 
     /**
@@ -98,23 +98,18 @@ public class LaunchManager {
         }
 
         try {
-            String cmd = command.toString();
+            String[] cmdArray = command.getCommandArray();
             if (command.getPackageDir() == null) {
-                program = Runtime.getRuntime().exec(cmd);
+                program = Runtime.getRuntime().exec(cmdArray);
             } else {
-                program = Runtime.getRuntime().exec(cmd, null, new File(command.getPackageDir()));
+                program = Runtime.getRuntime().exec(cmdArray, null, new File(command.getPackageDir()));
             }
 
             command.setProgram(program);
 
 
-            if (command.getType() == LauncherConstants.ProgramType.RUN) {
-                pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STARTED, LauncherConstants.INFO,
+            pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STARTED, LauncherConstants.INFO,
                         String.format(LauncherConstants.RUN_MESSAGE, command.getFileName()));
-            } else {
-                pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STARTED, LauncherConstants.INFO,
-                        String.format(LauncherConstants.SERVICE_MESSAGE, command.getFileName()));
-            }
 
             if (command.isDebug()) {
                 MessageDTO debugMessage = new MessageDTO();
@@ -169,7 +164,7 @@ public class LaunchManager {
                 }
 
             }
-            pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STOPED, LauncherConstants.INFO,
+            pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STOPPED, LauncherConstants.INFO,
                     LauncherConstants.END_MESSAGE);
         } catch (IOException e) {
             logger.error("Error while sending output stream to client.", e);
@@ -232,13 +227,16 @@ public class LaunchManager {
 
     /**
      * Returns name of the operating system running. null if not a unsupported operating system.
+     *
      * @return operating system
      */
     private String getOperatingSystem() {
         if (LaunchUtils.isWindows()) {
             return "windows";
-        } else if (LaunchUtils.isMac() || LaunchUtils.isUnix() || LaunchUtils.isSolaris()) {
+        } else if (LaunchUtils.isUnix() || LaunchUtils.isSolaris()) {
             return "unix";
+        } else if (LaunchUtils.isMac()) {
+            return "mac";
         }
         return null;
     }
@@ -253,20 +251,10 @@ public class LaunchManager {
         MessageDTO message;
         switch (command.getCommand()) {
             case LauncherConstants.RUN_PROGRAM:
-                run(new Command(LauncherConstants.ProgramType.RUN, command.getFileName(), command.getFilePath(),
-                        command.getCommandArgs(), false));
-                break;
-            case LauncherConstants.RUN_SERVICE:
-                run(new Command(LauncherConstants.ProgramType.SERVICE, command.getFileName(), command.getFilePath(),
-                        false));
+                run(new Command(command.getFileName(), command.getFilePath(), command.getCommandArgs(), false));
                 break;
             case LauncherConstants.DEBUG_PROGRAM:
-                run(new Command(LauncherConstants.ProgramType.RUN, command.getFileName(), command.getFilePath(),
-                        command.getCommandArgs(), true));
-                break;
-            case LauncherConstants.DEBUG_SERVICE:
-                run(new Command(LauncherConstants.ProgramType.SERVICE, command.getFileName(), command.getFilePath(),
-                        true));
+                run(new Command(command.getFileName(), command.getFilePath(), command.getCommandArgs(), true));
                 break;
             case LauncherConstants.TERMINATE:
                 stopProcess();
@@ -304,23 +292,25 @@ public class LaunchManager {
         message.setMessage(text);
         pushMessageToClient(session, message);
     }
-    
+
     /**
      * Gets the port of the from console log that starts with
      * LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL
+     *
      * @param line The log line.
      */
     private void updatePort(String line) {
         String hostPort = StringUtils.substringAfterLast(line,
-                                            LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL).trim();
+                LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL).trim();
         String port = StringUtils.substringAfterLast(hostPort, ":");
         if (StringUtils.isNotBlank(port)) {
             this.port = port;
         }
     }
-    
+
     /**
      * Getter for running port.
+     *
      * @return The port.
      */
     public String getPort() {
