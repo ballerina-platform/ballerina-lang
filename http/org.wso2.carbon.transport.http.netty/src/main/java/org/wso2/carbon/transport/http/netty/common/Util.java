@@ -252,7 +252,7 @@ public class Util {
 
     public static SSLConfig getSSLConfigForListener(String certPass, String keyStorePass, String keyStoreFilePath,
             String trustStoreFilePath, String trustStorePass, List<Parameter> parametersList, String verifyClient,
-            String sslProtocol) {
+            String sslProtocol, String tlsStoreType) {
         if (certPass == null) {
             certPass = keyStorePass;
         }
@@ -288,6 +288,8 @@ public class Util {
 
         sslProtocol = sslProtocol != null ? sslProtocol : "TLS";
         sslConfig.setSslProtocol(sslProtocol);
+        tlsStoreType = tlsStoreType != null ? tlsStoreType : "JKS";
+        sslConfig.setTlsStoreType(tlsStoreType);
 
         if (trustStoreFilePath != null) {
 
@@ -305,7 +307,8 @@ public class Util {
     }
 
     public static SSLConfig getSSLConfigForSender(String certPass, String keyStorePass, String keyStoreFilePath,
-            String trustStoreFilePath, String trustStorePass, List<Parameter> parametersList, String sslProtocol) {
+            String trustStoreFilePath, String trustStorePass, List<Parameter> parametersList, String sslProtocol,
+            String tlsStoreType) {
 
         if (certPass == null) {
             certPass = keyStorePass;
@@ -328,6 +331,8 @@ public class Util {
         sslConfig.setClientMode(true);
         sslProtocol = sslProtocol != null ? sslProtocol : "TLS";
         sslConfig.setSslProtocol(sslProtocol);
+        tlsStoreType = tlsStoreType != null ? tlsStoreType : "JKS";
+        sslConfig.setTlsStoreType(tlsStoreType);
         if (parametersList != null) {
             for (Parameter parameter : parametersList) {
                 String paramName = parameter.getName();

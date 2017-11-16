@@ -1,22 +1,19 @@
 /*
  * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package org.wso2.carbon.transport.http.netty.https;
+package org.wso2.carbon.transport.http.netty.pkcs;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpRequest;
@@ -57,41 +54,43 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 /**
- * Tests for mutual ssl
+ * Test case for testing PKCS12 keystore and truststore.
  */
-
-public class MutualSSLTestCase {
+public class PKCSTest {
 
     private static HttpClientConnector httpClientConnector;
     private static String testValue = "Test";
-    private String keyStoreFile = "src/test/resources/simple-test-config/wso2carbon.jks";
-    private String trustStoreFile = "src/test/resources/simple-test-config/client-truststore.jks";
-    private String password = "wso2carbon";
+    private String keyStoreFile = "src/test/resources/simple-test-config/wso2carbon.p12";
+    private String trustStoreFile = "src/test/resources/simple-test-config/client-truststore.p12";
+    private String password = "ballerina";
     private String scheme = "https";
-    private String verifyClient = "require";
-    private static int serverPort = 9095;
+    private String tlsStoreType = "PKCS12";
+    private static int serverPort = 5431;
 
     @BeforeClass
     public void setup() throws InterruptedException {
+
         TransportsConfiguration transportsConfiguration = TestUtil
                 .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
+
         Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
+        //set PKCS12 truststore to ballerina client.
         senderConfig.forEach(config -> {
-            config.setKeyStoreFile(keyStoreFile);
-            config.setKeyStorePassword(password);
+            config.setTrustStoreFile(trustStoreFile);
+            config.setTrustStorePass(password);
+            config.setTlsStoreType(tlsStoreType);
         });
 
         HttpWsConnectorFactory factory = new HttpWsConnectorFactoryImpl();
 
         ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
         listenerConfiguration.setPort(serverPort);
-        listenerConfiguration.setVerifyClient(verifyClient);
-        listenerConfiguration.setTrustStoreFile(trustStoreFile);
+        //set PKCS12 keystore to ballerina server.
         listenerConfiguration.setKeyStoreFile(keyStoreFile);
-        listenerConfiguration.setTrustStorePass(password);
         listenerConfiguration.setKeyStorePass(password);
         listenerConfiguration.setCertPass(password);
         listenerConfiguration.setScheme(scheme);
+        listenerConfiguration.setTlsStoreType(tlsStoreType);
 
         ServerConnector connector = factory
                 .createServerConnector(ServerBootstrapConfiguration.getInstance(), listenerConfiguration);
@@ -105,7 +104,7 @@ public class MutualSSLTestCase {
     }
 
     @Test
-    public void testHttpsGet() {
+    public void testPKCS12() {
         try {
             ByteBuffer byteBuffer = ByteBuffer.wrap(testValue.getBytes(Charset.forName("UTF-8")));
             HTTPCarbonMessage msg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
@@ -130,8 +129,7 @@ public class MutualSSLTestCase {
                     .collect(Collectors.joining("\n"));
             assertEquals(testValue, result);
         } catch (Exception e) {
-            TestUtil.handleException("Exception occurred while running httpsGetTest", e);
+            TestUtil.handleException("Exception occurred while running testPKCS12", e);
         }
     }
 }
-

@@ -66,7 +66,6 @@ public class SSLHandlerFactory {
     private KeyManagerFactory kmf;
     private TrustManagerFactory tmf;
 
-
     public SSLHandlerFactory(SSLConfig sslConfig) {
         this.sslConfig = sslConfig;
         String algorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
@@ -102,11 +101,12 @@ public class SSLHandlerFactory {
         }
     }
 
-    private static KeyStore getKeyStore(File keyStore, String keyStorePassword) throws IOException {
+    private KeyStore getKeyStore(File keyStore, String keyStorePassword) throws IOException {
         KeyStore ks = null;
+        String  tlsStoreType = sslConfig.getTlsStoreType();
         if (keyStore != null && keyStorePassword != null) {
             try (InputStream is = new FileInputStream(keyStore)) {
-                ks = KeyStore.getInstance("JKS");
+                ks = KeyStore.getInstance(tlsStoreType);
                 ks.load(is, keyStorePassword.toCharArray());
             } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException e) {
                 throw new IOException(e);

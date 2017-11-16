@@ -196,7 +196,7 @@ public final class Constants {
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
     public static final String HTTP_TRUST_STORE_FILE = "trustStoreFile";
     public static final String HTTP_TRUST_STORE_PASS = "trustStorePassword";
-
+    public static final String TLS_STORE_TYPE = "tlsStoreType";
 
     public static final String TRANSPORT_HEADERS = "TRANSPORT_HEADERS";
 

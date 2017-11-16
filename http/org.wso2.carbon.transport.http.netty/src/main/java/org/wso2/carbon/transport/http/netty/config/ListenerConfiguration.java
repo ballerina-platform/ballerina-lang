@@ -92,6 +92,9 @@ public class ListenerConfiguration {
     @XmlAttribute
     private String sslProtocol;
 
+    @XmlAttribute
+    private String tlsStoreType;
+
     @XmlElementWrapper(name = "parameters")
     @XmlElement(name = "parameter")
     private List<Parameter> parameters = getDefaultParameters();
@@ -105,6 +108,14 @@ public class ListenerConfiguration {
         this.id = id;
         this.host = host;
         this.port = port;
+    }
+
+    public String getTlsStoreType() {
+        return tlsStoreType;
+    }
+
+    public void setTlsStoreType(String tlsStoreType) {
+        this.tlsStoreType = tlsStoreType;
     }
 
     public String getCertPass() {
@@ -225,7 +236,7 @@ public class ListenerConfiguration {
         }
 
         return Util.getSSLConfigForListener(certPass, keyStorePassword, keyStoreFile, trustStoreFile, trustStorePass,
-                parameters, verifyClient, sslProtocol);
+                parameters, verifyClient, sslProtocol, tlsStoreType);
     }
 
     private List<Parameter> getDefaultParameters() {
