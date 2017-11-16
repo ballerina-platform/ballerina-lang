@@ -165,7 +165,7 @@ class EnumNode extends React.Component {
         const coDimensions = {
             x: bBox.x + DesignerDefaults.panel.body.padding.left,
             y: bBox.y + DesignerDefaults.panel.body.padding.top + model.viewState.components.annotation.h,
-            w: 300,
+            w: DesignerDefaults.enumPanel.contentOperations.w,
             h: DesignerDefaults.contentOperations.height,
         };
         const columnSize = (coDimensions.w - DesignerDefaults.structDefinition.submitButtonWidth);

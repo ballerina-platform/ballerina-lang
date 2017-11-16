@@ -267,7 +267,7 @@ class SizingUtil {
         const enumerators = node.getEnumerators();
         const components = {};
         // Initial statement height include panel heading and panel padding and minus 100 as this is a enum.
-        const bodyHeight = this.config.innerPanel.body.height - 100;
+        const bodyHeight = this.config.enumPanel.height;
         // Set the width initial value to the padding left and right
         const bodyWidth = this.config.panel.body.padding.left + this.config.panel.body.padding.right;
 
@@ -296,7 +296,7 @@ class SizingUtil {
         viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h;
         viewState.components = components;
         viewState.components.heading.w += viewState.titleWidth + 100;
-        viewState.bBox.w = 600 + (this.config.panel.wrapper.gutter.h * 2);
+        viewState.bBox.w = this.config.enumPanel.width + (this.config.panel.wrapper.gutter.h * 2);
         textWidth = this.getTextWidth(node.getName().value);
         viewState.titleWidth = textWidth.w;
         viewState.trimmedTitle = textWidth.text;

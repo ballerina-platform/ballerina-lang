@@ -339,6 +339,14 @@ export const variablesPane = {
     badgeWidth: 150,
 };
 
+export const enumPanel = {
+    width: 600,
+    height: 200,
+    contentOperations: {
+        w: 300,
+    },
+};
+
 export const enumIdentifierStatement = {
     height: 25,
     padding: {
