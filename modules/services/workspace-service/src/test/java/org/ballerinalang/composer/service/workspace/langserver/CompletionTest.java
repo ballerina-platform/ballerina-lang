@@ -40,7 +40,7 @@ import java.util.List;
  */
 public abstract class CompletionTest {
 
-    private static final Logger LOGGER = Logger.getLogger(FunctionDefinition.class);
+    private static final Logger LOGGER = Logger.getLogger(CompletionTest.class);
 
     @Test(dataProvider = "completion-data-provider")
     public void test(String config, String configPath) {
