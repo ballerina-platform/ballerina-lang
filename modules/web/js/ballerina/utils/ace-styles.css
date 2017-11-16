@@ -10,3 +10,68 @@
 .text-editor.ace_editor {
     font: 12px/normal 'Droid Sans Mono', monospace;
 }
+
+.bal-source-editor .ace_search {
+    background-color: #707276 !important;
+    border-color: #707276 !important;
+    padding-left: 13px;
+    padding-bottom: 10px;
+    border-radius: 5px 5px 5px 5px !important;
+    max-width: 355px !important;
+}
+
+.bal-source-editor .ace_search_options .ace_button.checked{
+    border-color: #979797 !important;
+    background-color: #9c9c9c;
+}
+
+.bal-source-editor .ace_search_options .ace_button {
+    color: white;
+}
+
+.bal-source-editor .ace_search_options .ace_button:hover {
+    background-color: darkgrey;
+}
+
+.ace_editor .ace_marker-layer .ace_selected-word {
+    background: transparent !important;
+    border: 1px solid #ffefd5 !important;
+}
+
+.bal-source-editor .ace_search .ace_searchbtn_close {
+    background-color: #949994;
+}
+
+.bal-source-editor .ace_search .ace_search_options{
+    margin-right: 30px;
+    position: absolute;
+    right: 0;
+}
+
+.bal-source-editor .ace_search .ace_searchbtn{
+    background-color: #949597;
+    width: 40px !important;
+}
+
+.bal-source-editor .ace_search .ace_searchbtn.next{
+    background-color: #949597;
+    width: 26px !important;
+}
+
+.bal-source-editor .ace_search .ace_searchbtn.prev{
+    background-color: #949597;
+    width: 26px !important;
+}
+
+.bal-source-editor .ace_search .ace_searchbtn.prev{
+    background-color: #949597;
+    width: 26px !important;
+}
+
+.bal-source-editor .ace_search .ace_replacebtn {
+    background-color: #949597;
+}
+
+.bal-source-editor .ace_search .ace_search_form {
+    margin-top: 25px;
+}
