@@ -19,6 +19,7 @@ import FragmentUtils from '../utils/fragment-utils';
 import TreeBuilder from './tree-builder';
 import TreeUtils from './tree-util';
 import Environment from '../env/environment';
+import DefaultNodes from './default-nodes';
 
 /**
  * Creates the node instance for given source fragment
@@ -32,6 +33,13 @@ function getNodeForFragment(fragment) {
     return node;
 }
 
+function getStaticDefaultNode(fragmentName) {
+    const parsedJson = DefaultNodes[fragmentName]
+    const node = TreeBuilder.build(parsedJson);
+    node.clearWS();
+    return node;
+}
+
 /**
  * Default node factory class.
  * This creates all the default node for each model.
@@ -40,86 +48,35 @@ function getNodeForFragment(fragment) {
 class DefaultNodeFactory {
 
     createHTTPServiceDef() {
-        const node = getNodeForFragment(
-            FragmentUtils.createTopLevelNodeFragment(
-`
-    service<http> service1 {
-        resource echo1 (http:Request req, http:Response res) {
-
-        }
-    }
-`,
-            ));
+        const node = getStaticDefaultNode('createHTTPServiceDef');
         node.viewState.shouldShowConnectorPropertyWindow = true;
         node.setFullPackageName('ballerina.net.http');
         return node;
     }
 
     createWSServiceDef() {
-        const node = getNodeForFragment(
-            FragmentUtils.createTopLevelNodeFragment(
-`
-    service<ws> service1 {
-        resource onOpen(ws:Connection conn) {
-
-        }
-        resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
-
-        }
-        resource onClose(ws:Connection conn, ws:CloseFrame frame) {
-
-        }
-    }
-`,
-            ));
+        const node = getStaticDefaultNode('createWSServiceDef')
         node.viewState.shouldShowConnectorPropertyWindow = true;
         node.setFullPackageName('ballerina.net.ws');
         return node;
     }
 
     createJMSServiceDef() {
-        const node = getNodeForFragment(
-            FragmentUtils.createTopLevelNodeFragment(
-                `
-    service<jms> service1 {
-        resource echo1 (jms:JMSMessage request) {
-
-        }
-    }
-`,
-            ));
+        const node = getStaticDefaultNode('createJMSServiceDef')
         node.viewState.shouldShowConnectorPropertyWindow = true;
         node.setFullPackageName('ballerina.net.jms');
         return node;
     }
 
     createFSServiceDef() {
-        const node = getNodeForFragment(
-            FragmentUtils.createTopLevelNodeFragment(
-                `
-    service<fs> service1 {
-        resource echo1 (fs:FileSystemEvent m) {
-
-        }
-    }
-`,
-            ));
+        const node = getStaticDefaultNode('createFSServiceDef')
         node.viewState.shouldShowConnectorPropertyWindow = true;
         node.setFullPackageName('ballerina.net.fs');
         return node;
     }
 
     createFTPServiceDef() {
-        const node = getNodeForFragment(
-            FragmentUtils.createTopLevelNodeFragment(
-                `
-    service<ftp> service1 {
-        resource echo1 (ftp:FTPServerEvent m) {
-
-        }
-    }
-`,
-            ));
+        const node = getStaticDefaultNode('createFSServiceDef')
         node.viewState.shouldShowConnectorPropertyWindow = true;
         node.setFullPackageName('ballerina.net.ftp');
         return node;
@@ -131,139 +88,59 @@ class DefaultNodeFactory {
      * @memberof DefaultNodeFactory
      * */
     createMainFunction() {
-        return getNodeForFragment(
-            FragmentUtils.createTopLevelNodeFragment(`
-                function main(string[] args) {
-
-                }
-            `),
-        );
+        return getStaticDefaultNode('createMainFunction');
     }
 
     createFunction() {
-        return getNodeForFragment(
-            FragmentUtils.createTopLevelNodeFragment(`
-                function function1() {
-
-                }
-            `),
-        );
+        return getStaticDefaultNode('createFunction');
     }
 
     createConnector() {
-        return getNodeForFragment(
-            FragmentUtils.createTopLevelNodeFragment(`
-                connector ClientConnector(string url) {
-                    action action1(){
-
-                    }
-                }
-            `),
-        );
+        return getStaticDefaultNode('createConnector');
     }
 
     createConnectorAction() {
-        return getNodeForFragment(
-            FragmentUtils.createConnectorActionFragment(`
-                action action1(){
-
-                }
-            `),
-        );
+        return getStaticDefaultNode('createConnectorAction');
     }
 
     createHTTPResource() {
-        return getNodeForFragment(
-            FragmentUtils.createServiceResourceFragment(`
-                resource echo1 (http:Request req, http:Response res) {
-
-                }
-            `),
-        );
+        return getStaticDefaultNode('createHTTPResource');
     }
 
     createFSResource() {
-        return getNodeForFragment(
-            FragmentUtils.createServiceResourceFragment(`
-                resource echo1 (fs:FileSystemEvent m) {
-
-                }
-            `),
-        );
+        return getStaticDefaultNode('createFSResource');
     }
 
     createFTPResource() {
-        return getNodeForFragment(
-            FragmentUtils.createServiceResourceFragment(`
-                resource echo1 (ftp:FTPServerEvent m) {
-
-                }
-            `),
-        );
+        return getStaticDefaultNode('createFTPResource');
     }
 
     createJMSResource() {
-        return getNodeForFragment(
-            FragmentUtils.createServiceResourceFragment(`
-                resource echo1 (jms:JMSMessage request) {
-
-                }
-            `),
-        );
-    }
-
-    createWSResource(fragment) {
-        return getNodeForFragment(
-            FragmentUtils.createServiceResourceFragment(fragment),
-        );
+        return getStaticDefaultNode('createJMSResource');
     }
 
     createStruct() {
-        return getNodeForFragment(
-            FragmentUtils.createTopLevelNodeFragment(`
-                struct struct1 {
-
-                }
-            `),
-        );
+        return getStaticDefaultNode('createStruct');
     }
 
     createTransformer() {
-        return getNodeForFragment(FragmentUtils.createTopLevelNodeFragment(`
-            transformer <Source a, Target b> newTransformer (){
-
-            }
-        `));
+        return getStaticDefaultNode('createTransformer');
     }
 
     createWorker() {
-        let worker =  getNodeForFragment(
-            FragmentUtils.createWorkerFragment(`
-                worker worker1 {
-                }
-            `),
-        );
+        let worker = getStaticDefaultNode('createWorkerFragment');
+
         // here we will send the default worker as a meta item.
-        worker.meta =  getNodeForFragment(
-            FragmentUtils.createWorkerFragment(`
-                worker default {
-                }
-            `),
-        );
+        worker.meta =  getStaticDefaultNode('createDefaultWorkerFragment');
         return worker;
     }
 
     createAnnotation() {
-        return getNodeForFragment(
-            FragmentUtils.createTopLevelNodeFragment(`
-                annotation annotation1 {
-                }
-            `),
-        );
+        return getStaticDefaultNode('createAnnotation');
     }
 
     createAssignmentStmt() {
-        const node = getNodeForFragment(FragmentUtils.createStatementFragment('var a = 1;'));
+        const node = getStaticDefaultNode('createAssignmentStmt');
         // Check if the node is a ConnectorDeclaration
         if (TreeUtils.isEndpointTypeVariableDef(node)) {
             node.viewState.showOverlayContainer = true;
@@ -273,11 +150,11 @@ class DefaultNodeFactory {
     }
 
     createBindStmt() {
-        return getNodeForFragment(FragmentUtils.createStatementFragment('bind __connector with __endpoint;'));
+        return getStaticDefaultNode('createBindStmt');
     }
 
     createVarDefStmt() {
-        const node = getNodeForFragment(FragmentUtils.createStatementFragment('int a = 1;'));
+        const node = getStaticDefaultNode('createVarDefStmt');
         // Check if the node is a ConnectorDeclaration
         if (TreeUtils.isEndpointTypeVariableDef(node)) {
             node.viewState.showOverlayContainer = true;
@@ -287,145 +164,80 @@ class DefaultNodeFactory {
     }
 
     createIf() {
-        return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            if (true) {
-
-            } else {
-            
-            }
-        `));
+        return getStaticDefaultNode('createIf');
     }
 
     createIfElse(){
-        return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            if (true) {
-
-            } else if (true) {
-            
-            } else {
-            
-            }
-        `));
+        return getStaticDefaultNode('createIfElse');
     }
 
     createInvocation() {
-        return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            invokeFunction(arg1);
-        `));
+        return getStaticDefaultNode('createInvocation');
     }
 
     createWhile() {
-        return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            while(true) {
-
-            }
-        `));
+        return getStaticDefaultNode('createWhile');
     }
 
     createBreak() {
-        return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            break;
-        `));
+        return getStaticDefaultNode('createBreak');
     }
 
     createNext() {
-        return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            next;
-        `));
+        return getStaticDefaultNode('createNext');
     }
 
     createTry() {
-        return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            try {
-
-            } catch (error err) {
-
-            } finally {
-            
-            }
-        `));
+        return getStaticDefaultNode('createTry');
     }
 
     createThrow() {
-        return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            throw e;
-        `));
+        return getStaticDefaultNode('createThrow');
     }
 
     createReturn() {
-        return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            return m;
-        `));
+        return getStaticDefaultNode('createReturn');
     }
 
     createWorkerInvocation() {
-        return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            m -> worker1 ;
-        `));
+        return getStaticDefaultNode('createWorkerInvocation');
     }
 
     createWorkerReceive() {
-        return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            m <- worker1 ;
-        `));
+        return getStaticDefaultNode('createWorkerReceive');
     }
 
     // FIXME
     createTransaction() {
-        return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            transaction {
-
-            } failed {
-
-            } aborted {
-            
-            } committed {
-            
-            }
-        `));
+        return getStaticDefaultNode('createTransaction');
     }
 
     createAbort() {
-        return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            abort;
-        `));
+        return getStaticDefaultNode('createAbort');
     }
 
     // FIXME
     createRetry() {
-        const tempNode = getNodeForFragment(FragmentUtils.createTransactionFailedFragment(`
-            retry 3;
-        `));
+        const tempNode = getStaticDefaultNode('createRetry');
         return tempNode.failedBody.statements[0];
     }
 
     createForkJoin() {
-        return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            fork {
-                worker worker1 {
-                }
-                worker worker2 {
-                }
-            } join(all)(map results) {
-            
-            } timeout(100)(map results1) {
-            
-            }
-        `));
+        return getStaticDefaultNode('createForkJoin');
     }
 
     createXmlns() {
-        return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            xmlns "namespace.uri" as xn;
-        `));
+        return getStaticDefaultNode('createXmlns');
     }
 
     createEnum() {
-        return getNodeForFragment(FragmentUtils.createTopLevelNodeFragment(`
-            enum name {
-                ENUMERATOR
-            }
-        `))
+        return getStaticDefaultNode('createEnum')
+    }
+
+    createWSResource(fragment) {
+        return getNodeForFragment(
+            FragmentUtils.createServiceResourceFragment(fragment),
+        );
     }
 
     createEnumerator(enumerator) {
