@@ -69,7 +69,8 @@ public class URITemplateParser<DataType, CheckerType> {
                         }
                         expression = true;
                         if (pointerIndex > startIndex) {
-                            addNode(new Literal<>(createElement(), segment.substring(startIndex, pointerIndex)));
+                            addNode(new Literal<>(currentNode, createElement(),
+                                                  segment.substring(startIndex, pointerIndex)));
                             startIndex = pointerIndex + 1;
                             // TODO: Check whether we really need this.
                         /*} else if (segment.charAt(pointerIndex - 1) != '}') {
@@ -102,7 +103,7 @@ public class URITemplateParser<DataType, CheckerType> {
                             if (expression) {
                                 createExpressionNode(tokenVal, maxIndex, pointerIndex);
                             } else {
-                                addNode(new Literal<>(createElement(), tokenVal));
+                                addNode(new Literal<>(currentNode, createElement(), tokenVal));
                             }
                         }
                 }
@@ -110,7 +111,7 @@ public class URITemplateParser<DataType, CheckerType> {
         }
         this.currentNode.getDataElement().setData(resource);
 
-        return syntaxTree;
+        return currentNode;
     }
 
     private void addNode(Node<DataElement<DataType, CheckerType>> node) {
@@ -124,9 +125,9 @@ public class URITemplateParser<DataType, CheckerType> {
         Node<DataElement<DataType, CheckerType>> node = null;
         if (isSimpleString(expression)) {
             if (maxIndex == pointerIndex) {
-                node = new SimpleStringExpression<>(createElement(), expression);
+                node = new SimpleStringExpression<>(currentNode, createElement(), expression);
             } else {
-                node = new SimpleSplitStringExpression<>(createElement(), expression);
+                node = new SimpleSplitStringExpression<>(currentNode, createElement(), expression);
             }
         }
 
@@ -136,13 +137,13 @@ public class URITemplateParser<DataType, CheckerType> {
 
         // TODO: Re-verify the usage of these nodes
         if (expression.startsWith("#")) {
-            node = new FragmentExpression<>(createElement(), expression.substring(1));
+            node = new FragmentExpression<>(currentNode, createElement(), expression.substring(1));
         } else if (expression.startsWith("+")) {
-            node = new ReservedStringExpression<>(createElement(), expression.substring(1));
+            node = new ReservedStringExpression<>(currentNode, createElement(), expression.substring(1));
         } else if (expression.startsWith(".")) {
-            node = new LabelExpression<>(createElement(), expression.substring(1));
+            node = new LabelExpression<>(currentNode, createElement(), expression.substring(1));
         } else if (expression.startsWith("/")) {
-            node = new PathSegmentExpression<>(createElement(), expression.substring(1));
+            node = new PathSegmentExpression<>(currentNode, createElement(), expression.substring(1));
         }
 
         if (node != null) {

@@ -30,8 +30,9 @@ import java.util.Map;
  */
 public class FragmentExpression<DataElementType extends DataElement> extends ReservedStringExpression<DataElementType> {
 
-    public FragmentExpression(DataElementType dataElement, String token) throws URITemplateException {
-        super(dataElement, token);
+    public FragmentExpression(Node<DataElementType> parentNode, DataElementType dataElement, String token)
+            throws URITemplateException {
+        super(parentNode, dataElement, token);
     }
 
     @Override

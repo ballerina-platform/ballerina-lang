@@ -36,8 +36,9 @@ public abstract class Expression<DataElementType extends DataElement> extends No
 
     protected List<Variable> variableList = new ArrayList<Variable>(4);
 
-    public Expression(DataElementType dataElement, String token) throws URITemplateException {
-        super(dataElement, token);
+    public Expression(Node<DataElementType> parentNode, DataElementType dataElement, String token)
+            throws URITemplateException {
+        super(parentNode, dataElement, token);
         int startIndex = 0;
         for (int i = 0; i < token.length(); i++) {
             if (token.charAt(i) == ',') {

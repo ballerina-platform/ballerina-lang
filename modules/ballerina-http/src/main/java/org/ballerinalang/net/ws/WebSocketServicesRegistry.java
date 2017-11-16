@@ -157,7 +157,7 @@ public class WebSocketServicesRegistry {
                             computeIfAbsent(service.getName(), k -> new ArrayList<>());
                     uriList.add(uri);
                 } catch (Exception e) {
-                    throw new BallerinaConnectorException("Invalid URI template.");
+                    throw new BallerinaConnectorException(e.getMessage());
                 }
                 deployedServiceSet.add(service);
             });
@@ -170,7 +170,7 @@ public class WebSocketServicesRegistry {
             throws URITemplateException {
         URITemplate<WebSocketService, WebSocketMessage> uriTemplate;
         if (!serviceEndpointsMap.containsKey(serviceInterface)) {
-            uriTemplate = new URITemplate<>(new Literal<>(new WsServiceElement(), "/"));
+            uriTemplate = new URITemplate<>(new Literal<>(null, new WsServiceElement(), "/"));
             serviceEndpointsMap.put(serviceInterface, uriTemplate);
         } else {
             uriTemplate = serviceEndpointsMap.get(serviceInterface);
@@ -198,7 +198,21 @@ public class WebSocketServicesRegistry {
      * @param service service to unregister.
      */
     public void unregisterService(WebSocketService service) {
-        // TODO : Implement service unregistration through URI template tree.
+        if (WebSocketServiceValidator.isWebSocketClientService(service)) {
+            clientServices.remove(service.getName());
+            return;
+        }
+        if (serviceBoundedURIMap.containsKey(service.getName())) {
+            serviceBoundedURIMap.remove(service.getName()).forEach(basePath ->
+               serviceEndpointsMap.entrySet().forEach(serviceInterface -> {
+                    try {
+                        serviceInterface.getValue().remove(basePath);
+                    } catch (URITemplateException e) {
+                        throw new BallerinaConnectorException(e.getMessage());
+                    }
+                })
+            );
+        }
     }
 
     /**

@@ -30,8 +30,9 @@ import org.ballerinalang.net.uri.URITemplateException;
 public class SimpleStringExpression<DataElementType extends DataElement>
         extends SimpleSplitStringExpression<DataElementType> {
 
-    public SimpleStringExpression(DataElementType dataElement, String token) throws URITemplateException {
-        super(dataElement, token);
+    public SimpleStringExpression(Node<DataElementType> parentNode, DataElementType dataElement, String token)
+            throws URITemplateException {
+        super(parentNode, dataElement, token);
     }
 
     protected boolean isEndCharacter(Character endCharacter) {

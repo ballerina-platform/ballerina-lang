@@ -32,8 +32,9 @@ public class Literal<DataElementType extends DataElement> extends Node<DataEleme
 
     private int tokenLength = 0;
 
-    public Literal(DataElementType dataElement, String token) throws URITemplateException {
-        super(dataElement, token);
+    public Literal(Node<DataElementType> parentNode, DataElementType dataElement, String token)
+            throws URITemplateException {
+        super(parentNode, dataElement, token);
         tokenLength = token.length();
         if (tokenLength == 0) {
             throw new URITemplateException("Invalid literal token with zero length");

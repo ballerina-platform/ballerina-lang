@@ -23,7 +23,9 @@ import org.ballerinalang.net.uri.parser.DataElementCreator;
 import org.ballerinalang.net.uri.parser.Node;
 import org.ballerinalang.net.uri.parser.URITemplateParser;
 
+import java.util.HashMap;
 import java.util.Map;
+import javax.xml.crypto.Data;
 
 /**
  * Basic URI Template implementation.
@@ -34,6 +36,7 @@ import java.util.Map;
 public class URITemplate<DataType, CheckerType> {
 
     private Node<DataElement<DataType, CheckerType>> syntaxTree;
+    private final Map<String, Node<DataElement<DataType, CheckerType>>> uriTemplateToNodeMap = new HashMap<>();
 
     public URITemplate(Node<DataElement<DataType, CheckerType>> syntaxTree) {
         this.syntaxTree = syntaxTree;
@@ -57,7 +60,32 @@ public class URITemplate<DataType, CheckerType> {
         uriTemplate = removeTheFirstAndLastBackSlash(uriTemplate);
 
         URITemplateParser<DataType, CheckerType> parser = new URITemplateParser<>(syntaxTree, elementCreator);
-        parser.parse(uriTemplate, resource);
+        Node<DataElement<DataType, CheckerType>> referenceNode = parser.parse(uriTemplate, resource);
+        uriTemplateToNodeMap.put(uriTemplate, referenceNode);
+    }
+
+    public void remove(String uriTemplate) throws URITemplateException {
+        uriTemplate = removeTheFirstAndLastBackSlash(uriTemplate);
+        Node<DataElement<DataType, CheckerType>> currentNode = uriTemplateToNodeMap.remove(uriTemplate);
+        if (currentNode == null) {
+            return;
+        }
+        if (currentNode.getChildNodesList().size() == 0) {
+            currentNode.getDataElement().clearData();
+            while (currentNode.getChildNodesList().size() == 0) {
+                if (!currentNode.getDataElement().isEmpty()) {
+                    break;
+                }
+                Node<DataElement<DataType, CheckerType>> parentNode = currentNode.getParentNode();
+                if (parentNode == null) {
+                    break;
+                }
+                parentNode.getChildNodesList().remove(currentNode);
+                currentNode = parentNode;
+            }
+        } else {
+            currentNode.getDataElement().clearData();
+        }
     }
 
     public String removeTheFirstAndLastBackSlash(String template) throws URITemplateException {

@@ -36,8 +36,9 @@ public class SimpleSplitStringExpression<DataElementType extends DataElement> ex
             ':', '/', '?', '#', '[', ']', '@', '!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '='
     };
 
-    public SimpleSplitStringExpression(DataElementType dataElement, String token) throws URITemplateException {
-        super(dataElement, token);
+    public SimpleSplitStringExpression(Node<DataElementType> parentNode, DataElementType dataElement, String token)
+            throws URITemplateException {
+        super(parentNode, dataElement, token);
     }
 
     @Override

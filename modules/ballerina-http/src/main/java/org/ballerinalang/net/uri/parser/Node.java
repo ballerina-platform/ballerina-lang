@@ -18,6 +18,8 @@
 
 package org.ballerinalang.net.uri.parser;
 
+import javafx.scene.Parent;
+
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,14 +35,24 @@ public abstract class Node<DataElementType extends DataElement> {
     protected String token;
     protected DataElementType dataElement;
     protected List<Node<DataElementType>> childNodesList = new LinkedList<>();
+    protected final Node<DataElementType> parentNode;
 
-    protected Node(DataElementType dataElement, String token) {
+    protected Node(Node<DataElementType> parentNode, DataElementType dataElement, String token) {
+        this.parentNode = parentNode;
         this.dataElement = dataElement;
         this.token = token;
     }
 
     public DataElementType getDataElement() {
         return dataElement;
+    }
+
+    public List<Node<DataElementType>> getChildNodesList() {
+        return childNodesList;
+    }
+
+    public Node<DataElementType> getParentNode() {
+        return parentNode;
     }
 
     public Node<DataElementType> addChild(Node<DataElementType> childNode) {

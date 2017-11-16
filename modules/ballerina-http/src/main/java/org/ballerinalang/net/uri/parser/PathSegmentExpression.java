@@ -28,8 +28,9 @@ import org.ballerinalang.net.uri.URITemplateException;
  */
 public class PathSegmentExpression<DataElementType extends DataElement> extends LabelExpression<DataElementType> {
 
-    public PathSegmentExpression(DataElementType dataElement, String token) throws URITemplateException {
-        super(dataElement, token);
+    public PathSegmentExpression(Node<DataElementType> parentNode, DataElementType dataElement, String token)
+            throws URITemplateException {
+        super(parentNode, dataElement, token);
     }
 
     @Override

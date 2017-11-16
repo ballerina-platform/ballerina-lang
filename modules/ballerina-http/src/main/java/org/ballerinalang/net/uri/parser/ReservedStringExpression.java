@@ -31,8 +31,9 @@ import java.util.Map;
 public class ReservedStringExpression<DataElementType extends DataElement>
         extends SimpleStringExpression<DataElementType> {
 
-    public ReservedStringExpression(DataElementType dataElement, String token) throws URITemplateException {
-        super(dataElement, token);
+    public ReservedStringExpression(Node<DataElementType> parentNode, DataElementType dataElement, String token)
+            throws URITemplateException {
+        super(parentNode, dataElement, token);
     }
 
     @Override

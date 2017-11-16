@@ -30,8 +30,9 @@ import java.util.Map;
  */
 public class LabelExpression<DataElementType extends DataElement> extends SimpleStringExpression<DataElementType> {
 
-    public LabelExpression(DataElementType dataElement, String token) throws URITemplateException {
-        super(dataElement, token);
+    public LabelExpression(Node<DataElementType> parentNode, DataElementType dataElement, String token)
+            throws URITemplateException {
+        super(parentNode, dataElement, token);
     }
 
     @Override

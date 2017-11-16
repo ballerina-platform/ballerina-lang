@@ -88,7 +88,7 @@ public class HttpService {
 
     public URITemplate<HttpResource, HTTPCarbonMessage> getUriTemplate() throws URITemplateException {
         if (uriTemplate == null) {
-            uriTemplate = new URITemplate<>(new Literal<>(new HttpResourceDataElement(), "/"));
+            uriTemplate = new URITemplate<>(new Literal<>(null, new HttpResourceDataElement(), "/"));
         }
         return uriTemplate;
     }
