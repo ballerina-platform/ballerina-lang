@@ -138,7 +138,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (continueRequest) {
             if (serverConnectorFuture != null) {
                 try {
-                    ServerConnectorFuture serverConnectorFuture = httpRequestMsg.getHTTPConnectorFuture();
+                    ServerConnectorFuture serverConnectorFuture = httpRequestMsg.getHttpResponseFuture();
                     serverConnectorFuture.setHttpConnectorListener(new HttpResponseListener(ctx, httpRequestMsg));
                     this.serverConnectorFuture.notifyHttpListener(httpRequestMsg);
                 } catch (Exception e) {

@@ -30,12 +30,9 @@ import io.netty.handler.codec.http.HttpResponse;
 import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.messaging.exceptions.MessagingException;
-import org.wso2.carbon.transport.http.netty.contract.HttpResponseStatusFuture;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseListener;
-import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseStatusFutureImpl;
-import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseStatusListener;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseStatusFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
@@ -57,8 +54,9 @@ public class HTTPCarbonMessage {
 
     private MessagingException messagingException = null;
     private MessageDataSource messageDataSource;
-    private ServerConnectorFuture serverConnectorFuture = new HttpWsServerConnectorFuture();
     private MessageFuture messageFuture;
+    private final ServerConnectorFuture serverConnectorFuture = new HttpWsServerConnectorFuture();
+    private final HttpResponseStatusFuture httpResponseStatusFuture = new HttpResponseStatusFuture();
 
     public HTTPCarbonMessage(HttpMessage httpMessage) {
         int soTimeOut = 60;
@@ -267,15 +265,20 @@ public class HTTPCarbonMessage {
      *
      * @return serverConnectorFuture.
      */
-    public ServerConnectorFuture getHTTPConnectorFuture() {
+    public ServerConnectorFuture getHttpResponseFuture() {
         return this.serverConnectorFuture;
     }
 
-    public HttpResponseStatusFuture respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {
-        HttpResponseStatusFuture httpResponseStatusFuture = new HttpResponseStatusFutureImpl();
-//        HttpResponseStatusListener futureListener = new HttpResponseStatusListener();
-//        httpResponseStatusFuture.setHttpConnectorListener(futureListener);
+    /**
+     * Returns the future responsible for notifying the response status.
+     *
+     * @return httpResponseStatusFuture.
+     */
+    public HttpResponseStatusFuture getHttpResponseStatusFuture() {
+        return httpResponseStatusFuture;
+    }
 
+    public HttpResponseStatusFuture respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {
         serverConnectorFuture.notifyHttpListener(httpCarbonMessage);
         return httpResponseStatusFuture;
     }

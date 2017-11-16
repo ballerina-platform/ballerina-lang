@@ -23,8 +23,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
@@ -41,11 +39,13 @@ public class HttpResponseListener implements HttpConnectorListener {
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
     private HandlerExecutor handlerExecutor;
+    private HTTPCarbonMessage requestMsg;
 
     public HttpResponseListener(ChannelHandlerContext channelHandlerContext, HTTPCarbonMessage requestMsg) {
         this.sourceContext = channelHandlerContext;
         this.requestDataHolder = new RequestDataHolder(requestMsg);
         this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
+        this.requestMsg = requestMsg;
     }
 
     @Override
@@ -67,18 +67,13 @@ public class HttpResponseListener implements HttpConnectorListener {
                     this.sourceContext.channel().eventLoop().execute(() -> {
                 if (Util.isLastHttpContent(httpContent)) {
                     ChannelFuture future = sourceContext.writeAndFlush(httpContent);
-
-                    future.addListener(new GenericFutureListener<Future<? super Void>>() {
-                        @Override
-                        public void operationComplete(Future<? super Void> future) throws Exception {
-                            if (future.cause() != null) {
-//                                rresFuture.notifyErri()
-                            }
+                    HttpResponseStatusFuture responseStatusFuture = requestMsg.getHttpResponseStatusFuture();
+                    future.addListener(genericFutureListener -> {
+                        if (genericFutureListener.cause() != null) {
+                            responseStatusFuture.notifyHttpListener(genericFutureListener.cause());
                         }
-                    })
-
-
-
+                        responseStatusFuture.notifyHttpListener(requestMsg);
+                    });
                     if (connectionCloseAfterResponse) {
                         future.addListener(ChannelFutureListener.CLOSE);
                     }
