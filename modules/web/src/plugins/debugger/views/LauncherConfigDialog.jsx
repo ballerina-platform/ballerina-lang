@@ -58,7 +58,7 @@ class LauncherConfigDialog extends React.Component {
      */
     onAddArgument() {
         this.setState({
-            configArguments: [...this.state.configArguments, ''],
+            configArguments: this.state.configArguments,
         });
     }
     /**

@@ -17,6 +17,11 @@
   -->
 <FindBugsFilter>
     <Match>
-        <Package name="org.ballerinalang.composer.service.workspace"/>
+        <OR>
+            <Package name="org.ballerinalang.composer.service.workspace"/>
+        </OR>
+        <OR>
+            <Bug pattern="EI_EXPOSE_REP"/>
+        </OR>
     </Match>
 </FindBugsFilter>
