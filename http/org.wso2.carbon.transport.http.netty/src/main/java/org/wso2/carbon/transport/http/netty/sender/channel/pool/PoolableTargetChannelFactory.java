@@ -23,6 +23,7 @@ import org.apache.commons.pool.PoolableObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
+import org.wso2.carbon.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.sender.HTTPClientInitializer;
@@ -47,10 +48,11 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     private boolean followRedirect;
     private int maxRedirectCount;
     private boolean chunkDisabled;
+    private ProxyServerConfiguration proxyServerConfiguration;
 
     public PoolableTargetChannelFactory(HttpRoute httpRoute, EventLoopGroup eventLoopGroup, Class eventLoopClass
             , SSLConfig sslConfig, boolean httpTraceLogEnabled, boolean chunkDisabled, boolean followRedirect
-            , int maxRedirectCount) {
+            , int maxRedirectCount, ProxyServerConfiguration proxyServerConfiguration) {
         this.eventLoopGroup = eventLoopGroup;
         this.eventLoopClass = eventLoopClass;
         this.httpRoute = httpRoute;
@@ -59,6 +61,7 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
         this.followRedirect = followRedirect;
         this.maxRedirectCount = maxRedirectCount;
         this.chunkDisabled = chunkDisabled;
+        this.proxyServerConfiguration = proxyServerConfiguration;
     }
 
 
@@ -138,7 +141,7 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     private HTTPClientInitializer instantiateAndConfigClientInitializer(Bootstrap clientBootstrap,
             SSLEngine sslEngine) {
         HTTPClientInitializer httpClientInitializer = new HTTPClientInitializer(sslEngine, httpTraceLogEnabled
-                , chunkDisabled, followRedirect, maxRedirectCount);
+                , chunkDisabled, followRedirect, maxRedirectCount, proxyServerConfiguration);
         if (log.isDebugEnabled()) {
             log.debug("Created new TCP client bootstrap connecting to {}:{} with options: {}", httpRoute.getHost(),
                     httpRoute.getPort(), clientBootstrap);

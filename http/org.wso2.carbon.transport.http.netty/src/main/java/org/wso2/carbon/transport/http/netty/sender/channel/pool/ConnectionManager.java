@@ -22,6 +22,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
+import org.wso2.carbon.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
@@ -89,9 +90,9 @@ public class ConnectionManager {
      * @return the target channel which is requested for given parameters.
      * @throws Exception to notify any errors occur during retrieving the target channel
      */
-    public TargetChannel borrowTargetChannel(HttpRoute httpRoute, SourceHandler sourceHandler, SSLConfig sslConfig
-            , boolean httpTraceLogEnabled, boolean chunkDisabled, boolean followRedirect, int maxRedirectCount)
-            throws Exception {
+    public TargetChannel borrowTargetChannel(HttpRoute httpRoute, SourceHandler sourceHandler, SSLConfig sslConfig,
+            boolean httpTraceLogEnabled, boolean chunkDisabled, boolean followRedirect, int maxRedirectCount,
+            ProxyServerConfiguration proxyServerConfiguration) throws Exception {
         GenericObjectPool trgHlrConnPool;
 
         if (sourceHandler != null) {
@@ -107,7 +108,7 @@ public class ConnectionManager {
                 if (trgHlrConnPool == null) {
                     PoolableTargetChannelFactory poolableTargetChannelFactory =
                             new PoolableTargetChannelFactory(httpRoute, group, cl, sslConfig, httpTraceLogEnabled
-                                    , chunkDisabled, followRedirect, maxRedirectCount);
+                                    , chunkDisabled, followRedirect, maxRedirectCount, proxyServerConfiguration);
                     trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
                     srcHlrConnPool.put(httpRoute.toString(), trgHlrConnPool);
                 }
@@ -120,7 +121,7 @@ public class ConnectionManager {
                             PoolableTargetChannelFactory poolableTargetChannelFactory =
                                     new PoolableTargetChannelFactory(
                                             httpRoute, group, cl, sslConfig, httpTraceLogEnabled, chunkDisabled
-                                            , followRedirect, maxRedirectCount);
+                                            , followRedirect, maxRedirectCount, proxyServerConfiguration);
                             trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
                             this.connGlobalPool.put(httpRoute.toString(), trgHlrConnPool);
                         }
@@ -137,7 +138,7 @@ public class ConnectionManager {
                 if (!this.connGlobalPool.containsKey(httpRoute.toString())) {
                     PoolableTargetChannelFactory poolableTargetChannelFactory =
                             new PoolableTargetChannelFactory(httpRoute, group, cl, sslConfig, httpTraceLogEnabled
-                                    , chunkDisabled, followRedirect, maxRedirectCount);
+                                    , chunkDisabled, followRedirect, maxRedirectCount, proxyServerConfiguration);
                     trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
                     this.connGlobalPool.put(httpRoute.toString(), trgHlrConnPool);
                 }
