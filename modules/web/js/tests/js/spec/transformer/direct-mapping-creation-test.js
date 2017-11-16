@@ -26,7 +26,7 @@ import TransformManager from '../../../../ballerina/diagram2/views/default/compo
 import environment from '../../../../ballerina/env/environment';
 
 const directory = process.env.DIRECTORY ? process.env.DIRECTORY : '';
-const transformBalDir = path.join(directory, 'js', 'tests', 'resources', 'transform');
+const transformBalDir = path.join(directory, 'js', 'tests', 'resources', 'transformer');
 let transformManager;
 
 /**
@@ -47,13 +47,13 @@ function getTree(fileContent) {
 }
 
 /**
- * Get transform stmt from tree
+ * Get transformer from tree
  * @param {any} tree node tree
- * @param {any} index index of transform statement
- * @returns transform statement
+ * @param {any} index index of transformer
+ * @returns transformer
  */
-function getTransformStmt(tree, index) {
-    return tree.topLevelNodes[0].body.statements[index];
+function getTransformer(tree, index) {
+    return tree.topLevelNodes[index];
 }
 
 /**
@@ -87,126 +87,105 @@ describe('Transform Direct Mapping Creation', () => {
     });
 
     const testDir = 'direct-mapping-creation';
+
     it('Direct mapping with primitive variables', (done) => {
         const testSource = readSource(testDir, 'direct-with-primitive-vars');
         const expectedSource = readSource(testDir, 'direct-with-primitive-vars-expected');
         getTree(testSource)
             .then((tree) => {
-                const transformStmt = getTransformStmt(tree, 2);
-                transformManager.setTransformStmt(transformStmt);
+                const transformer = getTransformer(tree, 0);
+                transformManager.setTransformStmt(transformer);
                 const connection = {
-                    source: {
-                        name: 'b',
-                        type: 'int',
-                        endpointKind: 'input',
-                    },
-                    target: {
-                        name: 'a',
-                        type: 'int',
-                        endpointKind: 'output',
-                    },
-                };
-                transformManager.createStatementEdge(connection);
-                expect(tree.getSource()).to.equal(expectedSource);
-                done();
-            }).catch((error) => {
-                done(error);
-            });
-    }).timeout(5000);
-    it('Direct mapping with function args', (done) => {
-        const testSource = readSource(testDir, 'direct-with-args');
-        const expectedSource = readSource(testDir, 'direct-with-args-expected');
-        getTree(testSource)
-            .then((tree) => {
-                const transformStmt = getTransformStmt(tree, 0);
-                transformManager.setTransformStmt(transformStmt);
-                const connection = {
-                    source: {
-                        name: 'b',
-                        type: 'int',
-                        endpointKind: 'input',
-                    },
-                    target: {
-                        name: 'a',
-                        type: 'int',
-                        endpointKind: 'output',
-                    },
-                };
-                transformManager.createStatementEdge(connection);
-                expect(tree.getSource()).to.equal(expectedSource);
-                done();
-            }).catch((error) => {
-                done(error);
-            });
-    }).timeout(5000);
-    it('Direct mapping with casting and conversion', (done) => {
-        const testSource = readSource(testDir, 'direct-with-cast-conversion');
-        const expectedSource = readSource(testDir, 'direct-with-cast-conversion-expected');
-        getTree(testSource)
-            .then((tree) => {
-                const transformStmt = getTransformStmt(tree, 7);
-                transformManager.setTransformStmt(transformStmt);
-                let connection = {
                     source: {
                         name: 's1',
                         type: 'string',
                         endpointKind: 'input',
                     },
                     target: {
-                        name: 'any1',
-                        type: 'any',
-                        endpointKind: 'output',
-                    },
-                };
-                // create implicit cast : any to string
-                transformManager.createStatementEdge(connection);
-
-                connection = {
-                    source: {
-                        name: 'any2',
-                        type: 'any',
-                        endpointKind: 'input',
-                    },
-                    target: {
-                        name: 'b2',
-                        type: 'boolean',
-                        endpointKind: 'output',
-                    },
-                };
-
-                // create explicit unsafe cast : any to boolean
-                transformManager.createStatementEdge(connection);
-
-                connection = {
-                    source: {
-                        name: 'f2',
-                        type: 'float',
-                        endpointKind: 'input',
-                    },
-                    target: {
-                        name: 'i1',
-                        type: 'int',
-                        endpointKind: 'output',
-                    },
-                };
-
-                // create safe safe conversion : float to int
-                transformManager.createStatementEdge(connection);
-
-                connection = {
-                    source: {
                         name: 's2',
+                        type: 'string',
+                        endpointKind: 'output',
+                    },
+                };
+                transformManager.createStatementEdge(connection);
+                expect(tree.getSource()).to.equal(expectedSource);
+                done();
+            }).catch((error) => {
+                done(error);
+            });
+    }).timeout(5000);
+
+    it('Direct mapping with casting and conversion', (done) => {
+        const testSource = readSource(testDir, 'direct-with-cast-conversion');
+        const expectedSource = readSource(testDir, 'direct-with-cast-conversion-expected');
+        getTree(testSource)
+            .then((tree) => {
+                // Create implicit cast : any -> string
+                const implitTransformer = getTransformer(tree, 0);
+                transformManager.setTransformStmt(implitTransformer);
+                let connection = {
+                    source: {
+                        name: 's',
                         type: 'string',
                         endpointKind: 'input',
                     },
                     target: {
-                        name: 'f1',
+                        name: 'a',
+                        type: 'any',
+                        endpointKind: 'output',
+                    },
+                };
+                transformManager.createStatementEdge(connection);
+
+                // Create unsafe cast : any -> boolean
+                const unsafeCastTransformer = getTransformer(tree, 1);
+                transformManager.setTransformStmt(unsafeCastTransformer);
+                connection = {
+                    source: {
+                        name: 'a',
+                        type: 'any',
+                        endpointKind: 'input',
+                    },
+                    target: {
+                        name: 'b',
+                        type: 'boolean',
+                        endpointKind: 'output',
+                    },
+                };
+                transformManager.createStatementEdge(connection);
+
+                // Create safe conversion : float -> int
+                const safeConversionTransformer = getTransformer(tree, 2);
+                transformManager.setTransformStmt(safeConversionTransformer);
+                connection = {
+                    source: {
+                        name: 'f',
+                        type: 'float',
+                        endpointKind: 'input',
+                    },
+                    target: {
+                        name: 'i',
+                        type: 'int',
+                        endpointKind: 'output',
+                    },
+                };
+                transformManager.createStatementEdge(connection);
+
+                // Create safe unsafe conversion : string -> float
+                const unsafeConversionTransformer = getTransformer(tree, 3);
+                transformManager.setTransformStmt(unsafeConversionTransformer);
+                connection = {
+                    source: {
+                        name: 's',
+                        type: 'string',
+                        endpointKind: 'input',
+                    },
+                    target: {
+                        name: 'f',
                         type: 'float',
                         endpointKind: 'output',
                     },
                 };
-
-                // create safe unsafe conversion : string to float
                 transformManager.createStatementEdge(connection);
 
                 expect(tree.getSource()).to.equal(expectedSource);
@@ -214,5 +193,5 @@ describe('Transform Direct Mapping Creation', () => {
             }).catch((error) => {
                 done(error);
             });
-    }).timeout(10000);
+    }).timeout(13000);
 });

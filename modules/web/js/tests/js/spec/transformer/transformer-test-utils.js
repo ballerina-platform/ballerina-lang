@@ -21,13 +21,13 @@ import { parseContent } from 'api-client/api-client';
 import TreeBuilder from '../../../../ballerina/model/tree-builder';
 
 const directory = process.env.DIRECTORY ? process.env.DIRECTORY : '';
-const transformBalDir = path.join(directory, 'js', 'tests', 'resources', 'transform');
+const transformerBalDir = path.join(directory, 'js', 'tests', 'resources', 'transformer');
 
 /**
  * Transform utils for tests
  * @class TransformTestUtils
  */
-class TransformTestUtils {
+class TransformerTestUtils {
 
     /**
      * Converts a ballerina source to JSON model
@@ -52,8 +52,8 @@ class TransformTestUtils {
      * @param {any} index index of transform statement
      * @returns transform statement
      */
-    static getTransformStmt(tree, index) {
-        return tree.topLevelNodes[0].body.statements[index];
+    static getTransformer(tree, index) {
+        return tree.topLevelNodes[index];
     }
 
     /**
@@ -63,8 +63,8 @@ class TransformTestUtils {
      * @returns ballerina source
      */
     static readSource(testDir, balFile) {
-        const file = path.resolve(transformBalDir, testDir, balFile + '.bal');
+        const file = path.resolve(transformerBalDir, testDir, balFile + '.bal');
         return fs.readFileSync(file, 'utf8');
     }
 }
-export default TransformTestUtils;
+export default TransformerTestUtils;
