@@ -85,6 +85,8 @@ public class SenderConfiguration {
 
     private int maxRedirectCount;
 
+    private String tlsStoreType;
+
     public SenderConfiguration() {
     }
 
@@ -103,6 +105,14 @@ public class SenderConfiguration {
 
     public String getCertPass() {
         return certPass;
+    }
+
+    public String getTlsStoreType() {
+        return tlsStoreType;
+    }
+
+    public void setTlsStoreType(String storeType) {
+        this.tlsStoreType = storeType;
     }
 
     public void setCertPass(String certPass) {
@@ -170,7 +180,7 @@ public class SenderConfiguration {
             return null;
         }
         return Util.getSSLConfigForSender(certPass, keyStorePassword, keyStoreFile, trustStoreFile, trustStorePass,
-                parameters, sslProtocol);
+                parameters, sslProtocol, tlsStoreType);
     }
 
     public int getSocketIdleTimeout(int defaultValue) {

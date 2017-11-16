@@ -122,8 +122,8 @@ senderConfigurations:
  -
   id: "https-sender"
   scheme: "https"
-  trustStoreFile: "src/test/resources/simple-test-config/ballerinaKeystore.p12"
-  trustStorePass: "ballerina"
+  trustStoreFile: "src/test/resources/simple-test-config/wso2carbon.jks"
+  trustStorePass: "wso2carbon"
   socketIdleTimeout: 120000
   parameters:
     -

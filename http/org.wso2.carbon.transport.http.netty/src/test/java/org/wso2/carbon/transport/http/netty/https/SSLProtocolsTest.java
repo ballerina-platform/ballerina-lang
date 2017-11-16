@@ -67,9 +67,9 @@ public class SSLProtocolsTest {
     private static HttpClientConnector httpClientConnector;
     private static ServerConnector serverConnector;
     private static String testValue = "Test";
-    private String keyStoreFile = "src/test/resources/simple-test-config/ballerinaKeystore.p12";
-    private String trustStoreFile = "src/test/resources/simple-test-config/ballerinaTruststore.p12";
-    private String password = "ballerina";
+    private String keyStoreFile = "src/test/resources/simple-test-config/wso2carbon.jks";
+    private String trustStoreFile = "src/test/resources/simple-test-config/client-truststore.jks";
+    private String password = "wso2carbon";
     private String scheme = "https";
     private String verifyClient = "require";
 

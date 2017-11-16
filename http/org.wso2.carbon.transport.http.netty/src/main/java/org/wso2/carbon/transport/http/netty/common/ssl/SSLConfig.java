@@ -39,6 +39,7 @@ public class SSLConfig {
     private File trustStore;
     private String trustStorePass;
     private String sslProtocol;
+    private String tlsStoreType;
 
     private String[] cipherSuites;
     private String[] enableProtocols;
@@ -149,6 +150,14 @@ public class SSLConfig {
 
     public String getSslProtocol() {
         return sslProtocol;
+    }
+
+    public String getTlsStoreType() {
+        return tlsStoreType;
+    }
+
+    public void setTlsStoreType(String tlsStoreType) {
+        this.tlsStoreType = tlsStoreType;
     }
 
     public boolean isEnableSessionCreation() {
