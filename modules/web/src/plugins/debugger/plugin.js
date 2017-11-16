@@ -119,7 +119,7 @@ class DebuggerPlugin extends Plugin {
                                     const { command: { dispatch } } = this.appContext;
                                     dispatch(COMMAND_IDS.SHOW_LAUNCHER_CONFIG_DIALOG, {});
                                 },
-                                description: 'Open Launch Configuration',
+                                description: 'Configure Application Arguments',
                             },
                             {
                                 icon: 'console',
