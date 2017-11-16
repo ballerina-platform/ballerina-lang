@@ -324,6 +324,7 @@ public class HttpConnectionManager {
             if (!clientParams.isEmpty()) {
                 senderConfiguration.setParameters(clientParams);
             }
+            senderConfiguration.setTlsStoreType(Constants.PKCS_STORE_TYPE);
         }
         senderConfiguration.setFollowRedirect(followRedirect == 1);
         senderConfiguration.setMaxRedirectCount(maxRedirectCount);
