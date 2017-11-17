@@ -67,6 +67,13 @@ struct ResultSignedInt {
     int BIGINTDATA;
 }
 
+struct ResultComplexTypes {
+    int ROW_ID;
+    blob BLOB_TYPE;
+    string CLOB_TYPE;
+    blob BINARY_TYPE;
+}
+
 function testToJson () (json) {
     endpoint<sql:ClientConnector> testDB {
         create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
@@ -627,6 +634,50 @@ function testSignedIntMaxMinValues () (int maxInsert, int minInsert, int nullIns
         var result, _ = (ResultSignedInt)dt.getNext();
         str = str + result.ID + "|" + result.TINYINTDATA + "|" + result.SMALLINTDATA + "|" + result.INTDATA + "|" +
               result.BIGINTDATA + "#";
+    }
+    testDB.close();
+    return;
+}
+
+function testComplexTypeInsertAndRetrieval () (int retDataInsert, int retNullInsert, string jsonStr, string xmlStr, string str) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:3});
+    }
+
+    string insertSQL = "INSERT INTO ComplexTypes(row_id, blob_type, clob_type, binary_type) VALUES (?,?,?,?)";
+    string selectSQL = "SELECT row_id, blob_type, clob_type, binary_type FROM ComplexTypes where row_id = 100 or row_id = 200";
+    string text = "Sample Text";
+    blob content = text.toBlob("UTF-8");
+
+    //Insert data
+    sql:Parameter para1 = {sqlType:"INTEGER", value:100};
+    sql:Parameter para2 = {sqlType:"BLOB", value:content};
+    sql:Parameter para3 = {sqlType:"CLOB", value:text};
+    sql:Parameter para4 = {sqlType:"BINARY", value:content};
+    sql:Parameter[] parameters = [para1, para2, para3, para4];
+    retDataInsert = testDB.update(insertSQL, parameters);
+
+    //Insert null values
+    para1 = {sqlType:"INTEGER", value:200};
+    para2 = {sqlType:"BLOB", value:null};
+    para3 = {sqlType:"CLOB", value:null};
+    para4 = {sqlType:"BINARY", value:null};
+    parameters = [para1, para2, para3, para4];
+    retNullInsert = testDB.update(insertSQL, parameters);
+
+    datatable dt = testDB.select(selectSQL, null);
+    var j,_ = <json>dt;
+    jsonStr = j.toString();
+
+    dt = testDB.select(selectSQL, null);
+    var x,_ = <xml>dt;
+    xmlStr = <string>x;
+
+    dt = testDB.select(selectSQL, null);
+    while (dt.hasNext()) {
+        var result,_ = (ResultComplexTypes)dt.getNext();
+        str = str + result.ROW_ID + "|" + result.BLOB_TYPE.toString("UTF-8") + "|" + result.CLOB_TYPE + "|";
     }
     testDB.close();
     return;

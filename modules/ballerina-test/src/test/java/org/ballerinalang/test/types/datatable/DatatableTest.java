@@ -411,6 +411,27 @@ public class DatatableTest {
                 + "-2147483648|-9223372036854775808#3|0|0|0|0#");
     }
 
+    @Test(groups = "DatatableTest", description = "Check blob binary and clob types types.")
+    public void testComplexTypeInsertAndRetrieval() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "testComplexTypeInsertAndRetrieval", args);
+        Assert.assertEquals(returns.length, 5);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+        Assert.assertEquals((returns[2]).stringValue(), "[{\"ROW_ID\":100,\"BLOB_TYPE\":\"U2FtcGxlIFRleHQ=\","
+                + "\"CLOB_TYPE\":\"Sample Text\",\"BINARY_TYPE\":\"U2FtcGxlIFRleHQAAAAAAAAAAAAAAAAAAAAA\"},"
+                + "{\"ROW_ID\":200,\"BLOB_TYPE\":null,\"CLOB_TYPE\":null,\"BINARY_TYPE\":null}]");
+        Assert.assertEquals((returns[3]).stringValue(), "<results><result><ROW_ID>100</ROW_ID>"
+                + "<BLOB_TYPE>U2FtcGxlIFRleHQ=</BLOB_TYPE><CLOB_TYPE>Sample Text</CLOB_TYPE>"
+                + "<BINARY_TYPE>U2FtcGxlIFRleHQAAAAAAAAAAAAAAAAAAAAA</BINARY_TYPE>" + "</result>"
+                + "<result><ROW_ID>200</ROW_ID>"
+                + "<BLOB_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
+                + "<CLOB_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
+                + "<BINARY_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
+                + "</result></results>");
+        Assert.assertEquals((returns[4]).stringValue(), "100|Sample Text|Sample Text|200||null|");
+    }
+
     @AfterSuite
     public void cleanup() {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));
