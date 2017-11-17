@@ -122,21 +122,6 @@ public class Command {
         commandList.add(ballerinaExecute);
         commandList.add("run");
 
-        commandList.add(scriptLocation);
-
-        if (packagePath != null) {
-            commandList.add(packagePath);
-        }
-
-        if (debug) {
-            commandList.add("--ballerina.debug");
-            commandList.add(String.valueOf(this.port));
-        }
-
-        if (this.commandArgs != null) {
-            commandList.addAll(Arrays.asList(this.commandArgs));
-        }
-
         BallerinaFile ballerinaFile = WorkspaceUtils.getBallerinaFile(filePath, fileName);
         // assuming there will be only one compilation unit in the list, I'm getting the first element from the list
         BLangCompilationUnit currentBLangCompilationUnit = ballerinaFile.getBLangPackage().compUnits.get(0);
@@ -157,6 +142,22 @@ public class Command {
                 }
             }
         }
+
+        if (packagePath == null) {
+            commandList.add(scriptLocation);
+        } else {
+            commandList.add(packagePath);
+        }
+
+        if (debug) {
+            commandList.add("--ballerina.debug");
+            commandList.add(String.valueOf(this.port));
+        }
+
+        if (this.commandArgs != null) {
+            commandList.addAll(Arrays.asList(this.commandArgs));
+        }
+
         return commandList.toArray(new String[0]);
     }
 
