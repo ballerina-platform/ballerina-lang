@@ -47,8 +47,8 @@ describe('Transform Direct Mapping Creation', () => {
     const testDir = 'direct-mapping-creation';
 
     it('Direct mapping with primitive variables', (done) => {
-        const testSource = TransformerTestUtils.readSource(testDir, 'direct-with-primitive-vars');
-        const expectedSource = TransformerTestUtils.readSource(testDir, 'direct-with-primitive-vars-expected');
+        const { testSource, expectedSource } = TransformerTestUtils
+                                                    .getTestResources(testDir, 'primitive-vars');
         TransformerTestUtils.getTree(testSource)
             .then((tree) => {
                 const transformer = TransformerTestUtils.getTransformer(tree, 0);
@@ -74,8 +74,8 @@ describe('Transform Direct Mapping Creation', () => {
     }).timeout(5000);
 
     it('Direct mapping with casting and conversion', (done) => {
-        const testSource = TransformerTestUtils.readSource(testDir, 'direct-with-cast-conversion');
-        const expectedSource = TransformerTestUtils.readSource(testDir, 'direct-with-cast-conversion-expected');
+        const { testSource, expectedSource } = TransformerTestUtils
+                                                    .getTestResources(testDir, 'cast-conversion');
         TransformerTestUtils.getTree(testSource)
             .then((tree) => {
                 // Create implicit cast : any -> string
@@ -151,11 +151,10 @@ describe('Transform Direct Mapping Creation', () => {
             }).catch((error) => {
                 done(error);
             });
-    }).timeout(13000);
+    }).timeout(15000);
 
     it('Direct mapping with structs', (done) => {
-        const testSource = TransformerTestUtils.readSource(testDir, 'direct-with-structs');
-        const expectedSource = TransformerTestUtils.readSource(testDir, 'direct-with-structs-expected');
+        const { testSource, expectedSource } = TransformerTestUtils.getTestResources(testDir, 'structs');
         TransformerTestUtils.getTree(testSource)
             .then((tree) => {
                 const transformer = TransformerTestUtils.getTransformer(tree, 2);
@@ -199,8 +198,7 @@ describe('Transform Direct Mapping Creation', () => {
     }).timeout(5000);
 
     it('Direct mapping with structs with params', (done) => {
-        const testSource = TransformerTestUtils.readSource(testDir, 'direct-with-structs-with-params');
-        const expectedSource = TransformerTestUtils.readSource(testDir, 'direct-with-structs-with-params-expected');
+        const { testSource, expectedSource } = TransformerTestUtils.getTestResources(testDir, 'structs-and-params');
         TransformerTestUtils.getTree(testSource)
             .then((tree) => {
                 const transformer = TransformerTestUtils.getTransformer(tree, 2);

@@ -57,14 +57,16 @@ class TransformerTestUtils {
     }
 
     /**
-     * Read ballerina source
+     * Read ballerina test source and expected source
      * @param {any} testDir test directory
-     * @param {any} balFile bal file
-     * @returns ballerina source
+     * @param {any} balFileName test file name
+     * @returns ballerina test source and expected source
      */
-    static readSource(testDir, balFile) {
-        const file = path.resolve(transformerBalDir, testDir, balFile + '.bal');
-        return fs.readFileSync(file, 'utf8');
+    static getTestResources(testDir, balFileName) {
+        const testSource = fs.readFileSync(path.resolve(transformerBalDir, testDir, balFileName + '.bal'), 'utf-8');
+        const expectedSource = fs.readFileSync(
+            path.resolve(transformerBalDir, testDir, balFileName + '-expected.bal'), 'utf-8');
+        return { testSource, expectedSource };
     }
 }
 export default TransformerTestUtils;
