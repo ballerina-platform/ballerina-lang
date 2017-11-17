@@ -344,13 +344,18 @@ public class BLangFileRestService {
                 }
             }
         }
-
-        final BallerinaFile ballerinaFile = Files.exists(Paths.get(filePath, fileName))
+        // compile package in disk to resolve constructs in complete package (including constructs from other files)
+        final BLangPackage packageFromDisk = Files.exists(Paths.get(filePath, fileName))
                 ? WorkspaceUtils.getBallerinaFile(programDir != null ? programDir : filePath, unitToCompile)
-                : WorkspaceUtils.getBallerinaFileForContent(fileName, content, CompilerPhase.CODE_ANALYZE);
-
-        final BLangPackage model = ballerinaFile.getBLangPackage();
-        final List<Diagnostic> diagnostics = ballerinaFile.getDiagnostics();
+                    .getBLangPackage()
+                : null;
+        // always use dirty content from editor to generate model
+        // TODO: Remove this once in-memory file resolver with dirty content for compiler is implemented
+        final BallerinaFile balFileFromDirtyContent = WorkspaceUtils.getBallerinaFileForContent(fileName, content,
+                CompilerPhase.CODE_ANALYZE);
+        // always get compilation unit and diagnostics from dirty content
+        final BLangPackage model = balFileFromDirtyContent.getBLangPackage();
+        final List<Diagnostic> diagnostics = balFileFromDirtyContent.getDiagnostics();
 
         ErrorCategory errorCategory = ErrorCategory.NONE;
         if (!diagnostics.isEmpty()) {
@@ -399,7 +404,15 @@ public class BLangFileRestService {
 
         // adding current package info whenever we have a parsed model
         final Map<String, ModelPackage> modelPackage = new HashMap<>();
-        WorkspaceUtils.loadPackageMap("Current Package", model, modelPackage);
+        // file is in a package, load constructs from package in disk
+        if (packageFromDisk != null) {
+            WorkspaceUtils.loadPackageMap("Current Package", packageFromDisk, modelPackage);
+            // remove constructs from current file and later add them from dirty content
+            WorkspaceUtils.removeConstructsOfFile("Current Package", fileName, modelPackage);
+        }
+        // add constructs in current file's dirty content to package map
+        WorkspaceUtils.loadPackageMap("Current Package", balFileFromDirtyContent.getBLangPackage(),
+                modelPackage);
         // Add 'packageInfo' only if there are any packages.
         Optional<ModelPackage> packageInfoJson = modelPackage.values().stream().findFirst();
         if (packageInfoJson.isPresent() && bFileRequest.needPackageInfo()) {

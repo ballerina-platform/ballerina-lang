@@ -296,6 +296,45 @@ public class WorkspaceUtils {
         }
     }
 
+
+    /**
+     * Remove constructs from given file in given package from given package map.
+     *
+     * @param pkgName Name of the package
+     * @param fileName Name of the File
+     * @param packageMap Package constructs map
+     */
+    public static void removeConstructsOfFile(String pkgName, String fileName,
+                                              Map<String, ModelPackage> packageMap) {
+        ModelPackage newPkg = new ModelPackage();
+        newPkg.setName(pkgName);
+        if (packageMap.containsKey(pkgName)) {
+            ModelPackage currentPkg = packageMap.get(pkgName);
+            currentPkg.getFunctions().forEach((Function func) -> {
+                if (!func.getFileName().equals(fileName)) {
+                    newPkg.addFunctionsItem(func);
+                }
+            });
+            currentPkg.getStructs().forEach((Struct struct) -> {
+                if (!struct.getFileName().equals(fileName)) {
+                    newPkg.addStructsItem(struct);
+                }
+            });
+            currentPkg.getAnnotations().forEach((AnnotationDef annotation) -> {
+                if (!annotation.getFileName().equals(fileName)) {
+                    newPkg.addAnnotationsItem(annotation);
+                }
+            });
+            currentPkg.getConnectors().forEach((Connector connector) -> {
+                if (!connector.getFileName().equals(fileName)) {
+                    newPkg.addConnectorsItem(connector);
+                }
+            });
+            packageMap.remove(pkgName);
+            packageMap.put(pkgName, newPkg);
+        }
+    }
+
     /**
      * Extract annotations from ballerina lang.
      *
@@ -325,6 +364,7 @@ public class WorkspaceUtils {
      */
     private static void extractConnector(Map<String, ModelPackage> packages, String packagePath,
                                          BLangConnector connector) {
+        String fileName = connector.getPosition().getSource().getCompilationUnitName();
         if (packages.containsKey(packagePath)) {
             ModelPackage modelPackage = packages.get(packagePath);
             List<Parameter> parameters = new ArrayList<>();
@@ -337,7 +377,7 @@ public class WorkspaceUtils {
             addActions(actions, connector.getActions());
 
             modelPackage.addConnectorsItem(createNewConnector(connector.getName().getValue(),
-                    annotations, actions, parameters, null));
+                    annotations, actions, parameters, null, fileName));
         } else {
             ModelPackage modelPackage = new ModelPackage();
             modelPackage.setName(packagePath);
@@ -352,7 +392,7 @@ public class WorkspaceUtils {
             addActions(actions, connector.getActions());
 
             modelPackage.addConnectorsItem(createNewConnector(connector.getName().getValue(),
-                    annotations, actions, parameters, null));
+                    annotations, actions, parameters, null, fileName));
             packages.put(packagePath, modelPackage);
         }
     }
@@ -366,6 +406,7 @@ public class WorkspaceUtils {
      */
     private static void extractFunction(Map<String, ModelPackage> packages, String packagePath,
                                         BLangFunction function) {
+        String fileName = function.getPosition().getSource().getCompilationUnitName();
         if (packages.containsKey(packagePath)) {
             ModelPackage modelPackage = packages.get(packagePath);
             List<Parameter> parameters = new ArrayList<>();
@@ -383,7 +424,7 @@ public class WorkspaceUtils {
             boolean isPublic = function.getFlags().contains(Flag.PUBLIC);
 
             modelPackage.addFunctionsItem(createNewFunction(function.getName().getValue(),
-                    annotations, parameters, returnParameters, receiverType, isPublic));
+                    annotations, parameters, returnParameters, receiverType, isPublic, fileName));
         } else {
             ModelPackage modelPackage = new ModelPackage();
             modelPackage.setName(packagePath);
@@ -402,7 +443,7 @@ public class WorkspaceUtils {
             boolean isPublic = function.getFlags().contains(Flag.PUBLIC);
 
             modelPackage.addFunctionsItem(createNewFunction(function.getName().getValue(),
-                    annotations, parameters, returnParameters, receiverType, isPublic));
+                    annotations, parameters, returnParameters, receiverType, isPublic, fileName));
             packages.put(packagePath, modelPackage);
         }
     }
@@ -441,13 +482,14 @@ public class WorkspaceUtils {
      */
     private static void extractStruct(Map<String, ModelPackage> packages, String packagePath,
                                       BLangStruct struct) {
+        String fileName = struct.getPosition().getSource().getCompilationUnitName();
         if (packages.containsKey(packagePath)) {
             ModelPackage modelPackage = packages.get(packagePath);
-            modelPackage.addStructsItem(createNewStruct(struct.getName().getValue(), struct.getFields()));
+            modelPackage.addStructsItem(createNewStruct(struct.getName().getValue(), struct.getFields(), fileName));
         } else {
             ModelPackage modelPackage = new ModelPackage();
             modelPackage.setName(packagePath);
-            modelPackage.addStructsItem(createNewStruct(struct.getName().getValue(), struct.getFields()));
+            modelPackage.addStructsItem(createNewStruct(struct.getName().getValue(), struct.getFields(), fileName));
             packages.put(packagePath, modelPackage);
         }
     }
@@ -502,7 +544,9 @@ public class WorkspaceUtils {
 
         List<Parameter> returnParameters = new ArrayList<>();
         addParameters(returnParameters, action.getReturnParameters());
-        return createNewAction(action.getName().getValue(), parameters, returnParameters, annotations);
+
+        String fileName = action.getPosition().getSource().getCompilationUnitName();
+        return createNewAction(action.getName().getValue(), parameters, returnParameters, annotations, fileName);
     }
 
     /**
@@ -515,12 +559,13 @@ public class WorkspaceUtils {
      * @return {Action} action
      */
     private static Action createNewAction(String name, List<Parameter> params, List<Parameter> returnParams,
-                                          List<AnnotationAttachment> annotations) {
+                                          List<AnnotationAttachment> annotations, String fileName) {
         Action action = new Action();
         action.setName(name);
         action.setParameters(params);
         action.setReturnParams(returnParams);
         action.setAnnotations(annotations);
+        action.setFileName(fileName);
         return action;
     }
 
@@ -554,7 +599,7 @@ public class WorkspaceUtils {
      */
     private static Function createNewFunction(String name, List<AnnotationAttachment> annotations,
                                               List<Parameter> params, List<Parameter> returnParams,
-                                              String receiverType, boolean isPublic) {
+                                              String receiverType, boolean isPublic, String fileName) {
         Function function = new Function();
         function.setName(name);
         function.setAnnotations(annotations);
@@ -562,6 +607,7 @@ public class WorkspaceUtils {
         function.setReturnParams(returnParams);
         function.setReceiverType(receiverType);
         function.setPublic(isPublic);
+        function.setFileName(fileName);
         return function;
     }
 
@@ -572,7 +618,7 @@ public class WorkspaceUtils {
      * @param fields field definiton statements
      * @return {Function} function
      */
-    private static Struct createNewStruct(String name, List<BLangVariable> fields) {
+    private static Struct createNewStruct(String name, List<BLangVariable> fields, String fileName) {
         Struct struct = new Struct(name);
         fields.forEach((field) -> {
             String defaultValue = null;
@@ -583,6 +629,7 @@ public class WorkspaceUtils {
                     field.getTypeNode().type.toString(), defaultValue);
             struct.addStructField(structField);
         });
+        struct.setFileName(fileName);
         return struct;
     }
 
@@ -610,13 +657,14 @@ public class WorkspaceUtils {
      */
     private static Connector createNewConnector(String name, List<AnnotationAttachment> annotations,
                                                 List<Action> actions, List<Parameter> params,
-                                                List<Parameter> returnParams) {
+                                                List<Parameter> returnParams, String fileName) {
         Connector connector = new Connector();
         connector.setName(name);
         connector.setActions(actions);
         connector.setParameters(params);
         connector.setAnnotations(annotations);
         connector.setReturnParameters(returnParams);
+        connector.setFileName(fileName);
         return connector;
     }
 

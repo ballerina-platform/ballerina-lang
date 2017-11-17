@@ -25,6 +25,7 @@ public class Struct {
 
     private String name;
     private List<StructField> structFields;
+    private String fileName = null;
 
     public Struct(String name) {
         this.name = name;
@@ -41,5 +42,13 @@ public class Struct {
 
     public void addStructField(StructField structField) {
         structFields.add(structField);
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }

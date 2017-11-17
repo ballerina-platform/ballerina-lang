@@ -26,6 +26,8 @@ import java.util.Objects;
 public class Connector {
     private String name = null;
 
+    private String fileName = null;
+
     private List<AnnotationAttachment> annotations = new ArrayList<>();
 
     private List<Parameter> returnParameters = new ArrayList<>();
@@ -171,6 +173,14 @@ public class Connector {
             return "null";
         }
         return o.toString().replace("\n", "\n    ");
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }
 

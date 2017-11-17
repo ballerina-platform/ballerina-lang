@@ -28,6 +28,7 @@ public class Action {
     private List<AnnotationAttachment> annotations = new ArrayList<>();
     private List<Parameter> parameters = new ArrayList<Parameter>();
     private List<Parameter> returnParams = new ArrayList<Parameter>();
+    private String fileName = null;
 
     public Action name(String name) {
         this.name = name;
@@ -158,6 +159,14 @@ public class Action {
             return "null";
         }
         return o.toString().replace("\n", "\n    ");
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }
 
