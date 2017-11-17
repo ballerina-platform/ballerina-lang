@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
  */
 public class WorkspaceServiceRunnerTest {
     
-    @Test
+    @Test(enabled = false)
     public void testEnableCloudModeViaArgument() {
         String[] args = {"-cloudMode", "src/test/resources/samples/service/helloWorld.bal"};
         System.setProperty(Constants.SYS_BAL_COMPOSER_HOME, System.getProperty("basedir"));
