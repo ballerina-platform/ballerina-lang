@@ -267,7 +267,7 @@ public class ResponseNativeFunctionNegativeTest {
                 .contains("failed to forward: empty response parameter"));
     }
 
-    @Test(description = "test declaration of two response method. Error is shown in the console")
+    @Test(description = "test declaration of two response method. Error is shown in the console", enabled = false)
     public void testRedeclarationOfTwoResponseMethods() {
         String path = "/hello/15";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
