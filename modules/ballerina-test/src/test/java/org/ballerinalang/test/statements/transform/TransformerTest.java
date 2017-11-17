@@ -294,7 +294,7 @@ public class TransformerTest {
     public void testTransformerNegative() {
         CompileResult resNegative =
                 BCompileUtil.compile("test-src/statements/transform/transformer-define-negative.bal");
-        Assert.assertEquals(resNegative.getErrorCount(), 20);
+        Assert.assertEquals(resNegative.getErrorCount(), 22);
         BAssertUtil.validateError(resNegative, 0, "redeclared symbol 'Foo_1'", 42, 1);
         BAssertUtil.validateError(resNegative, 1, "redeclared symbol 'Foo_1'", 46, 1);
         BAssertUtil.validateError(resNegative, 2, "redeclared symbol 'transformer<Person,Employee>'", 58, 1);
@@ -312,16 +312,21 @@ public class TransformerTest {
         BAssertUtil.validateError(resNegative, 10, "assignment count mismatch: expected 3 values, but found 1", 31, 22);
         BAssertUtil.validateError(resNegative, 11, "too many outputs for transformer: expected 1, found 3", 62, 1);
 
-        BAssertUtil.validateError(resNegative, 12, "'connector init' statement is not allowed inside a transformer", 67,
+        BAssertUtil.validateError(resNegative, 12,
+                "incompatible types: 'TestConnector' is not supported by the transformer", 100, 14);
+        BAssertUtil.validateError(resNegative, 13,
+                "incompatible types: 'TestConnector' is not supported by the transformer", 104, 25);
+
+        BAssertUtil.validateError(resNegative, 14, "'connector init' statement is not allowed inside a transformer", 67,
                 35);
-        BAssertUtil.validateError(resNegative, 13, "'action invocation' statement is not allowed inside a transformer",
+        BAssertUtil.validateError(resNegative, 15, "'action invocation' statement is not allowed inside a transformer",
                 69, 16);
-        BAssertUtil.validateError(resNegative, 14, "'return' statement is not allowed inside a transformer", 71, 5);
-        BAssertUtil.validateError(resNegative, 15, "'try' statement is not allowed inside a transformer", 73, 5);
-        BAssertUtil.validateError(resNegative, 16, "'if' statement is not allowed inside a transformer", 77, 5);
-        BAssertUtil.validateError(resNegative, 17, "'while' statement is not allowed inside a transformer", 81, 5);
-        BAssertUtil.validateError(resNegative, 18, "'invocation' statement is not allowed inside a transformer", 84, 5);
-        BAssertUtil.validateError(resNegative, 19, "'next' statement is not allowed inside a transformer", 86, 5);
+        BAssertUtil.validateError(resNegative, 16, "'return' statement is not allowed inside a transformer", 71, 5);
+        BAssertUtil.validateError(resNegative, 17, "'try' statement is not allowed inside a transformer", 73, 5);
+        BAssertUtil.validateError(resNegative, 18, "'if' statement is not allowed inside a transformer", 77, 5);
+        BAssertUtil.validateError(resNegative, 19, "'while' statement is not allowed inside a transformer", 81, 5);
+        BAssertUtil.validateError(resNegative, 20, "'invocation' statement is not allowed inside a transformer", 84, 5);
+        BAssertUtil.validateError(resNegative, 21, "'next' statement is not allowed inside a transformer", 86, 5);
     }
 
     @Test
