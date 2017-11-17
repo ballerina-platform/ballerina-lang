@@ -18,7 +18,6 @@
 import _ from 'lodash';
 import axios from 'axios';
 import $ from 'jquery';
-import { getLangServerClientInstance } from './../langserver/lang-server-client-controller';
 import hardcodedTypeLattice from './hardcoded-type-lattice';
 import hardcodedOperatorLattice from './hardcoded-operator-lattice';
 
@@ -111,52 +110,6 @@ export function parseContent(content) {
             .then((response) => {
                 resolve(response.data);
             }).catch(error => reject(error));
-    });
-}
-
-/**
- * Returns a promise with program packages of the given file
- * 
- * @param {File} file
- */
-export function getProgramPackages(file) {
-    const fileOptions = {
-        fileName: file.name,
-        filePath: file.path,
-        packageName: file.packageName,
-        content: file.content,
-        isDirty: file.isDirty,
-    };
-
-    return new Promise((resolve, reject) => {
-        getLangServerClientInstance()
-            .then((langserverClient) => {
-                langserverClient.getProgramPackages(fileOptions, (data) => {
-                    resolve(data);
-                });
-            })
-            .catch(error => reject(error));
-    });
-}
-
-/**
- * Returns a promise that resolves built in packages
- */
-export function getBuiltInPackages() {
-    return new Promise((resolve, reject) => {
-        getLangServerClientInstance()
-            .then((langserverClient) => {
-                langserverClient.getBuiltInPackages()
-                    .then((data) => {
-                        if (!data.error && data.result) {
-                            resolve(data.result.packages);
-                        } else {
-                            reject(data);
-                        }
-                    })
-                    .catch(reject);
-            })
-            .catch(reject);
     });
 }
 

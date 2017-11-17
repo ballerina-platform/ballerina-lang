@@ -15,7 +15,9 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-import { parseFragment } from 'api-client/api-client';
+
+// using relative imports here, since gen-default-nodes runs without webpack
+import { parseFragment } from '../../api-client/api-client';
 
 /**
  * Class for fragment utils.
