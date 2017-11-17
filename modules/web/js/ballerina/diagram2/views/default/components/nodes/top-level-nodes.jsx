@@ -279,7 +279,7 @@ class TopLevelNodes extends React.Component {
         const packageSuggestions = this.context.environment.getPackages()
             .filter(p => !imports.map(i => (i.getPackageName())).includes(p.getName()))
             .map(p => ({ name: p.getName() })).sort();
-
+        _.remove(packageSuggestions, p => p.name === 'Current Package');
         if (this.packageDefValue) {
             model.viewState.packageDefExpanded = true;
         }
