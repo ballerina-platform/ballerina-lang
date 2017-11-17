@@ -32,7 +32,7 @@ public class HttpResponseStatusFuture implements HttpResponseFuture {
 
     private HTTPCarbonMessage httpCarbonMessage;
     private Throwable throwable, status;
-    private volatile Semaphore executionWaitSem;
+    private Semaphore executionWaitSem;
 
     @Override
     public void setHttpConnectorListener(HttpConnectorListener connectorListener) {
