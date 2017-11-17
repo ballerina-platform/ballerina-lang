@@ -27,6 +27,8 @@ public class AnnotationAttributeValue {
 
     private String bValue;
 
+    private String fileName = null;
+
     private AnnotationAttachment annotationValue;
 
     private List<AnnotationAttributeValue> valueArray;
@@ -89,5 +91,13 @@ public class AnnotationAttributeValue {
     public String toString() {
         return "AnnotationAttributeValue{" + "bValue='" + bValue + '\''
                 + ", annotationValue=" + annotationValue + "," + " valueArray=" + valueArray + '}';
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }

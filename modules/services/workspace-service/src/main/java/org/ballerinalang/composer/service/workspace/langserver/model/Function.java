@@ -39,6 +39,8 @@ public class Function {
 
     private Boolean isPublic = false;
 
+    private String fileName = null;
+
     public Function name(String name) {
         this.name = name;
         return this;
@@ -217,6 +219,14 @@ public class Function {
             return "null";
         }
         return o.toString().replace("\n", "\n    ");
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }
 

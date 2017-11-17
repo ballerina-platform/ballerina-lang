@@ -35,6 +35,8 @@ public class AnnotationAttachment {
     private String attachedPoint;
 
     private Map<String, AnnotationAttributeValue> attributeNameValPairs = new HashMap();
+
+    private String fileName = null;
     
     public String getName() {
         return name;
@@ -126,5 +128,13 @@ public class AnnotationAttachment {
     public String toString() {
         return "AnnotationAttachment{" + "name='" + name + '\'' + ", packagePath='" + packagePath + '\'' + ", " +
                "attachedPoint='" + attachedPoint + '\'' + '}';
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }

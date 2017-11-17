@@ -30,7 +30,9 @@ public class AnnotationAttributeDef {
     private String packagePath = null;
 
     private String identifier = null;
-    
+
+    private String fileName = null;
+
     public String getbType() {
         return bType;
     }
@@ -86,5 +88,13 @@ public class AnnotationAttributeDef {
     public String toString() {
         return "AnnotationAttributeDef{" + "bType='" + bType + '\'' + ", packagePath='" + packagePath + '\'' + ", " +
                "identifier='" + identifier + '\'' + '}';
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }

@@ -32,6 +32,8 @@ public class AnnotationDef {
 
     private String name = null;
 
+    private String fileName = null;
+
     private List<String> attachmentPoints = new ArrayList<String>();
 
     private List<AnnotationAttributeDef> annotationAttributeDefs = new ArrayList<>();
@@ -117,6 +119,14 @@ public class AnnotationDef {
     public String toString() {
         return "Annotation{" + "packagePath='" + packagePath + '\'' + ", name='" + name + '\'' + ", " +
                "attachmentPoints=" + attachmentPoints + ", annotationAttributeDefs=" + annotationAttributeDefs + '}';
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }
 

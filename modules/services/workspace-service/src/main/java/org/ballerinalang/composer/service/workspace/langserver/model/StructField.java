@@ -24,6 +24,7 @@ public class StructField {
     private String type;
     private String defaultValue;
     private String packageName;
+    private String fileName = null;
 
     public StructField(String name, String type, String defaultValue) {
         this.name = name;
@@ -61,5 +62,13 @@ public class StructField {
 
     public void setPackageName(String packageName) {
         this.packageName = packageName;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }
