@@ -104,6 +104,7 @@ class ToolGroupView extends React.Component {
                         group={group}
                         key={element.id + element.name}
                         order={group.order}
+                        isDocEnable={group.name !== 'Current Package'}
                     />);
             }
         }, this);
