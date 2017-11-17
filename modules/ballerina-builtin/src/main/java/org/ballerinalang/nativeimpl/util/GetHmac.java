@@ -26,12 +26,12 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.HashUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -63,17 +63,17 @@ public class GetHmac extends AbstractNativeFunction {
 
         //todo document the supported algorithm
         switch (algorithm) {
-        case "SHA1":
-            hmacAlgorithm = "HmacSHA1";
-            break;
-        case "SHA256":
-            hmacAlgorithm = "HmacSHA256";
-            break;
-        case "MD5":
-            hmacAlgorithm = "HmacMD5";
-            break;
-        default:
-            throw new BallerinaException("Unsupported algorithm " + algorithm + " for HMAC calculation");
+            case "SHA1":
+                hmacAlgorithm = "HmacSHA1";
+                break;
+            case "SHA256":
+                hmacAlgorithm = "HmacSHA256";
+                break;
+            case "MD5":
+                hmacAlgorithm = "HmacMD5";
+                break;
+            default:
+                throw new BallerinaException("Unsupported algorithm " + algorithm + " for HMAC calculation");
         }
 
         String result;
@@ -83,12 +83,11 @@ public class GetHmac extends AbstractNativeFunction {
             Mac mac = Mac.getInstance(hmacAlgorithm);
             mac.init(secretKey);
             byte[] baseStringBytes = baseString.getBytes(Charset.defaultCharset());
-            result = new String(Base64.getEncoder().encode(mac.doFinal(baseStringBytes)), Charset.defaultCharset());
+            result = HashUtils.toHexString(mac.doFinal(baseStringBytes));
         } catch (IllegalArgumentException | InvalidKeyException | NoSuchAlgorithmException e) {
             throw new BallerinaException("Error while calculating HMAC for " + hmacAlgorithm + ": " + e.getMessage(),
-                    context);
+                                         context);
         }
-
         return getBValues(new BString(result));
     }
 }

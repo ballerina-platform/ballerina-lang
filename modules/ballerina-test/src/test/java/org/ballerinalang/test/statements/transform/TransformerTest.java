@@ -27,6 +27,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Class to test functionality of transformer.
+ */
 public class TransformerTest {
 
     CompileResult result;
@@ -165,65 +168,63 @@ public class TransformerTest {
     public void testTransformerInvalidVarUsage() {
         CompileResult resNegative = BCompileUtil.compile("test-src/statements/transform/transform-stmt-negative.bal");
         Assert.assertEquals(resNegative.getErrorCount(), 2);
-        BAssertUtil.validateError(resNegative, 0,
-                "invalid usage of variable 'p': inputs cannot be updated inside transformer block", 22, 5);
-        BAssertUtil.validateError(resNegative, 1,
-                "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block", 22,
-                19);
+        BAssertUtil.validateError(resNegative, 0, "invalid usage of variable 'p': source or input parameters cannot " +
+                "be updated inside transformer block", 22, 5);
+        BAssertUtil.validateError(resNegative, 1, "invalid usage of variable 'e': target cannot be used in rhs " +
+                "expressions inside transformer block", 22, 19);
 
         resNegative =
                 BCompileUtil.compile("test-src/statements/transform/transform-stmt-cast-and-conversion-negative.bal");
         Assert.assertEquals(resNegative.getErrorCount(), 3);
         BAssertUtil.validateError(resNegative, 0, "incompatible types: expected 'string', found 'int'", 32, 11);
-        BAssertUtil.validateError(resNegative, 1,
-                "invalid usage of variable 'defaultAddress': inputs cannot be updated inside transformer block", 29, 5);
-        BAssertUtil.validateError(resNegative, 2,
-                "invalid usage of variable 'age': inputs cannot be updated inside transformer block", 32, 5);
+        BAssertUtil.validateError(resNegative, 1, "invalid usage of variable 'defaultAddress': source or input " +
+                "parameters cannot be updated inside transformer block", 29, 5);
+        BAssertUtil.validateError(resNegative, 2, "invalid usage of variable 'age': source or input parameters " +
+                "cannot be updated inside transformer block", 32, 5);
 
         resNegative =
                 BCompileUtil.compile("test-src/statements/transform/transform-stmt-function-invocations-negative.bal");
         Assert.assertEquals(resNegative.getErrorCount(), 1);
-        BAssertUtil.validateError(resNegative, 0,
-                "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block", 26,
-                30);
+        BAssertUtil.validateError(resNegative, 0, "invalid usage of variable 'e': target cannot be used in rhs " +
+                "expressions inside transformer block", 26, 30);
 
         resNegative = BCompileUtil.compile("test-src/statements/transform/transform-stmt-with-var-negative.bal");
         Assert.assertEquals(resNegative.getErrorCount(), 1);
-        BAssertUtil.validateError(resNegative, 0,
-                "invalid usage of variable 'temp': inputs cannot be updated inside transformer block", 28, 5);
+        BAssertUtil.validateError(resNegative, 0, "invalid usage of variable 'temp': source or input parameters " +
+                "cannot be updated inside transformer block", 28, 5);
 
         resNegative = BCompileUtil.compile("test-src/statements/transform/transform-stmt-with-var-def-negative.bal");
         Assert.assertEquals(resNegative.getErrorCount(), 2);
-        BAssertUtil.validateError(resNegative, 0,
-                "invalid usage of variable 'prefix': inputs cannot be updated inside transformer block", 38, 5);
-        BAssertUtil.validateError(resNegative, 1,
-                "invalid usage of variable 'name': inputs cannot be updated inside transformer block", 46, 5);
+        BAssertUtil.validateError(resNegative, 0, "invalid usage of variable 'prefix': source or input parameters " +
+                "cannot be updated inside transformer block", 38, 5);
+        BAssertUtil.validateError(resNegative, 1, "invalid usage of variable 'name': source or input parameters " +
+                "cannot be updated inside transformer block", 46, 5);
 
         resNegative = BCompileUtil.compile("test-src/statements/transform/transform-stmt-literals-negative.bal");
         Assert.assertEquals(resNegative.getErrorCount(), 8);
-        BAssertUtil.validateError(resNegative, 0,
-                "invalid usage of variable 'str2': inputs cannot be updated inside transformer block", 34, 5);
-        BAssertUtil.validateError(resNegative, 1,
-                "invalid usage of variable 'flag2': inputs cannot be updated inside transformer block", 35, 5);
-        BAssertUtil.validateError(resNegative, 2,
-                "invalid usage of variable 'x2': inputs cannot be updated inside transformer block", 36, 5);
-        BAssertUtil.validateError(resNegative, 3,
-                "invalid usage of variable 'json2': inputs cannot be updated inside transformer block", 37, 5);
-        BAssertUtil.validateError(resNegative, 4,
-                "invalid usage of variable 'arr2': inputs cannot be updated inside transformer block", 38, 5);
-        BAssertUtil.validateError(resNegative, 5,
-                "invalid usage of variable 'map2': inputs cannot be updated inside transformer block", 39, 5);
-        BAssertUtil.validateError(resNegative, 6,
-                "invalid usage of variable 'p2': inputs cannot be updated inside transformer block", 40, 5);
-        BAssertUtil.validateError(resNegative, 7,
-                "invalid usage of variable 'jsonP2': inputs cannot be updated inside transformer block", 41, 5);
+        BAssertUtil.validateError(resNegative, 0, "invalid usage of variable 'str2': source or input parameters " +
+                "cannot be updated inside transformer block", 34, 5);
+        BAssertUtil.validateError(resNegative, 1, "invalid usage of variable 'flag2': source or input parameters " +
+                "cannot be updated inside transformer block", 35, 5);
+        BAssertUtil.validateError(resNegative, 2, "invalid usage of variable 'x2': source or input parameters " +
+                "cannot be updated inside transformer block", 36, 5);
+        BAssertUtil.validateError(resNegative, 3, "invalid usage of variable 'json2': source or input parameters " +
+                "cannot be updated inside transformer block", 37, 5);
+        BAssertUtil.validateError(resNegative, 4, "invalid usage of variable 'arr2': source or input parameters " +
+                "cannot be updated inside transformer block", 38, 5);
+        BAssertUtil.validateError(resNegative, 5, "invalid usage of variable 'map2': source or input parameters " +
+                "cannot be updated inside transformer block", 39, 5);
+        BAssertUtil.validateError(resNegative, 6, "invalid usage of variable 'p2': source or input parameters " +
+                "cannot be updated inside transformer block", 40, 5);
+        BAssertUtil.validateError(resNegative, 7, "invalid usage of variable 'jsonP2': source or input parameters " +
+                "cannot be updated inside transformer block", 41, 5);
 
         resNegative = BCompileUtil.compile("test-src/statements/transform/transform-stmt-operators-negative.bal");
         Assert.assertEquals(resNegative.getErrorCount(), 2);
-        BAssertUtil.validateError(resNegative, 0,
-                "invalid usage of variable 'p': inputs cannot be updated inside transformer block", 24, 5);
-        BAssertUtil.validateError(resNegative, 1,
-                "invalid usage of variable 'p': inputs cannot be updated inside transformer block", 26, 5);
+        BAssertUtil.validateError(resNegative, 0, "invalid usage of variable 'p': source or input parameters " +
+                "cannot be updated inside transformer block", 24, 5);
+        BAssertUtil.validateError(resNegative, 1, "invalid usage of variable 'p': source or input parameters " +
+                "cannot be updated inside transformer block", 26, 5);
     }
 
     @Test
@@ -231,67 +232,49 @@ public class TransformerTest {
         CompileResult resNegative =
                 BCompileUtil.compile("test-src/statements/transform/transform-all-rhs-expressions-negative.bal");
         Assert.assertEquals(resNegative.getErrorCount(), 18);
-        BAssertUtil.validateError(resNegative, 0,
-                "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block", 70,
-                19);
-        BAssertUtil.validateError(resNegative, 1,
-                "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block", 73,
-                19);
-        BAssertUtil.validateError(resNegative, 2,
-                "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block", 73,
-                39);
-        BAssertUtil.validateError(resNegative, 3,
-                "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block", 76,
-                20);
-        BAssertUtil.validateError(resNegative, 4,
-                "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block", 79,
-                35);
-        BAssertUtil.validateError(resNegative, 5,
-                "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block", 79,
-                25);
-        BAssertUtil.validateError(resNegative, 6,
-                "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block", 82,
-                22);
-        BAssertUtil.validateError(resNegative, 7,
-                "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block", 85,
-                27);
-        BAssertUtil.validateError(resNegative, 8,
-                "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block", 88,
-                23);
-        BAssertUtil.validateError(resNegative, 9,
-                "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block", 95,
-                21);
-        BAssertUtil.validateError(resNegative, 10,
-                "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block", 95,
-                33);
-        BAssertUtil.validateError(resNegative, 11,
-                "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block", 95,
-                45);
-        BAssertUtil.validateError(resNegative, 12,
-                "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block", 95,
-                71);
-        BAssertUtil.validateError(resNegative, 13,
-                "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block", 95,
-                92);
-        BAssertUtil.validateError(resNegative, 14,
-                "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block", 95,
-                109);
-        BAssertUtil.validateError(resNegative, 15,
-                "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block", 95,
-                124);
-        BAssertUtil.validateError(resNegative, 16,
-                "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block",
-                97, 20);
-        BAssertUtil.validateError(resNegative, 17,
-                "invalid usage of variable 'e': outputs cannot be used in rhs expressions inside transformer block",
-                100, 33);
+        BAssertUtil.validateError(resNegative, 0, "invalid usage of variable 'e': target cannot be used in rhs " +
+                "expressions inside transformer block", 70, 19);
+        BAssertUtil.validateError(resNegative, 1, "invalid usage of variable 'e': target cannot be used in rhs " +
+                "expressions inside transformer block", 73, 19);
+        BAssertUtil.validateError(resNegative, 2, "invalid usage of variable 'e': target cannot be used in rhs " +
+                "expressions inside transformer block", 73, 39);
+        BAssertUtil.validateError(resNegative, 3, "invalid usage of variable 'e': target cannot be used in rhs " +
+                "expressions inside transformer block", 76, 20);
+        BAssertUtil.validateError(resNegative, 4, "invalid usage of variable 'e': target cannot be used in rhs " +
+                "expressions inside transformer block", 79, 35);
+        BAssertUtil.validateError(resNegative, 5, "invalid usage of variable 'e': target cannot be used in rhs " +
+                "expressions inside transformer block", 79, 25);
+        BAssertUtil.validateError(resNegative, 6, "invalid usage of variable 'e': target cannot be used in rhs " +
+                "expressions inside transformer block", 82, 22);
+        BAssertUtil.validateError(resNegative, 7, "invalid usage of variable 'e': target cannot be used in rhs " +
+                "expressions inside transformer block", 85, 27);
+        BAssertUtil.validateError(resNegative, 8, "invalid usage of variable 'e': target cannot be used in rhs " +
+                "expressions inside transformer block", 88, 23);
+        BAssertUtil.validateError(resNegative, 9, "invalid usage of variable 'e': target cannot be used in rhs " +
+                "expressions inside transformer block", 95, 21);
+        BAssertUtil.validateError(resNegative, 10, "invalid usage of variable 'e': target cannot be used in rhs " +
+                "expressions inside transformer block", 95, 33);
+        BAssertUtil.validateError(resNegative, 11, "invalid usage of variable 'e': target cannot be used in rhs " +
+                "expressions inside transformer block", 95, 45);
+        BAssertUtil.validateError(resNegative, 12, "invalid usage of variable 'e': target cannot be used in rhs " +
+                "expressions inside transformer block", 95, 71);
+        BAssertUtil.validateError(resNegative, 13, "invalid usage of variable 'e': target cannot be used in rhs " +
+                "expressions inside transformer block", 95, 92);
+        BAssertUtil.validateError(resNegative, 14, "invalid usage of variable 'e': target cannot be used in rhs " +
+                "expressions inside transformer block", 95, 109);
+        BAssertUtil.validateError(resNegative, 15, "invalid usage of variable 'e': target cannot be used in rhs " +
+                "expressions inside transformer block", 95, 124);
+        BAssertUtil.validateError(resNegative, 16, "invalid usage of variable 'e': target cannot be used in rhs " +
+                "expressions inside transformer block", 97, 20);
+        BAssertUtil.validateError(resNegative, 17, "invalid usage of variable 'e': target cannot be used in rhs " +
+                "expressions inside transformer block", 100, 33);
     }
 
     @Test
     public void testTransformerNegative() {
         CompileResult resNegative =
                 BCompileUtil.compile("test-src/statements/transform/transformer-define-negative.bal");
-        Assert.assertEquals(resNegative.getErrorCount(), 20);
+        Assert.assertEquals(resNegative.getErrorCount(), 22);
         BAssertUtil.validateError(resNegative, 0, "redeclared symbol 'Foo_1'", 42, 1);
         BAssertUtil.validateError(resNegative, 1, "redeclared symbol 'Foo_1'", 46, 1);
         BAssertUtil.validateError(resNegative, 2, "redeclared symbol 'transformer<Person,Employee>'", 58, 1);
@@ -309,16 +292,21 @@ public class TransformerTest {
         BAssertUtil.validateError(resNegative, 10, "assignment count mismatch: expected 3 values, but found 1", 31, 22);
         BAssertUtil.validateError(resNegative, 11, "too many outputs for transformer: expected 1, found 3", 62, 1);
 
-        BAssertUtil.validateError(resNegative, 12, "'connector init' statement is not allowed inside a transformer", 67,
+        BAssertUtil.validateError(resNegative, 12,
+                "incompatible types: 'TestConnector' is not supported by the transformer", 100, 14);
+        BAssertUtil.validateError(resNegative, 13,
+                "incompatible types: 'TestConnector' is not supported by the transformer", 104, 25);
+
+        BAssertUtil.validateError(resNegative, 14, "'connector init' statement is not allowed inside a transformer", 67,
                 35);
-        BAssertUtil.validateError(resNegative, 13, "'action invocation' statement is not allowed inside a transformer",
+        BAssertUtil.validateError(resNegative, 15, "'action invocation' statement is not allowed inside a transformer",
                 69, 16);
-        BAssertUtil.validateError(resNegative, 14, "'return' statement is not allowed inside a transformer", 71, 5);
-        BAssertUtil.validateError(resNegative, 15, "'try' statement is not allowed inside a transformer", 73, 5);
-        BAssertUtil.validateError(resNegative, 16, "'if' statement is not allowed inside a transformer", 77, 5);
-        BAssertUtil.validateError(resNegative, 17, "'while' statement is not allowed inside a transformer", 81, 5);
-        BAssertUtil.validateError(resNegative, 18, "'invocation' statement is not allowed inside a transformer", 84, 5);
-        BAssertUtil.validateError(resNegative, 19, "'next' statement is not allowed inside a transformer", 86, 5);
+        BAssertUtil.validateError(resNegative, 16, "'return' statement is not allowed inside a transformer", 71, 5);
+        BAssertUtil.validateError(resNegative, 17, "'try' statement is not allowed inside a transformer", 73, 5);
+        BAssertUtil.validateError(resNegative, 18, "'if' statement is not allowed inside a transformer", 77, 5);
+        BAssertUtil.validateError(resNegative, 19, "'while' statement is not allowed inside a transformer", 81, 5);
+        BAssertUtil.validateError(resNegative, 20, "'invocation' statement is not allowed inside a transformer", 84, 5);
+        BAssertUtil.validateError(resNegative, 21, "'next' statement is not allowed inside a transformer", 86, 5);
     }
 
     @Test

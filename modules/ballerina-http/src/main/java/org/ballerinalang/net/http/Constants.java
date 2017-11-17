@@ -50,6 +50,8 @@ public class Constants {
     public static final String PORT = "PORT";
     public static final String TO = "TO";
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
+    public static final String TLS_STORE_TYPE = "tlsStoreType";
+    public static final String PKCS_STORE_TYPE = "PKCS12";
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
 
@@ -145,7 +147,7 @@ public class Constants {
     public static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final int OPTIONS_STRUCT_INDEX = 0;
     public static final int ENDPOINT_TIMEOUT_STRUCT_INDEX = 1;
-    public static final int CHUNK_DISABLED_STRUCT_INDEX = 0;
+    public static final int ENABLE_CHUNKING_INDEX = 0;
     public static final int SSL_STRUCT_INDEX = 1;
     public static final int FOLLOW_REDIRECT_STRUCT_INDEX = 0;
     public static final int FOLLOW_REDIRECT_INDEX = 0;
@@ -157,6 +159,13 @@ public class Constants {
     public static final int SSL_ENABLED_PROTOCOLS_INDEX = 4;
     public static final int CIPHERS_INDEX = 5;
     public static final int SSL_PROTOCOL_INDEX = 6;
+
+    //Proxy server struct indexes
+    public static final int PROXY_STRUCT_INDEX = 3;
+    public static final int PROXY_HOST_INDEX = 0;
+    public static final int PROXY_PORT_INDEX = 0;
+    public static final int PROXY_USER_NAME_INDEX = 1;
+    public static final int PROXY_PASSWORD_INDEX = 2;
 
     //Retry Struct indexes
     public static final int RETRY_STRUCT_INDEX = 2;

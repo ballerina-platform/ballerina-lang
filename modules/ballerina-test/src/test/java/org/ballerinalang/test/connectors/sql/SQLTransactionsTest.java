@@ -29,6 +29,9 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 
+/**
+ * Class to test functionality of transactions in SQL.
+ */
 public class SQLTransactionsTest {
 
     CompileResult result;

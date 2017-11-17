@@ -1327,11 +1327,11 @@ public class XMLNativeFunctionTest {
     public void testParseXMLCommentWithXMLDeclrEntity() {
         BValue[] returns = BRunUtil.invoke(result, "testParseXMLCommentWithXMLDeclrEntity");
         Assert.assertEquals(returns[0], null);
-        Assert.assertEquals(returns[1].stringValue(),
-                "{msg:\"Unexpected EOF in prolog\n at [row,col {unknown-source}]:"
+        Assert.assertTrue(returns[1].stringValue().startsWith("{msg:\"Unexpected EOF in prolog"));
+        Assert.assertTrue(returns[1].stringValue().endsWith("at [row,col {unknown-source}]:"
                         + " [1,74]\", cause:null, stackTrace:[{caller:\"testParseXMLCommentWithXMLDeclrEntity\", "
                         + "packageName:\".\", fileName:\"xml-native-functions.bal\", lineNumber:816}], sourceType:"
-                        + "\"string\", targetType:\"xml\"}");
+                        + "\"string\", targetType:\"xml\"}"));
     }
 
     @Test

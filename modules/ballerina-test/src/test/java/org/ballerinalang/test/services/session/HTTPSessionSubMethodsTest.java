@@ -166,7 +166,17 @@ public class HTTPSessionSubMethodsTest {
         stringDataSource = (StringDataSource) response.getMessageDataSource();
         Assert.assertNotNull(stringDataSource);
         long secondAccess = Long.parseLong(stringDataSource.getValue());
-        Assert.assertTrue(firstAccess <= secondAccess);
+        Assert.assertTrue(firstAccess == secondAccess);
+
+        cMsg = MessageUtils.generateHTTPMessage("/sample2/new4", "GET");
+        cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
+        response = Services.invokeNew(cMsg);
+        Assert.assertNotNull(response);
+
+        stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        long thirdAccess = Long.parseLong(stringDataSource.getValue());
+        Assert.assertTrue(firstAccess <= thirdAccess);
     }
 
     @Test(description = "Test for GetLastAccessed Function error")

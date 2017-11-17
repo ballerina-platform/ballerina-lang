@@ -69,7 +69,7 @@ public class CharacterChannel {
     private Buffer contentBuffer;
 
     /**
-     * Defines character which will be included when malformed input is detected from the decoder
+     * Defines character which will be included when malformed input is detected from the decoder.
      */
     private static final char UN_MAPPABLE_CHARACTER = '�';
 

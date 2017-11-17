@@ -38,7 +38,7 @@ import static org.ballerinalang.nativeimpl.file.utils.Constants.FILE_STRUCT;
 import static org.ballerinalang.nativeimpl.file.utils.Constants.IO_ERROR;
 
 /**
- * A util class for handling struct creation
+ * A util class for handling struct creation.
  *
  * @since 0.94.1
  */

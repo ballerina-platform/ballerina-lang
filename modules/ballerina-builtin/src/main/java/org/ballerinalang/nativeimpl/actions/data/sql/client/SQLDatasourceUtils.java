@@ -144,7 +144,7 @@ public class SQLDatasourceUtils {
                 if (value == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
-                    stmt.setString(index + 1, value.stringValue());
+                    stmt.setNString(index + 1, value.stringValue());
                 }
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else if (Constants.QueryParamDirection.OUT == direction) {
@@ -294,42 +294,6 @@ public class SQLDatasourceUtils {
             }
         } catch (SQLException e) {
             throw new BallerinaException("error in set tinyint value to statement: " + e.getMessage(), e);
-        }
-    }
-
-    public static void setSmallIntValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
-        Short val = null;
-        if (value != null) {
-            String strValue = value.stringValue();
-            if (!strValue.isEmpty()) {
-                try {
-                    val = Short.parseShort(strValue);
-                } catch (NumberFormatException e) {
-                    throw new BallerinaException("invalid value for short: " + strValue);
-                }
-            }
-        }
-        try {
-            if (Constants.QueryParamDirection.IN == direction) {
-                if (val == null) {
-                    stmt.setNull(index + 1, sqlType);
-                } else {
-                    stmt.setShort(index + 1, val);
-                }
-            } else if (Constants.QueryParamDirection.INOUT == direction) {
-                if (val == null) {
-                    stmt.setNull(index + 1, sqlType);
-                } else {
-                    stmt.setShort(index + 1, val);
-                }
-                ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
-            } else if (Constants.QueryParamDirection.OUT == direction) {
-                ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
-            } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
-            }
-        } catch (SQLException e) {
-            throw new BallerinaException("error in set smallint value to statement." + e.getMessage(), e);
         }
     }
 

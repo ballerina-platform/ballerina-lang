@@ -32,7 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Implementation of {@link org.ballerinalang.model.tree.expressions.InvocationNode}
+ * Implementation of {@link org.ballerinalang.model.tree.expressions.InvocationNode}.
  *
  * @since 0.94
  */

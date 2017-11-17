@@ -20,7 +20,7 @@ package org.ballerinalang.model.tree.statements;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
- * bind con with endpoint
+ * bind con with endpoint.
  *
  * @since 0.95.0
  */

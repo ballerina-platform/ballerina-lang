@@ -373,6 +373,41 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertEquals(stringDataSource.getValue(), "0");
     }
 
+    @Test(description = "Test for getAttributes function")
+    public void testGetAttributesFunction() {
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/map", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "Name:chamil");
+
+        String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
+        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 14);
+
+        cMsg = MessageUtils.generateHTTPMessage("/sample2/map", "GET");
+        cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
+        cMsg.setHeader("counter", "1");
+        response = Services.invokeNew(cMsg);
+        Assert.assertNotNull(response);
+
+        stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "Lang:ballerina");
+    }
+
+    @Test(description = "Test for null attribute map from getAttributes function")
+    public void testNullGetAttributesFunction() {
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/map2", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "value:map not present");
+    }
+
     @Test(description = "Test for removeAttribute function")
     public void testRemoveAttributeFunction() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/names3", "GET");

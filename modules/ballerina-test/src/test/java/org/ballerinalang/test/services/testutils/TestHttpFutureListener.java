@@ -32,7 +32,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Test future implementation for service tests
+ * Test future implementation for service tests.
  */
 public class TestHttpFutureListener implements ConnectorFutureListener {
 

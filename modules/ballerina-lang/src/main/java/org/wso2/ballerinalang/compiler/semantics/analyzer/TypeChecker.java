@@ -107,7 +107,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private SymbolEnv env;
 
     /**
-     * Expected types or inherited types
+     * Expected types or inherited types.
      */
     private List<BType> expTypes;
 
@@ -445,6 +445,9 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.MAP:
             case TypeTags.DATATABLE:
                 checkFunctionInvocationExpr(iExpr, iExpr.expr.type);
+                break;
+            case TypeTags.ARRAY:
+                dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.expr.type);
                 break;
             default:
                 // TODO Handle this condition

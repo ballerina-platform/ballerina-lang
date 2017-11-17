@@ -541,20 +541,10 @@ public class BLangVM {
                 case InstructionCodes.ACALL:
                     cpIndex = operands[0];
                     actionRefCPEntry = (ActionRefCPEntry) constPool[cpIndex];
-                    actionInfo = actionRefCPEntry.getActionInfo();
 
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeAction(actionInfo, funcCallCPEntry);
-                    break;
-                case InstructionCodes.NACALL:
-                    cpIndex = operands[0];
-                    actionRefCPEntry = (ActionRefCPEntry) constPool[cpIndex];
-                    actionInfo = actionRefCPEntry.getActionInfo();
-
-                    cpIndex = operands[1];
-                    funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeNativeAction(actionInfo, funcCallCPEntry);
+                    invokeAction(actionRefCPEntry.getActionName(), funcCallCPEntry);
                     break;
                 case InstructionCodes.THROW:
                     i = operands[0];
@@ -2619,7 +2609,7 @@ public class BLangVM {
 
     }
 
-    public void invokeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
+    public void invokeAction(String actionName, FunctionCallCPEntry funcCallCPEntry) {
         int[] argRegs = funcCallCPEntry.getArgRegs();
         StackFrame callerSF = controlStack.currentFrame;
 
@@ -2631,9 +2621,9 @@ public class BLangVM {
         BConnectorType actualCon = (BConnectorType) ((BConnector) callerSF.refRegs[argRegs[0]]).getConnectorType();
         //TODO find a way to change this to method table
         ActionInfo newActionInfo = programFile.getPackageInfo(actualCon.getPackagePath())
-                .getConnectorInfo(actualCon.getName()).getActionInfo(actionInfo.getName());
+                .getConnectorInfo(actualCon.getName()).getActionInfo(actionName);
 
-        if (newActionInfo.getNativeAction() != null) {
+        if (newActionInfo.isNative()) {
             invokeNativeAction(newActionInfo, funcCallCPEntry);
         } else {
             invokeCallableUnit(newActionInfo, funcCallCPEntry);
@@ -2742,11 +2732,9 @@ public class BLangVM {
             StackFrame workerCallerSF = workerContext.getControlStackNew().currentFrame;
             workerContext.parentSF.returnedWorker = workerCallerSF.workerInfo.getWorkerName();
 
-            ControlStackNew parentControlStack = workerContext.parent.getControlStackNew();
             StackFrame parentSF = workerContext.parentSF;
-            StackFrame parentCallersSF = parentControlStack.currentFrame.prevStackFrame;
 
-            copyWorkersReturnValues(workerCallerSF, parentSF, parentCallersSF);
+            copyWorkersReturnValues(workerCallerSF, parentSF);
             // Switch to parent context
             this.context = workerContext.parent;
             this.controlStack = this.context.getControlStackNew();
@@ -2920,7 +2908,7 @@ public class BLangVM {
         ip = currentSF.retAddrs;
     }
 
-    private void copyWorkersReturnValues(StackFrame workerCallerSF, StackFrame parentsSF, StackFrame parentCallersSF) {
+    private void copyWorkersReturnValues(StackFrame workerSF, StackFrame parentsSF) {
         int callersRetRegIndex;
         int longRegCount = 0;
         int doubleRegCount = 0;
@@ -2928,6 +2916,8 @@ public class BLangVM {
         int intRegCount = 0;
         int refRegCount = 0;
         int byteRegCount = 0;
+        StackFrame workerCallerSF = workerSF.prevStackFrame;
+        StackFrame parentCallersSF = parentsSF.prevStackFrame;
         BType[] retTypes = parentsSF.getCallableUnitInfo().getRetParamTypes();
         for (int i = 0; i < retTypes.length; i++) {
             BType retType = retTypes[i];
