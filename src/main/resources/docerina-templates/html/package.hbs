@@ -189,6 +189,7 @@
                             <h3 id="{{name}}">annotation {{name}}</h3>
                             <p>{{oneValueAnnotation "description"}}</p>
 
+                            {{#if attributes}}
                             <p>
                                 <b>Attributes:</b>
                                 <table>
@@ -197,11 +198,12 @@
                                     </tr>
                                     {{#each attributes}}
                                     <tr>
-                                        <td>{{name}}</td><td><a href="{{#bindLink typeNode}}{{/bindLink}}"{{typeTitle typeNode}}>{{annotationTypeText typeNode}}</a></td><td>{{attributeAnnotation this "attributeDef"}}</td>
+                                        <td>{{name}}</td><td><a href="{{#bindLink typeNode}}{{/bindLink}}"{{typeTitle typeNode}}>{{annotationTypeText typeNode}}</a></td><td>{{annotFieldAnnotation}}</td>
                                     </tr>
                                     {{/each}}
                                 </table>
                             </p>
+                            {{/if}}
                         </div>
                         {{/each}}
                         <p></p>

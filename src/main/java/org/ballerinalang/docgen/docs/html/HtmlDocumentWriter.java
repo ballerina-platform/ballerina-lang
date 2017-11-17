@@ -52,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -154,6 +155,8 @@ public class HtmlDocumentWriter implements DocumentWriter {
      * @param absoluteFilePath absolute file path of the output html file
      */
     private void writeHtmlDocument(Object object, String templateName, String absoluteFilePath) {
+        // TODO: fix this properly
+        HashSet<String> processedReturnAnnots = new HashSet<>();
         PrintWriter writer = null;
         try {
             Handlebars handlebars =
@@ -238,7 +241,10 @@ public class HtmlDocumentWriter implements DocumentWriter {
                             if (annotation.getAttributes().size() > 1) {
                                 continue;
                             }
-                            if (isNameEqual(annotationName, annotation)) {
+                            // Temporary work around to get the return params mapped to the return param annotation
+                            if (isNameEqual(annotationName, annotation)
+                                    && !processedReturnAnnots.contains(annotation.getPosition().toString())) {
+                                processedReturnAnnots.add(annotation.getPosition().toString());
                                 return annotation.getAttributes().get(0).getValue().getValue().toString();
                             }
                         }
@@ -271,6 +277,20 @@ public class HtmlDocumentWriter implements DocumentWriter {
                             }
                             if (isNameEqual(annotationName, annotation)) {
                                 return annotation.getAttributes().get(0).getValue().getValue().toString();
+                            }
+                        }
+                        return "";
+                    })
+                    .registerHelper("annotFieldAnnotation", (Helper<BLangAnnotAttribute>) (annot, options) -> {
+                        List<BLangAnnotationAttachment> annotationAttachments = getAnnotations(dataHolder);
+
+                        for (BLangAnnotationAttachment annotation : annotationAttachments) {
+                            if ("Field".equals(annotation.getAnnotationName().getValue())) {
+                                String value = annotation.getAttributes().get(0).getValue().getValue().toString();
+                                if (value.startsWith(annot.getName().getValue())) {
+                                    String[] valueParts = value.split(":");
+                                    return valueParts.length == 2 ? valueParts[1] : valueParts[0];
+                                }
                             }
                         }
                         return "";
