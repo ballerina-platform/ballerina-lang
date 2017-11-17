@@ -197,4 +197,34 @@ describe('Transform Direct Mapping Creation', () => {
                 done(error);
             });
     }).timeout(5000);
+
+    it('Direct mapping with structs with params', (done) => {
+        const testSource = TransformerTestUtils.readSource(testDir, 'direct-with-structs-with-params');
+        const expectedSource = TransformerTestUtils.readSource(testDir, 'direct-with-structs-with-params-expected');
+        TransformerTestUtils.getTree(testSource)
+            .then((tree) => {
+                const transformer = TransformerTestUtils.getTransformer(tree, 2);
+                transformManager.setTransformStmt(transformer);
+
+                // Create mapping : address -> e.address
+                const connection = {
+                    source: {
+                        name: 'address',
+                        type: 'string',
+                        endpointKind: 'input',
+                    },
+                    target: {
+                        name: 'e.address',
+                        type: 'string',
+                        endpointKind: 'output',
+                    },
+                };
+                transformManager.createStatementEdge(connection);
+
+                expect(tree.getSource()).to.equal(expectedSource);
+                done();
+            }).catch((error) => {
+                done(error);
+            });
+    }).timeout(5000);
 });
