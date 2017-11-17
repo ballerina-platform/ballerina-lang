@@ -42,6 +42,7 @@ class ImportStructDialog extends React.Component {
         this.onImportJson = this.onImportJson.bind(this);
         this.onDialogHide = this.onDialogHide.bind(this);
         this.textChange = this.textChange.bind(this);
+        this.onValidate = this.onValidate.bind(this);
     }
 
     /**
@@ -59,11 +60,12 @@ class ImportStructDialog extends React.Component {
             this.setState({
                 error: '',
                 json: '',
-                isError: false,
+                isJSONError: false,
+                isGenerationError: false,
                 showDialog: false,
             });
         } else {
-            this.setState({ isError: true });
+            this.setState({ isGenerationError: true });
         }
     }
 
@@ -74,17 +76,28 @@ class ImportStructDialog extends React.Component {
         this.setState({
             error: '',
             json: '',
-            isError: false,
+            isJSONError: false,
+            isGenerationError: false,
             showDialog: false,
         });
     }
+
+    /**
+    *  Set JSON Error state upon validating JSON by Editor
+     * @param  {array} errors List of validation errors on the editor
+     */
+    onValidate(errors) {
+        this.setState({ isJSONError: errors.length > 0 });
+    }
+
     /**
      * Called when user types on the editor.
      * @param  {string} newValue changed text value
      */
     textChange(newValue) {
-        this.setState({ json: newValue, isError: false });
+        this.setState({ json: newValue, isJSONError: false, isGenerationError: false });
     }
+
 
     /**
      * @inheritdoc
@@ -115,6 +128,7 @@ class ImportStructDialog extends React.Component {
                     mode='json'
                     theme='monokai'
                     onChange={this.textChange}
+                    onValidate={this.onValidate}
                     value={this.state.json}
                     name='json'
                     editorProps={{
@@ -125,13 +139,19 @@ class ImportStructDialog extends React.Component {
                     }}
                     maxLines={30}
                     minLines={10}
-                    showGutter={this.state.isError}
+                    showGutter={this.state.isGenerationError && this.state.isJSONError}
                     width='auto'
                     showPrintMargin={false}
                 />
-                {(this.state.isError) &&
+                {(this.state.isGenerationError && this.state.isJSONError) &&
                     <div className='alert alert-danger'>
-                        <p style={errorStyle}> Struct cannot be generated for the JSON provided </p>
+                        <p style={errorStyle}>Invalid JSON</p>
+                    </div>
+                }
+                {(this.state.isGenerationError && !this.state.isJSONError) &&
+                    <div className='alert alert-danger'>
+                        <p style={errorStyle}>Please make sure JSON attribute
+                          names are align with ballerina variable naming conventions </p>
                     </div>
                 }
             </Dialog>

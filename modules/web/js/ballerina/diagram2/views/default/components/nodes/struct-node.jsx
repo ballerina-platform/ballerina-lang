@@ -189,40 +189,10 @@ class StructNode extends React.Component {
     onClickJsonImport() {
         const onImport = (json) => {
             let success = true;
-            let refExpr = TreeBuilder.build(FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(json)));
+            const refExpr = TreeBuilder.build(
+                FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(json)));
             if (!refExpr.error) {
-                let currentValue;
-                this.props.model.setFields([], true);
-                refExpr.variable.initialExpression.keyValuePairs.forEach((ketValPair) => {
-                    let currentName;
-                    if (TreeUtils.isLiteral(ketValPair.getKey())) {
-                        currentName = ketValPair.getKey().getValue().replace(/"/g, '');
-                    } else {
-                        currentName = ketValPair.getKey().getVariableName().getValue();
-                    }
-                    if (TreeUtils.isRecordLiteralExpr(ketValPair.getValue())) {
-                       // TODO : Implement anonymous struct generation
-                        return;
-                    } else {
-                        currentValue = ketValPair.getValue().getValue();
-                    }
-                    let currentType = 'string';
-                    if (this.isInt(currentValue)) {
-                        currentType = 'int';
-                    } else if (this.isFloat(currentValue)) {
-                        currentType = 'float';
-                    } else if (currentValue === 'true' || currentValue === 'false') {
-                        currentType = 'boolean';
-                    }
-                    refExpr = TreeBuilder.build(FragmentUtils.parseFragment(
-                     FragmentUtils.createStatementFragment(currentType + ' '
-                     + currentName + ' = ' + currentValue + ';')));
-                    if (!refExpr.error) {
-                        this.props.model.addFields(refExpr.getVariable());
-                    } else {
-                        success = false;
-                    }
-                });
+                success = this.processJSONStruct(this.props.model, refExpr.variable.initialExpression);
             } else {
                 success = false;
             }
@@ -236,6 +206,58 @@ class StructNode extends React.Component {
                 onImport,
             },
         });
+    }
+
+    /**
+     * process JSON and generate struct fields
+     * @param  {object} parent      parent struct object
+     * @param  {object} literalExpr JSON expression
+     * @return {boolean}             status
+     */
+    processJSONStruct(parent, literalExpr) {
+        let currentValue;
+        let success = true;
+        parent.setFields([], true);
+        literalExpr.keyValuePairs.every((ketValPair) => {
+            let currentName;
+            if (TreeUtils.isLiteral(ketValPair.getKey())) {
+                currentName = ketValPair.getKey().getValue().replace(/"/g, '');
+            } else {
+                currentName = ketValPair.getKey().getVariableName().getValue();
+            }
+            if (TreeUtils.isRecordLiteralExpr(ketValPair.getValue())) {
+                const parsedJson = FragmentUtils.parseFragment(
+                              FragmentUtils.createStatementFragment(`struct { } ${currentName};`));
+                const anonStruct = TreeBuilder.build(parsedJson);
+                success = this.processJSONStruct(anonStruct.getVariable().getTypeNode().anonStruct,
+                            ketValPair.getValue());
+                if (success) {
+                    parent.addFields(anonStruct.getVariable());
+                }
+                return success;
+            } else if (TreeUtils.isLiteral(ketValPair.getValue())) {
+                currentValue = ketValPair.getValue().getValue();
+                let currentType = 'string';
+                if (this.isInt(currentValue)) {
+                    currentType = 'int';
+                } else if (this.isFloat(currentValue)) {
+                    currentType = 'float';
+                } else if (currentValue === 'true' || currentValue === 'false') {
+                    currentType = 'boolean';
+                }
+                const refExpr = TreeBuilder.build(FragmentUtils.parseFragment(
+                 FragmentUtils.createStatementFragment(`${currentType} ${currentName} = ${currentValue};`)));
+                if (!refExpr.error) {
+                    parent.addFields(refExpr.getVariable());
+                } else {
+                    success = false;
+                }
+                return success;
+            } else {
+                success = false;
+            }
+        });
+        return success;
     }
 
     /**
