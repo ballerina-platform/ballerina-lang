@@ -5,12 +5,12 @@
     <parent>
         <artifactId>integration-tests</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.92.1-SNAPSHOT</version>
+        <version>0.95.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ui-integration-tests</artifactId>
-    <version>0.92.1-SNAPSHOT</version>
+    <version>0.95.1-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -19,7 +19,11 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-native</artifactId>
+            <artifactId>ballerina-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-builtin</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.orbit.org.antlr</groupId>
@@ -28,10 +32,6 @@
         <dependency>
             <groupId>org.wso2.carbon.transport</groupId>
             <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.transport</groupId>
-            <artifactId>org.wso2.carbon.connector.framework</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.messaging</groupId>
@@ -123,10 +123,6 @@
             <artifactId>org.wso2.carbon.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.staxon</groupId>
             <artifactId>staxon-core</artifactId>
         </dependency>
@@ -161,6 +157,23 @@
                             <resources>
                                 <resource>
                                     <directory>${basedir}/../../modules/web/js</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-resources-src</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>
+                                copy-resources
+                            </goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/src</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/../../modules/web/src</directory>
                                 </resource>
                             </resources>
                         </configuration>

@@ -18,28 +18,16 @@
 
 import path from 'path';
 import fs from 'fs';
-import { fetchConfigs, parseContent } from 'api-client/api-client';
-import SourceGenVisitor from 'ballerina/visitors/source-gen/ballerina-ast-root-visitor';
 import { expect } from 'chai';
-import SwaggerImportDialog from 'dialog/swagger-import-dialog';
-import SwaggerParser from '../../../swagger-parser/swagger-parser';
+import { fetchConfigs, parseContent } from 'api-client/api-client';
+import SwaggerImportPlugin from 'plugins/import-swagger/plugin';
+import SwaggerParser from 'ballerina/swagger-parser/swagger-parser';
+import TreeBuilder from 'ballerina/model/tree-builder';
 
 /* global describe*/
 /* global it*/
 
 const directory = process.env.DIRECTORY ? process.env.DIRECTORY : '';
-
-/**
- * Get the source of a ballerina ast root using source-gen-visitor.
- *
- * @param {BallerinaASTRoot} ballerinaAstRoot The ballerina ast root.
- * @returns {string} - Ballerina source.
- */
-function getSource(ballerinaAstRoot) {
-    const sourceGenVisitor = new SourceGenVisitor();
-    ballerinaAstRoot.accept(sourceGenVisitor);
-    return sourceGenVisitor.getGeneratedSource();
-}
 
 /**
  * Converts a ballerina code to b-lang-json-model.
@@ -73,13 +61,6 @@ describe('Ballerina Composer Test Suite', () => {
         const swaggerParserTestDir = path.resolve(path.join(directory, 'js', 'tests', 'resources', 'swagger-parser'));
         const swaggerDirectory = path.resolve(path.join(swaggerParserTestDir, 'swagger-jsons'));
         const expectedBalDir = path.resolve(path.join(swaggerParserTestDir, 'expected-ballerina-source'));
-        const swaggerImportDialog = new SwaggerImportDialog({
-            config: {
-                dialog: {
-                    container: 'mock-container',
-                },
-            },
-        });
 
         fs.readdirSync(swaggerDirectory).forEach((file) => {
             it(`${file} - swagger v2.0.0 import test`, (done) => {
@@ -87,19 +68,21 @@ describe('Ballerina Composer Test Suite', () => {
                 const jsonAsString = fs.readFileSync(jsonFile, 'utf8');
                 const swaggerJson = JSON.parse(jsonAsString);
                 const swaggerParser = new SwaggerParser(swaggerJson);
-                const { ballerinaAstRoot, serviceDefinition } = swaggerImportDialog.getNewAstSkeleton();
+                const { serviceNode, rootNode } = new SwaggerImportPlugin().getNewAstSkeleton();
 
-                swaggerParser.mergeToService(serviceDefinition);
+                swaggerParser.mergeToService(serviceNode);
 
                 const balFileName = `${path.basename(jsonFile, '.json')}.bal`;
                 const balFile = path.resolve(path.join(expectedBalDir, balFileName));
                 const balContent = fs.readFileSync(balFile, 'utf8');
 
-                ballerinaASTDeserializer(getSource(ballerinaAstRoot))
+                ballerinaASTDeserializer(rootNode.getSource())
                     .then((actualGeneratedSource) => {
                         ballerinaASTDeserializer(balContent)
                             .then((expectedGeneratedSource) => {
-                                expect(expectedGeneratedSource).to.deep.equal(actualGeneratedSource);
+                                const expectedAST = TreeBuilder.build(expectedGeneratedSource);
+                                const actualAST = TreeBuilder.build(actualGeneratedSource);
+                                expect(expectedAST.model.getSource(true)).to.equal(actualAST.model.getSource(true));
                                 done();
                             }).catch((error) => {
                                 done(error);
@@ -107,7 +90,7 @@ describe('Ballerina Composer Test Suite', () => {
                     }).catch((error) => {
                         done(error);
                     });
-            });
+            }).timeout(6000);
         });
     });
 });

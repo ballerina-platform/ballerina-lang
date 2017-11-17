@@ -35,6 +35,11 @@ const config = [{
                 }],
             },
             {
+                test: /\.scss$/,
+                exclude: /node_modules/,
+                loader: 'style-loader!css-loader!sass-loader',
+            },
+            {
                 test: /\.css$/,
                 use: extractCSSBundle.extract({
                     fallback: 'style-loader',
@@ -85,7 +90,7 @@ const config = [{
     devtool: 'source-map',
     resolve: {
         extensions: ['.js', '.json', '.jsx'],
-        modules: [path.resolve('./target/lib'), path.resolve('./target/js'), path.resolve('./node_modules'), path.resolve(__dirname)],
+        modules: [path.resolve('./target/src'), path.resolve('./target/lib'), path.resolve('./target/js'), path.resolve('./node_modules'), path.resolve(__dirname)],
         alias: {
             // ///////////////////////
             // third party modules //

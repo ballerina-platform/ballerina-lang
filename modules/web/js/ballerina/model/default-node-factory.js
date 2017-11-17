@@ -249,115 +249,139 @@ class DefaultNodeFactory {
     }
 
     createConnectorDeclaration(args) {
+        const node = getNodeForFragment(FragmentUtils.createStatementFragment('http:HttpClient endpoint1 = create http:HttpClient("",{});'));
         const { connector, packageName, fullPackageName } = args;
 
-        // Iterate through the params and create the parenthesis with the default param values
-        let paramString = '';
+        // Iterate through the params
+        let parameters = [];
         if (connector.getParams()) {
             const connectorParams = connector.getParams().map((param) => {
                 let defaultValue = Environment.getDefaultValue(param.type);
                 if (defaultValue === undefined) {
                     defaultValue = '{}';
                 }
-                return defaultValue;
+                const paramNode = getNodeForFragment(FragmentUtils.createExpressionFragment(defaultValue));
+                parameters.push(paramNode.getVariable().getInitialExpression());
             });
-            paramString = connectorParams.join(', ')
+            node.getVariable().getInitialExpression().setExpressions(parameters);
         }
-        const pkgStr = packageName !== 'Current Package' ? `${packageName}:` : '';
-        const connectorInit = `${pkgStr}${connector.getName()} endpoint1
-                = create ${pkgStr}${connector.getName()}(${paramString});`;
-        const connectorDeclaration = getNodeForFragment(FragmentUtils.createStatementFragment(connectorInit));
-        connectorDeclaration.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
-        connectorDeclaration.viewState.showOverlayContainer = true;
-        return connectorDeclaration;
+        const pkgStr = packageName !== 'Current Package' ? `${packageName}` : '';
+        node.getVariable().getTypeNode().getTypeName().setValue(connector.getName());
+        node.getVariable().getTypeNode().getPackageAlias().setValue(pkgStr);
+        node.getVariable().getInitialExpression().getConnectorType().getPackageAlias().setValue(pkgStr);
+        node.getVariable().getInitialExpression().getConnectorType().getTypeName().setValue(connector.getName());
+        node.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
+        node.viewState.showOverlayContainer = true;
+        return node;
     }
 
     createEndpoint(args) {
+        const node = getNodeForFragment(FragmentUtils.createEndpointVarDefFragment(`
+            endpoint <http:HttpClient> endpoint1 {
+                create http:HttpClient("",{});
+            }
+        `));
         const { connector, packageName, fullPackageName } = args;
 
-        // Iterate through the params and create the parenthesis with the default param values
-        let paramString = '';
+        // Iterate through the params
+        let parameters = [];
         if (connector.getParams()) {
             const connectorParams = connector.getParams().map((param) => {
                 let defaultValue = Environment.getDefaultValue(param.type);
                 if (defaultValue === undefined) {
                     defaultValue = '{}';
                 }
-                return defaultValue;
+                const paramNode = getNodeForFragment(FragmentUtils.createExpressionFragment(defaultValue));
+                parameters.push(paramNode.getVariable().getInitialExpression());
             });
-            paramString = connectorParams.join(', ')
+            node.getVariable().getInitialExpression().setExpressions(parameters);
         }
-        const pkgStr = packageName !== 'Current Package' ? `${packageName}:` : '';
-        const connectorInit = `create ${pkgStr}${connector.getName()}(${paramString});`;
-        const constraint = `<${pkgStr}${connector.getName()}>`;
-
-        const endpointSource = `endpoint ${constraint} endpoint1 {
-            ${connectorInit}
-        }`;
-        const nodeForFragment = getNodeForFragment(FragmentUtils.createEndpointVarDefFragment(endpointSource));
-        nodeForFragment.viewState.showOverlayContainer = true;
-        nodeForFragment.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
-        return nodeForFragment;
+        const pkgStr = packageName !== 'Current Package' ? `${packageName}` : '';
+        node.getVariable().getTypeNode().getConstraint().getTypeName().setValue(connector.getName());
+        node.getVariable().getTypeNode().getConstraint().getPackageAlias().setValue(pkgStr);
+        node.getVariable().getInitialExpression().getConnectorType().getPackageAlias().setValue(pkgStr);
+        node.getVariable().getInitialExpression().getConnectorType().getTypeName().setValue(connector.getName());
+        node.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
+        node.viewState.showOverlayContainer = true;
+        node.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
+        return node;
     }
 
     createConnectorActionInvocationAssignmentStatement(args) {
+        let node;
+        if (args.action.getReturnParams().length > 0) {
+            node = getNodeForFragment(FragmentUtils.createStatementFragment('var var1 = __endpoint1.select("",{});'));
+        } else {
+            node = getNodeForFragment(FragmentUtils.createStatementFragment(' __endpoint1.close();'));
+        }
         const { action, packageName, fullPackageName } = args;
-
-        let actionInvokeString = `endpoint1.`;
-        const actionParams = action.getParameters().map((param) => {
-            let defaultValue = Environment.getDefaultValue(param.type);
-            if (defaultValue === undefined) {
-                defaultValue = '{}';
-            }
-            return defaultValue;
-        });
-        const paramString = actionParams.join(', ');
-
-        actionInvokeString = `${actionInvokeString}${action.getName()}(${paramString});`;
-
+        let parameters = [];
+        // Iterate through the params
+        if (action.getParameters()) {
+            action.getParameters().map((param) => {
+                let defaultValue = Environment.getDefaultValue(param.type);
+                if (defaultValue === undefined) {
+                    defaultValue = '{}';
+                }
+                const paramNode = getNodeForFragment(FragmentUtils.createExpressionFragment(defaultValue));
+                parameters.push(paramNode.getVariable().getInitialExpression());
+            });
+            node.getExpression().setArgumentExpressions(parameters);
+        }
+        // Iterate through the return types
         const varRefNames = args.action.getReturnParams().map((param, index) => {
             return '_output' + index + 1;
         });
 
         if (varRefNames.length > 0) {
-            const varRefListString = `var ${varRefNames.join(', ')}`;
-            actionInvokeString = `${varRefListString} = ${actionInvokeString}`;
+            const varRefListString = `var ${varRefNames.join(', ')} = function1();`;
+            const returnNode = getNodeForFragment(FragmentUtils.createStatementFragment(varRefListString));
+            node.setVariables(returnNode.getVariables());
         }
-        const invocationNode = getNodeForFragment(FragmentUtils.createStatementFragment(actionInvokeString));
-        invocationNode.getExpression().setFullPackageName(fullPackageName);
-        invocationNode.getExpression().invocationType = 'ACTION';
-        invocationNode.getExpression().getPackageAlias().setValue(packageName);
-        return invocationNode;
+        node.getExpression().getName().setValue(action.getName());
+        node.getExpression().setFullPackageName(fullPackageName);
+        node.getExpression().invocationType = 'ACTION';
+        node.getExpression().getPackageAlias().setValue(packageName);
+        return node;
     }
 
     createFunctionInvocationStatement(args) {
+        let node;
+        if (args.functionDef.getReturnParams().length > 0) {
+            node = getNodeForFragment(FragmentUtils.createStatementFragment('var var1 = timeRef.addDuration(0,0,0,0,0,0,0);'));
+        } else {
+            node = getNodeForFragment(FragmentUtils.createStatementFragment('requestRef.addHeader("","");'));
+        }
         const { functionDef, packageName, fullPackageName } = args;
 
-        let functionInvokeString = '';
-        if (packageName && packageName !== 'Current Package' && packageName !== "builtin" ) {
-            functionInvokeString = `${packageName}:`;
-        }
         if(functionDef.getReceiverType()){
-            functionInvokeString = _.toLower(functionDef.getReceiverType()) + 'Ref.';
+            const receiverName = _.toLower(functionDef.getReceiverType()) + 'Ref';
+            node.getExpression().getExpression().getVariableName().setValue(receiverName);
         }
-        const functionParams = functionDef.getParameters().map((param) => {
-            return Environment.getDefaultValue(param.type) || 'null';
-        });
-        const paramString = functionParams.join(', ');
 
-        functionInvokeString = `${functionInvokeString}${functionDef.getName()}(${paramString});`;
+        // Iterate over the parameters
+        if (functionDef.getParameters()) {
+           let parameters = [];
+           functionDef.getParameters().map((param) => {
+               let defaultValue = Environment.getDefaultValue(param.type) || null;
+               const paramNode = getNodeForFragment(FragmentUtils.createExpressionFragment(defaultValue));
+               parameters.push(paramNode.getVariable().getInitialExpression());
+            });
+            node.getExpression().setArgumentExpressions(parameters);
+        }
 
+        // Iterate over the return types
         const varRefNames = args.functionDef.getReturnParams().map((param, index) => {
             return 'variable' + index + 1;
         });
-
         if (varRefNames.length > 0) {
-            const varRefListString = `var ${varRefNames.join(', ')}`;
-            functionInvokeString = `${varRefListString} = ${functionInvokeString}`;
+            const varRefListString = `var ${varRefNames.join(', ')} = function1();`;
+            const returnNode = getNodeForFragment(FragmentUtils.createStatementFragment(varRefListString));
+            node.setVariables(returnNode.getVariables());
         }
-        const invocationNode = getNodeForFragment(FragmentUtils.createStatementFragment(functionInvokeString));
-        invocationNode.getExpression().setFullPackageName(fullPackageName);
-        return invocationNode;
+        node.getExpression().getName().setValue(functionDef.getName());
+        node.getExpression().setFullPackageName(fullPackageName);
+        return node;
     }
 }
 

@@ -1,92 +1,97 @@
 import ballerina.net.http;
 import ballerina.net.http.swagger;
-
 @swagger:ServiceInfo {
-title: "Service5",
-version: "1.0.0",
-description: "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification",
-termsOfService: "http://swagger.io/terms/"
+    title:"Service5",
+    termsOfService:"http://swagger.io/terms/",
+    description:"A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification",
+    serviceVersion:"1.0.0"
 }
 @swagger:Swagger {
-version: "2.0"
+    swaggerVersion:"2.0"
 }
 @swagger:ServiceConfig {
-host: "http://:localhost:4545"
+    host:"localhost:4545"
 }
 @http:configuration {
-basePath: "/api",
-host: "localhost",
-port: 4545
+    basePath:"/api",
+    port:4545,
+    host:"localhost"
 }
 service<http> Service5 {
-
     @http:resourceConfig {
-    methods: [ "GET", "POST"],
-path: "/pets/{id}",
-produces: [ "application/json"]
-}
-    @swagger:ResourceConfig {}
-    @swagger:ParametersInfo {
-    value: [ @swagger:ParameterInfo {
-in: "body",
-name: "m",
-required: false
-}, @swagger:ParameterInfo {
-in: "path",
-name: "id",
-required: true,
-parameterType: "string"
-}]
-}
-    @swagger:ResourceInfo {}
-    @swagger:Responses {
-    value: [ @swagger:Response {
-code: "200",
-description: "Successful"
-}]
-}
-    resource Resource1 (message m, @http:PathParam{value:"id"} string id) {
-        reply m;
+        methods:["GET","POST"],
+        produces:["application/json"],
+        path:"/pets/{id}"
     }
-
-    @http:resourceConfig {
-    methods: [ "PUT", "POST", "DELETE"],
-path: "/pets/firstDoggy",
-produces: [ "application/json"]
-}
-    @swagger:ResourceConfig {}
-    @swagger:ParametersInfo {
-    value: [ @swagger:ParameterInfo {
-in: "body",
-name: "m",
-required: false
-}]
-}
-    @swagger:ResourceInfo {}
-    @swagger:Responses {
-    value: [ @swagger:Response {
-code: "200",
-description: "Successful"
-}]
-}
-    resource Resource2 (message m) {
-        reply m;
+    @swagger:ResourceConfig {
     }
-
-    @http:resourceConfig {
-    methods: [ "GET"],
-path: "/pets/secondDoggy",
-produces: [ "application/json"]
-}
-    @swagger:ResourceConfig {}
-    @swagger:ResourceInfo {}
+    @swagger:ParametersInfo {
+        value:[
+        @swagger:ParameterInfo {
+            in:"body",
+            required:false,
+            name:"req"
+        },
+        @swagger:ParameterInfo {
+            in:"path",
+            parameterType:"string",
+            required:true,
+            name:"id"
+        }]
+    }
+    @swagger:ResourceInfo {
+    }
     @swagger:Responses {
-    value: [ @swagger:Response {
-code: "200",
-description: "Successful"
-}]
-}
-    resource Resource3 (message m) {
-        reply m;
+        value:[
+        @swagger:Response {
+            code:"200",
+            description:"Successful"
+        }]
+    }
+    resource Resource1 (http:Request req,http:Response res,string id) {
+    }
+    @http:resourceConfig {
+        methods:["PUT","POST","DELETE"],
+        produces:["application/json"],
+        path:"/pets/firstDoggy"
+    }
+    @swagger:ResourceConfig {
+    }
+    @swagger:ParametersInfo {
+        value:[
+        @swagger:ParameterInfo {
+            in:"body",
+            required:false,
+            name:"req"
+        }]
+    }
+    @swagger:ResourceInfo {
+    }
+    @swagger:Responses {
+        value:[
+        @swagger:Response {
+            code:"200",
+            description:"Successful"
+        }]
+    }
+    resource Resource2 (http:Request req,http:Response res) {
+    }
+    @http:resourceConfig {
+        methods:["GET"],
+        produces:["application/json"],
+        path:"/pets/secondDoggy"
+    }
+    @swagger:ResourceConfig {
+    }
+    @swagger:ResourceInfo {
+    }
+    @swagger:Responses {
+        value:[
+        @swagger:Response {
+            code:"200",
+            description:"Successful"
+        }]
+    }
+    resource Resource3 (http:Request req,http:Response res) {
     }
 }

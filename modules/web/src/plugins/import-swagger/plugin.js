@@ -54,57 +54,7 @@ class ImportSwaggerPlugin extends Plugin {
             // if not already opened
             read(filePath)
                 .then((swaggerFile) => {
-                    // TODO: Implement
-                    // Create a new ast root with the following service node.
-                    const rootNode = NodeFactory.createCompilationUnit();
-
-                    // Adding imports.
-                    const httpImport = NodeFactory.createImport({
-                        alias: NodeFactory.createLiteral({
-                            value: 'http',
-                        }),
-                        packageName: [
-                            NodeFactory.createLiteral({
-                                value: 'ballerina',
-                            }),
-                            NodeFactory.createLiteral({
-                                value: 'net',
-                            }),
-                            NodeFactory.createLiteral({
-                                value: 'http',
-                            }),
-                        ],
-                    });
-
-                    const swaggerImport = NodeFactory.createImport({
-                        alias: NodeFactory.createLiteral({
-                            value: 'swagger',
-                        }),
-                        packageName: [
-                            NodeFactory.createLiteral({
-                                value: 'ballerina',
-                            }),
-                            NodeFactory.createLiteral({
-                                value: 'net',
-                            }),
-                            NodeFactory.createLiteral({
-                                value: 'http',
-                            }),
-                            NodeFactory.createLiteral({
-                                value: 'swagger',
-                            }),
-                        ],
-                    });
-
-                    rootNode.addImport(httpImport);
-                    rootNode.addImport(swaggerImport);
-
-                    const serviceNode = DefaultNodeFactory.createHTTPServiceDef();
-                    // Remove default resource.
-                    serviceNode.removeResourcesByIndex(0);
-
-                    rootNode.addTopLevelNodes(serviceNode);
-
+                    const { serviceNode, rootNode } = this.getNewAstSkeleton();
                     let swaggerParser;
                     if (swaggerFile.extension.toLowerCase() === 'json') {
                         swaggerParser = new SwaggerParser(JSON.parse(swaggerFile.content));
@@ -127,6 +77,65 @@ class ImportSwaggerPlugin extends Plugin {
                             'valid.');
                 });
         });
+    }
+
+    /**
+     * Gets an premade AST with a service and has no resouces.
+     * @returns {Object} An object with service node and root node.
+     */
+    getNewAstSkeleton() {
+        // TODO: Implement
+        // Create a new ast root with the following service node.
+        const rootNode = NodeFactory.createCompilationUnit();
+
+        // Adding imports.
+        const httpImport = NodeFactory.createImport({
+            alias: NodeFactory.createLiteral({
+                value: 'http',
+            }),
+            packageName: [
+                NodeFactory.createLiteral({
+                    value: 'ballerina',
+                }),
+                NodeFactory.createLiteral({
+                    value: 'net',
+                }),
+                NodeFactory.createLiteral({
+                    value: 'http',
+                }),
+            ],
+        });
+
+        const swaggerImport = NodeFactory.createImport({
+            alias: NodeFactory.createLiteral({
+                value: 'swagger',
+            }),
+            packageName: [
+                NodeFactory.createLiteral({
+                    value: 'ballerina',
+                }),
+                NodeFactory.createLiteral({
+                    value: 'net',
+                }),
+                NodeFactory.createLiteral({
+                    value: 'http',
+                }),
+                NodeFactory.createLiteral({
+                    value: 'swagger',
+                }),
+            ],
+        });
+
+        rootNode.addImport(httpImport);
+        rootNode.addImport(swaggerImport);
+
+        const serviceNode = DefaultNodeFactory.createHTTPServiceDef();
+        // Remove default resource.
+        serviceNode.removeResourcesByIndex(0);
+
+        rootNode.addTopLevelNodes(serviceNode);
+
+        return { serviceNode, rootNode };
     }
 
     /**
