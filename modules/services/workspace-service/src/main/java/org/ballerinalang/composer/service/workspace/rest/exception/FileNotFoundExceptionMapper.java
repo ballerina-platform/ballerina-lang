@@ -36,7 +36,7 @@ public class FileNotFoundExceptionMapper implements ExceptionMapper<FileNotFound
     @Override
     public Response toResponse(FileNotFoundException exception) {
         logger.error("error: failed to generate JSON data model for ballerina file. File not found.",
-                exception.getMessage());
+                exception.getMessage(), exception);
         JsonObject entity = new JsonObject();
         entity.addProperty("errorMessage", exception.getMessage());
         return Response.status(Response.Status.OK)

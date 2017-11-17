@@ -35,7 +35,7 @@ public class SemanticExceptionMapper implements ExceptionMapper<SemanticExceptio
 
     @Override
     public Response toResponse(SemanticException exception) {
-        logger.error("error: " + exception.getMessage());
+        logger.error("error: " + exception.getMessage(), exception);
         JsonObject entity = new JsonObject();
         entity.addProperty("errorMessage", exception.getMessage());
         return Response.status(Response.Status.OK)
