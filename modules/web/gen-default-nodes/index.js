@@ -26,15 +26,26 @@ import defToFragment from './def-to-fragment';
  * @return {object} fragment details to be sent to fragment parser.
  */
 
-const ENDPOINT = 'http://localhost:8289/ballerina/model/parse-fragment';
+const CONFIG_URL = 'http://localhost:9091/config';
 const fileLocation = 'js/ballerina/model/default-nodes.js';
 
 /**
  * @param {String} fragment - fragment
  */
-function parseFragmentAsync(fragment) {
+function parseFragmentAsync(fragment, endpoint) {
     return new Promise((resolve) => {
-        axios.post(ENDPOINT, fragment)
+        axios.post(endpoint, fragment)
+            .then((response) => {
+                resolve(response.data);
+            }).catch((error) => {
+                console.error(error.message);
+            });
+    });
+}
+
+function getConfigs() {
+    return new Promise((resolve, reject) => {
+        axios.get(CONFIG_URL)
             .then((response) => {
                 resolve(response.data);
             }).catch((error) => {
@@ -46,24 +57,28 @@ function parseFragmentAsync(fragment) {
  * Generates and saves a js file of default nodes
  */
 function generateNodes() {
-    const promises = [];
-    const fragmentsCache = {};
-    for (const key in defToFragment) {
-        const fragment = defToFragment[key]();
-        promises.push(parseFragmentAsync(fragment).then((parsedFragment) => {
-            fragmentsCache[key] = parsedFragment;
-        }));
-    }
-    Promise.all(promises).then(() => {
-        const stream = fs.createWriteStream(fileLocation);
-        stream.once('open', () => {
-            stream.write('/**\n');
-            stream.write('* This is a auto generated file, DO NOT modify this manually.\n');
-            stream.write('* Use npm run gen-default-nodes command to generate this file.\n');
-            stream.write('*/\n');
-            stream.write('\n');
-            stream.write(`export default ${JSON.stringify(fragmentsCache)}`);
-            stream.end();
+    getConfigs().then((configs) => {
+        const { endpoint } = configs.services.fragmentParser;
+
+        const promises = [];
+        const fragmentsCache = {};
+        for (const key in defToFragment) {
+            const fragment = defToFragment[key]();
+            promises.push(parseFragmentAsync(fragment, endpoint).then((parsedFragment) => {
+                fragmentsCache[key] = parsedFragment;
+            }));
+        }
+        Promise.all(promises).then(() => {
+            const stream = fs.createWriteStream(fileLocation);
+            stream.once('open', () => {
+                stream.write('/**\n');
+                stream.write('* This is a auto generated file, DO NOT modify this manually.\n');
+                stream.write('* Use npm run gen-default-nodes command to generate this file.\n');
+                stream.write('*/\n');
+                stream.write('\n');
+                stream.write(`export default ${JSON.stringify(fragmentsCache)}`);
+                stream.end();
+            });
         });
     });
 }
