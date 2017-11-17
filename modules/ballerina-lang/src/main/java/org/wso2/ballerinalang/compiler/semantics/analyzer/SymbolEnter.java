@@ -197,6 +197,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define connector nodes.
         pkgNode.connectors.forEach(con -> defineNode(con, pkgEnv));
 
+        // Define connector params and type.
+        defineConnectorParams(pkgNode.connectors, pkgEnv);
+
         // Define transformer nodes.
         pkgNode.transformers.forEach(tansformer -> defineNode(tansformer, pkgEnv));
 
@@ -205,9 +208,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define struct field nodes.
         defineStructFields(pkgNode.structs, pkgEnv);
-
-        // Define connector params and type.
-        defineConnectorParams(pkgNode.connectors, pkgEnv);
 
         // Define connector action nodes.
         defineConnectorMembers(pkgNode.connectors, pkgEnv);

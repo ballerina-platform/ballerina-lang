@@ -1008,7 +1008,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.addVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText(), ctx.ASSIGN() != null);
+                ctx.Identifier().getText(), ctx.ASSIGN() != null, false);
     }
 
     @Override
@@ -1071,7 +1071,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean exprAvailable = ctx.connectorInit() != null || ctx.variableReference() != null;
         this.pkgBuilder.addVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                endpointName, exprAvailable);
+                endpointName, exprAvailable, true);
     }
 
     @Override
