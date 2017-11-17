@@ -50,12 +50,17 @@ class CatchNode extends React.Component {
      * @param {String} newCondition - new condition to be applied to catch block.
      * */
     setCatchCondition(newCondition) {
+        if (!newCondition) {
+            return;
+        }
         newCondition = _.trimEnd(newCondition, ';');
         const fragmentJson = FragmentUtils.createArgumentParameterFragment(newCondition);
         const parsedJson = FragmentUtils.parseFragment(fragmentJson);
-        const newNode = TreeBuilder.build(parsedJson, this.props.model.parent, this.props.model.parent.kind);
-        newNode.clearWS();
-        this.props.model.setParameter(newNode);
+        if (!parsedJson.error) {
+            const newNode = TreeBuilder.build(parsedJson, this.props.model.parent, this.props.model.parent.kind);
+            newNode.clearWS();
+            this.props.model.setParameter(newNode);
+        }
     }
 
     /**
