@@ -162,16 +162,12 @@ class BallerinaEnvironment extends EventChannel {
                 .then((langserverClient) => {
                     langserverClient.getBuiltInPackages()
                         .then((data) => {
-                            if (!data.error && data.result) {
-                                resolve(data.result.packages);
-                            } else {
+                            if (data.error && !data.result) {
                                 reject(data);
+                                return;
                             }
-                        })
-                        .catch(reject)
-                        .then((packagesJson) => {
-                            if (_.isArray(packagesJson)) {
-                                packagesJson.forEach((packageNode) => {
+                            if (_.isArray(data.result.packages)) {
+                                data.result.packages.forEach((packageNode) => {
                                     const pckg = BallerinaEnvFactory.createPackage();
                                     pckg.initFromJson(packageNode);
                                     this._packages.push(pckg);
@@ -181,8 +177,7 @@ class BallerinaEnvironment extends EventChannel {
                                 log.error('Error while fetching packages');
                                 resolve();
                             }
-                        })
-                        .catch(reject);
+                        });
                 })
                 .catch(error => reject(error));
         });
