@@ -28,7 +28,6 @@ import org.ballerinalang.composer.service.workspace.langserver.LangServerManager
 import org.ballerinalang.composer.service.workspace.launcher.LaunchManager;
 import org.ballerinalang.composer.service.workspace.launcher.util.LaunchUtils;
 import org.ballerinalang.composer.service.workspace.logging.ComposerLogManagerUtils;
-import org.ballerinalang.composer.service.workspace.logging.handlers.ServerConsoleHandler;
 import org.ballerinalang.composer.service.workspace.rest.ConfigServiceImpl;
 import org.ballerinalang.composer.service.workspace.rest.FileServer;
 import org.ballerinalang.composer.service.workspace.rest.TryItService;
@@ -41,18 +40,17 @@ import org.ballerinalang.composer.service.workspace.rest.exception.SemanticExcep
 import org.ballerinalang.composer.service.workspace.rest.typelattice.TypeLatticeService;
 import org.ballerinalang.composer.service.workspace.swagger.factories.ServicesApiServiceFactory;
 import org.ballerinalang.composer.service.workspace.utils.WorkspaceUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.msf4j.MicroservicesRunner;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
@@ -61,22 +59,18 @@ import java.util.stream.Stream;
  * @since 0.8.0
  */
 public class WorkspaceServiceRunner {
+
     private static Logger logger;
     
     static {
         try {
-            // Modifying log manager property reading.
-            LogManager logManager = LogManager.getLogManager();
-            InputStream properties = new ComposerLogManagerUtils().readConfiguration();
-            logManager.readConfiguration(properties);
+            // Update the default log manager.
+            ComposerLogManagerUtils composerLogManagerUtils = new ComposerLogManagerUtils();
+            composerLogManagerUtils.updateLogManager();
     
-            logger = Logger.getLogger(WorkspaceServiceRunner.class.getName());
-            
-            // Managing logger
-            logger.setUseParentHandlers(false);
-            logger.addHandler(new ServerConsoleHandler());
+            logger = LoggerFactory.getLogger(WorkspaceServiceRunner.class);
         } catch (IOException e) {
-            logger.severe("Error occurred while reading composer-logging.properties file.");
+            logger.error("Error occurred while setting logging properties.", e);
         }
     }
     
@@ -87,7 +81,7 @@ public class WorkspaceServiceRunner {
         }
         if (balHome == null) {
             // this condition will never reach if the app is started with 'composer' script.
-            logger.severe(Constants.COMPOSER_HOME_NOT_FOUND_ERROR_MESSAGE);
+            logger.error(Constants.COMPOSER_HOME_NOT_FOUND_ERROR_MESSAGE);
             return;
         }
 
@@ -136,7 +130,7 @@ public class WorkspaceServiceRunner {
                 }
                 tryServiceURL = workspaceServiceConfig.getTryServiceURL();
             } catch (IOException e) {
-                logger.severe("Error while reading workspace-service-config.yaml");
+                logger.error("Error while reading workspace-service-config.yaml", e);
             }
         }
 
@@ -252,7 +246,7 @@ public class WorkspaceServiceRunner {
             try {
                 StartBrowser.startInDefaultBrowser("http://localhost:" + fileServerPort);
             } catch (IOException e) {
-                logger.severe("Error while opening the composer in the default browser");
+                logger.error("Error while opening the composer in the default browser", e);
             }
         }
     }
