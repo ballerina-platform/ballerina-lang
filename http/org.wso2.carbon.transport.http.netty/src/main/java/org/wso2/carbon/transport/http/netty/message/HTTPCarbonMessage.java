@@ -32,6 +32,7 @@ import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseStatusFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
@@ -53,8 +54,9 @@ public class HTTPCarbonMessage {
 
     private MessagingException messagingException = null;
     private MessageDataSource messageDataSource;
-    private ServerConnectorFuture serverConnectorFuture = new HttpWsServerConnectorFuture();
     private MessageFuture messageFuture;
+    private final ServerConnectorFuture httpOutboundRespFuture = new HttpWsServerConnectorFuture();
+    private final HttpResponseStatusFuture httpOutboundRespStatusFuture = new HttpResponseStatusFuture();
 
     public HTTPCarbonMessage(HttpMessage httpMessage) {
         int soTimeOut = 60;
@@ -261,14 +263,24 @@ public class HTTPCarbonMessage {
     /**
      * Returns the future responsible for sending back the response.
      *
-     * @return serverConnectorFuture.
+     * @return httpOutboundRespFuture.
      */
-    public ServerConnectorFuture getHTTPConnectorFuture() {
-        return this.serverConnectorFuture;
+    public ServerConnectorFuture getHttpResponseFuture() {
+        return this.httpOutboundRespFuture;
     }
 
-    public void respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {
-        serverConnectorFuture.notifyHttpListener(httpCarbonMessage);
+    /**
+     * Returns the future responsible for notifying the response status.
+     *
+     * @return httpOutboundRespStatusFuture.
+     */
+    public HttpResponseStatusFuture getHttpOutboundRespStatusFuture() {
+        return httpOutboundRespStatusFuture;
+    }
+
+    public HttpResponseStatusFuture respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {
+        httpOutboundRespFuture.notifyHttpListener(httpCarbonMessage);
+        return httpOutboundRespStatusFuture;
     }
 
     /**

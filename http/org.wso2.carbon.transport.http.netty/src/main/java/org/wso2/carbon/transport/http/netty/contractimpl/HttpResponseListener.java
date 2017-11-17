@@ -39,11 +39,13 @@ public class HttpResponseListener implements HttpConnectorListener {
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
     private HandlerExecutor handlerExecutor;
+    private HTTPCarbonMessage inboundRequestMsg;
 
     public HttpResponseListener(ChannelHandlerContext channelHandlerContext, HTTPCarbonMessage requestMsg) {
         this.sourceContext = channelHandlerContext;
         this.requestDataHolder = new RequestDataHolder(requestMsg);
         this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
+        this.inboundRequestMsg = requestMsg;
     }
 
     @Override
@@ -64,9 +66,18 @@ public class HttpResponseListener implements HttpConnectorListener {
             httpResponseMessage.getHttpContentAsync().setMessageListener(httpContent ->
                     this.sourceContext.channel().eventLoop().execute(() -> {
                 if (Util.isLastHttpContent(httpContent)) {
-                    ChannelFuture future = sourceContext.writeAndFlush(httpContent);
+                    ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(httpContent);
+                    HttpResponseStatusFuture outboundRespStatusFuture =
+                            inboundRequestMsg.getHttpOutboundRespStatusFuture();
+                    outboundChannelFuture.addListener(genericFutureListener -> {
+                        if (genericFutureListener.cause() != null) {
+                            outboundRespStatusFuture.notifyHttpListener(genericFutureListener.cause());
+                        } else {
+                            outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
+                        }
+                    });
                     if (connectionCloseAfterResponse) {
-                        future.addListener(ChannelFutureListener.CLOSE);
+                        outboundChannelFuture.addListener(ChannelFutureListener.CLOSE);
                     }
                     if (handlerExecutor != null) {
                         handlerExecutor.executeAtSourceResponseSending(httpResponseMessage);
