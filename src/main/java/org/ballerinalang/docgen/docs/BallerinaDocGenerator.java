@@ -54,7 +54,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
- * Main class to generate a ballerina documentation
+ * Main class to generate a ballerina documentation.
  */
 public class BallerinaDocGenerator {
 

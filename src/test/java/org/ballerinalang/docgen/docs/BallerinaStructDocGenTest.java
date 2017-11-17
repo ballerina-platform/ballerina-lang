@@ -28,6 +28,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Tests for struct doc generation.
+ */
 public class BallerinaStructDocGenTest {
 
     private String sourceRoot;

@@ -30,7 +30,7 @@ import java.io.PrintStream;
 import java.util.List;
 
 /**
- * doc command for ballerina which generates documentation for Ballerina packages
+ * doc command for ballerina which generates documentation for Ballerina packages.
  */
 @Parameters(commandNames = "doc", commandDescription = "generate Ballerina API documentation")
 public class BallerinaDocCmd implements BLauncherCmd {

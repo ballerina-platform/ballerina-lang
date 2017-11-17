@@ -29,6 +29,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Tests for connector doc generation.
+ */
 public class BallerinaConnectorDocGenTest {
 
     private String sourceRoot;
