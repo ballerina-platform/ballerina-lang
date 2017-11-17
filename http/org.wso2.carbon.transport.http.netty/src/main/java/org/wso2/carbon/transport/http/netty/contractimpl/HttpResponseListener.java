@@ -67,12 +67,13 @@ public class HttpResponseListener implements HttpConnectorListener {
                     this.sourceContext.channel().eventLoop().execute(() -> {
                 if (Util.isLastHttpContent(httpContent)) {
                     ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(httpContent);
-                    HttpResponseStatusFuture responseStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
+                    HttpResponseStatusFuture outboundRespStatusFuture =
+                            inboundRequestMsg.getHttpOutboundRespStatusFuture();
                     outboundChannelFuture.addListener(genericFutureListener -> {
                         if (genericFutureListener.cause() != null) {
-                            responseStatusFuture.notifyHttpListener(genericFutureListener.cause());
+                            outboundRespStatusFuture.notifyHttpListener(genericFutureListener.cause());
                         } else {
-                            responseStatusFuture.notifyHttpListener(inboundRequestMsg);
+                            outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
                         }
                     });
                     if (connectionCloseAfterResponse) {
