@@ -106,7 +106,7 @@
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>conf/composer-logging.properties</source>
+            <source>${project.build.directory}/extracted-distributions/workspace-service-jar/composer-logging.properties</source>
             <outputDirectory>bre/conf</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
