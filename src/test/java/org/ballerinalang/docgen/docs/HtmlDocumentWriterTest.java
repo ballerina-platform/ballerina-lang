@@ -79,7 +79,7 @@ public class HtmlDocumentWriterTest {
             Assert.assertTrue(content1.contains("public function addHeader(<a href=\"#string\">string</a> m, "
                     + "<a href=\"#string\">string</a> key, <a href=\"#string\">string</a> value)"));
             Assert.assertTrue(content1.contains("public function getHeader(<a href=\"#string\">string</a> m, "
-                    + "<a href=\"#string\">string</a> key) (string )"));
+                    + "<a href=\"#string\">string</a> key) (string)"));
             Assert.assertTrue(content1.contains("Functions"));
             Assert.assertTrue(content1.contains("Connectors"));
 

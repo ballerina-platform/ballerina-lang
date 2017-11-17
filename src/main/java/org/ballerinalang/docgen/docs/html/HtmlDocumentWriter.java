@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -123,7 +124,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
             Collections.sort(balPackage.getConnectors(), Comparator.comparing(c -> c.getName().getValue()));
             Collections.sort(balPackage.getStructs(), Comparator.comparing(s -> s.getName().getValue()));
             Collections.sort(balPackage.getAnnotations(), Comparator.comparing(a -> a.getName().getValue()));
-            
+
             // Sort connector actions
             if ((balPackage.getConnectors() != null) && (balPackage.getConnectors().size() > 0)) {
                 balPackage.getConnectors().forEach(connector ->
@@ -412,6 +413,12 @@ public class HtmlDocumentWriter implements DocumentWriter {
                             return null;
                         }
                         return refinePackagePath(bLangPackage);
+                    })
+                    .registerHelper("parameterName", (Helper<BLangIdentifier>) (identifier, options) -> {
+                        if (identifier.getValue().isEmpty()) {
+                            return "";
+                        }
+                        return " " + identifier;
                     });
             Template template = handlebars.compile(templateName);
 
