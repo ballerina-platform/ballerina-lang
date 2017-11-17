@@ -36,6 +36,10 @@ public class ComposerLogManagerUtils {
     private static final String LOG_CONFIG_FILE_PROPERTY = "java.util.logging.config.file";
     private static final String LOG_CONFIG_FILE = "composer-logging.properties";
     
+    /**
+     * Updating the default log manager.
+     * @throws IOException When log config file cannot be found.
+     */
     public void updateLogManager() throws IOException {
         // Modifying log manager property reading.
         LogManager logManager = LogManager.getLogManager();
@@ -43,7 +47,12 @@ public class ComposerLogManagerUtils {
         logManager.readConfiguration(properties);
     }
     
-    private InputStream readConfiguration() throws IOException, SecurityException {
+    /**
+     * Read the logging configuration file and replacing the environment variables.
+     * @return The updated properties as an input stream
+     * @throws IOException When log config file cannot be found.
+     */
+    private InputStream readConfiguration() throws IOException {
         Properties properties = getDefaultLogConfiguration();
     
         properties.forEach((k, v) -> {
@@ -54,6 +63,11 @@ public class ComposerLogManagerUtils {
         return propertiesToInputStream(properties);
     }
     
+    /**
+     * Substituting environment variables.
+     * @param value The value to be replaced
+     * @return The updated value.
+     */
     private String substituteVariables(String value) {
         Matcher matcher = ENV_VAR_PATTERN.matcher(value);
         boolean found = matcher.find();
@@ -73,6 +87,11 @@ public class ComposerLogManagerUtils {
         return buffer.toString();
     }
     
+    /**
+     * Getting the system variable's value.
+     * @param variableName The name of the variable.
+     * @return The value.
+     */
     private String getSystemVariableValue(String variableName) {
         String value;
         if (System.getProperty(variableName) != null) {
@@ -85,6 +104,12 @@ public class ComposerLogManagerUtils {
         return value;
     }
     
+    /**
+     * Converts properties to an input stream.
+     * @param properties The properties.
+     * @return Then input stream
+     * @throws IOException When log config file cannot be found.
+     */
     private InputStream propertiesToInputStream(Properties properties) throws IOException {
         ByteArrayOutputStream outputStream = null;
         try {
@@ -98,6 +123,11 @@ public class ComposerLogManagerUtils {
         }
     }
     
+    /**
+     * Getting the default log config file's properties.
+     * @return The log file properties.
+     * @throws IOException When log config file cannot be found.
+     */
     private Properties getDefaultLogConfiguration() throws IOException {
         Properties prop = new Properties();
         InputStream propertiesStream;

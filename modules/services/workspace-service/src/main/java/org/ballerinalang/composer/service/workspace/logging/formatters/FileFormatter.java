@@ -27,11 +27,13 @@ import java.util.logging.LogRecord;
  * Formatter for file logging.
  */
 public class FileFormatter extends Formatter {
-    // format string for printing the log record
     private static final String format = LogManager.getLogManager().getProperty(
             FileFormatter.class.getCanonicalName() + ".format");
     private final Date dat = new Date();
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String format(LogRecord record) {
         dat.setTime(record.getMillis());
