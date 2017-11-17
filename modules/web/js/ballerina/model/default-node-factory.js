@@ -34,7 +34,7 @@ function getNodeForFragment(fragment) {
 }
 
 function getStaticDefaultNode(fragmentName) {
-    const parsedJson = DefaultNodes[fragmentName]
+    const parsedJson = {...DefaultNodes[fragmentName]};
     const node = TreeBuilder.build(parsedJson);
     node.clearWS();
     return node;
