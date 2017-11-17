@@ -164,6 +164,7 @@
                 <include>io.netty:netty-codec</include>
                 <include>io.netty:netty-codec-http</include>
                 <include>io.netty:netty-codec-http2</include>
+                <include>io.netty:netty-handler-proxy</include>
                 <include>io.netty:netty-resolver</include>
                 <include>commons-pool.wso2:commons-pool</include>
                 <include>org.apache.commons:commons-pool2</include>
