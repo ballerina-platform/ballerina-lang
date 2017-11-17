@@ -5,42 +5,25 @@ import ballerina.net.http;
     httpsPort:9095,
     keyStoreFile:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
     keyStorePassword:"ballerina",
-    certPassword:"ballerina"
+    certPassword:"ballerina",
+    sslVerifyClient:"require",
+    trustStoreFile:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+    trustStorePassword:"ballerina",
+    ciphers:"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+    sslEnabledProtocols:"TLSv1.2,TLSv1.1"
 }
 service<http> echo {
 
     @http:resourceConfig {
-        methods:["POST"],
+        methods:["GET"],
         path:"/"
     }
     resource echo (http:Request req, http:Response res) {
         res.setStringPayload("hello world");
-        _ = res.send();
-
+        res.send();
+        println("successful");
     }
 }
-
-@http:configuration {
-    basePath:"/echoOne",
-    port:9094,
-    httpsPort:9095,
-    keyStoreFile:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-    keyStorePassword:"ballerina",
-    certPassword:"ballerina"
-}
-service<http> echoOne {
-
-    @http:resourceConfig {
-        methods:["POST"],
-        path:"/abc"
-    }
-    resource echoAbc (http:Request req, http:Response res) {
-        res.setStringPayload("hello world");
-        _ = res.send();
-
-    }
-}
-
 
 @http:configuration {
     basePath:"/echoDummy"
@@ -53,8 +36,6 @@ service<http> echoDummy {
     }
     resource echoDummy (http:Request req, http:Response res) {
         res.setStringPayload("hello world");
-        _ = res.send();
-
+        res.send();
     }
-
 }
