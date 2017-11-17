@@ -25,7 +25,7 @@ import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseStatusFutur
  */
 public class TestHttpResponseStatusFuture extends HttpResponseStatusFuture {
 
-    public Throwable sync() throws InterruptedException {
+    public TestHttpResponseStatusFuture sync() throws InterruptedException {
         return null;
     }
 }

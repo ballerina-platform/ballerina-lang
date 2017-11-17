@@ -31,7 +31,6 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseStatusFuture;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
@@ -54,27 +53,14 @@ public class Forward extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BStruct responseStruct = (BStruct) getRefArgument(context, 0);
         BStruct clientResponseStruct = (BStruct) getRefArgument(context, 1);
-        HttpUtil.methodInvocationCheck(responseStruct);
-        HttpUtil.outboundResponseStructCheck(responseStruct);
+        HttpUtil.checkFunctionValidity(responseStruct);
         if (clientResponseStruct.getNativeData(Constants.TRANSPORT_MESSAGE) == null) {
             throw new BallerinaException("Failed to forward: empty response parameter");
         }
-
-        HTTPCarbonMessage responseMessage = HttpUtil
-                .getCarbonMsg(clientResponseStruct, HttpUtil.createHttpCarbonMessage(false));
         HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct
                 .getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
-        HttpUtil.addHTTPSessionAndCorsHeaders(requestMessage, responseMessage);
-        HttpResponseStatusFuture statusFuture = HttpUtil.handleResponse(requestMessage, responseMessage);
-        Throwable status;
-        try {
-            status = statusFuture.sync();
-        } catch (InterruptedException e) {
-            throw new BallerinaException("interrupted sync: " + e.getMessage());
-        }
-        if (status != null) {
-            return getBValues(HttpUtil.getServerConnectorError(context, status));
-        }
-        return VOID_RETURN;
+        HTTPCarbonMessage responseMessage = HttpUtil
+                .getCarbonMsg(clientResponseStruct, HttpUtil.createHttpCarbonMessage(false));
+        return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage);
     }
 }

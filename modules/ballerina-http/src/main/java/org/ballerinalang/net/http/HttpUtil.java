@@ -454,6 +454,32 @@ public class HttpUtil {
         }
     }
 
+    public static BValue[] prepareResponseAndSend(Context context, AbstractNativeFunction abstractNativeFunction
+            , HTTPCarbonMessage requestMessage, HTTPCarbonMessage responseMessage) {
+        addHTTPSessionAndCorsHeaders(requestMessage, responseMessage);
+        HttpResponseStatusFuture statusFuture = handleResponse(requestMessage, responseMessage);
+        try {
+            statusFuture = statusFuture.sync();
+        } catch (InterruptedException e) {
+            throw new BallerinaException("interrupted sync: " + e.getMessage());
+        }
+        if (statusFuture.getStatus() != null) {
+            return abstractNativeFunction.getBValues(getServerConnectorError(context, statusFuture.getStatus()));
+        }
+        return abstractNativeFunction.VOID_RETURN;
+    }
+
+    public static void addHTTPSessionAndCorsHeaders(HTTPCarbonMessage requestMsg, HTTPCarbonMessage responseMsg) {
+        Session session = (Session) requestMsg.getProperty(Constants.HTTP_SESSION);
+        if (session != null) {
+            session.generateSessionHeader(responseMsg);
+        }
+        //Process CORS if exists.
+        if (requestMsg.getHeader("Origin") != null) {
+            CorsHeaderGenerator.process(requestMsg, responseMsg, true);
+        }
+    }
+
     public static HttpResponseStatusFuture handleResponse(HTTPCarbonMessage requestMsg, HTTPCarbonMessage responseMsg) {
         HttpResponseStatusFuture responseFuture;
         try {
@@ -720,6 +746,11 @@ public class HttpUtil {
         return "/".concat(uri);
     }
 
+    public static void checkFunctionValidity(BStruct bStruct) {
+        methodInvocationCheck(bStruct);
+        outboundResponseStructCheck(bStruct);
+    }
+
     public static void methodInvocationCheck(BStruct bStruct) {
         if (bStruct.getNativeData(METHOD_ACCESSED) != null) {
             throw new IllegalStateException("illegal function invocation");
@@ -730,17 +761,6 @@ public class HttpUtil {
     public static void outboundResponseStructCheck(BStruct bStruct) {
         if (bStruct.getNativeData(Constants.OUTBOUND_RESPONSE) == null) {
             throw new BallerinaException("operation not allowed");
-        }
-    }
-
-    public static void addHTTPSessionAndCorsHeaders(HTTPCarbonMessage requestMsg, HTTPCarbonMessage responseMsg) {
-        Session session = (Session) requestMsg.getProperty(Constants.HTTP_SESSION);
-        if (session != null) {
-            session.generateSessionHeader(responseMsg);
-        }
-        //Process CORS if exists.
-        if (requestMsg.getHeader("Origin") != null) {
-            CorsHeaderGenerator.process(requestMsg, responseMsg, true);
         }
     }
 }

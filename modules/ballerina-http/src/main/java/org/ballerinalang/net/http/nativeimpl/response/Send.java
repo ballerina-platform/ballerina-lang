@@ -28,10 +28,8 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseStatusFuture;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
@@ -53,23 +51,11 @@ public class Send extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct responseStruct = (BStruct) getRefArgument(context, 0);
-        HttpUtil.methodInvocationCheck(responseStruct);
-        HttpUtil.outboundResponseStructCheck(responseStruct);
+        HttpUtil.checkFunctionValidity(responseStruct);
         HTTPCarbonMessage responseMessage = HttpUtil
                 .getCarbonMsg(responseStruct, HttpUtil.createHttpCarbonMessage(false));
         HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct
                 .getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
-        HttpUtil.addHTTPSessionAndCorsHeaders(requestMessage, responseMessage);
-        HttpResponseStatusFuture statusFuture = HttpUtil.handleResponse(requestMessage, responseMessage);
-        Throwable status;
-        try {
-            status = statusFuture.sync();
-        } catch (InterruptedException e) {
-            throw new BallerinaException("interrupted sync: " + e.getMessage());
-        }
-        if (status != null) {
-            return getBValues(HttpUtil.getServerConnectorError(context, status));
-        }
-        return VOID_RETURN;
+        return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage);
     }
 }
