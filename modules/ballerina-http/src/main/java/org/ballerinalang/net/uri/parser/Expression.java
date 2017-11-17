@@ -29,13 +29,16 @@ import java.util.List;
 
 /**
  * Expression represents a expression path segment in uri.
+ *
+ * @param <DataElementType> Specific data element created by the user.
  */
-public abstract class Expression extends Node {
+public abstract class Expression<DataElementType extends DataElement> extends Node<DataElementType> {
 
     protected List<Variable> variableList = new ArrayList<Variable>(4);
 
-    public Expression(String token) throws URITemplateException {
-        super(token);
+    public Expression(Node<DataElementType> parentNode, DataElementType dataElement, String token)
+            throws URITemplateException {
+        super(parentNode, dataElement, token);
         int startIndex = 0;
         for (int i = 0; i < token.length(); i++) {
             if (token.charAt(i) == ',') {

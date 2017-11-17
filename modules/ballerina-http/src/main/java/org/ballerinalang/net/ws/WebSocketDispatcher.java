@@ -20,7 +20,9 @@ package org.ballerinalang.net.ws;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.Executor;
+import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
@@ -30,6 +32,10 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlM
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * {@code WebSocketDispatcher} This is the web socket request dispatcher implementation which finds
@@ -45,7 +51,8 @@ public class WebSocketDispatcher {
      * @param webSocketMessage incoming message.
      * @return matching service.
      */
-    public static WebSocketService findService(WebSocketMessage webSocketMessage) {
+    public static WebSocketServiceInfo findService(WebSocketMessage webSocketMessage) {
+        Map<String, String> variables = new HashMap<>();
         if (!webSocketMessage.isServerMessage()) {
             String clientServiceName = webSocketMessage.getTarget();
             WebSocketService clientService =
@@ -53,32 +60,32 @@ public class WebSocketDispatcher {
             if (clientService == null) {
                 throw new BallerinaConnectorException("no client service found to handle the service request");
             }
-            return clientService;
+            return new WebSocketServiceInfo(clientService, variables);
         }
         try {
             String interfaceId = webSocketMessage.getListenerInterface();
             String serviceUri = webSocketMessage.getTarget();
             serviceUri = WebSocketServicesRegistry.getInstance().refactorUri(serviceUri);
-
             WebSocketService service =
-                    WebSocketServicesRegistry.getInstance().getServiceEndpoint(interfaceId, serviceUri);
-
+                    WebSocketServicesRegistry.getInstance().
+                            getServiceEndpoint(interfaceId, serviceUri, variables, webSocketMessage);
             if (service == null) {
                 throw new BallerinaConnectorException("no Service found to handle the service request: " + serviceUri);
             }
-            return service;
+            return new WebSocketServiceInfo(service, variables);
         } catch (Throwable throwable) {
             ErrorHandlerUtils.printError(throwable);
             throw new BallerinaConnectorException("no Service found to handle the service request");
         }
     }
 
-    public static void dispatchTextMessage(WebSocketService wsService, WebSocketTextMessage textMessage) {
+    public static void dispatchTextMessage(WebSocketServiceInfo wsServiceInfo, WebSocketTextMessage textMessage) {
+        WebSocketService wsService = wsServiceInfo.getWsService();
         Resource onTextMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_TEXT_MESSAGE);
         if (onTextMessageResource == null) {
             return;
         }
-        BStruct wsConnection = getWSConnection(textMessage);
+        BStruct wsConnection = getWSConnection(textMessage).getWsConnection();
 
         BStruct wsTextFrame = wsService.createTextFrameStruct();
         wsTextFrame.setStringField(0, textMessage.getText());
@@ -87,17 +94,23 @@ public class WebSocketDispatcher {
         } else {
             wsTextFrame.setBooleanField(0, 0);
         }
-        BValue[] bValues = {wsConnection, wsTextFrame};
+        List<ParamDetail> parameterDetails = onTextMessageResource.getParamDetails();
+        BValue[] bValues = new BValue[parameterDetails.size()];
+        bValues[0] = wsConnection;
+        bValues[1] = wsTextFrame;
+        setPathParams(bValues, wsServiceInfo, parameterDetails, 2);
         ConnectorFuture future = Executor.submit(onTextMessageResource, null, bValues);
         future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
     }
 
-    public static void dispatchBinaryMessage(WebSocketService wsService, WebSocketBinaryMessage binaryMessage) {
+    public static void dispatchBinaryMessage(WebSocketServiceInfo wsServiceInfo, WebSocketBinaryMessage binaryMessage) {
+        WebSocketService wsService = wsServiceInfo.getWsService();
         Resource onBinaryMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_BINARY_MESSAGE);
         if (onBinaryMessageResource == null) {
             return;
         }
-        BStruct wsConnection = getWSConnection(binaryMessage);
+
+        BStruct wsConnection = getWSConnection(binaryMessage).getWsConnection();
         BStruct wsBinaryFrame = wsService.createBinaryFrameStruct();
         byte[] data = binaryMessage.getByteArray();
         wsBinaryFrame.setBlobField(0, data);
@@ -106,80 +119,118 @@ public class WebSocketDispatcher {
         } else {
             wsBinaryFrame.setBooleanField(0, 0);
         }
-        BValue[] bValues = {wsConnection, wsBinaryFrame};
+        List<ParamDetail> parameterDetails = onBinaryMessageResource.getParamDetails();
+        BValue[] bValues = new BValue[parameterDetails.size()];
+        bValues[0] = wsConnection;
+        bValues[1] = wsBinaryFrame;
+        setPathParams(bValues, wsServiceInfo, parameterDetails, 2);
         ConnectorFuture future = Executor.submit(onBinaryMessageResource, null, bValues);
         future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
     }
 
-    public static void dispatchControlMessage(WebSocketService wsService, WebSocketControlMessage controlMessage) {
+    public static void dispatchControlMessage(WebSocketServiceInfo wsServiceInfo,
+                                              WebSocketControlMessage controlMessage) {
         if (controlMessage.getControlSignal() == WebSocketControlSignal.PING) {
-            WebSocketDispatcher.dispatchPingMessage(wsService, controlMessage);
+            WebSocketDispatcher.dispatchPingMessage(wsServiceInfo, controlMessage);
         } else if (controlMessage.getControlSignal() == WebSocketControlSignal.PONG) {
-            WebSocketDispatcher.dispatchPongMessage(wsService, controlMessage);
+            WebSocketDispatcher.dispatchPongMessage(wsServiceInfo, controlMessage);
         } else {
             throw new BallerinaConnectorException("Received unknown control signal");
         }
     }
 
-    private static void dispatchPingMessage(WebSocketService wsService, WebSocketControlMessage controlMessage) {
+    private static void dispatchPingMessage(WebSocketServiceInfo serviceInfo, WebSocketControlMessage controlMessage) {
+        WebSocketService wsService = serviceInfo.getWsService();
         Resource onPingMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_PING);
         if (onPingMessageResource == null) {
             return;
         }
-        BStruct wsConnection = getWSConnection(controlMessage);
+        BStruct wsConnection = getWSConnection(controlMessage).getWsConnection();
         BStruct wsPingFrame = wsService.createPingFrameStruct();
         byte[] data = controlMessage.getByteArray();
         wsPingFrame.setBlobField(0, data);
-        BValue[] bValues = {wsConnection, wsPingFrame};
+        List<ParamDetail> parameterDetails = onPingMessageResource.getParamDetails();
+        BValue[] bValues = new BValue[parameterDetails.size()];
+        bValues[0] = wsConnection;
+        bValues[1] = wsPingFrame;
+        setPathParams(bValues, serviceInfo, parameterDetails, 2);
         ConnectorFuture future = Executor.submit(onPingMessageResource, null, bValues);
         future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
     }
 
-    private static void dispatchPongMessage(WebSocketService wsService, WebSocketControlMessage controlMessage) {
+    private static void dispatchPongMessage(WebSocketServiceInfo serviceInfo, WebSocketControlMessage controlMessage) {
+        WebSocketService wsService = serviceInfo.getWsService();
         Resource onPongMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_PONG);
         if (onPongMessageResource == null) {
             return;
         }
-        BStruct wsConnection = getWSConnection(controlMessage);
+        BStruct wsConnection = getWSConnection(controlMessage).getWsConnection();
         BStruct wsPongFrame = wsService.createPongFrameStruct();
         byte[] data = controlMessage.getByteArray();
         wsPongFrame.setBlobField(0, data);
-        BValue[] bValues = {wsConnection, wsPongFrame};
+
+        List<ParamDetail> parameterDetails = onPongMessageResource.getParamDetails();
+        BValue[] bValues = new BValue[parameterDetails.size()];
+        bValues[0] = wsConnection;
+        bValues[1] = wsPongFrame;
+        setPathParams(bValues, serviceInfo, parameterDetails, 2);
         ConnectorFuture future = Executor.submit(onPongMessageResource, null, bValues);
         future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
     }
 
-    public static void dispatchCloseMessage(WebSocketService wsService, WebSocketCloseMessage closeMessage) {
+    public static void dispatchCloseMessage(WebSocketServiceInfo serviceInfo, WebSocketCloseMessage closeMessage) {
+        WebSocketService wsService = serviceInfo.getWsService();
         Resource onCloseResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_CLOSE);
         if (onCloseResource == null) {
             return;
         }
-        BStruct wsConnection = removeConnection(closeMessage);
+        BStruct wsConnection = removeConnection(closeMessage).getWsConnection();
         BStruct wsCloseFrame = wsService.createCloseFrameStruct();
         wsCloseFrame.setIntField(0, closeMessage.getCloseCode());
         wsCloseFrame.setStringField(0, closeMessage.getCloseReason());
 
-        BValue[] bValues = {wsConnection, wsCloseFrame};
+        List<ParamDetail> parameterDetails = onCloseResource.getParamDetails();
+        BValue[] bValues = new BValue[parameterDetails.size()];
+        bValues[0] = wsConnection;
+        bValues[1] = wsCloseFrame;
+        setPathParams(bValues, serviceInfo, parameterDetails, 2);
         ConnectorFuture future = Executor.submit(onCloseResource, null, bValues);
         future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
     }
 
-    public static void dispatchIdleTimeout(WebSocketService wsService, WebSocketControlMessage controlMessage) {
+    public static void dispatchIdleTimeout(WebSocketServiceInfo serviceInfo, WebSocketControlMessage controlMessage) {
+        WebSocketService wsService = serviceInfo.getWsService();
         Resource onIdleTimeoutResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_IDLE_TIMEOUT);
         if (onIdleTimeoutResource == null) {
             return;
         }
-        BStruct wsConnection = getWSConnection(controlMessage);
-        BValue[] bValues = {wsConnection};
+        BStruct wsConnection = getWSConnection(controlMessage).getWsConnection();
+
+        List<ParamDetail> parameterDetails = onIdleTimeoutResource.getParamDetails();
+        BValue[] bValues = new BValue[parameterDetails.size()];
+        bValues[0] = wsConnection;
+        setPathParams(bValues, serviceInfo, parameterDetails, 1);
         ConnectorFuture future = Executor.submit(onIdleTimeoutResource, null, bValues);
         future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
     }
 
-    private static BStruct getWSConnection(WebSocketMessage webSocketMessage) {
-        return WebSocketConnectionManager.getInstance().getConnection(webSocketMessage.getChannelSession().getId());
+    private static WsConnectionInfo getWSConnection(WebSocketMessage webSocketMessage) {
+        return WebSocketConnectionManager.getInstance().getConnectionInfo(webSocketMessage.getChannelSession().getId());
     }
 
-    private static BStruct removeConnection(WebSocketMessage webSocketMessage) {
+    private static WsConnectionInfo removeConnection(WebSocketMessage webSocketMessage) {
         return WebSocketConnectionManager.getInstance().removeConnection(webSocketMessage.getChannelSession().getId());
+    }
+
+    protected static void setPathParams(BValue[] args, WebSocketServiceInfo serviceInfo, List<ParamDetail> paramDetails,
+                                        int defaultArgsSize) {
+        int parameterDetailsSize = paramDetails.size();
+        Map<String, String> variables = serviceInfo.getVariables();
+        if (parameterDetailsSize > defaultArgsSize) {
+            for (int i = defaultArgsSize; i < parameterDetailsSize; i++) {
+                ParamDetail parameterDetail = paramDetails.get(i);
+                args[i] = new BString(variables.get(parameterDetail.getVarName()));
+            }
+        }
     }
 }

@@ -18,23 +18,26 @@
 
 package org.ballerinalang.net.uri;
 
-import org.ballerinalang.net.http.HttpResource;
+import org.ballerinalang.net.uri.parser.DataElement;
+import org.ballerinalang.net.uri.parser.DataElementCreator;
 import org.ballerinalang.net.uri.parser.Node;
 import org.ballerinalang.net.uri.parser.URITemplateParser;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Basic URI Template implementation.
  *
+ * @param <DataType> Data type stored in the data element.
+ * @param <CheckerType> Additional checker for data element.
  **/
+public class URITemplate<DataType, CheckerType> {
 
-public class URITemplate {
+    private Node<DataElement<DataType, CheckerType>> syntaxTree;
+    private final Map<String, Node<DataElement<DataType, CheckerType>>> uriTemplateToNodeMap = new HashMap<>();
 
-    private Node syntaxTree;
-
-    public URITemplate(Node syntaxTree) {
+    public URITemplate(Node<DataElement<DataType, CheckerType>> syntaxTree) {
         this.syntaxTree = syntaxTree;
     }
 
@@ -42,15 +45,43 @@ public class URITemplate {
         return null;
     }
 
-    public HttpResource matches(String uri, Map<String, String> variables, HTTPCarbonMessage carbonMessage) {
-        return syntaxTree.matchAll(uri, variables, carbonMessage, 0);
+    public DataType matches(String uri, Map<String, String> variables, CheckerType checker) {
+        DataElement<DataType, CheckerType> dataElement = syntaxTree.matchAll(uri, variables, 0);
+        if (dataElement == null) {
+            return null;
+        }
+        return dataElement.getData(checker);
     }
 
-    public void parse(String uriTemplate, HttpResource resource) throws URITemplateException {
+    public void parse(String uriTemplate, DataType resource,
+                      DataElementCreator<? extends DataElement<DataType, CheckerType>>
+                              elementCreator) throws URITemplateException {
         uriTemplate = removeTheFirstAndLastBackSlash(uriTemplate);
 
-        URITemplateParser parser = new URITemplateParser(syntaxTree);
-        parser.parse(uriTemplate, resource);
+        URITemplateParser<DataType, CheckerType> parser = new URITemplateParser<>(syntaxTree, elementCreator);
+        Node<DataElement<DataType, CheckerType>> referenceNode = parser.parse(uriTemplate, resource);
+        uriTemplateToNodeMap.put(uriTemplate, referenceNode);
+    }
+
+    public void remove(String uriTemplate) throws URITemplateException {
+        uriTemplate = removeTheFirstAndLastBackSlash(uriTemplate);
+        Node<DataElement<DataType, CheckerType>> currentNode = uriTemplateToNodeMap.remove(uriTemplate);
+        if (currentNode == null) {
+            return;
+        }
+        currentNode.getDataElement().clearData();
+        while (currentNode.getChildNodesList().size() == 0) {
+            if (!currentNode.getDataElement().isEmpty()) {
+                break;
+            }
+            Node<DataElement<DataType, CheckerType>> parentNode = currentNode.getParentNode();
+            if (parentNode == null) {
+                break;
+            }
+            parentNode.getChildNodesList().remove(currentNode);
+            currentNode = parentNode;
+        }
+
     }
 
     public String removeTheFirstAndLastBackSlash(String template) throws URITemplateException {
