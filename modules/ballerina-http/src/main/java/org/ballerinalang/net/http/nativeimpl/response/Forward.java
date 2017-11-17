@@ -31,16 +31,17 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseStatusFuture;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * Native function to send client service response directly to the caller.
- *
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "forward",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Response",
-                             structPackage = "ballerina.net.http"),
+                structPackage = "ballerina.net.http"),
         args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
                 structPackage = "ballerina.net.http")},
         isPublic = true
@@ -54,11 +55,25 @@ public class Forward extends AbstractNativeFunction {
         BStruct responseStruct = (BStruct) getRefArgument(context, 0);
         BStruct clientResponseStruct = (BStruct) getRefArgument(context, 1);
         HttpUtil.methodInvocationCheck(responseStruct);
-        HttpUtil.operationNotAllowedCheck(responseStruct);
+        HttpUtil.outboundResponseStructCheck(responseStruct);
         if (clientResponseStruct.getNativeData(Constants.TRANSPORT_MESSAGE) == null) {
             throw new BallerinaException("Failed to forward: empty response parameter");
         }
-        context.getConnectorFuture().notifyReply(clientResponseStruct);
+
+        HTTPCarbonMessage responseMessage = HttpUtil
+                .getCarbonMsg(clientResponseStruct, HttpUtil.createHttpCarbonMessage(false));
+        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct.getNativeData(Constants.REQUEST_MESSAGE);
+        HttpUtil.addHTTPSessionAndCorsHeaders(requestMessage, responseMessage);
+        HttpResponseStatusFuture statusFuture = HttpUtil.handleResponse(requestMessage, responseMessage);
+        Throwable status;
+        try {
+            status = statusFuture.sync();
+        } catch (InterruptedException e) {
+            throw new BallerinaException("interrupted sync: " + e.getMessage());
+        }
+        if (status != null) {
+            return getBValues(HttpUtil.getServerConnectorError(context, status));
+        }
         return VOID_RETURN;
     }
 }

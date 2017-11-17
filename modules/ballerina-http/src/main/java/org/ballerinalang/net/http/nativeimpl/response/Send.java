@@ -25,23 +25,25 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
-import org.ballerinalang.net.http.CorsHeaderGenerator;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.http.session.Session;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseStatusFuture;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * Native function to send response back to the caller.
- *
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "send",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Response",
-                             structPackage = "ballerina.net.http"),
+                structPackage = "ballerina.net.http"),
+        returnType = @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
+                structPackage = "ballerina.net.http"),
         isPublic = true
 )
 public class Send extends AbstractNativeFunction {
@@ -52,20 +54,22 @@ public class Send extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BStruct responseStruct = (BStruct) getRefArgument(context, 0);
         HttpUtil.methodInvocationCheck(responseStruct);
-        HttpUtil.operationNotAllowedCheck(responseStruct);
+        HttpUtil.outboundResponseStructCheck(responseStruct);
 
-         HTTPCarbonMessage responseMessage = HttpUtil
-                .getCarbonMsg((BStruct) response[0], HttpUtil.createHttpCarbonMessage(false));
-        Session session = (Session) ((BStruct) request).getNativeData(Constants.HTTP_SESSION);
-        if (session != null) {
-            session.generateSessionHeader(responseMessage);
+        HTTPCarbonMessage responseMessage = HttpUtil
+                .getCarbonMsg(responseStruct, HttpUtil.createHttpCarbonMessage(false));
+        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct.getNativeData(Constants.REQUEST_MESSAGE);
+        HttpUtil.addHTTPSessionAndCorsHeaders(requestMessage, responseMessage);
+        HttpResponseStatusFuture statusFuture = HttpUtil.handleResponse(requestMessage, responseMessage);
+        Throwable status;
+        try {
+            status = statusFuture.sync();
+        } catch (InterruptedException e) {
+            throw new BallerinaException("interrupted sync: " + e.getMessage());
         }
-        //Process CORS if exists.
-        if (requestMessage.getHeader("Origin") != null) {
-            CorsHeaderGenerator.process(requestMessage, responseMessage, true);
+        if (status != null) {
+            return getBValues(HttpUtil.getServerConnectorError(context, status));
         }
-        HttpUtil.handleResponse(requestMessage, responseMessage);
-
         return VOID_RETURN;
     }
 }

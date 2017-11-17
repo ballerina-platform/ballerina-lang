@@ -2,9 +2,7 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorFutureListener;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.session.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
@@ -17,11 +15,9 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 public class HttpConnectorFutureListener implements ConnectorFutureListener {
     private static final Logger log = LoggerFactory.getLogger(HttpConnectorFutureListener.class);
     private HTTPCarbonMessage requestMessage;
-    private BValue request;
 
-    public HttpConnectorFutureListener(HTTPCarbonMessage requestMessage, BValue request) {
+    public HttpConnectorFutureListener(HTTPCarbonMessage requestMessage) {
         this.requestMessage = requestMessage;
-        this.request = request;
     }
 
     @Override

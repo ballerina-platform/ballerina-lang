@@ -40,17 +40,19 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.services.ErrorHandlerUtils;
+import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.carbon.transport.http.netty.contract.HttpResponseStatusFuture;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseStatusFuture;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
@@ -74,6 +76,8 @@ public class HttpUtil {
 
     private static final String TRANSPORT_MESSAGE = "transport_message";
     private static final String METHOD_ACCESSED = "isMethodAccessed";
+    private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
+
 
     public static BValue[] addHeader(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
@@ -450,12 +454,14 @@ public class HttpUtil {
         }
     }
 
-    public static void handleResponse(HTTPCarbonMessage requestMsg, HTTPCarbonMessage responseMsg) {
+    public static HttpResponseStatusFuture handleResponse(HTTPCarbonMessage requestMsg, HTTPCarbonMessage responseMsg) {
+        HttpResponseStatusFuture responseFuture;
         try {
-            HttpResponseStatusFuture responsefuture = requestMsg.respond(responseMsg);
+            responseFuture = requestMsg.respond(responseMsg);
         } catch (org.wso2.carbon.transport.http.netty.contract.ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred during response", e);
         }
+        return responseFuture;
     }
 
     public static void handleFailure(HTTPCarbonMessage requestMessage, BallerinaConnectorException ex) {
@@ -492,6 +498,19 @@ public class HttpUtil {
         response.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
                 org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
         return response;
+    }
+
+    public static BStruct getServerConnectorError(Context context, Throwable throwable) {
+        PackageInfo sessionPackageInfo = context.getProgramFile()
+                .getPackageInfo(Constants.PROTOCOL_PACKAGE_HTTP);
+        StructInfo sessionStructInfo = sessionPackageInfo.getStructInfo(Constants.HTTP_CONNECTOR_ERROR);
+        BStruct httpConnectorError = new BStruct(sessionStructInfo.getType());
+        if (throwable.getMessage() == null) {
+            httpConnectorError.setStringField(0, IO_EXCEPTION_OCCURED);
+        } else {
+            httpConnectorError.setStringField(0, throwable.getMessage());
+        }
+        return httpConnectorError;
     }
 
     public static HTTPCarbonMessage getCarbonMsg(BStruct struct, HTTPCarbonMessage defaultMsg) {
@@ -707,9 +726,20 @@ public class HttpUtil {
         bStruct.addNativeData(METHOD_ACCESSED, true);
     }
 
-    public static void operationNotAllowedCheck(BStruct bStruct) {
+    public static void outboundResponseStructCheck(BStruct bStruct) {
         if (bStruct.getNativeData(Constants.OUTBOUND_RESPONSE) == null) {
             throw new BallerinaException("operation not allowed");
+        }
+    }
+
+    public static void addHTTPSessionAndCorsHeaders(HTTPCarbonMessage requestMsg, HTTPCarbonMessage responseMsg) {
+        Session session = (Session) requestMsg.getProperty(Constants.HTTP_SESSION);
+        if (session != null) {
+            session.generateSessionHeader(responseMsg);
+        }
+        //Process CORS if exists.
+        if (requestMsg.getHeader("Origin") != null) {
+            CorsHeaderGenerator.process(requestMsg, responseMsg, true);
         }
     }
 
