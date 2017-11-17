@@ -26,7 +26,18 @@ insert into DataTableRep (row_id, int_type) values
 insert into DataTableRep (row_id, int_type) values
   (2, 200);
 /
-
+CREATE TABLE IF NOT EXISTS FloatTable(
+  row_id       INTEGER,
+  float_type   FLOAT,
+  double_type  DOUBLE,
+  numeric_type NUMERIC(10,2),
+  decimal_type  DECIMAL(10,2),
+  PRIMARY KEY (row_id)
+);
+/
+insert into FloatTable (row_id, float_type, double_type, numeric_type, decimal_type) values
+  (1, 238999.34, 238999.34, 238999.34, 238999.34);
+/
 CREATE TABLE IF NOT EXISTS ComplexTypes(
   row_id         INTEGER NOT NULL,
   blob_type      BLOB(1024),
@@ -87,5 +98,13 @@ CREATE TABLE IF NOT EXISTS DateTimeTypes(
   timestamp_type timestamp,
   datetime_type  datetime,
 PRIMARY KEY (row_id)
+);
+/
+CREATE TABLE IF NOT EXISTS IntegerTypes (
+  id INTEGER,
+  intData INTEGER,
+  tinyIntData TINYINT,
+  smallIntData SMALLINT,
+  bigIntData BIGINT
 );
 /

@@ -32,6 +32,7 @@ public enum DiagnosticCode {
     MISSING_PACKAGE_DECLARATION("missing.package.declaration"),
     UNEXPECTED_PACKAGE_DECLARATION("unexpected.package.declaration"),
     REDECLARED_SYMBOL("redeclared.symbol"),
+    REDECLARED_BUILTIN_SYMBOL("redeclared.builtin.symbol"),
     UNDEFINED_SYMBOL("undefined.symbol"),
     UNDEFINED_FUNCTION("undefined.function"),
     UNDEFINED_FUNCTION_IN_STRUCT("undefined.function.in.struct"),
@@ -106,6 +107,7 @@ public enum DiagnosticCode {
     NOT_ENOUGH_RETURN_VALUES("return.value.not.enough"),
     RETURN_VALUE_NOT_EXPECTED("return.value.not.expected"),
     INVALID_ACTION_INVOCATION("invalid.action.invocation"),
+    INVALID_FUNCTION_INVOCATION("invalid.function.invocation"),
 
     DUPLICATED_ERROR_CATCH("duplicated.error.catch"),
 

@@ -91,7 +91,7 @@ public class BasicWorkerTest {
         BValue[] vals = BRunUtil.invoke(result, "workerReturnTest", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         BInteger ret = (BInteger) vals[0];
-        Assert.assertEquals(ret.intValue(), 50);
+        Assert.assertEquals(ret.intValue(), 51);
     }
     
 }

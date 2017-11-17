@@ -32,6 +32,17 @@ import org.ballerinalang.util.codegen.ServiceInfo;
 public class BServiceUtil {
 
     /**
+     * Helper method for running a service given a CompileResult instance.
+     *
+     * @param compileResult CompileResult instance for the service to be run.
+     */
+    public static void runService(CompileResult compileResult) {
+        // Initialize server connectors before starting the test cases
+        ServerConnectorRegistry.getInstance().initServerConnectors();
+        BLangProgramRunner.runService(compileResult.getProgFile());
+    }
+
+    /**
      * Helper method to setup program file for tests.
      *
      * @param obj to find the source location of the original caller.
@@ -40,16 +51,13 @@ public class BServiceUtil {
      * @return compileResult of the compilation.
      */
     public static CompileResult setupProgramFile(Object obj, String sourcePath, String pkgPath) {
-        // Initialize server connectors before starting the test cases
-        ServerConnectorRegistry.getInstance().initServerConnectors();
         CompileResult compileResult;
         if (pkgPath == null) {
             compileResult = BCompileUtil.compile(sourcePath);
         } else {
             compileResult = BCompileUtil.compile(obj, sourcePath, pkgPath);
         }
-        ProgramFile programFile = compileResult.getProgFile();
-        BLangProgramRunner.runService(programFile);
+        runService(compileResult);
         return compileResult;
     }
 

@@ -47,7 +47,7 @@ public interface VariableDef extends BLangSymbol, Node {
         CONSTANT,
 
         /**
-         * Global variable
+         * Global variable.
          */
         GLOBAL_VAR,
 

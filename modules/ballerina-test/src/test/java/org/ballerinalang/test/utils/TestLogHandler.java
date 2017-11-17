@@ -21,7 +21,7 @@ package org.ballerinalang.test.utils;
 import java.util.logging.ConsoleHandler;
 
 /**
- * A Console Log Handler to log developer level logs during unit tests
+ * A Console Log Handler to log developer level logs during unit tests.
  *
  * @since 0.94.1
  */

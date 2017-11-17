@@ -28,6 +28,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Class to test functionality of division operation.
+ */
 public class DivisionOperationTest {
 
     CompileResult result;
