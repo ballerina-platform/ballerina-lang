@@ -562,7 +562,7 @@ public class Types {
         @Override
         public BSymbol visit(BJSONType t, BType s) {
             // Handle constrained JSON
-            if (isSameType(s, t)) {
+            if (isSameType(s, t) || (s.tag == TypeTags.JSON && t.constraint.tag == TypeTags.NONE)) {
                 return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
             } else if (s.tag == TypeTags.ARRAY) {
                 return getExplicitArrayCastOperator(t, s, t, s);
