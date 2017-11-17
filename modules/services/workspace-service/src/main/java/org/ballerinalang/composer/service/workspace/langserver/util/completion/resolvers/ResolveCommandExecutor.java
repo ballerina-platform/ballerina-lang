@@ -33,6 +33,7 @@ import org.ballerinalang.composer.service.workspace.langserver.util.completion.r
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 
 import java.util.ArrayList;
@@ -77,6 +78,7 @@ public class ResolveCommandExecutor {
                 new ParserRuleAttachmentPointContextResolver();
         ParserRuleAssignmentStatementContextResolver parserRuleAssignmentStatementContextResolver =
                 new ParserRuleAssignmentStatementContextResolver();
+        ServiceContextResolver serviceContextResolver = new ServiceContextResolver();
 
         // Here we use the resolver class as the key for statement context resolver. This is in order to simplify and
         // since there are many statements in Ballerina model which can be handled similarly
@@ -90,6 +92,7 @@ public class ResolveCommandExecutor {
         resolvers.put(AnnotationAttachment.class, annotationAttachmentResolver);
         resolvers.put(CallableUnitBodyContextResolver.class, callableUnitBodyContextResolver);
         resolvers.put(BLangStruct.class, bLangStructContextResolver);
+        resolvers.put(BLangService.class, serviceContextResolver);
 
         // Parser Rule Context Resolvers
         resolvers.put(BallerinaParser.StatementContext.class, parserRuleStatementContextResolver);

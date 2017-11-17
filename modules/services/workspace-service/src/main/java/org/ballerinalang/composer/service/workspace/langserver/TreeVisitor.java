@@ -23,6 +23,7 @@ import org.ballerinalang.composer.service.workspace.langserver.util.positioning.
 import org.ballerinalang.composer.service.workspace.langserver.util.positioning.resolver.CursorPositionResolver;
 import org.ballerinalang.composer.service.workspace.langserver.util.positioning.resolver.PackageNodeScopeResolver;
 import org.ballerinalang.composer.service.workspace.langserver.util.positioning.resolver.ResourceParamScopeResolver;
+import org.ballerinalang.composer.service.workspace.langserver.util.positioning.resolver.ServiceScopeResolver;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -64,7 +65,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
-//import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -114,9 +114,11 @@ public class TreeVisitor extends BLangNodeVisitor {
         BlockStatementScopeResolver blockStatementScopeResolver = new BlockStatementScopeResolver();
         ResourceParamScopeResolver resourceParamScopeResolver = new ResourceParamScopeResolver();
         PackageNodeScopeResolver packageNodeScopeResolver = new PackageNodeScopeResolver();
+        ServiceScopeResolver serviceScopeResolver = new ServiceScopeResolver();
         cursorPositionResolvers.put(BlockStatementScopeResolver.class, blockStatementScopeResolver);
         cursorPositionResolvers.put(ResourceParamScopeResolver.class, resourceParamScopeResolver);
         cursorPositionResolvers.put(PackageNodeScopeResolver.class, packageNodeScopeResolver);
+        cursorPositionResolvers.put(ServiceScopeResolver.class, serviceScopeResolver);
     }
 
     // Visitor methods
@@ -313,25 +315,36 @@ public class TreeVisitor extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         BSymbol serviceSymbol = serviceNode.symbol;
         SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, symbolEnv);
+        this.cursorPositionResolver = ServiceScopeResolver.class;
+        // Since the service does not contains a block statement, we consider the block owner only. Here it is service
+        this.blockOwnerStack.push(serviceNode);
         serviceNode.vars.forEach(v -> this.acceptNode(v, serviceEnv));
         serviceNode.resources.forEach(r -> this.acceptNode(r, serviceEnv));
+        if (terminateVisitor) {
+            this.acceptNode(null, null);
+        }
+        this.blockOwnerStack.pop();
     }
 
     public void visit(BLangResource resourceNode) {
-        BSymbol resourceSymbol = resourceNode.symbol;
-        SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, symbolEnv);
+        if (!cursorPositionResolvers.get(cursorPositionResolver)
+                .isCursorBeforeStatement(resourceNode.getPosition(), resourceNode, this)) {
+            BSymbol resourceSymbol = resourceNode.symbol;
+            SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode,
+                    resourceSymbol.scope, symbolEnv);
 
-        // TODO:Handle Annotation attachments
+            // TODO:Handle Annotation attachments
 
-        // Cursor position is calculated against the resource parameter scope resolver
-        cursorPositionResolver = ResourceParamScopeResolver.class;
-        resourceNode.params.forEach(p -> this.acceptNode(p, resourceEnv));
-        resourceNode.workers.forEach(w -> this.acceptNode(w, resourceEnv));
-        this.blockOwnerStack.push(resourceNode);
-        // Cursor position is calculated against the Block statement scope resolver
-        cursorPositionResolver = BlockStatementScopeResolver.class;
-        acceptNode(resourceNode.body, resourceEnv);
-        this.blockOwnerStack.pop();
+            // Cursor position is calculated against the resource parameter scope resolver
+            cursorPositionResolver = ResourceParamScopeResolver.class;
+            resourceNode.params.forEach(p -> this.acceptNode(p, resourceEnv));
+            resourceNode.workers.forEach(w -> this.acceptNode(w, resourceEnv));
+            this.blockOwnerStack.push(resourceNode);
+            // Cursor position is calculated against the Block statement scope resolver
+            cursorPositionResolver = BlockStatementScopeResolver.class;
+            acceptNode(resourceNode.body, resourceEnv);
+            this.blockOwnerStack.pop();
+        }
     }
 
     @Override
