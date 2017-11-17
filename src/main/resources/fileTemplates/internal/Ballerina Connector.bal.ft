@@ -6,16 +6,21 @@ import ballerina.net.http;
 
 connector MyClient (string url) {
 
-    http:ClientConnector clientConnector = create http:ClientConnector(url, {});
+    endpoint<http:HttpClient> clientConnectorEP {
+        create http:HttpClient(url, {});
+    }
 
     action connect (string path) (http:Response) {
-        http:Response response = clientConnector.get(path, {});
+        http:Response response;
+        response, _ = clientConnectorEP.get(path, {});
         return response;
     }
 }
 
 function main (string[] args) {
-    MyClient myClient = create MyClient("http://example.com");
-    http:Response response = myClient.connect("");
+    endpoint<MyClient> myClientEP{
+        create MyClient("http://example.com");
+    }
+    http:Response response = myClientEP.connect("");
     println(response.getStringPayload());
 }
