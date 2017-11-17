@@ -169,7 +169,7 @@ export default {
         return NodeTypes.createStatementFragment('var a = 1;');
     },
     createBindStmt: () => {
-        return NodeTypes.createStatementFragment('bind __connector with __endpoint;');
+        return NodeTypes.createStatementFragment('bind _connector with _endpoint;');
     },
     createVarDefStmt: () => {
         return NodeTypes.createStatementFragment('int a = 1;');
