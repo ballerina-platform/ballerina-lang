@@ -375,7 +375,7 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for getAttributes function")
     public void testGetAttributesFunction() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/map", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/map", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
@@ -399,7 +399,7 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for null attribute map from getAttributes function")
     public void testNullGetAttributesFunction() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/map2", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/map2", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
