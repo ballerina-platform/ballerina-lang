@@ -55,10 +55,9 @@ public class Send extends AbstractNativeFunction {
         BStruct responseStruct = (BStruct) getRefArgument(context, 0);
         HttpUtil.methodInvocationCheck(responseStruct);
         HttpUtil.outboundResponseStructCheck(responseStruct);
-
         HTTPCarbonMessage responseMessage = HttpUtil
                 .getCarbonMsg(responseStruct, HttpUtil.createHttpCarbonMessage(false));
-        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct.getNativeData(Constants.REQUEST_MESSAGE);
+        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct.getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
         HttpUtil.addHTTPSessionAndCorsHeaders(requestMessage, responseMessage);
         HttpResponseStatusFuture statusFuture = HttpUtil.handleResponse(requestMessage, responseMessage);
         Throwable status;

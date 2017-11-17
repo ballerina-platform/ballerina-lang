@@ -56,5 +56,4 @@ public class HTTPTestRequest extends HTTPCarbonMessage {
             this.futureListener.setResponseMsg(httpCarbonMessage);
         }
     }
-
 }

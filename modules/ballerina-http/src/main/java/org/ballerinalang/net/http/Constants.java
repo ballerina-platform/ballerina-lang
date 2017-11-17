@@ -135,7 +135,7 @@ public class Constants {
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
-    public static final String REQUEST_MESSAGE = "request_Msg";
+    public static final String INBOUND_REQUEST_MESSAGE = "inbound_request_msg";
     public static final String INBOUND_REQUEST = "inbound_request";
     public static final String OUTBOUND_RESPONSE = "outbound_response";
     public static final String HTTP_SESSION = "http_session";

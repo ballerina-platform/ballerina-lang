@@ -27,7 +27,6 @@ public class HttpConnectorFutureListener implements ConnectorFutureListener {
 
     @Override
     public void notifyReply(BValue... response) {
-
     }
 
     @Override

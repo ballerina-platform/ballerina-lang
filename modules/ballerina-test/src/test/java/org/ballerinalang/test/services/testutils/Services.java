@@ -37,24 +37,6 @@ import java.util.Map;
  */
 public class Services {
 
-    public static HTTPCarbonMessage invokeNew(HTTPCarbonMessage carbonMessage) {
-        HttpResource resource = HttpDispatcher.findResource(carbonMessage);
-        //TODO below should be fixed properly
-        //basically need to find a way to pass information from server connector side to client connector side
-        Map<String, Object> properties = null;
-        if (carbonMessage.getProperty(Constants.SRC_HANDLER) != null) {
-            Object srcHandler = carbonMessage.getProperty(Constants.SRC_HANDLER);
-            properties = Collections.singletonMap(Constants.SRC_HANDLER, srcHandler);
-        }
-        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, carbonMessage);
-        ConnectorFuture future = Executor.submit(resource.getBalResource(), properties, signatureParams);
-        TestHttpFutureListener futureListener = new TestHttpFutureListener(carbonMessage);
-        futureListener.setRequestStruct(signatureParams[0]);
-        future.setConnectorFutureListener(futureListener);
-        futureListener.sync();
-        return futureListener.getResponseMsg();
-    }
-
     public static HTTPCarbonMessage invokeNew(HTTPTestRequest request) {
         TestHttpFutureListener futureListener = new TestHttpFutureListener(request);
         request.setFutureListener(futureListener);
