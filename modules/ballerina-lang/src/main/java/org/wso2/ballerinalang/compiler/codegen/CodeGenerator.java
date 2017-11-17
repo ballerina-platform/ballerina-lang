@@ -756,18 +756,13 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangFieldVarRef fieldVarRef) {
         int varRegIndex;
         int fieldIndex = fieldVarRef.symbol.varIndex;
-        if (fieldVarRef.type.tag == TypeTags.STRUCT) {
-            // This is a struct field.
-            // the struct reference must be stored in the current reference register index.
-            varRegIndex = regIndexes.tRef;
-        } else {
-            // This is a connector field.
-            // the connector reference must be stored in the current reference register index.
-            varRegIndex = ++regIndexes.tRef;
 
-            // The connector is always the first parameter of the action
-            emit(InstructionCodes.RLOAD, 0, varRegIndex);
-        }
+        // This is a connector field.
+        // the connector reference must be stored in the current reference register index.
+        varRegIndex = ++regIndexes.tRef;
+
+        // The connector is always the first parameter of the action
+        emit(InstructionCodes.RLOAD, 0, varRegIndex);
 
         if (varAssignment) {
             int opcode = getOpcode(fieldVarRef.type.tag,
