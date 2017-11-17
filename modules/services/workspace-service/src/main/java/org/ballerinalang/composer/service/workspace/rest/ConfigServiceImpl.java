@@ -69,7 +69,7 @@ public class ConfigServiceImpl {
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         } catch (Throwable throwable) {
-            log.error("Composer config api error.", throwable.getMessage());
+            log.error("Composer config api error.", throwable.getMessage(), throwable);
             return getErrorResponse(throwable);
         }
     }

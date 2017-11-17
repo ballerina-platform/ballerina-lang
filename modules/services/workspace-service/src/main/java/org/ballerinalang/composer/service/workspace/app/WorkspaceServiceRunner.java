@@ -27,6 +27,7 @@ import org.ballerinalang.composer.service.workspace.fileserver.FileContentProvid
 import org.ballerinalang.composer.service.workspace.langserver.LangServerManager;
 import org.ballerinalang.composer.service.workspace.launcher.LaunchManager;
 import org.ballerinalang.composer.service.workspace.launcher.util.LaunchUtils;
+import org.ballerinalang.composer.service.workspace.logging.ComposerLogManagerUtils;
 import org.ballerinalang.composer.service.workspace.rest.ConfigServiceImpl;
 import org.ballerinalang.composer.service.workspace.rest.FileServer;
 import org.ballerinalang.composer.service.workspace.rest.TryItService;
@@ -59,67 +60,80 @@ import java.util.stream.Stream;
  */
 public class WorkspaceServiceRunner {
 
-    private static final Logger logger = LoggerFactory.getLogger(WorkspaceServiceRunner.class);
-
-    public static void main(String[] args) {
-        String balHome = System.getProperty(Constants.SYS_BAL_COMPOSER_HOME);
-        if (balHome == null) {
-            balHome = System.getenv(Constants.SYS_BAL_COMPOSER_HOME);
-        }
-        if (balHome == null) {
-            // this condition will never reach if the app is started with 'composer' script.
-            logger.error(Constants.COMPOSER_HOME_NOT_FOUND_ERROR_MESSAGE);
-            return;
-        }
-
-        ComposerCommand composer = new ComposerCommand();
-        JCommander jcomander = new JCommander(composer);
-        jcomander.setProgramName("composer");
+    private static Logger logger;
+    
+    static {
         try {
-            jcomander.parse(args);
-        } catch (ParameterException e) {
-            PrintStream err = System.err;
-            err.println("Invalid argument passed.");
-            printUsage();
-            return;
+            // Update the default log manager.
+            ComposerLogManagerUtils composerLogManagerUtils = new ComposerLogManagerUtils();
+            composerLogManagerUtils.updateLogManager();
+    
+            logger = LoggerFactory.getLogger(WorkspaceServiceRunner.class);
+        } catch (IOException e) {
+            logger.error("Error occurred while setting logging properties.", e);
         }
-
-        if (composer.helpFlag) {
-            PrintStream out = System.out;
-            out.println("Ballerina composer, helps you to visualize and edit ballerina programs.");
-            out.println();
-            out.println("Find more information at http://ballerinalang.org");
-            printUsage();
-            return;
-        }
-
-        String apiPath = null;
-        String launcherPath = null;
-        String langserverPath = null;
-        String debuggerPath = null;
-        String[] rootDirectoriesArray = null;
-        String tryServiceURL = null;
-        // reading configurations from workspace-service-config.yaml. Users are expected to drop the
-        // workspace-service-config.yaml file inside the $ballerina-tools-distribution/resources/composer/services
-        // directory. Default configurations will be set if user hasn't provided workspace-service-config.yaml
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        File configFile = new File("./resources/composer/services/workspace-service-config.yaml");
-        if (configFile.exists()) {
-            try {
-                WorkspaceServiceConfig workspaceServiceConfig = mapper.readValue(configFile,
-                        WorkspaceServiceConfig.class);
-                apiPath = workspaceServiceConfig.getApiPath();
-                launcherPath = workspaceServiceConfig.getLauncherPath();
-                langserverPath = workspaceServiceConfig.getLangserverPath();
-                debuggerPath = workspaceServiceConfig.getDebuggerPath();
-                if (workspaceServiceConfig.getRootDirectories() != null) {
-                    rootDirectoriesArray = workspaceServiceConfig.getRootDirectories().split(",");
-                }
-                tryServiceURL = workspaceServiceConfig.getTryServiceURL();
-            } catch (IOException e) {
-                logger.error("Error while reading workspace-service-config.yaml");
+    }
+    
+    public static void main(String[] args) {
+        try {
+            String balHome = System.getProperty(Constants.SYS_BAL_COMPOSER_HOME);
+            if (balHome == null) {
+                balHome = System.getenv(Constants.SYS_BAL_COMPOSER_HOME);
             }
-        }
+            if (balHome == null) {
+                // this condition will never reach if the app is started with 'composer' script.
+                logger.error(Constants.COMPOSER_HOME_NOT_FOUND_ERROR_MESSAGE);
+                return;
+            }
+        
+            ComposerCommand composer = new ComposerCommand();
+            JCommander jcomander = new JCommander(composer);
+            jcomander.setProgramName("composer");
+            try {
+                jcomander.parse(args);
+            } catch (ParameterException e) {
+                PrintStream err = System.err;
+                err.println("Invalid argument passed.");
+                printUsage();
+                return;
+            }
+        
+            if (composer.helpFlag) {
+                PrintStream out = System.out;
+                out.println("Ballerina composer, helps you to visualize and edit ballerina programs.");
+                out.println();
+                out.println("Find more information at http://ballerinalang.org");
+                printUsage();
+                return;
+            }
+        
+            String apiPath = null;
+            String launcherPath = null;
+            String langserverPath = null;
+            String debuggerPath = null;
+            String[] rootDirectoriesArray = null;
+            String tryServiceURL = null;
+            // reading configurations from workspace-service-config.yaml. Users are expected to drop the
+            // workspace-service-config.yaml file inside the $ballerina-tools-distribution/resources/composer/services
+            // directory. Default configurations will be set if user hasn't provided workspace-service-config.yaml
+            ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+            File configFile = new File("./resources/composer/services/workspace-service-config.yaml");
+            if (configFile.exists()) {
+                try {
+                    WorkspaceServiceConfig workspaceServiceConfig = mapper.readValue(configFile,
+                            WorkspaceServiceConfig.class);
+                    apiPath = workspaceServiceConfig.getApiPath();
+                    launcherPath = workspaceServiceConfig.getLauncherPath();
+                    langserverPath = workspaceServiceConfig.getLangserverPath();
+                    debuggerPath = workspaceServiceConfig.getDebuggerPath();
+                    if (workspaceServiceConfig.getRootDirectories() != null) {
+                        rootDirectoriesArray = workspaceServiceConfig.getRootDirectories().split(",");
+                    }
+                    tryServiceURL = workspaceServiceConfig.getTryServiceURL();
+                } catch (IOException e) {
+                    logger.error("Error while reading workspace-service-config.yaml", e);
+                }
+            }
 
         /*
            Check if the ports have conflicts, if there are conflicts following is the plan.
@@ -127,114 +141,117 @@ public class WorkspaceServiceRunner {
                2. If API port(s) have a conflict we will find next available port and start the service.
                3. The service ports will be passed to the editor app via a file server API.
         */
-        //check if another instance of an editor started if so terminate the program and inform user
-        int fileServerPort = Integer.getInteger(Constants.SYS_FILE_WEB_PORT, Constants.DEFAULT_FILE_WEB_PORT);
-        //if a custom port is given give priority to that.
-        if (null != composer.fileServerPort) {
-            //if the file server port is set to 0 we will
-            if (composer.fileServerPort.equals(0)) {
-                fileServerPort = WorkspaceUtils.getAvailablePort(fileServerPort);
-            } else {
-                fileServerPort = composer.fileServerPort.intValue();
+            //check if another instance of an editor started if so terminate the program and inform user
+            int fileServerPort = Integer.getInteger(Constants.SYS_FILE_WEB_PORT, Constants.DEFAULT_FILE_WEB_PORT);
+            //if a custom port is given give priority to that.
+            if (null != composer.fileServerPort) {
+                //if the file server port is set to 0 we will
+                if (composer.fileServerPort.equals(0)) {
+                    fileServerPort = WorkspaceUtils.getAvailablePort(fileServerPort);
+                } else {
+                    fileServerPort = composer.fileServerPort.intValue();
+                }
             }
-        }
-
-        if (!WorkspaceUtils.available(fileServerPort)) {
-            PrintStream err = System.err;
-            err.println("Error: Looks like you may be running the Ballerina composer already ?");
-            err.println(String.format("In any case, it appears someone is already using port %d, " +
-                    "please kick them out or tell me a different port to use.", fileServerPort));
-            printUsage();
-            System.exit(1);
-        }
-
-        //find free ports for API ports.
-        int apiPort = Integer.getInteger(Constants.SYS_WORKSPACE_PORT, Constants.DEFAULT_WORKSPACE_PORT);
-        apiPort = WorkspaceUtils.getAvailablePort(apiPort);
-
-        //find free port for launch service.
-        int launcherPort = apiPort + 1;
-        int langserverPort = apiPort + 2;
-        launcherPort = WorkspaceUtils.getAvailablePort(launcherPort);
-        langserverPort = WorkspaceUtils.getAvailablePort(langserverPort);
-
-        // find free port for debugger
-        int debuggerPort = LaunchUtils.getFreePort();
-
-        boolean isCloudMode = Boolean.getBoolean(Constants.SYS_WORKSPACE_ENABLE_CLOUD);
         
-        if (!isCloudMode && null == System.getProperty("msf4j.host")) {
-            System.setProperty("msf4j.host", "127.0.0.1");
-        }
-
-        Injector injector = Guice.createInjector(new WorkspaceServiceModule());
-        WorkspaceService workspaceService = injector.getInstance(WorkspaceService.class);
-
-        // set list of root directories provided in workspace-service-config.yaml configuration file
-        if (rootDirectoriesArray != null && rootDirectoriesArray.length > 0) {
-            List<Path> rootDirs = new ArrayList<Path>();
-            Stream.of(rootDirectoriesArray).forEach((rootDirectory) -> {
-                rootDirs.add(Paths.get(rootDirectory));
-            });
-            workspaceService.setRootPaths(rootDirs);
-        }
-
-        String contextRoot = Paths.get(balHome, Constants.FILE_CONTEXT_RESOURCE, Constants
-                .FILE_CONTEXT_RESOURCE_COMPOSER, Constants.FILE_CONTEXT_RESOURCE_COMPOSER_WEB,
-                 Constants.FILE_CONTEXT_RESOURCE_COMPOSER_WEB_PUBLIC)
-                .toString();
-
-        FileContentProvider fileContentProvider = new FileContentProvider();
-        fileContentProvider.setContextRoot(contextRoot);
-
-        new MicroservicesRunner(apiPort)
-                .addExceptionMapper(new SemanticExceptionMapper())
-                .addExceptionMapper(new ParseCancellationExceptionMapper())
-                .addExceptionMapper(new FileNotFoundExceptionMapper())
-                .addExceptionMapper(new DefaultExceptionMapper())
-                .deploy(workspaceService)
-                .deploy(new BLangFileRestService())
-                .deploy(ServicesApiServiceFactory.getServicesApi())
-                .deploy(new TypeLatticeService())
-                .deploy(new TryItService())
-                .deploy(fileContentProvider)
-                .start();
-
-        FileServer fileServer = new FileServer();
-
-        ConfigServiceImpl configService = new ConfigServiceImpl();
-        configService.setApiPort(apiPort);
-        configService.setLauncherPort(launcherPort);
-        configService.setLangserverPort(langserverPort);
-        configService.setDebuggerPort(debuggerPort);
-        configService.setApiPath(apiPath);
-        configService.setLauncherPath(launcherPath);
-        configService.setLangserverPath(langserverPath);
-        configService.setDebuggerPath(debuggerPath);
-        configService.setStartupFile(composer.filePath);
-
-
-        fileServer.setContextRoot(contextRoot);
-        new MicroservicesRunner(fileServerPort)
-                .deploy(configService)
-                .deploy(fileServer)
-                .start();
-
-        //start the launcher service
-        //The launcher service was implemented with netty since msf4j do not have websocket support yet.
-        LaunchManager launchManager = LaunchManager.getInstance();
-        launchManager.init(launcherPort, tryServiceURL);
-
-        LangServerManager langServerManager = LangServerManager.getInstance();
-        langServerManager.init(langserverPort);
-
-        if (!isCloudMode) {
-            logger.info("Ballerina Composer URL: http://localhost:" + fileServerPort);
-            try {
-                StartBrowser.startInDefaultBrowser("http://localhost:" + fileServerPort);
-            } catch (IOException e) {
-                logger.error("Error while opening the composer in the default browser");
+            if (!WorkspaceUtils.available(fileServerPort)) {
+                PrintStream err = System.err;
+                err.println("Error: Looks like you may be running the Ballerina composer already ?");
+                err.println(String.format("In any case, it appears someone is already using port %d, " +
+                        "please kick them out or tell me a different port to use.", fileServerPort));
+                printUsage();
+                System.exit(1);
             }
+        
+            //find free ports for API ports.
+            int apiPort = Integer.getInteger(Constants.SYS_WORKSPACE_PORT, Constants.DEFAULT_WORKSPACE_PORT);
+            apiPort = WorkspaceUtils.getAvailablePort(apiPort);
+        
+            //find free port for launch service.
+            int launcherPort = apiPort + 1;
+            int langserverPort = apiPort + 2;
+            launcherPort = WorkspaceUtils.getAvailablePort(launcherPort);
+            langserverPort = WorkspaceUtils.getAvailablePort(langserverPort);
+        
+            // find free port for debugger
+            int debuggerPort = LaunchUtils.getFreePort();
+        
+            boolean isCloudMode = Boolean.getBoolean(Constants.SYS_WORKSPACE_ENABLE_CLOUD);
+        
+            if (!isCloudMode && null == System.getProperty("msf4j.host")) {
+                System.setProperty("msf4j.host", "127.0.0.1");
+            }
+        
+            Injector injector = Guice.createInjector(new WorkspaceServiceModule());
+            WorkspaceService workspaceService = injector.getInstance(WorkspaceService.class);
+        
+            // set list of root directories provided in workspace-service-config.yaml configuration file
+            if (rootDirectoriesArray != null && rootDirectoriesArray.length > 0) {
+                List<Path> rootDirs = new ArrayList<Path>();
+                Stream.of(rootDirectoriesArray).forEach((rootDirectory) -> {
+                    rootDirs.add(Paths.get(rootDirectory));
+                });
+                workspaceService.setRootPaths(rootDirs);
+            }
+        
+            String contextRoot = Paths.get(balHome, Constants.FILE_CONTEXT_RESOURCE, Constants
+                    .FILE_CONTEXT_RESOURCE_COMPOSER, Constants.FILE_CONTEXT_RESOURCE_COMPOSER_WEB,
+                     Constants.FILE_CONTEXT_RESOURCE_COMPOSER_WEB_PUBLIC)
+                    .toString();
+        
+            FileContentProvider fileContentProvider = new FileContentProvider();
+            fileContentProvider.setContextRoot(contextRoot);
+        
+            new MicroservicesRunner(apiPort)
+                    .addExceptionMapper(new SemanticExceptionMapper())
+                    .addExceptionMapper(new ParseCancellationExceptionMapper())
+                    .addExceptionMapper(new FileNotFoundExceptionMapper())
+                    .addExceptionMapper(new DefaultExceptionMapper())
+                    .deploy(workspaceService)
+                    .deploy(new BLangFileRestService())
+                    .deploy(ServicesApiServiceFactory.getServicesApi())
+                    .deploy(new TypeLatticeService())
+                    .deploy(new TryItService())
+                    .deploy(fileContentProvider)
+                    .start();
+        
+            FileServer fileServer = new FileServer();
+        
+            ConfigServiceImpl configService = new ConfigServiceImpl();
+            configService.setApiPort(apiPort);
+            configService.setLauncherPort(launcherPort);
+            configService.setLangserverPort(langserverPort);
+            configService.setDebuggerPort(debuggerPort);
+            configService.setApiPath(apiPath);
+            configService.setLauncherPath(launcherPath);
+            configService.setLangserverPath(langserverPath);
+            configService.setDebuggerPath(debuggerPath);
+            configService.setStartupFile(composer.filePath);
+        
+        
+            fileServer.setContextRoot(contextRoot);
+            new MicroservicesRunner(fileServerPort)
+                    .deploy(configService)
+                    .deploy(fileServer)
+                    .start();
+        
+            //start the launcher service
+            //The launcher service was implemented with netty since msf4j do not have websocket support yet.
+            LaunchManager launchManager = LaunchManager.getInstance();
+            launchManager.init(launcherPort, tryServiceURL);
+        
+            LangServerManager langServerManager = LangServerManager.getInstance();
+            langServerManager.init(langserverPort);
+        
+            if (!isCloudMode) {
+                logger.info("Ballerina Composer URL: http://localhost:" + fileServerPort);
+                try {
+                    StartBrowser.startInDefaultBrowser("http://localhost:" + fileServerPort);
+                } catch (IOException e) {
+                    logger.error("Error while opening the composer in the default browser", e);
+                }
+            }
+        } catch (Throwable e) {
+            logger.error("Unexpected error occurred.", e);
         }
     }
 

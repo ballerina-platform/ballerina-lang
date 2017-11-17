@@ -36,6 +36,7 @@ fetchConfigs()
         // merge existing config and received configs
         const newConfig = _.merge(defaultConfig, configs);
         try {
+            log.initAjaxAppender(newConfig.services.workspace.endpoint);
             const app = new Application(newConfig);
             app.render();
         } catch (ex) {

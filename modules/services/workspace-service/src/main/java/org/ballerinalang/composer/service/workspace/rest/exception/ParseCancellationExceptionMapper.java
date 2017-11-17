@@ -35,7 +35,7 @@ public class ParseCancellationExceptionMapper implements ExceptionMapper<ParseCa
 
     @Override
     public Response toResponse(ParseCancellationException exception) {
-        logger.error("error: " + exception.getMessage());
+        logger.error("error: " + exception.getMessage(), exception);
         JsonObject entity = new JsonObject();
         entity.addProperty("errorMessage", exception.getMessage());
         return Response.status(Response.Status.OK)

@@ -62,7 +62,7 @@ public class SwaggerApiServiceImpl {
             swaggerServiceContainer.setSwaggerDefinition(swaggerDefinition);
             return Response.ok().entity(swaggerServiceContainer).header("Access-Control-Allow-Origin", '*').build();
         } catch (Exception ex) {
-            logger.error("Error while processing service definition at converter service" + ex.getMessage());
+            logger.error("error: while processing service definition at converter service: " + ex.getMessage(), ex);
             JsonObject entity = new JsonObject();
             entity.addProperty("Error", ex.toString());
             return Response.status(Response.Status.BAD_REQUEST)

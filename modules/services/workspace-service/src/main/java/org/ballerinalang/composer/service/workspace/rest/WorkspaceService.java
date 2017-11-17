@@ -82,7 +82,7 @@ public class WorkspaceService {
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         } catch (Throwable throwable) {
-            logger.error("/root service error", throwable.getMessage());
+            logger.error("/root service error", throwable.getMessage(), throwable);
             return getErrorResponse(throwable);
         }
     }
@@ -98,7 +98,7 @@ public class WorkspaceService {
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         } catch (Throwable throwable) {
-            logger.error("/exists service error", throwable.getMessage());
+            logger.error("/exists service error", throwable.getMessage(), throwable);
             return getErrorResponse(throwable);
         }
     }
@@ -116,7 +116,7 @@ public class WorkspaceService {
             return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*')
                     .type(MediaType.APPLICATION_JSON).build();
         } catch (Throwable throwable) {
-            logger.error("/create service error", throwable.getMessage());
+            logger.error("/create service error", throwable.getMessage(), throwable);
             return getErrorResponse(throwable);
         }
     }
@@ -134,7 +134,7 @@ public class WorkspaceService {
             return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*')
                     .type(MediaType.APPLICATION_JSON).build();
         } catch (Throwable throwable) {
-            logger.error("/create service error", throwable.getMessage());
+            logger.error("/create service error", throwable.getMessage(), throwable);
             return getErrorResponse(throwable);
         }
     }
@@ -152,7 +152,7 @@ public class WorkspaceService {
             return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*')
                     .type(MediaType.APPLICATION_JSON).build();
         } catch (Throwable throwable) {
-            logger.error("/create service error", throwable.getMessage());
+            logger.error("/create service error", throwable.getMessage(), throwable);
             return getErrorResponse(throwable);
         }
     }
@@ -169,7 +169,7 @@ public class WorkspaceService {
             return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*')
                     .type(MediaType.APPLICATION_JSON).build();
         } catch (Throwable throwable) {
-            logger.error("/delete service error", throwable.getMessage());
+            logger.error("/delete service error", throwable.getMessage(), throwable);
             return getErrorResponse(throwable);
         }
     }
@@ -187,7 +187,7 @@ public class WorkspaceService {
                             Charset.defaultCharset()), extensionList))
                     .header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
         } catch (Throwable throwable) {
-            logger.error("/list service error", throwable.getMessage());
+            logger.error("/list service error", throwable.getMessage(), throwable);
             return getErrorResponse(throwable);
         }
     }
@@ -238,7 +238,7 @@ public class WorkspaceService {
             return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*').type
                     (MediaType.APPLICATION_JSON).build();
         } catch (Throwable throwable) {
-            logger.error("/write service error", throwable.getMessage());
+            logger.error("/write service error", throwable.getMessage(), throwable);
             return getErrorResponse(throwable);
         }
     }
@@ -252,7 +252,7 @@ public class WorkspaceService {
                     .entity(workspace.read(path)).header("Access-Control-Allow-Origin", '*')
                     .type(MediaType.APPLICATION_JSON).build();
         } catch (Throwable throwable) {
-            logger.error("/read service error", throwable.getMessage());
+            logger.error("/read service error", throwable.getMessage(), throwable);
             return getErrorResponse(throwable);
         }
     }
@@ -266,7 +266,7 @@ public class WorkspaceService {
                     .entity(workspace.getUserHome()).header("Access-Control-Allow-Origin", '*')
                     .type(MediaType.APPLICATION_JSON).build();
         } catch (Throwable throwable) {
-            logger.error("/userHome service error", throwable.getMessage());
+            logger.error("/userHome service error", throwable.getMessage(), throwable);
             return getErrorResponse(throwable);
         }
     }
@@ -290,7 +290,7 @@ public class WorkspaceService {
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         } catch (Throwable throwable) {
-            logger.error("/log service error", throwable.getMessage());
+            logger.error("/log service error", throwable.getMessage(), throwable);
             return getErrorResponse(throwable);
         }
     }
