@@ -336,14 +336,15 @@ class BallerinaFileEditor extends React.Component {
                 const connectorDeclaration = TreeBuilder.build(parsedJson);
                 connectorDeclaration.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
                 connectorDeclaration.viewState.showOverlayContainer = true;
-
+                // Get the top most parent of the node
+                const parentNode = this.getParent(node);
                 if (TreeUtils.isBlock(node.parent)) {
                     TreeUtils.getNewTempVarName(node.parent, '__endpoint')
                         .then((varNames) => {
                             connectorDeclaration.getVariable().getName().setValue(varNames[0]);
                             node.getExpression().getExpression().getVariableName()
                                 .setValue(connectorDeclaration.getVariableName().value);
-                            node.parent.addStatements(connectorDeclaration, 0);
+                            parentNode.getBody().addStatements(connectorDeclaration, 0);
                         });
                 } else if (TreeUtils.isService(node.parent)) {
                     TreeUtils.getNewTempVarName(node.parent, '__endpoint')
@@ -351,7 +352,7 @@ class BallerinaFileEditor extends React.Component {
                             connectorDeclaration.getVariable().getName().setValue(varNames[0]);
                             node.getExpression().getExpression().getVariableName()
                                 .setValue(connectorDeclaration.getVariableName().value);
-                            node.parent.addVariables(connectorDeclaration, 0);
+                            parentNode.addVariables(connectorDeclaration, 0);
                         });
                 } else if (TreeUtils.isConnector(node.parent)) {
                     TreeUtils.getNewTempVarName(node.parent, '__endpoint')
@@ -359,11 +360,24 @@ class BallerinaFileEditor extends React.Component {
                             connectorDeclaration.getVariable().getName().setValue(varNames[0]);
                             node.getExpression().getExpression().getVariableName()
                                 .setValue(connectorDeclaration.getVariableName().value);
-                            node.parent.addVariableDefs(connectorDeclaration, 0);
+                            parentNode.addVariableDefs(connectorDeclaration, 0);
                         });
                 }
             }
         }
+    }
+
+    /**
+     * Get the top most parent of the node
+     * @param node - node that is to be added
+     */
+    getParent(node) {
+        let parentNode = node.parent;
+        if (!TreeUtils.isService(parentNode) && !TreeUtils.isConnector(parentNode) && !TreeUtils.isFunction(parentNode)
+            && !TreeUtils.isResource(parentNode) && !TreeUtils.isAction(parentNode)) {
+            parentNode = this.getParent(parentNode);
+        }
+        return parentNode;
     }
     /**
      * set active view
