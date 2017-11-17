@@ -55,8 +55,8 @@ public class HTTPCarbonMessage {
     private MessagingException messagingException = null;
     private MessageDataSource messageDataSource;
     private MessageFuture messageFuture;
-    private final ServerConnectorFuture serverConnectorFuture = new HttpWsServerConnectorFuture();
-    private final HttpResponseStatusFuture httpResponseStatusFuture = new HttpResponseStatusFuture();
+    private final ServerConnectorFuture httpOutboundRespFuture = new HttpWsServerConnectorFuture();
+    private final HttpResponseStatusFuture httpOutboundRespStatusFuture = new HttpResponseStatusFuture();
 
     public HTTPCarbonMessage(HttpMessage httpMessage) {
         int soTimeOut = 60;
@@ -263,24 +263,24 @@ public class HTTPCarbonMessage {
     /**
      * Returns the future responsible for sending back the response.
      *
-     * @return serverConnectorFuture.
+     * @return httpOutboundRespFuture.
      */
     public ServerConnectorFuture getHttpResponseFuture() {
-        return this.serverConnectorFuture;
+        return this.httpOutboundRespFuture;
     }
 
     /**
      * Returns the future responsible for notifying the response status.
      *
-     * @return httpResponseStatusFuture.
+     * @return httpOutboundRespStatusFuture.
      */
-    public HttpResponseStatusFuture getHttpResponseStatusFuture() {
-        return httpResponseStatusFuture;
+    public HttpResponseStatusFuture getHttpOutboundRespStatusFuture() {
+        return httpOutboundRespStatusFuture;
     }
 
     public HttpResponseStatusFuture respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {
-        serverConnectorFuture.notifyHttpListener(httpCarbonMessage);
-        return httpResponseStatusFuture;
+        httpOutboundRespFuture.notifyHttpListener(httpCarbonMessage);
+        return httpOutboundRespStatusFuture;
     }
 
     /**

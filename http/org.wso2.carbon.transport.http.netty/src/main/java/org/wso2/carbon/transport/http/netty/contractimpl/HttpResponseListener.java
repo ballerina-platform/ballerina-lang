@@ -39,13 +39,13 @@ public class HttpResponseListener implements HttpConnectorListener {
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
     private HandlerExecutor handlerExecutor;
-    private HTTPCarbonMessage requestMsg;
+    private HTTPCarbonMessage inboundRequestMsg;
 
     public HttpResponseListener(ChannelHandlerContext channelHandlerContext, HTTPCarbonMessage requestMsg) {
         this.sourceContext = channelHandlerContext;
         this.requestDataHolder = new RequestDataHolder(requestMsg);
         this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
-        this.requestMsg = requestMsg;
+        this.inboundRequestMsg = requestMsg;
     }
 
     @Override
@@ -66,16 +66,17 @@ public class HttpResponseListener implements HttpConnectorListener {
             httpResponseMessage.getHttpContentAsync().setMessageListener(httpContent ->
                     this.sourceContext.channel().eventLoop().execute(() -> {
                 if (Util.isLastHttpContent(httpContent)) {
-                    ChannelFuture future = sourceContext.writeAndFlush(httpContent);
-                    HttpResponseStatusFuture responseStatusFuture = requestMsg.getHttpResponseStatusFuture();
-                    future.addListener(genericFutureListener -> {
+                    ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(httpContent);
+                    HttpResponseStatusFuture responseStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
+                    outboundChannelFuture.addListener(genericFutureListener -> {
                         if (genericFutureListener.cause() != null) {
                             responseStatusFuture.notifyHttpListener(genericFutureListener.cause());
+                        } else {
+                            responseStatusFuture.notifyHttpListener(inboundRequestMsg);
                         }
-                        responseStatusFuture.notifyHttpListener(requestMsg);
                     });
                     if (connectionCloseAfterResponse) {
-                        future.addListener(ChannelFutureListener.CLOSE);
+                        outboundChannelFuture.addListener(ChannelFutureListener.CLOSE);
                     }
                     if (handlerExecutor != null) {
                         handlerExecutor.executeAtSourceResponseSending(httpResponseMessage);

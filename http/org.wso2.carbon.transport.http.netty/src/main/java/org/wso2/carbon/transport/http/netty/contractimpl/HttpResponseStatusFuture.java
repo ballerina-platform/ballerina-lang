@@ -69,7 +69,7 @@ public class HttpResponseStatusFuture implements HttpResponseFuture {
         }
         if (throwable != null) {
             status = throwable;
-            throwable =  null;
+            throwable = null;
         }
         return status;
     }
