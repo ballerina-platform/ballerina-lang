@@ -27,7 +27,7 @@ import DesignView from './design-view.jsx';
 import SourceView from './source-view.jsx';
 import SwaggerView from './swagger-view.jsx';
 import File from './../../../src/core/workspace/model/file';
-import { validateFile, parseFile, getProgramPackages } from '../../api-client/api-client';
+import { validateFile, parseFile } from '../../api-client/api-client';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
