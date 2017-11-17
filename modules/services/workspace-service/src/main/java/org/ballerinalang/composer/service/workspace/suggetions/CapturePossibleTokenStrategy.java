@@ -133,6 +133,11 @@ public class CapturePossibleTokenStrategy extends BallerinaParserErrorStrategy {
             return;
         }
         context.exception = e;
+        // Note: Following check added, when the context is variable definition and the type name context is hit,
+        // We need to set the error for the variable definition as well.
+        if (context.getParent() instanceof BallerinaParser.VariableDefinitionStatementContext) {
+            context.getParent().exception = e;
+        }
     }
 
     protected Position getSourcePosition(Token token) {

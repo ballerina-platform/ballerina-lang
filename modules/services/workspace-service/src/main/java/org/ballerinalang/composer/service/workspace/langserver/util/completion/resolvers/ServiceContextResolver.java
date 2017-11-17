@@ -20,11 +20,12 @@ package org.ballerinalang.composer.service.workspace.langserver.util.completion.
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.model.AnnotationAttachment;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * ServiceContextResolver.
@@ -35,22 +36,9 @@ public class ServiceContextResolver extends AbstractItemResolver {
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
                                            HashMap<Class, AbstractItemResolver> resolvers) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-
-        if (dataModel.getParserRuleContext() == null) {
-            addResourceCompletionItem(completionItems);
-            // Add annotations
-            completionItems
-                    .addAll(resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
-        } else if (this.isAnnotationContext(dataModel)) {
-            // Add annotations
-            completionItems
-                    .addAll(resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
-        } else {
-            addResourceCompletionItem(completionItems);
-            completionItems.addAll(resolvers.
-                    get(dataModel.getParserRuleContext().getClass()).resolveItems(dataModel, symbols, resolvers));
-        }
-
+        // TODO: Add annotations
+        this.addResourceCompletionItem(completionItems);
+        this.addTypes(completionItems, symbols);
         return completionItems;
     }
 
@@ -61,5 +49,12 @@ public class ServiceContextResolver extends AbstractItemResolver {
         resource.setDetail(ItemResolverConstants.SNIPPET_TYPE);
         resource.setSortText(ItemResolverConstants.PRIORITY_7);
         completionItems.add(resource);
+    }
+
+    private void addTypes(List<CompletionItem> completionItems, ArrayList<SymbolInfo> symbols) {
+        List<SymbolInfo> filteredSymbols = symbols.stream()
+                .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
+                .collect(Collectors.toList());
+        this.populateCompletionItemList(filteredSymbols, completionItems);
     }
 }
