@@ -1012,7 +1012,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterMapStructLiteral(BallerinaParser.MapStructLiteralContext ctx) {
+    public void enterRecordLiteral(BallerinaParser.RecordLiteralContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -1021,7 +1021,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitMapStructLiteral(BallerinaParser.MapStructLiteralContext ctx) {
+    public void exitRecordLiteral(BallerinaParser.RecordLiteralContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -1030,12 +1030,27 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitMapStructKeyValue(BallerinaParser.MapStructKeyValueContext ctx) {
+    public void exitRecordKeyValue(BallerinaParser.RecordKeyValueContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
         this.pkgBuilder.addKeyValueRecord(getWS(ctx));
+    }
+
+    @Override
+    public void exitRecordKey(BallerinaParser.RecordKeyContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        // If the key is a stringLiteral or stringTemplateLiteral, they are added to the model
+        // from their respective listener methods
+        if (ctx.Identifier() != null) {
+            DiagnosticPos pos = getCurrentPos(ctx);
+            this.pkgBuilder.addNameReference(pos, getWS(ctx), null, ctx.Identifier().getText());
+            this.pkgBuilder.createSimpleVariableReference(pos, getWS(ctx));
+        }
     }
 
     @Override

@@ -580,25 +580,35 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#mapStructLiteral}.
+	 * Enter a parse tree produced by {@link BallerinaParser#recordLiteral}.
 	 * @param ctx the parse tree
 	 */
-	void enterMapStructLiteral(BallerinaParser.MapStructLiteralContext ctx);
+	void enterRecordLiteral(BallerinaParser.RecordLiteralContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#mapStructLiteral}.
+	 * Exit a parse tree produced by {@link BallerinaParser#recordLiteral}.
 	 * @param ctx the parse tree
 	 */
-	void exitMapStructLiteral(BallerinaParser.MapStructLiteralContext ctx);
+	void exitRecordLiteral(BallerinaParser.RecordLiteralContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#mapStructKeyValue}.
+	 * Enter a parse tree produced by {@link BallerinaParser#recordKeyValue}.
 	 * @param ctx the parse tree
 	 */
-	void enterMapStructKeyValue(BallerinaParser.MapStructKeyValueContext ctx);
+	void enterRecordKeyValue(BallerinaParser.RecordKeyValueContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#mapStructKeyValue}.
+	 * Exit a parse tree produced by {@link BallerinaParser#recordKeyValue}.
 	 * @param ctx the parse tree
 	 */
-	void exitMapStructKeyValue(BallerinaParser.MapStructKeyValueContext ctx);
+	void exitRecordKeyValue(BallerinaParser.RecordKeyValueContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#recordKey}.
+	 * @param ctx the parse tree
+	 */
+	void enterRecordKey(BallerinaParser.RecordKeyContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#recordKey}.
+	 * @param ctx the parse tree
+	 */
+	void exitRecordKey(BallerinaParser.RecordKeyContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#arrayLiteral}.
 	 * @param ctx the parse tree
@@ -1258,6 +1268,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitBinaryEqualExpression(BallerinaParser.BinaryEqualExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code recordLiteralExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterRecordLiteralExpression(BallerinaParser.RecordLiteralExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code recordLiteralExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitRecordLiteralExpression(BallerinaParser.RecordLiteralExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code arrayLiteralExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -1305,18 +1327,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitVariableReferenceExpression(BallerinaParser.VariableReferenceExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code mapStructLiteralExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterMapStructLiteralExpression(BallerinaParser.MapStructLiteralExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code mapStructLiteralExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitMapStructLiteralExpression(BallerinaParser.MapStructLiteralExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code typeCastingExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
