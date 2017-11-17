@@ -65,7 +65,7 @@ public class ClientConnectorTimeoutTestCase {
         httpServer = TestUtil.startHTTPServer(TestUtil.TEST_HTTPS_SERVER_PORT, new DumbServerInitializer());
 
         TransportsConfiguration transportsConfiguration = TestUtil.getConfiguration(
-                        "/simple-test-config" + File.separator + "netty-transports.yml");
+                "/simple-test-config" + File.separator + "netty-transports.yml");
         SenderConfiguration senderConfiguration = HTTPConnectorUtil
                 .getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
         senderConfiguration.setSocketIdleTimeout(3000);
