@@ -158,21 +158,33 @@ class BallerinaEnvironment extends EventChannel {
      */
     initializePackages() {
         return new Promise((resolve, reject) => {
-            getBuiltInPackages()
-                .then((packagesJson) => {
-                    if (_.isArray(packagesJson)) {
-                        packagesJson.forEach((packageNode) => {
-                            const pckg = BallerinaEnvFactory.createPackage();
-                            pckg.initFromJson(packageNode);
-                            this._packages.push(pckg);
-                        });
-                        resolve();
-                    } else {
-                        log.error('Error while fetching packages');
-                        resolve();
-                    }
+            getLangServerClientInstance()
+                .then((langserverClient) => {
+                    langserverClient.getBuiltInPackages()
+                        .then((data) => {
+                            if (!data.error && data.result) {
+                                resolve(data.result.packages);
+                            } else {
+                                reject(data);
+                            }
+                        })
+                        .catch(reject)
+                        .then((packagesJson) => {
+                            if (_.isArray(packagesJson)) {
+                                packagesJson.forEach((packageNode) => {
+                                    const pckg = BallerinaEnvFactory.createPackage();
+                                    pckg.initFromJson(packageNode);
+                                    this._packages.push(pckg);
+                                });
+                                resolve();
+                            } else {
+                                log.error('Error while fetching packages');
+                                resolve();
+                            }
+                        })
+                        .catch(reject);
                 })
-                .catch(reject);
+                .catch(error => reject(error));
         });
     }
 

@@ -21,13 +21,13 @@ import { parseContent } from 'api-client/api-client';
 import TreeBuilder from '../../../../ballerina/model/tree-builder';
 
 const directory = process.env.DIRECTORY ? process.env.DIRECTORY : '';
-const transformBalDir = path.join(directory, 'js', 'tests', 'resources', 'transform');
+const transformerBalDir = path.join(directory, 'js', 'tests', 'resources', 'transformer');
 
 /**
  * Transform utils for tests
  * @class TransformTestUtils
  */
-class TransformTestUtils {
+class TransformerTestUtils {
 
     /**
      * Converts a ballerina source to JSON model
@@ -47,24 +47,26 @@ class TransformTestUtils {
     }
 
     /**
-     * Get transform stmt from tree
+     * Get transformer from tree
      * @param {any} tree node tree
-     * @param {any} index index of transform statement
-     * @returns transform statement
+     * @param {any} index index of transformer
+     * @returns transformer
      */
-    static getTransformStmt(tree, index) {
-        return tree.topLevelNodes[0].body.statements[index];
+    static getTransformer(tree, index) {
+        return tree.topLevelNodes[index];
     }
 
     /**
-     * Read ballerina source
+     * Read ballerina test source and expected source
      * @param {any} testDir test directory
-     * @param {any} balFile bal file
-     * @returns ballerina source
+     * @param {any} balFileName test file name
+     * @returns ballerina test source and expected source
      */
-    static readSource(testDir, balFile) {
-        const file = path.resolve(transformBalDir, testDir, balFile + '.bal');
-        return fs.readFileSync(file, 'utf8');
+    static getTestResources(testDir, balFileName) {
+        const testSource = fs.readFileSync(path.resolve(transformerBalDir, testDir, balFileName + '.bal'), 'utf-8');
+        const expectedSource = fs.readFileSync(
+            path.resolve(transformerBalDir, testDir, balFileName + '-expected.bal'), 'utf-8');
+        return { testSource, expectedSource };
     }
 }
-export default TransformTestUtils;
+export default TransformerTestUtils;
