@@ -142,6 +142,17 @@ class TreeBuilder {
             node.variable.endpoint = true;
             node.endpoint = true;
         }
+
+        // Add the positions for the join and timeout bodies.
+        if (node.kind === 'ForkJoin') {
+            if (node.joinBody) {
+                node.joinBody.position = node.joinResultVar.position;
+            }
+
+            if (node.timeoutBody) {
+                node.timeoutBody.position = node.timeOutExpression.position;
+            }
+        }
     }
 
     static modify(tree, parentKind = null) {
