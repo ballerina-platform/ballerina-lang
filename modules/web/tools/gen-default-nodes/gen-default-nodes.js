@@ -76,7 +76,7 @@ function generateNodes() {
                 stream.write('* Use npm run gen-default-nodes command to generate this file.\n');
                 stream.write('*/\n');
                 stream.write('\n');
-                stream.write(`export default ${JSON.stringify(fragmentsCache)}`);
+                stream.write(`export default ${JSON.stringify(fragmentsCache, null, 4)}`);
                 stream.end();
             });
         });
