@@ -95,10 +95,6 @@
             <artifactId>org.wso2.carbon.messaging</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.orbit.com.lmax</groupId>
-            <artifactId>disruptor</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.orbit.org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
         </dependency>
@@ -124,10 +120,6 @@
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.transport</groupId>
-            <artifactId>org.wso2.carbon.connector.framework</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mock-server</groupId>

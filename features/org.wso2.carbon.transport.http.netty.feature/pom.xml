@@ -162,16 +162,10 @@
                                     <symbolicName>io.netty.resolver</symbolicName>
                                     <version>${netty.version}</version>
                                 </bundle>
-
                                 <bundle>
                                     <symbolicName>commons-pool</symbolicName>
                                     <version>${commons.pool.version}</version>
                                 </bundle>
-                                <bundle>
-                                    <symbolicName>disruptor</symbolicName>
-                                    <version>${disruptor.version}</version>
-                                </bundle>
-
                                 <bundle>
                                     <symbolicName>commons-pool</symbolicName>
                                     <version>${commons.pool.version}</version>

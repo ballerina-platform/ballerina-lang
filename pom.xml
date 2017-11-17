@@ -101,11 +101,6 @@
                 <version>${netty.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.core</artifactId>
-                <version>${org.wso2.carbon.core.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
@@ -121,34 +116,9 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.carbon.transport</groupId>
-                <artifactId>org.wso2.carbon.connector.framework</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.transport</groupId>
-                <artifactId>org.wso2.carbon.transport.jms</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.transport</groupId>
-                <artifactId>org.wso2.carbon.transport.file</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.transport</groupId>
-                <artifactId>org.wso2.carbon.transport.email</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.wso2.carbon.messaging</groupId>
                 <artifactId>org.wso2.carbon.messaging</artifactId>
                 <version>${carbon.messaging.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.orbit.com.lmax</groupId>
-                <artifactId>disruptor</artifactId>
-                <version>${disruptor.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-pool.wso2</groupId>
@@ -159,17 +129,6 @@
                 <groupId>javax.websocket</groupId>
                 <artifactId>javax.websocket-api</artifactId>
                 <version>${javax.websocket.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-io.wso2</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${commons-io.wso2.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons.wso2</groupId>
-                <artifactId>commons-vfs2</artifactId>
-                <version>${commons-vfs2.wso2.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -205,11 +164,6 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-pool2</artifactId>
                 <version>${org.apache.commons.pool2.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.orbit.org.quartz-scheduler</groupId>
-                <artifactId>quartz</artifactId>
-                <version>${quartz.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-net</groupId>
