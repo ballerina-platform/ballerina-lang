@@ -52,7 +52,8 @@ class ToolView extends React.Component {
     handleClickOpenDocumentation(e) {
         e.stopPropagation();
         const { tool, group } = this.props;
-        const functionName = tool.title + (tool.parent ? tool.parent : '');
+        const functionName = tool.title
+            + (tool.factoryArgs.actionConnectorName ? tool.factoryArgs.actionConnectorName : '');
         this.context.editor.openDocumentation(group.name, functionName);
     }
 
@@ -143,9 +144,11 @@ class ToolView extends React.Component {
                     {tool.title}
                 </div>
                 <p className="tool-title">{tool.name}</p>
-                <a onClick={e => this.handleClickOpenDocumentation(e)} className="pull-right">
-                    <span className="fw fw-document" />
+                {this.props.isDocEnable &&
+                < a onClick={e => this.handleClickOpenDocumentation(e)} className="pull-right">
+                    <span className="fw fw-document"/>
                 </a>
+                }
             </div>,
         );
     }
