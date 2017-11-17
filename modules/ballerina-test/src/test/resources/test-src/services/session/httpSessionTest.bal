@@ -18,7 +18,7 @@ service<http> sample {
             result = "session created";
         }
         res.setStringPayload(result);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -35,7 +35,7 @@ service<http> sample {
             result = "no session id available";
         }
         res.setStringPayload(result);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -52,7 +52,7 @@ service<http> sample {
             result = "session is not created";
         }
         res.setStringPayload(result);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -70,7 +70,7 @@ service<http> sample {
             result = "attribute not available";
         }
         res.setStringPayload(result);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -83,7 +83,7 @@ service<http> sample {
         http:Session session = req.getSession();
         any attribute = session.getAttribute("name");
         res.setStringPayload(result);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -102,7 +102,7 @@ service<http> sample {
             myName, err = (string)attribute;
         }
         res.setStringPayload(myName);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -122,7 +122,7 @@ service<http> sample {
             session.setAttribute("name", result);
         }
         res.setStringPayload(result);
-        res.send();
+        _ = res.send();
     }
 }
 
@@ -145,7 +145,7 @@ service<http> counter {
         sessionCounter = sessionCounter + 1;
         session.setAttribute("Counter", sessionCounter);
         res.setStringPayload(<string> sessionCounter);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -165,7 +165,7 @@ service<http> counter {
         sessionCounter = sessionCounter + 1;
         session.setAttribute("Counter", sessionCounter);
         res.setStringPayload(<string>(sessionCounter));
-        res.send();
+        _ = res.send();
     }
 }
 
@@ -184,7 +184,7 @@ service<http> sample2 {
         }
         Session.setAttribute("name", "chamil");
         res.setStringPayload(myName);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -203,7 +203,7 @@ service<http> sample2 {
             Session.setAttribute("nameStruct", d);
         }
         res.setStringPayload(d.name);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -218,7 +218,7 @@ service<http> sample2 {
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
         res.setStringPayload("arraysize:" + arrsize);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -232,7 +232,7 @@ service<http> sample2 {
         session.setAttribute("location", "colombo");
         string[] arr = session.getAttributeNames();
         res.setStringPayload(arr[0]);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -250,7 +250,7 @@ service<http> sample2 {
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
         res.setStringPayload(<string>(arrsize));
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -267,7 +267,7 @@ service<http> sample2 {
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
         res.setStringPayload(<string>(arrsize));
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -280,7 +280,7 @@ service<http> sample2 {
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
         res.setStringPayload(<string>(arrsize));
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -295,7 +295,7 @@ service<http> sample2 {
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
         res.setStringPayload(<string>(arrsize));
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -307,7 +307,7 @@ service<http> sample2 {
         http:Session session = req.createSessionIfAbsent();
         string id = session.getId();
         res.setStringPayload(id);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -319,7 +319,7 @@ service<http> sample2 {
         http:Session session = req.getSession();
         string id = session.getId();
         res.setStringPayload(id);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -331,7 +331,7 @@ service<http> sample2 {
         http:Session session = req.createSessionIfAbsent();
         boolean stat = session.isNew();
         res.setStringPayload(<string>(stat));
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -343,7 +343,7 @@ service<http> sample2 {
         http:Session session = req.createSessionIfAbsent();
         int time = session.getCreationTime();
         res.setStringPayload(<string>(time));
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -356,7 +356,7 @@ service<http> sample2 {
         session.invalidate();
         int time = session.getCreationTime();
         res.setStringPayload(<string>(time));
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -368,7 +368,7 @@ service<http> sample2 {
         http:Session session = req.createSessionIfAbsent();
         int time = session.getLastAccessedTime();
         res.setStringPayload(<string>(time));
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -381,7 +381,7 @@ service<http> sample2 {
         session.invalidate();
         int time = session.getLastAccessedTime();
         res.setStringPayload(<string>(time));
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -394,7 +394,7 @@ service<http> sample2 {
         int time = session.getMaxInactiveInterval();
         session.setMaxInactiveInterval(60);
         res.setStringPayload(<string>(time));
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -407,7 +407,7 @@ service<http> sample2 {
         session.invalidate();
         session.setMaxInactiveInterval(89);
         res.setStringPayload("done");
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -420,6 +420,6 @@ service<http> sample2 {
         int time = session.getMaxInactiveInterval();
         session.setMaxInactiveInterval(-1);
         res.setStringPayload(<string>(time));
-        res.send();
+        _ = res.send();
     }
 }

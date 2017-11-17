@@ -742,5 +742,4 @@ public class HttpUtil {
             CorsHeaderGenerator.process(requestMsg, responseMsg, true);
         }
     }
-
 }

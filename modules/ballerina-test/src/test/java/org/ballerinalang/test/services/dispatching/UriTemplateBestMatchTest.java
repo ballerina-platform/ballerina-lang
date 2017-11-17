@@ -47,7 +47,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test dispatching with URL. /hello/world/echo2?regid=abc")
     public void testMostSpecificMatchWithQueryParam() {
         String path = "/hello/world/echo2?regid=abc";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -60,7 +60,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test dispatching with URL. /hello/world/echo2/bar")
     public void testMostSpecificMatchWithWildCard() {
         String path = "/hello/world/echo2/bar";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -73,7 +73,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test dispatching with URL. /hello/world/echo2/foo/bar")
     public void testMostSpecificMatch() {
         String path = "/hello/world/echo2/foo/bar";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -86,7 +86,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test dispatching with URL. /hello/echo2?regid=abc")
     public void testMostSpecificServiceDispatch() {
         String path = "/hello/echo2?regid=abc";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -99,7 +99,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test dispatching with URL. /hello/echo2?regid=abc")
     public void testSubPathEndsWithPathParam() {
         String path = "/hello/echo2/shafreen";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -112,7 +112,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test dispatching with URL. /hello/echo2/shafreen-anfar & /hello/echo2/shafreen+anfar")
     public void testMostSpecificWithPathParam() {
         String path = "/hello/echo2/shafreen-anfar";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -140,7 +140,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test dispatching with URL. /hello/echo2/shafreen+anfar/bar")
     public void testSubPathEndsWithBar() {
         String path = "/hello/echo2/shafreen+anfar/bar";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -159,7 +159,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test dispatching with URL. /hello/echo2/shafreen+anfar/foo")
     public void testSubPathEndsWithFoo() {
         String path = "/hello/echo2/shafreen+anfar/foo";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -178,7 +178,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test dispatching with URL. /hello/echo2/shafreen+anfar/foo/bar")
     public void testLeastSpecificURITemplate() {
         String path = "/hello/echo2/shafreen+anfar/foo/bar";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -191,7 +191,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test dispatching with URL. /hello/echo2/shafreen+anfar/bar")
     public void testBestSpecificURITemplateWithPOST() {
         String path = "/hello/echo2/shafreen+anfar/bar";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -210,7 +210,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test dispatching with URL. /hello/echo2/shafreen+anfar/bar")
     public void testParamDefaultValues() {
         String path = "/hello/echo3/shafreen+anfar?foo=bar";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -232,7 +232,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test dispatching with URL. /hello")
     public void testRootPathDefaultValues() {
         String path = "/hello?foo=zzz";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -248,7 +248,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test dispatching with URL. /hello")
     public void testDefaultPathDefaultValues() {
         String path = "/hello/echo11?foo=zzz";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -264,7 +264,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test dispatching with URL. /hello")
     public void testServiceRoot() {
         String path = "/echo1?foo=zzz";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -280,7 +280,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test dispatching with all default values")
     public void testAllDefaultValues() {
         String path = "/echo44/echo1?foo=zzz";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -318,7 +318,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test suitable method with URL. /echo12/bar/bar ")
     public void testValueWithNextSegmentStartCharacter() {
         String path = "/hello/echo12/bar/bar";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -330,7 +330,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test suitable method with URL. /echo125?foo=hello ")
     public void testStringQueryParam() {
         String path = "/hello/echo125?foo=hello";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -351,7 +351,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test GetQueryParam method when params are not set with URL. /paramNeg")
     public void testGetQueryParamNegative() {
         String path = "/hello/paramNeg";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -363,7 +363,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test suitable method with URL. /echo13?foo=1 ")
     public void testIntegerQueryParam() {
         String path = "/hello/echo13?foo=1";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -384,7 +384,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test suitable method with URL. /echo14?foo=1.11 ")
     public void testFloatQueryParam() {
         String path = "/hello/echo14?foo=1.11";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -405,7 +405,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test suitable method with URL. /echo15?foo=1.11 ")
     public void testBooleanQueryParam() {
         String path = "/hello/echo15?foo=true";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -426,7 +426,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test dispatching without verbs")
     public void testResourceWithoutMethod() {
         String path = "/echo44/echo2";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -465,7 +465,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test dispatching for the best match")
     public void testBestMatchingResource() {
         String path = "/echo44/echo2";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -476,7 +476,7 @@ public class UriTemplateBestMatchTest {
     @Test(description = "Test default resource support")
     public void testDefaultResourceSupport() {
         String path = "/echo55/hello";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
