@@ -396,4 +396,11 @@ public class XMLLiteralTest {
         Assert.assertTrue(returns[2] instanceof BString);
         Assert.assertEquals(returns[2].stringValue(), "{http://ballerina.com/b}foo");
     }
+
+    @Test
+    public void testNullXMLinXMLLiteral() {
+        BValue[] returns = BRunUtil.invoke(result, "testNullXMLinXMLLiteral");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root></root>");
+    }
 }
