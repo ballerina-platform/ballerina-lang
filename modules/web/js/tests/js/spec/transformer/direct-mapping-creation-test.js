@@ -152,4 +152,49 @@ describe('Transform Direct Mapping Creation', () => {
                 done(error);
             });
     }).timeout(13000);
+
+    it('Direct mapping with structs', (done) => {
+        const testSource = TransformerTestUtils.readSource(testDir, 'direct-with-structs');
+        const expectedSource = TransformerTestUtils.readSource(testDir, 'direct-with-structs-expected');
+        TransformerTestUtils.getTree(testSource)
+            .then((tree) => {
+                const transformer = TransformerTestUtils.getTransformer(tree, 2);
+                transformManager.setTransformStmt(transformer);
+
+                // Create mapping : p.age -> e.age
+                let connection = {
+                    source: {
+                        name: 'p.age',
+                        type: 'int',
+                        endpointKind: 'input',
+                    },
+                    target: {
+                        name: 'e.age',
+                        type: 'int',
+                        endpointKind: 'output',
+                    },
+                };
+                transformManager.createStatementEdge(connection);
+
+                // Create mapping : p.firstName -> e.name
+                connection = {
+                    source: {
+                        name: 'p.firstName',
+                        type: 'string',
+                        endpointKind: 'input',
+                    },
+                    target: {
+                        name: 'e.name',
+                        type: 'string',
+                        endpointKind: 'output',
+                    },
+                };
+                transformManager.createStatementEdge(connection);
+
+                expect(tree.getSource()).to.equal(expectedSource);
+                done();
+            }).catch((error) => {
+                done(error);
+            });
+    }).timeout(5000);
 });
