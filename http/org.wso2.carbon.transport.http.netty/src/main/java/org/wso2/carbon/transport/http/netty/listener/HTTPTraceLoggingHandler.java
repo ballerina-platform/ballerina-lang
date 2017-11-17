@@ -26,14 +26,18 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 
 import java.net.SocketAddress;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 
-import static io.netty.buffer.ByteBufUtil.appendPrettyHexDump;
 import static io.netty.util.internal.StringUtil.NEWLINE;
 
 /**
  * A custom LoggingHandler for the HTTP wire logs
  */
 public class HTTPTraceLoggingHandler extends LoggingHandler {
+
     private static final String EVENT_REGISTERED = "REGISTERED";
     private static final String EVENT_CONNECT = "CONNECT";
     private static final String EVENT_INBOUND = "INBOUND";
@@ -59,11 +63,6 @@ public class HTTPTraceLoggingHandler extends LoggingHandler {
     public HTTPTraceLoggingHandler(String name) {
         super(name);
         correlatedSourceId = "n/a";
-    }
-
-    public HTTPTraceLoggingHandler(String name, LogLevel level, String correlatedSourceId) {
-        super(name, level);
-        this.correlatedSourceId = "0x" + correlatedSourceId;
     }
 
     public HTTPTraceLoggingHandler(String name, LogLevel level) {
@@ -123,12 +122,16 @@ public class HTTPTraceLoggingHandler extends LoggingHandler {
         String socketInfo = buildSocketInfo(ctx.channel().localAddress(), ctx.channel().remoteAddress());
         String msgStr;
 
-        if (msg instanceof ByteBuf) {
-            msgStr = formatPayload((ByteBuf) msg);
-        } else if (msg instanceof ByteBufHolder) {
-            msgStr = formatPayload((ByteBufHolder) msg);
-        } else {
-            msgStr = String.valueOf(msg);
+        try {
+            if (msg instanceof ByteBuf) {
+                msgStr = formatPayload((ByteBuf) msg);
+            } else if (msg instanceof ByteBufHolder) {
+                msgStr = formatPayload((ByteBufHolder) msg);
+            } else {
+                msgStr = String.valueOf(msg);
+            }
+        } catch (CharacterCodingException e) {
+            msgStr = "<< Payload could not be decoded >>";
         }
 
         StringBuilder stringBuilder = new StringBuilder(
@@ -144,7 +147,7 @@ public class HTTPTraceLoggingHandler extends LoggingHandler {
         }
     }
 
-    private static String formatPayload(ByteBuf msg) {
+    private static String formatPayload(ByteBuf msg) throws CharacterCodingException {
         int length = msg.readableBytes();
         if (length == 0) {
             return " 0B";
@@ -153,13 +156,13 @@ public class HTTPTraceLoggingHandler extends LoggingHandler {
             StringBuilder stringBuilder = new StringBuilder(10 + 1 + 2 + rows * 80);
 
             stringBuilder.append(length).append('B').append(NEWLINE);
-            appendPrettyHexDump(stringBuilder, msg);
-
+            appendPayload(stringBuilder, msg);
+            
             return stringBuilder.toString();
         }
     }
 
-    private static String formatPayload(ByteBufHolder msg) {
+    private static String formatPayload(ByteBufHolder msg) throws CharacterCodingException {
         String msgStr = msg.toString();
         ByteBuf content = msg.content();
         int length = content.readableBytes();
@@ -172,7 +175,7 @@ public class HTTPTraceLoggingHandler extends LoggingHandler {
             StringBuilder stringBuilder = new StringBuilder(2 + msgStr.length() + 2 + 10 + 1 + 2 + rows * 80);
 
             stringBuilder.append(msgStr).append(", ").append(length).append('B').append(NEWLINE);
-            appendPrettyHexDump(stringBuilder, content);
+            appendPayload(stringBuilder, content);
 
             return stringBuilder.toString();
         }
@@ -189,5 +192,11 @@ public class HTTPTraceLoggingHandler extends LoggingHandler {
         }
 
         return stringBuilder.toString();
+    }
+
+    private static void appendPayload(StringBuilder stringBuilder, ByteBuf content) throws CharacterCodingException {
+        CharsetDecoder decoder = Charset.forName("UTF8").newDecoder();
+        CharBuffer buffer = decoder.decode(content.nioBuffer());
+        stringBuilder.append(buffer);
     }
 }
