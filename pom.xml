@@ -258,7 +258,6 @@
         <maven.wagon.ssh.version>2.1</maven.wagon.ssh.version>
 
         <!-- Dependencies -->
-        <org.wso2.carbon.core.version>5.1.0</org.wso2.carbon.core.version>
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
 
         <netty.version>4.1.16.Final</netty.version>
@@ -272,7 +271,6 @@
         <javax.xml.transform.import.version.range>[0.0.0, 1.0.0)</javax.xml.transform.import.version.range>
         <javax.xml.validation.import.version.range>[0.0.0, 1.0.0)</javax.xml.validation.import.version.range>
         <javax.net.ssl.import.version.range>[0.0.0, 1.0.0)</javax.net.ssl.import.version.range>
-        <disruptor.version>3.3.2.wso2v2</disruptor.version>
         <disruptor.package.import.version.range>[3.3.2, 3.5.0)</disruptor.package.import.version.range>
 
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
@@ -284,8 +282,6 @@
         <javax.websocket.version>1.1</javax.websocket.version>
         <javax.websocket.version.range>[1.1, 1.2)</javax.websocket.version.range>
         <org.apache.commons.pool2.version>2.4.2</org.apache.commons.pool2.version>
-        <quartz.version>2.3.0.wso2v2</quartz.version>
-        <quartz.version.range>[2.3.0, 3.0.0)</quartz.version.range>
         <commons-net.version>3.6</commons-net.version>
 
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
