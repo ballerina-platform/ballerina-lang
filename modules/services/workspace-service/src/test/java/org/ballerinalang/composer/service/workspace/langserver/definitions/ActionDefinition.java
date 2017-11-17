@@ -23,7 +23,7 @@ import org.testng.annotations.DataProvider;
 import java.io.File;
 
 /**
- * Completion item tests for action definition
+ * Completion item tests for action definition.
  */
 public class ActionDefinition extends CompletionTest {
     @DataProvider(name = "completion-data-provider")
