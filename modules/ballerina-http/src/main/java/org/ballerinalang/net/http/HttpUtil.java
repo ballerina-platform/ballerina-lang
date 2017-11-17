@@ -35,6 +35,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -52,6 +53,7 @@ import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
+import org.wso2.carbon.transport.http.netty.message.multipart.HttpBodyPart;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -61,6 +63,7 @@ import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -712,4 +715,41 @@ public class HttpUtil {
         }
     }
 
+    /**
+     * Get multiparts.
+     *
+     * @param context                Context
+     * @param abstractNativeFunction AbstractNativeFunction
+     * @param isRequest              boolean to indicate that this is a http request message
+     * @return BValue[]
+     */
+    public static BValue[] getMultipartData(Context context, AbstractNativeFunction abstractNativeFunction,
+            boolean isRequest) {
+        BRefValueArray partsArray;
+        List<HttpBodyPart> multiparts = null;
+        try {
+            BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+            HTTPCarbonMessage httpCarbonMessage = HttpUtil
+                    .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+
+            if (httpCarbonMessage.isAlreadyRead()) {
+                MessageDataSource payload = httpCarbonMessage.getMessageDataSource();
+                if (payload instanceof MultipartUtil.MultipartDataSource) {
+                    MultipartUtil.MultipartDataSource dataSource = (MultipartUtil.MultipartDataSource) payload;
+                    multiparts = dataSource.getBodyParts();
+                }
+            } else {
+                InputStream inputStream = new HttpMessageDataStreamer(httpCarbonMessage).getInputStream();
+                multiparts = MultipartUtil.extractMultiparts(inputStream);
+                MultipartUtil.MultipartDataSource multipartDataSource = new MultipartUtil.MultipartDataSource(
+                        multiparts);
+                httpCarbonMessage.setMessageDataSource(multipartDataSource);
+                httpCarbonMessage.setAlreadyRead(true);
+            }
+            partsArray = MultipartUtil.fillPartsArray(context, multiparts);
+        } catch (Throwable e) {
+            throw new BallerinaException("Error while retrieving multipart payload from message: " + e.getMessage());
+        }
+        return abstractNativeFunction.getBValues(partsArray);
+    }
 }

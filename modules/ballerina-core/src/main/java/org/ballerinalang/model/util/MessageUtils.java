@@ -19,6 +19,8 @@
 package org.ballerinalang.model.util;
 
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,7 +31,7 @@ import java.io.InputStream;
  * Common Utils methods used in Message.
  */
 public class MessageUtils {
-
+    private static final Logger log = LoggerFactory.getLogger(MessageUtils.class);
     /**
      * Convert input stream to String.
      *
