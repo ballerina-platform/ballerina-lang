@@ -72,6 +72,9 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
                 case FLOAT:
                     value = String.valueOf(dataTable.getFloat(col.getName()));
                     break;
+                case BLOB:
+                    value = dataTable.getBlob(col.getName());
+                    break;
                 case ARRAY:
                     isArray = true;
                     processArray(xmlStreamWriter, col);

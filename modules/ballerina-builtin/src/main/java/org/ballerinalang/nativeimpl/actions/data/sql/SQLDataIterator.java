@@ -24,7 +24,6 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -135,6 +134,16 @@ public class SQLDataIterator implements DataIterator {
         }
     }
 
+    @Override
+    public String getBlob(String columnName) {
+        try {
+            Blob bValue = rs.getBlob(columnName);
+            return SQLDatasourceUtils.getString(bValue);
+        } catch (SQLException e) {
+            throw new BallerinaException(e.getMessage(), e);
+        }
+    }
+
     private String getString(Object object) throws SQLException {
         String value;
         if (object instanceof Blob) {
@@ -220,8 +229,11 @@ public class SQLDataIterator implements DataIterator {
                     case Types.VARBINARY:
                     case Types.LONGVARBINARY:
                         Blob value = rs.getBlob(columnName);
-                        BBlob bValue = new BBlob(value.getBytes(1L, (int) value.length()));
-                        bStruct.setBlobField(++blobRegIndex, (bValue).blobValue());
+                        if (value != null) {
+                            bStruct.setBlobField(++blobRegIndex, value.getBytes(1L, (int) value.length()));
+                        } else {
+                            bStruct.setBlobField(++blobRegIndex, new byte[0]);
+                        }
                         break;
                     case Types.CLOB:
                         String clobValue = SQLDatasourceUtils.getString((rs.getClob(columnName)));
