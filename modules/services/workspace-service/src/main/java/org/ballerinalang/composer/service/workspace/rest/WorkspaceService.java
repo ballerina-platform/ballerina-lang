@@ -98,7 +98,7 @@ public class WorkspaceService {
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         } catch (Throwable throwable) {
-            logger.error("/exists service error", throwable.getMessage(), path);
+            logger.error("/exists service error", throwable.getMessage(), throwable);
             return getErrorResponse(throwable);
         }
     }
