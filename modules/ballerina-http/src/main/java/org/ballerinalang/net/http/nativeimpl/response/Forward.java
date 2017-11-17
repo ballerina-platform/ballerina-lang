@@ -62,7 +62,8 @@ public class Forward extends AbstractNativeFunction {
 
         HTTPCarbonMessage responseMessage = HttpUtil
                 .getCarbonMsg(clientResponseStruct, HttpUtil.createHttpCarbonMessage(false));
-        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct.getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
+        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct
+                .getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
         HttpUtil.addHTTPSessionAndCorsHeaders(requestMessage, responseMessage);
         HttpResponseStatusFuture statusFuture = HttpUtil.handleResponse(requestMessage, responseMessage);
         Throwable status;
