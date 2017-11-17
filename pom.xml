@@ -202,29 +202,6 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.mockftpserver</groupId>
-                <artifactId>MockFtpServer</artifactId>
-                <version>${mock.ftp.server.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>javax.jms</groupId>
-                <artifactId>javax.jms-api</artifactId>
-                <version>${javax.jms.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-broker</artifactId>
-                <version>${activemq.broker.vesion}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-kahadb-store</artifactId>
-                <version>${activemq.broker.vesion}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-pool2</artifactId>
                 <version>${org.apache.commons.pool2.version}</version>
@@ -240,32 +217,9 @@
                 <version>${commons-net.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-jaas</artifactId>
-                <version>${activemq.broker.vesion}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>javax.transaction</groupId>
-                <artifactId>javax.transaction-api</artifactId>
-                <version>${javax.transaction.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.atomikos.wso2</groupId>
                 <artifactId>atomikos</artifactId>
                 <version>${org.atomikos.wso2.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.mail</groupId>
-                <artifactId>javax.mail</artifactId>
-                <version>${com.sun.mail.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.icegreen</groupId>
-                <artifactId>greenmail</artifactId>
-                <version>${com.icegreen.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -375,8 +329,6 @@
         <guava.version.range>[18.0,19.0)</guava.version.range>
         <javax.websocket.version>1.1</javax.websocket.version>
         <javax.websocket.version.range>[1.1, 1.2)</javax.websocket.version.range>
-        <commons-vfs2.wso2.version>2.0-wso2v15</commons-vfs2.wso2.version>
-        <commons-vfs2.wso2.version.range>[2.0.0, 3.0.0)</commons-vfs2.wso2.version.range>
         <org.apache.commons.pool2.version>2.4.2</org.apache.commons.pool2.version>
         <quartz.version>2.3.0.wso2v2</quartz.version>
         <quartz.version.range>[2.3.0, 3.0.0)</quartz.version.range>
@@ -391,16 +343,9 @@
         <carbon.p2.plugin.version>2.0.1</carbon.p2.plugin.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <org.snakeyaml.package.import.version.range>[1.16.0, 2.0.0)</org.snakeyaml.package.import.version.range>
-        <javax.jms.import.version.range>[2.0.1, 3.0.0)</javax.jms.import.version.range>
-        <com.sun.mail.import.version.range>[1.5.0, 1.6.0-rc2)</com.sun.mail.import.version.range>
-        <file.transport.package.export.version>${project.version}</file.transport.package.export.version>
 
         <!-- Package exports -->
         <netty.transport.package.export.version>${project.version}</netty.transport.package.export.version>
-        <connector.framework.package.export.version>${project.version}
-        </connector.framework.package.export.version>
-        <jms.transport.package.export.version>${project.version}</jms.transport.package.export.version>
-        <email.transport.package.export.version>${project.version}</email.transport.package.export.version>
 
         <!-- Following two properties should be removed once the versions are added the wso2 parent pom CARBON-15729 -->
         <maven.checkstyle.plugin.version>2.17</maven.checkstyle.plugin.version>
@@ -410,17 +355,10 @@
         <metrics.version>3.1.2</metrics.version>
 
         <testng.version>6.9.10</testng.version>
-        <activemq.broker.vesion>5.14.3</activemq.broker.vesion>
 
-        <javax.jms.version>2.0.1</javax.jms.version>
         <jsch.version>0.1.51.wso2v1</jsch.version>
-        <mock.ftp.server.version>2.7.1</mock.ftp.server.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <javax.transaction.version>1.2</javax.transaction.version>
         <org.atomikos.wso2.version>3.8.0.wso2v1</org.atomikos.wso2.version>
-
-        <com.icegreen.version>1.5.5</com.icegreen.version>
-        <com.sun.mail.version>1.6.0-rc2</com.sun.mail.version>
     </properties>
 
 </project>
