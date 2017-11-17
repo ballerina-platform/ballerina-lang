@@ -251,10 +251,10 @@ public class SQLDataIterator implements DataIterator {
                         break;
                     case Types.TINYINT:
                     case Types.SMALLINT:
-                    case Types.INTEGER:
                         long iValue = rs.getInt(columnName);
                         bStruct.setIntField(++longRegIndex, iValue);
                         break;
+                    case Types.INTEGER:
                     case Types.BIGINT:
                         long lValue = rs.getLong(columnName);
                         bStruct.setIntField(++longRegIndex, lValue);
