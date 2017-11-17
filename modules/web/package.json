@@ -20,7 +20,7 @@
     "lint": "eslint . --ext .jsx --ext .js",
     "gen-source-gen": "babel-node ./source-gen/gen-source-gen.js",
     "lintfile": "eslint",
-    "gen-default-nodes": "babel-node ./gen-default-nodes"
+    "gen-default-nodes": "babel-node ./tools/gen-default-nodes/gen-default-nodes"
   },
   "repository": {
     "type": "git",

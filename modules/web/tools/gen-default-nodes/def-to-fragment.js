@@ -16,11 +16,11 @@
  * under the License.
  */
 
-import * as NodeTypes from '../js/ballerina/utils/fragment-utils/node-types';
+import FragmentUtils from '../../js/ballerina/utils/fragment-utils';
 
 export default {
     createHTTPServiceDef: () => {
-        return NodeTypes.createTopLevelNodeFragment(
+        return FragmentUtils.createTopLevelNodeFragment(
             `
                 service<http> service1 {
                     resource echo1 (http:Request req, http:Response res) {
@@ -30,7 +30,7 @@ export default {
             `);
     },
     createWSServiceDef: () => {
-        return NodeTypes.createTopLevelNodeFragment(
+        return FragmentUtils.createTopLevelNodeFragment(
             `
                 service<ws> service1 {
                     resource onOpen(ws:Connection conn) {
@@ -46,7 +46,7 @@ export default {
             `);
     },
     createJMSServiceDef: () => {
-        return NodeTypes.createTopLevelNodeFragment(
+        return FragmentUtils.createTopLevelNodeFragment(
             `
                 service<jms> service1 {
                     resource echo1 (jms:JMSMessage request) {
@@ -56,7 +56,7 @@ export default {
             `);
     },
     createFSServiceDef: () => {
-        return NodeTypes.createTopLevelNodeFragment(
+        return FragmentUtils.createTopLevelNodeFragment(
             `
             service<fs> service1 {
                 resource echo1 (fs:FileSystemEvent m) {
@@ -66,7 +66,7 @@ export default {
             `);
     },
     createFTPServiceDef: () => {
-        return NodeTypes.createTopLevelNodeFragment(
+        return FragmentUtils.createTopLevelNodeFragment(
             `
             service<ftp> service1 {
                 resource echo1 (ftp:FTPServerEvent m) {
@@ -76,21 +76,21 @@ export default {
             `);
     },
     createMainFunction: () => {
-        return NodeTypes.createTopLevelNodeFragment(`
+        return FragmentUtils.createTopLevelNodeFragment(`
             function main(string[] args) {
 
             }
         `);
     },
     createFunction: () => {
-        return NodeTypes.createTopLevelNodeFragment(`
+        return FragmentUtils.createTopLevelNodeFragment(`
                     function function1() {
 
                     }
                 `);
     },
     createConnector: () => {
-        return NodeTypes.createTopLevelNodeFragment(`
+        return FragmentUtils.createTopLevelNodeFragment(`
             connector ClientConnector(string url) {
                 action action1(){
 
@@ -99,83 +99,83 @@ export default {
         `);
     },
     createConnectorAction: () => {
-        return NodeTypes.createConnectorActionFragment(`
+        return FragmentUtils.createConnectorActionFragment(`
             action action1(){
 
             }
         `);
     },
     createHTTPResource: () => {
-        return NodeTypes.createServiceResourceFragment(`
+        return FragmentUtils.createServiceResourceFragment(`
             resource echo1 (http:Request req, http:Response res) {
 
             }
         `);
     },
     createFSResource: () => {
-        return NodeTypes.createServiceResourceFragment(`
+        return FragmentUtils.createServiceResourceFragment(`
             resource echo1 (fs:FileSystemEvent m) {
 
             }
         `);
     },
     createFTPResource: () => {
-        return NodeTypes.createServiceResourceFragment(`
+        return FragmentUtils.createServiceResourceFragment(`
             resource echo1 (ftp:FTPServerEvent m) {
 
             }
         `);
     },
     createJMSResource: () => {
-        return NodeTypes.createServiceResourceFragment(`
+        return FragmentUtils.createServiceResourceFragment(`
             resource echo1 (jms:JMSMessage request) {
 
             }
         `);
     },
     createStruct: () => {
-        return NodeTypes.createTopLevelNodeFragment(`
+        return FragmentUtils.createTopLevelNodeFragment(`
             struct struct1 {
 
             }
         `);
     },
     createTransformer: () => {
-        return NodeTypes.createTopLevelNodeFragment(`
+        return FragmentUtils.createTopLevelNodeFragment(`
             transformer <Source a, Target b> newTransformer (){
 
             }
         `);
     },
     createWorkerFragment: () => {
-        return NodeTypes.createWorkerFragment(`
+        return FragmentUtils.createWorkerFragment(`
             worker worker1 {
             }
         `);
     },
     createDefaultWorkerFragment: () => {
-        return NodeTypes.createWorkerFragment(`
+        return FragmentUtils.createWorkerFragment(`
             worker default {
             }
         `);
     },
     createAnnotation: () => {
-        return NodeTypes.createTopLevelNodeFragment(`
+        return FragmentUtils.createTopLevelNodeFragment(`
             annotation annotation1 {
             }
         `);
     },
     createAssignmentStmt: () => {
-        return NodeTypes.createStatementFragment('var a = 1;');
+        return FragmentUtils.createStatementFragment('var a = 1;');
     },
     createBindStmt: () => {
-        return NodeTypes.createStatementFragment('bind _connector with _endpoint;');
+        return FragmentUtils.createStatementFragment('bind _connector with _endpoint;');
     },
     createVarDefStmt: () => {
-        return NodeTypes.createStatementFragment('int a = 1;');
+        return FragmentUtils.createStatementFragment('int a = 1;');
     },
     createIf: () => {
-        return NodeTypes.createStatementFragment(`
+        return FragmentUtils.createStatementFragment(`
             if (true) {
 
             } else {
@@ -184,7 +184,7 @@ export default {
         `);
     },
     createIfElse: () => {
-        return NodeTypes.createStatementFragment(`
+        return FragmentUtils.createStatementFragment(`
             if (true) {
 
             } else if (true) {
@@ -195,29 +195,29 @@ export default {
         `);
     },
     createInvocation: () => {
-        return NodeTypes.createStatementFragment(`
+        return FragmentUtils.createStatementFragment(`
             invokeFunction(arg1);
         `);
     },
     createWhile: () => {
-        return NodeTypes.createStatementFragment(`
+        return FragmentUtils.createStatementFragment(`
             while(true) {
 
             }
         `);
     },
     createBreak: () => {
-        return NodeTypes.createStatementFragment(`
+        return FragmentUtils.createStatementFragment(`
             break;
         `);
     },
     createNext: () => {
-        return NodeTypes.createStatementFragment(`
+        return FragmentUtils.createStatementFragment(`
             next;
         `);
     },
     createTry: () => {
-        return NodeTypes.createStatementFragment(`
+        return FragmentUtils.createStatementFragment(`
             try {
 
             } catch (error err) {
@@ -228,27 +228,27 @@ export default {
         `);
     },
     createThrow: () => {
-        return NodeTypes.createStatementFragment(`
+        return FragmentUtils.createStatementFragment(`
             throw e;
         `);
     },
     createReturn: () => {
-        return NodeTypes.createStatementFragment(`
+        return FragmentUtils.createStatementFragment(`
             return m;
         `);
     },
     createWorkerInvocation: () => {
-        return NodeTypes.createStatementFragment(`
+        return FragmentUtils.createStatementFragment(`
             m -> worker1 ;
         `);
     },
     createWorkerReceive: () => {
-        return NodeTypes.createStatementFragment(`
+        return FragmentUtils.createStatementFragment(`
             m <- worker1 ;
         `);
     },
     createTransaction: () => {
-        return NodeTypes.createStatementFragment(`
+        return FragmentUtils.createStatementFragment(`
             transaction {
 
             } failed {
@@ -261,17 +261,17 @@ export default {
         `);
     },
     createAbort: () => {
-        return NodeTypes.createStatementFragment(`
+        return FragmentUtils.createStatementFragment(`
             abort;
         `);
     },
     createRetry: () => {
-        return NodeTypes.createTransactionFailedFragment(`
+        return FragmentUtils.createTransactionFailedFragment(`
             retry 3;
         `);
     },
     createForkJoin: () => {
-        return NodeTypes.createStatementFragment(`
+        return FragmentUtils.createStatementFragment(`
             fork {
                 worker worker1 {
                 }
@@ -285,12 +285,12 @@ export default {
         `);
     },
     createXmlns: () => {
-        return NodeTypes.createStatementFragment(`
+        return FragmentUtils.createStatementFragment(`
             xmlns "namespace.uri" as xn;
         `);
     },
     createEnum: () => {
-        return NodeTypes.createTopLevelNodeFragment(`
+        return FragmentUtils.createTopLevelNodeFragment(`
             enum name {
                 ENUMERATOR
             }
