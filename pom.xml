@@ -133,33 +133,6 @@
                     </executions>
                 </plugin>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <id>validate</id>
-                            <phase>validate</phase>
-                            <configuration>
-                                <configLocation>
-                                    https://raw.githubusercontent.com/wso2/code-quality-tools/master/checkstyle/checkstyle.xml
-                                </configLocation>
-                                <suppressionsLocation>
-                                    https://raw.githubusercontent.com/wso2/code-quality-tools/master/checkstyle/suppressions.xml
-                                </suppressionsLocation>
-                                <encoding>UTF-8</encoding>
-                                <consoleOutput>true</consoleOutput>
-                                <failsOnError>true</failsOnError>
-                                <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                                <!--Exclude generated sources-->
-                                <excludes>**/parser/*,**/${native.constructs.provider.class}.java</excludes>
-                            </configuration>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
                     <groupId>org.antlr</groupId>
                     <artifactId>antlr4-maven-plugin</artifactId>
                     <version>${antlr.maven.plugin.version}</version>
@@ -184,6 +157,7 @@
         <ballerina.version>${project.version}</ballerina.version>
         <msf4j.examples.version>2.1.0</msf4j.examples.version>
         <antlr.maven.plugin.version>4.5.1</antlr.maven.plugin.version>
+        <maven.checkstyleplugin.excludes>**/parser/*,**/${native.constructs.provider.class}.java</maven.checkstyleplugin.excludes>
 
         <!-- Maven plugins -->
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
