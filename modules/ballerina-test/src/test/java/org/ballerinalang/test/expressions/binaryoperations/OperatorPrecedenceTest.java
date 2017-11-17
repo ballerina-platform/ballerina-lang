@@ -26,6 +26,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Class to test operator precedence.
+ */
 public class OperatorPrecedenceTest {
 
     CompileResult result;

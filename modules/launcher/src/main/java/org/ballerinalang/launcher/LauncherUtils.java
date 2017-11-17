@@ -239,7 +239,7 @@ public class LauncherUtils {
 
     /**
      * Get the executable program ({@link ProgramFile}) given the compiled program 
-     * ({@link org.wso2.ballerinalang.programfile.ProgramFile})
+     * ({@link org.wso2.ballerinalang.programfile.ProgramFile}).
      * 
      * @param programFile Compiled program
      * @return Executable program

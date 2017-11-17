@@ -9,7 +9,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
- * Class to test the functionality of composite connectors
+ * Class to test the functionality of composite connectors.
  */
 public class CompositeConnectorTest {
 

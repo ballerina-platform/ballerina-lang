@@ -130,7 +130,7 @@ public class PackageLoader {
     }
 
     /**
-     * List all the packages of packageRepo
+     * List all the packages of packageRepo.
      *
      * @param maxDepth the maximum depth of directories to search in
      * @return a set of PackageIDs

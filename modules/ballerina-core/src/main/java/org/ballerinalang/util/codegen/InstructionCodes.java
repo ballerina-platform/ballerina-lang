@@ -157,12 +157,11 @@ public interface InstructionCodes {
     int CALL = 120;
     int NCALL = 121;
     int ACALL = 122;
-    int NACALL = 123;
-    int THROW = 124;
-    int ERRSTORE = 125;
-    int FPCALL = 126;
-    int FPLOAD = 127;
-    int TCALL = 128;
+    int THROW = 123;
+    int ERRSTORE = 124;
+    int FPCALL = 125;
+    int FPLOAD = 126;
+    int TCALL = 127;
 
     // Type Conversion related instructions
     int I2F = 130;

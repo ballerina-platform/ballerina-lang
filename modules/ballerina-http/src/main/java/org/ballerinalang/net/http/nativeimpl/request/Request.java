@@ -19,7 +19,7 @@
 package org.ballerinalang.net.http.nativeimpl.request;
 
 /**
- * Represents the inbound http request
+ * Represents the inbound http request.
  */
 public class Request {
 }
