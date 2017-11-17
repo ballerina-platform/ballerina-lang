@@ -551,7 +551,7 @@ class DefaultNodeFactory {
         if (functionDef.getParameters()) {
            let parameters = [];
            functionDef.getParameters().map((param) => {
-               let defaultValue = Environment.getDefaultValue(param.type) || 'null';
+               let defaultValue = Environment.getDefaultValue(param.type);
                const paramNode = getNodeForFragment(FragmentUtils.createExpressionFragment(defaultValue));
                parameters.push(paramNode.getVariable().getInitialExpression());
             });
@@ -568,7 +568,7 @@ class DefaultNodeFactory {
             node.setVariables(returnNode.getVariables());
         }
         node.getExpression().getName().setValue(functionDef.getName());
-         if (packageName && packageName !== 'Current Package' && packageName !== "builtin" ) {
+         if (packageName && packageName !== 'Current Package' && packageName !== 'builtin' ) {
             node.getExpression().getPackageAlias().setValue(packageName);
          }
         node.getExpression().setFullPackageName(fullPackageName);
