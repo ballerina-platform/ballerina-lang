@@ -1,7 +1,8 @@
 import ballerina.file;
 import ballerina.io;
 
-@Description{value:"This function will return a ByteChannel from a given file location according to the specified file permission whether the file should be opened for reading/writing."}
+@Description{value:"This function will return a ByteChannel from a given file location according to the specified file
+permission whether the file should be opened for reading/writing."}
 function getFileChannel (string filePath, string permission) (io:ByteChannel) {
     //Here's how the path of the file will be specified
     file:File src = {path:filePath};
