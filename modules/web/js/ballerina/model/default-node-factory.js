@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
 import FragmentUtils from '../utils/fragment-utils';
 import TreeBuilder from './tree-builder';
 import TreeUtils from './tree-util';
@@ -34,7 +35,7 @@ function getNodeForFragment(fragment) {
 }
 
 function getStaticDefaultNode(fragmentName) {
-    const parsedJson = {...DefaultNodes[fragmentName]};
+    const parsedJson = _.cloneDeep(DefaultNodes[fragmentName]);
     const node = TreeBuilder.build(parsedJson);
     node.clearWS();
     return node;
