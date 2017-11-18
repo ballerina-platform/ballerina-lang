@@ -24,7 +24,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.util.Map;
 
 /**
- * Service scope position resolver
+ * Service scope position resolver.
  */
 public class ServiceScopeResolver implements CursorPositionResolver {
     @Override
