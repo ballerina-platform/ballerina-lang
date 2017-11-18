@@ -456,6 +456,7 @@ class TreeUtil extends AbstractTreeUtil {
             }
         } else {
             const parent = node.parent;
+            source = source.replace(/;$/, '');
             if (parent.filterParameters instanceof Function
                 && (parent.filterParameters(param => (param.id === node.id)).length > 0)) {
                 // Invoke the fragment parser util for parsing argument parameter.
