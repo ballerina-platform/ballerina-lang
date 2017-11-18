@@ -32,8 +32,9 @@ import DropZone from '../../../../../drag-drop/DropZone';
 import './panel-decorator.css';
 import ArgumentParameterDefinitionHolder from './../nodes/argument-parameter-definition-holder';
 import ReturnParameterDefinitionHolder from './../nodes/return-parameter-definition-holder';
-import NodeFactory from './../../../../../model/node-factory';
 import TreeUtils from './../../../../../model/tree-util';
+import FragmentUtils from './../../../../../utils/fragment-utils';
+import TreeBuilder from './../../../../../model/tree-builder';
 
 /* TODOX
 import ASTFactory from '../../../../ast/ast-factory';
@@ -123,9 +124,19 @@ class PanelDecorator extends React.Component {
     }
 
     setPropertyName() {
-        this.props.model.setName(NodeFactory.createIdentifier({ value: this.state.editingTitle }));
+        if (this.state.editingTitle) {
+            const fragment = FragmentUtils.createExpressionFragment(this.state.editingTitle);
+            const parsedJson = FragmentUtils.parseFragment(fragment);
+            if (!parsedJson.error) {
+                const identifierNode = TreeBuilder.build(parsedJson);
+                if (TreeUtils.isSimpleVariableRef(identifierNode.getVariable().getInitialExpression())) {
+                    this.props.model.setName(identifierNode.getVariable().getInitialExpression().getVariableName());
+                }
+            }
+        }
         this.setState({
             titleEditing: false,
+            editingTitle: this.props.model.getName().value,
         });
     }
 
