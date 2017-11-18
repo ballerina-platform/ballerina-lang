@@ -5,9 +5,11 @@ function testGetContentLength (http:Request req) (int) {
     return length;
 }
 
-function testGetHeader (http:Request req, string key) (string) {
-    string contentType = req.getHeader(key);
-    return contentType;
+function testGetHeader (http:Request req, string key) (string, boolean) {
+    string contentType;
+    boolean headerExists;
+    contentType, headerExists = req.getHeader(key);
+    return contentType, headerExists;
 }
 
 function testGetJsonPayload (http:Request req) (json) {

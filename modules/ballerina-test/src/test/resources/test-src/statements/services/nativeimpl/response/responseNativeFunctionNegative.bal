@@ -15,9 +15,11 @@ function testGetContentLength (http:Response res) (int) {
     return length;
 }
 
-function testGetHeader (http:Response res, string key) (string) {
-    string contentType = res.getHeader(key);
-    return contentType;
+function testGetHeader (http:Response res, string key) (string, boolean) {
+    string contentType;
+    boolean headerExists;
+    contentType, headerExists = res.getHeader(key);
+    return contentType, headerExists;
 }
 
 function testGetJsonPayload (http:Response res) (json) {

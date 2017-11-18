@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -40,6 +41,16 @@ public class Symbols {
         BTypeSymbol typeSymbol = createTypeSymbol(SymTag.STRUCT, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.STRUCT;
         return typeSymbol;
+    }
+
+    public static BTypeSymbol createEnumSymbol(int flags,
+                                               Name name,
+                                               PackageID pkgID,
+                                               BType type,
+                                               BSymbol owner) {
+        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.ENUM, flags, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.ENUM;
+        return typeSymbol;    
     }
 
     public static BAnnotationAttributeSymbol createAnnotationAttributeSymbol(Name name,
@@ -177,6 +188,18 @@ public class Symbols {
         return symbol;
     }
     
+    public static BTransformerSymbol createTransformerSymbol(int flags,
+                                                             Name name,
+                                                             PackageID pkgID,
+                                                             BType type,
+                                                             boolean safe,
+                                                             BSymbol owner) {
+        BTransformerSymbol symbol = new BTransformerSymbol(name, pkgID, type, owner, safe);
+        symbol.kind = SymbolKind.TRANSFORMER;
+        symbol.scope = new Scope(symbol);
+        return symbol;
+    }
+
     public static boolean isNative(BSymbol sym) {
         return (sym.flags & Flags.NATIVE) == Flags.NATIVE;
     }

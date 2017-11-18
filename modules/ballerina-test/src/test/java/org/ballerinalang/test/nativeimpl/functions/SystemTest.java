@@ -44,17 +44,11 @@ public class SystemTest {
     private final String printFuncName = "testPrintAndPrintln";
 
     private PrintStream original;
-    // TODO : Fix this with new logging implementation. Issue #1964
-//    Logger rootLogger;
-//    TestLogAppender testLogAppender;
 
     @BeforeClass(alwaysRun = true)
     public void setup() {
-//        rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         original = System.out;
         compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/systemTest.bal");
-//        rootLogger.().getLogger("org.ballerinalang.nativeimpl.model.system")
-//                .setLevel(Level.ALL);
     }
 
     @AfterClass(alwaysRun = true)
@@ -136,6 +130,36 @@ public class SystemTest {
 
             BValueType[] args = {new BBoolean(v1), new BBoolean(v2)};
             BRunUtil.invoke(compileResult, printFuncName + "Boolean", args);
+            Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
+        } finally {
+            outContent.close();
+            System.setOut(original);
+        }
+    }
+
+    @Test
+    public void testConnectorPrintAndPrintln() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        try {
+            System.setOut(new PrintStream(outContent));
+            final String expected = "\n";
+
+            BRunUtil.invoke(compileResult, printFuncName + "Connector");
+            Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
+        } finally {
+            outContent.close();
+            System.setOut(original);
+        }
+    }
+
+    @Test
+    public void testFunctionPointerPrintAndPrintln() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        try {
+            System.setOut(new PrintStream(outContent));
+            final String expected = "\n";
+
+            BRunUtil.invoke(compileResult, printFuncName + "FunctionPointer");
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();

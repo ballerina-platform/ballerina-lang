@@ -17,13 +17,16 @@
  */
 package org.ballerinalang.logging;
 
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.logging.formatters.HTTPTraceLogFormatter;
+import org.ballerinalang.logging.util.BLogLevel;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
@@ -33,6 +36,12 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.ballerinalang.logging.util.Constants.BALLERINA_LOG_INSTANCES;
+import static org.ballerinalang.logging.util.Constants.BALLERINA_USER_LOG;
+import static org.ballerinalang.logging.util.Constants.EMPTY_CONFIG;
+import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG;
+import static org.ballerinalang.logging.util.Constants.LOG_LEVEL;
+
 /**
  * Java util logging manager for ballerina which overrides the readConfiguration method to replace placeholders
  * having system or environment variables.
@@ -40,18 +49,16 @@ import java.util.regex.Pattern;
  * @since 0.8.0
  */
 public class BLogManager extends LogManager {
+
     public static final String BALLERINA_ROOT_LOGGER_NAME = "ballerina";
     public static final int LOGGER_PREFIX_LENGTH = BALLERINA_ROOT_LOGGER_NAME.length() + 1; // +1 to account for the .
-    public static final PrintStream STD_OUT = System.out;
-
-    // Trace log related constants
-    public static final String HTTP_TRACE_LOGGER = "tracelog.http";
-    public static final String LOG_DEST_CONSOLE = "__console";
 
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
     private static final String LOG_CONFIG_FILE = "logging.properties";
     private static final String SP_LOG_CONFIG_FILE = "java.util.logging.config.file";
 
+    private Map<String, BLogLevel> loggerLevels = new HashMap<>();
+    private BLogLevel ballerinaUserLogLevel;
     private Logger httpTraceLogger;
 
     @Override
@@ -71,6 +78,41 @@ public class BLogManager extends LogManager {
         super.readConfiguration(propertiesToInputStream(properties));
     }
 
+    public void loadUserProvidedLogConfiguration() {
+        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+
+        String instancesVal = configRegistry.getGlobalConfigValue(BALLERINA_LOG_INSTANCES);
+        if (!EMPTY_CONFIG.equals(instancesVal)) {
+            String[] loggerInstances = instancesVal.split(",");
+
+            for (String instanceId : loggerInstances) {
+                loggerLevels.put(instanceId,
+                                 BLogLevel.toBLogLevel(configRegistry.getInstanceConfigValue(instanceId, LOG_LEVEL)));
+            }
+        }
+
+        // setup Ballerina user-level log level configuration
+        String userLogLevel = configRegistry.getInstanceConfigValue(BALLERINA_USER_LOG, LOG_LEVEL);
+        if (!EMPTY_CONFIG.equals(userLogLevel)) {
+            ballerinaUserLogLevel = BLogLevel.toBLogLevel(userLogLevel);
+        } else {
+            // Default to INFO
+            ballerinaUserLogLevel = BLogLevel.INFO;
+        }
+
+        // setup HTTP trace log level configuration
+        String traceLogLevel = configRegistry.getInstanceConfigValue(HTTP_TRACE_LOG, LOG_LEVEL);
+        if (!EMPTY_CONFIG.equals(traceLogLevel)) {
+            loggerLevels.put(HTTP_TRACE_LOG, BLogLevel.toBLogLevel(traceLogLevel));
+        }
+
+        loggerLevels.put(BALLERINA_USER_LOG, ballerinaUserLogLevel);
+    }
+
+    public BLogLevel getPackageLogLevel(String pkg) {
+        return loggerLevels.containsKey(pkg) ? loggerLevels.get(pkg) : ballerinaUserLogLevel;
+    }
+
     public void setHttpTraceLogHandler() throws IOException {
         Handler handler = new ConsoleHandler();
         handler.setFormatter(new HTTPTraceLogFormatter());
@@ -78,7 +120,7 @@ public class BLogManager extends LogManager {
 
         if (httpTraceLogger == null) {
             // keep a reference to prevent this logger from being garbage collected
-            httpTraceLogger = Logger.getLogger(HTTP_TRACE_LOGGER);
+            httpTraceLogger = Logger.getLogger(HTTP_TRACE_LOG);
         }
 
         removeHandlers(httpTraceLogger);

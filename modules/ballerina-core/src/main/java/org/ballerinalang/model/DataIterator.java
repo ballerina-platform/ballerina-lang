@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.model;
 
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BStruct;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,8 +34,6 @@ public interface DataIterator {
 
     boolean next();
 
-    boolean isLast();
-
     void close(boolean isInTransaction);
 
     String getString(String columnName);
@@ -45,9 +44,13 @@ public interface DataIterator {
 
     boolean getBoolean(String columnName);
 
+    String getBlob(String columnName);
+
     String getObjectAsString(String columnName);
 
-    BValue get(String columnName, int type);
-
     Map<String, Object> getArray(String columnName);
+
+    BStruct generateNext();
+
+    List<ColumnDefinition> getColumnDefinitions();
 }

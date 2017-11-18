@@ -3,8 +3,12 @@ import ballerina.net.uri;
 import ballerina.util;
 
 function main (string[] args) {
-    http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com", {});
-    http:ClientConnector gitHubEP = create http:ClientConnector("https://api.github.com", {});
+    endpoint<http:HttpClient> tweeterEP {
+        create http:HttpClient("https://api.twitter.com", {});
+    }
+    endpoint<http:HttpClient> gitHubEP {
+        create http:HttpClient("https://api.github.com", {});
+    }
     int argumentLength = lengthof args;
     if (argumentLength < 4) {
         println("Incorrect number of arguments");
@@ -22,7 +26,9 @@ function main (string[] args) {
         }
         string repoPRpath = "/repos/wso2/" + repo + "/pulls";
         http:Request request = {};
-        http:Response gitHubResponse = gitHubEP.get(repoPRpath, request);
+        http:Response gitHubResponse = {};
+        http:HttpConnectorError err;
+        gitHubResponse, err = gitHubEP.get(repoPRpath, request);
         json gitHubJsonResponse = gitHubResponse.getJsonPayload();
         int noOfPRs = lengthof gitHubJsonResponse;
         string noOfPRstr = <string>noOfPRs;
@@ -30,7 +36,8 @@ function main (string[] args) {
         string oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, textMsg);
         request.setHeader("Authorization", oauthHeader);
         string tweetPath = "/1.1/statuses/update.json?status=" + uri:encode(textMsg);
-        http:Response response = tweeterEP.post(tweetPath, request);
+        http:Response response = {};
+        response, err = tweeterEP.post(tweetPath, request);
         println("Successfully tweeted: '" + textMsg + "'");
     }
 }

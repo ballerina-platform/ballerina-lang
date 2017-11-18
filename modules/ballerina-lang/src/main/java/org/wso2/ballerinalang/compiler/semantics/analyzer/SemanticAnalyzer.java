@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
@@ -40,6 +41,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -49,17 +51,20 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -73,7 +78,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -224,6 +228,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         structNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachmentPoint =
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.STRUCT, null);
+            annotationAttachment.accept(this);
+        });
+    }
+
+    @Override
+    public void visit(BLangEnum enumNode) {
+        enumNode.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachmentPoint = new BLangAnnotationAttachmentPoint(
+                    BLangAnnotationAttachmentPoint.AttachmentPoint.ENUM, null);
             annotationAttachment.accept(this);
         });
     }
@@ -538,21 +551,48 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             handleAssignNodeWithVar(assignNode);
             return;
         }
-        List<BType> expTypes = new ArrayList<>();
+
         // Check each LHS expression.
-        for (int i = 0; i < assignNode.varRefs.size(); i++) {
-            BLangExpression varRef = assignNode.varRefs.get(i);
-            // In assignment, lhs supports only simpleVarRef, indexBasedAccess, filedBasedAccess only.
-            if (varRef.getKind() == NodeKind.INVOCATION) {
+        List<BType> expTypes = new ArrayList<>();
+        for (BLangExpression expr : assignNode.varRefs) {
+            // In assignment, lhs supports only simpleVarRef, indexBasedAccess, filedBasedAccess expressions.
+            if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
+                    expr.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR &&
+                    expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR &&
+                    expr.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
+                dlog.error(expr.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, expr);
+                expTypes.add(symTable.errType);
+                continue;
+            }
+
+            // Evaluate the variable reference expression.
+            BLangVariableReference varRef = (BLangVariableReference) expr;
+            varRef.lhsVar = true;
+            typeChecker.checkExpr(varRef, env).get(0);
+
+            // Check whether we've got an enumerator access expression here.
+            if (varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
+                    ((BLangFieldBasedAccess) varRef).expr.type.tag == TypeTags.ENUM) {
                 dlog.error(varRef.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRef);
                 expTypes.add(symTable.errType);
                 continue;
             }
-            ((BLangVariableReference) varRef).lhsVar = true;
-            expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
+
+            expTypes.add(varRef.type);
             checkConstantAssignment(varRef);
         }
+
         typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
+    }
+
+    public void visit(BLangBind bindNode) {
+        List<BType> expTypes = new ArrayList<>();
+        // Check each LHS expression.
+        BLangExpression varRef = bindNode.varRef;
+        ((BLangVariableReference) varRef).lhsVar = true;
+        expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
+        checkConstantAssignment(varRef);
+        typeChecker.checkExpr(bindNode.expr, this.env, expTypes);
     }
 
     private void checkConstantAssignment(BLangExpression varRef) {
@@ -599,10 +639,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangWhile whileNode) {
         typeChecker.checkExpr(whileNode.expr, env, Lists.of(symTable.booleanType));
         analyzeStmt(whileNode.body, env);
-    }
-
-    public void visit(BLangTransform transformNode) {
-        analyzeStmt(transformNode.body, env);
     }
 
     public void visit(BLangConnector connectorNode) {
@@ -904,6 +940,31 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
+    public void visit(BLangTransformer transformerNode) {
+        SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformerNode, transformerNode.symbol.scope, env);
+        transformerNode.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachmentPoint = new BLangAnnotationAttachmentPoint(
+                    BLangAnnotationAttachmentPoint.AttachmentPoint.TRANSFORMER, null);
+            this.analyzeDef(annotationAttachment, transformerEnv);
+        });
+
+        validateTransformerMappingType(transformerNode.source);
+        validateTransformerMappingType(transformerNode.retParams.get(0));
+
+        analyzeStmt(transformerNode.body, transformerEnv);
+
+        // TODO: update this accordingly once the unsafe conversion are supported
+        int returnCount = transformerNode.retParams.size();
+        if (returnCount == 0) {
+            dlog.error(transformerNode.pos, DiagnosticCode.TRANSFORMER_MUST_HAVE_OUTPUT);
+        } else if (returnCount > 1) {
+            dlog.error(transformerNode.pos, DiagnosticCode.TOO_MANY_OUTPUTS_FOR_TRANSFORMER, 1, returnCount);
+        }
+
+        this.processWorkers(transformerNode, transformerEnv);
+    }
+
     BType analyzeNode(BLangNode node, SymbolEnv env, BType expType, DiagnosticCode diagCode) {
         SymbolEnv prevEnv = this.env;
         BType preExpType = this.expType;
@@ -950,6 +1011,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 typeChecker.checkExpr(simpleVarRef, env);
                 continue;
             }
+
             BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
             if (symbol == symTable.notFoundSymbol) {
                 createdSymbolCount++;
@@ -1008,5 +1070,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (error) {
             this.dlog.error(retryCountExpr.pos, DiagnosticCode.INVALID_RETRY_COUNT);
         }
+    }
+
+    private void validateTransformerMappingType(BLangVariable param) {
+        BType type = param.type;
+        if (types.isValueType(type) || (type instanceof BBuiltInRefType) || type.tag == TypeTags.STRUCT) {
+            return;
+        }
+
+        dlog.error(param.pos, DiagnosticCode.TRANSFORMER_UNSUPPORTED_TYPES, type);
     }
 }

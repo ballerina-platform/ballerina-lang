@@ -20,11 +20,13 @@ package org.ballerinalang.net.http;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
 import org.ballerinalang.net.ws.BallerinaWsServerConnectorListener;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+import org.wso2.carbon.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.Parameter;
@@ -43,6 +45,7 @@ import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.logging.LogManager;
 
 /**
  * {@code HttpConnectionManager} is responsible for managing all the server connectors with ballerina runtime.
@@ -270,11 +274,14 @@ public class HttpConnectionManager {
     }
 
     private boolean isHTTPTraceLoggerEnabled() {
-        return System.getProperty(BLogManager.HTTP_TRACE_LOGGER) != null ? true : false;
+        // TODO: Take a closer look at this since looking up from the Config Registry here caused test failures
+        return ((BLogManager) LogManager.getLogManager()).getPackageLogLevel(
+                org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG) == BLogLevel.TRACE;
     }
 
     private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, BStruct options) {
         //TODO Define default values until we get Anonymous struct (issues #3635)
+        ProxyServerConfiguration proxyServerConfiguration = null;
         int followRedirect = 0;
         int maxRedirectCount = 5;
         if (options.getRefField(Constants.FOLLOW_REDIRECT_STRUCT_INDEX) != null) {
@@ -321,10 +328,30 @@ public class HttpConnectionManager {
                 senderConfiguration.setParameters(clientParams);
             }
         }
-        senderConfiguration.setFollowRedirect(followRedirect == 1 ? true : false);
+        if (options.getRefField(Constants.PROXY_STRUCT_INDEX) != null) {
+            BStruct proxy = (BStruct) options.getRefField(Constants.PROXY_STRUCT_INDEX);
+            String proxyHost = proxy.getStringField(Constants.PROXY_HOST_INDEX);
+            int proxyPort = (int) proxy.getIntField(Constants.PROXY_PORT_INDEX);
+            String proxyUserName = proxy.getStringField(Constants.PROXY_USER_NAME_INDEX);
+            String proxyPassword = proxy.getStringField(Constants.PROXY_PASSWORD_INDEX);
+            try {
+                proxyServerConfiguration = new ProxyServerConfiguration(proxyHost, proxyPort);
+            } catch (UnknownHostException e) {
+                throw new BallerinaConnectorException("Failed to resolve host" + proxyHost, e);
+            }
+            if (!proxyUserName.isEmpty()) {
+                proxyServerConfiguration.setProxyUsername(proxyUserName);
+            }
+            if (!proxyPassword.isEmpty()) {
+                proxyServerConfiguration.setProxyPassword(proxyPassword);
+            }
+            senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
+        }
+
+        senderConfiguration.setFollowRedirect(followRedirect == 1);
         senderConfiguration.setMaxRedirectCount(maxRedirectCount);
-        int chunkDisabled = options.getBooleanField(Constants.CHUNK_DISABLED_STRUCT_INDEX);
-        senderConfiguration.setChunkDisabled(chunkDisabled == 1 ? true : false);
+        int enableChunking = options.getBooleanField(Constants.ENABLE_CHUNKING_INDEX);
+        senderConfiguration.setChunkDisabled(enableChunking == 0);
 
         long endpointTimeout = options.getIntField(Constants.ENDPOINT_TIMEOUT_STRUCT_INDEX);
         if (endpointTimeout < 0 || (int) endpointTimeout != endpointTimeout) {

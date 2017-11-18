@@ -111,11 +111,7 @@ public class URITemplateParser {
         if (currentNode == null) {
             currentNode = syntaxTree;
         }
-        if (node.getToken().equals("*")) {
-            currentNode = currentNode.addChild("." + node.getToken(), node);
-        } else {
-            currentNode = currentNode.addChild(node.getToken(), node);
-        }
+        currentNode = currentNode.addChild(node);
     }
 
     private void createExpressionNode(String expression, int maxIndex, int pointerIndex) throws URITemplateException {

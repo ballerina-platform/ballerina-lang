@@ -23,7 +23,8 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import java.util.Set;
 
 /**
- * foo:Person
+ * foo:Person.
+ *
  * @since 0.94
  */
 public interface UserDefinedTypeNode extends ReferenceTypeNode {

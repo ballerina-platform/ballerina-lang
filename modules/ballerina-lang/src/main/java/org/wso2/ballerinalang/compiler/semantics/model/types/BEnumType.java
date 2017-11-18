@@ -32,9 +32,9 @@ import java.util.List;
  */
 public class BEnumType extends BType implements EnumType {
 
-    public List<BEnumType.EnumField> fields;
+    public List<BEnumerator> fields;
 
-    public BEnumType(BTypeSymbol tSymbol, List<BEnumType.EnumField> fields) {
+    public BEnumType(BTypeSymbol tSymbol, List<BEnumerator> fields) {
         super(TypeTags.ENUM, tSymbol);
         this.fields = fields;
     }
@@ -44,7 +44,7 @@ public class BEnumType extends BType implements EnumType {
     }
 
     @Override
-    public List<BEnumType.EnumField> getFields() {
+    public List<BEnumerator> getEnumerators() {
         return fields;
     }
 
@@ -53,14 +53,24 @@ public class BEnumType extends BType implements EnumType {
         return TypeKind.ENUM;
     }
 
+    @Override
+    public <R> R accept(BTypeVisitor<R> visitor, BType type) {
+        return visitor.visit(this, type);
+    }
+
+    @Override
+    public String toString() {
+        return this.tsymbol.toString();
+    }
+
     /**
      * @since 0.94
      */
-    public static class BEnumField implements EnumField {
+    public static class BEnumerator implements Enumerator {
 
         public Name name;
 
-        public BEnumField(Name name) {
+        public BEnumerator(Name name) {
             this.name = name;
         }
 

@@ -9,12 +9,3 @@ function testJsonInitWithUnsupportedtypes() (json) {
     json j = {"name":"Supun", "value":dt};
     return j;
 }
-
-function testJSONWithUnsupportedKey () (json) {
-    json j = { foo(): "supun"};
-    return j;
-}
-
-function foo() (string) {
-  return "name";
-}

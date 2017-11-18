@@ -20,7 +20,7 @@ package org.ballerinalang.model.tree.expressions;
 import java.util.List;
 
 /**
- * string name = "James";
+ * string name = "James";.
  * string a = string `my name is {{strings:toUpper(name)}}`
  *
  * @since 0.94

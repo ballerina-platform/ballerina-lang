@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.ballerinalang.model.values.BDataTable;
-import org.ballerinalang.model.values.BDataTable.ColumnDefinition;
 import org.ballerinalang.model.values.BJSON.JSONDataSource;
 
 import java.io.IOException;
@@ -87,6 +86,9 @@ public class DataTableJSONDataSource implements JSONDataSource {
                     break;
                 case BOOLEAN:
                     objNode.put(name, df.getBoolean(name));
+                    break;
+                case BLOB:
+                    objNode.put(name, df.getBlob(name));
                     break;
                 case ARRAY:
                     //TODO: ARRAY

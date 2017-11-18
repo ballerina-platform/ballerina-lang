@@ -23,7 +23,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
- * foo:getName();
+ * foo:getName();.
  *
  * @since 0.94
  */

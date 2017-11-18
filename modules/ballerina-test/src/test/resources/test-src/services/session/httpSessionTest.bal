@@ -117,7 +117,6 @@ service<http> sample {
         any attribute = session.getAttribute("name");
         if (attribute != null) {
             result, err = (string)attribute;
-
         } else {
             session.setAttribute("name", result);
         }
@@ -295,6 +294,51 @@ service<http> sample2 {
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
         res.setStringPayload(<string>(arrsize));
+        res.send();
+    }
+
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/map"
+    }
+    resource getmap (http:Request req, http:Response res) {
+
+        http:Session session = req.createSessionIfAbsent();
+        string value;
+        boolean available;
+        value,available = req.getHeader("counter");
+        if (!available) {
+            session.setAttribute("Name", "chamil");
+            session.setAttribute("Lang", "ballerina");
+            map attributes = session.getAttributes();
+            string[] arr = attributes.keys();
+            string v0;
+            v0,_ = (string)attributes[arr[0]];
+            res.setStringPayload(arr[0] + ":" + v0);
+        } else {
+            map attributes = session.getAttributes();
+            string[] arr = attributes.keys();
+            string v1;
+            v1,_ = (string)attributes[arr[1]];
+            res.setStringPayload(arr[1] + ":" + v1);
+        }
+        res.send();
+    }
+
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/map2"
+    }
+    resource getmap2 (http:Request req, http:Response res) {
+
+        http:Session session = req.createSessionIfAbsent();
+        map attributes = session.getAttributes();
+        string v0 = "map not present";
+        if (attributes.length() != 0) {
+            string[] arr = attributes.keys();
+            v0,_ = (string)attributes[arr[0]];
+        }
+        res.setStringPayload("value" + ":" + v0);
         res.send();
     }
 

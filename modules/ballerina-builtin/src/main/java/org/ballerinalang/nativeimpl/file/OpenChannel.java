@@ -44,7 +44,7 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * Native function to obtain channel
+ * Native function to obtain channel.
  *
  * @since 0.94
  */
@@ -59,22 +59,22 @@ import java.util.Set;
 public class OpenChannel extends AbstractNativeChannel {
 
     /**
-     * File channel index in ballerina.lang.files#openChannel
+     * File channel index in ballerina.lang.files#openChannel.
      */
     private static final int FILE_CHANNEL_INDEX = 0;
 
     /**
-     * File access mode defined in ballerina.lang.files#openChannel
+     * File access mode defined in ballerina.lang.files#openChannel.
      */
     private static final int FILE_ACCESS_MODE_INDEX = 0;
 
     /**
-     * File path defined under ballerina.lang.files.File
+     * File path defined under ballerina.lang.files.File.
      */
     private static final int PATH_FIELD_INDEX = 0;
 
     /**
-     * Creates a directory at the specified path
+     * Creates a directory at the specified path.
      *
      * @param path the file location url
      */

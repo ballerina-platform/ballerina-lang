@@ -1,0 +1,9 @@
+// Transformers are used to convert a variable of one type to another. Additional arguments
+// can also be passed to a transformer for the conversion. The transformer can be defined
+// as an high level construct, and can be used within any expression using the type
+// conversion syntax.
+
+// Transformer may or may not have a name. A transformer without a name is treated
+// as the default transformer to convert from the source type to the target type. A transformer
+// with a name can be explicitly invoked during a type conversion.
+// This sample is about transforming an input struct variable to an output struct variable.

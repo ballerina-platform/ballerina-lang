@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -180,6 +181,12 @@ public class SymbolEnv {
         SymbolEnv symbolEnv = new SymbolEnv(node, env.scope);
         env.copyTo(symbolEnv);
         return symbolEnv;
+    }
+
+    public static SymbolEnv createTransformerEnv(BLangTransformer node, Scope scope, SymbolEnv env) {
+        SymbolEnv transformerEnv = createPkgLevelSymbolEnv(node, scope, env);
+        transformerEnv.enclInvokable = node;
+        return transformerEnv;
     }
 
     // Private functions

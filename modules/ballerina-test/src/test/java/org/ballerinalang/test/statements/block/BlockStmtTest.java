@@ -23,6 +23,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Class to test block statements.
+ */
 public class BlockStmtTest {
 
     CompileResult result;

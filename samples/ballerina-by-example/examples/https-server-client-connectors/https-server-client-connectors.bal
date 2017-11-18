@@ -22,11 +22,13 @@ service<http> helloWorld {
 
 @Description {value:"Ballerina client connector can be used to connect to the created https server. You have to run the service before running this main function. As this is a 1-way ssl connection, client needs to provide trustStoreFile and trustStorePassword."}
 function main (string[] args) {
-    http:ClientConnector clientConnector = create
-                 http:ClientConnector("https://localhost:9095", getConnectorConfigs());
-    //creates a request
+    endpoint<http:HttpClient> connectorEP {
+        create http:HttpClient("https://localhost:9095", getConnectorConfigs());
+    }
+    //Creates a request.
     http:Request req = {};
-    http:Response resp = clientConnector.get("/hello/", req);
+    http:Response resp = {};
+    resp, _ = connectorEP.get("/hello/", req);
     println("Response code: " + resp.getStatusCode());
     println("Response: " + resp.getStringPayload());
 }

@@ -1,5 +1,4 @@
 import ballerina.caching;
-import ballerina.runtime;
 
 caching:Cache cache;
 

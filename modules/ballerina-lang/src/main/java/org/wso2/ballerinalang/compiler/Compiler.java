@@ -186,7 +186,7 @@ public class Compiler {
 
         return (phase == CompilerPhase.DESUGAR ||
                 phase == CompilerPhase.CODE_GEN) &&
-                dlog.errorCount > 0;
+                (dlog.errorCount > 0 || this.pkgNode.getCompilationUnits().isEmpty());
     }
 
     private BLangPackage getBuiltInPackage(Name name) {

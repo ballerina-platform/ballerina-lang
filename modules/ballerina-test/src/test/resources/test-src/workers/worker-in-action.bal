@@ -32,14 +32,18 @@ connector TestConnector (string param1, string param2, int param3) {
 }
 
 function testAction1 () (string) {
-    TestConnector testConnector = create TestConnector("MyParam1", "MyParam2", 5);
+    endpoint<TestConnector> testConnector {
+        create TestConnector("MyParam1", "MyParam2", 5);
+    }
     string request = "request";
     string value = testConnector.action1(request);
     return value;
 }
 
 function testAction2 () (string) {
-    TestConnector testConnector = create TestConnector("MyParam1", "MyParam2", 5);
+    endpoint<TestConnector> testConnector {
+        create TestConnector("MyParam1", "MyParam2", 5);
+    }
     string request = "request";
     string value = testConnector.action2(request);
     return value;
