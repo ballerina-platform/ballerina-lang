@@ -40,6 +40,8 @@ public class TerminatorUnix implements Terminator {
     }
 
     /**
+     * Get find process command.
+     *
      * @param script absolute path of ballerina file running
      * @return find process command
      */

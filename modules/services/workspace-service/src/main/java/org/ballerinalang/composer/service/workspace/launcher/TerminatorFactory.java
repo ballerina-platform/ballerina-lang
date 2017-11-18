@@ -27,6 +27,8 @@ public class TerminatorFactory {
     private static final Logger logger = LoggerFactory.getLogger(TerminatorFactory.class);
 
     /**
+     * Get Terminator.
+     *
      * @param os      - Running operating system
      * @param command - Command to run ballerina program
      * @return Terminator instance
