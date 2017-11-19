@@ -246,6 +246,7 @@ class WorkspacePlugin extends Plugin {
      */
     init(config) {
         super.init(config);
+        this.config = config;
         return {
             openFile: this.openFile.bind(this),
             openFolder: this.openFolder.bind(this),
@@ -269,6 +270,9 @@ class WorkspacePlugin extends Plugin {
         this.openedFiles = serializedFiles.map((serializedFile) => {
             return Object.assign(new File({}), serializedFile);
         });
+        if (this.config && this.config.startupFile) {
+            this.openFile(this.config.startupFile);
+        }
     }
 
     /**
