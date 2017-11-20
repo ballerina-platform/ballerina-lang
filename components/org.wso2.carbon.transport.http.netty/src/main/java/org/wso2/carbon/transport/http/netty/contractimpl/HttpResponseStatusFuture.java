@@ -26,21 +26,13 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import java.util.concurrent.Semaphore;
 
 /**
- * Implementation of the response status future.
+ * Implementation of the response returnError future.
  */
 public class HttpResponseStatusFuture implements HttpResponseFuture {
 
     private HTTPCarbonMessage httpCarbonMessage;
-    private Throwable throwable, status;
+    private Throwable throwable, returnError;
     private Semaphore executionWaitSem;
-
-    @Override
-    public void setHttpConnectorListener(HttpConnectorListener connectorListener) {
-    }
-
-    @Override
-    public void removeHttpListener() {
-    }
 
     @Override
     public void notifyHttpListener(HTTPCarbonMessage httpCarbonMessage) {
@@ -58,19 +50,31 @@ public class HttpResponseStatusFuture implements HttpResponseFuture {
         }
     }
 
-    public Throwable sync() throws InterruptedException {
+    public HttpResponseStatusFuture sync() throws InterruptedException {
         executionWaitSem = new Semaphore(0);
         if (this.httpCarbonMessage == null && this.throwable == null) {
             executionWaitSem.acquire();
         }
         if (httpCarbonMessage != null) {
-            status = null;
+            returnError = null;
             httpCarbonMessage = null;
         }
         if (throwable != null) {
-            status = throwable;
+            returnError = throwable;
             throwable = null;
         }
-        return status;
+        return this;
+    }
+
+    public HttpResponseStatus getStatus() {
+        return this.returnError != null ? new HttpResponseStatus(this.returnError) : new HttpResponseStatus(null);
+    }
+
+    @Override
+    public void setHttpConnectorListener(HttpConnectorListener connectorListener) {
+    }
+
+    @Override
+    public void removeHttpListener() {
     }
 }
