@@ -35,14 +35,6 @@ public class HttpResponseStatusFuture implements HttpResponseFuture {
     private Semaphore executionWaitSem;
 
     @Override
-    public void setHttpConnectorListener(HttpConnectorListener connectorListener) {
-    }
-
-    @Override
-    public void removeHttpListener() {
-    }
-
-    @Override
     public void notifyHttpListener(HTTPCarbonMessage httpCarbonMessage) {
         this.httpCarbonMessage = httpCarbonMessage;
         if (executionWaitSem != null) {
@@ -58,7 +50,7 @@ public class HttpResponseStatusFuture implements HttpResponseFuture {
         }
     }
 
-    public Throwable sync() throws InterruptedException {
+    public HttpResponseStatusFuture sync() throws InterruptedException {
         executionWaitSem = new Semaphore(0);
         if (this.httpCarbonMessage == null && this.throwable == null) {
             executionWaitSem.acquire();
@@ -71,6 +63,18 @@ public class HttpResponseStatusFuture implements HttpResponseFuture {
             status = throwable;
             throwable = null;
         }
+        return this;
+    }
+
+    public Throwable getStatus() {
         return status;
+    }
+
+    @Override
+    public void setHttpConnectorListener(HttpConnectorListener connectorListener) {
+    }
+
+    @Override
+    public void removeHttpListener() {
     }
 }
