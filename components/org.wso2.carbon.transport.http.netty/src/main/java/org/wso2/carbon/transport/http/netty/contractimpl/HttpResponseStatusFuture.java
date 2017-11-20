@@ -66,7 +66,7 @@ public class HttpResponseStatusFuture implements HttpResponseFuture {
         return this;
     }
 
-    public HttpResponseStatus getFailureStatus() {
+    public HttpResponseStatus getStatus() {
         return this.returnError != null ? new HttpResponseStatus(this.returnError) : new HttpResponseStatus(null);
     }
 
