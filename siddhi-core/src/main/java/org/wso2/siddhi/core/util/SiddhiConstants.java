@@ -80,12 +80,24 @@ public final class SiddhiConstants {
     public static final String DISTRIBUTION_STRATEGY_KEY = "strategy";
     public static final String PARTITION_KEY_FIELD_KEY = "partitionKey";
 
-    public static final String METRIC_INFIX_EXECUTION_PLANS = "SiddhiApps";
+    public static final String METRIC_INFIX_SIDDHI_APPS = "SiddhiApps";
     public static final String METRIC_INFIX_STREAMS = "Streams";
+    public static final String METRIC_INFIX_TABLES = "Tables";
+    public static final String METRIC_INFIX_TRIGGERS = "Trigger";
     public static final String METRIC_INFIX_SIDDHI = "Siddhi";
     public static final String METRIC_INFIX_QUERIES = "Queries";
-    public static final String METRIC_INFIX_AGGRIGATIONS = "Aggregations";
+    public static final String METRIC_INFIX_AGGREGATIONS = "Aggregations";
     public static final String METRIC_INFIX_WINDOWS = "Windows";
+    public static final String METRIC_INFIX_SOURCES = "Sources";
+    public static final String METRIC_INFIX_SOURCE_MAPPERS = "SourceMappers";
+    public static final String METRIC_INFIX_SINKS = "Sinks";
+    public static final String METRIC_INFIX_SINK_MAPPERS = "SinkMappers";
+    public static final String METRIC_TYPE_FIND = "find";
+    public static final String METRIC_TYPE_INSERT = "insert";
+    public static final String METRIC_TYPE_UPDATE = "update";
+    public static final String METRIC_TYPE_DELETE = "delete";
+    public static final String METRIC_TYPE_UPDATE_OR_INSERT = "updateOrInsert";
+    public static final String METRIC_TYPE_CONTAINS = "contains";
     public static final String METRIC_DELIMITER = ".";
     public static final String METRIC_AGGREGATE_ANNOTATION = "[+]";
     public static final String EXTENSION_SEPARATOR = ":";

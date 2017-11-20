@@ -56,7 +56,7 @@ public class DeleteTableCallback extends OutputCallback {
     }
 
     @Override
-    public synchronized void send(ComplexEventChunk deletingEventChunk) {
+    public synchronized void send(ComplexEventChunk deletingEventChunk, int noOfEvents) {
         if (getSiddhiDebugger() != null) {
             getSiddhiDebugger()
                     .checkBreakPoint(getQueryName(), SiddhiDebugger.QueryTerminal.OUT, deletingEventChunk.getFirst());
@@ -66,7 +66,7 @@ public class DeleteTableCallback extends OutputCallback {
             ComplexEventChunk<StateEvent> deletingStateEventChunk = constructMatchingStateEventChunk(
                     deletingEventChunk, convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool,
                     streamEventConverter);
-            table.deleteEvents(deletingStateEventChunk, compiledCondition);
+            table.deleteEvents(deletingStateEventChunk, compiledCondition, noOfEvents);
         }
     }
 }

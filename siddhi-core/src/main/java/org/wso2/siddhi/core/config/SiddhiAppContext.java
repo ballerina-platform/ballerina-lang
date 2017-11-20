@@ -46,7 +46,6 @@ public class SiddhiAppContext {
     private String name;
     private boolean playback;
     private boolean enforceOrder;
-    private boolean async;
     private boolean statsEnabled = false;
     private StatisticsManager statisticsManager = null;
 
@@ -83,14 +82,6 @@ public class SiddhiAppContext {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public boolean isAsync() {
-        return async;
-    }
-
-    public void setAsync(boolean async) {
-        this.async = async;
     }
 
     public boolean isPlayback() {

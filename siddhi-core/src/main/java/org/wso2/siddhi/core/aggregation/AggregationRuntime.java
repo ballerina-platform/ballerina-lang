@@ -38,6 +38,8 @@ import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.parser.ExpressionParser;
 import org.wso2.siddhi.core.util.parser.MatcherParser;
 import org.wso2.siddhi.core.util.parser.OperatorParser;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.aggregation.Within;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
@@ -62,6 +64,8 @@ public class AggregationRuntime {
     private final SiddhiAppContext siddhiAppContext;
     private final MetaStreamEvent tableMetaStreamEvent;
     private final MetaStreamEvent aggregateMetaSteamEvent;
+    private final LatencyTracker latencyTrackerFind;
+    private final ThroughputTracker throughputTrackerFind;
     private List<TimePeriod.Duration> incrementalDurations;
     private SingleStreamRuntime singleStreamRuntime;
     private EntryValveExecutor entryValveExecutor;
@@ -77,7 +81,8 @@ public class AggregationRuntime {
                               EntryValveExecutor entryValveExecutor, List<TimePeriod.Duration> incrementalDurations,
                               SiddhiAppContext siddhiAppContext, List<ExpressionExecutor> baseExecutors,
                               ExpressionExecutor timestampExecutor, MetaStreamEvent tableMetaStreamEvent,
-                              List<ExpressionExecutor> outputExpressionExecutors) {
+                              List<ExpressionExecutor> outputExpressionExecutors,
+                              LatencyTracker latencyTrackerFind, ThroughputTracker throughputTrackerFind) {
         this.aggregationDefinition = aggregationDefinition;
         this.incrementalExecutorMap = incrementalExecutorMap;
         this.aggregationTables = aggregationTables;
@@ -89,6 +94,8 @@ public class AggregationRuntime {
         this.timestampExecutor = timestampExecutor;
         this.tableMetaStreamEvent = tableMetaStreamEvent;
         this.outputExpressionExecutors = outputExpressionExecutors;
+        this.latencyTrackerFind = latencyTrackerFind;
+        this.throughputTrackerFind = throughputTrackerFind;
 
         aggregateMetaSteamEvent = new MetaStreamEvent();
         aggregationDefinition.getAttributeList().forEach(aggregateMetaSteamEvent::addOutputData);
@@ -146,20 +153,28 @@ public class AggregationRuntime {
 
     public StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
 
-        // Retrieve per value
-        String perValueAsString = perExpressionExecutor.execute(matchingEvent).toString();
-        TimePeriod.Duration perValue = TimePeriod.Duration.valueOf(perValueAsString.toUpperCase());
-        if (!incrementalExecutorMap.keySet().contains(perValue)) {
-            throw new SiddhiAppRuntimeException("The aggregate values for " + perValue.toString()
-                    + " granularity cannot be provided since aggregation definition " + aggregationDefinition.getId()
-                    + " does not contain " + perValue.toString() + " duration");
+        try {
+            if (latencyTrackerFind != null && siddhiAppContext.isStatsEnabled()) {
+                latencyTrackerFind.markIn();
+                throughputTrackerFind.eventIn();
+            }
+            // Retrieve per value
+            String perValueAsString = perExpressionExecutor.execute(matchingEvent).toString();
+            TimePeriod.Duration perValue = TimePeriod.Duration.valueOf(perValueAsString.toUpperCase());
+            if (!incrementalExecutorMap.keySet().contains(perValue)) {
+                throw new SiddhiAppRuntimeException("The aggregate values for " + perValue.toString()
+                        + " granularity cannot be provided since aggregation definition " +
+                        aggregationDefinition.getId() + " does not contain " + perValue.toString() + " duration");
+            }
+            Table tableForPerDuration = aggregationTables.get(perValue);
+            return ((IncrementalAggregateCompileCondition) compiledCondition).find(matchingEvent, perValue,
+                    incrementalExecutorMap, incrementalDurations, tableForPerDuration, baseExecutors, timestampExecutor,
+                    outputExpressionExecutors);
+        } finally {
+            if (latencyTrackerFind != null && siddhiAppContext.isStatsEnabled()) {
+                latencyTrackerFind.markOut();
+            }
         }
-
-        Table tableForPerDuration = aggregationTables.get(perValue);
-
-        return ((IncrementalAggregateCompileCondition) compiledCondition).find(matchingEvent, perValue,
-                incrementalExecutorMap, incrementalDurations, tableForPerDuration, baseExecutors, timestampExecutor,
-                outputExpressionExecutors);
     }
 
     public CompiledCondition compileExpression(Expression expression, Within within, Expression per,

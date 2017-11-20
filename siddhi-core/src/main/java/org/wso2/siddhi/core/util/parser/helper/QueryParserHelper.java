@@ -39,6 +39,7 @@ import org.wso2.siddhi.core.query.processor.stream.AbstractStreamProcessor;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.List;
@@ -210,22 +211,49 @@ public class QueryParserHelper {
         }
     }
 
-    public static LatencyTracker getLatencyTracker(SiddhiAppContext siddhiAppContext, String name, String type) {
+    public static LatencyTracker createLatencyTracker(SiddhiAppContext siddhiAppContext, String name, String type,
+                                                      String function) {
         LatencyTracker latencyTracker = null;
         if (siddhiAppContext.getStatisticsManager() != null) {
             String metricName =
                     siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMetricPrefix() +
-                            SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
+                            SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI_APPS +
                             SiddhiConstants.METRIC_DELIMITER + siddhiAppContext.getName() +
                             SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
                             SiddhiConstants.METRIC_DELIMITER + type +
                             SiddhiConstants.METRIC_DELIMITER + name;
+            if (function != null) {
+                metricName += metricName + SiddhiConstants.METRIC_DELIMITER + function;
+            }
             latencyTracker = siddhiAppContext.getSiddhiContext()
                     .getStatisticsConfiguration()
                     .getFactory()
                     .createLatencyTracker(metricName, siddhiAppContext.getStatisticsManager());
         }
         return latencyTracker;
+    }
+
+    public static ThroughputTracker createThroughputTracker(SiddhiAppContext siddhiAppContext, String name,
+                                                            String type, String function) {
+        ThroughputTracker throughputTracker = null;
+        if (siddhiAppContext.getStatisticsManager() != null) {
+            String metricName =
+                    siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMetricPrefix() +
+                            SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI_APPS +
+                            SiddhiConstants.METRIC_DELIMITER + siddhiAppContext.getName() +
+                            SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
+                            SiddhiConstants.METRIC_DELIMITER + type +
+                            SiddhiConstants.METRIC_DELIMITER + name;
+            if (function != null) {
+                metricName += metricName + SiddhiConstants.METRIC_DELIMITER + function;
+            }
+            throughputTracker = siddhiAppContext
+                    .getSiddhiContext()
+                    .getStatisticsConfiguration()
+                    .getFactory()
+                    .createThroughputTracker(metricName, siddhiAppContext.getStatisticsManager());
+        }
+        return throughputTracker;
     }
 
 }

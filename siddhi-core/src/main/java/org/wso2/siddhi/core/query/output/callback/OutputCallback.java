@@ -39,7 +39,7 @@ public abstract class OutputCallback {
         this.queryName = queryName;
     }
 
-    public abstract void send(ComplexEventChunk complexEventChunk);
+    public abstract void send(ComplexEventChunk complexEventChunk, int noOfEvents);
 
     SiddhiDebugger getSiddhiDebugger() {
         return siddhiDebugger;

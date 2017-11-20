@@ -25,9 +25,6 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.executor.incremental.IncrementalTimeGetTimeZone;
-import org.wso2.siddhi.core.executor.incremental.IncrementalUnixTimeFunctionExecutor;
-import org.wso2.siddhi.core.executor.incremental.IncrementalWithinTimeFunctionExecutor;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.EntryValveExecutor;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
@@ -46,6 +43,7 @@ import org.wso2.siddhi.core.util.extension.holder.IncrementalAttributeAggregator
 import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
 import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.annotation.Annotation;
@@ -107,13 +105,11 @@ public class AggregationParser {
             List<VariableExpressionExecutor> incomingVariableExpressionExecutors = new ArrayList<>();
 
             String aggregatorName = aggregationDefinition.getId();
-            LatencyTracker latencyTracker = QueryParserHelper.getLatencyTracker(siddhiAppContext, aggregatorName,
-                    SiddhiConstants.METRIC_INFIX_AGGRIGATIONS);
 
             StreamRuntime streamRuntime = InputStreamParser.parse(aggregationDefinition.getBasicSingleInputStream(),
                     siddhiAppContext, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap,
                     aggregationDefinitionMap, tableMap, windowMap, aggregationMap, incomingVariableExpressionExecutors,
-                    latencyTracker, false, aggregatorName);
+                    null, false, aggregatorName);
 
             // Get original meta for later use.
             MetaStreamEvent incomingMetaStreamEvent = (MetaStreamEvent) streamRuntime.getMetaComplexEvent();
@@ -217,15 +213,39 @@ public class AggregationParser {
 
             QueryParserHelper.initStreamRuntime(streamRuntime, incomingMetaStreamEvent, lockWrapper, aggregatorName);
 
+            LatencyTracker latencyTrackerFind = null;
+            LatencyTracker latencyTrackerInsert = null;
+
+            ThroughputTracker throughputTrackerFind = null;
+            ThroughputTracker throughputTrackerInsert = null;
+
+            if (siddhiAppContext.getStatisticsManager() != null) {
+                latencyTrackerFind = QueryParserHelper.createLatencyTracker(siddhiAppContext,
+                        aggregationDefinition.getId(),
+                        SiddhiConstants.METRIC_INFIX_WINDOWS, SiddhiConstants.METRIC_TYPE_FIND);
+                latencyTrackerInsert = QueryParserHelper.createLatencyTracker(siddhiAppContext,
+                        aggregationDefinition.getId(),
+                        SiddhiConstants.METRIC_INFIX_WINDOWS, SiddhiConstants.METRIC_TYPE_INSERT);
+
+                throughputTrackerFind = QueryParserHelper.createThroughputTracker(siddhiAppContext,
+                        aggregationDefinition.getId(),
+                        SiddhiConstants.METRIC_INFIX_WINDOWS, SiddhiConstants.METRIC_TYPE_FIND);
+                throughputTrackerInsert = QueryParserHelper.createThroughputTracker(siddhiAppContext,
+                        aggregationDefinition.getId(),
+                        SiddhiConstants.METRIC_INFIX_WINDOWS, SiddhiConstants.METRIC_TYPE_INSERT);
+
+            }
+
             streamRuntime.setCommonProcessor(new IncrementalAggregationProcessor(rootIncrementalExecutor,
-                    incomingExpressionExecutors, processedMetaStreamEvent));
+                    incomingExpressionExecutors, processedMetaStreamEvent, latencyTrackerInsert,
+                    throughputTrackerInsert, siddhiAppContext));
 
             List<ExpressionExecutor> baseExecutors = cloneExpressionExecutors(processExpressionExecutors);
             ExpressionExecutor timestampExecutor = baseExecutors.remove(0);
             return new AggregationRuntime(aggregationDefinition, incrementalExecutorMap,
                     aggregationTables, ((SingleStreamRuntime) streamRuntime), entryValveExecutor, incrementalDurations,
                     siddhiAppContext, baseExecutors, timestampExecutor, processedMetaStreamEvent,
-                    outputExpressionExecutors);
+                    outputExpressionExecutors, latencyTrackerFind, throughputTrackerFind);
         } catch (Throwable t) {
             ExceptionUtil.populateQueryContext(t, aggregationDefinition, siddhiAppContext);
             throw t;

@@ -21,6 +21,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
@@ -30,7 +31,6 @@ import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.ThreadBarrier;
 import org.wso2.siddhi.core.util.persistence.PersistenceService;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
-import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.core.util.timestamp.EventTimeBasedMillisTimestampGenerator;
 import org.wso2.siddhi.core.util.timestamp.SystemCurrentTimeMillisTimestampGenerator;
 import org.wso2.siddhi.core.window.Window;
@@ -95,14 +95,9 @@ public class SiddhiAppParser {
             annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_ASYNC,
                     siddhiApp.getAnnotations());
             if (annotation != null) {
-                siddhiAppContext.setAsync(true);
-                String bufferSizeString = annotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_BUFFER_SIZE);
-                if (bufferSizeString != null) {
-                    int bufferSize = Integer.parseInt(bufferSizeString);
-                    siddhiAppContext.setBufferSize(bufferSize);
-                } else {
-                    siddhiAppContext.setBufferSize(SiddhiConstants.DEFAULT_EVENT_BUFFER_SIZE);
-                }
+                throw new SiddhiAppCreationException("@Async not supported in SiddhiApp level, " +
+                        "instead use @Async with streams",
+                        annotation.getQueryContextStartIndex(), annotation.getQueryContextEndIndex());
             }
 
             annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_STATISTICS,
@@ -211,22 +206,8 @@ public class SiddhiAppParser {
                 siddhiAppContext);
         for (Window window : siddhiAppRuntimeBuilder.getWindowMap().values()) {
             try {
-                String metricName =
-                        siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMetricPrefix() +
-                                SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
-                                SiddhiConstants.METRIC_DELIMITER + siddhiAppContext.getName() +
-                                SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
-                                SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_WINDOWS +
-                                SiddhiConstants.METRIC_DELIMITER + window.getWindowDefinition().getId();
-                LatencyTracker latencyTracker = null;
-                if (siddhiAppContext.getStatisticsManager() != null) {
-                    latencyTracker = siddhiAppContext.getSiddhiContext()
-                            .getStatisticsConfiguration()
-                            .getFactory()
-                            .createLatencyTracker(metricName, siddhiAppContext.getStatisticsManager());
-                }
                 window.init(siddhiAppRuntimeBuilder.getTableMap(), siddhiAppRuntimeBuilder
-                        .getWindowMap(), latencyTracker, window.getWindowDefinition().getId());
+                        .getWindowMap(), window.getWindowDefinition().getId());
             } catch (Throwable t) {
                 ExceptionUtil.populateQueryContext(t, window.getWindowDefinition(), siddhiAppContext);
                 throw t;

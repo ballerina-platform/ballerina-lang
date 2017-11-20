@@ -31,6 +31,8 @@ import org.wso2.siddhi.core.event.SiddhiEventFactory;
 import org.wso2.siddhi.core.stream.input.InputProcessor;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
+import org.wso2.siddhi.core.util.statistics.EventBufferHolder;
 import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
 import org.wso2.siddhi.core.util.timestamp.EventTimeBasedMillisTimestampGenerator;
 import org.wso2.siddhi.query.api.annotation.Annotation;
@@ -51,7 +53,7 @@ import java.util.concurrent.ExecutorService;
  * {@link StreamJunction.Receiver} can be used to receive events from Stream Junction. Stream Junction will hold the
  * events till they are consumed by registered Receivers.
  */
-public class StreamJunction {
+public class StreamJunction implements EventBufferHolder {
     private static final Logger log = Logger.getLogger(StreamJunction.class);
     private final SiddhiAppContext siddhiAppContext;
     private final StreamDefinition streamDefinition;
@@ -72,22 +74,13 @@ public class StreamJunction {
         this.executorService = executorService;
         this.siddhiAppContext = siddhiAppContext;
         if (siddhiAppContext.getStatisticsManager() != null) {
-            String metricName = siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMetricPrefix() +
-                    SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
-                    SiddhiConstants.METRIC_DELIMITER + siddhiAppContext.getName() +
-                    SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
-                    SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_STREAMS +
-                    SiddhiConstants.METRIC_DELIMITER + streamDefinition.getId();
-            this.throughputTracker = siddhiAppContext
-                    .getSiddhiContext()
-                    .getStatisticsConfiguration()
-                    .getFactory()
-                    .createThroughputTracker(metricName, siddhiAppContext.getStatisticsManager());
+            this.throughputTracker = QueryParserHelper.createThroughputTracker(siddhiAppContext,
+                    streamDefinition.getId(),
+                    SiddhiConstants.METRIC_INFIX_STREAMS, null);
         }
         try {
             Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_ASYNC,
                     streamDefinition.getAnnotations());
-            async = siddhiAppContext.isAsync();
             if (annotation != null) {
                 async = true;
                 String bufferSizeString = annotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_BUFFER_SIZE);
@@ -296,6 +289,19 @@ public class StreamJunction {
 
     public StreamDefinition getStreamDefinition() {
         return streamDefinition;
+    }
+
+    @Override
+    public long getBufferedEvents() {
+        if (disruptor != null) {
+            return disruptor.getBufferSize() - disruptor.getRingBuffer().remainingCapacity();
+        }
+        return 0L;
+    }
+
+    @Override
+    public boolean containsBufferedEvents() {
+        return disruptor != null;
     }
 
     /**

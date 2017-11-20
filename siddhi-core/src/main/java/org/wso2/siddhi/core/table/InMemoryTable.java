@@ -61,9 +61,9 @@ public class InMemoryTable extends Table implements Snapshotable {
 
 
     @Override
-public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool,
-                 StreamEventCloner storeEventCloner, ConfigReader configReader, SiddhiAppContext siddhiAppContext,
-                 RecordTableHandler recordTableHandler) {
+    public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool,
+                     StreamEventCloner storeEventCloner, ConfigReader configReader, SiddhiAppContext siddhiAppContext,
+                     RecordTableHandler recordTableHandler) {
         this.tableDefinition = tableDefinition;
         this.tableStreamEventCloner = storeEventCloner;
 
@@ -121,9 +121,11 @@ public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool
                             AddingStreamEventExtractor addingStreamEventExtractor) {
         try {
             readWriteLock.writeLock().lock();
-            ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledCondition).tryUpdate
-                    (updateOrAddingEventChunk,
-                    eventHolder, (InMemoryCompiledUpdateSet) compiledUpdateSet, addingStreamEventExtractor);
+            ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledCondition).tryUpdate(
+                    updateOrAddingEventChunk,
+                    eventHolder,
+                    (InMemoryCompiledUpdateSet) compiledUpdateSet,
+                    addingStreamEventExtractor);
             if (failedEvents != null) {
                 eventHolder.add(failedEvents);
             }
@@ -172,9 +174,9 @@ public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool
 
     @Override
     public CompiledCondition compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                               SiddhiAppContext siddhiAppContext,
-                                               List<VariableExpressionExecutor> variableExpressionExecutors,
-                                               Map<String, Table> tableMap, String queryName) {
+                                              SiddhiAppContext siddhiAppContext,
+                                              List<VariableExpressionExecutor> variableExpressionExecutors,
+                                              Map<String, Table> tableMap, String queryName) {
         return OperatorParser.constructOperator(eventHolder, condition, matchingMetaInfoHolder,
                 siddhiAppContext, variableExpressionExecutors, tableMap, tableDefinition.getId());
     }

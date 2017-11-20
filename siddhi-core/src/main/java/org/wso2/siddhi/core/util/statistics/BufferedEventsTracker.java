@@ -18,23 +18,21 @@
 
 package org.wso2.siddhi.core.util.statistics;
 
-import org.wso2.siddhi.query.api.annotation.Element;
-
-import java.util.List;
-
 /**
- * Factory interface to create Trackers and Managers
+ * This interface will have the necessary methods to calculate the events buffered.
  */
-public interface StatisticsTrackerFactory {
+public interface BufferedEventsTracker {
+    /**
+     * Register the EventBufferHolder that needs to be measured the used capacity usage
+     *
+     * @param eventBufferHolder EventBufferHolder
+     * @param name              An unique value to identify the object.
+     */
+    void registerEventBufferHolder(EventBufferHolder eventBufferHolder, String name);
 
-    LatencyTracker createLatencyTracker(String name, StatisticsManager statisticsManager);
-
-    ThroughputTracker createThroughputTracker(String name, StatisticsManager statisticsManager);
-
-    BufferedEventsTracker createBufferSizeTracker(StatisticsManager statisticsManager);
-
-    MemoryUsageTracker createMemoryUsageTracker(StatisticsManager statisticsManager);
-
-    StatisticsManager createStatisticsManager(String prefix, String siddhiAppName, List<Element> elements);
-
+    /**
+     * @param eventBufferHolder
+     * @return Name of the buffered event tracker.
+     */
+    String getName(EventBufferHolder eventBufferHolder);
 }

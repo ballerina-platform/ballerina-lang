@@ -51,6 +51,7 @@ import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.parser.StoreQueryParser;
 import org.wso2.siddhi.core.util.snapshot.AsyncSnapshotPersistor;
 import org.wso2.siddhi.core.util.snapshot.PersistenceReference;
+import org.wso2.siddhi.core.util.statistics.BufferedEventsTracker;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
 import org.wso2.siddhi.core.window.Window;
@@ -103,6 +104,7 @@ public class SiddhiAppRuntime {
     private SiddhiAppContext siddhiAppContext;
     private Map<String, SiddhiAppRuntime> siddhiAppRuntimeMap;
     private MemoryUsageTracker memoryUsageTracker;
+    private BufferedEventsTracker bufferedEventsTracker;
     private LatencyTracker storeQueryLatencyTracker;
     private SiddhiDebugger siddhiDebugger;
     private boolean running = false;
@@ -140,6 +142,12 @@ public class SiddhiAppRuntime {
                     .getFactory()
                     .createMemoryUsageTracker(siddhiAppContext.getStatisticsManager());
             monitorQueryMemoryUsage();
+            bufferedEventsTracker = siddhiAppContext
+                    .getSiddhiContext()
+                    .getStatisticsConfiguration()
+                    .getFactory()
+                    .createBufferSizeTracker(siddhiAppContext.getStatisticsManager());
+            monitorBufferedEvents();
             storeQueryLatencyTracker = siddhiAppContext.getSiddhiContext().getStatisticsConfiguration()
                     .getFactory().createLatencyTracker("store_query", siddhiAppContext.getStatisticsManager());
         }
@@ -500,7 +508,7 @@ public class SiddhiAppRuntime {
         for (Map.Entry entry : queryProcessorMap.entrySet()) {
             memoryUsageTracker.registerObject(entry.getValue(),
                     siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMetricPrefix() +
-                            SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
+                            SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI_APPS +
                             SiddhiConstants.METRIC_DELIMITER + getName() + SiddhiConstants.METRIC_DELIMITER +
                             SiddhiConstants.METRIC_INFIX_SIDDHI + SiddhiConstants.METRIC_DELIMITER +
                             SiddhiConstants.METRIC_INFIX_QUERIES + SiddhiConstants.METRIC_DELIMITER +
@@ -512,11 +520,40 @@ public class SiddhiAppRuntime {
             for (Map.Entry query : queryRuntime.entrySet()) {
                 memoryUsageTracker.registerObject(entry.getValue(),
                         siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMetricPrefix() +
-                                SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
+                                SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI_APPS +
                                 SiddhiConstants.METRIC_DELIMITER + getName() + SiddhiConstants.METRIC_DELIMITER +
                                 SiddhiConstants.METRIC_INFIX_SIDDHI + SiddhiConstants.METRIC_DELIMITER +
                                 SiddhiConstants.METRIC_INFIX_QUERIES + SiddhiConstants.METRIC_DELIMITER +
                                 query.getKey());
+            }
+        }
+    }
+
+    private void monitorBufferedEvents() {
+        for (Map.Entry<String, StreamJunction> entry : streamJunctionMap.entrySet()) {
+            if (entry.getValue().containsBufferedEvents()) {
+                bufferedEventsTracker.registerEventBufferHolder(entry.getValue(),
+                        siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMetricPrefix() +
+                                SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI_APPS +
+                                SiddhiConstants.METRIC_DELIMITER + getName() + SiddhiConstants.METRIC_DELIMITER +
+                                SiddhiConstants.METRIC_INFIX_SIDDHI + SiddhiConstants.METRIC_DELIMITER +
+                                SiddhiConstants.METRIC_INFIX_STREAMS + SiddhiConstants.METRIC_DELIMITER +
+                                entry.getKey());
+            }
+        }
+        for (Map.Entry entry : partitionMap.entrySet()) {
+            ConcurrentMap<String, StreamJunction> streamJunctionMap = ((PartitionRuntime) entry.getValue())
+                    .getLocalStreamJunctionMap();
+            for (Map.Entry<String, StreamJunction> streamJunctionEntry : streamJunctionMap.entrySet()) {
+                if (streamJunctionEntry.getValue().containsBufferedEvents()) {
+                    bufferedEventsTracker.registerEventBufferHolder(streamJunctionEntry.getValue(),
+                            siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMetricPrefix() +
+                                    SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI_APPS +
+                                    SiddhiConstants.METRIC_DELIMITER + getName() + SiddhiConstants.METRIC_DELIMITER +
+                                    SiddhiConstants.METRIC_INFIX_SIDDHI + SiddhiConstants.METRIC_DELIMITER +
+                                    SiddhiConstants.METRIC_INFIX_STREAMS + SiddhiConstants.METRIC_DELIMITER +
+                                    streamJunctionEntry.getKey());
+                }
             }
         }
     }

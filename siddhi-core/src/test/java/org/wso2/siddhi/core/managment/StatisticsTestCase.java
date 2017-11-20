@@ -100,7 +100,7 @@ public class StatisticsTestCase {
         String output = baos.toString();
 
         AssertJUnit.assertTrue(output.contains("Gauges"));
-        AssertJUnit.assertTrue(output.contains("org.wso2.siddhi." + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS));
+        AssertJUnit.assertTrue(output.contains("org.wso2.siddhi." + SiddhiConstants.METRIC_INFIX_SIDDHI_APPS));
         AssertJUnit.assertTrue(output.contains("query1.memory"));
         AssertJUnit.assertTrue(output.contains("Meters"));
         AssertJUnit.assertTrue(output.contains(SiddhiConstants.METRIC_INFIX_SIDDHI + SiddhiConstants.METRIC_DELIMITER +

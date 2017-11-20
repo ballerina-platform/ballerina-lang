@@ -69,8 +69,9 @@ public class IncrementalExecutor implements Executor {
     private ArrayList<HashMap<String, BaseIncrementalValueStore>> baseIncrementalValueGroupByStoreList = null;
 
     public IncrementalExecutor(TimePeriod.Duration duration, List<ExpressionExecutor> processExpressionExecutors,
-            GroupByKeyGenerator groupByKeyGenerator, MetaStreamEvent metaStreamEvent, int bufferSize,
-            IncrementalExecutor child, boolean isRoot, Table table, boolean isProcessingOnExternalTime) {
+                               GroupByKeyGenerator groupByKeyGenerator, MetaStreamEvent metaStreamEvent, int bufferSize,
+                               IncrementalExecutor child, boolean isRoot, Table table,
+                               boolean isProcessingOnExternalTime) {
         this.duration = duration;
         this.next = child;
         this.isRoot = isRoot;
@@ -80,7 +81,8 @@ public class IncrementalExecutor implements Executor {
         this.isProcessingOnExternalTime = isProcessingOnExternalTime;
         this.timestampExpressionExecutor = processExpressionExecutors.remove(0);
         this.timeZoneExpressionExecutor = processExpressionExecutors.get(0);
-        this.baseIncrementalValueStore = new BaseIncrementalValueStore(-1, processExpressionExecutors, streamEventPool);
+        this.baseIncrementalValueStore = new BaseIncrementalValueStore(-1, processExpressionExecutors,
+                streamEventPool);
 
         if (groupByKeyGenerator != null) {
             this.groupByKeyGenerator = groupByKeyGenerator;
@@ -267,28 +269,29 @@ public class IncrementalExecutor implements Executor {
             ComplexEventChunk<StreamEvent> eventChunk = new ComplexEventChunk<>(true);
             eventChunk.add(streamEvent);
             LOG.debug("Event dispatched by " + this.duration + " incremental executor: " + eventChunk.toString());
-            table.addEvents(eventChunk);
+            table.addEvents(eventChunk, 1);
             next.execute(eventChunk);
         }
         cleanBaseIncrementalValueStore(startTimeOfNewAggregates, aBaseIncrementalValueStore);
     }
 
     private void dispatchEvents(Map<String, BaseIncrementalValueStore> baseIncrementalValueGroupByStore) {
-        if (baseIncrementalValueGroupByStore.size() > 0) {
+        int noOfEvents = baseIncrementalValueGroupByStore.size();
+        if (noOfEvents > 0) {
             ComplexEventChunk<StreamEvent> eventChunk = new ComplexEventChunk<>(true);
             for (BaseIncrementalValueStore aBaseIncrementalValueStore : baseIncrementalValueGroupByStore.values()) {
                 StreamEvent streamEvent = aBaseIncrementalValueStore.createStreamEvent();
                 eventChunk.add(streamEvent);
             }
             LOG.debug("Event dispatched by " + this.duration + " incremental executor: " + eventChunk.toString());
-            table.addEvents(eventChunk);
+            table.addEvents(eventChunk, noOfEvents);
             next.execute(eventChunk);
         }
         baseIncrementalValueGroupByStore.clear();
     }
 
     private void cleanBaseIncrementalValueStore(long startTimeOfNewAggregates,
-            BaseIncrementalValueStore baseIncrementalValueStore) {
+                                                BaseIncrementalValueStore baseIncrementalValueStore) {
         baseIncrementalValueStore.clearValues();
         baseIncrementalValueStore.setTimestamp(startTimeOfNewAggregates);
         baseIncrementalValueStore.setProcessed(false);

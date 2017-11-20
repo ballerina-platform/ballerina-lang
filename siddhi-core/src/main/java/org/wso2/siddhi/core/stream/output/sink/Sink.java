@@ -22,8 +22,12 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.ExceptionUtil;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.config.ConfigReader;
+import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
 import org.wso2.siddhi.core.util.transport.BackoffRetryCounter;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
@@ -54,6 +58,8 @@ public abstract class Sink implements SinkListener, Snapshotable {
     private AtomicBoolean isConnected = new AtomicBoolean(false);
     private ThreadLocal<DynamicOptions> trpDynamicOptions;
     private ScheduledExecutorService scheduledExecutorService;
+    private ThroughputTracker throughputTracker;
+    private LatencyTracker mapperLatencyTracker;
 
     public final void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder,
                            ConfigReader sinkConfigReader, SinkMapper sinkMapper, String mapType,
@@ -63,10 +69,19 @@ public abstract class Sink implements SinkListener, Snapshotable {
         this.type = type;
         this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
         this.siddhiAppContext = siddhiAppContext;
+        if (siddhiAppContext.getStatisticsManager() != null) {
+            this.throughputTracker = QueryParserHelper.createThroughputTracker(siddhiAppContext,
+                    streamDefinition.getId(),
+                    SiddhiConstants.METRIC_INFIX_SINKS, type);
+            this.mapperLatencyTracker = QueryParserHelper.createLatencyTracker(siddhiAppContext,
+                    streamDefinition.getId(),
+                    SiddhiConstants.METRIC_INFIX_SINK_MAPPERS,
+                    type + SiddhiConstants.METRIC_DELIMITER + mapType);
+        }
         init(streamDefinition, transportOptionHolder, sinkConfigReader, siddhiAppContext);
         if (sinkMapper != null) {
             sinkMapper.init(streamDefinition, mapType, mapOptionHolder, payloadElementList, this,
-                    mapperConfigReader, siddhiAppContext);
+                    mapperConfigReader, mapperLatencyTracker, siddhiAppContext);
             this.mapper = sinkMapper;
         }
         if (sinkHandler != null) {
@@ -74,6 +89,7 @@ public abstract class Sink implements SinkListener, Snapshotable {
                     new SinkHandlerCallback(sinkMapper));
             this.handler = sinkHandler;
         }
+
         scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
 
     }
@@ -109,10 +125,16 @@ public abstract class Sink implements SinkListener, Snapshotable {
 
     @Override
     public final void publish(Object payload) {
+        if (mapperLatencyTracker != null && siddhiAppContext.isStatsEnabled()) {
+            mapperLatencyTracker.markOut();
+        }
         if (isConnected.get()) {
             try {
                 DynamicOptions dynamicOptions = trpDynamicOptions.get();
                 publish(payload, dynamicOptions);
+                if (throughputTracker != null && siddhiAppContext.isStatsEnabled()) {
+                    throughputTracker.eventIn();
+                }
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
                 LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +

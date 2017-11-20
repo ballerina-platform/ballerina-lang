@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
@@ -26,6 +27,8 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
 
 import java.util.List;
 
@@ -36,31 +39,55 @@ public class IncrementalAggregationProcessor implements Processor {
     private final List<ExpressionExecutor> incomingExpressionExecutors;
     private final MetaStreamEvent processedMetaStreamEvent;
     private final StreamEventPool streamEventPool;
+    private final LatencyTracker latencyTrackerInsert;
+    private final ThroughputTracker throughputTrackerInsert;
+    private SiddhiAppContext siddhiAppContext;
     private IncrementalExecutor incrementalExecutor;
 
     public IncrementalAggregationProcessor(IncrementalExecutor incrementalExecutor,
                                            List<ExpressionExecutor> incomingExpressionExecutors,
-                                           MetaStreamEvent processedMetaStreamEvent) {
+                                           MetaStreamEvent processedMetaStreamEvent,
+                                           LatencyTracker latencyTrackerInsert,
+                                           ThroughputTracker throughputTrackerInsert,
+                                           SiddhiAppContext siddhiAppContext) {
         this.incrementalExecutor = incrementalExecutor;
         this.incomingExpressionExecutors = incomingExpressionExecutors;
         this.processedMetaStreamEvent = processedMetaStreamEvent;
         this.streamEventPool = new StreamEventPool(processedMetaStreamEvent, 5);
+        this.latencyTrackerInsert = latencyTrackerInsert;
+        this.throughputTrackerInsert = throughputTrackerInsert;
+        this.siddhiAppContext = siddhiAppContext;
     }
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
         ComplexEventChunk<StreamEvent> streamEventChunk =
                 new ComplexEventChunk<>(complexEventChunk.isBatch());
-        while (complexEventChunk.hasNext()) {
-            ComplexEvent complexEvent = complexEventChunk.next();
-            StreamEvent borrowedEvent = streamEventPool.borrowEvent();
-            for (int i = 0; i < incomingExpressionExecutors.size(); i++) {
-                ExpressionExecutor expressionExecutor = incomingExpressionExecutors.get(i);
-                borrowedEvent.setOutputData(expressionExecutor.execute(complexEvent), i);
+        try {
+            int noOfEvents = 0;
+            if (latencyTrackerInsert != null && siddhiAppContext.isStatsEnabled()) {
+                latencyTrackerInsert.markIn();
             }
-            streamEventChunk.add(borrowedEvent);
+            while (complexEventChunk.hasNext()) {
+                ComplexEvent complexEvent = complexEventChunk.next();
+                StreamEvent borrowedEvent = streamEventPool.borrowEvent();
+                for (int i = 0; i < incomingExpressionExecutors.size(); i++) {
+                    ExpressionExecutor expressionExecutor = incomingExpressionExecutors.get(i);
+                    borrowedEvent.setOutputData(expressionExecutor.execute(complexEvent), i);
+                }
+                streamEventChunk.add(borrowedEvent);
+                noOfEvents++;
+            }
+            incrementalExecutor.execute(streamEventChunk);
+            if (throughputTrackerInsert != null && siddhiAppContext.isStatsEnabled()) {
+                throughputTrackerInsert.eventsIn(noOfEvents);
+            }
+        } finally {
+            if (latencyTrackerInsert != null && siddhiAppContext.isStatsEnabled()) {
+                latencyTrackerInsert.markOut();
+            }
         }
-        incrementalExecutor.execute(streamEventChunk);
+
     }
 
     @Override

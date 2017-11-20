@@ -35,13 +35,16 @@ import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.Scheduler;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.parser.SchedulerParser;
 import org.wso2.siddhi.core.util.parser.SingleInputStreamParser;
+import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.WindowDefinition;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
@@ -100,6 +103,15 @@ public class Window implements FindableProcessor, Snapshotable {
     private StreamEventPool streamEventPool;
 
     /**
+     * window operation latency and throughput trackers
+     */
+    private LatencyTracker latencyTrackerInsert;
+    private LatencyTracker latencyTrackerFind;
+    private ThroughputTracker throughputTrackerFind;
+    private ThroughputTracker throughputTrackerInsert;
+
+
+    /**
      * Construct a Window object.
      *
      * @param windowDefinition definition of the window
@@ -111,6 +123,17 @@ public class Window implements FindableProcessor, Snapshotable {
         this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
         this.lockWrapper = new LockWrapper(windowDefinition.getId());
         this.lockWrapper.setLock(new ReentrantLock());
+        if (siddhiAppContext.getStatisticsManager() != null) {
+            latencyTrackerFind = QueryParserHelper.createLatencyTracker(siddhiAppContext, windowDefinition.getId(),
+                    SiddhiConstants.METRIC_INFIX_WINDOWS, SiddhiConstants.METRIC_TYPE_FIND);
+            latencyTrackerInsert = QueryParserHelper.createLatencyTracker(siddhiAppContext, windowDefinition.getId(),
+                    SiddhiConstants.METRIC_INFIX_WINDOWS, SiddhiConstants.METRIC_TYPE_INSERT);
+
+            throughputTrackerFind = QueryParserHelper.createThroughputTracker(siddhiAppContext,
+                    windowDefinition.getId(), SiddhiConstants.METRIC_INFIX_WINDOWS, SiddhiConstants.METRIC_TYPE_FIND);
+            throughputTrackerInsert = QueryParserHelper.createThroughputTracker(siddhiAppContext,
+                    windowDefinition.getId(), SiddhiConstants.METRIC_INFIX_WINDOWS, SiddhiConstants.METRIC_TYPE_INSERT);
+        }
     }
 
     /**
@@ -118,11 +141,10 @@ public class Window implements FindableProcessor, Snapshotable {
      *
      * @param tableMap       map of {@link Table}s
      * @param eventWindowMap map of EventWindows
-     * @param latencyTracker to rack the latency if statistic of underlying {@link WindowProcessor} is required
      * @param queryName      name of the query window belongs to.
      */
     public void init(Map<String, Table> tableMap, Map<String, Window> eventWindowMap,
-                     LatencyTracker latencyTracker, String queryName) {
+                     String queryName) {
         if (this.windowProcessor != null) {
             return;
         }
@@ -203,7 +225,9 @@ public class Window implements FindableProcessor, Snapshotable {
             eventConverter.convertComplexEvent(complexEvents, firstEvent);
             StreamEvent currentEvent = firstEvent;
             complexEvents = complexEvents.getNext();
+            int numberOfEvents = 0;
             while (complexEvents != null) {
+                numberOfEvents++;
                 StreamEvent nextEvent = streamEventPool.borrowEvent();
                 eventConverter.convertComplexEvent(complexEvents, nextEvent);
                 currentEvent.setNext(nextEvent);
@@ -211,9 +235,19 @@ public class Window implements FindableProcessor, Snapshotable {
                 complexEvents = complexEvents.getNext();
             }
 
-            // Send to the window windowProcessor
-            windowProcessor.process(new ComplexEventChunk<StreamEvent>(firstEvent, currentEvent, complexEventChunk
-                    .isBatch()));
+            try {
+                if (throughputTrackerInsert != null && siddhiAppContext.isStatsEnabled()) {
+                    throughputTrackerInsert.eventsIn(numberOfEvents);
+                    latencyTrackerInsert.markIn();
+                }
+                // Send to the window windowProcessor
+                windowProcessor.process(new ComplexEventChunk<StreamEvent>(firstEvent, currentEvent,
+                        complexEventChunk.isBatch()));
+            } finally {
+                if (throughputTrackerInsert != null && siddhiAppContext.isStatsEnabled()) {
+                    latencyTrackerInsert.markOut();
+                }
+            }
         } finally {
             this.lockWrapper.unlock();
         }
@@ -224,7 +258,17 @@ public class Window implements FindableProcessor, Snapshotable {
      */
     @Override
     public StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
-        return ((FindableProcessor) this.internalWindowProcessor).find(matchingEvent, compiledCondition);
+        try {
+            if (throughputTrackerFind != null && siddhiAppContext.isStatsEnabled()) {
+                throughputTrackerFind.eventIn();
+                latencyTrackerFind.markIn();
+            }
+            return ((FindableProcessor) this.internalWindowProcessor).find(matchingEvent, compiledCondition);
+        } finally {
+            if (throughputTrackerFind != null && siddhiAppContext.isStatsEnabled()) {
+                latencyTrackerFind.markOut();
+            }
+        }
     }
 
     /**
@@ -303,7 +347,7 @@ public class Window implements FindableProcessor, Snapshotable {
         private final OutputStream.OutputEventType outputEventType;
 
 
-        public StreamPublishProcessor(OutputStream.OutputEventType outputEventType) {
+        StreamPublishProcessor(OutputStream.OutputEventType outputEventType) {
             this.outputEventType = outputEventType;
             this.allowCurrentEvents = (outputEventType == OutputStream.OutputEventType.CURRENT_EVENTS ||
                     outputEventType == OutputStream.OutputEventType.ALL_EVENTS);
@@ -312,6 +356,9 @@ public class Window implements FindableProcessor, Snapshotable {
         }
 
         public void process(ComplexEventChunk complexEventChunk) {
+            if (throughputTrackerInsert != null && siddhiAppContext.isStatsEnabled()) {
+                latencyTrackerInsert.markOut();
+            }
             // Filter the events depending on user defined output type.
             // if(allowCurrentEvents && allowExpiredEvents)
             complexEventChunk.reset();

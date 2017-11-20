@@ -21,6 +21,8 @@ package org.wso2.siddhi.core.trigger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.StreamJunction;
+import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
 import org.wso2.siddhi.query.api.definition.TriggerDefinition;
 
 /**
@@ -30,14 +32,27 @@ public class StartTrigger implements Trigger {
     private TriggerDefinition triggerDefinition;
     private SiddhiAppContext siddhiAppContext;
     private StreamJunction streamJunction;
+    private ThroughputTracker throughputTracker;
 
     @Override
     public void init(TriggerDefinition triggerDefinition, SiddhiAppContext siddhiAppContext, StreamJunction
             streamJunction) {
-
         this.triggerDefinition = triggerDefinition;
         this.siddhiAppContext = siddhiAppContext;
         this.streamJunction = streamJunction;
+        if (siddhiAppContext.getStatisticsManager() != null) {
+            String metricName = siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMetricPrefix() +
+                    SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI_APPS +
+                    SiddhiConstants.METRIC_DELIMITER + siddhiAppContext.getName() +
+                    SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
+                    SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_TRIGGERS +
+                    SiddhiConstants.METRIC_DELIMITER + triggerDefinition.getId();
+            this.throughputTracker = siddhiAppContext
+                    .getSiddhiContext()
+                    .getStatisticsConfiguration()
+                    .getFactory()
+                    .createThroughputTracker(metricName, siddhiAppContext.getStatisticsManager());
+        }
     }
 
     @Override
@@ -59,6 +74,9 @@ public class StartTrigger implements Trigger {
     @Override
     public void start() {
         long currentTime = siddhiAppContext.getTimestampGenerator().currentTime();
+        if (throughputTracker != null && siddhiAppContext.isStatsEnabled()) {
+            throughputTracker.eventIn();
+        }
         streamJunction.sendEvent(new Event(currentTime, new Object[]{currentTime}));
     }
 
