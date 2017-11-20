@@ -17,11 +17,14 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
+import TreeUtil from 'ballerina/model/tree-util';
+import IfNodeModel from 'ballerina/model/tree/if-node';
+import DropZone from 'ballerina/drag-drop/DropZone';
+import DefaultNodeFactory from 'ballerina/model/default-node-factory';
+import FragmentUtils from 'ballerina/utils/fragment-utils';
+import TreeBuilder from 'ballerina/model/tree-builder';
 import CompoundStatementDecorator from './compound-statement-decorator';
-import TreeUtil from './../../../../../model/tree-util';
-import IfNodeModel from './../../../../../model/tree/if-node';
-import DropZone from './../../../../../drag-drop/DropZone';
-import DefaultNodeFactory from './../../../../../model/default-node-factory';
 import AddCompoundBlock from './add-compound-block';
 import './if-node.css';
 
@@ -44,6 +47,16 @@ class IfNode extends React.Component {
         };
         this.onAddElseClick = this.onAddElseClick.bind(this);
         this.onAddElseIfClick = this.onAddElseIfClick.bind(this);
+        this.setIfCondition = this.setIfCondition.bind(this);
+        this.getIfCondition = this.getIfCondition.bind(this);
+
+        this.editorOptions = {
+            propertyType: 'text',
+            key: 'If condition',
+            model: props.model,
+            getterMethod: this.getIfCondition,
+            setterMethod: this.setIfCondition,
+        };
     }
 
     /**
@@ -76,6 +89,31 @@ class IfNode extends React.Component {
         parent.setElseStatement(elseIfNode);
     }
 
+  /**
+   * Set if condition.
+   * @param {String} newCondition - new condition to be applied to if block.
+   * */
+    setIfCondition(newCondition) {
+        if (!newCondition) {
+            return;
+        }
+        newCondition = _.trimEnd(newCondition, ';');
+        const fragmentJson = FragmentUtils.createExpressionFragment(newCondition);
+        const parsedJson = FragmentUtils.parseFragment(fragmentJson);
+        if (!parsedJson.error) {
+            const newNode = TreeBuilder.build(parsedJson);
+            newNode.clearWS();
+            this.props.model.setCondition(newNode.getVariable().getInitialExpression());
+        }
+    }
+
+  /**
+   * Get if condition
+   * @return {string} condition source.
+   * */
+    getIfCondition() {
+        return this.props.model.getCondition().getSource();
+    }
     /**
      * Get the last else statement.
      * @param {Node} elseStmt - current node's else statement.
@@ -167,11 +205,6 @@ class IfNode extends React.Component {
         const elseComp = model.elseStatement;
         const title = isElseIfNode ? 'Else If' : 'If';
         const dropZone = model.viewState.components['drop-zone'];
-        const editorOptions = {
-            propertyType: 'text',
-            key: 'If condition',
-            model: model.getCondition(),
-        };
 
         return (
             <g>
@@ -196,7 +229,7 @@ class IfNode extends React.Component {
                     bBox={bBox}
                     title={title}
                     expression={expression}
-                    editorOptions={editorOptions}
+                    editorOptions={this.editorOptions}
                     model={model}
                     body={model.body}
                 />
