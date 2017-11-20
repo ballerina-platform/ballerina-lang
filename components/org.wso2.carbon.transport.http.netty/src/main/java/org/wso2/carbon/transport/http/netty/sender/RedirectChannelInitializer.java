@@ -21,7 +21,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.http.HttpResponseDecoder;
-import io.netty.handler.logging.LogLevel;
 import io.netty.handler.ssl.SslHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +69,7 @@ public class RedirectChannelInitializer extends ChannelInitializer<SocketChannel
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
         if (httpTraceLogEnabled) {
             ch.pipeline().addLast(Constants.HTTP_TRACE_LOG_HANDLER,
-                    new HTTPTraceLoggingHandler("tracelog.http.upstream", LogLevel.DEBUG));
+                                  new HTTPTraceLoggingHandler("tracelog.http.upstream"));
         }
         RedirectHandler redirectHandler = new RedirectHandler(sslEngine, httpTraceLogEnabled, maxRedirectCount
                 , chunkDisabled, originalChannelContext, isIdleHandlerOfTargetChannelRemoved);

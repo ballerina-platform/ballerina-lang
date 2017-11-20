@@ -38,6 +38,7 @@ import static io.netty.util.internal.StringUtil.NEWLINE;
  */
 public class HTTPTraceLoggingHandler extends LoggingHandler {
 
+    private static final LogLevel LOG_LEVEL = LogLevel.TRACE;
     private static final String EVENT_REGISTERED = "REGISTERED";
     private static final String EVENT_CONNECT = "CONNECT";
     private static final String EVENT_INBOUND = "INBOUND";
@@ -61,7 +62,7 @@ public class HTTPTraceLoggingHandler extends LoggingHandler {
     }
 
     public HTTPTraceLoggingHandler(String name) {
-        super(name);
+        super(name, LOG_LEVEL);
         correlatedSourceId = "n/a";
     }
 
@@ -111,8 +112,8 @@ public class HTTPTraceLoggingHandler extends LoggingHandler {
         if (EVENT_REGISTERED.equals(eventName) || EVENT_CONNECT.equals(eventName)) {
             return stringBuilder.append("[id: 0x").append(channelId).append("] ").append(eventName).toString();
         } else {
-            return stringBuilder.append("[id: 0x").append(channelId).append(", corSrcId: ").append(correlatedSourceId)
-                    .append(socketInfo).append("] ").append(eventName).toString();
+            return stringBuilder.append("[id: 0x").append(channelId).append(", correlatedSource: ")
+                    .append(correlatedSourceId).append(socketInfo).append("] ").append(eventName).toString();
         }
     }
 
@@ -142,8 +143,9 @@ public class HTTPTraceLoggingHandler extends LoggingHandler {
             return stringBuilder.append("[id: 0x").append(channelId).append("] ").append(eventName)
                     .append(": ").append(msgStr).toString();
         } else {
-            return stringBuilder.append("[id: 0x").append(channelId).append(", corSrcId: ").append(correlatedSourceId)
-                    .append(socketInfo).append("] ").append(eventName).append(": ").append(msgStr).toString();
+            return stringBuilder.append("[id: 0x").append(channelId).append(", correlatedSource: ")
+                    .append(correlatedSourceId).append(socketInfo).append("] ").append(eventName)
+                    .append(": ").append(msgStr).toString();
         }
     }
 

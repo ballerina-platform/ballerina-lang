@@ -20,7 +20,6 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
-import io.netty.handler.logging.LogLevel;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -98,7 +97,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
         if (httpTraceLogEnabled) {
             pipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
-                      new HTTPTraceLoggingHandler("tracelog.http.downstream", LogLevel.DEBUG));
+                             new HTTPTraceLoggingHandler("tracelog.http.downstream"));
         }
 
         pipeline.addLast(Constants.WEBSOCKET_SERVER_HANDSHAKE_HANDLER,
