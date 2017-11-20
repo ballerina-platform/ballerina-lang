@@ -26,12 +26,12 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import java.util.concurrent.Semaphore;
 
 /**
- * Implementation of the response status future.
+ * Implementation of the response returnError future.
  */
 public class HttpResponseStatusFuture implements HttpResponseFuture {
 
     private HTTPCarbonMessage httpCarbonMessage;
-    private Throwable throwable, status;
+    private Throwable throwable, returnError;
     private Semaphore executionWaitSem;
 
     @Override
@@ -56,18 +56,18 @@ public class HttpResponseStatusFuture implements HttpResponseFuture {
             executionWaitSem.acquire();
         }
         if (httpCarbonMessage != null) {
-            status = null;
+            returnError = null;
             httpCarbonMessage = null;
         }
         if (throwable != null) {
-            status = throwable;
+            returnError = throwable;
             throwable = null;
         }
         return this;
     }
 
-    public Throwable getStatus() {
-        return status;
+    public HttpResponseStatus getFailureStatus() {
+        return this.returnError != null ? new HttpResponseStatus(this.returnError) : new HttpResponseStatus(null);
     }
 
     @Override
