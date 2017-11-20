@@ -22,9 +22,9 @@ package org.ballerinalang.net.uri.parser;
  * Interface to hold various node items.
  *
  * @param <DataType> Type of data which should be stored in the node.
- * @param <CheckerType> Additional checker for node which can be used for additional checks before returning the <ITEM>.
+ * @param <InboundMsgType> Inbound message type for additional checks.
  */
-public interface DataElement<DataType, CheckerType> {
+public interface DataElement<DataType, InboundMsgType> {
 
     /**
      * Set the node item.
@@ -36,10 +36,10 @@ public interface DataElement<DataType, CheckerType> {
     /**
      * Get the stored data.
      *
-     * @param checker Checker for extra checks of the item.
+     * @param inboundMessage Checker for extra checks of the item.
      * @return the item stored in the Node Item.
      */
-    DataType getData(CheckerType checker);
+    DataType getData(InboundMsgType inboundMessage);
 
     /**
      * Remove the data of the data element.
@@ -52,5 +52,4 @@ public interface DataElement<DataType, CheckerType> {
      * @return true if node element is empty.
      */
     boolean isEmpty();
-
 }

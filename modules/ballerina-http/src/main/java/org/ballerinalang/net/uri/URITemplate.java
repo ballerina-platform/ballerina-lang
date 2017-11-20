@@ -29,13 +29,13 @@ import java.util.Map;
  * Basic URI Template implementation.
  *
  * @param <DataType> Data type stored in the data element.
- * @param <CheckerType> Additional checker for data element.
+ * @param <InboundMsgType> Inbound message type for additional checks.
  **/
-public class URITemplate<DataType, CheckerType> {
+public class URITemplate<DataType, InboundMsgType> {
 
-    private Node<DataElement<DataType, CheckerType>> syntaxTree;
+    private Node<DataElement<DataType, InboundMsgType>> syntaxTree;
 
-    public URITemplate(Node<DataElement<DataType, CheckerType>> syntaxTree) {
+    public URITemplate(Node<DataElement<DataType, InboundMsgType>> syntaxTree) {
         this.syntaxTree = syntaxTree;
     }
 
@@ -43,20 +43,20 @@ public class URITemplate<DataType, CheckerType> {
         return null;
     }
 
-    public DataType matches(String uri, Map<String, String> variables, CheckerType checker) {
-        DataElement<DataType, CheckerType> dataElement = syntaxTree.matchAll(uri, variables, 0);
+    public DataType matches(String uri, Map<String, String> variables, InboundMsgType inboundMsg) {
+        DataElement<DataType, InboundMsgType> dataElement = syntaxTree.matchAll(uri, variables, 0);
         if (dataElement == null) {
             return null;
         }
-        return dataElement.getData(checker);
+        return dataElement.getData(inboundMsg);
     }
 
     public void parse(String uriTemplate, DataType resource,
-                      DataElementCreator<? extends DataElement<DataType, CheckerType>>
+                      DataElementCreator<? extends DataElement<DataType, InboundMsgType>>
                               elementCreator) throws URITemplateException {
         uriTemplate = removeTheFirstAndLastBackSlash(uriTemplate);
 
-        URITemplateParser<DataType, CheckerType> parser = new URITemplateParser<>(syntaxTree, elementCreator);
+        URITemplateParser<DataType, InboundMsgType> parser = new URITemplateParser<>(syntaxTree, elementCreator);
         parser.parse(uriTemplate, resource);
     }
 

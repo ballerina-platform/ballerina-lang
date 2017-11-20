@@ -170,8 +170,4 @@ public abstract class Node<DataElementType extends DataElement> {
         }
         return subPath;
     }
-
-
-
-
 }

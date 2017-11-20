@@ -24,23 +24,23 @@ import org.ballerinalang.net.uri.URITemplateException;
  * URITemplateParser parses the provided uri-template and build the tree.
  *
  * @param <DataType> Data type stored in the data element.
- * @param <CheckerType> Additional checker for data element.
+ * @param <InboundMgsType> Inbound message type for additional checks.
  */
-public class URITemplateParser<DataType, CheckerType> {
+public class URITemplateParser<DataType, InboundMgsType> {
 
     private static final char[] operators = new char[] { '+', '.', '/', ';', '?', '&', '#' };
 
-    private Node<DataElement<DataType, CheckerType>> syntaxTree;
-    private Node<DataElement<DataType, CheckerType>> currentNode;
-    private final DataElementCreator<? extends DataElement<DataType, CheckerType>> elementCreator;
+    private Node<DataElement<DataType, InboundMgsType>> syntaxTree;
+    private Node<DataElement<DataType, InboundMgsType>> currentNode;
+    private final DataElementCreator<? extends DataElement<DataType, InboundMgsType>> elementCreator;
 
-    public URITemplateParser(Node<DataElement<DataType, CheckerType>> rootNode,
-                             DataElementCreator<? extends DataElement<DataType, CheckerType>> elementCreator) {
+    public URITemplateParser(Node<DataElement<DataType, InboundMgsType>> rootNode,
+                             DataElementCreator<? extends DataElement<DataType, InboundMgsType>> elementCreator) {
         this.syntaxTree = rootNode;
         this.elementCreator = elementCreator;
     }
 
-    public Node<DataElement<DataType, CheckerType>> parse(String template, DataType resource)
+    public Node<DataElement<DataType, InboundMgsType>> parse(String template, DataType resource)
             throws URITemplateException {
         if (!"/".equals(template) && template.endsWith("/")) {
             template = template.substring(0, template.length() - 1);
@@ -113,7 +113,7 @@ public class URITemplateParser<DataType, CheckerType> {
         return syntaxTree;
     }
 
-    private void addNode(Node<DataElement<DataType, CheckerType>> node) {
+    private void addNode(Node<DataElement<DataType, InboundMgsType>> node) {
         if (currentNode == null) {
             currentNode = syntaxTree;
         }
@@ -121,7 +121,7 @@ public class URITemplateParser<DataType, CheckerType> {
     }
 
     private void createExpressionNode(String expression, int maxIndex, int pointerIndex) throws URITemplateException {
-        Node<DataElement<DataType, CheckerType>> node = null;
+        Node<DataElement<DataType, InboundMgsType>> node = null;
         if (isSimpleString(expression)) {
             if (maxIndex == pointerIndex) {
                 node = new SimpleStringExpression<>(createElement(), expression);
@@ -161,7 +161,7 @@ public class URITemplateParser<DataType, CheckerType> {
         return true;
     }
 
-    private DataElement<DataType, CheckerType> createElement() {
+    private DataElement<DataType, InboundMgsType> createElement() {
         return elementCreator.createDataElement();
     }
 }
