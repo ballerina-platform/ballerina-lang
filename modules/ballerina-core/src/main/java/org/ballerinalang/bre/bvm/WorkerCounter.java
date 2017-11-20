@@ -93,4 +93,11 @@ public class WorkerCounter {
     public void setResourceContext(Context resourceContext) {
         this.resourceContext = resourceContext;
     }
+
+    /**
+     * Retrieve current worker count.
+     */
+    public int getCurrentWorkerCount() {
+        return count.get();
+    }
 }
