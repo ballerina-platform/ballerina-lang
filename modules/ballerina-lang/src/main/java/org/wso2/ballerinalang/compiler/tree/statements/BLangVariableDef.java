@@ -24,7 +24,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 
 /**
- * int a = 5;
+ * int a = 5;.
  *
  * @since 0.94
  */

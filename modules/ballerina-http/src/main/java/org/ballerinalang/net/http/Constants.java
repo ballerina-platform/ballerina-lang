@@ -120,7 +120,7 @@ public class Constants {
     public static final String RESOURCES_CORS = "RESOURCES_CORS";
 
 
-    public static final String CONNECTOR_NAME = "ClientConnector";
+    public static final String CONNECTOR_NAME = "HttpClient";
 
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
@@ -135,6 +135,7 @@ public class Constants {
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
+    public static final String INBOUND_REQUEST = "inbound_request";
     public static final String OUTBOUND_RESPONSE = "outbound_response";
     public static final String HTTP_SESSION = "http_session";
 
@@ -143,7 +144,7 @@ public class Constants {
     public static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final int OPTIONS_STRUCT_INDEX = 0;
     public static final int ENDPOINT_TIMEOUT_STRUCT_INDEX = 1;
-    public static final int CHUNK_DISABLED_STRUCT_INDEX = 0;
+    public static final int ENABLE_CHUNKING_INDEX = 0;
     public static final int SSL_STRUCT_INDEX = 1;
     public static final int FOLLOW_REDIRECT_STRUCT_INDEX = 0;
     public static final int FOLLOW_REDIRECT_INDEX = 0;
@@ -155,6 +156,18 @@ public class Constants {
     public static final int SSL_ENABLED_PROTOCOLS_INDEX = 4;
     public static final int CIPHERS_INDEX = 5;
     public static final int SSL_PROTOCOL_INDEX = 6;
+
+    //Proxy server struct indexes
+    public static final int PROXY_STRUCT_INDEX = 3;
+    public static final int PROXY_HOST_INDEX = 0;
+    public static final int PROXY_PORT_INDEX = 0;
+    public static final int PROXY_USER_NAME_INDEX = 1;
+    public static final int PROXY_PASSWORD_INDEX = 2;
+
+    //Retry Struct indexes
+    public static final int RETRY_STRUCT_INDEX = 2;
+    public static final int RETRY_COUNT_INDEX = 0;
+    public static final int RETRY_INTERVAL_INDEX = 1;
 
     /**
      * Content type HTTP header.

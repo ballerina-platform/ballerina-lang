@@ -480,7 +480,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         } else {
             String sqlDataType = sqlType.toUpperCase(Locale.getDefault());
             switch (sqlDataType) {
-            case Constants.SQLDataTypes.INTEGER:
+            case Constants.SQLDataTypes.SMALLINT:
                 SQLDatasourceUtils.setIntValue(stmt, value, index, direction, Types.INTEGER);
                 break;
             case Constants.SQLDataTypes.VARCHAR:
@@ -515,10 +515,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             case Constants.SQLDataTypes.TINYINT:
                 SQLDatasourceUtils.setTinyIntValue(stmt, value, index, direction, Types.TINYINT);
                 break;
-            case Constants.SQLDataTypes.SMALLINT:
-                SQLDatasourceUtils.setSmallIntValue(stmt, value, index, direction, Types.SMALLINT);
-                break;
             case Constants.SQLDataTypes.BIGINT:
+            case Constants.SQLDataTypes.INTEGER:
                 SQLDatasourceUtils.setBigIntValue(stmt, value, index, direction, Types.BIGINT);
                 break;
             case Constants.SQLDataTypes.REAL:

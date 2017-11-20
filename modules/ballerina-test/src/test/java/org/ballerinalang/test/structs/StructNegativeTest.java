@@ -59,10 +59,13 @@ public class StructNegativeTest {
 
         // test field init with mismatching type
         BAssertUtil.validateError(result, 6, "incompatible types: expected 'string', found 'int'", 39, 31);
+    }
 
+    @Test
+    public void testInvalidStructLiteralKey() {
+        CompileResult result = BCompileUtil.compile("test-src/structs/invalid-struct-literal-key-negative.bal");
         // test struct init with invalid field name
-        BAssertUtil.validateError(result, 7,
-                "invalid field name in struct literal. identifier or string literal expected", 44, 23);
+        BAssertUtil.validateError(result, 0, "missing token ':' before '['", 8, 30);
 
     }
 

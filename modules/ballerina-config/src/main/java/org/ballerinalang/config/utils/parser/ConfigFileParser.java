@@ -18,13 +18,16 @@
 
 package org.ballerinalang.config.utils.parser;
 
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.config.utils.ConfigFileParserException;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,11 +41,12 @@ import java.util.Map;
 public class ConfigFileParser extends AbstractConfigParser {
 
     private static final String CONFIG_ENTRY_FORMAT = CONFIG_KEY_FORMAT + "=(.*)";
+    private static final PrintStream console = System.err;
 
     private List<Integer> invalidConfigs;
     private int currentLine;
 
-    public ConfigFileParser(File configFile) throws IOException {
+    public ConfigFileParser(File configFile) throws ConfigFileParserException {
         parse(configFile);
     }
 
@@ -53,9 +57,9 @@ public class ConfigFileParser extends AbstractConfigParser {
      * belonging to the first of these instance IDs.
      *
      * @param file The configuration file
-     * @throws IOException Thrown if any errors are encountered while reading the file
+     * @throws ConfigFileParserException Thrown if any errors are encountered while reading the file
      */
-    private void parse(File file) throws IOException {
+    private void parse(File file) throws ConfigFileParserException {
         try (BufferedReader reader =
                      new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
             invalidConfigs = new ArrayList<>();
@@ -90,10 +94,16 @@ public class ConfigFileParser extends AbstractConfigParser {
             }
 
             if (invalidConfigs.size() > 0) {
-                throw new BallerinaException(
-                        "invalid configuration(s) in ballerina.conf at line(s): " + invalidConfigs.toString() +
+                throw new RuntimeException(
+                        "invalid configuration(s) in the file at line(s): " + invalidConfigs.toString() +
                                 ", config entries should conform to " + CONFIG_ENTRY_FORMAT);
             }
+        } catch (UnsupportedEncodingException e) {
+            throw new ConfigFileParserException("unsupported encoding detected", e);
+        } catch (FileNotFoundException e) {
+            throw new ConfigFileParserException("file not found: " + file.getAbsolutePath(), e);
+        } catch (IOException e) {
+            throw new ConfigFileParserException("failed to read the configuration file" + file.getAbsolutePath(), e);
         }
     }
 

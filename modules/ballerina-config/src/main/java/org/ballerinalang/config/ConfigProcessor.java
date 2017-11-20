@@ -18,12 +18,11 @@
 
 package org.ballerinalang.config;
 
+import org.ballerinalang.config.utils.ConfigFileParserException;
 import org.ballerinalang.config.utils.parser.ConfigFileParser;
 import org.ballerinalang.config.utils.parser.ConfigParamParser;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -61,8 +60,10 @@ public class ConfigProcessor {
      * Processes runtime, environment and config file properties.This populates configRegistry with configs based on
      * the following precedence order. 1. Ballerina runtime properties, 2. External config
      * (environment vars, etcd or something similar), 3. ballerina.conf file
+     *
+     * @throws ConfigFileParserException if an error occur while parsing the file
      */
-    public void processConfiguration() throws IOException {
+    public void processConfiguration() throws ConfigFileParserException {
         ConfigParamParser paramParser = new ConfigParamParser(runtimeParams);
         Map<String, String> runtimeGlobalConfigs = paramParser.getGlobalConfigs();
         Map<String, Map<String, String>> runtimeInstanceConfigs = paramParser.getInstanceConfigs();
@@ -147,7 +148,7 @@ public class ConfigProcessor {
         if (fileLocation != null) {
             confFile = new File(fileLocation);
             if (!confFile.exists()) {
-                throw new BallerinaException("file not found: " + fileLocation);
+                throw new RuntimeException("failed to start ballerina runtime: file not found: " + fileLocation);
             }
         } else {
             confFile = new File(BALLERINA_CONF_DEFAULT_PATH);

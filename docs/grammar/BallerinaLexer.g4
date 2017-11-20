@@ -21,7 +21,6 @@ ANNOTATION  : 'annotation' ;
 ENUM        : 'enum' ;
 PARAMETER   : 'parameter' ;
 CONST       : 'const' ;
-TYPEMAPPER  : 'typemapper' ;
 TRANSFORMER : 'transformer' ;
 WORKER      : 'worker' ;
 ENDPOINT    : 'endpoint' ;

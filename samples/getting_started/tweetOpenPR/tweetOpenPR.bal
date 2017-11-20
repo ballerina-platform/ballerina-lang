@@ -3,8 +3,12 @@ import ballerina.net.uri;
 import ballerina.util;
 
 function main (string[] args) {
-    http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com", {});
-    http:ClientConnector gitHubEP = create http:ClientConnector("https://api.github.com", {});
+    endpoint<http:HttpClient> tweeterEP {
+        create http:HttpClient("https://api.twitter.com", {});
+    }
+    endpoint<http:HttpClient> gitHubEP {
+        create http:HttpClient("https://api.github.com", {});
+    }
     int argumentLength = lengthof args;
     if (argumentLength < 4) {
         println("Incorrect number of arguments");

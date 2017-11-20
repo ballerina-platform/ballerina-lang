@@ -7,7 +7,8 @@ service<http> Ecommerce {
         path:"/products/{productId}/{regId}"
     }
     resource productsInfo1 (http:Request req, http:Response res, string productId, string regId) {
-        string orderId = req.getHeader("X-ORDER-ID");
+        string orderId;
+        orderId, _ = req.getHeader("X-ORDER-ID");
         println("Order ID " + orderId);
         println("Product ID " + productId);
         println("Reg ID " + regId);

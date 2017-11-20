@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
@@ -40,6 +41,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -56,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -225,6 +228,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         structNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachmentPoint =
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.STRUCT, null);
+            annotationAttachment.accept(this);
+        });
+    }
+
+    @Override
+    public void visit(BLangEnum enumNode) {
+        enumNode.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachmentPoint = new BLangAnnotationAttachmentPoint(
+                    BLangAnnotationAttachmentPoint.AttachmentPoint.ENUM, null);
             annotationAttachment.accept(this);
         });
     }
@@ -539,22 +551,37 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             handleAssignNodeWithVar(assignNode);
             return;
         }
-        List<BType> expTypes = new ArrayList<>();
+
         // Check each LHS expression.
-        for (int i = 0; i < assignNode.varRefs.size(); i++) {
-            BLangExpression varRef = assignNode.varRefs.get(i);
-            // In assignment, lhs supports only simpleVarRef, indexBasedAccess, filedBasedAccess only.
-            if (varRef.getKind() == NodeKind.INVOCATION) {
+        List<BType> expTypes = new ArrayList<>();
+        for (BLangExpression expr : assignNode.varRefs) {
+            // In assignment, lhs supports only simpleVarRef, indexBasedAccess, filedBasedAccess expressions.
+            if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
+                    expr.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR &&
+                    expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR &&
+                    expr.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
+                dlog.error(expr.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, expr);
+                expTypes.add(symTable.errType);
+                continue;
+            }
+
+            // Evaluate the variable reference expression.
+            BLangVariableReference varRef = (BLangVariableReference) expr;
+            varRef.lhsVar = true;
+            typeChecker.checkExpr(varRef, env).get(0);
+
+            // Check whether we've got an enumerator access expression here.
+            if (varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
+                    ((BLangFieldBasedAccess) varRef).expr.type.tag == TypeTags.ENUM) {
                 dlog.error(varRef.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRef);
                 expTypes.add(symTable.errType);
                 continue;
             }
-            ((BLangVariableReference) varRef).lhsVar = true;
-            expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
+
+            expTypes.add(varRef.type);
             checkConstantAssignment(varRef);
-            //TODO endpoint model should be changed(now it's modeled as variable definition statement)
-//            checkEndpointAssignment(varRef);
         }
+
         typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
     }
 
@@ -587,20 +614,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!Names.IGNORE.equals(varName) && simpleVarRef.symbol.flags == Flags.CONST
                 && env.enclInvokable != env.enclPkg.initFunction) {
             dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_CONSTANT, varRef);
-        }
-    }
-
-    private void checkEndpointAssignment(BLangExpression varRef) {
-        if (varRef.type == symTable.errType) {
-            return;
-        }
-
-        if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-            return;
-        }
-
-        if (varRef.type.tag == TypeTags.ENDPOINT) {
-            dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_ENDPOINT, varRef);
         }
     }
 
@@ -936,6 +949,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.analyzeDef(annotationAttachment, transformerEnv);
         });
 
+        validateTransformerMappingType(transformerNode.source);
+        validateTransformerMappingType(transformerNode.retParams.get(0));
+
         analyzeStmt(transformerNode.body, transformerEnv);
 
         // TODO: update this accordingly once the unsafe conversion are supported
@@ -995,6 +1011,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 typeChecker.checkExpr(simpleVarRef, env);
                 continue;
             }
+
             BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
             if (symbol == symTable.notFoundSymbol) {
                 createdSymbolCount++;
@@ -1053,5 +1070,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (error) {
             this.dlog.error(retryCountExpr.pos, DiagnosticCode.INVALID_RETRY_COUNT);
         }
+    }
+
+    private void validateTransformerMappingType(BLangVariable param) {
+        BType type = param.type;
+        if (types.isValueType(type) || (type instanceof BBuiltInRefType) || type.tag == TypeTags.STRUCT) {
+            return;
+        }
+
+        dlog.error(param.pos, DiagnosticCode.TRANSFORMER_UNSUPPORTED_TYPES, type);
     }
 }

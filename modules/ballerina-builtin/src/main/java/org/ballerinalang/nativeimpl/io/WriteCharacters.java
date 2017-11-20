@@ -46,17 +46,17 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 )
 public class WriteCharacters extends AbstractNativeFunction {
     /**
-     * Index of the content provided in ballerina.io#writeCharacters
+     * Index of the content provided in ballerina.io#writeCharacters.
      */
     private static final int CONTENT_INDEX = 0;
 
     /**
-     * Index of the character channel in ballerina.io#writeCharacters
+     * Index of the character channel in ballerina.io#writeCharacters.
      */
     private static final int CHAR_CHANNEL_INDEX = 0;
 
     /**
-     * Index of the start offset in ballerina.io#writeCharacters
+     * Index of the start offset in ballerina.io#writeCharacters.
      */
     private static final int START_OFFSET_INDEX = 0;
 

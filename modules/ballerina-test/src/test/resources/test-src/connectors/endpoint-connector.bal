@@ -106,3 +106,43 @@ function getFoo()(Foo) {
     return fo;
 }
 
+function testEndpointInWorker()(string) {
+    endpoint<Foo> foo {
+
+    }
+    worker w1 {
+        bind create FooFilter1(create Foo(), "para1-") with foo;
+        "val1-" -> w2;
+        string result;
+        result <- w2;
+        result = result + foo.get("val2-");
+        return result;
+    }
+
+    worker w2 {
+        string m;
+        m <- w1;
+        bind create FooFilter2(create Foo(), "para2-") with foo;
+        m = foo.get(m);
+        m -> w1;
+    }
+}
+
+struct Person {
+    string name;
+    int age;
+}
+
+connector Bar1 (string para1) {
+    Person person = {name:"tyler", age:45};
+    action get1(string prefix)(string) {
+        return prefix + person.name;
+    }
+}
+
+function testConnectorWithStructVar()(string) {
+    endpoint<Bar1> ep {
+        create Bar1("getName");
+    }
+    return ep.get1("name - ");
+}

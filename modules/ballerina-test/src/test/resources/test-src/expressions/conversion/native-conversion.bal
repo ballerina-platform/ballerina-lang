@@ -541,12 +541,12 @@ struct PersonA {
 
 function JsonToStructWithErrors () (PersonA, TypeConversionError) {
     TypeConversionError err;
-    PersonA person;
+    PersonA pA;
     json j = {name:"supun"};
 
-    person, err = <PersonA>j;
+    pA, err = <PersonA>j;
 
-    return person, err;
+    return pA, err;
 }
 
 struct PhoneBook {
@@ -555,7 +555,7 @@ struct PhoneBook {
 
 function testStructWithStringArrayToJSON () (json) {
     PhoneBook phonebook = {names:["John", "Doe"]};
-    var phonebookJson, error = <json>phonebook;
+    var phonebookJson, cError = <json>phonebook;
     return phonebookJson;
 }
 

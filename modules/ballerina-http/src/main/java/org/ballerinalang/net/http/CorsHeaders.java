@@ -20,7 +20,7 @@ package org.ballerinalang.net.http;
 import java.util.List;
 
 /**
- * {@code CorsHeaders} This is the cors headers holder
+ * {@code CorsHeaders} This is the cors headers holder.
  *
  * @since 0.94
  */

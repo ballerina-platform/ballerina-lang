@@ -18,8 +18,6 @@
 
 package org.ballerinalang.config.utils.parser;
 
-import org.ballerinalang.util.exceptions.BallerinaException;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -27,7 +25,7 @@ import java.util.regex.Pattern;
 
 /**
  * Extension of the generic AbstractConfigParser to parse CLI config parameters.
- * i.e: parameters passed as -B<key>=<value>
+ * i.e: parameters passed as -B&lt;key&gt;=&lt;value&gt;
  *
  * @since 0.95
  */
@@ -58,7 +56,7 @@ public class ConfigParamParser extends AbstractConfigParser {
                     instanceConfigs.put(instanceId, map);
                 }
             } else {
-                throw new BallerinaException(
+                throw new RuntimeException(
                         "invalid configuration parameter key: " + key + ", key should conform to " +
                                 CONFIG_KEY_FORMAT + " or " + INSTANCE_CONFIG_KEY_FORMAT);
             }

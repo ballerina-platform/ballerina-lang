@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
@@ -473,6 +474,8 @@ public class Desugar extends BLangNodeVisitor {
             if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) keyExpr;
                 keyValue.key.expr = createStringLiteral(varRef.pos, varRef.variableName.value);
+            } else {
+                keyValue.key.expr = rewriteExpr(keyValue.key.expr);
             }
 
             keyValue.valueExpr = rewriteExpr(keyValue.valueExpr);
@@ -512,9 +515,8 @@ public class Desugar extends BLangNodeVisitor {
         } else if ((ownerSymbol.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
             // Local variable in a function/resource/action/worker
             genVarRefExpr = new BLangLocalVarRef(varRefExpr.symbol);
-        } else if ((ownerSymbol.tag & SymTag.STRUCT) == SymTag.STRUCT ||
-                (ownerSymbol.tag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
-            // Field variable in a struct or a receiver
+        } else if ((ownerSymbol.tag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
+            // Field variable in a receiver
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.PACKAGE) == SymTag.PACKAGE ||
                 (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
@@ -530,17 +532,22 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         BLangVariableReference targetVarRef = fieldAccessExpr;
-        fieldAccessExpr.expr = rewrite(fieldAccessExpr.expr);
-        BType varRefType = fieldAccessExpr.expr.type;
-        if (varRefType.tag == TypeTags.STRUCT) {
-            targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos,
-                    fieldAccessExpr.expr, fieldAccessExpr.symbol);
-        } else if (varRefType.tag == TypeTags.MAP) {
-            BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
-            targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
-        } else if (varRefType.tag == TypeTags.JSON) {
-            BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
-            targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
+        if (fieldAccessExpr.expr.type.tag == TypeTags.ENUM) {
+            targetVarRef = new BLangEnumeratorAccessExpr(fieldAccessExpr.pos,
+                    fieldAccessExpr.field, fieldAccessExpr.symbol);
+        } else {
+            fieldAccessExpr.expr = rewrite(fieldAccessExpr.expr);
+            BType varRefType = fieldAccessExpr.expr.type;
+            if (varRefType.tag == TypeTags.STRUCT) {
+                targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos,
+                        fieldAccessExpr.expr, fieldAccessExpr.symbol);
+            } else if (varRefType.tag == TypeTags.MAP) {
+                BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
+                targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
+            } else if (varRefType.tag == TypeTags.JSON) {
+                BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
+                targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
+            }
         }
 
         targetVarRef.lhsVar = fieldAccessExpr.lhsVar;

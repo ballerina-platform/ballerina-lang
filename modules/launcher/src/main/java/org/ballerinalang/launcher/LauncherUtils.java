@@ -21,6 +21,7 @@ import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.config.utils.ConfigFileParserException;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
@@ -49,11 +50,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.LogManager;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
-import static org.ballerinalang.logging.BLogManager.BALLERINA_NETWORK_LOGGER;
+import static org.ballerinalang.logging.util.Constants.BALLERINA_NETWORK_LOGGER;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -81,8 +83,9 @@ public class LauncherUtils {
 
         try {
             ConfigRegistry.getInstance().loadConfigurations();
-        } catch (IOException e) {
-            throw new RuntimeException("error reading configuration: " + e.getMessage(), e);
+            ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
+        } catch (ConfigFileParserException e) {
+            throw new RuntimeException("failed to start ballerina runtime: " + e.getMessage(), e);
         }
 
         if (runServices || !programFile.isMainEPAvailable()) {
@@ -251,7 +254,7 @@ public class LauncherUtils {
 
     /**
      * Get the executable program ({@link ProgramFile}) given the compiled program 
-     * ({@link org.wso2.ballerinalang.programfile.ProgramFile})
+     * ({@link org.wso2.ballerinalang.programfile.ProgramFile}).
      * 
      * @param programFile Compiled program
      * @return Executable program

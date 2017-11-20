@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
+import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -183,6 +184,8 @@ public class BLangPackageBuilder {
 
     private Stack<EnumNode> enumStack = new Stack<>();
 
+    private List<BLangEnumerator> enumeratorList = new ArrayList<>();
+
     private Stack<IdentifierNode> identifierStack = new Stack<>();
 
     private Stack<ConnectorNode> connectorNodeStack = new Stack<>();
@@ -208,6 +211,10 @@ public class BLangPackageBuilder {
     private Stack<BLangAnnotationAttachmentPoint> attachmentPointStack = new Stack<>();
     
     private Set<BLangImportPackage> imports = new HashSet<>();
+
+    private Set<Whitespace> endpointVarWs;
+
+    private Set<Whitespace> endpointKeywordWs;
 
     /**
      * Keep the number of anonymous structs found so far in the current package.
@@ -322,6 +329,8 @@ public class BLangPackageBuilder {
         BLangEndpointTypeNode endpointTypeNode = (BLangEndpointTypeNode) TreeBuilder.createEndpointTypeNode();
         endpointTypeNode.pos = pos;
         endpointTypeNode.constraint = constraintType;
+        endpointVarWs = removeNthFromStart(ws, 3);
+        endpointKeywordWs = removeNthFromStart(ws, 0);
         endpointTypeNode.addWS(ws);
 
         addType(endpointTypeNode);
@@ -476,9 +485,20 @@ public class BLangPackageBuilder {
     public void addVariableDefStatement(DiagnosticPos pos,
                                         Set<Whitespace> ws,
                                         String identifier,
-                                        boolean exprAvailable) {
+                                        boolean exprAvailable,
+                                        boolean endpoint) {
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
-        Set<Whitespace> wsOfSemiColon = removeNthFromLast(ws, 0);
+        BLangVariableDef varDefNode = (BLangVariableDef) TreeBuilder.createVariableDefinitionNode();
+
+        Set<Whitespace> wsOfSemiColon = null;
+        if (endpoint) {
+            var.addWS(endpointVarWs);
+            var.addWS(endpointKeywordWs);
+            endpointVarWs = null;
+            endpointKeywordWs = null;
+        } else {
+            wsOfSemiColon = removeNthFromLast(ws, 0);
+        }
         var.pos = pos;
         var.addWS(ws);
         var.setName(this.createIdentifier(identifier));
@@ -487,7 +507,6 @@ public class BLangPackageBuilder {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
 
-        BLangVariableDef varDefNode = (BLangVariableDef) TreeBuilder.createVariableDefinitionNode();
         varDefNode.pos = pos;
         varDefNode.setVariable(var);
         varDefNode.addWS(wsOfSemiColon);
@@ -969,6 +988,7 @@ public class BLangPackageBuilder {
     public void startEnumDef(DiagnosticPos pos) {
         BLangEnum bLangEnum = (BLangEnum) TreeBuilder.createEnumNode();
         bLangEnum.pos = pos;
+        attachAnnotations(bLangEnum);
         this.enumStack.add(bLangEnum);
     }
 
@@ -976,18 +996,22 @@ public class BLangPackageBuilder {
         BLangEnum enumNode = (BLangEnum) this.enumStack.pop();
         enumNode.name = (BLangIdentifier) this.createIdentifier(identifier);
         if (publicEnum) {
-            enumNode.flags.add(Flag.PUBLIC);
+            enumNode.flagSet.add(Flag.PUBLIC);
         }
 
-        while (!this.identifierStack.empty()) {
-            enumNode.addEnumField(this.identifierStack.pop());
-        }
+        enumeratorList.forEach(enumNode::addEnumerator);
         this.compUnit.addTopLevelNode(enumNode);
+        enumeratorList = new ArrayList<>();
     }
 
-    public void addEnumFieldList(List<String> enumFieldList) {
-        enumFieldList.forEach(identifier -> this.identifierStack.push(this.createIdentifier(identifier)));
+    public void addEnumerator(DiagnosticPos pos, Set<Whitespace> ws, String name) {
+        BLangEnumerator enumerator = (BLangEnumerator) TreeBuilder.createEnumeratorNode();
+        enumerator.pos = pos;
+        enumerator.addWS(ws);
+        enumerator.name = (BLangIdentifier) createIdentifier(name);
+        enumeratorList.add(enumerator);
     }
+
 
     public void startConnectorDef() {
         ConnectorNode connectorNode = TreeBuilder.createConnectorNode();
@@ -1213,8 +1237,7 @@ public class BLangPackageBuilder {
         BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
                 .createSimpleVariableReferenceNode();
         varRef.pos = pos;
-        varRef.addWS(ws);
-        varRef.addWS(ws);
+        varRef.addWS(removeNthFromLast(ws, 1));
         varRef.pkgAlias = (BLangIdentifier) createIdentifier(null);
         varRef.variableName = (BLangIdentifier) createIdentifier(varName);
 
@@ -1223,7 +1246,6 @@ public class BLangPackageBuilder {
         bindNode.setExpression(rExprNode);
         bindNode.pos = pos;
         bindNode.addWS(ws);
-//        bindNode.addWS(commaWsStack.pop());
         bindNode.setVariable(varRef);
         addStmtToCurrentBlock(bindNode);
     }
@@ -1609,12 +1631,16 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(xmlnsStmt);
     }
 
+    public void attachStringTemplateLiteralWS(Set<Whitespace> ws) {
+    }
+
     public void createStringTemplateLiteral(DiagnosticPos pos, Set<Whitespace> ws, Stack<String> precedingTextFragments,
                                             String endingText) {
         BLangStringTemplateLiteral stringTemplateLiteral =
                 (BLangStringTemplateLiteral) TreeBuilder.createStringTemplateLiteralNode();
         stringTemplateLiteral.exprs =
-                getExpressionsInTemplate(pos, ws, precedingTextFragments, endingText, NodeKind.LITERAL);
+                getExpressionsInTemplate(pos, null, precedingTextFragments, endingText, NodeKind.LITERAL);
+        stringTemplateLiteral.addWS(ws);
         stringTemplateLiteral.pos = pos;
         addExpressionNode(stringTemplateLiteral);
     }

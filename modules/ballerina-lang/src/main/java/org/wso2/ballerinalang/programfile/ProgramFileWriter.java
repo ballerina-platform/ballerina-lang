@@ -135,7 +135,6 @@ public class ProgramFileWriter {
                 case CP_ENTRY_ACTION_REF:
                     ActionRefCPEntry actionRefEntry = (ActionRefCPEntry) cpEntry;
                     dataOutStream.writeInt(actionRefEntry.getPackageCPIndex());
-                    dataOutStream.writeInt(actionRefEntry.getConnectorRefCPIndex());
                     dataOutStream.writeInt(actionRefEntry.getNameCPIndex());
                     break;
                 case CP_ENTRY_FUNCTION_CALL_ARGS:
@@ -205,6 +204,13 @@ public class ProgramFileWriter {
         dataOutStream.writeShort(structTypeInfoEntries.length);
         for (StructInfo structInfo : structTypeInfoEntries) {
             writeStructInfo(dataOutStream, structInfo);
+        }
+
+        // Emit enum info entries
+        EnumInfo[] enumInfoEntries = packageInfo.getEnumInfoEntries();
+        dataOutStream.writeShort(enumInfoEntries.length);
+        for (EnumInfo enumInfo : enumInfoEntries) {
+            writeEnumInfo(dataOutStream, enumInfo);
         }
 
         // Emit Connector info entries
@@ -317,6 +323,20 @@ public class ProgramFileWriter {
         // Write attribute info
         writeAttributeInfoEntries(dataOutStream, structInfo.getAttributeInfoEntries());
     }
+
+    private static void writeEnumInfo(DataOutputStream dataOutStream,
+                                        EnumInfo enumInfo) throws IOException {
+        dataOutStream.writeInt(enumInfo.nameCPIndex);
+        EnumeratorInfo[] enumeratorInfoEntries = enumInfo.enumeratorInfoList.toArray(new EnumeratorInfo[0]);
+        dataOutStream.writeShort(enumeratorInfoEntries.length);
+        for (EnumeratorInfo enumeratorInfo : enumeratorInfoEntries) {
+            dataOutStream.writeInt(enumeratorInfo.nameCPIndex);
+        }
+
+        // Write attribute info
+        writeAttributeInfoEntries(dataOutStream, enumInfo.getAttributeInfoEntries());
+    }
+
 
     private static void writeConnectorInfo(DataOutputStream dataOutStream,
                                            ConnectorInfo connectorInfo) throws IOException {

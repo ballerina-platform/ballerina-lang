@@ -85,6 +85,10 @@ public class BDataTable implements BRefType<Object> {
         return iterator.getBoolean(columnName);
     }
 
+    public String getBlob(String columnName) {
+        return iterator.getBlob(columnName);
+    }
+
     public String getObjectAsString(String columnName) {
         return iterator.getObjectAsString(columnName);
     }

@@ -31,6 +31,7 @@ import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
+import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BJSONConstraintType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -355,6 +356,7 @@ public class BLangVM {
                 case InstructionCodes.RFIELDLOAD:
                 case InstructionCodes.MAPLOAD:
                 case InstructionCodes.JSONLOAD:
+                case InstructionCodes.ENUMERATORLOAD:
                     execLoadOpcodes(sf, opcode, operands);
                     break;
 
@@ -541,20 +543,10 @@ public class BLangVM {
                 case InstructionCodes.ACALL:
                     cpIndex = operands[0];
                     actionRefCPEntry = (ActionRefCPEntry) constPool[cpIndex];
-                    actionInfo = actionRefCPEntry.getActionInfo();
 
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeAction(actionInfo, funcCallCPEntry);
-                    break;
-                case InstructionCodes.NACALL:
-                    cpIndex = operands[0];
-                    actionRefCPEntry = (ActionRefCPEntry) constPool[cpIndex];
-                    actionInfo = actionRefCPEntry.getActionInfo();
-
-                    cpIndex = operands[1];
-                    funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeNativeAction(actionInfo, funcCallCPEntry);
+                    invokeAction(actionRefCPEntry.getActionName(), funcCallCPEntry);
                     break;
                 case InstructionCodes.THROW:
                     i = operands[0];
@@ -621,6 +613,7 @@ public class BLangVM {
                 case InstructionCodes.ANY2XML:
                 case InstructionCodes.ANY2MAP:
                 case InstructionCodes.ANY2TYPE:
+                case InstructionCodes.ANY2E:
                 case InstructionCodes.ANY2T:
                 case InstructionCodes.ANY2C:
                 case InstructionCodes.NULL2JSON:
@@ -865,14 +858,18 @@ public class BLangVM {
                 i = operands[0];
                 j = operands[1];
                 if (sf.refRegs[i] == null) {
-                    ip = j;
+                    sf.intRegs[j] = 1;
+                } else {
+                    sf.intRegs[j] = 0;
                 }
                 break;
             case InstructionCodes.RNE_NULL:
                 i = operands[0];
                 j = operands[1];
                 if (sf.refRegs[i] != null) {
-                    ip = j;
+                    sf.intRegs[j] = 1;
+                } else {
+                    sf.intRegs[j] = 0;
                 }
                 break;
 
@@ -1198,6 +1195,14 @@ public class BLangVM {
                 }
 
                 sf.refRegs[k] = JSONUtils.getElement(jsonVal, sf.stringRegs[j]);
+                break;
+            case InstructionCodes.ENUMERATORLOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) constPool[i];
+                BEnumType enumType = (BEnumType) typeRefCPEntry.getType();
+                sf.refRegs[k] = enumType.getEnumerator(j);
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -1971,6 +1976,7 @@ public class BLangVM {
             case InstructionCodes.ANY2DT:
                 handleAnyToRefTypeCast(sf, operands, BTypes.typeDatatable);
                 break;
+            case InstructionCodes.ANY2E:
             case InstructionCodes.ANY2T:
             case InstructionCodes.ANY2C:
             case InstructionCodes.CHECKCAST:
@@ -2605,7 +2611,7 @@ public class BLangVM {
 
     }
 
-    public void invokeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
+    public void invokeAction(String actionName, FunctionCallCPEntry funcCallCPEntry) {
         int[] argRegs = funcCallCPEntry.getArgRegs();
         StackFrame callerSF = controlStack.currentFrame;
 
@@ -2617,9 +2623,9 @@ public class BLangVM {
         BConnectorType actualCon = (BConnectorType) ((BConnector) callerSF.refRegs[argRegs[0]]).getConnectorType();
         //TODO find a way to change this to method table
         ActionInfo newActionInfo = programFile.getPackageInfo(actualCon.getPackagePath())
-                .getConnectorInfo(actualCon.getName()).getActionInfo(actionInfo.getName());
+                .getConnectorInfo(actualCon.getName()).getActionInfo(actionName);
 
-        if (newActionInfo.getNativeAction() != null) {
+        if (newActionInfo.isNative()) {
             invokeNativeAction(newActionInfo, funcCallCPEntry);
         } else {
             logActionInvocation(newActionInfo, true);
@@ -2730,11 +2736,9 @@ public class BLangVM {
             StackFrame workerCallerSF = workerContext.getControlStackNew().currentFrame;
             workerContext.parentSF.returnedWorker = workerCallerSF.workerInfo.getWorkerName();
 
-            ControlStackNew parentControlStack = workerContext.parent.getControlStackNew();
             StackFrame parentSF = workerContext.parentSF;
-            StackFrame parentCallersSF = parentControlStack.currentFrame.prevStackFrame;
 
-            copyWorkersReturnValues(workerCallerSF, parentSF, parentCallersSF);
+            copyWorkersReturnValues(workerCallerSF, parentSF);
             // Switch to parent context
             this.context = workerContext.parent;
             this.controlStack = this.context.getControlStackNew();
@@ -2908,7 +2912,7 @@ public class BLangVM {
         ip = currentSF.retAddrs;
     }
 
-    private void copyWorkersReturnValues(StackFrame workerCallerSF, StackFrame parentsSF, StackFrame parentCallersSF) {
+    private void copyWorkersReturnValues(StackFrame workerSF, StackFrame parentsSF) {
         int callersRetRegIndex;
         int longRegCount = 0;
         int doubleRegCount = 0;
@@ -2916,6 +2920,8 @@ public class BLangVM {
         int intRegCount = 0;
         int refRegCount = 0;
         int byteRegCount = 0;
+        StackFrame workerCallerSF = workerSF.prevStackFrame;
+        StackFrame parentCallersSF = parentsSF.prevStackFrame;
         BType[] retTypes = parentsSF.getCallableUnitInfo().getRetParamTypes();
         for (int i = 0; i < retTypes.length; i++) {
             BType retType = retTypes[i];

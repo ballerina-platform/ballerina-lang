@@ -101,6 +101,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.JSONLOAD] = "jsonload";
         mnemonics[InstructionCodes.JSONSTORE] = "jsonstore";
 
+        mnemonics[InstructionCodes.ENUMERATORLOAD] = "enumeratorload";
+
         mnemonics[InstructionCodes.IADD] = "iadd";
         mnemonics[InstructionCodes.FADD] = "fadd";
         mnemonics[InstructionCodes.SADD] = "sadd";
@@ -152,7 +154,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.CALL] = "call";
         mnemonics[InstructionCodes.NCALL] = "ncall";
         mnemonics[InstructionCodes.ACALL] = "acall";
-        mnemonics[InstructionCodes.NACALL] = "nacall";
         mnemonics[InstructionCodes.THROW] = "throw";
         mnemonics[InstructionCodes.ERRSTORE] = "errstore";
         mnemonics[InstructionCodes.FPCALL] = "fp_call";

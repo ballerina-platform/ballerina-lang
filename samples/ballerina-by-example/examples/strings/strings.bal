@@ -28,7 +28,7 @@ function main (string[] args) {
     int lastIndex = statement.lastIndexOf("on");
     println("LastIndexOf: " + lastIndex);
 
-    //Returns the string representation of the specified 'any' type value.
+    //Converts a float type into a string.
     float value = 5.8;
     string s4 = <string>value;
     println("ValueOf: " + s4);
@@ -45,15 +45,19 @@ function main (string[] args) {
     string s7 = statement.replaceAll("[o]+", "0");
     println("ReplaceAll: " + s7);
 
+    //Returns the length of the string.
     int length = statement.length();
     println("Length: " + length);
 
+    //Remove any leading and trailing white spaces
     string s8 = statement.trim();
     println("Trim: " + s8);
 
+    //Tests if this string ends with the specified suffix.
     boolean hasSuffix = statement.hasSuffix("Lion ");
     println("HasSuffix: " + hasSuffix);
 
+    //Tests if this string starts with the specified prefix.
     boolean hasPrefix = statement.hasPrefix("Lion");
     println("HasPreffix: " + hasPrefix);
 

@@ -30,6 +30,7 @@ public enum NodeKind {
     COMPILATION_UNIT,
     CONNECTOR,
     ENUM,
+    ENUMERATOR,
     FUNCTION,
     IDENTIFIER,
     IMPORT,

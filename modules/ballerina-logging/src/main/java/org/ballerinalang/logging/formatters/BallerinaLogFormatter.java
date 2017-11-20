@@ -26,7 +26,7 @@ import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
 /**
- * A custom log formatter for formatting the Ballerina user level logs
+ * A custom log formatter for formatting the Ballerina user level logs.
  *
  * @since 0.89
  */

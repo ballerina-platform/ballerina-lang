@@ -49,7 +49,7 @@ public class PackageImportTest {
                 .compile("test-src/statements/package/imports/import-different-pkgs-with-same-alias-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateError(result, 0, "redeclared symbol 'x'", 2, 1);
-        BAssertUtil.validateError(result, 1, "too many arguments in call to 'ClientConnector()'", 6, 32);
+        BAssertUtil.validateError(result, 1, "too many arguments in call to 'HttpClient()'", 6, 27);
     }
 
     @Test

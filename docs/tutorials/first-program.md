@@ -18,7 +18,7 @@ You can also run Ballerina as a **server**, so that it can deploy one or more se
 ballerina run helloWorldService.bal
 ```
 
-In this case, Ballerina ran and deployed the HelloWorldService program as a service, which is waiting for a request. Let's send it one now. The Ballerina server is available at `localhost:9090`, and HelloWorldService is available at context `hello`. Open another command line window and use the [curl](https://curl.haxx.se) client to call the service as follows:
+In this case, Ballerina ran and deployed the HelloWorldService program as a service, which is waiting for a request. Let's send it one now. The Ballerina server is available at `localhost:9090`, and HelloWorldService is available at context `hello`. Open another command line window and use the [cURL](https://curl.haxx.se) client to call the service as follows:
 
 ```
 curl -v http://localhost:9090/hello

@@ -256,13 +256,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEnumFieldList(BallerinaParser.EnumFieldListContext ctx) { }
+	@Override public void enterEnumerator(BallerinaParser.EnumeratorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEnumFieldList(BallerinaParser.EnumFieldListContext ctx) { }
+	@Override public void exitEnumerator(BallerinaParser.EnumeratorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -352,18 +352,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTypemapperAttachPoint(BallerinaParser.TypemapperAttachPointContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTypemapperAttachPoint(BallerinaParser.TypemapperAttachPointContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterStructAttachPoint(BallerinaParser.StructAttachPointContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -371,6 +359,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitStructAttachPoint(BallerinaParser.StructAttachPointContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterEnumAttachPoint(BallerinaParser.EnumAttachPointContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEnumAttachPoint(BallerinaParser.EnumAttachPointContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -431,42 +431,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitAnnotationBody(BallerinaParser.AnnotationBodyContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterTypeMapperDefinition(BallerinaParser.TypeMapperDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTypeMapperDefinition(BallerinaParser.TypeMapperDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterTypeMapperSignature(BallerinaParser.TypeMapperSignatureContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTypeMapperSignature(BallerinaParser.TypeMapperSignatureContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterTypeMapperBody(BallerinaParser.TypeMapperBodyContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTypeMapperBody(BallerinaParser.TypeMapperBodyContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -712,25 +676,37 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterMapStructLiteral(BallerinaParser.MapStructLiteralContext ctx) { }
+	@Override public void enterRecordLiteral(BallerinaParser.RecordLiteralContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitMapStructLiteral(BallerinaParser.MapStructLiteralContext ctx) { }
+	@Override public void exitRecordLiteral(BallerinaParser.RecordLiteralContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterMapStructKeyValue(BallerinaParser.MapStructKeyValueContext ctx) { }
+	@Override public void enterRecordKeyValue(BallerinaParser.RecordKeyValueContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitMapStructKeyValue(BallerinaParser.MapStructKeyValueContext ctx) { }
+	@Override public void exitRecordKeyValue(BallerinaParser.RecordKeyValueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterRecordKey(BallerinaParser.RecordKeyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRecordKey(BallerinaParser.RecordKeyContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1480,6 +1456,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterRecordLiteralExpression(BallerinaParser.RecordLiteralExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRecordLiteralExpression(BallerinaParser.RecordLiteralExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterArrayLiteralExpression(BallerinaParser.ArrayLiteralExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1523,18 +1511,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitVariableReferenceExpression(BallerinaParser.VariableReferenceExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterMapStructLiteralExpression(BallerinaParser.MapStructLiteralExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitMapStructLiteralExpression(BallerinaParser.MapStructLiteralExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

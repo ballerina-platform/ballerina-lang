@@ -18,8 +18,6 @@
 
 package org.ballerinalang.config.utils.parser;
 
-import org.ballerinalang.util.exceptions.BallerinaException;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -96,7 +94,7 @@ public abstract class AbstractConfigParser {
                     varReplacedValue.append(System.getProperty(key));
                     break;
                 default:
-                    throw new BallerinaException("invalid config variable type: " + varType);
+                    throw new RuntimeException("invalid config variable type: " + varType);
             }
 
             i = matcher.end();

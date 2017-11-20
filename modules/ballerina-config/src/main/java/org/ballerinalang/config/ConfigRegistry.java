@@ -18,7 +18,8 @@
 
 package org.ballerinalang.config;
 
-import java.io.IOException;
+import org.ballerinalang.config.utils.ConfigFileParserException;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,9 +57,9 @@ public class ConfigRegistry {
     /**
      * Prompts the config processor to process and load the configurations to the config registry.
      *
-     * @throws IOException
+     * @throws ConfigFileParserException Thrown if the config parsing failed
      */
-    public void loadConfigurations() throws IOException {
+    public void loadConfigurations() throws ConfigFileParserException {
         confProcessor.processConfiguration();
     }
 

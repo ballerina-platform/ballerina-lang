@@ -19,34 +19,32 @@
 package org.ballerinalang.nativeimpl.log;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Native function ballerina.log:debug
+ * Native function ballerina.log:printDebug.
  *
  * @since 0.89
  */
 @BallerinaFunction(
         packageName = "ballerina.log",
-        functionName = "debug",
-        args = {@Argument(name = "value", type = TypeKind.ANY)},
+        functionName = "printDebug",
+        args = {@Argument(name = "msg", type = TypeKind.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-                                                                              value = "Logs the specified value at " +
-                                                                                      "debug level.")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
-                                                                        value = "The value to be logged.")})
-public class LogDebug extends AbstractNativeFunction {
+public class LogDebug extends AbstractLogFunction {
 
     public BValue[] execute(Context ctx) {
-        BallerinaLogHandler.getLogger(ctx).debug(getRefArgument(ctx, 0).stringValue());
+        String pkg = ctx.getControlStackNew().currentFrame.prevStackFrame
+                                                    .getCallableUnitInfo().getPackageInfo().getPkgPath();
+
+        if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.DEBUG.value()) {
+            getLogger(pkg).debug(getStringArgument(ctx, 0));
+        }
         return VOID_RETURN;
     }
 }

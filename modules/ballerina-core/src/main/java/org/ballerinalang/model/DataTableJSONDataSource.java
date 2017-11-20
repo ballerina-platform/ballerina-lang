@@ -87,6 +87,9 @@ public class DataTableJSONDataSource implements JSONDataSource {
                 case BOOLEAN:
                     objNode.put(name, df.getBoolean(name));
                     break;
+                case BLOB:
+                    objNode.put(name, df.getBlob(name));
+                    break;
                 case ARRAY:
                     //TODO: ARRAY
                     break;

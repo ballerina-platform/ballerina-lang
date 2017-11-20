@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -106,7 +107,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private SymbolEnv env;
 
     /**
-     * Expected types or inherited types
+     * Expected types or inherited types.
      */
     private List<BType> expTypes;
 
@@ -250,23 +251,20 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        varRefExpr.pkgSymbol =
-                symResolver.resolveImportSymbol(varRefExpr.pos, env, names.fromIdNode(varRefExpr.pkgAlias));
-        if (varRefExpr.pkgSymbol == symTable.notFoundSymbol) {
-            actualType = symTable.errType;
-            return;
-        } else if (varRefExpr.pkgSymbol.tag == SymTag.XMLNS) {
+        varRefExpr.pkgSymbol = symResolver.resolveImportSymbol(varRefExpr.pos,
+                env, names.fromIdNode(varRefExpr.pkgAlias));
+        if (varRefExpr.pkgSymbol.tag == SymTag.XMLNS) {
             actualType = symTable.stringType;
-        } else {
-            BSymbol symbol = symResolver.lookupSymbol(varRefExpr.pos, env,
-                    names.fromIdNode(varRefExpr.pkgAlias), varName, SymTag.VARIABLE);
-            if (symbol == symTable.notFoundSymbol) {
-                dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
-            } else {
+        } else if (varRefExpr.pkgSymbol != symTable.notFoundSymbol) {
+            BSymbol symbol = symResolver.lookupSymbolInPackage(varRefExpr.pos, env,
+                    names.fromIdNode(varRefExpr.pkgAlias), varName, SymTag.VARIABLE_NAME);
+            if ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
                 BVarSymbol varSym = (BVarSymbol) symbol;
                 checkSefReferences(varRefExpr.pos, env, varSym);
                 varRefExpr.symbol = varSym;
                 actualType = varSym.type;
+            } else {
+                dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
             }
         }
 
@@ -275,15 +273,12 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        BType actualType = symTable.errType;
         // First analyze the variable reference expression.
-        checkExpr(fieldAccessExpr.expr, this.env, Lists.of(symTable.noType));
-
-        BType varRefType = fieldAccessExpr.expr.type;
-        Name fieldName;
+        BType actualType = symTable.errType;
+        BType varRefType = getTypeOfExprInFieldAccess(fieldAccessExpr.expr);
+        Name fieldName = names.fromIdNode(fieldAccessExpr.field);
         switch (varRefType.tag) {
             case TypeTags.STRUCT:
-                fieldName = names.fromIdNode(fieldAccessExpr.field);
                 actualType = checkStructFieldAccess(fieldAccessExpr, fieldName, varRefType);
                 break;
             case TypeTags.MAP:
@@ -292,7 +287,6 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.JSON:
                 BType constraintType = ((BJSONType) varRefType).constraint;
                 if (constraintType.tag == TypeTags.STRUCT) {
-                    fieldName = names.fromIdNode(fieldAccessExpr.field);
                     BType fieldType = checkStructFieldAccess(fieldAccessExpr, fieldName, constraintType);
 
                     // If the type of the field is struct, treat it as constraint JSON type.
@@ -302,6 +296,26 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
                 actualType = symTable.jsonType;
+                break;
+            case TypeTags.ENUM:
+                // Enumerator access expressions only allow enum type name as the first part e.g state.INSTALLED,
+                BEnumType enumType = (BEnumType) varRefType;
+                if (fieldAccessExpr.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
+                        !((BLangSimpleVarRef) fieldAccessExpr.expr).variableName.value.equals(
+                                enumType.tsymbol.name.value)) {
+                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.INVALID_ENUM_EXPR, enumType.tsymbol.name.value);
+                    break;
+                }
+
+                BSymbol symbol = symResolver.lookupMemberSymbol(fieldAccessExpr.pos,
+                        enumType.tsymbol.scope, this.env, fieldName, SymTag.VARIABLE);
+                if (symbol == symTable.notFoundSymbol) {
+                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, fieldName.value);
+                    break;
+                }
+                fieldAccessExpr.symbol = (BVarSymbol) symbol;
+                actualType = fieldAccessExpr.expr.type;
+
                 break;
             case TypeTags.ERROR:
                 // Do nothing
@@ -432,6 +446,9 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.DATATABLE:
                 checkFunctionInvocationExpr(iExpr, iExpr.expr.type);
                 break;
+            case TypeTags.ARRAY:
+                dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.expr.type);
+                break;
             default:
                 // TODO Handle this condition
         }
@@ -525,7 +542,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 Name varRefName = names.fromIdNode((varRef).variableName);
                 Name pkgAlias = names.fromIdNode((varRef).pkgAlias);
                 // Resolve symbol for BLangSimpleVarRef
-                BSymbol varRefSybmol = symResolver.lookupSymbol(unaryExpr.pos, env, pkgAlias,
+                BSymbol varRefSybmol = symResolver.lookupSymbolInPackage(unaryExpr.pos, env, pkgAlias,
                         varRefName, SymTag.VARIABLE);
                 if (varRefSybmol == symTable.notFoundSymbol) {
                     // Resolve symbol for User Defined Type ( converted from BLangSimpleVarRef )
@@ -858,7 +875,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkFunctionInvocationExpr(BLangInvocation iExpr) {
         Name funcName = names.fromIdNode(iExpr.name);
         Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
-        BSymbol funcSymbol = symResolver.lookupSymbol(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
+        BSymbol funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
         if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
             resultTypes = getListWithErrorTypes(expTypes.size());
@@ -1271,7 +1288,7 @@ public class TypeChecker extends BLangNodeVisitor {
                                                         BType targetType) {
         List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
         BLangInvocation transformerInvocation = conversionExpr.transformerInvocation;
-        BSymbol transformerSymbol = symResolver.lookupSymbol(transformerInvocation.pos, env,
+        BSymbol transformerSymbol = symResolver.lookupSymbolInPackage(transformerInvocation.pos, env,
                 names.fromIdNode(transformerInvocation.pkgAlias), names.fromIdNode(transformerInvocation.name),
                 SymTag.TRANSFORMER);
         if (transformerSymbol == symTable.notFoundSymbol) {
@@ -1309,5 +1326,21 @@ public class TypeChecker extends BLangNodeVisitor {
         typeAccessExpr.pos = varRef.pos;
         typeAccessExpr.type = symTable.typeType;
         return typeAccessExpr;
+    }
+
+    private BType getTypeOfExprInFieldAccess(BLangExpression expr) {
+        // First check whether variable expression is of type enum.
+        if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) expr;
+            BSymbol symbol = symResolver.lookupSymbolInPackage(varRef.pos, env,
+                    names.fromIdNode(varRef.pkgAlias), names.fromIdNode(varRef.variableName), SymTag.ENUM);
+            if (symbol != symTable.notFoundSymbol) {
+                expr.type = symbol.type;
+                return symbol.type;
+            }
+        }
+
+        checkExpr(expr, this.env, Lists.of(symTable.noType));
+        return expr.type;
     }
 }
