@@ -29,12 +29,8 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.SiddhiTestHelper;
-import org.wso2.siddhi.query.api.expression.condition.In;
 
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.Month;
-import java.time.Year;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class AggregationTestCase {
