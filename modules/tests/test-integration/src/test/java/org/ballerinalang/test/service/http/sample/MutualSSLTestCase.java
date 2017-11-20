@@ -48,7 +48,7 @@ public class MutualSSLTestCase extends IntegrationTestCase {
         ballerinaServer.startBallerinaServer(serverBal);
     }
 
-//    @Test(description = "Test mutual ssl")
+    @Test(description = "Test mutual ssl")
     public void testMutualSSL() throws Exception {
         serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
         String serverMessage = "successful";
