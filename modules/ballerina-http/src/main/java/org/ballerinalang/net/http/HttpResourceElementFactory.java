@@ -18,12 +18,12 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.net.uri.parser.DataElementCreator;
+import org.ballerinalang.net.uri.parser.DataElementFactory;
 
 /**
- * Http dataElement data element creator.
+ * Factory to create {@link HttpResourceDataElement}.
  */
-public class HttpResourceElementCreator implements DataElementCreator<HttpResourceDataElement> {
+public class HttpResourceElementFactory implements DataElementFactory<HttpResourceDataElement> {
 
     @Override
     public HttpResourceDataElement createDataElement() {

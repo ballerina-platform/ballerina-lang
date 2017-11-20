@@ -81,16 +81,6 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
         return resource;
     }
 
-    @Override
-    public void clearData() {
-        this.resource.clear();
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return this.resource.isEmpty();
-    }
-
     private HttpResource validateHTTPMethod(List<HttpResource> resources, HTTPCarbonMessage carbonMessage) {
         HttpResource resource = null;
         boolean isOptionsRequest = false;

@@ -19,7 +19,7 @@
 package org.ballerinalang.net.uri;
 
 import org.ballerinalang.net.uri.parser.DataElement;
-import org.ballerinalang.net.uri.parser.DataElementCreator;
+import org.ballerinalang.net.uri.parser.DataElementFactory;
 import org.ballerinalang.net.uri.parser.Node;
 import org.ballerinalang.net.uri.parser.URITemplateParser;
 
@@ -52,7 +52,7 @@ public class URITemplate<DataType, InboundMsgType> {
     }
 
     public void parse(String uriTemplate, DataType resource,
-                      DataElementCreator<? extends DataElement<DataType, InboundMsgType>>
+                      DataElementFactory<? extends DataElement<DataType, InboundMsgType>>
                               elementCreator) throws URITemplateException {
         uriTemplate = removeTheFirstAndLastBackSlash(uriTemplate);
 

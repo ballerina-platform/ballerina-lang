@@ -32,10 +32,10 @@ public class URITemplateParser<DataType, InboundMgsType> {
 
     private Node<DataElement<DataType, InboundMgsType>> syntaxTree;
     private Node<DataElement<DataType, InboundMgsType>> currentNode;
-    private final DataElementCreator<? extends DataElement<DataType, InboundMgsType>> elementCreator;
+    private final DataElementFactory<? extends DataElement<DataType, InboundMgsType>> elementCreator;
 
     public URITemplateParser(Node<DataElement<DataType, InboundMgsType>> rootNode,
-                             DataElementCreator<? extends DataElement<DataType, InboundMgsType>> elementCreator) {
+                             DataElementFactory<? extends DataElement<DataType, InboundMgsType>> elementCreator) {
         this.syntaxTree = rootNode;
         this.elementCreator = elementCreator;
     }

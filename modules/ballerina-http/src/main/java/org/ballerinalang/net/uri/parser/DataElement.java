@@ -40,16 +40,4 @@ public interface DataElement<DataType, InboundMsgType> {
      * @return the item stored in the Node Item.
      */
     DataType getData(InboundMsgType inboundMessage);
-
-    /**
-     * Remove the data of the data element.
-     */
-    void clearData();
-
-    /**
-     * Check whether the data element is empty or not.
-     *
-     * @return true if node element is empty.
-     */
-    boolean isEmpty();
 }

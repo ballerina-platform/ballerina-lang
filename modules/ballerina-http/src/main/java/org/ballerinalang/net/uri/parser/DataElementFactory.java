@@ -19,12 +19,11 @@
 package org.ballerinalang.net.uri.parser;
 
 /**
- * Node creator is used to create necessary node node for a given item.
- * This is where the developer should create there own node to be passed into the tree.
+ * Data element factory is used to create necessary node elements for a given node.
  *
  * @param <DataElementType> Specific node item created by the user.
  */
-public interface DataElementCreator<DataElementType extends DataElement> {
+public interface DataElementFactory<DataElementType extends DataElement> {
 
     /**
      * Creates a data element specified by the user.
