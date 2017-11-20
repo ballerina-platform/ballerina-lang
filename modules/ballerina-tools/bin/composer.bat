@@ -84,13 +84,8 @@ if ""%1""==""--debug""  goto commandDebug
 
 if ""%1""==""help""  goto commandHelp
 
-goto commandUnknownArg
-
-
-rem ----- commandUnknownArg ----------------------------------------------------
-:commandUnknownArg
-echo Not supported option or command or value : %1
-goto commandHelp
+shift
+goto setupArgs
 
 rem ----- commandUnknownArg ----------------------------------------------------
 :commandHelp

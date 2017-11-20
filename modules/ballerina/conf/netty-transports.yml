@@ -34,9 +34,9 @@ listenerConfigurations:
 #  host: "0.0.0.0"
 #  port: 9092
 #  scheme: https
-#  keyStoreFile: "${ballerina.home}/bre/security/ballerinaKeystore.p12"
-#  keyStorePass: "ballerina"
-#  certPass: "ballerina"
+#  keyStoreFile: "${ballerina.home}/bre/security/wso2carbon.jks"
+#  keyStorePass: wso2carbon
+#  certPass: wso2carbon
 
 senderConfigurations:
  -
@@ -44,5 +44,5 @@ senderConfigurations:
  -
   id: "https-sender"
   scheme: "https"
-  trustStoreFile: "${ballerina.home}/bre/security/ballerinaTruststore.p12"
-  trustStorePass: "ballerina"
+  trustStoreFile: "${ballerina.home}/bre/security/client-truststore.jks"
+  trustStorePass: "wso2carbon"
