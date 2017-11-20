@@ -38,7 +38,6 @@ definition
     |   connectorDefinition
     |   structDefinition
     |   enumDefinition
-    |   typeMapperDefinition
     |   constantDefinition
     |   annotationDefinition
     |   globalVariableDefinition
@@ -123,7 +122,6 @@ attachmentPoint
      | CONNECTOR                            # connectorAttachPoint
      | ACTION                               # actionAttachPoint
      | FUNCTION                             # functionAttachPoint
-     | TYPEMAPPER                           # typemapperAttachPoint
      | STRUCT                               # structAttachPoint
      | ENUM                                 # enumAttachPoint
      | CONST                                # constAttachPoint
@@ -134,19 +132,6 @@ attachmentPoint
 
 annotationBody
     :  LEFT_BRACE fieldDefinition* RIGHT_BRACE
-    ;
-
-typeMapperDefinition
-    :   NATIVE typeMapperSignature SEMICOLON
-    |   typeMapperSignature typeMapperBody
-    ;
-
-typeMapperSignature
-    :   TYPEMAPPER Identifier LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS
-    ;
-
-typeMapperBody
-    :   LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 constantDefinition
@@ -271,12 +256,17 @@ variableDefinitionStatement
     :   typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
-mapStructLiteral
-    :   LEFT_BRACE (mapStructKeyValue (COMMA mapStructKeyValue)*)? RIGHT_BRACE
+recordLiteral
+    :   LEFT_BRACE (recordKeyValue (COMMA recordKeyValue)*)? RIGHT_BRACE
     ;
 
-mapStructKeyValue
-    :   expression COLON expression
+recordKeyValue
+    :   recordKey COLON expression
+    ;
+
+recordKey
+    :   Identifier
+    |   simpleLiteral
     ;
 
 arrayLiteral
@@ -481,7 +471,7 @@ namespaceDeclaration
 expression
     :   simpleLiteral                                                       # simpleLiteralExpression
     |   arrayLiteral                                                        # arrayLiteralExpression
-    |   mapStructLiteral                                                    # mapStructLiteralExpression
+    |   recordLiteral                                                       # recordLiteralExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   valueTypeName DOT Identifier                                        # valueTypeTypeExpression

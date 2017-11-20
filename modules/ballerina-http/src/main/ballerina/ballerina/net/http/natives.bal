@@ -364,6 +364,18 @@ struct FollowRedirects {
     int maxCount = 5;
 }
 
+@Description { value:"Proxy struct represents proxy server configurations to be used for HTTP client invocation" }
+@Field {value:"proxyHost: host name of the proxy server"}
+@Field {value:"proxyPort: proxy server port"}
+@Field {value:"proxyUserName: Proxy server user name"}
+@Field {value:"proxyPassword: proxy server password"}
+struct Proxy {
+    string host;
+    int port;
+    string userName;
+    string password;
+}
+
 @Description { value:"Options struct represents options to be used for HTTP client invocation" }
 @Field {value:"port: Port number of the remote service"}
 @Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
@@ -371,6 +383,7 @@ struct FollowRedirects {
 @Field {value:"followRedirects: Redirect related options"}
 @Field {value:"ssl: ssl/tls related options"}
 @Field {value:"retryConfig: Retry related options"}
+@Field {value:"proxy: Proxy server related options"}
 public struct Options {
     int port;
     int endpointTimeout = 60000;
@@ -378,6 +391,7 @@ public struct Options {
     FollowRedirects followRedirects;
     SSL ssl;
     Retry retryConfig;
+    Proxy proxy;
 }
 
 @Description { value:"Http client connector for outbound HTTP requests"}

@@ -756,18 +756,13 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangFieldVarRef fieldVarRef) {
         int varRegIndex;
         int fieldIndex = fieldVarRef.symbol.varIndex;
-        if (fieldVarRef.type.tag == TypeTags.STRUCT) {
-            // This is a struct field.
-            // the struct reference must be stored in the current reference register index.
-            varRegIndex = regIndexes.tRef;
-        } else {
-            // This is a connector field.
-            // the connector reference must be stored in the current reference register index.
-            varRegIndex = ++regIndexes.tRef;
 
-            // The connector is always the first parameter of the action
-            emit(InstructionCodes.RLOAD, 0, varRegIndex);
-        }
+        // This is a connector field.
+        // the connector reference must be stored in the current reference register index.
+        varRegIndex = ++regIndexes.tRef;
+
+        // The connector is always the first parameter of the action
+        emit(InstructionCodes.RLOAD, 0, varRegIndex);
 
         if (varAssignment) {
             int opcode = getOpcode(fieldVarRef.type.tag,
@@ -1056,12 +1051,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, actionSymbol.pkgID);
         int actionNameCPIndex = addUTF8CPEntry(currentPkgInfo, actionSymbol.name.value);
 
-        int connectorNameCPIndex = addUTF8CPEntry(currentPkgInfo, actionSymbol.owner.name.value);
-        StructureRefCPEntry connectorRefCPEntry = new StructureRefCPEntry(pkgRefCPIndex, connectorNameCPIndex);
-        int connectorRefCPIndex = currentPkgInfo.addCPEntry(connectorRefCPEntry);
-
-        ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex,
-                connectorRefCPIndex, actionNameCPIndex);
+        ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex, actionNameCPIndex);
         int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
         int actionCallIndex = getFunctionCallCPIndex(aIExpr);
 
@@ -1102,10 +1092,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit(InstructionCodes.CALL, initFuncRefCPIndex, initFuncCallIndex);
 
         int actionNameCPIndex = addUTF8CPEntry(currentPkgInfo, "<init>");
-        ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex,
-                structureRefCPIndex, actionNameCPIndex);
+        ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex, actionNameCPIndex);
         int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
-        emit(InstructionCodes.NACALL, actionRefCPIndex, initFuncCallIndex);
+        emit(InstructionCodes.ACALL, actionRefCPIndex, initFuncCallIndex);
     }
 
     public void visit(BLangFunctionInvocation iExpr) {

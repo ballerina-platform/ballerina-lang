@@ -157,6 +157,13 @@ public class Constants {
     public static final int CIPHERS_INDEX = 5;
     public static final int SSL_PROTOCOL_INDEX = 6;
 
+    //Proxy server struct indexes
+    public static final int PROXY_STRUCT_INDEX = 3;
+    public static final int PROXY_HOST_INDEX = 0;
+    public static final int PROXY_PORT_INDEX = 0;
+    public static final int PROXY_USER_NAME_INDEX = 1;
+    public static final int PROXY_PASSWORD_INDEX = 2;
+
     //Retry Struct indexes
     public static final int RETRY_STRUCT_INDEX = 2;
     public static final int RETRY_COUNT_INDEX = 0;

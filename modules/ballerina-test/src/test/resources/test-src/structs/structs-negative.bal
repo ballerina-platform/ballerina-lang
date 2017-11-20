@@ -38,8 +38,3 @@ function testInvalidTypeAttributeinit () {
     string name;
     Department dpt = {dptName:54};
 }
-
-function testInvalidFieldNameInit () {
-    string name;
-    Department dpt = {dptName[0]:54};
-}
