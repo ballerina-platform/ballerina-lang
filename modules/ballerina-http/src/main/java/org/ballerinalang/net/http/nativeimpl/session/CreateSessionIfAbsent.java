@@ -70,7 +70,7 @@ public class CreateSessionIfAbsent extends AbstractNativeFunction {
                     .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
             String cookieHeader = httpCarbonMessage.getHeader(Constants.COOKIE_HEADER);
             String path = (String) httpCarbonMessage.getProperty(Constants.BASE_PATH);
-            Session session = (Session) httpCarbonMessage.getProperty(Constants.HTTP_SESSION);
+            Session session = (Session) requestStruct.getNativeData(Constants.HTTP_SESSION);
             if (cookieHeader != null) {
                 try {
                     String sessionId = Arrays.stream(cookieHeader.split(";"))
@@ -105,7 +105,7 @@ public class CreateSessionIfAbsent extends AbstractNativeFunction {
                 //create session since request doesn't have a cookie
                 session = SessionManager.getInstance().createHTTPSession(path);
             }
-            httpCarbonMessage.setProperty(Constants.HTTP_SESSION, session);
+            requestStruct.addNativeData(Constants.HTTP_SESSION, session);
             httpCarbonMessage.removeHeader(Constants.COOKIE_HEADER);
             return new BValue[]{createSessionStruct(context, session)};
 

@@ -10,6 +10,6 @@ service<http> echo {
     resource echo (http:Request req, http:Response resp) {
         string payload = req.getStringPayload();
         resp.setStringPayload(payload);
-        _ = resp.send();
+        resp.send();
     }
 }

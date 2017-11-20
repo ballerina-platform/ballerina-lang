@@ -92,7 +92,6 @@ public class TestHttpFutureListener implements ConnectorFutureListener {
 
     public void setResponseMsg(HTTPCarbonMessage httpCarbonMessage) {
         this.responseMsg = httpCarbonMessage;
-        executionWaitSem.release();
     }
 
     public HTTPCarbonMessage getResponseMsg() {

@@ -101,7 +101,7 @@ service<http> helloServer {
     resource echo1 (http:Request req, http:Response res) {
         string method = req.getMethod();
         res.setStringPayload(method);
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -110,7 +110,7 @@ service<http> helloServer {
     resource echo2 (http:Request req, http:Response res) {
         string url = req.getRequestURL();
         res.setStringPayload(url);
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -119,7 +119,7 @@ service<http> helloServer {
     resource echo3 (http:Request req, http:Response res) {
         string url = req.getRequestURL();
         res.setStringPayload(url);
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -130,7 +130,7 @@ service<http> helloServer {
         string result;
         result, _ = req.getHeader(key);
         res.setJsonPayload({lang:result});
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -140,7 +140,7 @@ service<http> helloServer {
         http:Request newReq = req.clone();
         json value = newReq.getJsonPayload();
         res.setJsonPayload(value);
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -149,7 +149,7 @@ service<http> helloServer {
     resource GetContentLength (http:Request req, http:Response res) {
         int length = req.getContentLength();
         res.setJsonPayload({value:length});
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -159,7 +159,7 @@ service<http> helloServer {
         string header;
         header, _ = req.getHeader("Content-Type");
         res.setJsonPayload({value:header});
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -169,7 +169,7 @@ service<http> helloServer {
         json value = req.getJsonPayload();
         json lang = value.lang;
         res.setJsonPayload(lang);
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -178,7 +178,7 @@ service<http> helloServer {
     resource GetProperty (http:Request req, http:Response res) {
         string property = req.getProperty("wso2");
         res.setJsonPayload({value:property});
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -187,7 +187,7 @@ service<http> helloServer {
     resource GetStringPayload(http:Request req, http:Response res) {
         string value = req.getStringPayload();
         res.setStringPayload(value);
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -197,7 +197,7 @@ service<http> helloServer {
         xml value = req.getXmlPayload();
         string name = value.getTextValue();
         res.setStringPayload(name);
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -208,7 +208,7 @@ service<http> helloServer {
         string header;
         header, _ = req.getHeader("Content-Type");
         res.setJsonPayload({value:header});
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -219,7 +219,7 @@ service<http> helloServer {
         string header;
         header, _ = req.getHeader("Range");
         res.setJsonPayload({value:header});
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -229,7 +229,7 @@ service<http> helloServer {
         req.setContentLength(100);
         int length = req.getContentLength();
         res.setJsonPayload({value:length});
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -240,7 +240,7 @@ service<http> helloServer {
         string result;
         result, _ = req.getHeader(key);
         res.setJsonPayload({value:result});
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -251,7 +251,7 @@ service<http> helloServer {
         req.setJsonPayload(jsonStr);
         json result = req.getJsonPayload();
         res.setJsonPayload(result);
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -261,7 +261,7 @@ service<http> helloServer {
         req.setProperty(key, value);
         string result = req.getProperty(key);
         res.setJsonPayload({value:result});
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -271,7 +271,7 @@ service<http> helloServer {
         req.setStringPayload(value);
         string result = req.getStringPayload();
         res.setJsonPayload({lang:result});
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -283,6 +283,6 @@ service<http> helloServer {
         xml value = req.getXmlPayload();
         string name = value.getTextValue();
         res.setJsonPayload({lang:name});
-        _ = res.send();
+        res.send();
     }
 }

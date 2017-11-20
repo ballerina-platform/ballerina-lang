@@ -69,7 +69,7 @@ service<http> actionInvokeService {
         string actionResponse;
         actionResponse = testConnector.action3();
         res.setStringPayload(actionResponse);
-        _ = res.send();
+        res.send();
     }
 
     
@@ -83,7 +83,7 @@ service<http> actionInvokeService {
         actionResponse = testConnector.action1();
         string payload = <string> actionResponse;
         res.setStringPayload(payload);
-        _ = res.send();
+        res.send();
     }
     
     @http:resourceConfig {
@@ -93,7 +93,7 @@ service<http> actionInvokeService {
     resource action2Resource (http:Request req, http:Response res) {
 
         testConnector.action2();
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -105,7 +105,7 @@ service<http> actionInvokeService {
         string actionResponse;
         actionResponse = testConnector.action5(myConst);
         res.setStringPayload(actionResponse);
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -117,6 +117,6 @@ service<http> actionInvokeService {
         string actionResponse;
         actionResponse = testConnector.action6("Hello", "World");
         res.setStringPayload(actionResponse);
-        _ = res.send();
+        res.send();
     }
 }

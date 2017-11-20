@@ -10,7 +10,7 @@ service<http> echo66 {
     resource echo1 (http:Request req, http:Response res) {
         json responseJson = {"msg":"wso2"};
         res.setJsonPayload(responseJson);
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -21,7 +21,7 @@ service<http> echo66 {
     resource echo2 (http:Request req, http:Response res) {
         json responseJson = {"msg":"wso22"};
         res.setJsonPayload(responseJson);
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -33,7 +33,7 @@ service<http> echo66 {
     resource echo3 (http:Request req, http:Response res) {
         json responseJson = {"msg":"wso222"};
         res.setJsonPayload(responseJson);
-        _ = res.send();
+        res.send();
     }
 }
 
@@ -42,6 +42,6 @@ service<http> echo67 {
     resource echo1 (http:Request req, http:Response res) {
         json responseJson = {"echo33": "echo1"};
         res.setJsonPayload(responseJson);
-        _ = res.send();
+        res.send();
     }
 }

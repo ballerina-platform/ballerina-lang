@@ -95,8 +95,6 @@ public class HttpDispatcher {
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.RESPONSE);
         HttpUtil.addCarbonMsg(request, httpCarbonMessage);
         HttpUtil.addCarbonMsg(response, HttpUtil.createHttpCarbonMessage(false));
-        // Add inbound request msg to the response struct
-        response.addNativeData(Constants.INBOUND_REQUEST_MESSAGE, httpCarbonMessage);
         HttpUtil.addRequestResponseFlag(request, response);
 
         List<ParamDetail> paramDetails = httpResource.getParamDetails();

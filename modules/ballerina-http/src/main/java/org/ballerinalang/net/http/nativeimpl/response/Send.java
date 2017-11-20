@@ -25,23 +25,19 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * Native function to send response back to the caller.
+ *
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "send",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Response",
-                structPackage = "ballerina.net.http"),
-        returnType = @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                structPackage = "ballerina.net.http"),
+                             structPackage = "ballerina.net.http"),
         isPublic = true
 )
 public class Send extends AbstractNativeFunction {
@@ -51,11 +47,9 @@ public class Send extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct responseStruct = (BStruct) getRefArgument(context, 0);
-        HttpUtil.checkFunctionValidity(responseStruct);
-        HTTPCarbonMessage responseMessage = HttpUtil
-                .getCarbonMsg(responseStruct, HttpUtil.createHttpCarbonMessage(false));
-        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct
-                .getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
-        return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage);
+        HttpUtil.methodInvocationCheck(responseStruct);
+        HttpUtil.operationNotAllowedCheck(responseStruct);
+        context.getConnectorFuture().notifyReply(responseStruct);
+        return VOID_RETURN;
     }
 }

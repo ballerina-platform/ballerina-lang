@@ -38,6 +38,6 @@ service<http> ATMLocator {
 
         http:Response infoResponse = {};
         infoResponse, err = bankInfoService.post("", backendServiceReq);
-        _ = resp.forward(infoResponse);
+        resp.forward(infoResponse);
     }
 }

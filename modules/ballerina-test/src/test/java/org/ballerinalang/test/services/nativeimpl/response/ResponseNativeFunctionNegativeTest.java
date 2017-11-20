@@ -31,7 +31,6 @@ import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
-import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
@@ -225,7 +224,7 @@ public class ResponseNativeFunctionNegativeTest {
     @Test
     public void testSend() {
         String path = "/hello/11";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -236,7 +235,7 @@ public class ResponseNativeFunctionNegativeTest {
     @Test
     public void testForward() {
         String path = "/hello/12";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -247,7 +246,7 @@ public class ResponseNativeFunctionNegativeTest {
     @Test
     public void testForwardWithNullParameter() {
         String path = "/hello/13";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -258,7 +257,7 @@ public class ResponseNativeFunctionNegativeTest {
     @Test
     public void testForwardWithEmptyResponse() {
         String path = "/hello/14";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -270,7 +269,7 @@ public class ResponseNativeFunctionNegativeTest {
     @Test(description = "test declaration of two response method. Error is shown in the console", enabled = false)
     public void testRedeclarationOfTwoResponseMethods() {
         String path = "/hello/15";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");

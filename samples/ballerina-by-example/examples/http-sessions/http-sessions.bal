@@ -19,7 +19,7 @@ service<http> session {
         //Binds a string attribute to this session with a key(string).
         session.setAttribute(key, "Session sample");
         res.setStringPayload(result);
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -36,7 +36,7 @@ service<http> session {
             attributeValue = "Session unavailable";
         }
         res.setStringPayload(attributeValue);
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -53,6 +53,6 @@ service<http> session {
         } else {
             res.setStringPayload("Session unavailable");
         }
-        _ = res.send();
+        res.send();
     }
 }

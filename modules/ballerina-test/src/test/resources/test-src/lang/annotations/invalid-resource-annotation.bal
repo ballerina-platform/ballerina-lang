@@ -6,11 +6,11 @@ service<http> PizzaService {
     
     @doc:Description{value:"Order pizza"}
     resource orderPizza(http:Request req, http:Response res) {
-        _ = res.send();
+        res.send();
     }
     
     @doc:Description{value:456}
     resource checkStatus(http:Request req, http:Response res) {
-        _ = res.send();
+        res.send();
     }
 }

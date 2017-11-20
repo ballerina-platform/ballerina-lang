@@ -26,6 +26,6 @@ service<http> contentBasedRouting {
         } else {
             clientResponse, err = nasdaqEP.post("/stocks", req);
         }
-        _ = resp.forward(clientResponse);
+        resp.forward(clientResponse);
     }
 }
