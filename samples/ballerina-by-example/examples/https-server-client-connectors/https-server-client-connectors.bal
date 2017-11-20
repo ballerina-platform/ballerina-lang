@@ -16,7 +16,7 @@ service<http> helloWorld {
 
     resource sayHello (http:Request req, http:Response res) {
         res.setStringPayload("Successful");
-        res.send();
+        _ = res.send();
     }
 }
 

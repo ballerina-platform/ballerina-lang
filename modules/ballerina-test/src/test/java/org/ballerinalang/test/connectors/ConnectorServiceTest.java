@@ -21,6 +21,7 @@ package org.ballerinalang.test.connectors;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.runtime.message.StringDataSource;
+import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
@@ -45,7 +46,7 @@ public class ConnectorServiceTest {
     @Test(description = "Test action3Resource")
     public void testAction3Resource() {
 
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/action3", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/invoke/action3", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -57,7 +58,7 @@ public class ConnectorServiceTest {
     @Test(description = "Test action1Resource", priority = 1)
     public void testAction1Resource() {
 
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/action1", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/invoke/action1", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -68,10 +69,10 @@ public class ConnectorServiceTest {
 
     @Test(description = "Test action1Resource after calling action2Resource", priority = 2)
     public void testAction2Resource() {
-        HTTPCarbonMessage action2Req = MessageUtils.generateHTTPMessage("/invoke/action2", "GET");
+        HTTPTestRequest action2Req = MessageUtils.generateHTTPMessage("/invoke/action2", "GET");
         Services.invokeNew(action2Req);
 
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/action1", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/invoke/action1", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -82,7 +83,7 @@ public class ConnectorServiceTest {
 
     @Test(description = "Test action5Resource")
     public void testAction5Resource() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/action5", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/invoke/action5", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
@@ -93,7 +94,7 @@ public class ConnectorServiceTest {
 
     @Test(description = "Test action6Resource")
     public void testAction6Resource() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/action6", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/invoke/action6", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);

@@ -19,6 +19,6 @@ service<http> Bankinfo {
             payload = {"ABC Bank":{"error":"No branches found."}};
         }
         res.setJsonPayload(payload);
-        res.send();
+        _ = res.send();
     }
 }

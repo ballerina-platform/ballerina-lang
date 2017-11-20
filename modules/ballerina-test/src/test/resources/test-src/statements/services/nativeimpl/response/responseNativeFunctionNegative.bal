@@ -95,7 +95,7 @@ service<http> helloServer {
     }
     resource echo1 (http:Request req, http:Response res) {
         http:Response resp = {};
-        resp.send();
+        _ = resp.send();
     }
 
     @http:resourceConfig {
@@ -103,7 +103,7 @@ service<http> helloServer {
     }
     resource echo2 (http:Request req, http:Response res) {
         http:Response resp = {};
-        resp.forward(res);
+        _ = resp.forward(res);
     }
 
     @http:resourceConfig {
@@ -111,7 +111,7 @@ service<http> helloServer {
     }
     resource echo3 (http:Request req, http:Response res) {
         http:Response resp = {};
-        res.forward(null);
+        _ = res.forward(null);
     }
 
     @http:resourceConfig {
@@ -119,7 +119,7 @@ service<http> helloServer {
     }
     resource echo4 (http:Request req, http:Response res) {
         http:Response resp = {};
-        res.forward({});
+        _ = res.forward({});
     }
 
     @http:resourceConfig {
@@ -129,7 +129,7 @@ service<http> helloServer {
         http:Response resp = {};
         res.setStringPayload("wso2");
         resp.setStringPayload("Ballerina");
-        res.send();
-        res.forward(resp);
+        _ = res.send();
+        _ = res.forward(resp);
     }
 }

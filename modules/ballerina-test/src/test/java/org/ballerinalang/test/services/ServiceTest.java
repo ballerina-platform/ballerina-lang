@@ -48,7 +48,7 @@ public class ServiceTest {
 
     @Test
     public void testServiceDispatching() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
         // TODO: Improve with more assets
@@ -56,7 +56,7 @@ public class ServiceTest {
     
     @Test
     public void testServiceDispatchingWithWorker() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message_worker", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/message_worker", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
     }
@@ -79,7 +79,7 @@ public class ServiceTest {
 
     @Test
     public void testSetString() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST");
         cMsg.waitAndReleaseAllEntities();
         cMsg.addMessageBody(ByteBuffer.wrap("hello".getBytes()));
         cMsg.setEndOfMsgAdded(true);
@@ -90,7 +90,7 @@ public class ServiceTest {
 
     @Test(dependsOnMethods = "testSetString")
     public void testGetString() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/getString", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/getString", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
@@ -101,7 +101,7 @@ public class ServiceTest {
 
     @Test(description = "Test accessing service level variable in resource")
     public void testGetServiceLevelString() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/getServiceLevelString", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/getServiceLevelString", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
@@ -112,7 +112,7 @@ public class ServiceTest {
 
     @Test(description = "Test using constant as annotation attribute value")
     public void testConstantValueAsAnnAttributeVal() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/constantPath", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/constantPath", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
@@ -123,14 +123,14 @@ public class ServiceTest {
 
     @Test(description = "Test getString after setting string")
     public void testGetStringAfterSetString() {
-        HTTPCarbonMessage setStringCMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST");
+        HTTPTestRequest setStringCMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST");
         String stringPayload = "hello";
         setStringCMsg.waitAndReleaseAllEntities();
         setStringCMsg.addMessageBody(ByteBuffer.wrap(stringPayload.getBytes()));
         setStringCMsg.setEndOfMsgAdded(true);
         Services.invokeNew(setStringCMsg);
 
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/getString", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/getString", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
@@ -141,7 +141,7 @@ public class ServiceTest {
 
     @Test(description = "Test remove headers native function")
     public void testRemoveHeadersNativeFunction() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/removeHeaders", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/removeHeaders", "GET");
         cMsg.setHeader("header1", "wso2");
         cMsg.setHeader("header2", "ballerina");
         cMsg.setHeader("header3", "hello");
@@ -156,7 +156,7 @@ public class ServiceTest {
     @Test(description = "Test GetFormParams Native Function")
     public void testGetFormParamsNativeFunction() {
         String path = "/echo/getFormParams";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&team=BalDance");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&team=BalDance");
         cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -171,7 +171,7 @@ public class ServiceTest {
     @Test(description = "Test GetFormParams with undefined key")
     public void testGetFormParamsForUndefinedKey() {
         String path = "/echo/getFormParams";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
         cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 

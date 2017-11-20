@@ -36,9 +36,9 @@ service<http> headerBasedRouting {
         if (err != null) {
             res.setStatusCode(500);
             res.setStringPayload(err.msg);
-            res.send();
+            _ = res.send();
         } else {
-            res.forward(clientResponse);
+            _ = res.forward(clientResponse);
         }
     }
 }

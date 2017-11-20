@@ -21,6 +21,7 @@ package org.ballerinalang.test.expressions.identifierliteral;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
@@ -44,7 +45,7 @@ public class IdentifierLiteralServiceTest {
 
     @Test(description = "Test using identifier literals in service and resource names")
     public void testUsingIdentifierLiteralsInServiceAndResourceNames() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/identifierLiteral/resource", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/identifierLiteral/resource", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -54,7 +55,7 @@ public class IdentifierLiteralServiceTest {
 
     @Test(description = "Test identifier literals payload")
     public void testIdentifierLiteralsInPayload() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/identifierLiteral/resource2", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/identifierLiteral/resource2", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
         String payload = response.getMessageDataSource().getMessageAsString();
