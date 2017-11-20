@@ -19,12 +19,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import WhileNodeModel from 'ballerina/model/tree/while-node';
+import DropZone from 'ballerina/drag-drop/DropZone';
+import FragmentUtils from 'ballerina/utils/fragment-utils';
+import TreeBuilder from 'ballerina/model/tree-builder';
 import CompoundStatementDecorator from './compound-statement-decorator';
-import WhileNodeModel from './../../../../../model/tree/while-node';
-import DropZone from './../../../../../drag-drop/DropZone';
 import './try-node.css';
-import FragmentUtils from './../../../../../utils/fragment-utils';
-import TreeBuilder from './../../../../../model/tree-builder';
 
 class WhileNode extends React.Component {
 

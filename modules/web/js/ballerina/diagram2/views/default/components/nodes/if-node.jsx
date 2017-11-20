@@ -18,14 +18,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import TreeUtil from 'ballerina/model/tree-util';
+import IfNodeModel from 'ballerina/model/tree/if-node';
+import DropZone from 'ballerina/drag-drop/DropZone';
+import DefaultNodeFactory from 'ballerina/model/default-node-factory';
+import FragmentUtils from 'ballerina/utils/fragment-utils';
+import TreeBuilder from 'ballerina/model/tree-builder';
 import CompoundStatementDecorator from './compound-statement-decorator';
-import TreeUtil from './../../../../../model/tree-util';
-import IfNodeModel from './../../../../../model/tree/if-node';
-import DropZone from './../../../../../drag-drop/DropZone';
-import DefaultNodeFactory from './../../../../../model/default-node-factory';
 import AddCompoundBlock from './add-compound-block';
-import FragmentUtils from './../../../../../utils/fragment-utils';
-import TreeBuilder from './../../../../../model/tree-builder';
 import './if-node.css';
 
 /**
