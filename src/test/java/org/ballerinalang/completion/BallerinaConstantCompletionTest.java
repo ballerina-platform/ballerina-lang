@@ -134,7 +134,7 @@ public class BallerinaConstantCompletionTest extends BallerinaCompletionTestBase
     }
 
     public void testConstantInDifferentPackageImportedAsAlias() {
-        myFixture.addFileToProject("org/test/file.bal", "cont string S=\"\";");
+        myFixture.addFileToProject("org/test/file.bal", "public cont string S=\"\";");
         doTest("import org.test as utils; function F(){ utils:<caret> }", "S");
     }
 }
