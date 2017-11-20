@@ -62,6 +62,7 @@ public class SiddhiAppContext {
     private ExceptionHandler<Object> disruptorExceptionHandler;
     private int bufferSize;
     private String siddhiAppString;
+    private List<String> includedMetrics;
 
     public SiddhiAppContext() {
         this.eternalReferencedHolders = Collections.synchronizedList(new LinkedList<>());
@@ -218,5 +219,13 @@ public class SiddhiAppContext {
 
     public void setSiddhiAppString(String siddhiAppString) {
         this.siddhiAppString = siddhiAppString;
+    }
+
+    public void setIncludedMetrics(List<String> includedMetrics) {
+        this.includedMetrics = includedMetrics;
+    }
+
+    public List<String> getIncludedMetrics() {
+        return includedMetrics;
     }
 }

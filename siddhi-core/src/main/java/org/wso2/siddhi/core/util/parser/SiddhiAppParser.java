@@ -58,6 +58,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 
+import static org.wso2.siddhi.core.util.parser.helper.AnnotationHelper.generateIncludedMetrics;
+
 /**
  * Class to parse {@link SiddhiApp}
  */
@@ -117,15 +119,27 @@ public class SiddhiAppParser {
                                 statisticsElements));
             }
 
-            Element statStateElement = AnnotationHelper.getAnnotationElement(
-                    SiddhiConstants.ANNOTATION_STATISTICS, null, siddhiApp.getAnnotations());
+            Element statStateEnableElement = AnnotationHelper.getAnnotationElement(
+                    SiddhiConstants.ANNOTATION_STATISTICS,
+                    SiddhiConstants.ANNOTATION_ELEMENT_ENABLE, siddhiApp.getAnnotations());
 
-            // Both annotation and statElement should be checked since siddhi uses
-            // @app:statistics(reporter = 'console', interval = '5' )
-            // where sp uses @app:statistics('true').
-            if (annotation != null && (statStateElement == null || Boolean.valueOf(statStateElement.getValue()))) {
+            if (statStateEnableElement != null && Boolean.valueOf(statStateEnableElement.getValue())) {
                 siddhiAppContext.setStatsEnabled(true);
+            } else {
+                Element statStateElement = AnnotationHelper.getAnnotationElement(
+                        SiddhiConstants.ANNOTATION_STATISTICS, null, siddhiApp.getAnnotations());
+                // Both annotation and statElement should be checked since siddhi uses
+                // @app:statistics(reporter = 'console', interval = '5' )
+                // where sp uses @app:statistics('true').
+                if (annotation != null && (statStateElement == null || Boolean.valueOf(statStateElement.getValue()))) {
+                    siddhiAppContext.setStatsEnabled(true);
+                }
             }
+            Element statStateIncludElement = AnnotationHelper.getAnnotationElement(
+                    SiddhiConstants.ANNOTATION_STATISTICS,
+                    SiddhiConstants.ANNOTATION_ELEMENT_INCLUDE, siddhiApp.getAnnotations());
+            siddhiAppContext.setIncludedMetrics(generateIncludedMetrics(statStateIncludElement));
+
 
             siddhiAppContext.setThreadBarrier(new ThreadBarrier());
 

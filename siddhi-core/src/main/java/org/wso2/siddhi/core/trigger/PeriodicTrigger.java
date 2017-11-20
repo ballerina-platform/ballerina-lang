@@ -22,6 +22,7 @@ import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
 import org.wso2.siddhi.query.api.definition.TriggerDefinition;
 
@@ -45,17 +46,9 @@ public class PeriodicTrigger implements Trigger {
         this.siddhiAppContext = siddhiAppContext;
         this.streamJunction = streamJunction;
         if (siddhiAppContext.getStatisticsManager() != null) {
-            String metricName = siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMetricPrefix() +
-                    SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI_APPS +
-                    SiddhiConstants.METRIC_DELIMITER + siddhiAppContext.getName() +
-                    SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
-                    SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_TRIGGERS +
-                    SiddhiConstants.METRIC_DELIMITER + triggerDefinition.getId();
-            this.throughputTracker = siddhiAppContext
-                    .getSiddhiContext()
-                    .getStatisticsConfiguration()
-                    .getFactory()
-                    .createThroughputTracker(metricName, siddhiAppContext.getStatisticsManager());
+            this.throughputTracker = QueryParserHelper.createThroughputTracker(siddhiAppContext,
+                    triggerDefinition.getId(),
+                    SiddhiConstants.METRIC_INFIX_TRIGGERS, null);
         }
     }
 

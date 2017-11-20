@@ -48,7 +48,7 @@ public class SiddhiBufferedEventsMetric implements BufferedEventsTracker {
     public void registerEventBufferHolder(EventBufferHolder eventBufferHolder, String name) {
         if (registeredObjects.get(eventBufferHolder) == null) {
             registeredObjects.put(eventBufferHolder,
-                    new SiddhiBufferedEventsMetric.ObjectMetric(eventBufferHolder, name + ".size"));
+                    new SiddhiBufferedEventsMetric.ObjectMetric(eventBufferHolder, name));
         }
     }
 

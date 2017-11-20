@@ -61,7 +61,7 @@ public class StreamJunction implements EventBufferHolder {
     private List<Receiver> receivers = new CopyOnWriteArrayList<Receiver>();
     private List<Publisher> publishers = Collections.synchronizedList(new LinkedList<>());
     private ExecutorService executorService;
-    private Boolean async = null;
+    private boolean async = false;
     private Disruptor<Event> disruptor;
     private RingBuffer<Event> ringBuffer;
     private ThroughputTracker throughputTracker = null;

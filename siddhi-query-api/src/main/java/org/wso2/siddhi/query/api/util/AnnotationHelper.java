@@ -25,7 +25,7 @@ import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
 import java.util.List;
 
 /**
- * Created by suho on 8/8/14.
+ * Helper class to extract annotations
  */
 public class AnnotationHelper {
 

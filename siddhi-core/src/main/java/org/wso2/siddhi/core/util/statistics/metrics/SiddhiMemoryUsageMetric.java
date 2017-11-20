@@ -46,7 +46,7 @@ public class SiddhiMemoryUsageMetric implements MemoryUsageTracker {
     @Override
     public void registerObject(Object object, String name) {
         if (registeredObjects.get(object) == null) {
-            registeredObjects.put(object, new ObjectMetric(object, name + ".memory"));
+            registeredObjects.put(object, new ObjectMetric(object, name));
         }
     }
 
@@ -79,16 +79,16 @@ public class SiddhiMemoryUsageMetric implements MemoryUsageTracker {
 
         private void initMetric() {
             metricRegistry.register(name,
-                                    new Gauge<Long>() {
-                                        @Override
-                                        public Long getValue() {
-                                            try {
-                                                return ObjectSizeCalculator.getObjectSize(object);
-                                            } catch (UnsupportedOperationException e) {
-                                                return 0L;
-                                            }
-                                        }
-                                    });
+                    new Gauge<Long>() {
+                        @Override
+                        public Long getValue() {
+                            try {
+                                return ObjectSizeCalculator.getObjectSize(object);
+                            } catch (UnsupportedOperationException e) {
+                                return 0L;
+                            }
+                        }
+                    });
         }
     }
 }

@@ -221,14 +221,23 @@ public class QueryParserHelper {
                             SiddhiConstants.METRIC_DELIMITER + siddhiAppContext.getName() +
                             SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
                             SiddhiConstants.METRIC_DELIMITER + type +
-                            SiddhiConstants.METRIC_DELIMITER + name;
+                            SiddhiConstants.METRIC_DELIMITER + name + SiddhiConstants.METRIC_DELIMITER + "latency";
             if (function != null) {
                 metricName += metricName + SiddhiConstants.METRIC_DELIMITER + function;
             }
-            latencyTracker = siddhiAppContext.getSiddhiContext()
-                    .getStatisticsConfiguration()
-                    .getFactory()
-                    .createLatencyTracker(metricName, siddhiAppContext.getStatisticsManager());
+            boolean matchExist = false;
+            for (String regex : siddhiAppContext.getIncludedMetrics()) {
+                if (metricName.matches(regex)) {
+                    matchExist = true;
+                    break;
+                }
+            }
+            if (matchExist) {
+                latencyTracker = siddhiAppContext.getSiddhiContext()
+                        .getStatisticsConfiguration()
+                        .getFactory()
+                        .createLatencyTracker(metricName, siddhiAppContext.getStatisticsManager());
+            }
         }
         return latencyTracker;
     }
@@ -243,15 +252,24 @@ public class QueryParserHelper {
                             SiddhiConstants.METRIC_DELIMITER + siddhiAppContext.getName() +
                             SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
                             SiddhiConstants.METRIC_DELIMITER + type +
-                            SiddhiConstants.METRIC_DELIMITER + name;
+                            SiddhiConstants.METRIC_DELIMITER + name + SiddhiConstants.METRIC_DELIMITER + "throughput";
             if (function != null) {
                 metricName += metricName + SiddhiConstants.METRIC_DELIMITER + function;
             }
-            throughputTracker = siddhiAppContext
-                    .getSiddhiContext()
-                    .getStatisticsConfiguration()
-                    .getFactory()
-                    .createThroughputTracker(metricName, siddhiAppContext.getStatisticsManager());
+            boolean matchExist = false;
+            for (String regex : siddhiAppContext.getIncludedMetrics()) {
+                if (metricName.matches(regex)) {
+                    matchExist = true;
+                    break;
+                }
+            }
+            if (matchExist) {
+                throughputTracker = siddhiAppContext
+                        .getSiddhiContext()
+                        .getStatisticsConfiguration()
+                        .getFactory()
+                        .createThroughputTracker(metricName, siddhiAppContext.getStatisticsManager());
+            }
         }
         return throughputTracker;
     }

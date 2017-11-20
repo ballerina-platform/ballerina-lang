@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
@@ -44,7 +45,8 @@ public class AsyncTestCase {
         lastValue = 0;
     }
 
-    @Test
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
+
     public void asyncTest1() throws InterruptedException {
         log.info("async test 1");
 
@@ -52,7 +54,6 @@ public class AsyncTestCase {
 
         String siddhiApp = "" +
                 "@app:async " +
-//                "@config(async='true') " +
                 "define stream cseEventStream (symbol string, price float, volume int);" +
                 "define stream cseEventStream2 (symbol string, price float, volume int);" +
                 "" +
@@ -68,135 +69,13 @@ public class AsyncTestCase {
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        siddhiAppRuntime.addCallback("outputStream", new StreamCallback() {
-
-            @Override
-            public void receive(Event[] events) {
-                EventPrinter.print(events);
-                eventArrived = true;
-                for (Event event : events) {
-                    count++;
-                    AssertJUnit.assertTrue("IBM".equals(event.getData(0)) || "WSO2".equals(event.getData(0)));
-                }
-            }
-
-        });
-
-        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
-        siddhiAppRuntime.start();
-        inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
-        inputHandler.send(new Object[]{"IBM", 75.6f, 100});
-
-        Thread.sleep(1000);
-        siddhiAppRuntime.shutdown();
-        AssertJUnit.assertTrue(eventArrived);
-        AssertJUnit.assertEquals(3, count);
 
     }
 
-    @Test
+
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void asyncTest2() throws InterruptedException {
         log.info("async test 2");
-
-        SiddhiManager siddhiManager = new SiddhiManager();
-
-        String siddhiApp = "" +
-                "@app:async " +
-                " " +
-                "define stream cseEventStream (symbol string, price float, volume int);" +
-                "define stream cseEventStream2 (symbol string, price float, volume int);" +
-                "" +
-                "@info(name = 'query1') " +
-                "from cseEventStream[70 > price] " +
-                "select * " +
-                "insert into innerStream ;" +
-                "" +
-                "@info(name = 'query2') " +
-                "from innerStream[volume > 90] " +
-                "select * " +
-                "insert into outputStream ;";
-
-        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
-
-        siddhiAppRuntime.addCallback("outputStream", new StreamCallback() {
-
-            @Override
-            public void receive(Event[] events) {
-                EventPrinter.print(events);
-                eventArrived = true;
-                for (Event event : events) {
-                    count++;
-                    AssertJUnit.assertTrue("WSO2".equals(event.getData(0)));
-                }
-            }
-
-        });
-
-        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
-        siddhiAppRuntime.start();
-        inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
-        inputHandler.send(new Object[]{"IBM", 75.6f, 100});
-
-        Thread.sleep(100);
-        siddhiAppRuntime.shutdown();
-        AssertJUnit.assertTrue(eventArrived);
-        AssertJUnit.assertEquals(1, count);
-
-    }
-
-    @Test
-    public void asyncTest3() throws InterruptedException {
-        log.info("async test 3");
-
-        SiddhiManager siddhiManager = new SiddhiManager();
-
-        String siddhiApp = "" +
-                "@app:async" +
-                " " +
-                "define stream cseEventStream (symbol string, price float, volume int);" +
-                "define stream cseEventStream2 (symbol string, price float, volume int);" +
-                "" +
-                "@info(name = 'query1') " +
-                "from cseEventStream[70 > price] " +
-                "select * " +
-                "insert into innerStream ;" +
-                "" +
-                "@info(name = 'query2') " +
-                "from innerStream[volume > 90]#window.time(30 milliseconds) " +
-                "select symbol, count() as eventCount " +
-                "insert all events into outputStream ;";
-
-        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
-
-        siddhiAppRuntime.addCallback("outputStream", new StreamCallback() {
-
-            @Override
-            public void receive(Event[] events) {
-                EventPrinter.print(events);
-                eventArrived = true;
-                for (Event event : events) {
-                    count++;
-                    AssertJUnit.assertTrue("WSO2".equals(event.getData(0)));
-                }
-            }
-
-        });
-
-        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
-        siddhiAppRuntime.start();
-        inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
-        inputHandler.send(new Object[]{"IBM", 75.6f, 100});
-
-        Thread.sleep(1000);
-        siddhiAppRuntime.shutdown();
-        AssertJUnit.assertTrue(eventArrived);
-        AssertJUnit.assertEquals(2, count);
-
-    }
-
-    @Test
-    public void asyncTest4() throws InterruptedException {
-        log.info("async test 4");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -217,41 +96,6 @@ public class AsyncTestCase {
                 "insert into outputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
-
-        siddhiAppRuntime.addCallback("outputStream", new StreamCallback() {
-
-            @Override
-            public void receive(Event[] events) {
-                EventPrinter.print(events);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    log.error(e.getMessage(), e);
-                }
-                eventArrived = true;
-                for (Event event : events) {
-                    count++;
-                }
-            }
-
-        });
-
-        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
-        siddhiAppRuntime.start();
-        long startTime = System.currentTimeMillis();
-        inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
-        inputHandler.send(new Object[]{"IBM", 9.6f, 100});
-        inputHandler.send(new Object[]{"FB", 7.6f, 100});
-        inputHandler.send(new Object[]{"GOOG", 5.6f, 100});
-        inputHandler.send(new Object[]{"FB", 23.6f, 100});
-        inputHandler.send(new Object[]{"WSO2", 13.6f, 100});
-        inputHandler.send(new Object[]{"IBM", 15.6f, 100});
-        long timeDiff = System.currentTimeMillis() - startTime;
-        Thread.sleep(9000);
-        siddhiAppRuntime.shutdown();
-        AssertJUnit.assertTrue(eventArrived);
-        AssertJUnit.assertEquals(7, count);
-        AssertJUnit.assertTrue(timeDiff >= 1000);
 
     }
 

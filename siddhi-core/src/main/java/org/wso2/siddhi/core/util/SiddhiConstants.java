@@ -67,6 +67,8 @@ public final class SiddhiConstants {
     public static final String ANNOTATION_ELEMENT_TYPE = "type";
     public static final String ANNOTATION_BUFFER_SIZE = "BufferSize";
     public static final String ANNOTATION_ELEMENT_REF = "ref";
+    public static final String ANNOTATION_ELEMENT_ENABLE = "enable";
+    public static final String ANNOTATION_ELEMENT_INCLUDE = "include";
 
     public static final String TRUE = "true";
     public static final String TRIGGER_START = "start";
@@ -82,6 +84,7 @@ public final class SiddhiConstants {
 
     public static final String METRIC_INFIX_SIDDHI_APPS = "SiddhiApps";
     public static final String METRIC_INFIX_STREAMS = "Streams";
+    public static final String METRIC_INFIX_STORE_QUERIES = "StoreQueries";
     public static final String METRIC_INFIX_TABLES = "Tables";
     public static final String METRIC_INFIX_TRIGGERS = "Trigger";
     public static final String METRIC_INFIX_SIDDHI = "Siddhi";
