@@ -178,11 +178,7 @@ public class ConfigServiceImpl {
         JsonObject pluginConfigs = new JsonObject();
         config.add(PluginConstants.PLUGIN_CONFIGS, pluginConfigs);
         this.setWelcomeTabPluginConfigs(pluginConfigs);
-
-        if (getStartupFile() != null) {
-            config.addProperty("startupFile", getStartupFile());
-        }
-                
+        this.setWorkspaceManagerConfigs(pluginConfigs);
         return config;
     }
 
@@ -290,5 +286,17 @@ public class ConfigServiceImpl {
         }
     
         pluginConfigs.add(PluginConstants.WELCOME_TAB_PLUGIN_ID, welcomeTabPluginConfig);
+    }
+
+    /**
+     * Setting configs related to workspace manager plugin.
+     * @param pluginConfigs The config for all plugins..
+     */
+    public void setWorkspaceManagerConfigs(JsonObject pluginConfigs) {
+        JsonObject workspaceManagerPluginConfig = new JsonObject();
+        if (getStartupFile() != null) {
+            workspaceManagerPluginConfig.addProperty("startupFile", getStartupFile());
+        }
+        pluginConfigs.add(PluginConstants.WORKSPACE_MANAGER_PLUGIN_ID, workspaceManagerPluginConfig);
     }
 }
