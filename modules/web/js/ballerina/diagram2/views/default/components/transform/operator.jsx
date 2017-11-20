@@ -70,6 +70,7 @@ export default class Operator extends React.Component {
                             <span
                                 onClick={() => this.props.onFolderClick(opExp.getID())}
                                 className='fw-stack fw-lg btn folder'
+                                title="Expand"
                             >
                                 <i className='fw-stack-1x fw-down' />
                             </span>
@@ -126,6 +127,7 @@ export default class Operator extends React.Component {
                                     onOperatorRemove(opExp, parentNode, statement);
                                 }}
                                 className='fw-stack fw-lg btn operator-remove'
+                                title="Delete operator"
                             >
                                 <i className='fw-delete fw-stack-1x' />
                             </span>
@@ -150,6 +152,7 @@ export default class Operator extends React.Component {
                             <span
                                 onClick={() => this.props.onFolderClick(opExp.getID())}
                                 className='fw-stack fw-lg btn btn-remove-func'
+                                title="Collapse"
                             >
                                 <i className='fw-delete fw-stack-1x fw-up' />
                             </span>

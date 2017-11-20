@@ -80,6 +80,7 @@ export default class FunctionInv extends React.Component {
                     id={`${funcInvID}:${viewId}`}
                     className='function-header'
                     onClick={() => this.props.onHeaderClick(funcInvID)}
+                    title={isCollapsed ? 'Expand' : 'Collapse'}
                 >
                     <i className={`fw ${foldIndicator} fold-indicator`} />
                     <i className='fw fw-function fw-inverse' />
@@ -90,6 +91,7 @@ export default class FunctionInv extends React.Component {
                             onFunctionRemove(funcInv, parentNode, statement);
                         }}
                         className='fw-stack fw-lg btn btn-remove-func'
+                        title="Delete function"
                     >
                         <i className='fw-delete fw-stack-1x fw-inverse' />
                     </span>
