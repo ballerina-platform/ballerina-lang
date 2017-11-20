@@ -20,7 +20,6 @@ package org.ballerinalang.connector.impl;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.ConnectorFutureListener;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -32,23 +31,19 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 public class BServerConnectorFuture implements ConnectorFuture {
     private ConnectorFutureListener connectorFutureListener;
 
-    private BValue[] response;
     private BallerinaException ex;
     private boolean success = false;
 
     @Override
     public void setConnectorFutureListener(ConnectorFutureListener futureListener) {
         this.connectorFutureListener = futureListener;
-        if (response != null) {
-            connectorFutureListener.notifyReply(response);
-        } else if (ex != null) {
+        if (ex != null) {
             connectorFutureListener.notifyFailure(new BallerinaConnectorException(ex.getMessage(), ex));
             success = false; //double check this.
         }
         if (success) {
             connectorFutureListener.notifySuccess();
         }
-        response = null;
         ex = null;
     }
 
@@ -58,15 +53,6 @@ public class BServerConnectorFuture implements ConnectorFuture {
             connectorFutureListener.notifySuccess();
         } else {
             this.success = true;
-        }
-    }
-
-    public void notifyReply(BValue... response) {
-        //if the future listener already exist, notify right away. if not store until listener registration.
-        if (connectorFutureListener != null) {
-            connectorFutureListener.notifyReply(response);
-        } else {
-            this.response = response;
         }
     }
 
