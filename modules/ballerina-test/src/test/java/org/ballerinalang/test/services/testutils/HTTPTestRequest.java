@@ -30,20 +30,16 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 public class HTTPTestRequest extends HTTPCarbonMessage {
 
     private TestHttpFutureListener futureListener;
-    private HTTPCarbonMessage httpCarbonMessage;
 
     public HTTPTestRequest() {
         super(new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, ""));
     }
 
     @Override
-    public TestHttpResponseStatusFuture respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {
-        this.httpCarbonMessage = httpCarbonMessage;
+    public void respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {
         if (this.getFutureListener() != null) {
             getFutureListener().setResponseMsg(httpCarbonMessage);
-            this.httpCarbonMessage = null;
         }
-        return new TestHttpResponseStatusFuture();
     }
 
     public TestHttpFutureListener getFutureListener() {
@@ -52,8 +48,6 @@ public class HTTPTestRequest extends HTTPCarbonMessage {
 
     public void setFutureListener(TestHttpFutureListener futureListener) {
         this.futureListener = futureListener;
-        if (httpCarbonMessage != null) {
-            this.futureListener.setResponseMsg(httpCarbonMessage);
-        }
     }
+
 }

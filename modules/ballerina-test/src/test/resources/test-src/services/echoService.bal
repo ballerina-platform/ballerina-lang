@@ -14,7 +14,7 @@ service<http> echo {
         path:"/message"
     }
     resource echo (http:Request req, http:Response res) {
-        _ = res.send();
+        res.send();
     }
     
     @http:resourceConfig {
@@ -23,7 +23,7 @@ service<http> echo {
     }
     resource echo_worker (http:Request req, http:Response res) {
         worker w1 {
-            _ = res.send();
+            res.send();
         }
         worker w2 {
             int x = 0;
@@ -38,7 +38,7 @@ service<http> echo {
     resource setString (http:Request req, http:Response res) {
         serviceLevelStr = req.getStringPayload();
         //res.setStringPayload(res, serviceLevelStr);
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -47,7 +47,7 @@ service<http> echo {
     }
     resource getString (http:Request req, http:Response res) {
         res.setStringPayload(serviceLevelStr);
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -55,7 +55,7 @@ service<http> echo {
     }
     resource removeHeaders (http:Request req, http:Response res) {
         req.removeAllHeaders();
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -64,7 +64,7 @@ service<http> echo {
     }
     resource getServiceLevelString (http:Request req, http:Response res) {
         res.setStringPayload(serviceLevelStringVar);
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -73,7 +73,7 @@ service<http> echo {
     }
     resource constValueAsAttributeValue (http:Request req, http:Response res) {
         res.setStringPayload("constant path test");
-        _ = res.send();
+        res.send();
     }
 
     @http:resourceConfig {
@@ -94,7 +94,7 @@ service<http> echo {
         team,_ = (string)params.team;
         json responseJson = {"Name":name , "Team":team};
         res.setJsonPayload(responseJson);
-        _ = res.send();
+        res.send();
     }
 }
 

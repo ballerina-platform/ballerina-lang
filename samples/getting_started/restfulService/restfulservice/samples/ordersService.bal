@@ -17,6 +17,6 @@ service<http> OrderMgtService {
             payload = {"Status":"Order is successfully added."};
         }
         res.setJsonPayload(payload);
-        _ = res.send();
+        res.send();
     }
 }

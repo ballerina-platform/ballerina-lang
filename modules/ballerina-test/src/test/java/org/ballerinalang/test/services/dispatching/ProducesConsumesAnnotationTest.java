@@ -47,7 +47,7 @@ public class ProducesConsumesAnnotationTest {
     @Test(description = "Test Consumes annotation with URL. /echo66/test1 ")
     public void testConsumesAnnotation() {
         String path = "/echo66/test1";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
         cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, "application/xml; charset=ISO-8859-4");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -83,7 +83,7 @@ public class ProducesConsumesAnnotationTest {
     @Test(description = "Test Produces annotation with URL. /echo66/test2 ")
     public void testProducesAnnotation() {
         String path = "/echo66/test2";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         cMsg.setHeader(Constants.ACCEPT_HEADER, "text/xml;q=0.3, multipart/*;Level=1;q=0.7");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -95,7 +95,7 @@ public class ProducesConsumesAnnotationTest {
     @Test(description = "Test Produces with no Accept header with URL. /echo66/test2 ")
     public void testProducesAnnotationWithNoHeaders() {
         String path = "/echo66/test2";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -106,7 +106,7 @@ public class ProducesConsumesAnnotationTest {
     @Test(description = "Test Produces with wildcard header with URL. /echo66/test2 ")
     public void testProducesAnnotationWithWildCard() {
         String path = "/echo66/test2";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         cMsg.setHeader(Constants.ACCEPT_HEADER, "*/*, text/html;Level=1;q=0.7");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -118,7 +118,7 @@ public class ProducesConsumesAnnotationTest {
     @Test(description = "Test Produces with sub type wildcard header with URL. /echo66/test2 ")
     public void testProducesAnnotationWithSubTypeWildCard() {
         String path = "/echo66/test2";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         cMsg.setHeader(Constants.ACCEPT_HEADER, "text/*;q=0.3, text/html;Level=1;q=0.7");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -154,7 +154,7 @@ public class ProducesConsumesAnnotationTest {
     @Test(description = "Test Produces and Consumes with URL. /echo66/test3 ")
     public void testProducesConsumeAnnotation() {
         String path = "/echo66/test3";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
         cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, "text/plain; charset=ISO-8859-4");
         cMsg.setHeader(Constants.ACCEPT_HEADER, "text/*;q=0.3, text/html;Level=1;q=0.7");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
@@ -180,7 +180,7 @@ public class ProducesConsumesAnnotationTest {
     @Test(description = "Test without Pro-Con annotation with URL. /echo67/echo1 ")
     public void testWithoutProducesConsumeAnnotation() {
         String path = "/echo67/echo1";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, "text/plain; charset=ISO-8859-4");
         cMsg.setHeader(Constants.ACCEPT_HEADER, "text/*;q=0.3, text/html;Level=1;q=0.7");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
