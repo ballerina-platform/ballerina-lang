@@ -27,7 +27,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 /**
- * Performs time conversions related to incremental aggregation
+ * Performs time conversions related to incremental aggregation.
  */
 public class IncrementalTimeConverterUtil {
 
@@ -69,8 +69,8 @@ public class IncrementalTimeConverterUtil {
         }
     }
 
-    public static long getEmitTimeOfLastEventToRemove(long currentTime, TimePeriod.Duration duration,
-            int bufferCount, String timeZone) {
+    public static long getEmitTimeOfLastEventToRemove(long currentTime, TimePeriod.Duration duration, int bufferCount,
+            String timeZone) {
         switch (duration) {
         case SECONDS:
             return currentTime - bufferCount * 1000L;
@@ -94,8 +94,9 @@ public class IncrementalTimeConverterUtil {
                 ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone)));
         if (zonedDateTime.getMonthValue() == 12) {
             // For a time in December, emit time should be beginning of January next year
-            return ZonedDateTime.of(zonedDateTime.getYear() + 1, 1, 1, 0, 0, 0, 0,
-                    ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone))).toEpochSecond() * 1000;
+            return ZonedDateTime
+                    .of(zonedDateTime.getYear() + 1, 1, 1, 0, 0, 0, 0, ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone)))
+                    .toEpochSecond() * 1000;
         } else {
             // For any other month, the 1st day of next month must be considered
             return ZonedDateTime.of(zonedDateTime.getYear(), zonedDateTime.getMonthValue() + 1, 1, 0, 0, 0, 0,
@@ -106,8 +107,9 @@ public class IncrementalTimeConverterUtil {
     private static long getNextEmitTimeForYear(long currentTime, String timeZone) {
         ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(currentTime),
                 ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone)));
-        return ZonedDateTime.of(zonedDateTime.getYear() + 1, 1, 1, 0, 0, 0, 0,
-                ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone))).toEpochSecond() * 1000;
+        return ZonedDateTime
+                .of(zonedDateTime.getYear() + 1, 1, 1, 0, 0, 0, 0, ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone)))
+                .toEpochSecond() * 1000;
     }
 
     private static long getStartTimeOfAggregatesForMonth(long currentTime, String timeZone) {
@@ -120,8 +122,9 @@ public class IncrementalTimeConverterUtil {
     private static long getStartTimeOfAggregatesForYear(long currentTime, String timeZone) {
         ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(currentTime),
                 ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone)));
-        return ZonedDateTime.of(zonedDateTime.getYear(), 1, 1, 0, 0, 0, 0,
-                ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone))).toEpochSecond() * 1000;
+        return ZonedDateTime
+                .of(zonedDateTime.getYear(), 1, 1, 0, 0, 0, 0, ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone)))
+                .toEpochSecond() * 1000;
     }
 
     private static long getEmitTimeOfLastEventToRemoveForMonth(long currentEmitTime, int bufferCount, String timeZone) {
