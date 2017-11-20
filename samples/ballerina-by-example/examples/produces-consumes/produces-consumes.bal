@@ -21,7 +21,7 @@ service<http> infoService {
         string payload = "<name>" + nameString + "</name>";
         var name, _ = <xml>payload;
         res.setXmlPayload(name);
-        res.send();
+        _ = res.send();
     }
 }
 

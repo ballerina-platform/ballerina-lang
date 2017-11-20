@@ -18,7 +18,7 @@ service<http> Ecommerce {
         string reqPath = "/productsservice/" + prodId;
         http:Response clientResponse = {};
         clientResponse, err = productsService.get(reqPath, req);
-        resp.forward(clientResponse);
+        _ = resp.forward(clientResponse);
     }
 
     @http:resourceConfig {
@@ -28,7 +28,7 @@ service<http> Ecommerce {
     resource productMgt (http:Request req, http:Response resp) {
         http:Response clientResponse = {};
         clientResponse, err = productsService.post("/productsservice", req);
-        resp.forward(clientResponse);
+        _ = resp.forward(clientResponse);
     }
 
     @http:resourceConfig {
@@ -41,7 +41,7 @@ service<http> Ecommerce {
         }
         http:Response clientResponse = {};
         clientResponse, err = productsService.get("/orderservice/orders", req);
-        resp.forward(clientResponse);
+        _ = resp.forward(clientResponse);
     }
 
     @http:resourceConfig {
@@ -51,7 +51,7 @@ service<http> Ecommerce {
     resource ordersMgt (http:Request req, http:Response resp) {
         http:Response clientResponse = {};
         clientResponse, err = productsService.post("/orderservice/orders", req);
-        resp.forward(clientResponse);
+        _ = resp.forward(clientResponse);
     }
 
     @http:resourceConfig {
@@ -61,7 +61,7 @@ service<http> Ecommerce {
     resource customersInfo (http:Request req, http:Response resp) {
         http:Response clientResponse = {};
         clientResponse, err = productsService.get("/customerservice/customers", req);
-        resp.forward(clientResponse);
+        _ = resp.forward(clientResponse);
     }
 
     @http:resourceConfig {
@@ -71,6 +71,6 @@ service<http> Ecommerce {
     resource customerMgt (http:Request req, http:Response resp) {
         http:Response clientResponse = {};
         clientResponse, err = productsService.post("/customerservice/customers", req);
-        resp.forward(clientResponse);
+        _ = resp.forward(clientResponse);
     }
 }

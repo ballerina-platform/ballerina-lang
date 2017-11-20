@@ -14,6 +14,6 @@ service<http> echo {
         json payload = req.getJsonPayload();
         res.setJsonPayload(payload);
         // Send back the response to the client.
-        res.send();
+        _ = res.send();
     }
 }

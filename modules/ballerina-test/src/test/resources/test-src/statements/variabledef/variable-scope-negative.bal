@@ -39,12 +39,12 @@ service<http> myService {
 
     resource myResource1(http:Request req, http:Response res) {
         int b = a + 50;
-        res.send();
+        _ = res.send();
     }
 
     resource myResource2(http:Request req, http:Response res) {
         int c = b + 50;
-        res.send();
+        _ = res.send();
     }
 }
 

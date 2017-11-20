@@ -21,6 +21,7 @@ package org.ballerinalang.test.services.session;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.runtime.message.StringDataSource;
+import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
@@ -48,7 +49,7 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for GetId Function")
     public void testGetIdFunction() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/id1", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/id1", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
@@ -62,7 +63,7 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for null session GetId Function")
     public void testNullSessionGetIdFunction() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/id2", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/id2", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
@@ -74,7 +75,7 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for isNew Function")
     public void testIsNewFunction() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new1", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/new1", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
@@ -86,7 +87,7 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for isNew Function two attempts")
     public void testIsNewFunctiontwoAttempts() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new1", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/new1", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
@@ -109,7 +110,7 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for GetCreateTime Function")
     public void testGetCreateTimeFunction() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new2", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/new2", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
@@ -133,7 +134,7 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for GetCreateTime Function error")
     public void testGetCreateTimeFunctionError() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new3", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/new3", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
@@ -145,7 +146,7 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for GetLastAccessedTime Function")
     public void testGetLastAccessedTimeFunction() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new4", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/new4", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
@@ -180,7 +181,7 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for GetLastAccessed Function error")
     public void testGetLastAccessedTimeFunctionError() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new5", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/new5", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
@@ -192,7 +193,7 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for setMaxInactiveInterval and getMaxInactiveInterval Function")
     public void testSetMaxInactiveIntervalFunction() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new6", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/new6", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
@@ -217,7 +218,7 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for SetMaxInactiveInterval Function error")
     public void testSetMaxInactiveIntervalFunctionError() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new7", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/new7", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
@@ -229,7 +230,7 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for negative timeout setMaxInactiveInterval")
     public void testSetMaxInactiveIntervalNegativeTimeoutFunction() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new8", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/new8", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
