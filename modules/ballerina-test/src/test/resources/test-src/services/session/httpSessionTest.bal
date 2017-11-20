@@ -278,6 +278,7 @@ service<http> sample2 {
         http:Session session = req.createSessionIfAbsent();
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
+        println("size: " + arrsize);
         res.setStringPayload(<string>(arrsize));
         _ = res.send();
     }
@@ -322,7 +323,7 @@ service<http> sample2 {
             v1,_ = (string)attributes[arr[1]];
             res.setStringPayload(arr[1] + ":" + v1);
         }
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -339,7 +340,7 @@ service<http> sample2 {
             v0,_ = (string)attributes[arr[0]];
         }
         res.setStringPayload("value" + ":" + v0);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {

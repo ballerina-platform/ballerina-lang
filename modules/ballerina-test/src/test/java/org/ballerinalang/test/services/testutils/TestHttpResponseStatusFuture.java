@@ -19,6 +19,7 @@
 package org.ballerinalang.test.services.testutils;
 
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseStatusFuture;
+import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseStatus;
 
 /**
  * Test HttpResponseStatusFuture implementation for service tests
@@ -26,6 +27,10 @@ import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseStatusFutur
 public class TestHttpResponseStatusFuture extends HttpResponseStatusFuture {
 
     public TestHttpResponseStatusFuture sync() throws InterruptedException {
+        return this;
+    }
+
+    public HttpResponseStatus getFailureStatus() {
         return null;
     }
 }

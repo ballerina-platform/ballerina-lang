@@ -463,8 +463,9 @@ public class HttpUtil {
         } catch (InterruptedException e) {
             throw new BallerinaException("interrupted sync: " + e.getMessage());
         }
-        if (statusFuture.getStatus() != null) {
-            return abstractNativeFunction.getBValues(getServerConnectorError(context, statusFuture.getStatus()));
+        if (statusFuture.getFailureStatus() != null) {
+            return abstractNativeFunction.getBValues(getServerConnectorError(context
+                    , statusFuture.getFailureStatus().getCause()));
         }
         return abstractNativeFunction.VOID_RETURN;
     }

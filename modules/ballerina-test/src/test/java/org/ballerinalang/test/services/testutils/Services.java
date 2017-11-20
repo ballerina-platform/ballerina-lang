@@ -54,7 +54,6 @@ public class Services {
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request);
         ConnectorFuture future = Executor.submit(resource.getBalResource(), properties, signatureParams);
         futureListener.setRequestStruct(signatureParams[0]);
-        request.setFutureListener(futureListener);
         future.setConnectorFutureListener(futureListener);
         futureListener.sync();
         return futureListener.getResponseMsg();
