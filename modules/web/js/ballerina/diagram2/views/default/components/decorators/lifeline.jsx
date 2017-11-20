@@ -89,10 +89,10 @@ class LifeLine extends React.Component {
             }
 
             // if (initialExpression) {
-                const node = this.props.model;
-                node.viewState.showOverlayContainer = true;
-                OverlayComponentsRenderingUtil.showConnectorPropertyWindow(node);
-                this.context.editor.update();
+            const node = this.props.model;
+            node.viewState.showOverlayContainer = true;
+            OverlayComponentsRenderingUtil.showConnectorPropertyWindow(node);
+            this.context.editor.update();
             // }
         }
     }
@@ -112,8 +112,11 @@ class LifeLine extends React.Component {
         const solidY2 = y2 - (titleBoxH / 2);
         this.topBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, titleBoxH);
 
+        // Check if its the default worker
+        const isDefaultWorker = this.props.title === 'default';
         const actionBbox = new SimpleBBox();
-        actionBbox.w = (3 * DesignerDefaults.actionBox.width - 14) / 4;
+        actionBbox.w = isDefaultWorker ? (DesignerDefaults.actionBox.width + 15) / 4
+          : (3 * DesignerDefaults.actionBox.width - 14) / 4;
         actionBbox.h = DesignerDefaults.actionBox.height;
         actionBbox.x = bBox.x + (bBox.w - actionBbox.w) / 2;
         actionBbox.y = bBox.y + titleBoxH + DesignerDefaults.actionBox.padding.top;
@@ -241,6 +244,7 @@ class LifeLine extends React.Component {
                     bBox={actionBbox}
                     onDelete={() => this.onDelete()}
                     onJumptoCodeLine={() => this.onJumptoCodeLine()}
+                    isDefaultWorker={isDefaultWorker}
                 />
             }
         </g>);

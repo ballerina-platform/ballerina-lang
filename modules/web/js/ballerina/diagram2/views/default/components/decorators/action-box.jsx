@@ -62,7 +62,7 @@ class ActionBox extends React.Component {
      */
     render() {
         const bBox = this.props.bBox;
-        const numIcons = 3 - (this.props.onBreakpointClick ? 0 : 1);
+        const numIcons = 3 - (this.props.onBreakpointClick ? 0 : 1) - (this.props.isDefaultWorker ? 1 : 0);
         const iconSize = 14;
         const y = bBox.y + ((bBox.h - iconSize) / 2);
         const horizontalGap = (bBox.w - (iconSize * numIcons)) / (numIcons + 1);
@@ -86,6 +86,7 @@ class ActionBox extends React.Component {
                 ry="0"
                 className="property-pane-action-button-wrapper"
             />
+            { !this.props.isDefaultWorker &&
             <image
                 width={iconSize}
                 height={iconSize}
@@ -96,7 +97,7 @@ class ActionBox extends React.Component {
                 x={bBox.x + horizontalGap}
                 y={y}
             >
-                <title>Delete</title> </image>
+                <title>Delete</title> </image> }
             {this.props.onBreakpointClick &&
             <Breakpoint
                 x={bBox.x + iconSize + (horizontalGap * 2)}
