@@ -36,7 +36,6 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
     private List<HttpResource> resource;
     private boolean isFirstTraverse = true;
 
-
     @Override
     public void setData(HttpResource newResource) {
         if (isFirstTraverse) {
@@ -50,7 +49,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
             for (HttpResource previousResource : this.resource) {
                 if (previousResource.getMethods() == null) {
                     //if both resources do not have methods but same URI, then throw following error.
-                    throw new BallerinaException("Seems two resources have the same addressable URI, "
+                    throw new BallerinaException("Two resources have the same addressable URI, "
                                                      + previousResource.getName() + " and " + newResource.getName());
                 }
             }
@@ -60,7 +59,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
         this.resource.forEach(r -> {
             for (String newMethod : newMethods) {
                 if (DispatcherUtil.isMatchingMethodExist(r, newMethod)) {
-                    throw new BallerinaException("Seems two resources have the same addressable URI, "
+                    throw new BallerinaException("Two resources have the same addressable URI, "
                                                          + r.getName() + " and " + newResource.getName());
                 }
             }
