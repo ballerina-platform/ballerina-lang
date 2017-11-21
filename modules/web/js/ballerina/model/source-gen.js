@@ -731,12 +731,21 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.attributes, pretty, replaceLambda, l, w, '') + w() + '>'
                  + join(node.content, pretty, replaceLambda, l, w, '') + w() + '</'
                  + getSourceOf(node.endTagName, pretty, l, replaceLambda) + w() + '>' + w() + '`';
-            } else {
+            } else if (node.startTagName && node.attributes && node.content
+                         && node.endTagName) {
                 return w() + '<'
                  + getSourceOf(node.startTagName, pretty, l, replaceLambda) + join(node.attributes, pretty, replaceLambda, l, w, '')
                  + w() + '>' + join(node.content, pretty, replaceLambda, l, w, '')
                  + w() + '</'
                  + getSourceOf(node.endTagName, pretty, l, replaceLambda) + w() + '>';
+            } else if (node.root && node.startTagName && node.attributes) {
+                return w() + 'xml`' + w() + '<'
+                 + getSourceOf(node.startTagName, pretty, l, replaceLambda)
+                 + join(node.attributes, pretty, replaceLambda, l, w, '') + w() + '/>`';
+            } else {
+                return w() + '<'
+                 + getSourceOf(node.startTagName, pretty, l, replaceLambda) + join(node.attributes, pretty, replaceLambda, l, w, '')
+                 + w() + '/>';
             }
         case 'XmlPiLiteral':
             if (node.target && node.dataTextFragments) {

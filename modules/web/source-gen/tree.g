@@ -314,7 +314,9 @@ XmlCommentLiteral
 
 XmlElementLiteral
    : <root?> xml` < <startTagName.source> <attributes>* > <content>* </ <endTagName.source> > `
-   :              < <startTagName.source> <attributes>* > <content>* </ <endTagName.source> >
+   |              < <startTagName.source> <attributes>* > <content>* </ <endTagName.source> >
+   | <root?> xml` < <startTagName.source> <attributes>* />`
+   :              < <startTagName.source> <attributes>* />
    ;
 
 XmlPiLiteral
