@@ -128,7 +128,7 @@ class SizingUtil {
         viewState.lambdas = lambdas;
         if (lambdas.length) {
             viewState.expression = sourceFragments.join('\u0192');
-            viewState.bBox.h = _.sumBy(lambdas, 'viewState.bBox.h') + viewState.components["drop-zone"].h;
+            viewState.bBox.h = _.sumBy(lambdas, 'viewState.bBox.h') + viewState.components['drop-zone'].h;
             const maxW = _.maxBy(lambdas, 'viewState.bBox.w').viewState.bBox.w;
             viewState.bBox.w = maxW;
             viewState.components['statement-box'].w = viewState.bBox.w;
@@ -577,7 +577,10 @@ class SizingUtil {
         if (viewState.globalsExpanded) {
             const globals = astRoot.filterTopLevelNodes({ kind: 'Variable' })
                 .concat(astRoot.filterTopLevelNodes({ kind: 'Xmlns' }));
-
+            globals.forEach((global) => {
+                const text = this.getTextWidth(global.getSource(), 0, 292).text;
+                global.viewState.globalText = text;
+            });
             height += topGutter + topBarHeight + importInputHeight +
                 (globals.length * this.config.packageDefinition.importDeclaration.itemHeight);
         }
@@ -800,6 +803,12 @@ class SizingUtil {
         }
         // set the components.
         viewState.components = cmp;
+
+        // Set the globals to fit the globals container
+        variables.forEach((global) => {
+            const text = this.getTextWidth(global.getSource(), 0, 295).text;
+            global.viewState.globalText = text;
+        });
     }
 
     _calculateChildrenDimensions(children = [], components, bBox, collapsed) {
@@ -914,7 +923,7 @@ class SizingUtil {
      * Calculate dimention of Transformer nodes.
      *
      * @param {object} node
-     * 
+     *
      */
     sizeTransformerNode(node) {
         const viewState = node.viewState;
@@ -946,7 +955,7 @@ class SizingUtil {
             nameTextDetails = this.getTextWidth(nameText, 0);
             viewState.nameText = nameTextDetails.text;
         } else {
-            viewState.defaultNameText = '+ Add name'
+            viewState.defaultNameText = '+ Add name';
             viewState.nameText = '';
             nameTextDetails = this.getTextWidth(viewState.defaultNameText, 0);
         }
@@ -1674,7 +1683,7 @@ class SizingUtil {
      * Calculate dimention of EndpointType nodes.
      *
      * @param {object} node
-     * 
+     *
      */
     sizeEndpointTypeNode(node) {
         // Not implemented.
