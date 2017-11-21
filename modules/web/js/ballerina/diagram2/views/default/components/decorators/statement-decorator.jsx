@@ -169,7 +169,8 @@ class StatementDecorator extends React.Component {
         }
         let tooltip = null;
         if (viewState.fullExpression !== expression) {
-            tooltip = (<title>{this.props.viewState.fullExpression}</title>);
+            const fullExp = _.trimEnd(this.props.viewState.fullExpression, ';');
+            tooltip = (<title>{fullExp}</title>);
         }
 
         let dropDownItems;
@@ -184,7 +185,7 @@ class StatementDecorator extends React.Component {
             dropDownItems.forEach((item) => {
                 const meta = {
                     text: _.get(item, 'variable.name.value'),
-                    callback: (newEp) => { 
+                    callback: (newEp) => {
                         TreeUtil.changeInvocationEndpoint(this.props.model, newEp);
                         this.props.model.trigger('tree-modified', {
                             origin: this.props.model,
@@ -261,7 +262,7 @@ class StatementDecorator extends React.Component {
                 <g className="statement-body">
                     {tooltip}
                     <text x={text.x} y={text.y} className={textClassName} onClick={e => this.openEditor(e)}>
-                        {expression}
+                        {_.trimEnd(expression, ';')}
                     </text>
                 </g>
                 <ActionBox
