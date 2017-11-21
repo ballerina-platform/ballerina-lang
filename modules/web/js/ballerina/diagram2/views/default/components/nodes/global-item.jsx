@@ -152,7 +152,7 @@ export default class GlobalDefinitionItem extends React.Component {
 
             <g className={className} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
 
-                <title> {this.props.getValue(this.props.globalDec)} </title>
+                <title> {_.trimEnd(this.props.getValue(this.props.globalDec), ';')} </title>
                 <g onClick={(e) => { this.openEditor(this.props.bBox); }}>
                     <rect
                         x={x}
@@ -168,7 +168,7 @@ export default class GlobalDefinitionItem extends React.Component {
                         ry="0"
                         className="global-definition-text"
                     >
-                        {this.props.getValue(this.props.globalDec)}
+                        {this.props.globalDec.viewState.globalText }
                     </text>
                 </g>
                 <rect
