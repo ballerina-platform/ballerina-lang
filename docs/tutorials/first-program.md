@@ -6,7 +6,7 @@ Now that you’ve taken the [Quick Tour](../quick-tour.md), let's dig a little d
 
 In the [Quick Tour](../quick-tour.md), you learned how to start Ballerina and run a sample program from the `<ballerina_home>/samples/helloWorld` directory with a single command:
 
-```
+```bash
 ballerina run helloWorld.bal
 ```
 
@@ -14,13 +14,13 @@ After the HelloWorld program executed, Ballerina stopped. This approach is calle
 
 You can also run Ballerina as a **server**, so that it can deploy one or more services that wait for requests. To see how this works, let's go to your `<ballerina_home>/samples/helloWorldService` directory, and then run Ballerina in server mode and deploy the HelloWorldService program:
 
-```
+```bash
 ballerina run helloWorldService.bal
 ```
 
 In this case, Ballerina ran and deployed the HelloWorldService program as a service, which is waiting for a request. Let's send it one now. The Ballerina server is available at `localhost:9090`, and HelloWorldService is available at context `hello`. Open another command line window and use the [cURL](https://curl.haxx.se) client to call the service as follows:
 
-```
+```bash
 curl -v http://localhost:9090/hello
 ```
 
@@ -78,12 +78,13 @@ When you added the service, Ballerina configured the resource to use the GET met
 
 You can click the symbol again to confirm that GET was in fact changed to POST. You can also click the **Source View** button in the lower right corner to see the changes that are being made to the Ballerina code as you work with the visual editor. Currently, the source code should look like this:
 
-```
+```Ballerina
 @http:BasePath{value:"/myecho"} 
+
 service myEchoService {
-	@http:POST {} 
-	resource myEchoResource( message m) {
-	}
+    @http:POST {} 
+        resource myEchoResource( message m) {
+    }
 }
 ```
 
@@ -108,17 +109,16 @@ Now that we've added the function that will convert the incoming message text to
 
 This completes the sequence. If you go to the Source view, your program should now look like this:
 
-```
+```Ballerina
  import ballerina.net.http;
+
 @http:BasePath{value:"/myecho"} 
 service myEchoService {
-	@http:POST {} 
-	resource myEchoResource( message m) {
-		http:convertToResponse( m );
-		reply m;
-		
-	}
-	
+    @http:POST {} 
+    resource myEchoResource( message m) {
+        http:convertToResponse( m );
+        reply m;
+    }
 }
 ```
 Notice that the `ballerina.net.http` package has been imported, and the `convertToResponse` function and `reply` statement appear within the resource definition.
@@ -145,7 +145,7 @@ Your service is now deployed and running on the Ballerina server.
 
 In a new command prompt, use cURL to send the following request to your program:
 
-```
+```Bash
 curl -v http://localhost:9090/myecho/myEchoResource -d "Hello World......"
 ```
 
