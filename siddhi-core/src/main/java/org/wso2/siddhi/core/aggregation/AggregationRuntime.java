@@ -235,7 +235,7 @@ public class AggregationRuntime {
         }
 
         // Create new MatchingMetaInfoHolder containing newMetaStreamEventWithStartEnd and table meta event
-        MatchingMetaInfoHolder newStreamTableMetaInfoHolder = createNewStreamTableMetaInfoHolder(
+        MatchingMetaInfoHolder streamTableMetaInfoHolderWithStartEnd = createNewStreamTableMetaInfoHolder(
                 newMetaStreamEventWithStartEnd, tableDefinition);
 
         // Create per expression executor
@@ -277,7 +277,7 @@ public class AggregationRuntime {
         // These compile conditions are used to check whether the aggregates in tables are within the given duration.
         for (Map.Entry<TimePeriod.Duration, Table> entry : aggregationTables.entrySet()) {
             CompiledCondition withinTableCompileCondition = entry.getValue().compileCondition(withinExpression,
-                    newStreamTableMetaInfoHolder, siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
+                    streamTableMetaInfoHolderWithStartEnd, siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
             withinTableCompiledConditions.put(entry.getKey(), withinTableCompileCondition);
         }
 
@@ -285,7 +285,7 @@ public class AggregationRuntime {
         // This compile condition is used to check whether the running aggregates (in-memory data)
         // are within given duration
         withinInMemoryCompileCondition = OperatorParser.constructOperator(new ComplexEventChunk<>(true),
-                withinExpression, newStreamTableMetaInfoHolder, siddhiAppContext, variableExpressionExecutors, tableMap,
+                withinExpression, streamTableMetaInfoHolderWithStartEnd, siddhiAppContext, variableExpressionExecutors, tableMap,
                 queryName);
 
         // TODO: 8/11/17 optimize on and to retrieve group by
