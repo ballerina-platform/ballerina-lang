@@ -20,10 +20,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import log from 'log';
 import _ from 'lodash';
+import { parseContent } from 'api-client/api-client';
 import './global-item.css';
 import { variablesPane as variablesPaneDefaults } from '../../designer-defaults';
 import ExpressionEditor from '../../../../../../expression-editor/expression-editor-utils';
-import { parseContent } from './../../../../../../api-client/api-client';
 import TreeBuilder from './../../../../../model/tree-builder';
 import TreeUtils from './../../../../../model/tree-util';
 

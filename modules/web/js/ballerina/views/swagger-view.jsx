@@ -26,8 +26,8 @@ import SwaggerEditorBundle from 'swagger-editor-dist/swagger-editor-bundle';
 import SwaggerParser from 'ballerina/swagger-parser/swagger-parser';
 import NodeFactory from 'ballerina/model/node-factory';
 import ServiceNode from 'ballerina/model/tree/service-node';
+import { getSwaggerDefinition } from 'api-client/api-client';
 import { DESIGN_VIEW, SOURCE_VIEW } from './constants';
-import { getSwaggerDefinition } from '../../api-client/api-client';
 
 
 const ace = global.ace;

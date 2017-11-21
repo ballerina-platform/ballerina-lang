@@ -18,9 +18,9 @@
 import log from 'log';
 import _ from 'lodash';
 import EventChannel from 'event_channel';
+import { getTypeLattice, getOperatorLattice } from 'api-client/api-client';
 import BallerinaEnvFactory from './ballerina-env-factory';
 import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
-import { getBuiltInPackages, getTypeLattice, getOperatorLattice } from './../../api-client/api-client';
 import TypeLattice from './../../type-lattice/type-lattice';
 import OperatorLattice from './../../type-lattice/operator-lattice';
 

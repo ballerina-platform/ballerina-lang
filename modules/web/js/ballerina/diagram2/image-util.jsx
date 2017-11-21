@@ -17,7 +17,7 @@
  */
 
 import $ from 'jquery';
-import { getServiceEndpoint } from './../../api-client/api-client';
+import { getServiceEndpoint } from 'api-client/api-client';
 
 /**
  * Gets the base name of a file.

@@ -23,11 +23,11 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import DebugManager from 'plugins/debugger/DebugManager/DebugManager'; // FIXME: Importing from debugger plugin
 import TreeUtil from 'js/ballerina/model/tree-util.js';
+import { parseFile } from 'api-client/api-client';
 import DesignView from './design-view.jsx';
 import SourceView from './source-view.jsx';
 import SwaggerView from './swagger-view.jsx';
 import File from './../../../src/core/workspace/model/file';
-import { validateFile, parseFile } from '../../api-client/api-client';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
