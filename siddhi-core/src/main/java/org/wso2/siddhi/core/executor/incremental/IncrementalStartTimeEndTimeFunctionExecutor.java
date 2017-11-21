@@ -95,7 +95,7 @@ public class IncrementalStartTimeEndTimeFunctionExecutor extends FunctionExecuto
 
     @Override
     public Attribute.Type getReturnType() {
-        return Attribute.Type.OBJECT; // TODO: 11/9/17 check whether this is ok
+        return Attribute.Type.OBJECT;
     }
 
     @Override

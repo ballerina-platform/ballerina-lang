@@ -29,7 +29,6 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.executor.incremental.IncrementalStartTimeEndTimeFunctionExecutor;
 import org.wso2.siddhi.core.executor.incremental.IncrementalTimeGetTimeZone;
 import org.wso2.siddhi.core.executor.incremental.IncrementalUnixTimeFunctionExecutor;
-import org.wso2.siddhi.core.executor.incremental.IncrementalWithinTimeFunctionExecutor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -78,8 +77,6 @@ public class SiddhiExtensionLoader {
         }
 
         // load extensions related to incremental aggregation
-        addExtensionToMap("incrementalAggregator:within",
-                IncrementalWithinTimeFunctionExecutor.class, siddhiExtensionsMap);
         addExtensionToMap("incrementalAggregator:startTimeEndTime",
                 IncrementalStartTimeEndTimeFunctionExecutor.class, siddhiExtensionsMap);
         addExtensionToMap("incrementalAggregator:timestampInMilliseconds",
