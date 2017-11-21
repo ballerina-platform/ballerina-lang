@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  */
 public abstract class AbstractConfigParser {
 
-    protected static final String CONFIG_KEY_FORMAT = "([a-zA-Z0-9._]+)";
+    protected static final String CONFIG_KEY_FORMAT = "([a-zA-Z0-9._]+\\s*)";
     protected static final String INSTANCE_ID_FORMAT = "\\[[a-zA-Z0-9._]+\\]";
     protected static final String COMMENT_OR_WS_FORMAT = "[\\s]*#[\\ -~]*|[\\s]*"; // to skip comments or whitespace
     // TODO: rethink this regex
