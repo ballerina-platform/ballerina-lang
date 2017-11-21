@@ -251,7 +251,7 @@ class ForkJoinNode extends React.Component {
                 <CompoundStatementDecorator
                     dropTarget={model}
                     bBox={bBox}
-                    title={'Fork'}
+                    title={'fork'}
                     model={model}
                     body={model}
                     disableDropzoneMiddleLineOverlay
@@ -299,7 +299,7 @@ class ForkJoinNode extends React.Component {
                     expression={{
                         text: model.getJoinBody().viewState.components.expression.text,
                     }}
-                    title={'Join'}
+                    title={'join'}
                     model={model.getJoinBody()}
                     body={model.getJoinBody()}
                     parameterBbox={model.getJoinBody().viewState.components.param}
@@ -371,7 +371,7 @@ class ForkJoinNode extends React.Component {
                     expression={{
                         text: model.getTimeOutExpression().getSource(),
                     }}
-                    title={'Timeout'}
+                    title={'timeout'}
                     model={model.getTimeoutBody()}
                     body={model.getTimeoutBody()}
                     parameterEditorOptions={timeoutParameterEditorOptions}

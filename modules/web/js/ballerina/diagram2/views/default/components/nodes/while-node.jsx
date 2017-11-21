@@ -52,7 +52,7 @@ class WhileNode extends React.Component {
                 <CompoundStatementDecorator
                     dropTarget={model}
                     bBox={bBox}
-                    title={'While'}
+                    title={'while'}
                     expression={expression}
                     editorOptions={editorOptions}
                     model={model}

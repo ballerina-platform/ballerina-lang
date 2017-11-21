@@ -107,12 +107,12 @@ class IfNode extends React.Component {
         // check whether this block is a else if block and it is the last else if.
         if (!elseExist) {
             const elseIfBlock = {
-                name: 'Else If',
+                name: 'else if',
                 addBlock: this.onAddElseIfClick,
             };
 
             const elseBlock = {
-                name: 'Else',
+                name: 'else',
                 addBlock: this.onAddElseClick,
             };
 
@@ -120,7 +120,7 @@ class IfNode extends React.Component {
             blocksToBeAdded.push(elseBlock);
         } else {
             const elseIfBlock = {
-                name: 'Else If',
+                name: 'else if',
                 addBlock: this.onAddElseIfClick,
             };
             blocksToBeAdded.push(elseIfBlock);
@@ -168,7 +168,7 @@ class IfNode extends React.Component {
         };
         const isElseIfNode = TreeUtil.isIf(model.parent);
         const elseComp = model.elseStatement;
-        const title = isElseIfNode ? 'Else If' : 'If';
+        const title = isElseIfNode ? 'else if' : 'if';
         const dropZone = model.viewState.components['drop-zone'];
         const editorOptions = {
             propertyType: 'text',
@@ -212,7 +212,7 @@ class IfNode extends React.Component {
                 <CompoundStatementDecorator
                     dropTarget={model}
                     bBox={elseComp.viewState.bBox}
-                    title={'Else'}
+                    title={'else'}
                     model={elseComp}
                     body={elseComp}
                 />

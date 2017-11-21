@@ -63,7 +63,7 @@ class TransactionNode extends React.Component {
 
         if (!failedBody) {
             const failedBlock = {
-                name: 'Failed',
+                name: 'failed',
                 addBlock: this.addFailedBody,
             };
             blocksToBeAdded.push(failedBlock);
@@ -71,7 +71,7 @@ class TransactionNode extends React.Component {
 
         if (!abortedBody) {
             const abortedBlock = {
-                name: 'Aborted',
+                name: 'aborted',
                 addBlock: this.addAbortedBody,
             };
             blocksToBeAdded.push(abortedBlock);
@@ -79,7 +79,7 @@ class TransactionNode extends React.Component {
 
         if (!committedBody) {
             const committedBlock = {
-                name: 'Committed',
+                name: 'committed',
                 addBlock: this.addCommittedBody,
             };
             blocksToBeAdded.push(committedBlock);
@@ -160,7 +160,7 @@ class TransactionNode extends React.Component {
                 <CompoundStatementDecorator
                     dropTarget={model}
                     bBox={transactionBody.viewState.bBox}
-                    title={'Transaction'}
+                    title={'transaction'}
                     titleWidth={transactionBody.viewState.components.titleWidth.w}
                     model={model}
                     body={transactionBody}
