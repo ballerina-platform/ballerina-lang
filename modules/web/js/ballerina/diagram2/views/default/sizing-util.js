@@ -803,6 +803,12 @@ class SizingUtil {
         }
         // set the components.
         viewState.components = cmp;
+
+        // Set the globals to fit the globals container
+        variables.forEach((global) => {
+            const text = this.getTextWidth(global.getSource(), 0, 295).text;
+            global.viewState.globalText = text;
+        });
     }
 
     _calculateChildrenDimensions(children = [], components, bBox, collapsed) {
