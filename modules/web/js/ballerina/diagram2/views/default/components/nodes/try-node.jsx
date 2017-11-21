@@ -76,13 +76,13 @@ class TryNode extends React.Component {
         const blocksToBeAdded = [];
         if (!model.getFinallyBody()) {
             const finallyBlock = {
-                name: 'Finally',
+                name: 'finally',
                 addBlock: this.onAddFinallyClick,
             };
             blocksToBeAdded.push(finallyBlock);
         }
         const catchBlock = {
-            name: 'Catch',
+            name: 'catch',
             addBlock: this.onAddCatchClick,
         };
         blocksToBeAdded.push(catchBlock);
@@ -119,7 +119,7 @@ class TryNode extends React.Component {
                 <CompoundStatementDecorator
                     dropTarget={model}
                     bBox={bBox}
-                    title={'Try'}
+                    title={'try'}
                     model={model}
                     body={model.body}
                 />
@@ -129,7 +129,7 @@ class TryNode extends React.Component {
                 {model.finallyBody &&
                 <CompoundStatementDecorator
                     bBox={bBox}
-                    title={'Finally'}
+                    title={'finally'}
                     model={model.finallyBody}
                     body={model.finallyBody}
                     disableButtons={{ delete: disableDeleteForFinally }}
