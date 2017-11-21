@@ -18,60 +18,23 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import WhileNodeModel from 'ballerina/model/tree/while-node';
 import DropZone from 'ballerina/drag-drop/DropZone';
-import FragmentUtils from 'ballerina/utils/fragment-utils';
-import TreeBuilder from 'ballerina/model/tree-builder';
 import CompoundStatementDecorator from './compound-statement-decorator';
 import './try-node.css';
 
 class WhileNode extends React.Component {
 
-    constructor(props) {
-        super(props);
-        this.setWhileCondition = this.setWhileCondition.bind(this);
-        this.getWhileCondition = this.getWhileCondition.bind(this);
-
-        this.editorOptions = {
-            propertyType: 'text',
-            key: 'While condition',
-            model: props.model,
-            getterMethod: this.getWhileCondition,
-            setterMethod: this.setWhileCondition,
-        };
-    }
-
-  /**
-   * Set while condition.
-   * @param {String} newCondition - new condition to be applied to while block.
-   * */
-    setWhileCondition(newCondition) {
-        if (!newCondition) {
-            return;
-        }
-        newCondition = _.trimEnd(newCondition, ';');
-        const fragmentJson = FragmentUtils.createExpressionFragment(newCondition);
-        const parsedJson = FragmentUtils.parseFragment(fragmentJson);
-        if (!parsedJson.error) {
-            const newNode = TreeBuilder.build(parsedJson);
-            newNode.clearWS();
-            this.props.model.setCondition(newNode.getVariable().getInitialExpression());
-        }
-    }
-
-  /**
-   * Get while condition
-   * @return {string} condition source.
-   * */
-    getWhileCondition() {
-        return this.props.model.getCondition().getSource();
-    }
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const expression = model.viewState.components.expression;
         const dropZone = model.viewState.components['drop-zone'];
+        const editorOptions = {
+            propertyType: 'text',
+            key: 'While condition',
+            model: model.getCondition(),
+        };
         return (
             <g>
                 <DropZone
@@ -91,7 +54,7 @@ class WhileNode extends React.Component {
                     bBox={bBox}
                     title={'While'}
                     expression={expression}
-                    editorOptions={this.editorOptions}
+                    editorOptions={editorOptions}
                     model={model}
                     body={model.body}
                 />
