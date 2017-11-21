@@ -99,6 +99,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-packerina</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-logging</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
