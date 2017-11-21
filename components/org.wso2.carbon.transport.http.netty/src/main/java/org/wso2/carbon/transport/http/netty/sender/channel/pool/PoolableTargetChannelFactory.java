@@ -23,9 +23,9 @@ import org.apache.commons.pool.PoolableObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
-import org.wso2.carbon.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
+import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.HTTPClientInitializer;
 import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
@@ -43,25 +43,14 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     private EventLoopGroup eventLoopGroup;
     private Class eventLoopClass;
     private HttpRoute httpRoute;
-    private SSLConfig sslConfig;
-    private boolean httpTraceLogEnabled;
-    private boolean followRedirect;
-    private int maxRedirectCount;
-    private boolean chunkDisabled;
-    private ProxyServerConfiguration proxyServerConfiguration;
+    private SenderConfiguration senderConfiguration;
 
-    public PoolableTargetChannelFactory(HttpRoute httpRoute, EventLoopGroup eventLoopGroup, Class eventLoopClass
-            , SSLConfig sslConfig, boolean httpTraceLogEnabled, boolean chunkDisabled, boolean followRedirect
-            , int maxRedirectCount, ProxyServerConfiguration proxyServerConfiguration) {
+    public PoolableTargetChannelFactory(EventLoopGroup eventLoopGroup, Class eventLoopClass, HttpRoute httpRoute,
+                                        SenderConfiguration senderConfiguration) {
         this.eventLoopGroup = eventLoopGroup;
         this.eventLoopClass = eventLoopClass;
         this.httpRoute = httpRoute;
-        this.sslConfig = sslConfig;
-        this.httpTraceLogEnabled = httpTraceLogEnabled;
-        this.followRedirect = followRedirect;
-        this.maxRedirectCount = maxRedirectCount;
-        this.chunkDisabled = chunkDisabled;
-        this.proxyServerConfiguration = proxyServerConfiguration;
+        this.senderConfiguration = senderConfiguration;
     }
 
 
@@ -69,9 +58,9 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     public Object makeObject() throws Exception {
         Bootstrap clientBootstrap = instantiateAndConfigBootStrap(eventLoopGroup,
                 eventLoopClass, BootstrapConfiguration.getInstance());
-        SSLEngine clientSslEngine = instantiateAndConfigSSL(sslConfig);
-        HTTPClientInitializer httpClientInitializer = instantiateAndConfigClientInitializer(clientBootstrap,
-                clientSslEngine);
+        SSLEngine clientSslEngine = instantiateAndConfigSSL(senderConfiguration.getSslConfig());
+        HTTPClientInitializer httpClientInitializer = instantiateAndConfigClientInitializer(senderConfiguration,
+                clientBootstrap, clientSslEngine);
         clientBootstrap.handler(httpClientInitializer);
         ChannelFuture channelFuture = clientBootstrap
                 .connect(new InetSocketAddress(httpRoute.getHost(), httpRoute.getPort()));
@@ -125,6 +114,7 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
         return clientBootstrap;
     }
 
+    // TODO: Maybe we can move this to the client initializer?
     private SSLEngine instantiateAndConfigSSL(SSLConfig sslConfig) {
         // set the pipeline factory, which creates the pipeline for each newly created channels
         SSLEngine sslEngine = null;
@@ -138,10 +128,10 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
         return sslEngine;
     }
 
-    private HTTPClientInitializer instantiateAndConfigClientInitializer(Bootstrap clientBootstrap,
-            SSLEngine sslEngine) {
-        HTTPClientInitializer httpClientInitializer = new HTTPClientInitializer(sslEngine, httpTraceLogEnabled
-                , chunkDisabled, followRedirect, maxRedirectCount, proxyServerConfiguration);
+    private HTTPClientInitializer instantiateAndConfigClientInitializer(SenderConfiguration senderConfiguration,
+                                                                        Bootstrap clientBootstrap,
+                                                                        SSLEngine sslEngine) {
+        HTTPClientInitializer httpClientInitializer = new HTTPClientInitializer(senderConfiguration, sslEngine);
         if (log.isDebugEnabled()) {
             log.debug("Created new TCP client bootstrap connecting to {}:{} with options: {}", httpRoute.getHost(),
                     httpRoute.getPort(), clientBootstrap);

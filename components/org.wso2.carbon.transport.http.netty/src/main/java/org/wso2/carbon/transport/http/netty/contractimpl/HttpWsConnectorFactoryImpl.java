@@ -21,9 +21,6 @@ package org.wso2.carbon.transport.http.netty.contractimpl;
 
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.common.ProxyServerConfiguration;
-import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
@@ -74,20 +71,11 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
     @Override
     public HttpClientConnector createHttpClientConnector(Map<String, Object> transportProperties,
             SenderConfiguration senderConfiguration) {
-        SSLConfig sslConfig = senderConfiguration.getSslConfig();
-        int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60000);
-        boolean httpTraceLogEnabled = senderConfiguration.isHttpTraceLogEnabled();
-        boolean followRedirect = senderConfiguration.isFollowRedirect();
-        int maxRedirectCount = senderConfiguration.getMaxRedirectCount(Constants.MAX_REDIRECT_COUNT);
-        boolean chunkDisabled = senderConfiguration.isChunkDisabled();
-        ProxyServerConfiguration proxyServerConfiguration = senderConfiguration.getProxyServerConfiguration();
-
         ConnectionManager.init(transportProperties);
         ConnectionManager connectionManager = ConnectionManager.getInstance();
         BootstrapConfiguration.createBootStrapConfiguration(transportProperties);
 
-        return new HttpClientConnectorImpl(connectionManager, sslConfig, socketIdleTimeout, httpTraceLogEnabled
-                , chunkDisabled, followRedirect, maxRedirectCount, proxyServerConfiguration);
+        return new HttpClientConnectorImpl(connectionManager, senderConfiguration);
     }
 
     @Override

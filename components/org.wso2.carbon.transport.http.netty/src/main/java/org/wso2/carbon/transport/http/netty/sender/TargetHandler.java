@@ -51,6 +51,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private TargetChannel targetChannel;
     private HTTPCarbonMessage incomingMsg;
     private HandlerExecutor handlerExecutor;
+    private boolean isKeepAlive;
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -91,6 +92,10 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                         }
                         targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
                         connectionManager.returnChannel(targetChannel);
+
+                        if (!isKeepAlive) {
+                            closeChannel(ctx);
+                        }
                     }
                 }
             }
@@ -99,6 +104,10 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 LOG.warn("Received a response for an obsolete request");
             }
             ReferenceCountUtil.release(msg);
+
+            if (!isKeepAlive) {
+                closeChannel(ctx);
+            }
         }
     }
 
@@ -128,7 +137,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Channel " + ctx.channel().id() + " gets inactive so closing it from Target handler.");
         }
-        ctx.close();
+
+        closeChannel(ctx);
         connectionManager.invalidateTargetChannel(targetChannel);
 
         if (handlerExecutor != null) {
@@ -151,6 +161,10 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     public void setTargetChannel(TargetChannel targetChannel) {
         this.targetChannel = targetChannel;
+    }
+
+    public void setKeepAlive(boolean keepAlive) {
+        isKeepAlive = keepAlive;
     }
 
     public HttpResponseFuture getHttpResponseFuture() {
@@ -182,6 +196,12 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 httpResponseFuture.notifyHttpListener(new ClientConnectorException(
                         HttpResponseStatus.GATEWAY_TIMEOUT.reasonPhrase(), HttpResponseStatus.GATEWAY_TIMEOUT.code()));
             }
+        }
+    }
+
+    private void closeChannel(ChannelHandlerContext ctx) throws Exception {
+        if (ctx.channel().isActive()) {
+            ctx.close();
         }
     }
 }

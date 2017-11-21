@@ -27,9 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
-import org.wso2.carbon.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
@@ -46,27 +46,16 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     private static final Logger log = LoggerFactory.getLogger(HttpClientConnector.class);
 
     private ConnectionManager connectionManager;
+    private SenderConfiguration senderConfiguration;
     private SSLConfig sslConfig;
     private int socketIdleTimeout;
-    private boolean httpTraceLogEnabled;
     private boolean followRedirect;
-    private int maxRedirectCount;
     private boolean chunkDisabled;
-    private ProxyServerConfiguration proxyServerConfiguration;
 
-    /*This needs to be refactored to hold all the channel properties in a separate bean as there are too many
-     arguments here*/
-    public HttpClientConnectorImpl(ConnectionManager connectionManager, SSLConfig sslConfig, int socketIdleTimeout,
-            boolean httpTraceLogEnabled, boolean chunkDisabled, boolean followRedirect, int maxRedirectCount,
-            ProxyServerConfiguration proxyServerConfiguration) {
+    public HttpClientConnectorImpl(ConnectionManager connectionManager, SenderConfiguration senderConfiguration) {
         this.connectionManager = connectionManager;
-        this.httpTraceLogEnabled = httpTraceLogEnabled;
-        this.sslConfig = sslConfig;
-        this.socketIdleTimeout = socketIdleTimeout;
-        this.chunkDisabled = chunkDisabled;
-        this.followRedirect = followRedirect;
-        this.maxRedirectCount = maxRedirectCount;
-        this.proxyServerConfiguration = proxyServerConfiguration;
+        this.senderConfiguration = senderConfiguration;
+        initTargetChannelProperties(senderConfiguration);
     }
 
     @Override
@@ -89,9 +78,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
         try {
             final HttpRoute route = getTargetRoute(httpCarbonRequest);
             Util.setupTransferEncodingForRequest(httpCarbonRequest, chunkDisabled);
-            TargetChannel targetChannel = connectionManager
-                    .borrowTargetChannel(route, srcHandler, sslConfig, httpTraceLogEnabled, chunkDisabled
-                            , followRedirect, maxRedirectCount, proxyServerConfiguration);
+            TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, senderConfiguration);
             targetChannel.getChannelFuture().addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture channelFuture) throws Exception {
@@ -104,7 +91,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                         targetChannel.setRequestWritten(true);
                         if (followRedirect) {
                             setChannelAttributes(channelFuture.channel(), httpCarbonRequest, httpResponseFuture,
-                                    targetChannel);
+                                                 targetChannel);
                         }
                         targetChannel.writeContent(httpCarbonRequest);
                     } else {
@@ -200,5 +187,12 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
         channel.attr(Constants.TARGET_CHANNEL_REFERENCE).set(targetChannel);
         channel.attr(Constants.ORIGINAL_CHANNEL_START_TIME).set(System.currentTimeMillis());
         channel.attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).set(socketIdleTimeout);
+    }
+
+    private void initTargetChannelProperties(SenderConfiguration senderConfiguration) {
+        this.chunkDisabled = senderConfiguration.isChunkDisabled();
+        this.followRedirect = senderConfiguration.isFollowRedirect();
+        this.socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(Constants.ENDPOINT_TIMEOUT);
+        this.sslConfig = senderConfiguration.getSslConfig();
     }
 }
