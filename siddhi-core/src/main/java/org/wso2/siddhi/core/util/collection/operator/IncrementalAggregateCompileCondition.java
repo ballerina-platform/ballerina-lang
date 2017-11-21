@@ -25,12 +25,14 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.BaseIncrementalValueStore;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalDataAggregator;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
+import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.HashMap;
 import java.util.List;
@@ -46,16 +48,19 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
     private CompiledCondition onCompiledCondition;
     private MetaStreamEvent tableMetaStreamEvent;
     private MetaStreamEvent aggregateMetaStreamEvent;
+    private ComplexEventPopulater complexEventPopulater;
 
     private final StreamEventPool streamEventPoolForTableMeta;
     private final StreamEventCloner tableEventCloner;
     private final StreamEventPool streamEventPoolForAggregateMeta;
     private final StreamEventCloner aggregateEventCloner;
+    private final List<Attribute> additionalAttributes;
 
     public IncrementalAggregateCompileCondition(
             Map<TimePeriod.Duration, CompiledCondition> withinTableCompiledConditions,
             CompiledCondition inMemoryStoreCompileCondition, CompiledCondition onCompiledCondition,
-            MetaStreamEvent tableMetaStreamEvent, MetaStreamEvent aggregateMetaSteamEvent) {
+            MetaStreamEvent tableMetaStreamEvent, MetaStreamEvent aggregateMetaSteamEvent,
+            List<Attribute> additionalAttributes) {
         this.withinTableCompiledConditions = withinTableCompiledConditions;
         this.inMemoryStoreCompileCondition = inMemoryStoreCompileCondition;
         this.onCompiledCondition = onCompiledCondition;
@@ -67,6 +72,7 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
 
         this.streamEventPoolForAggregateMeta = new StreamEventPool(aggregateMetaSteamEvent, 10);
         this.aggregateEventCloner = new StreamEventCloner(aggregateMetaSteamEvent, streamEventPoolForAggregateMeta);
+        this.additionalAttributes = additionalAttributes;
     }
 
     @Override
@@ -77,16 +83,19 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
         }
         return new IncrementalAggregateCompileCondition(copyOfWithinTableCompiledConditions,
                 inMemoryStoreCompileCondition.cloneCompiledCondition(key),
-                onCompiledCondition.cloneCompiledCondition(key), tableMetaStreamEvent, aggregateMetaStreamEvent);
+                onCompiledCondition.cloneCompiledCondition(key), tableMetaStreamEvent, aggregateMetaStreamEvent,
+                additionalAttributes);
     }
 
     public StreamEvent find(StateEvent matchingEvent, TimePeriod.Duration perValue,
             Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
             List<TimePeriod.Duration> incrementalDurations, Table tableForPerDuration,
             List<ExpressionExecutor> baseExecutors, ExpressionExecutor timestampExecutor,
-            List<ExpressionExecutor> outputExpressionExecutors) {
+            List<ExpressionExecutor> outputExpressionExecutors, Long[] startTimeEndTime) {
 
         ComplexEventChunk<StreamEvent> complexEventChunkToHoldWithinMatches = new ComplexEventChunk<>(true);
+
+        complexEventPopulater.populateComplexEvent(matchingEvent.getStreamEvent(0), startTimeEndTime);
 
         // Get all the aggregates within the given duration, from table corresponding to "per" duration
         StreamEvent withinMatchFromPersistedEvents = tableForPerDuration.find(matchingEvent,
@@ -198,5 +207,13 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
             }
         }
         return null;
+    }
+
+    public void setComplexEventPopulater(ComplexEventPopulater complexEventPopulater) {
+        this.complexEventPopulater = complexEventPopulater;
+    }
+
+    public List<Attribute> getAdditionalAttributes() {
+        return this.additionalAttributes;
     }
 }

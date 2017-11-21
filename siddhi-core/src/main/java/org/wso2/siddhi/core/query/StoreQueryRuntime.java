@@ -48,9 +48,8 @@ public class StoreQueryRuntime {
     private QuerySelector selector;
     private StateEventPool stateEventPool;
 
-    public StoreQueryRuntime(Table table,
-                             CompiledCondition compiledCondition, String queryName,
-                             MetaStreamEvent.EventType eventType) {
+    public StoreQueryRuntime(Table table, CompiledCondition compiledCondition, String queryName,
+            MetaStreamEvent.EventType eventType) {
         this.table = table;
         this.compiledCondition = compiledCondition;
         this.queryName = queryName;
@@ -58,7 +57,7 @@ public class StoreQueryRuntime {
     }
 
     public StoreQueryRuntime(Window window, CompiledCondition compiledCondition, String queryName,
-                             MetaStreamEvent.EventType eventType) {
+            MetaStreamEvent.EventType eventType) {
         this.window = window;
         this.compiledCondition = compiledCondition;
         this.queryName = queryName;
@@ -66,7 +65,7 @@ public class StoreQueryRuntime {
     }
 
     public StoreQueryRuntime(AggregationRuntime aggregation, CompiledCondition compiledCondition, String queryName,
-                             MetaStreamEvent.EventType eventType) {
+            MetaStreamEvent.EventType eventType) {
         this.aggregation = aggregation;
         this.compiledCondition = compiledCondition;
         this.queryName = queryName;
@@ -78,23 +77,26 @@ public class StoreQueryRuntime {
             StateEvent stateEvent = new StateEvent(1, 0);
             StreamEvent streamEvents = null;
             switch (eventType) {
-                case TABLE:
-                    streamEvents = table.find(stateEvent, compiledCondition);
-                    break;
-                case WINDOW:
-                    streamEvents = window.find(stateEvent, compiledCondition);
-                    break;
-                case AGGREGATE:
-                    streamEvents = aggregation.find(stateEvent, compiledCondition);
-                    break;
-                case DEFAULT:
-                    break;
+            case TABLE:
+                streamEvents = table.find(stateEvent, compiledCondition);
+                break;
+            case WINDOW:
+                streamEvents = window.find(stateEvent, compiledCondition);
+                break;
+            case AGGREGATE:
+                stateEvent = new StateEvent(2, 0);
+                StreamEvent streamEvent = new StreamEvent(0, 2, 0);
+                stateEvent.addEvent(0, streamEvent);
+                streamEvents = aggregation.find(stateEvent, compiledCondition);
+                break;
+            case DEFAULT:
+                break;
             }
             if (streamEvents == null) {
                 return null;
             } else {
                 if (selector != null) {
-                    return executeSelector(streamEvents);
+                    return executeSelector(streamEvents, eventType);
                 } else {
                     List<Event> events = new ArrayList<Event>();
                     while (streamEvents != null) {
@@ -117,7 +119,7 @@ public class StoreQueryRuntime {
         this.selector = selector;
     }
 
-    private Event[] executeSelector(StreamEvent streamEvents) {
+    private Event[] executeSelector(StreamEvent streamEvents, MetaStreamEvent.EventType eventType) {
         ComplexEventChunk<StateEvent> complexEventChunk = new ComplexEventChunk<StateEvent>(true);
         while (streamEvents != null) {
             StateEvent stateEvent = stateEventPool.borrowEvent();
@@ -131,7 +133,12 @@ public class StoreQueryRuntime {
             outputComplexEventChunk.reset();
             while (outputComplexEventChunk.hasNext()) {
                 ComplexEvent complexEvent = outputComplexEventChunk.next();
-                events.add(new Event(complexEvent.getTimestamp(), complexEvent.getOutputData()));
+                if (eventType != MetaStreamEvent.EventType.AGGREGATE) {
+                    events.add(new Event(complexEvent.getTimestamp(), complexEvent.getOutputData()));
+                } else {
+                    events.add(new Event(complexEvent.getTimestamp(),
+                            ((StateEvent) complexEvent).getStreamEvent(0).getOutputData()));
+                }
             }
             return events.toArray(new Event[0]);
         } else {

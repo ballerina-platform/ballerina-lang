@@ -29,34 +29,25 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- * Executor class for finding whether a given time is within given range in incremental processing.
- * Condition evaluation logic is implemented within executor.
+ * Executor class for finding the start time and end time of the within clause in incremental processing.
+ * This is important when retrieving incremental aggregate values by specifying a time range with 'within' clause.
  */
-public class IncrementalWithinTimeFunctionExecutor extends FunctionExecutor {
-    private boolean isSingleWithin = false;
-    private Map<Integer, List<Pattern>> supportedGmtNonGmtRegexPatterns = new HashMap<>();
+public class IncrementalStartTimeEndTimeFunctionExecutor extends FunctionExecutor {
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
                         SiddhiAppContext siddhiAppContext) {
-        if (attributeExpressionExecutors.length == 2) {
+        if (attributeExpressionExecutors.length == 1) {
             if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
                 throw new SiddhiAppValidationException("Only string values are supported for single within clause "
                         + "but found, " + attributeExpressionExecutors[0].getReturnType());
             }
-            if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.LONG) {
-                throw new SiddhiAppValidationException("Only supports checking whether a long value is within the "
-                        + "given range, but found " + attributeExpressionExecutors[1].getReturnType());
-            }
-            isSingleWithin = true;
-            setSupportedRegexPatterns();
-        } else if (attributeExpressionExecutors.length == 3) {
+        } else if (attributeExpressionExecutors.length == 2) {
             if (!(attributeExpressionExecutors[0].getReturnType() == Attribute.Type.LONG
                     || attributeExpressionExecutors[0].getReturnType() == Attribute.Type.STRING)) {
                 throw new SiddhiAppValidationException(
@@ -67,14 +58,9 @@ public class IncrementalWithinTimeFunctionExecutor extends FunctionExecutor {
                 throw new SiddhiAppValidationException(
                         "Only string and long types are supported as second value of within clause");
             }
-            if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.LONG) {
-                throw new SiddhiAppValidationException("Only supports checking whether a long value is within the "
-                        + "given range, but found " + attributeExpressionExecutors[2].getReturnType());
-            }
-            setSupportedRegexPatterns();
         } else {
-            throw new SiddhiAppValidationException("incrementalAggregator:within() function accepts only two or " +
-                    "three arguments, but found " + attributeExpressionExecutors.length);
+            throw new SiddhiAppValidationException("incrementalAggregator:startTimeEndTime() function accepts " +
+                    "only one or two arguments, but found " + attributeExpressionExecutors.length);
         }
     }
 
@@ -82,55 +68,47 @@ public class IncrementalWithinTimeFunctionExecutor extends FunctionExecutor {
     protected Object execute(Object[] data) {
         long startTime;
         long endTime;
-        long timeStamp;
-        if (isSingleWithin) {
-            Long[] startTimeEndTime = getStartTimeEndTime(data[0].toString().trim());
-            startTime = startTimeEndTime[0];
-            endTime = startTimeEndTime[1];
-            timeStamp = (long) data[1];
+
+        if (data[0] instanceof Long) {
+            startTime = (long) data[0];
         } else {
-            if (data[0] instanceof Long) {
-                startTime = (long) data[0];
-            } else {
-                startTime = IncrementalUnixTimeFunctionExecutor.getUnixTimeStamp(data[0].toString());
-            }
-            if (data[1] instanceof Long) {
-                endTime = (long) data[1];
-            } else {
-                endTime = IncrementalUnixTimeFunctionExecutor.getUnixTimeStamp(data[1].toString());
-            }
-            timeStamp = (long) data[2];
+            startTime = IncrementalUnixTimeFunctionExecutor.getUnixTimeStamp(data[0].toString());
         }
+        if (data[1] instanceof Long) {
+            endTime = (long) data[1];
+        } else {
+            endTime = IncrementalUnixTimeFunctionExecutor.getUnixTimeStamp(data[1].toString());
+        }
+
         if (!(startTime < endTime)) {
-            throw new SiddhiAppRuntimeException("The start time must be less than the end time in the within clause. " +
-                    "However, the given start time is " + startTime + " and given end time is " +
-                    endTime + ", in unix time. Hence, start time is not less than end time.");
+            throw new SiddhiAppRuntimeException("The start time must be less than the end time in the within clause. "
+                    + "However, the given start time is " + startTime + " and given end time is " + endTime
+                    + ", in unix time. Hence, start time is not less than end time.");
         }
-        return startTime <= timeStamp && timeStamp < endTime;
+        return new Long[]{startTime, endTime};
     }
 
     @Override
     protected Object execute(Object data) {
-        return null; //Since the within function takes in 2 or 3 parameter, this method does not get called.
-        // Hence, not implemented.
+        return getStartTimeEndTime(data.toString().trim());
     }
 
     @Override
     public Attribute.Type getReturnType() {
-        return Attribute.Type.BOOL;
+        return Attribute.Type.OBJECT;
     }
 
     @Override
     public Map<String, Object> currentState() {
-        return null;    //No states
+        return null; // No states
     }
 
     @Override
     public void restoreState(Map<String, Object> state) {
-        //Nothing to be done
+        // Nothing to be done
     }
 
-    private void setSupportedRegexPatterns() {
+    private static List<Pattern> getSupportedRegexPatterns(int withinStringLength) {
         List<Pattern> gmtRegexPatterns = new ArrayList<>();
         List<Pattern> nonGmtRegexPatterns = new ArrayList<>();
 
@@ -154,15 +132,20 @@ public class IncrementalWithinTimeFunctionExecutor extends FunctionExecutor {
         nonGmtRegexPatterns
                 .add(Pattern.compile("[0-9]{4}-\\*\\*-\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*\\s[+-][0-9]{2}[:][0-9]{2}"));
 
-        supportedGmtNonGmtRegexPatterns.put(19, gmtRegexPatterns);
-        supportedGmtNonGmtRegexPatterns.put(26, nonGmtRegexPatterns);
+        if (withinStringLength == 19) {
+            return gmtRegexPatterns;
+        } else if (withinStringLength == 26) {
+            return nonGmtRegexPatterns;
+        } else {
+            return null;
+        }
     }
 
     private Long[] getStartTimeEndTime(String singleWithinTimeAsString) {
         long startTime;
         long endTime;
         String timeZone;
-        List<Pattern> supportedPatterns = supportedGmtNonGmtRegexPatterns.get(singleWithinTimeAsString.length());
+        List<Pattern> supportedPatterns = getSupportedRegexPatterns(singleWithinTimeAsString.length());
         if (supportedPatterns == null) {
             throw new SiddhiAppRuntimeException("Incorrect format provided for within clause. "
                     + "Supported formats for non GMT timezones are <yyyy>-**-** **:**:** <ZZ>, "
@@ -174,43 +157,45 @@ public class IncrementalWithinTimeFunctionExecutor extends FunctionExecutor {
         for (int i = 0; i < TimePeriod.Duration.values().length; i++) {
             if (supportedPatterns.get(i).matcher(singleWithinTimeAsString).matches()) {
                 switch (i) {
-                case 0:
-                    startTime = IncrementalUnixTimeFunctionExecutor.getUnixTimeStamp(singleWithinTimeAsString);
-                    endTime = startTime + 1000;
-                    return new Long[] { startTime, endTime };
-                case 1:
-                    startTime = IncrementalUnixTimeFunctionExecutor
-                            .getUnixTimeStamp(singleWithinTimeAsString.replaceAll("\\*", "0"));
-                    endTime = startTime + 60000;
-                    return new Long[] { startTime, endTime };
-                case 2:
-                    startTime = IncrementalUnixTimeFunctionExecutor
-                            .getUnixTimeStamp(singleWithinTimeAsString.replaceAll("\\*", "0"));
-                    endTime = startTime + 3600000;
-                    return new Long[] { startTime, endTime };
-                case 3:
-                    startTime = IncrementalUnixTimeFunctionExecutor
-                            .getUnixTimeStamp(singleWithinTimeAsString.replaceAll("\\*", "0"));
-                    endTime = startTime + 86400000;
-                    return new Long[] { startTime, endTime };
-                case 4:
-                    startTime = IncrementalUnixTimeFunctionExecutor.getUnixTimeStamp(
-                            singleWithinTimeAsString.replaceFirst("\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*", "01 00:00:00"));
-                    timeZone = IncrementalTimeGetTimeZone.getTimeZone(
-                            singleWithinTimeAsString.replaceFirst("\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*", "01 00:00:00"));
-                    endTime = IncrementalTimeConverterUtil.getNextEmitTime(startTime, TimePeriod.Duration.MONTHS,
-                            timeZone);
-                    return new Long[] { startTime, endTime };
-                case 5:
-                    startTime = IncrementalUnixTimeFunctionExecutor.getUnixTimeStamp(singleWithinTimeAsString
-                            .replaceFirst("\\*\\*-\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*", "01-01 00:00:00"));
-                    timeZone = IncrementalTimeGetTimeZone.getTimeZone(singleWithinTimeAsString
-                            .replaceFirst("\\*\\*-\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*", "01-01 00:00:00"));
-                    endTime = IncrementalTimeConverterUtil.getNextEmitTime(startTime, TimePeriod.Duration.YEARS,
-                            timeZone);
-                    return new Long[] { startTime, endTime };
-                default:
-                    // Won't occur since there are only 6 TimePeriod.Durations (sec, min, hour, day, month, year)
+                    case 0:
+                        startTime = IncrementalUnixTimeFunctionExecutor.getUnixTimeStamp(singleWithinTimeAsString);
+                        endTime = startTime + 1000;
+                        return new Long[]{startTime, endTime};
+                    case 1:
+                        startTime = IncrementalUnixTimeFunctionExecutor
+                                .getUnixTimeStamp(singleWithinTimeAsString.replaceAll("\\*", "0"));
+                        endTime = startTime + 60000;
+                        return new Long[]{startTime, endTime};
+                    case 2:
+                        startTime = IncrementalUnixTimeFunctionExecutor
+                                .getUnixTimeStamp(singleWithinTimeAsString.replaceAll("\\*", "0"));
+                        endTime = startTime + 3600000;
+                        return new Long[]{startTime, endTime};
+                    case 3:
+                        startTime = IncrementalUnixTimeFunctionExecutor
+                                .getUnixTimeStamp(singleWithinTimeAsString.replaceAll("\\*", "0"));
+                        endTime = startTime + 86400000;
+                        return new Long[]{startTime, endTime};
+                    case 4:
+                        startTime = IncrementalUnixTimeFunctionExecutor.getUnixTimeStamp(
+                                singleWithinTimeAsString.
+                                        replaceFirst("\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*", "01 00:00:00"));
+                        timeZone = IncrementalTimeGetTimeZone.getTimeZone(
+                                singleWithinTimeAsString.
+                                        replaceFirst("\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*", "01 00:00:00"));
+                        endTime = IncrementalTimeConverterUtil.getNextEmitTime(startTime, TimePeriod.Duration.MONTHS,
+                                timeZone);
+                        return new Long[]{startTime, endTime};
+                    case 5:
+                        startTime = IncrementalUnixTimeFunctionExecutor.getUnixTimeStamp(singleWithinTimeAsString
+                                .replaceFirst("\\*\\*-\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*", "01-01 00:00:00"));
+                        timeZone = IncrementalTimeGetTimeZone.getTimeZone(singleWithinTimeAsString
+                                .replaceFirst("\\*\\*-\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*", "01-01 00:00:00"));
+                        endTime = IncrementalTimeConverterUtil.getNextEmitTime(startTime, TimePeriod.Duration.YEARS,
+                                timeZone);
+                        return new Long[]{startTime, endTime};
+                    default:
+                        // Won't occur since there are only 6 TimePeriod.Durations (sec, min, hour, day, month, year)
                 }
             }
         }

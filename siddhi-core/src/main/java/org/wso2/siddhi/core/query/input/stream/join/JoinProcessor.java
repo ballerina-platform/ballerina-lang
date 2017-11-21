@@ -17,7 +17,6 @@
  */
 package org.wso2.siddhi.core.query.input.stream.join;
 
-
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -45,8 +44,8 @@ public class JoinProcessor implements Processor {
     private Processor nextProcessor;
     private QuerySelector selector;
 
-    public JoinProcessor(boolean leftJoinProcessor, boolean preJoinProcessor, boolean outerJoinProcessor, int
-            matchingStreamIndex) {
+    public JoinProcessor(boolean leftJoinProcessor, boolean preJoinProcessor, boolean outerJoinProcessor,
+            int matchingStreamIndex) {
         this.leftJoinProcessor = leftJoinProcessor;
         this.preJoinProcessor = preJoinProcessor;
         this.outerJoinProcessor = outerJoinProcessor;
@@ -54,7 +53,7 @@ public class JoinProcessor implements Processor {
     }
 
     /**
-     * Process the handed StreamEvent
+     * Process the handed StreamEvent.
      *
      * @param complexEventChunk event chunk to be processed
      */
@@ -135,7 +134,7 @@ public class JoinProcessor implements Processor {
     }
 
     /**
-     * Set next processor element in processor chain
+     * Set next processor element in processor chain.
      *
      * @param processor Processor to be set as next element of processor chain
      */
@@ -149,7 +148,7 @@ public class JoinProcessor implements Processor {
     }
 
     /**
-     * Set as the last element of the processor chain
+     * Set as the last element of the processor chain.
      *
      * @param processor Last processor in the chain
      */
@@ -166,7 +165,7 @@ public class JoinProcessor implements Processor {
     }
 
     /**
-     * Clone a copy of processor
+     * Clone a copy of processor.
      *
      * @param key partition key
      * @return Cloned Processor
@@ -190,6 +189,10 @@ public class JoinProcessor implements Processor {
         this.compiledCondition = compiledCondition;
     }
 
+    public CompiledCondition getCompiledCondition() {
+        return this.compiledCondition;
+    }
+
     public void setTrigger(boolean trigger) {
         this.trigger = trigger;
     }
@@ -199,9 +202,9 @@ public class JoinProcessor implements Processor {
     }
 
     /**
-     * Join the given two event streams
+     * Join the given two event streams.
      *
-     * @param leftStream  event left stream
+     * @param leftStream event left stream
      * @param rightStream event right stream
      * @param type complex event type
      * @return StateEvent state event

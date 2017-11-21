@@ -345,7 +345,8 @@ public class AggregationParser {
             List<IncrementalAttributeAggregator> incrementalAttributeAggregators, List<Variable> groupByVariableList,
             List<Expression> outputExpressions) {
         ExpressionExecutor[] timeStampTimeZoneExecutors = setTimeStampTimeZoneExecutors(aggregationDefinition,
-                siddhiAppContext, tableMap, incomingVariableExpressionExecutors, aggregatorName, incomingMetaStreamEvent);
+                siddhiAppContext, tableMap, incomingVariableExpressionExecutors, aggregatorName,
+                incomingMetaStreamEvent);
         ExpressionExecutor timestampExecutor = timeStampTimeZoneExecutors[0];
         ExpressionExecutor timeZoneExecutor = timeStampTimeZoneExecutors[1];
         incomingMetaStreamEvent.addOutputData(new Attribute("_TIMESTAMP", Attribute.Type.LONG));

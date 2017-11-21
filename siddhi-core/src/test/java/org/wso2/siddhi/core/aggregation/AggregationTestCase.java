@@ -30,6 +30,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.SiddhiTestHelper;
 
+import java.time.LocalDate;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class AggregationTestCase {
@@ -375,10 +376,17 @@ public class AggregationTestCase {
 //
 //        inputHandler.send(new Object[]{"IBM", 400f, null, 200L, 9, 1496290016000L});
 //        Thread.sleep(60000);
+
+        LocalDate currentDate = LocalDate.now();
+        int year = currentDate.getYear();
+        Integer month = currentDate.getMonth().getValue();
+        if (month.toString().length() == 1) {
+            month = Integer.parseInt("0".concat(month.toString()));
+        }
+
         Event[] events = siddhiAppRuntime.query("from test " +
                 "on symbol == \"IBM\" " +
-                "within \"2017-08-** **:**:** +05:30\" " +
-                "per \"seconds\"");
+                "within \"" + year + "-" + month + "-** **:**:** +05:30\" " + "per \"seconds\"");
         EventPrinter.print(events);
         Thread.sleep(50);
         siddhiAppRuntime.shutdown();
@@ -639,5 +647,46 @@ public class AggregationTestCase {
         } finally {
             siddhiAppRuntime.shutdown();
         }
+    }
+
+
+    @Test
+    public void incrementalStreamProcessorTest5() throws InterruptedException {
+        LOG.info("Incremental Processing: incrementalStreamProcessorTest5");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String cseEventStream = "" +
+                "define stream cseEventStream (symbol string, price1 float, " +
+                "                              price2 float, volume long , quantity int, timestamp long);";
+        String query = " define aggregation test " +
+                "from cseEventStream " +
+                "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1, (quantity * volume) as mult  " +
+                "group by symbol " +
+                "aggregate by timestamp every sec...hour ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
+
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
+
+        inputHandler.send(new Object[]{"WSO2", 50f, 60f, 90L, 6, 1496289950000L});
+        inputHandler.send(new Object[]{"WSO2", 70f, null, 40L, 10, 1496289950000L});
+        Thread.sleep(2000);
+
+        inputHandler.send(new Object[]{"WSO2", 60f, 44f, 200L, 56, 1496289952000L});
+        inputHandler.send(new Object[]{"WSO2", 100f, null, 200L, 16, 1496289952000L});
+        Thread.sleep(2000);
+
+        inputHandler.send(new Object[]{"IBM", 100f, null, 200L, 26, 1496289954000L});
+        inputHandler.send(new Object[]{"IBM", 100f, null, 200L, 96, 1496289954000L});
+        Thread.sleep(2000);
+
+        Event[] events = siddhiAppRuntime.query("from test " +
+                "on symbol == \"IBM\" " +
+                "within \"2017-06-** **:**:**\" " +
+                "per \"seconds\"");
+        EventPrinter.print(events);
+        Thread.sleep(50);
+        siddhiAppRuntime.shutdown();
     }
 }

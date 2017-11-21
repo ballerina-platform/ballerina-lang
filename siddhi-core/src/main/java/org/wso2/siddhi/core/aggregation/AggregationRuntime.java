@@ -36,7 +36,6 @@ import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.IncrementalAggregateCompileCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.parser.ExpressionParser;
-import org.wso2.siddhi.core.util.parser.MatcherParser;
 import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
@@ -45,9 +44,12 @@ import org.wso2.siddhi.query.api.aggregation.Within;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.AggregationDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
+import org.wso2.siddhi.query.api.expression.condition.Compare;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +57,7 @@ import java.util.Map;
 import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 
 /**
- * Aggregation runtime managing aggregation operations for aggregation definition
+ * Aggregation runtime managing aggregation operations for aggregation definition.
  */
 public class AggregationRuntime {
     private final AggregationDefinition aggregationDefinition;
@@ -70,18 +72,19 @@ public class AggregationRuntime {
     private SingleStreamRuntime singleStreamRuntime;
     private EntryValveExecutor entryValveExecutor;
     private ExpressionExecutor perExpressionExecutor;
+    private ExpressionExecutor startTimeEndTimeExpressionExecutor;
     private List<ExpressionExecutor> baseExecutors;
     private ExpressionExecutor timestampExecutor;
     private List<ExpressionExecutor> outputExpressionExecutors;
+    private MatchingMetaInfoHolder alteredMatchingMetaInfoHolder;
 
     public AggregationRuntime(AggregationDefinition aggregationDefinition,
-                              Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
-                              Map<TimePeriod.Duration, Table> aggregationTables,
-                              SingleStreamRuntime singleStreamRuntime,
-                              EntryValveExecutor entryValveExecutor, List<TimePeriod.Duration> incrementalDurations,
-                              SiddhiAppContext siddhiAppContext, List<ExpressionExecutor> baseExecutors,
-                              ExpressionExecutor timestampExecutor, MetaStreamEvent tableMetaStreamEvent,
-                              List<ExpressionExecutor> outputExpressionExecutors,
+            Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
+            Map<TimePeriod.Duration, Table> aggregationTables, SingleStreamRuntime singleStreamRuntime,
+            EntryValveExecutor entryValveExecutor, List<TimePeriod.Duration> incrementalDurations,
+            SiddhiAppContext siddhiAppContext, List<ExpressionExecutor> baseExecutors,
+            ExpressionExecutor timestampExecutor, MetaStreamEvent tableMetaStreamEvent,
+            List<ExpressionExecutor> outputExpressionExecutors,
                               LatencyTracker latencyTrackerFind, ThroughputTracker throughputTrackerFind) {
         this.aggregationDefinition = aggregationDefinition;
         this.incrementalExecutorMap = incrementalExecutorMap;
@@ -101,26 +104,64 @@ public class AggregationRuntime {
         aggregationDefinition.getAttributeList().forEach(aggregateMetaSteamEvent::addOutputData);
     }
 
-    private static MatchingMetaInfoHolder aggregationTableMetaInfoHolder(MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                                                         AbstractDefinition tableDefinition) {
-        MetaStreamEvent metaStreamEventForTable = new MetaStreamEvent();
-        metaStreamEventForTable.setEventType(MetaStreamEvent.EventType.TABLE);
-        metaStreamEventForTable.addInputDefinition(tableDefinition);
-        MetaStateEvent metaStateEvent;
-        if (matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvents().length == 1) {
-            // Only store meta is passed via StoreQuery.
-            // Hence the Meta state event would contain only one meta stream event.
-            metaStateEvent = new MetaStateEvent(1);
-            metaStateEvent.addEvent(metaStreamEventForTable);
-            return new MatchingMetaInfoHolder(metaStateEvent, 0, 0, tableDefinition, tableDefinition, 0);
-        } else {
-            // Both stream and store events appear for a join
-            metaStateEvent = new MetaStateEvent(2);
-            metaStateEvent.addEvent(matchingMetaInfoHolder.getMetaStateEvent()
-                    .getMetaStreamEvent(matchingMetaInfoHolder.getMatchingStreamEventIndex()));
-            metaStateEvent.addEvent(metaStreamEventForTable);
-            return MatcherParser.constructMatchingMetaStateHolder(metaStateEvent, 0, tableDefinition, UNKNOWN_STATE);
+    private static void initMetaStreamEvent(MetaStreamEvent metaStreamEvent, AbstractDefinition inputDefinition) {
+        metaStreamEvent.addInputDefinition(inputDefinition);
+        metaStreamEvent.initializeAfterWindowData();
+        inputDefinition.getAttributeList().forEach(metaStreamEvent::addData);
+    }
+
+    private static void cloneStreamDefinition(StreamDefinition originalStreamDefinition,
+            StreamDefinition newStreamDefinition) {
+        for (Attribute attribute : originalStreamDefinition.getAttributeList()) {
+            newStreamDefinition.attribute(attribute.getName(), attribute.getType());
         }
+    }
+
+    private static MetaStreamEvent createNewMetaStreamEventWithStartEnd(MatchingMetaInfoHolder matchingMetaInfoHolder,
+            List<Attribute> additionalAttributes) {
+        MetaStreamEvent metaStreamEventWithStartEnd;
+        StreamDefinition streamDefinitionWithStartEnd = new StreamDefinition();
+
+        if (matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvents().length == 1) {
+            metaStreamEventWithStartEnd = new MetaStreamEvent();
+        } else {
+            metaStreamEventWithStartEnd = matchingMetaInfoHolder.getMetaStateEvent()
+                    .getMetaStreamEvent(matchingMetaInfoHolder.getMatchingStreamEventIndex());
+            cloneStreamDefinition((StreamDefinition) metaStreamEventWithStartEnd.getLastInputDefinition(),
+                    streamDefinitionWithStartEnd);
+        }
+
+        streamDefinitionWithStartEnd.attribute(additionalAttributes.get(0).getName(),
+                additionalAttributes.get(0).getType());
+        streamDefinitionWithStartEnd.attribute(additionalAttributes.get(1).getName(),
+                additionalAttributes.get(1).getType());
+        initMetaStreamEvent(metaStreamEventWithStartEnd, streamDefinitionWithStartEnd);
+        return metaStreamEventWithStartEnd;
+    }
+
+    private static MatchingMetaInfoHolder alterMetaInfoHolderForStoreQuery(
+            MetaStreamEvent newMetaStreamEventWithStartEnd, MatchingMetaInfoHolder matchingMetaInfoHolder) {
+        MetaStateEvent metaStateEvent = new MetaStateEvent(2);
+        MetaStreamEvent incomingMetaStreamEvent = matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvent(0);
+        metaStateEvent.addEvent(newMetaStreamEventWithStartEnd);
+        metaStateEvent.addEvent(incomingMetaStreamEvent);
+
+        return new MatchingMetaInfoHolder(metaStateEvent, 0, 1, newMetaStreamEventWithStartEnd.getLastInputDefinition(),
+                incomingMetaStreamEvent.getLastInputDefinition(), UNKNOWN_STATE);
+    }
+
+    private static MatchingMetaInfoHolder createNewStreamTableMetaInfoHolder(
+            MetaStreamEvent metaStreamEventWithStartEnd, AbstractDefinition tableDefinition) {
+        MetaStateEvent metaStateEvent = new MetaStateEvent(2);
+        MetaStreamEvent metaStreamEventForTable = new MetaStreamEvent();
+
+        metaStreamEventForTable.setEventType(MetaStreamEvent.EventType.TABLE);
+        initMetaStreamEvent(metaStreamEventForTable, tableDefinition);
+
+        metaStateEvent.addEvent(metaStreamEventWithStartEnd);
+        metaStateEvent.addEvent(metaStreamEventForTable);
+        return new MatchingMetaInfoHolder(metaStateEvent, 0, 1, metaStreamEventWithStartEnd.getLastInputDefinition(),
+                tableDefinition, UNKNOWN_STATE);
     }
 
     public Map<TimePeriod.Duration, IncrementalExecutor> getIncrementalExecutorMap() {
@@ -157,20 +198,20 @@ public class AggregationRuntime {
             if (latencyTrackerFind != null && siddhiAppContext.isStatsEnabled()) {
                 latencyTrackerFind.markIn();
                 throughputTrackerFind.eventIn();
-            }
-            // Retrieve per value
-            String perValueAsString = perExpressionExecutor.execute(matchingEvent).toString();
-            TimePeriod.Duration perValue = TimePeriod.Duration.valueOf(perValueAsString.toUpperCase());
-            if (!incrementalExecutorMap.keySet().contains(perValue)) {
-                throw new SiddhiAppRuntimeException("The aggregate values for " + perValue.toString()
-                        + " granularity cannot be provided since aggregation definition " +
-                        aggregationDefinition.getId() + " does not contain " + perValue.toString() + " duration");
-            }
-            Table tableForPerDuration = aggregationTables.get(perValue);
-            return ((IncrementalAggregateCompileCondition) compiledCondition).find(matchingEvent, perValue,
-                    incrementalExecutorMap, incrementalDurations, tableForPerDuration, baseExecutors, timestampExecutor,
-                    outputExpressionExecutors);
-        } finally {
+            }// Retrieve per value
+        String perValueAsString = perExpressionExecutor.execute(matchingEvent).toString();
+        TimePeriod.Duration perValue = TimePeriod.Duration.valueOf(perValueAsString.toUpperCase());
+        if (!incrementalExecutorMap.keySet().contains(perValue)) {
+            throw new SiddhiAppRuntimeException("The aggregate values for " + perValue.toString()
+                    + " granularity cannot be provided since aggregation definition " + aggregationDefinition.getId()
+                    + " does not contain " + perValue.toString() + " duration");
+        }
+
+        Table tableForPerDuration = aggregationTables.get(perValue);
+
+Long[] startTimeEndTime = (Long[]) startTimeEndTimeExpressionExecutor.execute(matchingEvent);        return ((IncrementalAggregateCompileCondition) compiledCondition).find(matchingEvent, perValue,
+                incrementalExecutorMap, incrementalDurations, tableForPerDuration, baseExecutors, timestampExecutor,
+                outputExpressionExecutors, startTimeEndTime);} finally {
             if (latencyTrackerFind != null && siddhiAppContext.isStatsEnabled()) {
                 latencyTrackerFind.markOut();
             }
@@ -178,47 +219,78 @@ public class AggregationRuntime {
     }
 
     public CompiledCondition compileExpression(Expression expression, Within within, Expression per,
-                                               MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                               List<VariableExpressionExecutor> variableExpressionExecutors,
-                                               Map<String, Table> tableMap, String queryName,
-                                               SiddhiAppContext siddhiAppContext) {
+            MatchingMetaInfoHolder matchingMetaInfoHolder, List<VariableExpressionExecutor> variableExpressionExecutors,
+            Map<String, Table> tableMap, String queryName, SiddhiAppContext siddhiAppContext) {
 
         Map<TimePeriod.Duration, CompiledCondition> withinTableCompiledConditions = new HashMap<>();
         CompiledCondition withinInMemoryCompileCondition;
         CompiledCondition onCompiledCondition;
+        List<Attribute> additionalAttributes = new ArrayList<>();
+
+        // Define additional attribute list
+        additionalAttributes.add(new Attribute("_START", Attribute.Type.LONG));
+        additionalAttributes.add(new Attribute("_END", Attribute.Type.LONG));
+
+        // Get table definition. Table definitions for all the tables used to persist aggregates are similar.
+        // Therefore it's enough to get the definition from one table.
+        AbstractDefinition tableDefinition = ((Table) aggregationTables.values().toArray()[0]).getTableDefinition();
+
+        // Alter existing meta stream event or create new one if a meta stream doesn't exist
+        // After calling this method the original MatchingMetaInfoHolder's meta stream event would be altered
+        MetaStreamEvent newMetaStreamEventWithStartEnd = createNewMetaStreamEventWithStartEnd(matchingMetaInfoHolder,
+                additionalAttributes);
+
+        // Alter meta info holder to contain stream event and aggregate both when it's a store query
+        if (matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvents().length == 1) {
+            matchingMetaInfoHolder = alterMetaInfoHolderForStoreQuery(newMetaStreamEventWithStartEnd,
+                    matchingMetaInfoHolder);
+            this.alteredMatchingMetaInfoHolder = matchingMetaInfoHolder;
+        }
+
+        // Create new MatchingMetaInfoHolder containing newMetaStreamEventWithStartEnd and table meta event
+        MatchingMetaInfoHolder streamTableMetaInfoHolderWithStartEnd = createNewStreamTableMetaInfoHolder(
+                newMetaStreamEventWithStartEnd, tableDefinition);
 
         // Create per expression executor
         perExpressionExecutor = ExpressionParser.parseExpression(per, matchingMetaInfoHolder.getMetaStateEvent(),
                 matchingMetaInfoHolder.getCurrentState(), tableMap, variableExpressionExecutors, siddhiAppContext,
                 false, 0, queryName);
         if (perExpressionExecutor.getReturnType() != Attribute.Type.STRING) {
-            throw new SiddhiAppCreationException("Query " + queryName + "'s per value expected a string but found "
-                    + perExpressionExecutor.getReturnType(), per.getQueryContextStartIndex(),
-                    per.getQueryContextEndIndex());
+            throw new SiddhiAppCreationException(
+                    "Query " + queryName + "'s per value expected a string but found "
+                            + perExpressionExecutor.getReturnType(),
+                    per.getQueryContextStartIndex(), per.getQueryContextEndIndex());
         }
 
         // Create within expression
         Expression withinExpression;
+        Expression start = Expression.variable(additionalAttributes.get(0).getName());
+        Expression end = Expression.variable(additionalAttributes.get(1).getName());
+        Expression compareWithStartTime = Compare.compare(start, Compare.Operator.LESS_THAN_EQUAL,
+                Expression.variable("_TIMESTAMP"));
+        Expression compareWithEndTime = Compare.compare(Expression.variable("_TIMESTAMP"), Compare.Operator.LESS_THAN,
+                end);
+        withinExpression = Expression.and(compareWithStartTime, compareWithEndTime);
+
+        // Create start and end time expression
+        Expression startEndTimeExpression;
         if (within.getTimeRange().size() == 1) {
-            withinExpression = new AttributeFunction("incrementalAggregator", "within",
-                    within.getTimeRange().get(0),
-                    Expression.variable("_TIMESTAMP"));
+            startEndTimeExpression = new AttributeFunction("incrementalAggregator", "startTimeEndTime",
+                    within.getTimeRange().get(0));
         } else { // within.getTimeRange().size() == 2
-            withinExpression = new AttributeFunction("incrementalAggregator", "within",
-                    within.getTimeRange().get(0),
-                    within.getTimeRange().get(1), Expression.variable("_TIMESTAMP"));
+            startEndTimeExpression = new AttributeFunction("incrementalAggregator", "startTimeEndTime",
+                    within.getTimeRange().get(0), within.getTimeRange().get(1));
         }
 
-        // Get table definition. Table definitions for all the tables used to persist aggregates are similar.
-        // Therefore it's enough to get the definition from one table.
-        AbstractDefinition tableDefinition = ((Table) aggregationTables.values().toArray()[0]).getTableDefinition();
+        startTimeEndTimeExpressionExecutor = ExpressionParser.parseExpression(startEndTimeExpression,
+                matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), tableMap,
+                variableExpressionExecutors, siddhiAppContext, false, 0, queryName);
 
         // Create compile condition per each table used to persist aggregates.
         // These compile conditions are used to check whether the aggregates in tables are within the given duration.
         for (Map.Entry<TimePeriod.Duration, Table> entry : aggregationTables.entrySet()) {
             CompiledCondition withinTableCompileCondition = entry.getValue().compileCondition(withinExpression,
-                    aggregationTableMetaInfoHolder(matchingMetaInfoHolder, tableDefinition), siddhiAppContext,
-                    variableExpressionExecutors, tableMap, queryName);
+                    streamTableMetaInfoHolderWithStartEnd, siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
             withinTableCompiledConditions.put(entry.getKey(), withinTableCompileCondition);
         }
 
@@ -226,8 +298,8 @@ public class AggregationRuntime {
         // This compile condition is used to check whether the running aggregates (in-memory data)
         // are within given duration
         withinInMemoryCompileCondition = OperatorParser.constructOperator(new ComplexEventChunk<>(true),
-                withinExpression, aggregationTableMetaInfoHolder(matchingMetaInfoHolder, tableDefinition),
-                siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
+                withinExpression, streamTableMetaInfoHolderWithStartEnd, siddhiAppContext, variableExpressionExecutors, tableMap,
+                queryName);
 
         // TODO: 8/11/17 optimize on and to retrieve group by
         // On compile condition.
@@ -238,6 +310,10 @@ public class AggregationRuntime {
                 matchingMetaInfoHolder, siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
 
         return new IncrementalAggregateCompileCondition(withinTableCompiledConditions, withinInMemoryCompileCondition,
-                onCompiledCondition, tableMetaStreamEvent, aggregateMetaSteamEvent);
+                onCompiledCondition, tableMetaStreamEvent, aggregateMetaSteamEvent, additionalAttributes);
+    }
+
+    public MatchingMetaInfoHolder getAlteredMatchingMetaInfoHolder() {
+        return alteredMatchingMetaInfoHolder;
     }
 }

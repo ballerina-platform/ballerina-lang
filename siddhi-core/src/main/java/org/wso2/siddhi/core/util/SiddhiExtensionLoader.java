@@ -26,22 +26,22 @@ import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.wiring.BundleWiring;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.core.executor.incremental.IncrementalStartTimeEndTimeFunctionExecutor;
 import org.wso2.siddhi.core.executor.incremental.IncrementalTimeGetTimeZone;
 import org.wso2.siddhi.core.executor.incremental.IncrementalUnixTimeFunctionExecutor;
-import org.wso2.siddhi.core.executor.incremental.IncrementalWithinTimeFunctionExecutor;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Class used to load Siddhi extensions
+ * Class used to load Siddhi extensions.
  */
 public class SiddhiExtensionLoader {
 
     private static final Logger log = Logger.getLogger(SiddhiExtensionLoader.class);
 
     /**
-     * Helper method to load the Siddhi extensions
+     * Helper method to load the Siddhi extensions.
      *
      * @param siddhiExtensionsMap reference map for the Siddhi extension
      */
@@ -54,7 +54,7 @@ public class SiddhiExtensionLoader {
     }
 
     /**
-     * Load Extensions in OSGi environment
+     * Load Extensions in OSGi environment.
      *
      * @param bundleContext       OSGi bundleContext
      * @param siddhiExtensionsMap reference map for the Siddhi extension
@@ -66,7 +66,7 @@ public class SiddhiExtensionLoader {
     }
 
     /**
-     * Load Siddhi extensions in java non OSGi environment
+     * Load Siddhi extensions in java non OSGi environment.
      *
      * @param siddhiExtensionsMap reference map for the Siddhi extension
      */
@@ -77,8 +77,8 @@ public class SiddhiExtensionLoader {
         }
 
         // load extensions related to incremental aggregation
-        addExtensionToMap("incrementalAggregator:within",
-                IncrementalWithinTimeFunctionExecutor.class, siddhiExtensionsMap);
+        addExtensionToMap("incrementalAggregator:startTimeEndTime",
+                IncrementalStartTimeEndTimeFunctionExecutor.class, siddhiExtensionsMap);
         addExtensionToMap("incrementalAggregator:timestampInMilliseconds",
                 IncrementalUnixTimeFunctionExecutor.class, siddhiExtensionsMap);
         addExtensionToMap("incrementalAggregator:getTimeZone",
@@ -86,7 +86,7 @@ public class SiddhiExtensionLoader {
     }
 
     /**
-     * Adding extensions to Siddhi siddhiExtensionsMap
+     * Adding extensions to Siddhi siddhiExtensionsMap.
      *
      * @param extensionClass      extension class
      * @param siddhiExtensionsMap reference map for the Siddhi extension
@@ -127,7 +127,7 @@ public class SiddhiExtensionLoader {
     }
 
     /**
-     * Adding extensions to Siddhi siddhiExtensionsMap
+     * Adding extensions to Siddhi siddhiExtensionsMap.
      *
      * @param fqExtensionName     fully qualified extension name (namespace:extensionName or extensionName)
      * @param extensionClass      extension class
@@ -147,7 +147,7 @@ public class SiddhiExtensionLoader {
     }
 
     /**
-     * Class to listen to Bundle changes to update available extensions
+     * Class to listen to Bundle changes to update available extensions.
      */
     private static class ExtensionBundleListener implements BundleListener {
 
