@@ -17,9 +17,9 @@
  */
 
 import _ from 'lodash';
-import Node from '../node';
+import ExpressionNode from '../expression-node';
 
-class AbstractSimpleVariableRefNode extends Node {
+class AbstractSimpleVariableRefNode extends ExpressionNode {
 
 
     setPackageAlias(newValue, silent, title) {
@@ -48,7 +48,6 @@ class AbstractSimpleVariableRefNode extends Node {
     }
 
 
-
     setVariableName(newValue, silent, title) {
         const oldValue = this.variableName;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -73,7 +72,6 @@ class AbstractSimpleVariableRefNode extends Node {
     getVariableName() {
         return this.variableName;
     }
-
 
 
 }
