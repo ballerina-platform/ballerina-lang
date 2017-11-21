@@ -17,22 +17,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon.transport</groupId>
-        <artifactId>org.wso2.carbon.transport.parent</artifactId>
+        <groupId>org.wso2.transport.http</groupId>
+        <artifactId>http-parent</artifactId>
         <version>6.0.50-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
+    <artifactId>org.wso2.transport.http.netty</artifactId>
     <packaging>bundle</packaging>
-    <name>WSO2 Carbon Transport HTTP Netty Component</name>
-    <description>Carbon HTTP Transport based on Netty</description>
+    <name>WSO2 Transport HTTP Netty Component</name>
+    <description>HTTP Transport based on Netty</description>
 
     <scm>
-        <url>https://github.com/wso2/carbon-transports.git</url>
-        <developerConnection>scm:git:https://github.com/wso2/carbon-transports.git</developerConnection>
-        <connection>scm:git:https://github.com/wso2/carbon-transports.git</connection>
+        <url>https://github.com/wso2/transport-http.git</url>
+        <developerConnection>scm:git:https://github.com/wso2/transport-http.git</developerConnection>
+        <connection>scm:git:https://github.com/wso2/transport-http.git</connection>
         <tag>HEAD</tag>
     </scm>
 

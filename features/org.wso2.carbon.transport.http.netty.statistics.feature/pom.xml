@@ -18,22 +18,22 @@
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>org.wso2.carbon.transport</groupId>
-        <artifactId>org.wso2.carbon.transport.parent</artifactId>
+        <groupId>org.wso2.transport.http</groupId>
+        <artifactId>http-parent</artifactId>
         <version>6.0.50-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>org.wso2.carbon.transport.http.netty.statistics.feature</artifactId>
-    <name>WSO2 Carbon Transport HTTP Netty Statistics Feature</name>
+    <artifactId>org.wso2.transport.http.netty.statistics.feature</artifactId>
+    <name>WSO2 Transport HTTP Netty Statistics Feature</name>
     <packaging>carbon-feature</packaging>
 
     <dependencies>
 
         <dependency>
-            <groupId>org.wso2.carbon.transport</groupId>
-            <artifactId>org.wso2.carbon.transport.http.netty.statistics</artifactId>
+            <groupId>org.wso2.transport.http</groupId>
+            <artifactId>org.wso2.transport.http.netty.statistics</artifactId>
         </dependency>
 
     </dependencies>
@@ -62,7 +62,7 @@
                             </adviceFileContents>
                             <bundles>
                                 <bundle>
-                                    <symbolicName>org.wso2.carbon.transport.http.netty.statistics</symbolicName>
+                                    <symbolicName>org.wso2.transport.http.netty.statistics</symbolicName>
                                     <version>${project.version}</version>
                                 </bundle>
                             </bundles>
@@ -72,7 +72,7 @@
                                     <version>${carbon.metrics.version}</version>
                                 </feature>
                                 <feature>
-                                    <id>org.wso2.carbon.transport.http.netty.feature</id>
+                                    <id>org.wso2.transport.http.netty.feature</id>
                                     <version>${project.version}</version>
                                 </feature>
                             </importFeatures>
