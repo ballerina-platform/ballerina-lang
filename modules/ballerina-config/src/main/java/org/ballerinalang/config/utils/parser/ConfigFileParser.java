@@ -66,6 +66,7 @@ public class ConfigFileParser extends AbstractConfigParser {
 
             String line;
             for (currentLine = 1; (line = reader.readLine()) != null; currentLine++) {
+                line = line.trim();
                 if (line.matches(CONFIG_ENTRY_FORMAT)) {
                     parseGlobalConfigEntry(line);
                 } else if (line.matches(INSTANCE_ID_FORMAT)) {
@@ -124,7 +125,10 @@ public class ConfigFileParser extends AbstractConfigParser {
     }
 
     private String[] getConfigKeyAndValue(String configEntry) {
-        return configEntry.split("=");
+        String[] entryParts = configEntry.split("=");
+        entryParts[0] = entryParts[0].trim();
+        entryParts[1] = entryParts[1].trim();
+        return entryParts;
     }
 
     private void collectConfigError(int invalidLine) {
