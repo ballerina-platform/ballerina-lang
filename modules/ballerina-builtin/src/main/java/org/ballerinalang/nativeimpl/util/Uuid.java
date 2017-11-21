@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.nativeimpl.security;
+package org.ballerinalang.nativeimpl.util;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -27,12 +27,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.UUID;
 
 /**
- * Native function ballerina.security:uuid.
+ * Native function ballerina.util:uuid.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.security",
+        packageName = "ballerina.util",
         functionName = "uuid",
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

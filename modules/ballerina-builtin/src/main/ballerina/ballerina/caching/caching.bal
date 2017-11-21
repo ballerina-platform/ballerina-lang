@@ -1,7 +1,7 @@
 package ballerina.caching;
 
 import ballerina.task;
-import ballerina.security;
+import ballerina.util;
 
 @Description {value:"Cache cleanup task starting delay in ms."}
 const int CACHE_CLEANUP_START_DELAY = 0;
@@ -62,7 +62,7 @@ public function createCache (string name, int expiryTimeMillis, int capacity, fl
     // Create a new cache.
     Cache cache = {name:name, expiryTimeMillis:expiryTimeMillis, capacity:capacity, evictionFactor:evictionFactor, entries:{}};
     // Add the new cache to the map.
-    cacheMap[security:uuid()] = cache;
+    cacheMap[util:uuid()] = cache;
     // Return the new cache.
     return cache;
 }
