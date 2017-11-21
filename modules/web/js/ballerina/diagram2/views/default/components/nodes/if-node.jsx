@@ -47,16 +47,6 @@ class IfNode extends React.Component {
         };
         this.onAddElseClick = this.onAddElseClick.bind(this);
         this.onAddElseIfClick = this.onAddElseIfClick.bind(this);
-        this.setIfCondition = this.setIfCondition.bind(this);
-        this.getIfCondition = this.getIfCondition.bind(this);
-
-        this.editorOptions = {
-            propertyType: 'text',
-            key: 'If condition',
-            model: props.model,
-            getterMethod: this.getIfCondition,
-            setterMethod: this.setIfCondition,
-        };
     }
 
     /**
@@ -89,31 +79,6 @@ class IfNode extends React.Component {
         parent.setElseStatement(elseIfNode);
     }
 
-  /**
-   * Set if condition.
-   * @param {String} newCondition - new condition to be applied to if block.
-   * */
-    setIfCondition(newCondition) {
-        if (!newCondition) {
-            return;
-        }
-        newCondition = _.trimEnd(newCondition, ';');
-        const fragmentJson = FragmentUtils.createExpressionFragment(newCondition);
-        const parsedJson = FragmentUtils.parseFragment(fragmentJson);
-        if (!parsedJson.error) {
-            const newNode = TreeBuilder.build(parsedJson);
-            newNode.clearWS();
-            this.props.model.setCondition(newNode.getVariable().getInitialExpression());
-        }
-    }
-
-  /**
-   * Get if condition
-   * @return {string} condition source.
-   * */
-    getIfCondition() {
-        return this.props.model.getCondition().getSource();
-    }
     /**
      * Get the last else statement.
      * @param {Node} elseStmt - current node's else statement.
@@ -205,7 +170,11 @@ class IfNode extends React.Component {
         const elseComp = model.elseStatement;
         const title = isElseIfNode ? 'Else If' : 'If';
         const dropZone = model.viewState.components['drop-zone'];
-
+        const editorOptions = {
+            propertyType: 'text',
+            key: 'If condition',
+            model: model.getCondition(),
+        };
         return (
             <g>
                 {!isElseIfNode &&
@@ -229,7 +198,7 @@ class IfNode extends React.Component {
                     bBox={bBox}
                     title={title}
                     expression={expression}
-                    editorOptions={this.editorOptions}
+                    editorOptions={editorOptions}
                     model={model}
                     body={model.body}
                 />

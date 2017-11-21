@@ -17,9 +17,9 @@
  */
 
 import _ from 'lodash';
-import Node from '../node';
+import ExpressionNode from '../expression-node';
 
-class AbstractXmlElementLiteralNode extends Node {
+class AbstractXmlElementLiteralNode extends ExpressionNode {
 
 
     setStartTagName(newValue, silent, title) {
