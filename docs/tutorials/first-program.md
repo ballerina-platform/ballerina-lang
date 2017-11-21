@@ -79,11 +79,17 @@ When you added the service, Ballerina configured the resource to use the GET met
 You can click the symbol again to confirm that GET was in fact changed to POST. You can also click the **Source View** button in the lower right corner to see the changes that are being made to the Ballerina code as you work with the visual editor. Currently, the source code should look like this:
 
 ```Ballerina
-@http:BasePath{value:"/myecho"} 
+import ballerina.net.http;
 
-service myEchoService {
-    @http:POST {} 
-        resource myEchoResource( message m) {
+@http:configuration {basePath:"/myecho"}
+service<http> echo {
+
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/"
+    }
+    resource echo (http:Request req, http:Response resp) {
+  
     }
 }
 ```
@@ -110,18 +116,22 @@ Now that we've added the function that will convert the incoming message text to
 This completes the sequence. If you go to the Source view, your program should now look like this:
 
 ```Ballerina
- import ballerina.net.http;
+import ballerina.net.http;
 
-@http:BasePath{value:"/myecho"} 
-service myEchoService {
-    @http:POST {} 
-    resource myEchoResource( message m) {
-        http:convertToResponse( m );
-        reply m;
+@http:configuration {basePath:"/myecho"}
+service<http> echo {
+
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/"
+    }
+    resource echo (http:Request req, http:Response resp) {
+        string payload = req.getStringPayload();
+        resp.setStringPayload(payload);
+        resp.send();
     }
 }
 ```
-Notice that the `ballerina.net.http` package has been imported, and the `convertToResponse` function and `reply` statement appear within the resource definition.
 
 You are now ready to save and run your integration program
 
