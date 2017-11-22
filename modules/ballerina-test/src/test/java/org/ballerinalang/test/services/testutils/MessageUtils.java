@@ -27,7 +27,7 @@ import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.StatusCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
-import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.util.LinkedList;
 import java.util.List;

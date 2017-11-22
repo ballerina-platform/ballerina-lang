@@ -21,8 +21,9 @@ package org.ballerinalang.test.services.testutils;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
-import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.transport.http.netty.contractimpl.HttpResponseStatusFuture;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * Extended HTTPCarbonMessage to handle error path.
@@ -36,10 +37,11 @@ public class HTTPTestRequest extends HTTPCarbonMessage {
     }
 
     @Override
-    public void respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {
+    public HttpResponseStatusFuture respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {
         if (this.getFutureListener() != null) {
             getFutureListener().setResponseMsg(httpCarbonMessage);
         }
+        return httpCarbonMessage.getHttpOutboundRespStatusFuture();
     }
 
     public TestHttpFutureListener getFutureListener() {

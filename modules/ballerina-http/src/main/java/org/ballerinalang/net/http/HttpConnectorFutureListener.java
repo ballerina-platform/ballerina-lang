@@ -7,7 +7,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.session.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * {@code HttpConnectorFutureListener} is the responsible for acting on notifications received from Ballerina side.

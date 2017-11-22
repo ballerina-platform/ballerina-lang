@@ -32,12 +32,12 @@ import org.ballerinalang.net.ws.BallerinaWsClientConnectorListener;
 import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.net.ws.WebSocketService;
 import org.ballerinalang.net.ws.WebSocketServicesRegistry;
-import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeFuture;
-import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeListener;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WsClientConnectorConfig;
-import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
+import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
+import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
+import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 
 import javax.websocket.Session;
 

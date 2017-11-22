@@ -20,7 +20,7 @@ package org.ballerinalang.net.http.session;
 
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * {@code Session} represents the session interface.
