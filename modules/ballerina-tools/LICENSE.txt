@@ -54,7 +54,7 @@ netty-resolver-4.1.16.Final.jar                                                 
 netty-transport-4.1.16.Final.jar                                                bundle         apache2   2339
 org.wso2.carbon.core-5.1.0.jar                                                  bundle         apache2   11763
 org.wso2.carbon.messaging-2.3.7.jar                                             bundle         apache2   12373
-org.wso2.carbon.transport.http.netty-6.0.47.jar                                 bundle         apache2   14001
+org.wso2.transport.http.netty-6.0.47.jar                                        bundle         apache2   14001
 quartz-2.3.0.jar                                                                bundle         apache2   2337
 quartz-jobs-2.3.0.jar                                                           jar            apache2   2338
 Saxon-HE-9.7.0.wso2v1.jar                                                       bundle         mpl10     11756
