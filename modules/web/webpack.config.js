@@ -17,6 +17,7 @@
  *
  */
 
+ /* eslint-disable */
 const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
@@ -50,45 +51,45 @@ const config = [{
                 },
             ],
         },
-            {
-                test: /\.html$/,
+        {
+            test: /\.html$/,
+            use: [{
+                loader: 'html-loader',
+            }],
+        },
+        {
+            test: /\.scss$/,
+            exclude: /node_modules/,
+            loader: 'style-loader!css-loader!sass-loader',
+        },
+        {
+            test: /\.css$/,
+            use: extractCSSBundle.extract({
+                fallback: 'style-loader',
                 use: [{
-                    loader: 'html-loader',
-                }],
-            },
-            {
-                test: /\.scss$/,
-                exclude: /node_modules/,
-                loader: 'style-loader!css-loader!sass-loader',
-            },
-            {
-                test: /\.css$/,
-                use: extractCSSBundle.extract({
-                    fallback: 'style-loader',
-                    use: [{
-                        loader: 'css-loader',
-                        options: {
-                            sourceMap: true,
-                        },
-                    }],
-                }),
-            },
-            {
-                test: /\.(png|jpg|svg|cur|gif|eot|svg|ttf|woff|woff2)$/,
-                use: ['url-loader'],
-            },
-            {
-                test: /\.jsx$/,
-                exclude: /(node_modules|modules\/web\/lib\/scss)/,
-                use: [
-                    {
-                        loader: 'babel-loader',
-                        query: {
-                            presets: ['es2015', 'react'],
-                        },
+                    loader: 'css-loader',
+                    options: {
+                        sourceMap: true,
                     },
-                ],
-            },
+                }],
+            }),
+        },
+        {
+            test: /\.(png|jpg|svg|cur|gif|eot|svg|ttf|woff|woff2)$/,
+            use: ['url-loader'],
+        },
+        {
+            test: /\.jsx$/,
+            exclude: /(node_modules|modules\/web\/lib\/scss)/,
+            use: [
+                {
+                    loader: 'babel-loader',
+                    query: {
+                        presets: ['es2015', 'react'],
+                    },
+                },
+            ],
+        },
         ],
     },
     plugins: [
@@ -153,8 +154,8 @@ const config = [{
             // /////////////////////
             // custom modules ////
             // ////////////////////
-            log: 'log/log',
-            event_channel: 'event/channel',
+            log: 'core/log/log',
+            event_channel: 'core/event/channel',
             ace: 'ace-builds/src-noconflict',
             alerts: 'utils/alerts',
             expression_editor_utils: 'expression-editor/expression-editor-utils',
@@ -250,5 +251,7 @@ if (process.env.NODE_ENV === 'test') {
         bundle: './src-electron/electron-index.js',
     };
 }
+
+/* eslint-enable */
 
 module.exports = exportConfig;
