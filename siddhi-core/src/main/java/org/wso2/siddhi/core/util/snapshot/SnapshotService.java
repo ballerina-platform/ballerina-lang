@@ -19,6 +19,7 @@ package org.wso2.siddhi.core.util.snapshot;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
+import org.wso2.siddhi.core.exception.CannotRestoreSiddhiAppStateException;
 import org.wso2.siddhi.core.util.ThreadBarrier;
 
 import java.util.ArrayList;
@@ -115,8 +116,7 @@ public class SnapshotService {
 
     }
 
-
-    public void restore(byte[] snapshot) {
+    public void restore(byte[] snapshot) throws CannotRestoreSiddhiAppStateException {
         Map<String, Map<String, Object>> snapshots = (Map<String, Map<String, Object>>)
                 ByteSerializer.byteToObject(snapshot, siddhiAppContext);
         List<Snapshotable> snapshotableList;
@@ -124,8 +124,14 @@ public class SnapshotService {
             threadBarrier.lock();
             for (Map.Entry<String, List<Snapshotable>> entry : snapshotableMap.entrySet()) {
                 snapshotableList = entry.getValue();
-                for (Snapshotable snapshotable : snapshotableList) {
-                    snapshotable.restoreState(snapshots.get(snapshotable.getElementId()));
+                try {
+                    for (Snapshotable snapshotable : snapshotableList) {
+                        snapshotable.restoreState(snapshots.get(snapshotable.getElementId()));
+                    }
+                } catch (Throwable t) {
+                    throw new CannotRestoreSiddhiAppStateException("Restoring of Siddhi app " + siddhiAppContext.
+                            getName() + " not completed properly because content of Siddhi app has changed since " +
+                            "last state persistence. Clean persistence store for a fresh deployment.", t);
                 }
             }
         } finally {
