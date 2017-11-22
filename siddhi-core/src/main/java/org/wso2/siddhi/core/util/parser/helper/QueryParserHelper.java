@@ -235,7 +235,7 @@ public class QueryParserHelper {
                             SiddhiConstants.METRIC_DELIMITER + type +
                             SiddhiConstants.METRIC_DELIMITER + name + SiddhiConstants.METRIC_DELIMITER + "latency";
             if (function != null) {
-                metricName += metricName + SiddhiConstants.METRIC_DELIMITER + function;
+                metricName += SiddhiConstants.METRIC_DELIMITER + function;
             }
             boolean matchExist = false;
             for (String regex : siddhiAppContext.getIncludedMetrics()) {
@@ -266,7 +266,7 @@ public class QueryParserHelper {
                             SiddhiConstants.METRIC_DELIMITER + type +
                             SiddhiConstants.METRIC_DELIMITER + name + SiddhiConstants.METRIC_DELIMITER + "throughput";
             if (function != null) {
-                metricName += metricName + SiddhiConstants.METRIC_DELIMITER + function;
+                metricName += SiddhiConstants.METRIC_DELIMITER + function;
             }
             boolean matchExist = false;
             for (String regex : siddhiAppContext.getIncludedMetrics()) {
