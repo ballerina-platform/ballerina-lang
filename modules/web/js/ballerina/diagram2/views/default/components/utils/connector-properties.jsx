@@ -67,6 +67,7 @@ class ConnectorPropertiesForm extends React.Component {
      * @returns {*}
      */
     getSupportedProps() {
+        const environment = this.context.environment;
         const props = this.props.model.props;
         // Get the pkg alias
         const initialExpr = TreeUtils.getConnectorInitFromStatement(props.model);
@@ -89,12 +90,34 @@ class ConnectorPropertiesForm extends React.Component {
             pkgAlias = initialExpr.connectorType.packageAlias.value || '';
             connectorName = initialExpr.connectorType.typeName.value;
             this.isVarDefInit = false;
+        } else if (TreeUtils.isInvocation(initialExpr)) {
+            const functionName = initialExpr.getName().value;
+            if (!initialExpr.packageAlias.value || !initialExpr.name.value) {
+                if (environment.getCurrentPackage()) {
+                    for (const functionDefinition of environment.getCurrentPackage().getFunctionDefinitions()) {
+                        if (functionDefinition.getName() === functionName) {
+                            const returnParams = functionDefinition.getReturnParams();
+                            returnParams.forEach((parameter) => {
+                                if (parameter.isConnector) {
+                                    pkgAlias = parameter.pkgAlias;
+                                    const types = parameter.type.split(':');
+                                    if (types.length > 1) {
+                                        connectorName = types[types.length - 1];
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+            } else {
+                pkgAlias = initialExpr.packageAlias.value || '';
+                connectorName = initialExpr.name.value;
+            }
         } else {
             console.warn('Invalid init expression found: ' + initialExpr);
         }
         const connectorIdentifier = `${pkgAlias}:${connectorName}`;
-        const connectorProps = ConnectorHelper.getConnectorParameters(this.context.environment,
-            pkgAlias, connectorIdentifier);
+        const connectorProps = ConnectorHelper.getConnectorParameters(environment, pkgAlias, connectorIdentifier);
         const addedValues = this.getDataAddedToConnectorInit();
         connectorProps.map((property, index) => {
             if (addedValues.length > 0) {
@@ -174,56 +197,54 @@ class ConnectorPropertiesForm extends React.Component {
                 const varDefNode = this.getConnectorInitVariableDefinition(data, connectorType, pkgAlias);
                 connectorInit.setExpressions(varDefNode.getVariable().getInitialExpression().getExpressions());
             }
-        } else {
-            if (setVarRef) {
-                if (connectorInit) {
-                    if (data.value === '') {
-                        delete connectorInit.parent.initialExpression;
-                        return;
-                    }
-                    connectorInit.variableName.value = data.value;
-                } else {
-                    const pkgStr = (pkgAlias !== 'Current Package') ? (pkgAlias + ':') : '';
-                    const constraint = `<${pkgStr}${connectorType}>`;
-                    const endpointSource = `endpoint ${constraint} endpoint1 {${data.value};}`;
-                    const fragment = FragmentUtils.createEndpointVarDefFragment(endpointSource);
-                    const parsedJson = FragmentUtils.parseFragment(fragment);
-                    const nodeForFragment = TreeBuilder.build(parsedJson);
-                    nodeForFragment.viewState.showOverlayContainer = false;
-                    _.get(this.props, 'model.props.model.variable')
-                        .setInitialExpression(nodeForFragment.getVariable().getInitialExpression(), true);
+        } else if (setVarRef) {
+            if (connectorInit) {
+                if (data.value === '') {
+                    delete connectorInit.parent.initialExpression;
+                    return;
                 }
+                connectorInit.variableName.value = data.value;
             } else {
-                const pkgStr = pkgAlias !== 'Current Package' ? `${pkgAlias}:` : '';
+                const pkgStr = (pkgAlias !== 'Current Package') ? (pkgAlias + ':') : '';
                 const constraint = `<${pkgStr}${connectorType}>`;
-                const paramArray = [];
-                let map;
-                data.forEach((key) => {
-                    if (key.bType === 'string') {
-                        key.value = this.addQuotationForStringValues(key.value);
-                    }
-                    paramArray.push(key.value);
-                });
-                if (map) {
-                    paramArray.push(map);
-                }
-                const connectorParamString = paramArray.join(',');
-                const connectorInitString = 'create ' +
-                    ' ' + (pkgAlias !== '' ? `${pkgAlias}:` : '') + `${connectorType}(${connectorParamString})`;
-                const endpointSource = `endpoint ${constraint} endpoint1 {${connectorInitString};}`;
+                const endpointSource = `endpoint ${constraint} endpoint1 {${data.value};}`;
                 const fragment = FragmentUtils.createEndpointVarDefFragment(endpointSource);
                 const parsedJson = FragmentUtils.parseFragment(fragment);
                 const nodeForFragment = TreeBuilder.build(parsedJson);
                 nodeForFragment.viewState.showOverlayContainer = false;
-                const newInit = nodeForFragment.variable.initialExpression;
-                const varDefNode = this.getConnectorInitVariableDefinition(data, connectorType, pkgAlias);
-                newInit.setExpressions(varDefNode.getVariable().getInitialExpression().getExpressions());
-                if (connectorInit) {
-                    connectorInit.parent.setInitialExpression(newInit, true);
-                } else {
-                    _.get(this.props, 'model.props.model.variable')
-                        .setInitialExpression(varDefNode.getVariable().getInitialExpression(), true);
+                _.get(this.props, 'model.props.model.variable')
+                        .setInitialExpression(nodeForFragment.getVariable().getInitialExpression(), true);
+            }
+        } else {
+            const pkgStr = pkgAlias !== 'Current Package' ? `${pkgAlias}:` : '';
+            const constraint = `<${pkgStr}${connectorType}>`;
+            const paramArray = [];
+            let map;
+            data.forEach((key) => {
+                if (key.bType === 'string') {
+                    key.value = this.addQuotationForStringValues(key.value);
                 }
+                paramArray.push(key.value);
+            });
+            if (map) {
+                paramArray.push(map);
+            }
+            const connectorParamString = paramArray.join(',');
+            const connectorInitString = 'create ' +
+                    ' ' + (pkgAlias !== '' ? `${pkgAlias}:` : '') + `${connectorType}(${connectorParamString})`;
+            const endpointSource = `endpoint ${constraint} endpoint1 {${connectorInitString};}`;
+            const fragment = FragmentUtils.createEndpointVarDefFragment(endpointSource);
+            const parsedJson = FragmentUtils.parseFragment(fragment);
+            const nodeForFragment = TreeBuilder.build(parsedJson);
+            nodeForFragment.viewState.showOverlayContainer = false;
+            const newInit = nodeForFragment.variable.initialExpression;
+            const varDefNode = this.getConnectorInitVariableDefinition(data, connectorType, pkgAlias);
+            newInit.setExpressions(varDefNode.getVariable().getInitialExpression().getExpressions());
+            if (connectorInit) {
+                connectorInit.parent.setInitialExpression(newInit, true);
+            } else {
+                _.get(this.props, 'model.props.model.variable')
+                        .setInitialExpression(varDefNode.getVariable().getInitialExpression(), true);
             }
         }
     }
