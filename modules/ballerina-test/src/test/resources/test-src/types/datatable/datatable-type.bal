@@ -318,12 +318,12 @@ function testArrayDataInsertAndPrint () (int updateRet, int intArrLen, int longA
     string[] datastring = ["hello", "world"];
     boolean[] databoolean = [true, false, false, true, true];
 
-    sql:Parameter paraID = {sqlType:"integer", value:4, direction:0};
-    sql:Parameter paraInt = {sqlType:"array", value:dataint};
-    sql:Parameter paraLong = {sqlType:"array", value:dataint};
-    sql:Parameter paraFloat = {sqlType:"array", value:datafloat};
-    sql:Parameter paraString = {sqlType:"array", value:datastring};
-    sql:Parameter paraBool = {sqlType:"array", value:databoolean};
+    sql:Parameter paraID = {sqlType:sql:data.INTEGER, value:4, direction:0};
+    sql:Parameter paraInt = {sqlType:sql:data.ARRAY, value:dataint};
+    sql:Parameter paraLong = {sqlType:sql:data.ARRAY, value:dataint};
+    sql:Parameter paraFloat = {sqlType:sql:data.ARRAY, value:datafloat};
+    sql:Parameter paraString = {sqlType:sql:data.ARRAY, value:datastring};
+    sql:Parameter paraBool = {sqlType:sql:data.ARRAY, value:databoolean};
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraString, paraBool];
 
     updateRet = testDB.update("insert into ArrayTypes(row_id, int_array, long_array, float_array,
@@ -353,11 +353,11 @@ function testDateTime (int datein, int timein, int timestampin) (string date, st
         create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
-    sql:Parameter para0 = {sqlType:"integer", value:1};
-    sql:Parameter para1 = {sqlType:"DATE", value:datein};
-    sql:Parameter para2 = {sqlType:"TIME", value:timein};
-    sql:Parameter para3 = {sqlType:"TIMESTAMP", value:timestampin};
-    sql:Parameter para4 = {sqlType:"DATETIME", value:timestampin};
+    sql:Parameter para0 = {sqlType:sql:data.INTEGER, value:1};
+    sql:Parameter para1 = {sqlType:sql:data.DATE, value:datein};
+    sql:Parameter para2 = {sqlType:sql:data.TIME, value:timein};
+    sql:Parameter para3 = {sqlType:sql:data.TIMESTAMP, value:timestampin};
+    sql:Parameter para4 = {sqlType:sql:data.DATETIME, value:timestampin};
     sql:Parameter[] parameters = [para0, para1, para2, para3, para4];
 
     int insertCount = testDB.update("Insert into DateTimeTypes
@@ -443,8 +443,8 @@ function testBlobInsert () (int i) {
         var rs, err = (ResultBlob)dataStruct;
         blobData = rs.BLOB_TYPE;
     }
-    sql:Parameter para0 = {sqlType:"integer", value:10};
-    sql:Parameter para1 = {sqlType:"blob", value:blobData};
+    sql:Parameter para0 = {sqlType:sql:data.INTEGER, value:10};
+    sql:Parameter para1 = {sqlType:sql:data.BLOB, value:blobData};
     params = [para0, para1];
     int insertCount = testDB.update("Insert into ComplexTypes (row_id, blob_type) values (?,?)", params);
     testDB.close();
@@ -595,29 +595,29 @@ function testSignedIntMaxMinValues () (int maxInsert, int minInsert, int nullIns
     string selectSQL = "SELECT id,tinyIntData,smallIntData,intData,bigIntData FROM IntegerTypes";
 
     //Insert signed max
-    sql:Parameter para1 = {sqlType:"INTEGER", value:1, direction:0};
-    sql:Parameter para2 = {sqlType:"TINYINT", value:127, direction:0};
-    sql:Parameter para3 = {sqlType:"SMALLINT", value:32767, direction:0};
-    sql:Parameter para4 = {sqlType:"INTEGER", value:2147483647, direction:0};
-    sql:Parameter para5 = {sqlType:"BIGINT", value:9223372036854775807, direction:0};
+    sql:Parameter para1 = {sqlType:sql:data.INTEGER, value:1, direction:0};
+    sql:Parameter para2 = {sqlType:sql:data.TINYINT, value:127, direction:0};
+    sql:Parameter para3 = {sqlType:sql:data.SMALLINT, value:32767, direction:0};
+    sql:Parameter para4 = {sqlType:sql:data.INTEGER, value:2147483647, direction:0};
+    sql:Parameter para5 = {sqlType:sql:data.BIGINT, value:9223372036854775807, direction:0};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
     maxInsert = testDB.update(insertSQL, parameters);
 
     //Insert signed min
-    para1 = {sqlType:"INTEGER", value:2, direction:0};
-    para2 = {sqlType:"TINYINT", value:-128, direction:0};
-    para3 = {sqlType:"SMALLINT", value:-32768, direction:0};
-    para4 = {sqlType:"INTEGER", value:-2147483648, direction:0};
-    para5 = {sqlType:"BIGINT", value:-9223372036854775808, direction:0};
+    para1 = {sqlType:sql:data.INTEGER, value:2, direction:0};
+    para2 = {sqlType:sql:data.TINYINT, value:-128, direction:0};
+    para3 = {sqlType:sql:data.SMALLINT, value:-32768, direction:0};
+    para4 = {sqlType:sql:data.INTEGER, value:-2147483648, direction:0};
+    para5 = {sqlType:sql:data.BIGINT, value:-9223372036854775808, direction:0};
     parameters = [para1, para2, para3, para4, para5];
     minInsert = testDB.update(insertSQL, parameters);
 
     //Insert null
-    para1 = {sqlType:"INTEGER", value:3, direction:0};
-    para2 = {sqlType:"TINYINT", value:null, direction:0};
-    para3 = {sqlType:"SMALLINT", value:null, direction:0};
-    para4 = {sqlType:"INTEGER", value:null, direction:0};
-    para5 = {sqlType:"BIGINT", value:null, direction:0};
+    para1 = {sqlType:sql:data.INTEGER, value:3, direction:0};
+    para2 = {sqlType:sql:data.TINYINT, value:null, direction:0};
+    para3 = {sqlType:sql:data.SMALLINT, value:null, direction:0};
+    para4 = {sqlType:sql:data.INTEGER, value:null, direction:0};
+    para5 = {sqlType:sql:data.BIGINT, value:null, direction:0};
     parameters = [para1, para2, para3, para4, para5];
     nullInsert = testDB.update(insertSQL, parameters);
 
@@ -651,18 +651,18 @@ function testComplexTypeInsertAndRetrieval () (int retDataInsert, int retNullIns
     blob content = text.toBlob("UTF-8");
 
     //Insert data
-    sql:Parameter para1 = {sqlType:"INTEGER", value:100};
-    sql:Parameter para2 = {sqlType:"BLOB", value:content};
-    sql:Parameter para3 = {sqlType:"CLOB", value:text};
-    sql:Parameter para4 = {sqlType:"BINARY", value:content};
+    sql:Parameter para1 = {sqlType:sql:data.INTEGER, value:100};
+    sql:Parameter para2 = {sqlType:sql:data.BLOB, value:content};
+    sql:Parameter para3 = {sqlType:sql:data.CLOB, value:text};
+    sql:Parameter para4 = {sqlType:sql:data.BINARY, value:content};
     sql:Parameter[] parameters = [para1, para2, para3, para4];
     retDataInsert = testDB.update(insertSQL, parameters);
 
     //Insert null values
-    para1 = {sqlType:"INTEGER", value:200};
-    para2 = {sqlType:"BLOB", value:null};
-    para3 = {sqlType:"CLOB", value:null};
-    para4 = {sqlType:"BINARY", value:null};
+    para1 = {sqlType:sql:data.INTEGER, value:200};
+    para2 = {sqlType:sql:data.BLOB, value:null};
+    para3 = {sqlType:sql:data.CLOB, value:null};
+    para4 = {sqlType:sql:data.BINARY, value:null};
     parameters = [para1, para2, para3, para4];
     retNullInsert = testDB.update(insertSQL, parameters);
 

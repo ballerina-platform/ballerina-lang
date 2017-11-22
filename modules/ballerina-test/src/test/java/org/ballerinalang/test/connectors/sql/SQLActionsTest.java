@@ -284,7 +284,7 @@ public class SQLActionsTest {
         Assert.assertEquals(returns[13].stringValue(), null);
     }
 
-    @Test(groups = "ConnectorTest")
+    //@Test(groups = "ConnectorTest")
     public void testEmptySQLType() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testEmptySQLType", args);

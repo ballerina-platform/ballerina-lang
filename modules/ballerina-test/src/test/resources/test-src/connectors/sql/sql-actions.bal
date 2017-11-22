@@ -107,11 +107,11 @@ function testInsertTableDataWithParameters () (int) {
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
-    sql:Parameter para1 = {sqlType:"varchar", value:"Anne", direction:0};
-    sql:Parameter para2 = {sqlType:"varchar", value:"James", direction:0};
-    sql:Parameter para3 = {sqlType:"integer", value:3, direction:0};
-    sql:Parameter para4 = {sqlType:"double", value:5000.75, direction:0};
-    sql:Parameter para5 = {sqlType:"varchar", value:"UK", direction:0};
+    sql:Parameter para1 = {sqlType:sql:data.VARCHAR, value:"Anne", direction:0};
+    sql:Parameter para2 = {sqlType:sql:data.VARCHAR, value:"James", direction:0};
+    sql:Parameter para3 = {sqlType:sql:data.INTEGER, value:3, direction:0};
+    sql:Parameter para4 = {sqlType:sql:data.DOUBLE, value:5000.75, direction:0};
+    sql:Parameter para5 = {sqlType:sql:data.VARCHAR, value:"UK", direction:0};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
 
     int insertCount = testDB.update ("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
@@ -126,21 +126,21 @@ function testOutParameters () (any, any, any, any, any, any, any, any, any, any,
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
-    sql:Parameter paraID = {sqlType:"integer", value:"1", direction:0};
-    sql:Parameter paraInt = {sqlType:"integer", direction:1};
-    sql:Parameter paraLong = {sqlType:"bigint", direction:1};
-    sql:Parameter paraFloat = {sqlType:"float", direction:1};
-    sql:Parameter paraDouble = {sqlType:"double", direction:1};
-    sql:Parameter paraBool = {sqlType:"boolean", direction:1};
-    sql:Parameter paraString = {sqlType:"varchar", direction:1};
-    sql:Parameter paraNumeric = {sqlType:"numeric", direction:1};
-    sql:Parameter paraDecimal = {sqlType:"decimal", direction:1};
-    sql:Parameter paraReal = {sqlType:"real", direction:1};
-    sql:Parameter paraTinyInt = {sqlType:"tinyint", direction:1};
-    sql:Parameter paraSmallInt = {sqlType:"smallint", direction:1};
-    sql:Parameter paraClob = {sqlType:"clob", direction:1};
-    sql:Parameter paraBlob = {sqlType:"blob", direction:1};
-    sql:Parameter paraBinary = {sqlType:"binary", direction:1};
+    sql:Parameter paraID = {sqlType:sql:data.INTEGER, value:"1", direction:0};
+    sql:Parameter paraInt = {sqlType:sql:data.INTEGER, direction:1};
+    sql:Parameter paraLong = {sqlType:sql:data.BIGINT, direction:1};
+    sql:Parameter paraFloat = {sqlType:sql:data.FLOAT, direction:1};
+    sql:Parameter paraDouble = {sqlType:sql:data.DOUBLE, direction:1};
+    sql:Parameter paraBool = {sqlType:sql:data.BOOLEAN, direction:1};
+    sql:Parameter paraString = {sqlType:sql:data.VARCHAR, direction:1};
+    sql:Parameter paraNumeric = {sqlType:sql:data.NUMERIC, direction:1};
+    sql:Parameter paraDecimal = {sqlType:sql:data.DECIMAL, direction:1};
+    sql:Parameter paraReal = {sqlType:sql:data.REAL, direction:1};
+    sql:Parameter paraTinyInt = {sqlType:sql:data.TINYINT, direction:1};
+    sql:Parameter paraSmallInt = {sqlType:sql:data.SMALLINT, direction:1};
+    sql:Parameter paraClob = {sqlType:sql:data.CLOB, direction:1};
+    sql:Parameter paraBlob = {sqlType:sql:data.BLOB, direction:1};
+    sql:Parameter paraBinary = {sqlType:sql:data.BINARY, direction:1};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
@@ -157,21 +157,21 @@ function testNullOutParameters () (any, any, any, any, any, any, any, any, any, 
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
-    sql:Parameter paraID = {sqlType:"integer", value:"2", direction:0};
-    sql:Parameter paraInt = {sqlType:"integer", direction:1};
-    sql:Parameter paraLong = {sqlType:"bigint", direction:1};
-    sql:Parameter paraFloat = {sqlType:"float", direction:1};
-    sql:Parameter paraDouble = {sqlType:"double", direction:1};
-    sql:Parameter paraBool = {sqlType:"boolean", direction:1};
-    sql:Parameter paraString = {sqlType:"varchar", direction:1};
-    sql:Parameter paraNumeric = {sqlType:"numeric", direction:1};
-    sql:Parameter paraDecimal = {sqlType:"decimal", direction:1};
-    sql:Parameter paraReal = {sqlType:"real", direction:1};
-    sql:Parameter paraTinyInt = {sqlType:"tinyint", direction:1};
-    sql:Parameter paraSmallInt = {sqlType:"smallint", direction:1};
-    sql:Parameter paraClob = {sqlType:"clob", direction:1};
-    sql:Parameter paraBlob = {sqlType:"blob", direction:1};
-    sql:Parameter paraBinary = {sqlType:"binary", direction:1};
+    sql:Parameter paraID = {sqlType:sql:data.INTEGER, value:"2", direction:0};
+    sql:Parameter paraInt = {sqlType:sql:data.INTEGER, direction:1};
+    sql:Parameter paraLong = {sqlType:sql:data.BIGINT, direction:1};
+    sql:Parameter paraFloat = {sqlType:sql:data.FLOAT, direction:1};
+    sql:Parameter paraDouble = {sqlType:sql:data.DOUBLE, direction:1};
+    sql:Parameter paraBool = {sqlType:sql:data.BOOLEAN, direction:1};
+    sql:Parameter paraString = {sqlType:sql:data.VARCHAR, direction:1};
+    sql:Parameter paraNumeric = {sqlType:sql:data.NUMERIC, direction:1};
+    sql:Parameter paraDecimal = {sqlType:sql:data.DECIMAL, direction:1};
+    sql:Parameter paraReal = {sqlType:sql:data.REAL, direction:1};
+    sql:Parameter paraTinyInt = {sqlType:sql:data.TINYINT, direction:1};
+    sql:Parameter paraSmallInt = {sqlType:sql:data.SMALLINT, direction:1};
+    sql:Parameter paraClob = {sqlType:sql:data.CLOB, direction:1};
+    sql:Parameter paraBlob = {sqlType:sql:data.BLOB, direction:1};
+    sql:Parameter paraBinary = {sqlType:sql:data.BINARY, direction:1};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
@@ -188,21 +188,21 @@ function testINParameters () (int) {
                                                 0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
-    sql:Parameter paraID = {sqlType:"integer", value:3, direction:0};
-    sql:Parameter paraInt = {sqlType:"integer", value:1, direction:0};
-    sql:Parameter paraLong = {sqlType:"bigint", value:"9223372036854774807", direction:0};
-    sql:Parameter paraFloat = {sqlType:"float", value:123.34, direction:0};
-    sql:Parameter paraDouble = {sqlType:"double", value:2139095039, direction:0};
-    sql:Parameter paraBool = {sqlType:"boolean", value:true, direction:0};
-    sql:Parameter paraString = {sqlType:"varchar", value:"Hello", direction:0};
-    sql:Parameter paraNumeric = {sqlType:"numeric", value:1234.567, direction:0};
-    sql:Parameter paraDecimal = {sqlType:"decimal", value:1234.567, direction:0};
-    sql:Parameter paraReal = {sqlType:"real", value:1234.567, direction:0};
-    sql:Parameter paraTinyInt = {sqlType:"tinyint", value:1, direction:0};
-    sql:Parameter paraSmallInt = {sqlType:"smallint", value:5555, direction:0};
-    sql:Parameter paraClob = {sqlType:"clob", value:"very long text", direction:0};
-    sql:Parameter paraBlob = {sqlType:"blob", value:"YmxvYiBkYXRh", direction:0};
-    sql:Parameter paraBinary = {sqlType:"binary", value:"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu", direction:0};
+    sql:Parameter paraID = {sqlType:sql:data.INTEGER, value:3, direction:0};
+    sql:Parameter paraInt = {sqlType:sql:data.INTEGER, value:1, direction:0};
+    sql:Parameter paraLong = {sqlType:sql:data.BIGINT, value:"9223372036854774807", direction:0};
+    sql:Parameter paraFloat = {sqlType:sql:data.FLOAT, value:123.34, direction:0};
+    sql:Parameter paraDouble = {sqlType:sql:data.DOUBLE, value:2139095039, direction:0};
+    sql:Parameter paraBool = {sqlType:sql:data.BOOLEAN, value:true, direction:0};
+    sql:Parameter paraString = {sqlType:sql:data.VARCHAR, value:"Hello", direction:0};
+    sql:Parameter paraNumeric = {sqlType:sql:data.NUMERIC, value:1234.567, direction:0};
+    sql:Parameter paraDecimal = {sqlType:sql:data.DECIMAL, value:1234.567, direction:0};
+    sql:Parameter paraReal = {sqlType:sql:data.REAL, value:1234.567, direction:0};
+    sql:Parameter paraTinyInt = {sqlType:sql:data.TINYINT, value:1, direction:0};
+    sql:Parameter paraSmallInt = {sqlType:sql:data.SMALLINT, value:5555, direction:0};
+    sql:Parameter paraClob = {sqlType:sql:data.CLOB, value:"very long text", direction:0};
+    sql:Parameter paraBlob = {sqlType:sql:data.BLOB, value:"YmxvYiBkYXRh", direction:0};
+    sql:Parameter paraBinary = {sqlType:sql:data.BINARY, value:"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu", direction:0};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
@@ -219,21 +219,21 @@ function testNullINParameterValues () (int) {
                                         0, "TEST_SQL_CONNECTOR", "SA", "", { maximumPoolSize:1});
     }
 
-    sql:Parameter paraID = {sqlType:"integer", value:4, direction:0};
-    sql:Parameter paraInt = {sqlType:"integer", direction:0};
-    sql:Parameter paraLong = {sqlType:"bigint", direction:0};
-    sql:Parameter paraFloat = {sqlType:"float", direction:0};
-    sql:Parameter paraDouble = {sqlType:"double", direction:0};
-    sql:Parameter paraBool = {sqlType:"boolean", direction:0};
-    sql:Parameter paraString = {sqlType:"varchar", direction:0};
-    sql:Parameter paraNumeric = {sqlType:"numeric", direction:0};
-    sql:Parameter paraDecimal = {sqlType:"decimal", direction:0};
-    sql:Parameter paraReal = {sqlType:"real", direction:0};
-    sql:Parameter paraTinyInt = {sqlType:"tinyint", direction:0};
-    sql:Parameter paraSmallInt = {sqlType:"smallint", direction:0};
-    sql:Parameter paraClob = {sqlType:"clob", direction:0};
-    sql:Parameter paraBlob = {sqlType:"blob", direction:0};
-    sql:Parameter paraBinary = {sqlType:"binary", direction:0};
+    sql:Parameter paraID = {sqlType:sql:data.INTEGER, value:4, direction:0};
+    sql:Parameter paraInt = {sqlType:sql:data.INTEGER, direction:0};
+    sql:Parameter paraLong = {sqlType:sql:data.BIGINT, direction:0};
+    sql:Parameter paraFloat = {sqlType:sql:data.FLOAT, direction:0};
+    sql:Parameter paraDouble = {sqlType:sql:data.DOUBLE, direction:0};
+    sql:Parameter paraBool = {sqlType:sql:data.BOOLEAN, direction:0};
+    sql:Parameter paraString = {sqlType:sql:data.VARCHAR, direction:0};
+    sql:Parameter paraNumeric = {sqlType:sql:data.NUMERIC, direction:0};
+    sql:Parameter paraDecimal = {sqlType:sql:data.DECIMAL, direction:0};
+    sql:Parameter paraReal = {sqlType:sql:data.REAL, direction:0};
+    sql:Parameter paraTinyInt = {sqlType:sql:data.TINYINT, direction:0};
+    sql:Parameter paraSmallInt = {sqlType:sql:data.SMALLINT, direction:0};
+    sql:Parameter paraClob = {sqlType:sql:data.CLOB, direction:0};
+    sql:Parameter paraBlob = {sqlType:sql:data.BLOB, direction:0};
+    sql:Parameter paraBinary = {sqlType:sql:data.BINARY, direction:0};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
@@ -250,7 +250,7 @@ function testNullINParameters () (int) {
                                                 0, "TEST_SQL_CONNECTOR", "SA", "", { maximumPoolSize:1});
     }
 
-    sql:Parameter paraID = {sqlType:"integer", value:10, direction:0};
+    sql:Parameter paraID = {sqlType:sql:data.INTEGER, value:10, direction:0};
 
     sql:Parameter[] parameters = [paraID, null, null, null, null, null, null, null,
                                   null, null, null, null, null, null, null];
@@ -267,21 +267,21 @@ function testINOutParameters () (any, any, any, any, any, any, any, any, any, an
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
-    sql:Parameter paraID = {sqlType:"integer", value:5, direction:0};
-    sql:Parameter paraInt = {sqlType:"integer", value:10, direction:2};
-    sql:Parameter paraLong = {sqlType:"bigint", value:"9223372036854774807", direction:2};
-    sql:Parameter paraFloat = {sqlType:"float", value:123.34, direction:2};
-    sql:Parameter paraDouble = {sqlType:"double", value:2139095039, direction:2};
-    sql:Parameter paraBool = {sqlType:"boolean", value:true, direction:2};
-    sql:Parameter paraString = {sqlType:"varchar", value:"Hello", direction:2};
-    sql:Parameter paraNumeric = {sqlType:"numeric", value:1234.567, direction:2};
-    sql:Parameter paraDecimal = {sqlType:"decimal", value:1234.567, direction:2};
-    sql:Parameter paraReal = {sqlType:"real", value:1234.567, direction:2};
-    sql:Parameter paraTinyInt = {sqlType:"tinyint", value:1, direction:2};
-    sql:Parameter paraSmallInt = {sqlType:"smallint", value:5555, direction:2};
-    sql:Parameter paraClob = {sqlType:"clob", value:"very long text", direction:2};
-    sql:Parameter paraBlob = {sqlType:"blob", value:"YmxvYiBkYXRh", direction:2};
-    sql:Parameter paraBinary = {sqlType:"binary", value:"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu", direction:2};
+    sql:Parameter paraID = {sqlType:sql:data.INTEGER, value:5, direction:0};
+    sql:Parameter paraInt = {sqlType:sql:data.INTEGER, value:10, direction:2};
+    sql:Parameter paraLong = {sqlType:sql:data.BIGINT, value:"9223372036854774807", direction:2};
+    sql:Parameter paraFloat = {sqlType:sql:data.FLOAT, value:123.34, direction:2};
+    sql:Parameter paraDouble = {sqlType:sql:data.DOUBLE, value:2139095039, direction:2};
+    sql:Parameter paraBool = {sqlType:sql:data.BOOLEAN, value:true, direction:2};
+    sql:Parameter paraString = {sqlType:sql:data.VARCHAR, value:"Hello", direction:2};
+    sql:Parameter paraNumeric = {sqlType:sql:data.NUMERIC, value:1234.567, direction:2};
+    sql:Parameter paraDecimal = {sqlType:sql:data.DECIMAL, value:1234.567, direction:2};
+    sql:Parameter paraReal = {sqlType:sql:data.REAL, value:1234.567, direction:2};
+    sql:Parameter paraTinyInt = {sqlType:sql:data.TINYINT, value:1, direction:2};
+    sql:Parameter paraSmallInt = {sqlType:sql:data.SMALLINT, value:5555, direction:2};
+    sql:Parameter paraClob = {sqlType:sql:data.CLOB, value:"very long text", direction:2};
+    sql:Parameter paraBlob = {sqlType:sql:data.BLOB, value:"YmxvYiBkYXRh", direction:2};
+    sql:Parameter paraBinary = {sqlType:sql:data.BINARY, value:"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu", direction:2};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
@@ -299,21 +299,21 @@ function testNullINOutParameters ()
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
-    sql:Parameter paraID = {sqlType:"integer", value:"6", direction:0};
-    sql:Parameter paraInt = {sqlType:"integer", direction:2};
-    sql:Parameter paraLong = {sqlType:"bigint", direction:2};
-    sql:Parameter paraFloat = {sqlType:"float", direction:2};
-    sql:Parameter paraDouble = {sqlType:"double", direction:2};
-    sql:Parameter paraBool = {sqlType:"boolean", direction:2};
-    sql:Parameter paraString = {sqlType:"varchar", direction:2};
-    sql:Parameter paraNumeric = {sqlType:"numeric", direction:2};
-    sql:Parameter paraDecimal = {sqlType:"decimal", direction:2};
-    sql:Parameter paraReal = {sqlType:"real", direction:2};
-    sql:Parameter paraTinyInt = {sqlType:"tinyint", direction:2};
-    sql:Parameter paraSmallInt = {sqlType:"smallint", direction:2};
-    sql:Parameter paraClob = {sqlType:"clob", direction:2};
-    sql:Parameter paraBlob = {sqlType:"blob", direction:2};
-    sql:Parameter paraBinary = {sqlType:"binary", direction:2};
+    sql:Parameter paraID = {sqlType:sql:data.INTEGER, value:"6", direction:0};
+    sql:Parameter paraInt = {sqlType:sql:data.INTEGER, direction:2};
+    sql:Parameter paraLong = {sqlType:sql:data.BIGINT, direction:2};
+    sql:Parameter paraFloat = {sqlType:sql:data.FLOAT, direction:2};
+    sql:Parameter paraDouble = {sqlType:sql:data.DOUBLE, direction:2};
+    sql:Parameter paraBool = {sqlType:sql:data.BOOLEAN, direction:2};
+    sql:Parameter paraString = {sqlType:sql:data.VARCHAR, direction:2};
+    sql:Parameter paraNumeric = {sqlType:sql:data.NUMERIC, direction:2};
+    sql:Parameter paraDecimal = {sqlType:sql:data.DECIMAL, direction:2};
+    sql:Parameter paraReal = {sqlType:sql:data.REAL, direction:2};
+    sql:Parameter paraTinyInt = {sqlType:sql:data.TINYINT, direction:2};
+    sql:Parameter paraSmallInt = {sqlType:sql:data.SMALLINT, direction:2};
+    sql:Parameter paraClob = {sqlType:sql:data.CLOB, direction:2};
+    sql:Parameter paraBlob = {sqlType:sql:data.BLOB, direction:2};
+    sql:Parameter paraBinary = {sqlType:sql:data.BINARY, direction:2};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
@@ -344,12 +344,12 @@ function testArrayOutParameters () (any, any, any, any, any, any) {
     }
 
     string firstName;
-    sql:Parameter para1 = {sqlType:"array", direction:1};
-    sql:Parameter para2 = {sqlType:"array", direction:1};
-    sql:Parameter para3 = {sqlType:"array", direction:1};
-    sql:Parameter para4 = {sqlType:"array", direction:1};
-    sql:Parameter para5 = {sqlType:"array", direction:1};
-    sql:Parameter para6 = {sqlType:"array", direction:1};
+    sql:Parameter para1 = {sqlType:sql:data.ARRAY, direction:1};
+    sql:Parameter para2 = {sqlType:sql:data.ARRAY, direction:1};
+    sql:Parameter para3 = {sqlType:sql:data.ARRAY, direction:1};
+    sql:Parameter para4 = {sqlType:sql:data.ARRAY, direction:1};
+    sql:Parameter para5 = {sqlType:sql:data.ARRAY, direction:1};
+    sql:Parameter para6 = {sqlType:sql:data.ARRAY, direction:1};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6];
     _ = testDB.call ("{call TestArrayOutParams(?,?,?,?,?,?)}", parameters);
     testDB.close ();
@@ -362,14 +362,14 @@ function testArrayInOutParameters () (any, any, any, any, any, any, any) {
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
-    sql:Parameter para1 = {sqlType:"integer", value:3, direction:0};
-    sql:Parameter para2 = {sqlType:"integer", direction:1};
-    sql:Parameter para3 = {sqlType:"array", value:"10,20,30", direction:2};
-    sql:Parameter para4 = {sqlType:"array", value:"10000000, 20000000, 30000000", direction:2};
-    sql:Parameter para5 = {sqlType:"array", value:"2454.23, 55594.49, 87964.123", direction:2};
-    sql:Parameter para6 = {sqlType:"array", value:"2454.23, 55594.49, 87964.123", direction:2};
-    sql:Parameter para7 = {sqlType:"array", value:"FALSE, FALSE, TRUE", direction:2};
-    sql:Parameter para8 = {sqlType:"array", value:"Hello,Ballerina,Lang", direction:2};
+    sql:Parameter para1 = {sqlType:sql:data.INTEGER, value:3, direction:0};
+    sql:Parameter para2 = {sqlType:sql:data.INTEGER, direction:1};
+    sql:Parameter para3 = {sqlType:sql:data.ARRAY, value:"10,20,30", direction:2};
+    sql:Parameter para4 = {sqlType:sql:data.ARRAY, value:"10000000, 20000000, 30000000", direction:2};
+    sql:Parameter para5 = {sqlType:sql:data.ARRAY, value:"2454.23, 55594.49, 87964.123", direction:2};
+    sql:Parameter para6 = {sqlType:sql:data.ARRAY, value:"2454.23, 55594.49, 87964.123", direction:2};
+    sql:Parameter para7 = {sqlType:sql:data.ARRAY, value:"FALSE, FALSE, TRUE", direction:2};
+    sql:Parameter para8 = {sqlType:sql:data.ARRAY, value:"Hello,Ballerina,Lang", direction:2};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8];
 
     _ = testDB.call ("{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", parameters);
@@ -384,19 +384,19 @@ function testBatchUpdate () (int[]) {
     }
 
     //Batch 1
-    sql:Parameter para1 = {sqlType:"varchar", value:"Alex", direction:0};
-    sql:Parameter para2 = {sqlType:"varchar", value:"Smith", direction:0};
-    sql:Parameter para3 = {sqlType:"integer", value:20, direction:0};
-    sql:Parameter para4 = {sqlType:"double", value:3400.5, direction:0};
-    sql:Parameter para5 = {sqlType:"varchar", value:"Colombo", direction:0};
+    sql:Parameter para1 = {sqlType:sql:data.VARCHAR, value:"Alex", direction:0};
+    sql:Parameter para2 = {sqlType:sql:data.VARCHAR, value:"Smith", direction:0};
+    sql:Parameter para3 = {sqlType:sql:data.INTEGER, value:20, direction:0};
+    sql:Parameter para4 = {sqlType:sql:data.DOUBLE, value:3400.5, direction:0};
+    sql:Parameter para5 = {sqlType:sql:data.VARCHAR, value:"Colombo", direction:0};
     sql:Parameter[] parameters1 = [para1, para2, para3, para4, para5];
 
     //Batch 2
-    para1 = {sqlType:"varchar", value:"Alex", direction:0};
-    para2 = {sqlType:"varchar", value:"Smith", direction:0};
-    para3 = {sqlType:"integer", value:20, direction:0};
-    para4 = {sqlType:"double", value:3400.5, direction:0};
-    para5 = {sqlType:"varchar", value:"Colombo", direction:0};
+    para1 = {sqlType:sql:data.VARCHAR, value:"Alex", direction:0};
+    para2 = {sqlType:sql:data.VARCHAR, value:"Smith", direction:0};
+    para3 = {sqlType:sql:data.INTEGER, value:20, direction:0};
+    para4 = {sqlType:sql:data.DOUBLE, value:3400.5, direction:0};
+    para5 = {sqlType:sql:data.VARCHAR, value:"Colombo", direction:0};
     sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
     sql:Parameter[][] parameters = [parameters1, parameters2];
 
@@ -414,40 +414,40 @@ function testBatchUpdateWithFailure () (int[] updateCount, int count) {
     }
 
     //Batch 1
-    sql:Parameter para0 = {sqlType:"integer", value:111, direction:0};
-    sql:Parameter para1 = {sqlType:"varchar", value:"Alex", direction:0};
-    sql:Parameter para2 = {sqlType:"varchar", value:"Smith", direction:0};
-    sql:Parameter para3 = {sqlType:"integer", value:20, direction:0};
-    sql:Parameter para4 = {sqlType:"double", value:3400.5, direction:0};
-    sql:Parameter para5 = {sqlType:"varchar", value:"Colombo", direction:0};
+    sql:Parameter para0 = {sqlType:sql:data.INTEGER, value:111, direction:0};
+    sql:Parameter para1 = {sqlType:sql:data.VARCHAR, value:"Alex", direction:0};
+    sql:Parameter para2 = {sqlType:sql:data.VARCHAR, value:"Smith", direction:0};
+    sql:Parameter para3 = {sqlType:sql:data.INTEGER, value:20, direction:0};
+    sql:Parameter para4 = {sqlType:sql:data.DOUBLE, value:3400.5, direction:0};
+    sql:Parameter para5 = {sqlType:sql:data.VARCHAR, value:"Colombo", direction:0};
     sql:Parameter[] parameters1 = [para0, para1, para2, para3, para4, para5];
 
     //Batch 2
-    para0 = {sqlType:"integer", value:222, direction:0};
-    para1 = {sqlType:"varchar", value:"Alex", direction:0};
-    para2 = {sqlType:"varchar", value:"Smith", direction:0};
-    para3 = {sqlType:"integer", value:20, direction:0};
-    para4 = {sqlType:"double", value:3400.5, direction:0};
-    para5 = {sqlType:"varchar", value:"Colombo", direction:0};
+    para0 = {sqlType:sql:data.INTEGER, value:222, direction:0};
+    para1 = {sqlType:sql:data.VARCHAR, value:"Alex", direction:0};
+    para2 = {sqlType:sql:data.VARCHAR, value:"Smith", direction:0};
+    para3 = {sqlType:sql:data.INTEGER, value:20, direction:0};
+    para4 = {sqlType:sql:data.DOUBLE, value:3400.5, direction:0};
+    para5 = {sqlType:sql:data.VARCHAR, value:"Colombo", direction:0};
     sql:Parameter[] parameters2 = [para0, para1, para2, para3, para4, para5];
 
 
     //Batch 3
-    para0 = {sqlType:"integer", value:222, direction:0};
-    para1 = {sqlType:"varchar", value:"Alex", direction:0};
-    para2 = {sqlType:"varchar", value:"Smith", direction:0};
-    para3 = {sqlType:"integer", value:20, direction:0};
-    para4 = {sqlType:"double", value:3400.5, direction:0};
-    para5 = {sqlType:"varchar", value:"Colombo", direction:0};
+    para0 = {sqlType:sql:data.INTEGER, value:222, direction:0};
+    para1 = {sqlType:sql:data.VARCHAR, value:"Alex", direction:0};
+    para2 = {sqlType:sql:data.VARCHAR, value:"Smith", direction:0};
+    para3 = {sqlType:sql:data.INTEGER, value:20, direction:0};
+    para4 = {sqlType:sql:data.DOUBLE, value:3400.5, direction:0};
+    para5 = {sqlType:sql:data.VARCHAR, value:"Colombo", direction:0};
     sql:Parameter[] parameters3 = [para0, para1, para2, para3, para4, para5];
 
     //Batch 4
-    para0 = {sqlType:"integer", value:333, direction:0};
-    para1 = {sqlType:"varchar", value:"Alex", direction:0};
-    para2 = {sqlType:"varchar", value:"Smith", direction:0};
-    para3 = {sqlType:"integer", value:20, direction:0};
-    para4 = {sqlType:"double", value:3400.5, direction:0};
-    para5 = {sqlType:"varchar", value:"Colombo", direction:0};
+    para0 = {sqlType:sql:data.INTEGER, value:333, direction:0};
+    para1 = {sqlType:sql:data.VARCHAR, value:"Alex", direction:0};
+    para2 = {sqlType:sql:data.VARCHAR, value:"Smith", direction:0};
+    para3 = {sqlType:sql:data.INTEGER, value:20, direction:0};
+    para4 = {sqlType:sql:data.DOUBLE, value:3400.5, direction:0};
+    para5 = {sqlType:sql:data.VARCHAR, value:"Colombo", direction:0};
     sql:Parameter[] parameters4 = [para0, para1, para2, para3, para4, para5];
 
     sql:Parameter[][] parameters = [parameters1, parameters2, parameters3,parameters4];
@@ -489,21 +489,21 @@ function testDateTimeInParameters () (int[]) {
     }
     string stmt = "Insert into DateTimeTypes(row_id,date_type,time_type,datetime_type,timestamp_type) values (?,?,?,?,?)";
     int[] returnValues = [];
-    sql:Parameter para1 = {sqlType:"integer", value:1, direction:0};
-    sql:Parameter para2 = {sqlType:"date", value:"2017-01-30-08:01", direction:0};
-    sql:Parameter para3 = {sqlType:"time", value:"13:27:01.999999+08:33", direction:0};
-    sql:Parameter para4 = {sqlType:"timestamp", value:"2017-01-30T13:27:01.999-08:00", direction:0};
-    sql:Parameter para5 = {sqlType:"datetime", value:"2017-01-30T13:27:01.999999Z", direction:0};
+    sql:Parameter para1 = {sqlType:sql:data.INTEGER, value:1, direction:0};
+    sql:Parameter para2 = {sqlType:sql:data.DATE, value:"2017-01-30-08:01", direction:0};
+    sql:Parameter para3 = {sqlType:sql:data.TIME, value:"13:27:01.999999+08:33", direction:0};
+    sql:Parameter para4 = {sqlType:sql:data.TIMESTAMP, value:"2017-01-30T13:27:01.999-08:00", direction:0};
+    sql:Parameter para5 = {sqlType:sql:data.DATETIME, value:"2017-01-30T13:27:01.999999Z", direction:0};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
 
     int insertCount1 = testDB.update(stmt, parameters);
     returnValues[0] = insertCount1;
 
-    para1 = {sqlType:"integer", value:2, direction:0};
-    para2 = {sqlType:"date", value:"-2017-01-30Z", direction:0};
-    para3 = {sqlType:"time", value:"13:27:01+08:33", direction:0};
-    para4 = {sqlType:"timestamp", value:"2017-01-30T13:27:01.999", direction:0};
-    para5 = {sqlType:"datetime", value:"-2017-01-30T13:27:01.999999-08:30", direction:0};
+    para1 = {sqlType:sql:data.INTEGER, value:2, direction:0};
+    para2 = {sqlType:sql:data.DATE, value:"-2017-01-30Z", direction:0};
+    para3 = {sqlType:sql:data.TIME, value:"13:27:01+08:33", direction:0};
+    para4 = {sqlType:sql:data.TIMESTAMP, value:"2017-01-30T13:27:01.999", direction:0};
+    para5 = {sqlType:sql:data.DATETIME, value:"-2017-01-30T13:27:01.999999-08:30", direction:0};
     parameters = [para1, para2, para3, para4, para5];
 
     int insertCount2 = testDB.update(stmt, parameters);
@@ -511,11 +511,11 @@ function testDateTimeInParameters () (int[]) {
 
 
     Time timeNow = currentTime();
-    para1 = {sqlType:"integer", value:3};
-    para2 = {sqlType:"date", value:timeNow};
-    para3 = {sqlType:"time", value:timeNow};
-    para4 = {sqlType:"timestamp", value:timeNow};
-    para5 = {sqlType:"datetime", value:timeNow};
+    para1 = {sqlType:sql:data.INTEGER, value:3};
+    para2 = {sqlType:sql:data.DATE, value:timeNow};
+    para3 = {sqlType:sql:data.TIME, value:timeNow};
+    para4 = {sqlType:sql:data.TIMESTAMP, value:timeNow};
+    para5 = {sqlType:sql:data.DATETIME, value:timeNow};
     parameters = [para1, para2, para3, para4, para5];
 
     int insertCount3 = testDB.update(stmt, parameters);
@@ -610,7 +610,7 @@ function testQueryParameters () (string firstName) {
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
-    sql:Parameter para1 = {sqlType:"integer", value:1, direction:0};
+    sql:Parameter para1 = {sqlType:sql:data.INTEGER, value:1, direction:0};
     sql:Parameter[] parameters = [para1];
     datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = ?", parameters);
     TypeCastError err;
@@ -633,10 +633,10 @@ function testArrayofQueryParameters () (string firstName) {
     int[] intDataArray = [1,4343];
     string[] stringDataArray = ["A", "B"];
     float[] doubleArray = [233.4, 433.4];
-    sql:Parameter para0 = {sqlType:"varchar", value:"Johhhn", direction:0};
-    sql:Parameter para1 = {sqlType:"integer", value:intDataArray, direction:0};
-    sql:Parameter para2 = {sqlType:"varchar", value:stringDataArray, direction:0};
-    sql:Parameter para3 = {sqlType:"double", value:doubleArray, direction:0};
+    sql:Parameter para0 = {sqlType:sql:data.VARCHAR, value:"Johhhn", direction:0};
+    sql:Parameter para1 = {sqlType:sql:data.INTEGER, value:intDataArray, direction:0};
+    sql:Parameter para2 = {sqlType:sql:data.VARCHAR, value:stringDataArray, direction:0};
+    sql:Parameter para3 = {sqlType:sql:data.DOUBLE, value:doubleArray, direction:0};
     sql:Parameter[] parameters = [para0,para1, para2, para3];
     datatable dt = testDB.select ("SELECT  FirstName from Customers where FirstName = ? or lastName = 'A' or
                     lastName = '\"BB\"' or registrationID in(?) or lastName in(?) or creditLimit in(?)", parameters);
@@ -671,9 +671,9 @@ function testBoolArrayofQueryParameters () (int value ) {
     }
     blob[] blobDataArray = [blobData];
 
-    sql:Parameter para0 = {sqlType:"integer", value:1, direction:0};
-    sql:Parameter para1 = {sqlType:"boolean", value:boolDataArray, direction:0};
-    sql:Parameter para2 = {sqlType:"blob", value:blobDataArray, direction:0};
+    sql:Parameter para0 = {sqlType:sql:data.INTEGER, value:1, direction:0};
+    sql:Parameter para1 = {sqlType:sql:data.BOOLEAN, value:boolDataArray, direction:0};
+    sql:Parameter para2 = {sqlType:sql:data.BLOB, value:blobDataArray, direction:0};
     sql:Parameter[] parameters = [para0,para1,para2];
     datatable dt = testDB.select ("SELECT  int_type from DataTypeTable where row_id = ? and boolean_type in(?) and
                                                             blob_type in (?)",
@@ -703,13 +703,13 @@ function testArrayInParameters () (int insertCount, map int_arr, map long_arr, m
     float[] doubleArray = [1503383034226.23,  1503383034224.43, 1503383034225.123];
     boolean[] boolArray = [true, false, true];
     string[] stringArray = ["Hello","Ballerina"];
-    sql:Parameter para1 = {sqlType:"integer", value:2, direction:0};
-    sql:Parameter para2 = {sqlType:"array", value:intArray, direction:0};
-    sql:Parameter para3 = {sqlType:"array", value:longArray, direction:0};
-    sql:Parameter para4 = {sqlType:"array", value:floatArray, direction:0};
-    sql:Parameter para5 = {sqlType:"array", value:doubleArray, direction:0};
-    sql:Parameter para6 = {sqlType:"array", value:boolArray, direction:0};
-    sql:Parameter para7 = {sqlType:"array", value:stringArray, direction:0};
+    sql:Parameter para1 = {sqlType:sql:data.INTEGER, value:2, direction:0};
+    sql:Parameter para2 = {sqlType:sql:data.ARRAY, value:intArray, direction:0};
+    sql:Parameter para3 = {sqlType:sql:data.ARRAY, value:longArray, direction:0};
+    sql:Parameter para4 = {sqlType:sql:data.ARRAY, value:floatArray, direction:0};
+    sql:Parameter para5 = {sqlType:sql:data.ARRAY, value:doubleArray, direction:0};
+    sql:Parameter para6 = {sqlType:sql:data.ARRAY, value:boolArray, direction:0};
+    sql:Parameter para7 = {sqlType:sql:data.ARRAY, value:stringArray, direction:0};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7];
 
     insertCount = testDB.update ("INSERT INTO ArrayTypes (row_id, int_array, long_array,
@@ -739,16 +739,16 @@ function testDateTimeOutParams (int time, int date, int timestamp) (int count) {
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
-    sql:Parameter para1 = {sqlType:"integer", value:10, direction:0};
-    sql:Parameter para2 = {sqlType:"date", value:date, direction:0};
-    sql:Parameter para3 = {sqlType:"time", value:time, direction:0};
-    sql:Parameter para4 = {sqlType:"timestamp", value:timestamp, direction:0};
-    sql:Parameter para5 = {sqlType:"datetime", value:timestamp, direction:0};
+    sql:Parameter para1 = {sqlType:sql:data.INTEGER, value:10, direction:0};
+    sql:Parameter para2 = {sqlType:sql:data.DATE, value:date, direction:0};
+    sql:Parameter para3 = {sqlType:sql:data.TIME, value:time, direction:0};
+    sql:Parameter para4 = {sqlType:sql:data.TIMESTAMP, value:timestamp, direction:0};
+    sql:Parameter para5 = {sqlType:sql:data.DATETIME, value:timestamp, direction:0};
 
-    sql:Parameter para6 = {sqlType:"date", direction:1};
-    sql:Parameter para7 = {sqlType:"time", direction:1};
-    sql:Parameter para8 = {sqlType:"timestamp", direction:1};
-    sql:Parameter para9 = {sqlType:"datetime", direction:1};
+    sql:Parameter para6 = {sqlType:sql:data.DATE, direction:1};
+    sql:Parameter para7 = {sqlType:sql:data.TIME, direction:1};
+    sql:Parameter para8 = {sqlType:sql:data.TIMESTAMP, direction:1};
+    sql:Parameter para9 = {sqlType:sql:data.DATETIME, direction:1};
 
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8, para9];
 
@@ -771,7 +771,7 @@ function testStructOutParameters() (any) {
         create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
-    sql:Parameter para1 = {sqlType:"struct", direction:1};
+    sql:Parameter para1 = {sqlType:sql:data.STRUCT, direction:1};
     sql:Parameter[] parameters = [para1];
     _ = testDB.call("{call TestStructOut(?)}", parameters);
     testDB.close();

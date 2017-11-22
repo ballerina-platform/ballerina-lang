@@ -5,7 +5,7 @@ package ballerina.data.sql;
 @Field {value:"value: Value of paramter pass into the SQL query"}
 @Field {value:"direction: Direction of the SQL Parameter 0 - IN, 1- OUT, 2 - INOUT"}
 public struct Parameter {
-	string sqlType;
+	data sqlType;
 	any value;
 	int direction;
 }
@@ -70,6 +70,38 @@ public enum db {
 	DERBY_SERVER,
 	DERBY_FILE,
 	GENERIC
+}
+
+public enum data {
+	VARCHAR,
+	CHAR,
+	LONGVARCHAR,
+	NCHAR,
+	LONGNVARCHAR,
+	NVARCHAR,
+	BIT,
+	BOOLEAN,
+	TINYINT,
+	SMALLINT,
+	INTEGER ,
+	BIGINT,
+	NUMERIC,
+	DECIMAL,
+	REAL,
+	FLOAT,
+	DOUBLE,
+	BINARY,
+	BLOB,
+	LONGVARBINARY,
+	VARBINARY,
+	CLOB,
+	NCLOB,
+	DATE,
+	TIME,
+	DATETIME,
+	TIMESTAMP,
+	ARRAY,
+	STRUCT
 }
 
 @Description { value:"The Client Connector for SQL databases."}
