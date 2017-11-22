@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang.tools</groupId>
         <artifactId>tools-distribution</artifactId>
-        <version>0.93.1-SNAPSHOT</version>
+        <version>0.95.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -63,10 +63,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>docerina</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.ballerina.connectors</groupId>
-            <artifactId>connectors</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -127,6 +123,13 @@
                         </configuration>
                     </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.ballerinalang</groupId>
+                        <artifactId>ballerina-http</artifactId>
+                        <version>${ballerina.runtime.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
             <plugin>

@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang.tools</groupId>
         <artifactId>tools-distribution</artifactId>
-        <version>0.93.1-SNAPSHOT</version>
+        <version>0.95.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -33,6 +33,10 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-config</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -70,52 +74,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.transport</groupId>
-            <artifactId>org.wso2.carbon.transport.file</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.transport</groupId>
-            <artifactId>org.wso2.carbon.transport.file-system</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.transport</groupId>
             <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.transport</groupId>
-            <artifactId>org.wso2.carbon.transport.http.netty.feature</artifactId>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.transport</groupId>
-            <artifactId>org.wso2.carbon.connector.framework</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.transport</groupId>
-            <artifactId>org.wso2.carbon.transport.jms</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.config</groupId>
-            <artifactId>org.wso2.carbon.config</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.secvault</groupId>
-            <artifactId>org.wso2.carbon.secvault</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.secvault</groupId>
-            <artifactId>org.wso2.carbon.secvault.ciphertool</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.utils</groupId>
-            <artifactId>carbon-utils</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons.wso2</groupId>
-            <artifactId>commons-vfs2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.jms</groupId>
-            <artifactId>javax.jms-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -136,6 +95,14 @@
         <dependency>
             <groupId>javax.transaction</groupId>
             <artifactId>javax.transaction-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz-jobs</artifactId>
         </dependency>
     </dependencies>
 

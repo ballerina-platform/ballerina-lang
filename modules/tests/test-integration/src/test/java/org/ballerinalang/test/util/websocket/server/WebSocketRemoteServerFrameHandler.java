@@ -18,13 +18,17 @@
 
 package org.ballerinalang.test.util.websocket.server;
 
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.ByteBuffer;
 
 /**
  * Simple WebSocket frame handler for testing
@@ -33,6 +37,7 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketRemoteServerFrameHandler.class);
     private boolean isOpen = true;
+    private static final String PING = "ping";
 
     public boolean isOpen() {
         return isOpen;
@@ -54,6 +59,11 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
         if (frame instanceof TextWebSocketFrame) {
             // Echos the same text
             String text = ((TextWebSocketFrame) frame).text();
+            if (PING.equals(text)) {
+                ctx.channel().writeAndFlush(new PingWebSocketFrame(
+                        Unpooled.wrappedBuffer(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}))));
+                return;
+            }
             ctx.channel().writeAndFlush(new TextWebSocketFrame(text));
         } else if (frame instanceof CloseWebSocketFrame) {
             ctx.close();

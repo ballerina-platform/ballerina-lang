@@ -48,12 +48,6 @@
             </directory>
             <outputDirectory>docs/api</outputDirectory>
         </fileSet>
-        <fileSet>
-            <directory>
-                ${project.build.directory}/extracted-distributions/connectors-jar/META-INF/natives
-            </directory>
-            <outputDirectory>src</outputDirectory>
-        </fileSet>
     </fileSets>
 
     <files>
@@ -88,7 +82,7 @@
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>../../copyright.txt</source>
+            <source>../../COPYRIGHT.txt</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
@@ -103,6 +97,20 @@
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
+        <file>
+            <source>
+                ${project.build.directory}/extracted-distributions/workspace-service-jar/deployment.yaml
+            </source>
+            <outputDirectory>resources/composer/services</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>${project.build.directory}/extracted-distributions/workspace-service-jar/composer-logging.properties</source>
+            <outputDirectory>bre/conf</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
     </files>
 
     <dependencySets>
@@ -114,7 +122,6 @@
                 <include>org.ballerinalang:swagger-ballerina-generator:jar</include>
                 <include>org.ballerinalang:ballerina-container-support:jar</include>
                 <include>org.ballerinalang:docerina:jar</include>
-                <include>org.wso2.ballerina.connectors:connectors:jar</include>
                 <include>com.fasterxml.jackson.dataformat:jackson-dataformat-yaml</include>
             </includes>
             <unpack>false</unpack>

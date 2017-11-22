@@ -21,14 +21,14 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerinalang</artifactId>
-        <version>0.93.1-SNAPSHOT</version>
+        <version>0.95.1-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.ballerinalang.tools</groupId>
     <artifactId>tools-distribution</artifactId>
     <packaging>pom</packaging>
-    <version>0.93.1-SNAPSHOT</version>
+    <version>0.95.1-SNAPSHOT</version>
     <name>Ballerina - Tools</name>
     <description>Ballerina - Tools</description>
 
@@ -70,6 +70,11 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-core</artifactId>
+                <version>${ballerina.runtime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-config</artifactId>
                 <version>${ballerina.runtime.version}</version>
             </dependency>
             <dependency>
@@ -140,14 +145,19 @@
                 <version>${docerina.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.ballerina.connectors</groupId>
-                <artifactId>connectors</artifactId>
-                <version>${ballerina.connectors.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.wso2.orbit.org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>${org.snakeyaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.quartz-scheduler</groupId>
+                <artifactId>quartz</artifactId>
+                <version>${quartz.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.quartz-scheduler</groupId>
+                <artifactId>quartz-jobs</artifactId>
+                <version>${quartz.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -166,7 +176,6 @@
         <ballerina.container.version>${ballerina.runtime.version}</ballerina.container.version>
         <docerina.version>${ballerina.runtime.version}</docerina.version>
         <docerina.maven.plugin.version>${ballerina.runtime.version}</docerina.maven.plugin.version>
-        <ballerina.connectors.version>${ballerina.runtime.version}</ballerina.connectors.version>
         <commons-net.version>3.6</commons-net.version>
     </properties>
 </project>

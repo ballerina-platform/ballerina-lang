@@ -27,6 +27,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
@@ -50,6 +51,8 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     private String textReceived = null;
     private ByteBuffer bufferReceived = null;
     private boolean isOpen;
+    private boolean isPong;
+    private boolean isPing;
 
     public WebSocketClientHandler(WebSocketClientHandshaker handshaker) {
         this.handshaker = handshaker;
@@ -101,8 +104,13 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         } else if (frame instanceof BinaryWebSocketFrame) {
             BinaryWebSocketFrame binaryFrame = (BinaryWebSocketFrame) frame;
             bufferReceived = binaryFrame.content().nioBuffer();
+        } else if (frame instanceof PingWebSocketFrame) {
+            PingWebSocketFrame pingFrame = (PingWebSocketFrame) frame;
+            isPing = true;
+            bufferReceived = pingFrame.content().nioBuffer();
         } else if (frame instanceof PongWebSocketFrame) {
             PongWebSocketFrame pongFrame = (PongWebSocketFrame) frame;
+            isPong = true;
             bufferReceived = pongFrame.content().nioBuffer();
         } else if (frame instanceof CloseWebSocketFrame) {
             ch.close().sync();
@@ -134,7 +142,31 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
      * @return true if the connection is open.
      */
     public boolean isOpen() {
-        return isOpen;
+        boolean temp = isOpen;
+        isOpen = false;
+        return temp;
+    }
+
+    /**
+     * Check whether a ping is received.
+     *
+     * @return true if a ping is received.
+     */
+    public boolean isPing() {
+        boolean temp = isPing;
+        isPing = false;
+        return temp;
+    }
+
+    /**
+     * Check whether a ping is received.
+     *
+     * @return true if a ping is received.
+     */
+    public boolean isPong() {
+        boolean temp = isPong;
+        isPong = false;
+        return temp;
     }
 
     @Override
