@@ -23,16 +23,16 @@
         <version>5</version>
     </parent>
     <packaging>pom</packaging>
-    <groupId>org.wso2.carbon.transport</groupId>
-    <artifactId>org.wso2.carbon.transport.parent</artifactId>
+    <groupId>org.wso2.transport.http</groupId>
+    <artifactId>http-parent</artifactId>
     <version>6.0.50-SNAPSHOT</version>
     <name>WSO2 Carbon Transport Parent</name>
 
     <modules>
-        <module>components/org.wso2.carbon.transport.http.netty</module>
-        <module>components/org.wso2.carbon.transport.http.netty.statistics</module>
-        <module>features/org.wso2.carbon.transport.http.netty.feature</module>
-        <module>features/org.wso2.carbon.transport.http.netty.statistics.feature</module>
+        <module>components/org.wso2.transport.http.netty</module>
+        <module>components/org.wso2.transport.http.netty.statistics</module>
+        <module>features/org.wso2.transport.http.netty.feature</module>
+        <module>features/org.wso2.transport.http.netty.statistics.feature</module>
     </modules>
 
     <scm>
@@ -111,8 +111,8 @@
                 <version>${org.snakeyaml.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.carbon.transport</groupId>
-                <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
+                <groupId>org.wso2.transport.http</groupId>
+                <artifactId>org.wso2.transport.http.netty</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -144,8 +144,8 @@
 
             <!-- Carbon Metrics Dependency -->
             <dependency>
-                <groupId>org.wso2.carbon.transport</groupId>
-                <artifactId>org.wso2.carbon.transport.http.netty.statistics</artifactId>
+                <groupId>org.wso2.transport.http</groupId>
+                <artifactId>org.wso2.transport.http.netty.statistics</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
