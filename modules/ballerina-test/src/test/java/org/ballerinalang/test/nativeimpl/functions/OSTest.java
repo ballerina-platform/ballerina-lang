@@ -38,7 +38,7 @@ public class OSTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/osTest.bal");
+        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/os-test.bal");
     }
 
     @Test

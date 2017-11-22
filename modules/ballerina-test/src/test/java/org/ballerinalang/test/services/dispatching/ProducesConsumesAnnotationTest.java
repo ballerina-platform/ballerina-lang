@@ -41,7 +41,7 @@ public class ProducesConsumesAnnotationTest {
     @BeforeClass()
     public void setup() {
         compileResult = BServiceUtil
-                .setupProgramFile(this, "test-src/services/dispatching/producesConsumesTest.bal");
+                .setupProgramFile(this, "test-src/services/dispatching/produces-consumes-test.bal");
     }
 
     @Test(description = "Test Consumes annotation with URL. /echo66/test1 ")
