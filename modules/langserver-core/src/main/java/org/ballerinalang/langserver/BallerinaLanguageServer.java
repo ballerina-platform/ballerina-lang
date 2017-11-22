@@ -20,8 +20,12 @@ import java.util.concurrent.CompletableFuture;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
-import org.eclipse.lsp4j.services.*;
+import org.eclipse.lsp4j.services.LanguageClient;
+import org.eclipse.lsp4j.services.LanguageServer;
+import org.eclipse.lsp4j.services.LanguageClientAware;
 import org.eclipse.lsp4j.ServerCapabilities;
+import org.eclipse.lsp4j.services.TextDocumentService;
+import org.eclipse.lsp4j.services.WorkspaceService;
 
 public class BallerinaLanguageServer implements LanguageServer, LanguageClientAware {
 	private LanguageClient client = null;
