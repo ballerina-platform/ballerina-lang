@@ -50,8 +50,9 @@ module.exports = {
         "react/jsx-indent-props": ["error", 4],
         "react/prefer-stateless-function": ["off"],
         "no-mixed-operators": ["error", {"allowSamePrecedence": true}],
-        "jsx-quotes": ["off"],
+        "jsx-quotes": ["error", "prefer-single"],
         "no-else-return": "off",
+        "no-unused-vars": ["error", { "args": "none" }]
     },
     "plugins": [
         "react"

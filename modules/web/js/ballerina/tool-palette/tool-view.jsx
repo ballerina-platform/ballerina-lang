@@ -18,7 +18,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import ImageUtils from './../diagram2/image-util';
+import ImageUtils from './../diagram/image-util';
 import { withDragEnabled } from './../drag-drop/drag-source';
 import { TOOL, TOOL_GROUP } from './spec';
 
@@ -73,50 +73,49 @@ class ToolView extends React.Component {
             toolDesc = tool.description || '';
             return this.props.connectDragSource(
                 <div
-                    className="tool-block tool-container"
+                    className='tool-block tool-container'
                     title={toolTip + '\n' + toolDesc}
-                    data-placement="bottom"
-                    data-toggle="tooltip"
+                    data-placement='bottom'
+                    data-toggle='tooltip'
                     id={toolTip}
                 >
 
                     <i className={`icon fw fw-${tool.icon}`} />
-                    <span className="tool-title-wrap" />
-                    <span className="tool-title-wrap">
-                        <p className="tool-title">{toolTip}</p>
+                    <span className='tool-title-wrap' />
+                    <span className='tool-title-wrap'>
+                        <p className='tool-title'>{toolTip}</p>
                     </span>
 
-                </div>,
-            );
+                </div>);
         }
         // delete(string path, Request req) : Response b
         toolTip = tool.title;
         if (tool.parameters) {
             toolTip += '(';
             tool.parameters.forEach((param, index) => {
-                    if (index !== 0) {
-                        toolTip += ' , ';
-                    }
+                if (index !== 0) {
+                    toolTip += ' , ';
+                }
 
-                    toolTip += param.type + ' ' + param.name;
-                });
+                toolTip += param.type + ' ' + param.name;
+            });
             toolTip += ')';
         }
         if (tool.returnParams) {
             toolTip += ' : ( ';
             tool.returnParams.forEach((param, index) => {
-                    if (index !== 0) {
-                        toolTip += ' , ';
-                    }
+                if (index !== 0) {
+                    toolTip += ' , ';
+                }
 
-                    toolTip += param.type + ' ' + (param.name ? param.name : param.type.substr(0, 1));
-                });
+                toolTip += param.type + ' ' + (param.name ? param.name : param.type.substr(0, 1));
+            });
             toolTip += ')';
         }
         let imageIcon;
         if (tool.id === 'ClientConnector') {
             const iconBytes = ImageUtils.getConnectorIcon(tool.factoryArgs.packageName);
-            imageIcon = <img alt="client connector icon" src={iconBytes} />;
+            imageIcon = <img alt='client connector icon' src={iconBytes} />;
         } else {
             imageIcon = <i className={`icon fw fw-${tool.icon}`} />;
         }
@@ -128,29 +127,28 @@ class ToolView extends React.Component {
                 ref={(c) => { this.tool = c; }}
             >
                 <div
-                    className="tool-container-vertical-icon"
-                    data-placement="bottom"
-                    data-toggle="tooltip"
+                    className='tool-container-vertical-icon'
+                    data-placement='bottom'
+                    data-toggle='tooltip'
                     title={toolTip + '\n' + toolDesc}
                 >
                     {imageIcon}
                 </div>
                 <div
-                    className="tool-container-vertical-title"
-                    data-placement="bottom"
-                    data-toggle="tooltip"
+                    className='tool-container-vertical-title'
+                    data-placement='bottom'
+                    data-toggle='tooltip'
                     title={toolTip + '\n' + toolDesc}
                 >
                     {tool.title}
                 </div>
-                <p className="tool-title">{tool.name}</p>
+                <p className='tool-title'>{tool.name}</p>
                 {this.props.isDocEnable &&
-                < a onClick={e => this.handleClickOpenDocumentation(e)} className="pull-right">
-                    <span className="fw fw-document"/>
+                <a onClick={e => this.handleClickOpenDocumentation(e)} className='pull-right'>
+                    <span className='fw fw-document' />
                 </a>
                 }
-            </div>,
-        );
+            </div>);
     }
 }
 
