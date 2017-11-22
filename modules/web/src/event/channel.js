@@ -29,7 +29,7 @@ const EventChannel = function () {};
 
 // Regular expression used to split event strings.
 const eventSplitter = /\s+/;
-
+/* eslint-disable */
 // Iterates over the standard `event, callback` (as well as the fancy multiple
 // space-separated events `"change blur", callback` and jQuery-style event
 // maps `{event: callback}`).
@@ -271,12 +271,14 @@ var triggerEvents = function (events, args) {
     const a2 = args[1];
     const a3 = args[2];
     switch (args.length) {
-    case 0: while (++i < l) (ev = events[i]).callback.call(ev.ctx); return;
-    case 1: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1); return;
-    case 2: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1, a2); return;
-    case 3: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1, a2, a3); return;
-    default: while (++i < l) (ev = events[i]).callback.apply(ev.ctx, args);
+        case 0: while (++i < l) (ev = events[i]).callback.call(ev.ctx); return;
+        case 1: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1); return;
+        case 2: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1, a2); return;
+        case 3: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1, a2, a3); return;
+        default: while (++i < l) (ev = events[i]).callback.apply(ev.ctx, args);
     }
 };
+
+/* eslint-enable */
 
 export default EventChannel;
