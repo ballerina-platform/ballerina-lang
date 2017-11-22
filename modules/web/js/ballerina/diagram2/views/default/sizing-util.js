@@ -1587,6 +1587,12 @@ class SizingUtil {
         const viewState = node.viewState;
         this.sizeStatement(node.getSource(), viewState);
         this.adjustToLambdaSize(node, viewState);
+
+        // Truncate the endpoint name to fit the statement box
+        if (TreeUtil.isEndpointTypeVariableDef(node)) {
+            const endpointWdth = 90;
+            viewState.endpointIdentifier = this.getTextWidth(node.getVariable().getName().value, 0, endpointWdth).text;
+        }
     }
 
 
