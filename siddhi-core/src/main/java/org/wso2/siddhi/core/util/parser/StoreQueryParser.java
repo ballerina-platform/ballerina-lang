@@ -60,16 +60,16 @@ public class StoreQueryParser {
     /**
      * Parse a storeQuery and return corresponding StoreQueryRuntime.
      *
-     * @param storeQuery storeQuery to be parsed.
+     * @param storeQuery       storeQuery to be parsed.
      * @param siddhiAppContext associated Siddhi app context.
-     * @param tableMap keyvalue containing tables.
-     * @param windowMap keyvalue containing windows.
-     * @param aggregationMap keyvalue containing aggregation runtimes.
+     * @param tableMap         keyvalue containing tables.
+     * @param windowMap        keyvalue containing windows.
+     * @param aggregationMap   keyvalue containing aggregation runtimes.
      * @return StoreQueryRuntime
      */
     public static StoreQueryRuntime parse(StoreQuery storeQuery, SiddhiAppContext siddhiAppContext,
-            Map<String, Table> tableMap, Map<String, Window> windowMap,
-            Map<String, AggregationRuntime> aggregationMap) {
+                                          Map<String, Table> tableMap, Map<String, Window> windowMap,
+                                          Map<String, AggregationRuntime> aggregationMap) {
         String queryName = "store_query_" + storeQuery.getInputStore().getStoreId();
         InputStore inputStore = storeQuery.getInputStore();
         Within within = null;
@@ -157,9 +157,10 @@ public class StoreQueryParser {
     }
 
     private static void populateStoreQueryRuntime(StoreQueryRuntime storeQueryRuntime,
-            MatchingMetaInfoHolder metaStreamInfoHolder, Selector selector,
-            List<VariableExpressionExecutor> variableExpressionExecutors, SiddhiAppContext siddhiAppContext,
-            Map<String, Table> tableMap, String queryName) {
+                                                  MatchingMetaInfoHolder metaStreamInfoHolder, Selector selector,
+                                                  List<VariableExpressionExecutor> variableExpressionExecutors,
+                                                  SiddhiAppContext siddhiAppContext,
+                                                  Map<String, Table> tableMap, String queryName) {
         QuerySelector querySelector = SelectorParser.parse(selector,
                 new ReturnStream(OutputStream.OutputEventType.CURRENT_EVENTS), siddhiAppContext,
                 metaStreamInfoHolder.getMetaStateEvent(), tableMap, variableExpressionExecutors, queryName);
@@ -172,9 +173,12 @@ public class StoreQueryParser {
     }
 
     private static void populateStoreQueryRuntimeForAggregator(StoreQueryRuntime storeQueryRuntime,
-            MatchingMetaInfoHolder metaStreamInfoHolder, Selector selector,
-            List<VariableExpressionExecutor> variableExpressionExecutors, SiddhiAppContext siddhiAppContext,
-            Map<String, Table> tableMap, String queryName) {
+                                                               MatchingMetaInfoHolder metaStreamInfoHolder,
+                                                               Selector selector,
+                                                               List<VariableExpressionExecutor>
+                                                                       variableExpressionExecutors,
+                                                               SiddhiAppContext siddhiAppContext,
+                                                               Map<String, Table> tableMap, String queryName) {
         QueryParserHelper.reduceMetaComplexEvent(metaStreamInfoHolder.getMetaStateEvent());
         List<VariableExpressionExecutor> selectorVariableExpressionExecutors = new ArrayList<>();
 
@@ -195,10 +199,11 @@ public class StoreQueryParser {
     }
 
     private static MatchingMetaInfoHolder generateMatchingMetaInfoHolder(MetaStreamEvent metaStreamEvent,
-            AbstractDefinition definition) {
+                                                                         AbstractDefinition definition) {
         MetaStateEvent metaStateEvent = new MetaStateEvent(1);
         metaStateEvent.addEvent(metaStreamEvent);
-        return new MatchingMetaInfoHolder(metaStateEvent, 0, 0, definition, definition, 0);
+        return new MatchingMetaInfoHolder(metaStateEvent, -1, 0, definition,
+                definition, 0);
     }
 
     private static void initMetaStreamEvent(MetaStreamEvent metaStreamEvent, AbstractDefinition inputDefinition) {
