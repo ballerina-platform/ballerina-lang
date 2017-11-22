@@ -7,12 +7,15 @@ programming language with both textual and graphical syntaxes.
 
 for more info: http://ballerinalang.org/
 
-
 ## Installing the plugin to Visual Studio Code(vscode)
 
-1. Go to your home directory & locate .vscode/extentions/ folder
-2. place extracted zip content into that
-3. Open the vscode and edit desired bal files
+1. Install [maven](https://maven.apache.org/install.html) and [nodejs](https://nodejs.org/en/).
+2. Clone the ballerina language server [repo](). Use `mvn clean install`. vscode plugin need the language server launcher executable.
+3. Clone this repo
+4. Run `npm install` and `mvn clean install`
+5. Run vscode with `code --extensionDevelopmentPath=/path/to/ballerina/plugin-vscode`
+
+Alternatively, in your home directory, locate .vscode/extentions/ directory and add the root directory into it.
 
 ## How to contribute
 

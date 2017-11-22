@@ -11,17 +11,42 @@
     "categories": [
         "Languages"
     ],
+    "activationEvents": [
+        "onLanguage:ballerina"
+    ],
     "contributes": {
-        "languages": [{
-            "id": "ballerina",
-            "aliases": ["Ballerina", "ballerina"],
-            "extensions": [".bal"],
-            "configuration": "./ballerina.configuration.json"
-        }],
-        "grammars": [{
-            "language": "ballerina",
-            "scopeName": "source.ballerina",
-            "path": "./syntaxes/ballerina.tmLanguage"
-        }]
+        "languages": [
+            {
+                "id": "ballerina",
+                "aliases": [
+                    "Ballerina",
+                    "ballerina"
+                ],
+                "extensions": [
+                    ".bal"
+                ],
+                "configuration": "./ballerina.configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "ballerina",
+                "scopeName": "source.ballerina",
+                "path": "./syntaxes/ballerina.tmLanguage"
+            }
+        ]
+    },
+    "main": "./extension.js",
+    "scripts": {
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "typescript": "^2.6.1",
+        "vscode": "^1.1.6",
+        "vscode-languageclient": "^3.4.2",
+        "eslint": "^4.6.1",
+        "@types/node": "^7.0.43",
+        "@types/mocha": "^2.2.42"
     }
 }
