@@ -34,7 +34,7 @@ public class VarDeclrSemanticTest {
 
     @Test
     public void varDeclrTest() {
-        CompileResult result = BCompileUtil.compile("test-src/statements/vardeclr/varDef-negative.bal");
+        CompileResult result = BCompileUtil.compile("test-src/statements/vardeclr/var-def-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
         Assert.assertEquals(result.getWarnCount(), 0);
         BAssertUtil.validateError(result, 0, "incompatible types: expected 'int', found 'string'", 2, 13);

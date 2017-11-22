@@ -48,8 +48,8 @@ public class ResponseNativeFunctionNegativeTest {
     private CompileResult result, resultNegative, serviceResult;
     private final String responseStruct = Constants.RESPONSE;
     private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
-    private String filePath = "test-src/statements/services/nativeimpl/response/responseNativeFunctionNegative.bal";
-    private String filePathNeg = "test-src/statements/services/nativeimpl/response/responseCompileNegative.bal";
+    private String filePath = "test-src/statements/services/nativeimpl/response/response-native-function-negative.bal";
+    private String filePathNeg = "test-src/statements/services/nativeimpl/response/response-compile-negative.bal";
 
     @BeforeClass
     public void setup() {

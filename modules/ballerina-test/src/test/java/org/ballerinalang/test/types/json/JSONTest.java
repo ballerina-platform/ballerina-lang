@@ -70,7 +70,7 @@ public class JSONTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/types/jsontype/jsonTest.bal");
+        compileResult = BCompileUtil.compile("test-src/types/jsontype/json-test.bal");
     }
 
     // Test Remove-Function.

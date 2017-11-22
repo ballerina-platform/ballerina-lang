@@ -43,7 +43,7 @@ public class HTTPSessionSubMethodsTest {
     @BeforeClass
     public void setup() {
         compileResult = BServiceUtil
-                .setupProgramFile(this, "test-src/services/session/httpSessionTest.bal");
+                .setupProgramFile(this, "test-src/services/session/http-session-test.bal");
     }
 
     @Test(description = "Test for GetId Function")

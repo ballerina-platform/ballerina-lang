@@ -47,7 +47,7 @@ public class ArrayTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/statements/arrays/arrayTest.bal");
+        compileResult = BCompileUtil.compile("test-src/statements/arrays/array-test.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/arrays/array-negative.bal");
     }
 
