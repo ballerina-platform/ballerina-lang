@@ -100,3 +100,11 @@ CREATE TABLE IF NOT EXISTS DateTimeTypes(
 PRIMARY KEY (row_id)
 );
 /
+CREATE TABLE IF NOT EXISTS IntegerTypes (
+  id INTEGER,
+  intData INTEGER,
+  tinyIntData TINYINT,
+  smallIntData SMALLINT,
+  bigIntData BIGINT
+);
+/

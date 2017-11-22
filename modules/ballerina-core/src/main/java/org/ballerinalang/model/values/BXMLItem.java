@@ -322,10 +322,10 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void setAttributes(BMap<String, ?> attributes) {
-        if (nodeType != XMLNodeType.ELEMENT) {
+        if (nodeType != XMLNodeType.ELEMENT || attributes == null) {
             return;
         }
-        
+
         // Remove existing attributes
         OMElement omElement = ((OMElement) omNode);
         Iterator<OMAttribute> attrIterator = omElement.getAllAttributes();
@@ -436,6 +436,10 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void setChildren(BXML<?> seq) {
+        if (seq == null) {
+            return;
+        }
+
         OMElement currentNode;
         switch (nodeType) {
             case ELEMENT:
@@ -462,6 +466,10 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void addChildren(BXML<?> seq) {
+        if (seq == null) {
+            return;
+        }
+
         OMElement currentNode;
         switch (nodeType) {
             case ELEMENT:
