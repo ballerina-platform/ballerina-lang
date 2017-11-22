@@ -132,9 +132,10 @@ class LifeLine extends React.Component {
             modifiedCenterValueForTop = bBox.x + DesignerDefaults.iconForTool.width +
                 DesignerDefaults.iconForTool.padding.left;
         }
-
+        let identifier = this.props.title;
         let iconColor = this.props.iconColor;
         if (TreeUtils.isEndpointTypeVariableDef(this.props.model)) {
+            identifier = this.props.model.viewState.endpointIdentifier;
             if (this.props.model.viewState.showOverlayContainer) {
                 iconColor = '#6f7b96';
             }
@@ -229,7 +230,7 @@ class LifeLine extends React.Component {
                 dominantBaseline="central"
                 className="life-line-text genericT"
                 onClick={e => this.openExpressionEditor(e)}
-            >{this.props.title}</text>
+            >{identifier}</text>
             <text
                 x={modifiedCenterValueForTop}
                 y={y2 - titleBoxH / 2}
@@ -237,7 +238,7 @@ class LifeLine extends React.Component {
                 alignmentBaseline="central"
                 dominantBaseline="central"
                 className="life-line-text genericT unhoverable"
-            >{this.props.title}</text>
+            >{identifier}</text>
             {this.props.onDelete &&
                 <ActionBox
                     show={this.state.active}
