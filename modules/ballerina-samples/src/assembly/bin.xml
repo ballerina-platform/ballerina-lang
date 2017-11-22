@@ -25,7 +25,7 @@
 
     <fileSets>
         <fileSet>
-            <directory>../../samples/getting_started</directory>
+            <directory>target/getting_started</directory>
             <outputDirectory>.</outputDirectory>
             <excludes>
                 <exclude>target/**</exclude>

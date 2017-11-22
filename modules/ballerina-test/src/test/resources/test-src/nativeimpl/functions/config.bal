@@ -7,3 +7,7 @@ function testGetGlobalValues(string key) (string) {
 function testGetInstanceValues(string id, string key) (string) {
     return config:getInstanceValue(id, key);
 }
+
+function testConfigsWithWhitespace(string id, string key) (string) {
+    return config:getInstanceValue(id, key);
+}
