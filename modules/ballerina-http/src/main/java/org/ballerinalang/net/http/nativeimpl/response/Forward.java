@@ -30,6 +30,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,10 +61,18 @@ public class Forward extends AbstractNativeFunction {
         if (clientResponseStruct.getNativeData(Constants.TRANSPORT_MESSAGE) == null) {
             throw new BallerinaException("Failed to forward: empty response parameter");
         }
+
         AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.ANN_NAME_CONFIG);
-        boolean keepAlive = configAnn.getAttributeValue(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE).getBooleanValue();
-        context.getConnectorFuture().notifyReply(clientResponseStruct, new BBoolean(keepAlive));
+        AnnAttributeValue keepAliveAttrVal = configAnn.getAttributeValue(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE);
+        
+        if (keepAliveAttrVal != null) {
+            context.getConnectorFuture().notifyReply(responseStruct, new BBoolean(keepAliveAttrVal.getBooleanValue()));
+        } else {
+            // default behaviour: keepAlive = true
+            context.getConnectorFuture().notifyReply(responseStruct, new BBoolean(true));
+        }
+
         return VOID_RETURN;
     }
 }
