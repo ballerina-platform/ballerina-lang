@@ -16,7 +16,7 @@
  * under the License.
  */
 import TreeUtil from 'ballerina/model/tree-util';
-import AnnotationContainerMockNode from 'ballerina/diagram2/views/default/components/decorators/annotation-container';
+import AnnotationContainerMockNode from 'ballerina/diagram/views/default/components/decorators/annotation-container';
 
 class AnnotationRenderingVisitor {
 

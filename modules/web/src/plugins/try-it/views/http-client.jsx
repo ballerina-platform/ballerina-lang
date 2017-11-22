@@ -23,7 +23,7 @@ import cn from 'classnames';
 import AceEditor from 'react-ace';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
 import copy from 'copy-to-clipboard';
-import AutoSuggest from 'ballerina/diagram2/views/default/components/decorators/autosuggest-html';
+import AutoSuggest from 'ballerina/diagram/views/default/components/decorators/autosuggest-html';
 import PropTypes from 'prop-types';
 import React from 'react';
 import ServiceTreeNode from 'ballerina/model/tree/service-node';
@@ -498,7 +498,7 @@ class HttpClient extends React.Component {
             if (index !== this.state.requestHeaders.length - 1) {
                 removeButton = <i className='fw fw-delete' onClick={() => this.onHeaderDelete(header.key)} />;
             }
-            return (<div key={`${header.id}`} className="form-inline">
+            return (<div key={`${header.id}`} className='form-inline'>
                 <input
                     id={header.id}
                     key={`key-${header.id}`}
@@ -509,7 +509,7 @@ class HttpClient extends React.Component {
                     }}
                     placeholder='Key'
                     type='text'
-                    className="request-header-input form-control"
+                    className='request-header-input form-control'
                     value={header.key}
                     onChange={e => this.onHeaderKeyChange(header.key, e)}
                     onBlur={() => { this.focusTarget = undefined; }}
@@ -520,7 +520,7 @@ class HttpClient extends React.Component {
                     key={`value-${header.id}`}
                     placeholder='Value'
                     type='text'
-                    className="request-header-input form-control"
+                    className='request-header-input form-control'
                     value={header.value}
                     onChange={e => this.onHeaderValueChange(header.value, e)}
                     onBlur={() => { this.focusTarget = undefined; }}
@@ -538,10 +538,10 @@ class HttpClient extends React.Component {
      * @memberof HttpClient
      */
     renderInputComponent(inputProps) {
-        return (<div className="inputContainer">
+        return (<div className='inputContainer'>
             <input {...inputProps} />
             <i
-                className="fw fw-down"
+                className='fw fw-down'
                 onClick={(e) => {
                     e.currentTarget.previousElementSibling.focus();
                 }}
@@ -584,7 +584,7 @@ class HttpClient extends React.Component {
                     {serviceItems}
                 </DropdownButton>
                 <i
-                    className="fw fw-down"
+                    className='fw fw-down'
                     onClick={(e) => {
                         e.currentTarget.previousElementSibling.children[0].click();
                     }}
@@ -627,7 +627,7 @@ class HttpClient extends React.Component {
                 {resourceItems}
             </DropdownButton>
             <i
-                className="fw fw-down"
+                className='fw fw-down'
                 onClick={(e) => {
                     e.currentTarget.previousElementSibling.children[0].click();
                 }}
@@ -663,34 +663,34 @@ class HttpClient extends React.Component {
                             renderInputComponent={this.renderInputComponent}
                         />
                     </div>
-                    <span className="http-method-separator">|</span>
-                    <div className="http-client-request-url">
+                    <span className='http-method-separator'>|</span>
+                    <div className='http-client-request-url'>
                         {httpBaseUrl}
                     </div>
-                    <span className="url-separator">/</span>
+                    <span className='url-separator'>/</span>
                     <div className='selectors service-selector'>
                         {servicesDropdown}
                     </div>
-                    <span className="url-separator">/</span>
+                    <span className='url-separator'>/</span>
                     <div className='selectors resource-selector'>
                         {resourceDropdown}
                     </div>
                 </div>
                 <div className='main-wrapper-bottom'>
-                    <div className="http-client-request-url">
+                    <div className='http-client-request-url'>
                         {httpBaseUrl}
                     </div>
-                    <div className="input-group">
+                    <div className='input-group'>
                         <input
                             className='http-client-path form-control'
                             type='text'
                             value={this.state.appendUrl}
                             onChange={this.onAppendUrlChange}
                         />
-                        <span className="input-group-btn"> {sendOrCancelButton} </span>
+                        <span className='input-group-btn'> {sendOrCancelButton} </span>
                         <div
-                            className="copy-url-wrapper"
-                            title="Copy URL"
+                            className='copy-url-wrapper'
+                            title='Copy URL'
                             onClick={() => {
                                 copy(`${httpBaseUrl}${this.state.appendUrl}`);
                                 this.setState({
@@ -703,7 +703,7 @@ class HttpClient extends React.Component {
                                 });
                             }}
                         >
-                            <i className="fw fw-copy-link" />
+                            <i className='fw fw-copy-link' />
                             <div
                                 className={cn('copy-url-notification', { hide: !this.state.showCopyUrlNotification })}
                             >
@@ -725,10 +725,10 @@ class HttpClient extends React.Component {
      */
     renderSendOrCancelButton() {
         if (this.state.waitingForResponse === false) {
-            return (<button onClick={this.onInvoke} className='btn btn-success' type="button">Send</button>);
+            return (<button onClick={this.onInvoke} className='btn btn-success' type='button'>Send</button>);
         } else {
-            return (<button onClick={this.onInvokeCancel} className='btn btn-cancel' type="button">
-                <i className="fw fw-loader5 fw-spin fw-1x" />
+            return (<button onClick={this.onInvokeCancel} className='btn btn-cancel' type='button'>
+                <i className='fw fw-loader5 fw-spin fw-1x' />
                 <span>Cancel</span>
             </button>);
         }
@@ -741,7 +741,7 @@ class HttpClient extends React.Component {
      */
     renderRequestHeaders() {
         return this.state.requestHeaders.map((header) => {
-            return (<div key={`${header.id}`} className="form-inline">
+            return (<div key={`${header.id}`} className='form-inline'>
                 <input
                     key={`key-${header.id}`}
                     ref={(ref) => {
@@ -751,7 +751,7 @@ class HttpClient extends React.Component {
                     }}
                     placeholder='Key'
                     type='text'
-                    className="header-input form-control"
+                    className='header-input form-control'
                     value={header.key}
                     onChange={e => this.onHeaderKeyChange(header.value, e)}
                     onBlur={() => { this.focusTarget = undefined; }}
@@ -762,7 +762,7 @@ class HttpClient extends React.Component {
                     key={`value-${header.id}`}
                     placeholder='Value'
                     type='text'
-                    className="header-input form-control"
+                    className='header-input form-control'
                     value={header.value}
                     onChange={e => this.onHeaderValueChange(header.key, e)}
                     onBlur={() => { this.focusTarget = undefined; }}
@@ -805,30 +805,30 @@ class HttpClient extends React.Component {
         const requestHeaders = this.renderRequestHeaders();
         const mainControlComponent = this.renderMainControlComponent();
         const contentTypesControl = this.renderContentTypes();
-        return (<div className="container-fluid">
+        return (<div className='container-fluid'>
             {mainControlComponent}
-            <div className="row http-client-wrapper">
+            <div className='row http-client-wrapper'>
                 <div className='http-client-request'>
                     <h3>Request</h3>
                     <hr />
-                    <div className="form-horizontal">
+                    <div className='form-horizontal'>
                         <div className='form-group http-client-content-type-wrapper'>
-                            <span className="col-sm-2 control-label">Content-Type : </span>
-                            <div className="col-sm-10">
+                            <span className='col-sm-2 control-label'>Content-Type : </span>
+                            <div className='col-sm-10'>
                                 {contentTypesControl}
                             </div>
                         </div>
                         <div className='http-client-headers-wrapper'>
-                            <span className="section-header">Headers</span>
+                            <span className='section-header'>Headers</span>
                             <hr />
                             <div className='current-headers'>
                                 {requestHeaders}
                             </div>
                         </div>
                         <div className='http-client-body-wrapper'>
-                            <span className="section-header">Body</span>
+                            <span className='section-header'>Body</span>
                             <hr />
-                            <div className="ACE-editor-wrapper">
+                            <div className='ACE-editor-wrapper'>
                                 <AceEditor
                                     mode={this.getRequestBodyMode()}
                                     theme='monokai'
@@ -896,15 +896,15 @@ class HttpClient extends React.Component {
                                         })}
                                         </div>
                                     ) : (
-                                        <div className="try-it-message message message-warning">
-                                            <p> <i className="icon fw fw-warning" />
+                                        <div className='try-it-message message message-warning'>
+                                            <p> <i className='icon fw fw-warning' />
                                                 Hit the send button to see the headers. </p>
                                         </div>
                                         )}
 
                                 </div>
                                 <div className='request-headers'>
-                                    <span className="request-headers-title">Request Headers</span>
+                                    <span className='request-headers-title'>Request Headers</span>
                                     {this.state.returnedRequestHeaders.length > 0 ? (
                                         <div>
                                             {
@@ -917,8 +917,8 @@ class HttpClient extends React.Component {
                                 })}
                                         </div>
                                     ) : (
-                                        <div className="try-it-message message message-warning">
-                                            <p><i className="icon fw fw-warning" />
+                                        <div className='try-it-message message message-warning'>
+                                            <p><i className='icon fw fw-warning' />
                                                 Hit the send button to see the headers.</p>
                                         </div>
                                         )}

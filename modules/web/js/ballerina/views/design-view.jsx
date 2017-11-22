@@ -22,13 +22,13 @@ import cn from 'classnames';
 import HTML5Backend from 'react-dnd-html5-backend';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { DragDropContext } from 'react-dnd';
+import BallerinaDiagram from 'ballerina/diagram/diagram';
+import TransformExpanded from 'ballerina/diagram/views/default/components/transform/transform-expanded';
+import TreeUtil from 'ballerina/model/tree-util.js';
 import DragLayer from './../drag-drop/drag-layer';
-import BallerinaDiagram from './../diagram2/diagram';
-import TransformExpanded from '../diagram2/views/default/components/transform/transform-expanded';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import ToolPaletteView from './../tool-palette/tool-palette-view';
 import { TOOL_PALETTE_WIDTH } from './constants';
-import TreeUtil from 'ballerina/model/tree-util.js';
 
 class DesignView extends React.Component {
 
@@ -50,6 +50,18 @@ class DesignView extends React.Component {
         this.props.commandProxy.on('diagram-mode-change', ({ mode }) => {
             this.setMode(mode);
         });
+    }
+
+    /**
+     * @override
+     * @memberof Diagram
+     */
+    getChildContext() {
+        return {
+            designView: this,
+            getOverlayContainer: this.getOverlayContainer,
+            getDiagramContainer: this.getDiagramContainer,
+        };
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -74,13 +86,13 @@ class DesignView extends React.Component {
     /**
     * Set the transform expanded view active state.
     * @param {boolean} isTransformActive - whether transform expanded view is active.
-    * @param {ASTNode} activeTransformSignature - signature of the transformer node related to expanded transform statement.
+    * @param {ASTNode} activeTransformSignature - signature of the transformer node related to expanded transform
+*                                                   statement.
     * @memberof DesignView
     */
     setTransformActive(isTransformActive, activeTransformSignature) {
         if (this.state.isTransformActive === isTransformActive &&
             this.state.activeTransformSignature === activeTransformSignature) {
-
             return;
         }
 
@@ -92,7 +104,8 @@ class DesignView extends React.Component {
 
     /**
     * Set the active transformer signature
-    * @param {string} activeTransformSignature - signature of the transformer node related to expanded transformer statement.
+    * @param {string} activeTransformSignature - signature of the transformer node related to expanded transformer
+    *                                           statement.
     * @memberof DesignView
     */
     setActiveTransformerSignature(activeTransformSignature) {
@@ -125,32 +138,21 @@ class DesignView extends React.Component {
         this.setState({ mode: diagramMode });
     }
 
-    /**
-     * @override
-     * @memberof Diagram
-     */
-    getChildContext() {
-        return {
-            designView: this,
-            getOverlayContainer: this.getOverlayContainer,
-            getDiagramContainer: this.getDiagramContainer,
-        };
-    }
-
     render() {
         const { isTransformActive, activeTransformSignature } = this.state;
 
-        let activeTransformModel
+        let activeTransformModel;
         if (isTransformActive) {
             activeTransformModel = this.props.model.filterTopLevelNodes(
-                node => (TreeUtil.isTransformer(node))).find(node => (node.getSignature() === activeTransformSignature));
+                node => (TreeUtil.isTransformer(node))).find(node =>
+                                                                    (node.getSignature() === activeTransformSignature));
         }
 
         const shouldShowTransform = isTransformActive && activeTransformModel;
 
         return (
-            <div className="design-view-container" style={{ display: this.props.show ? 'block' : 'none'}}>
-                <div className="outerCanvasDiv">
+            <div className='design-view-container' style={{ display: this.props.show ? 'block' : 'none' }}>
+                <div className='outerCanvasDiv'>
                     <DragLayer />
                     <Scrollbars
                         style={{
@@ -159,10 +161,10 @@ class DesignView extends React.Component {
                             marginLeft: TOOL_PALETTE_WIDTH,
                         }}
                     >
-                        <div className="canvas-container">
-                            <div className="canvas-top-controls-container" />
-                            <div className="html-overlay" ref={this.setOverlayContainer} />
-                            <div className="diagram root" ref={this.setDiagramContainer} >
+                        <div className='canvas-container'>
+                            <div className='canvas-top-controls-container' />
+                            <div className='html-overlay' ref={this.setOverlayContainer} />
+                            <div className='diagram root' ref={this.setDiagramContainer} >
                                 {this.props.model &&
                                     <BallerinaDiagram
                                         model={this.props.model}
@@ -184,7 +186,7 @@ class DesignView extends React.Component {
                         />
                     }
                 </div>
-                <div className="tool-palette-container" ref={this.setToolPaletteContainer}>
+                <div className='tool-palette-container' ref={this.setToolPaletteContainer}>
                     <ToolPaletteView
                         getContainer={this.getToolPaletteContainer}
                         isTransformActive={isTransformActive}
@@ -195,16 +197,16 @@ class DesignView extends React.Component {
                 </div>
                 <div className={cn('bottom-right-controls-container', { hide: this.context.isPreviewViewEnabled })}>
                     <div
-                        className="view-source-btn btn-icon"
+                        className='view-source-btn btn-icon'
                         onClick={() => {
                             this.context.editor.setActiveView('SOURCE_VIEW');
                         }}
                     >
-                        <div className="bottom-label-icon-wrapper">
-                            <i className="fw fw-code-view fw-inverse" />
+                        <div className='bottom-label-icon-wrapper'>
+                            <i className='fw fw-code-view fw-inverse' />
                         </div>
                         <div
-                            className="bottom-view-label"
+                            className='bottom-view-label'
                             onClick={() => {
                                 this.context.editor.setActiveView('SOURCE_VIEW');
                             }}
@@ -213,16 +215,16 @@ class DesignView extends React.Component {
                         </div>
                     </div>
                     <div
-                        className="view-split-view-btn btn-icon"
+                        className='view-split-view-btn btn-icon'
                         onClick={() => {
                             this.props.commandProxy.dispatch('show-split-view', true);
                         }}
                     >
-                        <div className="bottom-label-icon-wrapper">
-                            <i className="fw fw-code fw-inverse" />
+                        <div className='bottom-label-icon-wrapper'>
+                            <i className='fw fw-code fw-inverse' />
                         </div>
                         <div
-                            className="bottom-view-label"
+                            className='bottom-view-label'
                             onClick={() => {
                                 this.props.commandProxy.dispatch('show-split-view', true);
                             }}
@@ -237,6 +239,7 @@ class DesignView extends React.Component {
 }
 
 DesignView.propTypes = {
+    show: PropTypes.bool,
     model: PropTypes.instanceOf(CompilationUnitNode),
     commandProxy: PropTypes.shape({
         on: PropTypes.func.isRequired,
@@ -246,6 +249,11 @@ DesignView.propTypes = {
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
     panelResizeInProgress: PropTypes.bool.isRequired,
+};
+
+DesignView.defaultProps = {
+    show: true,
+    model: undefined,
 };
 
 DesignView.contextTypes = {

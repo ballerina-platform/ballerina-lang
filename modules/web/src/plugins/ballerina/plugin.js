@@ -21,8 +21,8 @@ import { CONTRIBUTIONS } from 'core/plugin/constants';
 import { REGIONS } from 'core/layout/constants';
 import SourceEditor from 'ballerina/views/source-editor';
 import { CLASSES } from 'ballerina/views/constants';
-import Editor from './editor/Editor';
 import Document from 'docerina/document.jsx';
+import Editor from './views/editor-wrapper';
 import { PLUGIN_ID, EDITOR_ID, DOC_VIEW_ID, COMMANDS as COMMAND_IDS, TOOLS as TOOL_IDS } from './constants';
 
 /**
@@ -111,7 +111,7 @@ class BallerinaPlugin extends Plugin {
                     id: DOC_VIEW_ID,
                     component: Document,
                     propsProvider: () => {
-                        return {}
+                        return {};
                     },
                     region: REGIONS.EDITOR_TABS,
                     regionOptions: {
@@ -120,7 +120,7 @@ class BallerinaPlugin extends Plugin {
                     },
                     displayOnLoad: false,
                 },
-            ]
+            ],
         };
     }
 
