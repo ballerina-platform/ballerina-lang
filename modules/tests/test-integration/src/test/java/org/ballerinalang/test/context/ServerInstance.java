@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.context;
 
+import org.apache.mina.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -50,6 +51,7 @@ public class ServerInstance implements Server {
     private ServerLogReader serverErrorLogReader;
     private boolean isServerRunning;
     private int httpServerPort = 9099; //Constant.DEFAULT_HTTP_PORT;
+    private ConcurrentHashSet<LogLeecher> tmpLeechers = new ConcurrentHashSet<>();
 
     /**
      * The parent directory which the ballerina runtime will be extracted to.
@@ -123,6 +125,7 @@ public class ServerInstance implements Server {
         startServer(args);
 
         serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
+        tmpLeechers.forEach(leacher -> serverInfoLogReader.addLeecher(leacher));
         serverInfoLogReader.start();
         serverErrorLogReader = new ServerLogReader("errorStream", process.getErrorStream());
         serverErrorLogReader.start();
@@ -227,6 +230,11 @@ public class ServerInstance implements Server {
                         .toArray(String[]::new);
                 process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
             }
+            serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
+            tmpLeechers.forEach(leacher -> serverInfoLogReader.addLeecher(leacher));
+            serverInfoLogReader.start();
+            serverErrorLogReader = new ServerLogReader("errorStream", process.getErrorStream());
+            serverErrorLogReader.start();
 
             process.waitFor();
             deleteWorkDir();
@@ -288,6 +296,10 @@ public class ServerInstance implements Server {
      * @param leecher The Leecher instance
      */
     public void addLogLeecher(LogLeecher leecher) {
+        if (serverInfoLogReader == null) {
+            tmpLeechers.add(leecher);
+            return;
+        }
         serverInfoLogReader.addLeecher(leecher);
     }
 
