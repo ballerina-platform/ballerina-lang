@@ -31,13 +31,13 @@ import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 @Mojo(name = "docerina", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class DocerinaMojo extends AbstractMojo {
     /**
-     * Location of the output directory
+     * Location of the output directory.
      */
     @Parameter(defaultValue = "${project.build.directory}", property = "outputDir", required = false)
     private String outputDir;
 
     /**
-     * Comma separated list of the ballerina sources
+     * Comma separated list of the ballerina sources.
      */
     @Parameter(property = "sourceDir", required = true)
     private String sourceDir;
@@ -49,19 +49,19 @@ public class DocerinaMojo extends AbstractMojo {
     private String templatesDir;
 
     /**
-     * Comma separated list of packages to be excluded
+     * Comma separated list of packages to be excluded.
      */
     @Parameter(property = "packageFilter", required = false)
     private String packageFilter;
     
     /**
-     * treat the source as native ballerina code
+     * treat the source as native ballerina code.
      */
     @Parameter(property = "nativeCode", required = false)
     private boolean nativeCode;
 
     /**
-     * enable debug level logs
+     * enable debug level logs.
      */
     @Parameter(property = "debugDocerina", required = false)
     private boolean debugDocerina;
