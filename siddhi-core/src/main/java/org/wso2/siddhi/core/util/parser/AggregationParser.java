@@ -174,13 +174,6 @@ public class AggregationParser {
                         processVariableExpressionExecutors, siddhiAppContext, aggregatorName);
             }
 
-            int bufferSize = 0;
-            Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_BUFFER_SIZE, null,
-                    aggregationDefinition.getAnnotations());
-            if (element != null) {
-                bufferSize = Integer.parseInt(element.getValue());
-            }
-
             // Create new scheduler
             EntryValveExecutor entryValveExecutor = new EntryValveExecutor(siddhiAppContext);
             LockWrapper lockWrapper = new LockWrapper(aggregatorName);
@@ -202,10 +195,50 @@ public class AggregationParser {
                     processedMetaStreamEvent.getOutputStreamDefinition(), siddhiAppRuntimeBuilder,
                     aggregationDefinition.getAnnotations(), groupByVariableList);
 
+            int bufferSize = 0;
+            Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_BUFFER_SIZE, null,
+                    aggregationDefinition.getAnnotations());
+            if (element != null) {
+                try {
+                    bufferSize = Integer.parseInt(element.getValue());
+                } catch (NumberFormatException e) {
+                    throw new SiddhiAppCreationException(e.getMessage() + ": BufferSize must be an integer");
+                }
+            }
+            if (bufferSize > 0) {
+                TimePeriod.Duration rootDuration = incrementalDurations.get(0);
+                if (rootDuration == TimePeriod.Duration.MONTHS || rootDuration == TimePeriod.Duration.YEARS) {
+                    throw new SiddhiAppCreationException("A buffer size greater than 0 can be provided, only when the "
+                            + "first duration value is seconds, minutes, hours or days");
+                }
+                if (!isProcessingOnExternalTime) {
+                    throw new SiddhiAppCreationException("Buffer size cannot be specified when events are aggregated " +
+                            "based on event arrival time.");
+                    //Buffer size is used to process out of order events. However, events would never be out of
+                    // order if they are processed based on event arrival time.
+                }
+            } else if (bufferSize < 0) {
+                throw new SiddhiAppCreationException("Expected a positive integer as the buffer size, but found "
+                        + bufferSize + " as the provided value");
+            }
+
+            boolean ignoreEventsOlderThanBuffer = false;
+            element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_IGNORE_EVENTS_OLDER_THAN_BUFFER,
+                    null, aggregationDefinition.getAnnotations());
+            if (element != null) {
+                if (element.getValue().equalsIgnoreCase("true")) {
+                    ignoreEventsOlderThanBuffer = true;
+                } else if (!element.getValue().equalsIgnoreCase("false")) {
+                    throw new SiddhiAppCreationException("IgnoreEventsOlderThanBuffer value must " +
+                            "be true or false");
+                }
+            }
+
+
             Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap = buildIncrementalExecutors(
                     isProcessingOnExternalTime,
                     processedMetaStreamEvent, processExpressionExecutors, groupByKeyGenerator,
-                    bufferSize, incrementalDurations, aggregationTables);
+                    bufferSize, ignoreEventsOlderThanBuffer, incrementalDurations, aggregationTables);
 
             IncrementalExecutor rootIncrementalExecutor = incrementalExecutorMap.get(incrementalDurations.get(0));
             rootIncrementalExecutor.setScheduler(scheduler);
@@ -232,7 +265,8 @@ public class AggregationParser {
     private static Map<TimePeriod.Duration, IncrementalExecutor> buildIncrementalExecutors(
             boolean isProcessingOnExternalTime, MetaStreamEvent processedMetaStreamEvent,
             List<ExpressionExecutor> processExpressionExecutors,
-            GroupByKeyGenerator groupByKeyGenerator, int bufferSize, List<TimePeriod.Duration> incrementalDurations,
+            GroupByKeyGenerator groupByKeyGenerator, int bufferSize, boolean ignoreEventsOlderThanBuffer,
+            List<TimePeriod.Duration> incrementalDurations,
             Map<TimePeriod.Duration, Table> aggregationTables) {
         Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap = new HashMap<>();
         // Create incremental executors
@@ -248,8 +282,8 @@ public class AggregationParser {
             TimePeriod.Duration duration = incrementalDurations.get(i);
             IncrementalExecutor incrementalExecutor = new IncrementalExecutor(duration,
                     cloneExpressionExecutors(processExpressionExecutors),
-                    groupByKeyGenerator, processedMetaStreamEvent, bufferSize, child, isRoot,
-                    aggregationTables.get(duration), isProcessingOnExternalTime);
+                    groupByKeyGenerator, processedMetaStreamEvent, bufferSize, ignoreEventsOlderThanBuffer,
+                    child, isRoot, aggregationTables.get(duration), isProcessingOnExternalTime);
             incrementalExecutorMap.put(duration, incrementalExecutor);
             root = incrementalExecutor;
 

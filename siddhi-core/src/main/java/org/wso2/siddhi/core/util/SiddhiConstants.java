@@ -19,7 +19,7 @@
 package org.wso2.siddhi.core.util;
 
 /**
- * Class to hold constants
+ * Class to hold constants.
  */
 public final class SiddhiConstants {
 
@@ -66,6 +66,7 @@ public final class SiddhiConstants {
     public static final String ANNOTATION_ELEMENT_INCREMENT = "increment";
     public static final String ANNOTATION_ELEMENT_TYPE = "type";
     public static final String ANNOTATION_BUFFER_SIZE = "BufferSize";
+    public static final String ANNOTATION_IGNORE_EVENTS_OLDER_THAN_BUFFER = "IgnoreEventsOlderThanBuffer";
     public static final String ANNOTATION_ELEMENT_REF = "ref";
 
     public static final String TRUE = "true";
@@ -91,6 +92,5 @@ public final class SiddhiConstants {
     public static final String EXTENSION_SEPARATOR = ":";
 
     public static final String KEY_DELIMITER = ":-:";
-
 
 }

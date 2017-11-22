@@ -53,13 +53,13 @@ public class IncrementalTimeConverterUtil {
     public static long getStartTimeOfAggregates(long currentTime, TimePeriod.Duration duration, String timeZone) {
         switch (duration) {
         case SECONDS:
-            return currentTime - currentTime % 1000;
+            return currentTime - currentTime % getMillisecondsPerDuration(duration);
         case MINUTES:
-            return currentTime - currentTime % 60000;
+            return currentTime - currentTime % getMillisecondsPerDuration(duration);
         case HOURS:
-            return currentTime - currentTime % 3600000;
+            return currentTime - currentTime % getMillisecondsPerDuration(duration);
         case DAYS:
-            return currentTime - currentTime % 86400000;
+            return currentTime - currentTime % getMillisecondsPerDuration(duration);
         case MONTHS:
             return getStartTimeOfAggregatesForMonth(currentTime, timeZone);
         case YEARS:
@@ -69,21 +69,20 @@ public class IncrementalTimeConverterUtil {
         }
     }
 
-    public static long getEmitTimeOfLastEventToRemove(long currentTime, TimePeriod.Duration duration, int bufferCount,
-            String timeZone) {
+    public static long getPreviousStartTime(long currentStartTime, TimePeriod.Duration duration, String timeZone) {
         switch (duration) {
         case SECONDS:
-            return currentTime - bufferCount * 1000L;
+            return currentStartTime - getMillisecondsPerDuration(duration);
         case MINUTES:
-            return currentTime - bufferCount * 60000L;
+            return currentStartTime - getMillisecondsPerDuration(duration);
         case HOURS:
-            return currentTime - bufferCount % 3600000L;
+            return currentStartTime - getMillisecondsPerDuration(duration);
         case DAYS:
-            return currentTime - bufferCount % 86400000L;
+            return currentStartTime - getMillisecondsPerDuration(duration);
         case MONTHS:
-            return getEmitTimeOfLastEventToRemoveForMonth(currentTime, bufferCount, timeZone);
+            return getStartTimeOfPreviousMonth(currentStartTime, timeZone);
         case YEARS:
-            return getEmitTimeOfLastEventToRemoveForYear(currentTime, bufferCount, timeZone);
+            return getStartTimeOfPreviousYear(currentStartTime, timeZone);
         default:
             throw new SiddhiAppRuntimeException("Undefined duration " + duration.toString());
         }
@@ -127,32 +126,43 @@ public class IncrementalTimeConverterUtil {
                 .toEpochSecond() * 1000;
     }
 
-    private static long getEmitTimeOfLastEventToRemoveForMonth(long currentEmitTime, int bufferCount, String timeZone) {
+    private static long getStartTimeOfPreviousMonth(long currentEmitTime, String timeZone) {
         ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(currentEmitTime),
                 ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone)));
         int givenMonth = zonedDateTime.getMonthValue();
-        int noOfYearsToReduce = bufferCount / 12;
-        int noOfMonthsToReduce = bufferCount % 12;
-        int yearOfLastEventToRemove;
-        int monthOfLastEventToRemove;
-        if (givenMonth <= noOfMonthsToReduce) {
-            // Example: If given month is 2 (Feb) and noOfMonthsToReduce is 4, reduce one more year.
-            // Result must return 10th month (Oct) of that calculated year.
-            yearOfLastEventToRemove = zonedDateTime.getYear() - ++noOfYearsToReduce;
-            monthOfLastEventToRemove = givenMonth - bufferCount + 12;
-        } else {
-            yearOfLastEventToRemove = zonedDateTime.getYear() - noOfYearsToReduce;
-            monthOfLastEventToRemove = givenMonth - bufferCount;
-        }
-        return ZonedDateTime.of(yearOfLastEventToRemove, monthOfLastEventToRemove, 1, 0, 0, 0, 0,
-                ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone))).toEpochSecond() * 1000;
+        int givenYear = zonedDateTime.getYear();
 
+        if (givenMonth == 1) {
+            return ZonedDateTime.of(--givenYear, 12, 1, 0, 0, 0, 0, ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone)))
+                    .toEpochSecond() * 1000;
+        } else {
+            return ZonedDateTime
+                    .of(givenYear, --givenMonth, 1, 0, 0, 0, 0, ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone)))
+                    .toEpochSecond() * 1000;
+        }
     }
 
-    private static long getEmitTimeOfLastEventToRemoveForYear(long currentEmitTime, int bufferCount, String timeZone) {
+    private static long getStartTimeOfPreviousYear(long currentEmitTime, String timeZone) {
         ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(currentEmitTime),
                 ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone)));
-        return ZonedDateTime.of(zonedDateTime.getYear() - bufferCount, 1, 1, 0, 0, 0, 0,
-                ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone))).toEpochSecond() * 1000;
+        int givenYear = zonedDateTime.getYear();
+        return ZonedDateTime.of(--givenYear, 1, 1, 0, 0, 0, 0, ZoneId.ofOffset("GMT", ZoneOffset.of(timeZone)))
+                .toEpochSecond() * 1000;
+    }
+
+    public static int getMillisecondsPerDuration(TimePeriod.Duration duration) {
+        switch (duration) {
+        case SECONDS:
+            return 1000;
+        case MINUTES:
+            return 60000;
+        case HOURS:
+            return 3600000;
+        case DAYS:
+            return 86400000;
+        default:
+            throw new SiddhiAppRuntimeException("Cannot provide number of milliseconds per duration " + duration
+                    + ".Number of milliseconds are only define for SECONDS, MINUTES, HOURS and DAYS");
+        }
     }
 }

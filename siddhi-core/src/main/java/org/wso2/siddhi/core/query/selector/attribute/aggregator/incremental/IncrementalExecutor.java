@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Incremental executor class which is responsible for performing incremental aggregation
+ * Incremental executor class which is responsible for performing incremental aggregation.
  */
 public class IncrementalExecutor implements Executor {
     private static final Logger LOG = Logger.getLogger(IncrementalExecutor.class);
@@ -52,16 +52,22 @@ public class IncrementalExecutor implements Executor {
     private Table table;
     private GroupByKeyGenerator groupByKeyGenerator;
     private int bufferSize;
+    private boolean ignoreEventsOlderThanBuffer;
     private StreamEventPool streamEventPool;
     private long nextEmitTime = -1;
     private boolean isProcessingOnExternalTime;
-    private int currentBufferIndex = 0;
+    private int currentBufferIndex = -1;
     private long startTimeOfAggregates = -1;
     private boolean timerStarted = false;
     private boolean isGroupBy;
     private Executor next;
     private Scheduler scheduler;
     private boolean isRoot;
+    private long millisecondsPerDuration;
+    private boolean eventOlderThanBuffer;
+    private int countEvents = 0;
+    private int maxTimestampPosition;
+    private long maxTimestampInBuffer;
 
     private BaseIncrementalValueStore baseIncrementalValueStore = null;
     private Map<String, BaseIncrementalValueStore> baseIncrementalValueStoreMap = null;
@@ -70,12 +76,14 @@ public class IncrementalExecutor implements Executor {
 
     public IncrementalExecutor(TimePeriod.Duration duration, List<ExpressionExecutor> processExpressionExecutors,
             GroupByKeyGenerator groupByKeyGenerator, MetaStreamEvent metaStreamEvent, int bufferSize,
-            IncrementalExecutor child, boolean isRoot, Table table, boolean isProcessingOnExternalTime) {
+            boolean ignoreEventsOlderThanBuffer, IncrementalExecutor child, boolean isRoot, Table table,
+            boolean isProcessingOnExternalTime) {
         this.duration = duration;
         this.next = child;
         this.isRoot = isRoot;
         this.table = table;
         this.bufferSize = bufferSize;
+        this.ignoreEventsOlderThanBuffer = ignoreEventsOlderThanBuffer;
         this.streamEventPool = new StreamEventPool(metaStreamEvent, 10);
         this.isProcessingOnExternalTime = isProcessingOnExternalTime;
         this.timestampExpressionExecutor = processExpressionExecutors.remove(0);
@@ -85,21 +93,23 @@ public class IncrementalExecutor implements Executor {
         if (groupByKeyGenerator != null) {
             this.groupByKeyGenerator = groupByKeyGenerator;
             isGroupBy = true;
-            if (bufferSize > 0) {
+            if (bufferSize > 0 && isRoot) {
                 baseIncrementalValueGroupByStoreList = new ArrayList<>(bufferSize + 1);
                 for (int i = 0; i < bufferSize + 1; i++) {
                     baseIncrementalValueGroupByStoreList.add(new HashMap<>());
                 }
+                this.millisecondsPerDuration = IncrementalTimeConverterUtil.getMillisecondsPerDuration(duration);
             } else {
                 baseIncrementalValueStoreMap = new HashMap<>();
             }
         } else {
             isGroupBy = false;
-            if (bufferSize > 0) {
+            if (bufferSize > 0 && isRoot) {
                 baseIncrementalValueStoreList = new ArrayList<>(bufferSize + 1);
                 for (int i = 0; i < bufferSize + 1; i++) {
                     baseIncrementalValueStoreList.add(baseIncrementalValueStore.cloneStore(null, -1));
                 }
+                this.millisecondsPerDuration = IncrementalTimeConverterUtil.getMillisecondsPerDuration(duration);
             }
         }
 
@@ -122,26 +132,46 @@ public class IncrementalExecutor implements Executor {
 
             String timeZone = getTimeZone(streamEvent);
             long timestamp = getTimestamp(streamEvent, timeZone);
-            if (timestamp >= nextEmitTime) {
-                nextEmitTime = IncrementalTimeConverterUtil.getNextEmitTime(timestamp, duration, timeZone);
-                startTimeOfAggregates = IncrementalTimeConverterUtil.getStartTimeOfAggregates(timestamp, duration,
-                        timeZone);
-                dispatchAggregateEvents(startTimeOfAggregates);
-                sendTimerEvent(streamEvent, timestamp, timeZone);
-            }
 
-            if (streamEvent.getType() == ComplexEvent.Type.CURRENT) {
-                processAggregates(streamEvent);
+            startTimeOfAggregates = IncrementalTimeConverterUtil.getStartTimeOfAggregates(timestamp, duration,
+                    timeZone);
+            if (bufferSize > 0 && isRoot) {
+                dispatchBufferedAggregateEvents(startTimeOfAggregates);
+                if (streamEvent.getType() == ComplexEvent.Type.CURRENT) {
+                    if (!eventOlderThanBuffer) {
+                        processAggregates(streamEvent);
+                    } else if (!ignoreEventsOlderThanBuffer) {
+                        // Incoming event is older than buffer
+                        processAggregates(streamEvent);
+                    }
+                }
+            } else {
+                if (timestamp >= nextEmitTime) {
+                    nextEmitTime = IncrementalTimeConverterUtil.getNextEmitTime(timestamp, duration, timeZone);
+                    dispatchAggregateEvents(startTimeOfAggregates);
+                    if (!isProcessingOnExternalTime) {
+                        sendTimerEvent(timeZone);
+                    }
+                }
+                if (streamEvent.getType() == ComplexEvent.Type.CURRENT) {
+                    if (nextEmitTime == IncrementalTimeConverterUtil.getNextEmitTime(timestamp, duration, timeZone)) {
+                        // This condition checks whether incoming event belongs to current processing event's time slot
+                        processAggregates(streamEvent);
+                    } else if (!ignoreEventsOlderThanBuffer) {
+                        // Incoming event is older than current processing event.
+                        processAggregates(streamEvent);
+                    }
+                }
             }
         }
     }
 
-    private void sendTimerEvent(StreamEvent streamEvent, long timestamp, String timeZone) {
-        if (streamEvent.getType() == ComplexEvent.Type.TIMER && getNextExecutor() != null) {
+    private void sendTimerEvent(String timeZone) {
+        if (getNextExecutor() != null) {
             StreamEvent timerEvent = streamEventPool.borrowEvent();
             timerEvent.setType(ComplexEvent.Type.TIMER);
-            timerEvent.setTimestamp(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove(timestamp,
-                    this.duration, this.bufferSize, timeZone));
+            timerEvent.setTimestamp(
+                    IncrementalTimeConverterUtil.getPreviousStartTime(startTimeOfAggregates, this.duration, timeZone));
             ComplexEventChunk<StreamEvent> timerStreamEventChunk = new ComplexEventChunk<>(true);
             timerStreamEventChunk.add(timerEvent);
             next.execute(timerStreamEventChunk);
@@ -232,32 +262,82 @@ public class IncrementalExecutor implements Executor {
     }
 
     private void dispatchAggregateEvents(long startTimeOfNewAggregates) {
-
         if (isGroupBy) {
-            if (baseIncrementalValueGroupByStoreList != null) {
-                int dispatchIndex = currentBufferIndex + 1;
-                if (dispatchIndex > bufferSize) {
-                    dispatchIndex -= bufferSize + 1;
-                }
-                Map<String, BaseIncrementalValueStore> baseIncrementalValueGroupByStore =
-                        baseIncrementalValueGroupByStoreList.get(dispatchIndex);
-                dispatchEvents(baseIncrementalValueGroupByStore);
-                currentBufferIndex = dispatchIndex;
-            } else {
-                dispatchEvents(baseIncrementalValueStoreMap);
-            }
+            dispatchEvents(baseIncrementalValueStoreMap);
         } else {
-            if (baseIncrementalValueStoreList != null) {
-                int dispatchIndex = currentBufferIndex + 1;
-                if (dispatchIndex > bufferSize) {
-                    dispatchIndex -= bufferSize + 1;
+            dispatchEvent(startTimeOfNewAggregates, baseIncrementalValueStore);
+        }
+    }
+
+    private void dispatchBufferedAggregateEvents(long startTimeOfNewAggregates) {
+        ++countEvents;
+        int lastDispatchIndex;
+        if (currentBufferIndex == -1) {
+            maxTimestampPosition = 0;
+            maxTimestampInBuffer = startTimeOfNewAggregates;
+            currentBufferIndex = 0;
+            eventOlderThanBuffer = false;
+            return;
+        }
+        if (startTimeOfNewAggregates > maxTimestampInBuffer) {
+            if ((startTimeOfNewAggregates - maxTimestampInBuffer) / millisecondsPerDuration >= bufferSize + 1) {
+                // Need to flush all events
+                if (isGroupBy) {
+                    for (int i = 0; i <= bufferSize; i++) {
+                        dispatchEvents(baseIncrementalValueGroupByStoreList.get(i));
+                    }
+                } else {
+                    for (int i = 0; i <= bufferSize; i++) {
+                        dispatchEvent(startTimeOfNewAggregates, baseIncrementalValueStoreList.get(i));
+                    }
                 }
-                BaseIncrementalValueStore aBaseIncrementalValueStore = baseIncrementalValueStoreList.get(dispatchIndex);
-                dispatchEvent(startTimeOfNewAggregates, aBaseIncrementalValueStore);
-                currentBufferIndex = dispatchIndex;
+                currentBufferIndex = (int) (((startTimeOfNewAggregates - maxTimestampInBuffer)
+                        / millisecondsPerDuration) % (bufferSize + 1));
+                maxTimestampPosition = currentBufferIndex;
             } else {
-                dispatchEvent(startTimeOfNewAggregates, baseIncrementalValueStore);
+                lastDispatchIndex = (maxTimestampPosition
+                        + (int) ((startTimeOfNewAggregates - maxTimestampInBuffer) / millisecondsPerDuration))
+                        % (bufferSize + 1);
+                if (isGroupBy) {
+                    Map<String, BaseIncrementalValueStore> baseIncrementalValueGroupByStore =
+                            baseIncrementalValueGroupByStoreList.get(lastDispatchIndex);
+                    if (baseIncrementalValueGroupByStore.size() > 0) {
+                        for (int i = 0; i <= lastDispatchIndex; i++) {
+                            dispatchEvents(baseIncrementalValueGroupByStoreList.get(i));
+                        }
+                    }
+                } else {
+                    BaseIncrementalValueStore aBaseIncrementalValueStore = baseIncrementalValueStoreList
+                            .get(lastDispatchIndex);
+                    if (aBaseIncrementalValueStore.isProcessed()) {
+                        for (int i = 0; i <= lastDispatchIndex; i++) {
+                            dispatchEvent(startTimeOfNewAggregates, baseIncrementalValueStoreList.get(i));
+                        }
+                    }
+                }
+                currentBufferIndex = lastDispatchIndex;
+                maxTimestampPosition = lastDispatchIndex;
             }
+            maxTimestampInBuffer = startTimeOfNewAggregates;
+            eventOlderThanBuffer = false;
+        } else if ((int) ((maxTimestampInBuffer - startTimeOfNewAggregates) / millisecondsPerDuration) <= bufferSize) {
+            int tempIndex = maxTimestampPosition
+                    - (int) ((maxTimestampInBuffer - startTimeOfNewAggregates) / millisecondsPerDuration);
+            if (tempIndex >= 0) {
+                currentBufferIndex = tempIndex;
+            } else {
+                currentBufferIndex = (bufferSize + 1) + tempIndex;
+            }
+            eventOlderThanBuffer = false;
+
+        } else {
+            // Incoming event is older than buffer
+            if (countEvents <= bufferSize + 1) {
+                currentBufferIndex = 0;
+            } else {
+                currentBufferIndex = (maxTimestampPosition + 1) % (bufferSize + 1);
+            }
+            eventOlderThanBuffer = true;
         }
     }
 
