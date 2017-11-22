@@ -34,19 +34,14 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.data.sql.client.SQLDatasourceUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -139,40 +134,6 @@ public class SQLDataIterator implements DataIterator {
         try {
             Blob bValue = rs.getBlob(columnName);
             return SQLDatasourceUtils.getString(bValue);
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-    }
-
-    private String getString(Object object) throws SQLException {
-        String value;
-        if (object instanceof Blob) {
-            value = SQLDatasourceUtils.getString((Blob) object);
-        } else if (object instanceof Timestamp) {
-            value = SQLDatasourceUtils.getString((Timestamp) object);
-        } else if (object instanceof Clob) {
-            value = SQLDatasourceUtils.getString((Clob) object);
-        } else if (object instanceof Date) {
-            value = SQLDatasourceUtils.getString((Date) object);
-        } else if (object instanceof Time) {
-            value = SQLDatasourceUtils.getString((Time) object);
-        } else if (object instanceof InputStream) {
-            value = SQLDatasourceUtils.getString((InputStream) object);
-        } else {
-            value = String.valueOf(object);
-        }
-        return value;
-    }
-
-    @Override
-    public String getObjectAsString(String columnName) {
-        try {
-            Object object = rs.getObject(columnName);
-            if (object != null) {
-                return getString(object);
-            } else {
-                return null;
-            }
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
