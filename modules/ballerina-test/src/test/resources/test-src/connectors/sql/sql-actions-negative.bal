@@ -10,7 +10,7 @@ function testSelectData () (string firstName) {
 
     }
     try {
-        sql:ClientConnector con = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        sql:ClientConnector con = create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:5});
         bind con with testDB;
 
@@ -36,7 +36,7 @@ function testGeneratedKeyOnInsert () (string) {
     string id = "";
     try {
         string[] generatedID;
-        sql:ClientConnector con = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        sql:ClientConnector con = create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
         bind con with testDB;
 
@@ -57,7 +57,7 @@ function testCallProcedure () (string firstName) {
 
     }
     try {
-        sql:ClientConnector con = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        sql:ClientConnector con = create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
         bind con with testDB;
 
@@ -82,7 +82,7 @@ function testBatchUpdate () (int[]) {
     }
     int[] updateCount;
     try {
-        sql:ClientConnector con = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        sql:ClientConnector con = create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
         bind con with testDB;
 
@@ -116,7 +116,7 @@ function testInvalidArrayofQueryParameters () (string value ) {
 
     }
     try {
-        sql:ClientConnector con = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        sql:ClientConnector con = create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
         bind con with testDB;
         xml x1 = xml `<book>The Lost World</book>`;

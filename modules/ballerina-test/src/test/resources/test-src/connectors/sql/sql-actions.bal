@@ -34,7 +34,7 @@ struct ResultArrayType {
 
 function testInsertTableData () (int) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -46,7 +46,7 @@ function testInsertTableData () (int) {
 
 function testCreateTable () (int) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -58,7 +58,7 @@ function testCreateTable () (int) {
 
 function testUpdateTableData () (int) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -70,7 +70,7 @@ function testUpdateTableData () (int) {
 
 function testGeneratedKeyOnInsert () (string) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -85,7 +85,7 @@ function testGeneratedKeyOnInsert () (string) {
 
 function testGeneratedKeyWithColumn () (string) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -103,7 +103,7 @@ function testGeneratedKeyWithColumn () (string) {
 
 function testInsertTableDataWithParameters () (int) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -122,7 +122,7 @@ function testInsertTableDataWithParameters () (int) {
 
 function testOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -153,7 +153,7 @@ function testOutParameters () (any, any, any, any, any, any, any, any, any, any,
 
 function testNullOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -184,7 +184,7 @@ function testNullOutParameters () (any, any, any, any, any, any, any, any, any, 
 
 function testINParameters () (int) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                 0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -215,7 +215,7 @@ function testINParameters () (int) {
 
 function testNullINParameterValues () (int) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector( sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector( sql:db.HSQLDB_FILE, "./target/tempdb/",
                                         0, "TEST_SQL_CONNECTOR", "SA", "", { maximumPoolSize:1});
     }
 
@@ -246,7 +246,7 @@ function testNullINParameterValues () (int) {
 
 function testNullINParameters () (int) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector( sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector( sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                 0, "TEST_SQL_CONNECTOR", "SA", "", { maximumPoolSize:1});
     }
 
@@ -263,7 +263,7 @@ function testNullINParameters () (int) {
 
 function testINOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -295,7 +295,7 @@ function testINOutParameters () (any, any, any, any, any, any, any, any, any, an
 function testNullINOutParameters ()
 (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -326,7 +326,7 @@ function testNullINOutParameters ()
 
 function testEmptySQLType () (int) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -339,7 +339,7 @@ function testEmptySQLType () (int) {
 
 function testArrayOutParameters () (any, any, any, any, any, any) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -358,7 +358,7 @@ function testArrayOutParameters () (any, any, any, any, any, any) {
 
 function testArrayInOutParameters () (any, any, any, any, any, any, any) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -379,7 +379,7 @@ function testArrayInOutParameters () (any, any, any, any, any, any, any) {
 
 function testBatchUpdate () (int[]) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -409,7 +409,7 @@ function testBatchUpdate () (int[]) {
 
 function testBatchUpdateWithFailure () (int[] updateCount, int count) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -472,7 +472,7 @@ function testBatchUpdateWithFailure () (int[] updateCount, int count) {
 
 function testBatchUpdateWithNullParam () (int[]) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
     int[] updateCount;
@@ -484,7 +484,7 @@ function testBatchUpdateWithNullParam () (int[]) {
 
 function testDateTimeInParameters () (int[]) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
     string stmt = "Insert into DateTimeTypes(row_id,date_type,time_type,datetime_type,timestamp_type) values (?,?,?,?,?)";
@@ -527,7 +527,7 @@ function testDateTimeInParameters () (int[]) {
 
 function testSelectIntFloatData () (int int_type, int long_type, float float_type, float double_type) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -550,7 +550,7 @@ function testSelectIntFloatData () (int int_type, int long_type, float float_typ
 
 function testSelectData () (string firstName) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -568,7 +568,7 @@ function testSelectData () (string firstName) {
 
 function testCallProcedure () (string firstName) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -587,7 +587,7 @@ function testCallProcedure () (string firstName) {
 
 function testCallProcedureWithResultSet () (string firstName) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -606,7 +606,7 @@ function testCallProcedureWithResultSet () (string firstName) {
 
 function testQueryParameters () (string firstName) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -626,7 +626,7 @@ function testQueryParameters () (string firstName) {
 
 function testArrayofQueryParameters () (string firstName) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -653,7 +653,7 @@ function testArrayofQueryParameters () (string firstName) {
 
 function testBoolArrayofQueryParameters () (int value ) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
     boolean accepted1 = false;
@@ -693,7 +693,7 @@ function testBoolArrayofQueryParameters () (int value ) {
 function testArrayInParameters () (int insertCount, map int_arr, map long_arr, map double_arr, map string_arr,
                                    map boolean_arr, map float_arr) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -735,7 +735,7 @@ function testArrayInParameters () (int insertCount, map int_arr, map long_arr, m
 
 function testDateTimeOutParams (int time, int date, int timestamp) (int count) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
@@ -768,7 +768,7 @@ function testDateTimeOutParams (int time, int date, int timestamp) (int count) {
 
 function testStructOutParameters() (any) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
     sql:Parameter para1 = {sqlType:"struct", direction:1};
@@ -780,7 +780,7 @@ function testStructOutParameters() (any) {
 
 function testCloseConnectionPool () (int count) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
     sql:Parameter[] parameters = [];

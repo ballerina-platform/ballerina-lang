@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -50,13 +51,14 @@ public class Init extends AbstractSQLAction {
     @Override
     public ConnectorFuture execute(Context context) {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
-        BStruct optionStruct = (BStruct) bConnector.getRefField(0);
-        BMap sharedMap = (BMap) bConnector.getRefField(1);
-        String dbType = bConnector.getStringField(0);
-        String hostOrPath = bConnector.getStringField(1);
-        String dbName = bConnector.getStringField(2);
-        String username = bConnector.getStringField(3);
-        String password = bConnector.getStringField(4);
+        BEnumerator db = (BEnumerator) bConnector.getRefField(0);
+        BStruct optionStruct = (BStruct) bConnector.getRefField(1);
+        BMap sharedMap = (BMap) bConnector.getRefField(2);
+        String dbType = db.getName();
+        String hostOrPath = bConnector.getStringField(0);
+        String dbName = bConnector.getStringField(1);
+        String username = bConnector.getStringField(2);
+        String password = bConnector.getStringField(3);
         int port = (int) bConnector.getIntField(0);
         if (sharedMap.get(new BString(Constants.DATASOURCE_KEY)) == null) {
             SQLDatasource datasource = new SQLDatasource();
