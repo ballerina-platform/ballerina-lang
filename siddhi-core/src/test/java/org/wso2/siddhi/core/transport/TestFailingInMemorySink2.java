@@ -77,7 +77,6 @@ public class TestFailingInMemorySink2 extends InMemorySink {
 
     @Override
     public void publish(Object payload, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
-        System.out.println(payload +"   " +failOnce);
         if (fail || failOnce) {
             failOnce = false;
             numberOfErrorOccurred++;

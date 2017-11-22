@@ -96,7 +96,7 @@ public class MultiClientDistributedSink extends DistributedTransport {
 
         for (int i = 0; i < transports.size(); i++) {
             try {
-                Sink transport= transports.get(i);
+                Sink transport = transports.get(i);
                 if (!transport.isConnected()) {
                     transport.connect();
                     transport.setConnected(true);
