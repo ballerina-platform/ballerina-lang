@@ -49,7 +49,7 @@ public class SingleClientDistributedSink extends DistributedTransport {
     private int destinationCount = 0;
 
     @Override
-    public void publish(Object payload, DynamicOptions transportOptions, int destinationId)
+    public void publish(Object payload, DynamicOptions transportOptions, Integer destinationId)
             throws ConnectionUnavailableException {
         try {
             transportOptions.setVariableOptionIndex(destinationId);

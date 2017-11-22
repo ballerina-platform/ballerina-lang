@@ -132,8 +132,8 @@ public abstract class DistributedTransport extends Sink {
         return supportedDynamicOptions;
     }
 
-    public abstract void publish(Object payload, DynamicOptions transportOptions, int destinationId) throws
-            ConnectionUnavailableException;
+    public abstract void publish(Object payload, DynamicOptions transportOptions, Integer destinationId)
+            throws ConnectionUnavailableException;
 
 
     public abstract void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> destinationOptionHolders,

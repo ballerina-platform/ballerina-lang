@@ -69,7 +69,7 @@ public abstract class DistributionStrategy {
      *
      * @param destinationId the ID of the destination to be removed
      */
-    public void destinationFailed(int destinationId) {
+    public void destinationFailed(Integer destinationId) {
         destinationIds.remove(destinationId);
     }
 

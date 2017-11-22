@@ -48,7 +48,7 @@ public class MultiClientDistributedSink extends DistributedTransport {
     private List<Sink> transports = new ArrayList<>();
 
     @Override
-    public void publish(Object payload, DynamicOptions transportOptions, int destinationId)
+    public void publish(Object payload, DynamicOptions transportOptions, Integer destinationId)
             throws ConnectionUnavailableException {
         try {
             Sink transport = transports.get(destinationId);
