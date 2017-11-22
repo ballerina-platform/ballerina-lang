@@ -31,13 +31,15 @@ public abstract class SinkHandler implements Snapshotable {
     private SinkHandlerCallback sinkHandlerCallback;
     private String elementId;
 
-    final void init(String elementId, StreamDefinition streamDefinition, SinkHandlerCallback sinkHandlerCallback) {
+    final void initSinkHandler(String elementId, StreamDefinition streamDefinition,
+                               SinkHandlerCallback sinkHandlerCallback) {
         this.sinkHandlerCallback = sinkHandlerCallback;
         this.elementId = elementId;
-        init(elementId, streamDefinition);
+        init(elementId, streamDefinition, sinkHandlerCallback);
     }
 
-    public abstract void init(String elementId, StreamDefinition streamDefinition);
+    public abstract void init(String elementId, StreamDefinition streamDefinition,
+                              SinkHandlerCallback sinkHandlerCallback);
 
     public void handle(Event event) {
         handle(event, sinkHandlerCallback);
