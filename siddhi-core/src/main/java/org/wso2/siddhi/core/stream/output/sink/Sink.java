@@ -242,4 +242,8 @@ public abstract class Sink implements SinkListener, Snapshotable {
     public StreamDefinition getStreamDefinition() {
         return streamDefinition;
     }
+
+    public void setConnected(boolean connected) {
+        isConnected.set(connected);
+    }
 }

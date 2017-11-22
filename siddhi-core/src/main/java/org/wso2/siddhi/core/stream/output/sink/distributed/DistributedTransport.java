@@ -100,6 +100,7 @@ public abstract class DistributedTransport extends Sink {
         int errorCount = 0;
         StringBuilder errorMessages = null;
         List<Integer> destinationsToPublish = strategy.getDestinationsToPublish(payload, transportOptions);
+        int destinationsToPublishSize = destinationsToPublish.size();
         for (Integer destinationId : destinationsToPublish) {
             try {
                 publish(payload, transportOptions, destinationId);
@@ -116,7 +117,7 @@ public abstract class DistributedTransport extends Sink {
 
         if (errorCount > 0) {
             throw new ConnectionUnavailableException("Error on '" + siddhiAppContext.getName() + "'. " + errorCount +
-                    "/" + destinationsToPublish.size() + " connections failed while trying to publish with following" +
+                    "/" + destinationsToPublishSize + " connections failed while trying to publish with following" +
                     " error messages:" + errorMessages.toString());
         }
     }

@@ -55,6 +55,7 @@ public class SingleClientDistributedSink extends DistributedTransport {
             transportOptions.setVariableOptionIndex(destinationId);
             sink.publish(payload, transportOptions);
         } catch (ConnectionUnavailableException e) {
+            sink.setConnected(false);
             strategy.destinationFailed(destinationId);
             throw e;
         }
@@ -104,6 +105,7 @@ public class SingleClientDistributedSink extends DistributedTransport {
     @Override
     public void connect() throws ConnectionUnavailableException {
         sink.connect();
+        sink.setConnected(true);
         for (int i = 0; i < destinationCount; i++) {
             strategy.destinationAvailable(i);
         }

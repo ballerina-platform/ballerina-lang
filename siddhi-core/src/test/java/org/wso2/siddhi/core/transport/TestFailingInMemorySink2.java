@@ -22,12 +22,16 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.InMemorySink;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
+import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 @Extension(
-        name = "testFailingInMemory",
+        name = "testFailingInMemory2",
         namespace = "sink",
         description = "In-memory sink for testing connection unavailable use-case",
         parameters = @Parameter(name = "topic", type = DataType.STRING, description = "Event will be delivered to all" +
@@ -39,15 +43,26 @@ import org.wso2.siddhi.core.util.transport.DynamicOptions;
                         "events internally without using external transport and transformation."
         )
 )
-public class TestFailingInMemorySink extends InMemorySink {
+public class TestFailingInMemorySink2 extends InMemorySink {
+    private static final String TOPIC_KEY = "topic";
+    private static final String TEST_KEY = "test";
     public static int numberOfErrorOccurred = 0;
     public static boolean fail;
     public static boolean failOnce;
 
-    public TestFailingInMemorySink() {
+    public TestFailingInMemorySink2() {
         this.failOnce = false;
         this.fail = false;
         this.numberOfErrorOccurred = 0;
+    }
+
+    @Override
+    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
+                        ConfigReader sinkConfigReader, SiddhiAppContext
+                                siddhiAppContext) {
+        optionHolder.validateAndGetOption(TOPIC_KEY);
+        optionHolder.validateAndGetOption(TEST_KEY);
+        super.init(outputStreamDefinition, optionHolder, sinkConfigReader, siddhiAppContext);
     }
 
     @Override
@@ -70,4 +85,5 @@ public class TestFailingInMemorySink extends InMemorySink {
         }
         super.publish(payload, dynamicOptions);
     }
+
 }

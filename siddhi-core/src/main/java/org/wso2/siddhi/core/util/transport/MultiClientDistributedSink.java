@@ -50,10 +50,11 @@ public class MultiClientDistributedSink extends DistributedTransport {
     @Override
     public void publish(Object payload, DynamicOptions transportOptions, Integer destinationId)
             throws ConnectionUnavailableException {
+        Sink transport = transports.get(destinationId);
         try {
-            Sink transport = transports.get(destinationId);
             transport.publish(payload, transportOptions);
         } catch (ConnectionUnavailableException e) {
+            transport.setConnected(false);
             strategy.destinationFailed(destinationId);
             log.warn("Failed to publish payload to destination ID " + destinationId);
             throw e;
@@ -95,8 +96,10 @@ public class MultiClientDistributedSink extends DistributedTransport {
 
         for (int i = 0; i < transports.size(); i++) {
             try {
-                if (!transports.get(i).isConnected()) {
-                    transports.get(i).connect();
+                Sink transport= transports.get(i);
+                if (!transport.isConnected()) {
+                    transport.connect();
+                    transport.setConnected(true);
                     strategy.destinationAvailable(i);
                     log.info("Connected to destination Id " + i);
                 }
