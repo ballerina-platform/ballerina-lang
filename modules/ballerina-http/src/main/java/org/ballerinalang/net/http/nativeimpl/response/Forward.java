@@ -64,13 +64,19 @@ public class Forward extends AbstractNativeFunction {
 
         AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.ANN_NAME_CONFIG);
-        AnnAttributeValue keepAliveAttrVal = configAnn.getAttributeValue(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE);
-        
-        if (keepAliveAttrVal != null) {
-            context.getConnectorFuture().notifyReply(responseStruct, new BBoolean(keepAliveAttrVal.getBooleanValue()));
+        if (configAnn != null) {
+            AnnAttributeValue keepAliveAttrVal = configAnn.getAttributeValue(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE);
+
+            if (keepAliveAttrVal != null) {
+                context.getConnectorFuture().notifyReply(clientResponseStruct,
+                                                         new BBoolean(keepAliveAttrVal.getBooleanValue()));
+            } else {
+                // default behaviour: keepAlive = true
+                context.getConnectorFuture().notifyReply(clientResponseStruct, new BBoolean(true));
+            }
         } else {
             // default behaviour: keepAlive = true
-            context.getConnectorFuture().notifyReply(responseStruct, new BBoolean(true));
+            context.getConnectorFuture().notifyReply(clientResponseStruct, new BBoolean(true));
         }
 
         return VOID_RETURN;
