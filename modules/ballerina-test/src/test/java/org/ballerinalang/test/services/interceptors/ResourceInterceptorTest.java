@@ -46,7 +46,7 @@ public class ResourceInterceptorTest {
     @BeforeClass
     public void setup() {
 //        compileResult = EnvironmentInitializer
-//                .setupProgramFile("test-src/services/echoService.bal");
+//                .setupProgramFile("test-src/services/echo-service.bal");
 //        System.setProperty(ConfigConstants.SYS_PROP_BALLERINA_HOME, "src/test/resources/ballerina");
 //        BLangRuntimeRegistry.getInstance().initialize();
     }

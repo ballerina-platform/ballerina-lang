@@ -48,7 +48,7 @@ public class ResponseNativeFunctionSuccessTest {
     private CompileResult result, serviceResult;
     private final String responseStruct = Constants.RESPONSE;
     private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
-    private String sourceFilePath = "test-src/statements/services/nativeimpl/response/responseNativeFunction.bal";
+    private String sourceFilePath = "test-src/statements/services/nativeimpl/response/response-native-function.bal";
 
     @BeforeClass
     public void setup() {

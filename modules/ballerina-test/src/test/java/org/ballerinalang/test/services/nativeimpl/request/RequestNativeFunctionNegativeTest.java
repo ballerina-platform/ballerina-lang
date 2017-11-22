@@ -44,8 +44,8 @@ public class RequestNativeFunctionNegativeTest {
     private CompileResult result, resultNegative;
     private final String requestStruct = Constants.REQUEST;
     private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
-    private String filePath = "test-src/statements/services/nativeimpl/request/requestNativeFunctionNegative.bal";
-    private String filePathNeg = "test-src/statements/services/nativeimpl/request/requestCompileNegative.bal";
+    private String filePath = "test-src/statements/services/nativeimpl/request/request-native-function-negative.bal";
+    private String filePathNeg = "test-src/statements/services/nativeimpl/request/request-compile-negative.bal";
 
     @BeforeClass
     public void setup() {

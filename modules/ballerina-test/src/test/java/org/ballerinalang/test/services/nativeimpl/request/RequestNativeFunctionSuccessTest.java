@@ -50,7 +50,7 @@ public class RequestNativeFunctionSuccessTest {
     private CompileResult result, serviceResult;
     private final String requestStruct = Constants.REQUEST;
     private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
-    private String sourceFilePath = "test-src/statements/services/nativeimpl/request/requestNativeFunction.bal";
+    private String sourceFilePath = "test-src/statements/services/nativeimpl/request/request-native-function.bal";
 
     @BeforeClass
     public void setup() {

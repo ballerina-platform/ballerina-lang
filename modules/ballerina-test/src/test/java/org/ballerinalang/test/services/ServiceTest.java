@@ -43,7 +43,7 @@ public class ServiceTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BServiceUtil.setupProgramFile(this, "test-src/services/echoService.bal");
+        compileResult = BServiceUtil.setupProgramFile(this, "test-src/services/echo-service.bal");
     }
 
     @Test

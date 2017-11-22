@@ -40,7 +40,7 @@ public class HTTPCorsTest {
 
     @BeforeClass
     public void setup() {
-        complieResult = BServiceUtil.setupProgramFile(this, "test-src/services/cors/corsTest.bal");
+        complieResult = BServiceUtil.setupProgramFile(this, "test-src/services/cors/cors-test.bal");
     }
 
     public void assertEqualsCorsResponse(HTTPCarbonMessage response, int statusCode, String origin, String credentials
