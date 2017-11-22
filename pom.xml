@@ -34,5 +34,6 @@
     </properties>
     <modules>
         <module>modules/langserver-core</module>
+        <module>modules/launchers</module>
     </modules>
 </project>
