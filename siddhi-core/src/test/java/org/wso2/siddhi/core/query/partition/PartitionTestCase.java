@@ -1454,9 +1454,10 @@ public class PartitionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String siddhiApp = "" +
-                "@app:async " +
-                "@app:name('PartitionTest') " +
+                "@app:name('PartitionTest')" +
+                "@async(buffer.size='2') " +
                 "define stream streamA (symbol string,  price int); " +
+                "@async(buffer.size='2') " +
                 "define stream streamB (symbol string,  price int); " +
                 "partition with (symbol of streamA,  symbol of streamB) " +
                 "begin " +

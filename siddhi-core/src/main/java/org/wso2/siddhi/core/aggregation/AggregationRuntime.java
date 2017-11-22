@@ -79,12 +79,13 @@ public class AggregationRuntime {
     private MatchingMetaInfoHolder alteredMatchingMetaInfoHolder;
 
     public AggregationRuntime(AggregationDefinition aggregationDefinition,
-            Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
-            Map<TimePeriod.Duration, Table> aggregationTables, SingleStreamRuntime singleStreamRuntime,
-            EntryValveExecutor entryValveExecutor, List<TimePeriod.Duration> incrementalDurations,
-            SiddhiAppContext siddhiAppContext, List<ExpressionExecutor> baseExecutors,
-            ExpressionExecutor timestampExecutor, MetaStreamEvent tableMetaStreamEvent,
-            List<ExpressionExecutor> outputExpressionExecutors,
+                              Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
+                              Map<TimePeriod.Duration, Table> aggregationTables,
+                              SingleStreamRuntime singleStreamRuntime,
+                              EntryValveExecutor entryValveExecutor, List<TimePeriod.Duration> incrementalDurations,
+                              SiddhiAppContext siddhiAppContext, List<ExpressionExecutor> baseExecutors,
+                              ExpressionExecutor timestampExecutor, MetaStreamEvent tableMetaStreamEvent,
+                              List<ExpressionExecutor> outputExpressionExecutors,
                               LatencyTracker latencyTrackerFind, ThroughputTracker throughputTrackerFind) {
         this.aggregationDefinition = aggregationDefinition;
         this.incrementalExecutorMap = incrementalExecutorMap;
@@ -111,14 +112,14 @@ public class AggregationRuntime {
     }
 
     private static void cloneStreamDefinition(StreamDefinition originalStreamDefinition,
-            StreamDefinition newStreamDefinition) {
+                                              StreamDefinition newStreamDefinition) {
         for (Attribute attribute : originalStreamDefinition.getAttributeList()) {
             newStreamDefinition.attribute(attribute.getName(), attribute.getType());
         }
     }
 
     private static MetaStreamEvent createNewMetaStreamEventWithStartEnd(MatchingMetaInfoHolder matchingMetaInfoHolder,
-            List<Attribute> additionalAttributes) {
+                                                                        List<Attribute> additionalAttributes) {
         MetaStreamEvent metaStreamEventWithStartEnd;
         StreamDefinition streamDefinitionWithStartEnd = new StreamDefinition();
 
@@ -146,7 +147,8 @@ public class AggregationRuntime {
         metaStateEvent.addEvent(newMetaStreamEventWithStartEnd);
         metaStateEvent.addEvent(incomingMetaStreamEvent);
 
-        return new MatchingMetaInfoHolder(metaStateEvent, 0, 1, newMetaStreamEventWithStartEnd.getLastInputDefinition(),
+        return new MatchingMetaInfoHolder(metaStateEvent, 0, 1,
+                newMetaStreamEventWithStartEnd.getLastInputDefinition(),
                 incomingMetaStreamEvent.getLastInputDefinition(), UNKNOWN_STATE);
     }
 
@@ -160,7 +162,8 @@ public class AggregationRuntime {
 
         metaStateEvent.addEvent(metaStreamEventWithStartEnd);
         metaStateEvent.addEvent(metaStreamEventForTable);
-        return new MatchingMetaInfoHolder(metaStateEvent, 0, 1, metaStreamEventWithStartEnd.getLastInputDefinition(),
+        return new MatchingMetaInfoHolder(metaStateEvent, 0, 1,
+                metaStreamEventWithStartEnd.getLastInputDefinition(),
                 tableDefinition, UNKNOWN_STATE);
     }
 
@@ -199,19 +202,21 @@ public class AggregationRuntime {
                 latencyTrackerFind.markIn();
                 throughputTrackerFind.eventIn();
             }// Retrieve per value
-        String perValueAsString = perExpressionExecutor.execute(matchingEvent).toString();
-        TimePeriod.Duration perValue = TimePeriod.Duration.valueOf(perValueAsString.toUpperCase());
-        if (!incrementalExecutorMap.keySet().contains(perValue)) {
-            throw new SiddhiAppRuntimeException("The aggregate values for " + perValue.toString()
-                    + " granularity cannot be provided since aggregation definition " + aggregationDefinition.getId()
-                    + " does not contain " + perValue.toString() + " duration");
-        }
+            String perValueAsString = perExpressionExecutor.execute(matchingEvent).toString();
+            TimePeriod.Duration perValue = TimePeriod.Duration.valueOf(perValueAsString.toUpperCase());
+            if (!incrementalExecutorMap.keySet().contains(perValue)) {
+                throw new SiddhiAppRuntimeException("The aggregate values for " + perValue.toString()
+                        + " granularity cannot be provided since aggregation definition " +
+                        aggregationDefinition.getId() + " does not contain " + perValue.toString() + " duration");
+            }
 
-        Table tableForPerDuration = aggregationTables.get(perValue);
+            Table tableForPerDuration = aggregationTables.get(perValue);
 
-Long[] startTimeEndTime = (Long[]) startTimeEndTimeExpressionExecutor.execute(matchingEvent);        return ((IncrementalAggregateCompileCondition) compiledCondition).find(matchingEvent, perValue,
-                incrementalExecutorMap, incrementalDurations, tableForPerDuration, baseExecutors, timestampExecutor,
-                outputExpressionExecutors, startTimeEndTime);} finally {
+            Long[] startTimeEndTime = (Long[]) startTimeEndTimeExpressionExecutor.execute(matchingEvent);
+            return ((IncrementalAggregateCompileCondition) compiledCondition).find(matchingEvent, perValue,
+                    incrementalExecutorMap, incrementalDurations, tableForPerDuration, baseExecutors,
+                    timestampExecutor, outputExpressionExecutors, startTimeEndTime);
+        } finally {
             if (latencyTrackerFind != null && siddhiAppContext.isStatsEnabled()) {
                 latencyTrackerFind.markOut();
             }
@@ -219,8 +224,10 @@ Long[] startTimeEndTime = (Long[]) startTimeEndTimeExpressionExecutor.execute(ma
     }
 
     public CompiledCondition compileExpression(Expression expression, Within within, Expression per,
-            MatchingMetaInfoHolder matchingMetaInfoHolder, List<VariableExpressionExecutor> variableExpressionExecutors,
-            Map<String, Table> tableMap, String queryName, SiddhiAppContext siddhiAppContext) {
+                                               MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                               List<VariableExpressionExecutor> variableExpressionExecutors,
+                                               Map<String, Table> tableMap, String queryName,
+                                               SiddhiAppContext siddhiAppContext) {
 
         Map<TimePeriod.Duration, CompiledCondition> withinTableCompiledConditions = new HashMap<>();
         CompiledCondition withinInMemoryCompileCondition;
@@ -268,18 +275,18 @@ Long[] startTimeEndTime = (Long[]) startTimeEndTimeExpressionExecutor.execute(ma
         Expression end = Expression.variable(additionalAttributes.get(1).getName());
         Expression compareWithStartTime = Compare.compare(start, Compare.Operator.LESS_THAN_EQUAL,
                 Expression.variable("_TIMESTAMP"));
-        Expression compareWithEndTime = Compare.compare(Expression.variable("_TIMESTAMP"), Compare.Operator.LESS_THAN,
-                end);
+        Expression compareWithEndTime = Compare.compare(Expression.variable("_TIMESTAMP"),
+                Compare.Operator.LESS_THAN, end);
         withinExpression = Expression.and(compareWithStartTime, compareWithEndTime);
 
         // Create start and end time expression
         Expression startEndTimeExpression;
         if (within.getTimeRange().size() == 1) {
-            startEndTimeExpression = new AttributeFunction("incrementalAggregator", "startTimeEndTime",
-                    within.getTimeRange().get(0));
+            startEndTimeExpression = new AttributeFunction("incrementalAggregator",
+                    "startTimeEndTime", within.getTimeRange().get(0));
         } else { // within.getTimeRange().size() == 2
-            startEndTimeExpression = new AttributeFunction("incrementalAggregator", "startTimeEndTime",
-                    within.getTimeRange().get(0), within.getTimeRange().get(1));
+            startEndTimeExpression = new AttributeFunction("incrementalAggregator",
+                    "startTimeEndTime", within.getTimeRange().get(0), within.getTimeRange().get(1));
         }
 
         startTimeEndTimeExpressionExecutor = ExpressionParser.parseExpression(startEndTimeExpression,
@@ -290,7 +297,8 @@ Long[] startTimeEndTime = (Long[]) startTimeEndTimeExpressionExecutor.execute(ma
         // These compile conditions are used to check whether the aggregates in tables are within the given duration.
         for (Map.Entry<TimePeriod.Duration, Table> entry : aggregationTables.entrySet()) {
             CompiledCondition withinTableCompileCondition = entry.getValue().compileCondition(withinExpression,
-                    streamTableMetaInfoHolderWithStartEnd, siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
+                    streamTableMetaInfoHolderWithStartEnd, siddhiAppContext, variableExpressionExecutors, tableMap,
+                    queryName);
             withinTableCompiledConditions.put(entry.getKey(), withinTableCompileCondition);
         }
 
@@ -298,8 +306,8 @@ Long[] startTimeEndTime = (Long[]) startTimeEndTimeExpressionExecutor.execute(ma
         // This compile condition is used to check whether the running aggregates (in-memory data)
         // are within given duration
         withinInMemoryCompileCondition = OperatorParser.constructOperator(new ComplexEventChunk<>(true),
-                withinExpression, streamTableMetaInfoHolderWithStartEnd, siddhiAppContext, variableExpressionExecutors, tableMap,
-                queryName);
+                withinExpression, streamTableMetaInfoHolderWithStartEnd, siddhiAppContext, variableExpressionExecutors,
+                tableMap, queryName);
 
         // TODO: 8/11/17 optimize on and to retrieve group by
         // On compile condition.

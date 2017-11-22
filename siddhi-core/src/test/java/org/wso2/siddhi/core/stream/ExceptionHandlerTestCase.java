@@ -54,8 +54,8 @@ public class ExceptionHandlerTestCase {
         siddhiManager = new SiddhiManager();
         String siddhiApp = "" +
                 "@app:name('callbackTest1') " +
-                "@app:async " +
                 "" +
+                "@async(buffer.size='2')" +
                 "define stream StockStream (symbol string, price float, volume long);" +
                 "" +
                 "@info(name = 'query1') " +
