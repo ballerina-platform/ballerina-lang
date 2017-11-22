@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,10 +53,18 @@ public class Send extends AbstractNativeFunction {
         BStruct responseStruct = (BStruct) getRefArgument(context, 0);
         HttpUtil.methodInvocationCheck(responseStruct);
         HttpUtil.operationNotAllowedCheck(responseStruct);
+
         AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.ANN_NAME_CONFIG);
-        boolean keepAlive = configAnn.getAttributeValue(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE).getBooleanValue();
-        context.getConnectorFuture().notifyReply(responseStruct, new BBoolean(keepAlive));
+        AnnAttributeValue keepAliveAttrVal = configAnn.getAttributeValue(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE);
+
+        if (keepAliveAttrVal != null) {
+            context.getConnectorFuture().notifyReply(responseStruct, new BBoolean(keepAliveAttrVal.getBooleanValue()));
+        } else {
+            // default behaviour: keepAlive = true
+            context.getConnectorFuture().notifyReply(responseStruct, new BBoolean(true));
+        }
+
         return VOID_RETURN;
     }
 }
