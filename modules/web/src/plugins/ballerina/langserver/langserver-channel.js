@@ -99,9 +99,9 @@ class LangserverChannel extends EventChannel {
     }
 
     /**
-     * Default web socket close event handler. This will be called upon websocket onClose event, only if 
-     * there is no any other wscloseEventHandler is specified while LangserverChannel initialization.   
-     * @param {Object} event 
+     * Default web socket close event handler. This will be called upon websocket onClose event, only if
+     * there is no any other wscloseEventHandler is specified while LangserverChannel initialization.
+     * @param {Object} event
      */
     defaultWsCloseEventHandler(event) {
         this.clientController.active = false;

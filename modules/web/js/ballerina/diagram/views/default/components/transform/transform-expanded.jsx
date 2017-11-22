@@ -22,6 +22,8 @@ import _ from 'lodash';
 import $ from 'jquery';
 import { Scrollbars } from 'react-custom-scrollbars';
 import log from 'log';
+import { getLangServerClientInstance } from 'plugins/ballerina/langserver/lang-server-client-controller';
+import { getResolvedTypeData } from 'plugins/ballerina/langserver/lang-server-utils';
 import TransformRender from './transform-render';
 import TransformNodeManager from './transform-node-manager';
 import SuggestionsDropdown from './transform-endpoints-dropdown';
@@ -29,8 +31,6 @@ import TransformerNode from '../../../../../model/tree/abstract-tree/transformer
 import Tree from './tree';
 import FunctionInv from './function';
 import Operator from './operator';
-import { getLangServerClientInstance } from './../../../../../../langserver/lang-server-client-controller';
-import { getResolvedTypeData } from './../../../../../../langserver/lang-server-utils';
 import TreeUtil from '../../../../../model/tree-util';
 import DropZone from '../../../../../drag-drop/DropZone';
 import { CHANGE_EVT_TYPES } from 'ballerina/views/constants';

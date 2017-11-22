@@ -25,10 +25,10 @@ import SourceViewCompleterFactory from 'ballerina/utils/source-view-completer-fa
 
 /**
  * Test completions
- * @param {object} cursorPosition 
- * @param {object} testFilePath 
- * @param {string} testFileName 
- * @param {function} done 
+ * @param {object} cursorPosition
+ * @param {object} testFilePath
+ * @param {string} testFileName
+ * @param {function} done
  */
 
 export function testCompletions(cursorPosition, directory, testFileName, expectedFile, done, getCompareCallback) {
@@ -38,12 +38,12 @@ export function testCompletions(cursorPosition, directory, testFileName, expecte
     const compareCallback = getCompareCallback(expectedFileContent, done);
     const testFile = path.resolve(path.join(testFilePath, testFileName));
     const testFileContent = readFile(testFile);
-    const fileData = { "fileName": testFileName, "filePath": testFilePath, "packageName": '.' };
+    const fileData = { fileName: testFileName, filePath: testFilePath, packageName: '.' };
     const sourceViewCompleterFactory = new SourceViewCompleterFactory();
 
-    let opts = {
-        wsCloseEventHandler: wsCloseEventHandler
-    }
+    const opts = {
+        wsCloseEventHandler,
+    };
     getLangServerClientInstance(opts)
         .then((langserverClient) => {
             sourceViewCompleterFactory.getCompletions(cursorPosition, testFileContent, fileData, langserverClient, compareCallback);
@@ -59,12 +59,12 @@ export function close(callback) {
         .then((langserverClient) => {
             langserverClient.close();
             callback();
-        })
+        });
 }
 
 /**
  * Read the given file and return the content
- * @param {*} filePath 
+ * @param {*} filePath
  */
 function readFile(filePath) {
     return fs.readFileSync(filePath, 'utf8');
@@ -72,7 +72,7 @@ function readFile(filePath) {
 
 /**
  * web socket close event handler.
- * @param {Object} event 
+ * @param {Object} event
  */
 function wsCloseEventHandler(event) {
     // no need to do anything specially as this is a close event handler for a test case.

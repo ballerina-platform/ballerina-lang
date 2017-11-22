@@ -24,8 +24,8 @@ import SwaggerImportPlugin from 'plugins/import-swagger/plugin';
 import SwaggerParser from 'ballerina/swagger-parser/swagger-parser';
 import TreeBuilder from 'ballerina/model/tree-builder';
 
-/* global describe*/
-/* global it*/
+/* global describe */
+/* global it */
 
 const directory = process.env.DIRECTORY ? process.env.DIRECTORY : '';
 
@@ -51,7 +51,7 @@ function ballerinaASTDeserializer(fileContent) {
 describe('Ballerina Composer Test Suite', () => {
     describe('Swagger to Ballerina Tests', () => {
         // fetch configs before proceeding
-        /* global before*/
+        /* global before */
         before((beforeAllDone) => {
             fetchConfigs()
                 .then(() => beforeAllDone())

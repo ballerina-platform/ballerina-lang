@@ -21,9 +21,9 @@ import PropTypes from 'prop-types';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import { Overlay, Popover } from 'react-bootstrap/lib';
 import classNames from 'classnames';
-import File from './../../../src/core/workspace/model/file';
+import File from 'core/workspace/model/file';
+import { GO_TO_POSITION } from 'plugins/ballerina/constants/commands';
 import { DESIGN_VIEW } from './constants';
-import { GO_TO_POSITION } from './../../constants/commands';
 import SourceEditor from './source-editor';
 
 /**
@@ -88,10 +88,10 @@ class SourceView extends React.Component {
 
         const errorListPopover = (
             <Popover
-                id="syntax-errors-list-popover"
+                id='syntax-errors-list-popover'
                 title={
                     <div>
-                        <i className="fw fw-alert fw-lg" />
+                        <i className='fw fw-alert fw-lg' />
                         <span>Cannot update design view due to syntax errors</span>
                     </div>
                 }
@@ -104,13 +104,13 @@ class SourceView extends React.Component {
                     autoHideTimeout={1000}
                     universal
                 >
-                    <ul className="list-group">
+                    <ul className='list-group'>
                         {
                             this.state.syntaxErrors.map((error, index) => {
                                 return (
                                     <li
                                         key={error.row + error.column + btoa(error.text) + index}
-                                        className="list-group-item syntax-error"
+                                        className='list-group-item syntax-error'
                                         onClick={() => {
                                             this.props.commandProxy
                                                 .dispatch(GO_TO_POSITION, {
@@ -121,7 +121,7 @@ class SourceView extends React.Component {
                                         }}
                                     >
                                         <div>
-                                            <span className="line">line {error.row + 1 + ' '}</span>
+                                            <span className='line'>line {error.row + 1 + ' '}</span>
                                             :{' ' + error.text}
                                         </div>
                                     </li>
@@ -135,7 +135,7 @@ class SourceView extends React.Component {
 
         return (
             <div
-                className="source-view-container"
+                className='source-view-container'
                 onClick={
                     () => {
                         if (this.state.displayErrorList) {
@@ -143,9 +143,9 @@ class SourceView extends React.Component {
                         }
                     }
                 }
-                style={{ display: this.props.show ? 'block' : 'none'}}
+                style={{ display: this.props.show ? 'block' : 'none' }}
             >
-                <div className="outerSourceDiv">
+                <div className='outerSourceDiv'>
                     <SourceEditor
                         commandProxy={this.props.commandProxy}
                         file={this.props.file}
@@ -168,11 +168,11 @@ class SourceView extends React.Component {
                         <div className={classNames('view-design-btn btn-icon',
                                     { target: this.state.displayErrorList })}
                         >
-                            <div className="bottom-label-icon-wrapper">
-                                <i className="fw fw-design-view fw-inverse" />
+                            <div className='bottom-label-icon-wrapper'>
+                                <i className='fw fw-design-view fw-inverse' />
                             </div>
                             <div
-                                className="bottom-view-label"
+                                className='bottom-view-label'
                                 ref={(ref) => {
                                     this.errorListPopoverTarget = ref;
                                 }}
@@ -184,7 +184,7 @@ class SourceView extends React.Component {
                                     show={this.state.displayErrorList}
                                     container={this}
                                     target={this.errorListPopoverTarget}
-                                    placement="top"
+                                    placement='top'
                                 >
                                     {errorListPopover}
                                 </Overlay>
@@ -192,15 +192,15 @@ class SourceView extends React.Component {
                         </div>
                         {hasSyntaxErrors && !this.state.displayErrorList &&
                             <CSSTransitionGroup
-                                transitionName="error-count-badge"
+                                transitionName='error-count-badge'
                                 transitionEnterTimeout={300}
                                 transitionLeaveTimeout={300}
                             >
                                 <div
-                                    className="syntax-errors-counter-container"
+                                    className='syntax-errors-counter-container'
                                     onClick={this.toggleErrorListPopover}
                                 >
-                                    <span className="badge">{this.state.syntaxErrors.length}</span>
+                                    <span className='badge'>{this.state.syntaxErrors.length}</span>
                                 </div>
                             </CSSTransitionGroup>
                         }

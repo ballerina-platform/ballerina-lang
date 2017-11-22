@@ -132,7 +132,7 @@ class CompleterFactory {
                 if (this.paramDec.exec(editor.getSession().getValue())) {
                     return [];
                 }
-                //TODO: Remove these conditions as the language server support scoped filtering.
+                // TODO: Remove these conditions as the language server support scoped filtering.
                 const isPackageSearch = editor.getSession().getValue().trim().includes('@')
                     && !editor.getSession().getValue().trim().includes(':')
                     && !editor.getSession().getValue().trim().includes('{')
@@ -166,11 +166,11 @@ class CompleterFactory {
                     const annotations = this.filterAnnotationsByAttachementPoint(filteredPackages, 'parameter');
 
                     for (let i = 0; i < annotations.length; i++) {
-                        let annotation = annotations[i];
+                        const annotation = annotations[i];
                         completions.push({ name: annotation._name, value: `${annotation._name}{`, meta: 'annotation' });
                     }
                 } else if (isPackageSearch) {
-                    let packageName = editor.getSession().getValue().trim().split('@')[1];
+                    const packageName = editor.getSession().getValue().trim().split('@')[1];
                     const packages = BallerinaEnvironment
                         .searchPackage(packageName, null);
                     const filteredPackages = this.filterPackageByAnnotationAttachmentPoint(packages, 'parameter');
@@ -184,7 +184,7 @@ class CompleterFactory {
                     const openBracketSignIndex = editor.getSession().getValue().trim().indexOf('{');
                     const colonSignIndex = editor.getSession().getValue().trim().indexOf(':');
                     const packageName = editor.getSession().getValue().trim().slice(atSignIndex + 1, colonSignIndex);
-                    let annotationName = editor.getSession().getValue().trim().slice(colonSignIndex + 1, openBracketSignIndex);
+                    const annotationName = editor.getSession().getValue().trim().slice(colonSignIndex + 1, openBracketSignIndex);
                     const packages = BallerinaEnvironment
                         .searchPackage(packageName, null);
                     const filteredPackages = this.filterPackageByAnnotationAttachmentPoint(packages, 'parameter');
@@ -217,7 +217,7 @@ class CompleterFactory {
                 }
                 const types = BallerinaEnvironment.getTypes();
                 let completions = types.map(item => ({ name: item, value: `${item} `, meta: 'type' }));
-                completions.push({ name: 'const', value: `const `, meta: 'type' });
+                completions.push({ name: 'const', value: 'const ', meta: 'type' });
                 completions.push({ name: 'function', caption: 'function', snippet: 'ƒ', meta: 'lambda' });
                 completions.push({ name: 'function', caption: 'lambda', snippet: 'ƒ', meta: 'lambda' });
                 const isAssignment = editor.getSession().getValue().trim().includes('=');
@@ -258,11 +258,11 @@ class CompleterFactory {
      * @return {object[]} filtered packages
      * */
     filterPackageByAnnotationAttachmentPoint(packages, attachmentPoint) {
-        let filteredPackages = [];
+        const filteredPackages = [];
         for (let i = 0; i < packages.length; i++) {
             let isAttachmentPointAvailable = false;
             for (let j = 0; j < packages[i]._annotationDefinitions.length; j++) {
-                let annotation = packages[i]._annotationDefinitions[j];
+                const annotation = packages[i]._annotationDefinitions[j];
                 if (annotation._attachmentPoints.indexOf(attachmentPoint) > -1) {
                     isAttachmentPointAvailable = true;
                     break;
@@ -283,10 +283,10 @@ class CompleterFactory {
      * @return {object[]} filtered annotations
      * */
     filterAnnotationsByAttachementPoint(packages, attachmentPoint) {
-        let annotations = [];
+        const annotations = [];
         for (let i = 0; i < packages.length; i++) {
             for (let j = 0; j < packages[i]._annotationDefinitions.length; j++) {
-                let annotation = packages[i]._annotationDefinitions[j];
+                const annotation = packages[i]._annotationDefinitions[j];
                 if (annotation._attachmentPoints.indexOf(attachmentPoint) > -1) {
                     annotations.push(annotation);
                 }
@@ -302,7 +302,7 @@ class CompleterFactory {
      * @return {object[]} filtered annotation definitions.
      * */
     getAnnotationDefinitions(annotation) {
-        let definitions = [];
+        const definitions = [];
         for (let i = 0; i < annotation._annotationAttributeDefinitions.length; i++) {
             definitions.push(annotation._annotationAttributeDefinitions[i]._identifier);
         }
@@ -318,7 +318,7 @@ class CompleterFactory {
     getAnnotationByName(annotations, annotationName) {
         return annotations.filter((annotation) => {
             return annotation._name === annotationName;
-        })
+        });
     }
 
     /**
@@ -327,7 +327,7 @@ class CompleterFactory {
      * @return {string} shortened name.
      * */
     getShortNameForPackage(packageName) {
-        let tokens = packageName.split('.');
+        const tokens = packageName.split('.');
         return tokens[tokens.length - 1];
     }
 }

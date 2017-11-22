@@ -16,9 +16,9 @@
  * under the License.
  */
 import _ from 'lodash';
+import TypeLattice from 'plugins/ballerina/type-lattice/type-lattice';
 import Package from './package';
 import Environment from './environment';
-import TypeLattice from './../../type-lattice/type-lattice';
 
 class PackageScopedEnvironment {
     constructor(args) {

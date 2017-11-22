@@ -27,11 +27,9 @@ import { testCompletions, close } from './language-server-test-base';
 const directory = process.env.DIRECTORY ? process.env.DIRECTORY : '';
 
 describe('Ballerina Composer Test Suite', () => {
-
-    describe("Language server Tests", () => {
-
+    describe('Language server Tests', () => {
         // fetch configs before proceeding
-        /* global before*/
+        /* global before */
         before((beforeAllDone) => {
             fetchConfigs()
                 .then(() => beforeAllDone())
@@ -44,7 +42,7 @@ describe('Ballerina Composer Test Suite', () => {
 
         // General tests
 
-        it("Global level completions", function (done) {
+        it('Global level completions', function (done) {
             this.timeout(10000);
             const testFile = 'echoService.bal';
             const expectedFile = 'echoService_case1.js';
@@ -52,7 +50,7 @@ describe('Ballerina Composer Test Suite', () => {
             testCompletions(cursorPosition, directory, testFile, expectedFile, done, compareWithOrderCallback);
         });
 
-        it("Service level completions", function (done) {
+        it('Service level completions', function (done) {
             this.timeout(10000);
             const testFile = 'echoService.bal';
             const expectedFile = 'echoService_case2.js';
@@ -60,7 +58,7 @@ describe('Ballerina Composer Test Suite', () => {
             testCompletions(cursorPosition, directory, testFile, expectedFile, done, compareWithOrderCallback);
         });
 
-        it("Resource level completions", function (done) {
+        it('Resource level completions', function (done) {
             this.timeout(10000);
             const testFile = 'echoService.bal';
             const expectedFile = 'echoService_case3.js';
@@ -68,7 +66,7 @@ describe('Ballerina Composer Test Suite', () => {
             testCompletions(cursorPosition, directory, testFile, expectedFile, done, compareWithoutOrderCallback);
         });
 
-        it("If-1 level completions", function (done) {
+        it('If-1 level completions', function (done) {
             this.timeout(10000);
             const testFile = 'echoService.bal';
             const expectedFile = 'echoService_case4.js';
@@ -76,7 +74,7 @@ describe('Ballerina Composer Test Suite', () => {
             testCompletions(cursorPosition, directory, testFile, expectedFile, done, compareWithoutOrderCallback);
         });
 
-        it("If-2 level completions", function (done) {
+        it('If-2 level completions', function (done) {
             this.timeout(10000);
             const testFile = 'echoService.bal';
             const expectedFile = 'echoService_case5.js';
@@ -84,7 +82,7 @@ describe('Ballerina Composer Test Suite', () => {
             testCompletions(cursorPosition, directory, testFile, expectedFile, done, compareWithoutOrderCallback);
         });
 
-        it("While level completions", function (done) {
+        it('While level completions', function (done) {
             this.timeout(10000);
             const testFile = 'echoService.bal';
             const expectedFile = 'echoService_case6.js';
@@ -94,7 +92,7 @@ describe('Ballerina Composer Test Suite', () => {
 
         // Import tests
 
-        it("Import level-0 completions", function (done) {
+        it('Import level-0 completions', function (done) {
             this.timeout(10000);
             const testFile = 'import.bal';
             const expectedFile = 'import-case1.js';
@@ -102,7 +100,7 @@ describe('Ballerina Composer Test Suite', () => {
             testCompletions(cursorPosition, directory, testFile, expectedFile, done, compareWithOrderCallback);
         });
 
-        it("Import level-1 completions", function (done) {
+        it('Import level-1 completions', function (done) {
             this.timeout(10000);
             const testFile = 'import.bal';
             const expectedFile = 'import-case2.js';
@@ -110,7 +108,7 @@ describe('Ballerina Composer Test Suite', () => {
             testCompletions(cursorPosition, directory, testFile, expectedFile, done, compareWithOrderCallback);
         });
 
-        it("Import level-2 completions", function (done) {
+        it('Import level-2 completions', function (done) {
             this.timeout(10000);
             const testFile = 'import.bal';
             const expectedFile = 'import-case3.js';
@@ -120,7 +118,7 @@ describe('Ballerina Composer Test Suite', () => {
 
         // connector action tests
 
-        it("Sql connector completions", function (done) {
+        it('Sql connector completions', function (done) {
             this.timeout(10000);
             const testFile = 'sqlConnector.bal';
             const expectedFile = 'sql-connector-case1.js';
@@ -130,7 +128,7 @@ describe('Ballerina Composer Test Suite', () => {
 
         // functions from external packages
 
-        it("External function completions", function (done) {
+        it('External function completions', function (done) {
             this.timeout(10000);
             const testFile = 'externalFunction.bal';
             const expectedFile = 'external-function-case1.js';
@@ -144,14 +142,14 @@ describe('Ballerina Composer Test Suite', () => {
                 function comparator(a, b) {
                     return (a.caption === b.caption) && (a.snippet === b.snippet) && (a.meta === b.meta);
                 }
-                const expectedJSON= JSON.parse(expectedFileContent);
-                let intersection = _.intersectionWith(completions, expectedJSON, comparator);
+                const expectedJSON = JSON.parse(expectedFileContent);
+                const intersection = _.intersectionWith(completions, expectedJSON, comparator);
 
                 if (!((completions.length === expectedJSON.length) && (completions.length === intersection.length))) {
-                    throw new Error("Fail - Incompatible content. \nExpect + Actual -\n" + "+  " + expectedFileContent + "\n -  " + JSON.stringify(completions));
+                    throw new Error('Fail - Incompatible content. \nExpect + Actual -\n' + '+  ' + expectedFileContent + '\n -  ' + JSON.stringify(completions));
                 }
                 done();
-            }
+            };
         }
 
         // returns a callback function to validate generated completions. Order of elements of two arrays should be same.
@@ -159,10 +157,8 @@ describe('Ballerina Composer Test Suite', () => {
             return function (x, completions) {
                 expect(JSON.parse(expectedFileContent)).to.deep.equal(completions);
                 done();
-            }
+            };
         }
-
     });
-
 });
 

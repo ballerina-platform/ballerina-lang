@@ -31,13 +31,14 @@ class Document extends React.Component {
      * @return {object} documentation for the given package.
      * */
     render() {
-        let source = `${getServiceEndpoint('documentation')}/${this.props.packageName}.html` +
+        const source = `${getServiceEndpoint('documentation')}/${this.props.packageName}.html` +
             (this.props.symbolName ? '#' + this.props.symbolName : '');
 
         return (<div className='initial-doc-background-container'>
-            <iframe className='docerina-page'
-                    src={source}
-                    id={"doc"}
+            <iframe
+                className='docerina-page'
+                src={source}
+                id={'doc'}
             />
         </div>);
     }

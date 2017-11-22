@@ -23,7 +23,7 @@ import PropTypes from 'prop-types';
 import { parseContent } from 'api-client/api-client';
 import './import-declaration-item.css';
 import TreeBuilder from './../../../../../model/tree-builder';
-import ExpressionEditor from '../../../../../../expression-editor/expression-editor-utils';
+import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 
 export default class importDeclarationItem extends React.Component {
     constructor() {

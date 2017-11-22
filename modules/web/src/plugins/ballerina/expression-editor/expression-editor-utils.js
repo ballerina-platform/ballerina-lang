@@ -19,11 +19,11 @@ import log from 'log';
 import 'brace';
 import 'brace/ext/language_tools';
 import 'brace/ext/searchbox';
-import '../ballerina/utils/ace-mode';
-import DesignViewCompleterFactory from './../ballerina/utils/design-view-completer-factory';
-import { getLangServerClientInstance } from './../langserver/lang-server-client-controller';
-import TreeUtil from './../ballerina/model/tree-util';
-import splitVariableDefByLambda from './../ballerina/model/lambda-util';
+import 'ballerina/utils/ace-mode';
+import DesignViewCompleterFactory from 'ballerina/utils/design-view-completer-factory';
+import TreeUtil from 'ballerina/model/tree-util';
+import splitVariableDefByLambda from 'ballerina/model/lambda-util';
+import { getLangServerClientInstance } from 'plugins/ballerina/langserver/lang-server-client-controller';
 
 const ace = global.ace;
 const Range = ace.acequire('ace/range');
@@ -33,7 +33,7 @@ function requireAll(requireContext) {
     return requireContext.keys().map(requireContext);
 }
 
-requireAll(require.context('ace', false, /theme-/));
+requireAll(require.context('brace', false, /theme-/));
 
 // require ballerina mode
 const mode = ace.acequire('ace/mode/ballerina');
@@ -246,7 +246,7 @@ class ExpressionEditor {
                 let text = this._editor.getSession().getValue();
                 const textWithSemicolon = [text.slice(0, curser), ';', text.slice(curser)].join('');
                 if (this.end_check.exec(textWithSemicolon)) {
-                    text = text + ';';
+                    text += ';';
                     // If setter method is available use it, else use setSource.
                     if (props.setterMethod instanceof Function) {
                         props.setterMethod.call(props.model, text);

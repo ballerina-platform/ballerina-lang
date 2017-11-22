@@ -40,7 +40,7 @@ export function getResolvedTypeData(completionItem) {
                 constraintPkgName = null;
             }
             constraint = { type: data.constraintName, packageName: constraintPkgName };
-            typeName = 'json'
+            typeName = 'json';
         }
     }
     return ({ typeName, packageName, constraint });

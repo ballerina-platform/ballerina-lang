@@ -65,9 +65,9 @@ class LangServerClientController extends EventChannel {
             });
             this.langserverChannel.on('close', () => {
                 // call all pending requests
-                this.requestSessions.forEach(session => {
+                this.requestSessions.forEach((session) => {
                     session.executeCallback();
-                })
+                });
             });
         });
     }
@@ -211,11 +211,11 @@ class LangServerClientController extends EventChannel {
         return new Promise((resolve) => {
             session.setMessage(message);
             session.setCallback((responseMsg) => {
-                callback ? callback(responseMsg): resolve(responseMsg)
+                callback ? callback(responseMsg) : resolve(responseMsg);
             });
             this.requestSessions.push(session);
             this.langserverChannel.sendMessage(message);
-        })
+        });
     }
 
     /**
@@ -298,7 +298,7 @@ class LangServerClientController extends EventChannel {
     }
 
     /**
-     * Invoke close function of the langserver channel. 
+     * Invoke close function of the langserver channel.
      */
     close() {
         this.langserverChannel.close();

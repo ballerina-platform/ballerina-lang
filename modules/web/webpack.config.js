@@ -156,9 +156,7 @@ const config = [{
             // ////////////////////
             log: 'core/log/log',
             event_channel: 'core/event/channel',
-            ace: 'ace-builds/src-noconflict',
-            alerts: 'utils/alerts',
-            expression_editor_utils: 'expression-editor/expression-editor-utils',
+            plugins: 'plugins',
             images: 'public/images',
         },
     },

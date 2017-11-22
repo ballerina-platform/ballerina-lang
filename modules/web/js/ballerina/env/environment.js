@@ -19,10 +19,10 @@ import log from 'log';
 import _ from 'lodash';
 import EventChannel from 'event_channel';
 import { getTypeLattice, getOperatorLattice } from 'api-client/api-client';
+import { getLangServerClientInstance } from 'plugins/ballerina/langserver/lang-server-client-controller';
+import TypeLattice from 'plugins/ballerina/type-lattice/type-lattice';
+import OperatorLattice from 'plugins/ballerina/type-lattice/operator-lattice';
 import BallerinaEnvFactory from './ballerina-env-factory';
-import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
-import TypeLattice from './../../type-lattice/type-lattice';
-import OperatorLattice from './../../type-lattice/operator-lattice';
 
 
 /**
@@ -61,7 +61,7 @@ class BallerinaEnvironment extends EventChannel {
                 getLangServerClientInstance()
                     .then((langServerClient) => {
                         langServerClient.workspaceSymbolRequest('builtinTypes', (data) => {
-                            if(!data){
+                            if (!data) {
                                 reject();
                                 return;
                             }

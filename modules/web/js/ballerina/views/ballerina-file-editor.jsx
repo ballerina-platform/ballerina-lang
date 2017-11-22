@@ -24,6 +24,8 @@ import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import DebugManager from 'plugins/debugger/DebugManager/DebugManager'; // FIXME: Importing from debugger plugin
 import TreeUtil from 'js/ballerina/model/tree-util.js';
 import { parseFile } from 'api-client/api-client';
+import { CONTENT_MODIFIED, UNDO_EVENT, REDO_EVENT } from 'plugins/ballerina/constants/events';
+import { GO_TO_POSITION, FORMAT } from 'plugins/ballerina/constants/commands';
 import DesignView from './design-view.jsx';
 import SourceView from './source-view.jsx';
 import SwaggerView from './swagger-view.jsx';
@@ -32,8 +34,6 @@ import PackageScopedEnvironment from './../env/package-scoped-environment';
 import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
 import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES, CLASSES } from './constants';
-import { CONTENT_MODIFIED, UNDO_EVENT, REDO_EVENT } from './../../constants/events';
-import { OPEN_SYMBOL_DOCS, GO_TO_POSITION, FORMAT } from './../../constants/commands';
 import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
 import SyncLineNumbersVisitor from './../visitors/sync-line-numbers';
 import SyncBreakpointsVisitor from './../visitors/sync-breakpoints';
@@ -698,14 +698,14 @@ class BallerinaFileEditor extends React.Component {
                 className='bal-file-editor grid-background '
             >
                 <CSSTransitionGroup
-                    transitionName="loading-overlay"
+                    transitionName='loading-overlay'
                     transitionEnterTimeout={300}
                     transitionLeaveTimeout={300}
                 >
                     {this.props.isPreviewViewEnabled && !_.isEmpty(this.state.syntaxErrors) &&
                         <div className='syntax-error-overlay'>
-                            <div className="error-list">
-                                <div className="list-heading">
+                            <div className='error-list'>
+                                <div className='list-heading'>
                                     Cannot update design view due to below syntax errors.
                                 </div>
                                 <Scrollbars
@@ -714,7 +714,7 @@ class BallerinaFileEditor extends React.Component {
                                     autoHide
                                     autoHideTimeout={1000}
                                 >
-                                    <ul className="errors">
+                                    <ul className='errors'>
                                         {this.state.syntaxErrors.map(({ row, column, text }) => {
                                             return (
                                                 <li>
@@ -729,7 +729,7 @@ class BallerinaFileEditor extends React.Component {
                     }
                     {showLoadingOverlay &&
                         <div className='bal-file-editor-loading-container'>
-                            <div id="parse-pending-loader">
+                            <div id='parse-pending-loader'>
                                 Loading
                             </div>
                         </div>

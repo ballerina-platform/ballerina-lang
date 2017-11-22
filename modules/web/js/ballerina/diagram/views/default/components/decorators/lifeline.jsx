@@ -20,9 +20,9 @@
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import SimpleBBox from './../../../../../model/view/simple-bounding-box';
 import { lifeLine } from './../../designer-defaults';
-import ExpressionEditor from 'expression_editor_utils';
 import * as DesignerDefaults from './../../designer-defaults';
 import TreeUtils from './../../../../../model/tree-util';
 import OverlayComponentsRenderingUtil from './../utils/overlay-component-rendering-util';
