@@ -650,7 +650,6 @@ public class HttpUtil {
             if (sslProtocolAttrVal != null) {
                 httpsPropMap.put(Constants.ANN_CONFIG_ATTR_SSL_PROTOCOL, sslProtocolAttrVal.getStringValue());
             }
-            httpsPropMap.put(Constants.TLS_STORE_TYPE, Constants.PKCS_STORE_TYPE);
             listenerConfMap.put(buildInterfaceName(httpsPropMap), httpsPropMap);
         }
         return listenerConfMap;

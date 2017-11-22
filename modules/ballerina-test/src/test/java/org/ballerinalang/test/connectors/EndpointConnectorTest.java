@@ -115,6 +115,15 @@ public class EndpointConnectorTest {
                 "FooFilter1-val2-para1-Foo-val2-");
     }
 
+    @Test(description = "Test connector with struct as a field variable")
+    public void testConnectorWithStructVar() {
+        BValue[] returns = BRunUtil.invoke(result, "testConnectorWithStructVar");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "name - tyler");
+    }
+
     @Test(description = "Test empty endpoint invocation", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testEmptyEndpointInvocation() {

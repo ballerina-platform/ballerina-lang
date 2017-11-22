@@ -4,9 +4,9 @@ import ballerina.net.http;
 @http:configuration {
     basePath:"/hello",
     httpsPort:9095,
-    keyStoreFile:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-    keyStorePassword:"ballerina",
-    certPassword:"ballerina"
+    keyStoreFile:"${ballerina.home}/bre/security/wso2carbon.jks",
+    keyStorePassword:"wso2carbon",
+    certPassword:"wso2carbon"
 }
 
 service<http> helloWorld {
