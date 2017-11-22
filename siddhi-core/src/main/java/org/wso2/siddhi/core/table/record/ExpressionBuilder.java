@@ -234,8 +234,9 @@ public class ExpressionBuilder {
             } else if (expression instanceof Constant) {
                 if (expression instanceof DoubleConstant) {
                     expressionVisitor.beginVisitConstant(((DoubleConstant) expression).getValue(),
-                            Attribute.Type.BOOL);
-                    expressionVisitor.endVisitConstant(((DoubleConstant) expression).getValue(), Attribute.Type.BOOL);
+                            Attribute.Type.DOUBLE);
+                    expressionVisitor.endVisitConstant(((DoubleConstant) expression).getValue(),
+                            Attribute.Type.DOUBLE);
                 } else if (expression instanceof StringConstant) {
                     expressionVisitor.beginVisitConstant(((StringConstant) expression).getValue(),
                             Attribute.Type.STRING);
