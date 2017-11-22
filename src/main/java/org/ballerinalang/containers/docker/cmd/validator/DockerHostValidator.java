@@ -24,7 +24,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 /**
- * Validates Docker Host URL pattern
+ * Validates Docker Host URL pattern.
  */
 public class DockerHostValidator implements IParameterValidator {
 
