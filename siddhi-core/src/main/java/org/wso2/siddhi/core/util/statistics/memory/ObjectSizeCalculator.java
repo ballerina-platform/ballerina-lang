@@ -24,6 +24,18 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Sets;
+import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
+import org.wso2.siddhi.core.query.output.callback.OutputCallback;
+import org.wso2.siddhi.core.stream.StreamJunction;
+import org.wso2.siddhi.core.stream.output.StreamCallback;
+import org.wso2.siddhi.core.table.record.AbstractRecordTable;
+import org.wso2.siddhi.core.util.statistics.BufferedEventsTracker;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.wso2.siddhi.core.util.statistics.MemoryCalculable;
+import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
+import org.wso2.siddhi.core.util.statistics.StatisticsManager;
+import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
@@ -52,6 +64,8 @@ import java.util.Set;
  * @author Attila Szegedi
  */
 public class ObjectSizeCalculator {
+    private static final Logger log = Logger.getLogger(ObjectSizeCalculator.class);
+
     // Fixed object header size for arrays.
     private final int arrayHeaderSize;
     // Fixed object header size for non-array objects.
@@ -69,6 +83,7 @@ public class ObjectSizeCalculator {
                     return new ClassSizeInfo(clazz);
                 }
             });
+    private final Set<Class> ignoreCalculation = Sets.newIdentityHashSet();
     private final Set<Object> alreadyVisited = Sets.newIdentityHashSet();
     private final Deque<Object> pending = new ArrayDeque<Object>(16 * 1024);
     private long size;
@@ -87,6 +102,17 @@ public class ObjectSizeCalculator {
         objectPadding = memoryLayoutSpecification.getObjectPadding();
         referenceSize = memoryLayoutSpecification.getReferenceSize();
         superclassFieldPadding = memoryLayoutSpecification.getSuperclassFieldPadding();
+        ignoreCalculation.add(SiddhiAppContext.class);
+        ignoreCalculation.add(StreamJunction.class);
+        ignoreCalculation.add(OutputCallback.class);
+        ignoreCalculation.add(StreamCallback.class);
+        ignoreCalculation.add(ThroughputTracker.class);
+        ignoreCalculation.add(LatencyTracker.class);
+        ignoreCalculation.add(MemoryUsageTracker.class);
+        ignoreCalculation.add(BufferedEventsTracker.class);
+        ignoreCalculation.add(StatisticsManager.class);
+        ignoreCalculation.add(MemoryCalculable.class);
+        ignoreCalculation.add(AbstractRecordTable.class);
     }
 
     /**
@@ -257,11 +283,16 @@ public class ObjectSizeCalculator {
      * retains.
      */
     public synchronized long calculateObjectSize(Object obj) {
+        boolean isFirst = true;
+        if (log.isDebugEnabled()) {
+            log.debug("Object for size calculation: " + obj.getClass().getName());
+        }
         // Breadth-first traversal instead of naive depth-first with recursive
         // implementation, so we don't blow the stack traversing long linked lists.
         try {
             for (;; ) {
-                visit(obj);
+                visit(obj, isFirst);
+                isFirst = false;
                 if (pending.isEmpty()) {
                     return size;
                 }
@@ -274,11 +305,18 @@ public class ObjectSizeCalculator {
         }
     }
 
-    private void visit(Object obj) {
+    private void visit(Object obj, boolean isFirst) {
         if (alreadyVisited.contains(obj)) {
             return;
         }
         final Class<?> clazz = obj.getClass();
+        if (!isFirst) {
+            for (Class ignoreClazz : ignoreCalculation) {
+                if (ignoreClazz.isAssignableFrom(obj.getClass())) {
+                    return;
+                }
+            }
+        }
         if (clazz == ArrayElementsVisitor.class) {
             ((ArrayElementsVisitor) obj).visit(this);
         } else {
@@ -286,6 +324,9 @@ public class ObjectSizeCalculator {
             if (clazz.isArray()) {
                 visitArray(obj);
             } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Class used for size calculation: " + clazz);
+                }
                 classSizeInfos.getUnchecked(clazz).visit(obj, this);
             }
         }
@@ -348,7 +389,7 @@ public class ObjectSizeCalculator {
         public void visit(ObjectSizeCalculator calc) {
             for (Object elem : array) {
                 if (elem != null) {
-                    calc.visit(elem);
+                    calc.visit(elem, false);
                 }
             }
         }

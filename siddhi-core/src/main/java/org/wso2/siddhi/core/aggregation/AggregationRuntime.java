@@ -38,6 +38,7 @@ import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.parser.ExpressionParser;
 import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.wso2.siddhi.core.util.statistics.MemoryCalculable;
 import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.aggregation.Within;
@@ -59,7 +60,7 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 /**
  * Aggregation runtime managing aggregation operations for aggregation definition.
  */
-public class AggregationRuntime {
+public class AggregationRuntime implements MemoryCalculable {
     private final AggregationDefinition aggregationDefinition;
     private final Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap;
     private final Map<TimePeriod.Duration, Table> aggregationTables;

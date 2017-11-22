@@ -501,34 +501,24 @@ public class SiddhiAppRuntime {
                 .getStatisticsConfiguration()
                 .getFactory()
                 .createMemoryUsageTracker(siddhiAppContext.getStatisticsManager());
-        for (Map.Entry entry : queryProcessorMap.entrySet()) {
-            registerForMemoryUsage(entry);
+        for (Map.Entry<String, QueryRuntime> entry : queryProcessorMap.entrySet()) {
+            QueryParserHelper.registerMemoryUsageTracking(entry.getKey(), entry.getValue(),
+                    SiddhiConstants.METRIC_INFIX_QUERIES, siddhiAppContext, memoryUsageTracker);
         }
-        for (Map.Entry entry : partitionMap.entrySet()) {
-            ConcurrentMap<String, QueryRuntime> queryRuntime = ((PartitionRuntime) entry.getValue())
-                    .getMetaQueryRuntimeMap();
-            for (Map.Entry queryEntry : queryRuntime.entrySet()) {
-                registerForMemoryUsage(queryEntry);
-            }
+        for (PartitionRuntime partitionRuntime : partitionMap.values()) {
+            partitionRuntime.setMemoryUsageTracker(memoryUsageTracker);
         }
-    }
-
-    private void registerForMemoryUsage(Map.Entry entry) {
-        String metricName = siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMetricPrefix() +
-                SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI_APPS +
-                SiddhiConstants.METRIC_DELIMITER + getName() + SiddhiConstants.METRIC_DELIMITER +
-                SiddhiConstants.METRIC_INFIX_SIDDHI + SiddhiConstants.METRIC_DELIMITER +
-                SiddhiConstants.METRIC_INFIX_QUERIES + SiddhiConstants.METRIC_DELIMITER +
-                entry.getKey() + SiddhiConstants.METRIC_DELIMITER + "memory";
-        boolean matchExist = false;
-        for (String regex : siddhiAppContext.getIncludedMetrics()) {
-            if (metricName.matches(regex)) {
-                matchExist = true;
-                break;
-            }
+        for (Map.Entry<String, Table> entry : tableMap.entrySet()) {
+            QueryParserHelper.registerMemoryUsageTracking(entry.getKey(), entry.getValue(),
+                    SiddhiConstants.METRIC_INFIX_TABLES, siddhiAppContext, memoryUsageTracker);
         }
-        if (matchExist) {
-            memoryUsageTracker.registerObject(entry.getValue(), metricName);
+        for (Map.Entry<String, Window> entry : windowMap.entrySet()) {
+            QueryParserHelper.registerMemoryUsageTracking(entry.getKey(), entry.getValue(),
+                    SiddhiConstants.METRIC_INFIX_WINDOWS, siddhiAppContext, memoryUsageTracker);
+        }
+        for (Map.Entry<String, AggregationRuntime> entry : aggregationMap.entrySet()) {
+            QueryParserHelper.registerMemoryUsageTracking(entry.getKey(), entry.getValue(),
+                    SiddhiConstants.METRIC_INFIX_AGGREGATIONS, siddhiAppContext, memoryUsageTracker);
         }
     }
 

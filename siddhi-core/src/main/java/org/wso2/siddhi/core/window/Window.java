@@ -44,6 +44,7 @@ import org.wso2.siddhi.core.util.parser.SingleInputStreamParser;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.wso2.siddhi.core.util.statistics.MemoryCalculable;
 import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.WindowDefinition;
@@ -59,7 +60,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * Window implementation of SiddhiQL.
  * It can be seen as a global Window which can be accessed from multiple queries.
  */
-public class Window implements FindableProcessor, Snapshotable {
+public class Window implements FindableProcessor, Snapshotable, MemoryCalculable {
     /**
      * Element id of this snapshot.
      */

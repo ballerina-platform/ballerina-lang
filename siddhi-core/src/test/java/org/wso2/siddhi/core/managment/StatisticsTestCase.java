@@ -456,7 +456,7 @@ public class StatisticsTestCase {
         inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
 
-        Thread.sleep(3010);
+        Thread.sleep(3010000);
         siddhiAppRuntime.shutdown();
         AssertJUnit.assertTrue(eventArrived);
         AssertJUnit.assertEquals(3, count);

@@ -37,6 +37,7 @@ import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.wso2.siddhi.core.util.statistics.MemoryCalculable;
 import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
 import org.wso2.siddhi.core.util.transport.BackoffRetryCounter;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
@@ -52,7 +53,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Interface class to represent Tables in Siddhi. There are multiple implementations. Ex: {@link InMemoryTable}. Table
  * will support basic operations of add, delete, update, update or add and contains. *
  */
-public abstract class Table implements FindableProcessor {
+public abstract class Table implements FindableProcessor, MemoryCalculable {
 
     private static final Logger LOG = Logger.getLogger(Table.class);
 
