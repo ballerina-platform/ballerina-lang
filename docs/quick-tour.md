@@ -57,7 +57,7 @@ You can build your integrations by creating sequence diagrams, dragging elements
     
     ![alt text](images/ComposerNew.png "Welcome page")
     
-    Let's open a sample and take a look around. 
+Let's open a sample and take a look around. 
 
 ## Explore the Ballerina Composer
 
