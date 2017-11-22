@@ -62,9 +62,10 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
 
     /**
      * The initialization method for FunctionExecutor
+     *
      * @param attributeExpressionExecutors are the executors of each attributes in the function
-     * @param configReader this hold the {@link MinForeverAttributeAggregator} configuration reader.
-     * @param siddhiAppContext         Siddhi app runtime context
+     * @param configReader                 this hold the {@link MinForeverAttributeAggregator} configuration reader.
+     * @param siddhiAppContext             Siddhi app runtime context
      */
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
@@ -98,6 +99,9 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object processAdd(Object data) {
+        if (data == null) {
+            return minForeverAttributeAggregator.currentValue();
+        }
         return minForeverAttributeAggregator.processAdd(data);
     }
 
@@ -110,6 +114,9 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object processRemove(Object data) {
+        if (data == null) {
+            return minForeverAttributeAggregator.currentValue();
+        }
         return minForeverAttributeAggregator.processRemove(data);
     }
 
@@ -118,6 +125,10 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
         // will not occur
         return new IllegalStateException("MinForever cannot process data array, but found " +
                 Arrays.deepToString(data));
+    }
+
+    protected Object currentValue() {
+        return null;
     }
 
     @Override
@@ -184,6 +195,10 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
             minValue = (Double) state.get("MinValue");
         }
 
+        protected Object currentValue() {
+            return minValue;
+        }
+
     }
 
     class MinForeverAttributeAggregatorFloat extends MinForeverAttributeAggregator {
@@ -230,7 +245,9 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
             minValue = (Float) state.get("MinValue");
         }
 
-
+        protected Object currentValue() {
+            return minValue;
+        }
     }
 
     class MinForeverAttributeAggregatorInt extends MinForeverAttributeAggregator {
@@ -277,7 +294,9 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
             minValue = (Integer) state.get("MinValue");
         }
 
-
+        protected Object currentValue() {
+            return minValue;
+        }
     }
 
     class MinForeverAttributeAggregatorLong extends MinForeverAttributeAggregator {
@@ -324,7 +343,9 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
             minValue = (Long) state.get("MinValue");
         }
 
-
+        protected Object currentValue() {
+            return minValue;
+        }
     }
 
 }

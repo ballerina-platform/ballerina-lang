@@ -63,9 +63,10 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
 
     /**
      * The initialization method for FunctionExecutor
+     *
      * @param attributeExpressionExecutors are the executors of each attributes in the function
-     * @param configReader this hold the {@link MaxForeverAttributeAggregator} configuration reader.
-     * @param siddhiAppContext         Siddhi app runtime context
+     * @param configReader                 this hold the {@link MaxForeverAttributeAggregator} configuration reader.
+     * @param siddhiAppContext             Siddhi app runtime context
      */
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
@@ -100,26 +101,36 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object processAdd(Object data) {
+        if (data == null) {
+            return maxForeverAttributeAggregator.currentValue();
+        }
         return maxForeverAttributeAggregator.processAdd(data);
+    }
+
+    protected Object currentValue() {
+        return null;
     }
 
     @Override
     public Object processAdd(Object[] data) {
         // will not occur
-        return new IllegalStateException("MaxForever cannot process data array, but found " + Arrays.deepToString
-                (data));
+        return new IllegalStateException("MaxForever cannot process data array, but found " +
+                Arrays.deepToString(data));
     }
 
     @Override
     public Object processRemove(Object data) {
+        if (data == null) {
+            return maxForeverAttributeAggregator.currentValue();
+        }
         return maxForeverAttributeAggregator.processRemove(data);
     }
 
     @Override
     public Object processRemove(Object[] data) {
         // will not occur
-        return new IllegalStateException("MaxForever cannot process data array, but found " + Arrays.deepToString
-                (data));
+        return new IllegalStateException("MaxForever cannot process data array, but found " +
+                Arrays.deepToString(data));
     }
 
     @Override
@@ -186,6 +197,10 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
             maxValue = (Double) state.get("MaxValue");
         }
 
+        protected Object currentValue() {
+            return maxValue;
+        }
+
     }
 
     class MaxForeverAttributeAggregatorFloat extends MaxForeverAttributeAggregator {
@@ -230,6 +245,10 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
         @Override
         public void restoreState(Map<String, Object> state) {
             maxValue = (Float) state.get("MaxValue");
+        }
+
+        protected Object currentValue() {
+            return maxValue;
         }
 
     }
@@ -278,6 +297,9 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
             maxValue = (Integer) state.get("MaxValue");
         }
 
+        protected Object currentValue() {
+            return maxValue;
+        }
     }
 
     class MaxForeverAttributeAggregatorLong extends MaxForeverAttributeAggregator {
@@ -324,6 +346,9 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
             maxValue = (Long) state.get("MaxValue");
         }
 
+        protected Object currentValue() {
+            return maxValue;
+        }
     }
 
 }

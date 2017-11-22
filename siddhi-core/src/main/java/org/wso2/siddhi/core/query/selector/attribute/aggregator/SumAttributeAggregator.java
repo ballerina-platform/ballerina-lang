@@ -103,6 +103,9 @@ public class SumAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object processAdd(Object data) {
+        if (data == null) {
+            return sumOutputAttributeAggregator.currentValue();
+        }
         return sumOutputAttributeAggregator.processAdd(data);
     }
 
@@ -114,6 +117,9 @@ public class SumAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object processRemove(Object data) {
+        if (data == null) {
+            return sumOutputAttributeAggregator.currentValue();
+        }
         return sumOutputAttributeAggregator.processRemove(data);
     }
 
@@ -121,6 +127,10 @@ public class SumAttributeAggregator extends AttributeAggregator {
     public Object processRemove(Object[] data) {
         // will not occur
         return new IllegalStateException("Sin cannot process data array, but found " + Arrays.deepToString(data));
+    }
+
+    protected Object currentValue() {
+        return null;
     }
 
     @Override
@@ -176,7 +186,6 @@ public class SumAttributeAggregator extends AttributeAggregator {
                 return null;
             } else {
                 return sum;
-
             }
         }
 
@@ -205,17 +214,31 @@ public class SumAttributeAggregator extends AttributeAggregator {
             count = (long) state.get("Count");
         }
 
+        protected Object currentValue() {
+            if (count == 0) {
+                return null;
+            } else {
+                return sum;
+            }
+        }
+
     }
 
     class SumAttributeAggregatorFloat extends SumAttributeAggregatorDouble {
 
         @Override
         public Object processAdd(Object data) {
+            if (data == null) {
+                return null;
+            }
             return processAdd(((Float) data).doubleValue());
         }
 
         @Override
         public Object processRemove(Object data) {
+            if (data == null) {
+                return null;
+            }
             return processRemove(((Float) data).doubleValue());
         }
 
@@ -282,6 +305,14 @@ public class SumAttributeAggregator extends AttributeAggregator {
         public void restoreState(Map<String, Object> state) {
             sum = (long) state.get("Sum");
             count = (long) state.get("Count");
+        }
+
+        protected Object currentValue() {
+            if (count == 0) {
+                return null;
+            } else {
+                return sum;
+            }
         }
 
     }

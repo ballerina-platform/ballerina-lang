@@ -101,7 +101,14 @@ public class MaxAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object processAdd(Object data) {
+        if (data == null) {
+            return maxOutputAttributeAggregator.currentValue();
+        }
         return maxOutputAttributeAggregator.processAdd(data);
+    }
+
+    protected Object currentValue() {
+        return null;
     }
 
     @Override
@@ -112,6 +119,9 @@ public class MaxAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object processRemove(Object data) {
+        if (data == null) {
+            return maxOutputAttributeAggregator.currentValue();
+        }
         return maxOutputAttributeAggregator.processRemove(data);
     }
 
@@ -202,6 +212,10 @@ public class MaxAttributeAggregator extends AttributeAggregator {
             maxValue = (Double) state.get("MaxValue");
             maxDeque = (Deque<Double>) state.get("MaxDeque");
         }
+
+        protected Object currentValue() {
+            return maxValue;
+        }
     }
 
     class MaxAttributeAggregatorFloat extends MaxAttributeAggregator {
@@ -264,6 +278,10 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         public synchronized void restoreState(Map<String, Object> state) {
             maxValue = (Float) state.get("MaxValue");
             maxDeque = (Deque<Float>) state.get("MaxDeque");
+        }
+
+        protected Object currentValue() {
+            return maxValue;
         }
 
     }
@@ -330,6 +348,10 @@ public class MaxAttributeAggregator extends AttributeAggregator {
             maxDeque = (Deque<Integer>) state.get("MaxDeque");
         }
 
+        protected Object currentValue() {
+            return maxValue;
+        }
+
     }
 
     class MaxAttributeAggregatorLong extends MaxAttributeAggregator {
@@ -392,6 +414,10 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         public synchronized void restoreState(Map<String, Object> state) {
             maxValue = (Long) state.get("MaxValue");
             maxDeque = (Deque<Long>) state.get("MaxDeque");
+        }
+
+        protected Object currentValue() {
+            return maxValue;
         }
 
     }
