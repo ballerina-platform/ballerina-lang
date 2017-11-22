@@ -365,6 +365,9 @@ class DefaultNodeFactory {
            let parameters = [];
            functionDef.getParameters().map((param) => {
                let defaultValue = Environment.getDefaultValue(param.type);
+               if (defaultValue === undefined) {
+                   defaultValue = '{}';
+               }
                const paramNode = getNodeForFragment(FragmentUtils.createExpressionFragment(defaultValue));
                parameters.push(paramNode.getVariable().getInitialExpression());
             });
