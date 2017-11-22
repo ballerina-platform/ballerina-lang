@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
+import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.listener.CustomHttpContentCompressor;
 import org.wso2.transport.http.netty.listener.HTTPTraceLoggingHandler;
 

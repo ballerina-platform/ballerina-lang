@@ -21,9 +21,6 @@ package org.wso2.transport.http.netty.contractimpl;
 
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
-import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
