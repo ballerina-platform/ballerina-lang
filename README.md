@@ -60,3 +60,5 @@ For now the Composer supports only following browsers.
 
 *   Google Chrome ( v49 and above )
 *   Mozilla Firefox ( v50 and above )
+*   Safari (10.1 and above)
+*   Edge
