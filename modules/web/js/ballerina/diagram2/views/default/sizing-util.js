@@ -1590,7 +1590,8 @@ class SizingUtil {
 
         // Truncate the endpoint name to fit the statement box
         if (TreeUtil.isEndpointTypeVariableDef(node)) {
-            viewState.endpointIdentifier = this.getTextWidth(node.getVariable().getName().value, 0, 100).text;
+            const endpointWdth = 90;
+            viewState.endpointIdentifier = this.getTextWidth(node.getVariable().getName().value, 0, endpointWdth).text;
         }
     }
 
