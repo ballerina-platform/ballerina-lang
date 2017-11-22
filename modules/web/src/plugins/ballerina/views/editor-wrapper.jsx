@@ -49,7 +49,7 @@ class Editor extends React.Component {
     /**
      * @inheritdoc
      */
-    shouldComponentUpdate(nextProps, nextState) {
+    shouldComponentUpdate(nextProps) {
         return nextProps.isActive;
     }
 
