@@ -41,6 +41,7 @@ public annotation configuration attach service<> {
     string[] allowHeaders;
     int maxAge;
     string[] exposeHeaders;
+    boolean keepAlive;
     webSocket webSocket;
 }
 

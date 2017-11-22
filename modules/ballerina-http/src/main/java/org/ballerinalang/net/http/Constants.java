@@ -71,6 +71,7 @@ public class Constants {
     public static final String ANN_CONFIG_ATTR_HOST = "host";
     public static final String ANN_CONFIG_ATTR_PORT = "port";
     public static final String ANN_CONFIG_ATTR_HTTPS_PORT = "httpsPort";
+    public static final String ANN_CONFIG_ATTR_KEEP_ALIVE = "keepAlive";
     public static final String ANN_CONFIG_ATTR_BASE_PATH = "basePath";
     public static final String ANN_CONFIG_ATTR_SCHEME = "scheme";
     public static final String ANN_CONFIG_ATTR_KEY_STORE_FILE = "keyStoreFile";

@@ -2,6 +2,7 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorFutureListener;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.session.Session;
@@ -33,6 +34,12 @@ public class HttpConnectorFutureListener implements ConnectorFutureListener {
     public void notifyReply(BValue... response) {
         HTTPCarbonMessage responseMessage = HttpUtil
                 .getCarbonMsg((BStruct) response[0], HttpUtil.createHttpCarbonMessage(false));
+
+        boolean keepAlive = ((BBoolean) response[1]).booleanValue();
+        if (!keepAlive) {
+            responseMessage.setHeader("Connection", "close");
+        }
+
         Session session = (Session) ((BStruct) request).getNativeData(Constants.HTTP_SESSION);
         if (session != null) {
             session.generateSessionHeader(responseMessage);
