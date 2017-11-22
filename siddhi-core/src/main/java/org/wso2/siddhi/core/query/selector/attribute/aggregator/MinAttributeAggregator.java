@@ -63,8 +63,6 @@ public class MinAttributeAggregator extends AttributeAggregator {
     private MinAttributeAggregator minOutputAttributeAggregator;
 
     public void init(Attribute.Type type) {
-
-
     }
 
     /**
@@ -106,6 +104,9 @@ public class MinAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object processAdd(Object data) {
+        if (data == null) {
+            return minOutputAttributeAggregator.currentValue();
+        }
         return minOutputAttributeAggregator.processAdd(data);
     }
 
@@ -117,6 +118,9 @@ public class MinAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object processRemove(Object data) {
+        if (data == null) {
+            return minOutputAttributeAggregator.currentValue();
+        }
         return minOutputAttributeAggregator.processRemove(data);
     }
 
@@ -124,6 +128,10 @@ public class MinAttributeAggregator extends AttributeAggregator {
     public Object processRemove(Object[] data) {
         // will not occur
         return new IllegalStateException("Min cannot process data array, but found " + Arrays.deepToString(data));
+    }
+
+    protected Object currentValue() {
+        return null;
     }
 
     @Override
@@ -208,6 +216,10 @@ public class MinAttributeAggregator extends AttributeAggregator {
             minDeque = (Deque<Double>) state.get("MinDeque");
         }
 
+        protected Object currentValue() {
+            return minValue;
+        }
+
     }
 
     class MinAttributeAggregatorFloat extends MinAttributeAggregator {
@@ -270,6 +282,10 @@ public class MinAttributeAggregator extends AttributeAggregator {
         public synchronized void restoreState(Map<String, Object> state) {
             minValue = (Float) state.get("MinValue");
             minDeque = (Deque<Float>) state.get("MinDeque");
+        }
+
+        protected Object currentValue() {
+            return minValue;
         }
     }
 
@@ -335,6 +351,10 @@ public class MinAttributeAggregator extends AttributeAggregator {
             minValue = (Integer) state.get("MinValue");
             minDeque = (Deque<Integer>) state.get("MinDeque");
         }
+
+        protected Object currentValue() {
+            return minValue;
+        }
     }
 
     class MinAttributeAggregatorLong extends MinAttributeAggregator {
@@ -397,6 +417,10 @@ public class MinAttributeAggregator extends AttributeAggregator {
         public synchronized void restoreState(Map<String, Object> state) {
             minValue = (Long) state.get("MinValue");
             minDeque = (Deque<Long>) state.get("MinDeque");
+        }
+
+        protected Object currentValue() {
+            return minValue;
         }
 
     }

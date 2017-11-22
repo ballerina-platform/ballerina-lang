@@ -96,6 +96,9 @@ public class AvgAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object processAdd(Object data) {
+        if (data == null) {
+            return avgOutputAttributeAggregator.currentValue();
+        }
         return avgOutputAttributeAggregator.processAdd(data);
     }
 
@@ -107,6 +110,9 @@ public class AvgAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object processRemove(Object data) {
+        if (data == null) {
+            return avgOutputAttributeAggregator.currentValue();
+        }
         return avgOutputAttributeAggregator.processRemove(data);
     }
 
@@ -114,6 +120,10 @@ public class AvgAttributeAggregator extends AttributeAggregator {
     public Object processRemove(Object[] data) {
         // will not occur
         return new IllegalStateException("Avg cannot process data array, but found " + Arrays.deepToString(data));
+    }
+
+    protected Object currentValue() {
+        return null;
     }
 
     @Override
@@ -191,6 +201,13 @@ public class AvgAttributeAggregator extends AttributeAggregator {
             value = (double) state.get("Value");
             count = (long) state.get("Count");
         }
+
+        protected Object currentValue() {
+            if (count == 0) {
+                return null;
+            }
+            return value / count;
+        }
     }
 
     class AvgAttributeAggregatorFloat extends AvgAttributeAggregator {
@@ -247,6 +264,13 @@ public class AvgAttributeAggregator extends AttributeAggregator {
         public void restoreState(Map<String, Object> state) {
             value = (double) state.get("Value");
             count = (long) state.get("Count");
+        }
+
+        protected Object currentValue() {
+            if (count == 0) {
+                return null;
+            }
+            return value / count;
         }
     }
 
@@ -306,6 +330,13 @@ public class AvgAttributeAggregator extends AttributeAggregator {
             count = (long) state.get("Count");
         }
 
+        protected Object currentValue() {
+            if (count == 0) {
+                return null;
+            }
+            return value / count;
+        }
+
     }
 
     class AvgAttributeAggregatorLong extends AvgAttributeAggregator {
@@ -362,6 +393,13 @@ public class AvgAttributeAggregator extends AttributeAggregator {
         public void restoreState(Map<String, Object> state) {
             value = (double) state.get("Value");
             count = (long) state.get("Count");
+        }
+
+        protected Object currentValue() {
+            if (count == 0) {
+                return null;
+            }
+            return value / count;
         }
 
     }

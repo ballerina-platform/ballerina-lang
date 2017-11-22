@@ -18,6 +18,7 @@
 package org.wso2.siddhi.core.query.window;
 
 import org.apache.log4j.Logger;
+import org.testng.Assert;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -35,6 +36,8 @@ public class LengthWindowTestCase {
     private int removeEventCount;
     private int count;
     private boolean eventArrived;
+    private Event storedEvent;
+
 
     @BeforeMethod
     public void init() {
@@ -42,6 +45,7 @@ public class LengthWindowTestCase {
         inEventCount = 0;
         removeEventCount = 0;
         eventArrived = false;
+        storedEvent = null;
     }
 
     @Test
@@ -179,6 +183,73 @@ public class LengthWindowTestCase {
         Thread.sleep(500);
         AssertJUnit.assertEquals("In event count", 6, inEventCount);
         AssertJUnit.assertEquals("Remove event count", 2, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
+        siddhiAppRuntime.shutdown();
+
+    }
+
+
+    @Test
+    public void lengthWindowTest4() throws InterruptedException {
+        log.info("Testing length window with no of events smaller than window size");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String cseEventStream = "" +
+                "define stream cseEventStream (symbol string, price float, volume int, price2 double, volume2 long, " +
+                "active bool);";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream#window.length(4) " +
+                "select " +
+                "max(price) as maxp, min(price) as minp, sum(price) as sump, avg(price) as avgp, " +
+                "stdDev(price) as stdp, count(price) as cp, distinctCount(price) as dcp," +
+                "max(volume) as maxvolumep, min(volume) as minvolumep, sum(volume) as sumvolumep," +
+                " avg(volume) as avgvolumep, " +
+                "stdDev(volume) as stdvolumep, count(volume) as cvolumep, distinctCount(volume) as dcvolumep," +
+                "max(price2) as maxprice2p, min(price2) as minprice2p, sum(price2) as sumprice2p," +
+                " avg(price2) as avgprice2p, " +
+                "stdDev(price2) as stdprice2p, count(price2) as cpprice2, distinctCount(price2) as dcprice2p," +
+                "max(volume2) as maxvolume2p, min(volume2) as minvolume2p, sum(volume2) as sumvolume2p," +
+                " avg(volume2) as avgvolume2p, " +
+                "stdDev(volume2) as stdvolume2p, count(volume2) as cvolume2p, distinctCount(volume2) as dcvolume2p" +
+                " " +
+                "insert all events into outputStream ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
+
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
+                inEventCount = inEventCount + inEvents.length;
+                if (inEventCount == 2) {
+                    storedEvent = inEvents[0];
+                } else if (inEventCount == 3) {
+                    Assert.assertEquals(inEvents[0].getData(1), storedEvent.getData(1),
+                            "2nd and 3rd message should be same");
+                    Assert.assertEquals(inEvents[0].getData(2), storedEvent.getData(2),
+                            "2nd and 3rd message should be same");
+                    Assert.assertEquals(inEvents[0].getData(3), storedEvent.getData(3),
+                            "2nd and 3rd message should be same");
+                }
+                eventArrived = true;
+            }
+
+        });
+
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
+        inputHandler.send(new Object[]{null, null, null, null, null, null});
+        inputHandler.send(new Object[]{"IBM", 700F, 0, 0.0D, 5L, true});
+        inputHandler.send(new Object[]{null, null, null, null, null, null});
+        inputHandler.send(new Object[]{"IBM", 700F, 0, 0.0D, 5L, true});
+        inputHandler.send(new Object[]{"IBM", 700F, 0, 0.0D, 5L, true});
+        inputHandler.send(new Object[]{"IBM", 700F, 0, 0.0D, 5L, true});
+        inputHandler.send(new Object[]{"IBM", 700F, 0, 0.0D, 5L, true});
+        inputHandler.send(new Object[]{"IBM", 700F, 0, 0.0D, 5L, true});
+        Thread.sleep(500);
+        AssertJUnit.assertEquals(8, inEventCount);
         AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 

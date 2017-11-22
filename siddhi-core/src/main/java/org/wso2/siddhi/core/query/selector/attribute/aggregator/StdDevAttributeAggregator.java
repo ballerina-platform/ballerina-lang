@@ -102,6 +102,9 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object processAdd(Object data) {
+        if (data == null) {
+            return stdDevOutputAttributeAggregator.currentValue();
+        }
         return stdDevOutputAttributeAggregator.processAdd(data);
     }
 
@@ -112,12 +115,19 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object processRemove(Object data) {
+        if (data == null) {
+            return stdDevOutputAttributeAggregator.currentValue();
+        }
         return stdDevOutputAttributeAggregator.processRemove(data);
     }
 
     @Override
     public Object processRemove(Object[] data) {
         return new IllegalStateException("stdDev cannot process data array, but found " + Arrays.deepToString(data));
+    }
+
+    protected Object currentValue() {
+        return null;
     }
 
     @Override
@@ -219,6 +229,15 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
             mean = (Long) state.get("Mean");
             stdDeviation = (Long) state.get("stdDeviation");
             count = (int) state.get("Count");
+        }
+
+        protected Object currentValue() {
+            if (count == 0) {
+                return null;
+            } else if (count == 1) {
+                return 0.0;
+            }
+            return Math.sqrt(stdDeviation / count);
         }
     }
 
