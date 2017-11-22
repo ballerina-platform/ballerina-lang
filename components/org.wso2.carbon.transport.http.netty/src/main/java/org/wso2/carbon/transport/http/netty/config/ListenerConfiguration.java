@@ -95,6 +95,9 @@ public class ListenerConfiguration {
     @XmlAttribute
     private String tlsStoreType;
 
+    @XmlAttribute
+    private boolean keepAlive = true;
+
     @XmlElementWrapper(name = "parameters")
     @XmlElement(name = "parameter")
     private List<Parameter> parameters = getDefaultParameters();
@@ -278,5 +281,13 @@ public class ListenerConfiguration {
 
     public void setRequestSizeValidationConfig(RequestSizeValidationConfiguration requestSizeValidationConfig) {
         this.requestSizeValidationConfig = requestSizeValidationConfig;
+    }
+
+    public boolean isKeepAlive() {
+        return keepAlive;
+    }
+
+    public void setKeepAlive(boolean keepAlive) {
+        this.keepAlive = keepAlive;
     }
 }

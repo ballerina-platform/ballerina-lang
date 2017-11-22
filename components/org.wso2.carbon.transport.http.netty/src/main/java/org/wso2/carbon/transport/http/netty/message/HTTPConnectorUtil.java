@@ -125,6 +125,11 @@ public class HTTPConnectorUtil {
                 config.setSslProtocol(properties.get(Constants.SSL_PROTOCOL));
             }
         }
+
+        if (properties.get(Constants.KEEP_ALIVE) != null) {
+            config.setKeepAlive(Boolean.valueOf(properties.get(Constants.KEEP_ALIVE)));
+        }
+
         return config;
     }
 
