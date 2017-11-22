@@ -47,9 +47,10 @@ public class InsertIntoWindowCallback extends OutputCallback {
      * Add the event into the {@link Window}
      *
      * @param complexEventChunk the event to add
+     * @param noOfEvents
      */
     @Override
-    public void send(ComplexEventChunk complexEventChunk) {
+    public void send(ComplexEventChunk complexEventChunk, int noOfEvents) {
         if (getSiddhiDebugger() != null) {
             getSiddhiDebugger()
                     .checkBreakPoint(getQueryName(), SiddhiDebugger.QueryTerminal.OUT, complexEventChunk.getFirst());

@@ -32,7 +32,7 @@ public class SiddhiLatencyMetric implements LatencyTracker {
     private String metricName;
 
     public SiddhiLatencyMetric(String name, final MetricRegistry metricRegistry) {
-        this.metricName = name + ".latency";
+        this.metricName = name;
         execLatencyTimer = new ThreadLocal<Timer>() {
             protected Timer initialValue() {
                 return metricRegistry.timer(metricName);

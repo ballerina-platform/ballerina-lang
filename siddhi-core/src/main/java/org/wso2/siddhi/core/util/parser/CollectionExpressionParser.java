@@ -386,12 +386,13 @@ public class CollectionExpressionParser {
                 if ((collectionStreamEvent.getInputReferenceId() != null && variable.getStreamId().equals
                         (collectionStreamEvent.getInputReferenceId())) ||
                         (collectionStreamEvent.getLastInputDefinition().getId().equals(variable.getStreamId()))) {
-//                    if (Arrays.asList(collectionStreamEvent.getLastInputDefinition().getAttributeNameArray())
-// .contains(indexAttribute)) {
                     return true;
-//                    }
                 }
             }
+        } else if (matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvents().length == 1 &&
+                matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvents()[0].getEventType()
+                        != MetaStreamEvent.EventType.DEFAULT) {
+            return true;
         }
         return false;
     }

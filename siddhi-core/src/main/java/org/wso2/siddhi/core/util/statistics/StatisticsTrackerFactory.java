@@ -31,6 +31,8 @@ public interface StatisticsTrackerFactory {
 
     ThroughputTracker createThroughputTracker(String name, StatisticsManager statisticsManager);
 
+    BufferedEventsTracker createBufferSizeTracker(StatisticsManager statisticsManager);
+
     MemoryUsageTracker createMemoryUsageTracker(StatisticsManager statisticsManager);
 
     StatisticsManager createStatisticsManager(String prefix, String siddhiAppName, List<Element> elements);

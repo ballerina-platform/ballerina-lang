@@ -29,8 +29,11 @@ import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.state.StateStreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
+import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
+import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -79,6 +82,7 @@ public class PartitionRuntime implements Snapshotable {
     private ConcurrentMap<String, PartitionStreamReceiver> partitionStreamReceivers = new ConcurrentHashMap<String,
             PartitionStreamReceiver>();
     private SiddhiAppContext siddhiAppContext;
+    private MemoryUsageTracker memoryUsageTracker;
 
     public PartitionRuntime(ConcurrentMap<String, AbstractDefinition> streamDefinitionMap, ConcurrentMap<String,
             StreamJunction> streamJunctionMap, Partition partition, SiddhiAppContext siddhiAppContext) {
@@ -241,6 +245,9 @@ public class PartitionRuntime implements Snapshotable {
                 QueryRuntime clonedQueryRuntime = queryRuntime.clone(key, localStreamJunctionMap);
                 queryRuntimeList.add(clonedQueryRuntime);
 
+                QueryParserHelper.registerMemoryUsageTracking(clonedQueryRuntime.getQueryId(), queryRuntime,
+                        SiddhiConstants.METRIC_INFIX_QUERIES, siddhiAppContext, memoryUsageTracker);
+
                 if (queryRuntime.isFromLocalStream()) {
                     for (int i = 0; i < clonedQueryRuntime.getStreamRuntime().getSingleStreamRuntimes().size(); i++) {
                         String streamId = queryRuntime.getStreamRuntime().getSingleStreamRuntimes().get(i)
@@ -323,4 +330,9 @@ public class PartitionRuntime implements Snapshotable {
     public String getElementId() {
         return elementId;
     }
+
+    public void setMemoryUsageTracker(MemoryUsageTracker memoryUsageTracker) {
+        this.memoryUsageTracker = memoryUsageTracker;
+    }
+
 }

@@ -46,7 +46,6 @@ public class SiddhiAppContext {
     private String name;
     private boolean playback;
     private boolean enforceOrder;
-    private boolean async;
     private boolean statsEnabled = false;
     private StatisticsManager statisticsManager = null;
 
@@ -63,6 +62,7 @@ public class SiddhiAppContext {
     private ExceptionHandler<Object> disruptorExceptionHandler;
     private int bufferSize;
     private String siddhiAppString;
+    private List<String> includedMetrics;
 
     public SiddhiAppContext() {
         this.eternalReferencedHolders = Collections.synchronizedList(new LinkedList<>());
@@ -83,14 +83,6 @@ public class SiddhiAppContext {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public boolean isAsync() {
-        return async;
-    }
-
-    public void setAsync(boolean async) {
-        this.async = async;
     }
 
     public boolean isPlayback() {
@@ -227,5 +219,13 @@ public class SiddhiAppContext {
 
     public void setSiddhiAppString(String siddhiAppString) {
         this.siddhiAppString = siddhiAppString;
+    }
+
+    public void setIncludedMetrics(List<String> includedMetrics) {
+        this.includedMetrics = includedMetrics;
+    }
+
+    public List<String> getIncludedMetrics() {
+        return includedMetrics;
     }
 }

@@ -30,10 +30,15 @@ import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
 import org.wso2.siddhi.core.table.record.RecordTableHandler;
 import org.wso2.siddhi.core.util.ExceptionUtil;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.config.ConfigReader;
+import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.wso2.siddhi.core.util.statistics.MemoryCalculable;
+import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
 import org.wso2.siddhi.core.util.transport.BackoffRetryCounter;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateSet;
@@ -48,7 +53,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Interface class to represent Tables in Siddhi. There are multiple implementations. Ex: {@link InMemoryTable}. Table
  * will support basic operations of add, delete, update, update or add and contains. *
  */
-public abstract class Table implements FindableProcessor {
+public abstract class Table implements FindableProcessor, MemoryCalculable {
 
     private static final Logger LOG = Logger.getLogger(Table.class);
 
@@ -60,6 +65,18 @@ public abstract class Table implements FindableProcessor {
     private ScheduledExecutorService scheduledExecutorService;
     private SiddhiAppContext siddhiAppContext;
     private RecordTableHandler recordTableHandler;
+    private LatencyTracker latencyTrackerFind;
+    private LatencyTracker latencyTrackerInsert;
+    private LatencyTracker latencyTrackerUpdate;
+    private LatencyTracker latencyTrackerDelete;
+    private LatencyTracker latencyTrackerUpdateOrInsert;
+    private LatencyTracker latencyTrackerContains;
+    private ThroughputTracker throughputTrackerFind;
+    private ThroughputTracker throughputTrackerInsert;
+    private ThroughputTracker throughputTrackerUpdate;
+    private ThroughputTracker throughputTrackerDelete;
+    private ThroughputTracker throughputTrackerUpdateOrInsert;
+    private ThroughputTracker throughputTrackerContains;
 
     public void initTable(TableDefinition tableDefinition, StreamEventPool storeEventPool,
                           StreamEventCloner storeEventCloner,
@@ -69,6 +86,37 @@ public abstract class Table implements FindableProcessor {
         this.scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
         this.siddhiAppContext = siddhiAppContext;
         this.recordTableHandler = recordTableHandler;
+        if (siddhiAppContext.getStatisticsManager() != null) {
+            latencyTrackerFind = QueryParserHelper.createLatencyTracker(siddhiAppContext, tableDefinition.getId(),
+                    SiddhiConstants.METRIC_INFIX_TABLES, SiddhiConstants.METRIC_TYPE_FIND);
+            latencyTrackerInsert = QueryParserHelper.createLatencyTracker(siddhiAppContext, tableDefinition.getId(),
+                    SiddhiConstants.METRIC_INFIX_TABLES, SiddhiConstants.METRIC_TYPE_INSERT);
+            latencyTrackerUpdate = QueryParserHelper.createLatencyTracker(siddhiAppContext, tableDefinition.getId(),
+                    SiddhiConstants.METRIC_INFIX_TABLES, SiddhiConstants.METRIC_TYPE_UPDATE);
+            latencyTrackerDelete = QueryParserHelper.createLatencyTracker(siddhiAppContext, tableDefinition.getId(),
+                    SiddhiConstants.METRIC_INFIX_TABLES, SiddhiConstants.METRIC_TYPE_DELETE);
+            latencyTrackerUpdateOrInsert = QueryParserHelper.createLatencyTracker(siddhiAppContext,
+                    tableDefinition.getId(), SiddhiConstants.METRIC_INFIX_TABLES,
+                    SiddhiConstants.METRIC_TYPE_UPDATE_OR_INSERT);
+            latencyTrackerContains = QueryParserHelper.createLatencyTracker(siddhiAppContext, tableDefinition.getId(),
+                    SiddhiConstants.METRIC_INFIX_TABLES, SiddhiConstants.METRIC_TYPE_CONTAINS);
+
+            throughputTrackerFind = QueryParserHelper.createThroughputTracker(siddhiAppContext, tableDefinition.getId(),
+                    SiddhiConstants.METRIC_INFIX_TABLES, SiddhiConstants.METRIC_TYPE_FIND);
+            throughputTrackerInsert = QueryParserHelper.createThroughputTracker(siddhiAppContext,
+                    tableDefinition.getId(), SiddhiConstants.METRIC_INFIX_TABLES, SiddhiConstants.METRIC_TYPE_INSERT);
+            throughputTrackerUpdate = QueryParserHelper.createThroughputTracker(siddhiAppContext,
+                    tableDefinition.getId(), SiddhiConstants.METRIC_INFIX_TABLES, SiddhiConstants.METRIC_TYPE_UPDATE);
+            throughputTrackerDelete = QueryParserHelper.createThroughputTracker(siddhiAppContext,
+                    tableDefinition.getId(), SiddhiConstants.METRIC_INFIX_TABLES, SiddhiConstants.METRIC_TYPE_DELETE);
+            throughputTrackerUpdateOrInsert = QueryParserHelper.createThroughputTracker(siddhiAppContext,
+                    tableDefinition.getId(), SiddhiConstants.METRIC_INFIX_TABLES,
+                    SiddhiConstants.METRIC_TYPE_UPDATE_OR_INSERT);
+            throughputTrackerContains = QueryParserHelper.createThroughputTracker(siddhiAppContext,
+                    tableDefinition.getId(), SiddhiConstants.METRIC_INFIX_TABLES, SiddhiConstants.METRIC_TYPE_CONTAINS);
+
+
+        }
         init(tableDefinition, storeEventPool, storeEventCloner, configReader, siddhiAppContext, recordTableHandler);
     }
 
@@ -80,17 +128,28 @@ public abstract class Table implements FindableProcessor {
         return tableDefinition;
     }
 
-    public void addEvents(ComplexEventChunk<StreamEvent> addingEventChunk) {
+    public void addEvents(ComplexEventChunk<StreamEvent> addingEventChunk, int noOfEvents) {
         if (isConnected.get()) {
             try {
+                if (latencyTrackerInsert != null && siddhiAppContext.isStatsEnabled()) {
+                    latencyTrackerInsert.markIn();
+                }
+                addingEventChunk.reset();
                 add(addingEventChunk);
+                if (throughputTrackerInsert != null && siddhiAppContext.isStatsEnabled()) {
+                    throughputTrackerInsert.eventsIn(noOfEvents);
+                }
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
                 LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
                         " Connection unavailable at Table '" + tableDefinition.getId() +
                         "', will retry connection immediately.", e);
                 connectWithRetry();
-                addEvents(addingEventChunk);
+                addEvents(addingEventChunk, noOfEvents);
+            } finally {
+                if (latencyTrackerInsert != null && siddhiAppContext.isStatsEnabled()) {
+                    latencyTrackerInsert.markOut();
+                }
             }
         } else if (isTryingToConnect.get()) {
             LOG.error("Error on '" + siddhiAppContext.getName() + "'. Dropping event at Table '" +
@@ -98,7 +157,7 @@ public abstract class Table implements FindableProcessor {
                     addingEventChunk + "'");
         } else {
             connectWithRetry();
-            addEvents(addingEventChunk);
+            addEvents(addingEventChunk, noOfEvents);
         }
     }
 
@@ -107,7 +166,14 @@ public abstract class Table implements FindableProcessor {
     public StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
         if (isConnected.get()) {
             try {
-                return find(compiledCondition, matchingEvent);
+                if (latencyTrackerFind != null && siddhiAppContext.isStatsEnabled()) {
+                    latencyTrackerFind.markIn();
+                }
+                StreamEvent results = find(compiledCondition, matchingEvent);
+                if (throughputTrackerFind != null && siddhiAppContext.isStatsEnabled()) {
+                    throughputTrackerFind.eventIn();
+                }
+                return results;
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
                 LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
@@ -115,6 +181,10 @@ public abstract class Table implements FindableProcessor {
                         "', will retry connection immediately.", e);
                 connectWithRetry();
                 return find(matchingEvent, compiledCondition);
+            } finally {
+                if (latencyTrackerFind != null && siddhiAppContext.isStatsEnabled()) {
+                    latencyTrackerFind.markOut();
+                }
             }
         } else if (isTryingToConnect.get()) {
             LOG.error("Error on '" + siddhiAppContext.getName() + "'. Find operation failed for event '" +
@@ -129,17 +199,28 @@ public abstract class Table implements FindableProcessor {
     protected abstract StreamEvent find(CompiledCondition compiledCondition, StateEvent matchingEvent)
             throws ConnectionUnavailableException;
 
-    public void deleteEvents(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition compiledCondition) {
+    public void deleteEvents(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition compiledCondition,
+                             int noOfEvents) {
         if (isConnected.get()) {
             try {
+                if (latencyTrackerDelete != null && siddhiAppContext.isStatsEnabled()) {
+                    latencyTrackerDelete.markIn();
+                }
                 delete(deletingEventChunk, compiledCondition);
+                if (throughputTrackerDelete != null && siddhiAppContext.isStatsEnabled()) {
+                    throughputTrackerDelete.eventsIn(noOfEvents);
+                }
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
                 LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
                         " Connection unavailable at Table '" + tableDefinition.getId() +
                         "', will retry connection immediately.", e);
                 connectWithRetry();
-                deleteEvents(deletingEventChunk, compiledCondition);
+                deleteEvents(deletingEventChunk, compiledCondition, noOfEvents);
+            } finally {
+                if (latencyTrackerDelete != null && siddhiAppContext.isStatsEnabled()) {
+                    latencyTrackerDelete.markOut();
+                }
             }
         } else if (isTryingToConnect.get()) {
             LOG.error("Error on '" + siddhiAppContext.getName() + "'. Dropping event at Table '" +
@@ -147,7 +228,7 @@ public abstract class Table implements FindableProcessor {
                     deletingEventChunk + "'");
         } else {
             connectWithRetry();
-            deleteEvents(deletingEventChunk, compiledCondition);
+            deleteEvents(deletingEventChunk, compiledCondition, noOfEvents);
         }
     }
 
@@ -157,17 +238,27 @@ public abstract class Table implements FindableProcessor {
 
     public void updateEvents(ComplexEventChunk<StateEvent> updatingEventChunk,
                              CompiledCondition compiledCondition,
-                             CompiledUpdateSet compiledUpdateSet) {
+                             CompiledUpdateSet compiledUpdateSet, int noOfEvents) {
         if (isConnected.get()) {
             try {
+                if (latencyTrackerUpdate != null && siddhiAppContext.isStatsEnabled()) {
+                    latencyTrackerUpdate.markIn();
+                }
                 update(updatingEventChunk, compiledCondition, compiledUpdateSet);
+                if (throughputTrackerUpdate != null && siddhiAppContext.isStatsEnabled()) {
+                    throughputTrackerUpdate.eventsIn(noOfEvents);
+                }
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
                 LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
                         " Connection unavailable at Table '" + tableDefinition.getId() +
                         "', will retry connection immediately.", e);
                 connectWithRetry();
-                updateEvents(updatingEventChunk, compiledCondition, compiledUpdateSet);
+                updateEvents(updatingEventChunk, compiledCondition, compiledUpdateSet, noOfEvents);
+            } finally {
+                if (latencyTrackerUpdate != null && siddhiAppContext.isStatsEnabled()) {
+                    latencyTrackerUpdate.markOut();
+                }
             }
         } else if (isTryingToConnect.get()) {
             LOG.error("Error on '" + siddhiAppContext.getName() + "'. Dropping event at Table '" +
@@ -175,7 +266,7 @@ public abstract class Table implements FindableProcessor {
                     updatingEventChunk + "'");
         } else {
             connectWithRetry();
-            updateEvents(updatingEventChunk, compiledCondition, compiledUpdateSet);
+            updateEvents(updatingEventChunk, compiledCondition, compiledUpdateSet, noOfEvents);
         }
     }
 
@@ -187,11 +278,17 @@ public abstract class Table implements FindableProcessor {
     public void updateOrAddEvents(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
                                   CompiledCondition compiledCondition,
                                   CompiledUpdateSet compiledUpdateSet,
-                                  AddingStreamEventExtractor addingStreamEventExtractor) {
+                                  AddingStreamEventExtractor addingStreamEventExtractor, int noOfEvents) {
         if (isConnected.get()) {
             try {
+                if (latencyTrackerUpdateOrInsert != null && siddhiAppContext.isStatsEnabled()) {
+                    latencyTrackerUpdateOrInsert.markIn();
+                }
                 updateOrAdd(updateOrAddingEventChunk, compiledCondition, compiledUpdateSet,
                         addingStreamEventExtractor);
+                if (throughputTrackerUpdateOrInsert != null && siddhiAppContext.isStatsEnabled()) {
+                    throughputTrackerUpdateOrInsert.eventsIn(noOfEvents);
+                }
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
                 LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
@@ -199,7 +296,11 @@ public abstract class Table implements FindableProcessor {
                         "', will retry connection immediately.", e);
                 connectWithRetry();
                 updateOrAddEvents(updateOrAddingEventChunk, compiledCondition, compiledUpdateSet,
-                        addingStreamEventExtractor);
+                        addingStreamEventExtractor, noOfEvents);
+            } finally {
+                if (latencyTrackerUpdateOrInsert != null && siddhiAppContext.isStatsEnabled()) {
+                    latencyTrackerUpdateOrInsert.markOut();
+                }
             }
         } else if (isTryingToConnect.get()) {
             LOG.error("Error on '" + siddhiAppContext.getName() + "'. Dropping event at Table '" +
@@ -208,7 +309,7 @@ public abstract class Table implements FindableProcessor {
         } else {
             connectWithRetry();
             updateOrAddEvents(updateOrAddingEventChunk, compiledCondition, compiledUpdateSet,
-                    addingStreamEventExtractor);
+                    addingStreamEventExtractor, noOfEvents);
         }
     }
 
@@ -221,7 +322,14 @@ public abstract class Table implements FindableProcessor {
     public boolean containsEvent(StateEvent matchingEvent, CompiledCondition compiledCondition) {
         if (isConnected.get()) {
             try {
-                return contains(matchingEvent, compiledCondition);
+                if (latencyTrackerContains != null && siddhiAppContext.isStatsEnabled()) {
+                    latencyTrackerContains.markIn();
+                }
+                boolean results = contains(matchingEvent, compiledCondition);
+                if (throughputTrackerContains != null && siddhiAppContext.isStatsEnabled()) {
+                    throughputTrackerContains.eventIn();
+                }
+                return results;
             } catch (ConnectionUnavailableException e) {
                 isConnected.set(false);
                 LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
@@ -229,6 +337,10 @@ public abstract class Table implements FindableProcessor {
                         "', will retry connection immediately.", e);
                 connectWithRetry();
                 return containsEvent(matchingEvent, compiledCondition);
+            } finally {
+                if (latencyTrackerContains != null && siddhiAppContext.isStatsEnabled()) {
+                    latencyTrackerContains.markOut();
+                }
             }
         } else if (isTryingToConnect.get()) {
             LOG.error("Error on '" + siddhiAppContext.getName() + "'. Dropping event at Table '" +

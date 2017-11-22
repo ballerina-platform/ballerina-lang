@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.util.statistics.metrics;
 
+import org.wso2.siddhi.core.util.statistics.BufferedEventsTracker;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
 import org.wso2.siddhi.core.util.statistics.StatisticsManager;
@@ -38,6 +39,10 @@ public class SiddhiMetricsFactory implements StatisticsTrackerFactory {
 
     public ThroughputTracker createThroughputTracker(String name, StatisticsManager statisticsManager) {
         return new SiddhiThroughputMetric(name, ((SiddhiStatisticsManager) statisticsManager).getRegistry());
+    }
+
+    public BufferedEventsTracker createBufferSizeTracker(StatisticsManager statisticsManager) {
+        return new SiddhiBufferedEventsMetric(((SiddhiStatisticsManager) statisticsManager).getRegistry());
     }
 
     public MemoryUsageTracker createMemoryUsageTracker(StatisticsManager statisticsManager) {

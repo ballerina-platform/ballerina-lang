@@ -23,6 +23,7 @@ import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.ExceptionUtil;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.core.util.timestamp.TimestampGenerator;
 
 import java.util.List;
@@ -37,18 +38,21 @@ public class InputEventHandler {
     private final ThreadLocal<String[]> trpProperties;
     private final TimestampGenerator timestampGenerator;
     private String sourceType;
+    private LatencyTracker latencyTracker;
     private SiddhiAppContext siddhiAppContext;
     private InputHandler inputHandler;
     private List<AttributeMapping> transportMapping;
     private InputEventHandlerCallback inputEventHandlerCallback;
 
     InputEventHandler(InputHandler inputHandler, List<AttributeMapping> transportMapping,
-                      ThreadLocal<String[]> trpProperties, String sourceType, SiddhiAppContext siddhiAppContext,
+                      ThreadLocal<String[]> trpProperties, String sourceType,
+                      LatencyTracker latencyTracker, SiddhiAppContext siddhiAppContext,
                       InputEventHandlerCallback inputEventHandlerCallback) {
         this.inputHandler = inputHandler;
         this.transportMapping = transportMapping;
         this.trpProperties = trpProperties;
         this.sourceType = sourceType;
+        this.latencyTracker = latencyTracker;
         this.siddhiAppContext = siddhiAppContext;
         this.inputEventHandlerCallback = inputEventHandlerCallback;
         this.timestampGenerator = siddhiAppContext.getTimestampGenerator();
@@ -56,6 +60,9 @@ public class InputEventHandler {
 
     public void sendEvent(Event event) throws InterruptedException {
         try {
+            if (latencyTracker != null && siddhiAppContext.isStatsEnabled()) {
+                latencyTracker.markOut();
+            }
             String[] transportProperties = trpProperties.get();
             trpProperties.remove();
             if (event.getTimestamp() == -1) {
@@ -78,6 +85,9 @@ public class InputEventHandler {
 
     public void sendEvents(Event[] events) throws InterruptedException {
         try {
+            if (latencyTracker != null && siddhiAppContext.isStatsEnabled()) {
+                latencyTracker.markOut();
+            }
             String[] transportProperties = trpProperties.get();
             trpProperties.remove();
             long currentTimestamp = timestampGenerator.currentTime();

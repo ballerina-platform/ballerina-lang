@@ -19,6 +19,7 @@ package org.wso2.siddhi.core.util.persistence;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
+import org.wso2.siddhi.core.exception.CannotRestoreSiddhiAppStateException;
 import org.wso2.siddhi.core.exception.NoPersistenceStoreException;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
 
@@ -60,7 +61,7 @@ public class PersistenceService {
 
     }
 
-    public void restoreRevision(String revision) {
+    public void restoreRevision(String revision) throws CannotRestoreSiddhiAppStateException {
         if (persistenceStore != null) {
             if (log.isDebugEnabled()) {
                 log.debug("Restoring revision: " + revision + " ...");
@@ -76,7 +77,7 @@ public class PersistenceService {
         }
     }
 
-    public String restoreLastRevision() {
+    public String restoreLastRevision() throws CannotRestoreSiddhiAppStateException {
         if (persistenceStore != null) {
             String revision = persistenceStore.getLastRevision(siddhiAppName);
             if (revision != null) {
@@ -89,7 +90,7 @@ public class PersistenceService {
         }
     }
 
-    public void restore(byte[] snapshot) {
+    public void restore(byte[] snapshot) throws CannotRestoreSiddhiAppStateException {
         snapshotService.restore(snapshot);
     }
 }

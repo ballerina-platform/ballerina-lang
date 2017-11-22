@@ -100,7 +100,7 @@ public class StatisticsTestCase {
         String output = baos.toString();
 
         AssertJUnit.assertTrue(output.contains("Gauges"));
-        AssertJUnit.assertTrue(output.contains("org.wso2.siddhi." + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS));
+        AssertJUnit.assertTrue(output.contains("org.wso2.siddhi." + SiddhiConstants.METRIC_INFIX_SIDDHI_APPS));
         AssertJUnit.assertTrue(output.contains("query1.memory"));
         AssertJUnit.assertTrue(output.contains("Meters"));
         AssertJUnit.assertTrue(output.contains(SiddhiConstants.METRIC_INFIX_SIDDHI + SiddhiConstants.METRIC_DELIMITER +
@@ -407,6 +407,73 @@ public class StatisticsTestCase {
         String output = baos.toString();
 
         AssertJUnit.assertFalse(output.contains("Gauges"));
+
+        log.info(output);
+        System.setOut(old);
+
+    }
+
+    @Test
+    public void statisticsTest6() throws InterruptedException {
+        log.info("statistics test 1");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String siddhiApp = "" +
+                "@app:statistics(reporter = 'console', interval = '2', include='*query2.*,*cseEventStream2*' )" +
+                " " +
+                "define stream cseEventStream (symbol string, price float, volume int);" +
+                "define stream cseEventStream2 (symbol string, price float, volume int);" +
+                "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream[70 > price] " +
+                "select * " +
+                "insert into outputStream ;" +
+                "" +
+                "@info(name = 'query2') " +
+                "from cseEventStream[volume > 90] " +
+                "select * " +
+                "insert into outputStream ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.addCallback("outputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                eventArrived = true;
+                for (Event event : events) {
+                    count++;
+                    AssertJUnit.assertTrue("IBM".equals(event.getData(0)) || "WSO2".equals(event.getData(0)));
+                }
+            }
+        });
+
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(baos);
+        PrintStream old = System.out;
+        System.setOut(ps);
+
+        siddhiAppRuntime.start();
+        inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
+        inputHandler.send(new Object[]{"IBM", 75.6f, 100});
+
+        Thread.sleep(3010);
+        siddhiAppRuntime.shutdown();
+        AssertJUnit.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, count);
+
+        System.out.flush();
+        String output = baos.toString();
+
+        AssertJUnit.assertTrue(output.contains("Gauges"));
+        AssertJUnit.assertTrue(output.contains("org.wso2.siddhi." + SiddhiConstants.METRIC_INFIX_SIDDHI_APPS));
+        AssertJUnit.assertFalse(output.contains("query1.memory"));
+        AssertJUnit.assertTrue(output.contains("cseEventStream2.throughput"));
+        AssertJUnit.assertTrue(output.contains("Meters"));
+        AssertJUnit.assertTrue(output.contains(SiddhiConstants.METRIC_INFIX_SIDDHI + SiddhiConstants.METRIC_DELIMITER +
+                SiddhiConstants.METRIC_INFIX_STREAMS + SiddhiConstants.METRIC_DELIMITER + "cseEventStream"));
+        AssertJUnit.assertTrue(output.contains("Timers"));
+        AssertJUnit.assertFalse(output.contains("query1.latency"));
+        AssertJUnit.assertTrue(output.contains("query2.memory"));
 
         log.info(output);
         System.setOut(old);

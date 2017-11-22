@@ -21,7 +21,11 @@ package org.wso2.siddhi.core.stream.input.source;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.config.ConfigReader;
+import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
@@ -41,6 +45,8 @@ public abstract class SourceMapper implements SourceEventListener {
     private List<AttributeMapping> transportMappings;
     private SourceHandler sourceHandler;
     private SiddhiAppContext siddhiAppContext;
+    private ThroughputTracker throughputTracker;
+    private LatencyTracker mapperLatencyTracker;
 
     public final void init(StreamDefinition streamDefinition, String mapType, OptionHolder mapOptionHolder,
                            List<AttributeMapping> attributeMappings, String sourceType,
@@ -55,6 +61,15 @@ public abstract class SourceMapper implements SourceEventListener {
         }
         this.sourceHandler = sourceHandler;
         this.siddhiAppContext = siddhiAppContext;
+        if (siddhiAppContext.getStatisticsManager() != null) {
+            this.throughputTracker = QueryParserHelper.createThroughputTracker(siddhiAppContext,
+                    streamDefinition.getId(),
+                    SiddhiConstants.METRIC_INFIX_SOURCES, sourceType);
+            this.mapperLatencyTracker = QueryParserHelper.createLatencyTracker(siddhiAppContext,
+                    streamDefinition.getId(),
+                    SiddhiConstants.METRIC_INFIX_SOURCE_MAPPERS,
+                    sourceType + SiddhiConstants.METRIC_DELIMITER + mapType);
+        }
         init(streamDefinition, mapOptionHolder, attributeMappings, configReader, siddhiAppContext);
     }
 
@@ -85,9 +100,10 @@ public abstract class SourceMapper implements SourceEventListener {
         } else {
             inputEventHandlerCallback = new PassThroughSourceHandler(inputHandler);
         }
+        LatencyTracker mapperLatencyTracker = null;
         this.inputEventHandler = new InputEventHandler(inputHandler, transportMappings,
-                                                       trpProperties, sourceType, siddhiAppContext,
-                                                       inputEventHandlerCallback);
+                trpProperties, sourceType, mapperLatencyTracker, siddhiAppContext,
+                inputEventHandlerCallback);
     }
 
     public final void onEvent(Object eventObject, String[] transportProperties) {
@@ -97,18 +113,28 @@ public abstract class SourceMapper implements SourceEventListener {
                     for (String property : transportProperties) {
                         if (property == null) {
                             log.error("Dropping event " + eventObject.toString() + " belonging to stream " +
-                                              sourceHandler.getInputHandler().getStreamId()
-                                              + " as it contains null transport properties and system "
-                                              + "is configured to not allow null transport properties. You can "
-                                              + "configure it via source mapper if the respective "
-                                              + "mapper type allows it. Refer mapper documentation to verify "
-                                              + "supportability");
-                        return;
+                                    sourceHandler.getInputHandler().getStreamId()
+                                    + " as it contains null transport properties and system "
+                                    + "is configured to not allow null transport properties. You can "
+                                    + "configure it via source mapper if the respective "
+                                    + "mapper type allows it. Refer mapper documentation to verify "
+                                    + "supportability");
+                            return;
                         }
                     }
                 }
                 trpProperties.set(transportProperties);
-                mapAndProcess(eventObject, inputEventHandler);
+                try {
+                    if (throughputTracker != null && siddhiAppContext.isStatsEnabled()) {
+                        throughputTracker.eventIn();
+                        mapperLatencyTracker.markIn();
+                    }
+                    mapAndProcess(eventObject, inputEventHandler);
+                } finally {
+                    if (throughputTracker != null && siddhiAppContext.isStatsEnabled()) {
+                        mapperLatencyTracker.markOut();
+                    }
+                }
             }
         } catch (InterruptedException | RuntimeException e) {
             log.error("Error while processing '" + eventObject + "', for the input Mapping '" + mapType +
@@ -143,6 +169,7 @@ public abstract class SourceMapper implements SourceEventListener {
      * property values. If this returns
      * 'true' then {@link SourceMapper} will send events even though they contains null transport properties.
      * This method will be called after init().
+     *
      * @return whether {@link SourceMapper} should allow or drop events when transport properties are null.
      */
     protected abstract boolean allowNullInTransportProperties();

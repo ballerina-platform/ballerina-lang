@@ -69,7 +69,7 @@ public abstract class DistributionStrategy {
      *
      * @param destinationId the ID of the destination to be removed
      */
-    public void destinationFailed(int destinationId) {
+    public void destinationFailed(Integer destinationId) {
         destinationIds.remove(destinationId);
     }
 
@@ -79,7 +79,7 @@ public abstract class DistributionStrategy {
      *
      * @param destinationId the ID of the destination to be check for availability.
      */
-    public void destinationAvailable(int destinationId) {
+    public void destinationAvailable(Integer destinationId) {
         if (destinationIds.contains(destinationId)) {
             throw new SiddhiAppValidationException("Destination ID " + destinationId + " already registered");
         }

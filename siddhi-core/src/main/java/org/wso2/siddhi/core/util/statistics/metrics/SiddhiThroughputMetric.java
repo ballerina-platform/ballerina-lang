@@ -30,7 +30,7 @@ public class SiddhiThroughputMetric implements ThroughputTracker {
     private String name;
 
     public SiddhiThroughputMetric(String name, MetricRegistry metricRegistry) {
-        this.name = name + ".throughput";
+        this.name = name;
         eventMeter = metricRegistry.meter(this.name);
     }
 

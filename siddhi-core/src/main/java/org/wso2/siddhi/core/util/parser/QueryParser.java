@@ -101,8 +101,8 @@ public class QueryParser {
             } else {
                 queryName = "query_" + queryIndex + "_" + UUID.randomUUID().toString();
             }
-            latencyTracker = QueryParserHelper.getLatencyTracker(siddhiAppContext, queryName,
-                    SiddhiConstants.METRIC_INFIX_QUERIES);
+            latencyTracker = QueryParserHelper.createLatencyTracker(siddhiAppContext, queryName,
+                    SiddhiConstants.METRIC_INFIX_QUERIES, null);
             OutputStream.OutputEventType outputEventType = query.getOutputStream().getOutputEventType();
             boolean outputExpectsExpiredEvents = false;
             if (outputEventType != OutputStream.OutputEventType.CURRENT_EVENTS) {

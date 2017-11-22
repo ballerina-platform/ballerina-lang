@@ -22,6 +22,7 @@ import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.util.config.ConfigReader;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.util.transport.TemplateBuilder;
@@ -47,13 +48,18 @@ public abstract class SinkMapper {
     private Map<String, TemplateBuilder> templateBuilderMap = null;
     private OutputGroupDeterminer groupDeterminer = null;
     private ThreadLocal<DynamicOptions> trpDynamicOptions = new ThreadLocal<>();
+    private LatencyTracker mapperLatencyTracker;
+    private SiddhiAppContext siddhiAppContext;
 
     public final void init(StreamDefinition streamDefinition,
                            String type,
                            OptionHolder mapOptionHolder,
                            List<Element> unmappedPayloadList,
                            Sink sink, ConfigReader mapperConfigReader,
+                           LatencyTracker mapperLatencyTracker,
                            SiddhiAppContext siddhiAppContext) {
+        this.mapperLatencyTracker = mapperLatencyTracker;
+        this.siddhiAppContext = siddhiAppContext;
         sink.setTrpDynamicOptions(trpDynamicOptions);
         this.sinkListener = sink;
         this.optionHolder = mapOptionHolder;
@@ -109,29 +115,44 @@ public abstract class SinkMapper {
      * @param events {@link Event}s that need to be mapped
      */
     final void mapAndSend(Event[] events) {
-        try {
-            if (groupDeterminer != null) {
-                LinkedHashMap<String, ArrayList<Event>> eventMap = new LinkedHashMap<>();
-                for (Event event : events) {
-                    String key = groupDeterminer.decideGroup(event);
-                    ArrayList<Event> eventList = eventMap.computeIfAbsent(key, k -> new ArrayList<>());
-                    eventList.add(event);
-                }
-                for (ArrayList<Event> eventList : eventMap.values()) {
+        if (groupDeterminer != null) {
+            LinkedHashMap<String, ArrayList<Event>> eventMap = new LinkedHashMap<>();
+            for (Event event : events) {
+                String key = groupDeterminer.decideGroup(event);
+                ArrayList<Event> eventList = eventMap.computeIfAbsent(key, k -> new ArrayList<>());
+                eventList.add(event);
+            }
+            for (ArrayList<Event> eventList : eventMap.values()) {
+                try {
                     trpDynamicOptions.set(new DynamicOptions(eventList.get(0)));
+                    if (mapperLatencyTracker != null && siddhiAppContext.isStatsEnabled()) {
+                        mapperLatencyTracker.markIn();
+                    }
                     mapAndSend(eventList.toArray(new Event[eventList.size()]), optionHolder, templateBuilderMap,
                             sinkListener);
+                } finally {
                     trpDynamicOptions.remove();
+                    if (mapperLatencyTracker != null && siddhiAppContext.isStatsEnabled()) {
+                        mapperLatencyTracker.markOut();
+                    }
                 }
-            } else {
-                trpDynamicOptions.set(new DynamicOptions(events[0]));
-                mapAndSend(events, optionHolder, templateBuilderMap, sinkListener);
-                trpDynamicOptions.remove();
             }
-        } finally {
-            trpDynamicOptions.remove();
+        } else {
+            try {
+                trpDynamicOptions.set(new DynamicOptions(events[0]));
+                if (mapperLatencyTracker != null && siddhiAppContext.isStatsEnabled()) {
+                    mapperLatencyTracker.markIn();
+                }
+                mapAndSend(events, optionHolder, templateBuilderMap, sinkListener);
+            } finally {
+                trpDynamicOptions.remove();
+                if (mapperLatencyTracker != null && siddhiAppContext.isStatsEnabled()) {
+                    mapperLatencyTracker.markOut();
+                }
+            }
         }
     }
+
 
     /**
      * Called to map the event and send it to {@link SinkListener} for publishing

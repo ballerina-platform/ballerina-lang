@@ -50,7 +50,7 @@ public class InsertIntoTableCallback extends OutputCallback {
     }
 
     @Override
-    public void send(ComplexEventChunk complexEventChunk) {
+    public void send(ComplexEventChunk complexEventChunk, int noOfEvents) {
         if (getSiddhiDebugger() != null) {
             getSiddhiDebugger()
                     .checkBreakPoint(getQueryName(), SiddhiDebugger.QueryTerminal.OUT, complexEventChunk.getFirst());
@@ -65,21 +65,13 @@ public class InsertIntoTableCallback extends OutputCallback {
                 streamEventConverter.convertData(
                         complexEvent.getTimestamp(),
                         complexEvent.getOutputData(),
-                        complexEvent.getType() == ComplexEvent.Type.EXPIRED ? ComplexEvent.Type.CURRENT :
-                                complexEvent.getType(),
+                        complexEvent.getType(),
                         borrowEvent);
                 streamEventChunk.add(borrowEvent);
             }
-            table.addEvents(streamEventChunk);
+            table.addEvents(streamEventChunk, noOfEvents);
         } else {
-            complexEventChunk.reset();
-            while (complexEventChunk.hasNext()) {
-                ComplexEvent complexEvent = complexEventChunk.next();
-                if (complexEvent.getType() == ComplexEvent.Type.EXPIRED) {
-                    complexEvent.setType(ComplexEvent.Type.CURRENT);
-                }
-            }
-            table.addEvents((ComplexEventChunk<StreamEvent>) complexEventChunk);
+            table.addEvents((ComplexEventChunk<StreamEvent>) complexEventChunk, noOfEvents);
         }
     }
 

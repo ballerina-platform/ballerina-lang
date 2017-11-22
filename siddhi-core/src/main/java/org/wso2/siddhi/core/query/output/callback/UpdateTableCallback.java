@@ -59,7 +59,7 @@ public class UpdateTableCallback extends OutputCallback {
     }
 
     @Override
-    public synchronized void send(ComplexEventChunk updatingEventChunk) {
+    public synchronized void send(ComplexEventChunk updatingEventChunk, int noOfEvents) {
         if (getSiddhiDebugger() != null) {
             getSiddhiDebugger()
                     .checkBreakPoint(getQueryName(), SiddhiDebugger.QueryTerminal.OUT, updatingEventChunk.getFirst());
@@ -68,7 +68,7 @@ public class UpdateTableCallback extends OutputCallback {
         if (updatingEventChunk.hasNext()) {
             ComplexEventChunk<StateEvent> updatingStateEventChunk = constructMatchingStateEventChunk(updatingEventChunk,
                     convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool, streamEventConverter);
-            table.updateEvents(updatingStateEventChunk, compiledCondition, compiledUpdateSet);
+            table.updateEvents(updatingStateEventChunk, compiledCondition, compiledUpdateSet, noOfEvents);
         }
     }
 

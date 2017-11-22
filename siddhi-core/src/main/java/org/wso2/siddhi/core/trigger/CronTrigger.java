@@ -34,6 +34,9 @@ import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.util.ExceptionUtil;
+import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
+import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
 import org.wso2.siddhi.query.api.definition.TriggerDefinition;
 
 /**
@@ -49,14 +52,19 @@ public class CronTrigger implements Trigger, Job {
     private Scheduler scheduler;
     private String jobName;
     private String jobGroup = "TriggerGroup";
+    private ThroughputTracker throughputTracker;
 
     @Override
     public void init(TriggerDefinition triggerDefinition, SiddhiAppContext siddhiAppContext,
                      StreamJunction streamJunction) {
-
         this.triggerDefinition = triggerDefinition;
         this.siddhiAppContext = siddhiAppContext;
         this.streamJunction = streamJunction;
+        if (siddhiAppContext.getStatisticsManager() != null) {
+            this.throughputTracker = QueryParserHelper.createThroughputTracker(siddhiAppContext,
+                    triggerDefinition.getId(),
+                    SiddhiConstants.METRIC_INFIX_TRIGGERS, null);
+        }
     }
 
     @Override
@@ -141,6 +149,9 @@ public class CronTrigger implements Trigger, Job {
 
     private void sendEvent() {
         long currentTime = siddhiAppContext.getTimestampGenerator().currentTime();
+        if (throughputTracker != null && siddhiAppContext.isStatsEnabled()) {
+            throughputTracker.eventIn();
+        }
         streamJunction.sendEvent(new Event(currentTime, new Object[]{currentTime}));
     }
 }

@@ -42,6 +42,8 @@ import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.operator.IncrementalAggregateCompileCondition;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
+import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.List;
@@ -101,7 +103,7 @@ public class QueryParserHelper {
     }
 
     public static void updateVariablePosition(MetaComplexEvent metaComplexEvent,
-            List<VariableExpressionExecutor> variableExpressionExecutorList) {
+                                              List<VariableExpressionExecutor> variableExpressionExecutorList) {
 
         for (VariableExpressionExecutor variableExpressionExecutor : variableExpressionExecutorList) {
             int streamEventChainIndex = variableExpressionExecutor.getPosition()[STREAM_EVENT_CHAIN_INDEX];
@@ -149,10 +151,11 @@ public class QueryParserHelper {
     }
 
     public static void initStreamRuntime(StreamRuntime runtime, MetaComplexEvent metaComplexEvent,
-            LockWrapper lockWrapper, String queryName) {
+                                         LockWrapper lockWrapper, String queryName) {
 
         if (runtime instanceof SingleStreamRuntime) {
-            initSingleStreamRuntime((SingleStreamRuntime) runtime, 0, metaComplexEvent, null, lockWrapper, queryName);
+            initSingleStreamRuntime((SingleStreamRuntime) runtime, 0, metaComplexEvent,
+                    null, lockWrapper, queryName);
         } else {
             MetaStateEvent metaStateEvent = (MetaStateEvent) metaComplexEvent;
             StateEventPool stateEventPool = new StateEventPool(metaStateEvent, 5);
@@ -165,8 +168,8 @@ public class QueryParserHelper {
     }
 
     private static void initSingleStreamRuntime(SingleStreamRuntime singleStreamRuntime, int streamEventChainIndex,
-            MetaComplexEvent metaComplexEvent, StateEventPool stateEventPool, LockWrapper lockWrapper,
-            String queryName) {
+                                                MetaComplexEvent metaComplexEvent, StateEventPool stateEventPool,
+                                                LockWrapper lockWrapper, String queryName) {
         MetaStreamEvent metaStreamEvent;
 
         if (metaComplexEvent instanceof MetaStateEvent) {
@@ -220,18 +223,89 @@ public class QueryParserHelper {
         }
     }
 
-    public static LatencyTracker getLatencyTracker(SiddhiAppContext siddhiAppContext, String name, String type) {
+    public static LatencyTracker createLatencyTracker(SiddhiAppContext siddhiAppContext, String name, String type,
+                                                      String function) {
         LatencyTracker latencyTracker = null;
         if (siddhiAppContext.getStatisticsManager() != null) {
-            String metricName = siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMetricPrefix()
-                    + SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS
-                    + SiddhiConstants.METRIC_DELIMITER + siddhiAppContext.getName() + SiddhiConstants.METRIC_DELIMITER
-                    + SiddhiConstants.METRIC_INFIX_SIDDHI + SiddhiConstants.METRIC_DELIMITER + type
-                    + SiddhiConstants.METRIC_DELIMITER + name;
-            latencyTracker = siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getFactory()
-                    .createLatencyTracker(metricName, siddhiAppContext.getStatisticsManager());
+            String metricName =
+                    siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMetricPrefix() +
+                            SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI_APPS +
+                            SiddhiConstants.METRIC_DELIMITER + siddhiAppContext.getName() +
+                            SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
+                            SiddhiConstants.METRIC_DELIMITER + type +
+                            SiddhiConstants.METRIC_DELIMITER + name + SiddhiConstants.METRIC_DELIMITER + "latency";
+            if (function != null) {
+                metricName += SiddhiConstants.METRIC_DELIMITER + function;
+            }
+            boolean matchExist = false;
+            for (String regex : siddhiAppContext.getIncludedMetrics()) {
+                if (metricName.matches(regex)) {
+                    matchExist = true;
+                    break;
+                }
+            }
+            if (matchExist) {
+                latencyTracker = siddhiAppContext.getSiddhiContext()
+                        .getStatisticsConfiguration()
+                        .getFactory()
+                        .createLatencyTracker(metricName, siddhiAppContext.getStatisticsManager());
+            }
         }
         return latencyTracker;
+    }
+
+    public static ThroughputTracker createThroughputTracker(SiddhiAppContext siddhiAppContext, String name,
+                                                            String type, String function) {
+        ThroughputTracker throughputTracker = null;
+        if (siddhiAppContext.getStatisticsManager() != null) {
+            String metricName =
+                    siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMetricPrefix() +
+                            SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI_APPS +
+                            SiddhiConstants.METRIC_DELIMITER + siddhiAppContext.getName() +
+                            SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
+                            SiddhiConstants.METRIC_DELIMITER + type +
+                            SiddhiConstants.METRIC_DELIMITER + name + SiddhiConstants.METRIC_DELIMITER + "throughput";
+            if (function != null) {
+                metricName += SiddhiConstants.METRIC_DELIMITER + function;
+            }
+            boolean matchExist = false;
+            for (String regex : siddhiAppContext.getIncludedMetrics()) {
+                if (metricName.matches(regex)) {
+                    matchExist = true;
+                    break;
+                }
+            }
+            if (matchExist) {
+                throughputTracker = siddhiAppContext
+                        .getSiddhiContext()
+                        .getStatisticsConfiguration()
+                        .getFactory()
+                        .createThroughputTracker(metricName, siddhiAppContext.getStatisticsManager());
+            }
+        }
+        return throughputTracker;
+    }
+
+
+    public static void registerMemoryUsageTracking(String name, Object value, String metricInfixQueries,
+                                                   SiddhiAppContext siddhiAppContext,
+                                                   MemoryUsageTracker memoryUsageTracker) {
+        String metricName = siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMetricPrefix() +
+                SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI_APPS +
+                SiddhiConstants.METRIC_DELIMITER + siddhiAppContext.getName() + SiddhiConstants.METRIC_DELIMITER +
+                SiddhiConstants.METRIC_INFIX_SIDDHI + SiddhiConstants.METRIC_DELIMITER +
+                metricInfixQueries + SiddhiConstants.METRIC_DELIMITER +
+                name + SiddhiConstants.METRIC_DELIMITER + "memory";
+        boolean matchExist = false;
+        for (String regex : siddhiAppContext.getIncludedMetrics()) {
+            if (metricName.matches(regex)) {
+                matchExist = true;
+                break;
+            }
+        }
+        if (matchExist) {
+            memoryUsageTracker.registerObject(value, metricName);
+        }
     }
 
 }
