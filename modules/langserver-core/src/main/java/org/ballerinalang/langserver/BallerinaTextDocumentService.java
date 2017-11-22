@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import io.netty.util.concurrent.CompleteFuture;
+import org.ballerinalang.langserver.completions.util.BallerinaCompletionUtil;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.CodeLensParams;
@@ -37,10 +39,12 @@ import org.eclipse.lsp4j.DocumentRangeFormattingParams;
 import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SymbolInformation;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
@@ -59,22 +63,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 	public CompletableFuture<Either<List<CompletionItem>, CompletionList>>completion(TextDocumentPositionParams
 																								 position) {
 		return CompletableFuture.supplyAsync(() -> {
-			List<CompletionItem> completions = new ArrayList<>();
-			
-			CompletionItem item1 = new CompletionItem();
-			item1.setLabel("main");
-			String mainInsertText = "function main (string[] args) {\n"
-				+ "  println(\"Hello, World!\");\n"
-				+ "}";
-			item1.setInsertText(mainInsertText);
-			
-			CompletionItem item2 = new CompletionItem();
-			item2.setLabel("function");
-			String functionInsertText = "function func () {\n}";
-			item2.setInsertText(functionInsertText);
-
-			completions.add(item1);
-			completions.add(item2);
+			List<CompletionItem> completions = BallerinaCompletionUtil.getCompletions(position);
 			return Either.forLeft(completions);
 		});
 	}
