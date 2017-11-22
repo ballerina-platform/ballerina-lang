@@ -19,9 +19,9 @@
 
 import _ from 'lodash';
 import EventChannel from 'event_channel';
+import { getServiceEndpoint } from 'api-client/api-client';
 import LangserverChannel from './langserver-channel';
 import RequestSession from './request-session';
-import { getServiceEndpoint } from './../api-client/api-client';
 
 const BUILT_IN_PACKAGES = 'ballerina/packages';
 

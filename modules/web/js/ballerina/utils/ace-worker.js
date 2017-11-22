@@ -17,8 +17,8 @@
  */
 import _ from 'lodash';
 // This import defines ace/worker/mirror so we can ace.require ace/worker/mirror later
+import { fetchConfigs } from 'api-client/api-client';
 import './ace-mirror-worker';
-import { fetchConfigs } from './../../api-client/api-client';
 
 const ace = global.ace;
 

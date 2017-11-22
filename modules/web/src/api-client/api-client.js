@@ -21,6 +21,7 @@ import $ from 'jquery';
 import hardcodedTypeLattice from './hardcoded-type-lattice';
 import hardcodedOperatorLattice from './hardcoded-operator-lattice';
 
+
 // updating this with endpoints upon initial fetchConfigs()
 let endpoints = {};
 let pathSeparator = '/'; // Setting default value as '/'. This value will get overriden at fetchConfigs().
@@ -42,7 +43,9 @@ export function fetchConfigs() {
     // PRODUCTION is a global variable set by webpack DefinePlugin
     // it will be set to "true" in the production build.
     let configUrl = '';
+    /* eslint-disable no-undef */
     if (PRODUCTION !== undefined && PRODUCTION) {
+    /* eslint-enable no-undef */
         configUrl = '/config';
     } else {
         // following is to support development mode where the config service is on 9091
@@ -193,10 +196,10 @@ export function getSwaggerDefinition(ballerinaSource, serviceName) {
  * @returns type lattice response
  */
 export function getTypeLattice() {
-    const endpoint = getServiceEndpoint('typeLattice');
-    const headers = {
-        'content-type': 'application/json; charset=utf-8',
-    };
+    // const endpoint = getServiceEndpoint('typeLattice');
+    // const headers = {
+        // 'content-type': 'application/json; charset=utf-8',
+    // };
 
     // Hard coding type lattice temporary
     return Promise.resolve(hardcodedTypeLattice);
