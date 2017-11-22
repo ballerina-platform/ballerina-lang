@@ -19,12 +19,14 @@
 package org.wso2.siddhi.core.managment;
 
 import org.apache.log4j.Logger;
+import org.testng.Assert;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.CannotRestoreSiddhiAppStateException;
 import org.wso2.siddhi.core.exception.NoPersistenceStoreException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -119,7 +121,11 @@ public class PersistenceTestCase {
         siddhiAppRuntime.start();
 
         //loading
-        siddhiAppRuntime.restoreLastRevision();
+        try {
+            siddhiAppRuntime.restoreLastRevision();
+        } catch (CannotRestoreSiddhiAppStateException e) {
+            Assert.fail("Restoring of Siddhi app " + siddhiAppRuntime.getName() + " failed");
+        }
 
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         Thread.sleep(10);
@@ -200,7 +206,11 @@ public class PersistenceTestCase {
         siddhiAppRuntime.start();
 
         //loading
-        siddhiAppRuntime.restoreLastRevision();
+        try {
+            siddhiAppRuntime.restoreLastRevision();
+        } catch (CannotRestoreSiddhiAppStateException e) {
+            Assert.fail("Restoring of Siddhi app " + siddhiAppRuntime.getName() + " failed");
+        }
 
         stream2.send(new Object[]{"IBM", 45.7f, 100});
         Thread.sleep(500);
@@ -344,7 +354,11 @@ public class PersistenceTestCase {
         siddhiAppRuntime.start();
 
         //loading
-        siddhiAppRuntime.restoreLastRevision();
+        try {
+            siddhiAppRuntime.restoreLastRevision();
+        } catch (CannotRestoreSiddhiAppStateException e) {
+            Assert.fail("Restoring of Siddhi app " + siddhiAppRuntime.getName() + " failed");
+        }
 
         //shutdown siddhi app
         Thread.sleep(500);
@@ -426,7 +440,11 @@ public class PersistenceTestCase {
         siddhiAppRuntime.start();
 
         //loading
-        siddhiAppRuntime.restoreLastRevision();
+        try {
+            siddhiAppRuntime.restoreLastRevision();
+        } catch (CannotRestoreSiddhiAppStateException e) {
+            Assert.fail("Restoring of Siddhi app " + siddhiAppRuntime.getName() + " failed");
+        }
 
         //shutdown siddhi app
         Thread.sleep(15000);
@@ -500,7 +518,11 @@ public class PersistenceTestCase {
         siddhiAppRuntime.start();
 
         //loading
-        siddhiAppRuntime.restoreLastRevision();
+        try {
+            siddhiAppRuntime.restoreLastRevision();
+        } catch (CannotRestoreSiddhiAppStateException e) {
+            Assert.fail("Restoring of Siddhi app " + siddhiAppRuntime.getName() + " failed");
+        }
 
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         Thread.sleep(100);
@@ -584,7 +606,11 @@ public class PersistenceTestCase {
         siddhiAppRuntime.start();
 
         //loading
-        siddhiAppRuntime.restoreLastRevision();
+        try {
+            siddhiAppRuntime.restoreLastRevision();
+        } catch (CannotRestoreSiddhiAppStateException e) {
+            Assert.fail("Restoring of Siddhi app " + siddhiAppRuntime.getName() + " failed");
+        }
 
         inputHandler.send(new Object[]{"IBM", 75.4f, 100, currentTime + 4000});
         Thread.sleep(100);
@@ -664,7 +690,11 @@ public class PersistenceTestCase {
         siddhiAppRuntime.start();
 
         //loading
-        siddhiAppRuntime.restore(snapshot);
+        try {
+            siddhiAppRuntime.restore(snapshot);
+        } catch (CannotRestoreSiddhiAppStateException e) {
+            Assert.fail("Restoring of Siddhi app " + siddhiAppRuntime.getName() + " failed");
+        }
 
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         Thread.sleep(10);
@@ -689,7 +719,7 @@ public class PersistenceTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setPersistenceStore(persistenceStore);
 
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "@app:name('Test') " +
                 "" +
                 "define stream StockStream ( symbol string, price float, volume long );" +
@@ -716,11 +746,11 @@ public class PersistenceTestCase {
             }
         };
 
-        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(executionPlan);
-        executionPlanRuntime.addCallback("query1", queryCallback);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.addCallback("query1", queryCallback);
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("StockStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("StockStream");
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{"IBM", 75.6f, 100L});
         inputHandler.send(new Object[]{"WSO2", 75.6f, 101L});
@@ -732,20 +762,24 @@ public class PersistenceTestCase {
         AssertJUnit.assertTrue(eventArrived);
 
         //persisting
-        executionPlanRuntime.persist();
+        siddhiAppRuntime.persist();
 
         inputHandler.send(new Object[]{"IBM", 75.6f, 105L});
         inputHandler.send(new Object[]{"WSO2", 75.6f, 106L});
         Thread.sleep(50);
         //restarting execution plan
-        executionPlanRuntime.shutdown();
-        executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(executionPlan);
-        executionPlanRuntime.addCallback("query1", queryCallback);
-        inputHandler = executionPlanRuntime.getInputHandler("StockStream");
-        executionPlanRuntime.start();
+        siddhiAppRuntime.shutdown();
+        siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.addCallback("query1", queryCallback);
+        inputHandler = siddhiAppRuntime.getInputHandler("StockStream");
+        siddhiAppRuntime.start();
 
         //loading
-        executionPlanRuntime.restoreLastRevision();
+        try {
+            siddhiAppRuntime.restoreLastRevision();
+        } catch (CannotRestoreSiddhiAppStateException e) {
+            Assert.fail("Restoring of Siddhi app " + siddhiAppRuntime.getName() + " failed");
+        }
 
         inputHandler.send(new Object[]{"IBM", 75.6f, 107L});
         inputHandler.send(new Object[]{"IBM", 75.6f, 108L});
@@ -754,8 +788,8 @@ public class PersistenceTestCase {
         SiddhiTestHelper.waitForEvents(100, 7, atomicCount, 10000);
         AssertJUnit.assertEquals(7, atomicCount.get());
 
-        //shutdown execution plan
-        executionPlanRuntime.shutdown();
+        //shutdown siddhi app
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(dependsOnMethods = "persistenceTest9")
@@ -766,7 +800,7 @@ public class PersistenceTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setPersistenceStore(persistenceStore);
 
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "@app:name('Test') " +
                 "" +
                 "define stream StockStream ( symbol string, price float, volume int );" +
@@ -776,7 +810,7 @@ public class PersistenceTestCase {
                 "select volume " +
                 "insert all events into outputStream ;";
 
-        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
         QueryCallback queryCallback = new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
@@ -794,10 +828,10 @@ public class PersistenceTestCase {
                 }
             }
         };
-        executionPlanRuntime.addCallback("query1", queryCallback);
+        siddhiAppRuntime.addCallback("query1", queryCallback);
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("StockStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("StockStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
         inputHandler.send(new Object[]{"IBM", 75.6f, 300});
         inputHandler.send(new Object[]{"WSO2", 57.6f, 200});
@@ -806,26 +840,30 @@ public class PersistenceTestCase {
         AssertJUnit.assertEquals(3, count);
         AssertJUnit.assertTrue(eventArrived);
         // persisting
-        executionPlanRuntime.persist();
+        siddhiAppRuntime.persist();
 
         inputHandler.send(new Object[]{"WSO2", 55.6f, 20});
         inputHandler.send(new Object[]{"WSO2", 57.6f, 40});
 
         Thread.sleep(500);
-        executionPlanRuntime.shutdown();
-        executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(executionPlan);
-        executionPlanRuntime.addCallback("query1", queryCallback);
-        inputHandler = executionPlanRuntime.getInputHandler("StockStream");
-        executionPlanRuntime.start();
+        siddhiAppRuntime.shutdown();
+        siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.addCallback("query1", queryCallback);
+        inputHandler = siddhiAppRuntime.getInputHandler("StockStream");
+        siddhiAppRuntime.start();
         //loading
-        executionPlanRuntime.restoreLastRevision();
+        try {
+            siddhiAppRuntime.restoreLastRevision();
+        } catch (CannotRestoreSiddhiAppStateException e) {
+            Assert.fail("Restoring of Siddhi app " + siddhiAppRuntime.getName() + " failed");
+        }
 
         inputHandler.send(new Object[]{"WSO2", 55.6f, 20});
 
         SiddhiTestHelper.waitForEvents(100, 6, atomicCount, 10000);
         AssertJUnit.assertEquals(true, eventArrived);
         AssertJUnit.assertEquals(200, lastValueRemoved);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -837,7 +875,7 @@ public class PersistenceTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setPersistenceStore(persistenceStore);
 
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "@app:name('Test') " +
                 "" +
                 "define stream StockStream ( symbol string, price float, volume long );" +
@@ -866,11 +904,11 @@ public class PersistenceTestCase {
             }
         };
 
-        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(executionPlan);
-        executionPlanRuntime.addCallback("query1", queryCallback);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.addCallback("query1", queryCallback);
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("StockStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("StockStream");
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{"IBM", 75.6f, 100L});
         inputHandler.send(new Object[]{"WSO2", 75.6f, 101L});
@@ -881,7 +919,7 @@ public class PersistenceTestCase {
         AssertJUnit.assertEquals(new Long(101), lastValue);
 
         //persisting
-        executionPlanRuntime.persist();
+        siddhiAppRuntime.persist();
         Thread.sleep(500);
 
         inputHandler.send(new Object[]{"WSO2", 75.6f, 50L});
@@ -890,22 +928,26 @@ public class PersistenceTestCase {
 
         //restarting execution plan
         Thread.sleep(500);
-        executionPlanRuntime.shutdown();
-        executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(executionPlan);
-        executionPlanRuntime.addCallback("query1", queryCallback);
-        inputHandler = executionPlanRuntime.getInputHandler("StockStream");
-        executionPlanRuntime.start();
+        siddhiAppRuntime.shutdown();
+        siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.addCallback("query1", queryCallback);
+        inputHandler = siddhiAppRuntime.getInputHandler("StockStream");
+        siddhiAppRuntime.start();
 
         //loading
-        executionPlanRuntime.restoreLastRevision();
+        try {
+            siddhiAppRuntime.restoreLastRevision();
+        } catch (CannotRestoreSiddhiAppStateException e) {
+            Assert.fail("Restoring of Siddhi app " + siddhiAppRuntime.getName() + " failed");
+        }
 
         inputHandler.send(new Object[]{"IBM", 75.6f, 100L});
 
-        //shutdown execution plan
+        //shutdown siddhi app
         Thread.sleep(500);
         SiddhiTestHelper.waitForEvents(100, 3, atomicCount, 10000);
         AssertJUnit.assertEquals(new Long(103), lastValue);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
 }

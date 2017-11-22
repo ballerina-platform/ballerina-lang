@@ -18,12 +18,14 @@
 package org.wso2.siddhi.core.query.partition;
 
 import org.apache.log4j.Logger;
+import org.testng.Assert;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.CannotRestoreSiddhiAppStateException;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
@@ -1904,7 +1906,11 @@ public class PartitionTestCase {
         byte[] snapshot = siddhiAppRuntime.snapshot();
         siddhiAppRuntime.shutdown();
         Thread.sleep(1000);
-        siddhiAppRuntime2.restore(snapshot);
+        try {
+            siddhiAppRuntime2.restore(snapshot);
+        } catch (CannotRestoreSiddhiAppStateException e) {
+            Assert.fail("Restoring of Siddhi app " + siddhiAppRuntime.getName() + " failed");
+        }
         siddhiAppRuntime2.start();
         inputHandlerB.send(new Event(System.currentTimeMillis(), new Object[]{"IBM",  700}));
         inputHandlerB.send(new Event(System.currentTimeMillis(), new Object[]{"WSO2",  60}));

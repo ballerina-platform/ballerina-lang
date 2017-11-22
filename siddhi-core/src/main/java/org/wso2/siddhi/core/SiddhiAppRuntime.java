@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.aggregation.AggregationRuntime;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.debugger.SiddhiDebugger;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.CannotRestoreSiddhiAppStateException;
 import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.QueryNotExistException;
 import org.wso2.siddhi.core.exception.StoreQueryCreationException;
@@ -458,7 +459,7 @@ public class SiddhiAppRuntime {
         }
     }
 
-    public void restore(byte[] snapshot) {
+    public void restore(byte[] snapshot) throws CannotRestoreSiddhiAppStateException {
         try {
             // first, pause all the event sources
             sourceMap.values().forEach(list -> list.forEach(Source::pause));
@@ -470,7 +471,7 @@ public class SiddhiAppRuntime {
         }
     }
 
-    public void restoreRevision(String revision) {
+    public void restoreRevision(String revision) throws CannotRestoreSiddhiAppStateException {
         try {
             // first, pause all the event sources
             sourceMap.values().forEach(list -> list.forEach(Source::pause));
@@ -482,7 +483,7 @@ public class SiddhiAppRuntime {
         }
     }
 
-    public String restoreLastRevision() {
+    public String restoreLastRevision() throws CannotRestoreSiddhiAppStateException {
         String revision;
         try {
             // first, pause all the event sources
