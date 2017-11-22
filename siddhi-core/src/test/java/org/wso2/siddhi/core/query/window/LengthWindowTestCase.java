@@ -244,8 +244,12 @@ public class LengthWindowTestCase {
         inputHandler.send(new Object[]{"IBM", 700F, 0, 0.0D, 5L, true});
         inputHandler.send(new Object[]{null, null, null, null, null, null});
         inputHandler.send(new Object[]{"IBM", 700F, 0, 0.0D, 5L, true});
+        inputHandler.send(new Object[]{"IBM", 700F, 0, 0.0D, 5L, true});
+        inputHandler.send(new Object[]{"IBM", 700F, 0, 0.0D, 5L, true});
+        inputHandler.send(new Object[]{"IBM", 700F, 0, 0.0D, 5L, true});
+        inputHandler.send(new Object[]{"IBM", 700F, 0, 0.0D, 5L, true});
         Thread.sleep(500);
-        AssertJUnit.assertEquals(4, inEventCount);
+        AssertJUnit.assertEquals(8, inEventCount);
         AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
