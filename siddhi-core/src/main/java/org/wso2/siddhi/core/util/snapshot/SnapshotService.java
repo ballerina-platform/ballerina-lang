@@ -125,7 +125,13 @@ public class SnapshotService {
             for (Map.Entry<String, List<Snapshotable>> entry : snapshotableMap.entrySet()) {
                 snapshotableList = entry.getValue();
                 for (Snapshotable snapshotable : snapshotableList) {
-                    snapshotable.restoreState(snapshots.get(snapshotable.getElementId()));
+                    try {
+                        snapshotable.restoreState(snapshots.get(snapshotable.getElementId()));
+                    } catch (Throwable t) {
+                        log.error("State if Siddhi app " + siddhiAppContext.getName() + " not restored properly " +
+                                "because the Siddhi app may have changed since the last persist. Clean the old " +
+                                "revisions from the database/file system for a fresh deployment of Siddhi app");
+                    }
                 }
             }
         } finally {
