@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -49,8 +50,7 @@ public class MapInitializerExprTest {
     @Test
     public void testMapWithUnsupportedKey() {
         // testMapWithUnsupportedKey
-        BAssertUtil.validateError(negativeResult, 0,
-                "invalid field name in map literal. identifier or string literal expected", 2, 15);
+        BAssertUtil.validateError(negativeResult, 0, "missing token ':' before '('", 2, 18);
     }
 
     @Test(description = "Test map initializer expression")
@@ -132,5 +132,25 @@ public class MapInitializerExprTest {
         address = ((BMap) adrs3).get("address");
         Assert.assertTrue(address instanceof BMap<?, ?>);
         Assert.assertEquals(((BMap) address).get("city").stringValue(), "Galle");
+    }
+
+    @Test
+    public void testMapInitWithPackageVars() {
+        CompileResult result = BCompileUtil.compile(this, "test-src/types/map/", "a.b");
+        BValue[] returns = BRunUtil.invoke(result, "testMapInitWithPackageVars");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BMap.class);
+
+        BMap<String, ?> mapValue = (BMap<String, BString>) returns[0];
+        Assert.assertEquals(mapValue.size(), 2);
+        Assert.assertEquals(mapValue.get("name").stringValue(), "PI");
+        Assert.assertEquals(((BFloat) mapValue.get("value")).floatValue(), 3.14159);
+    }
+
+    @Test
+    public void testMapInitWithStringTemplateAsKey() {
+        CompileResult result = BCompileUtil.compile("test-src/types/map/map-initializer-with-string-template.bal");
+        BAssertUtil.validateError(result, 0, "mismatched input 'string `'. expecting '}'", 3, 14);
     }
 }

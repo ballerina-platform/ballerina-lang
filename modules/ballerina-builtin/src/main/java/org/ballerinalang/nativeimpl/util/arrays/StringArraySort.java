@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.lang.arrays;
+package org.ballerinalang.nativeimpl.util.arrays;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;

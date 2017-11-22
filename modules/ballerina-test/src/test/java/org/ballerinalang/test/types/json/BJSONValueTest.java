@@ -59,9 +59,8 @@ public class BJSONValueTest {
 
     @Test
     public void testJSONWithUnsupportedKey() {
-        // testJSONWithUnsupportedKey
-        BAssertUtil.validateError(negativeResult, 2,
-                "invalid field name in json literal. identifier or string literal expected", 14, 16);
+        CompileResult result = BCompileUtil.compile("test-src/types/jsontype/json-literal-invalid-key-negative.bal");
+        BAssertUtil.validateError(result, 0, "missing token ':' before '('", 2, 19);
     }
 
     @Test(description = "Test initializing json with a string")

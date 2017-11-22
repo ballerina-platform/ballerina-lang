@@ -37,7 +37,6 @@ public class TypeConstants {
     public static final String CONNECTOR_TNAME = "connector";
     public static final String STRUCT_TNAME = "struct";
     static final String ITERATOR_TNAME = "iterator";
-    static final String NATIVE_PACKAGE = "ballerina.model.typemappers";
     public static final String DATATABLE_TNAME = "datatable";
     public static final String ANY_TNAME = "any";
     public static final String TYPE_TNAME = "type";

@@ -76,6 +76,7 @@ public enum DiagnosticCode {
     TRANSFORMER_MUST_HAVE_OUTPUT("transformer.must.have.output"),
     TOO_MANY_OUTPUTS_FOR_TRANSFORMER("too.many.outputs.for.transformer"),
     TRANSFORMER_CONFLICTS_WITH_CONVERSION("transformer.conflicts.with.conversion"),
+    TRANSFORMER_UNSUPPORTED_TYPES("transformer.unsupported.types"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
@@ -107,6 +108,7 @@ public enum DiagnosticCode {
     NOT_ENOUGH_RETURN_VALUES("return.value.not.enough"),
     RETURN_VALUE_NOT_EXPECTED("return.value.not.expected"),
     INVALID_ACTION_INVOCATION("invalid.action.invocation"),
+    INVALID_FUNCTION_INVOCATION("invalid.function.invocation"),
 
     DUPLICATED_ERROR_CATCH("duplicated.error.catch"),
 

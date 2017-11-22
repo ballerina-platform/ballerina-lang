@@ -474,6 +474,8 @@ public class Desugar extends BLangNodeVisitor {
             if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) keyExpr;
                 keyValue.key.expr = createStringLiteral(varRef.pos, varRef.variableName.value);
+            } else {
+                keyValue.key.expr = rewriteExpr(keyValue.key.expr);
             }
 
             keyValue.valueExpr = rewriteExpr(keyValue.valueExpr);
@@ -513,9 +515,8 @@ public class Desugar extends BLangNodeVisitor {
         } else if ((ownerSymbol.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
             // Local variable in a function/resource/action/worker
             genVarRefExpr = new BLangLocalVarRef(varRefExpr.symbol);
-        } else if ((ownerSymbol.tag & SymTag.STRUCT) == SymTag.STRUCT ||
-                (ownerSymbol.tag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
-            // Field variable in a struct or a receiver
+        } else if ((ownerSymbol.tag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
+            // Field variable in a receiver
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.PACKAGE) == SymTag.PACKAGE ||
                 (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
