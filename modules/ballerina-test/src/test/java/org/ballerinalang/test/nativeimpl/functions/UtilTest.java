@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * Test Cases for ballerina.utils native functions.
  */
-public class BallerinaUtilsTest {
+public class UtilTest {
 
     private CompileResult compileResult;
 
@@ -50,8 +50,7 @@ public class BallerinaUtilsTest {
                 "バレリーナ日本語", "Ballerina 的中文翻译", "Traducción al español de  la bailarina"};
 
         for (String s : stringsToTest) {
-            BValue[] returnVals = BRunUtil.invoke(compileResult,
-                                                  "testEncodeDecode", new BValue[]{new BString(s)});
+            BValue[] returnVals = BRunUtil.invoke(compileResult, "testEncodeDecode", new BValue[]{new BString(s)});
             Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                                "Invalid Return Values for :" + s);
             Assert.assertEquals(returnVals[0].stringValue(), s, "Original and Return value didn't match");
@@ -60,10 +59,9 @@ public class BallerinaUtilsTest {
 
     @Test
     public void testRandomString() {
-        BValue[] args = {};
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testRandomString", args);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                           "Invalid Return Values for");
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testRandomString");
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                           "Invalid return value");
     }
 
     @Test
@@ -94,84 +92,35 @@ public class BallerinaUtilsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
-    public void testHmacNagativeInvalidAlgo() {
+    public void testHmacNegativeInvalidAlgo() {
         final String key = "abcdefghijk";
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testHmac",
-                                              new BValue[]{new BString("Ballerina HMAC test"), new BString(key),
-                                                      new BString("SHA124")});
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                           "Invalid Return Values for");
+        BValue[] args = {new BString("Ballerina HMAC test"), new BString(key), new BString("SHA124")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHmac", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                           "Invalid return value");
 
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
-    public void testHmacNagativeInvalidKey() {
-        final String key = "";
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testHmac",
-                                              new BValue[]{new BString("Ballerina HMAC test"), new BString(key),
-                                                      new BString("SHA1")});
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                           "Invalid Return Values for");
-
-    }
-
-    @Test
-    public void testHmacBase64() {
-        final String key = "abcdefghijk";
-        List<BValue[]> argsList = new ArrayList<>();
-
-        argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString(key), new BString("SHA1")});
-        argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString(key), new BString("SHA256")});
-        argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString(key), new BString("MD5")});
-
-        for (BValue[] args : argsList) {
-            BValue[] returnVals = BRunUtil.invoke(compileResult, "testHmacFromBase64", args);
-            Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                               "Invalid Return Values for");
-        }
+    public void testHmacNegativeInvalidKey() {
+        BValue[] args = {new BString("Ballerina HMAC test"), new BString(""), new BString("SHA1")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHmac", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                           "Invalid return value");
     }
 
     @Test
     public void testMessageDigest() {
         List<BValue[]> argsList = new ArrayList<>();
-
         argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString("SHA1")});
         argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString("SHA256")});
         argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString("MD5")});
 
         for (BValue[] args : argsList) {
-            BValue[] returnVals = BRunUtil.invoke(compileResult, "testMessageDigest", args);
-            Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                               "Invalid Return Values for");
+            BValue[] returnValues = BRunUtil.invoke(compileResult, "testMessageDigest", args);
+            Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                               "Invalid return value");
         }
-    }
-
-    @Test
-    public void testBase64toBase16Encode() {
-        BValue[] args = new BValue[]{new BString("Ballerina HMAC BASE64 test")};
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testBase64ToBase16Encode", args);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                           "Invalid Return Values for");
-    }
-
-    @Test
-    public void testBase16Encoding() {
-        String expectedValue = "48656C6C6F2042616C6C6572696E61";
-        BValue[] args = new BValue[]{new BString("Hello Ballerina")};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testBase16Encoding", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-                           "Invalid return value");
-        Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
-    }
-
-    @Test
-    public void testBase16Decoding() {
-        String expectedValue = "Hello Ballerina";
-        BValue[] args = new BValue[]{new BString("48656C6C6F2042616C6C6572696E61")};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testBase16Decoding", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-                           "Invalid return value");
-        Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
     }
 
     @Test
@@ -195,20 +144,41 @@ public class BallerinaUtilsTest {
     }
 
     @Test
-    public void testBase16ToBase64Encoding() {
+    public void testConvertingBase16ToBase64() {
         String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
         BValue[] args = new BValue[]{new BString("48656C6C6F2042616C6C6572696E61")};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testBase16ToBase64Encoding", args);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testConvertingBase16ToBase64", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                            "Invalid return value");
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
     }
 
     @Test
-    public void testBase64ToBase16Encoding() {
+    public void testConvertingBase64ToBase16() {
         String expectedValue = "48656C6C6F2042616C6C6572696E61";
         BValue[] args = new BValue[]{new BString("SGVsbG8gQmFsbGVyaW5h")};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testBase64ToBase16Encoding", args);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testConvertingBase64ToBase16", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                           "Invalid return value");
+        Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
+    }
+
+    @Test
+    public void testConvertingHMACValueFromBase16ToBase64() {
+        String expectedValue = "S4qhC4EdsEcvY64gs+JsmA==";
+        BValue[] args = new BValue[]{new BString("Hello Ballerina"), new BString("abcdefghijk"), new BString("MD5")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testConvertingHMACValueFromBase16ToBase64", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                           "Invalid return value");
+        Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
+    }
+
+    @Test
+    public void testConvertingHMACValueFromBase64ToBase16() {
+        String expectedValue = "4B8AA10B811DB0472F63AE20B3E26C98";
+        BValue[] args = new BValue[]{new BString("Hello Ballerina"), new BString("abcdefghijk"),
+                new BString("MD5")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testConvertingHMACValueFromBase64ToBase16", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                            "Invalid return value");
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);

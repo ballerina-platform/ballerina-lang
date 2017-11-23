@@ -44,8 +44,8 @@ public class Base64Decode extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String str = getStringArgument(context, 0);
-        byte[] decode = Base64.getDecoder().decode(str.getBytes(Charset.defaultCharset()));
-        return getBValues(new BString(new String(decode, Charset.defaultCharset())));
+        String value = getStringArgument(context, 0);
+        byte[] decodedValue = Base64.getDecoder().decode(value.getBytes(Charset.defaultCharset()));
+        return getBValues(new BString(new String(decodedValue, Charset.defaultCharset())));
     }
 }

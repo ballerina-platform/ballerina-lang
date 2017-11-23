@@ -26,26 +26,27 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.nio.charset.Charset;
+import java.util.Base64;
 import javax.xml.bind.DatatypeConverter;
 
 /**
- * Native function ballerina.util:base16Encode.
+ * Native function ballerina.util:convertBase16ToBase64.
  *
  * @since 0.95.2
  */
 @BallerinaFunction(
         packageName = "ballerina.util",
-        functionName = "base16Encode",
-        args = {@Argument(name = "s", type = TypeKind.STRING)},
+        functionName = "convertBase16ToBase64",
+        args = {@Argument(name = "baseString", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
-public class Base16Encode extends AbstractNativeFunction {
+        isPublic = true)
+public class ConvertBase16ToBase64 extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String str = getStringArgument(context, 0);
-        String result = DatatypeConverter.printHexBinary(str.getBytes(Charset.defaultCharset()));
-        return getBValues(new BString(result));
+        String value = getStringArgument(context, 0);
+        byte[] base16DecodedValue = DatatypeConverter.parseHexBinary(value);
+        byte[] base64EncodedValue = Base64.getEncoder().encode(base16DecodedValue);
+        return getBValues(new BString(new String(base64EncodedValue, Charset.defaultCharset())));
     }
 }
