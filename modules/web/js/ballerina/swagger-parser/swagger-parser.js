@@ -141,7 +141,6 @@ class SwaggerParser {
                 });
             });
         } catch (err) {
-            debugger;
             log.error(err);
             throw new Error('Unable to parse swagger definition.');
         }
@@ -902,17 +901,20 @@ class SwaggerParser {
      */
     static setAnnotationAttribute(annotationAttachment, key, valueNode, silent = DISABLE_EVENT_FIRING) {
         const matchingAttributes = annotationAttachment.filterAttributes((annotationAttribute) => {
-            return annotationAttribute.getName() === key;
+            return annotationAttribute.getName().getValue() === key;
         });
 
         if (matchingAttributes.length > 0) {
             const existingAttributeValue = matchingAttributes[0].getValue();
             existingAttributeValue.setValue(valueNode, silent);
         } else {
+            const keyIdentifier = NodeFactory.createIdentifier({
+                value: key,
+            });
             const attributeValue = NodeFactory.createAnnotationAttachmentAttributeValue();
             attributeValue.setValue(valueNode, silent);
             const attribute = NodeFactory.createAnnotationAttachmentAttribute({
-                name: key,
+                name: keyIdentifier,
                 value: attributeValue,
             });
             annotationAttachment.addAttributes(attribute, silent);
@@ -931,7 +933,7 @@ class SwaggerParser {
      */
     static addNodesAsArrayedAttribute(annotationAttachment, key, nodes, silent = DISABLE_EVENT_FIRING) {
         const matchingAttributes = annotationAttachment.filterAttributes((annotationAttribute) => {
-            return annotationAttribute.getName() === key;
+            return annotationAttribute.getName().getValue() === key;
         });
 
         if (matchingAttributes.length > 0) {
@@ -949,7 +951,11 @@ class SwaggerParser {
                 return innerValue;
             });
 
-            const attribute = NodeFactory.createAnnotationAttachmentAttribute({ name: key });
+            const keyIdentifier = NodeFactory.createIdentifier({
+                value: key,
+            });
+
+            const attribute = NodeFactory.createAnnotationAttachmentAttribute({ name: keyIdentifier });
             const attributeValue = NodeFactory.createAnnotationAttachmentAttributeValue({
                 value: undefined,
             });

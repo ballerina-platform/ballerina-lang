@@ -55,7 +55,7 @@ class AnnotationAttribute extends React.Component {
             hasError = bValue === undefined;
         }
 
-        if (props.model.getName() === undefined || props.model.getName() === '') {
+        if (props.model.getName().getValue() === undefined || props.model.getName().getValue() === '') {
             this.state = {
                 hasError: true,
                 isBValueEdit: this.props.model.viewState.isInEdit || false,
@@ -525,7 +525,8 @@ class AnnotationAttribute extends React.Component {
                 text: 'Add Value',
                 onClick: () => {
                     attributeValue.addValueArray(getArrayValue(
-                        this.context.environment, this.props.model.getName(), this.props.annotationDefinitionModel));
+                        this.context.environment, this.props.model.getName().getValue(),
+                                                                                this.props.annotationDefinitionModel));
                 },
             };
             actionMenuItems.push(deleteButton);

@@ -42,94 +42,6 @@ function deleteNode(node) {
 }
 
 /**
- * Generates a child node.
- *
- * @param {AnnotationAttachment|AnnotationAttribute|AnnotationAttribtueValue} node The node.
- * @returns {AnnotationAttachment|AnnotationAttribute|AnnotationAttribtueValue|BValue} New child.
- */
-function generateChildNode(node) {
-    const factory = ASTFactory;
-    if (factory.isAnnotationAttachment(node)) {
-        const bValue = factory.createBValue();
-        const annotationAttributeValue = factory.createAnnotationAttributeValue();
-        const annotationAttribute = factory.createAnnotationAttribute();
-
-        annotationAttributeValue.addChild(bValue);
-        annotationAttribute.addChild(annotationAttributeValue);
-        return annotationAttribute;
-    } else if (factory.isAnnotationAttribute(node)) {
-        const bValue = factory.createBValue();
-        const annotationAttributeValue = factory.createAnnotationAttributeValue();
-        annotationAttributeValue.addChild(bValue);
-        return annotationAttributeValue;
-    } else if (factory.isAnnotationAttributeValue(node)) {
-        if (node.isBValue()) {
-            return factory.createBValue();
-        } else if (node.isAnnotation()) {
-            return factory.createAnnotationAttachment();
-        } else if (node.isArray()) {
-            return factory.createAnnotationAttributeValue();
-        }
-        return undefined;
-    }
-
-    return undefined;
-}
-
-/**
- * Adds a child node to a given node
- *
- * @param {AnnotationAttachment|AnnotationAttribute|AnnotationAttribtueValue} node The node.
- * @param {number} index Index at which the child should be added.
- * @returns {AnnotationAttachment|AnnotationAttribute|AnnotationAttribtueValue|BValue} Newly added child.
- */
-function addChildNode(node, index) {
-    const factory = ASTFactory;
-    if (factory.isAnnotationAttachment(node)) {
-        const annotationAttribute = generateChildNode(node);
-        node.addChild(annotationAttribute, index);
-        return annotationAttribute;
-    } else if (factory.isAnnotationAttribute(node)) {
-        const annotationAttributeValue = generateChildNode(node);
-        node.addChild(annotationAttributeValue, index);
-        return annotationAttributeValue;
-    } else if (factory.isAnnotationAttributeValue(node)) {
-        const child = generateChildNode(node);
-        node.addChild(child, index);
-        return child;
-    }
-
-    const annotationAttachment = factory.createAnnotationAttachment();
-    node.addChild(annotationAttachment, index);
-    return annotationAttachment;
-}
-
-/**
- * Adds a node above the given node.
- *
- * @param {AnnotationAttachment|AnnotationAttribute|AnnotationAttribtueValue} node The node.
- * @returns {AnnotationAttachment|AnnotationAttribute|AnnotationAttribtueValue|BValue} Newly added child.
- */
-function addChildNodeAbove(node) {
-    const currentNodeIndex = node.getParent().getIndexOfChild(node);
-    // As it replaces its index.
-    const newChildIndex = currentNodeIndex;
-    return addChildNode(node.getParent(), newChildIndex);
-}
-
-/**
- * Adds a node below the given node.
- *
- * @param {AnnotationAttachment|AnnotationAttribute|AnnotationAttribtueValue} node The node.
- * @returns {AnnotationAttachment|AnnotationAttribute|AnnotationAttribtueValue|BValue} Newly added child.
- */
-function addChildNodeBelow(node) {
-    const currentNodeIndex = node.getParent().getIndexOfChild(node);
-    const newChildIndex = currentNodeIndex + 1;
-    return addChildNode(node.getParent(), newChildIndex);
-}
-
-/**
  * Adds an attribute to a given annotation-attachment.
  *
  * @param {AnnotationAttchment} annotationAttachment The annotation attachment.
@@ -143,7 +55,9 @@ function addAttribute(annotationAttachment) {
     const annotationAttribute = NodeFactory.createAnnotationAttachmentAttribute();
 
     annotationAttributeValue.setValue(literal);
-    annotationAttribute.setName('');
+    annotationAttribute.setName(NodeFactory.createLiteral({
+        value: '',
+    }));
     annotationAttribute.setValue(annotationAttributeValue);
     if (annotationAttachment) {
         annotationAttachment.addAttributes(annotationAttribute);
@@ -184,10 +98,6 @@ function getArrayValue(environment, annotationAttributeKey, annotationDefinition
 
 export {
     deleteNode,
-    addChildNode,
-    addChildNodeAbove,
-    addChildNodeBelow,
     addAttribute,
-    generateChildNode,
     getArrayValue,
 };
