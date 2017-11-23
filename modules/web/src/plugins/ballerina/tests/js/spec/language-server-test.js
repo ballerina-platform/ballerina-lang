@@ -65,7 +65,7 @@ describe('Ballerina Composer Test Suite', () => {
                 }
                 done();
             };
-        }
+        };
 
         // General tests
 
