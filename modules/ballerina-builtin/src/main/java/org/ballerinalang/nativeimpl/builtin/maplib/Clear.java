@@ -20,7 +20,6 @@ package org.ballerinalang.nativeimpl.builtin.maplib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -29,20 +28,21 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function to get length of the map.
- * ballerina.model.map:length()
+ * Native function to get key arrays from the map.
+ * ballerina.model.map:clear()
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
-        functionName = "map.size",
+        functionName = "map.clear",
         args = {@Argument(name = "m", type = TypeKind.MAP)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        returnType = {@ReturnType(type = TypeKind.NONE)},
         isPublic = true
 )
-public class Length extends AbstractNativeFunction {
+public class Clear extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BMap map = (BMap) getRefArgument(ctx, 0);
-        return getBValues(new BInteger(map.size()));
+        BMap<String, BValue> map = (BMap<String, BValue>) getRefArgument(ctx, 0);
+        map.clear();
+        return VOID_RETURN;
     }
 }
