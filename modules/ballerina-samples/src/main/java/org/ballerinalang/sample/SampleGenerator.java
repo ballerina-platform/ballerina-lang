@@ -15,9 +15,10 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.packerina;
+package org.ballerinalang.sample;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.packerina.BuilderUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +31,8 @@ import java.nio.file.Paths;
  *
  * @since 0.95.2
  */
-public class SampleUtil {
-    private static final Logger log = LoggerFactory.getLogger(SampleUtil.class);
+public class SampleGenerator {
+    private static final Logger log = LoggerFactory.getLogger(SampleGenerator.class);
 
     public static void main(String[] args) {
         validateArgs(args);
