@@ -27,7 +27,7 @@
   "lint-staged": {
     "linters": {
       "*.{js,jsx}": [
-        "lintfile --quiet"
+        "lintfile --fix --quiet"
       ]
     }
   },

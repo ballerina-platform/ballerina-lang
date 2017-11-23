@@ -11,7 +11,6 @@ module.exports = {
         "commonjs": true,
         "es6": true
     },
-    "excludeFiles": "",
     "extends": "airbnb",
     "rules": {
         "max-len": ["error", 120],
