@@ -29,7 +29,7 @@ import { expect } from 'chai';
 import _ from 'lodash';
 import path from 'path';
 import chalk from 'chalk';
-import TreeBuilder from '../../../ballerina/model/tree-builder';
+import TreeBuilder from 'ballerina/model/tree-builder';
 
 const directory = process.env.DIRECTORY ? process.env.DIRECTORY : '';
 
@@ -52,6 +52,7 @@ function debugPrint(node, name = '', l = 1) {
             .join('')))
         .join(' ');
 
+    // eslint-disable-next-line
     const children = _.groupBy([...node], ([_, c]) => c && c.kind === 'Identifier');
     console.log(new Array(l).join(' '),
         chalk.green(name),
@@ -126,7 +127,8 @@ describe('Ballerina Composer Test Suite', () => {
             .then(() => beforeAllDone())
             .catch(beforeAllDone);
     });
-    const testResDir = path.resolve(path.join(directory, 'js', 'tests', 'resources', 'parser'));
+    const testResDir = path.resolve(path.join(directory, 'src', 'plugins', 'ballerina', 'tests', 'resources',
+                                                                                                            'parser'));
     const testFiles = findBalFilesInDirSync(testResDir);
     _.sortBy(testFiles, f => fs.statSync(f).size).slice(0, 500).forEach((testFile) => {
         const relPath = path.relative('.', testFile);

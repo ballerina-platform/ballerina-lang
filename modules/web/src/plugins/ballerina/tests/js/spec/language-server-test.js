@@ -16,12 +16,10 @@
  * under the License.
  */
 /* eslint-env es6 */
-
-import { fetchConfigs, parseContent } from 'api-client/api-client';
+/* global it, describe, after */
+import _ from 'lodash';
+import { fetchConfigs } from 'api-client/api-client';
 import { expect } from 'chai';
-import path from 'path';
-import fs from 'fs';
-import { getLangServerClientInstance } from './../../../langserver/lang-server-client-controller';
 import { testCompletions, close } from './language-server-test-base';
 
 const directory = process.env.DIRECTORY ? process.env.DIRECTORY : '';
@@ -39,6 +37,35 @@ describe('Ballerina Composer Test Suite', () => {
         after((done) => {
             close(done);
         });
+
+        // returns a callback function to validate generated completions. Order of elements of two arrays should be
+        // same.
+        const compareWithOrderCallback = (expectedFileContent, done) => {
+            return function (x, completions) {
+                expect(JSON.parse(expectedFileContent)).to.deep.equal(completions);
+                done();
+            };
+        };
+
+        // returns a callback function to validate generated completions. Order of elements of two arrays can be
+        // different.
+        const compareWithoutOrderCallback = (expectedFileContent, done) => {
+            return function (x, completions) {
+                function comparator(a, b) {
+                    return (a.caption === b.caption) && (a.snippet === b.snippet) && (a.meta === b.meta);
+                }
+                const expectedJSON = JSON.parse(expectedFileContent);
+                const intersection = _.intersectionWith(completions, expectedJSON, comparator);
+
+                if (!((completions.length === expectedJSON.length) && (completions.length === intersection.length))) {
+                    throw new Error(`Fail - Incompatible content.
+                    Expect + Actual -
+                    + ${expectedFileContent}
+                    - ${JSON.stringify(completions)}`);
+                }
+                done();
+            };
+        }
 
         // General tests
 
@@ -135,30 +162,6 @@ describe('Ballerina Composer Test Suite', () => {
             const cursorPosition = { row: 1, column: 17 };
             testCompletions(cursorPosition, directory, testFile, expectedFile, done, compareWithOrderCallback);
         });
-
-        // returns a callback function to validate generated completions. Order of elements of two arrays can be different.
-        function compareWithoutOrderCallback(expectedFileContent, done) {
-            return function (x, completions) {
-                function comparator(a, b) {
-                    return (a.caption === b.caption) && (a.snippet === b.snippet) && (a.meta === b.meta);
-                }
-                const expectedJSON = JSON.parse(expectedFileContent);
-                const intersection = _.intersectionWith(completions, expectedJSON, comparator);
-
-                if (!((completions.length === expectedJSON.length) && (completions.length === intersection.length))) {
-                    throw new Error('Fail - Incompatible content. \nExpect + Actual -\n' + '+  ' + expectedFileContent + '\n -  ' + JSON.stringify(completions));
-                }
-                done();
-            };
-        }
-
-        // returns a callback function to validate generated completions. Order of elements of two arrays should be same.
-        function compareWithOrderCallback(expectedFileContent, done) {
-            return function (x, completions) {
-                expect(JSON.parse(expectedFileContent)).to.deep.equal(completions);
-                done();
-            };
-        }
     });
 });
 

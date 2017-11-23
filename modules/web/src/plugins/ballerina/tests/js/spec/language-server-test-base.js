@@ -16,12 +16,27 @@
  * under the License.
  */
 
-import { fetchConfigs, parseContent } from 'api-client/api-client';
-import { expect } from 'chai';
+import log from 'log';
 import path from 'path';
 import fs from 'fs';
-import { getLangServerClientInstance } from './../../../langserver/lang-server-client-controller';
+import { getLangServerClientInstance } from 'plugins/ballerina/langserver/lang-server-client-controller';
 import SourceViewCompleterFactory from 'ballerina/utils/source-view-completer-factory';
+
+/**
+ * Read the given file and return the content
+ * @param {*} filePath
+ */
+const readFile = (filePath) => {
+    return fs.readFileSync(filePath, 'utf8');
+};
+
+/**
+ * web socket close event handler.
+ * @param {Object} event
+ */
+const wsCloseEventHandler = (event) => {
+    // no need to do anything specially as this is a close event handler for a test case.
+};
 
 /**
  * Test completions
@@ -30,10 +45,10 @@ import SourceViewCompleterFactory from 'ballerina/utils/source-view-completer-fa
  * @param {string} testFileName
  * @param {function} done
  */
-
 export function testCompletions(cursorPosition, directory, testFileName, expectedFile, done, getCompareCallback) {
-    const testFilePath = path.join(directory, 'js', 'tests', 'resources', 'languageServer');
-    const expectedFilePath = path.resolve(path.join(directory, 'js', 'tests', 'resources', 'languageServer', 'expected', expectedFile));
+    const testFilePath = path.join(directory, 'src', 'plugins', 'ballerina', 'tests', 'resources', 'languageServer');
+    const expectedFilePath = path.resolve(path.join(directory, 'src', 'plugins', 'ballerina', 'tests', 'resources',
+                                                                        'languageServer', 'expected', expectedFile));
     const expectedFileContent = fs.readFileSync(expectedFilePath, 'utf8');
     const compareCallback = getCompareCallback(expectedFileContent, done);
     const testFile = path.resolve(path.join(testFilePath, testFileName));
@@ -46,7 +61,8 @@ export function testCompletions(cursorPosition, directory, testFileName, expecte
     };
     getLangServerClientInstance(opts)
         .then((langserverClient) => {
-            sourceViewCompleterFactory.getCompletions(cursorPosition, testFileContent, fileData, langserverClient, compareCallback);
+            sourceViewCompleterFactory.getCompletions(cursorPosition, testFileContent, fileData, langserverClient,
+                                                                                                    compareCallback);
         })
         .catch(error => log.error(error));
 }
@@ -60,21 +76,5 @@ export function close(callback) {
             langserverClient.close();
             callback();
         });
-}
-
-/**
- * Read the given file and return the content
- * @param {*} filePath
- */
-function readFile(filePath) {
-    return fs.readFileSync(filePath, 'utf8');
-}
-
-/**
- * web socket close event handler.
- * @param {Object} event
- */
-function wsCloseEventHandler(event) {
-    // no need to do anything specially as this is a close event handler for a test case.
 }
 

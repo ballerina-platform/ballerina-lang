@@ -58,7 +58,8 @@ describe('Ballerina Composer Test Suite', () => {
                 .catch(beforeAllDone);
         });
 
-        const swaggerParserTestDir = path.resolve(path.join(directory, 'js', 'tests', 'resources', 'swagger-parser'));
+        const swaggerParserTestDir = path.resolve(path.join(directory, 'src', 'plugins', 'ballerina', 'tests',
+                                                                                        'resources', 'swagger-parser'));
         const swaggerDirectory = path.resolve(path.join(swaggerParserTestDir, 'swagger-jsons'));
         const expectedBalDir = path.resolve(path.join(swaggerParserTestDir, 'expected-ballerina-source'));
 
