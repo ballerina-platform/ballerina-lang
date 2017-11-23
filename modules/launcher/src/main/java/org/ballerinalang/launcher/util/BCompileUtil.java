@@ -39,6 +39,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -153,7 +154,7 @@ public class BCompileUtil {
      * @param pathLocation location of the directory.
      * @return the path with directoryName + file.
      */
-    private static String concatFileName(String fileName, Path pathLocation) {
+    public static String concatFileName(String fileName, Path pathLocation) {
         final String windowsFolderSeparator = "\\";
         final String unixFolderSeparator = "/";
         StringBuilder path = new StringBuilder(pathLocation.toAbsolutePath().toString());
@@ -269,7 +270,7 @@ public class BCompileUtil {
         BufferedReader br = null;
         StringBuilder sb = new StringBuilder();
         try {
-            inputStreamREader = new InputStreamReader(is);
+            inputStreamREader = new InputStreamReader(is, StandardCharsets.UTF_8);
             br = new BufferedReader(inputStreamREader);
             String content = br.readLine();
             if (content == null) {

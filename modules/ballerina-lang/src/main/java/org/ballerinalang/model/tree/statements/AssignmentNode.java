@@ -23,8 +23,8 @@ import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import java.util.List;
 
 /**
- * i = a + b;
- * p.name, j[0], u = split();
+ * i = a + b;.
+ * p.name, j[0], u = split();.
  *
  * @since 0.94
  */

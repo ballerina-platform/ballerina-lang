@@ -1,7 +1,7 @@
 import ballerina.file;
 import ballerina.io;
 
-@Description{value:"This function will return a CharacterChannel from a given file location accoring to the specified permissions and encoding."}
+@Description{value:"This function will return a CharacterChannel from a given file location according to the specified permissions and encoding."}
 function getFileCharacterChannel (string filePath, string permission, string encoding)
                                  (io:CharacterChannel) {
     file:File src = {path:filePath};
@@ -12,7 +12,7 @@ function getFileCharacterChannel (string filePath, string permission, string enc
     return characterChannel;
 }
 
-@Description{value:"This function will read content from a file, append additional string and write content."}
+@Description{value:"This function will read content from a file, append the additional string and write content."}
 function process (io:CharacterChannel sourceChannel,
                   io:CharacterChannel destinationChannel) {
     //Here's the string which will be appended in-between.

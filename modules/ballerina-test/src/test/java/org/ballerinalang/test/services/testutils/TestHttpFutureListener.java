@@ -26,13 +26,13 @@ import org.ballerinalang.net.http.CorsHeaderGenerator;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Test future implementation for service tests
+ * Test future implementation for service tests.
  */
 public class TestHttpFutureListener implements ConnectorFutureListener {
 

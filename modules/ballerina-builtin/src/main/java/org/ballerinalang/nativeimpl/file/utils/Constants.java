@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.file.utils;
 
 /**
- * Constants used by the file API
+ * Constants used by the file API.
  *
  * @since 0.94.1
  */

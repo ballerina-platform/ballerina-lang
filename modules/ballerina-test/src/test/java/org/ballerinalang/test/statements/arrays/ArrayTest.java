@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.statements.arrays;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -42,10 +43,12 @@ import org.testng.annotations.Test;
 public class ArrayTest {
 
     private CompileResult compileResult;
+    CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/statements/arrays/arrayTest.bal");
+        compileResult = BCompileUtil.compile("test-src/statements/arrays/array-test.bal");
+        resultNegative = BCompileUtil.compile("test-src/statements/arrays/array-negative.bal");
     }
 
     @Test
@@ -460,5 +463,12 @@ public class ArrayTest {
         BXMLItem[] xmlArray = { new BXMLItem("<foo/>"), new BXMLItem("<bar>hello</bar>") };
         BRefValueArray bXmlArray = new BRefValueArray(xmlArray, BTypes.typeXML);
         Assert.assertEquals(bXmlArray.stringValue(), "[<foo/>, <bar>hello</bar>]");
+    }
+
+    @Test(description = "Test arrays with errors")
+    public void testConnectorNegativeCases() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        BAssertUtil.validateError(resultNegative, 0, "function invocation on type 'int[]' is not supported", 3, 18);
+        BAssertUtil.validateError(resultNegative, 1, "function invocation on type 'string[]' is not supported", 8, 21);
     }
 }

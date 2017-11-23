@@ -127,3 +127,22 @@ function testEndpointInWorker()(string) {
         m -> w1;
     }
 }
+
+struct Person {
+    string name;
+    int age;
+}
+
+connector Bar1 (string para1) {
+    Person person = {name:"tyler", age:45};
+    action get1(string prefix)(string) {
+        return prefix + person.name;
+    }
+}
+
+function testConnectorWithStructVar()(string) {
+    endpoint<Bar1> ep {
+        create Bar1("getName");
+    }
+    return ep.get1("name - ");
+}

@@ -44,7 +44,7 @@ public interface DataIterator {
 
     boolean getBoolean(String columnName);
 
-    String getObjectAsString(String columnName);
+    String getBlob(String columnName);
 
     Map<String, Object> getArray(String columnName);
 

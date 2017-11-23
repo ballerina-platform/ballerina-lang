@@ -48,7 +48,7 @@ public class SystemTest {
     @BeforeClass(alwaysRun = true)
     public void setup() {
         original = System.out;
-        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/systemTest.bal");
+        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/system-test.bal");
     }
 
     @AfterClass(alwaysRun = true)

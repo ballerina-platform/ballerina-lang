@@ -116,3 +116,9 @@ function testFunctionCallInXMLTemplate() (xml) {
     
     return x1;
 }
+
+function testNullXMLinXMLLiteral() (xml) {
+  xml x1;
+  xml root = xml `<root>{{x1}}</root>`;
+  return root;
+}

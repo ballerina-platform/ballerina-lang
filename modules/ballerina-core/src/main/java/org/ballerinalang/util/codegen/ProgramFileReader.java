@@ -243,25 +243,12 @@ public class ProgramFileReader {
                 pkgCPIndex = dataInStream.readInt();
                 packageRefCPEntry = (PackageRefCPEntry) constantPool.getCPEntry(pkgCPIndex);
 
-                int connectorCPIndex = dataInStream.readInt();
-                StructureRefCPEntry connectorRefCPEntry = (StructureRefCPEntry)
-                        constantPool.getCPEntry(connectorCPIndex);
-
                 cpIndex = dataInStream.readInt();
                 UTF8CPEntry nameCPEntry = (UTF8CPEntry) constantPool.getCPEntry(cpIndex);
                 String actionName = nameCPEntry.getValue();
                 ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgCPIndex, packageRefCPEntry.getPackageName(),
-                        connectorCPIndex, connectorRefCPEntry, cpIndex, actionName);
+                        cpIndex, actionName);
 
-                ConnectorInfo connectorInfo = (ConnectorInfo) connectorRefCPEntry.getStructureTypeInfo();
-                if (connectorInfo == null) {
-                    // This must reference to the current package and the current package is not been read yet.
-                    // Therefore we add this to the unresolved CP Entry list.
-                    unresolvedCPEntries.add(actionRefCPEntry);
-                    return actionRefCPEntry;
-                }
-
-                actionRefCPEntry.setActionInfo(connectorInfo.getActionInfo(actionName));
                 return actionRefCPEntry;
             case CP_ENTRY_FUNCTION_CALL_ARGS:
                 int argLength = dataInStream.readByte();
@@ -1422,7 +1409,6 @@ public class ProgramFileReader {
                 case InstructionCodes.WRKREPLY:
                 case InstructionCodes.NCALL:
                 case InstructionCodes.ACALL:
-                case InstructionCodes.NACALL:
                 case InstructionCodes.FPCALL:
                 case InstructionCodes.FPLOAD:
                 case InstructionCodes.ARRAYLEN:
@@ -1453,7 +1439,6 @@ public class ProgramFileReader {
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
                     break;
-
 
                 case InstructionCodes.IALOAD:
                 case InstructionCodes.FALOAD:
@@ -1604,13 +1589,6 @@ public class ProgramFileReader {
                     packageInfo = programFile.getPackageInfo(funcRefCPEntry.getPackagePath());
                     FunctionInfo functionInfo = packageInfo.getFunctionInfo(funcRefCPEntry.getFunctionName());
                     funcRefCPEntry.setFunctionInfo(functionInfo);
-                    break;
-                case CP_ENTRY_ACTION_REF:
-                    ActionRefCPEntry actionRefCPEntry = (ActionRefCPEntry) cpEntry;
-                    structureRefCPEntry = actionRefCPEntry.getConnectorRefCPEntry();
-                    ConnectorInfo connectorInfo = (ConnectorInfo) structureRefCPEntry.getStructureTypeInfo();
-                    ActionInfo actionInfo = connectorInfo.getActionInfo(actionRefCPEntry.getActionName());
-                    actionRefCPEntry.setActionInfo(actionInfo);
                     break;
                 case CP_ENTRY_STRUCTURE_REF:
                     structureRefCPEntry = (StructureRefCPEntry) cpEntry;

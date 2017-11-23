@@ -56,12 +56,20 @@ public class ConstantAssignmentTest {
 
     private void setEnv(String key, String value) {
         try {
-            Map<String, String> env = System.getenv();
-            Class<?> cl = env.getClass();
-            Field field = cl.getDeclaredField("m");
-            field.setAccessible(true);
-            Map<String, String> writableEnv = (Map<String, String>) field.get(env);
-            writableEnv.put(key, value);
+            if (System.getProperty("os.name").startsWith("Windows")) {
+                Class<?> sc = Class.forName("java.lang.ProcessEnvironment");
+                Field caseInsensitiveField = sc.getDeclaredField("theCaseInsensitiveEnvironment");
+                caseInsensitiveField.setAccessible(true);
+                Map<String, String> writableEnv = (Map<String, String>) caseInsensitiveField.get(null);
+                writableEnv.put(key, value);
+            } else {
+                Map<String, String> env = System.getenv();
+                Class<?> cl = env.getClass();
+                Field field = cl.getDeclaredField("m");
+                field.setAccessible(true);
+                Map<String, String> writableEnv = (Map<String, String>) field.get(env);
+                writableEnv.put(key, value);
+            }
         } catch (Exception e) {
             throw new IllegalStateException("Failed to set environment variable", e);
         }
@@ -101,7 +109,7 @@ public class ConstantAssignmentTest {
         // Todo - Fix duplicate errors issue
         BAssertUtil.validateError(negativeCompileResult, 0, "incompatible types: expected 'int', found 'float'", 1, 16);
         BAssertUtil.validateError(negativeCompileResult, 1, "incompatible types: expected 'float', found 'string'", 3,
-                                 31);
+                31);
         BAssertUtil.validateError(negativeCompileResult, 2,
                 "incompatible types: expected 'int', found 'string'", 5, 27);
     }

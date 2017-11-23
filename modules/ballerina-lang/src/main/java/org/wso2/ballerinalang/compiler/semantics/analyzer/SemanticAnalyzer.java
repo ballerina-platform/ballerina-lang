@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
@@ -948,6 +949,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.analyzeDef(annotationAttachment, transformerEnv);
         });
 
+        validateTransformerMappingType(transformerNode.source);
+        validateTransformerMappingType(transformerNode.retParams.get(0));
+
         analyzeStmt(transformerNode.body, transformerEnv);
 
         // TODO: update this accordingly once the unsafe conversion are supported
@@ -1066,5 +1070,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (error) {
             this.dlog.error(retryCountExpr.pos, DiagnosticCode.INVALID_RETRY_COUNT);
         }
+    }
+
+    private void validateTransformerMappingType(BLangVariable param) {
+        BType type = param.type;
+        if (types.isValueType(type) || (type instanceof BBuiltInRefType) || type.tag == TypeTags.STRUCT) {
+            return;
+        }
+
+        dlog.error(param.pos, DiagnosticCode.TRANSFORMER_UNSUPPORTED_TYPES, type);
     }
 }

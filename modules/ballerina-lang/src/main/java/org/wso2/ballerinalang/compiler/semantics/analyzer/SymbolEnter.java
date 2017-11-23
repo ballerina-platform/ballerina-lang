@@ -197,6 +197,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define connector nodes.
         pkgNode.connectors.forEach(con -> defineNode(con, pkgEnv));
 
+        // Define connector params and type.
+        defineConnectorParams(pkgNode.connectors, pkgEnv);
+
         // Define transformer nodes.
         pkgNode.transformers.forEach(tansformer -> defineNode(tansformer, pkgEnv));
 
@@ -205,9 +208,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define struct field nodes.
         defineStructFields(pkgNode.structs, pkgEnv);
-
-        // Define connector params and type.
-        defineConnectorParams(pkgNode.connectors, pkgEnv);
 
         // Define connector action nodes.
         defineConnectorMembers(pkgNode.connectors, pkgEnv);
@@ -277,7 +277,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .map(identifier -> names.fromIdNode(identifier))
                 .collect(Collectors.toList());
         PackageID pkgID = new PackageID(nameComps, names.fromIdNode(importPkgNode.version));
-        if (symTable.builtInPackageSymbol.name.equals(pkgID.name)) {
+        if (pkgID.name.getValue().startsWith(Names.BUILTIN_PACKAGE.value)) {
             dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());
             return;
@@ -751,9 +751,10 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Add it to the enclosing scope
         // Find duplicates
-        if (symResolver.checkForUniqueSymbol(pos, env, varSymbol, SymTag.VARIABLE_NAME)) {
-            enclScope.define(varSymbol.name, varSymbol);
+        if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol, SymTag.VARIABLE_NAME)) {
+            varSymbol.type = symTable.errType;
         }
+        enclScope.define(varSymbol.name, varSymbol);
         return varSymbol;
     }
 

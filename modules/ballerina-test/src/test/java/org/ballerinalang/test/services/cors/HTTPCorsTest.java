@@ -29,10 +29,10 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
- * Test cases related to HTTP CORS
+ * Test cases related to HTTP CORS.
  */
 public class HTTPCorsTest {
 
@@ -40,7 +40,7 @@ public class HTTPCorsTest {
 
     @BeforeClass
     public void setup() {
-        complieResult = BServiceUtil.setupProgramFile(this, "test-src/services/cors/corsTest.bal");
+        complieResult = BServiceUtil.setupProgramFile(this, "test-src/services/cors/cors-test.bal");
     }
 
     public void assertEqualsCorsResponse(HTTPCarbonMessage response, int statusCode, String origin, String credentials

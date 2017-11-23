@@ -96,3 +96,11 @@ connector TestConnector() {
 transformer <int a, string s> {
     // empty
 }
+
+transformer <TestConnector con, Employee e1> {
+    // empty
+}
+
+transformer <Person p1, TestConnector con> {
+    // empty
+}

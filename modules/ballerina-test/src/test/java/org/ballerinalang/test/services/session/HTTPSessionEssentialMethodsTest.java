@@ -27,7 +27,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import static org.ballerinalang.net.http.Constants.COOKIE_HEADER;
 import static org.ballerinalang.net.http.Constants.RESPONSE_COOKIE_HEADER;
@@ -43,7 +43,7 @@ public class HTTPSessionEssentialMethodsTest {
     @BeforeClass
     public void setup() {
         compileResult = BServiceUtil
-                .setupProgramFile(this, "test-src/services/session/httpSessionTest.bal");
+                .setupProgramFile(this, "test-src/services/session/http-session-test.bal");
     }
 
     @Test(description = "Test for getting a session at first time")
@@ -370,6 +370,41 @@ public class HTTPSessionEssentialMethodsTest {
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
         Assert.assertNotNull(stringDataSource);
         Assert.assertEquals(stringDataSource.getValue(), "0");
+    }
+
+    @Test(description = "Test for getAttributes function")
+    public void testGetAttributesFunction() {
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/map", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "Name:chamil");
+
+        String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
+        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 14);
+
+        cMsg = MessageUtils.generateHTTPMessage("/sample2/map", "GET");
+        cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
+        cMsg.setHeader("counter", "1");
+        response = Services.invokeNew(cMsg);
+        Assert.assertNotNull(response);
+
+        stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "Lang:ballerina");
+    }
+
+    @Test(description = "Test for null attribute map from getAttributes function")
+    public void testNullGetAttributesFunction() {
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/map2", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "value:map not present");
     }
 
     @Test(description = "Test for removeAttribute function")

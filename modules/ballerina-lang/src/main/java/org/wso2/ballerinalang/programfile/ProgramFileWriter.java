@@ -135,7 +135,6 @@ public class ProgramFileWriter {
                 case CP_ENTRY_ACTION_REF:
                     ActionRefCPEntry actionRefEntry = (ActionRefCPEntry) cpEntry;
                     dataOutStream.writeInt(actionRefEntry.getPackageCPIndex());
-                    dataOutStream.writeInt(actionRefEntry.getConnectorRefCPIndex());
                     dataOutStream.writeInt(actionRefEntry.getNameCPIndex());
                     break;
                 case CP_ENTRY_FUNCTION_CALL_ARGS:

@@ -18,7 +18,8 @@
 package org.ballerinalang.model.tree.types;
 
 /**
- * foo:Person
+ * foo:Person.
+ *
  * @since 0.95
  */
 public interface EndpointTypeNode extends ReferenceTypeNode {

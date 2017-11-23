@@ -37,8 +37,8 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
  * Test cases for ballerina.net.http.response negative native functions.
@@ -48,8 +48,8 @@ public class ResponseNativeFunctionNegativeTest {
     private CompileResult result, resultNegative, serviceResult;
     private final String responseStruct = Constants.RESPONSE;
     private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
-    private String filePath = "test-src/statements/services/nativeimpl/response/responseNativeFunctionNegative.bal";
-    private String filePathNeg = "test-src/statements/services/nativeimpl/response/responseCompileNegative.bal";
+    private String filePath = "test-src/statements/services/nativeimpl/response/response-native-function-negative.bal";
+    private String filePathNeg = "test-src/statements/services/nativeimpl/response/response-compile-negative.bal";
 
     @BeforeClass
     public void setup() {

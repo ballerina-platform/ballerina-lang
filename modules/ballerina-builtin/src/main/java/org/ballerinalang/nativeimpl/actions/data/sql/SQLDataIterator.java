@@ -24,7 +24,6 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -35,18 +34,14 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.data.sql.client.SQLDatasourceUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -88,6 +83,9 @@ public class SQLDataIterator implements DataIterator {
 
     @Override
     public boolean next() {
+        if (rs == null) {
+            return false;
+        }
         try {
             return rs.next();
         } catch (SQLException e) {
@@ -131,35 +129,11 @@ public class SQLDataIterator implements DataIterator {
         }
     }
 
-    private String getString(Object object) throws SQLException {
-        String value;
-        if (object instanceof Blob) {
-            value = SQLDatasourceUtils.getString((Blob) object);
-        } else if (object instanceof Timestamp) {
-            value = SQLDatasourceUtils.getString((Timestamp) object);
-        } else if (object instanceof Clob) {
-            value = SQLDatasourceUtils.getString((Clob) object);
-        } else if (object instanceof Date) {
-            value = SQLDatasourceUtils.getString((Date) object);
-        } else if (object instanceof Time) {
-            value = SQLDatasourceUtils.getString((Time) object);
-        } else if (object instanceof InputStream) {
-            value = SQLDatasourceUtils.getString((InputStream) object);
-        } else {
-            value = String.valueOf(object);
-        }
-        return value;
-    }
-
     @Override
-    public String getObjectAsString(String columnName) {
+    public String getBlob(String columnName) {
         try {
-            Object object = rs.getObject(columnName);
-            if (object != null) {
-                return getString(object);
-            } else {
-                return null;
-            }
+            Blob bValue = rs.getBlob(columnName);
+            return SQLDatasourceUtils.getString(bValue);
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
@@ -199,7 +173,7 @@ public class SQLDataIterator implements DataIterator {
                     int sqlType = def.getSqlType();
                     switch (sqlType) {
                     case Types.ARRAY:
-                        BMap<BString, BValue> bMapvalue = getDataArray(columnName);
+                        BMap<String, BValue> bMapvalue = getDataArray(columnName);
                         bStruct.setRefField(++refRegIndex, bMapvalue);
                         break;
                     case Types.CHAR:
@@ -216,8 +190,11 @@ public class SQLDataIterator implements DataIterator {
                     case Types.VARBINARY:
                     case Types.LONGVARBINARY:
                         Blob value = rs.getBlob(columnName);
-                        BBlob bValue = new BBlob(value.getBytes(1L, (int) value.length()));
-                        bStruct.setBlobField(++blobRegIndex, (bValue).blobValue());
+                        if (value != null) {
+                            bStruct.setBlobField(++blobRegIndex, value.getBytes(1L, (int) value.length()));
+                        } else {
+                            bStruct.setBlobField(++blobRegIndex, new byte[0]);
+                        }
                         break;
                     case Types.CLOB:
                         String clobValue = SQLDatasourceUtils.getString((rs.getClob(columnName)));
@@ -247,17 +224,15 @@ public class SQLDataIterator implements DataIterator {
                         break;
                     case Types.TINYINT:
                     case Types.SMALLINT:
-                    case Types.INTEGER:
                         long iValue = rs.getInt(columnName);
                         bStruct.setIntField(++longRegIndex, iValue);
                         break;
+                    case Types.INTEGER:
                     case Types.BIGINT:
                         long lValue = rs.getLong(columnName);
                         bStruct.setIntField(++longRegIndex, lValue);
                         break;
                     case Types.REAL:
-                    case Types.NUMERIC:
-                    case Types.DECIMAL:
                     case Types.FLOAT:
                         double fValue = rs.getFloat(columnName);
                         bStruct.setFloatField(++doubleRegIndex, fValue);
@@ -265,6 +240,15 @@ public class SQLDataIterator implements DataIterator {
                     case Types.DOUBLE:
                         double dValue = rs.getDouble(columnName);
                         bStruct.setFloatField(++doubleRegIndex, dValue);
+                        break;
+                    case Types.NUMERIC:
+                    case Types.DECIMAL:
+                        double decimalValue = 0;
+                        BigDecimal bigDecimalValue = rs.getBigDecimal(columnName);
+                        if (bigDecimalValue != null) {
+                            decimalValue = bigDecimalValue.doubleValue();
+                        }
+                        bStruct.setFloatField(++doubleRegIndex, decimalValue);
                         break;
                     case Types.BIT:
                     case Types.BOOLEAN:
@@ -290,12 +274,12 @@ public class SQLDataIterator implements DataIterator {
         return this.columnDefs;
     }
 
-    private BMap<BString, BValue> getDataArray(String columnName) {
+    private BMap<String, BValue> getDataArray(String columnName) {
         Map<String, Object> arrayMap = getArray(columnName);
-        BMap<BString, BValue> returnMap = new BMap<>();
+        BMap<String, BValue> returnMap = new BMap<>();
         if (!arrayMap.isEmpty()) {
             for (Map.Entry<String, Object> entry : arrayMap.entrySet()) {
-                BString key = new BString(entry.getKey());
+                String key = entry.getKey();
                 Object obj = entry.getValue();
                 if (obj instanceof String) {
                     returnMap.put(key, new BString(String.valueOf(obj)));

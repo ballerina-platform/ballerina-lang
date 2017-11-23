@@ -99,6 +99,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-packerina</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-logging</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -136,38 +141,6 @@
                         </execution>
                     </executions>
                 </plugin>
-                <plugin><!-- Overridden from parent pom to exclude generated sources -->
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <id>validate</id>
-                            <phase>validate</phase>
-                            <configuration>
-                                <configLocation>
-                                    https://raw.githubusercontent.com/wso2/code-quality-tools/master/checkstyle/checkstyle.xml
-                                </configLocation>
-                                <suppressionsLocation>
-                                    https://raw.githubusercontent.com/wso2/code-quality-tools/master/checkstyle/suppressions.xml
-                                </suppressionsLocation>
-                                <encoding>UTF-8</encoding>
-                                <consoleOutput>true</consoleOutput>
-                                <failsOnError>true</failsOnError>
-                                <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                                <!--Exclude generated sources-->
-                                <excludes>**org/wso2/ballerinalang/compiler/parser/antlr4/*,
-                                    **/util/parser/*,
-                                    **/${native.constructs.provider.class}.java,
-                                    **/${ballerina.package.repository.provider.class}.java,
-                                    **/generated/**
-                                </excludes>
-                            </configuration>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
                 <!-- ANTLR Plugin -->
                 <plugin>
                     <groupId>org.antlr</groupId>
@@ -186,6 +159,11 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>${mvn.exec.plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -202,9 +180,16 @@
         <ballerina.package.repository.provider.class>BallerinaBuiltinPackageRepository
         </ballerina.package.repository.provider.class>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
-        <mvn.exec.plugin.version>1.1.1</mvn.exec.plugin.version>
+        <mvn.exec.plugin.version>1.6.0</mvn.exec.plugin.version>
         <ant.contrib.plugin.version>1.0b3</ant.contrib.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.checkstyleplugin.excludes>
+            **org/wso2/ballerinalang/compiler/parser/antlr4/*,
+            **/util/parser/*,
+            **/${native.constructs.provider.class}.java,
+            **/${ballerina.package.repository.provider.class}.java,
+            **/generated/**
+        </maven.checkstyleplugin.excludes>
     </properties>
 
     <modules>
