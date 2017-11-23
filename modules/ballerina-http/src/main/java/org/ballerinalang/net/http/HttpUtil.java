@@ -476,7 +476,7 @@ public class HttpUtil {
             session.generateSessionHeader(responseMsg);
         }
         //Process CORS if exists.
-        if (requestMsg.getHeader("Origin") != null) {
+        if (requestMsg.getHeader(Constants.ORIGIN) != null) {
             CorsHeaderGenerator.process(requestMsg, responseMsg, true);
         }
     }
