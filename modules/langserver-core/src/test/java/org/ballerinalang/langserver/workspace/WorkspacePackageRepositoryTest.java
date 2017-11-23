@@ -20,14 +20,14 @@ package org.ballerinalang.langserver.workspace;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.repository.PackageRepository;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -53,12 +53,50 @@ public class WorkspacePackageRepositoryTest {
 
     @Test
     public void testCompilePackageWithDirtyContent() {
+        CompilerContext compilerContext = prepareCompilerContext();
+        Compiler compiler = Compiler.getInstance(compilerContext);
+        compiler.compile(pkg);
+        Assert.assertEquals(compiler.getAST().getFunctions().size(), 1,
+                "Package should contain one function which is in persisted file.");
+        Assert.assertEquals(compiler.getAST().getFunctions().get(0).getName().getValue(), "sayHello",
+                "Name of the function should be equal to sayHello.");
+
+        // open the file in document manager and set content without the function
+        final Path filePath = Paths.get(sourceRoot, "org", "pkg1", "file1.bal");
+        documentManager.openFile(filePath, "package org.pkg1;");
+        compiler = Compiler.getInstance(compilerContext);
+        compiler.compile(pkg);
+        Assert.assertEquals(compiler.getAST().getFunctions().size(), 0,
+                "Package should now contain no functions as we removed it in file1.bal dirty content.");
+
+        // now update the file and add two public functions
+        documentManager.updateFile(filePath, "package org.pkg1; public function f1(){} " +
+                "public function f2(){}");
+        compiler = Compiler.getInstance(compilerContext);
+        compiler.compile(pkg);
+        Assert.assertEquals(compiler.getAST().getFunctions().size(), 2,
+                "Package should now contain two functions.");
+        Assert.assertEquals(compiler.getAST().getFunctions().get(0).getName().getValue(), "f1",
+                "Name of the first function should be equal to f1.");
+        Assert.assertEquals(compiler.getAST().getFunctions().get(1).getName().getValue(), "f2",
+                "Name of the first function should be equal to f2.");
+
+        // now close file without saving new content to disk
+        documentManager.closeFile(filePath);
+        compiler = Compiler.getInstance(compilerContext);
+        compiler.compile(pkg);
+        Assert.assertEquals(compiler.getAST().getFunctions().size(), 1,
+                "Package should now contain a single function which is in the file on disk.");
+        Assert.assertEquals(compiler.getAST().getFunctions().get(0).getName().getValue(), "sayHello",
+                "Name of the function should be equal to sayHello.");
+    }
+
+    protected CompilerContext prepareCompilerContext() {
         CompilerContext context = new CompilerContext();
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(SOURCE_ROOT, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.CODE_ANALYZE.toString());
-        Compiler compiler = Compiler.getInstance(context);
-        compiler.compile(pkg);
+        return context;
     }
 }

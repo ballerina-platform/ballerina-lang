@@ -31,6 +31,16 @@
                 <artifactId>ballerina-lang</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-builtin</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-http</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <properties>
