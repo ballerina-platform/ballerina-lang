@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.TransportListenerManager;
 
 /**
  * Declarative service component for the Netty transport. This handles registration &amp; unregistration of relevant
@@ -66,20 +65,6 @@ public class HTTPTransportServiceComponent implements RequiredCapabilityListener
 
     protected void removeMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
         HTTPTransportContextHolder.getInstance().removeMessageProcessor(carbonMessageProcessor);
-    }
-
-    @Reference(
-            name = "transport-listener-manager",
-            service = TransportListenerManager.class,
-            cardinality = ReferenceCardinality.OPTIONAL,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "removeManager")
-    protected void addManager(TransportListenerManager manager) {
-        HTTPTransportContextHolder.getInstance().setManager(manager);
-    }
-
-    protected void removeManager(TransportListenerManager manager) {
-        HTTPTransportContextHolder.getInstance().removeManager();
     }
 
     @Reference(

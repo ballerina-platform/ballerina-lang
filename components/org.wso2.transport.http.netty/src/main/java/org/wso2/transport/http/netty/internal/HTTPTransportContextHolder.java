@@ -23,7 +23,6 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.TransportListenerManager;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 
 import java.util.HashMap;
@@ -40,7 +39,6 @@ public class HTTPTransportContextHolder {
     private BundleContext bundleContext;
     private HandlerExecutor handlerExecutor;
     private Map<String, ListenerConfiguration> listenerConfigurations = new HashMap<>();
-    private TransportListenerManager manager;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
     private CarbonMessageProcessor singleCarbonMessageProcessor;
@@ -117,18 +115,6 @@ public class HTTPTransportContextHolder {
             messageProcessorMap.clear();
             singleCarbonMessageProcessor = null;
         }
-    }
-
-    public TransportListenerManager getManager() {
-        return manager;
-    }
-
-    public void removeManager() {
-        manager = null;
-    }
-
-    public void setManager(TransportListenerManager manager) {
-        this.manager = manager;
     }
 
     public void setHandlerExecutor(HandlerExecutor handlerExecutor) {
