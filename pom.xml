@@ -284,8 +284,8 @@
         <org.apache.commons.pool2.version>2.4.2</org.apache.commons.pool2.version>
         <commons-net.version>3.6</commons-net.version>
 
-        <carbon.messaging.version>2.3.7</carbon.messaging.version>
-        <carbon.messaging.package.import.version.range>[2.0.0, 3.0.0)</carbon.messaging.package.import.version.range>
+        <carbon.messaging.version>3.0.2</carbon.messaging.version>
+        <carbon.messaging.package.import.version.range>[3.0.0, 4.0.0)</carbon.messaging.package.import.version.range>
         <slf4j.version>1.7.5</slf4j.version>
         <!--Logging API version range-->
         <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)</slf4j.logging.package.import.version.range>
