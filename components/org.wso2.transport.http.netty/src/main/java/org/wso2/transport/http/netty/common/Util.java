@@ -92,7 +92,7 @@ public class Util {
     }
 
     @SuppressWarnings("unchecked")
-    public static HttpResponse createHttpResponse(HTTPCarbonMessage msg, boolean connectionCloseAfterResponse) {
+    public static HttpResponse createHttpResponse(HTTPCarbonMessage msg, boolean keepAlive) {
         HttpVersion httpVersion = new HttpVersion(Util.getStringValue(msg, Constants.HTTP_VERSION, HTTP_1_1.text()),
                 true);
 
@@ -105,7 +105,7 @@ public class Util {
 
         DefaultHttpResponse outgoingResponse = new DefaultHttpResponse(httpVersion, httpResponseStatus, false);
 
-        if (connectionCloseAfterResponse) {
+        if (!keepAlive) {
             msg.setHeader(Constants.HTTP_CONNECTION, Constants.CONNECTION_CLOSE);
         }
 

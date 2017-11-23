@@ -178,8 +178,10 @@ public class TestUtil {
             urlConn.setDoOutput(true);
         }
         urlConn.setRequestMethod(method);
-        if (!keepAlive) {
+        if (keepAlive) {
             urlConn.setRequestProperty("Connection", "Keep-Alive");
+        } else {
+            urlConn.setRequestProperty("Connection", "Close");
         }
 
         return urlConn;

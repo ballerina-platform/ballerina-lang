@@ -53,14 +53,13 @@ public class HttpResponseListener implements HttpConnectorListener {
         Util.setupTransferEncodingForResponse(httpResponseMessage, requestDataHolder);
 
         sourceContext.channel().eventLoop().execute(() -> {
-            boolean connectionCloseAfterResponse = shouldConnectionClose(httpResponseMessage);
+            boolean keepAlive = isKeepAlive(httpResponseMessage);
 
             if (handlerExecutor != null) {
                 handlerExecutor.executeAtSourceResponseReceiving(httpResponseMessage);
             }
 
-            final HttpResponse response = Util
-                    .createHttpResponse(httpResponseMessage, connectionCloseAfterResponse);
+            final HttpResponse response = Util.createHttpResponse(httpResponseMessage, keepAlive);
             sourceContext.write(response);
 
             httpResponseMessage.getHttpContentAsync().setMessageListener(httpContent ->
@@ -76,7 +75,7 @@ public class HttpResponseListener implements HttpConnectorListener {
                             outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
                         }
                     });
-                    if (connectionCloseAfterResponse) {
+                    if (!keepAlive) {
                         outboundChannelFuture.addListener(ChannelFutureListener.CLOSE);
                     }
                     if (handlerExecutor != null) {
@@ -91,16 +90,16 @@ public class HttpResponseListener implements HttpConnectorListener {
     }
 
     // Decides whether to close the connection after sending the response
-    private boolean shouldConnectionClose(HTTPCarbonMessage responseMsg) {
+    private boolean isKeepAlive(HTTPCarbonMessage responseMsg) {
         String responseConnectionHeader = responseMsg.getHeader(Constants.HTTP_CONNECTION);
         String requestConnectionHeader = requestDataHolder.getConnectionHeader();
         if ((responseConnectionHeader != null &&
                 Constants.CONNECTION_CLOSE.equalsIgnoreCase(responseConnectionHeader))
                 || (requestConnectionHeader != null &&
                 Constants.CONNECTION_CLOSE.equalsIgnoreCase(requestConnectionHeader))) {
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     @Override
