@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function to get key arrays from the map.
+ * Native function to clear map entries.
  * ballerina.model.map:clear()
  */
 @BallerinaFunction(

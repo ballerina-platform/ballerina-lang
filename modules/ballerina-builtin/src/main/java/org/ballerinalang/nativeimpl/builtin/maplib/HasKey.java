@@ -29,8 +29,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function to get key arrays from the map.
- * ballerina.model.map:hasKey()
+ * Native function to check existence of key.
+ * ballerina.model.map:hasKey(string)
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
