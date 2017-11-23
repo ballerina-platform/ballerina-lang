@@ -35,7 +35,7 @@ struct ResultArrayType {
 function testInsertTableData () (int) {
     endpoint<sql:ClientConnector> testDB {
         create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
-                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
+                                                           0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
     int insertCount = testDB.update ("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
@@ -255,8 +255,8 @@ function testNullINParameters () (int) {
     sql:Parameter[] parameters = [paraID, null, null, null, null, null, null, null,
                                   null, null, null, null, null, null, null];
     int insertCount = testDB.update ("INSERT INTO DataTypeTable (row_id,int_type, long_type,
-    float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
-    smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", parameters);
+                float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
+                smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", parameters);
     testDB.close ();
     return insertCount;
 }
@@ -292,8 +292,7 @@ function testINOutParameters () (any, any, any, any, any, any, any, any, any, an
            paraBlob.value, paraBinary.value;
 }
 
-function testNullINOutParameters ()
-(any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
+function testNullINOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint<sql:ClientConnector> testDB {
         create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
@@ -454,15 +453,9 @@ function testBatchUpdateWithFailure () (int[] updateCount, int count) {
 
     updateCount = testDB.batchUpdate("Insert into Customers (customerId, firstName,lastName,registrationID,creditLimit,
         country) values (?,?,?,?,?,?)", parameters);
-
-
-    sql:Parameter[] params = [];
-    datatable dt = testDB.select ("SELECT count(*) as countval from Customers where customerId in (111,222,333)",
-                                  params);
-    ResultCount rs;
+    datatable dt = testDB.select ("SELECT count(*) as countval from Customers where customerId in (111,222,333)", null);
     while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, _ = (ResultCount) dataStruct;
+        var rs, _ = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
     }
 
@@ -530,15 +523,10 @@ function testSelectIntFloatData () (int int_type, int long_type, float float_typ
         create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
-
-    sql:Parameter[] parameters = [];
-    TypeCastError err;
-    ResultDataType rs;
     datatable dt = testDB.select ("SELECT  int_type, long_type, float_type, double_type from DataTypeTable
-                                   where row_id = 1", parameters);
+                                   where row_id = 1", null);
     while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, err = (ResultDataType) dataStruct;
+        var rs, err = (ResultDataType) dt.getNext();
         int_type = rs.INT_TYPE;
         long_type = rs.LONG_TYPE;
         float_type = rs.FLOAT_TYPE;
@@ -555,11 +543,8 @@ function testSelectData () (string firstName) {
     }
 
     datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = 1", null);
-    TypeCastError err;
-    ResultCustomers rs;
     while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, err = (ResultCustomers) dataStruct;
+        var rs, err = (ResultCustomers) dt.getNext();
         firstName = rs.FIRSTNAME;
     }
     testDB.close ();
@@ -574,11 +559,8 @@ function testCallProcedure () (string firstName) {
 
     _ = testDB.call ("{call InsertPersonData(100,'James')}", null);
     datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = 100", null);
-    TypeCastError err;
-    ResultCustomers rs;
     while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, err = (ResultCustomers) dataStruct;
+        var rs, err = (ResultCustomers) dt.getNext();
         firstName = rs.FIRSTNAME;
     }
     testDB.close ();
@@ -591,13 +573,9 @@ function testCallProcedureWithResultSet () (string firstName) {
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
-    sql:Parameter[] parameters = [];
-    datatable dt = testDB.call ("{call SelectPersonData()}", parameters);
-    TypeCastError err;
-    ResultCustomers rs;
+    datatable dt = testDB.call ("{call SelectPersonData()}", null);
     while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, err = (ResultCustomers) dataStruct;
+        var rs, err = (ResultCustomers) dt.getNext();
         firstName = rs.FIRSTNAME;
     }
     testDB.close ();
@@ -613,11 +591,8 @@ function testQueryParameters () (string firstName) {
     sql:Parameter para1 = {sqlType:"integer", value:1, direction:0};
     sql:Parameter[] parameters = [para1];
     datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = ?", parameters);
-    TypeCastError err;
-    ResultCustomers rs;
     while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, err = (ResultCustomers) dataStruct;
+        var rs, err = (ResultCustomers) dt.getNext();
         firstName = rs.FIRSTNAME;
     }
     testDB.close ();
@@ -640,11 +615,8 @@ function testArrayofQueryParameters () (string firstName) {
     sql:Parameter[] parameters = [para0,para1, para2, para3];
     datatable dt = testDB.select ("SELECT  FirstName from Customers where FirstName = ? or lastName = 'A' or
                     lastName = '\"BB\"' or registrationID in(?) or lastName in(?) or creditLimit in(?)", parameters);
-    TypeCastError err;
-    ResultCustomers rs;
     while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, err = (ResultCustomers) dataStruct;
+        var rs, err = (ResultCustomers) dt.getNext();
         firstName = rs.FIRSTNAME;
     }
     testDB.close ();
@@ -665,8 +637,7 @@ function testBoolArrayofQueryParameters () (int value ) {
     datatable dt1 = testDB.select("SELECT blob_type from DataTypeTable where row_id = 1", null);
     blob blobData;
     while (dt1.hasNext()) {
-        any dataStruct = dt1.getNext();
-        var rs, err = (ResultBlob)dataStruct;
+        var rs, err = (ResultBlob)dt1.getNext();
         blobData = rs.BLOB_TYPE;
     }
     blob[] blobDataArray = [blobData];
@@ -676,13 +647,9 @@ function testBoolArrayofQueryParameters () (int value ) {
     sql:Parameter para2 = {sqlType:"blob", value:blobDataArray, direction:0};
     sql:Parameter[] parameters = [para0,para1,para2];
     datatable dt = testDB.select ("SELECT  int_type from DataTypeTable where row_id = ? and boolean_type in(?) and
-                                                            blob_type in (?)",
-                                  parameters);
-    TypeCastError err;
-    ResultIntType rs;
+                                                            blob_type in (?)", parameters);
     while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, err = (ResultIntType) dataStruct;
+        var rs, err = (ResultIntType) dt.getNext();
         value = rs.INT_TYPE;
     }
     testDB.close ();
@@ -715,13 +682,10 @@ function testArrayInParameters () (int insertCount, map int_arr, map long_arr, m
     insertCount = testDB.update ("INSERT INTO ArrayTypes (row_id, int_array, long_array,
         float_array, double_array, boolean_array, string_array) values (?,?,?,?,?,?,?)", parameters);
 
-    sql:Parameter[] params = [];
     datatable dt = testDB.select ("SELECT int_array, long_array, double_array, boolean_array,
-        string_array, float_array from ArrayTypes where row_id = 2", params);
-    ResultArrayType rs;
+        string_array, float_array from ArrayTypes where row_id = 2", null);
     while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, _ = (ResultArrayType) dataStruct;
+        var rs, _ = (ResultArrayType) dt.getNext();
         int_arr = rs.INT_ARRAY;
         long_arr = rs.LONG_ARRAY;
         double_arr = rs.DOUBLE_ARRAY;
@@ -754,12 +718,9 @@ function testDateTimeOutParams (int time, int date, int timestamp) (int count) {
 
     _ = testDB.call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", parameters);
 
-    sql:Parameter[] emptyParam = [];
-    datatable dt = testDB.select("SELECT count(*) as countval from DateTimeTypes where row_id = 10", emptyParam);
-    ResultCount rs;
+    datatable dt = testDB.select("SELECT count(*) as countval from DateTimeTypes where row_id = 10", null);
     while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, _ = (ResultCount)dataStruct;
+        var rs, _ = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
     }
     testDB.close();
@@ -778,18 +739,39 @@ function testStructOutParameters() (any) {
     return para1.value;
 }
 
+function testComplexTypeRetrieval() (string s1, string s2, string s3, string s4){
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
+    }
+    datatable dt = testDB.select("SELECT * from DataTypeTable where row_id = 1", null);
+    var x, _ = <xml>dt;
+    s1 = <string>x;
+
+    dt = testDB.select("SELECT * from DateTimeTypes where row_id = 1", null);
+    x, _ = <xml>dt;
+    s2 = <string>x;
+
+    dt = testDB.select("SELECT * from DataTypeTable where row_id = 1", null);
+    var j, _ = <json>dt;
+    s3 = j.toString();
+
+    dt = testDB.select("SELECT * from DateTimeTypes where row_id = 1", null);
+    j, _ = <json>dt;
+    s4 = j.toString();
+
+    testDB.close();
+    return;
+}
+
 function testCloseConnectionPool () (int count) {
     endpoint<sql:ClientConnector> testDB {
         create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
-    sql:Parameter[] parameters = [];
-    datatable dt = testDB.select ("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", parameters);
-    TypeCastError err;
-    ResultCount rs;
+    datatable dt = testDB.select ("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null);
     while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, err = (ResultCount) dataStruct;
+        var rs, err = (ResultCount) dt.getNext();
         count = rs.COUNTVAL;
     }
     testDB.close();
