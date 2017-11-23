@@ -3,7 +3,7 @@ import ballerina.data.sql;
 function main (string[] args) {
     endpoint<sql:ClientConnector> testDB {
       create sql:ClientConnector(
-             sql:MYSQL, "localhost", 3306, "testdb", "root", "root", {maximumPoolSize:5});
+        sql:db.MYSQL, "localhost", 3306, "testdb", "root", "root", {maximumPoolSize:5});
     }
     //Create the tables required for the transaction.
     int updatedRows = testDB.update("CREATE TABLE IF NOT EXISTS CUSTOMER (ID INT,

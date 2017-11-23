@@ -318,7 +318,7 @@ function testArrayDataInsertAndPrint () (int updateRet, int intArrLen, int longA
     string[] datastring = ["hello", "world"];
     boolean[] databoolean = [true, false, false, true, true];
 
-    sql:Parameter paraID = {sqlType:sql:data.INTEGER, value:4, direction:0};
+    sql:Parameter paraID = {sqlType:sql:data.INTEGER, value:4};
     sql:Parameter paraInt = {sqlType:sql:data.ARRAY, value:dataint};
     sql:Parameter paraLong = {sqlType:sql:data.ARRAY, value:dataint};
     sql:Parameter paraFloat = {sqlType:sql:data.ARRAY, value:datafloat};
@@ -595,29 +595,29 @@ function testSignedIntMaxMinValues () (int maxInsert, int minInsert, int nullIns
     string selectSQL = "SELECT id,tinyIntData,smallIntData,intData,bigIntData FROM IntegerTypes";
 
     //Insert signed max
-    sql:Parameter para1 = {sqlType:sql:data.INTEGER, value:1, direction:0};
-    sql:Parameter para2 = {sqlType:sql:data.TINYINT, value:127, direction:0};
-    sql:Parameter para3 = {sqlType:sql:data.SMALLINT, value:32767, direction:0};
-    sql:Parameter para4 = {sqlType:sql:data.INTEGER, value:2147483647, direction:0};
-    sql:Parameter para5 = {sqlType:sql:data.BIGINT, value:9223372036854775807, direction:0};
+    sql:Parameter para1 = {sqlType:sql:data.INTEGER, value:1};
+    sql:Parameter para2 = {sqlType:sql:data.TINYINT, value:127};
+    sql:Parameter para3 = {sqlType:sql:data.SMALLINT, value:32767};
+    sql:Parameter para4 = {sqlType:sql:data.INTEGER, value:2147483647};
+    sql:Parameter para5 = {sqlType:sql:data.BIGINT, value:9223372036854775807};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
     maxInsert = testDB.update(insertSQL, parameters);
 
     //Insert signed min
-    para1 = {sqlType:sql:data.INTEGER, value:2, direction:0};
-    para2 = {sqlType:sql:data.TINYINT, value:-128, direction:0};
-    para3 = {sqlType:sql:data.SMALLINT, value:-32768, direction:0};
-    para4 = {sqlType:sql:data.INTEGER, value:-2147483648, direction:0};
-    para5 = {sqlType:sql:data.BIGINT, value:-9223372036854775808, direction:0};
+    para1 = {sqlType:sql:data.INTEGER, value:2};
+    para2 = {sqlType:sql:data.TINYINT, value:-128};
+    para3 = {sqlType:sql:data.SMALLINT, value:-32768};
+    para4 = {sqlType:sql:data.INTEGER, value:-2147483648};
+    para5 = {sqlType:sql:data.BIGINT, value:-9223372036854775808};
     parameters = [para1, para2, para3, para4, para5];
     minInsert = testDB.update(insertSQL, parameters);
 
     //Insert null
-    para1 = {sqlType:sql:data.INTEGER, value:3, direction:0};
-    para2 = {sqlType:sql:data.TINYINT, value:null, direction:0};
-    para3 = {sqlType:sql:data.SMALLINT, value:null, direction:0};
-    para4 = {sqlType:sql:data.INTEGER, value:null, direction:0};
-    para5 = {sqlType:sql:data.BIGINT, value:null, direction:0};
+    para1 = {sqlType:sql:data.INTEGER, value:3};
+    para2 = {sqlType:sql:data.TINYINT, value:null};
+    para3 = {sqlType:sql:data.SMALLINT, value:null};
+    para4 = {sqlType:sql:data.INTEGER, value:null};
+    para5 = {sqlType:sql:data.BIGINT, value:null};
     parameters = [para1, para2, para3, para4, para5];
     nullInsert = testDB.update(insertSQL, parameters);
 

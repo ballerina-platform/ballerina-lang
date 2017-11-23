@@ -256,7 +256,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             for (int i = 0; i < paramCount; i++) {
                 BStruct paramValue = (BStruct) parameters.get(i);
                 if (paramValue != null) {
-                    String sqlType = ((BEnumerator) paramValue.getRefField(0)).getName();
+                    String sqlType = getSQLType(paramValue);
                     BValue value = paramValue.getRefField(1);
                     if (value != null && value.getType().getTag() == TypeTags.ARRAY_TAG &&
                             !Constants.SQLDataTypes.ARRAY.equalsIgnoreCase(sqlType)) {
@@ -431,9 +431,9 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         for (int index = 0; index < paramCount; index++) {
             BStruct paramStruct = (BStruct) params.get(index);
             if (paramStruct != null) {
-                String sqlType = ((BEnumerator) paramStruct.getRefField(0)).getName();
+                String sqlType = getSQLType(paramStruct);
                 BValue value = paramStruct.getRefField(1);
-                int direction = (int) paramStruct.getIntField(0);
+                int direction = getParameterDirection(paramStruct);
                 //If the parameter is an array and sql type is not "array" then treat it as an array of parameters
                 if (value != null && value.getType().getTag() == TypeTags.ARRAY_TAG && !Constants.SQLDataTypes.ARRAY
                         .equalsIgnoreCase(sqlType)) {
@@ -573,8 +573,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         for (int index = 0; index < paramCount; index++) {
             BStruct paramValue = (BStruct) params.get(index);
             if (paramValue != null) {
-                String sqlType = ((BEnumerator) paramValue.getRefField(0)).getName();
-                int direction = (int) paramValue.getIntField(0);
+                String sqlType = getSQLType(paramValue);
+                int direction = getParameterDirection(paramValue);
                 if (direction == Constants.QueryParamDirection.INOUT
                         || direction == Constants.QueryParamDirection.OUT) {
                     setOutParameterValue(stmt, sqlType, index, paramValue);
@@ -703,7 +703,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         int paramCount = (int) params.size();
         for (int index = 0; index < paramCount; index++) {
             BStruct paramValue = (BStruct) params.get(index);
-            int direction = (int) paramValue.getIntField(0);
+            int direction = getParameterDirection(paramValue);
             if (direction == Constants.QueryParamDirection.OUT || direction == Constants.QueryParamDirection.INOUT) {
                 return true;
             }
@@ -774,5 +774,33 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     private BDataTable constructDataTable(ResultSet rs, Statement stmt, Connection conn) throws SQLException {
         ArrayList<ColumnDefinition> columnDefinitions = getColumnDefinitions(rs);
         return new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar, columnDefinitions));
+    }
+
+    private String getSQLType(BStruct parameter) {
+        String sqlType = "";
+        BEnumerator typeEnum = (BEnumerator) parameter.getRefField(0);
+        if (typeEnum != null) {
+            sqlType = typeEnum.getName();
+        }
+        return sqlType;
+
+    }
+
+    private int getParameterDirection(BStruct parameter) {
+        int direction = 0;
+        BEnumerator dirEnum = (BEnumerator) parameter.getRefField(2);
+        if (dirEnum != null) {
+            String sqlType = dirEnum.getName();
+            switch (sqlType) {
+            case Constants.QueryParamDirection.DIR_OUT:
+                direction = Constants.QueryParamDirection.OUT;
+                break;
+            case Constants.QueryParamDirection.DIR_INOUT:
+                direction = Constants.QueryParamDirection.INOUT;
+                break;
+            }
+        }
+        return direction;
+
     }
 }

@@ -3,11 +3,11 @@ package ballerina.data.sql;
 @Description { value: "Parameter struct represents a query parameter for the SQL queries specified in connector actions"}
 @Field {value:"sqlType: The data type of the corresponding SQL parameter"}
 @Field {value:"value: Value of paramter pass into the SQL query"}
-@Field {value:"direction: Direction of the SQL Parameter 0 - IN, 1- OUT, 2 - INOUT"}
+@Field {value:"direction: Direction of the SQL Parameter IN, OUT, or INOUT"}
 public struct Parameter {
 	data sqlType;
 	any value;
-	int direction;
+	dir direction;
 }
 
 @Description { value: "ConnectionProperties structs represents the properties which are used to configure DB connection pool"}
@@ -56,6 +56,20 @@ public struct ConnectionProperties {
 	map datasourceProperties;
 }
 
+@Description { value:"The Databases which has direct parameter support."}
+@Field { value:"MYSQL: MySQL DB with connection url in the format of  jdbc:mysql://[HOST]:[PORT]/[database]"}
+@Field { value:"SQLSERVER: SQL Server DB with connection url in the format of jdbc:sqlserver://[HOST]:[PORT];databaseName=[database]"}
+@Field { value:"ORACLE: Oracle DB with connection url in the format of  jdbc:oracle:thin:[username/password]@[HOST]:[PORT]/[database]"}
+@Field { value:"SYBASE: Sybase DB with connection url in the format of  jdbc:sybase:Tds:[HOST]:[PORT]/[database]"}
+@Field { value:"POSTGRE: Postgre DB with connection url in the format of  jdbc:postgresql://[HOST]:[PORT]/[database]"}
+@Field { value:"IBMDB2: IBMDB2 DB with connection url in the format of  jdbc:db2://[HOST]:[PORT]/[database]"}
+@Field { value:"HSQLDB_SERVER: HSQL Server with connection url in the format of jdbc:hsqldb:hsql://[HOST]:[PORT]/[database]"}
+@Field { value:"HSQLDB_FILE: HSQL Server with connection url in the format of jdbc:hsqldb:file:[path]/[database]"}
+@Field { value:"H2_SERVER: H2 Server DB with connection url in the format of jdbc:h2:tcp://[HOST]:[PORT]/[database]"}
+@Field { value:"H2_FILE: H2 File DB with connection url in the format of jdbc:h2:file://[path]/[database]"}
+@Field { value:"DERBY_SERVER: DERBY server DB with connection url in the format of jdbc:derby://[HOST]:[PORT]/[database]"}
+@Field { value:"DERBY_FILE: Derby file DB with connection url in the format of jdbc:derby://[path]/[database]"}
+@Field { value:"GENERIC: Custom DB connection with given connection url"}
 public enum db {
 	MYSQL,
 	SQLSERVER,
@@ -72,6 +86,7 @@ public enum db {
 	GENERIC
 }
 
+@Description { value:"The SQL Datatype of the parameter"}
 public enum data {
 	VARCHAR,
 	CHAR,
@@ -104,6 +119,16 @@ public enum data {
 	STRUCT
 }
 
+@Description { value:"The direction of the parameter"}
+@Field { value:"IN: IN parameters are used to send values to stored procedures"}
+@Field { value:"OUT: OUT parameters are used to get values from stored procedures"}
+@Field { value:"INOUT: INOUT parameters are used to send values and get values from stored procedures"}
+public enum dir {
+    IN,
+	OUT,
+	INOUT
+}
+
 @Description { value:"The Client Connector for SQL databases."}
 @Param { value:"dbType: SQL database type" }
 @Param { value:"hostOrPath: Host name of the database or file path for file based database" }
@@ -112,7 +137,8 @@ public enum data {
 @Param { value:"username: Username for the database connection" }
 @Param { value:"password: Password for the database connection" }
 @Param { value:"options: ConnectionProperties for the connection pool configuration" }
-public connector ClientConnector (db dbType, string hostOrPath, int port, string dbName, string username, string password, ConnectionProperties options) {
+public connector ClientConnector (db dbType, string hostOrPath, int port, string dbName, string username,
+								  string password, ConnectionProperties options) {
     map sharedMap = {};
 
 	@Description { value:"The call action implementation for SQL connector to invoke stored procedures/functions."}
@@ -151,40 +177,4 @@ public connector ClientConnector (db dbType, string hostOrPath, int port, string
 	native action updateWithGeneratedKeys (string query, Parameter[] parameters, string[] keyColumns) (int, string[]);
 
 }
-
-@Description { value:"Construct MySQL DB jdbc url in the format of  jdbc:mysql://[HOST]:[PORT]/[database]"}
-public const string MYSQL = "MYSQL";
-
-@Description { value:"Construct SQL Server DB jdbc url in the format of  jdbc:sqlserver://[HOST]:[PORT];databaseName=[database]"}
-public const string SQLSERVER = "SQLSERVER";
-
-@Description { value:"Construct Oracle  DB jdbc url in the format of  jdbc:oracle:thin:[username/password]@[HOST]:[PORT]/[database]"}
-public const string ORACLE = "ORACLE";
-
-@Description { value:"Construct Sybase DB jdbc url in the format of  jdbc:sybase:Tds:[HOST]:[PORT]/[database]"}
-public const string SYBASE = "SYBASE";
-
-@Description { value:"Construct PostgreSQL DB jdbc url in the format of  jdbc:postgresql://[HOST]:[PORT]/[database]"}
-public const string POSTGRE = "POSTGRE";
-
-@Description { value:"Construct IBM Db2  DB jdbc url in the format of  jdbc:db2://[HOST]:[PORT]/[database]"}
-public const string IBMDB2 = "IBMDB2";
-
-@Description { value:"Construct HSQLDB SERVER dB jdbc url in the format of  jdbc:hsqldb:hsql://[HOST]:[PORT]/[database]"}
-public const string HSQLDB_SERVER = "HSQLDB_SERVER";
-
-@Description { value:"Construct HSQLDB FILE DB jdbc url in the format of  jdbc:hsqldb:file:[path]/[database]"}
-public const string HSQLDB_FILE = "HSQLDB_FILE";
-
-@Description { value:"Construct H2 SERVER DB jdbc url in the format of  jdbc:h2:tcp://[HOST]:[PORT]/[database]"}
-public const string H2_SERVER = "H2_SERVER";
-
-@Description { value:"Construct H2 FILE DB jdbc url in the format of  jdbc:h2:file://[path]/[database]"}
-public const string H2_FILE = "H2_FILE";
-
-@Description { value:"Construct Derby SERVER DB jdbc url in the format of  jdbc:derby://[HOST]:[PORT]/[database]"}
-public const string DERBY_SERVER = "DERBY_SERVER";
-
-@Description { value:"Construct Derby FILE DB jdbc url in the format of  jdbc:derby://[path]/[database]"}
-public const string DERBY_FILE = "DERBY_FILE";
 
