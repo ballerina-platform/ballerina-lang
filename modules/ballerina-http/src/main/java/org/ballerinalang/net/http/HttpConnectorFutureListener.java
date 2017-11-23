@@ -43,6 +43,7 @@ public class HttpConnectorFutureListener implements ConnectorFutureListener {
 
     @Override
     public void notifyReply(BValue... response) {
+        //As the HTTP outbound response is synced, this method implementation is no longer required.
     }
 
     @Override
