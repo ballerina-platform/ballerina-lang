@@ -36,7 +36,9 @@ public class SampleGenerator {
 
     public static void main(String[] args) {
         validateArgs(args);
-        log.info("generating balx file for given path - " + args[2]);
+        String[] filePathParts = args[1].split("/");
+        String sampleName = filePathParts[filePathParts.length - 1];
+        log.info("generating balx file for sample - " + sampleName);
 
         // Get source root path.
         Path userDir = Paths.get(args[0]);
@@ -47,7 +49,7 @@ public class SampleGenerator {
         Path targetPath = Paths.get(targetFilePath);
 
         BuilderUtils.compileAndWrite(sourceRootPath, packagePath, targetPath);
-        log.info("balx generated successfully for given path - " + args[2]);
+        log.info("balx generated successfully for sample - " + sampleName);
     }
 
     private static void validateArgs(String[] args) {
