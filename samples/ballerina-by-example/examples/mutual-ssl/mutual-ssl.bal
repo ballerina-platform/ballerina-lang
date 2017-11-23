@@ -23,7 +23,7 @@ service<http> helloWorld {
         //Set response payload.
         res.setStringPayload("Successful");
         //Send response to client.
-        res.send();
+        _ = res.send();
     }
 }
 

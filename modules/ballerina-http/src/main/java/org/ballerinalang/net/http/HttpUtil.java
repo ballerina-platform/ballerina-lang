@@ -51,11 +51,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
-import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseStatusFuture;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
-import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
+import org.wso2.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contractimpl.HttpResponseStatusFuture;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -485,7 +485,7 @@ public class HttpUtil {
         HttpResponseStatusFuture responseFuture;
         try {
             responseFuture = requestMsg.respond(responseMsg);
-        } catch (org.wso2.carbon.transport.http.netty.contract.ServerConnectorException e) {
+        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred during response", e);
         }
         return responseFuture;
@@ -514,14 +514,14 @@ public class HttpUtil {
         byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
 
         HttpHeaders httpHeaders = response.getHeaders();
-        httpHeaders.set(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONNECTION,
-                org.wso2.carbon.transport.http.netty.common.Constants.CONNECTION_KEEP_ALIVE);
-        httpHeaders.set(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_TYPE,
-                org.wso2.carbon.transport.http.netty.common.Constants.TEXT_PLAIN);
-        httpHeaders.set(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_LENGTH,
+        httpHeaders.set(org.wso2.transport.http.netty.common.Constants.HTTP_CONNECTION,
+                org.wso2.transport.http.netty.common.Constants.CONNECTION_KEEP_ALIVE);
+        httpHeaders.set(org.wso2.transport.http.netty.common.Constants.HTTP_CONTENT_TYPE,
+                org.wso2.transport.http.netty.common.Constants.TEXT_PLAIN);
+        httpHeaders.set(org.wso2.transport.http.netty.common.Constants.HTTP_CONTENT_LENGTH,
                 (String.valueOf(errorMessageBytes.length)));
 
-        response.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, statusCode);
+        response.setProperty(org.wso2.transport.http.netty.common.Constants.HTTP_STATUS_CODE, statusCode);
         response.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
                 org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
         return response;
