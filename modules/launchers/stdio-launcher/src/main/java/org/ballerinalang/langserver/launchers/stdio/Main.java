@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver;
+package org.ballerinalang.langserver.launchers.stdio;
+
+import org.ballerinalang.langserver.BallerinaLanguageServer;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,7 +26,7 @@ import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.LanguageClient;
 
-public class Main 
+public class Main
 {
 	public static void main(String[] args) throws InterruptedException, ExecutionException {
 		startServer(System.in, System.out);
