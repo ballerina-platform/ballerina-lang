@@ -18,20 +18,20 @@
 import _ from 'lodash';
 
 /**
- * @class Struct Field
+ * @class Enumerator
  * @augments
- * @param {Object} args args to create the struct field
- * @param {string} args.name name of the struct field
+ * @param {Object} args args to create the enumerator
+ * @param {string} args.name name of the enumerator
  * @constructor
  */
 class Enumerator {
 
     /**
-     * Constructor for struct
-     * @param {Object} args args to create the struct field
-     * @param {string} args.name name of the struct field
-     * @param {string} args.packageName package of the struct field - applicable for struct types
-     * @memberof Struct
+     * Constructor for enumerator
+     * @param {Object} args args to create the enumerator
+     * @param {string} args.name name of the enumerator
+     * @param {string} args.packageName package of the enumerator
+     * @memberof Enum
      */
     constructor(args) {
         this._name = _.get(args, 'name', '');
@@ -40,7 +40,7 @@ class Enumerator {
 
    /**
     * sets the name
-    * @param {string} name struct field name
+    * @param {string} name enumerator
     */
     setName(name) {
         this._name = name;
@@ -48,7 +48,7 @@ class Enumerator {
 
    /**
     * returns the name
-    * @returns {string} struct field
+    * @returns {string} enumerator
     */
     getName() {
         return this._name;
@@ -56,7 +56,7 @@ class Enumerator {
 
     /**
     * sets the package name
-    * @param {string} packageName struct field package name
+    * @param {string} packageName enumerator package name
     */
     setPackageName(packageName) {
         this._packageName = packageName;
@@ -64,7 +64,7 @@ class Enumerator {
 
    /**
     * returns the package value
-    * @returns {string} struct field package name
+    * @returns {string} enumerator package name
     */
     getPackageName() {
         return this._packageName;
@@ -72,9 +72,9 @@ class Enumerator {
 
    /**
     * sets values from a json object
-    * @param {Object} jsonNode json object containing struct field data
-    * @param {string} jsonNode.name name of the struct field
-    * @param {string} jsonNode.packageName package name of the struct field
+    * @param {Object} jsonNode json object containing enumerator data
+    * @param {string} jsonNode.name name of the enumerator
+    * @param {string} jsonNode.packageName package name of the enumerator
     */
     initFromJson(jsonNode) {
         this.setName(jsonNode.name);

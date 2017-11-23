@@ -21,23 +21,23 @@ import BallerinaEnvFactory from './ballerina-env-factory';
 /**
  * @class Enum
  * @augments
- * @param {Object} args data to create the Struct
- * @param {string} args.name name of struct
- * @param {string} args.id id of struct
- * @param {string} args.fullPackageName full package name of the struct
- * @param {[StructField]} args.fields fields of the struct
+ * @param {Object} args data to create the enum
+ * @param {string} args.name name of enum
+ * @param {string} args.id id of enum
+ * @param {string} args.fullPackageName full package name of the enum
+ * @param {[Enumerator]} args.enumerators enumerators of the enum
  * @constructor
  */
 class Enum {
 
     /**
-     * Constructor for struct
-     * @param {Object} args - data to create the Struct
-     * @param {int} args.id id of the struct
-     * @param {string} args.name name of the struct
-     * @param {string} args.fullPackageName full package name of the struct
-     * @param {[StructField]} args.fields fields of the struct
-     * @memberof Struct
+     * Constructor for enum
+     * @param {Object} args - data to create the enum
+     * @param {int} args.id id of the enum
+     * @param {string} args.name name of the enum
+     * @param {string} args.fullPackageName full package name of the enum
+     * @param {[Enumerator]} args.enumerators enumerators of the enum
+     * @memberof Enum
      */
     constructor(args) {
         this._name = _.get(args, 'name', '');
@@ -48,7 +48,7 @@ class Enum {
 
    /**
     * sets the name
-    * @param {string} name struct name
+    * @param {string} name enum name
     */
     setName(name) {
         this._name = name;
@@ -56,7 +56,7 @@ class Enum {
 
    /**
     * returns the name
-    * @returns {string} struct name
+    * @returns {string} enum name
     */
     getName() {
         return this._name;
@@ -81,25 +81,25 @@ class Enum {
     /**
      * get package name
      * @returns {string} package identifier
-     * @memberof Struct
+     * @memberof Enum
      */
     getPackageName() {
         return _.last(_.split(this.getFullPackageName(), '.'));
     }
 
     /**
-     * set struct fields
-     * @param {[Enumerators]} enumerators of the struct
-     * @memberof Struct
+     * set enumerators
+     * @param {[Enumerators]} enumerators of the enum
+     * @memberof Enum
      */
     setEnumerators(enumerators) {
         this._enumerators = enumerators;
     }
 
     /**
-     * Get struct fields
-     * @returns {[StructField]} struct fields
-     * @memberof Struct
+     * Get enumerators
+     * @returns {[Enumerators]} enumerators
+     * @memberof Enum
      */
     getEnumerators() {
         return this._enumerators;
@@ -107,7 +107,7 @@ class Enum {
 
    /**
     * sets the id
-    * @param {string} id id of the struct
+    * @param {string} id id of the enum
     */
     setId(id) {
         this._id = id;
@@ -124,8 +124,8 @@ class Enum {
    /**
     * sets values from a json object
     * @param {Object} jsonNode
-    * @param {string} jsonNode.name name of the struct
-    * @param {int} jsonNode.id id of the struct
+    * @param {string} jsonNode.name name of the enum
+    * @param {int} jsonNode.id id of the enum
     */
     initFromJson(jsonNode) {
         this.setName(jsonNode.name);
