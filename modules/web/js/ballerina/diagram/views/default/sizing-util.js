@@ -20,6 +20,7 @@ import _ from 'lodash';
 import SimpleBBox from './../../../model/view/simple-bounding-box';
 import TreeUtil from './../../../model/tree-util';
 import { getWorkerMaxHeight } from './../../diagram-util';
+import * as DesignerDefaults from './designer-defaults';
 import splitVariableDefByLambda from '../../../model/lambda-util';
 
 class SizingUtil {
@@ -33,6 +34,8 @@ class SizingUtil {
         this.textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         svg.appendChild(this.textElement);
         document.body.appendChild(svg);
+
+        this.config = DesignerDefaults;
     }
 
     setConfig(config) {
@@ -47,7 +50,8 @@ class SizingUtil {
      * @param {number} maxWidth
      * @return {object} {width,text}
      * */
-    getTextWidth(text, minWidth = this.config.statement.width, maxWidth = this.config.statement.maxWidth) {
+    getTextWidth(text, minWidth = this.config ? this.config.statement.width : 0,
+                                                        maxWidth = this.config ? this.config.statement.maxWidth : 0) {
         this.textElement.innerHTML = _.escape(text);
         let width = this.config.statement.padding.left +
             this.textElement.getComputedTextLength() + this.config.statement.padding.right;

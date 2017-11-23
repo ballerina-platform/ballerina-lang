@@ -20,7 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './global-definitions.css';
 import ImageUtil from '../../../../image-util';
-import { util as SizingUtils } from '../../sizing-util';
+import SizingUtils from '../../sizing-util';
 import { variablesPane as variablesPaneDefaults } from '../../designer-defaults';
 
 const GlobalDefinitions = ({ bBox, title, numberOfItems, onExpand }) => {
@@ -33,9 +33,9 @@ const GlobalDefinitions = ({ bBox, title, numberOfItems, onExpand }) => {
     const noOfGlobalsLeftPadding = variablesPaneDefaults.noOfGlobalsLeftPadding;
     const noOfGlobalsTextPadding = variablesPaneDefaults.noOfGlobalsTextPadding;
     const globalDefDecorationWidth = variablesPaneDefaults.globalDefDecorationWidth;
-    const globalsLabelWidth = SizingUtils.getOnlyTextWidth(title);
+    const globalsLabelWidth = new SizingUtils().getOnlyTextWidth(title);
 
-    const noOfGlobalsTextWidth = SizingUtils.getOnlyTextWidth(numberOfItems, { fontSize: globalsNoFontSize });
+    const noOfGlobalsTextWidth = new SizingUtils().getOnlyTextWidth(numberOfItems, { fontSize: globalsNoFontSize });
     const noOfGlobalsBGWidth = Math.max(noOfGlobalsTextWidth + noOfGlobalsTextPadding, noOfGlobalsBGHeight);
 
     const badgeWidth = leftRightPadding + globalsLabelWidth + noOfGlobalsLeftPadding + noOfGlobalsTextWidth +
