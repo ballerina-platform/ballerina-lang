@@ -204,7 +204,6 @@ class PanelDecorator extends React.Component {
         return components;
     }
 
-
     getAnnotationsString(annotations) {
         let annotationString = '';
         // TODO: Fix Me
@@ -215,7 +214,6 @@ class PanelDecorator extends React.Component {
         }
         return annotationString;
     }
-
 
     getTitleComponents(titleComponentData) {
         const components = [];
@@ -472,7 +470,6 @@ class PanelDecorator extends React.Component {
     }
 }
 
-
 PanelDecorator.propTypes = {
     bBox: PropTypes.shape({
         x: PropTypes.number.isRequired,
@@ -488,8 +485,11 @@ PanelDecorator.propTypes = {
         props: PropTypes.object.isRequired,
     })),
     title: PropTypes.string.isRequired,
-    packageIdentifier: PropTypes.string.isRequired,
-    children: PropTypes.arrayOf(Node).isRequired,
+    packageIdentifier: PropTypes.string,
+    children: PropTypes.oneOfType([
+        PropTypes.instanceOf(Object),
+        PropTypes.arrayOf(Object),
+    ]).isRequired,
     icon: PropTypes.string.isRequired,
     headerComponent: PropTypes.instanceOf(Object),
     argumentParams: PropTypes.arrayOf(Node),
@@ -507,6 +507,7 @@ PanelDecorator.defaultProps = {
     returnParams: undefined,
     argumentParams: undefined,
     headerComponent: undefined,
+    packageIdentifier: undefined,
 };
 
 PanelDecorator.contextTypes = {
