@@ -233,10 +233,11 @@ public class QueryParserHelper {
                             SiddhiConstants.METRIC_DELIMITER + siddhiAppContext.getName() +
                             SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
                             SiddhiConstants.METRIC_DELIMITER + type +
-                            SiddhiConstants.METRIC_DELIMITER + name + SiddhiConstants.METRIC_DELIMITER + "latency";
+                            SiddhiConstants.METRIC_DELIMITER + name;
             if (function != null) {
                 metricName += SiddhiConstants.METRIC_DELIMITER + function;
             }
+            metricName += SiddhiConstants.METRIC_DELIMITER + "latency";
             boolean matchExist = false;
             for (String regex : siddhiAppContext.getIncludedMetrics()) {
                 if (metricName.matches(regex)) {
@@ -264,10 +265,11 @@ public class QueryParserHelper {
                             SiddhiConstants.METRIC_DELIMITER + siddhiAppContext.getName() +
                             SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
                             SiddhiConstants.METRIC_DELIMITER + type +
-                            SiddhiConstants.METRIC_DELIMITER + name + SiddhiConstants.METRIC_DELIMITER + "throughput";
+                            SiddhiConstants.METRIC_DELIMITER + name;
             if (function != null) {
                 metricName += SiddhiConstants.METRIC_DELIMITER + function;
             }
+            metricName += SiddhiConstants.METRIC_DELIMITER + "throughput";
             boolean matchExist = false;
             for (String regex : siddhiAppContext.getIncludedMetrics()) {
                 if (metricName.matches(regex)) {
