@@ -29,7 +29,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 //import org.ballerinalang.runtime.model.BLangRuntimeRegistry;
 //import org.ballerinalang.test.services.testutils.EnvironmentInitializer;
@@ -46,7 +46,7 @@ public class ResourceInterceptorTest {
     @BeforeClass
     public void setup() {
 //        compileResult = EnvironmentInitializer
-//                .setupProgramFile("test-src/services/echoService.bal");
+//                .setupProgramFile("test-src/services/echo-service.bal");
 //        System.setProperty(ConfigConstants.SYS_PROP_BALLERINA_HOME, "src/test/resources/ballerina");
 //        BLangRuntimeRegistry.getInstance().initialize();
     }

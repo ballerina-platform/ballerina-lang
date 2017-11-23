@@ -35,11 +35,11 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.Headers;
-import org.wso2.carbon.transport.http.netty.contract.ClientConnectorException;
-import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
-import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
-import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.contract.ClientConnectorException;
+import org.wso2.transport.http.netty.contract.HttpClientConnector;
+import org.wso2.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -84,7 +84,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 port = 443;
             }
 
-            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HOST, host);
+            cMsg.setProperty(org.wso2.transport.http.netty.common.Constants.HOST, host);
             cMsg.setProperty(Constants.PORT, port);
             String toPath = url.getPath();
             String query = url.getQuery();
@@ -270,11 +270,11 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     }
 
     protected void setHostHeader(HTTPCarbonMessage cMsg, String host, int port) {
-        if (!cMsg.getHeaders().contains(org.wso2.carbon.transport.http.netty.common.Constants.HOST)) {
+        if (!cMsg.getHeaders().contains(org.wso2.transport.http.netty.common.Constants.HOST)) {
             if (port == 80 || port == 443) {
-                cMsg.getHeaders().set(org.wso2.carbon.transport.http.netty.common.Constants.HOST, host);
+                cMsg.getHeaders().set(org.wso2.transport.http.netty.common.Constants.HOST, host);
             } else {
-                cMsg.getHeaders().set(org.wso2.carbon.transport.http.netty.common.Constants.HOST, host + ":" + port);
+                cMsg.getHeaders().set(org.wso2.transport.http.netty.common.Constants.HOST, host + ":" + port);
             }
         }
     }

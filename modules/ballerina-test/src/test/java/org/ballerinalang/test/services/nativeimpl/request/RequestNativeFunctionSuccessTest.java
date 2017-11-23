@@ -38,8 +38,8 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 
 /**
@@ -50,7 +50,7 @@ public class RequestNativeFunctionSuccessTest {
     private CompileResult result, serviceResult;
     private final String requestStruct = Constants.REQUEST;
     private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
-    private String sourceFilePath = "test-src/statements/services/nativeimpl/request/requestNativeFunction.bal";
+    private String sourceFilePath = "test-src/statements/services/nativeimpl/request/request-native-function.bal";
 
     @BeforeClass
     public void setup() {

@@ -28,8 +28,8 @@ import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.contract.ClientConnectorException;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.contract.ClientConnectorException;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * {@code Head} is the HEAD action implementation of the HTTP Connector.
