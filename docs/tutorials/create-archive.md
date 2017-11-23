@@ -10,13 +10,13 @@ You declare the package name at the very top of the Ballerina program file. Let'
 1. In your `<ballerina_home>/samples/helloWorldService` directory, open the `helloWorldService.bal` file for editing. You can use the Composer or any text editor.
 1. At the top of the file, add the following line to declare the package name:
 
-```
+```Ballerina
 package samples.helloWorldService;
 ```
 
 The sample should now look like this:
 
-```
+```Ballerina
 package samples.helloWorldService;
 import ballerina.net.http;
 
@@ -43,7 +43,7 @@ Let's compile the Ballerina program.
 1. Navigate to your `<ballerina_home>` directory.
 1. If your `<ballerina_home>/bin` directory is already in your path, type the `ballerina` command as shown below. If it is not in your path, type `bin/ballerina` (or `bin\ballerina` on Windows) instead of `ballerina`. 
  
-  ```
+  ```bash
   ballerina build service samples/helloWorldService -o hello.balx
   ```
 
