@@ -24,12 +24,12 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlSignal;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 /**
  * {@code WebSocketDispatcher} This is the web socket request dispatcher implementation which finds

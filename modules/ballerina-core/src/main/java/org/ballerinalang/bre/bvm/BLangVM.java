@@ -228,7 +228,6 @@ public class BLangVM {
         TypeRefCPEntry typeRefCPEntry;
         ActionRefCPEntry actionRefCPEntry;
         FunctionInfo functionInfo;
-        ActionInfo actionInfo;
         WorkerDataChannelRefCPEntry workerRefCPEntry;
         WrkrInteractionArgsCPEntry wrkrIntRefCPEntry;
         WorkerDataChannelInfo workerDataChannel;
@@ -616,6 +615,11 @@ public class BLangVM {
                 case InstructionCodes.ANY2C:
                 case InstructionCodes.NULL2JSON:
                 case InstructionCodes.CHECKCAST:
+                case InstructionCodes.B2JSON:
+                case InstructionCodes.JSON2I:
+                case InstructionCodes.JSON2F:
+                case InstructionCodes.JSON2S:
+                case InstructionCodes.JSON2B:
                     execTypeCastOpcodes(sf, opcode, operands);
                     break;
 
@@ -634,11 +638,6 @@ public class BLangVM {
                 case InstructionCodes.B2I:
                 case InstructionCodes.B2F:
                 case InstructionCodes.B2S:
-                case InstructionCodes.B2JSON:
-                case InstructionCodes.JSON2I:
-                case InstructionCodes.JSON2F:
-                case InstructionCodes.JSON2S:
-                case InstructionCodes.JSON2B:
                 case InstructionCodes.DT2XML:
                 case InstructionCodes.DT2JSON:
                 case InstructionCodes.T2MAP:
@@ -702,7 +701,7 @@ public class BLangVM {
                     // This is a temporary solution to create n-valued JSON array
                     StringJoiner stringJoiner = new StringJoiner(",", "[", "]");
                     for (int index = 0; index < sf.longRegs[j]; index++) {
-                        stringJoiner.add("0");
+                        stringJoiner.add(null);
                     }
                     sf.refRegs[i] = new BJSON(stringJoiner.toString());
                     break;
@@ -1988,6 +1987,7 @@ public class BLangVM {
 
                 if (bRefType == null) {
                     sf.refRegs[j] = null;
+                    sf.refRegs[k] = null;
                 } else if (checkCast(bRefType, typeRefCPEntry.getType())) {
                     sf.refRegs[j] = sf.refRegs[i];
                     sf.refRegs[k] = null;
@@ -1999,6 +1999,23 @@ public class BLangVM {
             case InstructionCodes.NULL2JSON:
                 j = operands[1];
                 sf.refRegs[j] = new BJSON("null");
+                break;
+            case InstructionCodes.B2JSON:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BJSON(sf.intRegs[i] == 1 ? "true" : "false");
+                break;
+            case InstructionCodes.JSON2I:
+                castJSONToInt(operands, sf);
+                break;
+            case InstructionCodes.JSON2F:
+                castJSONToFloat(operands, sf);
+                break;
+            case InstructionCodes.JSON2S:
+                castJSONToString(operands, sf);
+                break;
+            case InstructionCodes.JSON2B:
+                castJSONToBoolean(operands, sf);
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -2077,6 +2094,7 @@ public class BLangVM {
 
                 try {
                     sf.longRegs[j] = Long.parseLong(sf.stringRegs[i]);
+                    sf.refRegs[k] = null;
                 } catch (NumberFormatException e) {
                     sf.longRegs[j] = 0;
                     handleTypeConversionError(sf, k, TypeConstants.STRING_TNAME, TypeConstants.INT_TNAME);
@@ -2089,6 +2107,7 @@ public class BLangVM {
 
                 try {
                     sf.doubleRegs[j] = Double.parseDouble(sf.stringRegs[i]);
+                    sf.refRegs[k] = null;
                 } catch (NumberFormatException e) {
                     sf.doubleRegs[j] = 0;
                     handleTypeConversionError(sf, k, TypeConstants.STRING_TNAME, TypeConstants.FLOAT_TNAME);
@@ -2121,23 +2140,6 @@ public class BLangVM {
                 j = operands[1];
                 sf.stringRegs[j] = sf.intRegs[i] == 1 ? "true" : "false";
                 break;
-            case InstructionCodes.B2JSON:
-                i = operands[0];
-                j = operands[1];
-                sf.refRegs[j] = new BJSON(sf.intRegs[i] == 1 ? "true" : "false");
-                break;
-            case InstructionCodes.JSON2I:
-                convertJSONToInt(operands, sf);
-                break;
-            case InstructionCodes.JSON2F:
-                convertJSONToFloat(operands, sf);
-                break;
-            case InstructionCodes.JSON2S:
-                convertJSONToString(operands, sf);
-                break;
-            case InstructionCodes.JSON2B:
-                convertJSONToBoolean(operands, sf);
-                break;
             case InstructionCodes.DT2XML:
                 i = operands[0];
                 j = operands[1];
@@ -2151,6 +2153,7 @@ public class BLangVM {
 
                 try {
                     sf.refRegs[j] = XMLUtils.datatableToXML((BDataTable) bRefType, context.isInTransaction());
+                    sf.refRegs[k] = null;
                 } catch (Exception e) {
                     sf.refRegs[j] = null;
                     handleTypeConversionError(sf, k, TypeConstants.DATATABLE_TNAME, TypeConstants.XML_TNAME);
@@ -2169,6 +2172,7 @@ public class BLangVM {
 
                 try {
                     sf.refRegs[j] = JSONUtils.toJSON((BDataTable) bRefType, context.isInTransaction());
+                    sf.refRegs[k] = null;
                 } catch (Exception e) {
                     sf.refRegs[j] = null;
                     handleTypeConversionError(sf, k, TypeConstants.DATATABLE_TNAME, TypeConstants.XML_TNAME);
@@ -2189,7 +2193,6 @@ public class BLangVM {
             case InstructionCodes.XMLATTRS2MAP:
                 i = operands[0];
                 j = operands[1];
-                k = operands[2];
 
                 bRefType = sf.refRegs[i];
                 if (bRefType == null) {
@@ -2197,12 +2200,7 @@ public class BLangVM {
                     break;
                 }
 
-                try {
-                    sf.refRegs[j] = ((BXMLAttributes) sf.refRegs[i]).value();
-                } catch (BallerinaException e) {
-                    sf.refRegs[j] = null;
-                    handleTypeConversionError(sf, k, TypeConstants.XML_ATTRIBUTES_TNAME, TypeConstants.MAP_TNAME);
-                }
+                sf.refRegs[j] = ((BXMLAttributes) sf.refRegs[i]).value();
                 break;
             case InstructionCodes.S2XML:
                 i = operands[0];
@@ -2210,6 +2208,7 @@ public class BLangVM {
                 k = operands[2];
                 try {
                     sf.refRegs[j] = XMLUtils.parse(sf.stringRegs[i]);
+                    sf.refRegs[k] = null;
                 } catch (BallerinaException e) {
                     sf.refRegs[j] = null;
                     handleTypeConversionError(sf, k, e.getMessage(), TypeConstants.STRING_TNAME,
@@ -2449,8 +2448,10 @@ public class BLangVM {
         BRefType bRefType = sf.refRegs[i];
         if (bRefType == null) {
             sf.refRegs[j] = null;
+            sf.refRegs[k] = null;
         } else if (bRefType.getType() == targetType) {
             sf.refRegs[j] = bRefType;
+            sf.refRegs[k] = null;
         } else {
             sf.refRegs[j] = null;
             handleTypeCastError(sf, k, bRefType.getType(), targetType);
@@ -2458,8 +2459,12 @@ public class BLangVM {
     }
 
     private void handleTypeCastError(StackFrame sf, int errorRegIndex, BType sourceType, BType targetType) {
+        handleTypeCastError(sf, errorRegIndex, sourceType.toString(), targetType.toString());
+    }
+
+    private void handleTypeCastError(StackFrame sf, int errorRegIndex, String sourceType, String targetType) {
         BStruct errorVal;
-        errorVal = BLangVMErrors.createTypeCastError(context, ip, sourceType, targetType);
+        errorVal = BLangVMErrors.createTypeCastError(context, ip, sourceType.toString(), targetType.toString());
         if (errorRegIndex == -1) {
             context.setError(errorVal);
             handleError();
@@ -3245,7 +3250,7 @@ public class BLangVM {
         return false;
     }
 
-    private void convertJSONToInt(int[] operands, StackFrame sf) {
+    private void castJSONToInt(int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
@@ -3269,14 +3274,15 @@ public class BLangVM {
 
         if (jsonNode.isInt() || jsonNode.isLong()) {
             sf.longRegs[j] = jsonNode.longValue();
+            sf.refRegs[k] = null;
             return;
         }
 
         sf.longRegs[j] = 0;
-        handleTypeConversionError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.INT_TNAME);
+        handleTypeCastError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.INT_TNAME);
     }
 
-    private void convertJSONToFloat(int[] operands, StackFrame sf) {
+    private void castJSONToFloat(int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
@@ -3300,14 +3306,15 @@ public class BLangVM {
 
         if (jsonNode.isFloat() || jsonNode.isDouble()) {
             sf.doubleRegs[j] = jsonNode.doubleValue();
+            sf.refRegs[k] = null;
             return;
         }
 
         sf.doubleRegs[j] = 0;
-        handleTypeConversionError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.FLOAT_TNAME);
+        handleTypeCastError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.FLOAT_TNAME);
     }
 
-    private void convertJSONToString(int[] operands, StackFrame sf) {
+    private void castJSONToString(int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
@@ -3332,14 +3339,15 @@ public class BLangVM {
 
         if (jsonNode.isTextual()) {
             sf.stringRegs[j] = jsonNode.textValue();
+            sf.refRegs[k] = null;
             return;
         }
 
         sf.stringRegs[j] = "";
-        handleTypeConversionError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.STRING_TNAME);
+        handleTypeCastError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.STRING_TNAME);
     }
 
-    private void convertJSONToBoolean(int[] operands, StackFrame sf) {
+    private void castJSONToBoolean(int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
@@ -3363,12 +3371,13 @@ public class BLangVM {
 
         if (jsonNode.isBoolean()) {
             sf.intRegs[j] = jsonNode.booleanValue() ? 1 : 0;
+            sf.refRegs[k] = null;
             return;
         }
 
         // Reset the value in the case of an error;
         sf.intRegs[j] = 0;
-        handleTypeConversionError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.BOOLEAN_TNAME);
+        handleTypeCastError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.BOOLEAN_TNAME);
     }
 
     private void convertStructToMap(int[] operands, StackFrame sf) {
@@ -3540,6 +3549,7 @@ public class BLangVM {
         }
 
         sf.refRegs[j] = bStruct;
+        sf.refRegs[k] = null;
     }
 
     private void convertJSONToStruct(int[] operands, StackFrame sf) {
@@ -3558,6 +3568,7 @@ public class BLangVM {
         try {
             sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeRefCPEntry.getType(),
                     sf.packageInfo);
+            sf.refRegs[k] = null;
         } catch (Exception e) {
             sf.refRegs[j] = null;
             String errorMsg = "cannot convert '" + TypeConstants.JSON_TNAME + "' to type '" +

@@ -23,8 +23,8 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.model.values.BValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Collections;
 import java.util.Map;

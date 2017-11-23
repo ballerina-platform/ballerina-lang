@@ -114,13 +114,12 @@ public class BLangVMErrors {
      * @param targetType For which error happened
      * @return created NullReferenceError
      */
-    public static BStruct createTypeCastError(Context context, int ip, BType sourceType, BType targetType) {
+    public static BStruct createTypeCastError(Context context, int ip, String sourceType, String targetType) {
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_TYPE_CAST_ERROR);
 
         String errorMsg = "'" + sourceType + "' cannot be cast to '" + targetType + "'";
-        BStruct error = createBStruct(errorStructInfo, errorMsg, null, null,
-                sourceType.toString(), targetType.toString());
+        BStruct error = createBStruct(errorStructInfo, errorMsg, null, null, sourceType, targetType);
 
         // Set StackTrace.
         error.setRefField(1, generateStackTraceItems(context, ip - 1));
