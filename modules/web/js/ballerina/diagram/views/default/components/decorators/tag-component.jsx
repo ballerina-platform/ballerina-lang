@@ -17,10 +17,10 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import SuggestionsText from './../nodes/suggestions-text';
 import ParameterDefinition from './../nodes/parameter-definition';
-import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
-import SizingUtil from './../../sizing-util';
+import SizingUtils from './../../sizing-util';
 import './tag-component.css';
 import SimpleBBox from './../../../../../model/view/simple-bounding-box';
 
@@ -168,7 +168,7 @@ class TagController extends React.Component {
     getSelectBoxController(componentData, modelComponents) {
         if (this.props.label) {
             // Get the width of the label text.
-            const labelWidth = new SizingUtil().getTextWidth(this.props.label, 80, 80).w;
+            const labelWidth = new SizingUtils().getTextWidth(this.props.label, 80, 80).w;
             return (<g key={componentData.title}>
                 <rect
                     x={componentData.components.openingBracket.x - labelWidth}
@@ -208,12 +208,12 @@ class TagController extends React.Component {
                         y={componentData.components.closingBracket.y + 5}
                         width={120}
                         height={20}
-                        className="text-placeholder"
+                        className='text-placeholder'
                     />
                     <text
                         x={componentData.components.closingBracket.x - 124}
                         y={componentData.components.closingBracket.y + 19}
-                        className="tag-component-attachment-text"
+                        className='tag-component-attachment-text'
                     >
                         {defaultInputValue}
                     </text>
@@ -222,7 +222,7 @@ class TagController extends React.Component {
                         y={componentData.components.closingBracket.y + 5}
                         width={123}
                         height={22}
-                        className="tag-component-editable-text-box"
+                        className='tag-component-editable-text-box'
                         onEnter={(input) => {
                             this.onEnter(input);
                         }}
@@ -270,12 +270,12 @@ class TagController extends React.Component {
                     y={componentData.components.closingBracket.y + 5}
                     width={120}
                     height={20}
-                    className="text-placeholder"
+                    className='text-placeholder'
                 />
                 <text
                     x={componentData.components.closingBracket.x - 124}
                     y={componentData.components.closingBracket.y + 19}
-                    className="tag-component-attachment-text"
+                    className='tag-component-attachment-text'
                 >
                     {defaultInputValue}
                 </text>
@@ -284,7 +284,7 @@ class TagController extends React.Component {
                     y={componentData.components.closingBracket.y + 6}
                     width={123}
                     height={20}
-                    className="tag-component-editable-text-box"
+                    className='tag-component-editable-text-box'
                     onEnter={(input) => {
                         this.onEnter(input);
                     }}
@@ -314,6 +314,9 @@ class TagController extends React.Component {
      * @return {object} React HTML Content
      * */
     getReturnParameterController(componentData, modelComponents) {
+        const parameterDefinitionsViews = modelComponents.map((item) => {
+            return (<ParameterDefinition model={item} key={item.id} />);
+        });
         return (
             <g key={componentData.title}>
                 <rect
@@ -335,10 +338,7 @@ class TagController extends React.Component {
                     className={componentData.openingBracketClassName}
                 >(
                 </text>
-                {modelComponents.map((item) =>
-                    (<ParameterDefinition model={item} key={item.id} />),
-                )}
-
+                {parameterDefinitionsViews}
                 <g
                     onClick={() => {
                         this.onInputClick();
@@ -349,7 +349,7 @@ class TagController extends React.Component {
                         y={componentData.components.closingBracket.y + 5}
                         width={100}
                         height={20}
-                        className="text-placeholder"
+                        className='text-placeholder'
                     />
                     <text
                         x={componentData.components.closingBracket.x - 112}
@@ -376,6 +376,9 @@ class TagController extends React.Component {
      * @return {object} React HTML Content
      * */
     getArgumentParameterController(componentData, modelComponents) {
+        const parameterDefinitionsViews = modelComponents.map((item) => {
+            return (<ParameterDefinition model={item} key={item.id} />);
+        });
         return (
             <g key={componentData.title}>
                 <rect
@@ -392,9 +395,7 @@ class TagController extends React.Component {
                     className={componentData.openingBracketClassName}
                 >(
                 </text>
-                {modelComponents.map((item) =>
-                    (<ParameterDefinition model={item} key={item.id} />),
-                )}
+                {parameterDefinitionsViews}
                 <g
                     onClick={() => {
                         this.onInputClick();
@@ -405,7 +406,7 @@ class TagController extends React.Component {
                         y={componentData.components.closingBracket.y + 5}
                         width={100}
                         height={20}
-                        className="text-placeholder"
+                        className='text-placeholder'
                     />
                     <text
                         x={componentData.components.closingBracket.x - 112}
@@ -461,6 +462,7 @@ TagController.propTypes = {
     label: PropTypes.string,
     groupClass: PropTypes.string,
     isSelectBox: PropTypes.bool,
+    editorOptions: PropTypes.instanceOf(Object).isRequired,
 };
 
 TagController.defaultProps = {

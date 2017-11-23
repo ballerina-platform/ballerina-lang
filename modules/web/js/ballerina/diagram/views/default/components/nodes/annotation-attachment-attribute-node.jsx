@@ -28,8 +28,7 @@ import AnnotationAttachmentNode from './annotation-attachment-node';
 import AnnotationAttributeLiteralNode from './annotation-attachment-attribute-literal-node';
 import AnnotationAttributeVariableRefNode from './annotation-attachment-attribute-variable-ref-node';
 import AnnotationAttributeKey from '../decorators/annotation-attribute-key';
-import ActionMenu from '../decorators/action-menu';
-import { util } from '../../sizing-util';
+import SizingUtils from '../../sizing-util';
 
 /**
  * React component for an annoation attribute.
@@ -365,7 +364,7 @@ class AnnotationAttribute extends React.Component {
 
             const literalNode = attributeValue.getValue();
             if (this.state.isBValueEdit) {
-                const width = util.getTextWidth(this.state.bValueText, 150, 1000);
+                const width = new SizingUtils().getTextWidth(this.state.bValueText, 150, 1000);
                 return (
                     <ul className='attribute-value-bvalue'>
                         <li className={cn('action-menu-wrapper',

@@ -25,7 +25,7 @@ import ImageUtil from '../../../../image-util';
 import SimpleBBox from './../../../../../model/view/simple-bounding-box';
 import PanelDecoratorButton from './panel-decorator-button';
 import EditableText from './editable-text';
-import { util } from '../../sizing-util';
+import SizingUtils from '../../sizing-util';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
@@ -83,28 +83,6 @@ class PanelDecorator extends React.Component {
         this.props.model.remove();
     }
 
-    togglePublicPrivateFlag() {
-        this.props.model.public = !this.props.model.public;
-        if (this.props.model.public) {
-            this.props.model.ws.splice(1, 0, { ws: ' ' });
-        } else {
-            this.props.model.ws.splice(1, 1);
-        }
-        this.props.model.trigger('tree-modified', {
-            origin: this.props.model,
-            type: 'modify-node',
-            title: '',
-            data: {
-                node: this.props.model,
-            },
-        });
-    }
-
-    toggleAnnotations() {
-        this.props.model.viewState.showAnnotationContainer = !this.props.model.viewState.showAnnotationContainer;
-        this.context.editor.update();
-    }
-
     onTitleClick() {
         const model = this.props.model;
         if (TreeUtils.isMainFunction(model)) {
@@ -126,23 +104,6 @@ class PanelDecorator extends React.Component {
         if (e.keyCode === 13) {
             this.setPropertyName();
         }
-    }
-
-    setPropertyName() {
-        if (this.state.editingTitle) {
-            const fragment = FragmentUtils.createExpressionFragment(this.state.editingTitle);
-            const parsedJson = FragmentUtils.parseFragment(fragment);
-            if (!parsedJson.error) {
-                const identifierNode = TreeBuilder.build(parsedJson);
-                if (TreeUtils.isSimpleVariableRef(identifierNode.getVariable().getInitialExpression())) {
-                    this.props.model.setName(identifierNode.getVariable().getInitialExpression().getVariableName());
-                }
-            }
-        }
-        this.setState({
-            titleEditing: false,
-            editingTitle: this.props.model.getName().value,
-        });
     }
 
     /**
@@ -244,6 +205,100 @@ class PanelDecorator extends React.Component {
         return [...staticButtons, ...dynamicButtons];
     }
 
+    getAnnotationComponents(annotationComponentData, bBox, titleHeight) {
+        const components = [];
+        let possitionY = bBox.y + (titleHeight / 2) + 5;
+        if (!_.isUndefined(annotationComponentData)) {
+            for (const componentData of annotationComponentData) {
+                components.push(<g key={componentData.getID()}>
+                    <text className='annotation-text' x={bBox.x + 5} y={possitionY}>{componentData.toString()}</text>
+                </g>);
+                possitionY += 25;
+            }
+        }
+        return components;
+    }
+
+
+    getAnnotationsString(annotations) {
+        let annotationString = '';
+        // TODO: Fix Me
+        if (!_.isNil(annotations)) {
+            annotations.forEach((annotation) => {
+                annotationString = `${annotationString + annotation.toString()}  `;
+            });
+        }
+        return annotationString;
+    }
+
+    getTitleComponents(titleComponentData) {
+        const components = [];
+        if (!_.isUndefined(titleComponentData)) {
+            for (const componentData of titleComponentData) {
+                if (componentData.isNode) {
+                    components.push(getComponentForNodeArray([componentData.model])[0]);
+                } else {
+                    components.push(componentData.model);
+                }
+            }
+        }
+        return components;
+    }
+
+    setPropertyName() {
+        if (this.state.editingTitle) {
+            const fragment = FragmentUtils.createExpressionFragment(this.state.editingTitle);
+            const parsedJson = FragmentUtils.parseFragment(fragment);
+            if (!parsedJson.error) {
+                const identifierNode = TreeBuilder.build(parsedJson);
+                if (TreeUtils.isSimpleVariableRef(identifierNode.getVariable().getInitialExpression())) {
+                    this.props.model.setName(identifierNode.getVariable().getInitialExpression().getVariableName());
+                }
+            }
+        }
+        this.setState({
+            titleEditing: false,
+            editingTitle: this.props.model.getName().value,
+        });
+    }
+
+    handleProtocolClick() {
+        this.setState({ showProtocolSelect: true });
+    }
+
+    handleProtocolBlur(value) {
+        value = (typeof value === 'string') ? value : value.currentTarget.textContent;
+        value = (value === '') ? 'http' : value;
+        this.props.model.setProtocolPkgName(value);
+        this.setState({ showProtocolSelect: false });
+    }
+
+    handleProtocolEnter(value) {
+        this.setState({ showProtocolSelect: false });
+    }
+
+    togglePublicPrivateFlag() {
+        this.props.model.public = !this.props.model.public;
+        if (this.props.model.public) {
+            this.props.model.ws.splice(1, 0, { ws: ' ' });
+        } else {
+            this.props.model.ws.splice(1, 1);
+        }
+        this.props.model.trigger('tree-modified', {
+            origin: this.props.model,
+            type: 'modify-node',
+            title: '',
+            data: {
+                node: this.props.model,
+            },
+        });
+    }
+
+    toggleAnnotations() {
+        this.props.model.viewState.showAnnotationContainer = !this.props.model.viewState.showAnnotationContainer;
+        this.context.editor.update();
+    }
+
     render() {
         const bBox = this.props.bBox;
         const titleHeight = panel.heading.height;
@@ -256,7 +311,7 @@ class PanelDecorator extends React.Component {
             annotationBodyHeight = this.props.model.viewState.components.annotation.h;
         }
         // const titleComponents = this.getTitleComponents(this.props.titleComponentData);
-        const titleWidth = util.getTextWidth(this.state.editingTitle);
+        const titleWidth = new SizingUtils().getTextWidth(this.state.editingTitle);
 
         // calculate the panel bBox;
         const panelBBox = new SimpleBBox();
@@ -312,7 +367,14 @@ class PanelDecorator extends React.Component {
                     data-original-title=''
                     title=''
                 />
-                <rect x={bBox.x - 1} y={bBox.y + annotationBodyHeight} height={titleHeight} rx='0' ry='0' className='panel-heading-decorator' />
+                <rect
+                    x={bBox.x - 1}
+                    y={bBox.y + annotationBodyHeight}
+                    height={titleHeight}
+                    rx='0'
+                    ry='0'
+                    className='panel-heading-decorator'
+                />
                 {allowPublicPrivateFlag && <g>
                     <rect
                         className='publicPrivateRectHolder'
@@ -323,7 +385,7 @@ class PanelDecorator extends React.Component {
                     />
                     <text
                         x={bBox.x + 15}
-                        y={bBox.y + titleHeight / 2 + annotationBodyHeight + 4}
+                        y={bBox.y + (titleHeight / 2) + annotationBodyHeight + 4}
                         className='publicPrivateText'
                     >{this.props.model.public ? 'public' : null}</text>
                 </g>}
@@ -337,19 +399,19 @@ class PanelDecorator extends React.Component {
                 {wsResourceDef && <g>
                     <rect
                         x={bBox.x + titleHeight + iconSize + 15 + protocolOffset + publicPrivateFlagoffset}
-                        y={bBox.y + titleHeight / 2 + annotationBodyHeight}
+                        y={bBox.y + (titleHeight / 2) + annotationBodyHeight}
                         width={titleWidth.w}
                     />
                     <text
                         x={bBox.x + titleHeight + iconSize + 15 + protocolOffset + publicPrivateFlagoffset + 5}
-                        y={bBox.y + titleHeight / 2 + annotationBodyHeight + 5}
+                        y={bBox.y + (titleHeight / 2) + annotationBodyHeight + 5}
                         className='resourceName'
                     >{titleWidth.text}</text>
                 </g>}
                 {!wsResourceDef && !lambda &&
                 <EditableText
                     x={bBox.x + titleHeight + iconSize + protocolOffset + publicPrivateFlagoffset + receiverOffset}
-                    y={bBox.y + titleHeight / 2 + annotationBodyHeight}
+                    y={bBox.y + (titleHeight / 2) + annotationBodyHeight}
                     width={titleWidth.w}
                     onBlur={() => {
                         this.onTitleInputBlur();
@@ -422,52 +484,6 @@ class PanelDecorator extends React.Component {
             </g>
         </g>);
     }
-
-    getTitleComponents(titleComponentData) {
-        const components = [];
-        if (!_.isUndefined(titleComponentData)) {
-            for (const componentData of titleComponentData) {
-                if (componentData.isNode) {
-                    components.push(getComponentForNodeArray([componentData.model])[0]);
-                } else {
-                    components.push(componentData.model);
-                }
-            }
-        }
-        return components;
-    }
-
-    getAnnotationComponents(annotationComponentData, bBox, titleHeight) {
-        const components = [];
-        let possitionY = bBox.y + titleHeight / 2 + 5;
-        if (!_.isUndefined(annotationComponentData)) {
-            for (const componentData of annotationComponentData) {
-                const modelComponents = [];
-                components.push(<g key={componentData.getID()}>
-                    <text className='annotation-text' x={bBox.x + 5} y={possitionY}>{componentData.toString()}</text>
-                </g>);
-                possitionY += 25;
-            }
-        }
-        return components;
-    }
-
-
-    getAnnotationsString(annotations) {
-        let annotationString = '';
-        // TODO: Fix Me
-        if (!_.isNil(annotations)) {
-            annotations.forEach((annotation) => {
-                annotationString = `${annotationString + annotation.toString()}  `;
-            });
-        }
-        return annotationString;
-    }
-
-    onAnnotationEditButtonClick() {
-        this.props.model.viewState.showAnnotationContainer = !this.props.model.viewState.showAnnotationContainer;
-        this.context.editor.update();
-    }
 }
 
 
@@ -477,7 +493,7 @@ PanelDecorator.propTypes = {
         y: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired,
-    }),
+    }).isRequired,
     model: PropTypes.instanceOf(Node).isRequired,
     dropTarget: PropTypes.instanceOf(Node),
     canDrop: PropTypes.func,
@@ -485,12 +501,26 @@ PanelDecorator.propTypes = {
         component: PropTypes.func.isRequired,
         props: PropTypes.object.isRequired,
     })),
+    title: PropTypes.string.isRequired,
+    packageIdentifier: PropTypes.string.isRequired,
+    children: PropTypes.arrayOf(Node).isRequired,
+    icon: PropTypes.string.isRequired,
+    headerComponent: PropTypes.instanceOf(Object),
+    argumentParams: PropTypes.arrayOf(Node),
+    returnParams: PropTypes.arrayOf(Node),
+    receiver: PropTypes.string,
+    protocol: PropTypes.string,
 };
 
 PanelDecorator.defaultProps = {
     rightComponents: [],
     dropTarget: undefined,
     canDrop: undefined,
+    protocol: undefined,
+    receiver: undefined,
+    returnParams: undefined,
+    argumentParams: undefined,
+    headerComponent: undefined,
 };
 
 PanelDecorator.contextTypes = {
