@@ -166,6 +166,7 @@ class TransformExpanded extends React.Component {
 
     createConnection(statement) {
         const viewId = this.props.model.getID();
+        let isCasting = false;
 
         if (TreeUtil.isComment(statement)) {
             return;
@@ -204,7 +205,7 @@ class TransformExpanded extends React.Component {
                     targetId = this.getFoldedEndpointId(targetExprString, viewId, 'target');
                 }
 
-                this.drawConnection(sourceId, targetId, folded);
+                this.drawConnection(sourceId, targetId, folded, statement);
             });
         }
         if (TreeUtil.isInvocation(expression) || TreeUtil.isBinaryExpr(expression)
@@ -303,7 +304,7 @@ class TransformExpanded extends React.Component {
                             targetId = `${nodeExpID}:${viewId}`;
                         }
 
-                        this.drawConnection(sourceId, targetId, folded);
+                        this.drawConnection(sourceId, targetId, folded, statement);
                     }
                 } else {
                     log.error('Unhandled rendering scenario');
@@ -340,7 +341,7 @@ class TransformExpanded extends React.Component {
                 targetId = this.getFoldedEndpointId(expression.getSource().trim(), viewId, 'target');
             }
 
-            this.drawConnection(sourceId, targetId, folded);
+            this.drawConnection(sourceId, targetId, folded, statement);
         });
         this.mapper.reposition(this.props.model.getID());
     }
@@ -455,7 +456,7 @@ class TransformExpanded extends React.Component {
                     targetId = `${nodeExpID}:${viewId}`;
                 }
 
-                this.drawConnection(sourceId, targetId, folded);
+                this.drawConnection(sourceId, targetId, folded, statement);
             }
         });
 
@@ -510,7 +511,7 @@ class TransformExpanded extends React.Component {
                 targetId = `${nodeExpID}:${viewId}`;
             }
 
-            this.drawConnection(sourceId, targetId, folded);
+            this.drawConnection(sourceId, targetId, folded, statement);
         }
     }
 
@@ -568,8 +569,12 @@ class TransformExpanded extends React.Component {
         return con;
     }
 
-    drawConnection(sourceId, targetId, folded) {
-        this.mapper.addConnection(sourceId, targetId, folded);
+    drawConnection(sourceId, targetId, folded, statement) {
+        let type = '';
+        if (statement !== null && statement.getExpression().getKind() === 'TypeConversionExpr') {
+            type = statement.getExpression().getTypeNode().getTypeKind();
+        }
+        this.mapper.addConnection(sourceId, targetId, folded, type);
     }
 
     createComplexProp(structName, expression) {

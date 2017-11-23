@@ -167,7 +167,8 @@ class TransformRender {
      * @param {string}  targetId target identifier
      * @param {Boolean} [folded=false] connection is folded
      */
-    addConnection(sourceId, targetId, folded = false) {
+    addConnection(sourceId, targetId, folded = false, castType = false) {
+        const render = this;
         this.jsPlumbInstance.importDefaults(
           { Connector: this.getConnectorConfig(this.midpointOnAddConnection(sourceId)) });
         const options = {
@@ -203,6 +204,19 @@ class TransformRender {
                 outlineWidth: 2,
                 outlineStroke: '#ffe0b3',
             };
+            if (castType) {
+                options.overlays = [['Label', {
+                    location: 0.9,
+                    id: 'label',
+                    label: '&lt;&gt',
+                    cssClass: 'connectionLabel',
+                    events: {
+                        mouseover: (connection, e) => {
+                            render.showConnectionMenu(connection, e, castType);
+                        },
+                    },
+                }]];
+            }
         }
 
         this.jsPlumbInstance.connect(options);
@@ -230,39 +244,58 @@ class TransformRender {
             return;
         }
         connection.bind('mouseover', (conn, e) => {
-            if (connection.getParameters().isFolded) {
-                return;
-            }
-
-            if (!this.container.find('#' + this.contextMenu).is(':visible')) {
-                const contextMenuDiv = this.container.find('#' + this.contextMenu);
-                const anchorTag = $('<a>').attr('id', 'transformConRemove').attr('class', 'transform-con-remove');
-                anchorTag.html($('<i>').addClass('fw fw-delete'));
-                anchorTag.html(anchorTag.html() + ' Remove');
-                contextMenuDiv.html(anchorTag);
-                this.container.find('.leftType, .middle-content, .rightType').scroll(() => {
-                    this.hideConnectContextMenu(this.container.find('#' + this.contextMenu));
-                });
-                this.container.find('#transformConRemove').click(() => {
-                    this.disconnect(connection);
-                    this.hideConnectContextMenu(this.container.find('#' + this.contextMenu));
-                });
-                contextMenuDiv.css({
-                    top: e.pageY,
-                    left: e.pageX,
-                    zIndex: 1000,
-                });
-                this.showConnectContextMenu(contextMenuDiv);
-                this.container.mousemove((event) => {
-                    const xDif = e.pageX - event.pageX;
-                    const yDif = e.pageY - event.pageY;
-                    if (xDif > 5 || xDif < -75 || yDif > 5 || yDif < -30) {
-                        this.hideConnectContextMenu(this.container.find('#' + this.contextMenu));
-                        this.container.unbind('mousemove');
-                    }
-                });
-            }
+            this.showConnectionMenu(connection, e);
         });
+    }
+
+    showConnectionMenu(connection, e, typeCast = '') {
+        const xDifMax = 5;
+        const yDifMax = 5;
+        let xDifMin = -75;
+        let yDifMin = -30;
+
+        if (connection.getParameters().isFolded) {
+            return;
+        }
+
+        if (!this.container.find('#' + this.contextMenu).is(':visible')) {
+            const contextMenuDiv = this.container.find('#' + this.contextMenu);
+            const anchorTag = $('<a>').attr('id', 'transformConRemove').attr('class', 'transform-con-remove');
+            anchorTag.html($('<i>').addClass('fw fw-delete'));
+            anchorTag.html(anchorTag.html() + ' Remove');
+            contextMenuDiv.html('');
+            if (typeCast !== '') {
+                contextMenuDiv.append($('<div>')
+                .attr('class', 'transform-con-cast-menu')
+                .append('Conversion : &lt;' + typeCast + '&gt'));
+                xDifMin = -150;
+                yDifMin = -60;
+            }
+            const removeButton = $('<div>').attr('class', 'transform-con-remove-button');
+            removeButton.append(anchorTag);
+            contextMenuDiv.append(removeButton);
+            this.container.find('.leftType, .middle-content, .rightType').scroll(() => {
+                this.hideConnectContextMenu(this.container.find('#' + this.contextMenu));
+            });
+            this.container.find('#transformConRemove').click(() => {
+                this.disconnect(connection);
+                this.hideConnectContextMenu(this.container.find('#' + this.contextMenu));
+            });
+            contextMenuDiv.css({
+                top: e.pageY,
+                left: e.pageX,
+                zIndex: 1000,
+            });
+            this.showConnectContextMenu(contextMenuDiv);
+            this.container.mousemove((event) => {
+                const xDif = e.pageX - event.pageX;
+                const yDif = e.pageY - event.pageY;
+                if (xDif > xDifMax || xDif < xDifMin || yDif > yDifMax || yDif < yDifMin) {
+                    this.hideConnectContextMenu(this.container.find('#' + this.contextMenu));
+                    this.container.unbind('mousemove');
+                }
+            });
+        }
     }
 
     /**
@@ -355,7 +388,8 @@ class TransformRender {
         return ['Flowchart', {
             midpoint: midPoint,
             cornerRadius: 5,
-        }];
+        },
+        ];
     }
 
   /**
