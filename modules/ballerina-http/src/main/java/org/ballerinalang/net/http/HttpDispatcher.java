@@ -25,7 +25,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.List;
 import java.util.Map;

@@ -19,12 +19,12 @@
 package org.ballerinalang.net.ws;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 /**
  * Ballerina Connector listener for WebSocket.

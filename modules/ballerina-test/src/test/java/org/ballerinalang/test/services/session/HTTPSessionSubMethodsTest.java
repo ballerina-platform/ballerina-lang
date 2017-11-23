@@ -28,7 +28,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import static org.ballerinalang.net.http.Constants.COOKIE_HEADER;
 import static org.ballerinalang.net.http.Constants.RESPONSE_COOKIE_HEADER;
@@ -44,7 +44,7 @@ public class HTTPSessionSubMethodsTest {
     @BeforeClass
     public void setup() {
         compileResult = BServiceUtil
-                .setupProgramFile(this, "test-src/services/session/httpSessionTest.bal");
+                .setupProgramFile(this, "test-src/services/session/http-session-test.bal");
     }
 
     @Test(description = "Test for GetId Function")

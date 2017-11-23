@@ -33,8 +33,8 @@ import org.ballerinalang.runtime.message.StringDataSource;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
  * Test cases for ballerina.net.http.request negative native functions.
@@ -44,8 +44,8 @@ public class RequestNativeFunctionNegativeTest {
     private CompileResult result, resultNegative;
     private final String requestStruct = Constants.REQUEST;
     private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
-    private String filePath = "test-src/statements/services/nativeimpl/request/requestNativeFunctionNegative.bal";
-    private String filePathNeg = "test-src/statements/services/nativeimpl/request/requestCompileNegative.bal";
+    private String filePath = "test-src/statements/services/nativeimpl/request/request-native-function-negative.bal";
+    private String filePathNeg = "test-src/statements/services/nativeimpl/request/request-compile-negative.bal";
 
     @BeforeClass
     public void setup() {

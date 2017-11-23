@@ -30,7 +30,7 @@ function testStructToMap () (map) {
     return m;
 }
 
-function testMapToStruct () (Person) {
+function testMapToStruct () (Person, TypeConversionError) {
     int[] marks = [87, 94, 72];
     Person parent = {
                         name:"Parent",
@@ -55,9 +55,8 @@ function testMapToStruct () (Person) {
                 score:5.67,
                 alive:true
             };
-    Person p;
-    p, _ = <Person>m;
-    return p;
+    var p, e = <Person> m;
+    return p, e;
 }
 
 function testStructToJson () (json) {
@@ -642,4 +641,19 @@ function testSameTypeConversion() (int) {
     var i= <int> f;
     i = <int>i;
     return i;
+}
+
+function testErrorOnConversions() (TypeConversionError, TypeConversionError, TypeConversionError) {
+    string s1 = "4";
+
+    // string to int
+    var i , err1 = <int> s1;
+
+    // string to float
+    var f , err2 = <float> s1;
+
+    // string to xml
+    var x1, err3 = <xml> "<root id=\"123\"/>";
+
+    return err1, err2, err3;
 }

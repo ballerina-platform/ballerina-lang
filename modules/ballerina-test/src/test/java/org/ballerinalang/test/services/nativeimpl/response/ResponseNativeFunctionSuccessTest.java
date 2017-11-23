@@ -38,8 +38,8 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
  * Test cases for ballerina.net.http.response success native functions.
@@ -49,7 +49,7 @@ public class ResponseNativeFunctionSuccessTest {
     private CompileResult result, serviceResult;
     private final String responseStruct = Constants.RESPONSE;
     private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
-    private String sourceFilePath = "test-src/statements/services/nativeimpl/response/responseNativeFunction.bal";
+    private String sourceFilePath = "test-src/statements/services/nativeimpl/response/response-native-function.bal";
 
     @BeforeClass
     public void setup() {

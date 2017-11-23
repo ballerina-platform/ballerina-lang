@@ -30,7 +30,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.nio.ByteBuffer;
 
@@ -43,7 +43,7 @@ public class ServiceTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BServiceUtil.setupProgramFile(this, "test-src/services/echoService.bal");
+        compileResult = BServiceUtil.setupProgramFile(this, "test-src/services/echo-service.bal");
     }
 
     @Test

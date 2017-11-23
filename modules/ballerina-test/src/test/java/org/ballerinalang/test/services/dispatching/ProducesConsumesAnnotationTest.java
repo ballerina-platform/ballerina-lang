@@ -29,7 +29,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * Test class for @Produces @Consumes annotation tests.
@@ -41,7 +41,7 @@ public class ProducesConsumesAnnotationTest {
     @BeforeClass()
     public void setup() {
         compileResult = BServiceUtil
-                .setupProgramFile(this, "test-src/services/dispatching/producesConsumesTest.bal");
+                .setupProgramFile(this, "test-src/services/dispatching/produces-consumes-test.bal");
     }
 
     @Test(description = "Test Consumes annotation with URL. /echo66/test1 ")

@@ -30,7 +30,7 @@ import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.uri.URIUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -68,7 +68,8 @@ public class HttpServerConnector implements BallerinaServerConnector {
             HttpResource httpResource = buildHttpResource(resource);
             validateResourceSignature(httpResource);
             try {
-                httpService.getUriTemplate().parse(httpResource.getPath(), httpResource);
+                httpService.getUriTemplate().parse(httpResource.getPath(), httpResource,
+                                                   new HttpResourceElementFactory());
             } catch (URITemplateException e) {
                 throw new BallerinaConnectorException(e.getMessage());
             }

@@ -83,7 +83,12 @@ public class ConfigProcessor {
             resolvedGlobalConfigs.putAll(fileGlobalConfigs);
 
             // Add the remaining configs of each instance config to the resolved pool
-            resolvedInstanceConfigs.forEach((key, val) -> val.putAll(fileInstanceConfigs.get(key)));
+            resolvedInstanceConfigs.forEach((key, val) -> {
+                Map<String, String> map = fileInstanceConfigs.get(key);
+                if (map != null) {
+                    val.putAll(map);
+                }
+            });
 
             // Add the remaining instance configs to the resolved pool
             fileInstanceConfigs.forEach((key, val) -> resolvedInstanceConfigs.putIfAbsent(key, val));

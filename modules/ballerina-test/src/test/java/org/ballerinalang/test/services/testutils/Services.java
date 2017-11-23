@@ -25,7 +25,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Collections;
 import java.util.Map;
