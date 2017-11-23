@@ -96,7 +96,7 @@ const tools = [
     {
         id: 'enum',
         name: 'Enum',
-        icon: 'struct',
+        icon: 'enum',
         title: 'Enum',
         nodeFactoryMethod: DefaultNodeFactory.createEnum,
         description: 'User defined enums',
