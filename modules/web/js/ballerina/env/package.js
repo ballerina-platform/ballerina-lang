@@ -31,6 +31,7 @@ class Package {
         this.addServiceDefinitions(_.get(args, 'serviceDefinitions', []));
         this.addFunctionDefinitions(_.get(args, 'functionDefinitions', []));
         this.addStructDefinitions(_.get(args, 'structDefinitions', []));
+        this.addEnums(_.get(args, 'enums', []));
         this._connectorDefinitions = _.get(args, 'connectors', []);
         this.addTypeDefinitions(_.get(args, 'typeDefinitions', []));
         this.addConstantDefinitions(_.get(args, 'constantDefinitions', []));
@@ -338,6 +339,40 @@ class Package {
         return this._structDefinitions;
     }
 
+  /**
+   * Add enums(s) to the package.
+   * @param {Enum[]|Enum} enums- The enum(s).
+   */
+    addEnums(enums) {
+        this._enums = this._enums || [];
+        let err;
+        if (!_.isArray(enums) && !(BallerinaEnvFactory.isEnum(enums))) {
+            err = 'Adding enum failed. Not an instance of Enum' + enums;
+            log.error(err);
+            throw err;
+        }
+        this._enums = this._enums || [];
+        this._enums = _.concat(this._enums, enums);
+    }
+
+  /**
+   * Set enums
+   *
+   * @param {Enums[]} enums
+   */
+    setEnums(enums) {
+        this._enums = null;
+        this.addEnums(enums);
+    }
+
+  /**
+   * Gets the enums in the package.
+   * @return {Enums[]} - The enums
+   */
+    getEnums() {
+        return this._enums;
+    }
+
     initFromJson(jsonNode) {
         this.setName(jsonNode.name);
 
@@ -361,6 +396,12 @@ class Package {
             this.addStructDefinitions(structDef);
         });
 
+        _.each(jsonNode.enums, (enumNode) => {
+            const enumDef = BallerinaEnvFactory.createEnum();
+            enumDef.initFromJson(enumNode);
+            enumDef.setFullPackageName(this.getName());
+            this.addEnums(enumDef);
+        });
         _.each(jsonNode.annotations, (annotationNode) => {
             const annotationDef = BallerinaEnvFactory.createAnnotationDefinition();
             annotationDef.initFromJson(annotationNode);

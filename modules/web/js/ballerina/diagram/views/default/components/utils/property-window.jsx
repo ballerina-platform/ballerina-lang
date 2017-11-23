@@ -202,6 +202,33 @@ class PropertyWindow extends React.Component {
             </div>);
     }
 
+  /**
+   * Renders a select box
+   * @param key
+   * @returns {select box}
+   */
+    renderSelectBox(key) {
+        return (
+            <div key={key.identifier} className='form-group'>
+                <label
+                    htmlFor={key.identifier}
+                    className='col-sm-4 property-dialog-label'
+                >
+                    {_.startCase(key.identifier)}</label>
+                <div className='col-sm-7'>
+                    <select
+                        className='property-dialog-form-control'
+                        value={key.value}
+                        onChange={event => this.onChange(event, key)}
+                    >
+                        <option value='null'>Select {key.identifier}</option>
+                        {key.fields.map((option) => {
+                            return <option value={option} key={option} >{option}</option>;
+                        })}
+                    </select>
+                </div>
+            </div>);
+    }
     /**
      * Renders numeric input for form
      * @param key
@@ -712,6 +739,8 @@ class PropertyWindow extends React.Component {
                                             return this.renderTextInputs(key);
                                         } else if (key.bType === 'struct') {
                                             return this.renderStructs(key);
+                                        } else if (key.bType === 'enum') {
+                                            return this.renderSelectBox(key);
                                         } else if (key.isConnector) {
                                             return this.renderConnectorProps(key);
                                         } else { // If not any of the types render a simple text box

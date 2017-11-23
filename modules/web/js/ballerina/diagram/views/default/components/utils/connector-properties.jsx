@@ -127,6 +127,8 @@ class ConnectorPropertiesForm extends React.Component {
                 } else if (TreeUtils.isRecordLiteralExpr(addedValues[index])) { // For structs
                     this.getValueOfStructs(addedValues[index], property.fields);
                     property.value = this.getStringifiedMap(property.fields);
+                } else if (TreeUtils.isFieldBasedAccessExpr(addedValues[index])) {
+                    property.value = addedValues[index].getFieldName().value;
                 } else if (TreeUtils.isConnectorInitExpr(addedValues[index])) {
                     property.value = addedValues[index].getSource();
                 }
@@ -256,7 +258,18 @@ class ConnectorPropertiesForm extends React.Component {
             if (key.bType === 'string') {
                 key.value = this.addQuotationForStringValues(key.value);
             }
-            paramArray.push(key.value);
+            if (key.bType === 'enum') {
+                let enumValue = 'null';
+                if (key.value && key.value !== 'null') {
+                    enumValue = pkgAlias + ':' + key.variableName + '.' + key.value;
+                }
+                paramArray.push(enumValue);
+            } else {
+                if (!key.value) {
+                    key.value = key.defaultValue;
+                }
+                paramArray.push(key.value);
+            }
         });
         if (map) {
             paramArray.push(map);

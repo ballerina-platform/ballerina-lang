@@ -21,6 +21,7 @@ import TreeBuilder from './tree-builder';
 import TreeUtils from './tree-util';
 import Environment from '../env/environment';
 import DefaultNodes from './default-nodes';
+import ConnectorHelper from './../env/helpers/connector-helper';
 
 /**
  * Creates the node instance for given source fragment
@@ -39,6 +40,16 @@ function getStaticDefaultNode(fragmentName) {
     const node = TreeBuilder.build(parsedJson);
     node.clearWS();
     return node;
+}
+
+function getPackageDefinition(fullPackageName) {
+  let packageDef = null;
+  for (const packageDefintion of Environment.getPackages()) {
+    if (packageDefintion.getName() === fullPackageName) {
+      packageDef = packageDefintion;
+    }
+  }
+  return packageDef;
 }
 
 /**
@@ -259,7 +270,15 @@ class DefaultNodeFactory {
             const connectorParams = connector.getParams().map((param) => {
                 let defaultValue = Environment.getDefaultValue(param.type);
                 if (defaultValue === undefined) {
-                    defaultValue = '{}';
+                    // Check if its a struct or enum
+                    const packageDef = getPackageDefinition(fullPackageName);
+                    const identifier = param.type.split(':')[1];
+                    const type = ConnectorHelper.getTypeOfParam(identifier, packageDef.getStructDefinitions(), packageDef.getEnums());
+                    if (type === 'struct') {
+                      defaultValue = '{}';
+                    } else {
+                      defaultValue = 'null';
+                    }
                 }
                 const paramNode = getNodeForFragment(FragmentUtils.createExpressionFragment(defaultValue));
                 parameters.push(paramNode.getVariable().getInitialExpression());
@@ -290,8 +309,16 @@ class DefaultNodeFactory {
             const connectorParams = connector.getParams().map((param) => {
                 let defaultValue = Environment.getDefaultValue(param.type);
                 if (defaultValue === undefined) {
-                    defaultValue = '{}';
-                }
+                // Check if its a struct or enum
+                    const packageDef = getPackageDefinition(fullPackageName);
+                    const identifier = param.type.split(':')[1];
+                    const type = ConnectorHelper.getTypeOfParam(identifier, packageDef.getStructDefinitions(), packageDef.getEnums());
+                    if (type === 'struct') {
+                      defaultValue = '{}';
+                    } else {
+                      defaultValue = 'null';
+                    }
+              }
                 const paramNode = getNodeForFragment(FragmentUtils.createExpressionFragment(defaultValue));
                 parameters.push(paramNode.getVariable().getInitialExpression());
             });
