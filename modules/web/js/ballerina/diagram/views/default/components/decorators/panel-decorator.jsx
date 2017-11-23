@@ -492,8 +492,14 @@ PanelDecorator.propTypes = {
     ]).isRequired,
     icon: PropTypes.string.isRequired,
     headerComponent: PropTypes.instanceOf(Object),
-    argumentParams: PropTypes.arrayOf(Node),
-    returnParams: PropTypes.arrayOf(Node),
+    argumentParams: PropTypes.oneOfType([
+        PropTypes.any,
+        PropTypes.arrayOf(Node),
+    ]),
+    returnParams: PropTypes.oneOfType([
+        PropTypes.any,
+        PropTypes.arrayOf(Node),
+    ]),
     receiver: PropTypes.string,
     protocol: PropTypes.string,
 };
