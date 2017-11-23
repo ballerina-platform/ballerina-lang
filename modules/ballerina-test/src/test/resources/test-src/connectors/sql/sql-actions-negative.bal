@@ -10,7 +10,7 @@ function testSelectData () (string firstName) {
 
     }
     try {
-        sql:ClientConnector con = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        sql:ClientConnector con = create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:5});
         bind con with testDB;
 
@@ -36,7 +36,7 @@ function testGeneratedKeyOnInsert () (string) {
     string id = "";
     try {
         string[] generatedID;
-        sql:ClientConnector con = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        sql:ClientConnector con = create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
         bind con with testDB;
 
@@ -57,7 +57,7 @@ function testCallProcedure () (string firstName) {
 
     }
     try {
-        sql:ClientConnector con = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        sql:ClientConnector con = create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
         bind con with testDB;
 
@@ -82,24 +82,24 @@ function testBatchUpdate () (int[]) {
     }
     int[] updateCount;
     try {
-        sql:ClientConnector con = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        sql:ClientConnector con = create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
         bind con with testDB;
 
         //Batch 1
-        sql:Parameter para1 = {sqlType:"varchar", value:"Alex", direction:0};
-        sql:Parameter para2 = {sqlType:"varchar", value:"Smith", direction:0};
-        sql:Parameter para3 = {sqlType:"integer", value:20, direction:0};
-        sql:Parameter para4 = {sqlType:"double", value:3400.5, direction:0};
-        sql:Parameter para5 = {sqlType:"varchar", value:"Colombo", direction:0};
+        sql:Parameter para1 = {sqlType:sql:data.VARCHAR, value:"Alex", direction:0};
+        sql:Parameter para2 = {sqlType:sql:data.VARCHAR, value:"Smith", direction:0};
+        sql:Parameter para3 = {sqlType:sql:data.INTEGER, value:20, direction:0};
+        sql:Parameter para4 = {sqlType:sql:data.DOUBLE, value:3400.5, direction:0};
+        sql:Parameter para5 = {sqlType:sql:data.VARCHAR, value:"Colombo", direction:0};
         sql:Parameter[] parameters1 = [para1, para2, para3, para4, para5];
 
         //Batch 2
-        para1 = {sqlType:"varchar", value:"Alex", direction:0};
-        para2 = {sqlType:"varchar", value:"Smith", direction:0};
-        para3 = {sqlType:"integer", value:20, direction:0};
-        para4 = {sqlType:"double", value:3400.5, direction:0};
-        para5 = {sqlType:"varchar", value:"Colombo", direction:0};
+        para1 = {sqlType:sql:data.VARCHAR, value:"Alex", direction:0};
+        para2 = {sqlType:sql:data.VARCHAR, value:"Smith", direction:0};
+        para3 = {sqlType:sql:data.INTEGER, value:20, direction:0};
+        para4 = {sqlType:sql:data.DOUBLE, value:3400.5, direction:0};
+        para5 = {sqlType:sql:data.VARCHAR, value:"Colombo", direction:0};
         sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
         sql:Parameter[][] parameters = [parameters1, parameters2];
 
@@ -116,13 +116,13 @@ function testInvalidArrayofQueryParameters () (string value ) {
 
     }
     try {
-        sql:ClientConnector con = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        sql:ClientConnector con = create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
         bind con with testDB;
         xml x1 = xml `<book>The Lost World</book>`;
         xml x2 = xml `<book>The Lost World2</book>`;
         xml[] xmlDataArray = [x1, x2];
-        sql:Parameter para0 = {sqlType:"integer", value:xmlDataArray, direction:0};
+        sql:Parameter para0 = {sqlType:sql:data.INTEGER, value:xmlDataArray, direction:0};
         sql:Parameter[] parameters = [para0];
 
 

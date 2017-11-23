@@ -5,7 +5,7 @@ package ballerina.data.sql;
 @Field {value:"value: Value of paramter pass into the SQL query"}
 @Field {value:"direction: Direction of the SQL Parameter 0 - IN, 1- OUT, 2 - INOUT"}
 public struct Parameter {
-	string sqlType;
+	data sqlType;
 	any value;
 	int direction;
 }
@@ -56,6 +56,54 @@ public struct ConnectionProperties {
 	map datasourceProperties;
 }
 
+public enum db {
+	MYSQL,
+	SQLSERVER,
+	ORACLE,
+	SYBASE,
+	POSTGRE,
+	IBMDB2,
+	HSQLDB_SERVER,
+	HSQLDB_FILE,
+	H2_SERVER,
+	H2_FILE,
+	DERBY_SERVER,
+	DERBY_FILE,
+	GENERIC
+}
+
+public enum data {
+	VARCHAR,
+	CHAR,
+	LONGVARCHAR,
+	NCHAR,
+	LONGNVARCHAR,
+	NVARCHAR,
+	BIT,
+	BOOLEAN,
+	TINYINT,
+	SMALLINT,
+	INTEGER ,
+	BIGINT,
+	NUMERIC,
+	DECIMAL,
+	REAL,
+	FLOAT,
+	DOUBLE,
+	BINARY,
+	BLOB,
+	LONGVARBINARY,
+	VARBINARY,
+	CLOB,
+	NCLOB,
+	DATE,
+	TIME,
+	DATETIME,
+	TIMESTAMP,
+	ARRAY,
+	STRUCT
+}
+
 @Description { value:"The Client Connector for SQL databases."}
 @Param { value:"dbType: SQL database type" }
 @Param { value:"hostOrPath: Host name of the database or file path for file based database" }
@@ -64,7 +112,7 @@ public struct ConnectionProperties {
 @Param { value:"username: Username for the database connection" }
 @Param { value:"password: Password for the database connection" }
 @Param { value:"options: ConnectionProperties for the connection pool configuration" }
-public connector ClientConnector (string dbType, string hostOrPath, int port, string dbName, string username, string password, ConnectionProperties options) {
+public connector ClientConnector (db dbType, string hostOrPath, int port, string dbName, string username, string password, ConnectionProperties options) {
     map sharedMap = {};
 
 	@Description { value:"The call action implementation for SQL connector to invoke stored procedures/functions."}
