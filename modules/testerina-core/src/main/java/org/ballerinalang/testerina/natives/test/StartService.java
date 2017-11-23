@@ -40,8 +40,8 @@ import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
-import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -73,7 +73,7 @@ public class StartService extends AbstractNativeFunction {
     private static final String MSG_PREFIX = "test:startService: ";
     private static final String DEFAULT_HOSTNAME = "0.0.0.0";
     private static final String LOCALHOST = "localhost";
-    
+
     static String getFileName(Path sourceFilePath) {
         Path fileNamePath = sourceFilePath.getFileName();
         return (fileNamePath != null) ? fileNamePath.toString() : sourceFilePath.toString();
@@ -316,8 +316,8 @@ public class StartService extends AbstractNativeFunction {
         for (Map.Entry<String, Map<String, String>> entry : listenerProp.entrySet()) {
             Map<String, String> propMap = entry.getValue();
             String entryListenerInterface = getListenerInterface(propMap);
-            ListenerConfiguration listenerConfiguration = HTTPConnectorUtil
-                    .buildListenerConfig(entryListenerInterface, propMap);
+            ListenerConfiguration listenerConfiguration = HTTPConnectorUtil.buildListenerConfig(entryListenerInterface,
+                                                                                                propMap);
             listenerConfigurationSet.add(listenerConfiguration);
         }
         return listenerConfigurationSet;
