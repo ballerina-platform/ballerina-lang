@@ -49,3 +49,19 @@ function constructString(map m) (string) {
     }
     return returnStr;
 }
+
+function testMapClear() (int) {
+    map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
+    namesMap.clear();
+    return namesMap.size();
+}
+
+function testHasKeyPositive() (boolean) {
+    map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
+    return namesMap.hasKey("fname");
+}
+
+function testHasKeyNegative() (boolean) {
+    map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
+    return namesMap.hasKey("fname2");
+}

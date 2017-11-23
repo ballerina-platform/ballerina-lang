@@ -333,15 +333,15 @@ function testArrayDataInsertAndPrint () (int updateRet, int intArrLen, int longA
     while (dt.hasNext()) {
         var rs, _ = (ResultMap)dt.getNext();
         println(rs.INT_ARRAY);
-        intArrLen = rs.INT_ARRAY.length();
+        intArrLen = rs.INT_ARRAY.size();
         println(rs.LONG_ARRAY);
-        longArrLen = rs.LONG_ARRAY.length();
+        longArrLen = rs.LONG_ARRAY.size();
         println(rs.FLOAT_ARRAY);
-        floatArrLen = rs.FLOAT_ARRAY.length();
+        floatArrLen = rs.FLOAT_ARRAY.size();
         println(rs.BOOLEAN_ARRAY);
-        boolArrLen = rs.BOOLEAN_ARRAY.length();
+        boolArrLen = rs.BOOLEAN_ARRAY.size();
         println(rs.STRING_ARRAY);
-        strArrLen = rs.STRING_ARRAY.length();
+        strArrLen = rs.STRING_ARRAY.size();
     }
     testDB.close();
     return;

@@ -48,3 +48,4 @@ public class HasKey extends AbstractNativeFunction {
         return getBValues(new BBoolean(map.hasKey(key)));
     }
 }
+

@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native function to get length of the map.
- * ballerina.model.map:length()
+ * ballerina.model.map:size()
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
@@ -39,7 +39,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class Length extends AbstractNativeFunction {
+public class Size extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BMap map = (BMap) getRefArgument(ctx, 0);

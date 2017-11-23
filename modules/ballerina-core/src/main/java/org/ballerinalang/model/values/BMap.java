@@ -104,16 +104,6 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     }
 
     /**
-     * Check existence of a value of a map.
-     *
-     * @param value value related to check existence
-     * @return returns boolean true if value exists
-     */
-    public boolean hasValue(V value) {
-        return map.containsValue(value);
-    }
-
-    /**
      * Get the size of the map.
      * @return returns the size of the map
      */
