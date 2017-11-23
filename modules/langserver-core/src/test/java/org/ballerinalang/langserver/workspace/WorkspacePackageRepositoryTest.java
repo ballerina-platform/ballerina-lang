@@ -1,0 +1,64 @@
+/*
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
+package org.ballerinalang.langserver.workspace;
+
+import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
+import org.ballerinalang.repository.PackageRepository;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
+
+import java.nio.file.Paths;
+
+import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
+
+/**
+ * Test WorkspacePackageRepository.
+ */
+public class WorkspacePackageRepositoryTest {
+
+    private WorkspaceDocumentManager documentManager;
+    private String sourceRoot;
+    private String pkg;
+    private PackageRepository packageRepository;
+
+    @BeforeClass
+    public void setup() {
+        documentManager = new WorkspaceDocumentManagerImpl();
+        sourceRoot = Paths.get("src/test/resources/workspace").toAbsolutePath().toString();
+        pkg = "org/pkg1";
+        packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
+    }
+
+    @Test
+    public void testCompilePackageWithDirtyContent() {
+        CompilerContext context = new CompilerContext();
+        context.put(PackageRepository.class, packageRepository);
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(SOURCE_ROOT, sourceRoot);
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_ANALYZE.toString());
+        Compiler compiler = Compiler.getInstance(context);
+        compiler.compile(pkg);
+    }
+}
