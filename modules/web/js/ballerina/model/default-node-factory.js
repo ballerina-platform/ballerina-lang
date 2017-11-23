@@ -43,13 +43,13 @@ function getStaticDefaultNode(fragmentName) {
 }
 
 function getPackageDefinition(fullPackageName) {
-  let packageDef = null;
-  for (const packageDefintion of Environment.getPackages()) {
-    if (packageDefintion.getName() === fullPackageName) {
-      packageDef = packageDefintion;
+    let packageDef = null;
+    for (const packageDefintion of Environment.getPackages()) {
+      if (packageDefintion.getName() === fullPackageName) {
+        packageDef = packageDefintion;
     }
   }
-  return packageDef;
+    return packageDef;
 }
 
 /**
@@ -67,28 +67,28 @@ class DefaultNodeFactory {
     }
 
     createWSServiceDef() {
-        const node = getStaticDefaultNode('createWSServiceDef')
+        const node = getStaticDefaultNode('createWSServiceDef');
         node.viewState.shouldShowConnectorPropertyWindow = true;
         node.setFullPackageName('ballerina.net.ws');
         return node;
     }
 
     createJMSServiceDef() {
-        const node = getStaticDefaultNode('createJMSServiceDef')
+        const node = getStaticDefaultNode('createJMSServiceDef');
         node.viewState.shouldShowConnectorPropertyWindow = true;
         node.setFullPackageName('ballerina.net.jms');
         return node;
     }
 
     createFSServiceDef() {
-        const node = getStaticDefaultNode('createFSServiceDef')
+        const node = getStaticDefaultNode('createFSServiceDef');
         node.viewState.shouldShowConnectorPropertyWindow = true;
         node.setFullPackageName('ballerina.net.fs');
         return node;
     }
 
     createFTPServiceDef() {
-        const node = getStaticDefaultNode('createFSServiceDef')
+        const node = getStaticDefaultNode('createFSServiceDef');
         node.viewState.shouldShowConnectorPropertyWindow = true;
         node.setFullPackageName('ballerina.net.ftp');
         return node;
@@ -140,10 +140,10 @@ class DefaultNodeFactory {
     }
 
     createWorker() {
-        let worker = getStaticDefaultNode('createWorkerFragment');
+        const worker = getStaticDefaultNode('createWorkerFragment');
 
         // here we will send the default worker as a meta item.
-        worker.meta =  getStaticDefaultNode('createDefaultWorkerFragment');
+        worker.meta = getStaticDefaultNode('createDefaultWorkerFragment');
         return worker;
     }
 
@@ -179,7 +179,7 @@ class DefaultNodeFactory {
         return getStaticDefaultNode('createIf');
     }
 
-    createIfElse(){
+    createIfElse() {
         return getStaticDefaultNode('createIfElse');
     }
 
@@ -243,7 +243,7 @@ class DefaultNodeFactory {
     }
 
     createEnum() {
-        return getStaticDefaultNode('createEnum')
+        return getStaticDefaultNode('createEnum');
     }
 
     createWSResource(fragment) {
@@ -257,7 +257,7 @@ class DefaultNodeFactory {
         enum name {
          ${enumerator}
         }
-        `))
+        `));
     }
 
     createConnectorDeclaration(args) {
@@ -265,7 +265,7 @@ class DefaultNodeFactory {
         const { connector, packageName, fullPackageName } = args;
 
         // Iterate through the params
-        let parameters = [];
+        const parameters = [];
         if (connector.getParams()) {
             const connectorParams = connector.getParams().map((param) => {
                 let defaultValue = Environment.getDefaultValue(param.type);
@@ -275,9 +275,9 @@ class DefaultNodeFactory {
                     const identifier = param.type.split(':')[1];
                     const type = ConnectorHelper.getTypeOfParam(identifier, packageDef.getStructDefinitions(), packageDef.getEnums());
                     if (type === 'struct') {
-                      defaultValue = '{}';
+                        defaultValue = '{}';
                     } else {
-                      defaultValue = 'null';
+                        defaultValue = 'null';
                     }
                 }
                 const paramNode = getNodeForFragment(FragmentUtils.createExpressionFragment(defaultValue));
@@ -304,7 +304,7 @@ class DefaultNodeFactory {
         const { connector, packageName, fullPackageName } = args;
 
         // Iterate through the params
-        let parameters = [];
+        const parameters = [];
         if (connector.getParams()) {
             const connectorParams = connector.getParams().map((param) => {
                 let defaultValue = Environment.getDefaultValue(param.type);
@@ -314,11 +314,11 @@ class DefaultNodeFactory {
                     const identifier = param.type.split(':')[1];
                     const type = ConnectorHelper.getTypeOfParam(identifier, packageDef.getStructDefinitions(), packageDef.getEnums());
                     if (type === 'struct') {
-                      defaultValue = '{}';
+                        defaultValue = '{}';
                     } else {
-                      defaultValue = 'null';
+                        defaultValue = 'null';
                     }
-              }
+                }
                 const paramNode = getNodeForFragment(FragmentUtils.createExpressionFragment(defaultValue));
                 parameters.push(paramNode.getVariable().getInitialExpression());
             });
@@ -343,7 +343,7 @@ class DefaultNodeFactory {
             node = getNodeForFragment(FragmentUtils.createStatementFragment(' __endpoint1.close();'));
         }
         const { action, packageName, fullPackageName } = args;
-        let parameters = [];
+        const parameters = [];
         // Iterate through the params
         if (action.getParameters()) {
             action.getParameters().map((param) => {
@@ -382,22 +382,22 @@ class DefaultNodeFactory {
         }
         const { functionDef, packageName, fullPackageName } = args;
 
-        if(functionDef.getReceiverType()){
+        if (functionDef.getReceiverType()) {
             const receiverName = _.toLower(functionDef.getReceiverType()) + 'Ref';
             node.getExpression().getExpression().getVariableName().setValue(receiverName);
         }
 
         // Iterate over the parameters
         if (functionDef.getParameters()) {
-           let parameters = [];
-           functionDef.getParameters().map((param) => {
+            let parameters = [];
+            functionDef.getParameters().map((param) => {
                let defaultValue = Environment.getDefaultValue(param.type);
                if (defaultValue === undefined) {
                    defaultValue = '{}';
                }
                const paramNode = getNodeForFragment(FragmentUtils.createExpressionFragment(defaultValue));
                parameters.push(paramNode.getVariable().getInitialExpression());
-            });
+           });
             node.getExpression().setArgumentExpressions(parameters);
         }
 
@@ -411,8 +411,8 @@ class DefaultNodeFactory {
             node.setVariables(returnNode.getVariables());
         }
         node.getExpression().getName().setValue(functionDef.getName());
-         if (packageName && packageName !== 'Current Package' && packageName !== 'builtin' ) {
-            node.getExpression().getPackageAlias().setValue(packageName);
+        if (packageName && packageName !== 'Current Package' && packageName !== 'builtin') {
+             node.getExpression().getPackageAlias().setValue(packageName);
          }
         node.getExpression().setFullPackageName(fullPackageName);
         return node;
