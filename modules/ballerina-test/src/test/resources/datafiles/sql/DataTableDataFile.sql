@@ -81,8 +81,7 @@ CREATE TABLE IF NOT EXISTS MixTypes (
   boolean_array BOOLEAN ARRAY,
   string_array VARCHAR (50
 ) ARRAY,
-PRIMARY KEY (row_id
-)
+PRIMARY KEY (row_id)
 );
 /
 INSERT INTO MixTypes (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type, int_array, long_array,

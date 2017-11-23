@@ -54,14 +54,12 @@ public class DatatableTest {
     public void setup() {
         result = BCompileUtil.compile("test-src/types/datatable/datatable-type.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
-        SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/DataTableDataFile.sql");
+        SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/DataTableDataFile.sql");
     }
 
-    @Test(groups = "DatatableTest", description = "Check getByIndex methods for primitive types.")
+    @Test(groups = "DatatableTest", description = "Check retrieving primitive types.")
     public void testGetPrimitiveTypes() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testGetPrimitiveTypes", args);
-
+        BValue[] returns = BRunUtil.invoke(result, "testGetPrimitiveTypes");
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
@@ -71,11 +69,9 @@ public class DatatableTest {
         Assert.assertEquals(returns[5].stringValue(), "Hello");
     }
 
-    @Test(groups = "DatatableTest", description = "Check toJson methods.")
+    @Test(groups = "DatatableTest", description = "Check datatable to JSON conversion.")
     public void testToJson() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testToJson", args);
-
+        BValue[] returns = BRunUtil.invoke(result, "testToJson");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(),
@@ -83,11 +79,9 @@ public class DatatableTest {
                         + "\"DOUBLE_TYPE\":2.139095039E9,\"BOOLEAN_TYPE\":true,\"STRING_TYPE\":\"Hello\"}]");
     }
 
-    @Test(groups = "DatatableTest", description = "Check toXml methods with wrapper element.")
+    @Test(groups = "DatatableTest", description = "Check datatable to XML conversion.")
     public void testToXml() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testToXml", args);
-
+        BValue[] returns = BRunUtil.invoke(result, "testToXml");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
@@ -98,19 +92,15 @@ public class DatatableTest {
 
     @Test(groups = "DatatableTest", description = "Check xml streaming when result set consumed once.")
     public void testToXmlMultipleConsume() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testToXmlMultipleConsume", args);
-
+        BValue[] returns = BRunUtil.invoke(result, "testToXmlMultipleConsume");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<results/>");
     }
 
-    @Test(groups = "DatatableTest", description = "Check toXml methods with complex element.")
+    @Test(groups = "DatatableTest", description = "Check xml conversion with complex element.")
     public void testToXmlComplex() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "toXmlComplex", args);
-
+        BValue[] returns = BRunUtil.invoke(result, "toXmlComplex");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
@@ -127,21 +117,18 @@ public class DatatableTest {
                         + "<element>Ballerina</element></STRING_ARRAY></result></results>");
     }
 
-    @Test(groups = "DatatableTest",  description = "Check getObjectAsStringByName methods for complex types.")
+    @Test(groups = "DatatableTest",  description = "Check retrieving blob clob binary data.")
     public void testGetComplexTypes() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testGetComplexTypes", args);
-
+        BValue[] returns = BRunUtil.invoke(result, "testGetComplexTypes");
         Assert.assertEquals(returns.length, 3);
         Assert.assertEquals((returns[0]).stringValue(), "wso2 ballerina blob test.");
         Assert.assertEquals((returns[1]).stringValue(), "very long text");
         Assert.assertEquals((returns[2]).stringValue(), "wso2 ballerina binary test.");
     }
 
-    @Test(groups = "DatatableTest", description = "Check getXXXArray methods for complex types.")
+    @Test(groups = "DatatableTest", description = "Check array data types.")
     public void testArrayData() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testArrayData", args);
+        BValue[] returns = BRunUtil.invoke(result, "testArrayData");
         Assert.assertEquals(returns.length, 5);
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<String, BInteger> intArray = (BMap) returns[0];
@@ -197,7 +184,6 @@ public class DatatableTest {
         long timeInserted = cal.getTimeInMillis();
         args[1] = new BInteger(timeInserted);
 
-
         cal.clear();
         cal.set(Calendar.HOUR, 16);
         cal.set(Calendar.MINUTE, 33);
@@ -209,9 +195,7 @@ public class DatatableTest {
         args[2] = new BInteger(timestampInserted);
 
         BValue[] returns = BRunUtil.invoke(result,  "testDateTime", args);
-
         Assert.assertEquals(returns.length, 4);
-
         try {
             DateFormat dfDate = new SimpleDateFormat("yyyy-MM-dd");
             String dateReturned = returns[0].stringValue();
@@ -236,11 +220,9 @@ public class DatatableTest {
         }
     }
 
-    @Test(groups = "DatatableTest", description = "Check toJson methods with null values.")
+    @Test(groups = "DatatableTest", description = "Check JSON conversion with null values.")
     public void testJsonWithNull() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result,  "testJsonWithNull", args);
-
+        BValue[] returns = BRunUtil.invoke(result,  "testJsonWithNull");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(),
@@ -248,11 +230,9 @@ public class DatatableTest {
                         + "\"STRING_TYPE\":null}]");
     }
 
-    @Test(groups = "DatatableTest", description = "Check toXml method with null values.")
+    @Test(groups = "DatatableTest", description = "Check xml conversion with null values.")
     public void testXmlWithNull() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testXmlWithNull", args);
-
+        BValue[] returns = BRunUtil.invoke(result, "testXmlWithNull");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
@@ -262,20 +242,18 @@ public class DatatableTest {
                         + "</result></results>");
     }
 
-    @Test(groups = "DatatableTest", description = "Check toXml method within transaction.")
+    @Test(groups = "DatatableTest", description = "Check xml conversion within transaction.")
     public void testToXmlWithinTransaction() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testToXmlWithinTransaction", args);
+        BValue[] returns = BRunUtil.invoke(result, "testToXmlWithinTransaction");
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals((returns[0]).stringValue(), "<results><result><INT_TYPE>1</INT_TYPE><LONG_TYPE>"
                 + "9223372036854774807</LONG_TYPE></result></results>");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
-    @Test(groups = "DatatableTest", description = "Check toJson methods within transaction.")
+    @Test(groups = "DatatableTest", description = "Check JSON conversion within transaction.")
     public void testToJsonWithinTransaction() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result,  "testToJsonWithinTransaction", args);
+        BValue[] returns = BRunUtil.invoke(result,  "testToJsonWithinTransaction");
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals((returns[0]).stringValue(), "[{\"INT_TYPE\":1,\"LONG_TYPE\":9223372036854774807}]");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
@@ -283,17 +261,14 @@ public class DatatableTest {
 
     @Test(groups = "DatatableTest", description = "Check blob data support.")
     public void testBlobData() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result,  "testBlobData", args);
+        BValue[] returns = BRunUtil.invoke(result,  "testBlobData");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals((returns[0]).stringValue(), "wso2 ballerina blob test.");
     }
 
-    @Test(groups = "DatatableTest", description = "Check getByIndex methods for primitive types.")
+    @Test(groups = "DatatableTest", description = "Check values retrieved with column alias.")
     public void testColumnAlias() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testColumnAlias", args);
-
+        BValue[] returns = BRunUtil.invoke(result, "testColumnAlias");
         Assert.assertEquals(returns.length, 7);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
@@ -304,10 +279,9 @@ public class DatatableTest {
         Assert.assertEquals(((BInteger) returns[6]).intValue(), 100);
     }
 
-    @Test(groups = "DatatableTest", description = "Check getByIndex methods for primitive types.")
+    @Test(groups = "DatatableTest", description = "Check inserting blob data.")
     public void testBlobInsert() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testBlobInsert", args);
+        BValue[] returns = BRunUtil.invoke(result, "testBlobInsert");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
@@ -318,7 +292,6 @@ public class DatatableTest {
         try {
             System.setOut(new PrintStream(outContent));
             final String expected = "\n";
-
             BRunUtil.invoke(result, "testPrintandPrintlnDatatable");
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
@@ -329,8 +302,7 @@ public class DatatableTest {
 
     @Test(groups = "DatatableTest", description = "Check auto close resources in datatable.")
     public void testDatatableAutoClose() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testDatatableAutoClose", args);
+        BValue[] returns = BRunUtil.invoke(result, "testDatatableAutoClose");
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(returns[1].stringValue(), "[{\"INT_TYPE\":1,\"LONG_TYPE\":9223372036854774807,"
@@ -340,33 +312,28 @@ public class DatatableTest {
 
     @Test(groups = "DatatableTest", description = "Check manual close resources in datatable.")
     public void testDatatableManualClose() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testDatatableManualClose", args);
+        BValue[] returns = BRunUtil.invoke(result, "testDatatableManualClose");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
-    @Test(dependsOnGroups = "DatatableTest", description = "Check all sql connectors are closed properly.")
+    @Test(dependsOnGroups = "DatatableTest", description = "Check whether all sql connectors are closed properly.")
     public void testCloseConnectionPool() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool", args);
+        BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = "DatatableTest", description = "Check select methods for primitive types.")
+    @Test(groups = "DatatableTest", description = "Check select data with multiple rows for primitive types.")
     public void testMutltipleRows() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testMutltipleRows", args);
+        BValue[] returns = BRunUtil.invoke(result, "testMutltipleRows");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
     }
 
     @Test(groups = "DatatableTest", description = "Check get float and double types.")
     public void testGetFloatTypes() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testGetFloatTypes", args);
-
+        BValue[] returns = BRunUtil.invoke(result, "testGetFloatTypes");
         Assert.assertEquals(returns.length, 4);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 238999.34);
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 238999.34);
@@ -376,8 +343,7 @@ public class DatatableTest {
 
     @Test(groups = "DatatableTest", description = "Check array data insert and println on arrays")
     public void testArrayDataInsertAndPrint() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testArrayDataInsertAndPrint", args);
+        BValue[] returns = BRunUtil.invoke(result, "testArrayDataInsertAndPrint");
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
@@ -387,10 +353,9 @@ public class DatatableTest {
         Assert.assertEquals(((BInteger) returns[5]).intValue(), 2);
     }
 
-    @Test(groups = "DatatableTest", description = "Check get float and double types.")
+    @Test(groups = "DatatableTest", description = "Check get float and double min and max types.")
     public void testSignedIntMaxMinValues() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testSignedIntMaxMinValues", args);
+        BValue[] returns = BRunUtil.invoke(result, "testSignedIntMaxMinValues");
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
@@ -413,8 +378,7 @@ public class DatatableTest {
 
     @Test(groups = "DatatableTest", description = "Check blob binary and clob types types.")
     public void testComplexTypeInsertAndRetrieval() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testComplexTypeInsertAndRetrieval", args);
+        BValue[] returns = BRunUtil.invoke(result, "testComplexTypeInsertAndRetrieval");
         Assert.assertEquals(returns.length, 5);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
