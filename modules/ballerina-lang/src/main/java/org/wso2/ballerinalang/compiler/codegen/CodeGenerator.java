@@ -1384,8 +1384,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         AnnAttachmentInfo annAttachmentInfo = new AnnAttachmentInfo(pkgRefCPIndex, attachmentNameCPIndex);
         attachment.attributes.forEach(attr -> {
             AnnAttributeValue attribValue = getAnnotationAttributeValue(attr.value);
-            int attributeNameCPIndex = addUTF8CPEntry(currentPkgInfo, attr.getName());
-            annAttachmentInfo.addAttributeValue(attributeNameCPIndex, attr.getName(), attribValue);
+            int attributeNameCPIndex = addUTF8CPEntry(currentPkgInfo, attr.getName().getValue());
+            annAttachmentInfo.addAttributeValue(attributeNameCPIndex, attr.getName().getValue(), attribValue);
         });
         return annAttachmentInfo;
     }
