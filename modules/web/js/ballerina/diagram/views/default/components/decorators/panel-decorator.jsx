@@ -85,6 +85,11 @@ class PanelDecorator extends React.Component {
 
     togglePublicPrivateFlag() {
         this.props.model.public = !this.props.model.public;
+        if (this.props.model.public) {
+            this.props.model.ws.splice(1, 0, { ws: ' ' });
+        } else {
+            this.props.model.ws.splice(1, 1);
+        }
         this.props.model.trigger('tree-modified', {
             origin: this.props.model,
             type: 'modify-node',
