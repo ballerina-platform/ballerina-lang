@@ -20,8 +20,10 @@ package org.ballerinalang.langserver.completions.resolvers;
 
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.consts.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
+import org.eclipse.lsp4j.InsertTextFormat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +44,8 @@ public class CallableUnitBodyContextResolver extends AbstractItemResolver {
         } else {
             CompletionItem workerItem = new CompletionItem();
             workerItem.setLabel(ItemResolverConstants.WORKER);
-            workerItem.setInsertText(ItemResolverConstants.WORKER_TEMPLATE);
+            workerItem.setInsertText(Snippet.WORKER.toString());
+            workerItem.setInsertTextFormat(InsertTextFormat.Snippet);
             workerItem.setDetail(ItemResolverConstants.WORKER_TYPE);
             workerItem.setSortText(Priority.PRIORITY6.name());
             workerItem.setKind(CompletionItemKind.Snippet);

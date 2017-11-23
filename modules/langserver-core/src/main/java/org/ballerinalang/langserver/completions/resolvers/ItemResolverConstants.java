@@ -64,39 +64,6 @@ public class ItemResolverConstants {
     public static final String XMLNS = "xmlns";
     public static final String RESOURCE = "resource";
 
-
-    public static final String FUNCTION_TEMPLATE = "function ${1:name} (${2}) {\n\t${3}\n}";
-    public static final String TRANSFORMER_TEMPLATE = "transformer<${1:Source} ${2:a},${3:Target} ${4:b}>{\n\t${5}\n}";
-    public static final String ENDPOINT_TEMPLATE = "endpoint <${1:constraint}> ${2:__endpoint} {\n\t${3}\n}";
-    public static final String SERVICE_TEMPLATE = "service<${1:http}> ${2:serviceName}{\n\tresource ${3:resourceName}" +
-            " (http:Request req,http:Response res) {\n\t}\n}";
-    public static final String RESOURCE_TEMPLATE = "resource ${1:name} (http:Request req,http:Response res) " +
-            "{\n\t${2}\n}";
-    public static final String CONNECTOR_DEFINITION_TEMPLATE = "connector ${1:name} (${2}) {\n\t${3}\n}";
-    public static final String CONNECTOR_ACTION_TEMPLATE = "action ${1:name} (${2}) (${3}) {\n\t${4}\n}";
-    public static final String WORKER_TEMPLATE = "worker ${1:name} {\n\t${2}\n}";
-    public static final String STRUCT_DEFINITION_TEMPLATE = "struct ${1:name}{\n\t${2}\n}";
-    public static final String ANNOTATION_DEFINITION_TEMPLATE = "annotation ${1:name}{\n\t${2 }\n}";
-    public static final String IF_TEMPLATE = "if (${1:true}) {\n\t${2}\n}";
-    public static final String ITERATE_TEMPLATE = "iterate (${1}) {\n\t${2}\n}";
-    public static final String WHILE_TEMPLATE = "while (${1:true}) {\n\t${2}\n}";
-    public static final String BIND_TEMPLATE = "bind ${1:__connector} with ${2:__endpoint}";
-    public static final String CONTINUE_TEMPLATE = "continue;";
-    public static final String BREAK_TEMPLATE = "break;";
-    public static final String FORK_TEMPLATE = "fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}";
-    public static final String TRY_CATCH_TEMPLATE =
-            "try {\n\t${1}\n} catch (${2:error} ${3:err}) {\n\t${4}\n}";
-    public static final String RETURN_TEMPLATE = "return;";
-    public static final String REPLY_TEMPLATE = "reply ${1};";
-    public static final String ABORT_TEMPLATE = "abort;";
-    public static final String TRIGGER_WORKER_TEMPLATE = "${1} -> ${2};";
-    public static final String WORKER_REPLY_TEMPLATE = "${1} <- ${2};";
-    public static final String TRANSACTION_TEMPLATE = "transaction {\n\t${1}\n} failed {\n\t${2}\n} " +
-            "aborted {\n\t${3}\n} committed {\n\t${4}\n}";
-    public static final String NAMESPACE_DECLARATION_TEMPLATE = "xmlns \"${1}\" as ${2:ns};";
-    public static final String XML_ATTRIBUTE_REFERENCE_TEMPLATE = "\"${1}\"@[\"${2}\"]";
-    public static final String RETRY_TEMPLATE = "retry ${1};";
-
     // End of Basic Constructs
 
     // Package Name Context Constants
@@ -120,25 +87,5 @@ public class ItemResolverConstants {
     public static final String B_TYPE = "BType";
     public static final String NONE = "none";
     // Symbol Types Constants
-
-    // Sorting priorities
-    public static final int PRIORITY_1 = 1;
-    public static final int PRIORITY_2 = 2;
-    public static final int PRIORITY_3 = 3;
-    public static final int PRIORITY_4 = 4;
-    public static final int PRIORITY_5 = 5;
-    public static final int PRIORITY_6 = 6;
-    public static final int PRIORITY_7 = 7;
-
-    // Kind constants
-    public static final int PACKAGE_KIND = 1;
-    public static final int B_TYPE_KIND = 2;
-    public static final int WORKER_KIND = 3;
-    public static final int PARAMETER_KIND = 4;
-    public static final int STATEMENT_KIND = 5;
-    public static final int FUNCTION_KIND = 6;
-    public static final int ACTION_KIND = 7;
-    public static final int STRUCT_KIND = 8;
-    public static final int VAR_DEF_KIND = 9;
 
 }

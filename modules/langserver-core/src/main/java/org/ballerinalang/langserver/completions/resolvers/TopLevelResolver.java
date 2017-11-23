@@ -20,11 +20,13 @@ package org.ballerinalang.langserver.completions.resolvers;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.consts.Snippet;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleConstantDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleGlobalVariableDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleTypeNameContextResolver;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.InsertTextFormat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -70,6 +72,7 @@ public class TopLevelResolver extends AbstractItemResolver {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         item.setInsertText(insertText);
+        item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setDetail(ItemResolverConstants.SNIPPET_TYPE);
         item.setSortText(Priority.PRIORITY7.name());
         completionItems.add(item);
@@ -88,16 +91,12 @@ public class TopLevelResolver extends AbstractItemResolver {
         addStaticItem(completionItems, ItemResolverConstants.IMPORT, ItemResolverConstants.IMPORT + " ");
         addStaticItem(completionItems, ItemResolverConstants.PACKAGE, ItemResolverConstants.PACKAGE + " ");
         addStaticItem(completionItems, ItemResolverConstants.CONST, ItemResolverConstants.CONST + " ");
-        addStaticItem(completionItems, ItemResolverConstants.FUNCTION, ItemResolverConstants.FUNCTION_TEMPLATE);
-        addStaticItem(completionItems, ItemResolverConstants.SERVICE, ItemResolverConstants.SERVICE_TEMPLATE);
-        addStaticItem(completionItems, ItemResolverConstants.TRANSFORMER, ItemResolverConstants.TRANSFORMER_TEMPLATE);
-        addStaticItem(completionItems, ItemResolverConstants.CONNECTOR,
-                ItemResolverConstants.CONNECTOR_DEFINITION_TEMPLATE);
-        addStaticItem(completionItems, ItemResolverConstants.STRUCT,
-                ItemResolverConstants.STRUCT_DEFINITION_TEMPLATE);
-        addStaticItem(completionItems, ItemResolverConstants.ANNOTATION,
-                ItemResolverConstants.ANNOTATION_DEFINITION_TEMPLATE);
-        addStaticItem(completionItems, ItemResolverConstants.XMLNS,
-                ItemResolverConstants.NAMESPACE_DECLARATION_TEMPLATE);
+        addStaticItem(completionItems, ItemResolverConstants.FUNCTION, Snippet.FUNCTION.toString());
+        addStaticItem(completionItems, ItemResolverConstants.SERVICE, Snippet.SERVICE.toString());
+        addStaticItem(completionItems, ItemResolverConstants.TRANSFORMER, Snippet.TRANSFORMER.toString());
+        addStaticItem(completionItems, ItemResolverConstants.CONNECTOR, Snippet.CONNECTOR_DEFINITION.toString());
+        addStaticItem(completionItems, ItemResolverConstants.STRUCT, Snippet.STRUCT_DEFINITION.toString());
+        addStaticItem(completionItems, ItemResolverConstants.ANNOTATION, Snippet.ANNOTATION_DEFINITION.toString());
+        addStaticItem(completionItems, ItemResolverConstants.XMLNS, Snippet.NAMESPACE_DECLARATION.toString());
     }
 }

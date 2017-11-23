@@ -94,7 +94,8 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 	}
 
 	@Override
-	public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(TextDocumentPositionParams position) {
+	public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(
+			TextDocumentPositionParams position) {
 		return null;
 	}
 
