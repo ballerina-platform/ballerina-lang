@@ -75,6 +75,7 @@ public class Constants {
     public static final String ANN_CONFIG_ATTR_HTTPS_PORT = "httpsPort";
     public static final String ANN_CONFIG_ATTR_BASE_PATH = "basePath";
     public static final String ANN_CONFIG_ATTR_SCHEME = "scheme";
+    public static final String ANN_CONFIG_ATTR_TLS_STORE_TYPE = "tlsStoreType";
     public static final String ANN_CONFIG_ATTR_KEY_STORE_FILE = "keyStoreFile";
     public static final String ANN_CONFIG_ATTR_KEY_STORE_PASS = "keyStorePassword";
     public static final String ANN_CONFIG_ATTR_TRUST_STORE_FILE = "trustStoreFile";
