@@ -59,21 +59,6 @@ class PanelDecorator extends React.Component {
         this.toggleAnnotations = this.toggleAnnotations.bind(this);
     }
 
-    handleProtocolClick() {
-        this.setState({ showProtocolSelect: true });
-    }
-
-    handleProtocolBlur(value) {
-        value = (typeof value === 'string') ? value : value.currentTarget.textContent;
-        value = (value === '') ? 'http' : value;
-        this.props.model.setProtocolPkgName(value);
-        this.setState({ showProtocolSelect: false });
-    }
-
-    handleProtocolEnter(value) {
-        this.setState({ showProtocolSelect: false });
-    }
-
     onCollapseClick() {
         this.props.model.viewState.collapsed = !this.props.model.viewState.collapsed;
         this.context.editor.update();
@@ -230,6 +215,7 @@ class PanelDecorator extends React.Component {
         }
         return annotationString;
     }
+
 
     getTitleComponents(titleComponentData) {
         const components = [];

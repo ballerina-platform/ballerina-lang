@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
