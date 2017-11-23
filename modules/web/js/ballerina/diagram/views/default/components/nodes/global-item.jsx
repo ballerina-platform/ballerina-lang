@@ -23,7 +23,7 @@ import _ from 'lodash';
 import { parseContent } from 'api-client/api-client';
 import './global-item.css';
 import { variablesPane as variablesPaneDefaults } from '../../designer-defaults';
-import ExpressionEditor from '../../../../../../expression-editor/expression-editor-utils';
+import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import TreeBuilder from './../../../../../model/tree-builder';
 import TreeUtils from './../../../../../model/tree-util';
 

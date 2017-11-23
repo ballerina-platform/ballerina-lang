@@ -22,7 +22,7 @@ import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import ActionBox from './action-box';
 import SimpleBBox from './../../../../../model/view/simple-bounding-box';
 import './statement-decorator.css';
-import ExpressionEditor from '../../../../../../expression-editor/expression-editor-utils';
+import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import Breakpoint from './breakpoint';
 import ActiveArbiter from './active-arbiter';
 import Node from '../../../../../model/tree/node';

@@ -1,5 +1,4 @@
 const child = require('child_process');
-const colors = require('colors/safe');
 
 const fileTypes = process.argv.splice(2);
 
@@ -26,7 +25,7 @@ child.exec(`npm run lintfile ${files}`, (err, stdout) => {
     const found = /\(([0-9]) errors,/g.exec(stdout);
     if (parseInt(found[1], 10) > 0) {
         console.log(stdout);
-        console.log(colors.red(`${found[1]} errors found. Please fix them.`));
+        console.log(`${found[1]} errors found. Please fix them.`);
         process.exit(1);
     } else {
         console.log('File formatting correct');

@@ -23,7 +23,7 @@ import { blockStatement, statement, actionBox } from '../../../../../configs/des
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
 import './compound-statement-decorator.css';
-import ExpressionEditor from '../../../../../../expression-editor/expression-editor-utils';
+import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import ActionBox from '../decorators/action-box';
 import ActiveArbiter from '../decorators/active-arbiter';
 import Breakpoint from '../decorators/breakpoint';

@@ -2,4 +2,4 @@
 /node_modules/**
 /lib/**
 /public/**
-/js/tests/resources/**
+/src/plugins/ballerina/tests/resources/**

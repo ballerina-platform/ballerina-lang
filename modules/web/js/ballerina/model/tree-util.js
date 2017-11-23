@@ -16,10 +16,10 @@
  * under the License.
  */
 import _ from 'lodash';
+import { getLangServerClientInstance } from 'plugins/ballerina/langserver/lang-server-client-controller';
 import AbstractTreeUtil from './abstract-tree-util';
 import TreeBuilder from './tree-builder';
 import FragmentUtils from '../utils/fragment-utils';
-import { getLangServerClientInstance } from 'langserver/lang-server-client-controller';
 
 /**
  * Util class for tree related functionality.

@@ -21,7 +21,7 @@ import { CONTRIBUTIONS } from 'core/plugin/constants';
 import { REGIONS } from 'core/layout/constants';
 import SourceEditor from 'ballerina/views/source-editor';
 import { CLASSES } from 'ballerina/views/constants';
-import Document from 'docerina/document.jsx';
+import Document from 'plugins/ballerina/docerina/document.jsx';
 import Editor from './views/editor-wrapper';
 import { PLUGIN_ID, EDITOR_ID, DOC_VIEW_ID, COMMANDS as COMMAND_IDS, TOOLS as TOOL_IDS } from './constants';
 

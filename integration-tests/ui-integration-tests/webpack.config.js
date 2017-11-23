@@ -111,11 +111,12 @@ const config = [{
             // /////////////////////
             // custom modules ////
             // ////////////////////
-            log: 'log/log',
+            log: 'core/log/log',
+            event_channel: 'core/event/channel',
+            plugins: 'plugins',
             d3utils: 'utils/d3-utils',
             diagram_core: 'diagram-core/module',
             command: 'command/command',
-            event_channel: 'event/channel',
             drag_drop_manager: 'drag-drop/manager',
             main_elements: 'main-elements/module',
             processors: 'processors/module',

@@ -23,12 +23,12 @@ import PropTypes from 'prop-types';
 import log from 'log';
 import _ from 'lodash';
 import debuggerHoc from 'src/plugins/debugger/views/DebuggerHoc';
-import File from './../../../src/core/workspace/model/file';
+import File from 'core/workspace/model/file';
+import { CONTENT_MODIFIED } from 'plugins/ballerina/constants/events';
+import { GO_TO_POSITION } from 'plugins/ballerina/constants/commands';
+import { getLangServerClientInstance } from 'plugins/ballerina/langserver/lang-server-client-controller';
 import SourceViewCompleterFactory from './../../ballerina/utils/source-view-completer-factory';
-import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
 import { CHANGE_EVT_TYPES } from './constants';
-import { CONTENT_MODIFIED } from './../../constants/events';
-import { GO_TO_POSITION } from './../../constants/commands';
 
 
 const ace = global.ace;
@@ -46,7 +46,7 @@ ace.acequire(ballerinaMode);
 function requireAll(requireContext) {
     return requireContext.keys().map(requireContext);
 }
-requireAll(require.context('ace', false, /theme-/));
+requireAll(require.context('brace', false, /theme-/));
 
 // ace look & feel configurations FIXME: Make this overridable from settings
 const aceTheme = 'ace/theme/twilight';

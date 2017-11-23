@@ -17,7 +17,7 @@
  */
 ace.define('ace/mode/ballerina',
     ['require', 'exports', 'module'], (acequire, exports, module) => {
-        require('ace/mode-javascript');
+        require('brace/mode/javascript');
         require('./ace-styles.scss');
 
         acequire('ace/config').set('workerPath', 'dist');
