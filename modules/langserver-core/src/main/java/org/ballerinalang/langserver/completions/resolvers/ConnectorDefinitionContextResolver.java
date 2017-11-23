@@ -20,7 +20,9 @@ package org.ballerinalang.langserver.completions.resolvers;
 
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.consts.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.InsertTextFormat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +40,8 @@ public class ConnectorDefinitionContextResolver extends AbstractItemResolver {
         if (!this.isAnnotationContext(dataModel)) {
             CompletionItem connectorActionItem = new CompletionItem();
             connectorActionItem.setLabel(ItemResolverConstants.ACTION);
-            connectorActionItem.setInsertText(ItemResolverConstants.CONNECTOR_ACTION_TEMPLATE);
+            connectorActionItem.setInsertText(Snippet.CONNECTOR_ACTION.toString());
+            connectorActionItem.setInsertTextFormat(InsertTextFormat.Snippet);
             connectorActionItem.setDetail(ItemResolverConstants.ACTION_TYPE);
             connectorActionItem.setSortText(Priority.PRIORITY4.name());
             completionItems.add(connectorActionItem);

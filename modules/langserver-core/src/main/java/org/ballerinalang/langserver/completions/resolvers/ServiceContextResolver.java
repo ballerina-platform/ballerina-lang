@@ -19,7 +19,9 @@ package org.ballerinalang.langserver.completions.resolvers;
 
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.consts.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.InsertTextFormat;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
@@ -45,7 +47,8 @@ public class ServiceContextResolver extends AbstractItemResolver {
     private void addResourceCompletionItem(List<CompletionItem> completionItems) {
         CompletionItem resource = new CompletionItem();
         resource.setLabel(ItemResolverConstants.RESOURCE_TYPE);
-        resource.setInsertText(ItemResolverConstants.RESOURCE_TEMPLATE);
+        resource.setInsertText(Snippet.RESOURCE.toString());
+        resource.setInsertTextFormat(InsertTextFormat.Snippet);
         resource.setDetail(ItemResolverConstants.SNIPPET_TYPE);
         resource.setSortText(Priority.PRIORITY7.name());
         completionItems.add(resource);

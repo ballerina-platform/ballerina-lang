@@ -20,11 +20,13 @@ package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.consts.Snippet;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.resolvers.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.resolvers.PackageActionsAndFunctionsResolver;
 import org.ballerinalang.langserver.completions.resolvers.Priority;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.InsertTextFormat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,20 +69,23 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
 
             CompletionItem xmlns = new CompletionItem();
             xmlns.setLabel(ItemResolverConstants.XMLNS);
-            xmlns.setInsertText(ItemResolverConstants.NAMESPACE_DECLARATION_TEMPLATE);
+            xmlns.setInsertText(Snippet.NAMESPACE_DECLARATION.toString());
+            xmlns.setInsertTextFormat(InsertTextFormat.Snippet);
             xmlns.setDetail(ItemResolverConstants.SNIPPET_TYPE);
             xmlns.setSortText(Priority.PRIORITY7.name());
             completionItems.add(xmlns);
 
             CompletionItem workerItem = new CompletionItem();
             workerItem.setLabel(ItemResolverConstants.WORKER);
-            workerItem.setInsertText(ItemResolverConstants.WORKER_TEMPLATE);
+            workerItem.setInsertText(Snippet.WORKER.toString());
+            workerItem.setInsertTextFormat(InsertTextFormat.Snippet);
             workerItem.setDetail(ItemResolverConstants.WORKER_TYPE);
             workerItem.setSortText(Priority.PRIORITY6.name());
             completionItems.add(workerItem);
 
             CompletionItem xmlAttribute = new CompletionItem();
-            xmlAttribute.setInsertText(ItemResolverConstants.XML_ATTRIBUTE_REFERENCE_TEMPLATE);
+            xmlAttribute.setInsertText(Snippet.XML_ATTRIBUTE_REFERENCE.toString());
+            xmlAttribute.setInsertTextFormat(InsertTextFormat.Snippet);
             xmlAttribute.setLabel("@");
             xmlAttribute.setDetail("xmlAttribute");
             xmlAttribute.setSortText(Priority.PRIORITY6.name());

@@ -20,11 +20,13 @@ package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.consts.Snippet;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.resolvers.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.resolvers.Priority;
 import org.ballerinalang.model.SimpleVariableDef;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.InsertTextFormat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,7 +54,8 @@ public class ParserRuleTransformStatementBodyContextResolver extends AbstractIte
         // Populate Transaction Statement template
         CompletionItem transactionItem = new CompletionItem();
         transactionItem.setLabel(ItemResolverConstants.TRANSACTION);
-        transactionItem.setInsertText(ItemResolverConstants.TRANSACTION_TEMPLATE);
+        transactionItem.setInsertText(Snippet.TRANSACTION.toString());
+        transactionItem.setInsertTextFormat(InsertTextFormat.Snippet);
         transactionItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         transactionItem.setSortText(Priority.PRIORITY6.name());
         completionItems.add(transactionItem);
