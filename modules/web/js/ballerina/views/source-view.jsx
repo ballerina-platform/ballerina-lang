@@ -179,7 +179,7 @@ class SourceView extends React.Component {
                             >
                                 Design View
                             </div>
-                            {hasSyntaxErrors && this.context.isTabActive &&
+                            {hasSyntaxErrors && this.context.isTabActive() &&
                                 <Overlay
                                     show={this.state.displayErrorList}
                                     container={this}
@@ -224,7 +224,7 @@ SourceView.propTypes = {
 };
 
 SourceView.contextTypes = {
-    isTabActive: PropTypes.bool.isRequired,
+    isTabActive: PropTypes.func.isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
 };
 

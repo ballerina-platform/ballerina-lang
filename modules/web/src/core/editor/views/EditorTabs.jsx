@@ -73,6 +73,8 @@ class EditorTabs extends View {
         props.editorPlugin.appContext.command.on('show-split-view', () => {
             this.setPreviewPanelState(true);
         });
+
+        this.isTabActive = this.isTabActive.bind(this);
     }
 
     /**
@@ -124,6 +126,17 @@ class EditorTabs extends View {
         });
     }
 
+
+    /**
+     * Function to pass as a property to check if the tab active.
+     *
+     * @memberof EditorTabs
+     */
+    isTabActive(fileId) {
+        const { activeEditorID } = this.props.editorPlugin;
+        return activeEditorID === fileId;
+    }
+
     /**
      * Make an editor tab
      * @param {Editor} editor Editor tab
@@ -152,7 +165,7 @@ class EditorTabs extends View {
                 >
                     <definition.component
                         editorModel={editor}
-                        isActive={activeEditorID === file.fullPath}
+                        isActive={() => { return this.isTabActive(file.fullPath); }}
                         file={file}
                         commandProxy={this.props.editorPlugin.appContext.command}
                         {...customPropsProvider()}
@@ -172,7 +185,7 @@ class EditorTabs extends View {
                 ...propsProvider(),
                 ...additionalProps,
                 ...customTabDimensions,
-                isActive: activeEditorID === id,
+                isActive: () => { return this.isTabActive(id); },
                 panelResizeInProgress: this.props.panelResizeInProgress || this.state.panelResizeInProgress,
             };
             return (
