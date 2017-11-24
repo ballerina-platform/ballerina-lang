@@ -219,8 +219,9 @@
                         {{#hasEnums}}
                         <h2>Enums of {{refinePackagePath this}} package</h2>
                         {{#each enums}} {{currentObject this}}
+                        {{#isPublic}}
                         <div style="padding-bottom: 30px;">
-                            <h3 id="{{name}}">enum {{name}}</h3>
+                            <h3 id="{{name}}">public enum {{name}}</h3>
                             <p>{{oneValueAnnotation "description"}}</p>
 
                             {{#if enumerators}}
@@ -241,6 +242,7 @@
                                 </p>
                             {{/if}}
                         </div>
+                        {{/isPublic}}
                         {{/each}}
                         <p></p>
                         <br>{{/hasEnums}}
