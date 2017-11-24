@@ -35,13 +35,13 @@ import java.io.File;
 public class SQLTransactionsTest {
 
     CompileResult result;
-    private static final String DB_NAME = "TEST_SQL_CONNECTOR";
+    private static final String DB_NAME = "TEST_SQL_CONNECTOR_TR";
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/connectors/sql/sql-transactions.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
-        SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/SQLConnectorDataFile.sql");
+        SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLTableCreate.sql");
     }
 
     @Test
