@@ -385,10 +385,10 @@ class ExportDiagramDialog extends React.Component {
             <div>
                 <Dialog
                     show={this.state.showDialog}
-                    title="Export Diagram"
+                    title='Export Diagram'
                     actions={
                         <Button
-                            bsStyle="primary"
+                            bsStyle='primary'
                             onClick={this.onFileSave}
                             disabled={this.state.filePath === '' && this.state.fileName === ''}
                         >
@@ -400,7 +400,7 @@ class ExportDiagramDialog extends React.Component {
                     error={this.state.error}
                 >
                     <Form horizontal>
-                        <FormGroup controlId="filePath">
+                        <FormGroup controlId='filePath'>
                             <Col componentClass={ControlLabel} sm={2}>
                                 File Path
                             </Col>
@@ -420,12 +420,12 @@ class ExportDiagramDialog extends React.Component {
                                             filePath: evt.target.value,
                                         });
                                     }}
-                                    type="text"
-                                    placeholder="eg: /home/user/diagrams"
+                                    type='text'
+                                    placeholder='eg: /home/user/diagrams'
                                 />
                             </Col>
                         </FormGroup>
-                        <FormGroup controlId="fileName">
+                        <FormGroup controlId='fileName'>
                             <Col componentClass={ControlLabel} sm={2}>
                                 File Name
                             </Col>
@@ -445,23 +445,23 @@ class ExportDiagramDialog extends React.Component {
                                             fileName: evt.target.value,
                                         });
                                     }}
-                                    type="text"
-                                    placeholder="eg: routing.png"
+                                    type='text'
+                                    placeholder='eg: routing.png'
                                 />
                             </Col>
                             <Col sm={3}>
-                                <div className="file-type-selector">
+                                <div className='file-type-selector'>
                                     <select
-                                        id="fileType"
-                                        className="file-type-list btn btn-default"
+                                        id='fileType'
+                                        className='file-type-list btn btn-default'
                                         onChange={(evt) => {
                                             this.setState({
                                                 fileType: evt.target.value,
                                             });
                                         }}
                                     >
-                                        <option className="file-type-item">SVG</option>
-                                        <option className="file-type-item">PNG</option>
+                                        <option className='file-type-item'>SVG</option>
+                                        <option className='file-type-item'>PNG</option>
                                     </select>
                                 </div>
                             </Col>
