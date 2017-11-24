@@ -53,7 +53,7 @@ function constructString(map m) (string) {
 function testMapClear() (int) {
     map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
     namesMap.clear();
-    return namesMap.size();
+    return lengthof namesMap;
 }
 
 function testHasKeyPositive() (boolean) {
