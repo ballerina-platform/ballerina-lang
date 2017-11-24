@@ -126,15 +126,6 @@ svg.plumbConnect path {
     border: none !important;
     color: #f17b31 !important;
 }
-
-.transformContextMenu {
-    position: fixed;
-    border: 1px solid #666769;
-    padding: 5px;
-    display: none;
-    background-color: #ffffff;
-}
-
 .func-output {
     width: 150px;
     height: calc(100% - 33px);
