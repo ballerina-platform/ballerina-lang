@@ -15,7 +15,7 @@ service<http> echo {
     }
     resource echo (http:Request req, http:Response res) {
         res.setStringPayload("hello world");
-        res.send();
+        _ = res.send();
 
     }
 }
@@ -36,7 +36,7 @@ service<http> echoOne {
     }
     resource echoAbc (http:Request req, http:Response res) {
         res.setStringPayload("hello world");
-        res.send();
+        _ = res.send();
 
     }
 }
@@ -53,7 +53,7 @@ service<http> echoDummy {
     }
     resource echoDummy (http:Request req, http:Response res) {
         res.setStringPayload("hello world");
-        res.send();
+        _ = res.send();
 
     }
 
