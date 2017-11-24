@@ -34,11 +34,7 @@ import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionIte
 import org.ballerinalang.composer.service.workspace.langserver.dto.DidSaveTextDocumentParams;
 import org.ballerinalang.composer.service.workspace.langserver.dto.ErrorData;
 import org.ballerinalang.composer.service.workspace.langserver.dto.InitializeResult;
-import org.ballerinalang.composer.service.workspace.langserver.dto.Message;
 import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
-import org.ballerinalang.composer.service.workspace.langserver.dto.RequestMessage;
-import org.ballerinalang.composer.service.workspace.langserver.dto.ResponseErrorDTO;
-import org.ballerinalang.composer.service.workspace.langserver.dto.ResponseMessage;
 import org.ballerinalang.composer.service.workspace.langserver.dto.SymbolInformation;
 import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentIdentifier;
 import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentItem;
@@ -50,8 +46,16 @@ import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPacka
 import org.ballerinalang.composer.service.workspace.suggetions.CapturePossibleTokenStrategy;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.BallerinaLanguageServer;
+import org.ballerinalang.langserver.BallerinaTextDocumentService;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
+import org.eclipse.lsp4j.jsonrpc.Endpoint;
+import org.eclipse.lsp4j.jsonrpc.messages.Message;
+import org.eclipse.lsp4j.jsonrpc.messages.RequestMessage;
+import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
+import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
+import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -72,6 +76,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 
@@ -178,28 +183,37 @@ public class LangServerManager {
      * @param message Message
      */
     private void processRequest(RequestMessage message) {
+        BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
+        Endpoint languageServerEndpoint = ServiceEndpoints.toEndpoint(languageServer);
+        Endpoint textDocumentServiceEndpoint = ServiceEndpoints.toEndpoint(languageServer.getTextDocumentService());
+        Endpoint workSpaceServiceEndpoint = ServiceEndpoints.toEndpoint(languageServer.getWorkspaceService());
+
         if (message.getMethod().equals(LangServerConstants.INITIALIZE)) {
-            this.initialize(message);
-        } else if (this.isInitialized()) {
-            switch (message.getMethod()) {
-                case LangServerConstants.SHUTDOWN:
-                    this.shutdown(message);
-                    break;
-                case LangServerConstants.WORKSPACE_SYMBOL:
-                    this.getWorkspaceSymbol(message);
-                    break;
-                case LangServerConstants.TEXT_DOCUMENT_COMPLETION:
-                    this.getCompletionItems(message);
-                    break;
-                case LangServerConstants.BUILT_IN_PACKAGES:
-                    this.getBuiltInPackages(message);
-                    break;
-                default:
-                    // Valid Method could not be found
-                    this.invalidMethodFound(message);
-                    break;
-            }
-        } else {
+            CompletableFuture<?> result = languageServerEndpoint.request(message.getMethod(), message);
+//            pushMessageToClient(langServerSession, )
+//            this.initialize(message);
+        }
+//        else if (this.isInitialized()) {
+//            switch (message.getMethod()) {
+//                case LangServerConstants.SHUTDOWN:
+//                    this.shutdown(message);
+//                    break;
+//                case LangServerConstants.WORKSPACE_SYMBOL:
+//                    this.getWorkspaceSymbol(message);
+//                    break;
+//                case LangServerConstants.TEXT_DOCUMENT_COMPLETION:
+//                    this.getCompletionItems(message);
+//                    break;
+//                case LangServerConstants.BUILT_IN_PACKAGES:
+//                    this.getBuiltInPackages(message);
+//                    break;
+//                default:
+//                    // Valid Method could not be found
+//                    this.invalidMethodFound(message);
+//                    break;
+//            }
+//        }
+        else {
             // Did not receive the initialize request
             this.sendErrorResponse(LangServerConstants.SERVER_NOT_INITIALIZED_LINE,
                     LangServerConstants.SERVER_NOT_INITIALIZED, message, null);
@@ -282,7 +296,7 @@ public class LangServerManager {
      */
     private void sendErrorResponse(String errorMessage, int errorCode, Message message, ErrorData errorData) {
         ResponseMessage responseMessageDTO = new ResponseMessage();
-        ResponseErrorDTO responseErrorDTO = new ResponseErrorDTO();
+        ResponseError responseErrorDTO = new ResponseError();
         if (message instanceof RequestMessage) {
             responseMessageDTO.setId(((RequestMessage) message).getId());
         }
