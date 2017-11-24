@@ -200,6 +200,9 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void closeChannel(ChannelHandlerContext ctx) throws Exception {
+        // The if condition here checks if the connection has already been closed by either the client or the backend.
+        // If it was the backend which closed the connection, the channel inactive event will be triggered and
+        // subsequently, this method will be called.
         if (ctx.channel().isActive()) {
             ctx.close();
         }
