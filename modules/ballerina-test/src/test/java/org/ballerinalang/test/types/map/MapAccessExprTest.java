@@ -144,4 +144,17 @@ public class MapAccessExprTest {
 
         Assert.assertEquals(((BBoolean) returns[0]).value(), new Boolean(false));
     }
+
+    @Test(description = "Test get map values.")
+    public void testGetMapValues() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetMapValues", args);
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "Supun");
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertEquals(returns[1].stringValue(), "Colombo");
+    }
+
 }

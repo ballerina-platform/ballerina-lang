@@ -18,3 +18,8 @@ public native function <map m>  hasKey (string key) (boolean);
 @Description { value:"Clear the items from given map"}
 @Param { value:"m: The map object" }
 public native function <map m>  clear ();
+
+@Description { value:"Returns an array of values contained in the specified map"}
+@Param { value:"m: The map object" }
+@Return { value:"An any array of values contained in the specified map " }
+public native function <map m> values () (any[]);
