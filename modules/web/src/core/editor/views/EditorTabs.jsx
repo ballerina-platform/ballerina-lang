@@ -237,7 +237,7 @@ class EditorTabs extends View {
             width: this.state.previewPanelSize,
             height: this.props.height - tabTitleHeight,
         };
-        if (!_.isNil(editor) && !(editor instanceof CustomEditor)) {
+        if (!_.isNil(editor) && !(editor instanceof CustomEditor) && editor.definition.previewView) {
             const { file, definition } = editor;
             const previewDefinition = definition.previewView;
             return (

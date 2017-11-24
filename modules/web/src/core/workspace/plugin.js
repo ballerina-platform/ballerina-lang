@@ -122,12 +122,11 @@ class WorkspacePlugin extends Plugin {
      * Opens a file using related editor
      *
      * @param {String} filePath Path of the file.
-     * @param {String} type type of the file.
      * @param {Boolean} activate activate upon open.
      *
      * @return {Promise} Resolves or reject with error.
      */
-    openFile(filePath, type = 'bal', activate = true) {
+    openFile(filePath, activate = true) {
         return new Promise((resolve, reject) => {
             const indexInOpenedFiles = _.findIndex(this.openedFiles, file => file.fullPath === filePath);
             const { command: { dispatch } } = this.appContext;
@@ -135,7 +134,6 @@ class WorkspacePlugin extends Plugin {
             if (indexInOpenedFiles === -1) {
                 read(filePath)
                     .then((file) => {
-                        file.extension = type;
                         this.openedFiles.push(file);
                         const { pref: { history }, editor } = this.appContext;
                         history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventAndCustomPropsSerialization);
@@ -194,9 +192,17 @@ class WorkspacePlugin extends Plugin {
      * Create a new file and opens it in a new tab
      */
     createNewFile() {
-        const newFile = new File({});
-        this.openedFiles.push(newFile);
         const { pref: { history }, editor, command: { dispatch } } = this.appContext;
+        const supportedExts = editor.getSupportedExtensions();
+        let extension;
+        if (supportedExts.length === 1) {
+            extension = supportedExts[0];
+        } else {
+            // provide user a choice on which type of file to create
+            // TODO
+        }
+        const newFile = new File({ extension });
+        this.openedFiles.push(newFile);
         history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventAndCustomPropsSerialization);
         newFile.on(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
         newFile.on(EVENTS.CONTENT_MODIFIED, this.onWorkspaceFileContentChanged);

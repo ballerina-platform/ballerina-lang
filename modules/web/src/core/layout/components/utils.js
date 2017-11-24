@@ -139,6 +139,7 @@ export function withDialogContext(Dialog, appContext) {
             showError: PropTypes.func,
         }).isRequired,
         editor: PropTypes.shape({
+            getSupportedExtensions: PropTypes.func,
             isFileOpenedInEditor: PropTypes.func,
             getEditorByID: PropTypes.func,
             setActiveEditor: PropTypes.func,

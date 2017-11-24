@@ -88,7 +88,8 @@ class FileTree extends React.Component {
      */
     loadData() {
         const { extensions, root, onLoadData } = this.props;
-        const loadData = root === FS_ROOT ? getFSRoots(extensions) : listFiles(root, extensions);
+        const loadExts = extensions || this.context.editor.getSupportedExtensions();
+        const loadData = root === FS_ROOT ? getFSRoots(loadExts) : listFiles(root, loadExts);
         loadData
             .then((tree) => {
                 const data = tree;
@@ -164,7 +165,8 @@ class FileTree extends React.Component {
         node.loading = true;
         delete node.children;
         this.forceUpdate();
-        return listFiles(node.id, this.props.extensions)
+        const loadExts = this.props.extensions || this.context.editor.getSupportedExtensions();
+        return listFiles(node.id, loadExts)
                 .then((data) => {
                     node.loading = false;
                     if (_.isEmpty(data)) {
@@ -256,7 +258,7 @@ FileTree.propTypes = {
     onOpen: PropTypes.func,
     onSelect: PropTypes.func,
     root: PropTypes.string,
-    extensions: PropTypes.arrayOf(PropTypes.string).isRequired,
+    extensions: PropTypes.arrayOf(PropTypes.string),
 };
 
 FileTree.defaultProps = {
@@ -268,7 +270,13 @@ FileTree.defaultProps = {
     onSelect: () => {},
     root: FS_ROOT,
     isDOMElementVisible: () => false,
-    extensions: ['bal'],
+    extensions: undefined,
+};
+
+FileTree.contextTypes = {
+    editor: PropTypes.shape({
+        getSupportedExtensions: PropTypes.func.isRequired,
+    }).isRequired,
 };
 
 export default FileTree;
