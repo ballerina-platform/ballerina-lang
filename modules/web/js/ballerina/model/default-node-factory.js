@@ -88,7 +88,7 @@ class DefaultNodeFactory {
     }
 
     createFTPServiceDef() {
-        const node = getStaticDefaultNode('createFSServiceDef');
+        const node = getStaticDefaultNode('createFTPServiceDef');
         node.viewState.shouldShowConnectorPropertyWindow = true;
         node.setFullPackageName('ballerina.net.ftp');
         return node;

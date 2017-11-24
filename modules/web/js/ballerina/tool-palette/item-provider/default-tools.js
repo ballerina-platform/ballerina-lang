@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import NodeFactory from './../../model/node-factory';
+
 import DefaultNodeFactory from './../../model/default-node-factory';
 
 const tools = [
@@ -44,13 +44,13 @@ const tools = [
         description: 'WebSocket server connector is a protocol that provides full-duplex, persistent ' +
         'communication channels over a single TCP connection',
     },
-    //////////////////////////////////////////////////////////////////////////////////////////
+    // ////////////////////////////////////////////////////////////////////////////////////////
     {
         id: 'constructs_seperator',
         name: '',
         seperator: true,
     },
-    //////////////////////////////////////////////////////////////////////////////////////////
+    // ////////////////////////////////////////////////////////////////////////////////////////
     {
         id: 'function',
         name: 'Function',
@@ -96,18 +96,18 @@ const tools = [
     {
         id: 'enum',
         name: 'Enum',
-        icon: 'struct',
+        icon: 'enum',
         title: 'Enum',
         nodeFactoryMethod: DefaultNodeFactory.createEnum,
         description: 'User defined enums',
     },
-    //////////////////////////////////////////////////////////////////////////////////////////
+    // ////////////////////////////////////////////////////////////////////////////////////////
     {
         id: 'main_tool_seperator',
         name: '',
         seperator: true,
     },
-    //////////////////////////////////////////////////////////////////////////////////////////
+    // ////////////////////////////////////////////////////////////////////////////////////////
     {
         id: 'VariableDefinition',
         name: 'Variable',
