@@ -107,9 +107,9 @@ function testConnectorActionWithIL() (string) {
     return value;
 }
 
-function useILInStructName() (string, string, int) {
+function useILInStructName() (string, string, int, string) {
     |family person| |person one| = {|first name|: "Tom", |last name|:"hank", |current age|: 50};
-    return |person one|.|first name|, |person one|.|last name|, |person one|.|current age|;
+    return |person one|.|first name|, |person one|.|last name|, |person one|.|current age|, |person one|["first name"];
 }
 
 struct |family person| {
@@ -123,3 +123,13 @@ function testUnicodeInIL() (string) {
     return |සිංහල වචනය|;
 }
 
+function testAcessILWithoutPipe() (string, string) {
+     string |x| = "hello";
+     return |x|, x;
+ }
+ 
+ function testAcessJSONFielAsIL() (json) {
+     json j = {"foo" : {"int" : "I am an integer"}};
+     return j.foo.|int|;
+ }
+ 

@@ -17,9 +17,11 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -27,10 +29,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangAnnotAttachmentAttribute extends BLangExpression implements AnnotationAttachmentAttributeNode {
 
-    public String name;
+    public BLangIdentifier name;
     public BLangAnnotAttachmentAttributeValue value;
 
-    public BLangAnnotAttachmentAttribute(String name, BLangAnnotAttachmentAttributeValue value) {
+    public BLangAnnotAttachmentAttribute(BLangIdentifier name, BLangAnnotAttachmentAttributeValue value) {
         this.name = name;
         this.value = value;
     }
@@ -39,13 +41,13 @@ public class BLangAnnotAttachmentAttribute extends BLangExpression implements An
     }
 
     @Override
-    public String getName() {
+    public BLangIdentifier getName() {
         return name;
     }
 
     @Override
-    public void setName(String name) {
-        this.name = name;
+    public void setName(IdentifierNode name) {
+        this.name = (BLangIdentifier) name;
     }
 
     @Override
