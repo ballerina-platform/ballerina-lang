@@ -23,8 +23,10 @@ import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
+import org.ballerinalang.net.http.HttpServerConnector;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Collections;
@@ -38,9 +40,10 @@ import java.util.Map;
 public class Services {
 
     public static HTTPCarbonMessage invokeNew(HTTPTestRequest request) {
+        HttpServerConnector httpServerConnector = HttpConnectionManager.getInstance().getHttpServerConnector();
         TestHttpFutureListener futureListener = new TestHttpFutureListener(request);
         request.setFutureListener(futureListener);
-        HttpResource resource = HttpDispatcher.findResource(request);
+        HttpResource resource = HttpDispatcher.findResource(httpServerConnector, request);
         if (resource == null) {
             return futureListener.getResponseMsg();
         }
