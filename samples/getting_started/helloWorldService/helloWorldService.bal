@@ -9,6 +9,6 @@ service<http> helloWorld {
     }
     resource sayHello (http:Request req, http:Response resp) {
         resp.setStringPayload("Hello, World!");
-        resp.send();
+        _ = resp.send();
     }
 }

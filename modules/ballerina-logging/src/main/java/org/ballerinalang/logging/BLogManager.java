@@ -116,7 +116,7 @@ public class BLogManager extends LogManager {
     public void setHttpTraceLogHandler() throws IOException {
         Handler handler = new ConsoleHandler();
         handler.setFormatter(new HTTPTraceLogFormatter());
-        handler.setLevel(Level.FINE);
+        handler.setLevel(Level.FINEST);
 
         if (httpTraceLogger == null) {
             // keep a reference to prevent this logger from being garbage collected
@@ -125,7 +125,7 @@ public class BLogManager extends LogManager {
 
         removeHandlers(httpTraceLogger);
         httpTraceLogger.addHandler(handler);
-        httpTraceLogger.setLevel(Level.FINE);
+        httpTraceLogger.setLevel(Level.FINEST);
     }
 
     private static void removeHandlers(Logger logger) {

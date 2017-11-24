@@ -21,6 +21,7 @@ package org.ballerinalang.test.types.globalvar;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
@@ -43,7 +44,7 @@ public class GlobalVarServicePkgTest {
 
     @Test(description = "Test accessing global variables in other packages")
     public void testAccessingGlobalVarInOtherPackages() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/defined", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/defined", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarInt":22343, "glbVarString":"stringval", "glbVarFloat":6342.234234}
@@ -55,7 +56,7 @@ public class GlobalVarServicePkgTest {
 
     @Test(description = "Test assigning global variable from other package when defining")
     public void testAssignGlobalVarFromOtherPkgWhenDefining() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/assign-from-other-pkg", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/assign-from-other-pkg", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarFloat1":6342.234234}
@@ -65,7 +66,7 @@ public class GlobalVarServicePkgTest {
 
     @Test(description = "Test assigning function invocation from same package")
     public void testAssigningFuncInvFromSamePkg() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/func-inv-from-same-pkg", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/func-inv-from-same-pkg", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarFunc":423277.72343}
@@ -75,7 +76,7 @@ public class GlobalVarServicePkgTest {
 
     @Test(description = "Test assigning function invocation from different package")
     public void testAssigningFuncInvFromDiffPkg() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/func-inv-from-diff-pkg", "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/func-inv-from-diff-pkg", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarPkgFunc":8876}
@@ -85,7 +86,7 @@ public class GlobalVarServicePkgTest {
 
     @Test(description = "Test assigning global variable to service variable from different package")
     public void testAssigningGlobalVarToServiceVarFromDiffPkg() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/assign-to-service-var-from-diff-pkg",
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/assign-to-service-var-from-diff-pkg",
                                                                   "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
@@ -96,11 +97,11 @@ public class GlobalVarServicePkgTest {
 
     @Test(description = "Test change global var in different package and access it")
     public void testChangeAndAccessGlobalVarInDiffPkg() {
-        HTTPCarbonMessage cMsgChange = MessageUtils.generateHTTPMessage("/globalvar-pkg/change-global-var-diff-pkg",
+        HTTPTestRequest cMsgChange = MessageUtils.generateHTTPMessage("/globalvar-pkg/change-global-var-diff-pkg",
                                                                         "GET");
         Services.invokeNew(cMsgChange);
 
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/globalvar-second-pkg/get-changed-resource-level",
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-second-pkg/get-changed-resource-level",
                                                                   "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
