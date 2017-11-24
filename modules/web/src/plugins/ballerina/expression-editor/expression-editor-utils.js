@@ -256,7 +256,10 @@ class ExpressionEditor {
 
                     didSemicolon = true;
                     props.model.trigger('focus-out');
-                    this.destroy();
+                    setTimeout(() => {
+                        this.destroy();
+                    }, 0);
+
                     if (_.isFunction(callback)) {
                         callback(text);
                     }
