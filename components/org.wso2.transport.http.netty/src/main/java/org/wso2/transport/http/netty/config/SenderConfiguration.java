@@ -83,9 +83,14 @@ public class SenderConfiguration {
     @XmlElement(name = "parameter")
     private List<Parameter> parameters;
 
+    @XmlAttribute
     private boolean followRedirect;
 
+    @XmlAttribute
     private int maxRedirectCount;
+
+    @XmlAttribute
+    private boolean isKeepAlive = true;
 
     private String tlsStoreType;
 
@@ -231,6 +236,14 @@ public class SenderConfiguration {
 
     public void setMaxRedirectCount(int maxRedirectCount) {
         this.maxRedirectCount = maxRedirectCount;
+    }
+
+    public boolean isKeepAlive() {
+        return isKeepAlive;
+    }
+
+    public void setKeepAlive(boolean keepAlive) {
+        isKeepAlive = keepAlive;
     }
 
     public void setProxyServerConfiguration(ProxyServerConfiguration proxyServerConfiguration) {

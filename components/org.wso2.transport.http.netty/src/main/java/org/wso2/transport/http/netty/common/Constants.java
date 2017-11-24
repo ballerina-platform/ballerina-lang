@@ -190,6 +190,7 @@ public final class Constants {
     public static final String HTTP_HOST = "host";
     public static final String HTTP_PORT = "port";
     public static final String SCHEME = "scheme";
+    public static final String KEEP_ALIVE = "keepAlive";
     public static final String HTTP_KEY_STORE_FILE = "keyStoreFile";
     public static final String HTTP_KEY_STORE_PASS = "keyStorePassword";
     public static final String HTTP_CERT_PASS = "certPassword";
@@ -292,6 +293,7 @@ public final class Constants {
     public static final String COLON = ":";
     public static final int MAX_REDIRECT_COUNT = 5;
 
+    public static final int ENDPOINT_TIMEOUT = 60000;
     public static final String ENDPOINT_TIMEOUT_MSG = "Endpoint timed out";
     public static final String CHUNKED = "chunked";
 

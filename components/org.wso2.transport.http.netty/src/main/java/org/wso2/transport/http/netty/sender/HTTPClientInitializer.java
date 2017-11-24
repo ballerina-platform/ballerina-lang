@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
+import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.listener.CustomHttpContentCompressor;
 import org.wso2.transport.http.netty.listener.HTTPTraceLoggingHandler;
 
@@ -44,16 +45,17 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
     private boolean followRedirect;
     private int maxRedirectCount;
     private boolean chunkDisabled;
+    private boolean isKeepAlive;
     private ProxyServerConfiguration proxyServerConfiguration;
 
-    public HTTPClientInitializer(SSLEngine sslEngine, boolean httpTraceLogEnabled, boolean chunkDisabled
-            , boolean followRedirect, int maxRedirectCount, ProxyServerConfiguration proxyServerConfiguration) {
+    public HTTPClientInitializer(SenderConfiguration senderConfiguration, SSLEngine sslEngine) {
         this.sslEngine = sslEngine;
-        this.httpTraceLogEnabled = httpTraceLogEnabled;
-        this.followRedirect = followRedirect;
-        this.maxRedirectCount = maxRedirectCount;
-        this.chunkDisabled = chunkDisabled;
-        this.proxyServerConfiguration = proxyServerConfiguration;
+        this.httpTraceLogEnabled = senderConfiguration.isHttpTraceLogEnabled();
+        this.followRedirect = senderConfiguration.isFollowRedirect();
+        this.maxRedirectCount = senderConfiguration.getMaxRedirectCount(Constants.MAX_REDIRECT_COUNT);
+        this.chunkDisabled = senderConfiguration.isChunkDisabled();
+        this.isKeepAlive = senderConfiguration.isKeepAlive();
+        this.proxyServerConfiguration = senderConfiguration.getProxyServerConfiguration();
     }
 
     @Override
@@ -93,10 +95,15 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
             ch.pipeline().addLast(Constants.REDIRECT_HANDLER, redirectHandler);
         }
         handler = new TargetHandler();
+        handler.setKeepAlive(isKeepAlive);
         ch.pipeline().addLast(Constants.TARGET_HANDLER, handler);
     }
 
     public TargetHandler getTargetHandler() {
         return handler;
+    }
+
+    public boolean isKeepAlive() {
+        return isKeepAlive;
     }
 }
