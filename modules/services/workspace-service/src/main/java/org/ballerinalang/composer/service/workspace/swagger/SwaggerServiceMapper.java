@@ -471,7 +471,7 @@ public class SwaggerServiceMapper {
      */
     private Map<String, AnnotationAttachmentAttributeValueNode> listToMap(AnnotationAttachmentNode annotation) {
         return annotation.getAttributes().stream().collect(
-                Collectors.toMap(AnnotationAttachmentAttributeNode::getName, AnnotationAttachmentAttributeNode
+                Collectors.toMap(attribute -> attribute.getName().getValue(), AnnotationAttachmentAttributeNode
                         ::getValue));
     }
     

@@ -37,7 +37,7 @@ class ServiceNode extends AbstractServiceNode {
             if (annotationNode.getPackageAlias().getValue() === httpPackageAlias &&
                 annotationNode.getAnnotationName().getValue() === 'configuration') {
                 annotationNode.getAttributes().forEach((annotationAttribute) => {
-                    if (annotationAttribute.getName() === 'basePath') {
+                    if (annotationAttribute.getName().getValue() === 'basePath') {
                         const pathAnnotationAttributeValue = annotationAttribute.getValue();
                         basePathValue = pathAnnotationAttributeValue.getValue().getValue();
                     }

@@ -41,7 +41,8 @@ class AnnotationAttributeKey extends React.Component {
     constructor(props) {
         super(props);
         let editState = this.props.editState;
-        if (props.attributeModel.getName() === undefined || props.attributeModel.getName() === '') {
+        if (props.attributeModel.getName().getValue() === undefined ||
+                                                                    props.attributeModel.getName().getValue() === '') {
             editState = 1;
         }
         this.state = {
@@ -88,8 +89,11 @@ class AnnotationAttributeKey extends React.Component {
             editState: 0,
         });
 
-        if (this.props.attributeModel.getName() !== suggestionValue) {
-            this.props.attributeModel.setName(suggestionValue, true);
+        if (this.props.attributeModel.getName().getValue() !== suggestionValue) {
+            const keyIdentifier = NodeFactory.createIdentifier({
+                value: suggestionValue,
+            });
+            this.props.attributeModel.setName(keyIdentifier, true);
 
             const attributeDefinition = this.props.annotationDefinitionModel;
             const annotationAttributeDef = AnnotationHelper.getAttributeDefinition(
@@ -209,15 +213,16 @@ class AnnotationAttributeKey extends React.Component {
         } else if (this.state.editState === 0) {
             // not editing state
             return (<span onClick={this.onKeyEdit} className='annotation-attribute-key'>
-                {this.props.attributeModel.getName()}:
+                {this.props.attributeModel.getName().getValue()}:
             </span>);
         } else {
             // editing state
             const supportedKeys = this.getSupportedKeys();
             let initialValue = '';
             if (this.props.attributeModel !== undefined &&
-                this.props.attributeModel.getName() !== undefined && this.props.attributeModel.getName().trim() !== '') {
-                initialValue = this.props.attributeModel.getName();
+                this.props.attributeModel.getName().getValue() !== undefined &&
+                                                        this.props.attributeModel.getName().getValue().trim() !== '') {
+                initialValue = this.props.attributeModel.getName().getValue();
             }
 
             return (<AutoSuggestHtml
