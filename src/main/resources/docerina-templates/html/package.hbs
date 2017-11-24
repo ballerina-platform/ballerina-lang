@@ -41,6 +41,37 @@
                             </table>
                             </p>
                         {{/hasGlobalVariables}}
+                        <!-- Enums -->
+                        {{#hasEnums}}
+                        <h2>Enums of {{refinePackagePath this}} package</h2>
+                        {{#each enums}} {{currentObject this}}
+                            {{#isPublic}}
+                                <div style="padding-bottom: 30px;">
+                                    <h3 id="{{name}}">public enum {{name}}</h3>
+                                    <p>{{oneValueAnnotation "description"}}</p>
+
+                                    {{#if enumerators}}
+                                        <p>
+                                            <b>Enumerators:</b>
+                                        <table>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Description</th>
+                                            </tr>
+                                            {{#each enumerators}}
+                                                <tr>
+                                                    <td>{{name}}</td>
+                                                    <td>{{fieldAnnotation this "field"}}</td>
+                                                </tr>
+                                            {{/each}}
+                                        </table>
+                                        </p>
+                                    {{/if}}
+                                </div>
+                            {{/isPublic}}
+                        {{/each}}
+                        <p></p>
+                        <br>{{/hasEnums}}
                         {{#hasFunctions}}
                         <!-- Functions -->
                         <h2>Functions of {{refinePackagePath this}} package</h2>
@@ -215,37 +246,6 @@
                         {{/each}}
                         <p></p>
                         <br>{{/hasAnnotations}}
-                        <!-- Enums -->
-                        {{#hasEnums}}
-                        <h2>Enums of {{refinePackagePath this}} package</h2>
-                        {{#each enums}} {{currentObject this}}
-                        {{#isPublic}}
-                        <div style="padding-bottom: 30px;">
-                            <h3 id="{{name}}">public enum {{name}}</h3>
-                            <p>{{oneValueAnnotation "description"}}</p>
-
-                            {{#if enumerators}}
-                                <p>
-                                    <b>Enumerators:</b>
-                                <table>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Description</th>
-                                    </tr>
-                                    {{#each enumerators}}
-                                        <tr>
-                                            <td>{{name}}</td>
-                                            <td>{{fieldAnnotation this "field"}}</td>
-                                        </tr>
-                                    {{/each}}
-                                </table>
-                                </p>
-                            {{/if}}
-                        </div>
-                        {{/isPublic}}
-                        {{/each}}
-                        <p></p>
-                        <br>{{/hasEnums}}
                         </div>
                 </section>
             </div>
@@ -271,6 +271,15 @@
                                 </ul>
                             </li>
                         {{/hasGlobalVariables}}
+                        {{#hasEnums}}
+                            <li>
+                                <span class="opener">Enums</span>
+                                <ul>
+                                    {{#each enums}}
+                                        <li><a href="#{{name}} ">{{name}}</a></li>
+                                    {{/each}}
+                                </ul>
+                            </li>{{/hasEnums}}
                         {{#hasFunctions}}
                         <li>
                             <span class="opener">Functions</span>
@@ -312,15 +321,6 @@
                                 {{/each}}
                             </ul>
                         </li>{{/hasAnnotations}}
-                        {{#hasEnums}}
-                        <li>
-                            <span class="opener">Enums</span>
-                            <ul>
-                                {{#each enums}}
-                                    <li><a href="#{{name}} ">{{name}}</a></li>
-                                {{/each}}
-                            </ul>
-                        </li>{{/hasEnums}}
                     </ul>
                 </nav>
 
