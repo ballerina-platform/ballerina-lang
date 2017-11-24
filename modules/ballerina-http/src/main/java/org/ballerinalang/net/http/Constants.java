@@ -175,6 +175,10 @@ public class Constants {
     public static final int RETRY_COUNT_INDEX = 0;
     public static final int RETRY_INTERVAL_INDEX = 1;
 
+    public static final String CONNECTION_HEADER = "Connection";
+    public static final String HEADER_VAL_CONNECTION_CLOSE = "Close";
+    public static final String HEADER_VAL_CONNECTION_KEEP_ALIVE = "Keep-Alive";
+
     /**
      * Content type HTTP header.
      */
