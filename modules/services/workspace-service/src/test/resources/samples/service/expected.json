@@ -273,7 +273,11 @@
               "text": ":",
               "static": true
             }],
-            "name": "methods",
+            "name": {
+              "literal": false,
+              "value": "methods",
+              "kind": "Identifier"
+            },
             "value": {
               "ws": [{
                 "ws": "",
@@ -335,7 +339,11 @@
               "text": ":",
               "static": true
             }],
-            "name": "path",
+            "name": {
+              "literal": false,
+              "value": "path",
+              "kind": "Identifier"
+            },
             "value": {
               "position": {
                 "startColumn": 14,
@@ -892,7 +900,11 @@
             "text": ":",
             "static": true
           }],
-          "name": "basePath",
+          "name": {
+            "literal": false,
+            "value": "basePath",
+            "kind": "Identifier"
+          },
           "value": {
             "position": {
               "startColumn": 31,
