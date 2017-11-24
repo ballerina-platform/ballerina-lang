@@ -20,13 +20,6 @@ import BallerinaEnvFactory from './ballerina-env-factory';
 
 /**
  * @class Enum
- * @augments
- * @param {Object} args data to create the enum
- * @param {string} args.name name of enum
- * @param {string} args.id id of enum
- * @param {string} args.fullPackageName full package name of the enum
- * @param {[Enumerator]} args.enumerators enumerators of the enum
- * @constructor
  */
 class Enum {
 
@@ -37,7 +30,7 @@ class Enum {
      * @param {string} args.name name of the enum
      * @param {string} args.fullPackageName full package name of the enum
      * @param {[Enumerator]} args.enumerators enumerators of the enum
-     * @memberof Enum
+     * @constructor
      */
     constructor(args) {
         this._name = _.get(args, 'name', '');

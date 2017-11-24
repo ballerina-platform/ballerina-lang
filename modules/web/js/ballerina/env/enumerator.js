@@ -19,10 +19,6 @@ import _ from 'lodash';
 
 /**
  * @class Enumerator
- * @augments
- * @param {Object} args args to create the enumerator
- * @param {string} args.name name of the enumerator
- * @constructor
  */
 class Enumerator {
 
@@ -31,7 +27,7 @@ class Enumerator {
      * @param {Object} args args to create the enumerator
      * @param {string} args.name name of the enumerator
      * @param {string} args.packageName package of the enumerator
-     * @memberof Enum
+     * @constructor
      */
     constructor(args) {
         this._name = _.get(args, 'name', '');
