@@ -101,9 +101,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <argLine>-Dfile.encoding=UTF-8</argLine>
-                    <suiteXmlFiles>
-                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
-                    </suiteXmlFiles>
                 </configuration>
             </plugin>
         </plugins>
@@ -168,6 +165,7 @@
     <modules>
         <module>modules/services/workspace-service</module>
         <module>modules/web</module>
+        <module>modules/js-tests</module>
         <module>integration-tests</module>
     </modules>
 
