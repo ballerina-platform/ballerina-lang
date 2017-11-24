@@ -566,7 +566,7 @@ public class HttpUtil {
      * @return the set of {@link ListenerConfiguration} which were extracted from config annotation.
      */
     public static Set<ListenerConfiguration> getDefaultOrDynamicListenerConfig(Annotation annotationInfo) {
-        Map<String, Map<String, String>> listenerProp = buildListerProperties(annotationInfo);
+        Map<String, Map<String, String>> listenerProp = buildListenerProperties(annotationInfo);
 
         Set<ListenerConfiguration> listenerConfigurationSet;
         if (listenerProp == null || listenerProp.isEmpty()) {
@@ -592,7 +592,7 @@ public class HttpUtil {
      * @param configInfo In which listener configurations are specified.
      * @return listenerConfMap      With required properties
      */
-    private static Map<String, Map<String, String>> buildListerProperties(Annotation configInfo) {
+    private static Map<String, Map<String, String>> buildListenerProperties(Annotation configInfo) {
         if (configInfo == null) {
             return null;
         }
@@ -602,6 +602,7 @@ public class HttpUtil {
 
         AnnAttrValue hostAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_HOST);
         AnnAttrValue portAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_PORT);
+        AnnAttrValue keepAliveAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE);
 
         // Retrieve secure port from either http of ws configuration annotation.
         AnnAttrValue httpsPortAttrVal;
@@ -631,6 +632,12 @@ public class HttpUtil {
                 httpPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, hostAttrVal.getStringValue());
             } else {
                 httpPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, Constants.HTTP_DEFAULT_HOST);
+            }
+            if (keepAliveAttrVal != null) {
+                httpPropMap.put(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE,
+                                String.valueOf(keepAliveAttrVal.getBooleanValue()));
+            } else {
+                httpPropMap.put(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE, Boolean.TRUE.toString());
             }
             listenerConfMap.put(buildInterfaceName(httpPropMap), httpPropMap);
         }

@@ -359,6 +359,9 @@ public class HttpConnectionManager {
             throw new BallerinaConnectorException("Invalid idle timeout: " + endpointTimeout);
         }
         senderConfiguration.setSocketIdleTimeout((int) endpointTimeout);
+
+        boolean isKeepAlive = options.getBooleanField(Constants.IS_KEEP_ALIVE_INDEX) == 1;
+        senderConfiguration.setKeepAlive(isKeepAlive);
     }
 
     private String makeFirstLetterLowerCase(String str) {
