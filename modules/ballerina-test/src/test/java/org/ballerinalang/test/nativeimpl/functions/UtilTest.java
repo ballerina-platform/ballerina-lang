@@ -98,7 +98,6 @@ public class UtilTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHmac", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                            "Invalid return value");
-
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
@@ -144,41 +143,41 @@ public class UtilTest {
     }
 
     @Test
-    public void testConvertingBase16ToBase64() {
+    public void testBase16ToBase64Encoding() {
         String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
         BValue[] args = new BValue[]{new BString("48656C6C6F2042616C6C6572696E61")};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testConvertingBase16ToBase64", args);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testBase16ToBase64Encoding", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                            "Invalid return value");
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
     }
 
     @Test
-    public void testConvertingBase64ToBase16() {
+    public void testBase64ToBase16Encoding() {
         String expectedValue = "48656C6C6F2042616C6C6572696E61";
         BValue[] args = new BValue[]{new BString("SGVsbG8gQmFsbGVyaW5h")};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testConvertingBase64ToBase16", args);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testBase64ToBase16Encoding", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                            "Invalid return value");
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
     }
 
     @Test
-    public void testConvertingHMACValueFromBase16ToBase64() {
+    public void testHMACValueFromBase16ToBase64Encoding() {
         String expectedValue = "S4qhC4EdsEcvY64gs+JsmA==";
         BValue[] args = new BValue[]{new BString("Hello Ballerina"), new BString("abcdefghijk"), new BString("MD5")};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testConvertingHMACValueFromBase16ToBase64", args);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHMACValueFromBase16ToBase64Encoding", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                            "Invalid return value");
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
     }
 
     @Test
-    public void testConvertingHMACValueFromBase64ToBase16() {
+    public void testHMACValueFromBase64ToBase16Encoding() {
         String expectedValue = "4B8AA10B811DB0472F63AE20B3E26C98";
         BValue[] args = new BValue[]{new BString("Hello Ballerina"), new BString("abcdefghijk"),
                 new BString("MD5")};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testConvertingHMACValueFromBase64ToBase16", args);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHMACValueFromBase64ToBase16Encoding", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                            "Invalid return value");
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);

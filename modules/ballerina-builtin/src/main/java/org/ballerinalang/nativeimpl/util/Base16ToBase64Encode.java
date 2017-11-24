@@ -30,17 +30,17 @@ import java.util.Base64;
 import javax.xml.bind.DatatypeConverter;
 
 /**
- * Native function ballerina.util:convertBase16ToBase64.
+ * Native function ballerina.util:base16ToBase64Encode.
  *
  * @since 0.95.2
  */
 @BallerinaFunction(
         packageName = "ballerina.util",
-        functionName = "convertBase16ToBase64",
+        functionName = "base16ToBase64Encode",
         args = {@Argument(name = "baseString", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true)
-public class ConvertBase16ToBase64 extends AbstractNativeFunction {
+public class Base16ToBase64Encode extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {

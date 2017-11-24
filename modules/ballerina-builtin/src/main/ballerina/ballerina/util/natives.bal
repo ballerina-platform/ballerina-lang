@@ -12,25 +12,25 @@ public struct Locale {
 @Return {value:"The random string"}
 public native function uuid () (string);
 
-@Description {value:"Encodes a Base10 encoded string to Base64."}
+@Description {value:"Encodes a base10 encoded string to base64."}
 @Param {value:"s: string to be encoded"}
 @Return {value:"the encoded string."}
 public native function base64Encode (string s) (string);
 
-@Description {value:"Decodes a Base64 encoded string to Base10."}
+@Description {value:"Decodes a base64 encoded string to base10."}
 @Param {value:"s: string to be decoded"}
 @Return {value:"the decoded string."}
 public native function base64Decode (string s) (string);
 
-@Description {value:"Convert base16 encoded string to base64 encoding."}
+@Description {value:"Encodes a base16 encoded string to base64 encoding."}
 @Param {value:"s: string to be encoded"}
 @Return {value:"the encoded string."}
-public native function convertBase16ToBase64 (string baseString) (string);
+public native function base16ToBase64Encode (string baseString) (string);
 
-@Description {value:"Convert base64 encoded string to base16 encoding."}
+@Description {value:"Encodes a base64 encoded string to base16 encoding."}
 @Param {value:"s: string to be encoded"}
 @Return {value:"the encoded string."}
-public native function convertBase64ToBase16 (string baseString) (string);
+public native function base64ToBase16Encode (string baseString) (string);
 
 @Description {value:"Returns a hash of a given string using the SHA-256 algorithm "}
 @Param {value:"baseString: The string to be hashed"}
