@@ -425,20 +425,23 @@ public class BLangVM {
                         break;
                     }
 
-                    BValue array = sf.refRegs[i];
-                    if (array.getType().getTag() == TypeTags.XML_TAG) {
-                        sf.longRegs[j] = ((BXML) array).length();
+                    BValue entity = sf.refRegs[i];
+                    if (entity.getType().getTag() == TypeTags.XML_TAG) {
+                        sf.longRegs[j] = ((BXML) entity).length();
                         break;
-                    } else if (array.getType().getTag() == TypeTags.JSON_TAG) {
-                        if (JSONUtils.isJSONArray((BJSON) array)) {
+                    } else if (entity.getType().getTag() == TypeTags.JSON_TAG) {
+                        if (JSONUtils.isJSONArray((BJSON) entity)) {
                             sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
                         } else {
                             sf.longRegs[j] = -1;
                         }
                         break;
+                    } else if (entity.getType().getTag() == TypeTags.MAP_TAG) {
+                        sf.longRegs[j] = ((BMap) entity).size();
+                        break;
                     }
 
-                    BNewArray newArray = (BNewArray) array;
+                    BNewArray newArray = (BNewArray) entity;
                     sf.longRegs[j] = newArray.size();
                     break;
 
