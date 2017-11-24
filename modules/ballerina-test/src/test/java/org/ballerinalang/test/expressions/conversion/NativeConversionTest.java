@@ -129,6 +129,8 @@ public class NativeConversionTest {
         Assert.assertEquals(marksArray.get(0), 87);
         Assert.assertEquals(marksArray.get(1), 94);
         Assert.assertEquals(marksArray.get(2), 72);
+        
+        Assert.assertNull(returns[1]);
     }
 
     @Test
@@ -516,5 +518,13 @@ public class NativeConversionTest {
         Assert.assertTrue(returns[0] instanceof BInteger);
         int expected = 10;
         Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);
+    }
+    
+    @Test
+    public void testErrorOnConversions() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testErrorOnConversions");
+        Assert.assertNull(returns[0]);
+        Assert.assertNull(returns[1]);
+        Assert.assertNull(returns[2]);
     }
 }
