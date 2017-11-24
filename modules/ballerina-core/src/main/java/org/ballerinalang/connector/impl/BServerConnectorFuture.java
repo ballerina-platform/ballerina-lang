@@ -31,20 +31,20 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 public class BServerConnectorFuture implements ConnectorFuture {
     private ConnectorFutureListener connectorFutureListener;
 
-    private BallerinaException ex;
+    private BallerinaException exception;
     private boolean success = false;
 
     @Override
     public void setConnectorFutureListener(ConnectorFutureListener futureListener) {
         this.connectorFutureListener = futureListener;
-        if (ex != null) {
-            connectorFutureListener.notifyFailure(new BallerinaConnectorException(ex.getMessage(), ex));
+        if (exception != null) {
+            connectorFutureListener.notifyFailure(new BallerinaConnectorException(exception.getMessage(), exception));
             success = false; //double check this.
         }
         if (success) {
             connectorFutureListener.notifySuccess();
         }
-        ex = null;
+        exception = null;
     }
 
     public void notifySuccess() {
@@ -56,14 +56,13 @@ public class BServerConnectorFuture implements ConnectorFuture {
         }
     }
 
-    public void notifyFailure(BallerinaException ex) {
+    public void notifyFailure(BallerinaException exception) {
         //if the future listener already exist, notify right away. if not store until listener registration.
         if (connectorFutureListener != null) {
-            connectorFutureListener.notifyFailure(new BallerinaConnectorException(ex.getMessage(), ex));
+            connectorFutureListener.notifyFailure(new BallerinaConnectorException(exception.getMessage(), exception));
         } else {
-            ErrorHandlerUtils.printError(ex);
-            this.ex = ex;
+            ErrorHandlerUtils.printError(exception);
+            this.exception = exception;
         }
     }
-
 }
