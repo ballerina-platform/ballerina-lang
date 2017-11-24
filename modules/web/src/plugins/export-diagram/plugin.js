@@ -51,6 +51,9 @@ class ExportDiagramPlugin extends Plugin {
                     component: ExportDiagramDialog,
                     propsProvider: () => {
                         return {
+                            appContext: {
+                                pref: this.appContext.pref,
+                            },
                             command: this.appContext.command,
                             file: this.appContext.editor.getActiveEditor().file,
                         };

@@ -19,7 +19,7 @@
 import React from 'react';
 import _ from 'lodash';
 import $ from 'jquery';
-import { getPathSeperator } from 'api-client/api-client';
+import { getPathSeperator, getUserHome } from 'api-client/api-client';
 import PropTypes from 'prop-types';
 import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
 import Dialog from 'core/view/Dialog';
@@ -30,6 +30,7 @@ import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
 import ScrollBarsWithContextAPI from 'core/view/scroll-bars/ScrollBarsWithContextAPI';
 
 const FILE_TYPE = 'file';
+const HISTORY_LAST_ACTIVE_PATH = 'composer.history.workspace.export-diagram-dialog.last-active-path';
 
 /**
  * File Save Wizard Dialog
@@ -42,15 +43,31 @@ class ExportDiagramDialog extends React.Component {
      */
     constructor(props) {
         super(props);
+        const { history } = props.appContext.pref;
+        const filePath = history.get(HISTORY_LAST_ACTIVE_PATH) || '';
         this.state = {
             error: '',
-            filePath: '',
+            filePath,
             fileName: '',
             fileType: '',
             showDialog: true,
         };
         this.onFileSave = this.onFileSave.bind(this);
         this.onDialogHide = this.onDialogHide.bind(this);
+    }
+
+    /**
+     * @inheritDoc
+     * */
+    componentDidMount() {
+        if (!this.state.filePath) {
+            getUserHome()
+                .then((userHome) => {
+                    this.setState({
+                        filePath: userHome,
+                    });
+                });
+        }
     }
 
     /**
@@ -82,8 +99,11 @@ class ExportDiagramDialog extends React.Component {
         const saveFile = (content) => {
             createOrUpdate(derivedFilePath, derivedFileName, content, true)
                 .then((success) => {
+                    const { history } = this.props.appContext.pref;
+                    history.put(HISTORY_LAST_ACTIVE_PATH, filePath);
                     this.setState({
                         error: '',
+                        filePath,
                         showDialog: false,
                     });
                     this.props.onSaveSuccess();
@@ -365,10 +385,10 @@ class ExportDiagramDialog extends React.Component {
             <div>
                 <Dialog
                     show={this.state.showDialog}
-                    title="Export Diagram"
+                    title='Export Diagram'
                     actions={
                         <Button
-                            bsStyle="primary"
+                            bsStyle='primary'
                             onClick={this.onFileSave}
                             disabled={this.state.filePath === '' && this.state.fileName === ''}
                         >
@@ -380,7 +400,7 @@ class ExportDiagramDialog extends React.Component {
                     error={this.state.error}
                 >
                     <Form horizontal>
-                        <FormGroup controlId="filePath">
+                        <FormGroup controlId='filePath'>
                             <Col componentClass={ControlLabel} sm={2}>
                                 File Path
                             </Col>
@@ -400,12 +420,12 @@ class ExportDiagramDialog extends React.Component {
                                             filePath: evt.target.value,
                                         });
                                     }}
-                                    type="text"
-                                    placeholder="eg: /home/user/diagrams"
+                                    type='text'
+                                    placeholder='eg: /home/user/diagrams'
                                 />
                             </Col>
                         </FormGroup>
-                        <FormGroup controlId="fileName">
+                        <FormGroup controlId='fileName'>
                             <Col componentClass={ControlLabel} sm={2}>
                                 File Name
                             </Col>
@@ -425,23 +445,23 @@ class ExportDiagramDialog extends React.Component {
                                             fileName: evt.target.value,
                                         });
                                     }}
-                                    type="text"
-                                    placeholder="eg: routing.png"
+                                    type='text'
+                                    placeholder='eg: routing.png'
                                 />
                             </Col>
                             <Col sm={3}>
-                                <div className="file-type-selector">
+                                <div className='file-type-selector'>
                                     <select
-                                        id="fileType"
-                                        className="file-type-list btn btn-default"
+                                        id='fileType'
+                                        className='file-type-list btn btn-default'
                                         onChange={(evt) => {
                                             this.setState({
                                                 fileType: evt.target.value,
                                             });
                                         }}
                                     >
-                                        <option className="file-type-item">SVG</option>
-                                        <option className="file-type-item">PNG</option>
+                                        <option className='file-type-item'>SVG</option>
+                                        <option className='file-type-item'>PNG</option>
                                     </select>
                                 </div>
                             </Col>
@@ -465,6 +485,8 @@ class ExportDiagramDialog extends React.Component {
                                         filePath = node.filePath;
                                         fileName = node.fileName + '.' + node.extension;
                                     }
+                                    const { history } = this.props.appContext.pref;
+                                    history.put(HISTORY_LAST_ACTIVE_PATH, filePath);
                                     this.setState({
                                         error: '',
                                         filePath,
@@ -481,6 +503,7 @@ class ExportDiagramDialog extends React.Component {
 }
 
 ExportDiagramDialog.propTypes = {
+    appContext: PropTypes.objectOf(Object).isRequired,
     file: PropTypes.objectOf(Object).isRequired,
     onSaveSuccess: PropTypes.func,
     onSaveFail: PropTypes.func,
