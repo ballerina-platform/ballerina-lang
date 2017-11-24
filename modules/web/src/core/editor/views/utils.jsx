@@ -70,7 +70,7 @@ export function withUndoRedoSupport(Editor) {
     EditorWrapper.propTypes = {
         editorModel: PropTypes.objectOf(Object).isRequired,
         file: PropTypes.objectOf(Object).isRequired,
-        isActive: PropTypes.bool.isRequired,
+        isActive: PropTypes.func.isRequired,
         commandProxy: PropTypes.shape({
             on: PropTypes.func.isRequired,
             dispatch: PropTypes.func.isRequired,
