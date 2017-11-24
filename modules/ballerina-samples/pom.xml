@@ -60,6 +60,19 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- this is to copy getting_started samples to target directory-->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -87,6 +100,7 @@
                                         <exclude>**/*.iwr</exclude>
                                         <exclude>**/*.eclipse</exclude>
                                         <exclude>**/*.iml</exclude>
+                                        <exclude>**/*.balx</exclude>
                                     </excludes>
                                 </resource>
                             </resources>
@@ -192,7 +206,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>org.ballerinalang.packerina.SampleUtil</mainClass>
+                    <mainClass>org.ballerinalang.sample.SampleGenerator</mainClass>
                 </configuration>
             </plugin>
             <plugin>

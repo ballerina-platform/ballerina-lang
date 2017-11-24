@@ -901,17 +901,6 @@ public class SQLDatasourceUtils {
     }
 
     /**
-     * This will retrieve the string value for the given input stream.
-     *
-     * @param inputStream input stream data
-     */
-    public static String getString(InputStream inputStream) {
-        String value = getStringFromInputStream(inputStream);
-        byte[] encode = getBase64Encode(value);
-        return new String(encode, Charset.defaultCharset());
-    }
-
-    /**
      * This will retrieve the string value for the given date value.
      */
     public static String getString(Date value) {

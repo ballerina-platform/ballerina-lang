@@ -80,7 +80,7 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
                     processArray(xmlStreamWriter, col);
                     break;
                 default:
-                    value = dataTable.getObjectAsString(col.getName());
+                    value = dataTable.getString(col.getName());
                     break;
                 }
                 if (!isArray) {

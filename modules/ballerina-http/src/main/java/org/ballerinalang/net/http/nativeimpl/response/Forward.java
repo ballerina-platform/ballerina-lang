@@ -31,16 +31,16 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * Native function to send client service response directly to the caller.
- *
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "forward",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Response",
-                             structPackage = "ballerina.net.http"),
+                structPackage = "ballerina.net.http"),
         args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
                 structPackage = "ballerina.net.http")},
         isPublic = true
@@ -53,12 +53,14 @@ public class Forward extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BStruct responseStruct = (BStruct) getRefArgument(context, 0);
         BStruct clientResponseStruct = (BStruct) getRefArgument(context, 1);
-        HttpUtil.methodInvocationCheck(responseStruct);
-        HttpUtil.operationNotAllowedCheck(responseStruct);
+        HttpUtil.checkFunctionValidity(responseStruct);
         if (clientResponseStruct.getNativeData(Constants.TRANSPORT_MESSAGE) == null) {
             throw new BallerinaException("Failed to forward: empty response parameter");
         }
-        context.getConnectorFuture().notifyReply(clientResponseStruct);
-        return VOID_RETURN;
+        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct
+                .getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
+        HTTPCarbonMessage responseMessage = HttpUtil
+                .getCarbonMsg(clientResponseStruct, HttpUtil.createHttpCarbonMessage(false));
+        return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage);
     }
 }

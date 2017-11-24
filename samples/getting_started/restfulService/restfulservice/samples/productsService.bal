@@ -15,7 +15,7 @@ service<http> productmgt {
         json payload;
         payload, _ = (json)productsMap[prodId];
         res.setJsonPayload(payload);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -28,7 +28,7 @@ service<http> productmgt {
         productsMap[productId] = jsonReq;
         json payload = {"Status":"Product is successfully added."};
         res.setJsonPayload(payload);
-        res.send();
+        _ = res.send();
     }
 }
 
