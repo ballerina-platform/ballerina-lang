@@ -258,10 +258,22 @@ public class HttpConnectionManager {
         this.webSocketServerConnector = webSocketServerConnector;
     }
 
+    /**
+     * Retrieve HTTP server connector in the runtime.
+     * <b>Note: This method is only working in the runtime. Using this method in deployment time can cause issues.</b>
+     *
+     * @return HttpServerConnector in runtime.
+     */
     public HttpServerConnector getHttpServerConnector() {
         return httpServerConnector;
     }
 
+    /**
+     * Retrieve WebSocket server connector in the runtime.
+     * <b>Note: This method is only working in the runtime. Using this method in deployment time can cause issues.</b>
+     *
+     * @return WebSocketServerConnector in runtime.
+     */
     public WebSocketServerConnector getWebSocketServerConnector() {
         return webSocketServerConnector;
     }
