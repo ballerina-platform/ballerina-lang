@@ -89,8 +89,8 @@ class EnumNode extends React.Component {
             x: x + DesignerDefaults.structDefinition.panelPadding,
             y: y + DesignerDefaults.structDefinition.panelPadding,
             width: columnSize - DesignerDefaults.structDefinition.panelPadding
-            - DesignerDefaults.structDefinition.columnPadding / 2,
-            height: h - DesignerDefaults.structDefinition.panelPadding * 2,
+            - (DesignerDefaults.structDefinition.columnPadding / 2),
+            height: h - (DesignerDefaults.structDefinition.panelPadding * 2),
         };
         return (
             <g>
@@ -106,14 +106,14 @@ class EnumNode extends React.Component {
                     <rect {...typeCellbox} className='struct-input-value-wrapper' />
                     <text
                         x={typeCellbox.x + 10}
-                        y={y + DesignerDefaults.contentOperations.height / 2 + 2}
+                        y={y + (DesignerDefaults.contentOperations.height / 2) + 2}
                     >
                         Add Identifier
                     </text>
                 </g>
                 <EditableText
                     {...typeCellbox}
-                    y={y + DesignerDefaults.contentOperations.height / 2}
+                    y={y + (DesignerDefaults.contentOperations.height / 2)}
                     placeholder='i.e. IDENTIFIER'
                     onBlur={() => {
                         this.setState({
@@ -170,22 +170,20 @@ class EnumNode extends React.Component {
         };
         const columnSize = (coDimensions.w - DesignerDefaults.structDefinition.submitButtonWidth);
         return (
-            <PanelDecorator icon='tool-icons/struct' title={title} bBox={bBox} model={model}>
+            <PanelDecorator icon='tool-icons/enum' title={title} bBox={bBox} model={model}>
                 {this.renderContentOperations(coDimensions, columnSize)}
                 <g>
                     {
                         enumerators.map((child, i) => {
-                            if (TreeUtils.isEnumerator(child)) {
-                                return (
-                                    <EnumeratorNode
-                                        x={coDimensions.x}
-                                        y={coDimensions.y + DesignerDefaults.contentOperations.height + 10}
-                                        w={coDimensions.w}
-                                        h={DesignerDefaults.structDefinitionStatement.height}
-                                        model={child}
-                                    />
-                                );
-                            }
+                            return TreeUtils.isEnumerator(child) ? (
+                                <EnumeratorNode
+                                    x={coDimensions.x}
+                                    y={coDimensions.y + DesignerDefaults.contentOperations.height + 10}
+                                    w={coDimensions.w}
+                                    h={DesignerDefaults.structDefinitionStatement.height}
+                                    model={child}
+                                />
+                            ) : '';
                         })
                     }
                 </g>
