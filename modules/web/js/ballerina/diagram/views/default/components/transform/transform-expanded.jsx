@@ -787,6 +787,7 @@ class TransformExpanded extends React.Component {
             const connection = this.mapper.getConnectionObject(input, output);
             this.transformNodeManager.createStatementEdge(connection);
         });
+        this.forceUpdate();
     }
 
     shouldComponentUpdate() {
