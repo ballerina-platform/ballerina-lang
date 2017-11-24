@@ -40,7 +40,7 @@ class TransformRender {
         this.idNameSeperator = '.';
         this.onConnection = onConnectionCallback;
         this.midpoint = 0.01;
-        this.midpointIntermediate = 0.6;
+        this.midpointIntermediate = 0.33;
         this.midpointVariance = 0.01;
         this.midpointIntermediateVariance = 0.02;
         this.disconnectCallback = onDisconnectCallback;
@@ -123,7 +123,7 @@ class TransformRender {
     */
     disconnectAll() {
         this.midpoint = 0.01;
-        this.midpointIntermediate = 0.6;
+        this.midpointIntermediate = 0.33;
         this.jsPlumbInstance.deleteEveryEndpoint();
         this.jsPlumbInstanceNewConnections.deleteEveryEndpoint();
     }
@@ -353,7 +353,7 @@ class TransformRender {
         const funcs = this.container
           .find('.middle-content > .transform-expanded-func, .middle-content > .operator-expanded-func');
         let yFunctionPointer = 20;
-        const functionGap = 20;
+        const functionGap = 30;
         const svgLines = $('#' + this.placeHolderName + '-' + viewId + ' > svg');
         // Traverse through all the connection svg lines
         _.forEach(svgLines, (svgLine) => {
