@@ -26,6 +26,7 @@ import org.ballerinalang.model.types.Type;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -55,13 +56,13 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
             returnSymbolsInfoList.addAll(this.getBoundActionAndFunctions(dataModel, symbols, delimiterIndex));
         } else if (":".equals(delimiter)) {
             // We are filtering the package functions
-            returnSymbolsInfoList.addAll(this.getActionsAndFunctions(dataModel, symbols, delimiterIndex));
+            returnSymbolsInfoList.addAll(this.getActionsFunctionsAndTypes(dataModel, symbols, delimiterIndex));
         }
 
         return returnSymbolsInfoList;
     }
 
-    private ArrayList<SymbolInfo> getActionsAndFunctions(SuggestionsFilterDataModel dataModel,
+    private ArrayList<SymbolInfo> getActionsFunctionsAndTypes(SuggestionsFilterDataModel dataModel,
                                                         ArrayList<SymbolInfo> symbols, int delimiterIndex) {
 
         ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
@@ -78,8 +79,9 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
             SymbolInfo symbolInfo = new SymbolInfo(packageSymbolInfo.getSymbolName(), packageEntry);
 
             symbolInfo.getScopeEntry().symbol.scope.entries.forEach((name, value) -> {
-                if (value.symbol instanceof BInvokableSymbol
-                        && ((BInvokableSymbol) value.symbol).receiverSymbol == null) {
+                if ((value.symbol instanceof BInvokableSymbol
+                        && ((BInvokableSymbol) value.symbol).receiverSymbol == null)
+                        || value.symbol instanceof BTypeSymbol) {
                     SymbolInfo actionFunctionSymbol = new SymbolInfo(name.toString(), value);
                     actionFunctionList.add(actionFunctionSymbol);
                 }
