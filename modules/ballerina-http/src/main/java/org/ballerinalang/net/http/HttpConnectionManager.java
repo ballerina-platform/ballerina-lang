@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
 import org.ballerinalang.net.ws.BallerinaWsServerConnectorListener;
+import org.ballerinalang.net.ws.WebSocketServerConnector;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.config.ConfigurationBuilder;
@@ -73,6 +74,8 @@ public class HttpConnectionManager {
     private ServerBootstrapConfiguration serverBootstrapConfiguration;
     private TransportsConfiguration trpConfig;
     private HttpWsConnectorFactory httpConnectorFactory = new HttpWsConnectorFactoryImpl();
+    private HttpServerConnector httpServerConnector = null;
+    private WebSocketServerConnector webSocketServerConnector = null;
 
     private HttpConnectionManager() {
         String nettyConfigFile = System.getProperty(Constants.HTTP_TRANSPORT_CONF,
@@ -247,10 +250,32 @@ public class HttpConnectionManager {
         return  httpConnectorFactory.createWsClientConnector(configuration);
     }
 
+    public void setHttpServerConnector(HttpServerConnector httpServerConnector) {
+        this.httpServerConnector = httpServerConnector;
+    }
+
+    public void setWebSocketServerConnector(WebSocketServerConnector webSocketServerConnector) {
+        this.webSocketServerConnector = webSocketServerConnector;
+    }
+
+    public HttpServerConnector getHttpServerConnector() {
+        return httpServerConnector;
+    }
+
+    public WebSocketServerConnector getWebSocketServerConnector() {
+        return webSocketServerConnector;
+    }
+
     private void setConnectorListeners(ServerConnectorFuture connectorFuture, String serverConnectorId,
                                        ConnectorStartupSynchronizer startupSyncer) {
-        connectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener());
-        connectorFuture.setWSConnectorListener(new BallerinaWsServerConnectorListener());
+        if (httpServerConnector == null) {
+            throw new BallerinaConnectorException("Http server connector cannot be null to set the listener");
+        }
+        if (webSocketServerConnector == null) {
+            throw new BallerinaConnectorException("WebSocket server connector cannot be null to set the listener");
+        }
+        connectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener(httpServerConnector));
+        connectorFuture.setWSConnectorListener(new BallerinaWsServerConnectorListener(webSocketServerConnector));
         connectorFuture.setPortBindingEventListener(
                 new HttpConnectorPortBindingListener(startupSyncer, serverConnectorId));
     }

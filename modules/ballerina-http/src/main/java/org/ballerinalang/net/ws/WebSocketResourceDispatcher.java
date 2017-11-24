@@ -23,7 +23,6 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.services.ErrorHandlerUtils;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
@@ -37,41 +36,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
  *
  * @since 0.94
  */
-public class WebSocketDispatcher {
-
-    /**
-     * This will find the best matching service for given web socket request.
-     *
-     * @param webSocketMessage incoming message.
-     * @return matching service.
-     */
-    public static WebSocketService findService(WebSocketMessage webSocketMessage) {
-        if (!webSocketMessage.isServerMessage()) {
-            String clientServiceName = webSocketMessage.getTarget();
-            WebSocketService clientService =
-                    WebSocketServicesRegistry.getInstance().getClientService(clientServiceName);
-            if (clientService == null) {
-                throw new BallerinaConnectorException("no client service found to handle the service request");
-            }
-            return clientService;
-        }
-        try {
-            String interfaceId = webSocketMessage.getListenerInterface();
-            String serviceUri = webSocketMessage.getTarget();
-            serviceUri = WebSocketServicesRegistry.getInstance().refactorUri(serviceUri);
-
-            WebSocketService service =
-                    WebSocketServicesRegistry.getInstance().getServiceEndpoint(interfaceId, serviceUri);
-
-            if (service == null) {
-                throw new BallerinaConnectorException("no Service found to handle the service request: " + serviceUri);
-            }
-            return service;
-        } catch (Throwable throwable) {
-            ErrorHandlerUtils.printError(throwable);
-            throw new BallerinaConnectorException("no Service found to handle the service request");
-        }
-    }
+public class WebSocketResourceDispatcher {
 
     public static void dispatchTextMessage(WebSocketService wsService, WebSocketTextMessage textMessage) {
         Resource onTextMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_TEXT_MESSAGE);
@@ -113,9 +78,9 @@ public class WebSocketDispatcher {
 
     public static void dispatchControlMessage(WebSocketService wsService, WebSocketControlMessage controlMessage) {
         if (controlMessage.getControlSignal() == WebSocketControlSignal.PING) {
-            WebSocketDispatcher.dispatchPingMessage(wsService, controlMessage);
+            WebSocketResourceDispatcher.dispatchPingMessage(wsService, controlMessage);
         } else if (controlMessage.getControlSignal() == WebSocketControlSignal.PONG) {
-            WebSocketDispatcher.dispatchPongMessage(wsService, controlMessage);
+            WebSocketResourceDispatcher.dispatchPongMessage(wsService, controlMessage);
         } else {
             throw new BallerinaConnectorException("Received unknown control signal");
         }

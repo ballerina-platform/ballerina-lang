@@ -46,22 +46,22 @@ public class BallerinaWsClientConnectorListener implements WebSocketConnectorLis
 
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
-        WebSocketDispatcher.dispatchTextMessage(wsService, webSocketTextMessage);
+        WebSocketResourceDispatcher.dispatchTextMessage(wsService, webSocketTextMessage);
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
-        WebSocketDispatcher.dispatchBinaryMessage(wsService, webSocketBinaryMessage);
+        WebSocketResourceDispatcher.dispatchBinaryMessage(wsService, webSocketBinaryMessage);
     }
 
     @Override
     public void onMessage(WebSocketControlMessage webSocketControlMessage) {
-        WebSocketDispatcher.dispatchControlMessage(wsService, webSocketControlMessage);
+        WebSocketResourceDispatcher.dispatchControlMessage(wsService, webSocketControlMessage);
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        WebSocketDispatcher.dispatchCloseMessage(wsService, webSocketCloseMessage);
+        WebSocketResourceDispatcher.dispatchCloseMessage(wsService, webSocketCloseMessage);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class BallerinaWsClientConnectorListener implements WebSocketConnectorLis
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
-        WebSocketDispatcher.dispatchIdleTimeout(wsService, controlMessage);
+        WebSocketResourceDispatcher.dispatchIdleTimeout(wsService, controlMessage);
     }
 
 }
