@@ -56,7 +56,7 @@ public class HTTPCorsTest {
     @Test(description = "Test for CORS override at two levels for simple requests")
     public void testSimpleReqServiceResourceCorsOverride() {
         String path = "/hello1/test1";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Hello there");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Hello there");
         cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -70,7 +70,7 @@ public class HTTPCorsTest {
     @Test(description = "Test for simple request service CORS")
     public void testSimpleReqServiceCors() {
         String path = "/hello1/test2";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         cMsg.setHeader(Constants.ORIGIN, "http://www.hello.com");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -84,7 +84,7 @@ public class HTTPCorsTest {
     @Test(description = "Test for resource only CORS declaration")
     public void testSimpleReqResourceOnlyCors() {
         String path = "/hello2/test1";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "hello");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "hello");
         cMsg.setHeader(Constants.ORIGIN, "http://www.hello.com");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -99,7 +99,7 @@ public class HTTPCorsTest {
     @Test(description = "Test simple request with multiple origins")
     public void testSimpleReqMultipleOrigins() {
         String path = "/hello1/test3";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Hello there");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Hello there");
         cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com http://www.amazon.com");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -113,7 +113,7 @@ public class HTTPCorsTest {
     @Test(description = "Test simple request for invalid origins")
     public void testSimpleReqInvalidOrigin() {
         String path = "/hello1/test1";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Hello there");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Hello there");
         cMsg.setHeader(Constants.ORIGIN, "www.wso2.com");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -127,7 +127,7 @@ public class HTTPCorsTest {
     @Test(description = "Test simple request for null origins")
     public void testSimpleReqWithNullOrigin() {
         String path = "/hello1/test1";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Hello there");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Hello there");
         cMsg.setHeader(Constants.ORIGIN, "");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -141,7 +141,7 @@ public class HTTPCorsTest {
     @Test(description = "Test for values with extra white spaces")
     public void testSimpleReqwithExtraWS() {
         String path = "/hello2/test1";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "hello");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "hello");
         cMsg.setHeader(Constants.ORIGIN, "http://www.facebook.com");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
@@ -319,7 +319,7 @@ public class HTTPCorsTest {
     @Test(description = "Test for simple OPTIONS request")
     public void testSimpleOPTIONSReq() {
         String path = "/echo4/info2";
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
         cMsg.setHeader(Constants.ORIGIN, "http://www.wso2.com");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 

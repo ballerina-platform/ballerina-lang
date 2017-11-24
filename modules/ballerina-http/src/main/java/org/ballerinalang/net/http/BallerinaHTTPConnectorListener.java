@@ -48,7 +48,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         }
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
         ConnectorFuture future = Executor.submit(httpResource.getBalResource(), properties, signatureParams);
-        ConnectorFutureListener futureListener = new HttpConnectorFutureListener(httpCarbonMessage, signatureParams[0]);
+        ConnectorFutureListener futureListener = new HttpConnectorFutureListener(httpCarbonMessage);
         future.setConnectorFutureListener(futureListener);
     }
 

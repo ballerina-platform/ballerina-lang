@@ -76,6 +76,7 @@ public class Constants {
     public static final String ANN_CONFIG_ATTR_KEEP_ALIVE = "keepAlive";
     public static final String ANN_CONFIG_ATTR_BASE_PATH = "basePath";
     public static final String ANN_CONFIG_ATTR_SCHEME = "scheme";
+    public static final String ANN_CONFIG_ATTR_TLS_STORE_TYPE = "tlsStoreType";
     public static final String ANN_CONFIG_ATTR_KEY_STORE_FILE = "keyStoreFile";
     public static final String ANN_CONFIG_ATTR_KEY_STORE_PASS = "keyStorePassword";
     public static final String ANN_CONFIG_ATTR_TRUST_STORE_FILE = "trustStoreFile";
@@ -138,6 +139,7 @@ public class Constants {
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
+    public static final String INBOUND_REQUEST_MESSAGE = "inbound_request_msg";
     public static final String INBOUND_REQUEST = "inbound_request";
     public static final String OUTBOUND_RESPONSE = "outbound_response";
     public static final String HTTP_SESSION = "http_session";

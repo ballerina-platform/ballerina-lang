@@ -22,7 +22,7 @@ service<http> GlobalVar {
     resource defineGlobalVar (http:Request req, http:Response res) {
         json responseJson = {"glbVarInt":glbVarInt, "glbVarString":glbVarString, "glbVarFloat":glbVarFloat};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -32,7 +32,7 @@ service<http> GlobalVar {
     resource accessGlobalVarAtServiceLevel (http:Request req, http:Response res) {
         json responseJson = {"serviceVarFloat":serviceVarFloat};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -43,7 +43,7 @@ service<http> GlobalVar {
         glbVarFloatChange = 77.87;
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -53,7 +53,7 @@ service<http> GlobalVar {
     resource getChangedGlobalVarAtResourceLevel (http:Request req, http:Response res) {
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 
 }
@@ -69,7 +69,7 @@ service<http> GlobalVarSecond {
     resource getChangedGlobalVarAtResourceLevel (http:Request req, http:Response res) {
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 
 }

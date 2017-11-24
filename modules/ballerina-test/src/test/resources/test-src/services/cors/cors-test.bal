@@ -20,7 +20,7 @@ service<http> echo1 {
     resource info1 (http:Request req, http:Response res) {
         json responseJson = {"echo":"resCors"};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -30,7 +30,7 @@ service<http> echo1 {
     resource info2 (http:Request req, http:Response res) {
         json responseJson = {"echo":"serCors"};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -42,7 +42,7 @@ service<http> echo1 {
     resource info3 (http:Request req, http:Response res) {
         json responseJson = {"echo":"moreOrigins"};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 }
 
@@ -57,7 +57,7 @@ service<http> hello2 {
     resource info1 (http:Request req, http:Response res) {
         json responseJson = {"echo":"resOnlyCors"};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -70,7 +70,7 @@ service<http> hello2 {
     resource info2 (http:Request req, http:Response res) {
         json responseJson = {"echo":"optionsOnly"};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 }
 
@@ -90,7 +90,7 @@ service<http> echo3 {
     resource info1 (http:Request req, http:Response res) {
         json responseJson = {"echo":"cors"};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 }
 
@@ -101,7 +101,7 @@ service<http> echo4 {
     resource info1 (http:Request req, http:Response res) {
         json responseJson = {"echo":"noCors"};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -110,6 +110,6 @@ service<http> echo4 {
     resource info2 (http:Request req, http:Response res) {
         json responseJson = {"echo":"noCorsOPTIONS"};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 }

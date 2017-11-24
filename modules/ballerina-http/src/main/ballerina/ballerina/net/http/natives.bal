@@ -236,12 +236,14 @@ public native function <Response res> setHeader (string key, string value);
 
 @Description { value:"Sends outbound response to the caller."}
 @Param { value:"res: The response message" }
-public native function <Response res> send ();
+@Return { value:"httpConnectorError: Error occured during HTTP server connector send" }
+public native function <Response res> send () (HttpConnectorError);
 
 @Description { value:"Forwards client service response directly to the caller."}
 @Param { value:"res: The response message" }
 @Param { value:"resp: The new instance of the response message" }
-public native function <Response res> forward (Response resp);
+@Return { value:"httpConnectorError: Error occured during HTTP server connector forward" }
+public native function <Response res> forward (Response resp) (HttpConnectorError);
 
 @Description { value:"Represents an HTTP Session"}
 public struct Session {

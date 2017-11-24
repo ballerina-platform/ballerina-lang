@@ -95,7 +95,7 @@ service<http> helloServer {
         path:"/11"
     }
     resource echo1 (http:Request req, http:Response res) {
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -103,7 +103,7 @@ service<http> helloServer {
     }
     resource echo2 (http:Request req, http:Response res, string phase) {
         res.setReasonPhrase(phase);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -111,7 +111,7 @@ service<http> helloServer {
     }
     resource echo3 (http:Request req, http:Response res) {
         res.setStatusCode(203);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -120,7 +120,7 @@ service<http> helloServer {
     resource echo4 (http:Request req, http:Response res) {
         http:Response resp = {};
         resp.setStringPayload("hello");
-        res.forward(resp);
+        _ = res.forward(resp);
     }
 
     @http:resourceConfig {
@@ -131,7 +131,7 @@ service<http> helloServer {
         string result;
         result, _ = res.getHeader(key);
         res.setJsonPayload({lang:result});
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -142,7 +142,7 @@ service<http> helloServer {
         http:Response newRes = res.clone();
         json jsonValue = newRes.getJsonPayload();
         res.setJsonPayload(jsonValue);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -152,7 +152,7 @@ service<http> helloServer {
         res.setHeader(header, length);
         int result = res.getContentLength();
         res.setJsonPayload({value:result});
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -163,7 +163,7 @@ service<http> helloServer {
         string result;
         result, _ = res.getHeader(header);
         res.setJsonPayload({value:result});
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -175,7 +175,7 @@ service<http> helloServer {
         json result = res.getJsonPayload();
         json lang = result.lang;
         res.setJsonPayload(lang);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -185,7 +185,7 @@ service<http> helloServer {
         res.setProperty(key, value);
         string property = res.getProperty(key);
         res.setJsonPayload({value:property});
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -195,7 +195,7 @@ service<http> helloServer {
         res.setStringPayload(valueStr);
         string value = res.getStringPayload();
         res.setStringPayload(value);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -207,7 +207,7 @@ service<http> helloServer {
         xml value = res.getXmlPayload();
         string name = value.getTextValue();
         res.setStringPayload(name);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -219,7 +219,7 @@ service<http> helloServer {
         string header;
         header, _ = res.getHeader(key);
         res.setJsonPayload({value:header});
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -232,7 +232,7 @@ service<http> helloServer {
         string header;
         header, _ = res.getHeader("Range");
         res.setJsonPayload({value:header});
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -242,6 +242,6 @@ service<http> helloServer {
         res.setContentLength(100);
         int length = res.getContentLength();
         res.setJsonPayload({value:length});
-        res.send();
+        _ = res.send();
     }
 }
