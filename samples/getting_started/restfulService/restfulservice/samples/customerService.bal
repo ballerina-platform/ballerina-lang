@@ -17,6 +17,6 @@ service<http> CustomerMgtService {
             payload = {"Status":"Customer is successfully added."};
         }
         res.setJsonPayload(payload);
-        res.send();
+        _ = res.send();
     }
 }

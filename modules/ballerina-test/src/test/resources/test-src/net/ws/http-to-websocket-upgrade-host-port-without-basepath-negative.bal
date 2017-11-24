@@ -19,7 +19,7 @@ service<http> httpService {
         string payload = req.getStringPayload();
         println(payload);
         resp.setStringPayload("I received");
-        resp.send();
+        _ = resp.send();
     }
 }
 

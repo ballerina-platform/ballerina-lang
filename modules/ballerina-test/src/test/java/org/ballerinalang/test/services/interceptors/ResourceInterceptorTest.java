@@ -22,6 +22,7 @@ package org.ballerinalang.test.services.interceptors;
 
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.runtime.message.StringDataSource;
+import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -61,7 +62,7 @@ public class ResourceInterceptorTest {
 
     @Test(priority = 0, enabled = false)
     public void testSuccessfulRequestIntercept() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
         cMsg.setHeader("username", "admin");
         cMsg.setHeader("password", "admin");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
@@ -71,7 +72,7 @@ public class ResourceInterceptorTest {
 
     @Test(priority = 1, enabled = false)
     public void testFailedRequestIntercept() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         String value = ((StringDataSource) response.getMessageDataSource()).getValue();
         Assert.assertEquals(value, "invalid login ");
@@ -79,7 +80,7 @@ public class ResourceInterceptorTest {
 
     @Test(priority = 2, enabled = false)
     public void testFailedRequestInterceptInvalidLogin() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
         cMsg.setHeader("username", "bob");
         cMsg.setHeader("password", "bob");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
