@@ -25,7 +25,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native function to clear map entries.
@@ -35,7 +34,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
         packageName = "ballerina.builtin",
         functionName = "map.clear",
         args = {@Argument(name = "m", type = TypeKind.MAP)},
-        returnType = {@ReturnType(type = TypeKind.NONE)},
         isPublic = true
 )
 public class Clear extends AbstractNativeFunction {
