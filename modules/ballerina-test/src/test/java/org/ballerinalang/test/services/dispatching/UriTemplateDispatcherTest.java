@@ -355,6 +355,18 @@ public class UriTemplateDispatcherTest {
                 , "Resource dispatched to wrong template");
     }
 
+    @Test(description = "Test dispatching with Service name when basePath is not available")
+    public void testServiceNameAssignAsBasePath() {
+        String path = "/serviceName/test";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("echo").asText(), "dispatched to service name"
+                , "Resource dispatched to wrong template");
+    }
+
     @AfterClass
     public void tearDown() {
         BServiceUtil.cleanup(application);

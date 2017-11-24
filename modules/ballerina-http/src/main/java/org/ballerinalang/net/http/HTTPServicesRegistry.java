@@ -147,8 +147,10 @@ public class HTTPServicesRegistry {
             return Constants.DEFAULT_BASE_PATH.concat(basePath);
         }
         AnnAttrValue annotationValue = annotation.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_BASE_PATH);
-        if (annotationValue != null && annotationValue.getStringValue() != null
-                && !annotationValue.getStringValue().trim().isEmpty()) {
+        if (annotationValue == null) {
+            return Constants.DEFAULT_BASE_PATH.concat(basePath);
+        }
+        if (annotationValue.getStringValue() != null && !annotationValue.getStringValue().trim().isEmpty()) {
             basePath = annotationValue.getStringValue();
         } else {
             basePath = Constants.DEFAULT_BASE_PATH;
