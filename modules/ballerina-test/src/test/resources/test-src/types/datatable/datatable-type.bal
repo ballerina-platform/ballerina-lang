@@ -76,7 +76,7 @@ struct ResultComplexTypes {
 
 function testToJson () (json) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
     sql:Parameter[] parameters = [];
@@ -95,7 +95,7 @@ function testToJson () (json) {
 
 function testToXml () (xml) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
     sql:Parameter[] parameters = [];
@@ -114,7 +114,7 @@ function testToXml () (xml) {
 
 function testToXmlMultipleConsume () (xml) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
     sql:Parameter[] parameters = [];
@@ -135,7 +135,7 @@ function testToXmlMultipleConsume () (xml) {
 
 function toXmlComplex () (xml) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
     sql:Parameter[] parameters = [];
@@ -155,7 +155,7 @@ function toXmlComplex () (xml) {
 
 function testJsonWithNull () (json) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
 
@@ -174,7 +174,7 @@ function testJsonWithNull () (json) {
 
 function testXmlWithNull () (xml) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
 
@@ -193,7 +193,7 @@ function testXmlWithNull () (xml) {
 
 function testToXmlWithinTransaction () (string, int) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
     int returnValue = 0;
@@ -217,7 +217,7 @@ function testToXmlWithinTransaction () (string, int) {
 
 function testToJsonWithinTransaction () (string, int) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
     int returnValue = 0;
@@ -241,7 +241,7 @@ function testToJsonWithinTransaction () (string, int) {
 
 function testGetPrimitiveTypes () (int i, int l, float f, float d, boolean b, string s) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
     sql:Parameter[] parameters = [];
@@ -264,7 +264,7 @@ function testGetPrimitiveTypes () (int i, int l, float f, float d, boolean b, st
 
 function testGetComplexTypes () (string blobValue, string clob, string binary) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
     sql:Parameter[] parameters = [];
@@ -286,7 +286,7 @@ function testGetComplexTypes () (string blobValue, string clob, string binary) {
 
 function testArrayData () (map int_arr, map long_arr, map float_arr, map string_arr, map boolean_arr) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
     sql:Parameter[] parameters = [];
@@ -310,7 +310,7 @@ function testArrayData () (map int_arr, map long_arr, map float_arr, map string_
 function testArrayDataInsertAndPrint () (int updateRet, int intArrLen, int longArrLen, int floatArrLen, int boolArrLen,
                                          int strArrLen) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
     int[] dataint = [1, 2, 3];
@@ -318,12 +318,12 @@ function testArrayDataInsertAndPrint () (int updateRet, int intArrLen, int longA
     string[] datastring = ["hello", "world"];
     boolean[] databoolean = [true, false, false, true, true];
 
-    sql:Parameter paraID = {sqlType:"integer", value:4, direction:0};
-    sql:Parameter paraInt = {sqlType:"array", value:dataint};
-    sql:Parameter paraLong = {sqlType:"array", value:dataint};
-    sql:Parameter paraFloat = {sqlType:"array", value:datafloat};
-    sql:Parameter paraString = {sqlType:"array", value:datastring};
-    sql:Parameter paraBool = {sqlType:"array", value:databoolean};
+    sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:4};
+    sql:Parameter paraInt = {sqlType:sql:Type.ARRAY, value:dataint};
+    sql:Parameter paraLong = {sqlType:sql:Type.ARRAY, value:dataint};
+    sql:Parameter paraFloat = {sqlType:sql:Type.ARRAY, value:datafloat};
+    sql:Parameter paraString = {sqlType:sql:Type.ARRAY, value:datastring};
+    sql:Parameter paraBool = {sqlType:sql:Type.ARRAY, value:databoolean};
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraString, paraBool];
 
     updateRet = testDB.update("insert into ArrayTypes(row_id, int_array, long_array, float_array,
@@ -350,14 +350,14 @@ function testArrayDataInsertAndPrint () (int updateRet, int intArrLen, int longA
 function testDateTime (int datein, int timein, int timestampin) (string date, string time, string timestamp,
                                                                  string datetime) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
-    sql:Parameter para0 = {sqlType:"integer", value:1};
-    sql:Parameter para1 = {sqlType:"DATE", value:datein};
-    sql:Parameter para2 = {sqlType:"TIME", value:timein};
-    sql:Parameter para3 = {sqlType:"TIMESTAMP", value:timestampin};
-    sql:Parameter para4 = {sqlType:"DATETIME", value:timestampin};
+    sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:1};
+    sql:Parameter para1 = {sqlType:sql:Type.DATE, value:datein};
+    sql:Parameter para2 = {sqlType:sql:Type.TIME, value:timein};
+    sql:Parameter para3 = {sqlType:sql:Type.TIMESTAMP, value:timestampin};
+    sql:Parameter para4 = {sqlType:sql:Type.DATETIME, value:timestampin};
     sql:Parameter[] parameters = [para0, para1, para2, para3, para4];
 
     int insertCount = testDB.update("Insert into DateTimeTypes
@@ -381,7 +381,7 @@ function testDateTime (int datein, int timein, int timestampin) (string date, st
 
 function testBlobData () (string blobStringData) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
 
@@ -403,7 +403,7 @@ function testBlobData () (string blobStringData) {
 
 function testColumnAlias () (int i, int l, float f, float d, boolean b, string s, int i2) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
 
@@ -431,7 +431,7 @@ function testColumnAlias () (int i, int l, float f, float d, boolean b, string s
 
 function testBlobInsert () (int i) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
 
@@ -443,8 +443,8 @@ function testBlobInsert () (int i) {
         var rs, err = (ResultBlob)dataStruct;
         blobData = rs.BLOB_TYPE;
     }
-    sql:Parameter para0 = {sqlType:"integer", value:10};
-    sql:Parameter para1 = {sqlType:"blob", value:blobData};
+    sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:10};
+    sql:Parameter para1 = {sqlType:sql:Type.BLOB, value:blobData};
     params = [para0, para1];
     int insertCount = testDB.update("Insert into ComplexTypes (row_id, blob_type) values (?,?)", params);
     testDB.close();
@@ -454,7 +454,7 @@ function testBlobInsert () (int i) {
 
 function testDatatableAutoClose () (int i, string test) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
 
@@ -480,7 +480,7 @@ function testDatatableAutoClose () (int i, string test) {
 
 function testDatatableManualClose () (int data) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
 
@@ -513,7 +513,7 @@ function testDatatableManualClose () (int data) {
 
 function testCloseConnectionPool () (int count) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
     sql:Parameter[] parameters = [];
@@ -531,7 +531,7 @@ function testCloseConnectionPool () (int count) {
 
 function testPrintandPrintlnDatatable() {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
     sql:Parameter[] parameters = [];
@@ -544,7 +544,7 @@ function testPrintandPrintlnDatatable() {
 }
 function testMutltipleRows () (int i1, int i2) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                           0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
 
@@ -568,7 +568,7 @@ function testMutltipleRows () (int i1, int i2) {
 
 function testGetFloatTypes () (float f, float d, float num, float dec) {
     endpoint<sql:ClientConnector> testDB {
-                                  create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                  create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                              0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
     datatable dt = testDB.select("SELECT float_type, double_type,
@@ -588,36 +588,36 @@ function testGetFloatTypes () (float f, float d, float num, float dec) {
 function testSignedIntMaxMinValues () (int maxInsert, int minInsert, int nullInsert, string jsonStr, string xmlStr,
                                        string str) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:3});
     }
     string insertSQL = "INSERT INTO IntegerTypes(id,tinyIntData, smallIntData, intData, bigIntData) VALUES (?,?, ?,?,?)";
     string selectSQL = "SELECT id,tinyIntData,smallIntData,intData,bigIntData FROM IntegerTypes";
 
     //Insert signed max
-    sql:Parameter para1 = {sqlType:"INTEGER", value:1, direction:0};
-    sql:Parameter para2 = {sqlType:"TINYINT", value:127, direction:0};
-    sql:Parameter para3 = {sqlType:"SMALLINT", value:32767, direction:0};
-    sql:Parameter para4 = {sqlType:"INTEGER", value:2147483647, direction:0};
-    sql:Parameter para5 = {sqlType:"BIGINT", value:9223372036854775807, direction:0};
+    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:1};
+    sql:Parameter para2 = {sqlType:sql:Type.TINYINT, value:127};
+    sql:Parameter para3 = {sqlType:sql:Type.SMALLINT, value:32767};
+    sql:Parameter para4 = {sqlType:sql:Type.INTEGER, value:2147483647};
+    sql:Parameter para5 = {sqlType:sql:Type.BIGINT, value:9223372036854775807};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
     maxInsert = testDB.update(insertSQL, parameters);
 
     //Insert signed min
-    para1 = {sqlType:"INTEGER", value:2, direction:0};
-    para2 = {sqlType:"TINYINT", value:-128, direction:0};
-    para3 = {sqlType:"SMALLINT", value:-32768, direction:0};
-    para4 = {sqlType:"INTEGER", value:-2147483648, direction:0};
-    para5 = {sqlType:"BIGINT", value:-9223372036854775808, direction:0};
+    para1 = {sqlType:sql:Type.INTEGER, value:2};
+    para2 = {sqlType:sql:Type.TINYINT, value:-128};
+    para3 = {sqlType:sql:Type.SMALLINT, value:-32768};
+    para4 = {sqlType:sql:Type.INTEGER, value:-2147483648};
+    para5 = {sqlType:sql:Type.BIGINT, value:-9223372036854775808};
     parameters = [para1, para2, para3, para4, para5];
     minInsert = testDB.update(insertSQL, parameters);
 
     //Insert null
-    para1 = {sqlType:"INTEGER", value:3, direction:0};
-    para2 = {sqlType:"TINYINT", value:null, direction:0};
-    para3 = {sqlType:"SMALLINT", value:null, direction:0};
-    para4 = {sqlType:"INTEGER", value:null, direction:0};
-    para5 = {sqlType:"BIGINT", value:null, direction:0};
+    para1 = {sqlType:sql:Type.INTEGER, value:3};
+    para2 = {sqlType:sql:Type.TINYINT, value:null};
+    para3 = {sqlType:sql:Type.SMALLINT, value:null};
+    para4 = {sqlType:sql:Type.INTEGER, value:null};
+    para5 = {sqlType:sql:Type.BIGINT, value:null};
     parameters = [para1, para2, para3, para4, para5];
     nullInsert = testDB.update(insertSQL, parameters);
 
@@ -641,7 +641,7 @@ function testSignedIntMaxMinValues () (int maxInsert, int minInsert, int nullIns
 
 function testComplexTypeInsertAndRetrieval () (int retDataInsert, int retNullInsert, string jsonStr, string xmlStr, string str) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:3});
     }
 
@@ -651,18 +651,18 @@ function testComplexTypeInsertAndRetrieval () (int retDataInsert, int retNullIns
     blob content = text.toBlob("UTF-8");
 
     //Insert data
-    sql:Parameter para1 = {sqlType:"INTEGER", value:100};
-    sql:Parameter para2 = {sqlType:"BLOB", value:content};
-    sql:Parameter para3 = {sqlType:"CLOB", value:text};
-    sql:Parameter para4 = {sqlType:"BINARY", value:content};
+    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:100};
+    sql:Parameter para2 = {sqlType:sql:Type.BLOB, value:content};
+    sql:Parameter para3 = {sqlType:sql:Type.CLOB, value:text};
+    sql:Parameter para4 = {sqlType:sql:Type.BINARY, value:content};
     sql:Parameter[] parameters = [para1, para2, para3, para4];
     retDataInsert = testDB.update(insertSQL, parameters);
 
     //Insert null values
-    para1 = {sqlType:"INTEGER", value:200};
-    para2 = {sqlType:"BLOB", value:null};
-    para3 = {sqlType:"CLOB", value:null};
-    para4 = {sqlType:"BINARY", value:null};
+    para1 = {sqlType:sql:Type.INTEGER, value:200};
+    para2 = {sqlType:sql:Type.BLOB, value:null};
+    para3 = {sqlType:sql:Type.CLOB, value:null};
+    para4 = {sqlType:sql:Type.BINARY, value:null};
     parameters = [para1, para2, para3, para4];
     retNullInsert = testDB.update(insertSQL, parameters);
 
