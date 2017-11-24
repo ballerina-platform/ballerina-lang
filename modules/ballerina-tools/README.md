@@ -76,8 +76,7 @@ Notice that on the left you have a tool palette containing the various construct
 integration. On the right, you have a visual editor with a canvas onto which you drag those constructs.
 This is where you build your sequence diagrams that define your integration logic.
 
-Also notice the Source View and Swagger View buttons in the lower right corner.
+Also notice the Source View and Split View buttons in the lower right corner.
 
 * Click **Source View**. You'll see the source code editor that represents the sequence diagram as code in the Ballerina language. You can go back and forth between the visual editor and the source code and make your edits in either place.
-* Click **Swagger View**. This editor allows you to write Swagger definitions to create services.
-* Click **Design View** to return to the visual editor.
+* Click **Split View**. This view will allow you to do editing with both the design and source view in split mode.
