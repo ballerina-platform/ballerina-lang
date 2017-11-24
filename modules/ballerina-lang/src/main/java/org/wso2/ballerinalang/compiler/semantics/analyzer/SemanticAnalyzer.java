@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
@@ -43,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -320,8 +322,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void validateAttributes(BLangAnnotationAttachment annAttachmentNode, BAnnotationSymbol annotationSymbol) {
         annAttachmentNode.attributes.forEach(annotAttachmentAttribute -> {
-            BAnnotationAttributeSymbol attributeSymbol = (BAnnotationAttributeSymbol)
-                    annotationSymbol.scope.lookup(new Name(annotAttachmentAttribute.getName())).symbol;
+            Name attributeName = names.fromIdNode((BLangIdentifier) annotAttachmentAttribute.getName());
+            BAnnotationAttributeSymbol attributeSymbol =
+                    (BAnnotationAttributeSymbol) annotationSymbol.scope.lookup(attributeName).symbol;
             // Resolve Attribute against the Annotation Definition
             if (attributeSymbol == null) {
                 this.dlog.error(annAttachmentNode.pos, DiagnosticCode.NO_SUCH_ATTRIBUTE,
@@ -429,15 +432,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // Annotation Definition attribute is present
             Optional<BLangAnnotAttachmentAttribute> matchingAttribute = Arrays
                     .stream(annAttachmentNode.getAttributes().toArray(attributeArrray))
-                    .filter(attribute -> attribute.name.equals(defAttribute.name.getValue()))
+                    .filter(attribute -> attribute.name.value.equals(defAttribute.name.getValue()))
                     .findAny();
             // If no matching attribute is present populate with default value
             if (!matchingAttribute.isPresent()) {
                 if (defAttribute.expr != null) {
                     BLangAnnotAttachmentAttributeValue value = new BLangAnnotAttachmentAttributeValue();
                     value.value = defAttribute.expr;
-                    BLangAnnotAttachmentAttribute attribute =
-                            new BLangAnnotAttachmentAttribute(defAttribute.name.getValue(), value);
+                    BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+                    name.value = defAttribute.name.getValue();
+                    BLangAnnotAttachmentAttribute attribute = new BLangAnnotAttachmentAttribute(name, value);
                     annAttachmentNode.addAttribute(attribute);
                 }
                 continue;
