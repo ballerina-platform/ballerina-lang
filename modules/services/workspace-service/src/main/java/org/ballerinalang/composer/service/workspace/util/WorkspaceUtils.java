@@ -21,6 +21,8 @@ import org.ballerinalang.composer.service.workspace.langserver.model.Action;
 import org.ballerinalang.composer.service.workspace.langserver.model.AnnotationAttachment;
 import org.ballerinalang.composer.service.workspace.langserver.model.AnnotationDef;
 import org.ballerinalang.composer.service.workspace.langserver.model.Connector;
+import org.ballerinalang.composer.service.workspace.langserver.model.Enum;
+import org.ballerinalang.composer.service.workspace.langserver.model.Enumerator;
 import org.ballerinalang.composer.service.workspace.langserver.model.Function;
 import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.langserver.model.Parameter;
@@ -31,6 +33,7 @@ import org.ballerinalang.composer.service.workspace.rest.datamodel.ComposerDiagn
 import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPackageRepository;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.repository.PackageRepository;
@@ -293,6 +296,7 @@ public class WorkspaceUtils {
             pkg.getStructs().forEach((struct) -> extractStruct(packages, packageName, struct));
             pkg.getAnnotations().forEach((annotation) -> extractAnnotation(packages, packageName, annotation));
             pkg.getConnectors().forEach((connector) -> extractConnector(packages, packageName, connector));
+            pkg.getEnums().forEach((enumerator) -> extractEnums(packages, packageName, enumerator));
         }
     }
 
@@ -393,6 +397,29 @@ public class WorkspaceUtils {
 
             modelPackage.addConnectorsItem(createNewConnector(connector.getName().getValue(),
                     annotations, actions, parameters, null, fileName));
+            packages.put(packagePath, modelPackage);
+        }
+    }
+
+    /**
+     * Extract Enums from ballerina lang.
+     *
+     * @param packages    packages to send.
+     * @param packagePath packagePath.
+     * @param bLangEnum      enum.
+     */
+    private static void extractEnums(Map<String, ModelPackage> packages, String packagePath,
+                                      EnumNode bLangEnum) {
+        String fileName = bLangEnum.getPosition().getSource().getCompilationUnitName();
+        if (packages.containsKey(packagePath)) {
+            ModelPackage modelPackage = packages.get(packagePath);
+            modelPackage.addEnumItem(createNewEnum(bLangEnum.getName().getValue(), bLangEnum.getEnumerators(),
+                    fileName));
+        } else {
+            ModelPackage modelPackage = new ModelPackage();
+            modelPackage.setName(packagePath);
+            modelPackage.addEnumItem(createNewEnum(bLangEnum.getName().getValue(), bLangEnum.getEnumerators(),
+                    fileName));
             packages.put(packagePath, modelPackage);
         }
     }
@@ -643,6 +670,34 @@ public class WorkspaceUtils {
     private static StructField createNewStructField(String name, String type, String defaultValue) {
         StructField structField = new StructField(name, type, defaultValue);
         return structField;
+    }
+
+    /**
+     * Create new enum.
+     *
+     * @param name   name of the enum
+     * @param enumerators
+     * @return {Enum} enum
+     */
+    private static Enum createNewEnum(String name, List<? extends EnumNode.Enumerator> enumerators, String fileName) {
+        Enum anEnum = new Enum(name);
+        enumerators.forEach((enumeratorItem) -> {
+            Enumerator enumerator = createNewEnumerator(enumeratorItem.getName().getValue());
+            anEnum.addEnumerator(enumerator);
+        });
+        anEnum.setFileName(fileName);
+        return anEnum;
+    }
+
+    /**
+     * create a new enumerator item for the enum.
+     *
+     * @param name name of the field
+     * @return
+     */
+    private static Enumerator createNewEnumerator(String name) {
+        Enumerator enumerator = new Enumerator(name);
+        return enumerator;
     }
 
     /**
