@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Enum.
+ * Enum : A distinct type that consists of a set of named constants defined in a package.
  */
 public class Enum {
 

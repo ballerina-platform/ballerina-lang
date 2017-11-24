@@ -16,7 +16,7 @@
 package org.ballerinalang.composer.service.workspace.langserver.model;
 
 /**
- * Enumerator.
+ * Enumerator : A named constant defined in an Enum of a package.
  */
 public class Enumerator {
 
