@@ -615,7 +615,7 @@ public class SwaggerResourceMapper {
      */
     private Map<String, AnnotationAttachmentAttributeValueNode> listToMap(AnnotationAttachmentNode annotation) {
         return annotation.getAttributes().stream().collect(
-                Collectors.toMap(attribute -> attribute.getName().getValue(), AnnotationAttachmentAttributeNode
+                Collectors.toMap(AnnotationAttachmentAttributeNode::getName, AnnotationAttachmentAttributeNode
                         ::getValue));
     }
     

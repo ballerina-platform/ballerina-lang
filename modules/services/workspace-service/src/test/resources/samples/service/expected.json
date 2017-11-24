@@ -228,11 +228,7 @@
                 "text": ":",
                 "static": true
               }],
-              "name": {
-                "literal":false,
-                "value":"methods",
-                "kind":"Identifier"
-              },
+              "name": "methods",
               "value": {
                 "ws": [{
                   "ws": "",
@@ -294,11 +290,7 @@
                 "text": ":",
                 "static": true
               }],
-              "name": {
-                "literal":false,
-                "value":"path",
-                "kind":"Identifier"
-              },
+              "name": "path",
               "value": {
                 "position": {
                   "startColumn": 14,
@@ -855,11 +847,7 @@
               "text": ":",
               "static": true
             }],
-            "name": {
-              "literal": false,
-              "value": "basePath",
-              "kind": "Identifier"
-            },
+            "name": "basePath",
             "value": {
               "position": {
                 "startColumn": 31,
@@ -945,12 +933,12 @@
           "parallel": false,
           "connector": false
         },
+        "variables": [],
         "protocolPackageIdentifier": {
           "literal": false,
           "value": "http",
           "kind": "Identifier"
         },
-        "variables": [],
         "name": {
           "literal": false,
           "value": "echo",
