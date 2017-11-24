@@ -10,7 +10,7 @@ function testConnectionPoolProperties () (string firstName) {
                       connectionInitSql:"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS",
                       transactionIsolation:"TRANSACTION_READ_COMMITTED", catalog:"PUBLIC",
                       connectionTestQuery:"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS"};
-    bind create sql:ClientConnector(sql:db.HSQLDB_FILE, "", 0, "", "SA", "", properties) with testDB;
+    bind create sql:ClientConnector(sql:DB.HSQLDB_FILE, "", 0, "", "SA", "", properties) with testDB;
     datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null);
     var j, _ = <json>dt;
     firstName = j.toString();
@@ -19,7 +19,7 @@ function testConnectionPoolProperties () (string firstName) {
 
 function testConnectorWithDefaultPropertiesForListedDB () (string firstName) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/", 0,
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/", 0,
                                    "TEST_SQL_CONNECTOR_INIT", "SA", "", null);
     }
     datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null);
@@ -32,7 +32,7 @@ function testConnectorWithDefaultPropertiesForListedDB () (string firstName) {
 function testConnectorWithDirectUrl () (string firstName) {
     endpoint<sql:ClientConnector> testDB {}
     sql:ConnectionProperties Properties = {url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT"};
-    bind create sql:ClientConnector(sql:db.GENERIC, "", 0, "", "SA", "", Properties) with testDB;
+    bind create sql:ClientConnector(sql:DB.GENERIC, "", 0, "", "SA", "", Properties) with testDB;
     datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null);
     var j, _ = <json>dt;
     firstName = j.toString();
@@ -44,7 +44,7 @@ function testConnectorWithDataSourceClass () (string firstName) {
     map propertiesMap = {"loginTimeout":109, "url":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT"};
     sql:ConnectionProperties properties = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource",
                                               datasourceProperties:propertiesMap};
-    bind create sql:ClientConnector(sql:db.GENERIC, "", 0, "", "SA", "", properties) with testDB;
+    bind create sql:ClientConnector(sql:DB.GENERIC, "", 0, "", "SA", "", properties) with testDB;
     datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null);
     var j, _ = <json>dt;
     firstName = j.toString();
@@ -56,7 +56,7 @@ function testConnectorWithDataSourceClassAndProps () (string firstName) {
     map propertiesMap = {"loginTimeout":109};
     sql:ConnectionProperties properties = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource",
                                               datasourceProperties:propertiesMap};
-    bind create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
+    bind create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                     0, "TEST_SQL_CONNECTOR_INIT", "SA", "", properties) with testDB;
     datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null);
     var j, _ = <json>dt;
@@ -68,7 +68,7 @@ function testConnectorWithDataSourceClassAndProps () (string firstName) {
 function testConnectorWithDataSourceClassWithoutURL () (string firstName) {
     endpoint<sql:ClientConnector> testDB {}
     sql:ConnectionProperties properties = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource"};
-    bind create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/", 0,
+    bind create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/", 0,
                                     "TEST_SQL_CONNECTOR_INIT", "SA", "", properties) with testDB;
     datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null);
     var j, _ = <json>dt;
@@ -81,7 +81,7 @@ function testConnectorWithDataSourceClassURLPriority () (string firstName) {
     map propertiesMap = {"url":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT"};
     sql:ConnectionProperties properties = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource",
                                               datasourceProperties:propertiesMap};
-    bind create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/", 0,
+    bind create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/", 0,
                                     "INVALID_DB_NAME", "SA", "", properties) with testDB;
     datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null);
     var j, _ = <json>dt;

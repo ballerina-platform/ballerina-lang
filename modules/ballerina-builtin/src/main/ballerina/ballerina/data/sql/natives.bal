@@ -5,9 +5,9 @@ package ballerina.data.sql;
 @Field {value:"value: Value of paramter pass into the SQL query"}
 @Field {value:"direction: Direction of the SQL Parameter IN, OUT, or INOUT"}
 public struct Parameter {
-	data sqlType;
+	Type sqlType;
 	any value;
-	dir direction;
+	Direction direction;
 }
 
 @Description { value: "ConnectionProperties structs represents the properties which are used to configure DB connection pool"}
@@ -70,7 +70,7 @@ public struct ConnectionProperties {
 @Field { value:"DERBY_SERVER: DERBY server DB with connection url in the format of jdbc:derby://[HOST]:[PORT]/[database]"}
 @Field { value:"DERBY_FILE: Derby file DB with connection url in the format of jdbc:derby://[path]/[database]"}
 @Field { value:"GENERIC: Custom DB connection with given connection url"}
-public enum db {
+public enum DB {
 	MYSQL,
 	SQLSERVER,
 	ORACLE,
@@ -87,7 +87,7 @@ public enum db {
 }
 
 @Description { value:"The SQL Datatype of the parameter"}
-public enum data {
+public enum Type {
 	VARCHAR,
 	CHAR,
 	LONGVARCHAR,
@@ -123,7 +123,7 @@ public enum data {
 @Field { value:"IN: IN parameters are used to send values to stored procedures"}
 @Field { value:"OUT: OUT parameters are used to get values from stored procedures"}
 @Field { value:"INOUT: INOUT parameters are used to send values and get values from stored procedures"}
-public enum dir {
+public enum Direction {
     IN,
 	OUT,
 	INOUT
@@ -137,7 +137,7 @@ public enum dir {
 @Param { value:"username: Username for the database connection" }
 @Param { value:"password: Password for the database connection" }
 @Param { value:"options: ConnectionProperties for the connection pool configuration" }
-public connector ClientConnector (db dbType, string hostOrPath, int port, string dbName, string username,
+public connector ClientConnector (DB dbType, string hostOrPath, int port, string dbName, string username,
 								  string password, ConnectionProperties options) {
     map sharedMap = {};
 

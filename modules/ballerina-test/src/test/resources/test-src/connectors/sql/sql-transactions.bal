@@ -6,7 +6,7 @@ struct ResultCount {
 
 function testLocalTransacton () (int returnVal, int count) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
     }
     returnVal = 0;
@@ -30,7 +30,7 @@ function testLocalTransacton () (int returnVal, int count) {
 
 function testTransactonRollback () (int returnVal, int count) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
     }
     returnVal = 0;
@@ -58,7 +58,7 @@ function testTransactonRollback () (int returnVal, int count) {
 
 function testTransactonAbort () (int returnVal, int count) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
     }
     returnVal = 0;
@@ -87,7 +87,7 @@ function testTransactonAbort () (int returnVal, int count) {
 
 function testTransactonErrorThrow () (int returnVal, int catchValue, int count) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                  0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
     }
     returnVal = 0;
@@ -119,7 +119,7 @@ function testTransactonErrorThrow () (int returnVal, int catchValue, int count) 
 
 function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, int count) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                    0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
     }
     returnVal = 0;
@@ -151,7 +151,7 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
 
 function testTransactonCommitted () (int returnVal, int count) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                         0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
     }
     returnVal = 0;
@@ -175,7 +175,7 @@ function testTransactonCommitted () (int returnVal, int count) {
 
 function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int count) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                   0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
     }
     returnVal1 = 0;
@@ -213,7 +213,7 @@ function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int coun
 
 function testTransactonWithoutHandlers () (int count) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                               0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
     }
     transaction {
@@ -235,7 +235,7 @@ function testTransactonWithoutHandlers () (int count) {
 
 function testLocalTransactionFailed () (string, int) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                              0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
     }
     string a = "beforetx";
@@ -270,7 +270,7 @@ function testLocalTransactionFailed () (string, int) {
 
 function testLocalTransactonSuccessWithFailed () (string, int) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:db.HSQLDB_FILE, "./target/tempdb/",
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                            0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
     }
     string a = "beforetx";
