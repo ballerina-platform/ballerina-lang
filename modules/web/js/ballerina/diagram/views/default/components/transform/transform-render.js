@@ -264,16 +264,15 @@ class TransformRender {
             anchorTag.html($('<i>').addClass('fw fw-delete'));
             anchorTag.html(anchorTag.html() + ' Remove');
             contextMenuDiv.html('');
+            const removeButton = $('<div>').attr('class', 'transform-con-remove-button');
             if (typeCast !== '') {
-                contextMenuDiv.append($('<div>')
-                .attr('class', 'transform-con-cast-menu')
-                .append('Conversion : &lt;' + typeCast + '&gt'));
+                contextMenuDiv.append(removeButton.append('&lt;' + typeCast + '&gt'));
                 xDifMin = -150;
                 yDifMin = -60;
+            } else {
+                removeButton.append(anchorTag);
+                contextMenuDiv.append(removeButton);
             }
-            const removeButton = $('<div>').attr('class', 'transform-con-remove-button');
-            removeButton.append(anchorTag);
-            contextMenuDiv.append(removeButton);
             this.container.find('.leftType, .middle-content, .rightType').scroll(() => {
                 this.hideConnectContextMenu(this.container.find('#' + this.contextMenu));
             });

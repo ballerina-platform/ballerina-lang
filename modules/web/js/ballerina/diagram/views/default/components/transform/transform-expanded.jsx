@@ -571,10 +571,43 @@ class TransformExpanded extends React.Component {
 
     drawConnection(sourceId, targetId, folded, statement) {
         let type = '';
-        if (statement !== null && statement.getExpression().getKind() === 'TypeConversionExpr') {
-            type = statement.getExpression().getTypeNode().getTypeKind();
+        if (sourceId && targetId && statement) {
+            if (TreeUtil.isTypeConversionExpr(statement.getExpression())) {
+                if (TreeUtil.isFieldBasedAccessExpr(statement.getExpression().getExpression())) {
+                    type = statement.getExpression().getTypeNode().getTypeKind();
+                } else if (TreeUtil.isInvocation(statement.getExpression().getExpression())) {
+                    // Handle Function outgoing parameter conversion
+                    if (statement.getExpression().getExpression().getID() === sourceId.split(':')[0]) {
+                        type = statement.getExpression().getTypeNode().getTypeKind();
+                    } else {
+                        type = this.getFunctionArgConversionType(
+                          statement.getExpression().getExpression().getArgumentExpressions(), sourceId.split(':')[0]);
+                    }
+                }
+            } else if (TreeUtil.isInvocation(statement.getExpression())) {
+                type = this.getFunctionArgConversionType(statement.getExpression().getArgumentExpressions(),
+                                                          sourceId.split(':')[0]);
+            }
         }
         this.mapper.addConnection(sourceId, targetId, folded, type);
+    }
+
+    /**
+     * Get conversion type for provided sourceId and arguements
+     * @param  {object[]} arguements function Invocation arguements
+     * @param  {string} sourceId   Source Id to be searched
+     * @return {string}              Type Name
+     */
+    getFunctionArgConversionType(arguements, sourceId) {
+        let type = '';
+        arguements.forEach((arg) => {
+            if (TreeUtil.isTypeConversionExpr(arg) && arg.getExpression().getSource() === sourceId) {
+                type = arg.getTypeNode().getTypeKind();
+            } else if (TreeUtil.isInvocation(arg)) {
+                type = this.getFunctionArgConversionType(arg.getArgumentExpressions(), sourceId);
+            }
+        });
+        return type;
     }
 
     createComplexProp(structName, expression) {
