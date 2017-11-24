@@ -64,7 +64,8 @@ public abstract class AbstractItemResolver {
             } else if (!(symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol)
                     && symbolInfo.getScopeEntry().symbol instanceof BVarSymbol) {
                 completionItem = this.populateVariableDefCompletionItem(symbolInfo);
-            } else if (symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol) {
+            } else if (symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol
+                    && !symbolInfo.getSymbolName().startsWith("$anonStruct$")) {
                 completionItem = this.populateBTypeCompletionItem(symbolInfo);
             }
 
