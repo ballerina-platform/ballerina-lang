@@ -54,9 +54,11 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
     private static final Logger log = LoggerFactory.getLogger(BallerinaWsServerConnectorListener.class);
 
     private final WebSocketServerConnector webSocketServerConnector;
+    private final WebSocketResourceDispatcher resourceDispatcher;
 
     public BallerinaWsServerConnectorListener(WebSocketServerConnector webSocketServerConnector) {
         this.webSocketServerConnector = webSocketServerConnector;
+        this.resourceDispatcher = new WebSocketResourceDispatcher(webSocketServerConnector);
     }
 
     @Override
@@ -75,10 +77,7 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
             // Creating map
             Map<String, String> upgradeHeaders = webSocketInitMessage.getHeaders();
             BMap<String, BString> bUpgradeHeaders = new BMap<>();
-            upgradeHeaders.entrySet().forEach(
-                    upgradeHeader -> bUpgradeHeaders.put(upgradeHeader.getKey(),
-                                                         new BString(upgradeHeader.getValue()))
-            );
+            upgradeHeaders.forEach((key, value) -> bUpgradeHeaders.put(key, new BString(value)));
             handshakeStruct.setRefField(0, bUpgradeHeaders);
 
             BValue[] bValues = {handshakeStruct};
@@ -119,25 +118,25 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
         WebSocketService wsService = webSocketServerConnector.findService(webSocketTextMessage);
-        WebSocketResourceDispatcher.dispatchTextMessage(wsService, webSocketTextMessage);
+        resourceDispatcher.dispatchTextMessage(wsService, webSocketTextMessage);
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
         WebSocketService wsService = webSocketServerConnector.findService(webSocketBinaryMessage);
-        WebSocketResourceDispatcher.dispatchBinaryMessage(wsService, webSocketBinaryMessage);
+        resourceDispatcher.dispatchBinaryMessage(wsService, webSocketBinaryMessage);
     }
 
     @Override
     public void onMessage(WebSocketControlMessage webSocketControlMessage) {
         WebSocketService wsService = webSocketServerConnector.findService(webSocketControlMessage);
-        WebSocketResourceDispatcher.dispatchControlMessage(wsService, webSocketControlMessage);
+        resourceDispatcher.dispatchControlMessage(wsService, webSocketControlMessage);
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
         WebSocketService wsService = webSocketServerConnector.findService(webSocketCloseMessage);
-        WebSocketResourceDispatcher.dispatchCloseMessage(wsService, webSocketCloseMessage);
+        resourceDispatcher.dispatchCloseMessage(wsService, webSocketCloseMessage);
     }
 
     @Override
@@ -148,7 +147,7 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
         WebSocketService wsService = webSocketServerConnector.findService(controlMessage);
-        WebSocketResourceDispatcher.dispatchIdleTimeout(wsService, controlMessage);
+        resourceDispatcher.dispatchIdleTimeout(wsService, controlMessage);
     }
 
 
@@ -164,7 +163,7 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
                 wsConnection.addNativeData(Constants.WEBSOCKET_MESSAGE, initMessage);
                 wsConnection.addNativeData(Constants.NATIVE_DATA_UPGRADE_HEADERS, initMessage.getHeaders());
 
-                WebSocketConnectionManager.getInstance().addConnection(session.getId(), wsConnection);
+                webSocketServerConnector.getWebSocketConnectionManager().addConnection(session.getId(), wsConnection);
 
                 Resource onOpenResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_OPEN);
                 BValue[] bValues = {wsConnection};
