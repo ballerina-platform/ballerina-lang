@@ -4314,6 +4314,11 @@
     .ace_ballerina-keyword-identifier {
         color: #fff;
     }
+
+    //here we forcefully change the color of the comments
+    .ace_comment {
+        color: #888289 !important;
+    }
   }
 
   .diagram {
