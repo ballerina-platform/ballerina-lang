@@ -193,19 +193,3 @@ service<http> serviceHello {
         _ = res.send();
     }
 }
-
-@http:configuration {
-    allowCredentials : true
-}
-service<http> serviceName {
-
-    @http:resourceConfig {
-        methods:["GET"],
-        path:"/test"
-    }
-    resource productsInfo (http:Request req, http:Response res) {
-        json responseJson = {"echo":"dispatched to service name"};
-        res.setJsonPayload(responseJson);
-        _ = res.send();
-    }
-}

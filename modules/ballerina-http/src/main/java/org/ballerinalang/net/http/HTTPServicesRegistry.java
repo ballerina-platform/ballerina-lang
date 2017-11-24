@@ -163,7 +163,7 @@ public class HTTPServicesRegistry {
         if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
             basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
         }
-        if (basePath.endsWith(Constants.DEFAULT_BASE_PATH)) {
+        if (basePath.endsWith(Constants.DEFAULT_BASE_PATH) && basePath.length() != 1) {
             basePath = basePath.substring(0, basePath.length() - 1);
         }
         return basePath;
