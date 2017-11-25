@@ -20,7 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import './receiver-node.css';
-import { util } from '../../sizing-util';
+import SizingUtils from '../../sizing-util';
 import TreeUtils from './../../../../../model/tree-util';
 import ImageUtil from '../../../../image-util';
 import OverlayComponentsRenderingUtil from './../utils/overlay-component-rendering-util';
@@ -85,7 +85,7 @@ class ReceiverNode extends React.Component {
             receiverType = model.getReceiver().getTypeNode().getTypeName().value + ' ' +
                 model.getReceiver().getName().value;
         }
-        const receiverTypeWidth = util.getTextWidth(receiverType, 0).w || 0;
+        const receiverTypeWidth = new SizingUtils().getTextWidth(receiverType, 0).w || 0;
         // Calculate the x,y positions of the image
         const addBindingStructX = x - 5;
         const addBindingStructY = y + 8;
@@ -127,8 +127,16 @@ class ReceiverNode extends React.Component {
     }
 }
 
+ReceiverNode.propTypes = {
+    showStructBinding: PropTypes.bool.isRequired,
+    x: PropTypes.number.isRequired,
+    y: PropTypes.number.isRequired,
+    model: PropTypes.instanceOf(Object).isRequired,
+};
+
 ReceiverNode.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
 };
+
 export default ReceiverNode;

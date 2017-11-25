@@ -40,11 +40,11 @@ class SamplesPreview extends React.Component {
             previewThumbnails = this.props.sampleConfigs.map((config, index) => (
                 <div
                     className="col-sm-12 col-md-6 col-lg-3 thumbnail-wrapper"
-                    onClick={config.clickEventCallback}
                     key={config.sampleName}
                 >
                     <div
                         className={config.isFile ? 'thumbnail' : 'thumbnail multiple'}
+                        onClick={config.clickEventCallback}
                         style={{ textAlign: 'center' }}
                     >
                         <img

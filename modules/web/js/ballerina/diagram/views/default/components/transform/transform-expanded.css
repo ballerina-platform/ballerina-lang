@@ -57,9 +57,28 @@
     background: #666769;
 }
 
+.transformContextMenu {
+    position: fixed;
+    border: 1px solid #666769;
+    display: none;
+    background-color: #ffffff;
+}
+
+.transform-con-remove-button{
+    text-align: center;
+    padding: 5px;
+}
+
 .transform-con-remove {
     font-size: 0.94em;
     color: #666769;
+    display: inline-block;
+}
+
+.transform-con-cast-menu {
+  background: #575555;
+  color: #ffffff;
+  padding:5px;
 }
 
 .variable-edit-type {
@@ -196,4 +215,18 @@
 .btn-add-var {
   display: block;
   height: 30px;
+}
+
+.connectionLabel {
+  z-index: 30;
+  background:white;
+  padding: 2px;
+}
+
+.connectionLabel:hover {
+  z-index: 30;
+  color:#ff9900;
+  cursor:pointer;
+  background:white;
+  padding: 2px;
 }

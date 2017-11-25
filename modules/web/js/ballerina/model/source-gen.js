@@ -153,7 +153,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.attributes, pretty, replaceLambda, l, w, '', ',') + outdent() + w() + '}';
             }
         case 'AnnotationAttachmentAttribute':
-            return dent() + w() + node.name + w() + ':'
+            return dent() + w() + node.name.value + w() + ':'
                  + getSourceOf(node.value, pretty, l, replaceLambda);
         case 'AnnotationAttachmentAttributeValue':
             if (node.value) {
@@ -227,11 +227,11 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             }
         case 'ConnectorInitExpr':
             if (node.connectorType && node.expressions) {
-                return dent() + w() + 'create' + b(' ')
+                return w() + 'create' + b(' ')
                  + getSourceOf(node.connectorType, pretty, l, replaceLambda) + w() + '('
                  + join(node.expressions, pretty, replaceLambda, l, w, '', ',') + w() + ')';
             } else {
-                return dent() + w() + 'create' + b(' ')
+                return w() + 'create' + b(' ')
                  + getSourceOf(node.connectorType, pretty, l, replaceLambda) + w() + '(' + w() + ')';
             }
         case 'ConstrainedType':
@@ -646,7 +646,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                          && node.initialExpression) {
                 return dent() + dent() + w() + 'endpoint'
                  + getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ') + node.name.value + w() + '{'
-                 + indent() + dent()
+                 + indent()
                  + getSourceOf(node.initialExpression, pretty, l, replaceLambda) + w() + ';' + outdent() + w() + '}';
             } else if (node.endpoint && node.typeNode && node.name.value) {
                 return dent() + w() + 'endpoint'

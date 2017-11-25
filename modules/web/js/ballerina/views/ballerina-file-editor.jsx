@@ -131,11 +131,14 @@ class BallerinaFileEditor extends React.Component {
         }, this);
         // Format the source code.
         props.commandProxy.on(FORMAT, () => {
-            const newContent = this.state.model.getSource(true);
-            // set the underlaying file.
-            this.props.file.setContent(newContent, {
-                type: CHANGE_EVT_TYPES.CODE_FORMAT,
-            });
+            if (this.props.isActive()) {
+                let newContent = this.state.model.getSource(true);
+                newContent = _.trim(newContent, '\n');
+                // set the underlaying file.
+                this.props.file.setContent(newContent, {
+                    type: CHANGE_EVT_TYPES.CODE_FORMAT,
+                });
+            }
         });
 
         this.resetSwaggerView = this.resetSwaggerView.bind(this);
@@ -174,17 +177,6 @@ class BallerinaFileEditor extends React.Component {
                     parsePending: false,
                 });
             });
-    }
-
-    /**
-     * lifecycle hook for component will receive props
-     */
-    componentWillReceiveProps(newProps) {
-        // editor tab was not active previously and now becoming active
-        if (!this.props.isActive && newProps.isActive) {
-            // we need to re-render
-            this.update();
-        }
     }
 
     /**
@@ -768,7 +760,7 @@ class BallerinaFileEditor extends React.Component {
 BallerinaFileEditor.propTypes = {
     editorModel: PropTypes.objectOf(Object).isRequired,
     file: PropTypes.instanceOf(File).isRequired,
-    isActive: PropTypes.bool.isRequired,
+    isActive: PropTypes.func.isRequired,
     commandProxy: PropTypes.shape({
         on: PropTypes.func.isRequired,
         dispatch: PropTypes.func.isRequired,
@@ -792,7 +784,7 @@ BallerinaFileEditor.contextTypes = {
 };
 
 BallerinaFileEditor.childContextTypes = {
-    isTabActive: PropTypes.bool.isRequired,
+    isTabActive: PropTypes.func.isRequired,
     astRoot: PropTypes.instanceOf(CompilationUnitNode),
     editor: PropTypes.instanceOf(BallerinaFileEditor).isRequired,
     environment: PropTypes.instanceOf(PackageScopedEnvironment).isRequired,

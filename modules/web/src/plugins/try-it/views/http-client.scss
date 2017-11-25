@@ -97,7 +97,6 @@
     }
     .react-autosuggest__input {
         padding: 1px 10px;
-        border-right: 1px solid #333;
     }
     .react-autosuggest__suggestions-container {
         z-index: 10000;
@@ -168,7 +167,6 @@
         }
         .react-autosuggest__input {
             padding: 1px 10px;
-            border-right: 1px solid #333;
         }
         .react-autosuggest__suggestions-container {
             z-index: 10000;
@@ -202,7 +200,6 @@
                 input[type=text]{
                     color: #fff;
                     background-color: #434343;
-                    border: 0 solid #333;
                     width: 555px;
                 }
             }

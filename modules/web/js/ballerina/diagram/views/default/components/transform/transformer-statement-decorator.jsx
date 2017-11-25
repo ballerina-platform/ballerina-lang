@@ -18,13 +18,12 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import EditableText from '../decorators/editable-text';
 import SimpleBBox from '../../../../../model/view/simple-bounding-box';
 import * as DesignerDefaults from '../../designer-defaults';
 import ActiveArbiter from '../decorators/active-arbiter';
 import ImageUtil from './../../../../image-util';
 import TransformerNodeModel from '../../../../../model/tree/transformer-node';
-import { util } from '../../sizing-util';
+import SizingUtils from '../../sizing-util';
 import PanelDecoratorButton from './../../components/decorators/panel-decorator-button';
 
 class TransformerStatementDecorator extends React.Component {
@@ -53,7 +52,7 @@ class TransformerStatementDecorator extends React.Component {
     }
 
     render() {
-        const { viewState, model, icon } = this.props;
+        const { viewState, model } = this.props;
         const bBox = viewState.bBox;
         // const innerZoneHeight = viewState.components['drop-zone'].h;
 
@@ -64,19 +63,18 @@ class TransformerStatementDecorator extends React.Component {
         this.statementBox.w = bBox.w;
         this.statementBox.x = bBox.x;
 
-        const text_x = bBox.x + (bBox.w / 2);
-        const text_y = this.statementBox.y + (this.statementBox.h / 2);
-        const expand_button_x = bBox.x + (bBox.w / 2) + 40;
-        const expand_button_y = this.statementBox.y + (this.statementBox.h / 2) - 7;
+        const textX = bBox.x + (bBox.w / 2);
+        const textY = this.statementBox.y + (this.statementBox.h / 2);
+        const expandButtonX = bBox.x + (bBox.w / 2) + 40;
+        const expandButtonY = this.statementBox.y + (this.statementBox.h / 2) - 7;
 
         const actionBbox = new SimpleBBox();
         actionBbox.w = DesignerDefaults.actionBox.width;
         actionBbox.h = DesignerDefaults.actionBox.height;
-        actionBbox.x = bBox.x + (bBox.w - actionBbox.w) / 2;
+        actionBbox.x = bBox.x + ((bBox.w - actionBbox.w) / 2);
         actionBbox.y = bBox.y + bBox.h + DesignerDefaults.actionBox.padding.top;
-        const statementRectClass = 'statement-rect';
         const titleHeight = this.statementBox.h;
-        const titleWidth = util.getTextWidth(model.getSignature());
+        const titleWidth = new SizingUtils().getTextWidth(model.getSignature());
         const iconSize = 14;
 
 
@@ -130,7 +128,14 @@ class TransformerStatementDecorator extends React.Component {
                     data-original-title=''
                     title=''
                 />
-                <rect x={bBox.x - 1} y={bBox.y + annotationBodyHeight} height={titleHeight} rx='0' ry='0' className='panel-heading-decorator' />
+                <rect
+                    x={bBox.x - 1}
+                    y={bBox.y + annotationBodyHeight}
+                    height={titleHeight}
+                    rx='0'
+                    ry='0'
+                    className='panel-heading-decorator'
+                />
                 {allowPublicPrivateFlag && <g>
                     <rect
                         className='publicPrivateRectHolder'
@@ -141,7 +146,7 @@ class TransformerStatementDecorator extends React.Component {
                     />
                     <text
                         x={bBox.x + 15}
-                        y={bBox.y + titleHeight / 2 + annotationBodyHeight + 4}
+                        y={bBox.y + (titleHeight / 2) + annotationBodyHeight + 4}
                         className='publicPrivateText'
                     >{this.props.model.public ? 'public' : null}</text>
                 </g>}
@@ -154,23 +159,23 @@ class TransformerStatementDecorator extends React.Component {
                 />
                 <g className='statement-body'>
                     <text
-                        x={text_x - 10}
-                        y={text_y}
+                        x={textX - 10}
+                        y={textY}
                         className='transform-action'
                         onClick={e => this.onExpand()}
                     >{model.getSignature()}</text>
                     <g className='transform-button' onClick={e => this.onExpand()}>
                         <rect
-                            x={expand_button_x - 8}
-                            y={expand_button_y - 8}
+                            x={expandButtonX - 8}
+                            y={expandButtonY - 8}
                             width={28}
                             height={30}
                             className='transform-action-button'
                         />
                         <image
                             className='transform-action-icon'
-                            x={expand_button_x}
-                            y={expand_button_y}
+                            x={expandButtonX}
+                            y={expandButtonY}
                             width={14}
                             height={14}
                             xlinkHref={ImageUtil.getSVGIconString('expand')}
@@ -187,6 +192,8 @@ class TransformerStatementDecorator extends React.Component {
 
 TransformerStatementDecorator.propTypes = {
     model: PropTypes.instanceOf(TransformerNodeModel).isRequired,
+    viewState: PropTypes.instanceOf(Object).isRequired,
+    icon: PropTypes.string.isRequired,
 };
 
 TransformerStatementDecorator.contextTypes = {

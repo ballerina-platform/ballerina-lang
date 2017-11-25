@@ -70,7 +70,7 @@ class ResourceNode extends AbstractResourceNode {
             if (annotationNode.getPackageAlias().getValue() === httpPackageAlias &&
                 annotationNode.getAnnotationName().getValue() === 'resourceConfig') {
                 annotationNode.getAttributes().forEach((annotationAttribute) => {
-                    if (annotationAttribute.getName() === 'path') {
+                    if (annotationAttribute.getName().getValue() === 'path') {
                         const pathAnnotationAttributeValue = annotationAttribute.getValue();
                         pathValue = pathAnnotationAttributeValue.getValue().getValue();
                     }
@@ -132,7 +132,7 @@ class ResourceNode extends AbstractResourceNode {
             if (annotationNode.getPackageAlias().getValue() === httpPackageAlias &&
                 annotationNode.getAnnotationName().getValue() === 'resourceConfig') {
                 annotationNode.getAttributes().forEach((annotationAttribute) => {
-                    if (annotationAttribute.getName() === 'methods') {
+                    if (annotationAttribute.getName().getValue() === 'methods') {
                         const httpMethodsArray = annotationAttribute.getValue();
                         httpMethodsArray.getValueArray().forEach((httpMethod) => {
                             httpMethods.push(httpMethod.getValue().getValue());
@@ -198,7 +198,7 @@ class ResourceNode extends AbstractResourceNode {
             if (annotationNode.getPackageAlias().getValue() === httpPackageAlias &&
                 annotationNode.getAnnotationName().getValue() === 'resourceConfig') {
                 annotationNode.getAttributes().forEach((annotationAttribute) => {
-                    if (annotationAttribute.getName() === 'consumes') {
+                    if (annotationAttribute.getName().getValue() === 'consumes') {
                         const httpMethodsArray = annotationAttribute.getValue();
                         httpMethodsArray.getValueArray().forEach((httpMethod) => {
                             httpMethods.push(_.trim(httpMethod.getValue().getValue(), '"'));

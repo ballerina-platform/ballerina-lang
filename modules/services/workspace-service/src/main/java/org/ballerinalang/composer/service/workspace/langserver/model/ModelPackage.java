@@ -31,6 +31,7 @@ public class ModelPackage   {
   private List<Function> functions = new ArrayList<Function>();
   private List<Struct> structs = new ArrayList<Struct>();
   private List<AnnotationDef> annotations = new ArrayList<AnnotationDef>();
+  private List<Enum> enums = new ArrayList<Enum>();
 
   public ModelPackage name(String name) {
     this.name = name;
@@ -125,6 +126,16 @@ public class ModelPackage   {
     return this;
   }
 
+  public ModelPackage enums(List<Enum> enums) {
+    this.enums = enums;
+    return this;
+  }
+
+  public ModelPackage addEnumItem(Enum enumItem) {
+    this.enums.add(enumItem);
+    return this;
+  }
+
   public ModelPackage annotations(List<AnnotationDef> annotations) {
     this.annotations = annotations;
     return this;
@@ -155,6 +166,14 @@ public class ModelPackage   {
     this.structs = structs;
   }
 
+  public List<Enum> getEnums() {
+    return enums;
+  }
+
+  public void setEnums(List<Enum> enums) {
+    this.enums = enums;
+  }
+
   public List<AnnotationDef> getAnnotations() {
     return annotations;
   }
@@ -178,7 +197,8 @@ public class ModelPackage   {
         Objects.equals(this.connectors, modelPackage.connectors) &&
         Objects.equals(this.functions, modelPackage.functions) &&
             Objects.equals(this.structs, modelPackage.structs) &&
-            Objects.equals(this.annotations, modelPackage.annotations);
+            Objects.equals(this.annotations, modelPackage.annotations) &&
+            Objects.equals(this.enums, modelPackage.enums);
   }
 
   @Override
@@ -198,6 +218,7 @@ public class ModelPackage   {
     sb.append("    functions: ").append(toIndentedString(functions)).append("\n");
     sb.append("    structs: ").append(toIndentedString(structs)).append("\n");
     sb.append("    annotations: ").append(toIndentedString(annotations)).append("\n");
+    sb.append("    enums: ").append(toIndentedString(enums)).append("\n");
     sb.append("}");
     return sb.toString();
   }

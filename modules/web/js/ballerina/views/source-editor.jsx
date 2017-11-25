@@ -18,6 +18,7 @@
 import 'brace';
 import 'brace/ext/language_tools';
 import 'brace/ext/searchbox';
+import 'brace/theme/twilight';
 import React from 'react';
 import PropTypes from 'prop-types';
 import log from 'log';
@@ -29,6 +30,7 @@ import { GO_TO_POSITION } from 'plugins/ballerina/constants/commands';
 import { getLangServerClientInstance } from 'plugins/ballerina/langserver/lang-server-client-controller';
 import SourceViewCompleterFactory from './../../ballerina/utils/source-view-completer-factory';
 import { CHANGE_EVT_TYPES } from './constants';
+
 
 
 const ace = global.ace;

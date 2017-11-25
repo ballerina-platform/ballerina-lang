@@ -25,6 +25,8 @@ import ConnectorAction from './connector-action';
 import FunctionDefinition from './function';
 import StructDefinition from './struct';
 import StructField from './struct-field';
+import Enum from './enum';
+import Enumerator from './enumerator';
 import AnnotationDefinition from './annotation-definition';
 import AnnotationAttributeDefinition from './annotation-attribute-definition';
 import AnnotationAttachment from './annotation-attachment';
@@ -89,6 +91,23 @@ BallerinaEnvFactory.createStructField = function (args) {
 };
 
 /**
+ * creates Enum
+ * @param args data for creating the enum
+ */
+BallerinaEnvFactory.createEnum = function (args) {
+    const enumNode = new Enum(args);
+    return enumNode;
+};
+
+/**
+ * creates Enumerator
+ * @param args data for creating the enumerator node
+ */
+BallerinaEnvFactory.createEnumerator = function (args) {
+    const enumerator = new Enumerator(args);
+    return enumerator;
+};
+/**
  * creates Annotation
  * @param jsonNode
  */
@@ -134,6 +153,14 @@ BallerinaEnvFactory.isStruct = function (structDef) {
 
 BallerinaEnvFactory.isStructField = function (structField) {
     return (structField instanceof StructField);
+};
+
+BallerinaEnvFactory.isEnum = function (enumNode) {
+    return (enumNode instanceof Enum);
+};
+
+BallerinaEnvFactory.isEnumerator = function (enumerator) {
+    return (enumerator instanceof Enumerator);
 };
 
 BallerinaEnvFactory.isConnectorAction = function (connectorAction) {
