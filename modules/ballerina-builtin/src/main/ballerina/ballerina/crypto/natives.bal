@@ -1,4 +1,4 @@
-package ballerina.security;
+package ballerina.crypto;
 
 @Description {value:"Returns a hash of a given string using the SHA-256 algorithm "}
 @Param {value:"baseString: The string to be hashed"}

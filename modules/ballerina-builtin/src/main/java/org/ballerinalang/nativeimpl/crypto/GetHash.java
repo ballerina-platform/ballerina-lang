@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.nativeimpl.security;
+package org.ballerinalang.nativeimpl.crypto;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -24,51 +24,43 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.HashUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.nio.charset.Charset;
-import java.security.InvalidKeyException;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Native function ballerina.security:getHmac.
+ * Native function ballerina.crypto:getHash.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.security",
-        functionName = "getHmac",
-        args = {
-                @Argument(name = "baseString", type = TypeKind.STRING),
-                @Argument(name = "keyString", type = TypeKind.STRING),
-                @Argument(name = "algorithm", type = TypeKind.STRING)
-        },
+        packageName = "ballerina.crypto",
+        functionName = "getHash",
+        args = {@Argument(name = "baseString", type = TypeKind.STRING),
+                @Argument(name = "algorithm", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
-public class GetHmac extends AbstractNativeFunction {
+        isPublic = true)
+public class GetHash extends AbstractNativeFunction {
 
+    /**
+     * Hashes the string contents (assumed to be UTF-8) using the SHA-256 algorithm.
+     */
     @Override
     public BValue[] execute(Context context) {
         String baseString = getStringArgument(context, 0);
-        String keyString = getStringArgument(context, 1);
-        String algorithm = getStringArgument(context, 2);
-        String hmacAlgorithm;
+        String algorithm = getStringArgument(context, 1);
 
         //todo document the supported algorithm
         switch (algorithm) {
             case "SHA1":
-                hmacAlgorithm = "HmacSHA1";
+                algorithm = "SHA-1";
                 break;
             case "SHA256":
-                hmacAlgorithm = "HmacSHA256";
+                algorithm = "SHA-256";
                 break;
             case "MD5":
-                hmacAlgorithm = "HmacMD5";
                 break;
             default:
                 throw new BallerinaException("Unsupported algorithm " + algorithm + " for HMAC calculation");
@@ -76,15 +68,25 @@ public class GetHmac extends AbstractNativeFunction {
 
         String result;
         try {
-            byte[] keyBytes = keyString.getBytes(Charset.defaultCharset());
-            SecretKey secretKey = new SecretKeySpec(keyBytes, hmacAlgorithm);
-            Mac mac = Mac.getInstance(hmacAlgorithm);
-            mac.init(secretKey);
-            byte[] baseStringBytes = baseString.getBytes(Charset.defaultCharset());
-            result = HashUtils.toHexString(mac.doFinal(baseStringBytes));
-        } catch (IllegalArgumentException | InvalidKeyException | NoSuchAlgorithmException e) {
-            throw new BallerinaException("Error while calculating HMAC for " + hmacAlgorithm + ": " + e.getMessage(),
-                                         context);
+            MessageDigest messageDigest;
+            messageDigest = MessageDigest.getInstance(algorithm);
+            messageDigest.update(baseString.getBytes("UTF-8"));
+            byte[] bytes = messageDigest.digest();
+
+            final char[] hexArray = "0123456789ABCDEF".toCharArray();
+            char[] hexChars = new char[bytes.length * 2];
+
+            for (int j = 0; j < bytes.length; j++) {
+                final int byteVal = bytes[j] & 0xFF;
+                hexChars[j * 2] = hexArray[byteVal >>> 4];
+                hexChars[j * 2 + 1] = hexArray[byteVal & 0x0F];
+            }
+            result = new String(hexChars);
+        } catch (NoSuchAlgorithmException e) {
+            throw new BallerinaException(
+                    "Error while calculating HMAC for " + algorithm + ": " + e.getMessage(), context);
+        } catch (UnsupportedEncodingException e) {
+            throw new BallerinaException("Error while encoding" + e.getMessage(), context);
         }
         return getBValues(new BString(result));
     }
