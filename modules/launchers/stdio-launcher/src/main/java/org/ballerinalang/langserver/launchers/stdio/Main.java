@@ -25,6 +25,7 @@ import java.util.concurrent.Future;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.eclipse.lsp4j.services.LanguageClientAware;
 
 public class Main
 {
@@ -35,7 +36,11 @@ public class Main
 	public static void startServer(InputStream in, OutputStream out) throws InterruptedException, ExecutionException {
 		BallerinaLanguageServer server = new BallerinaLanguageServer();
 		Launcher<LanguageClient> l = LSPLauncher.createServerLauncher(server, in, out);
+		LanguageClient client = l.getRemoteProxy();
+		((LanguageClientAware)server).connect(client);
 		Future<?> startListening = l.startListening();
 		startListening.get();
+
+
 	}
 }
