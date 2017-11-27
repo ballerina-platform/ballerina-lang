@@ -80,11 +80,11 @@ public class StoreQueryParser {
 
         if (inputStore instanceof AggregationInputStore) {
             AggregationInputStore aggregationInputStore = (AggregationInputStore) inputStore;
+            if (aggregationMap.get(inputStore.getStoreId()) == null) {
+                throw new StoreQueryCreationException("Aggregation \"" + inputStore.getStoreId() + "\" has not been " +
+                        "defined");
+            }
             if (aggregationInputStore.getPer() != null && aggregationInputStore.getWithin() != null) {
-                if (aggregationMap.get(inputStore.getStoreId()) == null) {
-                    throw new StoreQueryCreationException(inputStore.getStoreId()
-                            + " is not an aggregation hence it cannot be processed with 'within' and 'per'.");
-                }
                 within = aggregationInputStore.getWithin();
                 per = aggregationInputStore.getPer();
             } else if (aggregationInputStore.getPer() != null || aggregationInputStore.getWithin() != null) {

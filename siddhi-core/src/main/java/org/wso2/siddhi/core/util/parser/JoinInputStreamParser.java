@@ -54,6 +54,7 @@ import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
 import org.wso2.siddhi.query.api.expression.Expression;
+import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
 import java.util.List;
 import java.util.Map;
@@ -115,10 +116,10 @@ public class JoinInputStreamParser {
                 if (leftMetaStreamEvent.getEventType() != AGGREGATE && rightMetaStreamEvent.getEventType() != AGGREGATE) {
                     if (joinInputStream.getPer() != null) {
                         throw new SiddhiAppCreationException("When joining " + leftInputStreamId + " and " +
-                                rightInputStreamId + " 'per' cannot be used as either of them is an aggregation ");
+                                rightInputStreamId + " 'per' cannot be used as neither of them is an aggregation ");
                     } else if (joinInputStream.getWithin() != null) {
                         throw new SiddhiAppCreationException("When joining " + leftInputStreamId + " and " +
-                                rightInputStreamId + " 'within' cannot be used as either of them is an aggregation ");
+                                rightInputStreamId + " 'within' cannot be used as neither of them is an aggregation ");
                     }
                 }
             } else {
@@ -252,12 +253,12 @@ public class JoinInputStreamParser {
                                      MetaStreamEvent metaStreamEvent, String inputStreamId) {
         if (windowDefinitionMap.containsKey(inputStreamId)) {
             metaStreamEvent.setEventType(WINDOW);
-        } else if (!streamDefinitionMap.containsKey(inputStreamId)) {
-            if (tableDefinitionMap.containsKey(inputStreamId)) {
+        } else if (tableDefinitionMap.containsKey(inputStreamId)) {
                 metaStreamEvent.setEventType(TABLE);
-            } else if (aggregationDefinitionMap.containsKey(inputStreamId)) {
+        } else if (aggregationDefinitionMap.containsKey(inputStreamId)) {
                 metaStreamEvent.setEventType(AGGREGATE);
-            }
+        } else if (!streamDefinitionMap.containsKey(inputStreamId)) {
+            throw new SiddhiParserException("Definition of \"" + inputStreamId + "\" is not given");
         }
     }
 

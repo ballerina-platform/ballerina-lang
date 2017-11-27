@@ -25,7 +25,9 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.executor.incremental.IncrementalUnixTimeFunctionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
@@ -33,7 +35,7 @@ import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
 import java.util.List;
 
 /**
- * Incremental Aggregation Processor to consume events to Incremental Aggregators
+ * Incremental Aggregation Processor to consume events to Incremental Aggregators.
  */
 public class IncrementalAggregationProcessor implements Processor {
     private final List<ExpressionExecutor> incomingExpressionExecutors;
@@ -73,7 +75,11 @@ public class IncrementalAggregationProcessor implements Processor {
                 StreamEvent borrowedEvent = streamEventPool.borrowEvent();
                 for (int i = 0; i < incomingExpressionExecutors.size(); i++) {
                     ExpressionExecutor expressionExecutor = incomingExpressionExecutors.get(i);
-                    borrowedEvent.setOutputData(expressionExecutor.execute(complexEvent), i);
+                    Object outputData = expressionExecutor.execute(complexEvent);
+                    if (expressionExecutor instanceof IncrementalUnixTimeFunctionExecutor && outputData == null) {
+                        throw new SiddhiAppRuntimeException("Cannot retrieve the timestamp of event");
+                    }
+                    borrowedEvent.setOutputData(outputData, i);
                 }
                 streamEventChunk.add(borrowedEvent);
                 noOfEvents++;
