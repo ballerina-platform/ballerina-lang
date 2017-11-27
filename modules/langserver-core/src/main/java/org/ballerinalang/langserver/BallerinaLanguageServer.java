@@ -38,6 +38,10 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
 		workspaceService = new BallerinaWorkspaceService();
 	}
 
+	public LanguageClient getClient() {
+    	return this.client;
+	}
+
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
 		final InitializeResult res = new InitializeResult(new ServerCapabilities());
 		res.getCapabilities().setCompletionProvider(new CompletionOptions());

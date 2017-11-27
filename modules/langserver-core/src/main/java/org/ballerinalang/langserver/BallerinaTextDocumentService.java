@@ -15,19 +15,36 @@
  */
 package org.ballerinalang.langserver;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import io.netty.util.concurrent.CompleteFuture;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.completions.util.BallerinaCompletionUtil;
+import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
+import org.ballerinalang.repository.PackageRepository;
+import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.CodeLensParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
+import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
@@ -40,25 +57,36 @@ import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.PublishDiagnosticsParams;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SymbolInformation;
-import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
+import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+
+import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 public class BallerinaTextDocumentService implements TextDocumentService {
 
 	private final BallerinaLanguageServer ballerinaLanguageServer;
+	private final WorkspaceDocumentManager documentManager;
+
+	public static final String PACKAGE_REGEX = "package\\s+([a-zA_Z_][\\.\\w]*);";
 
 	public BallerinaTextDocumentService(BallerinaLanguageServer ballerinaLanguageServer) {
 		this.ballerinaLanguageServer = ballerinaLanguageServer;
+		this.documentManager = new WorkspaceDocumentManagerImpl();
 	}
-	
+
 	@Override
 	public CompletableFuture<Either<List<CompletionItem>, CompletionList>>completion(TextDocumentPositionParams
 																								 position) {
@@ -149,18 +177,108 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
 	@Override
 	public void didOpen(DidOpenTextDocumentParams params) {
+		Path openedPath = this.getPath(params.getTextDocument().getUri());
+		if(openedPath == null) {
+			return;
+		}
+
+		this.documentManager.openFile(openedPath, params.getTextDocument().getText());
 	}
 
 	@Override
 	public void didChange(DidChangeTextDocumentParams params) {
+		Path changedPath = this.getPath(params.getTextDocument().getUri());
+		if(changedPath == null) {
+			return;
+		}
+		String content = params.getContentChanges().get(0).getText();
+		this.documentManager.updateFile(changedPath, content);
+		Pattern pkgPattern = Pattern.compile(PACKAGE_REGEX);
+		Matcher pkgMatcher = pkgPattern.matcher(content);
+
+		if(!pkgMatcher.find()) {
+			return;
+		}
+
+		final String packageName = pkgMatcher.group(1);
+
+		List<String> pathParts = Arrays.asList(changedPath.getParent().toString().split(Pattern.quote(File.separator)));
+		List<String> pkgParts = Arrays.asList(packageName.split(Pattern.quote(".")));
+		String pkg = String.join(File.separator, pkgParts);
+		Collections.reverse(pkgParts);
+		boolean foundProgramDir = true;
+		for (int i = 1; i <= pkgParts.size(); i++) {
+			if (!pathParts.get(pathParts.size() - i).equals(pkgParts.get(i - 1))) {
+				foundProgramDir = false;
+				break;
+			}
+		}
+		if (!foundProgramDir) {
+			return;
+		}
+
+		List<String> programDirParts = pathParts.subList(0, pathParts.size() - pkgParts.size());
+		String sourceRoot = String.join(File.separator, programDirParts);
+		System.err.println(sourceRoot);
+
+		PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
+		CompilerContext context = prepareCompilerContext(packageRepository, sourceRoot);
+
+		List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
+		CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
+		context.put(DiagnosticListener.class, diagnosticListener);
+
+		Compiler compiler = Compiler.getInstance(context);
+		compiler.compile(pkg);
+
+		System.err.println(balDiagnostics);
+
+		PublishDiagnosticsParams diagnostics = new PublishDiagnosticsParams();
+		Diagnostic d = new Diagnostic();
+		d.setSeverity(DiagnosticSeverity.Error);
+		Range r = new Range();
+		r.setStart(new Position(1, 1));
+		r.setEnd(new Position(2, 1));
+		d.setRange(r);
+		d.setMessage("some error message");
+		diagnostics.setDiagnostics(Arrays.asList(d));
+		diagnostics.setUri(params.getTextDocument().getUri());
+		this.ballerinaLanguageServer.getClient().publishDiagnostics(diagnostics);
 	}
 
 	@Override
 	public void didClose(DidCloseTextDocumentParams params) {
+		Path closedPath = this.getPath(params.getTextDocument().getUri());
+		if(closedPath == null) {
+			return;
+		}
+
+		this.documentManager.closeFile(this.getPath(params.getTextDocument().getUri()));
 	}
 
 	@Override
 	public void didSave(DidSaveTextDocumentParams params) {
 	}
 
+	private Path getPath(String uri) {
+		Path path = null;
+		try {
+			path = Paths.get(new URL(uri).toURI());
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} finally {
+			return path;
+		}
+	}
+
+	protected CompilerContext prepareCompilerContext(PackageRepository packageRepository, String sourceRoot) {
+		CompilerContext context = new CompilerContext();
+		context.put(PackageRepository.class, packageRepository);
+		CompilerOptions options = CompilerOptions.getInstance(context);
+		options.put(SOURCE_ROOT, sourceRoot);
+		options.put(COMPILER_PHASE, CompilerPhase.CODE_ANALYZE.toString());
+		return context;
+	}
 }
