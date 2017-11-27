@@ -19,6 +19,7 @@ import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.ServerCapabilities;
+import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageClientAware;
 import org.eclipse.lsp4j.services.LanguageServer;
@@ -31,17 +32,23 @@ import java.util.concurrent.CompletableFuture;
  * Language server implementation for Ballerina.
  */
 public class BallerinaLanguageServer implements LanguageServer, LanguageClientAware {
+    private LanguageClient client = null;
     private TextDocumentService textService;
     private WorkspaceService workspaceService;
 
     public BallerinaLanguageServer() {
-        textService = new BallerinaTextDocumentService();
+        textService = new BallerinaTextDocumentService(this);
         workspaceService = new BallerinaWorkspaceService();
+    }
+
+    public LanguageClient getClient() {
+        return this.client;
     }
 
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         res.getCapabilities().setCompletionProvider(new CompletionOptions());
+        res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
 
         return CompletableFuture.supplyAsync(() -> res);
     }
@@ -63,5 +70,7 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
 
     @Override
     public void connect(LanguageClient languageClient) {
+        this.client = languageClient;
     }
 }
+
