@@ -14,12 +14,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
-import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
+import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.consts.Snippet;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleConstantDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleGlobalVariableDefinitionContextResolver;
@@ -29,7 +30,6 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -38,32 +38,32 @@ import java.util.List;
 public class TopLevelResolver extends AbstractItemResolver {
 
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
 
         ParserRuleContext parserRuleContext = dataModel.getParserRuleContext();
         AbstractItemResolver errorContextResolver = parserRuleContext == null ? null :
-                resolvers.get(parserRuleContext.getClass());
+                CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
 
         boolean noAt = findPreviousToken(dataModel, "@", 5) < 0;
         if (noAt && (errorContextResolver == null || errorContextResolver == this)) {
-            addTopLevelItems(completionItems, resolvers, dataModel, symbols);
+            addTopLevelItems(completionItems);
         }
         if (errorContextResolver instanceof PackageNameContextResolver) {
-            completionItems.addAll(errorContextResolver.resolveItems(dataModel, symbols, resolvers));
+            completionItems.addAll(errorContextResolver.resolveItems(dataModel));
         } else if (errorContextResolver instanceof ParserRuleConstantDefinitionContextResolver) {
-            completionItems.addAll(errorContextResolver.resolveItems(dataModel, symbols, resolvers));
+            completionItems.addAll(errorContextResolver.resolveItems(dataModel));
         } else if (errorContextResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver) {
-            addTopLevelItems(completionItems, resolvers, dataModel, symbols);
-            completionItems.addAll(errorContextResolver.resolveItems(dataModel, symbols, resolvers));
+            addTopLevelItems(completionItems);
+            completionItems.addAll(errorContextResolver.resolveItems(dataModel));
         } else if (errorContextResolver instanceof ParserRuleTypeNameContextResolver) {
-            addTopLevelItems(completionItems, resolvers, dataModel, symbols);
-            completionItems.addAll(errorContextResolver.resolveItems(dataModel, symbols, resolvers));
+            addTopLevelItems(completionItems);
+            completionItems.addAll(errorContextResolver.resolveItems(dataModel));
         } else {
             completionItems.addAll(
-                    resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
+                    CompletionItemResolver.getResolverByClass(AnnotationAttachment.class).resolveItems(dataModel)
+            );
         }
         return completionItems;
     }
@@ -82,12 +82,8 @@ public class TopLevelResolver extends AbstractItemResolver {
      * Add top level items to the given completionItems List.
      *
      * @param completionItems - completionItems List
-     * @param resolvers       - resolvers
-     * @param dataModel       - datamodel
-     * @param symbols         - all symbols upto this point
      */
-    private void addTopLevelItems(ArrayList<CompletionItem> completionItems, HashMap<Class,
-            AbstractItemResolver> resolvers, SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols) {
+    private void addTopLevelItems(ArrayList<CompletionItem> completionItems) {
         addStaticItem(completionItems, ItemResolverConstants.IMPORT, ItemResolverConstants.IMPORT + " ");
         addStaticItem(completionItems, ItemResolverConstants.PACKAGE, ItemResolverConstants.PACKAGE + " ");
         addStaticItem(completionItems, ItemResolverConstants.CONST, ItemResolverConstants.CONST + " ");

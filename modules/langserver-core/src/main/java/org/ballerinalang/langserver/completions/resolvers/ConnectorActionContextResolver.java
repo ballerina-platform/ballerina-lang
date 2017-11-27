@@ -15,30 +15,28 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
-import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Item Resolver for the connector action context.
  */
 public class ConnectorActionContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         if (this.isAnnotationContext(dataModel)) {
-            completionItems.addAll(resolvers.get(AnnotationAttachment.class)
-                    .resolveItems(dataModel, symbols, resolvers));
+            completionItems.addAll(
+                    CompletionItemResolver.getResolverByClass(AnnotationAttachment.class).resolveItems(dataModel)
+            );
         }
 
         return completionItems;

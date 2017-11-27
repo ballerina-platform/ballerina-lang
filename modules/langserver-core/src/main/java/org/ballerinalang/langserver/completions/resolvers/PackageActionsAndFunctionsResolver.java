@@ -18,19 +18,16 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
-import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * PackageActionsAndFunctionsResolver.
  */
 public class PackageActionsAndFunctionsResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
 //        List<SymbolInfo> searchList = filterPackageActionsAndFunctions(dataModel, symbols);

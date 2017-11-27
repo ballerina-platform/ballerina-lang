@@ -15,29 +15,26 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
-import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Statement context resolver for resolving the items of the statement context.
  */
 public class StatementContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-//        StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
+        StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
 //        // Add the statement templates
-//        completionItems.addAll(statementTemplateFilter.filterItems(dataModel, symbols, null));
-        populateCompletionItemList(symbols, completionItems);
+        completionItems.addAll(statementTemplateFilter.filterItems(dataModel));
+        populateCompletionItemList(dataModel.getVisibleSymbols(), completionItems);
 
         return completionItems;
     }

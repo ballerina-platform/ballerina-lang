@@ -19,21 +19,21 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
-import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.consts.Snippet;
+import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Default resolver for the completion items.
  */
 public class DefaultResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         CompletionItem workerItem = new CompletionItem();
@@ -44,11 +44,11 @@ public class DefaultResolver extends AbstractItemResolver {
         workerItem.setSortText(Priority.PRIORITY7.name());
         completionItems.add(workerItem);
 
-        populateCompletionItemList(symbols, completionItems);
+        populateCompletionItemList(dataModel.getVisibleSymbols(), completionItems);
 
         // Add the statement templates
-//        StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
-//        completionItems.addAll(statementTemplateFilter.filterItems(dataModel, symbols, null));
+        StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
+        completionItems.addAll(statementTemplateFilter.filterItems(dataModel));
 
         return completionItems;
     }

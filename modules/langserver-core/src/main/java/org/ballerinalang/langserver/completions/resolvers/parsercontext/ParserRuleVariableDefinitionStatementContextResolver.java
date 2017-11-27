@@ -20,15 +20,15 @@ package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
-import org.ballerinalang.langserver.completions.resolvers.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.resolvers.Priority;
+import org.ballerinalang.langserver.completions.util.filters.PackageActionAndFunctionFilter;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,15 +37,14 @@ import java.util.stream.Collectors;
  */
 public class ParserRuleVariableDefinitionStatementContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
 
         // Here we specifically need to check whether the statement is function invocation,
         // action invocation or worker invocation
         if (isActionOrFunctionInvocationStatement(dataModel)) {
-//            PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
+            PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
             ArrayList<SymbolInfo> actionAndFunctions = new ArrayList<>();
-//            actionAndFunctions.addAll(actionAndFunctionFilter.filterItems(dataModel, symbols, null));
+            actionAndFunctions.addAll(actionAndFunctionFilter.filterItems(dataModel));
             ArrayList<CompletionItem> completionItems = new ArrayList<>();
             this.populateCompletionItemList(actionAndFunctions, completionItems);
             return completionItems;
@@ -58,11 +57,10 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
             createKeyword.setSortText(Priority.PRIORITY7.name());
 
             ArrayList<CompletionItem> completionItems = new ArrayList<>();
-            List<SymbolInfo> filteredList = symbols.stream()
-                    .filter(
-                            symbolInfo -> !((symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
-                                    && !(symbolInfo.getScopeEntry().symbol instanceof BPackageSymbol))
-                    )
+            List<SymbolInfo> filteredList = dataModel.getVisibleSymbols()
+                    .stream()
+                    .filter(symbolInfo -> !((symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
+                                    && !(symbolInfo.getScopeEntry().symbol instanceof BPackageSymbol)))
                     .collect(Collectors.toList());
             populateCompletionItemList(filteredList, completionItems);
             completionItems.add(createKeyword);

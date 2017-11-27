@@ -21,10 +21,10 @@ package org.ballerinalang.langserver.completions.resolvers;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,8 +34,7 @@ import java.util.stream.Collectors;
 public class GlobalScopeResolver extends AbstractItemResolver {
 
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
@@ -44,12 +43,13 @@ public class GlobalScopeResolver extends AbstractItemResolver {
 
         if (parserRuleContext == null) {
             // If the parser rule context is null we don't have any errors. In this case we add the types
-            List<SymbolInfo> bTypeSymbolInfo = symbols.stream()
+            List<SymbolInfo> bTypeSymbolInfo = dataModel.getVisibleSymbols()
+                    .stream()
                     .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol.type != null)
                     .collect(Collectors.toList());
             this.populateCompletionItemList(bTypeSymbolInfo, completionItems);
         } else {
-            return resolvers.get(parserRuleContext.getClass()).resolveItems(dataModel, symbols, resolvers);
+            return CompletionItemResolver.getResolverByClass(parserRuleContext.getClass()).resolveItems(dataModel);
         }
 
         return completionItems;

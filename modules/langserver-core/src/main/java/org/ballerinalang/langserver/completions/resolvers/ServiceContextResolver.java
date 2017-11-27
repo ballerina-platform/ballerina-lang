@@ -19,13 +19,14 @@ package org.ballerinalang.langserver.completions.resolvers;
 
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.consts.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,12 +36,11 @@ import java.util.stream.Collectors;
 public class ServiceContextResolver extends AbstractItemResolver {
 
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         // TODO: Add annotations
         this.addResourceCompletionItem(completionItems);
-        this.addTypes(completionItems, symbols);
+        this.addTypes(completionItems, dataModel.getVisibleSymbols());
         return completionItems;
     }
 
@@ -54,7 +54,7 @@ public class ServiceContextResolver extends AbstractItemResolver {
         completionItems.add(resource);
     }
 
-    private void addTypes(List<CompletionItem> completionItems, ArrayList<SymbolInfo> symbols) {
+    private void addTypes(List<CompletionItem> completionItems, List<SymbolInfo> symbols) {
         List<SymbolInfo> filteredSymbols = symbols.stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
                 .collect(Collectors.toList());

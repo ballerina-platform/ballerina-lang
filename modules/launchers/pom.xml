@@ -13,7 +13,6 @@
     <artifactId>language-server-launchers</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>socket-launcher</module>
         <module>stdio-launcher</module>
     </modules>
 </project>

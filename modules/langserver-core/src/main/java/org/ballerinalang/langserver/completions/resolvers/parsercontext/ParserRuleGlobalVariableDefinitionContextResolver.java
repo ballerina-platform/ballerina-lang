@@ -19,20 +19,17 @@
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
-import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Global Variable Definition Context resolver for the completion items.
  */
 public class ParserRuleGlobalVariableDefinitionContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
         // currently we are returning a empty List
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         return completionItems;

@@ -20,16 +20,16 @@ package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.consts.Snippet;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
-import org.ballerinalang.langserver.completions.resolvers.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.resolvers.Priority;
+import org.ballerinalang.langserver.completions.util.filters.BTypeFilter;
 import org.ballerinalang.model.SimpleVariableDef;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,15 +38,14 @@ import java.util.stream.Collectors;
  */
 public class ParserRuleTransformStatementBodyContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-//        BTypeFilter bTypeFilter = new BTypeFilter();
-//        populateCompletionItemList(bTypeFilter.filterItems(dataModel, symbols, null), completionItems);
+        BTypeFilter bTypeFilter = new BTypeFilter();
+        populateCompletionItemList(bTypeFilter.filterItems(dataModel), completionItems);
 
-        List<SymbolInfo> variableDefs =  symbols.stream()
+        List<SymbolInfo> variableDefs =  dataModel.getVisibleSymbols().stream()
                 .filter(symbolInfo -> symbolInfo.getSymbol() instanceof SimpleVariableDef)
                 .collect(Collectors.toList());
         populateCompletionItemList(variableDefs, completionItems);

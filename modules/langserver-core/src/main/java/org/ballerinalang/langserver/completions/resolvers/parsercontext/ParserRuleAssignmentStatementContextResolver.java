@@ -19,29 +19,26 @@
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
-import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * assignment statement context resolver for the completion items.
  */
 public class ParserRuleAssignmentStatementContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
 
         // TODO: left hand side of the assignment statement should analyze when suggesting the completions
         // TODO: at the moment we are using the same completion resolving criteria as the variable definition
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-
-        completionItems.addAll(resolvers.get(BallerinaParser.VariableDefinitionStatementContext.class)
-                .resolveItems(dataModel, symbols, resolvers));
+        Class parserRuleContext = BallerinaParser.VariableDefinitionStatementContext.class;
+        completionItems.addAll(CompletionItemResolver.getResolverByClass(parserRuleContext).resolveItems(dataModel));
 
         return completionItems;
     }

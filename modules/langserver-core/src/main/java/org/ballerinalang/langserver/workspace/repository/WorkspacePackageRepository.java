@@ -7,6 +7,7 @@ import org.ballerinalang.repository.PackageSourceEntry;
 import org.ballerinalang.repository.fs.GeneralFSPackageRepository;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -14,6 +15,9 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Workspace Package repository for language server.
+ */
 public class WorkspacePackageRepository extends GeneralFSPackageRepository {
 
     private WorkspaceDocumentManager documentManager;
@@ -43,6 +47,9 @@ public class WorkspacePackageRepository extends GeneralFSPackageRepository {
         }
     }
 
+    /**
+     * Workspace Package source implementation for language server.
+     */
     public class WorkspacePackageSource extends GeneralFSPackageRepository.FSPackageSource {
 
         private WorkspacePackageSource(PackageID pkgID, Path pkgPath) {
@@ -77,7 +84,12 @@ public class WorkspacePackageRepository extends GeneralFSPackageRepository {
                 this.name = name;
                 Path filePath = basePath.resolve(pkgPath).resolve(name);
                 if (documentManager.isFileOpen(filePath)) {
-                    this.code = documentManager.getFileContent(filePath).getBytes();
+                    try {
+                        this.code = documentManager.getFileContent(filePath).getBytes("UTF-8");
+                    } catch (UnsupportedEncodingException e) {
+                        throw new RuntimeException("Error in loading package source entry '" + filePath +
+                                "': " + e.getMessage(), e);
+                    }
                 } else {
                     try {
                         this.code = Files.readAllBytes(filePath);
@@ -100,7 +112,7 @@ public class WorkspacePackageRepository extends GeneralFSPackageRepository {
 
             @Override
             public byte[] getCode() {
-                return code;
+                return code.clone();
             }
 
         }
