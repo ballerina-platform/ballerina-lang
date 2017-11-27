@@ -54,7 +54,11 @@ public class DebugInfoHolder {
     }
 
     public void init(ProgramFile programFile) {
-        Arrays.stream(programFile.getPackageInfoEntries()).forEach(p -> processPkgInfo(p));
+        processPkgInfos(programFile.getPackageInfoEntries());
+    }
+
+    private void processPkgInfos(PackageInfo[] pkgInfos) {
+        Arrays.stream(pkgInfos).forEach(p -> processPkgInfo(p));
     }
 
     /**
@@ -71,8 +75,6 @@ public class DebugInfoHolder {
         List<LineNumberInfo> lineNumberInfos = lineNumberTableAttributeInfo.getLineNumberInfoList().stream().sorted(
                 Comparator.comparing(LineNumberInfo::getIp)).collect(Collectors.toList());
 
-        //TODO remove above line if already sorted
-//        List<LineNumberInfo> lineNumberInfos = lineNumberTableAttributeInfo.getLineNumberInfoEntries();
         LineNumberInfo currentLineNoInfo = null;
         for (LineNumberInfo lineNoInfo : lineNumberInfos) {
             if (currentLineNoInfo == null) {
@@ -91,7 +93,7 @@ public class DebugInfoHolder {
         try {
             executionSem.acquire();
         } catch (InterruptedException e) {
-            //TODO error handle
+            //Ignore
         }
     }
 
@@ -118,8 +120,6 @@ public class DebugInfoHolder {
     }
 
     private void addDebugPoint(BreakPointDTO breakPointDTO) {
-        //TODO remove below line later
-//        breakPointDTO.setPackagePath(".");
         if (packageInfoMap.get(breakPointDTO.getPackagePath()) == null) {
             return;
         }

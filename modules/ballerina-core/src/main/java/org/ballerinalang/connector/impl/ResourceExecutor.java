@@ -60,40 +60,8 @@ public class ResourceExecutor {
      */
     public static void execute(Resource resource, BServerConnectorFuture connectorFuture,
                                Map<String, Object> properties, BValue... bValues) {
-// engage Service interceptors.
-//        if (BLangRuntimeRegistry.getInstance().isInterceptionEnabled(protocol)) {
-//            org.ballerinalang.runtime.model.ServerConnector serverConnector =
-// BLangRuntimeRegistry.getInstance().getServerConnector(protocol);
-//            resourceCallback = new ServiceInterceptorCallback(callback, protocol);
-//            List<ServiceInterceptor> serviceInterceptorList = serverConnector.getServiceInterceptorList();
-//            BMessage message = new BMessage(cMsg);
-//            // Invoke request interceptor serviceInterceptorList.
-//            for (ServiceInterceptor interceptor : serviceInterceptorList) {
-//                if (interceptor.getRequestFunction() == null) {
-//                    continue;
-//                }
-//                ServiceInterceptor.Result result = BLangVMInterceptors.invokeResourceInterceptor(interceptor,
-//                        interceptor.getRequestFunction(), message);
-//                if (result.getMessageIntercepted() == null) {
-//                    // Can't Intercept null message further. Let it handle at server connector level.
-//                    breLog.error("error in service interception, return message null in " +
-//                            (".".equals(interceptor.getPackageInfo().getPkgPath()) ? "" :
-//                                    interceptor.getPackageInfo().getPkgPath() + ":") +
-//                            ServiceInterceptor.REQUEST_INTERCEPTOR_NAME);
-//                    callback.done(null);
-//                    return;
-//                }
-//                message = result.getMessageIntercepted();
-//                if (!result.isInvokeNext()) {
-//                    callback.done(message.value());
-//                    return;
-//                }
-//                resourceMessage = message.value();
-//            }
-//        }
-
         if (resource == null) {
-            //todo
+            connectorFuture.notifyFailure(new BallerinaException("trying to execute a null resource"));
         }
         ResourceInfo resourceInfo = ((BResource) resource).getResourceInfo();
         ServiceInfo serviceInfo = resourceInfo.getServiceInfo();
@@ -163,8 +131,8 @@ public class ResourceExecutor {
                 } else if (value instanceof BStruct) {
                     refLocalVars[refParamCount++] = (BRefType) value;
                 } else {
-                    //TODO Can't throw, need to handle with future
-                    throw new BallerinaException("Unsupported parameter type for parameter " + value);
+                    connectorFuture.notifyFailure(new BallerinaException("unsupported " +
+                            "parameter type for parameter " + value));
                 }
             }
         }
