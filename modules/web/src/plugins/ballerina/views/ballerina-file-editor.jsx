@@ -22,14 +22,14 @@ import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import DebugManager from 'plugins/debugger/DebugManager/DebugManager'; // FIXME: Importing from debugger plugin
-import TreeUtil from 'js/ballerina/model/tree-util.js';
+import TreeUtil from 'plugins/ballerina/model/tree-util.js';
 import { parseFile } from 'api-client/api-client';
 import { CONTENT_MODIFIED, UNDO_EVENT, REDO_EVENT } from 'plugins/ballerina/constants/events';
 import { GO_TO_POSITION, FORMAT } from 'plugins/ballerina/constants/commands';
 import DesignView from './design-view.jsx';
 import SourceView from './source-view.jsx';
 import SwaggerView from './swagger-view.jsx';
-import File from './../../../src/core/workspace/model/file';
+import File from 'core/workspace/model/file';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';

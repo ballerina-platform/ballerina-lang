@@ -17,12 +17,12 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import AnnotationHelper from 'ballerina/env/helpers/annotation-helper';
-import NodeFactory from 'ballerina/model/node-factory';
-import AnnotationAttachmentAttributeTreeNode from 'ballerina/model/tree/annotation-attachment-attribute-node';
-import AnnotationAttachmentTreeNode from 'ballerina/model/tree/annotation-attachment-node';
-import EnvAnnotationDefinition from 'ballerina/env/annotation-definition';
-import BallerinaEnvironment from 'ballerina/env/environment';
+import AnnotationHelper from 'plugins/ballerina/env/helpers/annotation-helper';
+import NodeFactory from 'plugins/ballerina/model/node-factory';
+import AnnotationAttachmentAttributeTreeNode from 'plugins/ballerina/model/tree/annotation-attachment-attribute-node';
+import AnnotationAttachmentTreeNode from 'plugins/ballerina/model/tree/annotation-attachment-node';
+import EnvAnnotationDefinition from 'plugins/ballerina/env/annotation-definition';
+import BallerinaEnvironment from 'plugins/ballerina/env/environment';
 import AutoSuggestHtml from '../decorators/autosuggest-html';
 
 /**

@@ -19,8 +19,8 @@
 import JS_YAML from 'js-yaml';
 import _ from 'lodash';
 import log from 'log';
-import NodeFactory from 'ballerina/model/node-factory';
-import DefaultNodeFactory from 'ballerina/model/default-node-factory';
+import NodeFactory from 'plugins/ballerina/model/node-factory';
+import DefaultNodeFactory from 'plugins/ballerina/model/default-node-factory';
 
 let httpAlias = 'http';
 let swaggerAlias = 'swagger';

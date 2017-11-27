@@ -19,7 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import BallerinaFileEditor from 'ballerina/views/ballerina-file-editor';
+import BallerinaFileEditor from 'plugins/ballerina/views/ballerina-file-editor';
 import { EVENTS as EDITOR_EVENTS } from 'core/editor/constants';
 import { withUndoRedoSupport } from 'core/editor/views/utils';
 import { EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';

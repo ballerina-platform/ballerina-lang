@@ -17,10 +17,10 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import NodeFactory from 'ballerina/model/node-factory';
-import CompilationUnitNode from 'ballerina/model/tree/compilation-unit-node';
-import AnnotationHelper from 'ballerina/env/helpers/annotation-helper';
-import { getComponentForNodeArray } from 'ballerina/diagram/diagram-util';
+import NodeFactory from 'plugins/ballerina/model/node-factory';
+import CompilationUnitNode from 'plugins/ballerina/model/tree/compilation-unit-node';
+import AnnotationHelper from 'plugins/ballerina/env/helpers/annotation-helper';
+import { getComponentForNodeArray } from 'plugins/ballerina/diagram/diagram-util';
 import AnnotationContainerMockNode from '../decorators/annotation-container';
 import AutoSuggestHtml from '../decorators/autosuggest-html';
 

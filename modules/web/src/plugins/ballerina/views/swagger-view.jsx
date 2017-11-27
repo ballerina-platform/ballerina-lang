@@ -23,9 +23,9 @@ import PropTypes from 'prop-types';
 import log from 'log';
 import cn from 'classnames';
 import SwaggerEditorBundle from 'swagger-editor-dist/swagger-editor-bundle';
-import SwaggerParser from 'ballerina/swagger-parser/swagger-parser';
-import NodeFactory from 'ballerina/model/node-factory';
-import ServiceNode from 'ballerina/model/tree/service-node';
+import SwaggerParser from 'plugins/ballerina/swagger-parser/swagger-parser';
+import NodeFactory from 'plugins/ballerina/model/node-factory';
+import ServiceNode from 'plugins/ballerina/model/tree/service-node';
 import { getSwaggerDefinition } from 'api-client/api-client';
 import { DESIGN_VIEW, SOURCE_VIEW } from './constants';
 

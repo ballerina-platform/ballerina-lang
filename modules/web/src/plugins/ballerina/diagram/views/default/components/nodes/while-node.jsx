@@ -18,8 +18,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import WhileNodeModel from 'ballerina/model/tree/while-node';
-import DropZone from 'ballerina/drag-drop/DropZone';
+import WhileNodeModel from 'plugins/ballerina/model/tree/while-node';
+import DropZone from 'plugins/ballerina/drag-drop/DropZone';
 import CompoundStatementDecorator from './compound-statement-decorator';
 import './try-node.css';
 

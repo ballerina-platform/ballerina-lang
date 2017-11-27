@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import SimpleBBox from 'ballerina/model/view/simple-bounding-box';
+import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
 import TreeUtil from './../../../model/tree-util';
 
 /**

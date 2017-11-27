@@ -20,7 +20,7 @@ import log from 'log';
 import path from 'path';
 import fs from 'fs';
 import { getLangServerClientInstance } from 'plugins/ballerina/langserver/lang-server-client-controller';
-import SourceViewCompleterFactory from 'ballerina/utils/source-view-completer-factory';
+import SourceViewCompleterFactory from 'plugins/ballerina/utils/source-view-completer-factory';
 
 /**
  * Read the given file and return the content

@@ -33,7 +33,7 @@ import FunctionInv from './function';
 import Operator from './operator';
 import TreeUtil from '../../../../../model/tree-util';
 import DropZone from '../../../../../drag-drop/DropZone';
-import { CHANGE_EVT_TYPES } from 'ballerina/views/constants';
+import { CHANGE_EVT_TYPES } from 'plugins/ballerina/views/constants';
 import './transform-expanded.css';
 
 /**

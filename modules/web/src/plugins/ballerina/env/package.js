@@ -17,7 +17,7 @@
  */
 import log from 'log';
 import _ from 'lodash';
-import ServiceDefinition from 'ballerina/model/tree/service-node';
+import ServiceDefinition from 'plugins/ballerina/model/tree/service-node';
 import BallerinaEnvFactory from './ballerina-env-factory';
 
 /**

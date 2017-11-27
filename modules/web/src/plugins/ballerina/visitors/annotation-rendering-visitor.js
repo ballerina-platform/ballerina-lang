@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import TreeUtil from 'ballerina/model/tree-util';
-import AnnotationContainerMockNode from 'ballerina/diagram/views/default/components/decorators/annotation-container';
+import TreeUtil from 'plugins/ballerina/model/tree-util';
+import AnnotationContainerMockNode from 'plugins/ballerina/diagram/views/default/components/decorators/annotation-container';
 
 class AnnotationRenderingVisitor {
 

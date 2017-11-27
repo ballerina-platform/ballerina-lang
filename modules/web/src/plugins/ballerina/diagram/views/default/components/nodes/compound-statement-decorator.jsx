@@ -18,7 +18,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
-import SimpleBBox from 'ballerina/model/view/simple-bounding-box';
+import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
 import { blockStatement, statement, actionBox } from '../../../../../configs/designer-defaults.js';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { CHANGE_EVT_TYPES } from 'ballerina/views/constants';
+import { CHANGE_EVT_TYPES } from 'plugins/ballerina/views/constants';
 import UndoableOperation from 'core/editor/undo-manager/undoable-operation';
 import { EVENTS } from 'core/editor/constants';
 

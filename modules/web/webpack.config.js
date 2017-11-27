@@ -33,9 +33,9 @@ const config = [{
     target: 'web',
     entry: {
         bundle: './src/index.js',
-        tree: './js/ballerina/model/tree-builder.js',
-        testable: './js/tests/testable.js',
-        'worker-ballerina': './js/ballerina/utils/ace-worker.js',
+        tree: './src/plugins/ballerina/model/tree-builder.js',
+        testable: './src/plugins/ballerina/tests/testable.js',
+        'worker-ballerina': './src/plugins/ballerina/utils/ace-worker.js',
     },
     output: {
         filename: '[name].js',
@@ -245,7 +245,7 @@ if (process.env.NODE_ENV === 'test') {
 } else if (process.env.NODE_ENV === 'test-source-gen-dev') {
     const testConfig = config[0];
     testConfig.target = 'node';
-    testConfig.entry = './js/tests/js/spec/ballerina-test.js';
+    testConfig.entry = './src/plugins/ballerina/tests/js/spec/ballerina-test.js';
     testConfig.output = {
         path: path.resolve(__dirname, 'target'),
         filename: 'ballerina-test.js',
