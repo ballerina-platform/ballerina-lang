@@ -21,8 +21,8 @@ import { parseFile } from 'api-client/api-client';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
 import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
 import { EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
-import SourceEditor from 'ballerina/views/source-editor';
-import { CLASSES } from 'ballerina/views/constants';
+import SourceEditor from 'plugins/ballerina/views/source-editor';
+import { CLASSES } from 'plugins/ballerina/views/constants';
 import Document from 'plugins/ballerina/docerina/document.jsx';
 import Editor from './views/editor-wrapper';
 import { PLUGIN_ID, EDITOR_ID, DOC_VIEW_ID, COMMANDS as COMMAND_IDS, TOOLS as TOOL_IDS,

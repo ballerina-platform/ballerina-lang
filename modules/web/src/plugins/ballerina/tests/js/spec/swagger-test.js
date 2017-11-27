@@ -21,8 +21,8 @@ import fs from 'fs';
 import { expect } from 'chai';
 import { fetchConfigs, parseContent } from 'api-client/api-client';
 import SwaggerImportPlugin from 'plugins/import-swagger/plugin';
-import SwaggerParser from 'ballerina/swagger-parser/swagger-parser';
-import TreeBuilder from 'ballerina/model/tree-builder';
+import SwaggerParser from 'plugins/ballerina/swagger-parser/swagger-parser';
+import TreeBuilder from 'plugins/ballerina/model/tree-builder';
 
 /* global describe */
 /* global it */

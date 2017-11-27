@@ -29,7 +29,7 @@ import { expect } from 'chai';
 import _ from 'lodash';
 import path from 'path';
 import chalk from 'chalk';
-import TreeBuilder from 'ballerina/model/tree-builder';
+import TreeBuilder from 'plugins/ballerina/model/tree-builder';
 
 const directory = process.env.DIRECTORY ? process.env.DIRECTORY : '';
 

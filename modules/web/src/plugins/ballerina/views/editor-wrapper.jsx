@@ -19,11 +19,11 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import BallerinaFileEditor from 'ballerina/views/ballerina-file-editor';
+import BallerinaFileEditor from 'plugins/ballerina/views/ballerina-file-editor';
 import { EVENTS as EDITOR_EVENTS } from 'core/editor/constants';
 import { withUndoRedoSupport } from 'core/editor/views/utils';
 import { EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
-import UndoableBalEditorOperation from './../model/undoable-bal-editor-operation';
+import UndoableBalEditorOperation from './../operations/undoable-bal-editor-operation';
 
 
 /**
@@ -80,7 +80,7 @@ class Editor extends React.Component {
     render() {
         const { width, height } = this.props;
         return (
-            <div className="ballerina-editor" style={{ width, height }}>
+            <div className='ballerina-editor' style={{ width, height }}>
                 <BallerinaFileEditor {...this.props} />
             </div>
         );
