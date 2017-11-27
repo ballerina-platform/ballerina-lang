@@ -1000,7 +1000,8 @@ public class AggregationTestCase {
         siddhiManager.createSiddhiAppRuntime(stockStream + query);
     }
 
-    @Test(dependsOnMethods = {"incrementalStreamProcessorTest14"}, expectedExceptions = SiddhiAppCreationException.class)
+    @Test(dependsOnMethods = {"incrementalStreamProcessorTest14"},
+            expectedExceptions = SiddhiAppCreationException.class)
     public void incrementalStreamProcessorTest15() {
         LOG.info("incrementalStreamProcessorTest15");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1019,9 +1020,10 @@ public class AggregationTestCase {
         siddhiManager.createSiddhiAppRuntime(stockStream + query);
     }
 
-    @Test(dependsOnMethods = {"incrementalStreamProcessorTest15"}, expectedExceptions = SiddhiAppRuntimeException.class)
+    @Test(dependsOnMethods = {"incrementalStreamProcessorTest15"}, expectedExceptions =
+            SiddhiAppRuntimeException.class)
     public void incrementalStreamProcessorTest16() throws InterruptedException {
-        LOG.info("incrementalStreamProcessorTest16" );
+        LOG.info("incrementalStreamProcessorTest16");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String stockStream =
@@ -1039,7 +1041,7 @@ public class AggregationTestCase {
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
 
-        InputHandler stockStreamInputHandler = siddhiAppRuntime.getInputHandler("stockStream" );
+        InputHandler stockStreamInputHandler = siddhiAppRuntime.getInputHandler("stockStream");
         siddhiAppRuntime.start();
 
         // Thursday, June 1, 2017 4:05:50 AM
@@ -1321,7 +1323,7 @@ public class AggregationTestCase {
 
     @Test(dependsOnMethods = {"incrementalStreamProcessorTest18"}, expectedExceptions = SiddhiParserException.class)
     public void incrementalStreamProcessorTest19() throws InterruptedException {
-        LOG.info("incrementalStreamProcessorTest19" );
+        LOG.info("incrementalStreamProcessorTest19");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String query =  "define stream inputStream (symbol string, value int, startTime string, " +
