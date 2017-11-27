@@ -1391,8 +1391,10 @@ public class AggregationTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(dependsOnMethods = {"incrementalStreamProcessorTest21"}) // TODO: 11/27/17 check throwing error
+    @Test(dependsOnMethods = {"incrementalStreamProcessorTest21"})
     public void incrementalStreamProcessorTest22() throws InterruptedException {
+        // Error gets logged at AbstractStreamProcessor level and event gets dropped. Hence no expectedExceptions for
+        // this test case
         LOG.info("incrementalStreamProcessorTest22");
         SiddhiManager siddhiManager = new SiddhiManager();
 
