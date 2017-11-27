@@ -161,7 +161,7 @@ const config = [{
     devtool: 'source-map',
     resolve: {
         extensions: ['.js', '.json', '.jsx'],
-        modules: ['src', 'public/lib', 'font/dist', 'js', 'node_modules', path.resolve(__dirname)],
+        modules: ['src', 'public/lib', 'font/dist', 'node_modules', path.resolve(__dirname)],
         alias: {
             // ///////////////////////
             // third party modules //
