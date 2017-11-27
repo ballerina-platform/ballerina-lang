@@ -130,15 +130,26 @@ public class ComposerLogManagerUtils {
      */
     private Properties getDefaultLogConfiguration() throws IOException {
         Properties prop = new Properties();
-        InputStream propertiesStream;
+        InputStream propertiesStream = null;
+        String logConfigFile = System.getProperty(LOG_CONFIG_FILE_PROPERTY);
+        boolean isLoaded = false;
         try {
-            propertiesStream = new FileInputStream(System.getProperty(LOG_CONFIG_FILE_PROPERTY));
-            prop.load(propertiesStream);
+            if (logConfigFile != null) {
+                propertiesStream = new FileInputStream(logConfigFile);
+                prop.load(propertiesStream);
+                isLoaded = true;
+            }
         } catch (IOException e) {
-            propertiesStream = getClass().getClassLoader().getResourceAsStream(LOG_CONFIG_FILE);
-            prop.load(propertiesStream);
+            isLoaded = false;
+        } finally {
+            if (!isLoaded) {
+                propertiesStream = getClass().getClassLoader().getResourceAsStream(LOG_CONFIG_FILE);
+                prop.load(propertiesStream);
+            }
+            if (propertiesStream != null) {
+                IOUtils.closeQuietly(propertiesStream);
+            }
         }
-        IOUtils.closeQuietly(propertiesStream);
         return prop;
     }
 }
