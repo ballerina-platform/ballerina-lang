@@ -35,6 +35,7 @@ export const EVENTS = {
     FILE_UPDATED: 'file-updated',
     DIRTY_STATE_CHANGE: 'dirty-state-change',
     CONTENT_MODIFIED: 'content-modified',
+    FILE_OPEN: 'file-open',
 };
 
 export const VIEWS = {
