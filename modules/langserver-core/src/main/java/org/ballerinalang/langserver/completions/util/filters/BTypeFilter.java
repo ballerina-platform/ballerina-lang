@@ -15,22 +15,26 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
-package org.ballerinalang.langserver.completions.resolvers.parsercontext;
+package org.ballerinalang.langserver.completions.util.filters;
 
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
-import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
-import org.eclipse.lsp4j.CompletionItem;
+import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.model.types.BType;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * Parser rule based Item resolver for the Worker invoke statement.
+ * Filter the BTypes.
  */
-public class ParserRuleTriggerWorkerContext extends AbstractItemResolver {
-    @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
+public class BTypeFilter implements SymbolFilter {
+    public List<SymbolInfo> filterItems(SuggestionsFilterDataModel dataModel) {
+        List<SymbolInfo> filteredList;
+        filteredList = dataModel.getVisibleSymbols()
+                .stream()
+                .filter(symbolInfo -> symbolInfo.getSymbol() instanceof BType)
+                .collect(Collectors.toList());
 
-        return new ArrayList<>();
+        return filteredList;
     }
 }

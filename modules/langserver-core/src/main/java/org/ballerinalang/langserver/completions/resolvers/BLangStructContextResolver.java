@@ -24,7 +24,6 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,10 +32,9 @@ import java.util.stream.Collectors;
  */
 public class BLangStructContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List filteredTypes = symbols.stream()
+        List filteredTypes = dataModel.getVisibleSymbols().stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
                 .collect(Collectors.toList());
         filteredTypes.forEach(symbolInfo ->

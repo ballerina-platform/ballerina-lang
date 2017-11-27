@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.ballerinalang.langserver.completions.resolvers;
+package org.ballerinalang.langserver.completions.consts;
 
 /**
  * Constants for Item Resolver.

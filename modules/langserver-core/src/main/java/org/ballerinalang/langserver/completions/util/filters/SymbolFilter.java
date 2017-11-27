@@ -15,32 +15,21 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
-package org.ballerinalang.langserver.completions.resolvers;
+package org.ballerinalang.langserver.completions.util.filters;
 
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
-import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
-import org.ballerinalang.model.AnnotationAttachment;
-import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
- * ResourceContextResolver.
+ * Interface for filtering the symbols.
  */
-public class ResourceContextResolver extends AbstractItemResolver {
-
-    @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
-
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
-
-        if (this.isAnnotationContext(dataModel)) {
-            completionItems.addAll(
-                    CompletionItemResolver.getResolverByClass(AnnotationAttachment.class).resolveItems(dataModel)
-            );
-        }
-
-        return completionItems;
-    }
+public interface SymbolFilter {
+    /**
+     * Filters the symbolInfo from the list based on a particular filter criteria.
+     * @param dataModel - Suggestion filter data model
+     * @return {@link ArrayList}
+     */
+    List filterItems(SuggestionsFilterDataModel dataModel);
 }

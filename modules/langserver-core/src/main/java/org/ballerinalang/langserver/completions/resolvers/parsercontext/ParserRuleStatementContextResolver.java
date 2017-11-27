@@ -20,11 +20,12 @@ package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.consts.Snippet;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
-import org.ballerinalang.langserver.completions.resolvers.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.resolvers.PackageActionsAndFunctionsResolver;
-import org.ballerinalang.langserver.completions.resolvers.Priority;
+import org.ballerinalang.langserver.completions.util.filters.PackageActionAndFunctionFilter;
+import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 
@@ -36,8 +37,7 @@ import java.util.HashMap;
  */
 public class ParserRuleStatementContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
 
         HashMap<String, String> prioritiesMap = new HashMap<>();
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
@@ -45,11 +45,11 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
         // Here we specifically need to check whether the statement is function invocation,
         // action invocation or worker invocation
         if (isActionOrFunctionInvocationStatement(dataModel)) {
-//            PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
+            PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
 
             // Get the action and function list
             ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
-//            actionFunctionList.addAll(actionAndFunctionFilter.filterItems(dataModel, symbols, null));
+            actionFunctionList.addAll(actionAndFunctionFilter.filterItems(dataModel));
 
             // Populate the completion items
             this.populateCompletionItemList(actionFunctionList, completionItems);
@@ -61,10 +61,10 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
 
             return completionItems;
         } else {
-            populateCompletionItemList(symbols, completionItems);
-//            StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
+            populateCompletionItemList(dataModel.getVisibleSymbols(), completionItems);
+            StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
             // Add the statement templates
-//            completionItems.addAll(statementTemplateFilter.filterItems(dataModel, symbols, null));
+            completionItems.addAll(statementTemplateFilter.filterItems(dataModel));
             this.populateBasicTypes(completionItems, dataModel.getSymbolTable());
 
             CompletionItem xmlns = new CompletionItem();

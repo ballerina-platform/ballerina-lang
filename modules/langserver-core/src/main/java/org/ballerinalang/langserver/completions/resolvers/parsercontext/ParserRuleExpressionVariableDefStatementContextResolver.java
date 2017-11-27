@@ -19,13 +19,12 @@
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
-import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Expression Variable Definition Context resolver for the completion items. This is mainly supposed to be used when
@@ -33,13 +32,10 @@ import java.util.HashMap;
  */
 public class ParserRuleExpressionVariableDefStatementContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
 
         // Here we are using the existing variable statement itm resolver
-        ArrayList<CompletionItem> completionItems = resolvers
-                .get(BallerinaParser.VariableDefinitionStatementContext.class)
-                .resolveItems(dataModel, symbols, resolvers);
-        return completionItems;
+        Class parserRuleContextResolver = BallerinaParser.VariableDefinitionStatementContext.class;
+        return CompletionItemResolver.getResolverByClass(parserRuleContextResolver).resolveItems(dataModel);
     }
 }

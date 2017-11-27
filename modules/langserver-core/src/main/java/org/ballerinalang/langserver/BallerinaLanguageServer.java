@@ -15,52 +15,53 @@
  */
 package org.ballerinalang.langserver;
 
-import java.util.concurrent.CompletableFuture;
-
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
-import org.eclipse.lsp4j.services.LanguageClient;
-import org.eclipse.lsp4j.services.LanguageServer;
-import org.eclipse.lsp4j.services.LanguageClientAware;
 import org.eclipse.lsp4j.ServerCapabilities;
+import org.eclipse.lsp4j.services.LanguageClient;
+import org.eclipse.lsp4j.services.LanguageClientAware;
+import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
+import java.util.concurrent.CompletableFuture;
+
+/**
+ * Language server implementation for Ballerina.
+ */
 public class BallerinaLanguageServer implements LanguageServer, LanguageClientAware {
-	private LanguageClient client = null;
     private TextDocumentService textService;
-	private WorkspaceService workspaceService;
+    private WorkspaceService workspaceService;
 
     public BallerinaLanguageServer() {
-		textService = new BallerinaTextDocumentService(this);
-		workspaceService = new BallerinaWorkspaceService();
-	}
-
-    public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
-		final InitializeResult res = new InitializeResult(new ServerCapabilities());
-		res.getCapabilities().setCompletionProvider(new CompletionOptions());
-		
-		return CompletableFuture.supplyAsync(() -> res);
+        textService = new BallerinaTextDocumentService();
+        workspaceService = new BallerinaWorkspaceService();
     }
 
-	public CompletableFuture<Object> shutdown() {
-		return CompletableFuture.supplyAsync(() -> Boolean.TRUE);
-	}
+    public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
+        final InitializeResult res = new InitializeResult(new ServerCapabilities());
+        res.getCapabilities().setCompletionProvider(new CompletionOptions());
 
-	public void exit() {
+        return CompletableFuture.supplyAsync(() -> res);
+    }
+
+    public CompletableFuture<Object> shutdown() {
+        return CompletableFuture.supplyAsync(() -> Boolean.TRUE);
+    }
+
+    public void exit() {
     }
     
     public TextDocumentService getTextDocumentService() {
-		return this.textService;
-	}
+        return this.textService;
+    }
 
-	public WorkspaceService getWorkspaceService() {
-		return this.workspaceService;
-	}
+    public WorkspaceService getWorkspaceService() {
+        return this.workspaceService;
+    }
 
-	@Override
-	public void connect(LanguageClient languageClient) {
-    	this.client = languageClient;
-	}
+    @Override
+    public void connect(LanguageClient languageClient) {
+    }
 }

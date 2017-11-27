@@ -20,14 +20,12 @@ package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.ballerinalang.langserver.completions.PossibleToken;
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
-import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
-import org.ballerinalang.langserver.completions.resolvers.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.resolvers.Priority;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -35,8 +33,7 @@ import java.util.List;
  */
 public class ParserRuleConstantDefinitionContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 

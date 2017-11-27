@@ -19,20 +19,17 @@
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
-import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Parser rule based Item resolver for the Worker reply statement.
  */
 public class ParserRuleWorkerReplyContext extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
         return new ArrayList<>();
     }
 }

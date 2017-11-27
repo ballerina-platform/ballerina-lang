@@ -15,19 +15,16 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
-import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
-import org.ballerinalang.langserver.completions.resolvers.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.resolvers.Priority;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * annotation body context resolver for the completion items.
@@ -37,13 +34,10 @@ public class ParserRuleAnnotationBodyContextResolver extends AbstractItemResolve
     /**
      * here we provide the attach keyword completion item.
      * @param dataModel suggestions filter data model
-     * @param symbols symbols list
-     * @param resolvers item resolvers map
      * @return {@link ArrayList}
      */
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         TokenStream tokenStream = dataModel.getTokenStream();

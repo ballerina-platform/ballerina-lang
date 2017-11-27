@@ -15,12 +15,6 @@
  */
 package org.ballerinalang.langserver;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-
-import io.netty.util.concurrent.CompleteFuture;
 import org.ballerinalang.langserver.completions.util.BallerinaCompletionUtil;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
@@ -39,128 +33,126 @@ import org.eclipse.lsp4j.DocumentRangeFormattingParams;
 import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SymbolInformation;
-import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+
+/**
+ * Language server text document service for Ballerina.
+ */
 public class BallerinaTextDocumentService implements TextDocumentService {
+    @Override
+    public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(TextDocumentPositionParams
+                                                                                                 position) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<CompletionItem> completions = BallerinaCompletionUtil.getCompletions(position);
+            return Either.forLeft(completions);
+        });
+    }
 
-	private final BallerinaLanguageServer ballerinaLanguageServer;
+    @Override
+    public CompletableFuture<CompletionItem> resolveCompletionItem(CompletionItem unresolved) {
+        return null;
+    }
 
-	public BallerinaTextDocumentService(BallerinaLanguageServer ballerinaLanguageServer) {
-		this.ballerinaLanguageServer = ballerinaLanguageServer;
-	}
-	
-	@Override
-	public CompletableFuture<Either<List<CompletionItem>, CompletionList>>completion(TextDocumentPositionParams
-																								 position) {
-		return CompletableFuture.supplyAsync(() -> {
-			List<CompletionItem> completions = BallerinaCompletionUtil.getCompletions(position);
-			return Either.forLeft(completions);
-		});
-	}
+    @Override
+    public CompletableFuture<Hover> hover(TextDocumentPositionParams position) {
+        return CompletableFuture.supplyAsync(() -> null);
+    }
 
-	@Override
-	public CompletableFuture<CompletionItem> resolveCompletionItem(CompletionItem unresolved) {
-		return null;
-	}
+    @Override
+    public CompletableFuture<SignatureHelp> signatureHelp(TextDocumentPositionParams position) {
+        return null;
+    }
 
-	@Override
-	public CompletableFuture<Hover> hover(TextDocumentPositionParams position) {
-		return CompletableFuture.supplyAsync(() -> null);
-	}
+    @Override
+    public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams position) {
+        return CompletableFuture.supplyAsync(() -> null);
+    }
 
-	@Override
-	public CompletableFuture<SignatureHelp> signatureHelp(TextDocumentPositionParams position) {
-		return null;
-	}
+    @Override
+    public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
+        return CompletableFuture.supplyAsync(() -> null);
+    }
 
-	@Override
-	public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams position) {
-		return CompletableFuture.supplyAsync(() -> null);
-	}
+    @Override
+    public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(
+            TextDocumentPositionParams position) {
+        return null;
+    }
 
-	@Override
-	public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
-		return CompletableFuture.supplyAsync(() -> null);
-	}
+    @Override
+    public CompletableFuture<List<? extends SymbolInformation>> documentSymbol(DocumentSymbolParams params) {
+        return CompletableFuture.supplyAsync(() -> null);
+    }
 
-	@Override
-	public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(
-			TextDocumentPositionParams position) {
-		return null;
-	}
+    @Override
+    public CompletableFuture<List<? extends Command>> codeAction(CodeActionParams params) {
+        return CompletableFuture.supplyAsync(() ->
+            params.getContext().getDiagnostics().stream()
+            .map(diagnostic -> {
+                List<Command> res = new ArrayList<>();
+                return res.stream();
+            })
+            .flatMap(it -> it)
+            .collect(Collectors.toList())
+        );
+    }
 
-	@Override
-	public CompletableFuture<List<? extends SymbolInformation>> documentSymbol(DocumentSymbolParams params) {
-		return CompletableFuture.supplyAsync(() -> null);
-	}
+    @Override
+    public CompletableFuture<List<? extends CodeLens>> codeLens(CodeLensParams params) {
+        return null;
+    }
 
-	@Override
-	public CompletableFuture<List<? extends Command>> codeAction(CodeActionParams params) {
-		return CompletableFuture.supplyAsync(() ->
-			params.getContext().getDiagnostics().stream()
-			.map(diagnostic -> {
-				List<Command> res = new ArrayList<>();
-				return res.stream();
-			})
-			.flatMap(it -> it)
-			.collect(Collectors.toList())
-		);
-	}
+    @Override
+    public CompletableFuture<CodeLens> resolveCodeLens(CodeLens unresolved) {
+        return null;
+    }
 
-	@Override
-	public CompletableFuture<List<? extends CodeLens>> codeLens(CodeLensParams params) {
-		return null;
-	}
+    @Override
+    public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
+        return null;
+    }
 
-	@Override
-	public CompletableFuture<CodeLens> resolveCodeLens(CodeLens unresolved) {
-		return null;
-	}
+    @Override
+    public CompletableFuture<List<? extends TextEdit>> rangeFormatting(DocumentRangeFormattingParams params) {
+        return null;
+    }
 
-	@Override
-	public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
-		return null;
-	}
+    @Override
+    public CompletableFuture<List<? extends TextEdit>> onTypeFormatting(DocumentOnTypeFormattingParams params) {
+        return null;
+    }
 
-	@Override
-	public CompletableFuture<List<? extends TextEdit>> rangeFormatting(DocumentRangeFormattingParams params) {
-		return null;
-	}
+    @Override
+    public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
+        return null;
+    }
 
-	@Override
-	public CompletableFuture<List<? extends TextEdit>> onTypeFormatting(DocumentOnTypeFormattingParams params) {
-		return null;
-	}
+    @Override
+    public void didOpen(DidOpenTextDocumentParams params) {
+    }
 
-	@Override
-	public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
-		return null;
-	}
+    @Override
+    public void didChange(DidChangeTextDocumentParams params) {
+    }
 
-	@Override
-	public void didOpen(DidOpenTextDocumentParams params) {
-	}
+    @Override
+    public void didClose(DidCloseTextDocumentParams params) {
+    }
 
-	@Override
-	public void didChange(DidChangeTextDocumentParams params) {
-	}
-
-	@Override
-	public void didClose(DidCloseTextDocumentParams params) {
-	}
-
-	@Override
-	public void didSave(DidSaveTextDocumentParams params) {
-	}
-
+    @Override
+    public void didSave(DidSaveTextDocumentParams params) {
+    }
 }

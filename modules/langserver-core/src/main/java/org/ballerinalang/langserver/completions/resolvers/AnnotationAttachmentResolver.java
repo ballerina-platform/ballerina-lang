@@ -19,27 +19,17 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
-import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.models.ModelPackage;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * AnnotationAttachmentResolver.
  */
 public class AnnotationAttachmentResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
         return filterAnnotations(dataModel);
     }
 
@@ -90,7 +80,7 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
      * @param packagePath - package path
      * @return {@link String}
      */
-    private String lastPart(String packagePath) {
+    public String lastPart(String packagePath) {
         int i = packagePath.lastIndexOf('.');
         if (i >= 0) {
             return packagePath.substring(i + 1);

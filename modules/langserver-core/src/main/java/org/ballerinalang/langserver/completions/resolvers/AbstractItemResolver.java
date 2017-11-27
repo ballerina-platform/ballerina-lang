@@ -22,6 +22,8 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -41,9 +43,7 @@ import java.util.List;
  * Interface for completion item resolvers.
  */
 public abstract class AbstractItemResolver {
-    public abstract ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel,
-                                                           ArrayList<SymbolInfo> symbols, HashMap<Class,
-            AbstractItemResolver> resolvers);
+    public abstract ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel);
 
     /**
      * Populate the completion item list by considering the.

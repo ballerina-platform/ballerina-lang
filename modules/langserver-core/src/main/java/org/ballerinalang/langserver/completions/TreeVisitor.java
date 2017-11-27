@@ -85,10 +85,8 @@ import java.util.stream.Collectors;
 public class TreeVisitor extends BLangNodeVisitor {
     private String cUnitName;
     private SymbolEnv symbolEnv;
-    private SymbolTable symTable;
     private SymbolResolver symbolResolver;
     private boolean terminateVisitor = false;
-    private List<SymbolInfo> symbols;
     private TextDocumentPositionParams positionParams;
     private SuggestionsFilterDataModel filterDataModel;
     private SymbolEnter symbolEnter;
@@ -97,23 +95,28 @@ public class TreeVisitor extends BLangNodeVisitor {
     private Map<Class, CursorPositionResolver> cursorPositionResolvers;
     private Class cursorPositionResolver;
 
-    public TreeVisitor(String cUnitName, CompilerContext compilerContext, List<SymbolInfo> symbolInfoList,
+    public TreeVisitor(String cUnitName, CompilerContext compilerContext,
                        TextDocumentPositionParams positionParams, SuggestionsFilterDataModel filterDataModel) {
         this.cUnitName = cUnitName;
-        this.symTable = SymbolTable.getInstance(compilerContext);
-        this.symbolEnter = SymbolEnter.getInstance(compilerContext);
-        this.symbolResolver = SymbolResolver.getInstance(compilerContext);
-        this.symbols = symbolInfoList;
         this.positionParams = positionParams;
         this.filterDataModel = filterDataModel;
-        blockOwnerStack = new Stack<>();
-        blockStmtStack = new Stack<>();
 
-        cursorPositionResolvers = new HashMap<>();
+        init(compilerContext);
+    }
+
+    private void init(CompilerContext compilerContext) {
         BlockStatementScopeResolver blockStatementScopeResolver = new BlockStatementScopeResolver();
         ResourceParamScopeResolver resourceParamScopeResolver = new ResourceParamScopeResolver();
         PackageNodeScopeResolver packageNodeScopeResolver = new PackageNodeScopeResolver();
         ServiceScopeResolver serviceScopeResolver = new ServiceScopeResolver();
+
+        blockOwnerStack = new Stack<>();
+        blockStmtStack = new Stack<>();
+        cursorPositionResolvers = new HashMap<>();
+        symbolEnter = SymbolEnter.getInstance(compilerContext);
+        symbolResolver = SymbolResolver.getInstance(compilerContext);
+        filterDataModel.setSymbolTable(SymbolTable.getInstance(compilerContext));
+
         cursorPositionResolvers.put(BlockStatementScopeResolver.class, blockStatementScopeResolver);
         cursorPositionResolvers.put(ResourceParamScopeResolver.class, resourceParamScopeResolver);
         cursorPositionResolvers.put(PackageNodeScopeResolver.class, packageNodeScopeResolver);
@@ -521,16 +524,8 @@ public class TreeVisitor extends BLangNodeVisitor {
 
         symbolEntries.forEach((k, v) -> {
             SymbolInfo symbolInfo = new SymbolInfo(k.getValue(), v);
-            symbols.add(symbolInfo);
+            this.filterDataModel.getVisibleSymbols().add(symbolInfo);
         });
-    }
-
-    /**
-     * Get the symbol table.
-     * @return current symbol table
-     */
-    public SymbolTable getSymTable() {
-        return this.symTable;
     }
 
     private void acceptNode(BLangNode node, SymbolEnv env) {

@@ -8,6 +8,7 @@ import org.ballerinalang.langserver.completions.models.ModelPackage;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,11 +26,10 @@ public class SuggestionsFilterDataModel {
     private BLangNode symbolEnvNode;
     private Set<Map.Entry<String, ModelPackage>> packages;
     private SymbolTable symbolTable;
+    private List<SymbolInfo> visibleSymbols;
 
-    /**
-     * Constructor for SuggestionsFilterDataModel.
-     */
-    public SuggestionsFilterDataModel(){
+    public SuggestionsFilterDataModel() {
+        this.visibleSymbols = new ArrayList<>();
     }
 
     public void initParserContext (Parser parser, ParserRuleContext parserRuleContext,
@@ -113,5 +113,21 @@ public class SuggestionsFilterDataModel {
 
     public void setSymbolTable(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
+    }
+
+    /**
+     * Get the visible symbols list.
+     * @return {@link ArrayList} visible symbols
+     */
+    public List<SymbolInfo> getVisibleSymbols() {
+        return visibleSymbols;
+    }
+
+    /**
+     * Set the visible symbols list.
+     * @param visibleSymbols - list of all visible symbols
+     */
+    public void setVisibleSymbols(ArrayList<SymbolInfo> visibleSymbols) {
+        this.visibleSymbols = visibleSymbols;
     }
 }

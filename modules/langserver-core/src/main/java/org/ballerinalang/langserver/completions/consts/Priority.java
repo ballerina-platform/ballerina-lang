@@ -15,22 +15,27 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
-package org.ballerinalang.langserver.completions.resolvers.parsercontext;
-
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
-import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
-import org.eclipse.lsp4j.CompletionItem;
-
-import java.util.ArrayList;
+package org.ballerinalang.langserver.completions.consts;
 
 /**
- * Parser rule based Item resolver for the Worker invoke statement.
+ * Completion Item Priority enum.
  */
-public class ParserRuleTriggerWorkerContext extends AbstractItemResolver {
-    @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
+public enum  Priority {
+    PRIORITY1(1),
+    PRIORITY2(2),
+    PRIORITY3(3),
+    PRIORITY4(4),
+    PRIORITY5(5),
+    PRIORITY6(6),
+    PRIORITY7(7);
 
-        return new ArrayList<>();
+    private int priority;
+
+    private Priority(int priority) {
+        this.priority = priority;
+    }
+
+    public int getPriority() {
+        return this.priority;
     }
 }
