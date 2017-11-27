@@ -18,7 +18,7 @@
 import fs from 'fs';
 import path from 'path';
 import { parseContent } from 'api-client/api-client';
-import TreeBuilder from '../../../../ballerina/model/tree-builder';
+import TreeBuilder from 'plugins/ballerina/model/tree-builder';
 
 const directory = process.env.DIRECTORY ? process.env.DIRECTORY : '';
 const transformerBalDir = path.join(directory, 'js', 'tests', 'resources', 'transformer');
