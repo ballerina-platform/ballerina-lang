@@ -42,6 +42,7 @@ import org.ballerinalang.model.AnnotationAttachment;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -56,7 +57,7 @@ public enum CompletionItemResolver {
             new DefaultResolver()),
     STATEMENT_CONTEXT(StatementContextResolver.class,
             new StatementContextResolver()),
-    TOP_LEVEL_CONTEXT(null,
+    TOP_LEVEL_CONTEXT(TopLevelResolver.class,
             new TopLevelResolver()),
     PACKAGE_NAME_CONTEXT(BallerinaParser.PackageNameContext.class,
             new PackageNameContextResolver()),
@@ -66,7 +67,7 @@ public enum CompletionItemResolver {
             new PackageNameContextResolver()),
     PARAMETER_CONTEXT(BallerinaParser.ParameterContext.class,
             new ParameterContextResolver()),
-    BLOCK_STATEMENT_CONTEXT(BlockStatementContextResolver.class,
+    BLOCK_STATEMENT_CONTEXT(BLangBlockStmt.class,
             new BlockStatementContextResolver()),
     ANNOTATION_ATTACHMENT(AnnotationAttachment.class,
             new AnnotationAttachmentResolver()),

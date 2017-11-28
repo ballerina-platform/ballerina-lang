@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -98,7 +99,9 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>>
     completion(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
-            List<CompletionItem> completions = BallerinaCompletionUtil.getCompletions(position);
+            String uri = position.getTextDocument().getUri();
+            String fileContent = this.documentManager.getFileContent(Paths.get(URI.create(uri)));
+            List<CompletionItem> completions = BallerinaCompletionUtil.getCompletions(position, fileContent);
             return Either.forLeft(completions);
         });
     }

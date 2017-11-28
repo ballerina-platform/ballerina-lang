@@ -23,7 +23,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 /**
  * Package node scope position resolver.
  */
-public class PackageNodeScopeResolver implements CursorPositionResolver {
+public class PackageNodeScopeResolver extends CursorPositionResolver {
     @Override
     public boolean isCursorBeforeStatement(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor) {
         // TODO: Finalize the implementation

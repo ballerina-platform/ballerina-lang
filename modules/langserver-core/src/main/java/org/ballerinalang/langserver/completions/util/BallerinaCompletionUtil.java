@@ -25,7 +25,7 @@ import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.models.ModelPackage;
-import org.ballerinalang.langserver.completions.resolvers.DefaultResolver;
+import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.eclipse.lsp4j.CompletionItem;
@@ -39,10 +39,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,17 +61,16 @@ public class BallerinaCompletionUtil {
      * @param positionParams - text document position params
      * @return {@link Compiler} Compiler instance
      */
-    public static List<CompletionItem> getCompletions(TextDocumentPositionParams positionParams) {
+    public static List<CompletionItem> getCompletions(TextDocumentPositionParams positionParams, String fileContent) {
         CompilerContext compilerContext = new CompilerContext();
         SuggestionsFilterDataModel filterDataModel = new SuggestionsFilterDataModel();
-        String textContent = getDocumentText(positionParams.getTextDocument().getUri());
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         String compilationUnitId = getRandomCompilationUnitId();
         List<Name> names = new ArrayList<>();
         names.add(new Name("."));
         PackageID tempPackageID = new PackageID(names, new Name("0.0.0"));
         InMemoryPackageRepository inMemoryPackageRepository = new InMemoryPackageRepository(tempPackageID,
-                "", compilationUnitId, textContent.getBytes(StandardCharsets.UTF_8));
+                "", compilationUnitId, fileContent.getBytes(StandardCharsets.UTF_8));
         options.put(COMPILER_PHASE, CompilerPhase.TYPE_CHECK.toString());
         compilerContext.put(PackageRepository.class, inMemoryPackageRepository);
         BallerinaCustomErrorStrategy errStrategy = new BallerinaCustomErrorStrategy(compilerContext,
@@ -91,7 +87,7 @@ public class BallerinaCompletionUtil {
 
         BLangNode symbolEnvNode = filterDataModel.getSymbolEnvNode();
         if (symbolEnvNode == null) {
-            return CompletionItemResolver.getResolverByClass(DefaultResolver.class).resolveItems(filterDataModel);
+            return CompletionItemResolver.getResolverByClass(TopLevelResolver.class).resolveItems(filterDataModel);
         } else {
             return CompletionItemResolver.getResolverByClass(symbolEnvNode.getClass()).resolveItems(filterDataModel);
         }
@@ -108,16 +104,5 @@ public class BallerinaCompletionUtil {
      */
     public Set<Map.Entry<String, ModelPackage>> getPackages() {
         return this.packages;
-    }
-
-    private static String getDocumentText(String uri) {
-        String documentText = "";
-        try {
-            documentText = new String(Files.readAllBytes(Paths.get(uri)), "UTF-8");
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage());
-        }
-
-        return documentText;
     }
 }

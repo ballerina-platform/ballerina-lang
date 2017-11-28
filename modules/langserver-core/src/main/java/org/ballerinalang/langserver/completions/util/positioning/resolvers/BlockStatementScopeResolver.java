@@ -37,7 +37,7 @@ import java.util.Map;
 /**
  * Block statement scope position resolver.
  */
-public class BlockStatementScopeResolver implements CursorPositionResolver {
+public class BlockStatementScopeResolver extends CursorPositionResolver {
     /**
      * Check whether the cursor position is located before the evaluating statement node.
      * @param nodePosition position of the node
@@ -48,12 +48,13 @@ public class BlockStatementScopeResolver implements CursorPositionResolver {
     public boolean isCursorBeforeStatement(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor) {
         int line = treeVisitor.getTextDocumentPositionParams().getPosition().getLine();
         int col = treeVisitor.getTextDocumentPositionParams().getPosition().getCharacter();
-        int nodeSLine = nodePosition.sLine;
-        int nodeSCol = nodePosition.sCol;
+        DiagnosticPos zeroBasedPos = this.toZeroBasedPosition(nodePosition);
+        int nodeSLine = zeroBasedPos.sLine;
+        int nodeSCol = zeroBasedPos.sCol;
         // node endLine for the BLangIf node has to calculate by considering the else node. End line of the BLangIf
         // node is the endLine of the else node.
-        int nodeELine = node instanceof BLangIf ? getIfElseNodeEndLine((BLangIf) node) : nodePosition.eLine;
-        int nodeECol = nodePosition.eCol;
+        int nodeELine = node instanceof BLangIf ? getIfElseNodeEndLine((BLangIf) node) : zeroBasedPos.eLine;
+        int nodeECol = zeroBasedPos.eCol;
 
         BLangBlockStmt bLangBlockStmt = treeVisitor.getBlockStmtStack().peek();
         Node blockOwner = treeVisitor.getBlockOwnerStack().peek();
