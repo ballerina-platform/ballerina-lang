@@ -28,6 +28,7 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,7 +42,7 @@ import java.util.TreeMap;
  * EventHolder implementation where events will be indexed and stored. This will offer faster access compared to
  * other EventHolder implementations. User can only add unique events based on a given primary key.
  */
-public class IndexEventHolder implements IndexedEventHolder {
+public class IndexEventHolder implements IndexedEventHolder, Serializable {
 
     private static final Logger log = Logger.getLogger(IndexEventHolder.class);
     private final Map<Object, StreamEvent> primaryKeyData;

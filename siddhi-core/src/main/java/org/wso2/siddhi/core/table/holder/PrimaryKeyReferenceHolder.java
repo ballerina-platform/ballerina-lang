@@ -18,10 +18,12 @@
 
 package org.wso2.siddhi.core.table.holder;
 
+import java.io.Serializable;
+
 /**
  * PrimaryKeyReferenceHolder for indexed Event Table
  */
-public class PrimaryKeyReferenceHolder {
+public class PrimaryKeyReferenceHolder implements Serializable {
     private String primaryKeyAttribute = null;
     private int primaryKeyPosition = -1;
 
