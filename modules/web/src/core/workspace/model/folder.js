@@ -19,20 +19,17 @@
 
 import _ from 'lodash';
 import { getPathSeperator } from 'api-client/api-client';
-import EventChannel from 'event_channel';
-import { EVENTS } from './../constants';
 
 /**
  * Represents a Folder opened in workspace
  */
-class Folder extends EventChannel {
+class Folder {
 
     /**
      * Folder Constructor
      * @param {Object} args Folder Details
      */
     constructor({ fullPath, children, properties }) {
-        super();
         this._parent = '';
         this._name = '';
         this.fullPath = fullPath || `temp${getPathSeperator()}untitled`;
@@ -54,7 +51,6 @@ class Folder extends EventChannel {
         this._fullPath = fullPath;
         this._name = _.last(fullPath.split(getPathSeperator()));
         this._parent = _.dropRight(fullPath.split(getPathSeperator()), 1).join(getPathSeperator());
-        this.trigger(EVENTS.FOLDER_UPDATED, this);
     }
 
     /**
@@ -84,7 +80,6 @@ class Folder extends EventChannel {
      */
     set children(children) {
         this._children = children;
-        this.trigger(EVENTS.FOLDER_UPDATED, this);
     }
 
     /**
