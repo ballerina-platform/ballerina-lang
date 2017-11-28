@@ -23,7 +23,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 /**
  * Resource parameter scope position resolver.
  */
-public class ResourceParamScopeResolver implements CursorPositionResolver {
+public class ResourceParamScopeResolver extends CursorPositionResolver {
     /**
      * Check whether the cursor position is located before the evaluating statement node.
      * @param nodePosition position of the node

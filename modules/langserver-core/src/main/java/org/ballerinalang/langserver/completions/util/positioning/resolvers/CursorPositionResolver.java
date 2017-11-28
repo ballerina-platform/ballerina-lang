@@ -23,6 +23,19 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 /**
  * Cursor position resolver interface.
  */
-public interface CursorPositionResolver {
-    boolean isCursorBeforeStatement(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor);
+public abstract class CursorPositionResolver {
+    public abstract boolean isCursorBeforeStatement(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor);
+
+    /**
+     * Convert the diagnostic position to a zero based positioning diagnostic position.
+     * @param diagnosticPos - diagnostic position to be cloned
+     * @return {@link DiagnosticPos} converted diagnostic position
+     */
+    public DiagnosticPos  toZeroBasedPosition(DiagnosticPos diagnosticPos) {
+        int startLine = diagnosticPos.getStartLine() - 1;
+        int endLine = diagnosticPos.getEndLine() - 1;
+        int startColumn = diagnosticPos.startColumn() - 1;
+        int endColumn = diagnosticPos.endColumn() - 1;
+        return new DiagnosticPos(diagnosticPos.getSource(), startLine, endLine, startColumn, endColumn);
+    }
 }

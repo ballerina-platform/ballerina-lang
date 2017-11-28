@@ -26,13 +26,14 @@ import java.util.Map;
 /**
  * Service scope position resolver.
  */
-public class ServiceScopeResolver implements CursorPositionResolver {
+public class ServiceScopeResolver extends CursorPositionResolver {
     @Override
     public boolean isCursorBeforeStatement(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor) {
         int line = treeVisitor.getTextDocumentPositionParams().getPosition().getLine();
         int col = treeVisitor.getTextDocumentPositionParams().getPosition().getCharacter();
-        int nodeSLine = nodePosition.sLine;
-        int nodeSCol = nodePosition.sCol;
+        DiagnosticPos zeroBasedPo = this.toZeroBasedPosition(nodePosition);
+        int nodeSLine = zeroBasedPo.sLine;
+        int nodeSCol = zeroBasedPo.sCol;
 
         if (line < nodeSLine || (line == nodeSLine && col < nodeSCol)) {
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
