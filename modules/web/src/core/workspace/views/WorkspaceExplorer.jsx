@@ -104,7 +104,7 @@ class WorkspaceExplorer extends View {
             let activeKey;
             const { goToFilePath } = this.state;
             if (goToFilePath && !foundGoToFileRoot) {
-                if (goToFilePath && _.startsWith(goToFilePath, folder)) {
+                if (goToFilePath && _.startsWith(goToFilePath, folder.fullPath)) {
                     activeKey = goToFilePath;
                     foundGoToFileRoot = true;
                 }
@@ -112,8 +112,8 @@ class WorkspaceExplorer extends View {
             trees.push((
                 <ExplorerItem
                     activeKey={activeKey}
-                    folderPath={folder}
-                    key={folder}
+                    folder={folder}
+                    key={folder.fullPath}
                     workspaceManager={this.props.workspaceManager}
                     onSelect={this.onSelectNode}
                     panelResizeInProgress={this.props.panelResizeInProgress}
@@ -121,11 +121,11 @@ class WorkspaceExplorer extends View {
             ));
         });
         return (
-            <div className="workspace-explorer">
+            <div className='workspace-explorer'>
                 {_.isEmpty(trees) &&
-                    <div className="open-folder-btn-wrapper" onClick={this.onClickOpenProgramDir} >
-                        <span className="open-folder-button">
-                            <i className="fw fw-folder-open" />Open Program Directory
+                    <div className='open-folder-btn-wrapper' onClick={this.onClickOpenProgramDir} >
+                        <span className='open-folder-button'>
+                            <i className='fw fw-folder-open' />Open Program Directory
                         </span>
                     </div>
                 }

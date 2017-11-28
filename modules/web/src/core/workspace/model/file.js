@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-
 import _ from 'lodash';
 import uuid from 'uuid/v4';
 import EventChannel from 'event_channel';
@@ -31,19 +30,19 @@ class File extends EventChannel {
      * File Constructor
      * @param {Object} args File Details
      */
-    constructor({ id, fullPath, path, name, packageName, extension, content, isPersisted, lastPersisted, isDirty }) {
+    constructor({ id, fullPath, path, name, extension, content, isPersisted, lastPersisted, isDirty, properties }) {
         super();
         this._id = id || uuid();
         this._fullPath = fullPath || this._id;
         this._path = path || 'temp';
         this._name = name || 'untitled';
-        this._packageName = packageName || '.';
         this._ext = extension || 'bal';
         this._content = content || '';
         this._isPersisted = !_.isNil(isPersisted) ? isPersisted : false;
         this._lastPersisted = lastPersisted || _.now();
         this._isDirty = !_.isNil(isDirty) ? isDirty : true;
         this._lastUpdated = _.now();
+        this._props = properties || {};
     }
 
     /**
@@ -104,21 +103,6 @@ class File extends EventChannel {
      */
     set name(name) {
         this._name = name;
-        this.trigger(EVENTS.FILE_UPDATED, this);
-    }
-
-     /**
-     * Returns package name
-     */
-    get packageName() {
-        return this._packageName;
-    }
-
-    /**
-     * Sets package name
-     */
-    set packageName(packageName) {
-        this._packageName = packageName;
         this.trigger(EVENTS.FILE_UPDATED, this);
     }
 
@@ -235,6 +219,35 @@ class File extends EventChannel {
         this._ext = ext;
         this.trigger(EVENTS.FILE_UPDATED, this);
     }
+
+    /**
+     * Gets custom properties of the given file.
+     *
+     */
+    get properties() {
+        return this._props;
+    }
+
+    /**
+     * Get the value of given property.
+     *
+     * @param {string} propertyName
+     */
+    getProperty(propertyName) {
+        return this._props[propertyName];
+    }
+
+    /**
+     * Set the value of given property.
+     *
+     * @param {string} propertyName
+     * @param {any} propertyValue
+     */
+    setProperty(propertyName, propertyValue) {
+        this._props[propertyName] = propertyValue;
+    }
+
+
 }
 
 export default File;
