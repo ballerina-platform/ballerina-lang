@@ -231,7 +231,7 @@ class File extends EventChannel {
     /**
      * Get the value of given property.
      *
-     * @param {string} propertyName 
+     * @param {string} propertyName
      */
     getProperty(propertyName) {
         return this._props[propertyName];
@@ -240,8 +240,8 @@ class File extends EventChannel {
     /**
      * Set the value of given property.
      *
-     * @param {string} propertyName 
-     * @param {any} propertyValue 
+     * @param {string} propertyName
+     * @param {any} propertyValue
      */
     setProperty(propertyName, propertyValue) {
         this._props[propertyName] = propertyValue;

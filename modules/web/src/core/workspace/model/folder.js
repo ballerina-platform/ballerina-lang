@@ -18,7 +18,6 @@
  */
 
 import _ from 'lodash';
-import uuid from 'uuid/v4';
 import { getPathSeperator } from 'api-client/api-client';
 import EventChannel from 'event_channel';
 import { EVENTS } from './../constants';
@@ -99,7 +98,7 @@ class Folder extends EventChannel {
     /**
      * Get the value of given property.
      *
-     * @param {string} propertyName 
+     * @param {string} propertyName
      */
     getProperty(propertyName) {
         return this._props[propertyName];
@@ -108,8 +107,8 @@ class Folder extends EventChannel {
     /**
      * Set the value of given property.
      *
-     * @param {string} propertyName 
-     * @param {any} propertyValue 
+     * @param {string} propertyName
+     * @param {any} propertyValue
      */
     setProperty(propertyName, propertyValue) {
         this._props[propertyName] = propertyValue;

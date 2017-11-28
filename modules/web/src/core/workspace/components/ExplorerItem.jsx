@@ -19,16 +19,13 @@
 
 import React from 'react';
 import classnames from 'classnames';
-import _ from 'lodash';
-import { getPathSeperator } from 'api-client/api-client';
 import PropTypes from 'prop-types';
-import { COMMANDS } from './../constants';
-import Folder from './../model/folder'
 import ContextMenuTrigger from 'core/view/context-menu/ContextMenuTrigger';
-import './styles.scss';
-
 import FileTree from 'core/view/tree-view/FileTree';
 import { getContextMenuItems } from 'core/view/tree-view/menu';
+import { COMMANDS } from './../constants';
+import Folder from './../model/folder';
+import './styles.scss';
 
 const TREE_NODE_TYPE = 'root';
 
@@ -157,7 +154,7 @@ class ExplorerItem extends React.Component {
      */
     render() {
         return (
-            <div className="explorer-item">
+            <div className='explorer-item'>
                 <ContextMenuTrigger
                     id={this.state.node.id}
                     menu={getContextMenuItems(
@@ -184,8 +181,8 @@ class ExplorerItem extends React.Component {
                     }}
                 >
                     <div
-                        data-placement="bottom"
-                        data-toggle="tooltip"
+                        data-placement='bottom'
+                        data-toggle='tooltip'
                         title={this.state.node.id}
                         className={classnames('root', 'unseletable-content', { active: this.state.node.active })}
                         onClick={() => {
@@ -198,17 +195,17 @@ class ExplorerItem extends React.Component {
                         }
                     >
                         <div className={classnames('arrow', { collapsed: this.state.node.collapsed })} />
-                        <i className="fw fw-folder icon" />
-                        <span className="root-label">{this.state.node.label}</span>
-                        <span className="root-actions">
+                        <i className='fw fw-folder icon' />
+                        <span className='root-label'>{this.state.node.label}</span>
+                        <span className='root-actions'>
                             <i
-                                className="fw fw-refresh2 action"
-                                title="Refresh"
+                                className='fw fw-refresh2 action'
+                                title='Refresh'
                                 onClick={this.onRefreshProjectFolderClick}
                             />
                             <i
-                                className="fw fw-close action"
-                                title="Remove Program Directory"
+                                className='fw fw-close action'
+                                title='Remove Program Directory'
                                 onClick={this.onRemoveProjectFolderClick}
                             />
                         </span>

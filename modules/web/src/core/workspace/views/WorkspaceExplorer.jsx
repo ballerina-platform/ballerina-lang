@@ -67,7 +67,7 @@ class WorkspaceExplorer extends View {
 
     /**
      * On Go To File Dispatch
-     */objectOf
+     */
     onGoToFileInExplorer({ filePath }) {
         this.setState({
             goToFilePath: filePath,
@@ -121,11 +121,11 @@ class WorkspaceExplorer extends View {
             ));
         });
         return (
-            <div className="workspace-explorer">
+            <div className='workspace-explorer'>
                 {_.isEmpty(trees) &&
-                    <div className="open-folder-btn-wrapper" onClick={this.onClickOpenProgramDir} >
-                        <span className="open-folder-button">
-                            <i className="fw fw-folder-open" />Open Program Directory
+                    <div className='open-folder-btn-wrapper' onClick={this.onClickOpenProgramDir} >
+                        <span className='open-folder-button'>
+                            <i className='fw fw-folder-open' />Open Program Directory
                         </span>
                     </div>
                 }
