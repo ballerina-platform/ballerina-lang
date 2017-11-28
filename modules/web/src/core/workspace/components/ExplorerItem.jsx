@@ -23,11 +23,12 @@ import _ from 'lodash';
 import { getPathSeperator } from 'api-client/api-client';
 import PropTypes from 'prop-types';
 import { COMMANDS } from './../constants';
-import ContextMenuTrigger from './../../view/context-menu/ContextMenuTrigger';
+import Folder from './../model/folder'
+import ContextMenuTrigger from 'core/view/context-menu/ContextMenuTrigger';
 import './styles.scss';
 
-import FileTree from './../../view/tree-view/FileTree';
-import { getContextMenuItems } from './../../view/tree-view/menu';
+import FileTree from 'core/view/tree-view/FileTree';
+import { getContextMenuItems } from 'core/view/tree-view/menu';
 
 const TREE_NODE_TYPE = 'root';
 
@@ -45,10 +46,10 @@ class ExplorerItem extends React.Component {
             forceCollapse: false,
             node: {
                 collapsed: true,
-                id: this.props.folderPath,
+                id: this.props.folder.fullPath,
                 type: TREE_NODE_TYPE,
                 active: false,
-                label: _.last(this.props.folderPath.split(getPathSeperator())),
+                label: this.props.folder.name,
             },
         };
         this.fileTree = undefined;
@@ -105,7 +106,7 @@ class ExplorerItem extends React.Component {
      * On Remove Project Folder
      */
     onRemoveProjectFolderClick(e) {
-        this.props.workspaceManager.removeFolder(this.props.folderPath);
+        this.props.workspaceManager.removeFolder(this.props.folder.fullPath);
         e.stopPropagation();
         e.preventDefault();
     }
@@ -123,7 +124,7 @@ class ExplorerItem extends React.Component {
      * On Refresh Project Folder
      */
     refreshPathInExplorer({ filePath }) {
-        if (filePath.startsWith(this.props.folderPath)) {
+        if (filePath.startsWith(this.props.folder.fullPath)) {
             this.refresh();
         }
     }
@@ -223,7 +224,7 @@ class ExplorerItem extends React.Component {
                         onLoadData={(data) => {
                             this.state.node.children = data;
                         }}
-                        root={this.props.folderPath}
+                        root={this.props.folder.fullPath}
                         activeKey={this.props.activeKey}
                         onOpen={this.onOpen}
                         onSelect={this.props.onSelect}
@@ -239,7 +240,7 @@ ExplorerItem.propTypes = {
     panelResizeInProgress: PropTypes.bool.isRequired,
     onSelect: PropTypes.func,
     activeKey: PropTypes.string,
-    folderPath: PropTypes.string.isRequired,
+    folder: PropTypes.instanceOf(Folder).isRequired,
     workspaceManager: PropTypes.objectOf(Object).isRequired,
 };
 
