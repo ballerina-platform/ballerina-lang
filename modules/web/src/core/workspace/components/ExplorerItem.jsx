@@ -24,7 +24,7 @@ import ContextMenuTrigger from 'core/view/context-menu/ContextMenuTrigger';
 import FileTree from 'core/view/tree-view/FileTree';
 import { getContextMenuItems } from 'core/view/tree-view/menu';
 import { COMMANDS } from './../constants';
-import Folder from './../model/folder';
+import Folder from '../model/folder';
 import './styles.scss';
 
 const TREE_NODE_TYPE = 'root';
