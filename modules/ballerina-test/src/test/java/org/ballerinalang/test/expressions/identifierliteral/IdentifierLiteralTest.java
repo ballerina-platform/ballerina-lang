@@ -174,16 +174,22 @@ public class IdentifierLiteralTest {
     @Test(description = "Test defining local variables with Identifier Literal")
     public void testIdentifierLiteralInStructName() {
         BValue[] returns = BRunUtil.invoke(result, "useILInStructName");
-        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertSame(returns[1].getClass(), BString.class);
         Assert.assertSame(returns[2].getClass(), BInteger.class);
+        Assert.assertSame(returns[3].getClass(), BString.class);
+
         String actualFirstName = ((BString) returns[0]).stringValue();
         Assert.assertEquals(actualFirstName, "Tom");
+
         String actualLastName = ((BString) returns[1]).stringValue();
         Assert.assertEquals(actualLastName, "hank");
+
         long actualInt = ((BInteger) returns[2]).intValue();
         Assert.assertEquals(actualInt, 50);
+
+        Assert.assertEquals(returns[3].stringValue(), "Tom");
     }
 
     @Test(description = "Test unicode with identifier literal")
@@ -201,8 +207,7 @@ public class IdentifierLiteralTest {
         CompileResult resultNeg = BCompileUtil.compile("test-src/expressions/identifierliteral" +
                 "/identifier-literal-undefined-variable-negative.bal");
         Assert.assertEquals(resultNeg.getErrorCount(), 1);
-        BAssertUtil.validateError(resultNeg, 0, "undefined symbol '|global v \" ar|'", 5, 12);
-
+        BAssertUtil.validateError(resultNeg, 0, "undefined symbol 'global v \" ar'", 5, 12);
     }
 
     @Test(description = "Test wrong character in identifier literal")
@@ -216,5 +221,25 @@ public class IdentifierLiteralTest {
         BAssertUtil.validateError(resultNeg, 2, "extraneous input 'return'", 4, 5);
         BAssertUtil.validateError(resultNeg, 3, "mismatched input ';'. expecting {'.', ',', '[', '=', '@'}",
                 4, 25);
+    }
+
+    @Test
+    public void testAcessILWithoutPipe() {
+        BValue[] returns = BRunUtil.invoke(result, "testAcessILWithoutPipe");
+        Assert.assertEquals(returns.length, 2);
+
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "hello");
+
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertEquals(returns[1].stringValue(), "hello");
+    }
+
+    @Test
+    public void testAcessJSONFielAsIL() {
+        BValue[] returns = BRunUtil.invoke(result, "testAcessJSONFielAsIL");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BJSON.class);
+        Assert.assertEquals(returns[0].stringValue(), "I am an integer");
     }
 }

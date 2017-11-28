@@ -14,7 +14,7 @@ struct Employee {
 function main (string[] args) {
     endpoint<sql:ClientConnector> testDB {
       create sql:ClientConnector(
-             sql:MYSQL, "localhost", 3306, "testdb", "root", "root", {maximumPoolSize:5});
+        sql:DB.MYSQL, "localhost", 3306, "testdb", "root", "root", {maximumPoolSize:5});
     }
 
     //Create table named EMPLOYEE and populate sample data.

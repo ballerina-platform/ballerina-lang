@@ -20,6 +20,7 @@ package org.ballerinalang.test.types.map;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -89,17 +90,17 @@ public class MapAccessExprTest {
         CompileResult incorrectCompileResult = BCompileUtil.compile("test-src/types/map/map-access-negative.bal");
         Assert.assertTrue(incorrectCompileResult.getDiagnostics().length == 1);
         Assert.assertEquals(incorrectCompileResult.getDiagnostics()[0].getMessage(),
-                            "incompatible types: expected 'string', found 'int'");
+                "incompatible types: expected 'string', found 'int'");
     }
-    
+
     @Test(description = "Test nested map access")
     public void testNestedMapAccess() {
         CompileResult incorrectCompileResult = BCompileUtil.compile("test-src/types/map/nested-map-access.bal");
         Assert.assertTrue(incorrectCompileResult.getDiagnostics().length == 1);
         Assert.assertEquals(incorrectCompileResult.getDiagnostics()[0].getMessage(),
-                            "invalid operation: type 'any' does not support field access");
+                "invalid operation: type 'any' does not support field access");
     }
-    
+
     @Test(description = "Test array access expression as the index of a map")
     public void testArrayAccessAsIndexOfMapt() {
         BValue[] args = {};
@@ -110,4 +111,50 @@ public class MapAccessExprTest {
 
         Assert.assertEquals(returns[0].stringValue(), "Supun");
     }
+
+    @Test(description = "Test map clear.")
+    public void testMapClear() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMapClear", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).value(), new Long(0));
+    }
+
+    @Test(description = "Test map has key positive.")
+    public void testHasKeyPositive() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testHasKeyPositive", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+
+        Assert.assertEquals(((BBoolean) returns[0]).value(), new Boolean(true));
+    }
+
+    @Test(description = "Test map has key negative.")
+    public void testHasKeyNegative() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testHasKeyNegative", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+
+        Assert.assertEquals(((BBoolean) returns[0]).value(), new Boolean(false));
+    }
+
+    @Test(description = "Test get map values.")
+    public void testGetMapValues() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetMapValues", args);
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "Supun");
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertEquals(returns[1].stringValue(), "Colombo");
+    }
+
 }

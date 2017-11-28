@@ -138,3 +138,16 @@ function arrayLengthAccessTestJSONArrayNegativeNonArrayCase (int x, int y) (int)
     length = (lengthof arr);
     return length;
 }
+
+
+function lengthOfMap (int x, int y) (int) {
+    map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
+    int length = lengthof namesMap;
+    return length;
+}
+
+function lengthOfMapEmpty (int x, int y) (int) {
+    map namesMap = {};
+    int length = lengthof namesMap;
+    return length;
+}

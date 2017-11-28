@@ -73,6 +73,7 @@ public class Constants {
     public static final String ANN_CONFIG_ATTR_HOST = "host";
     public static final String ANN_CONFIG_ATTR_PORT = "port";
     public static final String ANN_CONFIG_ATTR_HTTPS_PORT = "httpsPort";
+    public static final String ANN_CONFIG_ATTR_KEEP_ALIVE = "keepAlive";
     public static final String ANN_CONFIG_ATTR_BASE_PATH = "basePath";
     public static final String ANN_CONFIG_ATTR_SCHEME = "scheme";
     public static final String ANN_CONFIG_ATTR_TLS_STORE_TYPE = "tlsStoreType";
@@ -149,6 +150,7 @@ public class Constants {
     public static final int OPTIONS_STRUCT_INDEX = 0;
     public static final int ENDPOINT_TIMEOUT_STRUCT_INDEX = 1;
     public static final int ENABLE_CHUNKING_INDEX = 0;
+    public static final int IS_KEEP_ALIVE_INDEX = 1;
     public static final int SSL_STRUCT_INDEX = 1;
     public static final int FOLLOW_REDIRECT_STRUCT_INDEX = 0;
     public static final int FOLLOW_REDIRECT_INDEX = 0;
@@ -172,6 +174,10 @@ public class Constants {
     public static final int RETRY_STRUCT_INDEX = 2;
     public static final int RETRY_COUNT_INDEX = 0;
     public static final int RETRY_INTERVAL_INDEX = 1;
+
+    public static final String CONNECTION_HEADER = "Connection";
+    public static final String HEADER_VAL_CONNECTION_CLOSE = "Close";
+    public static final String HEADER_VAL_CONNECTION_KEEP_ALIVE = "Keep-Alive";
 
     /**
      * Content type HTTP header.

@@ -304,6 +304,7 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.LENGTHOF, jsonType, intType, InstructionCodes.LENGTHOF);
         defineUnaryOperator(OperatorKind.LENGTHOF, arrayType, intType, InstructionCodes.LENGTHOF);
         defineUnaryOperator(OperatorKind.LENGTHOF, xmlType, intType, InstructionCodes.LENGTHOF);
+        defineUnaryOperator(OperatorKind.LENGTHOF, mapType, intType, InstructionCodes.LENGTHOF);
 
         defineCastOperators();
         defineConversionOperators();

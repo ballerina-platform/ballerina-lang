@@ -100,14 +100,6 @@ public class SQLConnectorInitTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test(expectedExceptions = RuntimeException.class,
-          expectedExceptionsMessageRegExp =
-                  ".*error in sql connector configuration: cannot generate url for unknown database type : TESTDB.*")
-    public void testInvalidDBType() {
-        BValue[] args = {};
-        BRunUtil.invoke(result, "testInvalidDBType", args);
-    }
-
 
     @AfterSuite
     public void cleanup() {

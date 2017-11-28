@@ -178,6 +178,7 @@ public class HttpConnectionManager {
         if (isHTTPTraceLoggerEnabled()) {
             senderConfiguration.setHttpTraceLogEnabled(true);
         }
+        senderConfiguration.setTlsStoreType(Constants.PKCS_STORE_TYPE);
 
         BStruct options = (BStruct) bConnector.getRefField(Constants.OPTIONS_STRUCT_INDEX);
         if (options != null) {
@@ -327,7 +328,6 @@ public class HttpConnectionManager {
             if (!clientParams.isEmpty()) {
                 senderConfiguration.setParameters(clientParams);
             }
-            senderConfiguration.setTlsStoreType(Constants.PKCS_STORE_TYPE);
         }
         if (options.getRefField(Constants.PROXY_STRUCT_INDEX) != null) {
             BStruct proxy = (BStruct) options.getRefField(Constants.PROXY_STRUCT_INDEX);
@@ -359,6 +359,9 @@ public class HttpConnectionManager {
             throw new BallerinaConnectorException("Invalid idle timeout: " + endpointTimeout);
         }
         senderConfiguration.setSocketIdleTimeout((int) endpointTimeout);
+
+        boolean isKeepAlive = options.getBooleanField(Constants.IS_KEEP_ALIVE_INDEX) == 1;
+        senderConfiguration.setKeepAlive(isKeepAlive);
     }
 
     private String makeFirstLetterLowerCase(String str) {

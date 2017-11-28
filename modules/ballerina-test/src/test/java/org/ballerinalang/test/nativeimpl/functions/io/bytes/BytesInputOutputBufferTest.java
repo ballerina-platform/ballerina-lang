@@ -137,6 +137,25 @@ public class BytesInputOutputBufferTest {
         Assert.assertEquals(totalNumberOfBytesRead, totalNumberOfBytesWritten);
     }
 
+    @Test(description = "Read all bytes from a file")
+    public void readAllBytes() throws IOException, URISyntaxException {
+        final int numberOfBytesInFile = 45613;
+
+        ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/images/ballerina.png");
+        Channel channel = new MockByteChannel(byteChannel, IOConstants.CHANNEL_BUFFER_SIZE);
+        ByteChannel writeByteChannel = TestUtil.openForWriting(currentDirectoryPath + "ballerinaCopy.png");
+        Channel writeChannel = new MockByteChannel(writeByteChannel, 0);
+
+        byte[] readBytes = channel.readAll();
+        int numberOfBytesWritten = writeChannel.write(readBytes, 0);
+
+        Assert.assertEquals(readBytes.length, numberOfBytesInFile);
+        Assert.assertEquals(readBytes.length, numberOfBytesWritten);
+
+        channel.close();
+        writeChannel.close();
+    }
+
     @Test(description = "Read bytes from fix buffer into multiple reads")
     public void multiReadFromFixedBuffer() throws IOException, URISyntaxException {
 

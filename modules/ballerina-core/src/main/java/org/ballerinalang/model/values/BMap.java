@@ -87,6 +87,23 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     }
 
     /**
+     * Clear map entries.
+     */
+    public void clear() {
+        map.clear();
+    }
+
+    /**
+     * Check existence of a key of a map.
+     *
+     * @param key key of the map item
+     * @return returns boolean true if key exists
+     */
+    public boolean hasKey(K key) {
+        return map.containsKey(key);
+    }
+
+    /**
      * Get the size of the map.
      * @return returns the size of the map
      */

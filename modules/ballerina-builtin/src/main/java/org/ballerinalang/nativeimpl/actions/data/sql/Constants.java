@@ -116,6 +116,9 @@ public final class Constants {
         public static final int IN = 0;
         public static final int OUT = 1;
         public static final int INOUT = 2;
+        public static final String DIR_IN = "IN";
+        public static final String DIR_OUT = "OUT";
+        public static final String DIR_INOUT = "INOUT";
 
     }
 

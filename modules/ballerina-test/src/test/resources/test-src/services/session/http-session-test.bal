@@ -334,7 +334,7 @@ service<http> sample2 {
         http:Session session = req.createSessionIfAbsent();
         map attributes = session.getAttributes();
         string v0 = "map not present";
-        if (attributes.length() != 0) {
+        if ((lengthof attributes) != 0) {
             string[] arr = attributes.keys();
             v0,_ = (string)attributes[arr[0]];
         }

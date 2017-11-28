@@ -226,6 +226,8 @@ public class BLangPackageBuilder {
     
     private DiagnosticLog dlog;
 
+    private static final String PIPE = "|";
+
     public BLangPackageBuilder(CompilerContext context, CompilationUnitNode compUnit) {
         this.dlog = DiagnosticLog.getInstance(context);
         this.compUnit = compUnit;
@@ -390,8 +392,16 @@ public class BLangPackageBuilder {
 
     private IdentifierNode createIdentifier(String value) {
         IdentifierNode node = TreeBuilder.createIdentifierNode();
-        if (value != null) {
+        if (value == null) {
+            return node;
+        }
+
+        if (value.startsWith(PIPE) && value.endsWith(PIPE)) {
+            node.setValue(value.substring(1, value.length() - 1));
+            node.setLiteral(true);
+        } else {
             node.setValue(value);
+            node.setLiteral(false);
         }
         return node;
     }
@@ -1172,7 +1182,7 @@ public class BLangPackageBuilder {
         AnnotationAttachmentAttributeValueNode attributeValueNode = annotAttribValStack.pop();
         BLangAnnotAttachmentAttribute attrib =
                 (BLangAnnotAttachmentAttribute) TreeBuilder.createAnnotAttachmentAttributeNode();
-        attrib.name = attrName;
+        attrib.name = (BLangIdentifier) createIdentifier(attrName);
         attrib.value = (BLangAnnotAttachmentAttributeValue) attributeValueNode;
         attrib.addWS(ws);
         annotAttachmentStack.peek().addAttribute(attrib);
