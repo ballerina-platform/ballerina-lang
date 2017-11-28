@@ -113,6 +113,7 @@ class WorkspacePlugin extends Plugin {
     openFile(filePath, type = 'bal', activate = true) {
         return new Promise((resolve, reject) => {
             const indexInOpenedFiles = _.findIndex(this.openedFiles, file => file.fullPath === filePath);
+            const { command: { dispatch } } = this.appContext;
             // if not already opened
             if (indexInOpenedFiles === -1) {
                 read(filePath)
@@ -123,13 +124,13 @@ class WorkspacePlugin extends Plugin {
                         history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
                         file.on(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
                         editor.open(file, activate);
+                        dispatch(EVENTS.FILE_OPEN, { file });
                         resolve(file);
                     })
                     .catch((err) => {
                         reject(JSON.stringify(err));
                     });
             } else {
-                const { command: { dispatch } } = this.appContext;
                 dispatch(EDITOR_COMMANDS.ACTIVATE_EDITOR_FOR_FILE, {
                     filePath,
                 });
