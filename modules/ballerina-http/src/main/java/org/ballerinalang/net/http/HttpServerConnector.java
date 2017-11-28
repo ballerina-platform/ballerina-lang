@@ -50,6 +50,8 @@ public class HttpServerConnector implements BallerinaServerConnector {
 
     private CopyOnWriteArrayList<String> sortedServiceURIs = new CopyOnWriteArrayList<>();
 
+    private final HTTPServicesRegistry httpServicesRegistry = new HTTPServicesRegistry();
+
     public HttpServerConnector() {
     }
 
@@ -61,7 +63,7 @@ public class HttpServerConnector implements BallerinaServerConnector {
     @Override
     public void serviceRegistered(Service service) throws BallerinaConnectorException {
         HttpService httpService = new HttpService(service);
-        HTTPServicesRegistry.getInstance().registerService(httpService);
+        httpServicesRegistry.registerService(httpService);
         CorsPopulator.populateServiceCors(httpService);
         List<HttpResource> resources = new ArrayList<>();
         for (Resource resource : service.getResources()) {
@@ -86,7 +88,7 @@ public class HttpServerConnector implements BallerinaServerConnector {
     @Override
     public void serviceUnregistered(Service service) throws BallerinaConnectorException {
         HttpService httpService = new HttpService(service);
-        HTTPServicesRegistry.getInstance().unregisterService(httpService);
+        httpServicesRegistry.unregisterService(httpService);
 
         //basePath will get cached after unregistering the service
         sortedServiceURIs.remove(httpService.getBasePath());
@@ -97,12 +99,15 @@ public class HttpServerConnector implements BallerinaServerConnector {
         HttpUtil.startPendingHttpConnectors();
     }
 
+    public HTTPServicesRegistry getHttpServicesRegistry() {
+        return httpServicesRegistry;
+    }
+
     public HttpService findService(HTTPCarbonMessage cMsg) {
 
         try {
             String interfaceId = getInterface(cMsg);
-            Map<String, HttpService> servicesOnInterface = HTTPServicesRegistry
-                    .getInstance().getServicesInfoByInterface(interfaceId);
+            Map<String, HttpService> servicesOnInterface = httpServicesRegistry.getServicesInfoByInterface(interfaceId);
             if (servicesOnInterface == null) {
                 throw new BallerinaConnectorException("No services found for interface : " + interfaceId);
             }

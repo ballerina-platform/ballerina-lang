@@ -44,13 +44,8 @@ public class HTTPServicesRegistry {
 
     // Outer Map key=interface, Inner Map key=basePath
     private final Map<String, Map<String, HttpService>> servicesInfoMap = new ConcurrentHashMap<>();
-    private static final HTTPServicesRegistry servicesRegistry = new HTTPServicesRegistry();
 
-    private HTTPServicesRegistry() {
-    }
-
-    public static HTTPServicesRegistry getInstance() {
-        return servicesRegistry;
+    public HTTPServicesRegistry() {
     }
 
     /**
