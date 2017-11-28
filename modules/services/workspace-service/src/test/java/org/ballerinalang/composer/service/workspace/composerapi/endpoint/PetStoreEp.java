@@ -16,16 +16,17 @@
 *  under the License.
 */
 
-package org.ballerinalang.composer.service.workspace.composerApiWS.endpoint;
+package org.ballerinalang.composer.service.workspace.composerapi.endpoint;
 
-import com.google.gson.Gson;
-import org.ballerinalang.composer.service.workspace.composerApiWS.utils.RequestHandler;
+import org.ballerinalang.composer.service.workspace.composerapi.exception.BallerinaComposerApiException;
+import org.ballerinalang.composer.service.workspace.composerapi.utils.RequestHandler;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.msf4j.websocket.WebSocketEndpoint;
 
+import java.io.IOException;
 import javax.websocket.CloseReason;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -33,7 +34,6 @@ import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
-import java.io.IOException;
 
 /**
  * This is a Sample class for WebSocket.
@@ -42,23 +42,22 @@ import java.io.IOException;
 
 @ServerEndpoint(value = "/pet-store")
 public class PetStoreEp implements WebSocketEndpoint {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PetStoreEp.class);
+    private static final Logger log = LoggerFactory.getLogger(PetStoreEp.class);
     Session userSession = null;
     RequestHandler requestHandler = new RequestHandler();
     Endpoint serviceAsEndpoint;
-    private Gson gson = new Gson();
 
     @OnOpen
     public void onOpen(Session session) {
         PetStoreApiImpl petStoreservice = new PetStoreApiImpl();
         serviceAsEndpoint = ServiceEndpoints.toEndpoint(petStoreservice);
         userSession = session;
-        LOGGER.info("Opening websocket service pet-store");
+        log.info("Opening websocket service pet-store");
     }
 
     @OnMessage
-    public void onTextMessage(String text, Session session) throws IOException {
-        LOGGER.info("Received request from : " + text + " from  " + session.getId());
+    public void onTextMessage(String text, Session session) throws IOException, BallerinaComposerApiException {
+        log.info("Received request from : " + text + " from  " + session.getId());
             String responseStr = requestHandler.routeRequestAndNotify(serviceAsEndpoint, text);
             if (responseStr != null) {
                 // Sync the server and client
@@ -67,8 +66,8 @@ public class PetStoreEp implements WebSocketEndpoint {
     }
 
     @OnClose
-    public void onClose(CloseReason closeReason, Session session) {
-        LOGGER.info("Connection is closed with status code : " + closeReason.getCloseCode().getCode()
+    public void onClose(CloseReason closeReason, Session session) throws BallerinaComposerApiException {
+        log.info("Connection is closed with status code : " + closeReason.getCloseCode().getCode()
                 + " On reason " + closeReason.getReasonPhrase());
         userSession = null;
         sync("Closing websocket service pet-store");
@@ -76,16 +75,18 @@ public class PetStoreEp implements WebSocketEndpoint {
 
     @OnError
     public void onError(Throwable throwable, Session session) {
-        LOGGER.error("Error found in method : " + throwable.toString());
+        log.error("Error found in method : " + throwable.toString());
     }
 
-
-    private void sync(String message) {
+    /**
+     * Sync the response message between the server and client
+     * @param message response message
+     */
+    private void sync(String message) throws BallerinaComposerApiException {
         try {
             userSession.getBasicRemote().sendText(message);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new BallerinaComposerApiException(e.getMessage());
         }
-
     }
 }

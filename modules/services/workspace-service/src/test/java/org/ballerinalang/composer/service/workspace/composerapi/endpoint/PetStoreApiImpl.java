@@ -15,26 +15,21 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.composer.service.workspace.composerApiWS.model;
+package org.ballerinalang.composer.service.workspace.composerapi.endpoint;
 
-public class Dog {
-    String breed;
+import org.ballerinalang.composer.service.workspace.composerapi.handlers.impl.CatHandlerImpl;
+import org.ballerinalang.composer.service.workspace.composerapi.handlers.impl.DogHandlerImpl;
+import org.ballerinalang.composer.service.workspace.composerapi.handlers.interfaces.CatHandlerI;
+import org.ballerinalang.composer.service.workspace.composerapi.handlers.interfaces.DogHandlerI;
 
-    public String getBreed() {
-        return breed;
+public class PetStoreApiImpl implements PetStoreApi {
+    @Override
+    public DogHandlerI getDog() {
+        return  new DogHandlerImpl();
     }
 
-    public void setBreed(String breed) {
-        this.breed = breed;
+    @Override
+    public CatHandlerI getCat() {
+        return new CatHandlerImpl();
     }
-
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    String color;
 }

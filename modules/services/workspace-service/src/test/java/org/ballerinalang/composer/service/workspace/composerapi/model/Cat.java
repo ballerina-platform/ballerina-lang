@@ -15,17 +15,26 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.composer.service.workspace.composerApiWS.handlers.interfaces;
+package org.ballerinalang.composer.service.workspace.composerapi.model;
 
-import org.ballerinalang.composer.service.workspace.composerApiWS.model.Cat;
-import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
-import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
+public class Cat {
+    String breed;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
+    public String getBreed() {
+        return breed;
+    }
 
-@JsonSegment("cats")
-public interface CatHandlerI {
-    @JsonRequest
-    CompletableFuture<List<String>> addCats(Cat catObj);
+    public void setBreed(String breed) {
+        this.breed = breed;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    String color;
 }

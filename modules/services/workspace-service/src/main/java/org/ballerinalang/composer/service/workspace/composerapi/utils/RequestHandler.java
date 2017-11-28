@@ -31,7 +31,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Handler to handle the request received from the web socket of the composer API
+ * Handler to handle the request received from the web socket of the composer API.
  */
 public class RequestHandler {
     private Gson gson = new Gson();
@@ -50,14 +50,15 @@ public class RequestHandler {
         } else {
             ResponseMessage jsonrpcResponse = new ResponseMessage();
             jsonrpcResponse.setId(null);
-            ResponseError responseError = handleError(-32700, "Parse error : Invalid JSON was received by the server");
+            ResponseError responseError = handleError(-32700, "Parse error : Invalid JSON was received " +
+                    "by the server");
             jsonrpcResponse.setError(responseError);
             return gson.toJson(jsonrpcResponse);
         }
     }
 
     /**
-     * Handles the request sent to the endpoint
+     * Handles the request sent to the endpoint.
      *
      * @param serviceAsEndpoint Endpoint service
      * @param text              Request as a string
@@ -76,7 +77,8 @@ public class RequestHandler {
         if (delegateMethod != null) {
             // Cast parameters to the type requested by the delegate method
             Class paramCls = (Class) delegateMethod.getParameterTypes()[0];
-            CompletableFuture completableFutureResp = serviceAsEndpoint.request(jsonrpcRequest.getMethod(), new Gson().fromJson(new Gson().toJson((jsonrpcRequest.getParams())), paramCls));
+            CompletableFuture completableFutureResp = serviceAsEndpoint.request(jsonrpcRequest.getMethod(),
+                    new Gson().fromJson(new Gson().toJson((jsonrpcRequest.getParams())), paramCls));
             jsonrpcResponse = handleResult(jsonrpcRequest, completableFutureResp);
         } else {
             jsonrpcResponse = new ResponseMessage();
@@ -90,7 +92,7 @@ public class RequestHandler {
     }
 
     /**
-     * Handles the notification sent to the endpoint
+     * Handles the notification sent to the endpoint.
      *
      * @param serviceAsEndpoint Endpoint service
      * @param text              Request as a string
@@ -106,12 +108,13 @@ public class RequestHandler {
         if (delegateMethod != null) {
             // Cast parameters to the type requested by the delegate method
             Class paramCls = (Class) delegateMethod.getParameterTypes()[0];
-            serviceAsEndpoint.notify(jsonrpcRequest.getMethod(), new Gson().fromJson(new Gson().toJson((jsonrpcRequest.getParams())), paramCls));
+            serviceAsEndpoint.notify(jsonrpcRequest.getMethod(), new Gson()
+                    .fromJson(new Gson().toJson((jsonrpcRequest.getParams())), paramCls));
         }
     }
 
     /**
-     * Check if the json string is in the correct format
+     * Check if the json string is in the correct format.
      *
      * @param jsonInString request string sent to the endpoint
      * @return valid or not
@@ -126,7 +129,7 @@ public class RequestHandler {
     }
 
     /**
-     * Handle the result/response from the endpoint
+     * Handle the result/response from the endpoint.
      *
      * @param jsonrpcRequest        JSON RPC Request object
      * @param completableFutureResp Result of the request sent
@@ -142,7 +145,8 @@ public class RequestHandler {
                 jsonrpcResponse.setJsonrpc(jsonrpcRequest.getJsonrpc());
                 jsonrpcResponse.setId(jsonrpcRequest.getId());
             } catch (InterruptedException e) {
-                responseError = handleError(-32002, "Attempted to retrieve the result of a task/s that was aborted by throwing an exception");
+                responseError = handleError(-32002, "Attempted to retrieve the result of a task/s " +
+                        "that was aborted by throwing an exception");
                 jsonrpcResponse.setError(responseError);
             } catch (ExecutionException e) {
                 responseError = handleError(-32001, "Current thread was interrupted");
@@ -156,7 +160,7 @@ public class RequestHandler {
     }
 
     /**
-     * Handles the JSON RPC Error object
+     * Handles the JSON RPC Error object.
      *
      * @param code    error code
      * @param message error message

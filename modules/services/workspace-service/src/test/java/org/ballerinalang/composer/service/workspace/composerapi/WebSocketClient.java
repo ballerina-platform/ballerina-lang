@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.composer.service.workspace.composerApiWS;
+package org.ballerinalang.composer.service.workspace.composerapi;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
@@ -43,10 +43,10 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.SSLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
+import javax.net.ssl.SSLException;
 
 /**
  * WebSocket client class for test

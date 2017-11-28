@@ -15,21 +15,22 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.composer.service.workspace.composerApiWS.handlers.interfaces;
+package org.ballerinalang.composer.service.workspace.composerapi.handlers.impl;
 
-import org.ballerinalang.composer.service.workspace.composerApiWS.model.Dog;
-import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
-import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
-import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
+import org.ballerinalang.composer.service.workspace.composerapi.handlers.interfaces.CatHandlerI;
+import org.ballerinalang.composer.service.workspace.composerapi.model.Cat;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-@JsonSegment("dogs")
-public interface DogHandlerI {
-    @JsonRequest
-    CompletableFuture<List<String>> addDogs(Dog dogObj);
+public class CatHandlerImpl implements CatHandlerI {
+    List<String> catsInStore = new ArrayList<>();
 
-    @JsonNotification
-    void notifyAvailabilityOfDogs(String[] availableBreeds);
+    public CompletableFuture<List<String>> addCats(Cat cat) {
+        catsInStore.add("Persian");
+        catsInStore.add("Siamese");
+        catsInStore.add(cat.getBreed());
+        return CompletableFuture.completedFuture(catsInStore);
+    }
 }

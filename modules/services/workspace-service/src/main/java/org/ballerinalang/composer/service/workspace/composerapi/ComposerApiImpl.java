@@ -17,5 +17,8 @@
 */
 package org.ballerinalang.composer.service.workspace.composerapi;
 
+/**
+ * Implementation of the Interface of the main composer endpoint.
+ */
 public class ComposerApiImpl implements ComposerApi {
 }

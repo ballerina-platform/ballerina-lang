@@ -15,26 +15,19 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.composer.service.workspace.composerApiWS.model;
+package org.ballerinalang.composer.service.workspace.composerapi.endpoint;
 
-public class Cat {
-    String breed;
+import org.ballerinalang.composer.service.workspace.composerapi.handlers.interfaces.CatHandlerI;
+import org.ballerinalang.composer.service.workspace.composerapi.handlers.interfaces.DogHandlerI;
+import org.eclipse.lsp4j.jsonrpc.services.JsonDelegate;
+import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
-    public String getBreed() {
-        return breed;
-    }
+@JsonSegment("composer")
+public interface PetStoreApi {
 
-    public void setBreed(String breed) {
-        this.breed = breed;
-    }
+    @JsonDelegate
+    public DogHandlerI getDog();
 
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    String color;
+    @JsonDelegate
+    public CatHandlerI getCat();
 }

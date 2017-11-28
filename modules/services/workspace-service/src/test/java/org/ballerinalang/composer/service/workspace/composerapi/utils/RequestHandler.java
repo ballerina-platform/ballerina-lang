@@ -15,10 +15,10 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.composer.service.workspace.composerApiWS.utils;
+package org.ballerinalang.composer.service.workspace.composerapi.utils;
 
 import com.google.gson.Gson;
-import org.ballerinalang.composer.service.workspace.composerApiWS.endpoint.PetStoreApi;
+import org.ballerinalang.composer.service.workspace.composerapi.endpoint.PetStoreApi;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.json.JsonRpcMethod;
 import org.eclipse.lsp4j.jsonrpc.messages.RequestMessage;
@@ -31,7 +31,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Handler to handle the request received from the web socket of the composer API
+ * Handler to handle the request received from the web socket of the composer API.
  */
 public class RequestHandler {
     private Gson gson = new Gson();
@@ -76,7 +76,8 @@ public class RequestHandler {
         if (delegateMethod != null) {
             // Cast parameters to the type requested by the delegate method
             Class paramCls = (Class) delegateMethod.getParameterTypes()[0];
-            CompletableFuture completableFutureResp = serviceAsEndpoint.request(jsonrpcRequest.getMethod(), new Gson().fromJson(new Gson().toJson((jsonrpcRequest.getParams())), paramCls));
+            CompletableFuture completableFutureResp = serviceAsEndpoint.request(jsonrpcRequest.getMethod(),
+                    new Gson().fromJson(new Gson().toJson((jsonrpcRequest.getParams())), paramCls));
             jsonrpcResponse = handleResult(jsonrpcRequest, completableFutureResp);
         } else {
             jsonrpcResponse = new ResponseMessage();
@@ -106,7 +107,8 @@ public class RequestHandler {
         if (delegateMethod != null) {
             // Cast parameters to the type requested by the delegate method
             Class paramCls = (Class) delegateMethod.getParameterTypes()[0];
-            serviceAsEndpoint.notify(jsonrpcRequest.getMethod(), new Gson().fromJson(new Gson().toJson((jsonrpcRequest.getParams())), paramCls));
+            serviceAsEndpoint.notify(jsonrpcRequest.getMethod(), new Gson()
+                    .fromJson(new Gson().toJson((jsonrpcRequest.getParams())), paramCls));
         }
     }
 
@@ -142,7 +144,8 @@ public class RequestHandler {
                 jsonrpcResponse.setJsonrpc(jsonrpcRequest.getJsonrpc());
                 jsonrpcResponse.setId(jsonrpcRequest.getId());
             } catch (InterruptedException e) {
-                responseError = handleError(-32002, "Attempted to retrieve the result of a task/s that was aborted by throwing an exception");
+                responseError = handleError(-32002, "Attempted to retrieve the result of a task/s that " +
+                        "was aborted by throwing an exception");
                 jsonrpcResponse.setError(responseError);
             } catch (ExecutionException e) {
                 responseError = handleError(-32001, "Current thread was interrupted");

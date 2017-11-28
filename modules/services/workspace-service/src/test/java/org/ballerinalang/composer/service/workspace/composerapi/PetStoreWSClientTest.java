@@ -16,11 +16,12 @@
 *  under the License.
 */
 
-package org.ballerinalang.composer.service.workspace.composerApiWS;
+package org.ballerinalang.composer.service.workspace.composerapi;
 
 import com.google.gson.JsonParser;
 import org.apache.commons.io.FileUtils;
-import org.ballerinalang.composer.service.workspace.composerApiWS.endpoint.PetStoreEp;
+import org.ballerinalang.composer.service.workspace.composerapi.endpoint.PetStoreEp;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -29,7 +30,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.msf4j.MicroservicesRunner;
 
-import javax.net.ssl.SSLException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -37,6 +37,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import javax.net.ssl.SSLException;
 
 
 /**
@@ -44,7 +45,7 @@ import java.util.List;
  *
  */
 public class PetStoreWSClientTest {
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PetStoreEp.class);
+    private static final Logger log = LoggerFactory.getLogger(PetStoreEp.class);
     private final String host = "localhost";
     private final String port = "8080";
     private JsonParser parser = new JsonParser();
@@ -55,9 +56,8 @@ public class PetStoreWSClientTest {
      */
     @BeforeClass
     public void startService() {
-        LOGGER.info(System.lineSeparator() +
-                "--------------------------------WebSocket Deployment Test--------------------------------");
-        microservicesRunner.deployWebSocketEndpoint(new PetStoreEp() );
+        log.info("------------------WebSocket Deployment Test----------------------");
+        microservicesRunner.deployWebSocketEndpoint(new PetStoreEp());
         microservicesRunner.start();
     }
 
@@ -67,7 +67,7 @@ public class PetStoreWSClientTest {
      * @return List of test cases for the request handler of Composer API
      */
     @DataProvider(name = "ComposerApiSamples")
-    public Object[][] ComposerApiWsSamples() throws IOException {
+    public Object[][] composerapiSamples() throws IOException {
         String testFilesPath = "samples" + File.separator + "composer-api-ws" + File.separator;
         ClassLoader classLoader = getClass().getClassLoader();
         URL inputFolderUrl = classLoader.getResource(testFilesPath + "request" + File.separator);
@@ -113,8 +113,8 @@ public class PetStoreWSClientTest {
     public void executeRequestForInvalidJson() throws InterruptedException, SSLException, URISyntaxException {
         WebSocketClient petStoreClient = new WebSocketClient(petStoreUrl);
         Assert.assertTrue(petStoreClient.handhshake());
-        String requestedContent = "{\"jsonrpc\": \"2.0\" , \"method\": \"dogs/notifyAvailabilityOfDogs\", \"params\": " +
-                "[Boxer, ShihTzu]}";
+        String requestedContent = "{\"jsonrpc\": \"2.0\" , \"method\": \"dogs/notifyAvailabilityOfDogs\", " +
+                "  \"params\": [Boxer, ShihTzu]}";
         petStoreClient.sendText(requestedContent);
         Thread.sleep(100);
     }
@@ -145,7 +145,8 @@ public class PetStoreWSClientTest {
      * @throws URISyntaxException Exception when invoking the web socket service
      */
     @Test(dataProvider = "ComposerApiSamples", description = "Testing @JsonRequest which has a response")
-    public void executeRequest(String requestContent, String responseContent) throws InterruptedException, SSLException, URISyntaxException {
+    public void executeRequest(String requestContent, String responseContent) throws InterruptedException,
+            SSLException, URISyntaxException {
         WebSocketClient petStoreClient = new WebSocketClient(petStoreUrl);
         //Test handshake
         Assert.assertTrue(petStoreClient.handhshake());

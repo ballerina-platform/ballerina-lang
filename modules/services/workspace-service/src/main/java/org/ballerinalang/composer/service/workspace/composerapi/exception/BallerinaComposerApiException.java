@@ -15,13 +15,16 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.composer.service.workspace.composerapi;
+package org.ballerinalang.composer.service.workspace.composerapi.exception;
 
-import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
+
 
 /**
- * Main composer endpoint.
+ * An exception class for ballerina composer api.
  */
-@JsonSegment("composer")
-public interface ComposerApi {
+public class BallerinaComposerApiException extends Exception {
+
+    public BallerinaComposerApiException(String msg) {
+        super(msg);
+    }
 }

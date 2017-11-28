@@ -1,9 +1,9 @@
 
-package org.ballerinalang.composer.service.workspace.composerApiWS.handlers.impl;
+package org.ballerinalang.composer.service.workspace.composerapi.handlers.impl;
 
-import org.ballerinalang.composer.service.workspace.composerApiWS.endpoint.PetStoreEp;
-import org.ballerinalang.composer.service.workspace.composerApiWS.handlers.interfaces.DogHandlerI;
-import org.ballerinalang.composer.service.workspace.composerApiWS.model.Dog;
+import org.ballerinalang.composer.service.workspace.composerapi.endpoint.PetStoreEp;
+import org.ballerinalang.composer.service.workspace.composerapi.handlers.interfaces.DogHandlerI;
+import org.ballerinalang.composer.service.workspace.composerapi.model.Dog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class DogHandlerImpl implements DogHandlerI {
-    private final Logger LOGGER = LoggerFactory.getLogger(PetStoreEp.class);
+    private final Logger log = LoggerFactory.getLogger(PetStoreEp.class);
     List<String> dogsInStore = new ArrayList<>();
 
     /**
@@ -30,7 +30,7 @@ public class DogHandlerImpl implements DogHandlerI {
 
     @Override
     public void notifyAvailabilityOfDogs(String [] availableBreeds) {
-        String message = "Only " +Arrays.toString(availableBreeds) + " are available till next month";
-        LOGGER.info(message);
+        String message = "Only " + Arrays.toString(availableBreeds) + " are available till next month";
+        log.info(message);
     }
 }

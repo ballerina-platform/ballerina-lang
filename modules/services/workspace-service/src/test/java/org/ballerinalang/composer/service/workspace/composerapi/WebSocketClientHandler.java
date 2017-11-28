@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.composer.service.workspace.composerApiWS;
+package org.ballerinalang.composer.service.workspace.composerapi;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;

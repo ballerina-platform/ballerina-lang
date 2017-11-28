@@ -15,13 +15,26 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.composer.service.workspace.composerapi;
+package org.ballerinalang.composer.service.workspace.composerapi.model;
 
-import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
+public class Dog {
+    String breed;
 
-/**
- * Main composer endpoint.
- */
-@JsonSegment("composer")
-public interface ComposerApi {
+    public String getBreed() {
+        return breed;
+    }
+
+    public void setBreed(String breed) {
+        this.breed = breed;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    String color;
 }
