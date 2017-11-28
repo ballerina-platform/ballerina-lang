@@ -426,7 +426,7 @@ public class Main {
         @Parameter(names = {"--help", "-h"}, description = "for more information")
         private boolean helpFlag;
 
-        @Parameter(names = "--debug", description = "start in remote debugging mode")
+        @Parameter(names = "--debug <port>", description = "start Ballerina in remote debugging mode")
         private String debugPort;
 
         @Parameter(names = "--java.debug", hidden = true)
