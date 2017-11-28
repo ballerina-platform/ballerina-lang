@@ -45,6 +45,7 @@ import java.util.TreeMap;
 public class IndexEventHolder implements IndexedEventHolder, Serializable {
 
     private static final Logger log = Logger.getLogger(IndexEventHolder.class);
+    private static final long serialVersionUID = 1272291743721603253L;
     private final Map<Object, StreamEvent> primaryKeyData;
     private final Map<String, TreeMap<Object, Set<StreamEvent>>> indexData;
     private final PrimaryKeyReferenceHolder[] primaryKeyReferenceHolders;

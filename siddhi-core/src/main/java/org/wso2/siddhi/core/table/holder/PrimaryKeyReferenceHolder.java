@@ -24,6 +24,7 @@ import java.io.Serializable;
  * PrimaryKeyReferenceHolder for indexed Event Table
  */
 public class PrimaryKeyReferenceHolder implements Serializable {
+    private static final long serialVersionUID = 3147984326180029463L;
     private String primaryKeyAttribute = null;
     private int primaryKeyPosition = -1;
 
