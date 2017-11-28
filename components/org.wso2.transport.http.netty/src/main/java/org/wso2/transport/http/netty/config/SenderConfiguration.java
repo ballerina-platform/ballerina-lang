@@ -22,6 +22,7 @@ import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -39,7 +40,7 @@ public class SenderConfiguration {
 
     public static final String DEFAULT_KEY = "netty";
 
-
+    @Deprecated
     public static SenderConfiguration getDefault() {
         SenderConfiguration defaultConfig;
         defaultConfig = new SenderConfiguration(DEFAULT_KEY);
@@ -47,7 +48,7 @@ public class SenderConfiguration {
     }
 
     @XmlAttribute(required = true)
-    private String id;
+    private String id = DEFAULT_KEY;
 
     @XmlAttribute
     private String scheme = "http";
@@ -81,7 +82,7 @@ public class SenderConfiguration {
 
     @XmlElementWrapper(name = "parameters")
     @XmlElement(name = "parameter")
-    private List<Parameter> parameters;
+    private List<Parameter> parameters = new ArrayList<>();
 
     private boolean followRedirect;
 

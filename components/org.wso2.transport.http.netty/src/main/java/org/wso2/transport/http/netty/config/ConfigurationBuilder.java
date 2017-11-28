@@ -93,7 +93,7 @@ public class ConfigurationBuilder {
         } else { // return a default config
             log.warn("Netty transport configuration file not found in: " + configFileLocation +
                      " ,hence using default configuration");
-            transportsConfiguration = TransportsConfiguration.getDefault();
+            transportsConfiguration = new TransportsConfiguration();
         }
 
         return transportsConfiguration;

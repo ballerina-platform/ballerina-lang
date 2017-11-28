@@ -80,6 +80,9 @@ public class RequestSizeValidationConfiguration {
         });
     }
 
+    public RequestSizeValidationConfiguration() {
+    }
+
     public boolean isRequestSizeValidation() {
         return requestSizeValidation;
     }

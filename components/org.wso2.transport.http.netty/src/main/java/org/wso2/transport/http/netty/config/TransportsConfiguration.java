@@ -37,6 +37,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TransportsConfiguration {
 
+    @Deprecated
     public static TransportsConfiguration getDefault() {
         TransportsConfiguration defaultConfig = new TransportsConfiguration();
         ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
@@ -52,9 +53,19 @@ public class TransportsConfiguration {
         return defaultConfig;
     }
 
+    public TransportsConfiguration () {
+        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
+        listenerConfigurations = new HashSet<>();
+        listenerConfigurations.add(listenerConfiguration);
+
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfigurations = new HashSet<>();
+        senderConfigurations.add(senderConfiguration);
+    }
+
     @XmlElementWrapper(name = "properties")
     @XmlElement(name = "property")
-    private Set<TransportProperty> transportProperties = Collections.EMPTY_SET;
+    private Set<TransportProperty> transportProperties = new HashSet<>();
 
 
     @XmlElementWrapper(name = "listeners")

@@ -18,6 +18,7 @@ public class TransportProperty {
     @XmlValue
     protected Object value;
 
+    @Deprecated
     public static TransportProperty getDefault() {
         return new TransportProperty();
     }
