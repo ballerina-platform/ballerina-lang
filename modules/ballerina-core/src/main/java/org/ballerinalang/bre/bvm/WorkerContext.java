@@ -43,6 +43,10 @@ public class WorkerContext extends Context {
         this.setBallerinaTransactionManager(this.parent.getBallerinaTransactionManager());
         this.setServiceInfo(this.parent.getServiceInfo());
         this.setDebugInfoHolder(this.parent.getDebugInfoHolder());
+        if (this.parent.getActivityID() != null) {
+            this.setActivityID(this.parent.getActivityID().concat("-worker")
+                    .concat(String.valueOf(this.workerCounter.getCurrentWorkerCount() + 1)));
+        }
     }
 
 }

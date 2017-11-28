@@ -55,6 +55,7 @@ import java.util.logging.LogManager;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
+import static org.ballerinalang.logging.util.Constants.BALLERINA_NETWORK_LOGGER;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -108,7 +109,21 @@ public class LauncherUtils {
         Runtime.getRuntime().exit(0);
     }
 
+    private static boolean isNetworkLogEnabled() {
+        return Boolean.TRUE.equals(Boolean.valueOf(ConfigRegistry
+                .getInstance().getGlobalConfigValue(BALLERINA_NETWORK_LOGGER)));
+    }
+
     public static void runServices(ProgramFile programFile) {
+        boolean isNetworkLogEnabled = isNetworkLogEnabled();
+        if (isNetworkLogEnabled) {
+            try {
+                ((BLogManager) BLogManager.getLogManager()).setBallerinaNetworkLogger();
+            } catch (IOException e) {
+                throw new RuntimeException("Error in configuring Ballerina Network log", e);
+            }
+        }
+
         PrintStream outStream = System.out;
 
         ServerConnectorRegistry.getInstance().initServerConnectors();

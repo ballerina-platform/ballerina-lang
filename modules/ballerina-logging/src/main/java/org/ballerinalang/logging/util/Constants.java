@@ -25,6 +25,7 @@ package org.ballerinalang.logging.util;
  */
 public class Constants {
 
+    public static final String BALLERINA_NETWORK_LOGGER = "networklog.ballerina";
     public static final String HTTP_TRACE_LOG = "tracelog.http";
     public static final String BALLERINA_USER_LOG = "ballerina.log";
 

@@ -18,7 +18,9 @@
 package org.ballerinalang.logging;
 
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.logging.formatters.DefaultLogFormatter;
 import org.ballerinalang.logging.formatters.HTTPTraceLogFormatter;
+import org.ballerinalang.logging.handlers.NetworkLogFileHandler;
 import org.ballerinalang.logging.util.BLogLevel;
 
 import java.io.ByteArrayInputStream;
@@ -37,6 +39,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.ballerinalang.logging.util.Constants.BALLERINA_LOG_INSTANCES;
+import static org.ballerinalang.logging.util.Constants.BALLERINA_NETWORK_LOGGER;
 import static org.ballerinalang.logging.util.Constants.BALLERINA_USER_LOG;
 import static org.ballerinalang.logging.util.Constants.EMPTY_CONFIG;
 import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG;
@@ -60,6 +63,7 @@ public class BLogManager extends LogManager {
     private Map<String, BLogLevel> loggerLevels = new HashMap<>();
     private BLogLevel ballerinaUserLogLevel;
     private Logger httpTraceLogger;
+    private Logger ballerinaNetworkLogger;
 
     @Override
     public void readConfiguration(InputStream ins) throws IOException, SecurityException {
@@ -76,6 +80,22 @@ public class BLogManager extends LogManager {
         });
 
         super.readConfiguration(propertiesToInputStream(properties));
+
+    }
+
+    public void setBallerinaNetworkLogger() throws IOException {
+        Handler handler = new NetworkLogFileHandler();
+        handler.setFormatter(new DefaultLogFormatter());
+        handler.setLevel(Level.FINE);
+
+        if (ballerinaNetworkLogger == null) {
+            // keep a reference to prevent this logger from being garbage collected
+            ballerinaNetworkLogger = Logger.getLogger(BALLERINA_NETWORK_LOGGER);
+        }
+
+        removeHandlers(ballerinaNetworkLogger);
+        ballerinaNetworkLogger.addHandler(handler);
+        ballerinaNetworkLogger.setLevel(Level.FINE);
     }
 
     public void loadUserProvidedLogConfiguration() {
