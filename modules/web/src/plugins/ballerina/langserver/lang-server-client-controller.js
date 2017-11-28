@@ -84,6 +84,17 @@ class LangServerClientController extends EventChannel {
                 id: session.getId(),
                 jsonrpc: '2.0',
                 method: 'initialize',
+                params: {
+                    capabilities: {
+                        textDocument: {
+                            completion: {
+                                completionItem: {
+                                    snippetSupport: true,
+                                },
+                            },
+                        },
+                    },
+                },
             };
             session.setMessage(message);
             session.setCallback(() => {
@@ -139,7 +150,9 @@ class LangServerClientController extends EventChannel {
             jsonrpc: '2.0',
             method: 'textDocument/didOpen',
             params: {
-                textDocument: options.textDocument,
+                textDocument: {
+                    uri: options.textDocument,
+                },
             },
         };
 
@@ -159,7 +172,9 @@ class LangServerClientController extends EventChannel {
             jsonrpc: '2.0',
             method: 'textDocument/didClose',
             params: {
-                textDocument: options.textDocument,
+                textDocument: {
+                    uri: options.textDocument,
+                },
             },
         };
 
@@ -203,7 +218,10 @@ class LangServerClientController extends EventChannel {
                 text: options.textDocument,
                 position: options.position,
                 fileName: options.fileName,
-                filePath: options.filePath,
+                textDocument: {
+                    uri: 'file:///' + options.filePath,
+                },
+                uri: 'file:///' + options.filePath,
                 packageName: options.packageName,
             },
         };

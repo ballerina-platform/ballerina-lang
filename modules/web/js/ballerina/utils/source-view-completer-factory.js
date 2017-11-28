@@ -64,7 +64,7 @@ class CompleterFactory {
             packageName: fileData.packageName,
         };
         langserverController.getCompletions(options, (response) => {
-            const sortedArr = _.orderBy(response.result, ['sortText'], ['desc']);
+            const sortedArr = _.orderBy(response.result.left, ['sortText'], ['desc']);
             let score = sortedArr.length;
             sortedArr.map((completionItem) => {
                 completions.push(

@@ -22,34 +22,20 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.stream.JsonReader;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import org.antlr.v4.runtime.DefaultErrorStrategy;
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.workspace.common.Utils;
 import org.ballerinalang.composer.service.workspace.langserver.consts.LangServerConstants;
-import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
-import org.ballerinalang.composer.service.workspace.langserver.dto.DidSaveTextDocumentParams;
 import org.ballerinalang.composer.service.workspace.langserver.dto.ErrorData;
-import org.ballerinalang.composer.service.workspace.langserver.dto.InitializeResult;
-import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
-import org.ballerinalang.composer.service.workspace.langserver.dto.SymbolInformation;
-import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentIdentifier;
-import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentItem;
-import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentPositionParams;
-import org.ballerinalang.composer.service.workspace.langserver.dto.capabilities.ServerCapabilitiesDTO;
 import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
-import org.ballerinalang.composer.service.workspace.langserver.util.completion.WorkspaceSymbolProvider;
-import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPackageRepository;
-import org.ballerinalang.composer.service.workspace.suggetions.CapturePossibleTokenStrategy;
-import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter;
-import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
-import org.ballerinalang.langserver.BallerinaTextDocumentService;
-import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.PackageRepository;
+import org.eclipse.lsp4j.DidCloseTextDocumentParams;
+import org.eclipse.lsp4j.DidOpenTextDocumentParams;
+import org.eclipse.lsp4j.DidSaveTextDocumentParams;
+import org.eclipse.lsp4j.InitializeParams;
+import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.messages.Message;
 import org.eclipse.lsp4j.jsonrpc.messages.RequestMessage;
@@ -58,27 +44,15 @@ import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.EmptyStackException;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 
 /**
  * Language server Manager which manage langServer requests from the clients.
@@ -97,17 +71,17 @@ public class LangServerManager {
 
     private boolean initialized;
 
-    private Map<String, TextDocumentItem> openDocumentSessions = new HashMap<>();
-
-    private Map<String, TextDocumentItem> closedDocumentSessions = new HashMap<>();
-
     private Gson gson;
-
-    private WorkspaceSymbolProvider symbolProvider = new WorkspaceSymbolProvider();
 
     private Set<Map.Entry<String, ModelPackage>> packages;
 
     private static final String BAL_EXTENTION = ".bal";
+
+    private Endpoint languageServerEndpoint;
+
+    private Endpoint textDocumentServiceEndpoint;
+
+    private Endpoint workSpaceServiceEndpoint;
 
     /**
      * Caching the built in packages.
@@ -120,6 +94,10 @@ public class LangServerManager {
     private LangServerManager() {
         this.initialized = false;
         this.gson = new GsonBuilder().serializeNulls().create();
+        BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
+        this.languageServerEndpoint = ServiceEndpoints.toEndpoint(languageServer);
+        this.textDocumentServiceEndpoint = ServiceEndpoints.toEndpoint(languageServer.getTextDocumentService());
+        this.workSpaceServiceEndpoint = ServiceEndpoints.toEndpoint(languageServer.getWorkspaceService());
     }
 
     /**
@@ -174,6 +152,8 @@ public class LangServerManager {
         } catch (IOException e) {
             sendErrorResponse(LangServerConstants.METHOD_NOT_FOUND_LINE, LangServerConstants.METHOD_NOT_FOUND,
                     new RequestMessage(), null);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -182,38 +162,54 @@ public class LangServerManager {
      *
      * @param message Message
      */
-    private void processRequest(RequestMessage message) {
-        BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
-        Endpoint languageServerEndpoint = ServiceEndpoints.toEndpoint(languageServer);
-        Endpoint textDocumentServiceEndpoint = ServiceEndpoints.toEndpoint(languageServer.getTextDocumentService());
-        Endpoint workSpaceServiceEndpoint = ServiceEndpoints.toEndpoint(languageServer.getWorkspaceService());
-
+    private void processRequest(RequestMessage message) throws Exception {
         if (message.getMethod().equals(LangServerConstants.INITIALIZE)) {
-            CompletableFuture<?> result = languageServerEndpoint.request(message.getMethod(), message);
-//            pushMessageToClient(langServerSession, )
-//            this.initialize(message);
-        }
-//        else if (this.isInitialized()) {
-//            switch (message.getMethod()) {
-//                case LangServerConstants.SHUTDOWN:
-//                    this.shutdown(message);
-//                    break;
-//                case LangServerConstants.WORKSPACE_SYMBOL:
-//                    this.getWorkspaceSymbol(message);
-//                    break;
-//                case LangServerConstants.TEXT_DOCUMENT_COMPLETION:
-//                    this.getCompletionItems(message);
-//                    break;
-//                case LangServerConstants.BUILT_IN_PACKAGES:
-//                    this.getBuiltInPackages(message);
-//                    break;
-//                default:
-//                    // Valid Method could not be found
-//                    this.invalidMethodFound(message);
-//                    break;
-//            }
-//        }
-        else {
+            InitializeParams initializeParams = gson.fromJson(gson.toJson(message.getParams()), InitializeParams.class);
+            CompletableFuture<?> result = languageServerEndpoint.request(message.getMethod(), initializeParams);
+            ResponseMessage responseMessage = new ResponseMessage();
+            responseMessage.setId(message.getId());
+            responseMessage.setResult(result.get());
+            pushMessageToClient(langServerSession, responseMessage);
+            this.setInitialized(true);
+        } else if (this.isInitialized()) {
+            switch (message.getMethod()) {
+                case LangServerConstants.SHUTDOWN:
+                    CompletableFuture<?> resultShutdown =
+                            languageServerEndpoint.request(LangServerConstants.SHUTDOWN, null);
+                    ResponseMessage responseMessage = new ResponseMessage();
+                    responseMessage.setId(message.getId());
+                    responseMessage.setResult(resultShutdown.get());
+                    pushMessageToClient(langServerSession, responseMessage);
+                    break;
+                case LangServerConstants.WORKSPACE_SYMBOL:
+                    WorkspaceSymbolParams workspaceSymbolParams =
+                            gson.fromJson(gson.toJson(message.getParams()), WorkspaceSymbolParams.class);
+                    CompletableFuture<?> workspaceResult =
+                            workSpaceServiceEndpoint.request(LangServerConstants.WORKSPACE_SYMBOL, workspaceSymbolParams);
+                    ResponseMessage workspaceResponse = new ResponseMessage();
+                    workspaceResponse.setId(message.getId());
+                    workspaceResponse.setResult(JsonNull.INSTANCE);
+                    pushMessageToClient(langServerSession, workspaceResponse);
+                    break;
+                case LangServerConstants.TEXT_DOCUMENT_COMPLETION:
+                    TextDocumentPositionParams textDocumentPositionParams =
+                            gson.fromJson(gson.toJson(message.getParams()), TextDocumentPositionParams.class);
+                    CompletableFuture<?> completions =
+                            textDocumentServiceEndpoint.request(LangServerConstants.TEXT_DOCUMENT_COMPLETION, textDocumentPositionParams);
+                    ResponseMessage completionResponse = new ResponseMessage();
+                    completionResponse.setId(message.getId());
+                    completionResponse.setResult(completions.get());
+                    pushMessageToClient(langServerSession, completionResponse);
+                    break;
+                case LangServerConstants.BUILT_IN_PACKAGES:
+                    this.getBuiltInPackages(message);
+                    break;
+                default:
+                    // Valid Method could not be found
+                    this.invalidMethodFound(message);
+                    break;
+            }
+        } else {
             // Did not receive the initialize request
             this.sendErrorResponse(LangServerConstants.SERVER_NOT_INITIALIZED_LINE,
                     LangServerConstants.SERVER_NOT_INITIALIZED, message, null);
@@ -240,13 +236,22 @@ public class LangServerManager {
         } else if (this.isInitialized()) {
             switch (message.getMethod()) {
                 case LangServerConstants.TEXT_DOCUMENT_DID_OPEN:
-                    this.documentDidOpen(message);
+                    DidOpenTextDocumentParams didOpenTextDocumentParams =
+                            gson.fromJson(gson.toJson(message.getParams()), DidOpenTextDocumentParams.class);
+                    textDocumentServiceEndpoint
+                            .notify(LangServerConstants.TEXT_DOCUMENT_DID_OPEN, didOpenTextDocumentParams);
                     break;
                 case LangServerConstants.TEXT_DOCUMENT_DID_CLOSE:
-                    this.documentDidClose(message);
+                    DidCloseTextDocumentParams didCloseTextDocumentParams =
+                            gson.fromJson(gson.toJson(message.getParams()), DidCloseTextDocumentParams.class);
+                    textDocumentServiceEndpoint
+                            .notify(LangServerConstants.TEXT_DOCUMENT_DID_CLOSE, didCloseTextDocumentParams);
                     break;
                 case LangServerConstants.TEXT_DOCUMENT_DID_SAVE:
-                    this.documentDidSave(message);
+                    DidSaveTextDocumentParams didSaveTextDocumentParams =
+                            gson.fromJson(gson.toJson(message.getParams()),DidSaveTextDocumentParams.class);
+                    textDocumentServiceEndpoint
+                            .notify(LangServerConstants.TEXT_DOCUMENT_DID_SAVE, didSaveTextDocumentParams);
                     break;
                 case LangServerConstants.PING:
                     this.sendPong();
@@ -311,145 +316,7 @@ public class LangServerManager {
         pushMessageToClient(langServerSession, responseMessageDTO);
     }
 
-
-    // Start Request Handlers
-
-    /**
-     * Process initialize request.
-     *
-     * @param message Request Message
-     */
-    private void initialize(Message message) {
-        this.setInitialized(true);
-
-        ResponseMessage responseMessage = new ResponseMessage();
-        InitializeResult initializeResult = new InitializeResult();
-        if (message instanceof RequestMessage) {
-            responseMessage.setId(((RequestMessage) message).getId());
-        }
-        ServerCapabilitiesDTO serverCapabilities = new ServerCapabilitiesDTO();
-        initializeResult.setCapabilities(serverCapabilities);
-        responseMessage.setResult(initializeResult);
-        pushMessageToClient(langServerSession, responseMessage);
-    }
-    // End Request Handlers
-
-
     // Start Notification handlers
-
-    /**
-     * Handle Document did open notification.
-     *
-     * @param message Request Message
-     */
-    private void documentDidOpen(Message message) {
-        if (message instanceof RequestMessage) {
-            try {
-                LinkedTreeMap textDocument = (LinkedTreeMap) ((LinkedTreeMap) ((RequestMessage) message).
-                        getParams()).get("textDocument");
-                JsonObject jsonObject = gson.toJsonTree(textDocument).getAsJsonObject();
-                TextDocumentItem textDocumentItem = gson.fromJson(jsonObject, TextDocumentItem.class);
-                this.getOpenDocumentSessions().put(textDocumentItem.getDocumentUri(), textDocumentItem);
-            } catch (Exception e) {
-                logger.error("Invalid document received [" + e.getMessage() + "]");
-            }
-        } else {
-            // Invalid message type found
-            logger.warn("Invalid Message type found");
-        }
-    }
-
-    /**
-     * Handle Document did close notification.
-     *
-     * @param message Request Message
-     */
-    private void documentDidClose(Message message) {
-        if (message instanceof RequestMessage) {
-            try {
-                LinkedTreeMap textDocument = (LinkedTreeMap) ((LinkedTreeMap) ((RequestMessage) message).
-                        getParams()).get("textDocument");
-                JsonObject jsonObject = gson.toJsonTree(textDocument).getAsJsonObject();
-                TextDocumentIdentifier textDocumentIdentifier = gson.fromJson(jsonObject,
-                        TextDocumentIdentifier.class);
-
-                if (this.getOpenDocumentSessions().containsKey(textDocumentIdentifier.getDocumentUri())) {
-                    this.getClosedDocumentSessions().put(textDocumentIdentifier.getDocumentUri(),
-                            this.getOpenDocumentSessions().get(textDocumentIdentifier.getDocumentUri()));
-                    this.getOpenDocumentSessions().remove(textDocumentIdentifier.getDocumentUri());
-                } else {
-                    // Could not find the particular document identifier in the open document sessions
-                    logger.error("Invalid document Identifier");
-                }
-            } catch (Exception e) {
-                logger.error("Invalid document received [" + e.getMessage() + "]");
-            }
-        } else {
-            // Invalid message type found
-            logger.warn("Invalid Message type found");
-        }
-    }
-
-    private void documentDidSave(Message message) {
-        if (message instanceof RequestMessage) {
-            JsonObject params = gson.toJsonTree(((RequestMessage) message).getParams()).getAsJsonObject();
-            DidSaveTextDocumentParams didSaveTextDocumentParams = gson.fromJson(params.toString(),
-                    DidSaveTextDocumentParams.class);
-            TextDocumentIdentifier textDocumentIdentifier = didSaveTextDocumentParams.getTextDocument();
-
-            /**
-             * If the text document have not been persisted then this is the first time we try to
-             * persist the document. In that case we need to remove the previous temp entry
-             */
-            TextDocumentItem textDocumentItem;
-            if (this.getOpenDocumentSessions().containsKey("/temp/" + textDocumentIdentifier.getDocumentId())) {
-                textDocumentItem = this.getOpenDocumentSessions()
-                        .get("/temp/" + textDocumentIdentifier.getDocumentId());
-                this.getOpenDocumentSessions()
-                        .remove("/temp/" + textDocumentIdentifier.getDocumentId());
-                textDocumentItem.setText(didSaveTextDocumentParams.getText());
-                this.getOpenDocumentSessions().put(textDocumentIdentifier.getDocumentUri(), textDocumentItem);
-            } else if (this.getOpenDocumentSessions().containsKey(textDocumentIdentifier.getDocumentUri())) {
-                textDocumentItem = this.getOpenDocumentSessions()
-                        .get(textDocumentIdentifier.getDocumentUri());
-                textDocumentItem.setText(didSaveTextDocumentParams.getText());
-            } else {
-                logger.warn("Invalid document uri");
-            }
-        } else {
-            // Invalid message type found
-            logger.warn("Invalid Message type found");
-        }
-    }
-
-    /**
-     * Handle the get workspace symbol requests.
-     *
-     * @param message Request Message
-     */
-    private void getWorkspaceSymbol(Message message) {
-        if (message instanceof RequestMessage) {
-            String query = (String) ((LinkedTreeMap) ((RequestMessage) message).getParams()).get("query");
-            SymbolInformation[] symbolInformations = symbolProvider.getSymbols(query);
-            ResponseMessage responseMessage = new ResponseMessage();
-            responseMessage.setId(((RequestMessage) message).getId());
-            responseMessage.setResult(symbolInformations);
-            pushMessageToClient(langServerSession, responseMessage);
-        } else {
-            logger.warn("Invalid Message type found");
-        }
-    }
-
-    /**
-     * Process Shutdown notification.
-     *
-     * @param message Request Message
-     */
-    private void shutdown(Message message) {
-        ResponseMessage responseMessage = new ResponseMessage();
-        responseMessage.setResult(JsonNull.INSTANCE);
-        pushMessageToClient(langServerSession, responseMessage);
-    }
 
     /**
      * Handle exit notification.
@@ -492,99 +359,12 @@ public class LangServerManager {
     }
 
     /**
-     * Get the completion items.
-     *
-     * @param message - Request Message
-     */
-    private void getCompletionItems(Message message) {
-        if (message instanceof RequestMessage) {
-            String comilationUnitId = getRandomComilationUnitId();
-            ArrayList<CompletionItem> completionItems;
-            ArrayList<SymbolInfo> symbols = new ArrayList<>();
-
-            JsonObject params = gson.toJsonTree(((RequestMessage) message).getParams()).getAsJsonObject();
-            TextDocumentPositionParams posParams = gson.fromJson(params.toString(), TextDocumentPositionParams.class);
-
-            Position position = posParams.getPosition();
-            String textContent = posParams.getText();
-            CompilerContext compilerContext = new CompilerContext();
-
-            // TODO: Disabling the LangServer Package Repository and. Enable after adding package support to LangServer
-            // HashMap<String, byte[]> contentMap = new HashMap<>();
-            // contentMap.put("test.bal", textContent.getBytes(StandardCharsets.UTF_8));
-
-            options = CompilerOptions.getInstance(compilerContext);
-            options.put(COMPILER_PHASE, CompilerPhase.TYPE_CHECK.toString());
-
-            // TODO: Disabling the LangServer Package Repository and. Enable after adding package support to LangServer
-            // LangServerPackageRepository pkgRepo =
-            //        new LangServerPackageRepository(Paths.get(options.get(SOURCE_ROOT)), contentMap);
-            SuggestionsFilterDataModel filterDataModel = new SuggestionsFilterDataModel();
-
-            List<Name> names = new ArrayList<>();
-            names.add(new org.wso2.ballerinalang.compiler.util.Name("."));
-            PackageID tempPackageID = new PackageID(names, new org.wso2.ballerinalang.compiler.util.Name("0.0.0"));
-            InMemoryPackageRepository inMemoryPackageRepository = new InMemoryPackageRepository(tempPackageID, "",
-                    comilationUnitId, textContent.getBytes(StandardCharsets.UTF_8));
-            compilerContext.put(PackageRepository.class, inMemoryPackageRepository);
-
-            CapturePossibleTokenStrategy errStrategy = new CapturePossibleTokenStrategy(compilerContext,
-                    position, filterDataModel);
-            compilerContext.put(DefaultErrorStrategy.class, errStrategy);
-
-            Compiler compiler = Compiler.getInstance(compilerContext);
-            try {
-                // here we need to compile the whole package
-                compiler.compile(comilationUnitId);
-                BLangPackage bLangPackage = (BLangPackage) compiler.getAST();
-
-                // Visit the package to resolve the symbols
-                TreeVisitor treeVisitor = new TreeVisitor(comilationUnitId, compilerContext,
-                        symbols, position, filterDataModel);
-                bLangPackage.accept(treeVisitor);
-                // Set the symbol table
-                filterDataModel.setSymbolTable(treeVisitor.getSymTable());
-
-                // Filter the suggestions
-                SuggestionsFilter suggestionsFilter = new SuggestionsFilter();
-                filterDataModel.setPackages(this.getPackages());
-
-                completionItems = suggestionsFilter.getCompletionItems(filterDataModel, symbols);
-            } catch (NullPointerException | EmptyStackException e) {
-                //TODO : These exceptions are throwing from core, a proper solution should be followed to handle these
-                logger.debug("Failed to resolve completion items", e.getMessage());
-                completionItems = new ArrayList<>();
-            }
-            // Create the response message for client request
-            ResponseMessage responseMessage = new ResponseMessage();
-            responseMessage.setId(((RequestMessage) message).getId());
-            responseMessage.setResult(completionItems.toArray(new CompletionItem[0]));
-            pushMessageToClient(langServerSession, responseMessage);
-        } else {
-            logger.warn("Invalid Message type found");
-        }
-    }
-
-    /**
-     * Get packages.
-     *
-     * @return a map contains package details
-     */
-    private Set<Map.Entry<String, ModelPackage>> getPackages() {
-        return this.packages;
-    }
-
-    /**
      * Set packages.
      *
      * @param packages - packages set
      */
     private void setPackages(Set<Map.Entry<String, ModelPackage>> packages) {
         this.packages = packages;
-    }
-
-    private static String getRandomComilationUnitId() {
-        return UUID.randomUUID().toString().replace("-", "") + BAL_EXTENTION;
     }
 
     // End Notification Handlers
@@ -595,13 +375,5 @@ public class LangServerManager {
 
     private void setInitialized(boolean initialized) {
         this.initialized = initialized;
-    }
-
-    public Map<String, TextDocumentItem> getOpenDocumentSessions() {
-        return this.openDocumentSessions;
-    }
-
-    public Map<String, TextDocumentItem> getClosedDocumentSessions() {
-        return closedDocumentSessions;
     }
 }
