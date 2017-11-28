@@ -15,14 +15,17 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
+package org.ballerinalang.composer.service.workspace.composerApiWS.handlers.interfaces;
 
-package org.ballerinalang.composer.service.workspace.ws;
+import org.ballerinalang.composer.service.workspace.composerApiWS.model.Cat;
+import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
+import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
-import com.google.gson.internal.LinkedTreeMap;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-public interface ComposerApiHandler<T>{
-
-    String getMethodName();
-
-    Object process(T object);
+@JsonSegment("cats")
+public interface CatHandlerI {
+    @JsonRequest
+    CompletableFuture<List<String>> addCats(Cat catObj);
 }

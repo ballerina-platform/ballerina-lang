@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.composer.service.workspace.ws;
+package org.ballerinalang.composer.service.workspace.composerApiWS;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
@@ -142,7 +142,6 @@ public class WebSocketClient {
         }
 
         log.info("WebSocket Handshake successful: " + isDone);
-        Thread.sleep(5000);
         return isDone;
     }
 

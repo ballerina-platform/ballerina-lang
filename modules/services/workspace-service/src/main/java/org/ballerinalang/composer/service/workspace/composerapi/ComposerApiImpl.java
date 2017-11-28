@@ -15,26 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.composer.service.workspace.ws.handlers;
+package org.ballerinalang.composer.service.workspace.composerapi;
 
-import org.ballerinalang.composer.service.workspace.ws.ComposerApiHandler;
-import org.ballerinalang.composer.service.workspace.ws.model.Pet;
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class ShowPets implements ComposerApiHandler<Pet> {
-    List<String> pets = new ArrayList<>();
-    @Override
-    public String getMethodName() {
-        return "showPets";
-    }
-
-    @Override
-    public List<String> process(Pet petObj) {
-        pets.add("Rottweiler");
-        pets.add("Labrador");
-        pets.add(petObj.getType());
-        return pets;
-    }
+public class ComposerApiImpl implements ComposerApi {
 }

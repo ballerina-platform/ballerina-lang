@@ -15,27 +15,26 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
+package org.ballerinalang.composer.service.workspace.composerApiWS.model;
 
-package org.ballerinalang.composer.service.workspace.ws.model;
+public class Dog {
+    String breed;
 
-// Should follow the model : { error": {"code": -32700, "message": "Parse error"}}
-public class JSONRPCError {
-    int code;
-    String message;
-
-    public int getCode() {
-        return code;
+    public String getBreed() {
+        return breed;
     }
 
-    public void setCode(int code) {
-        this.code = code;
+    public void setBreed(String breed) {
+        this.breed = breed;
     }
 
-    public String getMessage() {
-        return message;
+    public String getColor() {
+        return color;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setColor(String color) {
+        this.color = color;
     }
+
+    String color;
 }

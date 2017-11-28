@@ -15,28 +15,10 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.composer.service.workspace.ws.model;
+package org.ballerinalang.composer.service.workspace.composerapi;
 
-/**
- * Pet class
- */
-public class Pet {
-    String breed;
-    String color;
+import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
-    public String getType() {
-        return breed;
-    }
-
-    public void setType(String breed) {
-        this.breed = breed;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
+@JsonSegment("composer")
+public interface ComposerApi {
 }
