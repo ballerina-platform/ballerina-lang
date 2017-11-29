@@ -52,6 +52,7 @@ public class Constants {
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
     public static final String TLS_STORE_TYPE = "tlsStoreType";
     public static final String PKCS_STORE_TYPE = "PKCS12";
+    public static final String SERVER = "Server";
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
 

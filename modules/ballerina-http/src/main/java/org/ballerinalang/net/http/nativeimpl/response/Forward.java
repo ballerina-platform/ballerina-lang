@@ -61,6 +61,8 @@ public class Forward extends AbstractNativeFunction {
                 .getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
         HTTPCarbonMessage responseMessage = HttpUtil
                 .getCarbonMsg(clientResponseStruct, HttpUtil.createHttpCarbonMessage(false));
+        //remove server header from the response
+        responseMessage.removeHeader(Constants.SERVER);
 
         AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.ANN_NAME_CONFIG);
