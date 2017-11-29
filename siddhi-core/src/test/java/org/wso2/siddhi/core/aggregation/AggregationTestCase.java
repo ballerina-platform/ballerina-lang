@@ -220,8 +220,8 @@ public class AggregationTestCase {
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
                 public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         for (Event event : inEvents) {
                             inEventsList.add(event.getData());
                             inEventCount.incrementAndGet();
@@ -229,6 +229,7 @@ public class AggregationTestCase {
                         eventArrived = true;
                     }
                     if (removeEvents != null) {
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         for (Event event : removeEvents) {
                             removeEventsList.add(event.getData());
                             removeEventCount.incrementAndGet();
@@ -329,8 +330,8 @@ public class AggregationTestCase {
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
                 public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         for (Event event : inEvents) {
                             inEventsList.add(event.getData());
                             inEventCount.incrementAndGet();
@@ -338,6 +339,7 @@ public class AggregationTestCase {
                         eventArrived = true;
                     }
                     if (removeEvents != null) {
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         for (Event event : removeEvents) {
                             removeEventsList.add(event.getData());
                             removeEventCount.incrementAndGet();
@@ -442,8 +444,8 @@ public class AggregationTestCase {
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
                 public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         for (Event event : inEvents) {
                             inEventsList.add(event.getData());
                             inEventCount.incrementAndGet();
@@ -451,6 +453,7 @@ public class AggregationTestCase {
                         eventArrived = true;
                     }
                     if (removeEvents != null) {
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         for (Event event : removeEvents) {
                             removeEventsList.add(event.getData());
                             removeEventCount.incrementAndGet();
@@ -553,8 +556,8 @@ public class AggregationTestCase {
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
                 public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         for (Event event : inEvents) {
                             inEventsList.add(event.getData());
                             inEventCount.incrementAndGet();
@@ -562,6 +565,7 @@ public class AggregationTestCase {
                         eventArrived = true;
                     }
                     if (removeEvents != null) {
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         for (Event event : removeEvents) {
                             removeEventsList.add(event.getData());
                             removeEventCount.incrementAndGet();
@@ -684,8 +688,8 @@ public class AggregationTestCase {
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
                 public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         for (Event event : inEvents) {
                             inEventsList.add(event.getData());
                             inEventCount.incrementAndGet();
@@ -693,6 +697,7 @@ public class AggregationTestCase {
                         eventArrived = true;
                     }
                     if (removeEvents != null) {
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         for (Event event : removeEvents) {
                             removeEventsList.add(event.getData());
                             removeEventCount.incrementAndGet();
@@ -887,8 +892,8 @@ public class AggregationTestCase {
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
                 public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         for (Event event : inEvents) {
                             inEventsList.add(event.getData());
                             inEventCount.incrementAndGet();
@@ -896,6 +901,7 @@ public class AggregationTestCase {
                         eventArrived = true;
                     }
                     if (removeEvents != null) {
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         for (Event event : removeEvents) {
                             removeEventsList.add(event.getData());
                             removeEventCount.incrementAndGet();
@@ -1080,8 +1086,8 @@ public class AggregationTestCase {
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
                 public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         for (Event event : inEvents) {
                             inEventsList.add(event.getData());
                             inEventCount.incrementAndGet();
@@ -1089,6 +1095,7 @@ public class AggregationTestCase {
                         eventArrived = true;
                     }
                     if (removeEvents != null) {
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         for (Event event : removeEvents) {
                             removeEventsList.add(event.getData());
                             removeEventCount.incrementAndGet();
@@ -1218,8 +1225,8 @@ public class AggregationTestCase {
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
                 public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         for (Event event : inEvents) {
                             inEventsList.add(event.getData());
                             inEventCount.incrementAndGet();
@@ -1227,6 +1234,7 @@ public class AggregationTestCase {
                         eventArrived = true;
                     }
                     if (removeEvents != null) {
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
                         for (Event event : removeEvents) {
                             removeEventsList.add(event.getData());
                             removeEventCount.incrementAndGet();
