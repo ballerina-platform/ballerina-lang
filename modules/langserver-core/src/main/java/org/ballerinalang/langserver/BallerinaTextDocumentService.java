@@ -75,8 +75,9 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -91,10 +92,12 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
     private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaTextDocumentService.class);
+    private Map<String, List<Diagnostic>> lastDiagnosticMap;
 
     public BallerinaTextDocumentService(BallerinaLanguageServer ballerinaLanguageServer) {
         this.ballerinaLanguageServer = ballerinaLanguageServer;
         this.documentManager = new WorkspaceDocumentManagerImpl();
+        this.lastDiagnosticMap = new HashMap<String, List<Diagnostic>>();
     }
 
     @Override
@@ -233,16 +236,28 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             return;
         }
 
-        this.documentManager.openFile(openedPath, params.getTextDocument().getText());
+        String content = params.getTextDocument().getText();
+        this.documentManager.openFile(openedPath, content);
+
+        compileAndSendDiagnostics(content, openedPath);
     }
 
     @Override
     public void didChange(DidChangeTextDocumentParams params) {
         Path changedPath = this.getPath(params.getTextDocument().getUri());
-        String content = params.getContentChanges().get(0).getText();
+        if (changedPath == null) {
+            return;
+        }
 
+        String content = params.getContentChanges().get(0).getText();
+        this.documentManager.updateFile(changedPath, content);
+
+        compileAndSendDiagnostics(content, changedPath);
+    }
+
+    private void compileAndSendDiagnostics(String content, Path path) {
         String pkgName = TextDocumentServiceUtil.getPackageFromContent(content);
-        String sourceRoot = TextDocumentServiceUtil.getSourceRoot(changedPath, pkgName);
+        String sourceRoot = TextDocumentServiceUtil.getSourceRoot(path, pkgName);
 
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
         CompilerContext context = prepareCompilerContext(packageRepository, sourceRoot);
@@ -253,24 +268,75 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
         Compiler compiler = Compiler.getInstance(context);
         if ("".equals(pkgName)) {
-            String[] pathComponents = params.getTextDocument().getUri().split("\\" + File.separator);
-            String fileName = pathComponents[pathComponents.length - 1];
-            compiler.compile(fileName);
+            Path filePath = path.getFileName();
+            if (filePath != null) {
+                compiler.compile(filePath.toString());
+            }
         } else {
             compiler.compile(pkgName);
         }
 
-        PublishDiagnosticsParams diagnostics = new PublishDiagnosticsParams();
-        Diagnostic d = new Diagnostic();
-        d.setSeverity(DiagnosticSeverity.Error);
-        Range r = new Range();
-        r.setStart(new Position(1, 1));
-        r.setEnd(new Position(2, 1));
-        d.setRange(r);
-        d.setMessage("some error message");
-        diagnostics.setDiagnostics(Arrays.asList(d));
-        diagnostics.setUri(params.getTextDocument().getUri());
-        this.ballerinaLanguageServer.getClient().publishDiagnostics(diagnostics);
+        publishDiagnostics(balDiagnostics, path);
+    }
+
+    private void publishDiagnostics(List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics, Path path) {
+        Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<String, List<Diagnostic>>();
+        balDiagnostics.forEach(diagnostic -> {
+            Diagnostic d = new Diagnostic();
+            d.setSeverity(DiagnosticSeverity.Error);
+            d.setMessage(diagnostic.getMessage());
+            Range r = new Range();
+
+            int startLine = diagnostic.getPosition().getStartLine() - 1; // LSP diagnostics range is 0 based
+            int startChar = diagnostic.getPosition().startColumn() - 1;
+            int endLine = diagnostic.getPosition().getEndLine() - 1;
+            int endChar = diagnostic.getPosition().endColumn() - 1;
+
+            if (endLine <= 0) {
+                endLine = startLine;
+            }
+
+            if (endChar <= 0) {
+                endChar = startChar + 1;
+            }
+
+            r.setStart(new Position(startLine, startChar));
+            r.setEnd(new Position(endLine, endChar));
+            d.setRange(r);
+
+
+            String fileName = diagnostic.getPosition().getSource().getCompilationUnitName();
+            Path filePath = Paths.get(path.getParent().toString(), fileName);
+            String fileURI = filePath.toUri().toString();
+
+            if (!diagnosticsMap.containsKey(fileURI)) {
+                diagnosticsMap.put(fileURI, new ArrayList<Diagnostic>());
+            }
+            List<Diagnostic> clientDiagnostics = diagnosticsMap.get(fileURI);
+
+            clientDiagnostics.add(d);
+        });
+
+        // clear previous diagnostics
+        List<Diagnostic> empty = new ArrayList<Diagnostic>(0);
+        for (Map.Entry<String, List<Diagnostic>> entry : lastDiagnosticMap.entrySet()) {
+            if (diagnosticsMap.containsKey(entry.getKey())) {
+                continue;
+            }
+            PublishDiagnosticsParams diagnostics = new PublishDiagnosticsParams();
+            diagnostics.setUri(entry.getKey());
+            diagnostics.setDiagnostics(empty);
+            this.ballerinaLanguageServer.getClient().publishDiagnostics(diagnostics);
+        }
+
+        for (Map.Entry<String, List<Diagnostic>> entry : diagnosticsMap.entrySet()) {
+            PublishDiagnosticsParams diagnostics = new PublishDiagnosticsParams();
+            diagnostics.setUri(entry.getKey());
+            diagnostics.setDiagnostics(entry.getValue());
+            this.ballerinaLanguageServer.getClient().publishDiagnostics(diagnostics);
+        }
+
+        lastDiagnosticMap = diagnosticsMap;
     }
 
     @Override
