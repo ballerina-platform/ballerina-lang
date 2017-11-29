@@ -42,9 +42,9 @@ public class RequestHandler {
         if (isJSONValid(text)) {
             jsonrpcRequest = gson.fromJson(text, RequestMessage.class);
             if (jsonrpcRequest.getId() != null) { // Its a request
-                return handlerRequest(endpoint, text);
+                return handlerRequest(endpoint, jsonrpcRequest);
             } else { // Its a notification
-                handlerNotification(endpoint, text);
+                handlerNotification(endpoint, jsonrpcRequest);
                 return null;
             }
         } else {
@@ -61,19 +61,14 @@ public class RequestHandler {
      * Handles the request sent to the endpoint.
      *
      * @param serviceAsEndpoint Endpoint service
-     * @param text              Request as a string
+     * @param jsonrpcRequest Request message
      * @return
      */
-    public String handlerRequest(Endpoint serviceAsEndpoint, String text) {
-        RequestMessage jsonrpcRequest = null;
+    public String handlerRequest(Endpoint serviceAsEndpoint, RequestMessage jsonrpcRequest) {
         ResponseMessage jsonrpcResponse = null;
         ResponseError responseError = null;
         String responseStr = null;
-        jsonrpcRequest = gson.fromJson(text, RequestMessage.class);
-
-        Map<String, JsonRpcMethod> methods = ServiceEndpoints.getSupportedMethods(ComposerApi.class);
-        JsonRpcMethod delegateMethod = methods.get(jsonrpcRequest.getMethod());
-
+        JsonRpcMethod delegateMethod = getDelegateMethod(jsonrpcRequest.getMethod());
         if (delegateMethod != null) {
             // Cast parameters to the type requested by the delegate method
             Class paramCls = (Class) delegateMethod.getParameterTypes()[0];
@@ -95,16 +90,11 @@ public class RequestHandler {
      * Handles the notification sent to the endpoint.
      *
      * @param serviceAsEndpoint Endpoint service
-     * @param text              Request as a string
+     * @param jsonrpcRequest Request message
      * @return
      */
-    public void handlerNotification(Endpoint serviceAsEndpoint, String text) {
-        RequestMessage jsonrpcRequest = null;
-        jsonrpcRequest = gson.fromJson(text, RequestMessage.class);
-
-        Map<String, JsonRpcMethod> methods = ServiceEndpoints.getSupportedMethods(ComposerApi.class);
-        JsonRpcMethod delegateMethod = methods.get(jsonrpcRequest.getMethod());
-
+    public void handlerNotification(Endpoint serviceAsEndpoint, RequestMessage jsonrpcRequest) {
+        JsonRpcMethod delegateMethod = getDelegateMethod(jsonrpcRequest.getMethod());
         if (delegateMethod != null) {
             // Cast parameters to the type requested by the delegate method
             Class paramCls = (Class) delegateMethod.getParameterTypes()[0];
@@ -171,5 +161,16 @@ public class RequestHandler {
         responseError.setCode(code);
         responseError.setMessage(message);
         return responseError;
+    }
+
+    /**
+     * Find the delegate method in the endpoint registered
+     * @param methodName delegate method name
+     * @return delegate method object
+     */
+    public JsonRpcMethod getDelegateMethod(String methodName) {
+        Map<String, JsonRpcMethod> methods = ServiceEndpoints.getSupportedMethods(ComposerApi.class);
+        return  methods.get(methodName);
+
     }
 }
