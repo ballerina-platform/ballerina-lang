@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.http.actions;
 
+import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -34,7 +35,6 @@ import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.Headers;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -96,19 +96,17 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             cMsg.setProperty(Constants.PROTOCOL, url.getProtocol());
             setHostHeader(cMsg, host, port);
 
-            //Set User-Agent Header
-            Object headerObj = cMsg.getProperty(org.ballerinalang.runtime.Constants.INTERMEDIATE_HEADERS);
+            HttpHeaders headers = cMsg.getHeaders();
 
-            if (headerObj == null) {
-                headerObj = new Headers();
-                cMsg.setProperty(org.ballerinalang.runtime.Constants.INTERMEDIATE_HEADERS, headerObj);
-            }
-            Headers headers = (Headers) headerObj;
-
+            // Set User-Agent header
             if (!headers.contains(Constants.USER_AGENT_HEADER)) { // If User-Agent is not already set from program
                 cMsg.setHeader(Constants.USER_AGENT_HEADER, BALLERINA_USER_AGENT);
             }
 
+            // Remove existing Connection header
+            if (headers.contains(Constants.CONNECTION_HEADER)) {
+                cMsg.removeHeader(Constants.CONNECTION_HEADER);
+            }
         } catch (MalformedURLException e) {
             throw new BallerinaException("Malformed url specified. " + e.getMessage());
         } catch (Throwable t) {
