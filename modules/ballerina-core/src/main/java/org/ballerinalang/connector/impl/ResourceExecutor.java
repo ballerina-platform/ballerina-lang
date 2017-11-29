@@ -142,7 +142,7 @@ public class ResourceExecutor {
                 // Set default values
                 if (value == null || "".equals(value)) {
                     if (btype == BTypes.typeString) {
-                        stringLocalVars[stringParamCount++] = BLangConstants.STRING_ZERO_VALUE;
+                        stringLocalVars[stringParamCount++] = BLangConstants.STRING_NULL_VALUE;
                     }
                     continue;
                 }

@@ -60,6 +60,9 @@ import java.nio.file.Path;
  */
 public class ProgramFileWriter {
 
+    // Size to be written to tag a null value
+    private static final int NULL_VALUE_FIELD_SIZE_TAG = -1;
+
     public static void writeProgram(ProgramFile programFile, Path execFilePath) throws IOException {
         BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(execFilePath));
         writeProgram(programFile, bos);
@@ -107,12 +110,14 @@ public class ProgramFileWriter {
             switch (cpEntry.getEntryType()) {
                 case CP_ENTRY_UTF8:
                     String stringVal = ((UTF8CPEntry) cpEntry).getValue();
-                    byte[] bytes = toUTF(stringVal);
                     if (stringVal != null) {
+                        byte[] bytes = toUTF(stringVal);
                         dataOutStream.writeShort(bytes.length);
                         dataOutStream.writeUTF(stringVal);
                     } else {
-                        dataOutStream.writeShort(-1);
+                        // If the string value is null, we write the size as -1. 
+                        // This marks that the value followed by -1 size is a null value.
+                        dataOutStream.writeShort(NULL_VALUE_FIELD_SIZE_TAG);
                     }
                     break;
                 case CP_ENTRY_INTEGER:
@@ -676,10 +681,6 @@ public class ProgramFileWriter {
     }
 
     private static byte[] toUTF(String value) throws IOException {
-        if (value == null) {
-            return null;
-        }
-
         ByteArrayOutputStream byteAOS = new ByteArrayOutputStream();
         DataOutputStream dataOutStream = new DataOutputStream(byteAOS);
         dataOutStream.writeUTF(value);

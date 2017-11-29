@@ -178,7 +178,7 @@ public class BLangFunctions {
         double[] doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
         String[] stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
         // Setting the zero values for strings
-        Arrays.fill(stringLocalVars, BLangConstants.STRING_ZERO_VALUE);
+        Arrays.fill(stringLocalVars, BLangConstants.STRING_NULL_VALUE);
 
         int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         byte[][] byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];

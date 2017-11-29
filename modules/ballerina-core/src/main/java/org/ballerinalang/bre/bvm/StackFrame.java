@@ -92,7 +92,7 @@ public class StackFrame {
 
         this.stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
         // Setting the zero values for strings
-        Arrays.fill(stringLocalVars, BLangConstants.STRING_ZERO_VALUE);
+        Arrays.fill(stringLocalVars, BLangConstants.STRING_NULL_VALUE);
 
         this.intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         this.byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
@@ -127,7 +127,7 @@ public class StackFrame {
 
         this.stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
         // Setting the zero values for strings
-        Arrays.fill(stringLocalVars, BLangConstants.STRING_ZERO_VALUE);
+        Arrays.fill(stringLocalVars, BLangConstants.STRING_NULL_VALUE);
 
         this.intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         this.byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];

@@ -46,7 +46,7 @@ import java.util.Set;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
-import static org.ballerinalang.util.BLangConstants.STRING_ZERO_VALUE;
+import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
  * {@code BXML} represents a single XML item in Ballerina.
@@ -198,7 +198,7 @@ public final class BXMLItem extends BXML<OMNode> {
     @Override
     public String getAttribute(String localName, String namespace, String prefix) {
         if (nodeType != XMLNodeType.ELEMENT || localName == null || localName.isEmpty()) {
-            return STRING_ZERO_VALUE;
+            return STRING_NULL_VALUE;
         }
         QName attributeName = getQName(localName, namespace, prefix); 
         OMAttribute attribute = ((OMElement) omNode).getAttribute(attributeName);
@@ -208,7 +208,7 @@ public final class BXMLItem extends BXML<OMNode> {
         }
         
         OMNamespace ns = ((OMElement) omNode).findNamespaceURI(localName);
-        return ns == null ? STRING_ZERO_VALUE : ns.getNamespaceURI();
+        return ns == null ? STRING_NULL_VALUE : ns.getNamespaceURI();
     }
     
     /**
@@ -363,10 +363,10 @@ public final class BXMLItem extends BXML<OMNode> {
                 uri = qname.substring(1, qname.indexOf('}'));
             } else {
                 localName = qname;
-                uri = STRING_ZERO_VALUE;
+                uri = STRING_NULL_VALUE;
             }
             
-            setAttribute(localName, uri, STRING_ZERO_VALUE, attributes.get(qname).stringValue());
+            setAttribute(localName, uri, STRING_NULL_VALUE, attributes.get(qname).stringValue());
         }
     }
     
@@ -605,7 +605,7 @@ public final class BXMLItem extends BXML<OMNode> {
         } catch (Throwable t) {
             handleXmlException("failed to get xml as string: ", t);
         }
-        return STRING_ZERO_VALUE;
+        return STRING_NULL_VALUE;
     }
     
     /**
@@ -679,11 +679,11 @@ public final class BXMLItem extends BXML<OMNode> {
             case OMNode.TEXT_NODE:
                 return ((OMText) node).getText();
             case OMNode.COMMENT_NODE:
-                return STRING_ZERO_VALUE;
+                return STRING_NULL_VALUE;
             case OMNode.PI_NODE:
-                return STRING_ZERO_VALUE;
+                return STRING_NULL_VALUE;
             default:
-                return STRING_ZERO_VALUE;
+                return STRING_NULL_VALUE;
         }
     }
 

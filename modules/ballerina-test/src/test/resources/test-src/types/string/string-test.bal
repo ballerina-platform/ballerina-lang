@@ -101,3 +101,9 @@ function concatNullString() (string) {
     string s2 = null;
     return s1 + s2;
 }
+
+function compareNullString() (boolean, boolean, boolean, boolean) {
+    string s1;
+    string s2 = null;
+    return s1 == null, null == s1, s2 == null, null == s2;
+}

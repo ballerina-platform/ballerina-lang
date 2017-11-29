@@ -125,7 +125,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import static org.ballerinalang.util.BLangConstants.STRING_ZERO_VALUE;
+import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
  * This class executes Ballerina instruction codes.
@@ -1810,7 +1810,7 @@ public class BLangVM {
                     sf.stringRegs[k] = qNameStr.substring(1, parenEndIndex);
                 } else {
                     sf.stringRegs[j] = qNameStr;
-                    sf.stringRegs[k] = STRING_ZERO_VALUE;
+                    sf.stringRegs[k] = STRING_NULL_VALUE;
                 }
 
                 break;
@@ -1930,13 +1930,13 @@ public class BLangVM {
 
                 bRefType = sf.refRegs[i];
                 if (bRefType == null) {
-                    sf.stringRegs[j] = STRING_ZERO_VALUE;
+                    sf.stringRegs[j] = STRING_NULL_VALUE;
                     handleTypeCastError(sf, k, BTypes.typeNull, BTypes.typeString);
                 } else if (bRefType.getType() == BTypes.typeString) {
                     sf.refRegs[k] = null;
                     sf.stringRegs[j] = bRefType.stringValue();
                 } else {
-                    sf.stringRegs[j] = STRING_ZERO_VALUE;
+                    sf.stringRegs[j] = STRING_NULL_VALUE;
                     handleTypeCastError(sf, k, bRefType.getType(), BTypes.typeString);
                 }
                 break;
@@ -3135,7 +3135,7 @@ public class BLangVM {
                     break;
                 case TypeTags.STRING_TAG:
                     if (returnValues[i] == null) {
-                        callerSF.stringRegs[callersRetRegIndex] = STRING_ZERO_VALUE;
+                        callerSF.stringRegs[callersRetRegIndex] = STRING_NULL_VALUE;
                         break;
                     }
                     callerSF.stringRegs[callersRetRegIndex] = returnValues[i].stringValue();
@@ -3388,7 +3388,7 @@ public class BLangVM {
             return;
         }
 
-        sf.stringRegs[j] = STRING_ZERO_VALUE;
+        sf.stringRegs[j] = STRING_NULL_VALUE;
         handleTypeCastError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.STRING_TNAME);
     }
 

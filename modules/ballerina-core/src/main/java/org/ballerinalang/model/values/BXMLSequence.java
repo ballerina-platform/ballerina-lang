@@ -31,7 +31,7 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import static org.ballerinalang.util.BLangConstants.STRING_ZERO_VALUE;
+import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
  * {@code BXMLSequence} represents a sequence of {@link BXMLItem}s in Ballerina.
@@ -127,7 +127,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
             return ((BXMLItem) sequence.get(0)).getAttribute(localName, namespace);
         }
         
-        return STRING_ZERO_VALUE;
+        return STRING_NULL_VALUE;
     }
     
     /**
@@ -139,7 +139,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
             return ((BXMLItem) sequence.get(0)).getAttribute(localName, namespace, prefix);
         }
         
-        return STRING_ZERO_VALUE;
+        return STRING_NULL_VALUE;
     }
     
     /**
@@ -391,7 +391,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         } catch (Throwable t) {
             handleXmlException("failed to get xml as string: ", t);
         }
-        return BLangConstants.STRING_ZERO_VALUE;
+        return BLangConstants.STRING_NULL_VALUE;
     }
     
     /**

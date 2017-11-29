@@ -57,7 +57,7 @@ public class BLangConstants {
     public static final String USER_HOME = "user.home";
     
     // Zero value for string
-    public static final String STRING_ZERO_VALUE = null;
+    public static final String STRING_NULL_VALUE = null;
     
     // Empty value for string
     public static final String STRING_EMPTY_VALUE = "";

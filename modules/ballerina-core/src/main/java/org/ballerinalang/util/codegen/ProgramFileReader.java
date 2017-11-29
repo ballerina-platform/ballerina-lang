@@ -172,6 +172,10 @@ public class ProgramFileReader {
             case CP_ENTRY_UTF8:
                 short length = dataInStream.readShort();
                 String strValue = null;
+                
+                // If the length of the bytes is -1, that means no UTF value has been written.
+                // i.e: string value represented by the UTF should be null.
+                // Therefore we read the UTF value only if the length >= 0.
                 if (length >= 0) {
                     strValue = dataInStream.readUTF();
                 }
