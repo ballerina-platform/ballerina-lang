@@ -396,6 +396,17 @@ public class DatatableTest {
         Assert.assertEquals((returns[4]).stringValue(), "100|Sample Text|Sample Text|200||null|");
     }
 
+    @Test(groups = "DatatableTest", description = "Check result sets with same column name or complex name.")
+    public void testStructFieldNotMatchingColumnName() {
+        BValue[] returns = BRunUtil.invoke(result, "testStructFieldNotMatchingColumnName");
+        Assert.assertEquals(returns.length, 5);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[4]).intValue(), 100);
+    }
+
     @AfterSuite
     public void cleanup() {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));
