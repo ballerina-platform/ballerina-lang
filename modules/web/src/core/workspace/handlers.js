@@ -62,7 +62,7 @@ export function getHandlerDefinitions(workspaceManager) {
                 const targetFile = file || editor.getActiveEditor().file;
                 const onSuccess = () => {
                     onSaveSuccess();
-                    dispatch(EVENTS.FILE_SAVED, { file });
+                    dispatch(EVENTS.FILE_SAVED, { file: targetFile });
                 };
                 // File is not yet persisted - show save as dialog
                 if (!targetFile.isPersisted) {

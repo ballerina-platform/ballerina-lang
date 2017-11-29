@@ -134,6 +134,7 @@ class File extends EventChannel {
             oldContent,
             newContent,
             originEvt,
+            file: this,
         };
         this.trigger(EVENTS.CONTENT_MODIFIED, evt);
         // if the new content is not equal to old content

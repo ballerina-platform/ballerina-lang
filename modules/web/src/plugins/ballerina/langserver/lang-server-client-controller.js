@@ -171,14 +171,12 @@ class LangServerClientController extends EventChannel {
         }
         const message = {
             jsonrpc: '2.0',
-            method: 'textDocument/didClose',
+            method: 'textDocument/didChange',
             params: {
                 textDocument: {
                     uri: options.uri,
                 },
                 contentChanges: [{
-                    range: undefined,
-                    rangeLength: undefined,
                     text: options.text,
                 }],
             },
