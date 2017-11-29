@@ -32,7 +32,10 @@ export const COMMANDS = {
 };
 
 export const EVENTS = {
+    FILE_OPENED: 'file-opened',
     FILE_UPDATED: 'file-updated',
+    FILE_SAVED: 'file-saved',
+    FILE_CLOSED: 'file-closed',
     DIRTY_STATE_CHANGE: 'dirty-state-change',
     CONTENT_MODIFIED: 'content-modified',
 };

@@ -18,12 +18,14 @@
 
 import Plugin from 'core/plugin/plugin';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
+import { EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
 import { REGIONS } from 'core/layout/constants';
 import SourceEditor from 'ballerina/views/source-editor';
 import { CLASSES } from 'ballerina/views/constants';
 import Document from 'plugins/ballerina/docerina/document.jsx';
 import Editor from './views/editor-wrapper';
 import { PLUGIN_ID, EDITOR_ID, DOC_VIEW_ID, COMMANDS as COMMAND_IDS, TOOLS as TOOL_IDS } from './constants';
+import { getLangServerClientInstance } from './langserver/lang-server-client-controller';
 
 /**
  * Plugin for Ballerina Lang
@@ -42,7 +44,7 @@ class BallerinaPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { EDITORS, TOOLS, VIEWS } = CONTRIBUTIONS;
+        const { EDITORS, TOOLS, VIEWS, HANDLERS } = CONTRIBUTIONS;
         return {
             [EDITORS]: [
                 {
@@ -119,6 +121,43 @@ class BallerinaPlugin extends Plugin {
                         customTitleClass: CLASSES.TAB_TITLE.DESIGN_VIEW,
                     },
                     displayOnLoad: false,
+                },
+            ],
+            [HANDLERS]: [
+                {
+                    cmdID: WORKSPACE_EVENTS.FILE_OPENED,
+                    handler: ({ file }) => {
+                        getLangServerClientInstance().documentDidOpenNotification({
+                            uri: file.fullPath,
+                            text: file.content,
+                        });
+                    },
+                },
+                {
+                    cmdID: WORKSPACE_EVENTS.FILE_UPDATED,
+                    handler: ({ file }) => {
+                        getLangServerClientInstance().documentDidChangeNotification({
+                            uri: file.fullPath,
+                            text: file.content,
+                        });
+                    },
+                },
+                {
+                    cmdID: WORKSPACE_EVENTS.FILE_SAVED,
+                    handler: ({ file }) => {
+                        getLangServerClientInstance().documentDidSaveNotification({
+                            uri: file.fullPath,
+                            text: file.content,
+                        });
+                    },
+                },
+                {
+                    cmdID: WORKSPACE_EVENTS.FILE_CLOSED,
+                    handler: ({ file }) => {
+                        getLangServerClientInstance().documentDidCloseNotification({
+                            uri: file.fullPath,
+                        });
+                    },
                 },
             ],
         };

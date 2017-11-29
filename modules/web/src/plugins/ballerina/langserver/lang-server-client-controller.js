@@ -151,8 +151,59 @@ class LangServerClientController extends EventChannel {
             method: 'textDocument/didOpen',
             params: {
                 textDocument: {
-                    uri: options.textDocument,
+                    uri: options.uri,
+                    text: options.text,
                 },
+            },
+        };
+
+        this.langserverChannel.sendMessage(message);
+    }
+
+    /**
+     * Document did change request notification processor
+     * @param {object} options - document did change options
+     */
+    documentDidChangeNotification(options) {
+        if (!this.isInitialized) {
+            this.once('langserver-initialized', () => this.documentDidChangeNotification(options));
+            return;
+        }
+        const message = {
+            jsonrpc: '2.0',
+            method: 'textDocument/didClose',
+            params: {
+                textDocument: {
+                    uri: options.uri,
+                },
+                contentChanges: [{
+                    range: undefined,
+                    rangeLength: undefined,
+                    text: options.text,
+                }],
+            },
+        };
+
+        this.langserverChannel.sendMessage(message);
+    }
+
+    /**
+     * Document did save request notification processor
+     * @param {object} options - document did save options
+     */
+    documentDidSaveNotification(options) {
+        if (!this.isInitialized) {
+            this.once('langserver-initialized', () => this.documentDidSaveNotification(options));
+            return;
+        }
+        const message = {
+            jsonrpc: '2.0',
+            method: 'textDocument/didSave',
+            params: {
+                textDocument: {
+                    uri: options.uri,
+                },
+                text: options.text,
             },
         };
 
@@ -173,27 +224,9 @@ class LangServerClientController extends EventChannel {
             method: 'textDocument/didClose',
             params: {
                 textDocument: {
-                    uri: options.textDocument,
+                    uri: options.uri,
                 },
             },
-        };
-
-        this.langserverChannel.sendMessage(message);
-    }
-
-    /**
-     * Document did save request notification processor
-     * @param {object} options - document did save options
-     */
-    documentDidSaveNotification(options) {
-        if (!this.isInitialized) {
-            this.once('langserver-initialized', () => this.documentDidSaveNotification(options));
-            return;
-        }
-        const message = {
-            jsonrpc: '2.0',
-            method: 'textDocument/didSave',
-            params: options.didSaveParams,
         };
 
         this.langserverChannel.sendMessage(message);
