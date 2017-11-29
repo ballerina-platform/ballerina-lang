@@ -501,4 +501,20 @@ public class StringTest {
         Assert.assertEquals(((BBlob) returns[0]).blobValue(), content.getBytes("UTF-8"),
                 "Produced Blob value is wrong");
     }
+
+    @Test
+    public void nullInString() {
+        BValue[] returns = BRunUtil.invoke(result, "nullInString");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertNull(returns[0].stringValue());
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertNull(returns[1].stringValue());
+    }
+
+    @Test
+    public void concatNullString() {
+        BValue[] returns = BRunUtil.invoke(result, "concatNullString");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "nullnull");
+    }
 }

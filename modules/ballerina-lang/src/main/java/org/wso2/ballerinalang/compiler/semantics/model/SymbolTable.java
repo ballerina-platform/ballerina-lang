@@ -323,6 +323,7 @@ public class SymbolTable {
         defineCastOperator(booleanType, anyType, true, InstructionCodes.B2ANY);
         defineCastOperator(blobType, anyType, true, InstructionCodes.L2ANY);
         defineCastOperator(typeType, anyType, true, InstructionCodes.NOP);
+        defineCastOperator(nullType, stringType, true, InstructionCodes.NOP);
 
         // Define explicit cast operators
         defineExplicitCastOperator(anyType, intType, false, InstructionCodes.ANY2I);

@@ -89,3 +89,15 @@ function split(string j, string k) (string[]) {
 function toBlob(string l, string m) (blob) {
     return l.toBlob(m);
 }
+
+function nullInString() (string, string) {
+    string s1;
+    string s2 = null;
+    return s1, s2;
+}
+
+function concatNullString() (string) {
+    string s1;
+    string s2 = null;
+    return s1 + s2;
+}
