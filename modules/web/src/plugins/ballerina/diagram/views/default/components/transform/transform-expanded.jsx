@@ -22,8 +22,7 @@ import _ from 'lodash';
 import $ from 'jquery';
 import { Scrollbars } from 'react-custom-scrollbars';
 import log from 'log';
-import { getLangServerClientInstance } from 'plugins/ballerina/langserver/lang-server-client-controller';
-import { getResolvedTypeData } from 'plugins/ballerina/langserver/lang-server-utils';
+import { CHANGE_EVT_TYPES } from 'plugins/ballerina/views/constants';
 import TransformRender from './transform-render';
 import TransformNodeManager from './transform-node-manager';
 import SuggestionsDropdown from './transform-endpoints-dropdown';
@@ -33,7 +32,6 @@ import FunctionInv from './function';
 import Operator from './operator';
 import TreeUtil from '../../../../../model/tree-util';
 import DropZone from '../../../../../drag-drop/DropZone';
-import { CHANGE_EVT_TYPES } from 'plugins/ballerina/views/constants';
 import './transform-expanded.css';
 
 /**
@@ -166,7 +164,6 @@ class TransformExpanded extends React.Component {
 
     createConnection(statement) {
         const viewId = this.props.model.getID();
-        const isCasting = false;
 
         if (TreeUtil.isComment(statement)) {
             return;
@@ -531,44 +528,6 @@ class TransformExpanded extends React.Component {
         return endpointId;
     }
 
-    getConnectionProperties(type, expression) {
-        const con = {};
-        if (ASTFactory.isFieldBasedVarRefExpression(expression)) {
-            const structVarRef = expression.getStructVariableReference();
-            con[type + 'Struct'] = structVarRef.getVariableName();
-            const complexProp = this.createComplexProp(con[type + 'Struct'], structVarRef.getParent());
-            con[type + 'Type'] = complexProp.types;
-            con[type + 'Property'] = complexProp.names;
-        } else if (ASTFactory.isFunctionInvocationExpression(expression)) {
-            con[type + 'Function'] = true;
-            if (_.isNull(expression.getPackageName())) {
-                // for current package, where package name is null
-                const packageName = expression.getFullPackageName().replace(' ', '');
-                con[type + 'Struct'] = packageName + '-' + expression.getFunctionName();
-            } else {
-                const packageName = expression.getPackageName().replace(' ', '');
-                con[type + 'Struct'] = packageName + '-' + expression.getFunctionName();
-            }
-            con[type + 'Id'] = expression.getID();
-        } else if (ASTFactory.isSimpleVariableReferenceExpression(expression)) {
-            con[type + 'Struct'] = expression.getVariableName();
-            const varRef = _.find(this.state.vertices, { name: expression.getVariableName() });
-            if (!_.isUndefined(varRef)) {
-                con[type + 'Type'] = [varRef.type];
-            }
-            con[type + 'Property'] = [expression.getVariableName()];
-        } else if (['name', 'type'].every(prop => prop in expression)) {
-            con[type + 'Property'] = [expression.name];
-            con[type + 'Type'] = [expression.type];
-        } else if (_.has(expression, 'type')) {
-            con[type + 'Property'] = [undefined];
-            con[type + 'Type'] = [expression.type];
-        } else {
-            log.error('Unknown type to define connection properties');
-        }
-        return con;
-    }
-
     drawConnection(sourceId, targetId, folded, statement) {
         let type = '';
         if (sourceId && targetId && statement) {
@@ -610,35 +569,6 @@ class TransformExpanded extends React.Component {
         return type;
     }
 
-    createComplexProp(structName, expression) {
-        const prop = {};
-        prop.names = [];
-        prop.types = [];
-
-        if (ASTFactory.isFieldBasedVarRefExpression(expression)) {
-            const fieldName = expression.getFieldName();
-            const structDef = _.find(this.state.vertices, { name: structName });
-            if (_.isUndefined(structDef)) {
-                this.context.alert.showError('Struct definition for variable "' + structName + '" cannot be found');
-                return;
-            }
-            const structField = _.find(structDef.properties, { name: fieldName });
-            if (_.isUndefined(structField)) {
-                this.context.alert.showError('Struct field "' + fieldName + '" cannot be found in variable "'
-                                              + structName + '"');
-                return;
-            }
-            const structFieldType = structField.type;
-            prop.types.push(structFieldType);
-            prop.names.push(fieldName);
-
-            const parentProp = this.createComplexProp(fieldName, expression.getParent());
-            prop.names = [...prop.names, ...parentProp.names];
-            prop.types = [...prop.types, ...parentProp.types];
-        }
-        return prop;
-    }
-
     componentDidUpdate(prevProps, prevState) {
         this.transformNodeManager.setTransformStmt(this.props.model);
 
@@ -653,7 +583,7 @@ class TransformExpanded extends React.Component {
 
         let sourceKeys = Object.keys(this.sourceElements);
         sourceKeys.forEach((key) => {
-            const { element, input } = this.sourceElements[key];
+            const { element } = this.sourceElements[key];
             if (!element) {
                 delete this.sourceElements[key];
             }
@@ -661,7 +591,7 @@ class TransformExpanded extends React.Component {
 
         let targetKeys = Object.keys(this.targetElements);
         targetKeys.forEach((key) => {
-            const { element, output } = this.targetElements[key];
+            const { element } = this.targetElements[key];
             if (!element) {
                 delete this.targetElements[key];
             }
@@ -700,9 +630,9 @@ class TransformExpanded extends React.Component {
         }
 
         this.mapper.onConnectionAborted((con, ev) => {
-            const targetKeys = Object.keys(this.targetElements);
+            targetKeys = Object.keys(this.targetElements);
             targetKeys.forEach((key) => {
-                const { element, output } = this.targetElements[key];
+                const { element } = this.targetElements[key];
                 element.classList.remove('drop-not-valid');
                 element.classList.remove('drop-valid');
             });
@@ -712,7 +642,7 @@ class TransformExpanded extends React.Component {
             clearInterval(this.scrollTimer);
 
             const { clientX: x, clientY: y } = ev;
-            const { element, output } = this.findTargetAt({ x, y });
+            const { output } = this.findTargetAt({ x, y });
 
             if (!output) {
                 // connection is not dropped on a target. No need of more processing
@@ -760,7 +690,7 @@ class TransformExpanded extends React.Component {
         this.mapper.onConnectionAborted((con, ev) => {
             const targetKeys = Object.keys(this.targetElements);
             targetKeys.forEach((key) => {
-                const { element, output } = this.targetElements[key];
+                const { element } = this.targetElements[key];
                 element.classList.remove('drop-not-valid');
                 element.classList.remove('drop-valid');
             });
@@ -770,7 +700,7 @@ class TransformExpanded extends React.Component {
             clearInterval(this.scrollTimer);
 
             const { clientX: x, clientY: y } = ev;
-            const { element, output } = this.findTargetAt({ x, y });
+            const { output } = this.findTargetAt({ x, y });
 
             if (!output) {
                 // connection is not dropped on a target. No need of more processing
@@ -1071,52 +1001,6 @@ class TransformExpanded extends React.Component {
         });
 
         return foundOutput;
-    }
-
-    removeAssignmentStatements(id, type) {
-        // TODO: check and remove this
-        const statementsToRemove = [];
-
-        this.props.model.getChildren().forEach((currentObject) => {
-            let nodeToRemove;
-
-            if (type === 'source') {
-                nodeToRemove = currentObject.getRightExpression();
-            } else {
-                nodeToRemove = currentObject.getLeftExpression();
-            }
-
-            if (ASTFactory.isFieldBasedVarRefExpression(nodeToRemove)) {
-                if (nodeToRemove.getExpressionString().startsWith(`${id}.`)) {
-                    statementsToRemove.push(currentObject);
-                    return;
-                }
-            }
-
-            if ((ASTFactory.isVariableReferenceList(nodeToRemove))) {
-                nodeToRemove.getChildren().forEach((childVarRef) => {
-                    if (ASTFactory.isFieldBasedVarRefExpression(childVarRef)) {
-                        if (childVarRef.getExpressionString().startsWith(`${id}.`)) {
-                            statementsToRemove.push(currentObject);
-                            return;
-                        }
-                    }
-
-                    if (childVarRef.getVariableName() === id) {
-                        statementsToRemove.push(currentObject);
-                    }
-                });
-                return;
-            }
-
-            if (nodeToRemove.getVariableName() === id) {
-                statementsToRemove.push(currentObject);
-            }
-        });
-
-        statementsToRemove.forEach((statement) => {
-            this.props.model.removeChild(statement);
-        });
     }
 
     /**
