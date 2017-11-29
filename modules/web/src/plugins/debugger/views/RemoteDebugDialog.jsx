@@ -124,9 +124,9 @@ class RemoteDebugDialog extends React.Component {
                 <Form horizontal>
                     <FormGroup>
                         <div className="help-block">
-                            <span>Add <strong>--ballerina.debug PORT_NUMBER </strong> to your ballerina command to enable remote debugging</span>
+                            <span>Add <strong>--debug PORT_NUMBER </strong> to your ballerina command to enable remote debugging</span>
                             <div>Example: </div>
-                            <span><code>ballerina run helloWorld.bal --ballerina.debug 5006</code></span>
+                            <span><code>ballerina run helloWorld.bal --debug 5006</code></span>
                         </div>
                         <InputGroup>
                             <InputGroup.Addon>
