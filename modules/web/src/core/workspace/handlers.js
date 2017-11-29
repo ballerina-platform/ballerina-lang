@@ -19,7 +19,7 @@
 
 import _ from 'lodash';
 import log from 'log';
-import { COMMANDS, DIALOGS } from './constants';
+import { COMMANDS, DIALOGS, EVENTS } from './constants';
 import { COMMANDS as LAYOUT_COMMANDS } from './../layout/constants';
 import { createOrUpdate } from './fs-util';
 
@@ -60,6 +60,10 @@ export function getHandlerDefinitions(workspaceManager) {
             handler: ({ file, onSaveSuccess = () => {}, onSaveFail = () => {} }) => {
                 const { command: { dispatch }, editor } = workspaceManager.appContext;
                 const targetFile = file || editor.getActiveEditor().file;
+                const onSuccess = () => {
+                    onSaveSuccess();
+                    dispatch(EVENTS.FILE_SAVED, { file: targetFile });
+                };
                 // File is not yet persisted - show save as dialog
                 if (!targetFile.isPersisted) {
                     const id = DIALOGS.SAVE_FILE;
@@ -67,7 +71,7 @@ export function getHandlerDefinitions(workspaceManager) {
                         id,
                         additionalProps: {
                             file: targetFile,
-                            onSaveSuccess,
+                            onSuccess,
                             onSaveFail,
                         },
                     });
@@ -78,7 +82,7 @@ export function getHandlerDefinitions(workspaceManager) {
                             if (success) {
                                 targetFile.isDirty = false;
                                 targetFile.lastPersisted = _.now();
-                                onSaveSuccess();
+                                onSuccess();
                             } else {
                                 throw new Error('Error while saving file ' + targetFile.fullPath);
                             }
