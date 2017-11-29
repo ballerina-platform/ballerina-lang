@@ -14,24 +14,26 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
-export const DESIGN_VIEW = 'DESIGN_VIEW';
-export const SOURCE_VIEW = 'SOURCE_VIEW';
-export const SWAGGER_VIEW = 'SWAGGER_VIEW';
-export const FILE_AST_PROPERTY = 'ast';
+export const COMMANDS = {
 
-export const CHANGE_EVT_TYPES = {
-    CODE_FORMAT: 'code-format',
-    TREE_MODIFIED: 'tree-modified',
-    SOURCE_MODIFIED: 'source-modified',
 };
 
-export const CLASSES = {
-    TAB_TITLE: {
-        DESIGN_VIEW: 'ballerina-design-view',
-    },
+export const VIEWS = {
+    CODE_EXPLORER_PANEL: 'composer.view.code-explorer.left-panel',
 };
 
-export const TOOL_PALETTE_WIDTH = 243;
+export const LABELS = {
+
+};
+
+export const DIALOG_IDS = {
+
+};
+
+export const TOOLS = {
+
+};
+
+export const PLUGIN_ID = 'composer.plugin.code-explorer';

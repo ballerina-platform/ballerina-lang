@@ -83,6 +83,12 @@ class WorkspacePlugin extends Plugin {
      */
     onWorkspaceFileUpdated() {
         const { pref: { history } } = this.appContext;
+        // prevent ast from saving to local storage
+        const openedFiles = this.openedFiles.map((file) => {
+            const newFile = _.clone(file);
+            delete newFile._props.ast;
+            return newFile;
+        });
         history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
     }
 

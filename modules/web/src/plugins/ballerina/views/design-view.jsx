@@ -50,6 +50,10 @@ class DesignView extends React.Component {
         this.props.commandProxy.on('diagram-mode-change', ({ mode }) => {
             this.setMode(mode);
         });
+        this.props.commandProxy.on('go-to-node', (node) => {
+            this.scrollbars.scrollTop(node.viewState.bBox.y);
+            this.scrollbars.scrollLeft(node.viewState.bBox.x);
+        });
     }
 
     /**
@@ -160,6 +164,7 @@ class DesignView extends React.Component {
                             height: this.props.height,
                             marginLeft: TOOL_PALETTE_WIDTH,
                         }}
+                        ref={(scrollbars) => { this.scrollbars = scrollbars; }}
                     >
                         <div className='canvas-container'>
                             <div className='canvas-top-controls-container' />

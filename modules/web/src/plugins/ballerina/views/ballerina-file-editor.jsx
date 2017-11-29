@@ -26,14 +26,15 @@ import TreeUtil from 'plugins/ballerina/model/tree-util.js';
 import { parseFile } from 'api-client/api-client';
 import { CONTENT_MODIFIED, UNDO_EVENT, REDO_EVENT } from 'plugins/ballerina/constants/events';
 import { GO_TO_POSITION, FORMAT } from 'plugins/ballerina/constants/commands';
+import File from 'core/workspace/model/file';
+import { EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
 import DesignView from './design-view.jsx';
 import SourceView from './source-view.jsx';
 import SwaggerView from './swagger-view.jsx';
-import File from 'core/workspace/model/file';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
-import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES, CLASSES } from './constants';
+import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES, CLASSES, FILE_AST_PROPERTY } from './constants';
 import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
 import SyncLineNumbersVisitor from './../visitors/sync-line-numbers';
 import SyncBreakpointsVisitor from './../visitors/sync-breakpoints';
@@ -168,6 +169,7 @@ class BallerinaFileEditor extends React.Component {
             .then((state) => {
                 state.initialParsePending = false;
                 this.setState(state);
+                this.updateFileASTProperty(state);
             })
             .catch((error) => {
                 log.error(error);
@@ -627,6 +629,10 @@ class BallerinaFileEditor extends React.Component {
         breakpoints.forEach((lineNumber) => {
             DebugManager.addBreakPoint(lineNumber, fileName, packagePath);
         });
+    }
+
+    updateFileASTProperty(ast) {
+        this.props.file.setProperty(FILE_AST_PROPERTY, ast);
     }
 
     /**

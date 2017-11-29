@@ -14,24 +14,25 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
-export const DESIGN_VIEW = 'DESIGN_VIEW';
-export const SOURCE_VIEW = 'SOURCE_VIEW';
-export const SWAGGER_VIEW = 'SWAGGER_VIEW';
-export const FILE_AST_PROPERTY = 'ast';
+import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
+import { EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
+import { COMMANDS, DIALOG } from './constants';
 
-export const CHANGE_EVT_TYPES = {
-    CODE_FORMAT: 'code-format',
-    TREE_MODIFIED: 'tree-modified',
-    SOURCE_MODIFIED: 'source-modified',
-};
+/**
+ * Provides command handler definitions of code explorer plugin.
+ * @param {plugin} plugin plugin instance
+ * @returns {Object[]} command handler definitions.
+ *
+ */
+export function getHandlerDefinitions(plugin) {
+    return [
+        // {
+        //     cmdID: WORKSPACE_EVENTS.FILE_OPEN,
+        //     handler: ({ file }) => {
 
-export const CLASSES = {
-    TAB_TITLE: {
-        DESIGN_VIEW: 'ballerina-design-view',
-    },
-};
-
-export const TOOL_PALETTE_WIDTH = 243;
+        //     },
+        // },
+    ];
+}
