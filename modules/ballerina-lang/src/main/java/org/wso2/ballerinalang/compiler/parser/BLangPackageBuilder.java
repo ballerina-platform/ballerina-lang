@@ -1315,12 +1315,16 @@ public class BLangPackageBuilder {
         startBlock();
     }
 
-    public void addTransactionBlock(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void addTransactionBlock(DiagnosticPos pos) {
         TransactionNode transactionNode = transactionNodeStack.peek();
         BLangBlockStmt transactionBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         transactionBlock.pos = pos;
-        transactionBlock.addWS(ws);
         transactionNode.setTransactionBody(transactionBlock);
+    }
+
+    public void endTransactionBlock(Set<Whitespace> ws) {
+        TransactionNode transactionNode = transactionNodeStack.peek();
+        transactionNode.getTransactionBody().addWS(ws);
     }
 
     public void startFailedBlock() {
