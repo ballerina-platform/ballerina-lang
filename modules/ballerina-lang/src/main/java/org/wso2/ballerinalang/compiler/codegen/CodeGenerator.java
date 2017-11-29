@@ -2563,8 +2563,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangXMLQName xmlQName) {
         // If the QName is use outside of XML, treat it as string.
         if (!xmlQName.isUsedInXML) {
-            String qName =
-                    (xmlQName.namespaceURI == null ? "" : "{" + xmlQName.namespaceURI + "}") + xmlQName.localname;
+            String qName = xmlQName.namespaceURI == null ? xmlQName.localname.value
+                    : ("{" + xmlQName.namespaceURI + "}" + xmlQName.localname);
             xmlQName.regIndex = createStringLiteral(qName, env);
             return;
         }
@@ -2641,7 +2641,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Add namespaces decelerations visible to this element.
         xmlElementLiteral.namespacesInScope.forEach((name, symbol) -> {
-            BLangXMLQName nsQName = new BLangXMLQName(name.getValue());
+            BLangXMLQName nsQName = new BLangXMLQName(name.getValue(), XMLConstants.XMLNS_ATTRIBUTE);
             genNode(nsQName, xmlElementEnv);
             int uriIndex = getNamespaceURIIndex(symbol, xmlElementEnv);
             emit(InstructionCodes.XMLATTRSTORE, xmlElementLiteral.regIndex, nsQName.regIndex, uriIndex);
@@ -2852,7 +2852,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         if (namespaceSymbol == null) {
-            return createStringLiteral(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, env);
+            return createStringLiteral(null, env);
         }
 
         // If the namespace is defined within a callable unit, get the URI index in the local var registry.
@@ -2871,7 +2871,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                                                int uriRegIndex, int targetQNameRegIndex, DiagnosticPos pos,
                                                SymbolEnv symbolEnv) {
         if (namespaces.isEmpty()) {
-            createQNameWithEmptyPrefix(localNameRegIndex, uriRegIndex, targetQNameRegIndex, pos);
+            createQNameWithoutPrefix(localNameRegIndex, uriRegIndex, targetQNameRegIndex, pos);
             return;
         }
 
@@ -2914,16 +2914,16 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         // else part. create a qname with empty prefix
-        createQNameWithEmptyPrefix(localNameRegIndex, uriRegIndex, targetQNameRegIndex, pos);
+        createQNameWithoutPrefix(localNameRegIndex, uriRegIndex, targetQNameRegIndex, pos);
 
         while (!endJumpInstrStack.isEmpty()) {
             endJumpInstrStack.pop().setOperand(0, this.nextIP());
         }
     }
 
-    private void createQNameWithEmptyPrefix(int localNameRegIndex, int uriRegIndex, int targetQNameRegIndex,
+    private void createQNameWithoutPrefix(int localNameRegIndex, int uriRegIndex, int targetQNameRegIndex,
                                             DiagnosticPos pos) {
-        int prefixIndex = createStringLiteral("", env);
+        int prefixIndex = createStringLiteral(null, env);
         emit(InstructionCodes.NEWQNAME, localNameRegIndex, uriRegIndex, prefixIndex, targetQNameRegIndex);
     }
 

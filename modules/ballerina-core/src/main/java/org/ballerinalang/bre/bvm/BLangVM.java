@@ -104,6 +104,7 @@ import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
 import org.ballerinalang.util.debugger.DebugInfoHolder;
 import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.slf4j.Logger;
@@ -124,6 +125,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import static org.ballerinalang.util.BLangConstants.STRING_ZERO_VALUE;
+
 /**
  * This class executes Ballerina instruction codes.
  *
@@ -140,7 +143,7 @@ public class BLangVM {
     // Instruction pointer;
     private int ip = 0;
     private Instruction[] code;
-
+    
     private StructureType globalMemBlock;
 
     public BLangVM(ProgramFile programFile) {
@@ -1652,7 +1655,17 @@ public class BLangVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = sf.stringRegs[i].equals(sf.stringRegs[j]) ? 1 : 0;
+                int isEqual;
+                String s1 = sf.stringRegs[i];
+                String s2 = sf.stringRegs[j];
+                if (s1 == s2) {
+                    isEqual = 1;
+                } else if (s1 == null || s2 == null) {
+                    isEqual = 0;
+                } else {
+                    isEqual = s1.equals(s2) ? 1 : 0;
+                }
+                sf.intRegs[k] = isEqual;
                 break;
             case InstructionCodes.BEQ:
                 i = operands[0];
@@ -1797,7 +1810,7 @@ public class BLangVM {
                     sf.stringRegs[k] = qNameStr.substring(1, parenEndIndex);
                 } else {
                     sf.stringRegs[j] = qNameStr;
-                    sf.stringRegs[k] = "";
+                    sf.stringRegs[k] = STRING_ZERO_VALUE;
                 }
 
                 break;
@@ -1917,13 +1930,13 @@ public class BLangVM {
 
                 bRefType = sf.refRegs[i];
                 if (bRefType == null) {
-                    sf.stringRegs[j] = "";
+                    sf.stringRegs[j] = STRING_ZERO_VALUE;
                     handleTypeCastError(sf, k, BTypes.typeNull, BTypes.typeString);
                 } else if (bRefType.getType() == BTypes.typeString) {
                     sf.refRegs[k] = null;
                     sf.stringRegs[j] = bRefType.stringValue();
                 } else {
-                    sf.stringRegs[j] = "";
+                    sf.stringRegs[j] = STRING_ZERO_VALUE;
                     handleTypeCastError(sf, k, bRefType.getType(), BTypes.typeString);
                 }
                 break;
@@ -2048,6 +2061,7 @@ public class BLangVM {
         int j;
         int k;
         BRefType bRefType;
+        String str;
 
         switch (opcode) {
             case InstructionCodes.I2F:
@@ -2095,8 +2109,15 @@ public class BLangVM {
                 j = operands[1];
                 k = operands[2];
 
+                str = sf.stringRegs[i];
+                if (str == null) {
+                    sf.longRegs[j] = 0;
+                    handleTypeConversionError(sf, k, null, TypeConstants.INT_TNAME);
+                    break;
+                }
+
                 try {
-                    sf.longRegs[j] = Long.parseLong(sf.stringRegs[i]);
+                    sf.longRegs[j] = Long.parseLong(str);
                     sf.refRegs[k] = null;
                 } catch (NumberFormatException e) {
                     sf.longRegs[j] = 0;
@@ -2108,8 +2129,15 @@ public class BLangVM {
                 j = operands[1];
                 k = operands[2];
 
+                str = sf.stringRegs[i];
+                if (str == null) {
+                    sf.doubleRegs[j] = 0;
+                    handleTypeConversionError(sf, k, null, TypeConstants.FLOAT_TNAME);
+                    break;
+                }
+
                 try {
-                    sf.doubleRegs[j] = Double.parseDouble(sf.stringRegs[i]);
+                    sf.doubleRegs[j] = Double.parseDouble(str);
                     sf.refRegs[k] = null;
                 } catch (NumberFormatException e) {
                     sf.doubleRegs[j] = 0;
@@ -2121,12 +2149,13 @@ public class BLangVM {
                 j = operands[1];
                 k = operands[2];
                 sf.intRegs[j] = Boolean.parseBoolean(sf.stringRegs[i]) ? 1 : 0;
+                sf.refRegs[k] = null;
                 break;
             case InstructionCodes.S2JSON:
                 i = operands[0];
                 j = operands[1];
-                String jsonStr = StringEscapeUtils.escapeJson(sf.stringRegs[i]);
-                sf.refRegs[j] = new BJSON("\"" + jsonStr + "\"");
+                str = StringEscapeUtils.escapeJson(sf.stringRegs[i]);
+                sf.refRegs[j] = str == null ? null : new BJSON("\"" + str + "\"");
                 break;
             case InstructionCodes.B2I:
                 i = operands[0];
@@ -2209,8 +2238,16 @@ public class BLangVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
+
+                str = sf.stringRegs[i];
+                if (str == null) {
+                    sf.refRegs[j] = null;
+                    sf.refRegs[k] = null;
+                    break;
+                }
+
                 try {
-                    sf.refRegs[j] = XMLUtils.parse(sf.stringRegs[i]);
+                    sf.refRegs[j] = XMLUtils.parse(str);
                     sf.refRegs[k] = null;
                 } catch (BallerinaException e) {
                     sf.refRegs[j] = null;
@@ -2221,7 +2258,8 @@ public class BLangVM {
             case InstructionCodes.S2JSONX:
                 i = operands[0];
                 j = operands[1];
-                sf.refRegs[j] = new BJSON(sf.stringRegs[i]);
+                str = sf.stringRegs[i];
+                sf.refRegs[j] = str == null ? null : new BJSON(str);
                 break;
             case InstructionCodes.XML2S:
                 i = operands[0];
@@ -2988,6 +3026,10 @@ public class BLangVM {
         AbstractNativeFunction nativeFunction = functionInfo.getNativeFunction();
         try {
             nativeFunction.executeNative(context);
+        } catch (BLangNullReferenceException e) {
+            context.setError(BLangVMErrors.createNullRefError(context, ip));
+            handleError();
+            return;
         } catch (Throwable e) {
             context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
             handleError();
@@ -3093,7 +3135,7 @@ public class BLangVM {
                     break;
                 case TypeTags.STRING_TAG:
                     if (returnValues[i] == null) {
-                        callerSF.stringRegs[callersRetRegIndex] = "";
+                        callerSF.stringRegs[callersRetRegIndex] = STRING_ZERO_VALUE;
                         break;
                     }
                     callerSF.stringRegs[callersRetRegIndex] = returnValues[i].stringValue();
@@ -3346,7 +3388,7 @@ public class BLangVM {
             return;
         }
 
-        sf.stringRegs[j] = "";
+        sf.stringRegs[j] = STRING_ZERO_VALUE;
         handleTypeCastError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.STRING_TNAME);
     }
 

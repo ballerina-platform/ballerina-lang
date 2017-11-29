@@ -108,8 +108,12 @@ public class ProgramFileWriter {
                 case CP_ENTRY_UTF8:
                     String stringVal = ((UTF8CPEntry) cpEntry).getValue();
                     byte[] bytes = toUTF(stringVal);
-                    dataOutStream.writeShort(bytes.length);
-                    dataOutStream.writeUTF(stringVal);
+                    if (stringVal != null) {
+                        dataOutStream.writeShort(bytes.length);
+                        dataOutStream.writeUTF(stringVal);
+                    } else {
+                        dataOutStream.writeShort(-1);
+                    }
                     break;
                 case CP_ENTRY_INTEGER:
                     long longVal = ((IntegerCPEntry) cpEntry).getValue();
@@ -672,6 +676,10 @@ public class ProgramFileWriter {
     }
 
     private static byte[] toUTF(String value) throws IOException {
+        if (value == null) {
+            return null;
+        }
+
         ByteArrayOutputStream byteAOS = new ByteArrayOutputStream();
         DataOutputStream dataOutStream = new DataOutputStream(byteAOS);
         dataOutStream.writeUTF(value);

@@ -58,8 +58,7 @@ public class VariableDefinitionTest {
         Assert.assertEquals(b, false);
 
         Assert.assertSame(returns[2].getClass(), BString.class);
-        String s = ((BString) returns[2]).stringValue();
-        Assert.assertEquals(s, "");
+        Assert.assertNull(returns[2].stringValue());
 
         Assert.assertSame(returns[3].getClass(), BFloat.class);
         double f = ((BFloat) returns[3]).floatValue();

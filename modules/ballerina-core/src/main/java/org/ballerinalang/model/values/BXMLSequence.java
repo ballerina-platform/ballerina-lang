@@ -21,6 +21,7 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.OutputStream;
@@ -29,6 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.namespace.QName;
+
+import static org.ballerinalang.util.BLangConstants.STRING_ZERO_VALUE;
 
 /**
  * {@code BXMLSequence} represents a sequence of {@link BXMLItem}s in Ballerina.
@@ -124,7 +127,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
             return ((BXMLItem) sequence.get(0)).getAttribute(localName, namespace);
         }
         
-        return ZERO_STRING_VALUE;
+        return STRING_ZERO_VALUE;
     }
     
     /**
@@ -136,7 +139,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
             return ((BXMLItem) sequence.get(0)).getAttribute(localName, namespace, prefix);
         }
         
-        return ZERO_STRING_VALUE;
+        return STRING_ZERO_VALUE;
     }
     
     /**
@@ -388,7 +391,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         } catch (Throwable t) {
             handleXmlException("failed to get xml as string: ", t);
         }
-        return "";
+        return BLangConstants.STRING_ZERO_VALUE;
     }
     
     /**

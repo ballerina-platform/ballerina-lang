@@ -630,6 +630,7 @@ function testSignedIntMaxMinValues () (int maxInsert, int minInsert, int nullIns
     xmlStr = <string>x;
 
     dt = testDB.select(selectSQL, null);
+    str = "";
     while (dt.hasNext()) {
         var result, _ = (ResultSignedInt)dt.getNext();
         str = str + result.ID + "|" + result.TINYINTDATA + "|" + result.SMALLINTDATA + "|" + result.INTDATA + "|" +
@@ -675,6 +676,7 @@ function testComplexTypeInsertAndRetrieval () (int retDataInsert, int retNullIns
     xmlStr = <string>x;
 
     dt = testDB.select(selectSQL, null);
+    str = "";
     while (dt.hasNext()) {
         var result,_ = (ResultComplexTypes)dt.getNext();
         str = str + result.ROW_ID + "|" + result.BLOB_TYPE.toString("UTF-8") + "|" + result.CLOB_TYPE + "|";

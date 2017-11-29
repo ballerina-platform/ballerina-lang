@@ -170,9 +170,11 @@ public class ProgramFileReader {
         PackageInfo packageInfo;
         switch (cpEntryType) {
             case CP_ENTRY_UTF8:
-                // Discard the length of bytes for now.
-                dataInStream.readShort();
-                String strValue = dataInStream.readUTF();
+                short length = dataInStream.readShort();
+                String strValue = null;
+                if (length >= 0) {
+                    strValue = dataInStream.readUTF();
+                }
                 return new UTF8CPEntry(strValue);
 
             case CP_ENTRY_INTEGER:

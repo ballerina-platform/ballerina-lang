@@ -527,4 +527,23 @@ public class NativeConversionTest {
         Assert.assertNull(returns[1]);
         Assert.assertNull(returns[2]);
     }
+    
+    @Test
+    public void testNullStringToOtherTypes() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNullStringToOtherTypes");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BStruct) returns[1]).getStringField(0), "'null' cannot be converted to 'int'");
+
+        Assert.assertTrue(returns[2] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 0.0);
+        Assert.assertEquals(((BStruct) returns[3]).getStringField(0), "'null' cannot be converted to 'float'");
+
+        Assert.assertTrue(returns[4] instanceof BBoolean);
+        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), false);
+        Assert.assertNull(returns[5]);
+
+        Assert.assertNull(returns[6]);
+        Assert.assertNull(returns[8]);
+    }
 }

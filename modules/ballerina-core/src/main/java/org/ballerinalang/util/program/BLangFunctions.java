@@ -31,6 +31,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -177,7 +178,7 @@ public class BLangFunctions {
         double[] doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
         String[] stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
         // Setting the zero values for strings
-        Arrays.fill(stringLocalVars, "");
+        Arrays.fill(stringLocalVars, BLangConstants.STRING_ZERO_VALUE);
 
         int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         byte[][] byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
