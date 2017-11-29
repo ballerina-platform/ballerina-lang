@@ -206,6 +206,26 @@ public class ServiceTest {
         Assert.assertTrue(stringDataSource.getValue().contains("unsupported media type"));
     }
 
+    @Test(description = "Test GetFormParams with unsupported media type with body")
+    public void testPATCHMethodWithBody() {
+        String path = "/echo/modify";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "PATCH", "WSO2");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 204);
+    }
+
+    @Test(description = "Test GetFormParams with unsupported media type without body")
+    public void testPATCHMethodWithoutBody() {
+        String path = "/echo/modifyNeg";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "PATCH");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 204);
+    }
+
     @AfterClass
     public void tearDown() {
         BServiceUtil.cleanup(compileResult);
