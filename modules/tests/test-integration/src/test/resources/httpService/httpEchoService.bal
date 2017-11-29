@@ -48,4 +48,13 @@ service<http> echoDummy {
         res.setStringPayload("hello world");
         _ = res.send();
     }
+
+    @http:resourceConfig {
+        methods:["OPTIONS"],
+        path:"/getOptions"
+    }
+    resource echoOptions (http:Request req, http:Response res) {
+        res.setStringPayload("hello Options");
+        _ = res.send();
+    }
 }

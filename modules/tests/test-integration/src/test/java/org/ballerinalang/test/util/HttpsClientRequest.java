@@ -55,7 +55,7 @@ public class HttpsClientRequest {
             for (Map.Entry<String, String> e : headers.entrySet()) {
                 conn.setRequestProperty(e.getKey(), e.getValue());
             }
-            conn.setRequestMethod("GET");
+            conn.setRequestMethod(TestConstant.HTTP_METHOD_GET);
             conn.connect();
             StringBuilder sb = new StringBuilder();
             BufferedReader rd = null;
@@ -120,10 +120,10 @@ public class HttpsClientRequest {
             for (Map.Entry<String, String> e : headers.entrySet()) {
                 urlConnection.setRequestProperty(e.getKey(), e.getValue());
             }
-            urlConnection.setRequestMethod("POST");
+            urlConnection.setRequestMethod(TestConstant.HTTP_METHOD_POST);
             OutputStream out = urlConnection.getOutputStream();
             try {
-                Writer writer = new OutputStreamWriter(out, "UTF-8");
+                Writer writer = new OutputStreamWriter(out, TestConstant.CHARSET_NAME);
                 writer.write(postBody);
                 writer.close();
             } finally {
