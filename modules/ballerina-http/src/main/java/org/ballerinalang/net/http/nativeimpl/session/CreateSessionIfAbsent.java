@@ -88,9 +88,7 @@ public class CreateSessionIfAbsent extends AbstractNativeFunction {
                 }
                 if (session == null) {
                     session = SessionManager.getInstance().createHTTPSession(path);
-                }
-                //path validity check
-                else if (session != null && session.getPath().equals(path)) {
+                } else if (session != null && session.getPath().equals(path)) { //path validity check
                     session.setNew(false);
                     session.setAccessed();
                 } else {
