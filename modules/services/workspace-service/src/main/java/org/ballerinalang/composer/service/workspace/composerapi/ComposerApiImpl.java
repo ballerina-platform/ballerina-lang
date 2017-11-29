@@ -17,8 +17,16 @@
 */
 package org.ballerinalang.composer.service.workspace.composerapi;
 
+import org.ballerinalang.langserver.BallerinaLanguageServer;
+import org.eclipse.lsp4j.services.LanguageServer;
+
 /**
  * Implementation of the Interface of the main composer endpoint.
  */
 public class ComposerApiImpl implements ComposerApi {
+
+    @Override
+    public LanguageServer getLanguageServer() {
+        return new BallerinaLanguageServer();
+    }
 }
