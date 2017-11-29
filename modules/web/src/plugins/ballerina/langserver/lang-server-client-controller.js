@@ -363,27 +363,15 @@ class LangServerClientController extends EventChannel {
  */
 function initLangServerClientInstance(options) {
     instance = new LangServerClientController(options);
-    return new Promise((resolve, reject) => {
-        instance.init()
-            .then(resolve)
-            .catch((error) => {
-                instance = undefined;
-                reject(error);
-            });
-    });
+    return instance.init()
+             .then(() => {
+                 return instance;
+             });
 }
 
 /**
  * method to fetch langserver client sigleton
  */
 export function getLangServerClientInstance(options) {
-    return new Promise((resolve, reject) => {
-        if (instance !== undefined) {
-            resolve(instance);
-        } else {
-            initLangServerClientInstance(options)
-                .then(() => { resolve(instance); })
-                .catch(reject);
-        }
-    });
+    return instance !== undefined ? Promise.resolve(instance) : initLangServerClientInstance(options);
 }
