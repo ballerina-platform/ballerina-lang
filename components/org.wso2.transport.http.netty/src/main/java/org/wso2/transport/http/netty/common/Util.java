@@ -154,17 +154,21 @@ public class Util {
     }
 
     private static void  setContentLength(HTTPCarbonMessage cMsg) {
-        if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null && !cMsg.isEmpty())) {
+        if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null && (!cMsg.isEmpty()
+                || cMsg.getProperty(Constants.HTTP_METHOD).toString().equals(Constants.HTTP_POST_METHOD)))) {
             Util.prepareBuiltMessageForTransfer(cMsg);
             int contentLength = cMsg.getFullMessageLength();
             if (contentLength > 0) {
                 cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
+            } else {
+                cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(0));
             }
         }
     }
 
     private static void  setTransferEncodingHeader(HTTPCarbonMessage cMsg) {
-        if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null && !cMsg.isEmpty())) {
+        if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null && (!cMsg.isEmpty()
+                || cMsg.getProperty(Constants.HTTP_METHOD).toString().equals(Constants.HTTP_POST_METHOD)))) {
             HttpContent httpContent = cMsg.peek();
             if (httpContent instanceof LastHttpContent) {
                 if (httpContent.content().readableBytes() == 0) {
@@ -176,12 +180,13 @@ public class Util {
     }
 
     /**
-     * Prepare response message with Transfer-Encoding/Content-Length.
+     * Prepare response message with Transfer-Encoding/Content-Length/Content-Type.
      *
      * @param cMsg Carbon message.
      * @param requestDataHolder Requested data holder.
      */
-    public static void setupTransferEncodingForResponse(HTTPCarbonMessage cMsg, RequestDataHolder requestDataHolder) {
+    public static void setupTransferEncodingAndContentTypeForResponse(HTTPCarbonMessage cMsg
+            , RequestDataHolder requestDataHolder) {
 
         // 1. Remove Transfer-Encoding and Content-Length as per rfc7230#section-3.3.1
         int statusCode = Util.getIntValue(cMsg, Constants.HTTP_STATUS_CODE, 200);
@@ -191,6 +196,7 @@ public class Util {
             (HttpMethod.CONNECT.name().equals(httpMethod) && statusCode >= 200 && statusCode < 300)) {
             cMsg.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
             cMsg.removeHeader(Constants.HTTP_CONTENT_LENGTH);
+            cMsg.removeHeader(Constants.HTTP_CONTENT_TYPE);
             return;
         }
 
@@ -230,6 +236,7 @@ public class Util {
                 cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
             } else {
                 cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(0));
+                cMsg.removeHeader(Constants.HTTP_CONTENT_TYPE);
             }
         }
     }

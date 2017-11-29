@@ -50,7 +50,7 @@ public class HttpResponseListener implements HttpConnectorListener {
 
     @Override
     public void onMessage(HTTPCarbonMessage httpResponseMessage) {
-        Util.setupTransferEncodingForResponse(httpResponseMessage, requestDataHolder);
+        Util.setupTransferEncodingAndContentTypeForResponse(httpResponseMessage, requestDataHolder);
 
         sourceContext.channel().eventLoop().execute(() -> {
             boolean keepAlive = isKeepAlive(httpResponseMessage);
