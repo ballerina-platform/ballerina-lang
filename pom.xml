@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>language-server</artifactId>
     <packaging>pom</packaging>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.95.1-SNAPSHOT</version>
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerinalang</artifactId>
@@ -68,7 +68,7 @@
         </dependencies>
     </dependencyManagement>
     <properties>
-        <ballerina.version>0.95.1-SNAPSHOT</ballerina.version>
+        <ballerina.version>${project.version}</ballerina.version>
         <lsp4j.version>0.3.0</lsp4j.version>
     </properties>
     <modules>
