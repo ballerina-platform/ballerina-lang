@@ -32,3 +32,7 @@ export const TOOLS = {
     ACTION_VIEW: 'composer.tool.ballerina.action-view',
     COMPACT_VIEW: 'composer.tool.ballerina.compact-view',
 };
+
+export const DIALOGS = {
+    OPEN_PROGRAM_DIR_CONFIRM: 'composer.dialog.ballerina.open-program-dir-confirm',
+};

@@ -17,10 +17,6 @@
  */
 import Plugin from 'core/plugin/plugin';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
-import { read } from 'core/workspace/fs-util';
-import { COMMANDS as WORKSPACE_COMMANDS } from 'core/workspace/constants';
-import DefaultNodeFactory from 'ballerina/model/default-node-factory';
-import NodeFactory from 'ballerina/model/node-factory';
 import { PLUGIN_ID, DIALOG } from './constants';
 import ImportStructDialog from './dialogs/import-struct-dialog';
 

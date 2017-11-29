@@ -80,7 +80,7 @@ export const DIALOGS = {
 
 export const HISTORY = {
     OPENED_FILES: 'composer.workspace.opened-files',
-    OPENED_FOLDERS: 'composer.workspace.opened-folders',
+    OPENED_FOLDERS: 'composer.workspace.opened-workspace-folders',
 };
 
 export const PLUGIN_ID = 'composer.plugin.workspace.manager';
