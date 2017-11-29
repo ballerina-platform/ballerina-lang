@@ -127,20 +127,20 @@ fi
 
 for c in "$@"
 do
-    if [ "$c" = "--debug" ] || [ "$c" = "-debug" ] || [ "$c" = "debug" ]; then
-          CMD="--debug"
-    elif [ "$CMD" = "--debug" ] && [ -z "$PORT" ]; then
+    if [ "$c" = "--java.debug" ] || [ "$c" = "-java.debug" ] || [ "$c" = "java.debug" ]; then
+          CMD="--java.debug"
+    elif [ "$CMD" = "--java.debug" ] && [ -z "$PORT" ]; then
           PORT=$c
     fi
 done
 
-if [ "$CMD" = "--debug" ]; then
+if [ "$CMD" = "--java.debug" ]; then
   if [ "$PORT" = "" ]; then
-    echo "Please specify the debug port after the --debug option"
+    echo "Please specify the debug port after the --java.debug option"
     exit 1
   fi
   if [ -n "$JAVA_OPTS" ]; then
-    echo "Warning !!!. User specified JAVA_OPTS will be ignored, once you give the --debug option."
+    echo "Warning !!!. User specified JAVA_OPTS will be ignored, once you give the --java.debug option."
   fi
   JAVA_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$PORT"
   echo "Please start the remote debugging client to continue..."

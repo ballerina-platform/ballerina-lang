@@ -74,9 +74,9 @@ rem of arguments (up to the command line limit, anyway).
 :setupArgs
 if ""%1""=="""" goto doneStart
 
-if ""%1""==""debug""    goto commandDebug
-if ""%1""==""-debug""   goto commandDebug
-if ""%1""==""--debug""  goto commandDebug
+if ""%1""==""java.debug""    goto commandDebug
+if ""%1""==""-java.debug""   goto commandDebug
+if ""%1""==""--java.debug""  goto commandDebug
 
 shift
 goto setupArgs
@@ -87,13 +87,13 @@ rem ----- commandDebug ---------------------------------------------------------
 shift
 set DEBUG_PORT=%1
 if "%DEBUG_PORT%"=="" goto noDebugPort
-if not "%JAVA_OPTS%"=="" echo Warning !!!. User specified JAVA_OPTS will be ignored, once you give the --debug option.
+if not "%JAVA_OPTS%"=="" echo Warning !!!. User specified JAVA_OPTS will be ignored, once you give the --java.debug option.
 set JAVA_OPTS=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%DEBUG_PORT%
 echo Please start the remote debugging client to continue...
 goto runServer
 
 :noDebugPort
-echo Please specify the debug port after the --debug option
+echo Please specify the debug port after the --java.debug option
 goto end
 
 :doneStart
