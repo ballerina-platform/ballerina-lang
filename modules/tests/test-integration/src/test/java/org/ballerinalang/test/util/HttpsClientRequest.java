@@ -200,14 +200,16 @@ public class HttpsClientRequest {
      */
     private static void setSSlSystemProperties(String serverHome) {
         String keystorePath = serverHome + File.separator + "bre" + File.separator
-                + "security" + File.separator + "wso2carbon.jks";
+                + "security" + File.separator + "ballerinaKeystore.p12";
         String truststorePath = serverHome + File.separator + "bre" + File.separator
-                + "security" + File.separator + "client-truststore.jks";
+                + "security" + File.separator + "ballerinaTruststore.p12";
         Properties systemProps = System.getProperties();
-        systemProps.put("javax.net.ssl.keyStorePassword", "wso2carbon");
+        systemProps.put("javax.net.ssl.keyStoreType", "PKCS12");
+        systemProps.put("javax.net.ssl.trustStoreType", "PKCS12");
+        systemProps.put("javax.net.ssl.keyStorePassword", "ballerina");
         systemProps.put("javax.net.ssl.keyStore", keystorePath);
         systemProps.put("javax.net.ssl.trustStore", truststorePath);
-        systemProps.put("javax.net.ssl.trustStorePassword", "wso2carbon");
+        systemProps.put("javax.net.ssl.trustStorePassword", "ballerina");
         System.setProperties(systemProps);
     }
 }

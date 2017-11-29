@@ -13,7 +13,7 @@ service<http> headQuoteService {
         string method = req.getMethod();
         http:Response clientResponse;
         clientResponse, _ = endPoint.execute(method, "/getQuote/stocks", req);
-        resp.forward(clientResponse);
+        _ = resp.forward(clientResponse);
     }
 
     @http:resourceConfig {
@@ -25,7 +25,7 @@ service<http> headQuoteService {
         }
         http:Response clientResponse;
         clientResponse, _ = endPoint.forward("/getQuote/stocks", req);
-        resp.forward(clientResponse);
+        _ = resp.forward(clientResponse);
     }
 
     @http:resourceConfig {
@@ -37,7 +37,7 @@ service<http> headQuoteService {
         }
         http:Response clientResponse;
         clientResponse, _ = endPoint.forward("/getQuote/stocks", req);
-        resp.forward(clientResponse);
+        _ = resp.forward(clientResponse);
     }
 
     @http:resourceConfig {
@@ -49,7 +49,7 @@ service<http> headQuoteService {
         }
         http:Response clientResponse;
         clientResponse, _ = endPoint.execute(method, "/getQuote/stocks", req);
-        resp.forward(clientResponse);
+        _ = resp.forward(clientResponse);
     }
 }
 
@@ -66,7 +66,7 @@ service<http> testClientConHEAD {
         }
         http:Response clientResponse;
         clientResponse, _ = quoteEP.get("/getQuote/stocks", req);
-        resp.forward(clientResponse);
+        _ = resp.forward(clientResponse);
     }
 }
 
@@ -79,7 +79,7 @@ service<http> quoteService {
     }
     resource company (http:Request req, http:Response res) {
         res.setStringPayload("wso2");
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -88,7 +88,7 @@ service<http> quoteService {
     }
     resource product (http:Request req, http:Response res) {
         res.setStringPayload("ballerina");
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -97,6 +97,6 @@ service<http> quoteService {
     resource defaultStock (http:Request req, http:Response res) {
         res.setHeader("Method", "any");
         res.setStringPayload("default");
-        res.send();
+        _ = res.send();
     }
 }
