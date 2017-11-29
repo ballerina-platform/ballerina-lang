@@ -519,15 +519,23 @@ public class StringTest {
     }
 
     @Test
-    public void compareNullString() {
-        BValue[] returns = BRunUtil.invoke(result, "compareNullString");
+    public void compareStringWithNull() {
+        BValue[] returns = BRunUtil.invoke(result, "compareStringWithNull");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
         Assert.assertTrue(returns[1] instanceof BBoolean);
         Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
         Assert.assertTrue(returns[2] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
         Assert.assertTrue(returns[3] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[3]).booleanValue(), true);
+        Assert.assertEquals(((BBoolean) returns[3]).booleanValue(), false);
+        Assert.assertTrue(returns[4] instanceof BBoolean);
+        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
+        Assert.assertTrue(returns[5] instanceof BBoolean);
+        Assert.assertEquals(((BBoolean) returns[5]).booleanValue(), true);
+        Assert.assertTrue(returns[6] instanceof BBoolean);
+        Assert.assertEquals(((BBoolean) returns[6]).booleanValue(), false);
+        Assert.assertTrue(returns[7] instanceof BBoolean);
+        Assert.assertEquals(((BBoolean) returns[7]).booleanValue(), false);
     }
 }

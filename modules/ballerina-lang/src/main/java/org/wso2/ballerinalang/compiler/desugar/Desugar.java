@@ -645,13 +645,13 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        if (binaryExpr.lhsExpr.type.tag == TypeTags.STRING && binaryExpr.opKind != OperatorKind.EQUAL) {
+        if (binaryExpr.lhsExpr.type.tag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
             binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr,
                     binaryExpr.rhsExpr.type, binaryExpr.lhsExpr.type);
             return;
         }
 
-        if (binaryExpr.rhsExpr.type.tag == TypeTags.STRING && binaryExpr.opKind != OperatorKind.EQUAL) {
+        if (binaryExpr.rhsExpr.type.tag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
             binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
                     binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
             return;

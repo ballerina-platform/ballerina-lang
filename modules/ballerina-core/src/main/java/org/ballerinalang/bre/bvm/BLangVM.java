@@ -39,6 +39,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
+import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
@@ -143,7 +144,7 @@ public class BLangVM {
     // Instruction pointer;
     private int ip = 0;
     private Instruction[] code;
-    
+
     private StructureType globalMemBlock;
 
     public BLangVM(ProgramFile programFile) {
@@ -1655,17 +1656,7 @@ public class BLangVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                int isEqual;
-                String s1 = sf.stringRegs[i];
-                String s2 = sf.stringRegs[j];
-                if (s1 == s2) {
-                    isEqual = 1;
-                } else if (s1 == null || s2 == null) {
-                    isEqual = 0;
-                } else {
-                    isEqual = s1.equals(s2) ? 1 : 0;
-                }
-                sf.intRegs[k] = isEqual;
+                sf.intRegs[k] = StringUtils.isEqual(sf.stringRegs[i], sf.stringRegs[j]) ? 1 : 0;
                 break;
             case InstructionCodes.BEQ:
                 i = operands[0];
@@ -1705,7 +1696,7 @@ public class BLangVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = !(sf.stringRegs[i].equals(sf.stringRegs[j])) ? 1 : 0;
+                sf.intRegs[k] = !StringUtils.isEqual(sf.stringRegs[i], sf.stringRegs[j]) ? 1 : 0;
                 break;
             case InstructionCodes.BNE:
                 i = operands[0];

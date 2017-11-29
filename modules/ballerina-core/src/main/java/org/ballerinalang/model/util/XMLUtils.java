@@ -204,9 +204,9 @@ public class XMLUtils {
      * @return BXML Element type BXML
      */
     public static BXML<?> createXMLElement(BXMLQName startTagName, BXMLQName endTagName, String defaultNsUri) {
-        if (!isEqual(startTagName.getLocalName(), endTagName.getLocalName()) ||
-                !isEqual(startTagName.getUri(), endTagName.getUri()) ||
-                !isEqual(startTagName.getPrefix(), endTagName.getPrefix())) {
+        if (!StringUtils.isEqual(startTagName.getLocalName(), endTagName.getLocalName()) ||
+                !StringUtils.isEqual(startTagName.getUri(), endTagName.getUri()) ||
+                !StringUtils.isEqual(startTagName.getPrefix(), endTagName.getPrefix())) {
             throw new BallerinaException(
                     "start and end tag names mismatch: '" + startTagName + "' and '" + endTagName + "'");
         }
@@ -590,23 +590,6 @@ public class XMLUtils {
     private static void addToRootMap(LinkedHashMap<String, ArrayList<JsonNode>> rootMap, String key, JsonNode node) {
         rootMap.putIfAbsent(key, new ArrayList<>());
         rootMap.get(key).add(node);
-    }
-    
-    /**
-     * Check whether two strings are equal.
-     * 
-     * @param s1 First string
-     * @param s2 Second string
-     * @return flag indicating whether they are equal
-     */
-    private static boolean isEqual(String s1, String s2) {
-        if (s1 == s2) {
-            return true;
-        } else if (s1 == null || s2 == null) {
-            return false;
-        } else {
-            return s1.equals(s2);
-        }
     }
 
     private static QName getQName(String localName, String namespaceUri, String prefix) {
