@@ -42,45 +42,6 @@ class ServerConnectorPropertiesForm extends React.Component {
     }
 
     /**
-     * Create an Annotation Name Node
-     */
-
-    createIdentifierNode(value) {
-        return NodeFactory.createIdentifier({ value });
-    }
-
-    /**
-     * Add quotation for strings
-     */
-    addQuotationForStringValues(value) {
-        if (!value.startsWith('"')) {
-            value = '"' + value + '"';
-        }
-        return value;
-    }
-
-    /**
-     * Fill the value array in AnnotationAttachmentAttributeValue
-     */
-    addValuesToValueArray(annotationAttachmentAttr, attributes) {
-        attributes.map((identifier) => {
-            // Add a new annotation attachment attribute value
-            // Create a literal node to add the value
-            identifier = this.addQuotationForStringValues(identifier);
-            const valueNode = NodeFactory.createLiteral({ value: identifier });
-
-            const annotationAttachmentAttrValue = NodeFactory
-                .createAnnotationAttachmentAttributeValue({ value: valueNode });
-            // Add the new value to the value array
-            let index = annotationAttachmentAttr.value.getValueArray().length - 1;
-            if (index === -1) {
-                index = 0;
-            }
-            annotationAttachmentAttr.getValue().addValueArray(annotationAttachmentAttrValue, index + 1, true);
-        });
-        return annotationAttachmentAttr;
-    }
-    /**
      * Get service config annotations and values added for a service using the prop form
      * @param data
      */
@@ -89,7 +50,7 @@ class ServerConnectorPropertiesForm extends React.Component {
 
         // Check if there is a 'configuration' annotation attachment already
         if (model.getAnnotationAttachments().length > 0) {
-            model.getAnnotationAttachments().map((annotationAttachment) => {
+            model.getAnnotationAttachments().forEach((annotationAttachment) => {
                 if (!annotationAttachment.getAnnotationName() === 'configuration') {
                     model.addAnnotationAttachments(NodeFactory.createAnnotationAttachment(
                         { packageAlias: this.createIdentifierNode(model.getProtocolPackageIdentifier().value),
@@ -119,9 +80,9 @@ class ServerConnectorPropertiesForm extends React.Component {
                     const bType = this.getBTypeOfConfigurationAttribute(key.identifier);
                     let value = key.value;
                     // For attributes with values
-                    annotationAttachments.getAttributes().map((annotation) => {
+                    annotationAttachments.getAttributes().forEach((annotation) => {
                         // If the attribute is already added change the value with the new value
-                        if (annotation.name === key.identifier) {
+                        if (annotation.getName().value === key.identifier) {
                             exists = true;
                             if (bType === 'string') {
                                 value = this.addQuotationForStringValues(value);
@@ -133,7 +94,7 @@ class ServerConnectorPropertiesForm extends React.Component {
                     if (!exists) {
                         // Add a new annotation attachment attribute node
                         const annotationAttachmentAttr = NodeFactory.createAnnotationAttachmentAttribute(
-                            { name: key.identifier });
+                            { name: this.createIdentifierNode(key.identifier) });
 
                         // Create a literal node to add the value
                         if (bType === 'string') {
@@ -156,8 +117,8 @@ class ServerConnectorPropertiesForm extends React.Component {
                     }
                     // For the attributes with value arrays
                 } else {
-                    annotationAttachments.getAttributes().map((annotation) => {
-                        if (annotation.name === key.identifier) {
+                    annotationAttachments.getAttributes().forEach((annotation) => {
+                        if (annotation.getName().value === key.identifier) {
                             exists = true;
                             // Get the values from the value array
                             annotation.value.setValueArray([], true);
@@ -174,7 +135,7 @@ class ServerConnectorPropertiesForm extends React.Component {
                     if (!exists) {
                         // Add a new annotation attachment attribute node
                         let annotationAttachmentAttr = NodeFactory.createAnnotationAttachmentAttribute(
-                            { name: key.identifier });
+                            { name: this.createIdentifierNode(key.identifier) });
                         const attributes = key.value;
                         annotationAttachmentAttr = this.addValuesToValueArray(annotationAttachmentAttr, attributes);
                         delete annotationAttachmentAttr.getValue().value;
@@ -186,8 +147,8 @@ class ServerConnectorPropertiesForm extends React.Component {
                     }
                 }
             } else {
-                annotationAttachments.getAttributes().map((annotation) => {
-                    if (annotation.name === key.identifier) {
+                annotationAttachments.getAttributes().forEach((annotation) => {
+                    if (annotation.getName().value === key.identifier) {
                         annotationAttachments.removeAttributes(annotation, true);
                     }
                 });
@@ -208,17 +169,17 @@ class ServerConnectorPropertiesForm extends React.Component {
         if (annotationAttachment[0]) {
             if (annotationAttachment[0].attributes) {
                 const attributes = annotationAttachment[0].attributes;
-                attributes.map((annotation) => {
+                attributes.forEach((annotation) => {
                     let value;                    // For array types
                     if ((annotation.value.getValueArray()).length > 0) {
                         value = [];
-                        annotation.value.getValueArray().map((element) => {
+                        annotation.value.getValueArray().forEach((element) => {
                             value.push(element.getValue().value);
                         });
                     } else {
                         value = annotation.value.getValue().value;
                     }
-                    const keyValuePair = { identifier: annotation.name, value };
+                    const keyValuePair = { identifier: annotation.getName().value, value };
 
                     addedValues.push(keyValuePair);
                 });
@@ -237,9 +198,9 @@ class ServerConnectorPropertiesForm extends React.Component {
         const supportedAttributes = ServiceNodeHelper.getAttributes(
             this.context.environment, props.model.getProtocolPackageIdentifier().value, 'configuration');
         const addedValues = this.getAddedValues();
-        supportedAttributes.map((attributeDefinition) => {
+        supportedAttributes.forEach((attributeDefinition) => {
             let value = '';
-            addedValues.map((addedAnnotation) => {
+            addedValues.forEach((addedAnnotation) => {
                 if (addedAnnotation.identifier === attributeDefinition.getIdentifier()) {
                     value = addedAnnotation.value;
                 }
@@ -266,6 +227,45 @@ class ServerConnectorPropertiesForm extends React.Component {
         return annotationAttributeDef.getBType();
     }
 
+  /**
+   * Create an Annotation Name Node
+   */
+
+    createIdentifierNode(value) {
+        return NodeFactory.createIdentifier({ value });
+    }
+
+  /**
+   * Add quotation for strings
+   */
+    addQuotationForStringValues(value) {
+        if (!value.startsWith('"')) {
+            value = '"' + value + '"';
+        }
+        return value;
+    }
+
+  /**
+   * Fill the value array in AnnotationAttachmentAttributeValue
+   */
+    addValuesToValueArray(annotationAttachmentAttr, attributes) {
+        attributes.forEach((identifier) => {
+      // Add a new annotation attachment attribute value
+      // Create a literal node to add the value
+            identifier = this.addQuotationForStringValues(identifier);
+            const valueNode = NodeFactory.createLiteral({ value: identifier });
+
+            const annotationAttachmentAttrValue = NodeFactory
+        .createAnnotationAttachmentAttributeValue({ value: valueNode });
+      // Add the new value to the value array
+            let index = annotationAttachmentAttr.value.getValueArray().length - 1;
+            if (index === -1) {
+                index = 0;
+            }
+            annotationAttachmentAttr.getValue().addValueArray(annotationAttachmentAttrValue, index + 1, true);
+        });
+        return annotationAttachmentAttr;
+    }
     /**
      * Check if the attribute is of type array
      * @param value
