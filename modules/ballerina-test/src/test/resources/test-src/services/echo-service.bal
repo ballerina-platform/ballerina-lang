@@ -105,15 +105,6 @@ service<http> echo {
         res.setStatusCode(204);
         _ = res.send();
     }
-
-    @http:resourceConfig {
-        methods:["PATCH"],
-        path:"/modifyNeg"
-    }
-    resource modify22 (http:Request req, http:Response res) {
-        res.setStatusCode(204);
-        _ = res.send();
-    }
 }
 
 function getConstPath() (string) {
