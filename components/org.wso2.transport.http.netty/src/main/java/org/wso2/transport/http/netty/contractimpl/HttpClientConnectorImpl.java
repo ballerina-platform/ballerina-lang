@@ -51,6 +51,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     private int socketIdleTimeout;
     private boolean followRedirect;
     private boolean chunkDisabled;
+    private boolean keepAlive;
 
     public HttpClientConnectorImpl(ConnectionManager connectionManager, SenderConfiguration senderConfiguration) {
         this.connectionManager = connectionManager;
@@ -88,11 +89,14 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                         targetChannel.setEndPointTimeout(socketIdleTimeout, followRedirect);
                         targetChannel.setCorrelationIdForLogging();
                         targetChannel.setChunkDisabled(chunkDisabled);
-                        targetChannel.setRequestWritten(true);
                         if (followRedirect) {
                             setChannelAttributes(channelFuture.channel(), httpCarbonRequest, httpResponseFuture,
                                                  targetChannel);
                         }
+                        if (!keepAlive) {
+                            httpCarbonRequest.setHeader(Constants.CONNECTION, Constants.CONNECTION_CLOSE);
+                        }
+                        targetChannel.setRequestWritten(true);
                         targetChannel.writeContent(httpCarbonRequest);
                     } else {
                         notifyErrorState(channelFuture);
@@ -194,5 +198,6 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
         this.followRedirect = senderConfiguration.isFollowRedirect();
         this.socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(Constants.ENDPOINT_TIMEOUT);
         this.sslConfig = senderConfiguration.getSslConfig();
+        this.keepAlive = senderConfiguration.isKeepAlive();
     }
 }
