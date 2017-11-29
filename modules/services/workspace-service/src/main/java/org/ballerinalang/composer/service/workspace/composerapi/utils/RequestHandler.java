@@ -164,13 +164,12 @@ public class RequestHandler {
     }
 
     /**
-     * Find the delegate method in the endpoint registered
+     * Find the delegate method in the endpoint registered.
      * @param methodName delegate method name
      * @return delegate method object
      */
     public JsonRpcMethod getDelegateMethod(String methodName) {
         Map<String, JsonRpcMethod> methods = ServiceEndpoints.getSupportedMethods(ComposerApi.class);
         return  methods.get(methodName);
-
     }
 }
