@@ -453,6 +453,13 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	@Return { value:"Error occured during HTTP client invocation" }
 	native action get (string path, Request req) (Response, HttpConnectorError);
 
+	@Description { value:"OPTIONS action implementation of the HTTP Connector"}
+	@Param { value:"path: Request path" }
+	@Param { value:"req: An HTTP Request struct" }
+	@Return { value:"The response message" }
+	@Return { value:"Error occured during HTTP client invocation" }
+	native action options (string path, Request req) (Response, HttpConnectorError);
+
 	@Description { value:"forward action can be used to invoke an HTTP call with incoming request HTTPVerb"}
 	@Param { value:"path: Request path" }
 	@Param { value:"req: An HTTP Request struct" }
