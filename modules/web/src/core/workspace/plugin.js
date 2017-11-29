@@ -60,6 +60,7 @@ class WorkspacePlugin extends Plugin {
         this.openedFiles = [];
         this._selectedNodeInExplorer = undefined;
         this.onWorkspaceFileUpdated = this.onWorkspaceFileUpdated.bind(this);
+        this.onWorkspaceFileContentChanged = this.onWorkspaceFileContentChanged.bind(this);
         this.onNodeSelectedInExplorer = this.onNodeSelectedInExplorer.bind(this);
     }
 
@@ -81,9 +82,17 @@ class WorkspacePlugin extends Plugin {
     /**
      * On an opened file in workspace update
      */
-    onWorkspaceFileUpdated() {
+    onWorkspaceFileUpdated(file) {
         const { pref: { history } } = this.appContext;
         history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
+    }
+
+    /**
+     * On content of a file updated
+     */
+    onWorkspaceFileContentChanged({ file }) {
+        const { command: { dispatch } } = this.appContext;
+        dispatch(EVENTS.FILE_UPDATED, { file });
     }
 
     /**
@@ -123,10 +132,8 @@ class WorkspacePlugin extends Plugin {
                         this.openedFiles.push(file);
                         const { pref: { history }, editor } = this.appContext;
                         history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
-                        file.on(EVENTS.FILE_UPDATED, (updatedFile) => {
-                            dispatch(EVENTS.FILE_UPDATED, { file: updatedFile });
-                            this.onWorkspaceFileUpdated();
-                        });
+                        file.on(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
+                        file.on(EVENTS.CONTENT_MODIFIED, this.onWorkspaceFileContentChanged);
                         editor.open(file, activate);
                         dispatch(EVENTS.FILE_OPENED, { file });
                         resolve(file);
@@ -201,6 +208,7 @@ class WorkspacePlugin extends Plugin {
                 const { pref: { history }, command: { dispatch } } = this.appContext;
                 history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
                 file.off(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
+                file.off(EVENTS.CONTENT_MODIFIED, this.onWorkspaceFileContentChanged);
                 dispatch(EVENTS.FILE_CLOSED, { file });
             } else {
                 reject(`File ${file.fullPath} cannot be found in opened file set.`);
