@@ -61,5 +61,4 @@ public class HTTPOptionsTestCase {
     private void cleanup() throws Exception {
         ballerinaServer.stopServer();
     }
-
 }
