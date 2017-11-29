@@ -1645,9 +1645,6 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(xmlnsStmt);
     }
 
-    public void attachStringTemplateLiteralWS(Set<Whitespace> ws) {
-    }
-
     public void createStringTemplateLiteral(DiagnosticPos pos, Set<Whitespace> ws, Stack<String> precedingTextFragments,
                                             String endingText) {
         BLangStringTemplateLiteral stringTemplateLiteral =
