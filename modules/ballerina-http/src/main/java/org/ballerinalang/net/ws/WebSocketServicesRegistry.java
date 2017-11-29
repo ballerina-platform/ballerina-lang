@@ -21,8 +21,9 @@ package org.ballerinalang.net.ws;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.net.http.HttpConnectionManager;
-import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.net.http.HttpServerConnector;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +53,7 @@ public class WebSocketServicesRegistry {
     private final Map<String, WebSocketService> serviceEndpoints = new ConcurrentHashMap<>();
 
     private final Map<String, WebSocketService> slaveEndpoints = new HashMap<>();
+    private HttpConnectionManager httpConnectionManager;
 
     private WebSocketServicesRegistry() {
     }
@@ -85,7 +87,7 @@ public class WebSocketServicesRegistry {
                 }
 
                 Set<ListenerConfiguration> listenerConfigurationSet =
-                        HttpUtil.getDefaultOrDynamicListenerConfig(configAnnotation);
+                        getHttpConnectionManager().getDefaultOrDynamicListenerConfig(configAnnotation);
 
                 for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
                     String entryListenerInterface =
@@ -93,7 +95,7 @@ public class WebSocketServicesRegistry {
                     Map<String, String> servicesOnInterface = serviceEndpointsMap
                             .computeIfAbsent(entryListenerInterface, k -> new HashMap<>());
 
-                    HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
+                    getHttpConnectionManager().createHttpServerConnector(listenerConfiguration);
                     // Assumption : this is always sequential, no two simultaneous calls can get here
                     if (servicesOnInterface.containsKey(basePath)) {
                         throw new BallerinaConnectorException(
@@ -261,6 +263,18 @@ public class WebSocketServicesRegistry {
         // TODO : Handle correct interface addition to default interface.
         String listenerInterface = Constants.DEFAULT_INTERFACE;
         return listenerInterface;
+    }
+
+    private HttpConnectionManager getHttpConnectionManager() {
+        if (httpConnectionManager == null) {
+            HttpServerConnector httpServerConnector =
+                    (HttpServerConnector) ConnectorUtils.getBallerinaServerConnector(Constants.HTTP_PACKAGE_PATH);
+            if (httpServerConnector == null) {
+                throw new BallerinaConnectorException("Http server connector is not registered!");
+            }
+            httpConnectionManager = httpServerConnector.getHttpConnectionManager();
+        }
+        return httpConnectionManager;
     }
 
 }

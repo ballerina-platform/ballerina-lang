@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http.actions;
 
 import io.netty.handler.codec.http.HttpHeaders;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -27,7 +28,6 @@ import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.net.http.Constants;
-import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.RetryConfig;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -35,14 +35,24 @@ import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
+import org.wso2.transport.http.netty.config.Parameter;
+import org.wso2.transport.http.netty.config.SenderConfiguration;
+import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
@@ -147,8 +157,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         try {
             BConnector bConnector = (BConnector) getRefArgument(context, 0);
             String scheme = (String) httpRequestMsg.getProperty(Constants.PROTOCOL);
-            HttpClientConnector clientConnector =
-                    HttpConnectionManager.getInstance().getHTTPHttpClientConnector(scheme, bConnector);
+            HttpClientConnector clientConnector = getHTTPHttpClientConnector(scheme, bConnector);
             HttpResponseFuture future = clientConnector.send(httpRequestMsg);
             future.setHttpConnectorListener(httpClientConnectorLister);
         } catch (BallerinaConnectorException e) {
@@ -156,6 +165,108 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         } catch (Exception e) {
             throw new BallerinaException("Failed to send httpRequestMsg to the backend", e, context);
         }
+    }
+
+    private HttpClientConnector getHTTPHttpClientConnector(String scheme, BConnector bConnector) {
+        TransportsConfiguration trpConfig = HttpUtil.getTransportsConfiguration();
+        Map<String, Object> properties = HTTPConnectorUtil.getTransportProperties(trpConfig);
+        SenderConfiguration senderConfiguration =
+                HTTPConnectorUtil.getSenderConfiguration(trpConfig, scheme);
+
+        if (HttpUtil.isHTTPTraceLoggerEnabled()) {
+            senderConfiguration.setHttpTraceLogEnabled(true);
+        }
+        senderConfiguration.setTlsStoreType(Constants.PKCS_STORE_TYPE);
+
+        BStruct options = (BStruct) bConnector.getRefField(Constants.OPTIONS_STRUCT_INDEX);
+        if (options != null) {
+            populateSenderConfigurationOptions(senderConfiguration, options);
+        }
+        return new HttpWsConnectorFactoryImpl().createHttpClientConnector(properties, senderConfiguration);
+    }
+
+    private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, BStruct options) {
+        //TODO Define default values until we get Anonymous struct (issues #3635)
+        ProxyServerConfiguration proxyServerConfiguration = null;
+        int followRedirect = 0;
+        int maxRedirectCount = 5;
+        if (options.getRefField(Constants.FOLLOW_REDIRECT_STRUCT_INDEX) != null) {
+            BStruct followRedirects = (BStruct) options.getRefField(Constants.FOLLOW_REDIRECT_STRUCT_INDEX);
+            followRedirect = followRedirects.getBooleanField(Constants.FOLLOW_REDIRECT_INDEX);
+            maxRedirectCount = (int) followRedirects.getIntField(Constants.MAX_REDIRECT_COUNT);
+        }
+        if (options.getRefField(Constants.SSL_STRUCT_INDEX) != null) {
+            BStruct ssl = (BStruct) options.getRefField(Constants.SSL_STRUCT_INDEX);
+            String trustStoreFile = ssl.getStringField(Constants.TRUST_STORE_FILE_INDEX);
+            String trustStorePassword = ssl.getStringField(Constants.TRUST_STORE_PASSWORD_INDEX);
+            String keyStoreFile = ssl.getStringField(Constants.KEY_STORE_FILE_INDEX);
+            String keyStorePassword = ssl.getStringField(Constants.KEY_STORE_PASSWORD_INDEX);
+            String sslEnabledProtocols = ssl.getStringField(Constants.SSL_ENABLED_PROTOCOLS_INDEX);
+            String ciphers = ssl.getStringField(Constants.CIPHERS_INDEX);
+            String sslProtocol = ssl.getStringField(Constants.SSL_PROTOCOL_INDEX);
+
+            if (StringUtils.isNotBlank(trustStoreFile)) {
+                senderConfiguration.setTrustStoreFile(trustStoreFile);
+            }
+            if (StringUtils.isNotBlank(trustStorePassword)) {
+                senderConfiguration.setTrustStorePass(trustStorePassword);
+            }
+            if (StringUtils.isNotBlank(keyStoreFile)) {
+                senderConfiguration.setKeyStoreFile(keyStoreFile);
+            }
+            if (StringUtils.isNotBlank(keyStorePassword)) {
+                senderConfiguration.setKeyStorePassword(keyStorePassword);
+            }
+
+            List<Parameter> clientParams = new ArrayList<>();
+            if (StringUtils.isNotBlank(sslEnabledProtocols)) {
+                Parameter clientProtocols = new Parameter(Constants.SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
+                clientParams.add(clientProtocols);
+            }
+            if (StringUtils.isNotBlank(ciphers)) {
+                Parameter clientCiphers = new Parameter(Constants.CIPHERS, ciphers);
+                clientParams.add(clientCiphers);
+            }
+            if (StringUtils.isNotBlank(sslProtocol)) {
+                senderConfiguration.setSslProtocol(sslProtocol);
+            }
+            if (!clientParams.isEmpty()) {
+                senderConfiguration.setParameters(clientParams);
+            }
+        }
+        if (options.getRefField(Constants.PROXY_STRUCT_INDEX) != null) {
+            BStruct proxy = (BStruct) options.getRefField(Constants.PROXY_STRUCT_INDEX);
+            String proxyHost = proxy.getStringField(Constants.PROXY_HOST_INDEX);
+            int proxyPort = (int) proxy.getIntField(Constants.PROXY_PORT_INDEX);
+            String proxyUserName = proxy.getStringField(Constants.PROXY_USER_NAME_INDEX);
+            String proxyPassword = proxy.getStringField(Constants.PROXY_PASSWORD_INDEX);
+            try {
+                proxyServerConfiguration = new ProxyServerConfiguration(proxyHost, proxyPort);
+            } catch (UnknownHostException e) {
+                throw new BallerinaConnectorException("Failed to resolve host" + proxyHost, e);
+            }
+            if (!proxyUserName.isEmpty()) {
+                proxyServerConfiguration.setProxyUsername(proxyUserName);
+            }
+            if (!proxyPassword.isEmpty()) {
+                proxyServerConfiguration.setProxyPassword(proxyPassword);
+            }
+            senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
+        }
+
+        senderConfiguration.setFollowRedirect(followRedirect == 1);
+        senderConfiguration.setMaxRedirectCount(maxRedirectCount);
+        int enableChunking = options.getBooleanField(Constants.ENABLE_CHUNKING_INDEX);
+        senderConfiguration.setChunkDisabled(enableChunking == 0);
+
+        long endpointTimeout = options.getIntField(Constants.ENDPOINT_TIMEOUT_STRUCT_INDEX);
+        if (endpointTimeout < 0 || (int) endpointTimeout != endpointTimeout) {
+            throw new BallerinaConnectorException("Invalid idle timeout: " + endpointTimeout);
+        }
+        senderConfiguration.setSocketIdleTimeout((int) endpointTimeout);
+
+        boolean isKeepAlive = options.getBooleanField(Constants.IS_KEEP_ALIVE_INDEX) == 1;
+        senderConfiguration.setKeepAlive(isKeepAlive);
     }
 
     private RetryConfig getRetryConfiguration(Context context) {

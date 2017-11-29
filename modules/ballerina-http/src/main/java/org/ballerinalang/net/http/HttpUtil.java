@@ -28,6 +28,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
@@ -50,14 +52,16 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.MessageDataSource;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+import org.wso2.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contractimpl.HttpResponseStatusFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -67,6 +71,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.LogManager;
 
 /**
  * Utility class providing utility methods.
@@ -273,6 +278,19 @@ public class HttpUtil {
         return clonedHttpCarbonMessage;
     }
 
+    public static TransportsConfiguration getTransportsConfiguration() {
+        String nettyConfigFile = System.getProperty(Constants.HTTP_TRANSPORT_CONF,
+                                                    "conf" + File.separator + "transports" +
+                                                            File.separator + "netty-transports.yml");
+        return ConfigurationBuilder.getInstance().getConfiguration(nettyConfigFile);
+    }
+
+    public static boolean isHTTPTraceLoggerEnabled() {
+        // TODO: Take a closer look at this since looking up from the Config Registry here caused test failures
+        return ((BLogManager) LogManager.getLogManager()).getPackageLogLevel(
+                org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG) == BLogLevel.TRACE;
+    }
+
     private static byte[] toByteArray(InputStream input) throws IOException {
         byte[] buffer = new byte[4096];
         int n1;
@@ -440,20 +458,6 @@ public class HttpUtil {
         return params;
     }
 
-    /**
-     * Helper method to start pending http server connectors.
-     *
-     * @throws BallerinaConnectorException
-     */
-    public static void startPendingHttpConnectors() throws BallerinaConnectorException {
-        try {
-            // Starting up HTTP Server connectors
-            HttpConnectionManager.getInstance().startPendingHTTPConnectors();
-        } catch (ServerConnectorException e) {
-            throw new BallerinaConnectorException(e);
-        }
-    }
-
     public static BValue[] prepareResponseAndSend(Context context, AbstractNativeFunction abstractNativeFunction
             , HTTPCarbonMessage requestMessage, HTTPCarbonMessage responseMessage) {
         addHTTPSessionAndCorsHeaders(requestMessage, responseMessage);
@@ -559,25 +563,6 @@ public class HttpUtil {
         response.addNativeData(Constants.OUTBOUND_RESPONSE, true);
     }
 
-    /**
-     * Extract the listener configurations from the config annotation.
-     *
-     * @param annotationInfo configuration annotation info.
-     * @return the set of {@link ListenerConfiguration} which were extracted from config annotation.
-     */
-    public static Set<ListenerConfiguration> getDefaultOrDynamicListenerConfig(Annotation annotationInfo) {
-        Map<String, Map<String, String>> listenerProp = buildListenerProperties(annotationInfo);
-
-        Set<ListenerConfiguration> listenerConfigurationSet;
-        if (listenerProp == null || listenerProp.isEmpty()) {
-            listenerConfigurationSet =
-                    HttpConnectionManager.getInstance().getDefaultListenerConfiugrationSet();
-        } else {
-            listenerConfigurationSet = getListenerConfigurationsFrom(listenerProp);
-        }
-        return listenerConfigurationSet;
-    }
-
     private static String getListenerInterface(Map<String, String> parameters) {
         String host = parameters.get("host") != null ? parameters.get("host") : "0.0.0.0";
         int port = Integer.parseInt(parameters.get("port"));
@@ -592,7 +577,7 @@ public class HttpUtil {
      * @param configInfo In which listener configurations are specified.
      * @return listenerConfMap      With required properties
      */
-    private static Map<String, Map<String, String>> buildListenerProperties(Annotation configInfo) {
+    public static Map<String, Map<String, String>> buildListenerProperties(Annotation configInfo) {
         if (configInfo == null) {
             return null;
         }
@@ -720,7 +705,7 @@ public class HttpUtil {
         return iName.toString();
     }
 
-    private static Set<ListenerConfiguration> getListenerConfigurationsFrom(
+    public static Set<ListenerConfiguration> getListenerConfigurationsFrom(
             Map<String, Map<String, String>> listenerProp) {
         Set<ListenerConfiguration> listenerConfigurationSet = new HashSet<>();
         for (Map.Entry<String, Map<String, String>> entry : listenerProp.entrySet()) {

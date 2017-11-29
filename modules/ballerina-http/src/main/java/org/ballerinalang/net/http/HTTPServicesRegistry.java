@@ -44,8 +44,10 @@ public class HTTPServicesRegistry {
 
     // Outer Map key=interface, Inner Map key=basePath
     private final Map<String, Map<String, HttpService>> servicesInfoMap = new ConcurrentHashMap<>();
+    private final HttpConnectionManager httpConnectionManager;
 
-    public HTTPServicesRegistry() {
+    public HTTPServicesRegistry(HttpConnectionManager httpConnectionManager) {
+        this.httpConnectionManager = httpConnectionManager;
     }
 
     /**
@@ -80,14 +82,15 @@ public class HTTPServicesRegistry {
 
         String basePath = discoverBasePathFrom(service, annotation);
         service.setBasePath(basePath);
-        Set<ListenerConfiguration> listenerConfigurationSet = HttpUtil.getDefaultOrDynamicListenerConfig(annotation);
+        Set<ListenerConfiguration> listenerConfigurationSet =
+                httpConnectionManager.getDefaultOrDynamicListenerConfig(annotation);
 
         for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
             String entryListenerInterface = listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
             Map<String, HttpService> servicesOnInterface = servicesInfoMap
                     .computeIfAbsent(entryListenerInterface, k -> new HashMap<>());
 
-            HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
+            httpConnectionManager.createHttpServerConnector(listenerConfiguration);
             // Assumption : this is always sequential, no two simultaneous calls can get here
             if (servicesOnInterface.containsKey(basePath)) {
                 throw new BallerinaConnectorException(
@@ -119,7 +122,8 @@ public class HTTPServicesRegistry {
 
         String basePath = discoverBasePathFrom(service, annotation);
         service.setBasePath(basePath);
-        Set<ListenerConfiguration> listenerConfigurationSet = HttpUtil.getDefaultOrDynamicListenerConfig(annotation);
+        Set<ListenerConfiguration> listenerConfigurationSet =
+                httpConnectionManager.getDefaultOrDynamicListenerConfig(annotation);
 
         for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
             String entryListenerInterface = listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
@@ -130,7 +134,7 @@ public class HTTPServicesRegistry {
             servicesOnInterface.remove(basePath);
             if (servicesOnInterface.isEmpty()) {
                 servicesInfoMap.remove(entryListenerInterface);
-                HttpConnectionManager.getInstance().closeIfLast(entryListenerInterface);
+                httpConnectionManager.closeIfLast(entryListenerInterface);
             }
         }
     }

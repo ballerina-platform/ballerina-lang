@@ -50,7 +50,8 @@ public class HttpServerConnector implements BallerinaServerConnector {
 
     private CopyOnWriteArrayList<String> sortedServiceURIs = new CopyOnWriteArrayList<>();
 
-    private final HTTPServicesRegistry httpServicesRegistry = new HTTPServicesRegistry();
+    private final HttpConnectionManager httpConnectionManager = new HttpConnectionManager();
+    private final HTTPServicesRegistry httpServicesRegistry = new HTTPServicesRegistry(httpConnectionManager);
 
     public HttpServerConnector() {
     }
@@ -96,11 +97,15 @@ public class HttpServerConnector implements BallerinaServerConnector {
 
     @Override
     public void deploymentComplete() throws BallerinaConnectorException {
-        HttpUtil.startPendingHttpConnectors();
+        httpConnectionManager.startPendingHttpConnectors();
     }
 
     public HTTPServicesRegistry getHttpServicesRegistry() {
         return httpServicesRegistry;
+    }
+
+    public HttpConnectionManager getHttpConnectionManager() {
+        return httpConnectionManager;
     }
 
     public HttpService findService(HTTPCarbonMessage cMsg) {

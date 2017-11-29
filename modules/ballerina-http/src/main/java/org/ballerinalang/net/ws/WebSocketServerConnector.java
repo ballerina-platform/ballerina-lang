@@ -21,7 +21,6 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.BallerinaServerConnector;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.net.http.HttpUtil;
 
 /**
  * {@code WebSocketServerConnector} This is the web socket implementation for the {@code BallerinaServerConnector} API.
@@ -50,6 +49,5 @@ public class WebSocketServerConnector implements BallerinaServerConnector {
     @Override
     public void deploymentComplete() throws BallerinaConnectorException {
         WebSocketServicesRegistry.getInstance().validateSeverEndpoints();
-        HttpUtil.startPendingHttpConnectors();
     }
 }

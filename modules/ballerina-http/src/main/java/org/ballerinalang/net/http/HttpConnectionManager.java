@@ -17,22 +17,14 @@
  */
 package org.ballerinalang.net.http;
 
-import org.apache.commons.lang3.StringUtils;
+import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.logging.BLogManager;
-import org.ballerinalang.logging.util.BLogLevel;
-import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
 import org.ballerinalang.net.ws.BallerinaWsServerConnectorListener;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
-import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
-import org.wso2.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.Parameter;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
@@ -42,18 +34,13 @@ import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-import java.util.logging.LogManager;
 
 /**
  * {@code HttpConnectionManager} is responsible for managing all the server connectors with ballerina runtime.
@@ -62,7 +49,6 @@ import java.util.logging.LogManager;
  */
 public class HttpConnectionManager {
 
-    private static HttpConnectionManager instance = new HttpConnectionManager();
     private Map<String, org.wso2.transport.http.netty.contract.ServerConnector>
             startupDelayedHTTPServerConnectors = new HashMap<>();
 
@@ -74,25 +60,18 @@ public class HttpConnectionManager {
     private TransportsConfiguration trpConfig;
     private HttpWsConnectorFactory httpConnectorFactory = new HttpWsConnectorFactoryImpl();
 
-    private HttpConnectionManager() {
-        String nettyConfigFile = System.getProperty(Constants.HTTP_TRANSPORT_CONF,
-                "conf" + File.separator + "transports" +
-                        File.separator + "netty-transports.yml");
-        trpConfig = ConfigurationBuilder.getInstance().getConfiguration(nettyConfigFile);
+    public HttpConnectionManager() {
+        trpConfig = HttpUtil.getTransportsConfiguration();
         serverBootstrapConfiguration = HTTPConnectorUtil
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
 
-        if (isHTTPTraceLoggerEnabled()) {
+        if (HttpUtil.isHTTPTraceLoggerEnabled()) {
             try {
                 ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
             } catch (IOException e) {
                 throw new BallerinaConnectorException("Error in configuring HTTP trace log");
             }
         }
-    }
-
-    public static HttpConnectionManager getInstance() {
-        return instance;
     }
 
     public Set<ListenerConfiguration> getDefaultListenerConfiugrationSet() {
@@ -119,7 +98,7 @@ public class HttpConnectionManager {
             return httpServerConnectorContext.getServerConnector();
         }
 
-        if (isHTTPTraceLoggerEnabled()) {
+        if (HttpUtil.isHTTPTraceLoggerEnabled()) {
             listenerConfig.setHttpTraceLogEnabled(true);
         }
 
@@ -146,6 +125,38 @@ public class HttpConnectionManager {
     }
 
     /**
+     * Helper method to start pending http server connectors.
+     *
+     * @throws BallerinaConnectorException
+     */
+    public void startPendingHttpConnectors() throws BallerinaConnectorException {
+        try {
+            // Starting up HTTP Server connectors
+            startPendingHTTPConnectors();
+        } catch (ServerConnectorException e) {
+            throw new BallerinaConnectorException(e);
+        }
+    }
+
+    /**
+     * Extract the listener configurations from the config annotation.
+     *
+     * @param annotationInfo configuration annotation info.
+     * @return the set of {@link ListenerConfiguration} which were extracted from config annotation.
+     */
+    public Set<ListenerConfiguration> getDefaultOrDynamicListenerConfig(Annotation annotationInfo) {
+        Map<String, Map<String, String>> listenerProp = HttpUtil.buildListenerProperties(annotationInfo);
+
+        Set<ListenerConfiguration> listenerConfigurationSet;
+        if (listenerProp == null || listenerProp.isEmpty()) {
+            listenerConfigurationSet = getDefaultListenerConfiugrationSet();
+        } else {
+            listenerConfigurationSet = HttpUtil.getListenerConfigurationsFrom(listenerProp);
+        }
+        return listenerConfigurationSet;
+    }
+
+    /**
      * Start all the ServerConnectors which startup is delayed at the service deployment time.
      *
      * @throws ServerConnectorException if exception occurs while starting at least one connector.
@@ -168,23 +179,6 @@ public class HttpConnectionManager {
         }
         validateConnectorStartup(startupSyncer);
         startupDelayedHTTPServerConnectors.clear();
-    }
-
-    public HttpClientConnector getHTTPHttpClientConnector(String scheme, BConnector bConnector) {
-        Map<String, Object> properties = HTTPConnectorUtil.getTransportProperties(trpConfig);
-        SenderConfiguration senderConfiguration =
-                HTTPConnectorUtil.getSenderConfiguration(trpConfig, scheme);
-
-        if (isHTTPTraceLoggerEnabled()) {
-            senderConfiguration.setHttpTraceLogEnabled(true);
-        }
-        senderConfiguration.setTlsStoreType(Constants.PKCS_STORE_TYPE);
-
-        BStruct options = (BStruct) bConnector.getRefField(Constants.OPTIONS_STRUCT_INDEX);
-        if (options != null) {
-            populateSenderConfigurationOptions(senderConfiguration, options);
-        }
-        return httpConnectorFactory.createHttpClientConnector(properties, senderConfiguration);
     }
 
     private static class HttpServerConnectorContext {
@@ -272,96 +266,6 @@ public class HttpConnectionManager {
             // connectors have started properly and we can terminate the runtime
             throw new BallerinaConnectorException("failed to start the server connectors");
         }
-    }
-
-    private boolean isHTTPTraceLoggerEnabled() {
-        // TODO: Take a closer look at this since looking up from the Config Registry here caused test failures
-        return ((BLogManager) LogManager.getLogManager()).getPackageLogLevel(
-                org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG) == BLogLevel.TRACE;
-    }
-
-    private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, BStruct options) {
-        //TODO Define default values until we get Anonymous struct (issues #3635)
-        ProxyServerConfiguration proxyServerConfiguration = null;
-        int followRedirect = 0;
-        int maxRedirectCount = 5;
-        if (options.getRefField(Constants.FOLLOW_REDIRECT_STRUCT_INDEX) != null) {
-            BStruct followRedirects = (BStruct) options.getRefField(Constants.FOLLOW_REDIRECT_STRUCT_INDEX);
-            followRedirect = followRedirects.getBooleanField(Constants.FOLLOW_REDIRECT_INDEX);
-            maxRedirectCount = (int) followRedirects.getIntField(Constants.MAX_REDIRECT_COUNT);
-        }
-        if (options.getRefField(Constants.SSL_STRUCT_INDEX) != null) {
-            BStruct ssl = (BStruct) options.getRefField(Constants.SSL_STRUCT_INDEX);
-            String trustStoreFile = ssl.getStringField(Constants.TRUST_STORE_FILE_INDEX);
-            String trustStorePassword = ssl.getStringField(Constants.TRUST_STORE_PASSWORD_INDEX);
-            String keyStoreFile = ssl.getStringField(Constants.KEY_STORE_FILE_INDEX);
-            String keyStorePassword = ssl.getStringField(Constants.KEY_STORE_PASSWORD_INDEX);
-            String sslEnabledProtocols = ssl.getStringField(Constants.SSL_ENABLED_PROTOCOLS_INDEX);
-            String ciphers = ssl.getStringField(Constants.CIPHERS_INDEX);
-            String sslProtocol = ssl.getStringField(Constants.SSL_PROTOCOL_INDEX);
-
-            if (StringUtils.isNotBlank(trustStoreFile)) {
-                senderConfiguration.setTrustStoreFile(trustStoreFile);
-            }
-            if (StringUtils.isNotBlank(trustStorePassword)) {
-                senderConfiguration.setTrustStorePass(trustStorePassword);
-            }
-            if (StringUtils.isNotBlank(keyStoreFile)) {
-                senderConfiguration.setKeyStoreFile(keyStoreFile);
-            }
-            if (StringUtils.isNotBlank(keyStorePassword)) {
-                senderConfiguration.setKeyStorePassword(keyStorePassword);
-            }
-
-            List<Parameter> clientParams = new ArrayList<>();
-            if (StringUtils.isNotBlank(sslEnabledProtocols)) {
-                Parameter clientProtocols = new Parameter(Constants.SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
-                clientParams.add(clientProtocols);
-            }
-            if (StringUtils.isNotBlank(ciphers)) {
-                Parameter clientCiphers = new Parameter(Constants.CIPHERS, ciphers);
-                clientParams.add(clientCiphers);
-            }
-            if (StringUtils.isNotBlank(sslProtocol)) {
-                senderConfiguration.setSslProtocol(sslProtocol);
-            }
-            if (!clientParams.isEmpty()) {
-                senderConfiguration.setParameters(clientParams);
-            }
-        }
-        if (options.getRefField(Constants.PROXY_STRUCT_INDEX) != null) {
-            BStruct proxy = (BStruct) options.getRefField(Constants.PROXY_STRUCT_INDEX);
-            String proxyHost = proxy.getStringField(Constants.PROXY_HOST_INDEX);
-            int proxyPort = (int) proxy.getIntField(Constants.PROXY_PORT_INDEX);
-            String proxyUserName = proxy.getStringField(Constants.PROXY_USER_NAME_INDEX);
-            String proxyPassword = proxy.getStringField(Constants.PROXY_PASSWORD_INDEX);
-            try {
-                proxyServerConfiguration = new ProxyServerConfiguration(proxyHost, proxyPort);
-            } catch (UnknownHostException e) {
-                throw new BallerinaConnectorException("Failed to resolve host" + proxyHost, e);
-            }
-            if (!proxyUserName.isEmpty()) {
-                proxyServerConfiguration.setProxyUsername(proxyUserName);
-            }
-            if (!proxyPassword.isEmpty()) {
-                proxyServerConfiguration.setProxyPassword(proxyPassword);
-            }
-            senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
-        }
-
-        senderConfiguration.setFollowRedirect(followRedirect == 1);
-        senderConfiguration.setMaxRedirectCount(maxRedirectCount);
-        int enableChunking = options.getBooleanField(Constants.ENABLE_CHUNKING_INDEX);
-        senderConfiguration.setChunkDisabled(enableChunking == 0);
-
-        long endpointTimeout = options.getIntField(Constants.ENDPOINT_TIMEOUT_STRUCT_INDEX);
-        if (endpointTimeout < 0 || (int) endpointTimeout != endpointTimeout) {
-            throw new BallerinaConnectorException("Invalid idle timeout: " + endpointTimeout);
-        }
-        senderConfiguration.setSocketIdleTimeout((int) endpointTimeout);
-
-        boolean isKeepAlive = options.getBooleanField(Constants.IS_KEEP_ALIVE_INDEX) == 1;
-        senderConfiguration.setKeepAlive(isKeepAlive);
     }
 
     private String makeFirstLetterLowerCase(String str) {
