@@ -19,15 +19,13 @@
 
 import React from 'react';
 import classnames from 'classnames';
-import _ from 'lodash';
-import { getPathSeperator } from 'api-client/api-client';
 import PropTypes from 'prop-types';
+import ContextMenuTrigger from 'core/view/context-menu/ContextMenuTrigger';
+import FileTree from 'core/view/tree-view/FileTree';
+import { getContextMenuItems } from 'core/view/tree-view/menu';
 import { COMMANDS } from './../constants';
-import ContextMenuTrigger from './../../view/context-menu/ContextMenuTrigger';
+import Folder from '../model/folder';
 import './styles.scss';
-
-import FileTree from './../../view/tree-view/FileTree';
-import { getContextMenuItems } from './../../view/tree-view/menu';
 
 const TREE_NODE_TYPE = 'root';
 
@@ -45,10 +43,10 @@ class ExplorerItem extends React.Component {
             forceCollapse: false,
             node: {
                 collapsed: true,
-                id: this.props.folderPath,
+                id: this.props.folder.fullPath,
                 type: TREE_NODE_TYPE,
                 active: false,
-                label: _.last(this.props.folderPath.split(getPathSeperator())),
+                label: this.props.folder.name,
             },
         };
         this.fileTree = undefined;
@@ -105,7 +103,7 @@ class ExplorerItem extends React.Component {
      * On Remove Project Folder
      */
     onRemoveProjectFolderClick(e) {
-        this.props.workspaceManager.removeFolder(this.props.folderPath);
+        this.props.workspaceManager.removeFolder(this.props.folder.fullPath);
         e.stopPropagation();
         e.preventDefault();
     }
@@ -123,7 +121,7 @@ class ExplorerItem extends React.Component {
      * On Refresh Project Folder
      */
     refreshPathInExplorer({ filePath }) {
-        if (filePath.startsWith(this.props.folderPath)) {
+        if (filePath.startsWith(this.props.folder.fullPath)) {
             this.refresh();
         }
     }
@@ -156,7 +154,7 @@ class ExplorerItem extends React.Component {
      */
     render() {
         return (
-            <div className="explorer-item">
+            <div className='explorer-item'>
                 <ContextMenuTrigger
                     id={this.state.node.id}
                     menu={getContextMenuItems(
@@ -183,8 +181,8 @@ class ExplorerItem extends React.Component {
                     }}
                 >
                     <div
-                        data-placement="bottom"
-                        data-toggle="tooltip"
+                        data-placement='bottom'
+                        data-toggle='tooltip'
                         title={this.state.node.id}
                         className={classnames('root', 'unseletable-content', { active: this.state.node.active })}
                         onClick={() => {
@@ -197,17 +195,17 @@ class ExplorerItem extends React.Component {
                         }
                     >
                         <div className={classnames('arrow', { collapsed: this.state.node.collapsed })} />
-                        <i className="fw fw-folder icon" />
-                        <span className="root-label">{this.state.node.label}</span>
-                        <span className="root-actions">
+                        <i className='fw fw-folder icon' />
+                        <span className='root-label'>{this.state.node.label}</span>
+                        <span className='root-actions'>
                             <i
-                                className="fw fw-refresh2 action"
-                                title="Refresh"
+                                className='fw fw-refresh2 action'
+                                title='Refresh'
                                 onClick={this.onRefreshProjectFolderClick}
                             />
                             <i
-                                className="fw fw-close action"
-                                title="Remove Program Directory"
+                                className='fw fw-close action'
+                                title='Remove Program Directory'
                                 onClick={this.onRemoveProjectFolderClick}
                             />
                         </span>
@@ -223,7 +221,7 @@ class ExplorerItem extends React.Component {
                         onLoadData={(data) => {
                             this.state.node.children = data;
                         }}
-                        root={this.props.folderPath}
+                        root={this.props.folder.fullPath}
                         activeKey={this.props.activeKey}
                         onOpen={this.onOpen}
                         onSelect={this.props.onSelect}
@@ -239,7 +237,7 @@ ExplorerItem.propTypes = {
     panelResizeInProgress: PropTypes.bool.isRequired,
     onSelect: PropTypes.func,
     activeKey: PropTypes.string,
-    folderPath: PropTypes.string.isRequired,
+    folder: PropTypes.instanceOf(Folder).isRequired,
     workspaceManager: PropTypes.objectOf(Object).isRequired,
 };
 

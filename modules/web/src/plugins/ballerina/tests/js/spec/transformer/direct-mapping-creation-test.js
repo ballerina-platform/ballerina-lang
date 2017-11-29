@@ -19,9 +19,9 @@
 
 import { fetchConfigs } from 'api-client/api-client';
 import { expect } from 'chai';
-import TransformManager from 'ballerina/diagram/views/default/components/transform/transform-node-manager';
+import TransformManager from 'plugins/ballerina/diagram/views/default/components/transform/transform-node-manager';
+import environment from 'plugins/ballerina/env/environment';
 import TransformerTestUtils from './transformer-test-utils';
-import environment from '../../../../ballerina/env/environment';
 
 let transformManager;
 

@@ -17,13 +17,17 @@
  */
 
 import Plugin from 'core/plugin/plugin';
+import { parseFile } from 'api-client/api-client';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
-import { REGIONS } from 'core/layout/constants';
-import SourceEditor from 'ballerina/views/source-editor';
-import { CLASSES } from 'ballerina/views/constants';
+import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
+import { EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
+import SourceEditor from 'plugins/ballerina/views/source-editor';
+import { CLASSES } from 'plugins/ballerina/views/constants';
 import Document from 'plugins/ballerina/docerina/document.jsx';
 import Editor from './views/editor-wrapper';
-import { PLUGIN_ID, EDITOR_ID, DOC_VIEW_ID, COMMANDS as COMMAND_IDS, TOOLS as TOOL_IDS } from './constants';
+import { PLUGIN_ID, EDITOR_ID, DOC_VIEW_ID, COMMANDS as COMMAND_IDS, TOOLS as TOOL_IDS,
+            DIALOGS as DIALOG_IDS } from './constants';
+import OpenProgramDirConfirmDialog from './dialogs/OpenProgramDirConfirmDialog';
 
 /**
  * Plugin for Ballerina Lang
@@ -42,7 +46,7 @@ class BallerinaPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { EDITORS, TOOLS, VIEWS } = CONTRIBUTIONS;
+        const { EDITORS, TOOLS, VIEWS, HANDLERS, DIALOGS } = CONTRIBUTIONS;
         return {
             [EDITORS]: [
                 {
@@ -119,6 +123,40 @@ class BallerinaPlugin extends Plugin {
                         customTitleClass: CLASSES.TAB_TITLE.DESIGN_VIEW,
                     },
                     displayOnLoad: false,
+                },
+            ],
+            [HANDLERS]: [
+                {
+                    cmdID: WORKSPACE_EVENTS.FILE_OPEN,
+                    handler: ({ file }) => {
+                        parseFile(file)
+                            .then(({ programDirPath = undefined }) => {
+                                const { workspace, command: { dispatch } } = this.appContext;
+                                if (programDirPath && !workspace.isFilePathOpenedInExplorer(programDirPath)) {
+                                    dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
+                                        id: DIALOG_IDS.OPEN_PROGRAM_DIR_CONFIRM,
+                                        additionalProps: {
+                                            file,
+                                            programDirPath,
+                                            onConfirm: () => {
+                                                workspace.openFolder(programDirPath);
+                                            },
+                                        },
+                                    });
+                                }
+                            });
+                    },
+                },
+            ],
+            [DIALOGS]: [
+                {
+                    id: DIALOG_IDS.OPEN_PROGRAM_DIR_CONFIRM,
+                    component: OpenProgramDirConfirmDialog,
+                    propsProvider: () => {
+                        return {
+                            workspaceManager: this,
+                        };
+                    },
                 },
             ],
         };
