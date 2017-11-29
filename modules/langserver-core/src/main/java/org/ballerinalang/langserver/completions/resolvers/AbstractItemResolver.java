@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
+import org.eclipse.lsp4j.InsertTextFormat;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -87,6 +88,7 @@ public abstract class AbstractItemResolver {
             return null;
         }
         FunctionSignature functionSignature = getFunctionSignature(bInvokableSymbol);
+        completionItem.setInsertTextFormat(InsertTextFormat.Snippet);
         completionItem.setLabel(functionSignature.getLabel());
         completionItem.setInsertText(functionSignature.getInsertText());
         completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
