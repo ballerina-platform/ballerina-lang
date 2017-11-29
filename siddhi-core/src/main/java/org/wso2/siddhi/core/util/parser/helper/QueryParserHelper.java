@@ -70,7 +70,7 @@ public class QueryParserHelper {
             for (MetaStateEventAttribute attribute : metaStateEvent.getOutputDataAttributes()) {
                 if (attribute != null) {
                     metaStateEvent.getMetaStreamEvent(attribute.getPosition()[STREAM_EVENT_CHAIN_INDEX])
-                            .addOutputData(attribute.getAttribute());
+                            .addOutputDataIfNotExist(attribute.getAttribute());
                 }
             }
             for (MetaStreamEvent metaStreamEvent : metaStateEvent.getMetaStreamEvents()) {

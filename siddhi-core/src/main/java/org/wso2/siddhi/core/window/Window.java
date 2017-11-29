@@ -156,7 +156,7 @@ public class Window implements FindableProcessor, Snapshotable, MemoryCalculable
         metaStreamEvent.setEventType(MetaStreamEvent.EventType.WINDOW);
         metaStreamEvent.initializeAfterWindowData();
         for (Attribute attribute : windowDefinition.getAttributeList()) {
-            metaStreamEvent.addOutputData(attribute);
+            metaStreamEvent.addOutputDataIfNotExist(attribute);
         }
 
         this.streamEventPool = new StreamEventPool(metaStreamEvent, 5);

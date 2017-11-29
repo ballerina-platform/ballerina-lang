@@ -147,7 +147,7 @@ public class AggregationParser {
             MetaStreamEvent processedMetaStreamEvent = new MetaStreamEvent();
             for (Attribute attribute : incomingMetaStreamEvent.getOutputData()) {
                 incomingOutputStreamDefinition.attribute(attribute.getName(), attribute.getType());
-                processedMetaStreamEvent.addOutputData(attribute);
+                processedMetaStreamEvent.addOutputDataIfNotExist(attribute);
             }
             incomingMetaStreamEvent.setOutputDefinition(incomingOutputStreamDefinition);
             processedMetaStreamEvent.addInputDefinition(incomingOutputStreamDefinition);
@@ -362,7 +362,7 @@ public class AggregationParser {
                 if (!finalBaseAttributes.contains(baseAttributes[i])) {
                     finalBaseAttributes.add(baseAttributes[i]);
                     finalBaseAggregators.add(baseAggregators[i]);
-                    incomingMetaStreamEvent.addOutputData(baseAttributes[i]);
+                    incomingMetaStreamEvent.addOutputDataIfNotExist(baseAttributes[i]);
                     incomingExpressionExecutors.add(ExpressionParser.parseExpression(baseAttributeInitialValues[i],
                             incomingMetaStreamEvent, 0, tableMap, incomingVariableExpressionExecutors,
                             siddhiAppContext, false, 0, aggregatorName));
@@ -384,15 +384,15 @@ public class AggregationParser {
                 incomingMetaStreamEvent);
         ExpressionExecutor timestampExecutor = timeStampTimeZoneExecutors[0];
         ExpressionExecutor timeZoneExecutor = timeStampTimeZoneExecutors[1];
-        incomingMetaStreamEvent.addOutputData(new Attribute("_TIMESTAMP", Attribute.Type.LONG));
+        incomingMetaStreamEvent.addOutputDataIfNotExist(new Attribute("_TIMESTAMP", Attribute.Type.LONG));
         incomingExpressionExecutors.add(timestampExecutor);
 
-        incomingMetaStreamEvent.addOutputData(new Attribute("_TIMEZONE", Attribute.Type.STRING));
+        incomingMetaStreamEvent.addOutputDataIfNotExist(new Attribute("_TIMEZONE", Attribute.Type.STRING));
         incomingExpressionExecutors.add(timeZoneExecutor);
 
         AbstractDefinition incomingLastInputStreamDefinition = incomingMetaStreamEvent.getLastInputDefinition();
         for (Variable groupByVariable : groupByVariableList) {
-            incomingMetaStreamEvent.addOutputData(incomingLastInputStreamDefinition.getAttributeList()
+            incomingMetaStreamEvent.addOutputDataIfNotExist(incomingLastInputStreamDefinition.getAttributeList()
                     .get(incomingLastInputStreamDefinition.getAttributePosition(
                             groupByVariable.getAttributeName())));
             incomingExpressionExecutors.add(ExpressionParser.parseExpression(groupByVariable,
@@ -419,7 +419,7 @@ public class AggregationParser {
                                 incomingMetaStreamEvent, 0, tableMap, incomingVariableExpressionExecutors,
                                 siddhiAppContext, false, 0, aggregatorName);
                         incomingExpressionExecutors.add(expressionExecutor);
-                        incomingMetaStreamEvent.addOutputData(
+                        incomingMetaStreamEvent.addOutputDataIfNotExist(
                                 new Attribute(outputAttribute.getRename(), expressionExecutor.getReturnType()));
                         aggregationDefinition.getAttributeList().add(
                                 new Attribute(outputAttribute.getRename(), expressionExecutor.getReturnType()));
@@ -463,7 +463,7 @@ public class AggregationParser {
                             incomingMetaStreamEvent, 0, tableMap, incomingVariableExpressionExecutors,
                             siddhiAppContext, false, 0, aggregatorName);
                     incomingExpressionExecutors.add(expressionExecutor);
-                    incomingMetaStreamEvent.addOutputData(
+                    incomingMetaStreamEvent.addOutputDataIfNotExist(
                             new Attribute(outputAttribute.getRename(), expressionExecutor.getReturnType()));
                     aggregationDefinition.getAttributeList().add(
                             new Attribute(outputAttribute.getRename(), expressionExecutor.getReturnType()));

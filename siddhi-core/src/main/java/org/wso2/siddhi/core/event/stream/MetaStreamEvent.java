@@ -89,6 +89,15 @@ public class MetaStreamEvent implements MetaComplexEvent {
         return SiddhiConstants.UNKNOWN_STATE;
     }
 
+    public void addOutputDataIfNotExist(Attribute attribute) {
+        if (outputData == null) {
+            outputData = new ArrayList<Attribute>();
+        }
+        if (!outputData.contains(attribute)) {
+            outputData.add(attribute);
+        }
+    }
+
     public void addOutputData(Attribute attribute) {
         if (outputData == null) {
             outputData = new ArrayList<Attribute>();

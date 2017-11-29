@@ -103,7 +103,7 @@ public class AggregationRuntime implements MemoryCalculable {
         this.throughputTrackerFind = throughputTrackerFind;
 
         aggregateMetaSteamEvent = new MetaStreamEvent();
-        aggregationDefinition.getAttributeList().forEach(aggregateMetaSteamEvent::addOutputData);
+        aggregationDefinition.getAttributeList().forEach(aggregateMetaSteamEvent::addOutputDataIfNotExist);
     }
 
     private static void initMetaStreamEvent(MetaStreamEvent metaStreamEvent, AbstractDefinition inputDefinition) {

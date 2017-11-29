@@ -92,7 +92,7 @@ public class PartitionParser {
                 AbstractDefinition definition = metaStreamEvent.getLastInputDefinition();
                 MetaStreamEvent newMetaStreamEvent = new MetaStreamEvent();
                 for (Attribute attribute : definition.getAttributeList()) {
-                    newMetaStreamEvent.addOutputData(attribute);
+                    newMetaStreamEvent.addOutputDataIfNotExist(attribute);
                 }
                 newMetaStreamEvent.addInputDefinition(definition);
                 newMetaStreamEvent.setEventType(metaStreamEvent.getEventType());
@@ -103,7 +103,7 @@ public class PartitionParser {
             AbstractDefinition definition = ((MetaStreamEvent) stateEvent).getLastInputDefinition();
             MetaStreamEvent newMetaStreamEvent = new MetaStreamEvent();
             for (Attribute attribute : definition.getAttributeList()) {
-                newMetaStreamEvent.addOutputData(attribute);
+                newMetaStreamEvent.addOutputDataIfNotExist(attribute);
             }
             newMetaStreamEvent.addInputDefinition(definition);
             newMetaStreamEvent.setEventType(((MetaStreamEvent) stateEvent).getEventType());

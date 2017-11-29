@@ -1358,7 +1358,7 @@ public class ExpressionParser {
                             .getLastInputDefinition()
                             .getAttributePosition(variableExpressionExecutor.getAttribute().getName());
                     for (Attribute attribute : metaStreamEvent.getLastInputDefinition().getAttributeList()) {
-                        metaStreamEvent.addOutputData(new Attribute(attribute.getName(), attribute.getType()));
+                        metaStreamEvent.addOutputDataIfNotExist(new Attribute(attribute.getName(), attribute.getType()));
                     }
                 }
                 metaStreamEvent.addData(new Attribute(attributeName, type));
