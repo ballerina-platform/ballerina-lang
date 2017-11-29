@@ -22,7 +22,8 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.net.ws.WebSocketServicesRegistry;
+import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.net.ws.WebSocketServerConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
@@ -45,6 +46,7 @@ public class HTTPServicesRegistry {
     // Outer Map key=interface, Inner Map key=basePath
     private final Map<String, Map<String, HttpService>> servicesInfoMap = new ConcurrentHashMap<>();
     private final HttpConnectionManager httpConnectionManager;
+    private WebSocketServerConnector webSocketServerConnector;
 
     public HTTPServicesRegistry(HttpConnectionManager httpConnectionManager) {
         this.httpConnectionManager = httpConnectionManager;
@@ -174,6 +176,18 @@ public class HTTPServicesRegistry {
         String serviceName =
                 webSocketAnn.getAnnAttrValue(Constants.ANN_WEBSOCKET_ATTR_SERVICE_NAME).getStringValue().trim();
         String uri = basePath.concat(upgradePath);
-        WebSocketServicesRegistry.getInstance().registerServiceByName(serviceInterface, uri, serviceName);
+        getWebSocketServerConnector().getWebSocketServicesRegistry().
+                registerServiceByName(serviceInterface, uri, serviceName);
+    }
+
+    private WebSocketServerConnector getWebSocketServerConnector() {
+        if (webSocketServerConnector == null) {
+            webSocketServerConnector = (WebSocketServerConnector) ConnectorUtils.
+                    getBallerinaServerConnector(org.ballerinalang.net.ws.Constants.WEBSOCKET_PACKAGE_NAME);
+            if (webSocketServerConnector == null) {
+                throw new BallerinaConnectorException("WebSocket server connector is not registered!");
+            }
+        }
+        return webSocketServerConnector;
     }
 }

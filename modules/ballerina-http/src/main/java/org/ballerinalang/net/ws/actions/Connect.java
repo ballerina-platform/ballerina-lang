@@ -34,7 +34,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.ws.BallerinaWsClientConnectorListener;
 import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.net.ws.WebSocketService;
-import org.ballerinalang.net.ws.WebSocketServicesRegistry;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
@@ -69,7 +68,7 @@ public class Connect extends AbstractNativeWsAction {
         BStruct clientConfig = (BStruct) getRefArgument(context, 1);
         String remoteUrl = getUrlFromConnector(bconnector);
         String clientServiceName = getClientServiceNameFromConnector(bconnector);
-        WebSocketService wsService = WebSocketServicesRegistry.getInstance().getClientService(clientServiceName);
+        WebSocketService wsService = getClientService(clientServiceName);
         if (wsService == null) {
             throw new BallerinaConnectorException("Cannot find client service: " + clientServiceName);
         }

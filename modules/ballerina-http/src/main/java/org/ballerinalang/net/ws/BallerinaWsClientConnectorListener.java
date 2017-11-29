@@ -34,9 +34,11 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 public class BallerinaWsClientConnectorListener implements WebSocketConnectorListener {
 
     private final WebSocketService wsService;
+    private final WebSocketDispatcher webSocketDispatcher;
 
     public BallerinaWsClientConnectorListener(WebSocketService wsService) {
         this.wsService = wsService;
+        this.webSocketDispatcher = new WebSocketDispatcher();
     }
 
     @Override
@@ -46,22 +48,22 @@ public class BallerinaWsClientConnectorListener implements WebSocketConnectorLis
 
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
-        WebSocketDispatcher.dispatchTextMessage(wsService, webSocketTextMessage);
+        webSocketDispatcher.dispatchTextMessage(wsService, webSocketTextMessage);
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
-        WebSocketDispatcher.dispatchBinaryMessage(wsService, webSocketBinaryMessage);
+        webSocketDispatcher.dispatchBinaryMessage(wsService, webSocketBinaryMessage);
     }
 
     @Override
     public void onMessage(WebSocketControlMessage webSocketControlMessage) {
-        WebSocketDispatcher.dispatchControlMessage(wsService, webSocketControlMessage);
+        webSocketDispatcher.dispatchControlMessage(wsService, webSocketControlMessage);
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        WebSocketDispatcher.dispatchCloseMessage(wsService, webSocketCloseMessage);
+        webSocketDispatcher.dispatchCloseMessage(wsService, webSocketCloseMessage);
     }
 
     @Override
@@ -71,7 +73,7 @@ public class BallerinaWsClientConnectorListener implements WebSocketConnectorLis
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
-        WebSocketDispatcher.dispatchIdleTimeout(wsService, controlMessage);
+        webSocketDispatcher.dispatchIdleTimeout(wsService, controlMessage);
     }
 
 }
