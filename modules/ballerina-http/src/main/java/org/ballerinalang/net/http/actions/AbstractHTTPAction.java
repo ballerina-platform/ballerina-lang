@@ -270,12 +270,10 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     }
 
     protected void setHostHeader(HTTPCarbonMessage cMsg, String host, int port) {
-        if (!cMsg.getHeaders().contains(org.wso2.transport.http.netty.common.Constants.HOST)) {
-            if (port == 80 || port == 443) {
-                cMsg.getHeaders().set(org.wso2.transport.http.netty.common.Constants.HOST, host);
-            } else {
-                cMsg.getHeaders().set(org.wso2.transport.http.netty.common.Constants.HOST, host + ":" + port);
-            }
+        if (port == 80 || port == 443) {
+            cMsg.getHeaders().set(org.wso2.transport.http.netty.common.Constants.HOST, host);
+        } else {
+            cMsg.getHeaders().set(org.wso2.transport.http.netty.common.Constants.HOST, host + ":" + port);
         }
     }
 }
