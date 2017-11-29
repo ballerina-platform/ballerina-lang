@@ -25,6 +25,7 @@ const UnusedFilesWebpackPlugin = require('unused-files-webpack-plugin').UnusedFi
 const CircularDependencyPlugin = require('circular-dependency-plugin');
 const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const WebfontPlugin = require('webpack-webfont').default;
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 const extractThemes = new ExtractTextPlugin({ filename: './[name].css', allChunks: true });
 const extractCSSBundle = new ExtractTextPlugin({ filename: './bundle-[name].css', allChunks: true });
@@ -226,11 +227,14 @@ if (process.env.NODE_ENV === 'production') {
 
     // Add UglifyJsPlugin only when we build for production.
     // uglyfying slows down webpack build so we avoid in when in development
-    config[0].plugins.push(new webpack.optimize.UglifyJsPlugin({
+    config[0].plugins.push(new UglifyJsPlugin({
         sourceMap: true,
-        mangle: {
-            keep_fnames: true,
-        },
+        parallel: true,
+        uglifyOptions: {
+            mangle: {
+                keep_fnames: true,
+            },
+        }
     }));
 } else {
     config[0].plugins.push(new webpack.DefinePlugin({
