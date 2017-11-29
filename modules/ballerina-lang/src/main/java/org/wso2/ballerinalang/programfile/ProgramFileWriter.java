@@ -113,7 +113,7 @@ public class ProgramFileWriter {
                     if (stringVal != null) {
                         byte[] bytes = toUTF(stringVal);
                         dataOutStream.writeShort(bytes.length);
-                        dataOutStream.writeUTF(stringVal);
+                        dataOutStream.write(bytes);
                     } else {
                         // If the string value is null, we write the size as -1. 
                         // This marks that the value followed by -1 size is a null value.
