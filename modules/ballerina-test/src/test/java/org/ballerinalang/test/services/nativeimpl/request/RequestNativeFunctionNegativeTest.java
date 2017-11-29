@@ -128,7 +128,7 @@ public class RequestNativeFunctionNegativeTest {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetProperty", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(((BString) returnVals[0]).value(), "");
+        Assert.assertNull(returnVals[0].stringValue());
     }
 
     @Test(description = "Test getStringPayload method without a paylaod")

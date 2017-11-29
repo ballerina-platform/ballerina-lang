@@ -28,7 +28,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.model.util.MessageUtils;
+import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
@@ -213,7 +213,7 @@ public class HttpUtil {
                 if (httpCarbonMessage.isEmpty() && httpCarbonMessage.isEndOfMsgAdded()) {
                     return abstractNativeFunction.getBValues(new BString(""));
                 }
-                String payload = MessageUtils.getStringFromInputStream(new HttpMessageDataStreamer(httpCarbonMessage)
+                String payload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(httpCarbonMessage)
                         .getInputStream());
                 result = new BString(payload);
                 httpCarbonMessage.setMessageDataSource(new StringDataSource(payload));

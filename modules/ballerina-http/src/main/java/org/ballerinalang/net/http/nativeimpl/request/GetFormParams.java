@@ -20,7 +20,7 @@ package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.util.MessageUtils;
+import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -61,7 +61,7 @@ public class GetFormParams extends AbstractNativeFunction {
                 if (httpCarbonMessage.isAlreadyRead()) {
                     payload = httpCarbonMessage.getMessageDataSource().getMessageAsString();
                 } else {
-                    payload = MessageUtils.getStringFromInputStream(new HttpMessageDataStreamer(httpCarbonMessage)
+                    payload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(httpCarbonMessage)
                             .getInputStream());
                     StringDataSource stringDataSource = new StringDataSource(payload);
                     httpCarbonMessage.setMessageDataSource(stringDataSource);

@@ -177,8 +177,7 @@ public class ServiceTest {
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
-        Assert.assertEquals(bJson.value().get("Team").asText(), ""
-                , "Team variable not set properly.");
+        Assert.assertTrue(bJson.value().get("Team").isNull(), "Team variable not set properly.");
     }
 
     @Test(description = "Test GetFormParams empty payloads")
