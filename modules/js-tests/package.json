@@ -1,6 +1,7 @@
 {
   "scripts": {
     "test": "mocha target/test/js/source-gen-test.js",
+    "test:debug": "cross-env SOURCE_DEBUG=true mocha target/test/js/source-gen-test.js",
     "compile": "babel ./src --out-dir ./target"
   },
   "devDependencies": {
@@ -8,6 +9,7 @@
     "babel-plugin-module-alias": "^1.6.0",
     "babel-preset-env": "^1.6.1",
     "chai": "^4.1.2",
+    "cross-env": "^5.1.1",
     "jsdom": "^11.4.0",
     "jsdom-global": "^3.0.2",
     "mocha": "^4.0.1"
