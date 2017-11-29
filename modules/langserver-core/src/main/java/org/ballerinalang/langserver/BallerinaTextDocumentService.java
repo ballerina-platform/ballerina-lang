@@ -15,9 +15,14 @@
  */
 package org.ballerinalang.langserver;
 
-
+import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.langserver.completions.util.BallerinaCompletionUtil;
+import org.ballerinalang.langserver.completions.BallerinaCustomErrorStrategy;
+import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.completions.TreeVisitor;
+import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
+import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
+import org.ballerinalang.langserver.completions.util.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
@@ -57,6 +62,8 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
@@ -69,11 +76,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -88,8 +92,6 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     private final WorkspaceDocumentManager documentManager;
     private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaTextDocumentService.class);
 
-    public static final String PACKAGE_REGEX = "package\\s+([a-zA_Z_][\\.\\w]*);";
-
     public BallerinaTextDocumentService(BallerinaLanguageServer ballerinaLanguageServer) {
         this.ballerinaLanguageServer = ballerinaLanguageServer;
         this.documentManager = new WorkspaceDocumentManagerImpl();
@@ -99,9 +101,48 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>>
     completion(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
+            SuggestionsFilterDataModel filterDataModel = new SuggestionsFilterDataModel();
+            List<CompletionItem> completions;
             String uri = position.getTextDocument().getUri();
             String fileContent = this.documentManager.getFileContent(Paths.get(URI.create(uri)));
-            List<CompletionItem> completions = BallerinaCompletionUtil.getCompletions(position, fileContent);
+            Path filePath = this.getPath(uri);
+            String[] pathComponents = position.getTextDocument().getUri().split("\\" + File.separator);
+            String fileName = pathComponents[pathComponents.length - 1];
+
+            String pkgName = TextDocumentServiceUtil.getPackageFromContent(fileContent);
+            String sourceRoot = TextDocumentServiceUtil.getSourceRoot(filePath, pkgName);
+
+            PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
+            CompilerContext compilerContext = prepareCompilerContext(packageRepository, sourceRoot);
+
+            List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
+            CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
+            BallerinaCustomErrorStrategy customErrorStrategy = new BallerinaCustomErrorStrategy(compilerContext,
+                    position, filterDataModel);
+            compilerContext.put(DiagnosticListener.class, diagnosticListener);
+            compilerContext.put(DefaultErrorStrategy.class, customErrorStrategy);
+
+            Compiler compiler = Compiler.getInstance(compilerContext);
+            if ("".equals(pkgName)) {
+                compiler.compile(fileName);
+            } else {
+                compiler.compile(pkgName);
+            }
+
+            BLangPackage bLangPackage = (BLangPackage) compiler.getAST();
+
+            // Visit the package to resolve the symbols
+            TreeVisitor treeVisitor = new TreeVisitor(fileName, compilerContext, position, filterDataModel);
+            bLangPackage.accept(treeVisitor);
+
+            BLangNode symbolEnvNode = filterDataModel.getSymbolEnvNode();
+            if (symbolEnvNode == null) {
+                completions = CompletionItemResolver.getResolverByClass(TopLevelResolver.class)
+                        .resolveItems(filterDataModel);
+            } else {
+                completions = CompletionItemResolver.getResolverByClass(symbolEnvNode.getClass())
+                        .resolveItems(filterDataModel);
+            }
             return Either.forLeft(completions);
         });
     }
@@ -198,40 +239,10 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public void didChange(DidChangeTextDocumentParams params) {
         Path changedPath = this.getPath(params.getTextDocument().getUri());
-        if (changedPath == null || changedPath.getParent() == null) {
-            return;
-        }
-        Path parentPath = changedPath.getParent();
-        if (parentPath == null) {
-            return;
-        }
-        List<String> pathParts = Arrays.asList(parentPath.toString().split(Pattern.quote(File.separator)));
         String content = params.getContentChanges().get(0).getText();
-        this.documentManager.updateFile(changedPath, content);
-        Pattern pkgPattern = Pattern.compile(PACKAGE_REGEX);
-        Matcher pkgMatcher = pkgPattern.matcher(content);
 
-        if (!pkgMatcher.find()) {
-            return;
-        }
-
-        final String packageName = pkgMatcher.group(1);
-        List<String> pkgParts = Arrays.asList(packageName.split(Pattern.quote(".")));
-        String pkg = String.join(File.separator, pkgParts);
-        Collections.reverse(pkgParts);
-        boolean foundProgramDir = true;
-        for (int i = 1; i <= pkgParts.size(); i++) {
-            if (!pathParts.get(pathParts.size() - i).equals(pkgParts.get(i - 1))) {
-                foundProgramDir = false;
-                break;
-            }
-        }
-        if (!foundProgramDir) {
-            return;
-        }
-
-        List<String> programDirParts = pathParts.subList(0, pathParts.size() - pkgParts.size());
-        String sourceRoot = String.join(File.separator, programDirParts);
+        String pkgName = TextDocumentServiceUtil.getPackageFromContent(content);
+        String sourceRoot = TextDocumentServiceUtil.getSourceRoot(changedPath, pkgName);
 
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
         CompilerContext context = prepareCompilerContext(packageRepository, sourceRoot);
@@ -241,7 +252,13 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         context.put(DiagnosticListener.class, diagnosticListener);
 
         Compiler compiler = Compiler.getInstance(context);
-        compiler.compile(pkg);
+        if ("".equals(pkgName)) {
+            String[] pathComponents = params.getTextDocument().getUri().split("\\" + File.separator);
+            String fileName = pathComponents[pathComponents.length - 1];
+            compiler.compile(fileName);
+        } else {
+            compiler.compile(pkgName);
+        }
 
         PublishDiagnosticsParams diagnostics = new PublishDiagnosticsParams();
         Diagnostic d = new Diagnostic();
