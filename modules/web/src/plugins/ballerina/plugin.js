@@ -28,6 +28,7 @@ import Editor from './views/editor-wrapper';
 import { PLUGIN_ID, EDITOR_ID, DOC_VIEW_ID, COMMANDS as COMMAND_IDS, TOOLS as TOOL_IDS,
             DIALOGS as DIALOG_IDS } from './constants';
 import OpenProgramDirConfirmDialog from './dialogs/OpenProgramDirConfirmDialog';
+import { getLangServerClientInstance } from './langserver/lang-server-client-controller';
 
 /**
  * Plugin for Ballerina Lang
@@ -127,8 +128,12 @@ class BallerinaPlugin extends Plugin {
             ],
             [HANDLERS]: [
                 {
-                    cmdID: WORKSPACE_EVENTS.FILE_OPEN,
+                    cmdID: WORKSPACE_EVENTS.FILE_OPENED,
                     handler: ({ file }) => {
+                        getLangServerClientInstance().documentDidOpenNotification({
+                            uri: file.fullPath,
+                            text: file.content,
+                        });
                         parseFile(file)
                             .then(({ programDirPath = undefined }) => {
                                 const { workspace, command: { dispatch } } = this.appContext;
@@ -145,6 +150,32 @@ class BallerinaPlugin extends Plugin {
                                     });
                                 }
                             });
+                    },
+                },
+                {
+                    cmdID: WORKSPACE_EVENTS.FILE_UPDATED,
+                    handler: ({ file }) => {
+                        getLangServerClientInstance().documentDidChangeNotification({
+                            uri: file.fullPath,
+                            text: file.content,
+                        });
+                    },
+                },
+                {
+                    cmdID: WORKSPACE_EVENTS.FILE_SAVED,
+                    handler: ({ file }) => {
+                        getLangServerClientInstance().documentDidSaveNotification({
+                            uri: file.fullPath,
+                            text: file.content,
+                        });
+                    },
+                },
+                {
+                    cmdID: WORKSPACE_EVENTS.FILE_CLOSED,
+                    handler: ({ file }) => {
+                        getLangServerClientInstance().documentDidCloseNotification({
+                            uri: file.fullPath,
+                        });
                     },
                 },
             ],

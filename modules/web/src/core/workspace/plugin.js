@@ -123,9 +123,12 @@ class WorkspacePlugin extends Plugin {
                         this.openedFiles.push(file);
                         const { pref: { history }, editor } = this.appContext;
                         history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
-                        file.on(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
+                        file.on(EVENTS.FILE_UPDATED, (updatedFile) => {
+                            dispatch(EVENTS.FILE_UPDATED, { file: updatedFile });
+                            this.onWorkspaceFileUpdated();
+                        });
                         editor.open(file, activate);
-                        dispatch(EVENTS.FILE_OPEN, { file });
+                        dispatch(EVENTS.FILE_OPENED, { file });
                         resolve(file);
                     })
                     .catch((err) => {
@@ -195,9 +198,10 @@ class WorkspacePlugin extends Plugin {
         return new Promise((resolve, reject) => {
             if (this.openedFiles.includes(file)) {
                 _.remove(this.openedFiles, file);
-                const { pref: { history } } = this.appContext;
+                const { pref: { history }, command: { dispatch } } = this.appContext;
                 history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
                 file.off(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
+                dispatch(EVENTS.FILE_CLOSED, { file });
             } else {
                 reject(`File ${file.fullPath} cannot be found in opened file set.`);
             }
