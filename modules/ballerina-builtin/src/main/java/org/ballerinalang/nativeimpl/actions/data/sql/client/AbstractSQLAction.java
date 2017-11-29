@@ -365,14 +365,21 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     private ArrayList<ColumnDefinition> getColumnDefinitions(ResultSet rs)
             throws SQLException {
         ArrayList<ColumnDefinition> columnDefs = new ArrayList<>();
+        ArrayList<String> columnNames = new ArrayList<>();
         ResultSetMetaData rsMetaData = rs.getMetaData();
         int cols = rsMetaData.getColumnCount();
         for (int i = 1; i <= cols; i++) {
             String colName = rsMetaData.getColumnLabel(i);
+            if (columnNames.contains(colName)) {
+                String tableName = rsMetaData.getTableName(i).toUpperCase();
+                colName = tableName + "." + colName;
+            }
             int colType = rsMetaData.getColumnType(i);
             TypeKind mappedType = SQLDatasourceUtils.getColumnType(colType);
             columnDefs.add(new SQLDataIterator.SQLColumnDefinition(colName, mappedType, colType));
+            columnNames.add(colName);
         }
+        columnNames.clear();
         return columnDefs;
     }
 

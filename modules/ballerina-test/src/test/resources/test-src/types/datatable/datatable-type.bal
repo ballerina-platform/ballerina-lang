@@ -682,3 +682,24 @@ function testComplexTypeInsertAndRetrieval () (int retDataInsert, int retNullIns
     testDB.close();
     return;
 }
+
+function testJsonXMLConversionwithDuplicateColumnNames () (string jsonStr, string xmlStr) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+    datatable dt = testDB.select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
+            join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", null);
+    var j,_ = <json> dt;
+    jsonStr = j.toString();
+    println(jsonStr);
+
+    datatable dt2 = testDB.select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
+            join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", null);
+    var x,_ = <xml> dt2;
+    xmlStr = <string> x;
+    println(xmlStr);
+
+    testDB.close();
+    return;
+}
