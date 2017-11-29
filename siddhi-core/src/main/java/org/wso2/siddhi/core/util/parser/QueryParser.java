@@ -58,7 +58,7 @@ import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Class to parse {@link QueryRuntime}
+ * Class to parse {@link QueryRuntime}.
  */
 public class QueryParser {
 
@@ -113,7 +113,8 @@ public class QueryParser {
                     aggregationDefinitionMap, tableMap, windowMap, aggregationMap, executors, latencyTracker,
                     outputExpectsExpiredEvents, queryName);
             QuerySelector selector = SelectorParser.parse(query.getSelector(), query.getOutputStream(),
-                    siddhiAppContext, streamRuntime.getMetaComplexEvent(), tableMap, executors, queryName);
+                    siddhiAppContext, streamRuntime.getMetaComplexEvent(), tableMap, executors, queryName,
+                    SiddhiConstants.UNKNOWN_STATE);
             boolean isWindow = query.getInputStream() instanceof JoinInputStream;
             if (!isWindow && query.getInputStream() instanceof SingleInputStream) {
                 for (StreamHandler streamHandler : ((SingleInputStream) query.getInputStream()).getStreamHandlers()) {

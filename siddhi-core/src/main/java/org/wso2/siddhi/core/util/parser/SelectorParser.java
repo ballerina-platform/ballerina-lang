@@ -45,13 +45,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Class to parse {@link QuerySelector}
+ * Class to parse {@link QuerySelector}.
  */
 public class SelectorParser {
     private static final ThreadLocal<String> containsAggregatorThreadLocal = new ThreadLocal<String>();
 
     /**
-     * Parse Selector portion of a query and return corresponding QuerySelector
+     * Parse Selector portion of a query and return corresponding QuerySelector.
      *
      * @param selector                    selector to be parsed
      * @param outputStream                output stream
@@ -64,7 +64,8 @@ public class SelectorParser {
      */
     public static QuerySelector parse(Selector selector, OutputStream outputStream, SiddhiAppContext siddhiAppContext,
                                       MetaComplexEvent metaComplexEvent, Map<String, Table> tableMap,
-                                      List<VariableExpressionExecutor> variableExpressionExecutors, String queryName) {
+                                      List<VariableExpressionExecutor> variableExpressionExecutors, String queryName,
+                                      int metaPosition) {
         boolean currentOn = false;
         boolean expiredOn = false;
         String id = null;
@@ -82,7 +83,7 @@ public class SelectorParser {
         containsAggregatorThreadLocal.remove();
         QuerySelector querySelector = new QuerySelector(id, selector, currentOn, expiredOn, siddhiAppContext);
         List<AttributeProcessor> attributeProcessors = getAttributeProcessors(selector, id, siddhiAppContext,
-                metaComplexEvent, tableMap, variableExpressionExecutors, outputStream, queryName);
+                metaComplexEvent, tableMap, variableExpressionExecutors, outputStream, queryName, metaPosition);
         querySelector.setAttributeProcessorList(attributeProcessors, "true".equals(containsAggregatorThreadLocal.
                 get()));
         containsAggregatorThreadLocal.remove();
@@ -98,7 +99,7 @@ public class SelectorParser {
     }
 
     /**
-     * Method to construct AttributeProcessor list for the selector
+     * Method to construct AttributeProcessor list for the selector.
      *
      * @param selector                    Selector
      * @param id                          stream id
@@ -116,9 +117,9 @@ public class SelectorParser {
                                                                    List<VariableExpressionExecutor>
                                                                            variableExpressionExecutors,
                                                                    OutputStream outputStream,
-                                                                   String queryName) {
+                                                                   String queryName, int metaPosition) {
 
-        List<AttributeProcessor> attributeProcessorList = new ArrayList<AttributeProcessor>();
+        List<AttributeProcessor> attributeProcessorList = new ArrayList<>();
         StreamDefinition outputDefinition = StreamDefinition.id(id);
         outputDefinition.setQueryContextStartIndex(outputStream.getQueryContextStartIndex());
         outputDefinition.setQueryContextEndIndex(outputStream.getQueryContextEndIndex());
@@ -132,25 +133,28 @@ public class SelectorParser {
                     outputAttributes.add(new OutputAttribute(new Variable(attribute.getName())));
                 }
             } else {
+                int position = 0;
                 for (MetaStreamEvent metaStreamEvent : ((MetaStateEvent) metaComplexEvent).getMetaStreamEvents()) {
-                    List<Attribute> attributeList = metaStreamEvent.getLastInputDefinition().getAttributeList();
-                    for (Attribute attribute : attributeList) {
-                        OutputAttribute outputAttribute = new OutputAttribute(new Variable(attribute.getName()));
-                        if (!outputAttributes.contains(outputAttribute)) {
-                            outputAttributes.add(outputAttribute);
-                        } else {
-                            List<AbstractDefinition> definitions = new ArrayList<AbstractDefinition>();
-                            for (MetaStreamEvent aMetaStreamEvent : ((MetaStateEvent) metaComplexEvent)
-                                    .getMetaStreamEvents()) {
-                                definitions.add(aMetaStreamEvent.getLastInputDefinition());
+                    if (metaPosition == SiddhiConstants.UNKNOWN_STATE || metaPosition == position) {
+                        List<Attribute> attributeList = metaStreamEvent.getLastInputDefinition().getAttributeList();
+                        for (Attribute attribute : attributeList) {
+                            OutputAttribute outputAttribute = new OutputAttribute(new Variable(attribute.getName()));
+                            if (!outputAttributes.contains(outputAttribute)) {
+                                outputAttributes.add(outputAttribute);
+                            } else {
+                                List<AbstractDefinition> definitions = new ArrayList<>();
+                                for (MetaStreamEvent aMetaStreamEvent : ((MetaStateEvent) metaComplexEvent)
+                                        .getMetaStreamEvents()) {
+                                    definitions.add(aMetaStreamEvent.getLastInputDefinition());
+                                }
+                                throw new DuplicateAttributeException("Duplicate attribute exist in streams " +
+                                        definitions, outputStream.getQueryContextStartIndex(),
+                                        outputStream.getQueryContextEndIndex());
                             }
-                            throw new DuplicateAttributeException("Duplicate attribute exist in streams " +
-                                    definitions, outputStream.getQueryContextStartIndex(),
-                                    outputStream.getQueryContextEndIndex());
                         }
                     }
+                    ++position;
                 }
-
             }
         }
 

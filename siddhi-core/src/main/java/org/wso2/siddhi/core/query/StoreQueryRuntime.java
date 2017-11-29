@@ -120,10 +120,14 @@ public class StoreQueryRuntime {
     }
 
     private Event[] executeSelector(StreamEvent streamEvents, MetaStreamEvent.EventType eventType) {
-        ComplexEventChunk<StateEvent> complexEventChunk = new ComplexEventChunk<StateEvent>(true);
+        ComplexEventChunk<StateEvent> complexEventChunk = new ComplexEventChunk<>(true);
         while (streamEvents != null) {
             StateEvent stateEvent = stateEventPool.borrowEvent();
-            stateEvent.addEvent(0, streamEvents);
+            if (eventType == MetaStreamEvent.EventType.AGGREGATE) {
+                stateEvent.addEvent(1, streamEvents);
+            } else {
+                stateEvent.addEvent(0, streamEvents);
+            }
             complexEventChunk.add(stateEvent);
             streamEvents = streamEvents.getNext();
         }
@@ -133,12 +137,7 @@ public class StoreQueryRuntime {
             outputComplexEventChunk.reset();
             while (outputComplexEventChunk.hasNext()) {
                 ComplexEvent complexEvent = outputComplexEventChunk.next();
-                if (eventType != MetaStreamEvent.EventType.AGGREGATE) {
-                    events.add(new Event(complexEvent.getTimestamp(), complexEvent.getOutputData()));
-                } else {
-                    events.add(new Event(complexEvent.getTimestamp(),
-                            ((StateEvent) complexEvent).getStreamEvent(0).getOutputData()));
-                }
+                events.add(new Event(complexEvent.getTimestamp(), complexEvent.getOutputData()));
             }
             return events.toArray(new Event[0]);
         } else {
