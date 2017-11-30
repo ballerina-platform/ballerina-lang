@@ -61,6 +61,7 @@ class CompleterFactory {
             },
             fileName: fileData.fileName,
             filePath: fileData.filePath,
+            fullPath: fileData.fullPath,
             packageName: fileData.packageName,
         };
         langserverController.getCompletions(options, (response) => {

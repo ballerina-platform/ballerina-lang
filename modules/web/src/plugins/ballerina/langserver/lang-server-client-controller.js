@@ -250,9 +250,9 @@ class LangServerClientController extends EventChannel {
                 position: options.position,
                 fileName: options.fileName,
                 textDocument: {
-                    uri: 'file://' + options.filePath + options.fileName + '.bal',
+                    uri: 'file://' + options.fullPath,
                 },
-                uri: 'file://' + options.filePath + options.fileName + '.bal',
+                uri: 'file://' + options.fullPath,
                 packageName: options.packageName,
             },
         };

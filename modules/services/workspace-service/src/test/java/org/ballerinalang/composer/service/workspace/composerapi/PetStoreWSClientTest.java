@@ -47,11 +47,11 @@ import javax.net.ssl.SSLException;
 public class PetStoreWSClientTest {
     private static final Logger log = LoggerFactory.getLogger(PetStoreEp.class);
     private final String host = "localhost";
-    private final String port = "8080";
+    private final int port = 9000;
     private final int maxRetryCount = 10;
     private JsonParser parser = new JsonParser();
     private String petStoreUrl = "ws://" + host + ":" + port + "/pet-store";
-    private MicroservicesRunner microservicesRunner = new MicroservicesRunner();
+    private MicroservicesRunner microservicesRunner = new MicroservicesRunner(port);
     /**
      * Starts the Pet-Store Service.
      */
