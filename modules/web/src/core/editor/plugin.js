@@ -175,7 +175,7 @@ class EditorPlugin extends Plugin {
     setActiveEditor(editor) {
         this.activeEditor = editor;
         this.activeEditorID = editor ? editor.id : undefined;
-        const { pref: { history }, workspace } = this.appContext;
+        const { pref: { history }, workspace, command: { dispatch } } = this.appContext;
         history.put(HISTORY.ACTIVE_EDITOR, this.activeEditorID);
         this.reRender();
         this.dispatchActionTriggerUpdate();
@@ -184,6 +184,7 @@ class EditorPlugin extends Plugin {
                 workspace.goToFileInExplorer(editor.file.fullPath);
             }, 100);
         }
+        dispatch(EVENTS.ACTIVE_TAB_CHANGE, { editor });
     }
 
     /**

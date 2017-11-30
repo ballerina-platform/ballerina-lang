@@ -25,6 +25,7 @@ import TryItPlugin from './plugins/try-it/plugin';
 import WelcomeTabPlugin from './plugins/welcome-tab/plugin';
 import ImportSwaggerPlugin from './plugins/import-swagger/plugin';
 import ExportDiagramPlugin from './plugins/export-diagram/plugin';
+import CodeExplorerPlugin from './plugins/code-explorer/plugin';
 import { PLUGIN_ID as HELP_PLUGIN_ID } from './plugins/help/constants';
 import { WELCOME_TAB_PLUGIN_ID } from './plugins/welcome-tab/constants';
 import ImportStructPlugin from './plugins/import-struct/plugin';
@@ -40,6 +41,7 @@ export default {
             ImportSwaggerPlugin,
             ImportStructPlugin,
             ExportDiagramPlugin,
+            CodeExplorerPlugin,
         ],
     },
     // provide plugin specific configs - if any.
@@ -114,6 +116,6 @@ export default {
                     path: '/samples/websocket/echoserver/server/EchoServer.bal',
                     image: 'preview_websocket',
                 }],
-        }
+        },
     },
 };

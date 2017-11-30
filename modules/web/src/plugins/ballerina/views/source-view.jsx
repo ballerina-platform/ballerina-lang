@@ -44,6 +44,13 @@ class SourceView extends React.Component {
         this.errorListPopoverTarget = undefined;
         this.onSourceEditorLintErrors = this.onSourceEditorLintErrors.bind(this);
         this.toggleErrorListPopover = this.toggleErrorListPopover.bind(this);
+        this.props.commandProxy.on('go-to-node', (node) => {
+            this.props.commandProxy.dispatch(GO_TO_POSITION, {
+                file: this.props.file,
+                row: node.position.startLine,
+                column: node.position.startColumn,
+            });
+        });
     }
 
     shouldComponentUpdate(nextProps, nextState) {

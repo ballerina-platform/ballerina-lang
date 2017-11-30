@@ -16,27 +16,24 @@
  * under the License.
  */
 
-export const PLUGIN_ID = 'composer.plugin.lang.ballerina';
-
-export const EDITOR_ID = 'composer.editor.ballerina';
-
-export const DOC_VIEW_ID = 'composer.view.ballerina.docs';
-
 export const COMMANDS = {
-    DIAGRAM_MODE_CHANGE: 'diagram-mode-change',
+
+};
+
+export const VIEWS = {
+    CODE_EXPLORER_PANEL: 'composer.view.code-explorer.left-panel',
+};
+
+export const LABELS = {
+
+};
+
+export const DIALOG_IDS = {
+
 };
 
 export const TOOLS = {
-    GROUP: 'composer.tool.group.ballerina',
-    DEFAULT_VIEWS: 'composer.tool.ballerina.default-view',
-    ACTION_VIEW: 'composer.tool.ballerina.action-view',
-    COMPACT_VIEW: 'composer.tool.ballerina.compact-view',
+
 };
 
-export const DIALOGS = {
-    OPEN_PROGRAM_DIR_CONFIRM: 'composer.dialog.ballerina.open-program-dir-confirm',
-};
-
-export const EVENTS = {
-    ACTIVE_BAL_AST_CHANGED: 'active-bal-ast-changed',
-};
+export const PLUGIN_ID = 'composer.plugin.code-explorer';

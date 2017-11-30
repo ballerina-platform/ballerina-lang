@@ -40,8 +40,9 @@ import { read } from './fs-util';
 import File from './model/file';
 import Folder from './model/folder';
 
-const skipEventSerialization = (key, value) => {
-    return key === '_events' ? undefined : value;
+// FIXME: Find a proper way of removing circular deps from serialization
+const skipEventAndCustomPropsSerialization = (key, value) => {
+    return key === '_events' || key === '_props' ? undefined : value;
 };
 
 /**
@@ -84,7 +85,13 @@ class WorkspacePlugin extends Plugin {
      */
     onWorkspaceFileUpdated(file) {
         const { pref: { history } } = this.appContext;
-        history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
+        // prevent ast from saving to local storage
+        const openedFiles = this.openedFiles.map((file) => {
+            const newFile = _.clone(file);
+            delete newFile._props.ast;
+            return newFile;
+        });
+        history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventAndCustomPropsSerialization);
     }
 
     /**
@@ -131,7 +138,7 @@ class WorkspacePlugin extends Plugin {
                         file.extension = type;
                         this.openedFiles.push(file);
                         const { pref: { history }, editor } = this.appContext;
-                        history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
+                        history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventAndCustomPropsSerialization);
                         file.on(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
                         file.on(EVENTS.CONTENT_MODIFIED, this.onWorkspaceFileContentChanged);
                         editor.open(file, activate);
@@ -190,7 +197,7 @@ class WorkspacePlugin extends Plugin {
         const newFile = new File({});
         this.openedFiles.push(newFile);
         const { pref: { history }, editor, command: { dispatch } } = this.appContext;
-        history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
+        history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventAndCustomPropsSerialization);
         newFile.on(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
         newFile.on(EVENTS.CONTENT_MODIFIED, this.onWorkspaceFileContentChanged);
         editor.open(newFile);
@@ -208,7 +215,7 @@ class WorkspacePlugin extends Plugin {
             if (this.openedFiles.includes(file)) {
                 _.remove(this.openedFiles, file);
                 const { pref: { history }, command: { dispatch } } = this.appContext;
-                history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
+                history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventAndCustomPropsSerialization);
                 file.off(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
                 file.off(EVENTS.CONTENT_MODIFIED, this.onWorkspaceFileContentChanged);
                 dispatch(EVENTS.FILE_CLOSED, { file });

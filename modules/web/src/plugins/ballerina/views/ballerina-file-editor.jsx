@@ -26,14 +26,15 @@ import TreeUtil from 'plugins/ballerina/model/tree-util.js';
 import { parseFile } from 'api-client/api-client';
 import { CONTENT_MODIFIED, UNDO_EVENT, REDO_EVENT } from 'plugins/ballerina/constants/events';
 import { GO_TO_POSITION, FORMAT } from 'plugins/ballerina/constants/commands';
+import File from 'core/workspace/model/file';
+import { EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
 import DesignView from './design-view.jsx';
 import SourceView from './source-view.jsx';
 import SwaggerView from './swagger-view.jsx';
-import File from 'core/workspace/model/file';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
-import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES, CLASSES } from './constants';
+import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES, CLASSES, FILE_AST_PROPERTY } from './constants';
 import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
 import SyncLineNumbersVisitor from './../visitors/sync-line-numbers';
 import SyncBreakpointsVisitor from './../visitors/sync-breakpoints';
@@ -46,6 +47,7 @@ import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
 import { DOC_VIEW_ID } from 'plugins/ballerina/constants';
 import ErrorMappingVisitor from './../visitors/error-mapping-visitor';
 import SyncErrorsVisitor from './../visitors/sync-errors';
+import { EVENTS } from '../constants';
 
 /**
  * React component for BallerinaFileEditor.
@@ -105,10 +107,12 @@ class BallerinaFileEditor extends React.Component {
                         // update environment object with updated current package info
                         this.updateEnvironment(this.environment, state.packageInfo);
                         this.syncASTs(currentAST, newAST);
+                        
                         // remove new AST from new state to be set
                         delete state.model;
                         this.skipLoadingOverlay = false;
                         this.setState(state);
+                        this.props.editorModel.setProperty('ast', currentAST);
                     })
                     .catch(error => log.error(error));
             } else if (originEvtType === CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
@@ -168,6 +172,8 @@ class BallerinaFileEditor extends React.Component {
             .then((state) => {
                 state.initialParsePending = false;
                 this.setState(state);
+                this.props.editorModel.setProperty('ast', state.model);
+                this.props.commandProxy.dispatch(EVENTS.ACTIVE_BAL_AST_CHANGED, { ast: state.model });
             })
             .catch((error) => {
                 log.error(error);
@@ -203,6 +209,7 @@ class BallerinaFileEditor extends React.Component {
         this.props.file.setContent(newContent, {
             type: CHANGE_EVT_TYPES.TREE_MODIFIED, originEvt: evt,
         });
+        this.props.commandProxy.dispatch(EVENTS.ACTIVE_BAL_AST_CHANGED, { ast: this.state.model });
     }
 
     /**
@@ -517,6 +524,8 @@ class BallerinaFileEditor extends React.Component {
                     this.skipLoadingOverlay = false;
                     this.setState(state);
                     this.forceUpdate();
+                    this.props.editorModel.setProperty('ast', state.model);
+                    this.props.commandProxy.dispatch(EVENTS.ACTIVE_BAL_AST_CHANGED, { ast: state.model });
                 })
                 .catch(error => log.error(error));
         } else {
