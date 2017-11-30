@@ -79,7 +79,6 @@ import ReturnNode from './tree/return-node';
 import CommentNode from './tree/comment-node';
 import ThrowNode from './tree/throw-node';
 import TransactionNode from './tree/transaction-node';
-import TransformNode from './tree/transform-node';
 import TryNode from './tree/try-node';
 import VariableDefNode from './tree/variable-def-node';
 import WhileNode from './tree/while-node';
@@ -93,6 +92,7 @@ import UserDefinedTypeNode from './tree/user-defined-type-node';
 import EndpointTypeNode from './tree/endpoint-type-node';
 import ValueTypeNode from './tree/value-type-node';
 import TypeNode from './tree/type-node';
+import VariableReferenceNode from './tree/variable-reference-node';
 
 class NodeFactory {
 
@@ -739,15 +739,6 @@ class NodeFactory {
         node.failedBody = new BlockNode();
         node.committedBody = new BlockNode();
         node.abortedBody = new BlockNode();
-        node = Object.assign(node, json);
-        // Set any aditional default properties below.
-        return node;
-    }
-
-    createTransform(json = {}) {
-        json.kind = 'Transform';
-        let node = new TransformNode();
-        node.body = new BlockNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
