@@ -18,13 +18,13 @@
 import Plugin from 'core/plugin/plugin';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
 
-import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
+import { REGIONS } from 'core/layout/constants';
 
 import CodeExplorerPanel from './views/CodeExplorerPanel';
 
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
-import { PLUGIN_ID, VIEWS as VIEW_IDS, DIALOG_IDS, COMMANDS as COMMAND_IDS, TOOLS as TOOL_IDS } from './constants';
+import { PLUGIN_ID, VIEWS as VIEW_IDS } from './constants';
 
 /**
  * Code explorer
@@ -66,7 +66,7 @@ class CodeExplorerPlugin extends Plugin {
                     region: REGIONS.LEFT_PANEL,
                     // region specific options for left-panel views
                     regionOptions: {
-                        activityBarIcon: 'list',
+                        activityBarIcon: 'outline',
                         panelTitle: 'Outline',
                         panelActions: [
 
