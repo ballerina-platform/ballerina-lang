@@ -140,7 +140,7 @@ describe('Ballerina Composer Test Suite', () => {
     });
     const testResDir = path.resolve(path.join(directory, 'src', 'test', 'resources', 'passing'));
     const testFiles = findBalFilesInDirSync(testResDir);
-    _.sortBy(testFiles, f => fs.statSync(f).size).slice(0, 10).forEach((testFile) => {
+    _.sortBy(testFiles, f => fs.statSync(f).size).slice(0, 1000).forEach((testFile) => {
         const relPath = path.relative('.', testFile);
         it(relPath + ' parse', (done) => {
             ballerinaASTDeserializer(testFile)

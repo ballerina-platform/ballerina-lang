@@ -96,7 +96,9 @@ stream.once('open', () => {
                     let getter = p.slice(1, -1);
                     if (getter.match(/\.value$/)) {
                         const getterWithoutVal = getter.slice(0, -6);
-                        js.push(wWrapped(getterWithoutVal) + 'node.' + getter + wAfterWrapped(getterWithoutVal));
+                        const propAccess = 'node.' + getter + 'WithBar';
+                        js.push(wWrapped(getterWithoutVal) + propAccess + wAfterWrapped(getterWithoutVal));
+                        getter += 'WithBar';
                     } else if (getter.match(/\.source$/)) {
                         getter = getter.replace(/\.source$/, '');
                         if (wQuoted(getter)) {
