@@ -21,6 +21,7 @@ import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -30,7 +31,8 @@ import java.util.concurrent.CompletableFuture;
 public class BallerinaWorkspaceService implements WorkspaceService {
     @Override
     public CompletableFuture<List<? extends SymbolInformation>> symbol(WorkspaceSymbolParams params) {
-        return null;
+        List<SymbolInformation> symbols = new ArrayList<>();
+        return CompletableFuture.completedFuture(symbols);
     }
 
     @Override
