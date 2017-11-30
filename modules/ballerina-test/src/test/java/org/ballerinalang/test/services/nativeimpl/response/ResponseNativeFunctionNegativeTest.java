@@ -84,8 +84,7 @@ public class ResponseNativeFunctionNegativeTest {
         BString key = new BString(Constants.CONTENT_TYPE);
         BValue[] inputArg = {request, key};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
-        Assert.assertEquals(((BString) returnVals[0]).value(), "");
-        Assert.assertFalse(((BBoolean) returnVals[1]).booleanValue());
+        Assert.assertNull(((BString) returnVals[0]).value());
     }
 
     @Test(description = "Test method without json payload")

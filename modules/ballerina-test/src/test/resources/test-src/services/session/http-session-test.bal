@@ -304,10 +304,9 @@ service<http> sample2 {
     resource getmap (http:Request req, http:Response res) {
 
         http:Session session = req.createSessionIfAbsent();
-        string value;
-        boolean available;
-        value,available = req.getHeader("counter");
-        if (!available) {
+        string value = req.getHeader("counter");
+        if (value == null) {
+            println("null header");
             session.setAttribute("Name", "chamil");
             session.setAttribute("Lang", "ballerina");
             map attributes = session.getAttributes();
@@ -317,6 +316,7 @@ service<http> sample2 {
             res.setStringPayload(arr[0] + ":" + v0);
         } else {
             map attributes = session.getAttributes();
+            println(attributes);
             string[] arr = attributes.keys();
             string v1;
             v1,_ = (string)attributes[arr[1]];
