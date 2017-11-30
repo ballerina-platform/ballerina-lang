@@ -91,6 +91,11 @@
                 <version>${msf4j.examples.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>language-server-core</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
