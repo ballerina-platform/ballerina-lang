@@ -42,8 +42,7 @@ public class WebSocketDispatcher {
     private final WebSocketServerConnector webSocketServerConnector;
 
     public WebSocketDispatcher() {
-        this.webSocketServerConnector =
-                (WebSocketServerConnector) ConnectorUtils.getBallerinaServerConnector(Constants.WEBSOCKET_PACKAGE_NAME);
+        this.webSocketServerConnector = WebSocketUtil.getWebSocketServerConnector();
     }
 
     public WebSocketService findService(WebSocketMessage webSocketMessage) {
@@ -153,10 +152,12 @@ public class WebSocketDispatcher {
     }
 
     private BStruct getWSConnection(WebSocketMessage webSocketMessage) {
-        return WebSocketConnectionManager.getInstance().getConnection(webSocketMessage.getChannelSession().getId());
+        return webSocketServerConnector.getWebSocketConnectionManager().
+                getConnection(webSocketMessage.getChannelSession().getId());
     }
 
     private BStruct removeConnection(WebSocketMessage webSocketMessage) {
-        return WebSocketConnectionManager.getInstance().removeConnection(webSocketMessage.getChannelSession().getId());
+        return webSocketServerConnector.getWebSocketConnectionManager().
+                removeConnection(webSocketMessage.getChannelSession().getId());
     }
 }

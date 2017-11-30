@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.ws.Constants;
-import org.ballerinalang.net.ws.WebSocketConnectionManager;
+import org.ballerinalang.net.ws.WebSocketUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
@@ -62,7 +62,8 @@ public class CloseConnection extends AbstractNativeFunction {
         } catch (IOException e) {
             throw new BallerinaException("Could not close the connection: " + e.getMessage());
         } finally {
-            WebSocketConnectionManager.getInstance().removeConnection(session.getId());
+            WebSocketUtil.getWebSocketServerConnector().
+                    getWebSocketConnectionManager().removeConnection(session.getId());
         }
         return VOID_RETURN;
     }

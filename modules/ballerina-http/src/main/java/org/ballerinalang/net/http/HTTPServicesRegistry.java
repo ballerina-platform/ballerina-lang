@@ -24,6 +24,7 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.net.ws.WebSocketServerConnector;
+import org.ballerinalang.net.ws.WebSocketUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
@@ -182,11 +183,7 @@ public class HTTPServicesRegistry {
 
     private WebSocketServerConnector getWebSocketServerConnector() {
         if (webSocketServerConnector == null) {
-            webSocketServerConnector = (WebSocketServerConnector) ConnectorUtils.
-                    getBallerinaServerConnector(org.ballerinalang.net.ws.Constants.WEBSOCKET_PACKAGE_NAME);
-            if (webSocketServerConnector == null) {
-                throw new BallerinaConnectorException("WebSocket server connector is not registered!");
-            }
+            webSocketServerConnector = WebSocketUtil.getWebSocketServerConnector();
         }
         return webSocketServerConnector;
     }

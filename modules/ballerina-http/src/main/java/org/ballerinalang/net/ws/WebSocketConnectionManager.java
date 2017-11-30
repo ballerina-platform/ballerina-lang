@@ -28,16 +28,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class WebSocketConnectionManager {
 
-    private static final WebSocketConnectionManager CONNECTION_MANAGER = new WebSocketConnectionManager();
-
     // Map <sessionId, WebSocketConnectionStruct>
     private final Map<String, BStruct> wsConnecionsMap = new ConcurrentHashMap<>();
 
-    private WebSocketConnectionManager() {
-    }
-
-    public static WebSocketConnectionManager getInstance() {
-        return CONNECTION_MANAGER;
+    public WebSocketConnectionManager() {
     }
 
     public BStruct getConnection(String connectionID) {

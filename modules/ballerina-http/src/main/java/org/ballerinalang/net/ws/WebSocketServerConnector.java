@@ -33,6 +33,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 public class WebSocketServerConnector implements BallerinaServerConnector {
 
     private final WebSocketServicesRegistry webSocketServicesRegistry = new WebSocketServicesRegistry();
+    private final WebSocketConnectionManager webSocketConnectionManager = new WebSocketConnectionManager();
 
     @Override
     public String getProtocolPackage() {
@@ -58,6 +59,10 @@ public class WebSocketServerConnector implements BallerinaServerConnector {
 
     public WebSocketServicesRegistry getWebSocketServicesRegistry() {
         return webSocketServicesRegistry;
+    }
+
+    public WebSocketConnectionManager getWebSocketConnectionManager() {
+        return webSocketConnectionManager;
     }
 
     /**

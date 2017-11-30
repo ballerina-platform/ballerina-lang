@@ -163,7 +163,8 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
                 wsConnection.addNativeData(Constants.WEBSOCKET_MESSAGE, initMessage);
                 wsConnection.addNativeData(Constants.NATIVE_DATA_UPGRADE_HEADERS, initMessage.getHeaders());
 
-                WebSocketConnectionManager.getInstance().addConnection(session.getId(), wsConnection);
+                WebSocketUtil.getWebSocketServerConnector().
+                        getWebSocketConnectionManager().addConnection(session.getId(), wsConnection);
 
                 Resource onOpenResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_OPEN);
                 BValue[] bValues = {wsConnection};
