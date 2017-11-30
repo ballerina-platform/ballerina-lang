@@ -11,12 +11,12 @@
     </parent>
 
     <name>WSO2 Language Server</name>
-    <url>http://wso2.org</url>
+    <url>http://ballerinalang.org</url>
 
     <scm>
-        <url>https://github.com/wso2/language-server.git</url>
-        <developerConnection>scm:git:https://github.com/wso2/language-server.git</developerConnection>
-        <connection>scm:git:https://github.com/wso2/language-server.git</connection>
+        <url>https://github.com/ballerinalang/language-server.git</url>
+        <developerConnection>scm:git:https://github.com/ballerinalang/language-server.git</developerConnection>
+        <connection>scm:git:https://github.com/ballerinalang/language-server.git</connection>
         <tag>HEAD</tag>
     </scm>
 
