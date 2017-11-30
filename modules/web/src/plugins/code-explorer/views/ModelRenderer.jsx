@@ -23,9 +23,6 @@ import TreeUtil from 'plugins/ballerina/model/tree-util';
  * Model Renderer
  */
 class ModelRenderer extends React.Component {
-    constructor() {
-        super();
-    }
     goToNode(node) {
         this.props.goToNode(node);
     }

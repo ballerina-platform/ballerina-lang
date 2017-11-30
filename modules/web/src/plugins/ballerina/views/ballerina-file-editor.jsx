@@ -169,7 +169,7 @@ class BallerinaFileEditor extends React.Component {
             .then((state) => {
                 state.initialParsePending = false;
                 this.setState(state);
-                this.updateFileASTProperty(state);
+                this.changeActiveAST(state);
             })
             .catch((error) => {
                 log.error(error);
@@ -631,8 +631,8 @@ class BallerinaFileEditor extends React.Component {
         });
     }
 
-    updateFileASTProperty(ast) {
-        this.props.file.setProperty(FILE_AST_PROPERTY, ast);
+    changeActiveAST(ast) {
+        this.props.commandProxy.dispatch('ACTIVE_AST_CHANGED', ast);
     }
 
     /**

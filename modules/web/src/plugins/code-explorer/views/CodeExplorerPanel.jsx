@@ -17,10 +17,6 @@
  */
 
 import React from 'react';
-import _ from 'lodash';
-import PropTypes from 'prop-types';
-import View from 'core/view/view';
-import { VIEWS, COMMANDS } from './../constants';
 import ModelRenderer from './ModelRenderer';
 import './CodeExplorer.scss';
 
@@ -31,12 +27,7 @@ class CodeExplorerPanel extends React.Component {
     constructor(props) {
         super(props);
         this.state = { ast: {} };
-        this.props.codeExplorerPlugin.appContext.command.on('update-all-action-triggers', () => {
-            const activeEditor = this.props.codeExplorerPlugin.appContext.editor.getActiveEditor();
-            let ast = {};
-            if (activeEditor && activeEditor.file && activeEditor.file._props.ast) {
-                ast = activeEditor.file._props.ast;
-            }
+        this.props.codeExplorerPlugin.appContext.command.on('ACTIVE_AST_CHANGED', (ast) => {
             this.setState({
                 ast,
             });
@@ -50,7 +41,10 @@ class CodeExplorerPanel extends React.Component {
         }
         return (
             <div className='code-explorer'>
-                <ModelRenderer model={ast.model} goToNode={node => this.props.codeExplorerPlugin.appContext.command.dispatch('go-to-node', node)} />
+                <ModelRenderer
+                    model={ast.model}
+                    goToNode={node => this.props.codeExplorerPlugin.appContext.command.dispatch('go-to-node', node)}
+                />
             </div>
         );
     }
