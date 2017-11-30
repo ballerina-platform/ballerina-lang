@@ -33,9 +33,9 @@ class File extends EventChannel {
      */
     constructor({ id, fullPath, path, name, extension, content, isPersisted, lastPersisted, isDirty, properties }) {
         super();
-        this._id = id || uuid();
+        this._id = id || `${getPathSeperator()}temp${getPathSeperator()}${uuid()}${getPathSeperator()}untitled.bal`;
         this._fullPath = fullPath || this._id;
-        this._path = path || `${getPathSeperator()}temp${getPathSeperator()}${this._id}${getPathSeperator()}`;
+        this._path = path || 'temp';
         this._name = name || 'untitled';
         this._ext = extension || 'bal';
         this._content = content || '';
