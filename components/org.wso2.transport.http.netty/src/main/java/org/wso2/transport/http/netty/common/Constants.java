@@ -185,6 +185,8 @@ public final class Constants {
     public static final String HTTP_GET_METHOD = "GET";
     public static final String HTTP_POST_METHOD = "POST";
     public static final String HTTP_HEAD_METHOD = "HEAD";
+    public static final String HTTP_PUT_METHOD = "PUT";
+    public static final String HTTP_PATCH_METHOD = "PATCH";
 
     //HTTP server connector creation parameters
     public static final String HTTP_HOST = "host";

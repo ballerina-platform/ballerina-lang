@@ -159,6 +159,8 @@ public class Util {
             int contentLength = cMsg.getFullMessageLength();
             if (contentLength > 0) {
                 cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
+            } else if (isEntityBodyAllowed(cMsg.getProperty(Constants.HTTP_METHOD).toString())) {
+                cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(0));
             }
         }
     }
@@ -167,7 +169,8 @@ public class Util {
         if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null && !cMsg.isEmpty())) {
             HttpContent httpContent = cMsg.peek();
             if (httpContent instanceof LastHttpContent) {
-                if (httpContent.content().readableBytes() == 0) {
+                if (httpContent.content().readableBytes() == 0 &&
+                        !isEntityBodyAllowed(cMsg.getProperty(Constants.HTTP_METHOD).toString())) {
                     return;
                 }
             }
@@ -175,13 +178,19 @@ public class Util {
         }
     }
 
+    private static boolean isEntityBodyAllowed(String method) {
+        return method.equals(Constants.HTTP_POST_METHOD) || method.equals(Constants.HTTP_PUT_METHOD)
+                || method.equals(Constants.HTTP_PATCH_METHOD);
+    }
+
     /**
-     * Prepare response message with Transfer-Encoding/Content-Length.
+     * Prepare response message with Transfer-Encoding/Content-Length/Content-Type.
      *
      * @param cMsg Carbon message.
      * @param requestDataHolder Requested data holder.
      */
-    public static void setupTransferEncodingForResponse(HTTPCarbonMessage cMsg, RequestDataHolder requestDataHolder) {
+    public static void setupTransferEncodingAndContentTypeForResponse(HTTPCarbonMessage cMsg
+            , RequestDataHolder requestDataHolder) {
 
         // 1. Remove Transfer-Encoding and Content-Length as per rfc7230#section-3.3.1
         int statusCode = Util.getIntValue(cMsg, Constants.HTTP_STATUS_CODE, 200);
@@ -191,6 +200,7 @@ public class Util {
             (HttpMethod.CONNECT.name().equals(httpMethod) && statusCode >= 200 && statusCode < 300)) {
             cMsg.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
             cMsg.removeHeader(Constants.HTTP_CONTENT_LENGTH);
+            cMsg.removeHeader(Constants.HTTP_CONTENT_TYPE);
             return;
         }
 
@@ -230,6 +240,7 @@ public class Util {
                 cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
             } else {
                 cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(0));
+                cMsg.removeHeader(Constants.HTTP_CONTENT_TYPE);
             }
         }
     }
