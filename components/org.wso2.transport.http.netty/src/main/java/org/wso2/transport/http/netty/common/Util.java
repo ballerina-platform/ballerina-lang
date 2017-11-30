@@ -154,29 +154,32 @@ public class Util {
     }
 
     private static void  setContentLength(HTTPCarbonMessage cMsg) {
-        if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null && (!cMsg.isEmpty()
-                || cMsg.getProperty(Constants.HTTP_METHOD).toString().equals(Constants.HTTP_POST_METHOD)))) {
+        if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null && !cMsg.isEmpty())) {
             Util.prepareBuiltMessageForTransfer(cMsg);
             int contentLength = cMsg.getFullMessageLength();
             if (contentLength > 0) {
                 cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
-            } else {
+            } else if (isMethodAllowed(cMsg.getProperty(Constants.HTTP_METHOD).toString())) {
                 cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(0));
             }
         }
     }
 
     private static void  setTransferEncodingHeader(HTTPCarbonMessage cMsg) {
-        if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null && (!cMsg.isEmpty()
-                || cMsg.getProperty(Constants.HTTP_METHOD).toString().equals(Constants.HTTP_POST_METHOD)))) {
+        if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null && !cMsg.isEmpty())) {
             HttpContent httpContent = cMsg.peek();
             if (httpContent instanceof LastHttpContent) {
-                if (httpContent.content().readableBytes() == 0) {
+                if (httpContent.content().readableBytes() == 0 && !isMethodAllowed(cMsg.getProperty(Constants.HTTP_METHOD).toString())) {
                     return;
                 }
             }
             cMsg.setHeader(Constants.HTTP_TRANSFER_ENCODING, Constants.CHUNKED);
         }
+    }
+
+    private static boolean isMethodAllowed(String method) {
+        return method.equals(Constants.HTTP_POST_METHOD) || method.equals(Constants.HTTP_PUT_METHOD)
+                || method.equals(Constants.HTTP_PATCH_METHOD) || method.equals(Constants.HTTP_DELETE_METHOD);
     }
 
     /**
