@@ -1,5 +1,5 @@
 import ballerina.util;
-import ballerina.crypto;
+import ballerina.security.crypto;
 
 function testEncodeDecode (string s) (string) {
     return util:base64Decode(util:base64Encode(s));

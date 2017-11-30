@@ -31,12 +31,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Native function ballerina.crypto:getHash.
+ * Native function ballerina.security.crypto:getHash.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.crypto",
+        packageName = "ballerina.security.crypto",
         functionName = "getHash",
         args = {@Argument(name = "baseString", type = TypeKind.STRING),
                 @Argument(name = "algorithm", type = TypeKind.STRING)},

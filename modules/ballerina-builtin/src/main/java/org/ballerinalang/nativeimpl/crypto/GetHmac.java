@@ -35,12 +35,12 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Native function ballerina.crypto:getHmac.
+ * Native function ballerina.security.crypto:getHmac.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.crypto",
+        packageName = "ballerina.security.crypto",
         functionName = "getHmac",
         args = {
                 @Argument(name = "baseString", type = TypeKind.STRING),
