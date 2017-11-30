@@ -19,6 +19,7 @@
 import _ from 'lodash';
 import uuid from 'uuid/v4';
 import EventChannel from 'event_channel';
+import { getPathSeperator } from 'api-client/api-client';
 import { EVENTS } from './../constants';
 
 /**
@@ -34,7 +35,7 @@ class File extends EventChannel {
         super();
         this._id = id || uuid();
         this._fullPath = fullPath || this._id;
-        this._path = path || 'temp';
+        this._path = path || `${getPathSeperator()}temp${getPathSeperator()}${this._id}${getPathSeperator()}`;
         this._name = name || 'untitled';
         this._ext = extension || 'bal';
         this._content = content || '';

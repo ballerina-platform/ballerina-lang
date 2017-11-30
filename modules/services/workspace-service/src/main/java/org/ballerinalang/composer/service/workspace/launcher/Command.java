@@ -150,7 +150,7 @@ public class Command {
         }
 
         if (debug) {
-            commandList.add("--ballerina.debug");
+            commandList.add("--debug");
             commandList.add(String.valueOf(this.port));
         }
 
