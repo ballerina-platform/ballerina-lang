@@ -67,7 +67,7 @@ class CodeExplorerPlugin extends Plugin {
                     // region specific options for left-panel views
                     regionOptions: {
                         activityBarIcon: 'list',
-                        panelTitle: 'Code Explorer',
+                        panelTitle: 'Outline',
                         panelActions: [
 
                         ],
