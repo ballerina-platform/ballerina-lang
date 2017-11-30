@@ -36,3 +36,7 @@ export const TOOLS = {
 export const DIALOGS = {
     OPEN_PROGRAM_DIR_CONFIRM: 'composer.dialog.ballerina.open-program-dir-confirm',
 };
+
+export const EVENTS = {
+    ACTIVE_BAL_AST_CHANGED: 'active-bal-ast-changed',
+};

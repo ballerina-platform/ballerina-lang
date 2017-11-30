@@ -47,6 +47,7 @@ import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
 import { DOC_VIEW_ID } from 'plugins/ballerina/constants';
 import ErrorMappingVisitor from './../visitors/error-mapping-visitor';
 import SyncErrorsVisitor from './../visitors/sync-errors';
+import { EVENTS } from '../constants';
 
 /**
  * React component for BallerinaFileEditor.
@@ -169,7 +170,8 @@ class BallerinaFileEditor extends React.Component {
             .then((state) => {
                 state.initialParsePending = false;
                 this.setState(state);
-                this.changeActiveAST(state);
+                this.props.file.setProperty('ast', state.model);
+                this.props.commandProxy.dispatch(EVENTS.ACTIVE_BAL_AST_CHANGED, { ast: state.model });
             })
             .catch((error) => {
                 log.error(error);
@@ -205,6 +207,7 @@ class BallerinaFileEditor extends React.Component {
         this.props.file.setContent(newContent, {
             type: CHANGE_EVT_TYPES.TREE_MODIFIED, originEvt: evt,
         });
+        this.props.commandProxy.dispatch(EVENTS.ACTIVE_BAL_AST_CHANGED, { ast: this.state.model });
     }
 
     /**
@@ -519,6 +522,8 @@ class BallerinaFileEditor extends React.Component {
                     this.skipLoadingOverlay = false;
                     this.setState(state);
                     this.forceUpdate();
+                    this.props.file.setProperty('ast', state.model);
+                    this.props.commandProxy.dispatch(EVENTS.ACTIVE_BAL_AST_CHANGED, { ast: state.model });
                 })
                 .catch(error => log.error(error));
         } else {
@@ -629,10 +634,6 @@ class BallerinaFileEditor extends React.Component {
         breakpoints.forEach((lineNumber) => {
             DebugManager.addBreakPoint(lineNumber, fileName, packagePath);
         });
-    }
-
-    changeActiveAST(ast) {
-        this.props.commandProxy.dispatch('ACTIVE_AST_CHANGED', ast);
     }
 
     /**

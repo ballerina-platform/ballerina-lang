@@ -40,8 +40,9 @@ import { read } from './fs-util';
 import File from './model/file';
 import Folder from './model/folder';
 
-const skipEventSerialization = (key, value) => {
-    return key === '_events' ? undefined : value;
+// FIXME: Find a proper way of removing circular deps from serialization
+const skipEventAndCustomPropsSerialization = (key, value) => {
+    return key === '_events' || key === '_props' ? undefined : value;
 };
 
 /**
@@ -89,7 +90,7 @@ class WorkspacePlugin extends Plugin {
             delete newFile._props.ast;
             return newFile;
         });
-        history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
+        history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventAndCustomPropsSerialization);
     }
 
     /**
@@ -128,7 +129,7 @@ class WorkspacePlugin extends Plugin {
                         file.extension = type;
                         this.openedFiles.push(file);
                         const { pref: { history }, editor } = this.appContext;
-                        history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
+                        history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventAndCustomPropsSerialization);
                         file.on(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
                         editor.open(file, activate);
                         dispatch(EVENTS.FILE_OPEN, { file });
@@ -186,7 +187,7 @@ class WorkspacePlugin extends Plugin {
         const newFile = new File({});
         this.openedFiles.push(newFile);
         const { pref: { history }, editor } = this.appContext;
-        history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
+        history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventAndCustomPropsSerialization);
         newFile.on(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
         editor.open(newFile);
     }
@@ -202,7 +203,7 @@ class WorkspacePlugin extends Plugin {
             if (this.openedFiles.includes(file)) {
                 _.remove(this.openedFiles, file);
                 const { pref: { history } } = this.appContext;
-                history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
+                history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventAndCustomPropsSerialization);
                 file.off(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
             } else {
                 reject(`File ${file.fullPath} cannot be found in opened file set.`);
