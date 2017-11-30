@@ -50,7 +50,7 @@ function main (string[] args) {
     resp, _ = httpConnector.get("/get", req);
 
     string contentType;
-    contentType, _ = resp.getHeader("Content-Type");
+    contentType = resp.getHeader("Content-Type");
     println("\nContent-Type: " + contentType);
 
     int statusCode = resp.getStatusCode();

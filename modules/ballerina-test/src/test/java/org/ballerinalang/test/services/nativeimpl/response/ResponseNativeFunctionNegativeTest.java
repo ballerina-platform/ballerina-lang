@@ -22,7 +22,6 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -84,8 +83,7 @@ public class ResponseNativeFunctionNegativeTest {
         BString key = new BString(Constants.CONTENT_TYPE);
         BValue[] inputArg = {request, key};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
-        Assert.assertEquals(((BString) returnVals[0]).value(), "");
-        Assert.assertFalse(((BBoolean) returnVals[1]).booleanValue());
+        Assert.assertNull(((BString) returnVals[0]).value());
     }
 
     @Test(description = "Test method without json payload")

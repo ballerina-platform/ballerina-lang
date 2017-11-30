@@ -31,7 +31,6 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
@@ -142,12 +141,8 @@ public class HttpUtil {
 
         String headerName = abstractNativeFunction.getStringArgument(context, 0);
         String headerValue = httpCarbonMessage.getHeader(headerName);
-        boolean headerExists = headerValue != null;
 
-        // Reset the header value to Ballerina string default value if the header doesn't exist
-        headerValue = !headerExists ? "" : headerValue;
-
-        return abstractNativeFunction.getBValues(new BString(headerValue), new BBoolean(headerExists));
+        return abstractNativeFunction.getBValues(new BString(headerValue));
     }
 
     public static BValue[] getJsonPayload(Context context,
