@@ -19,8 +19,12 @@ package org.wso2.siddhi.query.api.execution.query.selection;
 
 import org.wso2.siddhi.query.api.SiddhiElement;
 import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
+import org.wso2.siddhi.query.api.exception.UnsupportedAttributeTypeException;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
+import org.wso2.siddhi.query.api.expression.constant.Constant;
+import org.wso2.siddhi.query.api.expression.constant.IntConstant;
+import org.wso2.siddhi.query.api.expression.constant.LongConstant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,9 +37,11 @@ public class Selector implements SiddhiElement {
     private static final long serialVersionUID = 1L;
     private List<OutputAttribute> selectionList = new ArrayList<OutputAttribute>();
     private List<Variable> groupByList = new ArrayList<Variable>();
+    private List<OrderByAttribute> orderByList = new ArrayList<OrderByAttribute>();
     private Expression havingExpression;
     private int[] queryContextStartIndex;
     private int[] queryContextEndIndex;
+    private Constant limit;
 
     public static Selector selector() {
         return new Selector();
@@ -85,6 +91,34 @@ public class Selector implements SiddhiElement {
         return this;
     }
 
+    public Selector orderBy(Variable variable) {
+        orderByList.add(new OrderByAttribute(variable));
+        return this;
+    }
+
+    public Selector orderBy(Variable variable, OrderByAttribute.Order order) {
+        orderByList.add(new OrderByAttribute(variable, order));
+        return this;
+    }
+
+    public Selector addOrderByList(List<OrderByAttribute> list) {
+        if (list != null) {
+            orderByList.addAll(list);
+        }
+        return this;
+    }
+
+    public Selector limit(Constant constant) {
+        if (constant instanceof IntConstant || constant instanceof LongConstant) {
+            limit = constant;
+            return this;
+        } else {
+            throw new UnsupportedAttributeTypeException("'limit' only supports int or long constants, but found '" +
+                    constant + "'");
+        }
+
+    }
+
     public List<OutputAttribute> getSelectionList() {
         return selectionList;
     }
@@ -95,6 +129,14 @@ public class Selector implements SiddhiElement {
 
     public Expression getHavingExpression() {
         return havingExpression;
+    }
+
+    public List<OrderByAttribute> getOrderByList() {
+        return orderByList;
+    }
+
+    public Constant getLimit() {
+        return limit;
     }
 
     public Selector addSelectionList(List<OutputAttribute> projectionList) {

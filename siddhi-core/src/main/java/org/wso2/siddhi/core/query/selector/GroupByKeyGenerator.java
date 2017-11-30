@@ -39,14 +39,14 @@ public class GroupByKeyGenerator {
 
     public GroupByKeyGenerator(List<Variable> groupByList,
                                MetaComplexEvent metaComplexEvent,
-                               Map<String, Table> tableMap,
+                               int currentState, Map<String, Table> tableMap,
                                List<VariableExpressionExecutor> executors,
                                SiddhiAppContext siddhiContext, String queryName) {
         if (!groupByList.isEmpty()) {
             groupByExecutors = new VariableExpressionExecutor[groupByList.size()];
             for (int i = 0, expressionsSize = groupByList.size(); i < expressionsSize; i++) {
                 groupByExecutors[i] = (VariableExpressionExecutor) ExpressionParser.parseExpression(
-                        groupByList.get(i), metaComplexEvent, SiddhiConstants.UNKNOWN_STATE, tableMap, executors,
+                        groupByList.get(i), metaComplexEvent, currentState, tableMap, executors,
                         siddhiContext, false, 0, queryName);
             }
         }

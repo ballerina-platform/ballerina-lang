@@ -163,7 +163,7 @@ public class DefinitionParserHelper {
             MetaStreamEvent tableMetaStreamEvent = new MetaStreamEvent();
             tableMetaStreamEvent.addInputDefinition(tableDefinition);
             for (Attribute attribute : tableDefinition.getAttributeList()) {
-                tableMetaStreamEvent.addOutputDataIfNotExist(attribute);
+                tableMetaStreamEvent.addOutputData(attribute);
             }
 
             StreamEventPool tableStreamEventPool = new StreamEventPool(tableMetaStreamEvent, 10);

@@ -20,8 +20,10 @@ package org.wso2.siddhi.query.api;
 
 import org.testng.annotations.Test;
 import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
+import org.wso2.siddhi.query.api.exception.UnsupportedAttributeTypeException;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
+import org.wso2.siddhi.query.api.execution.query.selection.OrderByAttribute;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
@@ -323,5 +325,86 @@ public class SimpleQueryTestCase {
 
     }
 
+    @Test
+    public void testCreatingReturnFilterQueryLimitAndSort() {
+        Query query = Query.query();
+        query.from(
+                InputStream.stream("StockStream").
+                        filter(Expression.and(Expression.compare(Expression.function("FooBarCond", Expression.value
+                                        (7), Expression.value(9.5)),
+                                Compare.Operator.GREATER_THAN,
+                                Expression.variable("price")),
+                                Expression.function("BarCond", Expression.value(100),
+                                        Expression.variable("volume")
+                                )
+                                )
+                        ).function("ext", "Foo", Expression.value(67), Expression.value(89)).window("ext",
+                        "lengthFirst10", Expression.value(50))
+        );
+        query.select(
+                Selector.selector().
+                        select("symbol", Expression.variable("symbol")).
+                        select("avgPrice", Expression.function("ext", "avg", Expression.variable("symbol"))).
+                        orderBy(Expression.variable("avgPrice"), OrderByAttribute.Order.DESC).
+                        limit(Expression.value(5))
+        );
+
+    }
+
+    @Test(expectedExceptions = UnsupportedAttributeTypeException.class)
+    public void testCreatingReturnFilterQueryLimitAndSortError() {
+        Query query = Query.query();
+        query.from(
+                InputStream.stream("StockStream"));
+        query.select(
+                Selector.selector().
+                        select("symbol", Expression.variable("symbol")).
+                        orderBy(Expression.variable("avgPrice")).
+                        limit(Expression.value(5.0))
+        );
+
+    }
+
+    @Test(expectedExceptions = UnsupportedAttributeTypeException.class)
+    public void testCreatingReturnFilterQueryLimitAndSortError2() {
+        Query query = Query.query();
+        query.from(
+                InputStream.stream("StockStream"));
+        query.select(
+                Selector.selector().
+                        select("symbol", Expression.variable("symbol")).
+                        orderBy(Expression.variable("avgPrice")).
+                        limit(Expression.value(5.0F))
+        );
+
+    }
+
+    @Test(expectedExceptions = UnsupportedAttributeTypeException.class)
+    public void testCreatingReturnFilterQueryLimitAndSortError3() {
+        Query query = Query.query();
+        query.from(
+                InputStream.stream("StockStream"));
+        query.select(
+                Selector.selector().
+                        select("symbol", Expression.variable("symbol")).
+                        orderBy(Expression.variable("avgPrice")).
+                        limit(Expression.value(true))
+        );
+
+    }
+
+    @Test(expectedExceptions = UnsupportedAttributeTypeException.class)
+    public void testCreatingReturnFilterQueryLimitAndSortError4() {
+        Query query = Query.query();
+        query.from(
+                InputStream.stream("StockStream"));
+        query.select(
+                Selector.selector().
+                        select("symbol", Expression.variable("symbol")).
+                        orderBy(Expression.variable("avgPrice")).
+                        limit(Expression.value("Test"))
+        );
+
+    }
 
 }

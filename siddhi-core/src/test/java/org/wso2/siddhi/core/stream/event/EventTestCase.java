@@ -110,9 +110,9 @@ public class EventTestCase {
         Attribute volume = new Attribute("volume", Attribute.Type.INT);
 
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
-        metaStreamEvent.addOutputData(symbol);
-        metaStreamEvent.addOutputData(price);
-        metaStreamEvent.addOutputData(volume);
+        metaStreamEvent.addOutputDataAllowingDuplicate(symbol);
+        metaStreamEvent.addOutputDataAllowingDuplicate(price);
+        metaStreamEvent.addOutputDataAllowingDuplicate(volume);
 
 
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
@@ -141,8 +141,8 @@ public class EventTestCase {
         Attribute symbol = new Attribute("symbol", Attribute.Type.STRING);
 
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
-        metaStreamEvent.addOutputDataIfNotExist(symbol);
-        metaStreamEvent.addOutputDataIfNotExist(price);
+        metaStreamEvent.addOutputData(symbol);
+        metaStreamEvent.addOutputData(price);
 
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
                 .STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.INT);
@@ -173,8 +173,8 @@ public class EventTestCase {
         metaStreamEvent.addData(volume);
         metaStreamEvent.initializeAfterWindowData();
         metaStreamEvent.addData(price);
-        metaStreamEvent.addOutputDataIfNotExist(symbol);
-        metaStreamEvent.addOutputDataIfNotExist(null);        //complex attribute
+        metaStreamEvent.addOutputData(symbol);
+        metaStreamEvent.addOutputData(null);        //complex attribute
 
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
                 .STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.INT);
@@ -322,8 +322,8 @@ public class EventTestCase {
         metaStreamEvent.addData(symbol);
         metaStreamEvent.initializeAfterWindowData();
         metaStreamEvent.addData(price);
-        metaStreamEvent.addOutputDataIfNotExist(symbol);
-        metaStreamEvent.addOutputDataIfNotExist(null);
+        metaStreamEvent.addOutputData(symbol);
+        metaStreamEvent.addOutputData(null);
         MetaStateEvent metaStateEvent = new MetaStateEvent(1);
         metaStateEvent.addEvent(metaStreamEvent);
 

@@ -147,7 +147,7 @@ public class AggregationParser {
             MetaStreamEvent processedMetaStreamEvent = new MetaStreamEvent();
             for (Attribute attribute : incomingMetaStreamEvent.getOutputData()) {
                 incomingOutputStreamDefinition.attribute(attribute.getName(), attribute.getType());
-                processedMetaStreamEvent.addOutputDataIfNotExist(attribute);
+                processedMetaStreamEvent.addOutputData(attribute);
             }
             incomingMetaStreamEvent.setOutputDefinition(incomingOutputStreamDefinition);
             processedMetaStreamEvent.addInputDefinition(incomingOutputStreamDefinition);
@@ -170,8 +170,9 @@ public class AggregationParser {
             // Create group by key generator
             GroupByKeyGenerator groupByKeyGenerator = null;
             if (groupBy) {
-                groupByKeyGenerator = new GroupByKeyGenerator(groupByVariableList, processedMetaStreamEvent, tableMap,
-                        processVariableExpressionExecutors, siddhiAppContext, aggregatorName);
+                groupByKeyGenerator = new GroupByKeyGenerator(groupByVariableList, processedMetaStreamEvent,
+                        SiddhiConstants.UNKNOWN_STATE, tableMap, processVariableExpressionExecutors, siddhiAppContext,
+                        aggregatorName);
             }
 
             // Create new scheduler
@@ -362,7 +363,7 @@ public class AggregationParser {
                 if (!finalBaseAttributes.contains(baseAttributes[i])) {
                     finalBaseAttributes.add(baseAttributes[i]);
                     finalBaseAggregators.add(baseAggregators[i]);
-                    incomingMetaStreamEvent.addOutputDataIfNotExist(baseAttributes[i]);
+                    incomingMetaStreamEvent.addOutputData(baseAttributes[i]);
                     incomingExpressionExecutors.add(ExpressionParser.parseExpression(baseAttributeInitialValues[i],
                             incomingMetaStreamEvent, 0, tableMap, incomingVariableExpressionExecutors,
                             siddhiAppContext, false, 0, aggregatorName));
@@ -384,15 +385,15 @@ public class AggregationParser {
                 incomingMetaStreamEvent);
         ExpressionExecutor timestampExecutor = timeStampTimeZoneExecutors[0];
         ExpressionExecutor timeZoneExecutor = timeStampTimeZoneExecutors[1];
-        incomingMetaStreamEvent.addOutputDataIfNotExist(new Attribute("_TIMESTAMP", Attribute.Type.LONG));
+        incomingMetaStreamEvent.addOutputData(new Attribute("_TIMESTAMP", Attribute.Type.LONG));
         incomingExpressionExecutors.add(timestampExecutor);
 
-        incomingMetaStreamEvent.addOutputDataIfNotExist(new Attribute("_TIMEZONE", Attribute.Type.STRING));
+        incomingMetaStreamEvent.addOutputData(new Attribute("_TIMEZONE", Attribute.Type.STRING));
         incomingExpressionExecutors.add(timeZoneExecutor);
 
         AbstractDefinition incomingLastInputStreamDefinition = incomingMetaStreamEvent.getLastInputDefinition();
         for (Variable groupByVariable : groupByVariableList) {
-            incomingMetaStreamEvent.addOutputDataIfNotExist(incomingLastInputStreamDefinition.getAttributeList()
+            incomingMetaStreamEvent.addOutputData(incomingLastInputStreamDefinition.getAttributeList()
                     .get(incomingLastInputStreamDefinition.getAttributePosition(
                             groupByVariable.getAttributeName())));
             incomingExpressionExecutors.add(ExpressionParser.parseExpression(groupByVariable,
@@ -419,7 +420,7 @@ public class AggregationParser {
                                 incomingMetaStreamEvent, 0, tableMap, incomingVariableExpressionExecutors,
                                 siddhiAppContext, false, 0, aggregatorName);
                         incomingExpressionExecutors.add(expressionExecutor);
-                        incomingMetaStreamEvent.addOutputDataIfNotExist(
+                        incomingMetaStreamEvent.addOutputData(
                                 new Attribute(outputAttribute.getRename(), expressionExecutor.getReturnType()));
                         aggregationDefinition.getAttributeList().add(
                                 new Attribute(outputAttribute.getRename(), expressionExecutor.getReturnType()));
@@ -463,7 +464,7 @@ public class AggregationParser {
                             incomingMetaStreamEvent, 0, tableMap, incomingVariableExpressionExecutors,
                             siddhiAppContext, false, 0, aggregatorName);
                     incomingExpressionExecutors.add(expressionExecutor);
-                    incomingMetaStreamEvent.addOutputDataIfNotExist(
+                    incomingMetaStreamEvent.addOutputData(
                             new Attribute(outputAttribute.getRename(), expressionExecutor.getReturnType()));
                     aggregationDefinition.getAttributeList().add(
                             new Attribute(outputAttribute.getRename(), expressionExecutor.getReturnType()));
@@ -632,7 +633,7 @@ public class AggregationParser {
                 if (ordinalOfPrevDuration != sortedDurations.get(i).ordinal() - 1) {
                     TimePeriod.Duration[] allDurations = TimePeriod.Duration.values();
                     throw new OperationNotSupportedException("Expected " + allDurations[ordinalOfPrevDuration + 1] +
-                    " after " + allDurations[ordinalOfPrevDuration] + ", but found " + sortedDurations.get(i));
+                            " after " + allDurations[ordinalOfPrevDuration] + ", but found " + sortedDurations.get(i));
                 }
                 ordinalOfPrevDuration = sortedDurations.get(i).ordinal();
             }

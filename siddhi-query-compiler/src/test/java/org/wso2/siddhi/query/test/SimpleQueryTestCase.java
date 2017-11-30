@@ -25,6 +25,7 @@ import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
+import org.wso2.siddhi.query.api.execution.query.selection.OrderByAttribute;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
@@ -57,9 +58,7 @@ public class SimpleQueryTestCase {
                 insertInto("StockQuote", OutputStream.OutputEventType.ALL_EVENTS);
         AssertJUnit.assertEquals(api, query);
 
-
     }
-
 
     @Test
     public void test2() throws SiddhiParserException {
@@ -534,6 +533,67 @@ public class SimpleQueryTestCase {
         AssertJUnit.assertEquals(query, queryString);
 
     }
+
+    @Test
+    public void test11() throws SiddhiParserException {
+        Query query = SiddhiCompiler.parseQuery("from  StockStream[price>3]#window.length(50) " +
+                "select symbol, avg(price) as avgPrice " +
+                "group by symbol " +
+                "having (price >= 20)" +
+                "order by avgPrice " +
+                "limit 5 " +
+                "insert all events into StockQuote; "
+        );
+        AssertJUnit.assertNotNull(query);
+
+        Query api = Query.query().from(InputStream.stream("StockStream").
+                filter(Expression.compare(Expression.variable("price"), Compare.Operator.GREATER_THAN, Expression
+                        .value(3))).
+                window("length", Expression.value(50))).
+                select(Selector.selector().select(Expression.variable("symbol")).
+                        select("avgPrice", Expression.function("avg", Expression.variable("price"))).
+                        groupBy(Expression.variable("symbol")).
+                        having(Expression.compare(
+                                Expression.variable("price"),
+                                Compare.Operator.GREATER_THAN_EQUAL,
+                                Expression.value(20))).
+                        orderBy(Expression.variable("avgPrice")).
+                        limit(Expression.value(5))).
+                insertInto("StockQuote", OutputStream.OutputEventType.ALL_EVENTS);
+        AssertJUnit.assertEquals(api, query);
+
+    }
+
+    @Test
+    public void test12() throws SiddhiParserException {
+        Query query = SiddhiCompiler.parseQuery("from  StockStream[price>3]#window.length(50) " +
+                "select symbol, avg(price) as avgPrice " +
+                "group by symbol " +
+                "having (price >= 20)" +
+                "order by avgPrice desc " +
+                "limit 5 " +
+                "insert all events into StockQuote; "
+        );
+        AssertJUnit.assertNotNull(query);
+
+        Query api = Query.query().from(InputStream.stream("StockStream").
+                filter(Expression.compare(Expression.variable("price"), Compare.Operator.GREATER_THAN, Expression
+                        .value(3))).
+                window("length", Expression.value(50))).
+                select(Selector.selector().select(Expression.variable("symbol")).
+                        select("avgPrice", Expression.function("avg", Expression.variable("price"))).
+                        groupBy(Expression.variable("symbol")).
+                        having(Expression.compare(
+                                Expression.variable("price"),
+                                Compare.Operator.GREATER_THAN_EQUAL,
+                                Expression.value(20))).
+                        orderBy(Expression.variable("avgPrice"), OrderByAttribute.Order.DESC).
+                        limit(Expression.value(5))).
+                insertInto("StockQuote", OutputStream.OutputEventType.ALL_EVENTS);
+        AssertJUnit.assertEquals(api, query);
+
+    }
+
 
 }
 

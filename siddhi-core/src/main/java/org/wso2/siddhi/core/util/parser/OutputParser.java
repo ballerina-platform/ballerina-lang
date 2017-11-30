@@ -100,7 +100,7 @@ public class OutputParser {
             tableMetaStreamEvent.setEventType(MetaStreamEvent.EventType.TABLE);
             TableDefinition matchingTableDefinition = TableDefinition.id("");
             for (Attribute attribute : outputStreamDefinition.getAttributeList()) {
-                tableMetaStreamEvent.addOutputDataIfNotExist(attribute);
+                tableMetaStreamEvent.addOutputData(attribute);
                 matchingTableDefinition.attribute(attribute.getName(), attribute.getType());
             }
             matchingTableDefinition.setQueryContextStartIndex(outStream.getQueryContextStartIndex());
