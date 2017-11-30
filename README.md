@@ -1,4 +1,6 @@
 # Ballerina Language Server
+[![Build Status](https://wso2.org/jenkins/job/ballerinalang/job/language-server/badge/icon)](https://wso2.org/jenkins/job/ballerinalang/job/language-server/)
+
 A Language Server Implementation for [Ballerina](https://ballerinalang.org/); a general purpose, concurrent and strongly typed programming language with both textual and graphical syntax, optimized for integration. With this implementation we expose the language support for Ballerina in various IDEs by adhering to the [Language Server Protocol](https://github.com/Microsoft/language-server-protocol).
 
 ## Features
