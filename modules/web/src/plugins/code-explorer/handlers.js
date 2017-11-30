@@ -28,11 +28,6 @@ import { COMMANDS, DIALOG } from './constants';
  */
 export function getHandlerDefinitions(plugin) {
     return [
-        // {
-        //     cmdID: WORKSPACE_EVENTS.FILE_OPEN,
-        //     handler: ({ file }) => {
-
-        //     },
-        // },
+        
     ];
 }
