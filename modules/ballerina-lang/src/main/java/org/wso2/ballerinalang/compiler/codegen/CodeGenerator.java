@@ -942,7 +942,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         } else if (OperatorKind.OR.equals(binaryExpr.opKind)) {
             visitOrExpression(binaryExpr);
         } else if (binaryExpr.opSymbol.opcode == InstructionCodes.REQ_NULL ||
-                binaryExpr.opSymbol.opcode == InstructionCodes.RNE_NULL) {
+                binaryExpr.opSymbol.opcode == InstructionCodes.RNE_NULL ||
+                binaryExpr.opSymbol.opcode == InstructionCodes.SEQ_NULL ||
+                binaryExpr.opSymbol.opcode == InstructionCodes.SNE_NULL) {
             BLangExpression expr = (binaryExpr.lhsExpr.type.tag == TypeTags.NULL) ?
                     binaryExpr.rhsExpr : binaryExpr.lhsExpr;
             genNode(expr, this.env);

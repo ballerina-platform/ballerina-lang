@@ -519,8 +519,8 @@ public class StringTest {
     }
 
     @Test
-    public void compareStringWithNull() {
-        BValue[] returns = BRunUtil.invoke(result, "compareStringWithNull");
+    public void compareNullStringWithNull() {
+        BValue[] returns = BRunUtil.invoke(result, "compareNullStringWithNull");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
         Assert.assertTrue(returns[1] instanceof BBoolean);
@@ -537,5 +537,18 @@ public class StringTest {
         Assert.assertEquals(((BBoolean) returns[6]).booleanValue(), false);
         Assert.assertTrue(returns[7] instanceof BBoolean);
         Assert.assertEquals(((BBoolean) returns[7]).booleanValue(), false);
+    }
+
+    @Test
+    public void compareNotNullStringWithNull() {
+        BValue[] returns = BRunUtil.invoke(result, "compareNotNullStringWithNull");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+        Assert.assertTrue(returns[1] instanceof BBoolean);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
+        Assert.assertTrue(returns[2] instanceof BBoolean);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertTrue(returns[3] instanceof BBoolean);
+        Assert.assertEquals(((BBoolean) returns[3]).booleanValue(), true);
     }
 }

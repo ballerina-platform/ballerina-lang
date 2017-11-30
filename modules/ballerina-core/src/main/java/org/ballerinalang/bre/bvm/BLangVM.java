@@ -479,6 +479,8 @@ public class BLangVM {
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.GOTO:
                 case InstructionCodes.HALT:
+                case InstructionCodes.SEQ_NULL:
+                case InstructionCodes.SNE_NULL:
                     execCmpAndBranchOpcodes(sf, opcode, operands);
                     break;
 
@@ -627,6 +629,7 @@ public class BLangVM {
                 case InstructionCodes.JSON2F:
                 case InstructionCodes.JSON2S:
                 case InstructionCodes.JSON2B:
+                case InstructionCodes.NULL2S:
                     execTypeCastOpcodes(sf, opcode, operands);
                     break;
 
@@ -876,7 +879,24 @@ public class BLangVM {
                     sf.intRegs[j] = 0;
                 }
                 break;
-
+            case InstructionCodes.SEQ_NULL:
+                i = operands[0];
+                j = operands[1];
+                if (sf.stringRegs[i] == null) {
+                    sf.intRegs[j] = 1;
+                } else {
+                    sf.intRegs[j] = 0;
+                }
+                break;
+            case InstructionCodes.SNE_NULL:
+                i = operands[0];
+                j = operands[1];
+                if (sf.stringRegs[i] != null) {
+                    sf.intRegs[j] = 1;
+                } else {
+                    sf.intRegs[j] = 0;
+                }
+                break;
             case InstructionCodes.BR_TRUE:
                 i = operands[0];
                 j = operands[1];
@@ -2023,6 +2043,10 @@ public class BLangVM {
                 break;
             case InstructionCodes.JSON2B:
                 castJSONToBoolean(operands, sf);
+                break;
+            case InstructionCodes.NULL2S:
+                j = operands[1];
+                sf.stringRegs[j] = null;
                 break;
             default:
                 throw new UnsupportedOperationException();
