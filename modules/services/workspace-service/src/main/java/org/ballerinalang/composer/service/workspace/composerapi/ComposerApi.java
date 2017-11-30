@@ -17,11 +17,15 @@
 */
 package org.ballerinalang.composer.service.workspace.composerapi;
 
+import org.eclipse.lsp4j.jsonrpc.services.JsonDelegate;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
+import org.eclipse.lsp4j.services.LanguageServer;
 
 /**
  * Main composer endpoint.
  */
 @JsonSegment("composer")
 public interface ComposerApi {
+    @JsonDelegate
+    LanguageServer getLanguageServer();
 }

@@ -48,6 +48,7 @@ public class PetStoreWSClientTest {
     private static final Logger log = LoggerFactory.getLogger(PetStoreEp.class);
     private final String host = "localhost";
     private final String port = "8080";
+    private final int maxRetryCount = 10;
     private JsonParser parser = new JsonParser();
     private String petStoreUrl = "ws://" + host + ":" + port + "/pet-store";
     private MicroservicesRunner microservicesRunner = new MicroservicesRunner();
@@ -110,13 +111,20 @@ public class PetStoreWSClientTest {
      * @throws URISyntaxException Exception when invoking the web socket service
      */
     @Test(description = "Testing @JsonNotification with a valid json request")
-    public void executeRequestForInvalidJson() throws InterruptedException, SSLException, URISyntaxException {
+    public void executeRequestForValidJson() throws InterruptedException, SSLException, URISyntaxException {
         WebSocketClient petStoreClient = new WebSocketClient(petStoreUrl);
         Assert.assertTrue(petStoreClient.handhshake());
         String requestedContent = "{\"jsonrpc\": \"2.0\" , \"method\": \"dogs/notifyAvailabilityOfDogs\", " +
                 "  \"params\": [Boxer, ShihTzu]}";
         petStoreClient.sendText(requestedContent);
-        Thread.sleep(100);
+        String receivedContent = "";
+        int retryCount = 0;
+        while ("" == receivedContent && retryCount <= maxRetryCount) {
+            receivedContent = petStoreClient.getTextReceived();
+            retryCount++;
+            Thread.sleep(100);
+        }
+        Assert.assertEquals(receivedContent, "", "Content recieved for notification");
     }
 
     /**
@@ -126,14 +134,24 @@ public class PetStoreWSClientTest {
      * @throws URISyntaxException Exception when invoking the web socket service
      */
     @Test(description = "Testing @JsonNotification with an invalid json request")
-    public void executeRequestForValidJson() throws InterruptedException, SSLException, URISyntaxException {
+    public void executeRequestForInvalidJson() throws InterruptedException, SSLException, URISyntaxException {
         WebSocketClient petStoreClient = new WebSocketClient(petStoreUrl);
         Assert.assertTrue(petStoreClient.handhshake());
-        String requestedContent = "{\"jsonrpc\": , \"method\": \"dogs/notifyAvailabilityOfDogs\", \"params\": " +
+        String requestContent = "{\"jsonrpc\": , \"method\": \"dogs/notifyAvailabilityOfDogs\", \"params\": " +
                 "[Boxer, ShihTzu]}";
-        petStoreClient.sendText(requestedContent);
-        Thread.sleep(100);
-        petStoreClient.getTextReceived();
+        String responseContent = "{\"error\":{\"code\":-32700,\"message\":\"Parse error : Invalid JSON was received " +
+                "by the server\"},\"jsonrpc\":\"2.0\"}";
+        petStoreClient.sendText(requestContent);
+        String receivedContent = "";
+        int retryCount = 0;
+        while ("" == receivedContent && retryCount <= maxRetryCount) {
+            receivedContent = petStoreClient.getTextReceived();
+            retryCount++;
+            Thread.sleep(100);
+        }
+        Assert.assertTrue(parser.parse(receivedContent).equals(parser.parse(responseContent)),
+                "Invalid response received." + "\nRequested: " + requestContent + "\nExpected: " + responseContent +
+                        "\nActual: " + receivedContent);
     }
 
     /**
@@ -151,8 +169,13 @@ public class PetStoreWSClientTest {
         //Test handshake
         Assert.assertTrue(petStoreClient.handhshake());
         petStoreClient.sendText(requestContent);
-        Thread.sleep(100);
-        String receivedContent = petStoreClient.getTextReceived();
+        String receivedContent = "";
+        int retryCount = 0;
+        while ("" == receivedContent && retryCount <= maxRetryCount) {
+            receivedContent = petStoreClient.getTextReceived();
+            retryCount++;
+            Thread.sleep(100);
+        }
         Assert.assertTrue(parser.parse(receivedContent).equals(parser.parse(responseContent)),
                 "Invalid response received." + "\nRequested: " + requestContent + "\nExpected: " + responseContent +
                         "\nActual: " + receivedContent);

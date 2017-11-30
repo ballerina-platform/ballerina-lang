@@ -41,7 +41,9 @@ public class RequestHandler {
         // Check if the text sent by the client is a valid JSON
         if (isJSONValid(text)) {
             jsonrpcRequest = gson.fromJson(text, RequestMessage.class);
-            if (jsonrpcRequest.getId() != null) { // Its a request
+            if (jsonrpcRequest.getMethod().equals("PING")) {
+                return sendPong();
+            } else if (jsonrpcRequest.getId() != null) { // Its a request
                 return handlerRequest(endpoint, jsonrpcRequest);
             } else { // Its a notification
                 handlerNotification(endpoint, jsonrpcRequest);
@@ -171,5 +173,11 @@ public class RequestHandler {
     public JsonRpcMethod getDelegateMethod(String methodName) {
         Map<String, JsonRpcMethod> methods = ServiceEndpoints.getSupportedMethods(ComposerApi.class);
         return  methods.get(methodName);
+    }
+
+    private String sendPong() {
+        ResponseMessage responseMessage = new ResponseMessage();
+        responseMessage.setId("PONG");
+        return gson.toJson(responseMessage);
     }
 }

@@ -19,23 +19,16 @@ package org.ballerinalang.composer.service.workspace.langserver;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonReader;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.ballerinalang.composer.service.workspace.common.Utils;
+import org.ballerinalang.composer.service.workspace.composerapi.ComposerApiImpl;
+import org.ballerinalang.composer.service.workspace.composerapi.utils.RequestHandler;
 import org.ballerinalang.composer.service.workspace.langserver.consts.LangServerConstants;
 import org.ballerinalang.composer.service.workspace.langserver.dto.ErrorData;
 import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
-import org.ballerinalang.langserver.BallerinaLanguageServer;
-import org.eclipse.lsp4j.DidCloseTextDocumentParams;
-import org.eclipse.lsp4j.DidOpenTextDocumentParams;
-import org.eclipse.lsp4j.DidSaveTextDocumentParams;
-import org.eclipse.lsp4j.InitializeParams;
-import org.eclipse.lsp4j.TextDocumentPositionParams;
-import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.messages.Message;
 import org.eclipse.lsp4j.jsonrpc.messages.RequestMessage;
@@ -46,13 +39,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Language server Manager which manage langServer requests from the clients.
@@ -77,11 +65,9 @@ public class LangServerManager {
 
     private static final String BAL_EXTENTION = ".bal";
 
-    private Endpoint languageServerEndpoint;
+    private Endpoint languageServerServiceEndpoint;
 
-    private Endpoint textDocumentServiceEndpoint;
-
-    private Endpoint workSpaceServiceEndpoint;
+    private RequestHandler requestHandler;
 
     /**
      * Caching the built in packages.
@@ -94,10 +80,9 @@ public class LangServerManager {
     private LangServerManager() {
         this.initialized = false;
         this.gson = new GsonBuilder().serializeNulls().create();
-        BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
-        this.languageServerEndpoint = ServiceEndpoints.toEndpoint(languageServer);
-        this.textDocumentServiceEndpoint = ServiceEndpoints.toEndpoint(languageServer.getTextDocumentService());
-        this.workSpaceServiceEndpoint = ServiceEndpoints.toEndpoint(languageServer.getWorkspaceService());
+        ComposerApiImpl composerApiService = new ComposerApiImpl();
+        this.languageServerServiceEndpoint = ServiceEndpoints.toEndpoint(composerApiService);
+        this.requestHandler = new RequestHandler();
     }
 
     /**
@@ -127,34 +112,9 @@ public class LangServerManager {
     }
 
     void processFrame(String json) {
-        Gson gson = new Gson();
-        JsonReader jsonReader;
-        try {
-            byte[] bytes = json.getBytes(Charset.forName("UTF-8"));
-            jsonReader = new JsonReader(new InputStreamReader(
-                    new ByteArrayInputStream(bytes), Charset.forName("UTF-8")));
-            jsonReader.beginObject();
-
-            while (jsonReader.hasNext()) {
-                RequestMessage message = gson.fromJson(json, RequestMessage.class);
-                if (LangServerConstants.PING.equals(message.getMethod())) {
-                    sendPong();
-                } else if (message.getId() != null) {
-                    // Request Message Received
-                    processRequest(message);
-                } else {
-                    // Notification message Received
-                    processNotification(message);
-                }
-                break;
-            }
-            jsonReader.close();
-        } catch (IOException e) {
-            sendErrorResponse(LangServerConstants.METHOD_NOT_FOUND_LINE, LangServerConstants.METHOD_NOT_FOUND,
-                    new RequestMessage(), null);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        String response = requestHandler.routeRequestAndNotify(languageServerServiceEndpoint, json);
+        langServerSession.getChannel().write(new TextWebSocketFrame(response));
+        langServerSession.getChannel().flush();
     }
 
     /**
@@ -163,57 +123,57 @@ public class LangServerManager {
      * @param message Message
      */
     private void processRequest(RequestMessage message) throws Exception {
-        if (message.getMethod().equals(LangServerConstants.INITIALIZE)) {
-            InitializeParams initializeParams = gson.fromJson(gson.toJson(message.getParams()), InitializeParams.class);
-            CompletableFuture<?> result = languageServerEndpoint.request(message.getMethod(), initializeParams);
-            ResponseMessage responseMessage = new ResponseMessage();
-            responseMessage.setId(message.getId());
-            responseMessage.setResult(result.get());
-            pushMessageToClient(langServerSession, responseMessage);
-            this.setInitialized(true);
-        } else if (this.isInitialized()) {
-            switch (message.getMethod()) {
-                case LangServerConstants.SHUTDOWN:
-                    CompletableFuture<?> resultShutdown =
-                            languageServerEndpoint.request(LangServerConstants.SHUTDOWN, null);
-                    ResponseMessage responseMessage = new ResponseMessage();
-                    responseMessage.setId(message.getId());
-                    responseMessage.setResult(resultShutdown.get());
-                    pushMessageToClient(langServerSession, responseMessage);
-                    break;
-                case LangServerConstants.WORKSPACE_SYMBOL:
-                    WorkspaceSymbolParams workspaceSymbolParams =
-                            gson.fromJson(gson.toJson(message.getParams()), WorkspaceSymbolParams.class);
-                    CompletableFuture<?> workspaceResult =
-                            workSpaceServiceEndpoint.request(LangServerConstants.WORKSPACE_SYMBOL, workspaceSymbolParams);
-                    ResponseMessage workspaceResponse = new ResponseMessage();
-                    workspaceResponse.setId(message.getId());
-                    workspaceResponse.setResult(JsonNull.INSTANCE);
-                    pushMessageToClient(langServerSession, workspaceResponse);
-                    break;
-                case LangServerConstants.TEXT_DOCUMENT_COMPLETION:
-                    TextDocumentPositionParams textDocumentPositionParams =
-                            gson.fromJson(gson.toJson(message.getParams()), TextDocumentPositionParams.class);
-                    CompletableFuture<?> completions =
-                            textDocumentServiceEndpoint.request(LangServerConstants.TEXT_DOCUMENT_COMPLETION, textDocumentPositionParams);
-                    ResponseMessage completionResponse = new ResponseMessage();
-                    completionResponse.setId(message.getId());
-                    completionResponse.setResult(completions.get());
-                    pushMessageToClient(langServerSession, completionResponse);
-                    break;
-                case LangServerConstants.BUILT_IN_PACKAGES:
-                    this.getBuiltInPackages(message);
-                    break;
-                default:
-                    // Valid Method could not be found
-                    this.invalidMethodFound(message);
-                    break;
-            }
-        } else {
-            // Did not receive the initialize request
-            this.sendErrorResponse(LangServerConstants.SERVER_NOT_INITIALIZED_LINE,
-                    LangServerConstants.SERVER_NOT_INITIALIZED, message, null);
-        }
+//        if (message.getMethod().equals(LangServerConstants.INITIALIZE)) {
+//            InitializeParams initializeParams = gson.fromJson(gson.toJson(message.getParams()), InitializeParams.class);
+//            CompletableFuture<?> result = languageServerEndpoint.request(message.getMethod(), initializeParams);
+//            ResponseMessage responseMessage = new ResponseMessage();
+//            responseMessage.setId(message.getId());
+//            responseMessage.setResult(result.get());
+//            pushMessageToClient(langServerSession, responseMessage);
+//            this.setInitialized(true);
+//        } else if (this.isInitialized()) {
+//            switch (message.getMethod()) {
+//                case LangServerConstants.SHUTDOWN:
+//                    CompletableFuture<?> resultShutdown =
+//                            languageServerEndpoint.request(LangServerConstants.SHUTDOWN, null);
+//                    ResponseMessage responseMessage = new ResponseMessage();
+//                    responseMessage.setId(message.getId());
+//                    responseMessage.setResult(resultShutdown.get());
+//                    pushMessageToClient(langServerSession, responseMessage);
+//                    break;
+//                case LangServerConstants.WORKSPACE_SYMBOL:
+//                    WorkspaceSymbolParams workspaceSymbolParams =
+//                            gson.fromJson(gson.toJson(message.getParams()), WorkspaceSymbolParams.class);
+//                    CompletableFuture<?> workspaceResult =
+//                            workSpaceServiceEndpoint.request(LangServerConstants.WORKSPACE_SYMBOL, workspaceSymbolParams);
+//                    ResponseMessage workspaceResponse = new ResponseMessage();
+//                    workspaceResponse.setId(message.getId());
+//                    workspaceResponse.setResult(JsonNull.INSTANCE);
+//                    pushMessageToClient(langServerSession, workspaceResponse);
+//                    break;
+//                case LangServerConstants.TEXT_DOCUMENT_COMPLETION:
+//                    TextDocumentPositionParams textDocumentPositionParams =
+//                            gson.fromJson(gson.toJson(message.getParams()), TextDocumentPositionParams.class);
+//                    CompletableFuture<?> completions =
+//                            textDocumentServiceEndpoint.request(LangServerConstants.TEXT_DOCUMENT_COMPLETION, textDocumentPositionParams);
+//                    ResponseMessage completionResponse = new ResponseMessage();
+//                    completionResponse.setId(message.getId());
+//                    completionResponse.setResult(completions.get());
+//                    pushMessageToClient(langServerSession, completionResponse);
+//                    break;
+//                case LangServerConstants.BUILT_IN_PACKAGES:
+//                    this.getBuiltInPackages(message);
+//                    break;
+//                default:
+//                    // Valid Method could not be found
+//                    this.invalidMethodFound(message);
+//                    break;
+//            }
+//        } else {
+//            // Did not receive the initialize request
+//            this.sendErrorResponse(LangServerConstants.SERVER_NOT_INITIALIZED_LINE,
+//                    LangServerConstants.SERVER_NOT_INITIALIZED, message, null);
+//        }
     }
 
     /**
@@ -231,41 +191,41 @@ public class LangServerManager {
      * @param message Message
      */
     private void processNotification(RequestMessage message) {
-        if (message.getMethod().equals(LangServerConstants.EXIT)) {
-            this.exit(message);
-        } else if (this.isInitialized()) {
-            switch (message.getMethod()) {
-                case LangServerConstants.TEXT_DOCUMENT_DID_OPEN:
-                    DidOpenTextDocumentParams didOpenTextDocumentParams =
-                            gson.fromJson(gson.toJson(message.getParams()), DidOpenTextDocumentParams.class);
-                    textDocumentServiceEndpoint
-                            .notify(LangServerConstants.TEXT_DOCUMENT_DID_OPEN, didOpenTextDocumentParams);
-                    break;
-                case LangServerConstants.TEXT_DOCUMENT_DID_CLOSE:
-                    DidCloseTextDocumentParams didCloseTextDocumentParams =
-                            gson.fromJson(gson.toJson(message.getParams()), DidCloseTextDocumentParams.class);
-                    textDocumentServiceEndpoint
-                            .notify(LangServerConstants.TEXT_DOCUMENT_DID_CLOSE, didCloseTextDocumentParams);
-                    break;
-                case LangServerConstants.TEXT_DOCUMENT_DID_SAVE:
-                    DidSaveTextDocumentParams didSaveTextDocumentParams =
-                            gson.fromJson(gson.toJson(message.getParams()),DidSaveTextDocumentParams.class);
-                    textDocumentServiceEndpoint
-                            .notify(LangServerConstants.TEXT_DOCUMENT_DID_SAVE, didSaveTextDocumentParams);
-                    break;
-                case LangServerConstants.PING:
-                    this.sendPong();
-                    break;
-                default:
-                    // Valid Method could not be found
-                    // Only log a warn since this is a notification
-                    logger.warn("Invalid Notification Method " + message.getMethod() + " Found");
-                    break;
-            }
-        } else {
-            // Drop the notification without responding
-            logger.warn("Dropped the notification [" + message.getMethod() + "]");
-        }
+//        if (message.getMethod().equals(LangServerConstants.EXIT)) {
+//            this.exit(message);
+//        } else if (this.isInitialized()) {
+//            switch (message.getMethod()) {
+//                case LangServerConstants.TEXT_DOCUMENT_DID_OPEN:
+//                    DidOpenTextDocumentParams didOpenTextDocumentParams =
+//                            gson.fromJson(gson.toJson(message.getParams()), DidOpenTextDocumentParams.class);
+//                    textDocumentServiceEndpoint
+//                            .notify(LangServerConstants.TEXT_DOCUMENT_DID_OPEN, didOpenTextDocumentParams);
+//                    break;
+//                case LangServerConstants.TEXT_DOCUMENT_DID_CLOSE:
+//                    DidCloseTextDocumentParams didCloseTextDocumentParams =
+//                            gson.fromJson(gson.toJson(message.getParams()), DidCloseTextDocumentParams.class);
+//                    textDocumentServiceEndpoint
+//                            .notify(LangServerConstants.TEXT_DOCUMENT_DID_CLOSE, didCloseTextDocumentParams);
+//                    break;
+//                case LangServerConstants.TEXT_DOCUMENT_DID_SAVE:
+//                    DidSaveTextDocumentParams didSaveTextDocumentParams =
+//                            gson.fromJson(gson.toJson(message.getParams()),DidSaveTextDocumentParams.class);
+//                    textDocumentServiceEndpoint
+//                            .notify(LangServerConstants.TEXT_DOCUMENT_DID_SAVE, didSaveTextDocumentParams);
+//                    break;
+//                case LangServerConstants.PING:
+//                    this.sendPong();
+//                    break;
+//                default:
+//                    // Valid Method could not be found
+//                    // Only log a warn since this is a notification
+//                    logger.warn("Invalid Notification Method " + message.getMethod() + " Found");
+//                    break;
+//            }
+//        } else {
+//            // Drop the notification without responding
+//            logger.warn("Dropped the notification [" + message.getMethod() + "]");
+//        }
     }
 
     /**
