@@ -19,10 +19,11 @@
 package org.wso2.siddhi.core.util.collection.operator;
 
 /**
- * Represent a logical expression
+ * Represent a selection
  */
-public interface CompiledExpression {
+public interface CompiledSelection extends CompiledExpression {
 
-    CompiledExpression cloneCompilation(String key);
+    CompiledSelection cloneCompilation(String key);
+
 
 }

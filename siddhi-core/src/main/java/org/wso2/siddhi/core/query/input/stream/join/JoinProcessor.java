@@ -176,7 +176,7 @@ public class JoinProcessor implements Processor {
                 matchingStreamIndex);
         joinProcessor.setTrigger(trigger);
         if (trigger) {
-            joinProcessor.setCompiledCondition(compiledCondition.cloneCompiledCondition(key));
+            joinProcessor.setCompiledCondition(compiledCondition.cloneCompilation(key));
         }
         return joinProcessor;
     }

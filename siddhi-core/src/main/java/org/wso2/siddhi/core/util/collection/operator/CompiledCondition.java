@@ -23,6 +23,6 @@ package org.wso2.siddhi.core.util.collection.operator;
  */
 public interface CompiledCondition extends CompiledExpression {
 
-    CompiledCondition cloneCompiledCondition(String key);
+    CompiledCondition cloneCompilation(String key);
 
 }
