@@ -27,6 +27,7 @@ import org.ballerinalang.docgen.docs.DocumentWriter;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotatableNode;
+import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -34,6 +35,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -124,6 +126,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
             Collections.sort(balPackage.getConnectors(), Comparator.comparing(c -> c.getName().getValue()));
             Collections.sort(balPackage.getStructs(), Comparator.comparing(s -> s.getName().getValue()));
             Collections.sort(balPackage.getAnnotations(), Comparator.comparing(a -> a.getName().getValue()));
+            Collections.sort(balPackage.getEnums(), Comparator.comparing(a -> a.getName().getValue()));
 
             // Sort connector actions
             if ((balPackage.getConnectors() != null) && (balPackage.getConnectors().size() > 0)) {
@@ -204,6 +207,14 @@ public class HtmlDocumentWriter implements DocumentWriter {
                         }
                         return options.inverse(null);
                     })
+                    .registerHelper("hasEnums", (Helper<BLangPackage>) (balPackage, options) -> {
+                        for (EnumNode enumNode: balPackage.getEnums()) {
+                            if (enumNode.getFlags().contains(Flag.PUBLIC)) {
+                                return options.fn(balPackage);
+                            }
+                        }
+                        return options.inverse(null);
+                    })
                     .registerHelper("isPublic", (Helper<AnnotatableNode>) (annotatableNode, options) -> {
                         if (annotatableNode.getFlags().contains(Flag.PUBLIC)) {
                             return options.fn(annotatableNode);
@@ -251,14 +262,21 @@ public class HtmlDocumentWriter implements DocumentWriter {
                         return "";
                     })
                     // for struct field annotations
-                    .registerHelper("fieldAnnotation", (Helper<BLangVariable>) (param, options) -> {
+                    .registerHelper("fieldAnnotation", (param, options) -> {
                         String annotationName = options.param(0);
                         if (annotationName == null) {
                             return "";
                         }
-
-                        String subName =
-                                (param.getName() == null) ? param.type.tsymbol.name.value : param.getName().getValue();
+    
+                        String subName = "";
+                        if (param instanceof BLangVariable) {
+                            BLangVariable paramVariable = (BLangVariable) param;
+                            subName = (paramVariable.getName() == null) ? paramVariable.type.tsymbol.name.value :
+                                                                                    paramVariable.getName().getValue();
+                        } else if (param instanceof BLangEnum.BLangEnumerator) {
+                            BLangEnum.BLangEnumerator paramEnumVal = (BLangEnum.BLangEnumerator) param;
+                            subName = paramEnumVal.getName().getValue();
+                        }
 
                         for (BLangAnnotationAttachment annotation : getAnnotations(dataHolder)) {
                             if (annotation.getAttributes().size() > 1) {
@@ -492,6 +510,10 @@ public class HtmlDocumentWriter implements DocumentWriter {
             BLangVariable variable = (BLangVariable) dataHolder.getCurrentObject();
             currentPkgPath = variable.symbol.pkgID.name.value;
             return variable.getAnnotationAttachments();
+        } else if (dataHolder.getCurrentObject() instanceof BLangEnum) {
+            BLangEnum enumNode = (BLangEnum) dataHolder.getCurrentObject();
+            currentPkgPath = enumNode.symbol.pkgID.name.value; //getPackagePath(enum);
+            return enumNode.getAnnotationAttachments();
         } else {
             return new ArrayList<>();
         }
