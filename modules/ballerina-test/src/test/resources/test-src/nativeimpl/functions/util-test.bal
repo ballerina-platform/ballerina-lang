@@ -10,11 +10,11 @@ function testRandomString () (string) {
 }
 
 function testHmac (string base, string key, string algo) (string) {
-    return util:getHmac(base, key, algo);
+    return crypto:getHmac(base, key, algo);
 }
 
 function testMessageDigest (string base, string algo) (string) {
-    return util:getHash(base, algo);
+    return crypto:getHash(base, algo);
 }
 
 function testBase64Encoding (string s) (string) {
