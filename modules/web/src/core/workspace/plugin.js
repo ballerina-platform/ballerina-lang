@@ -298,14 +298,16 @@ class WorkspacePlugin extends Plugin {
      * @inheritdoc
      */
     onAfterInitialRender() {
-        const { editor } = this.appContext;
+        const { editor, command: { dispatch } } = this.appContext;
         this.openedFiles.forEach((file) => {
             file.on(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
+            file.on(EVENTS.CONTENT_MODIFIED, this.onWorkspaceFileContentChanged);
             // no need to activate this editor
             // as this is loading from history.
             // Editor plugin will decide which editor
             // to activate depending on editor tabs history
             editor.open(file, false);
+            dispatch(EVENTS.FILE_OPENED, { file });
         });
     }
 
