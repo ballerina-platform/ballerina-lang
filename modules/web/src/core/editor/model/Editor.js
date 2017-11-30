@@ -37,6 +37,7 @@ class Editor extends EventChannel {
         this._definition = definition;
         this._customTitleClass = definition.tabTitleClass || '';
         this.undoManager = new UndoManager();
+        this._props = {};
     }
 
     /**
@@ -94,6 +95,25 @@ class Editor extends EventChannel {
     set customTitleClass(customTitleClass) {
         this._customTitleClass = customTitleClass;
         this.trigger(EVENTS.UPDATE_TAB_TITLE, this);
+    }
+
+    /**
+     * Get the value of given property.
+     *
+     * @param {string} propertyName
+     */
+    getProperty(propertyName) {
+        return this._props[propertyName];
+    }
+
+    /**
+     * Set the value of given property.
+     *
+     * @param {string} propertyName
+     * @param {any} propertyValue
+     */
+    setProperty(propertyName, propertyValue) {
+        this._props[propertyName] = propertyValue;
     }
 
 }
