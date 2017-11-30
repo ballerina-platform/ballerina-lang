@@ -66,9 +66,6 @@ public class SQLTransactionContext implements BallerinaTransactionContext {
     public void close() {
         try {
             if (!conn.isClosed()) {
-                if (this.xaResource == null) {
-                    conn.setAutoCommit(true);
-                }
                 conn.close();
             }
         } catch (SQLException e) {
