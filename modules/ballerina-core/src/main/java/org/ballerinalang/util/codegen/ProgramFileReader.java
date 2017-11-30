@@ -1441,6 +1441,8 @@ public class ProgramFileReader {
                 case InstructionCodes.TYPEOF:
                 case InstructionCodes.TYPELOAD:
                 case InstructionCodes.TCALL:
+                case InstructionCodes.SEQ_NULL:
+                case InstructionCodes.SNE_NULL:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1559,6 +1561,7 @@ public class ProgramFileReader {
                 case InstructionCodes.S2XML:
                 case InstructionCodes.XML2S:
                 case InstructionCodes.S2JSONX:
+                case InstructionCodes.NULL2S:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

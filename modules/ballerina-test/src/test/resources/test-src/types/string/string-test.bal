@@ -102,9 +102,15 @@ function concatNullString() (string) {
     return s1 + s2;
 }
 
-function compareStringWithNull() (boolean, boolean, boolean, boolean, 
+function compareNullStringWithNull() (boolean, boolean, boolean, boolean, 
                               boolean, boolean, boolean, boolean) {
     string s1;
     string s2 = null;
     return s1 == null, null == s1, s1 != null, null != s1, s2 == null, null == s2, s2 != null, null != s2;
+}
+
+function compareNotNullStringWithNull() (boolean, boolean, boolean, boolean) {
+    string s1 = "hello";
+    string s2 = null;
+    return s1 == null, s1 != null, s1 == s2, s1 != s2;
 }
