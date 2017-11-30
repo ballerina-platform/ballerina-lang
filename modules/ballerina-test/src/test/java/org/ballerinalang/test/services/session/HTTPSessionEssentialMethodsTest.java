@@ -56,6 +56,20 @@ public class HTTPSessionEssentialMethodsTest {
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
         Assert.assertNotNull(stringDataSource);
         Assert.assertEquals(stringDataSource.getValue(), "session created");
+        Assert.assertTrue(response.getHeader(RESPONSE_COOKIE_HEADER) != null);
+    }
+
+    @Test(description = "Test createSessionIfAbsent with invalid session cookie")
+    public void testCreateSessionIfAbsentWithInvalidSessionCookie() {
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample/test1", "GET");
+        cMsg.setHeader(COOKIE_HEADER, SESSION_ID + "A4673299S549242");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "session created");
+        Assert.assertTrue(response.getHeader(RESPONSE_COOKIE_HEADER) != null);
     }
 
     @Test(description = "Test for getting a session without Id at first time")
@@ -67,6 +81,19 @@ public class HTTPSessionEssentialMethodsTest {
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
         Assert.assertNotNull(stringDataSource);
         Assert.assertEquals(stringDataSource.getValue(), "no session id available");
+    }
+
+    @Test(description = "Test getSession with invalid session cookie")
+    public void testGetSessionWithInvalidSessionCookie() {
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample/test2", "GET");
+        cMsg.setHeader(COOKIE_HEADER, SESSION_ID + "A4673299S549242");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "no session id available");
+        Assert.assertTrue(response.getHeader(RESPONSE_COOKIE_HEADER) == null);
     }
 
     @Test(description = "Test for not getting a session with at first time")
