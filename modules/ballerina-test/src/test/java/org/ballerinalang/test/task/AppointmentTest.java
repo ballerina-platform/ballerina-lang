@@ -96,7 +96,8 @@ public class AppointmentTest {
         assertNotEquals(w1TaskId, "", "Invalid task ID from worker w1");  // A non-null task ID should be returned
         await().atMost(10, SECONDS).until(() -> {
             BValue[] errors = BRunUtil.invokeStateful(compileResult, "getError");
-            return errors != null && errors[0] != null && !errors[0].stringValue().equals("");
+            return errors != null && errors[0] != null && errors[0].stringValue() != null && !errors[0].stringValue()
+                    .equals("");
         });
 
         // Now test whether the onError Ballerina function got called
