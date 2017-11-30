@@ -219,6 +219,8 @@ public class SQLDatasource implements BValue {
             }
             dataSourceConfigMap.put(Constants.URL, new BString(jdbcurl));
         }
+        dataSourceConfigMap.put(Constants.USER, new BString(username));
+        dataSourceConfigMap.put(Constants.PASSWORD, new BString(password));
         return dataSourceConfigMap;
     }
 
