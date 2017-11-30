@@ -34,6 +34,7 @@ export default {
     app: {
         plugins: [
             BallerinaPlugin,
+            CodeExplorerPlugin,
             DebuggerPlugin,
             HelpPlugin,
             TryItPlugin,
@@ -41,7 +42,6 @@ export default {
             ImportSwaggerPlugin,
             ImportStructPlugin,
             ExportDiagramPlugin,
-            CodeExplorerPlugin,
         ],
     },
     // provide plugin specific configs - if any.
