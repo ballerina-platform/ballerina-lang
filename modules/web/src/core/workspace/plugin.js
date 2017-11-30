@@ -189,10 +189,12 @@ class WorkspacePlugin extends Plugin {
     createNewFile() {
         const newFile = new File({});
         this.openedFiles.push(newFile);
-        const { pref: { history }, editor } = this.appContext;
+        const { pref: { history }, editor, command: { dispatch } } = this.appContext;
         history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
         newFile.on(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
+        newFile.on(EVENTS.CONTENT_MODIFIED, this.onWorkspaceFileContentChanged);
         editor.open(newFile);
+        dispatch(EVENTS.FILE_OPENED, { file: newFile });
     }
 
     /**
