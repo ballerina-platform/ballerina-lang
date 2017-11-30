@@ -15,22 +15,18 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
+package org.ballerinalang.composer.service.workspace.composerapi;
 
-package org.ballerinalang.composer.service.workspace.langserver.dto;
+import org.ballerinalang.langserver.BallerinaLanguageServer;
+import org.eclipse.lsp4j.services.LanguageServer;
 
 /**
- * {@link Message} JSON-RPC message.
- *
+ * Implementation of the Interface of the main composer endpoint.
  */
-public class Message {
+public class ComposerApiImpl implements ComposerApi {
 
-    private String jsonrpc = "2.0";
-
-    public String getJsonrpc() {
-        return jsonrpc;
-    }
-
-    public void setJsonrpc(String jsonrpc) {
-        this.jsonrpc = jsonrpc;
+    @Override
+    public LanguageServer getLanguageServer() {
+        return new BallerinaLanguageServer();
     }
 }

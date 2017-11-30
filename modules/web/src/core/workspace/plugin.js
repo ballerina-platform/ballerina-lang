@@ -60,6 +60,7 @@ class WorkspacePlugin extends Plugin {
         this.openedFiles = [];
         this._selectedNodeInExplorer = undefined;
         this.onWorkspaceFileUpdated = this.onWorkspaceFileUpdated.bind(this);
+        this.onWorkspaceFileContentChanged = this.onWorkspaceFileContentChanged.bind(this);
         this.onNodeSelectedInExplorer = this.onNodeSelectedInExplorer.bind(this);
     }
 
@@ -81,9 +82,17 @@ class WorkspacePlugin extends Plugin {
     /**
      * On an opened file in workspace update
      */
-    onWorkspaceFileUpdated() {
+    onWorkspaceFileUpdated(file) {
         const { pref: { history } } = this.appContext;
         history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
+    }
+
+    /**
+     * On content of a file updated
+     */
+    onWorkspaceFileContentChanged({ file }) {
+        const { command: { dispatch } } = this.appContext;
+        dispatch(EVENTS.FILE_UPDATED, { file });
     }
 
     /**
@@ -124,8 +133,9 @@ class WorkspacePlugin extends Plugin {
                         const { pref: { history }, editor } = this.appContext;
                         history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
                         file.on(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
+                        file.on(EVENTS.CONTENT_MODIFIED, this.onWorkspaceFileContentChanged);
                         editor.open(file, activate);
-                        dispatch(EVENTS.FILE_OPEN, { file });
+                        dispatch(EVENTS.FILE_OPENED, { file });
                         resolve(file);
                     })
                     .catch((err) => {
@@ -179,10 +189,12 @@ class WorkspacePlugin extends Plugin {
     createNewFile() {
         const newFile = new File({});
         this.openedFiles.push(newFile);
-        const { pref: { history }, editor } = this.appContext;
+        const { pref: { history }, editor, command: { dispatch } } = this.appContext;
         history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
         newFile.on(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
+        newFile.on(EVENTS.CONTENT_MODIFIED, this.onWorkspaceFileContentChanged);
         editor.open(newFile);
+        dispatch(EVENTS.FILE_OPENED, { file: newFile });
     }
 
     /**
@@ -195,9 +207,11 @@ class WorkspacePlugin extends Plugin {
         return new Promise((resolve, reject) => {
             if (this.openedFiles.includes(file)) {
                 _.remove(this.openedFiles, file);
-                const { pref: { history } } = this.appContext;
+                const { pref: { history }, command: { dispatch } } = this.appContext;
                 history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
                 file.off(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
+                file.off(EVENTS.CONTENT_MODIFIED, this.onWorkspaceFileContentChanged);
+                dispatch(EVENTS.FILE_CLOSED, { file });
             } else {
                 reject(`File ${file.fullPath} cannot be found in opened file set.`);
             }
@@ -284,14 +298,16 @@ class WorkspacePlugin extends Plugin {
      * @inheritdoc
      */
     onAfterInitialRender() {
-        const { editor } = this.appContext;
+        const { editor, command: { dispatch } } = this.appContext;
         this.openedFiles.forEach((file) => {
             file.on(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
+            file.on(EVENTS.CONTENT_MODIFIED, this.onWorkspaceFileContentChanged);
             // no need to activate this editor
             // as this is loading from history.
             // Editor plugin will decide which editor
             // to activate depending on editor tabs history
             editor.open(file, false);
+            dispatch(EVENTS.FILE_OPENED, { file });
         });
     }
 
