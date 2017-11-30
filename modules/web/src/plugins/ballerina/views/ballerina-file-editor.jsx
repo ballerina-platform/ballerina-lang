@@ -107,10 +107,12 @@ class BallerinaFileEditor extends React.Component {
                         // update environment object with updated current package info
                         this.updateEnvironment(this.environment, state.packageInfo);
                         this.syncASTs(currentAST, newAST);
+                        
                         // remove new AST from new state to be set
                         delete state.model;
                         this.skipLoadingOverlay = false;
                         this.setState(state);
+                        this.props.editorModel.setProperty('ast', currentAST);
                     })
                     .catch(error => log.error(error));
             } else if (originEvtType === CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
@@ -170,7 +172,7 @@ class BallerinaFileEditor extends React.Component {
             .then((state) => {
                 state.initialParsePending = false;
                 this.setState(state);
-                this.props.file.setProperty('ast', state.model);
+                this.props.editorModel.setProperty('ast', state.model);
                 this.props.commandProxy.dispatch(EVENTS.ACTIVE_BAL_AST_CHANGED, { ast: state.model });
             })
             .catch((error) => {
@@ -522,7 +524,7 @@ class BallerinaFileEditor extends React.Component {
                     this.skipLoadingOverlay = false;
                     this.setState(state);
                     this.forceUpdate();
-                    this.props.file.setProperty('ast', state.model);
+                    this.props.editorModel.setProperty('ast', state.model);
                     this.props.commandProxy.dispatch(EVENTS.ACTIVE_BAL_AST_CHANGED, { ast: state.model });
                 })
                 .catch(error => log.error(error));

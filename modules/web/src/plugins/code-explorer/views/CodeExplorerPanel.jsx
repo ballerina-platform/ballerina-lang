@@ -19,6 +19,7 @@
 import React from 'react';
 import { EVENTS as BAL_PLUGIN_EVENTS } from 'plugins/ballerina/constants';
 import { EVENTS as EDITOR_EVENTS } from 'core/editor/constants';
+import Editor from 'core/editor/model/Editor';
 import ModelRenderer from './ModelRenderer';
 import './CodeExplorer.scss';
 
@@ -28,8 +29,8 @@ import './CodeExplorer.scss';
 class CodeExplorerPanel extends React.Component {
     constructor(props) {
         super(props);
-        const activeEditor = this.props.codeExplorerPlugin.appContext.editor.getActiveEditor();
-        const ast = activeEditor && activeEditor.file ? activeEditor.file.getProperty('ast') : {};
+        const editor = this.props.codeExplorerPlugin.appContext.editor.getActiveEditor();
+        const ast = editor && editor instanceof Editor ? editor.getProperty('ast') : {};
         this.state = { ast: ast || {} };
         this.onActiveBalASTChange = this.onActiveBalASTChange.bind(this);
         this.onTabChange = this.onTabChange.bind(this);
@@ -43,7 +44,7 @@ class CodeExplorerPanel extends React.Component {
     }
 
     onTabChange({ editor }) {
-        const ast = editor.file ? editor.file.getProperty('ast') : {};
+        const ast = editor && editor instanceof Editor ? editor.getProperty('ast') : {};
         this.setState({
             ast,
         });
