@@ -28,6 +28,6 @@ import { COMMANDS, DIALOG } from './constants';
  */
 export function getHandlerDefinitions(plugin) {
     return [
-        
+
     ];
 }

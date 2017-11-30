@@ -270,9 +270,12 @@ class SourceEditor extends React.Component {
                 .then((langserverClient) => {
                     // Set source view completer
                     const sourceViewCompleterFactory = this.sourceViewCompleterFactory;
-                    const fileData = { fileName: nextProps.file.name,
+                    const fileData = {
+                        fileName: nextProps.file.name,
                         filePath: nextProps.file.path,
-                        packageName: nextProps.file.packageName };
+                        fullPath: nextProps.file.fullPath,
+                        packageName: nextProps.file.packageName,
+                    };
                     const completer = sourceViewCompleterFactory.getSourceViewCompleter(langserverClient, fileData);
                     langTools.setCompleters(completer);
                 })

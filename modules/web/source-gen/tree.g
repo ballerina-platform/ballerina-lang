@@ -6,7 +6,7 @@ Import
    :                        import <packageName-joined-by.>* ;
 
 Identifier
-   : <value>
+   : <valueWithBar>
    ;
 
 Abort

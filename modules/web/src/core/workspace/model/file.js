@@ -19,6 +19,7 @@
 import _ from 'lodash';
 import uuid from 'uuid/v4';
 import EventChannel from 'event_channel';
+import { getPathSeperator } from 'api-client/api-client';
 import { EVENTS } from './../constants';
 
 /**
@@ -32,7 +33,7 @@ class File extends EventChannel {
      */
     constructor({ id, fullPath, path, name, extension, content, isPersisted, lastPersisted, isDirty, properties }) {
         super();
-        this._id = id || uuid();
+        this._id = id || `${getPathSeperator()}temp${getPathSeperator()}${uuid()}${getPathSeperator()}untitled.bal`;
         this._fullPath = fullPath || this._id;
         this._path = path || 'temp';
         this._name = name || 'untitled';
@@ -134,6 +135,7 @@ class File extends EventChannel {
             oldContent,
             newContent,
             originEvt,
+            file: this,
         };
         this.trigger(EVENTS.CONTENT_MODIFIED, evt);
         // if the new content is not equal to old content

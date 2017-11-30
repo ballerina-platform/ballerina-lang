@@ -18,14 +18,13 @@
 
 import _ from 'lodash';
 import Node from './tree/node';
-import NodeFactory from './../model/node-factory';
 
 const isRetry = n => n.kind === 'Retry';
 
 // TODO: Move this to a generic place.
 function requireAll(requireContext) {
     const comp = {};
-    requireContext.keys().map((item) => {
+    requireContext.keys().forEach((item) => {
         const module = requireContext(item);
         if (module.default) {
             comp[module.default.name] = module.default;
@@ -119,6 +118,14 @@ class TreeBuilder {
 
         if (kind === 'AnnotationAttachment' && node.packageAlias.value === 'builtin') {
             node.builtin = true;
+        }
+
+        if (kind === 'Identifier') {
+            if (node.literal) {
+                node.valueWithBar = '|' + node.value + '|';
+            } else {
+                node.valueWithBar = node.value;
+            }
         }
 
         if (kind === 'Import') {

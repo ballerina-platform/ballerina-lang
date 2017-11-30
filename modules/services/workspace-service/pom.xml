@@ -30,6 +30,16 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.eclipse.lsp4j</groupId>
+            <artifactId>org.eclipse.lsp4j</artifactId>
+            <version>${lsp4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.lsp4j</groupId>
+            <artifactId>org.eclipse.lsp4j.jsonrpc</artifactId>
+            <version>${lsp4j.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
         </dependency>
@@ -133,6 +143,11 @@
             <groupId>org.wso2.msf4j.example</groupId>
             <artifactId>stockquote-fatjar</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>language-server-core</artifactId>
+            <version>0.95.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
@@ -247,5 +262,6 @@
         <org.wso2.carbon.transport.http.netty.version>5.0.1</org.wso2.carbon.transport.http.netty.version>
         <jackson.core.version>2.4.5</jackson.core.version>
         <maven.shadeplugin.version>2.4.1</maven.shadeplugin.version>
+        <lsp4j.version>0.3.0</lsp4j.version>
     </properties>
 </project>

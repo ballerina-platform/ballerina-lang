@@ -84,6 +84,17 @@ class LangServerClientController extends EventChannel {
                 id: session.getId(),
                 jsonrpc: '2.0',
                 method: 'initialize',
+                params: {
+                    capabilities: {
+                        textDocument: {
+                            completion: {
+                                completionItem: {
+                                    snippetSupport: true,
+                                },
+                            },
+                        },
+                    },
+                },
             };
             session.setMessage(message);
             session.setCallback(() => {
@@ -139,7 +150,58 @@ class LangServerClientController extends EventChannel {
             jsonrpc: '2.0',
             method: 'textDocument/didOpen',
             params: {
-                textDocument: options.textDocument,
+                textDocument: {
+                    uri: 'file://' + options.uri,
+                    text: options.text,
+                },
+            },
+        };
+
+        this.langserverChannel.sendMessage(message);
+    }
+
+    /**
+     * Document did change request notification processor
+     * @param {object} options - document did change options
+     */
+    documentDidChangeNotification(options) {
+        if (!this.isInitialized) {
+            this.once('langserver-initialized', () => this.documentDidChangeNotification(options));
+            return;
+        }
+        const message = {
+            jsonrpc: '2.0',
+            method: 'textDocument/didChange',
+            params: {
+                textDocument: {
+                    uri: 'file://' + options.uri,
+                },
+                contentChanges: [{
+                    text: options.text,
+                }],
+            },
+        };
+
+        this.langserverChannel.sendMessage(message);
+    }
+
+    /**
+     * Document did save request notification processor
+     * @param {object} options - document did save options
+     */
+    documentDidSaveNotification(options) {
+        if (!this.isInitialized) {
+            this.once('langserver-initialized', () => this.documentDidSaveNotification(options));
+            return;
+        }
+        const message = {
+            jsonrpc: '2.0',
+            method: 'textDocument/didSave',
+            params: {
+                textDocument: {
+                    uri: 'file://' + options.uri,
+                },
+                text: options.text,
             },
         };
 
@@ -159,26 +221,10 @@ class LangServerClientController extends EventChannel {
             jsonrpc: '2.0',
             method: 'textDocument/didClose',
             params: {
-                textDocument: options.textDocument,
+                textDocument: {
+                    uri: 'file://' + options.uri,
+                },
             },
-        };
-
-        this.langserverChannel.sendMessage(message);
-    }
-
-    /**
-     * Document did save request notification processor
-     * @param {object} options - document did save options
-     */
-    documentDidSaveNotification(options) {
-        if (!this.isInitialized) {
-            this.once('langserver-initialized', () => this.documentDidSaveNotification(options));
-            return;
-        }
-        const message = {
-            jsonrpc: '2.0',
-            method: 'textDocument/didSave',
-            params: options.didSaveParams,
         };
 
         this.langserverChannel.sendMessage(message);
@@ -203,7 +249,10 @@ class LangServerClientController extends EventChannel {
                 text: options.textDocument,
                 position: options.position,
                 fileName: options.fileName,
-                filePath: options.filePath,
+                textDocument: {
+                    uri: 'file://' + options.fullPath,
+                },
+                uri: 'file://' + options.fullPath,
                 packageName: options.packageName,
             },
         };
@@ -312,27 +361,15 @@ class LangServerClientController extends EventChannel {
  */
 function initLangServerClientInstance(options) {
     instance = new LangServerClientController(options);
-    return new Promise((resolve, reject) => {
-        instance.init()
-            .then(resolve)
-            .catch((error) => {
-                instance = undefined;
-                reject(error);
-            });
-    });
+    return instance.init()
+             .then(() => {
+                 return instance;
+             });
 }
 
 /**
  * method to fetch langserver client sigleton
  */
 export function getLangServerClientInstance(options) {
-    return new Promise((resolve, reject) => {
-        if (instance !== undefined) {
-            resolve(instance);
-        } else {
-            initLangServerClientInstance(options)
-                .then(() => { resolve(instance); })
-                .catch(reject);
-        }
-    });
+    return instance !== undefined ? Promise.resolve(instance) : initLangServerClientInstance(options);
 }
