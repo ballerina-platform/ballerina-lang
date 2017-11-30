@@ -1655,7 +1655,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addTransactionBlock(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.addTransactionBlock(getCurrentPos(ctx));
     }
 
     /**
@@ -1663,6 +1663,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) {
+        this.pkgBuilder.endTransactionBlock(getWS(ctx));
     }
 
     /**
