@@ -118,114 +118,12 @@ public class LangServerManager {
     }
 
     /**
-     * Process the received Requests.
-     *
-     * @param message Message
-     */
-    private void processRequest(RequestMessage message) throws Exception {
-//        if (message.getMethod().equals(LangServerConstants.INITIALIZE)) {
-//            InitializeParams initializeParams = gson.fromJson(gson.toJson(message.getParams()), InitializeParams.class);
-//            CompletableFuture<?> result = languageServerEndpoint.request(message.getMethod(), initializeParams);
-//            ResponseMessage responseMessage = new ResponseMessage();
-//            responseMessage.setId(message.getId());
-//            responseMessage.setResult(result.get());
-//            pushMessageToClient(langServerSession, responseMessage);
-//            this.setInitialized(true);
-//        } else if (this.isInitialized()) {
-//            switch (message.getMethod()) {
-//                case LangServerConstants.SHUTDOWN:
-//                    CompletableFuture<?> resultShutdown =
-//                            languageServerEndpoint.request(LangServerConstants.SHUTDOWN, null);
-//                    ResponseMessage responseMessage = new ResponseMessage();
-//                    responseMessage.setId(message.getId());
-//                    responseMessage.setResult(resultShutdown.get());
-//                    pushMessageToClient(langServerSession, responseMessage);
-//                    break;
-//                case LangServerConstants.WORKSPACE_SYMBOL:
-//                    WorkspaceSymbolParams workspaceSymbolParams =
-//                            gson.fromJson(gson.toJson(message.getParams()), WorkspaceSymbolParams.class);
-//                    CompletableFuture<?> workspaceResult =
-//                            workSpaceServiceEndpoint.request(LangServerConstants.WORKSPACE_SYMBOL, workspaceSymbolParams);
-//                    ResponseMessage workspaceResponse = new ResponseMessage();
-//                    workspaceResponse.setId(message.getId());
-//                    workspaceResponse.setResult(JsonNull.INSTANCE);
-//                    pushMessageToClient(langServerSession, workspaceResponse);
-//                    break;
-//                case LangServerConstants.TEXT_DOCUMENT_COMPLETION:
-//                    TextDocumentPositionParams textDocumentPositionParams =
-//                            gson.fromJson(gson.toJson(message.getParams()), TextDocumentPositionParams.class);
-//                    CompletableFuture<?> completions =
-//                            textDocumentServiceEndpoint.request(LangServerConstants.TEXT_DOCUMENT_COMPLETION, textDocumentPositionParams);
-//                    ResponseMessage completionResponse = new ResponseMessage();
-//                    completionResponse.setId(message.getId());
-//                    completionResponse.setResult(completions.get());
-//                    pushMessageToClient(langServerSession, completionResponse);
-//                    break;
-//                case LangServerConstants.BUILT_IN_PACKAGES:
-//                    this.getBuiltInPackages(message);
-//                    break;
-//                default:
-//                    // Valid Method could not be found
-//                    this.invalidMethodFound(message);
-//                    break;
-//            }
-//        } else {
-//            // Did not receive the initialize request
-//            this.sendErrorResponse(LangServerConstants.SERVER_NOT_INITIALIZED_LINE,
-//                    LangServerConstants.SERVER_NOT_INITIALIZED, message, null);
-//        }
-    }
-
-    /**
      * Send Ping Reply.
      */
     private void sendPong() {
         ResponseMessage responseMessage = new ResponseMessage();
         responseMessage.setId(LangServerConstants.PONG);
         this.pushMessageToClient(langServerSession, responseMessage);
-    }
-
-    /**
-     * Process received notifications.
-     *
-     * @param message Message
-     */
-    private void processNotification(RequestMessage message) {
-//        if (message.getMethod().equals(LangServerConstants.EXIT)) {
-//            this.exit(message);
-//        } else if (this.isInitialized()) {
-//            switch (message.getMethod()) {
-//                case LangServerConstants.TEXT_DOCUMENT_DID_OPEN:
-//                    DidOpenTextDocumentParams didOpenTextDocumentParams =
-//                            gson.fromJson(gson.toJson(message.getParams()), DidOpenTextDocumentParams.class);
-//                    textDocumentServiceEndpoint
-//                            .notify(LangServerConstants.TEXT_DOCUMENT_DID_OPEN, didOpenTextDocumentParams);
-//                    break;
-//                case LangServerConstants.TEXT_DOCUMENT_DID_CLOSE:
-//                    DidCloseTextDocumentParams didCloseTextDocumentParams =
-//                            gson.fromJson(gson.toJson(message.getParams()), DidCloseTextDocumentParams.class);
-//                    textDocumentServiceEndpoint
-//                            .notify(LangServerConstants.TEXT_DOCUMENT_DID_CLOSE, didCloseTextDocumentParams);
-//                    break;
-//                case LangServerConstants.TEXT_DOCUMENT_DID_SAVE:
-//                    DidSaveTextDocumentParams didSaveTextDocumentParams =
-//                            gson.fromJson(gson.toJson(message.getParams()),DidSaveTextDocumentParams.class);
-//                    textDocumentServiceEndpoint
-//                            .notify(LangServerConstants.TEXT_DOCUMENT_DID_SAVE, didSaveTextDocumentParams);
-//                    break;
-//                case LangServerConstants.PING:
-//                    this.sendPong();
-//                    break;
-//                default:
-//                    // Valid Method could not be found
-//                    // Only log a warn since this is a notification
-//                    logger.warn("Invalid Notification Method " + message.getMethod() + " Found");
-//                    break;
-//            }
-//        } else {
-//            // Drop the notification without responding
-//            logger.warn("Dropped the notification [" + message.getMethod() + "]");
-//        }
     }
 
     /**

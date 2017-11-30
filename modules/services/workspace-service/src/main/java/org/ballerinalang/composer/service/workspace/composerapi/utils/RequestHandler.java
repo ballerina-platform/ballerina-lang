@@ -18,15 +18,24 @@
 package org.ballerinalang.composer.service.workspace.composerapi.utils;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import org.ballerinalang.composer.service.workspace.common.Utils;
 import org.ballerinalang.composer.service.workspace.composerapi.ComposerApi;
+import org.ballerinalang.composer.service.workspace.langserver.LangServerManager;
+import org.ballerinalang.composer.service.workspace.langserver.consts.LangServerConstants;
+import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.json.JsonRpcMethod;
+import org.eclipse.lsp4j.jsonrpc.messages.Message;
 import org.eclipse.lsp4j.jsonrpc.messages.RequestMessage;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -34,6 +43,12 @@ import java.util.concurrent.ExecutionException;
  * Handler to handle the request received from the web socket of the composer API.
  */
 public class RequestHandler {
+    /**
+     * Caching the built in packages.
+     */
+    private Map<String, ModelPackage> builtInNativePackages;
+    private Set<Map.Entry<String, ModelPackage>> packages;
+
     private Gson gson = new Gson();
 
     public String routeRequestAndNotify(Endpoint endpoint, String text) {
@@ -43,6 +58,8 @@ public class RequestHandler {
             jsonrpcRequest = gson.fromJson(text, RequestMessage.class);
             if (jsonrpcRequest.getMethod().equals("PING")) {
                 return sendPong();
+            } else if (jsonrpcRequest.getMethod().equals(LangServerConstants.BUILT_IN_PACKAGES)) {
+                return getBuiltInPackages(jsonrpcRequest);
             } else if (jsonrpcRequest.getId() != null) { // Its a request
                 return handlerRequest(endpoint, jsonrpcRequest);
             } else { // Its a notification
@@ -63,7 +80,7 @@ public class RequestHandler {
      * Handles the request sent to the endpoint.
      *
      * @param serviceAsEndpoint Endpoint service
-     * @param jsonrpcRequest Request message
+     * @param jsonrpcRequest    Request message
      * @return
      */
     public String handlerRequest(Endpoint serviceAsEndpoint, RequestMessage jsonrpcRequest) {
@@ -92,7 +109,7 @@ public class RequestHandler {
      * Handles the notification sent to the endpoint.
      *
      * @param serviceAsEndpoint Endpoint service
-     * @param jsonrpcRequest Request message
+     * @param jsonrpcRequest    Request message
      * @return
      */
     public void handlerNotification(Endpoint serviceAsEndpoint, RequestMessage jsonrpcRequest) {
@@ -167,17 +184,60 @@ public class RequestHandler {
 
     /**
      * Find the delegate method in the endpoint registered.
+     *
      * @param methodName delegate method name
      * @return delegate method object
      */
     public JsonRpcMethod getDelegateMethod(String methodName) {
         Map<String, JsonRpcMethod> methods = ServiceEndpoints.getSupportedMethods(ComposerApi.class);
-        return  methods.get(methodName);
+        return methods.get(methodName);
     }
 
+    /**
+     * send Pong for the ping send by client.
+     *
+     * @return string json
+     */
     private String sendPong() {
+        //TODO: Move this to MSF4J ping pong functionality when websocket moved to MSF4J.
         ResponseMessage responseMessage = new ResponseMessage();
         responseMessage.setId("PONG");
         return gson.toJson(responseMessage);
+    }
+
+    /**
+     * Get all the built-in packages.
+     *
+     * @param message Request Message
+     */
+    private String getBuiltInPackages(RequestMessage message) {
+        //TODO: Move this to be a separate service.
+        JsonObject response = new JsonObject();
+        // Load all the packages associated the runtime
+        if (builtInNativePackages == null) {
+            builtInNativePackages = Utils.getAllPackages();
+        }
+        this.setPackages(builtInNativePackages.entrySet());
+
+        // add package info into response
+        Gson gson = new Gson();
+        String json = gson.toJson(builtInNativePackages.values());
+        JsonParser parser = new JsonParser();
+        JsonArray packagesArray = parser.parse(json).getAsJsonArray();
+        response.add("packages", packagesArray);
+
+        ResponseMessage responseMessage = new ResponseMessage();
+        responseMessage.setId(message.getId());
+        responseMessage.setResult(response);
+        return gson.toJson(responseMessage);
+    }
+
+    /**
+     * Set packages.
+     *
+     * @param packages - packages set
+     */
+    private void setPackages(Set<Map.Entry<String, ModelPackage>> packages) {
+        this.packages = packages;
     }
 }
