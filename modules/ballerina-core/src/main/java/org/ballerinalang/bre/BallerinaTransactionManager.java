@@ -96,7 +96,7 @@ public class BallerinaTransactionManager {
     }
 
     public void commitTransactionBlock() {
-        if (transactionLevel == 1/* && *//*!this.transactionError*/) {
+        if (transactionLevel == 1) {
             commitNonXAConnections();
             closeAllConnections();
             commitXATransaction();
