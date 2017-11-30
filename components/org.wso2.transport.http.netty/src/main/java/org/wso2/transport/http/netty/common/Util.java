@@ -159,7 +159,7 @@ public class Util {
             int contentLength = cMsg.getFullMessageLength();
             if (contentLength > 0) {
                 cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
-            } else if (isMethodAllowed(cMsg.getProperty(Constants.HTTP_METHOD).toString())) {
+            } else if (isEntityBodyAllowed(cMsg.getProperty(Constants.HTTP_METHOD).toString())) {
                 cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(0));
             }
         }
@@ -169,7 +169,8 @@ public class Util {
         if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null && !cMsg.isEmpty())) {
             HttpContent httpContent = cMsg.peek();
             if (httpContent instanceof LastHttpContent) {
-                if (httpContent.content().readableBytes() == 0 && !isMethodAllowed(cMsg.getProperty(Constants.HTTP_METHOD).toString())) {
+                if (httpContent.content().readableBytes() == 0 &&
+                        !isEntityBodyAllowed(cMsg.getProperty(Constants.HTTP_METHOD).toString())) {
                     return;
                 }
             }
@@ -177,9 +178,9 @@ public class Util {
         }
     }
 
-    private static boolean isMethodAllowed(String method) {
+    private static boolean isEntityBodyAllowed(String method) {
         return method.equals(Constants.HTTP_POST_METHOD) || method.equals(Constants.HTTP_PUT_METHOD)
-                || method.equals(Constants.HTTP_PATCH_METHOD) || method.equals(Constants.HTTP_DELETE_METHOD);
+                || method.equals(Constants.HTTP_PATCH_METHOD);
     }
 
     /**
