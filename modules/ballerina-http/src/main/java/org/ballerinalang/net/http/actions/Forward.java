@@ -80,7 +80,7 @@ public class Forward extends AbstractHTTPAction {
 
     protected HTTPCarbonMessage createCarbonMsg(Context context) {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
-        String path = getStringArgument(context, 0);
+        String path = HttpUtil.sanitizeUri(getStringArgument(context, 0));
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
         if (requestStruct.getNativeData(Constants.INBOUND_REQUEST) == null) {
             throw new BallerinaException("invalid inbound request parameter");
