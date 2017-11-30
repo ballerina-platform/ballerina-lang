@@ -30,6 +30,7 @@ export const EVENTS = {
     UPDATE_TAB_TITLE: 'update-tab-title',
     UNDO_EVENT: 'undo-event',
     REDO_EVENT: 'redo-event',
+    ACTIVE_TAB_CHANGE: 'active-tab-change',
 };
 
 export const VIEWS = {

@@ -17,6 +17,8 @@
  */
 
 import React from 'react';
+import { EVENTS as BAL_PLUGIN_EVENTS } from 'plugins/ballerina/constants';
+import { EVENTS as EDITOR_EVENTS } from 'core/editor/constants';
 import ModelRenderer from './ModelRenderer';
 import './CodeExplorer.scss';
 
@@ -26,23 +28,49 @@ import './CodeExplorer.scss';
 class CodeExplorerPanel extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { ast: {} };
-        this.props.codeExplorerPlugin.appContext.command.on('ACTIVE_AST_CHANGED', (ast) => {
-            this.setState({
-                ast,
-            });
+        const activeEditor = this.props.codeExplorerPlugin.appContext.editor.getActiveEditor();
+        const ast = activeEditor && activeEditor.file ? activeEditor.file.getProperty('ast') : {};
+        this.state = { ast: ast || {} };
+        this.onActiveBalASTChange = this.onActiveBalASTChange.bind(this);
+        this.onTabChange = this.onTabChange.bind(this);
+    }
+
+    onActiveBalASTChange({ ast }) {
+        this.setState({
+            ast,
         });
+        this.forceUpdate();
+    }
+
+    onTabChange({ editor }) {
+        const ast = editor.file ? editor.file.getProperty('ast') : {};
+        this.setState({
+            ast,
+        });
+        this.forceUpdate();
+    }
+
+    componentDidMount() {
+        const { command: { on } } = this.props.codeExplorerPlugin.appContext;
+        on(BAL_PLUGIN_EVENTS.ACTIVE_BAL_AST_CHANGED, this.onActiveBalASTChange);
+        on(EDITOR_EVENTS.ACTIVE_TAB_CHANGE, this.onTabChange);
+    }
+
+    componentWillUnmount() {
+        const { command: { off } } = this.props.codeExplorerPlugin.appContext;
+        off(BAL_PLUGIN_EVENTS.ACTIVE_BAL_AST_CHANGED, this.onActiveBalASTChange);
+        off(EDITOR_EVENTS.ACTIVE_TAB_CHANGE, this.onTabChange);
     }
 
     render() {
         const { ast } = this.state;
-        if (ast.parseFailed) {
+        if (ast && ast.parseFailed) {
             return 'Parse failed';
         }
         return (
             <div className='code-explorer'>
                 <ModelRenderer
-                    model={ast.model}
+                    model={ast}
                     goToNode={node => this.props.codeExplorerPlugin.appContext.command.dispatch('go-to-node', node)}
                 />
             </div>
