@@ -88,16 +88,14 @@ public class CreateSessionIfAbsent extends AbstractNativeFunction {
                 }
                 if (session == null) {
                     session = SessionManager.getInstance().createHTTPSession(path);
-                }
-                //path Validity check
-                if (session != null && session.getPath().equals(path)) {
+                } else if (session != null && session.getPath().equals(path)) { //path validity check
                     session.setNew(false);
                     session.setAccessed();
                 } else {
                     throw new BallerinaException("Failed to get session: " + path + " is not an allowed path");
                 }
             } else {
-                //Cached session will return of this function is called twice.
+                //cached session will return of this function is called twice.
                 if (session != null) {
                     session = session.setAccessed();
                     return new BValue[]{createSessionStruct(context, session)};

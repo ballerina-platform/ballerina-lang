@@ -205,6 +205,26 @@ public class ServiceTest {
         Assert.assertTrue(stringDataSource.getValue().contains("unsupported media type"));
     }
 
+    @Test(description = "Test Http PATCH verb dispatching with a payload")
+    public void testPATCHMethodWithBody() {
+        String path = "/echo/modify";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "PATCH", "WSO2");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 204);
+    }
+
+    @Test(description = "Test Http PATCH verb dispatching without a payload")
+    public void testPATCHMethodWithoutBody() {
+        String path = "/echo/modify";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "PATCH");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 204);
+    }
+
     @AfterClass
     public void tearDown() {
         BServiceUtil.cleanup(compileResult);
