@@ -110,7 +110,7 @@ public class PetStoreWSClientTest {
      * @throws SSLException Exception when invoking the web socket service
      * @throws URISyntaxException Exception when invoking the web socket service
      */
-    @Test(description = "Testing @JsonNotification with a valid json request")
+    @Test(description = "Testing @JsonNotification with a valid json request", enabled = false)
     public void executeRequestForValidJson() throws InterruptedException, SSLException, URISyntaxException {
         WebSocketClient petStoreClient = new WebSocketClient(petStoreUrl);
         Assert.assertTrue(petStoreClient.handhshake());
@@ -133,7 +133,7 @@ public class PetStoreWSClientTest {
      * @throws SSLException Exception when invoking the web socket service
      * @throws URISyntaxException Exception when invoking the web socket service
      */
-    @Test(description = "Testing @JsonNotification with an invalid json request")
+    @Test(description = "Testing @JsonNotification with an invalid json request", enabled = false)
     public void executeRequestForInvalidJson() throws InterruptedException, SSLException, URISyntaxException {
         WebSocketClient petStoreClient = new WebSocketClient(petStoreUrl);
         Assert.assertTrue(petStoreClient.handhshake());
@@ -150,8 +150,8 @@ public class PetStoreWSClientTest {
             Thread.sleep(100);
         }
         Assert.assertTrue(parser.parse(receivedContent).equals(parser.parse(responseContent)),
-                "Invalid response received." + "\nRequested: " + requestContent + "\nExpected: " + responseContent +
-                        "\nActual: " + receivedContent);
+                "Invalid response received." + "\nRequested: " + requestContent + "\nExpected: "
+                        + responseContent + "\nActual: " + receivedContent);
     }
 
     /**
@@ -162,7 +162,8 @@ public class PetStoreWSClientTest {
      * @throws SSLException Exception when invoking the web socket service
      * @throws URISyntaxException Exception when invoking the web socket service
      */
-    @Test(dataProvider = "ComposerApiSamples", description = "Testing @JsonRequest which has a response")
+    @Test(dataProvider = "ComposerApiSamples", description = "Testing @JsonRequest which has a response",
+            enabled = false)
     public void executeRequest(String requestContent, String responseContent) throws InterruptedException,
             SSLException, URISyntaxException {
         WebSocketClient petStoreClient = new WebSocketClient(petStoreUrl);
@@ -177,10 +178,10 @@ public class PetStoreWSClientTest {
             Thread.sleep(100);
         }
         Assert.assertTrue(parser.parse(receivedContent).equals(parser.parse(responseContent)),
-                "Invalid response received." + "\nRequested: " + requestContent + "\nExpected: " + responseContent +
-                        "\nActual: " + receivedContent);
+                "Invalid response received." + "\nRequested: " + requestContent + "\nExpected: "
+                        + responseContent + "\nActual: " + receivedContent);
     }
-    
+
     /**
      * Stops all microservices.
      */
