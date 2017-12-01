@@ -492,6 +492,7 @@ class TreeUtil extends AbstractTreeUtil {
                     },
                     fileName: fileData.name,
                     filePath: fileData.path,
+                    fullPath: fileData.fullPath,
                     packageName: fileData.packageName,
                 };
 
@@ -503,7 +504,7 @@ class TreeUtil extends AbstractTreeUtil {
                 }
 
                 const varNameRegex = new RegExp(varPrefix + '[\\d]*');
-                const completions = response.result.filter((completionItem) => {
+                const completions = response.result.left.filter((completionItem) => {
                     // all variables have type as 9 as per the declaration in lang server
                     return (completionItem.kind === 9) && varNameRegex.test(completionItem.label);
                 });
