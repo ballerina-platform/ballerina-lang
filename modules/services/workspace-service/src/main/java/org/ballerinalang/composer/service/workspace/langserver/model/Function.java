@@ -162,7 +162,8 @@ public class Function {
 
     /**
      * Returns true if the function is public else false.
-     * @return
+     *
+     * @return {@link Boolean} whether the function is pubic or not
      */
     public boolean isPublic() {
         return isPublic;

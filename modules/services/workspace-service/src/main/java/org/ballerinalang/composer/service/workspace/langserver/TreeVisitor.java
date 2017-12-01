@@ -512,6 +512,7 @@ public class TreeVisitor extends BLangNodeVisitor {
     /**
      * Populate the symbols.
      * @param symbolEntries symbol entries
+     * @param symbolEnv     Current symbol Environment
      */
     public void populateSymbols(Map<Name, Scope.ScopeEntry> symbolEntries, SymbolEnv symbolEnv) {
         if (symbolEnv != null) {

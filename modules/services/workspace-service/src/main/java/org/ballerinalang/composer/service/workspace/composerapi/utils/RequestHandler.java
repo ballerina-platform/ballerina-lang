@@ -79,7 +79,7 @@ public class RequestHandler {
      *
      * @param serviceAsEndpoint Endpoint service
      * @param jsonrpcRequest    Request message
-     * @return
+     * @return {@link String}   Response as a String
      */
     public String handlerRequest(Endpoint serviceAsEndpoint, RequestMessage jsonrpcRequest) {
         ResponseMessage jsonrpcResponse = null;
@@ -108,7 +108,6 @@ public class RequestHandler {
      *
      * @param serviceAsEndpoint Endpoint service
      * @param jsonrpcRequest    Request message
-     * @return
      */
     public void handlerNotification(Endpoint serviceAsEndpoint, RequestMessage jsonrpcRequest) {
         JsonRpcMethod delegateMethod = getDelegateMethod(jsonrpcRequest.getMethod());
