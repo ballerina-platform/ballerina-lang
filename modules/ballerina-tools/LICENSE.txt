@@ -13,25 +13,25 @@ below is and where the actual text of the license can be found.
 
 Name                                                                            Type           License   
 ---------------------------------------------------------------------------------------------------------
-antlr4-runtime-4.5.1.wso2v1.jar                                                 bundle         bsd       11767     
-apache-mime4j-core-0.7.2.jar                                                    bundle         apache2   2112      
-atomikos-3.8.0.wso2v1.jar                                                       bundle         apache2   12348     
-axiom-api-1.2.20.jar                                                            bundle         apache2   2111      
-axiom-dom-1.2.20.jar                                                            bundle         apache2   2219      
-axiom-impl-1.2.20.jar                                                           bundle         apache2   2110      
-ballerina-builtin-0.95.2.jar                                                    jar            apache2   2387
-ballerina-config-0.95.2.jar                                                     jar            apache2   2386
-ballerina-container-support-0.95.2.jar                                          jar            apache2   2392
-ballerina-core-0.95.2.jar                                                       jar            apache2   2385
-ballerina-http-0.95.2.jar                                                       jar            apache2   2384
-ballerina-lang-0.95.2.jar                                                       jar            apache2   2383
-ballerina-launcher-0.95.2.jar                                                   jar            apache2   2382
-ballerina-logging-0.95.2.jar                                                    jar            apache2   2381
-ballerina-packerina-0.95.2.jar                                                  jar            apache2   2391
+antlr4-runtime-4.5.1.wso2v1.jar                                                 bundle         bsd       11767
+apache-mime4j-core-0.7.2.jar                                                    bundle         apache2   2112
+atomikos-3.8.0.wso2v1.jar                                                       bundle         apache2   12348
+axiom-api-1.2.20.jar                                                            bundle         apache2   2111
+axiom-dom-1.2.20.jar                                                            bundle         apache2   2219
+axiom-impl-1.2.20.jar                                                           bundle         apache2   2110
+ballerina-builtin-0.95.3.jar                                                    jar            apache2   2400
+ballerina-config-0.95.3.jar                                                     jar            apache2   2399
+ballerina-container-support-0.95.3.jar                                          jar            apache2   2405
+ballerina-core-0.95.3.jar                                                       jar            apache2   2398
+ballerina-http-0.95.3.jar                                                       jar            apache2   2397
+ballerina-lang-0.95.3.jar                                                       jar            apache2   2396
+ballerina-launcher-0.95.3.jar                                                   jar            apache2   2395
+ballerina-logging-0.95.3.jar                                                    jar            apache2   2394
+ballerina-packerina-0.95.3.jar                                                  jar            apache2   2404
 commons-lang3-3.5.jar                                                           bundle         apache2   2105
 commons-logging-1.2.jar                                                         bundle         apache2   1702
 commons-pool-1.5.6.wso2v1.jar                                                   bundle         apache2   5589
-docerina-0.95.2.jar                                                             jar            apache2   2390
+docerina-0.95.3.jar                                                             jar            apache2   2403
 geronimo-activation_1.1_spec-1.1.jar                                            bundle         apache2   2103
 geronimo-stax-api_1.0_spec-1.0.1.jar                                            bundle         apache2   635
 HikariCP-2.5.1.jar                                                              bundle         apache2   2101
@@ -54,7 +54,7 @@ netty-resolver-4.1.16.Final.jar                                                 
 netty-transport-4.1.16.Final.jar                                                bundle         apache2   2339
 org.wso2.carbon.core-5.1.0.jar                                                  bundle         apache2   11763
 org.wso2.carbon.messaging-2.3.7.jar                                             bundle         apache2   12373
-org.wso2.transport.http.netty-6.0.52.jar                                        bundle         apache2   14024
+org.wso2.transport.http.netty-6.0.54.jar                                        bundle         apache2   14025
 quartz-2.3.0.jar                                                                bundle         apache2   2337
 quartz-jobs-2.3.0.jar                                                           jar            apache2   2338
 Saxon-HE-9.7.0.wso2v1.jar                                                       bundle         mpl10     11756
@@ -62,9 +62,9 @@ slf4j-api-1.7.22.jar                                                            
 slf4j-jdk14-1.7.22.jar                                                          bundle         mit       2131
 snakeyaml-1.16.0.wso2v1.jar                                                     bundle         apache2   11755
 staxon-core-1.2.0.wso2v2.jar                                                    bundle         apache2   11754
-swagger-ballerina-generator-0.95.2.jar                                          jar            apache2   2389
-testerina-core-0.95.2.jar                                                       jar            apache2   2388
-workspace-service-0.95.2.jar                                                    jar            apache2   2393
+swagger-ballerina-generator-0.95.3.jar                                          jar            apache2   2402
+testerina-core-0.95.3.jar                                                       jar            apache2   2401
+workspace-service-0.95.3.jar                                                    jar            apache2   2406
 
 
 
