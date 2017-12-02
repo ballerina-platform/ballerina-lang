@@ -751,7 +751,9 @@ public class DocumentationUtils {
         Map<String, String> extensionTypeEnumMap = new HashMap<>();
         for (Field field : ExtensionType.class.getDeclaredFields()) {
             try {
-                extensionTypeEnumMap.put(field.getName(), ((ExtensionType) field.get(null)).getValue());
+                if (field.isEnumConstant()) {
+                    extensionTypeEnumMap.put(field.getName(), ((ExtensionType) field.get(null)).getValue());
+                }
             } catch (IllegalAccessException ignored) {  // Ignoring inaccessible variables
             }
         }
