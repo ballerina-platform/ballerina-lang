@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -52,20 +53,22 @@ public class GetFormParams extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         try {
             BStruct requestStruct  = ((BStruct) getRefArgument(context, 0));
-            //TODO check below line
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
                     .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
+
             String contentType = httpCarbonMessage.getHeader(Constants.CONTENT_TYPE);
             if (contentType != null && contentType.contains(Constants.APPLICATION_FORM)) {
                 String payload;
-                if (httpCarbonMessage.isAlreadyRead()) {
-                    payload = httpCarbonMessage.getMessageDataSource().getMessageAsString();
+                if (requestStruct.getNativeData(HttpUtil.MESSAGE_DATA_SOURCE) != null) {
+                    MessageDataSource messageDataSource = (MessageDataSource) requestStruct
+                            .getNativeData(HttpUtil.MESSAGE_DATA_SOURCE);
+                    payload = messageDataSource.getMessageAsString();
                 } else {
                     payload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(httpCarbonMessage)
                             .getInputStream());
                     StringDataSource stringDataSource = new StringDataSource(payload);
-                    httpCarbonMessage.setMessageDataSource(stringDataSource);
-                    httpCarbonMessage.setAlreadyRead(true);
+
+                    requestStruct.addNativeData(HttpUtil.MESSAGE_DATA_SOURCE, stringDataSource);
                 }
                 if (!payload.isEmpty()) {
                     return getBValues(HttpUtil.getParamMap(payload));

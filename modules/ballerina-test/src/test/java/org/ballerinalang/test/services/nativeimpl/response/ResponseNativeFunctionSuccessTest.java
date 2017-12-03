@@ -86,7 +86,7 @@ public class ResponseNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get(key).asText(), value);
     }
 
@@ -94,11 +94,12 @@ public class ResponseNativeFunctionSuccessTest {
     public void testCloneMethod() {
         BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
+
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        cMsg.setMessageDataSource(dataSource);
-        cMsg.setAlreadyRead(true);
+        HttpUtil.addMessageDataSource(response, dataSource);
+
         cMsg.setHeader(Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
         String propertyName = "wso2";
         String propertyValue = "Ballerina";
@@ -123,7 +124,7 @@ public class ResponseNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("lang").asText(), value);
     }
 
@@ -132,11 +133,12 @@ public class ResponseNativeFunctionSuccessTest {
     public void testGetBinaryPayloadMethod() {
         BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
+
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        cMsg.setMessageDataSource(dataSource);
-        cMsg.setAlreadyRead(true);
+        HttpUtil.addMessageDataSource(response, dataSource);
+
         HttpUtil.addCarbonMsg(response, cMsg);
         BValue[] inputArg = {response};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetBinaryPayload", inputArg);
@@ -149,11 +151,12 @@ public class ResponseNativeFunctionSuccessTest {
     public void testGetContentLength() {
         BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
+
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        cMsg.setMessageDataSource(dataSource);
-        cMsg.setAlreadyRead(true);
+        HttpUtil.addMessageDataSource(response, dataSource);
+
         cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(payload.length()));
         HttpUtil.addCarbonMsg(response, cMsg);
         BValue[] inputArg = {response};
@@ -172,7 +175,7 @@ public class ResponseNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("value").asText(), length);
     }
 
@@ -200,7 +203,7 @@ public class ResponseNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("value").asText(), value);
     }
 
@@ -208,11 +211,12 @@ public class ResponseNativeFunctionSuccessTest {
     public void testGetJsonPayload() {
         BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
+
         String payload = "{'code':'123'}";
         BallerinaMessageDataSource dataSource = new BJSON(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        cMsg.setMessageDataSource(dataSource);
-        cMsg.setAlreadyRead(true);
+        HttpUtil.addMessageDataSource(response, dataSource);
+
         cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
         HttpUtil.addCarbonMsg(response, cMsg);
         BValue[] inputArg = {response};
@@ -258,7 +262,7 @@ public class ResponseNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("value").asText(), propertyValue);
     }
 
@@ -267,10 +271,11 @@ public class ResponseNativeFunctionSuccessTest {
         BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String payload = "ballerina";
+
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        cMsg.setMessageDataSource(dataSource);
-        cMsg.setAlreadyRead(true);
+        HttpUtil.addMessageDataSource(response, dataSource);
+
         HttpUtil.addCarbonMsg(response, cMsg);
         BValue[] inputArg = {response};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
@@ -294,11 +299,12 @@ public class ResponseNativeFunctionSuccessTest {
     public void testGetXmlPayload() {
         BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
+
         String payload = "<name>ballerina</name>";
         BallerinaMessageDataSource dataSource = new BXMLItem(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        cMsg.setMessageDataSource(dataSource);
-        cMsg.setAlreadyRead(true);
+        HttpUtil.addMessageDataSource(response, dataSource);
+
         HttpUtil.addCarbonMsg(response, cMsg);
         BValue[] inputArg = {response};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
@@ -344,7 +350,7 @@ public class ResponseNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNull(bJson.value().get("value").textValue());
     }
 
@@ -374,7 +380,7 @@ public class ResponseNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNull(bJson.value().get("value").textValue());
     }
 
@@ -409,7 +415,7 @@ public class ResponseNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("value").asText(), String.valueOf(100));
     }
 
@@ -443,7 +449,7 @@ public class ResponseNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         HTTPCarbonMessage responseMsg = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
-        BJSON bJson = ((BJSON) responseMsg.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
     }
 
@@ -515,7 +521,7 @@ public class ResponseNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         HTTPCarbonMessage responseMsg = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
-        BXMLItem xmlValue = (BXMLItem) responseMsg.getMessageDataSource();
+        BXMLItem xmlValue = new BXMLItem(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertEquals(xmlValue.getTextValue().stringValue(), "Ballerina"
                 , "Payload is not set properly");
     }

@@ -17,11 +17,8 @@
  */
 package org.ballerinalang.test.services.testutils;
 
-import org.ballerinalang.net.http.Constants;
-import org.ballerinalang.runtime.message.StringDataSource;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
 /**
@@ -30,13 +27,14 @@ import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 public class TestErrorHandler implements ServerConnectorErrorHandler {
     @Override
     public void handleError(Exception exception, CarbonMessage carbonMessage, CarbonCallback carbonCallback) {
-        DefaultCarbonMessage response = new DefaultCarbonMessage();
-        if (exception.getMessage() != null) {
-            response.setMessageDataSource(new StringDataSource(exception.getMessage()));
-        }
-        response.setProperty(Constants.HTTP_STATUS_CODE,
-                carbonMessage.getProperty(Constants.HTTP_STATUS_CODE));
-        carbonCallback.done(response);
+//        DefaultCarbonMessage response = new DefaultCarbonMessage();
+//        if (exception.getMessage() != null) {
+//            response.setMessageDataSource(new StringDataSource(exception.getMessage()));
+//            response.addMessageBody(new );
+//        }
+//        response.setProperty(Constants.HTTP_STATUS_CODE,
+//                carbonMessage.getProperty(Constants.HTTP_STATUS_CODE));
+//        carbonCallback.done(response);
     }
 
     @Override
