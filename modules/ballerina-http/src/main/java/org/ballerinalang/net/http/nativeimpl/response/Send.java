@@ -49,7 +49,9 @@ public class Send extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct responseStruct = (BStruct) getRefArgument(context, 0);
+
         HttpUtil.checkFunctionValidity(responseStruct);
+
         HTTPCarbonMessage responseMessage = HttpUtil
                 .getCarbonMsg(responseStruct, HttpUtil.createHttpCarbonMessage(false));
         HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct

@@ -74,11 +74,9 @@ import java.util.Set;
 public class HttpUtil {
     private static final Logger log = LoggerFactory.getLogger(HttpUtil.class);
 
-    private static final String TRANSPORT_MESSAGE = "transportMessage";
     public static final String MESSAGE_DATA_SOURCE = "messageDataSource";
     private static final String METHOD_ACCESSED = "isMethodAccessed";
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
-
 
     public static BValue[] addHeader(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
@@ -148,7 +146,7 @@ public class HttpUtil {
                     result = (BJSON) payload;
                 } else {
                     // else, build the JSON from the string representation of the payload.
-                    result = new BJSON(httpCarbonMessage.getMessageDataSource().getMessageAsString());
+                    result = new BJSON(payload.getMessageAsString());
                 }
             } else {
                 result = new BJSON(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
@@ -513,7 +511,7 @@ public class HttpUtil {
 
     public static HTTPCarbonMessage getCarbonMsg(BStruct struct, HTTPCarbonMessage defaultMsg) {
         HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) struct
-                .getNativeData(TRANSPORT_MESSAGE);
+                .getNativeData(Constants.TRANSPORT_MESSAGE);
         if (httpCarbonMessage != null) {
             return httpCarbonMessage;
         }
@@ -522,7 +520,7 @@ public class HttpUtil {
     }
 
     public static void addCarbonMsg(BStruct struct, HTTPCarbonMessage httpCarbonMessage) {
-        struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
+        struct.addNativeData(Constants.TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
     public static void addMessageDataSource(BStruct struct, MessageDataSource messageDataSource) {
