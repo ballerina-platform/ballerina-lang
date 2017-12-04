@@ -41,7 +41,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
 
-    private final int awaitTime = 100;
+    private final int awaitTimeInSecs = 10;
     private final int clientCount = 5;
     private final WebSocketClient[] wsClients = new WebSocketClient[clientCount];
     private ServerInstance ballerinaServer;
@@ -50,7 +50,8 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
     @BeforeClass
     private void setup() throws Exception {
         // Initiating WebSocket remote server for pass through check.
-        webSocketRemoteServer = new WebSocketRemoteServer(15500);
+        int remoteServerPort = 15500;
+        webSocketRemoteServer = new WebSocketRemoteServer(remoteServerPort);
         webSocketRemoteServer.run();
 
         // Initializing ballerina server instance.
@@ -64,7 +65,6 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
         for (int i = 0; i < clientCount; i++) {
             wsClients[i] = new WebSocketClient("ws://localhost:9090/proxy/ws");
         }
-
         handshakeAllClients(wsClients);
     }
 
@@ -72,13 +72,12 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
     public void testFullTextMediation() throws Exception {
         for (int i = 0; i < clientCount; i++) {
             final int clientNo = i;
-            String expectedMessage = "client service: " + i;
-            await().atMost(awaitTime, SECONDS).until(() -> {
+            final String expectedMessage = "client service: " + i;
+            await().atMost(awaitTimeInSecs, SECONDS).until(() -> {
                 wsClients[clientNo].sendText(clientNo + "");
                 return expectedMessage.equals(wsClients[clientNo].getTextReceived());
             });
         }
-
     }
 
     @Test(priority = 1)
@@ -86,28 +85,27 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
         WebSocketClient client = wsClients[0];
 
         // Test ping and receive pong from server
-        await().atMost(awaitTime, SECONDS).until(() -> {
+        await().atMost(awaitTimeInSecs, SECONDS).until(() -> {
             client.sendPing(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
             return client.isPong();
-
         });
 
         // Test ping and receive pong from remote server when ballerina client send a ping
         final String expectedPongMessage = "remote_server_pong";
-        await().atMost(awaitTime, SECONDS).until(() -> {
+        await().atMost(awaitTimeInSecs, SECONDS).until(() -> {
             client.sendText("client_ping");
             return expectedPongMessage.equals(client.getTextReceived());
         });
 
         // Test ping received from server
-        await().atMost(awaitTime, SECONDS).until(() -> {
+        await().atMost(awaitTimeInSecs, SECONDS).until(() -> {
             client.sendText("ping");
             return client.isPing();
         });
 
         // Test ping received from remote server
         final String expectedPingMessage = "remote_server_ping";
-        await().atMost(awaitTime, SECONDS).until(() -> {
+        await().atMost(awaitTimeInSecs, SECONDS).until(() -> {
             client.sendText("client_ping_req");
             return expectedPingMessage.equals(client.getTextReceived());
         });
@@ -115,7 +113,7 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
 
     @Test(priority = 2)
     public void testRemoteConnectionClosureFromRemoteClient() throws InterruptedException {
-        await().atMost(awaitTime, SECONDS).until(() -> {
+        await().atMost(awaitTimeInSecs, SECONDS).until(() -> {
             wsClients[0].shutDown();
             return !wsClients[0].isOpen();
         });
@@ -132,7 +130,7 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
 
     @Test(priority = 3)
     public void testRemoteConnectionClosureFromBallerina() throws InterruptedException {
-        await().atMost(awaitTime, SECONDS).until(() -> {
+        await().atMost(awaitTimeInSecs, SECONDS).until(() -> {
             wsClients[1].sendText("closeMe");
             return !wsClients[1].isOpen();
         });
