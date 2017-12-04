@@ -35,6 +35,7 @@ export const TOOLS = {
 
 export const DIALOGS = {
     OPEN_PROGRAM_DIR_CONFIRM: 'composer.dialog.ballerina.open-program-dir-confirm',
+    FIX_PACKAGE_NAME_OR_PATH_CONFIRM: 'composer.dialog.ballerina.fix-package-name-or-path-confirm',
 };
 
 export const EVENTS = {

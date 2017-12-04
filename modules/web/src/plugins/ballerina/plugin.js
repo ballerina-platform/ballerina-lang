@@ -28,7 +28,9 @@ import Editor from './views/editor-wrapper';
 import { PLUGIN_ID, EDITOR_ID, DOC_VIEW_ID, COMMANDS as COMMAND_IDS, TOOLS as TOOL_IDS,
             DIALOGS as DIALOG_IDS, EVENTS } from './constants';
 import OpenProgramDirConfirmDialog from './dialogs/OpenProgramDirConfirmDialog';
+import FixPackageNameOrPathConfirmDialog from './dialogs/FixPackageNameOrPathConfirmDialog';
 import { getLangServerClientInstance } from './langserver/lang-server-client-controller';
+import { isInCorrectPath, getCorrectPackageForPath, getCorrectPathForPackage } from './utils/program-dir-utils';
 
 /**
  * Plugin for Ballerina Lang
@@ -130,8 +132,27 @@ class BallerinaPlugin extends Plugin {
                 {
                     cmdID: EVENTS.UPDATE_PACKAGE_DECLARATION,
                     handler: ({ packageName, file }) => {
-                        if (packageName) {
-                            // TODO
+                        if (file.isPersisted && !isInCorrectPath(packageName, file.path)) {
+                            const { workspace, command: { dispatch } } = this.appContext;
+                            if (workspace.isFilePathOpenedInExplorer(file.fullPath)) {
+                                const programDir = workspace.getExplorerFolderForPath(file.fullPath).fullPath;
+                                const correctPkg = getCorrectPackageForPath(programDir, file.path);
+                                const correctPath = getCorrectPathForPackage(programDir, packageName);
+                                dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
+                                    id: DIALOG_IDS.FIX_PACKAGE_NAME_OR_PATH_CONFIRM,
+                                    additionalProps: {
+                                        file,
+                                        correctPkg,
+                                        correctPath,
+                                        onMoveFile: () => {
+                                            console.log('move file');
+                                        },
+                                        onFixPackage: () => {
+                                            console.log('fix package');
+                                        },
+                                    },
+                                });
+                            }
                         }
                     },
                 },
@@ -205,7 +226,16 @@ class BallerinaPlugin extends Plugin {
                     component: OpenProgramDirConfirmDialog,
                     propsProvider: () => {
                         return {
-                            workspaceManager: this,
+                            ballerinaPlugin: this,
+                        };
+                    },
+                },
+                {
+                    id: DIALOG_IDS.FIX_PACKAGE_NAME_OR_PATH_CONFIRM,
+                    component: FixPackageNameOrPathConfirmDialog,
+                    propsProvider: () => {
+                        return {
+                            ballerinaPlugin: this,
                         };
                     },
                 },
