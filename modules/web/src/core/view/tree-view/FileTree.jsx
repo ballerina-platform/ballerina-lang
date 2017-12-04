@@ -238,7 +238,7 @@ class FileTree extends React.Component {
             );
         };
         return (
-            <div className="file-tree">
+            <div className='file-tree'>
                 {folders.map((childNode) => {
                     return renderNode(childNode, undefined);
                 })}

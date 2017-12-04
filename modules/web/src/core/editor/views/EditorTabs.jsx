@@ -160,7 +160,7 @@ class EditorTabs extends View {
                             customClass={editor.customTitleClass}
                         />
                     }
-                    data-extra="tabpane"
+                    data-extra='tabpane'
                     key={file.fullPath}
                 >
                     <definition.component
@@ -191,10 +191,10 @@ class EditorTabs extends View {
             return (
                 <TabPane
                     tab={
-                        <div data-extra="tab-bar-title" className={`tab-title-wrapper ${editor.customTitleClass}`}>
+                        <div data-extra='tab-bar-title' className={`tab-title-wrapper ${editor.customTitleClass}`}>
                             <button
-                                type="button"
-                                className="close close-tab pull-right"
+                                type='button'
+                                className='close close-tab pull-right'
                                 onClick={(evt) => {
                                     this.onTabClose(editor);
                                     evt.stopPropagation();
@@ -207,7 +207,7 @@ class EditorTabs extends View {
                             {_.isFunction(title) ? title(finalProps) : title}
                         </div>
                     }
-                    data-extra="tabpane"
+                    data-extra='tabpane'
                     key={id}
                 >
                     <Scrollbars
@@ -245,7 +245,7 @@ class EditorTabs extends View {
                     tab={
                         <EditorTabTitle editor={editor} onTabClose={this.onPreviewTabClose} />
                     }
-                    data-extra="tabpane"
+                    data-extra='tabpane'
                     key='preview-view'
                 >
                     <div className='editor-split-view' style={{ ...dimensions }}>
@@ -262,11 +262,11 @@ class EditorTabs extends View {
                         <div
                             className='bottom-right-controls-container split-view-controls-container'
                         >
-                            <div className="view-split-view-btn btn-icon" onClick={this.onPreviewTabClose}>
-                                <div className="bottom-label-icon-wrapper">
-                                    <i className="fw fw-code fw-inverse" />
+                            <div className='view-split-view-btn btn-icon' onClick={this.onPreviewTabClose}>
+                                <div className='bottom-label-icon-wrapper'>
+                                    <i className='fw fw-code fw-inverse' />
                                 </div>
-                                <div className="bottom-view-label">
+                                <div className='bottom-view-label'>
                                     Close Split View
                                 </div>
                             </div>
@@ -290,10 +290,10 @@ class EditorTabs extends View {
         });
 
         const previewTab = this.renderPreviewTab();
-        return (<div className="editor-area">
+        return (<div className='editor-area'>
             <SplitPane
                 ref={(ref) => { this.previewSplitRef = ref; }}
-                split="vertical"
+                split='vertical'
                 allowResize={this.state.previewPanelEnabled}
                 minSize={
                     this.state.previewPanelEnabled && !(activeEditor instanceof CustomEditor)
@@ -322,7 +322,7 @@ class EditorTabs extends View {
                     });
                 }
                 }
-                primary="second"
+                primary='second'
                 pane1Style={{
                     maxWidth: this.props.width -
                         (this.state.previewPanelEnabled && !(activeEditor instanceof CustomEditor)
