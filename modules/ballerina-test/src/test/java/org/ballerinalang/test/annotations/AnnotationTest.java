@@ -53,7 +53,7 @@ public class AnnotationTest {
                 .getAttributeValueArray()[0];
         attributeValue = firstElement.getAnnotationAttachmentValue()
                 .getAttributeValue("name").getStringValue();
-        Assert.assertEquals(attributeValue, "paramName3");
+        Assert.assertEquals(attributeValue, "paramName");
 
         AnnAttributeValue secondElement = attachmentInfos[0].getAttributeValue("queryParamValue")
                 .getAttributeValueArray()[1];
@@ -65,7 +65,7 @@ public class AnnotationTest {
                 .getAttributeValueArray()[2];
         attributeValue = thirdElement.getAnnotationAttachmentValue()
                 .getAttributeValue("name").getStringValue();
-        Assert.assertEquals(attributeValue, "paramName");
+        Assert.assertEquals(attributeValue, "paramName3");
 
         Assert.assertEquals(attachmentInfos[1].getAttributeValue("value").getStringValue(),
                 "test @Args annotation");
@@ -190,7 +190,7 @@ public class AnnotationTest {
                 .getAttributeValue("queryParamValue").getAttributeValueArray();
         Assert.assertEquals(annotationArray.length, 3, "Wrong annotation array length");
 
-        String attributeValue = annotationArray[2]
+        String attributeValue = annotationArray[0]
                 .getAnnotationAttachmentValue().getAttributeValue("name").getStringValue();
         Assert.assertEquals(attributeValue, "paramName");
 
@@ -198,7 +198,7 @@ public class AnnotationTest {
                 .getAnnotationAttachmentValue().getAttributeValue("name").getStringValue();
         Assert.assertEquals(attributeValue, "paramName2");
 
-        attributeValue = annotationArray[0]
+        attributeValue = annotationArray[2]
                 .getAnnotationAttachmentValue().getAttributeValue("name").getStringValue();
         Assert.assertEquals(attributeValue, "paramName3");
 
