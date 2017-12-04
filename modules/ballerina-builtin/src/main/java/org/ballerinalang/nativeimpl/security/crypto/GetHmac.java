@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.nativeimpl.crypto;
+package org.ballerinalang.nativeimpl.security.crypto;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
