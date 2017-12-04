@@ -52,6 +52,17 @@ class ModelRenderer extends React.Component {
             {node.name.value}
         </li>);
     }
+
+    renderTransformer(node) {
+        let transformerName = node.name.value;
+        if (!transformerName) {
+            transformerName = node.getSignature();
+        }
+        return (<li key={transformerName} onClick={() => this.goToNode(node)}>
+            <i className='fw fw-transformer' /> {transformerName}
+        </li>);
+    }
+
     renderDefaultNode(node) {
         return (<li key={node.name.value} onClick={() => this.goToNode(node)}><i className={`fw fw-${node.kind.toLowerCase()}`} />
             {node.name.value}
@@ -63,6 +74,8 @@ class ModelRenderer extends React.Component {
                 return this.renderService(node);
             case 'Function':
                 return this.renderFunction(node);
+            case 'Transformer':
+                return this.renderTransformer(node);
             case 'Import':
                 return null;
             case 'PackageDeclaration':
