@@ -176,11 +176,11 @@ class App extends React.Component {
      * @inheritdoc
      */
     render() {
-        const {showBottomPanel, bottomPanelSize} = this.state;
+        const { showBottomPanel, bottomPanelSize } = this.state;
         const renderedBottomPanelSize = showBottomPanel ? bottomPanelSize : 0;
 
         return (
-            <div className="" onContextMenu={() => false}>
+            <div className='' onContextMenu={() => false}>
                 <Header
                     views={this.getViewsForRegion(REGIONS.HEADER)}
                     panelResizeInProgress={this.state.panelResizeInProgress}
@@ -195,8 +195,8 @@ class App extends React.Component {
                 />
                 <SplitPane
                     ref={(ref) => { this.leftRightSplitPane = ref; }}
-                    split="vertical"
-                    className="left-right-split-pane"
+                    split='vertical'
+                    className='left-right-split-pane'
                     allowResize={this.state.showLeftPanel}
                     minSize={this.state.showLeftPanel ? leftPanelDefaultSize : leftPanelClosedSize}
                     maxSize={leftPanelMaxSize}
@@ -246,9 +246,9 @@ class App extends React.Component {
                     />
                     <SplitPane
                         ref={(ref) => { this.topBottomSplitPane = ref; }}
-                        className="top-bottom-split-pane"
-                        split="horizontal"
-                        primary="second"
+                        className='top-bottom-split-pane'
+                        split='horizontal'
+                        primary='second'
                         minSize={this.state.showBottomPanel ? bottomPanelDefaultSize : 0}
                         maxSize={bottomPanelMaxSize}
                         defaultSize={renderedBottomPanelSize}
@@ -341,6 +341,7 @@ App.childContextTypes = {
         showError: PropTypes.func,
     }).isRequired,
     editor: PropTypes.shape({
+        getSupportedExtensions: PropTypes.func,
         isFileOpenedInEditor: PropTypes.func,
         getEditorByID: PropTypes.func,
         setActiveEditor: PropTypes.func,

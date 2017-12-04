@@ -23,8 +23,8 @@ import { COMMANDS } from './../constants';
 
 /**
  * Enable implicit features of views including reRender upon plugin re-render.
- * @param {Reac.Component} View 
- * @param {String} pluginID 
+ * @param {Reac.Component} View
+ * @param {String} pluginID
  */
 export function withViewFeatures(View, pluginID) {
     class ViewWrapper extends React.Component {
@@ -96,8 +96,8 @@ export function createViewFromViewDef(viewDef, additionalProps) {
 /**
  * Inject apis into context.
  *
- * @param {Reac.Component} Dialog 
- * @param {Object} appContext 
+ * @param {Reac.Component} Dialog
+ * @param {Object} appContext
  */
 export function withDialogContext(Dialog, appContext) {
     class DialogWrapper extends React.Component {
@@ -139,6 +139,7 @@ export function withDialogContext(Dialog, appContext) {
             showError: PropTypes.func,
         }).isRequired,
         editor: PropTypes.shape({
+            getSupportedExtensions: PropTypes.func,
             isFileOpenedInEditor: PropTypes.func,
             getEditorByID: PropTypes.func,
             setActiveEditor: PropTypes.func,

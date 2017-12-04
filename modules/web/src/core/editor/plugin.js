@@ -140,6 +140,9 @@ class EditorPlugin extends Plugin {
             isFileOpenedInEditor: this.isFileOpenedInEditor.bind(this),
             setActiveEditor: this.setActiveEditor.bind(this),
             closeEditor: this.closeTab.bind(this),
+            getSupportedExtensions: () => {
+                return this.editorDefinitions.map(editorDef => editorDef.extension);
+            },
         };
     }
 
