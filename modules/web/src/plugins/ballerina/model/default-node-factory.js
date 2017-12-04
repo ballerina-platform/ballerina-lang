@@ -378,46 +378,45 @@ class DefaultNodeFactory {
 
     createFunctionInvocationStatement(args) {
         let node;
-        if (args.functionDef.getReturnParams().length > 0) {
-            node = getNodeForFragment(FragmentUtils.createStatementFragment('var var1 = timeRef.addDuration(0,0,0,0,0,0,0);'));
-        } else {
-            node = getNodeForFragment(FragmentUtils.createStatementFragment('requestRef.addHeader("","");'));
-        }
+        let stmtString;
+
         const { functionDef, packageName, fullPackageName } = args;
+
+        if (functionDef.getReturnParams().length > 0) {
+            const varRefNames = args.functionDef.getReturnParams().map((param, index) => {
+                return 'variable' + index + 1;
+            });
+            stmtString = `var ${varRefNames.join(', ')} = `;
+        }
 
         if (functionDef.getReceiverType()) {
             const receiverName = _.toLower(functionDef.getReceiverType()) + 'Ref';
-            node.getExpression().getExpression().getVariableName().setValue(receiverName);
+            stmtString += `${receiverName}.function1(`;
+        } else {
+            stmtString += 'function1(';
         }
 
-        // Iterate over the parameters
-        if (functionDef.getParameters()) {
-            let parameters = [];
-            functionDef.getParameters().map((param) => {
+        if (functionDef.getParameters().length > 0) {
+            const params = functionDef.getParameters().map((param) => {
                let defaultValue = Environment.getDefaultValue(param.type);
                if (defaultValue === undefined) {
                    defaultValue = '{}';
                }
-               const paramNode = getNodeForFragment(FragmentUtils.createExpressionFragment(defaultValue));
-               parameters.push(paramNode.getVariable().getInitialExpression());
+               return defaultValue;
            });
-            node.getExpression().setArgumentExpressions(parameters);
+           stmtString += params.join(', ');
         }
 
-        // Iterate over the return types
-        const varRefNames = args.functionDef.getReturnParams().map((param, index) => {
-            return 'variable' + index + 1;
-        });
-        if (varRefNames.length > 0) {
-            const varRefListString = `var ${varRefNames.join(', ')} = function1();`;
-            const returnNode = getNodeForFragment(FragmentUtils.createStatementFragment(varRefListString));
-            node.setVariables(returnNode.getVariables());
-        }
+        stmtString += ');';
+
+        node = getNodeForFragment(FragmentUtils.createStatementFragment(stmtString));
+
         node.getExpression().getName().setValue(functionDef.getName());
         if (packageName && packageName !== 'Current Package' && packageName !== 'builtin') {
              node.getExpression().getPackageAlias().setValue(packageName);
          }
         node.getExpression().setFullPackageName(fullPackageName);
+
         return node;
     }
 }
