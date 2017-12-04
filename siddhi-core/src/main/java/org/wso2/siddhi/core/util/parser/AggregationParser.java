@@ -170,8 +170,9 @@ public class AggregationParser {
             // Create group by key generator
             GroupByKeyGenerator groupByKeyGenerator = null;
             if (groupBy) {
-                groupByKeyGenerator = new GroupByKeyGenerator(groupByVariableList, processedMetaStreamEvent, tableMap,
-                        processVariableExpressionExecutors, siddhiAppContext, aggregatorName);
+                groupByKeyGenerator = new GroupByKeyGenerator(groupByVariableList, processedMetaStreamEvent,
+                        SiddhiConstants.UNKNOWN_STATE, tableMap, processVariableExpressionExecutors, siddhiAppContext,
+                        aggregatorName);
             }
 
             // Create new scheduler
@@ -632,7 +633,7 @@ public class AggregationParser {
                 if (ordinalOfPrevDuration != sortedDurations.get(i).ordinal() - 1) {
                     TimePeriod.Duration[] allDurations = TimePeriod.Duration.values();
                     throw new OperationNotSupportedException("Expected " + allDurations[ordinalOfPrevDuration + 1] +
-                    " after " + allDurations[ordinalOfPrevDuration] + ", but found " + sortedDurations.get(i));
+                            " after " + allDurations[ordinalOfPrevDuration] + ", but found " + sortedDurations.get(i));
                 }
                 ordinalOfPrevDuration = sortedDurations.get(i).ordinal();
             }

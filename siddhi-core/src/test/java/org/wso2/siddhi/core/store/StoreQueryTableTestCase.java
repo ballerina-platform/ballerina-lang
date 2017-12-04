@@ -322,4 +322,42 @@ public class StoreQueryTableTestCase {
         AssertJUnit.assertEquals(1, events.length);
         AssertJUnit.assertEquals("IBM", events[0].getData()[0]);
     }
+
+    @Test
+    public void test9() throws InterruptedException {
+        log.info("Test9 table");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long);" +
+                "@PrimaryKey('symbol') " +
+                "define table StockTable (symbol string, price float, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+
+        siddhiAppRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
+        Thread.sleep(500);
+
+        Event[] events = siddhiAppRuntime.query("" +
+                "from StockTable " +
+                "on volume > 10 " +
+                "select symbol, price, volume " +
+                "order by price " +
+                "limit 2 ");
+        EventPrinter.print(events);
+        AssertJUnit.assertEquals(2, events.length);
+        AssertJUnit.assertEquals(55.6F, events[0].getData()[1]);
+        AssertJUnit.assertEquals(75.6f, events[1].getData()[1]);
+    }
 }

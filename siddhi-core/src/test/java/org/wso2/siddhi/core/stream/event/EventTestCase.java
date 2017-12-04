@@ -110,9 +110,9 @@ public class EventTestCase {
         Attribute volume = new Attribute("volume", Attribute.Type.INT);
 
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
-        metaStreamEvent.addOutputData(symbol);
-        metaStreamEvent.addOutputData(price);
-        metaStreamEvent.addOutputData(volume);
+        metaStreamEvent.addOutputDataAllowingDuplicate(symbol);
+        metaStreamEvent.addOutputDataAllowingDuplicate(price);
+        metaStreamEvent.addOutputDataAllowingDuplicate(volume);
 
 
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type

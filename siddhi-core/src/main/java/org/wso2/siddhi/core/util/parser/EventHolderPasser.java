@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.util.parser;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
@@ -44,7 +45,8 @@ import java.util.Map;
 public class EventHolderPasser {
     private static final Logger log = Logger.getLogger(EventHolderPasser.class);
 
-    public static EventHolder parse(AbstractDefinition tableDefinition, StreamEventPool tableStreamEventPool) {
+    public static EventHolder parse(AbstractDefinition tableDefinition, StreamEventPool tableStreamEventPool,
+                                    SiddhiAppContext siddhiAppContext) {
         ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
 
         PrimaryKeyReferenceHolder[] primaryKeyReferenceHolders = null;
@@ -109,7 +111,7 @@ public class EventHolderPasser {
 
             }
             return new IndexEventHolder(tableStreamEventPool, eventConverter, primaryKeyReferenceHolders, isNumeric,
-                    indexMetaData);
+                    indexMetaData, tableDefinition, siddhiAppContext);
         } else {
             return new ListEventHolder(tableStreamEventPool, eventConverter);
         }

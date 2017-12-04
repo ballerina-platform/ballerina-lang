@@ -70,6 +70,7 @@ import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateOrInsertStr
 import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateSet;
 import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
 import org.wso2.siddhi.query.api.execution.query.selection.BasicSelector;
+import org.wso2.siddhi.query.api.execution.query.selection.OrderByAttribute;
 import org.wso2.siddhi.query.api.execution.query.selection.OutputAttribute;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
@@ -1565,6 +1566,12 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         if (ctx.having() != null) {
             selector.having((Expression) visit(ctx.having()));
         }
+        if (ctx.order_by() != null) {
+            selector.addOrderByList((List<OrderByAttribute>) visit(ctx.order_by()));
+        }
+        if (ctx.limit() != null) {
+            selector.limit((Constant) visit(ctx.limit()));
+        }
         populateQueryContext(selector, ctx);
         return selector;
     }
@@ -1595,6 +1602,55 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     @Override
     public Expression visitHaving(@NotNull SiddhiQLParser.HavingContext ctx) {
         return (Expression) visit(ctx.expression());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     */
+    @Override
+    public List<OrderByAttribute> visitOrder_by(SiddhiQLParser.Order_byContext ctx) {
+        List<OrderByAttribute> orderByAttributes = new ArrayList<OrderByAttribute>(ctx.order_by_reference().size());
+        for (SiddhiQLParser.Order_by_referenceContext order_by_referenceContext : ctx.order_by_reference()) {
+            OrderByAttribute orderByAttribute = (OrderByAttribute) visit(order_by_referenceContext);
+            orderByAttributes.add(orderByAttribute);
+        }
+        return orderByAttributes;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     */
+    @Override
+    public OrderByAttribute visitOrder_by_reference(SiddhiQLParser.Order_by_referenceContext ctx) {
+        Variable variable = (Variable) visit(ctx.attribute_reference());
+        if (ctx.order() != null && ctx.order().DESC() != null) {
+            return new OrderByAttribute(variable, OrderByAttribute.Order.DESC);
+        }
+        return new OrderByAttribute(variable);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     */
+    @Override
+    public Constant visitLimit(SiddhiQLParser.LimitContext ctx) {
+        Expression expression = (Expression) visit(ctx.expression());
+        if (expression instanceof Constant) {
+            populateQueryContext(expression, ctx);
+            return (Constant) expression;
+        } else {
+            throw newSiddhiParserException(ctx,
+                    "'limit' only accepts int and long constants but found '" + expression + "'");
+        }
     }
 
     /**
@@ -1739,9 +1795,9 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 //        ;
 
         if (ctx.ALL() != null) {
-                return OutputStream.OutputEventType.ALL_EVENTS;
+            return OutputStream.OutputEventType.ALL_EVENTS;
         } else if (ctx.EXPIRED() != null) {
-                return OutputStream.OutputEventType.EXPIRED_EVENTS;
+            return OutputStream.OutputEventType.EXPIRED_EVENTS;
         } else {
             return OutputStream.OutputEventType.CURRENT_EVENTS;
         }

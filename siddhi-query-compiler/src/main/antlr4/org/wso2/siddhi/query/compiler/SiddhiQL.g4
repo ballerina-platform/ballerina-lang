@@ -358,7 +358,7 @@ group_by_query_selection
     ;
 
 query_section
-    : (SELECT ('*'| (output_attribute (',' output_attribute)* ))) group_by? having?
+    : (SELECT ('*'| (output_attribute (',' output_attribute)* ))) group_by? having? order_by? limit?
     ;
 
 group_by
@@ -367,6 +367,22 @@ group_by
 
 having
     : HAVING expression
+    ;
+
+order_by
+    : ORDER BY order_by_reference (',' order_by_reference )*
+    ;
+
+order_by_reference
+    : attribute_reference order?
+    ;
+
+order
+    : ASC | DESC
+    ;
+
+limit
+    : LIMIT expression
     ;
 
 query_output
@@ -574,6 +590,10 @@ keyword
     | SELECT
     | GROUP
     | BY
+    | ORDER
+    | ASC
+    | DESC
+    | LIMIT
     | HAVING
     | INSERT
     | DELETE
@@ -749,6 +769,10 @@ WINDOW:   W I N D O W;
 SELECT:   S E L E C T;
 GROUP:    G R O U P;
 BY:       B Y;
+ORDER:    O R D E R;
+LIMIT:    L I M I T;
+ASC:      A S C;
+DESC:     D E S C;
 HAVING:   H A V I N G;
 INSERT:   I N S E R T;
 DELETE:   D E L E T E;

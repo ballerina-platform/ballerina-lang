@@ -93,6 +93,15 @@ public class MetaStreamEvent implements MetaComplexEvent {
         if (outputData == null) {
             outputData = new ArrayList<Attribute>();
         }
+        if (!outputData.contains(attribute)) {
+            outputData.add(attribute);
+        }
+    }
+
+    public void addOutputDataAllowingDuplicate(Attribute attribute) {
+        if (outputData == null) {
+            outputData = new ArrayList<Attribute>();
+        }
         outputData.add(attribute);
     }
 

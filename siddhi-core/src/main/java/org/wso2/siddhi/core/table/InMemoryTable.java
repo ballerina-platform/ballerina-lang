@@ -67,7 +67,7 @@ public class InMemoryTable extends Table implements Snapshotable {
         this.tableDefinition = tableDefinition;
         this.tableStreamEventCloner = storeEventCloner;
 
-        eventHolder = EventHolderPasser.parse(tableDefinition, storeEventPool);
+        eventHolder = EventHolderPasser.parse(tableDefinition, storeEventPool, siddhiAppContext);
 
         if (elementId == null) {
             elementId = "InMemoryTable-" + siddhiAppContext.getElementIdGenerator().createNewId();

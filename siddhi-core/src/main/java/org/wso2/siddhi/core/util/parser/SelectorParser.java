@@ -22,10 +22,12 @@ import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEventAttribute;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.GroupByKeyGenerator;
+import org.wso2.siddhi.core.query.selector.OrderByEventComparator;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.query.selector.attribute.processor.AttributeProcessor;
 import org.wso2.siddhi.core.table.Table;
@@ -93,7 +95,21 @@ public class SelectorParser {
         containsAggregatorThreadLocal.remove();
         if (!selector.getGroupByList().isEmpty()) {
             querySelector.setGroupByKeyGenerator(new GroupByKeyGenerator(selector.getGroupByList(), metaComplexEvent,
-                    null, variableExpressionExecutors, siddhiAppContext, queryName));
+                    SiddhiConstants.UNKNOWN_STATE, null, variableExpressionExecutors, siddhiAppContext,
+                    queryName));
+        }
+        if (!selector.getOrderByList().isEmpty()) {
+            querySelector.setOrderByEventComparator(new OrderByEventComparator(selector.getOrderByList(), metaComplexEvent,
+                    SiddhiConstants.HAVING_STATE, null, variableExpressionExecutors, siddhiAppContext,
+                    queryName));
+        }
+        if (selector.getLimit() != null) {
+            ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression((Expression) selector.getLimit(),
+                    metaComplexEvent, SiddhiConstants.HAVING_STATE, tableMap, variableExpressionExecutors,
+                    siddhiAppContext, false, 0, queryName);
+            containsAggregatorThreadLocal.remove();
+            querySelector.setLimit(((Number)
+                    (((ConstantExpressionExecutor) expressionExecutor).getValue())).longValue());
         }
         return querySelector;
     }
@@ -169,19 +185,19 @@ public class SelectorParser {
                 // value at conversion stage
                 VariableExpressionExecutor executor = ((VariableExpressionExecutor) expressionExecutor);
                 if (metaComplexEvent instanceof MetaStateEvent) {
-                    ((MetaStateEvent) metaComplexEvent).addOutputData(new MetaStateEventAttribute(executor
+                    ((MetaStateEvent) metaComplexEvent).addOutputDataAllowingDuplicate(new MetaStateEventAttribute(executor
                             .getAttribute(), executor.getPosition()));
                 } else {
-                    ((MetaStreamEvent) metaComplexEvent).addOutputData(executor.getAttribute());
+                    ((MetaStreamEvent) metaComplexEvent).addOutputDataAllowingDuplicate(executor.getAttribute());
                 }
                 outputDefinition.attribute(outputAttribute.getRename(), ((VariableExpressionExecutor)
                         expressionExecutor).getAttribute().getType());
             } else {
                 //To maintain output variable positions
                 if (metaComplexEvent instanceof MetaStateEvent) {
-                    ((MetaStateEvent) metaComplexEvent).addOutputData(null);
+                    ((MetaStateEvent) metaComplexEvent).addOutputDataAllowingDuplicate(null);
                 } else {
-                    ((MetaStreamEvent) metaComplexEvent).addOutputData(null);
+                    ((MetaStreamEvent) metaComplexEvent).addOutputDataAllowingDuplicate(null);
                 }
                 AttributeProcessor attributeProcessor = new AttributeProcessor(expressionExecutor);
                 attributeProcessor.setOutputPosition(i);
