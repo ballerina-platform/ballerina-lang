@@ -26,7 +26,7 @@ import { CLASSES } from 'plugins/ballerina/views/constants';
 import Document from 'plugins/ballerina/docerina/document.jsx';
 import Editor from './views/editor-wrapper';
 import { PLUGIN_ID, EDITOR_ID, DOC_VIEW_ID, COMMANDS as COMMAND_IDS, TOOLS as TOOL_IDS,
-            DIALOGS as DIALOG_IDS } from './constants';
+            DIALOGS as DIALOG_IDS, EVENTS } from './constants';
 import OpenProgramDirConfirmDialog from './dialogs/OpenProgramDirConfirmDialog';
 import { getLangServerClientInstance } from './langserver/lang-server-client-controller';
 
@@ -127,6 +127,14 @@ class BallerinaPlugin extends Plugin {
                 },
             ],
             [HANDLERS]: [
+                {
+                    cmdID: EVENTS.UPDATE_PACKAGE_DECLARATION,
+                    handler: ({ packageName, file }) => {
+                        if (packageName) {
+                            // TODO
+                        }
+                    },
+                },
                 {
                     cmdID: WORKSPACE_EVENTS.FILE_OPENED,
                     handler: ({ file }) => {

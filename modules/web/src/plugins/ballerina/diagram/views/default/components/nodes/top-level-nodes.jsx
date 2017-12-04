@@ -19,6 +19,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { packageDefinition } from '../../designer-defaults';
+import { EVENTS } from '../../../../../constants';
 import './package-definition.css';
 import ImportDeclaration from './import-node';
 import ImportDeclarationExpanded from './import-declaration-expanded';
@@ -117,9 +118,10 @@ class TopLevelNodes extends React.Component {
         this.setState({ packageNameEditing: false });
         this.props.model.trigger('tree-modified', {
             origin: this.props.model,
-            type: 'Package name changed',
+            type: EVENTS.UPDATE_PACKAGE_DECLARATION,
             title: 'Package name changed',
             data: {
+                packageName: this.packageDefValue,
                 node: this.props.model,
             },
         });
@@ -232,8 +234,8 @@ class TopLevelNodes extends React.Component {
         this.props.model.viewState.packageDefExpanded = true;
         this.props.model.trigger('tree-modified', {
             origin: this.props.model,
-            type: 'Package name changed',
-            title: 'Package name changed',
+            type: 'Package editing enabled',
+            title: 'Package editing enabled',
             data: {
                 node: this.props.model,
             },
