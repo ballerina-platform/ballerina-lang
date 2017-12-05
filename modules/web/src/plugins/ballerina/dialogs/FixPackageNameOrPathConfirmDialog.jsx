@@ -101,12 +101,12 @@ class FixPackageNameOrPathConfirmDialog extends React.Component {
                                 {`Package declaration for "${file.name + '.' + file.extension}" is incorrect.`}
                             </h4>
                             <p>
-                                {`Following fixes are possible with respective to program dir at ${programDir}.`}
-                                <ul>
-                                    <li>{`Save and move file to correct directory at ${correctPath}.`}</li>
-                                    <li>{`Change package to ${correctPkg}.`}</li>
-                                </ul>
+                                {`Following fixes are possible with respective to program dir at ${programDir}`}
                             </p>
+                            <ul>
+                                <li>{`Save and move file to correct directory at ${correctPath}`}</li>
+                                <li>{`Change package to ${correctPkg}`}</li>
+                            </ul>
                         </Col>
                     </Row>
                 </Grid>
