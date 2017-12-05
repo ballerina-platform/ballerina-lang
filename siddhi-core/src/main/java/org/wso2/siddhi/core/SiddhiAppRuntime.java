@@ -122,6 +122,8 @@ public class SiddhiAppRuntime {
 
     public SiddhiAppRuntime(Map<String, AbstractDefinition> streamDefinitionMap,
                             Map<String, AbstractDefinition> tableDefinitionMap,
+                            Map<String, AbstractDefinition> windowDefinitionMap,
+                            Map<String, AbstractDefinition> aggregationDefinitionMap,
                             InputManager inputManager,
                             Map<String, QueryRuntime> queryProcessorMap,
                             Map<String, StreamJunction> streamJunctionMap,
@@ -135,6 +137,8 @@ public class SiddhiAppRuntime {
                             Map<String, SiddhiAppRuntime> siddhiAppRuntimeMap) {
         this.streamDefinitionMap = streamDefinitionMap;
         this.tableDefinitionMap = tableDefinitionMap;
+        this.windowDefinitionMap = windowDefinitionMap;
+        this.aggregationDefinitionMap = aggregationDefinitionMap;
         this.inputManager = inputManager;
         this.queryProcessorMap = queryProcessorMap;
         this.streamJunctionMap = streamJunctionMap;
