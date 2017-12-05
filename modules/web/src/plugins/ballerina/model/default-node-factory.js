@@ -340,28 +340,30 @@ class DefaultNodeFactory {
 
     createConnectorActionInvocationAssignmentStatement(args) {
         let node;
-        if (args.action.getReturnParams().length > 0) {
-            node = getNodeForFragment(FragmentUtils.createStatementFragment('var var1 = __endpoint1.select("",{});'));
-        } else {
-            node = getNodeForFragment(FragmentUtils.createStatementFragment(' __endpoint1.close();'));
-        }
+        let stmtString = '';
         const { action, packageName, fullPackageName } = args;
-        const parameters = [];
-        // Iterate through the params
-        if (action.getParameters()) {
-            action.getParameters().map((param) => {
-                let defaultValue = Environment.getDefaultValue(param.type);
-                if (defaultValue === undefined) {
-                    defaultValue = '{}';
-                }
-                const paramNode = getNodeForFragment(FragmentUtils.createExpressionFragment(defaultValue));
-                parameters.push(paramNode.getVariable().getInitialExpression());
-            });
-            node.getExpression().setArgumentExpressions(parameters);
+
+        if (action.getReturnParams().length > 0) {
+            stmtString = 'var var1 = ';
         }
-        // Iterate through the return types
-        const varRefNames = args.action.getReturnParams().map((param, index) => {
-            return '_output' + index + 1;
+        stmtString += 'endpoint1.action1();';
+
+        node = getNodeForFragment(FragmentUtils.createStatementFragment(stmtString));
+
+        if (action.getParameters().length > 0) {
+            const parameters = action.getParameters().map((param) => {
+               let defaultValue = Environment.getDefaultValue(param.type);
+               if (defaultValue === undefined) {
+                   defaultValue = '{}';
+               }
+               const paramNode = getNodeForFragment(FragmentUtils.createExpressionFragment(defaultValue));
+               return paramNode.getVariable().getInitialExpression();
+           });
+           node.getExpression().setArgumentExpressions(parameters);
+        }
+
+        const varRefNames = action.getReturnParams().map((param, index) => {
+            return 'variable' + index + 1;
         });
 
         if (varRefNames.length > 0) {
@@ -369,6 +371,7 @@ class DefaultNodeFactory {
             const returnNode = getNodeForFragment(FragmentUtils.createStatementFragment(varRefListString));
             node.setVariables(returnNode.getVariables());
         }
+
         node.getExpression().getName().setValue(action.getName());
         node.getExpression().setFullPackageName(fullPackageName);
         node.getExpression().invocationType = 'ACTION';
@@ -378,43 +381,53 @@ class DefaultNodeFactory {
 
     createFunctionInvocationStatement(args) {
         let node;
-        let stmtString;
+        let stmtString = '';
 
         const { functionDef, packageName, fullPackageName } = args;
 
         if (functionDef.getReturnParams().length > 0) {
-            const varRefNames = args.functionDef.getReturnParams().map((param, index) => {
-                return 'variable' + index + 1;
-            });
-            stmtString = `var ${varRefNames.join(', ')} = `;
+            stmtString += 'var var1 = ';
         }
 
         if (functionDef.getReceiverType()) {
-            const receiverName = _.toLower(functionDef.getReceiverType()) + 'Ref';
-            stmtString += `${receiverName}.function1(`;
+            stmtString += 'typeRef.function1();';
         } else {
-            stmtString += 'function1(';
+            stmtString += 'function1();';
         }
 
+        node = getNodeForFragment(FragmentUtils.createStatementFragment(stmtString));
+
         if (functionDef.getParameters().length > 0) {
-            const params = functionDef.getParameters().map((param) => {
+            const parameters = functionDef.getParameters().map((param) => {
                let defaultValue = Environment.getDefaultValue(param.type);
                if (defaultValue === undefined) {
                    defaultValue = '{}';
                }
-               return defaultValue;
+               const paramNode = getNodeForFragment(FragmentUtils.createExpressionFragment(defaultValue));
+               return paramNode.getVariable().getInitialExpression();
            });
-           stmtString += params.join(', ');
+           node.getExpression().setArgumentExpressions(parameters);
         }
 
-        stmtString += ');';
+        const varRefNames = functionDef.getReturnParams().map((param, index) => {
+            return 'variable' + index + 1;
+        });
 
-        node = getNodeForFragment(FragmentUtils.createStatementFragment(stmtString));
+        if (varRefNames.length > 0) {
+            const varRefListString = `var ${varRefNames.join(', ')} = function1();`;
+            const returnNode = getNodeForFragment(FragmentUtils.createStatementFragment(varRefListString));
+            node.setVariables(returnNode.getVariables());
+        }
+
+        if (functionDef.getReceiverType()) {
+            const receiverName = _.toLower(functionDef.getReceiverType()) + 'Ref';
+            node.getExpression().getExpression().getVariableName().setValue(receiverName);
+        }
 
         node.getExpression().getName().setValue(functionDef.getName());
         if (packageName && packageName !== 'Current Package' && packageName !== 'builtin') {
-             node.getExpression().getPackageAlias().setValue(packageName);
-         }
+            node.getExpression().getPackageAlias().setValue(packageName);
+        }
         node.getExpression().setFullPackageName(fullPackageName);
 
         return node;
