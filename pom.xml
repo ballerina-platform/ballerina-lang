@@ -4,7 +4,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>plugin-vscode</artifactId>
     <packaging>pom</packaging>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.95.1-SNAPSHOT</version>
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -46,6 +46,6 @@
     </build>
     <properties>
         <langserver.launcher.id>language-server-stdio-launcher</langserver.launcher.id>
-        <langserver.launcher.version>0.1-SNAPSHOT</langserver.launcher.version>
+        <langserver.launcher.version>0.95.1-SNAPSHOT</langserver.launcher.version>
     </properties>
 </project>
