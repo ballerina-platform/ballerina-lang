@@ -142,6 +142,7 @@ class BallerinaPlugin extends Plugin {
                                     id: DIALOG_IDS.FIX_PACKAGE_NAME_OR_PATH_CONFIRM,
                                     additionalProps: {
                                         file,
+                                        programDir,
                                         correctPkg,
                                         correctPath,
                                         onMoveFile: () => {

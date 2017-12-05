@@ -57,11 +57,11 @@ class FixPackageNameOrPathConfirmDialog extends React.Component {
      * @inheritdoc
      */
     render() {
-        const { file, correctPkg, correctPath } = this.props;
+        const { file, correctPkg, correctPath, programDir } = this.props;
         return (
             <Dialog
                 show={this.state.showDialog}
-                title='Invalid Package Path/Name'
+                title='Invalid Package Name for file path'
                 actions={
                 [
                     <Button
@@ -73,7 +73,7 @@ class FixPackageNameOrPathConfirmDialog extends React.Component {
                             this.props.onMoveFile();
                         }}
                     >
-                        Move File
+                        Save & Move
                     </Button>,
                     <Button
                         key='fix-btn'
@@ -84,7 +84,7 @@ class FixPackageNameOrPathConfirmDialog extends React.Component {
                             this.props.onFixPackage();
                         }}
                     >
-                        Fix Package
+                        Change Package
                     </Button>,
                 ]}
                 closeAction
@@ -94,14 +94,18 @@ class FixPackageNameOrPathConfirmDialog extends React.Component {
                 <Grid fluid>
                     <Row>
                         <Col md={2}>
-                            <i className='fw fw-4x fw-info' />
+                            <i className='fw fw-4x fw-info warning' />
                         </Col>
                         <Col md={10}>
                             <h4 style={{ marginTop: 0 }}>
-                                {`Package Path and Name of file "${file.name + '.' + file.extension}" does not match.`}
+                                {`Package declaration for "${file.name + '.' + file.extension}" is incorrect.`}
                             </h4>
                             <p>
-                                {`You can either move the file to correct folder at ${correctPath} or fix package as ${correctPkg}.`}
+                                {`Following fixes are possible with respective to program dir at ${programDir}.`}
+                                <ul>
+                                    <li>{`Save and move file to correct directory at ${correctPath}.`}</li>
+                                    <li>{`Change package to ${correctPkg}.`}</li>
+                                </ul>
                             </p>
                         </Col>
                     </Row>
@@ -114,6 +118,7 @@ class FixPackageNameOrPathConfirmDialog extends React.Component {
 FixPackageNameOrPathConfirmDialog.propTypes = {
     file: PropTypes.objectOf(Object).isRequired,
     correctPkg: PropTypes.string.isRequired,
+    programDir: PropTypes.string.isRequired,
     correctPath: PropTypes.string.isRequired,
     onMoveFile: PropTypes.func.isRequired,
     onFixPackage: PropTypes.func.isRequired,
