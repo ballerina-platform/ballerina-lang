@@ -93,6 +93,7 @@ public class LocalFSWorkspace implements Workspace {
 
     @Override
     public void move(String src, String dest) throws IOException {
+        Files.createDirectories(Paths.get(dest).getParent());
         Files.move(Paths.get(src), Paths.get(dest));
     }
 
