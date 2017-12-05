@@ -214,6 +214,7 @@ class BallerinaFileEditor extends React.Component {
             this.props.commandProxy.dispatch(EVENTS.UPDATE_PACKAGE_DECLARATION, {
                 packageName: evt.data.packageName,
                 file: this.props.file,
+                ast: this.state.model,
             });
         }
     }

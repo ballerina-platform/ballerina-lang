@@ -15,12 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import _ from 'lodash';
+import log from 'log';
 import Plugin from 'core/plugin/plugin';
 import { parseFile } from 'api-client/api-client';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
 import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
-import { EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
+import { EVENTS as WORKSPACE_EVENTS, COMMANDS as WORKSPACE_CMDS } from 'core/workspace/constants';
+import { createOrUpdate, move } from 'core/workspace/fs-util';
 import SourceEditor from 'plugins/ballerina/views/source-editor';
 import { CLASSES } from 'plugins/ballerina/views/constants';
 import Document from 'plugins/ballerina/docerina/document.jsx';
@@ -31,6 +33,8 @@ import OpenProgramDirConfirmDialog from './dialogs/OpenProgramDirConfirmDialog';
 import FixPackageNameOrPathConfirmDialog from './dialogs/FixPackageNameOrPathConfirmDialog';
 import { getLangServerClientInstance } from './langserver/lang-server-client-controller';
 import { isInCorrectPath, getCorrectPackageForPath, getCorrectPathForPackage } from './utils/program-dir-utils';
+import TreeBuilder from './model/tree-builder';
+import FragmentUtils from './utils/fragment-utils';
 
 /**
  * Plugin for Ballerina Lang
@@ -131,13 +135,60 @@ class BallerinaPlugin extends Plugin {
             [HANDLERS]: [
                 {
                     cmdID: EVENTS.UPDATE_PACKAGE_DECLARATION,
-                    handler: ({ packageName, file }) => {
+                    handler: ({ packageName, file, ast }) => {
                         if (file.isPersisted && !isInCorrectPath(packageName, file.path)) {
-                            const { workspace, command: { dispatch } } = this.appContext;
+                            const { editor, workspace, command: { dispatch } } = this.appContext;
                             if (workspace.isFilePathOpenedInExplorer(file.fullPath)) {
                                 const programDir = workspace.getExplorerFolderForPath(file.fullPath).fullPath;
                                 const correctPkg = getCorrectPackageForPath(programDir, file.path);
                                 const correctPath = getCorrectPathForPackage(programDir, packageName);
+                                const onMoveFile = () => {
+                                    // File is already persisted
+                                    createOrUpdate(file.path, file.name + '.' + file.extension, file.content)
+                                    .then((success) => {
+                                        if (success) {
+                                            file.isDirty = false;
+                                            file.lastPersisted = _.now();
+                                            return move(file.fullPath, correctPath + file.name + '.' + file.extension)
+                                                .then((sucess) => {
+                                                    if (sucess) {
+                                                        // if the old file was opened in an editor, close it and reopen a new tab
+                                                        if (editor.isFileOpenedInEditor(file.fullPath)) {
+                                                            const targetEditor = editor.getEditorByID(file.fullPath);
+                                                            const wasActive = editor.getActiveEditor().id === targetEditor.id;
+                                                            dispatch(WORKSPACE_CMDS.OPEN_FILE, {
+                                                                filePath: correctPath + file.name + '.' + file.extension,
+                                                                activate: wasActive,
+                                                            });
+                                                            editor.closeEditor(targetEditor, wasActive ? editor.getActiveEditor() : undefined);
+                                                        }
+                                                        workspace.refreshPathInExplorer(correctPath);
+                                                    }
+                                                });
+                                        } else {
+                                            throw new Error('Error while saving file ' + file.fullPath);
+                                        }
+                                    })
+                                    .catch((error) => {
+                                        log.error(error);
+                                    });
+                                };
+
+                                const onFixPackage = () => {
+                                    const pkgName = `package ${correctPkg};`;
+                                    const fragment = FragmentUtils.createTopLevelNodeFragment(pkgName);
+                                    const parsedJson = FragmentUtils.parseFragment(fragment);
+                                    // If there's no packageDeclaration node, then create one
+                                    if (ast.filterTopLevelNodes({ kind: 'PackageDeclaration' }).length === 0) {
+                                        ast.addTopLevelNodes(TreeBuilder.build(parsedJson), 0);
+                                    } else {
+                                        // If a packageDeclaratioNode already exists then remove that node, and add a new one
+                                        const pkgDeclarationNode = ast.filterTopLevelNodes({ kind: 'PackageDeclaration' })[0];
+                                        ast.removeTopLevelNodes(pkgDeclarationNode, true);
+                                        ast.addTopLevelNodes(TreeBuilder.build(parsedJson), 0);
+                                    }
+                                };
+
                                 dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
                                     id: DIALOG_IDS.FIX_PACKAGE_NAME_OR_PATH_CONFIRM,
                                     additionalProps: {
@@ -145,12 +196,8 @@ class BallerinaPlugin extends Plugin {
                                         programDir,
                                         correctPkg,
                                         correctPath,
-                                        onMoveFile: () => {
-                                            console.log('move file');
-                                        },
-                                        onFixPackage: () => {
-                                            console.log('fix package');
-                                        },
+                                        onMoveFile,
+                                        onFixPackage,
                                     },
                                 });
                             }

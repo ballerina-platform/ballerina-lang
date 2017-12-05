@@ -54,8 +54,8 @@ export function getCorrectPathForPackage(programDir, pkgName) {
     const pathSep = getPathSeperator();
     const pkgPart = pkgName.split(PKG_SEP).join(pathSep);
     return programDir.endsWith(pathSep)
-        ? programDir + pkgPart
-        : programDir + pathSep + pkgPart;
+        ? programDir + pkgPart + pathSep
+        : programDir + pathSep + pkgPart + pathSep;
 }
 
 /**
