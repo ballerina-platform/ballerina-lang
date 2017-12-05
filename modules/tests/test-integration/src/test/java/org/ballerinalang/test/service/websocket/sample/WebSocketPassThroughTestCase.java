@@ -61,7 +61,7 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
                                  "websocket" + File.separator + "SimpleProxyServer.bal").getAbsolutePath();
         ballerinaServer.startBallerinaServer(balFilePath);
 
-        // Initializing WebSocket clients.
+        // Initializing and handshaking WebSocket clients.
         for (int i = 0; i < clientCount; i++) {
             wsClients[i] = new WebSocketClient("ws://localhost:9090/proxy/ws");
         }
