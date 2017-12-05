@@ -27,7 +27,7 @@ import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -49,7 +49,7 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
 
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
-        final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Collections.singletonList("("));
+        final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
         res.getCapabilities().setCompletionProvider(new CompletionOptions());
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
         res.getCapabilities().setSignatureHelpProvider(signatureHelpOptions);

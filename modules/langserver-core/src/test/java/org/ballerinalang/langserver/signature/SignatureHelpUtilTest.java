@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.signature;
 
 import org.eclipse.lsp4j.Position;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -31,12 +32,19 @@ import java.nio.file.Paths;
  */
 public class SignatureHelpUtilTest {
     private static final ClassLoader CLASS_LOADER = SignatureHelpUtilTest.class.getClassLoader();
-    @Test(description = "Test get callable unit name")
-    public void getCallableItemNameTest() throws URISyntaxException, IOException {
+    @Test(description = "Test get callable unit name", dataProvider = "positionData")
+    public void getCallableItemNameTest(Position position, String funcName) throws URISyntaxException, IOException {
         URI fileLocation = CLASS_LOADER.getResource("signature" + File.separator + "util"
                 + File.separator + "testUtil.bal").toURI();
         String stringContent = new String(Files.readAllBytes(Paths.get(fileLocation)));
-        Position position = new Position(1, 31);
-        Assert.assertEquals("test_function_name", SignatureHelpUtil.getCallableItemName(position, stringContent));
+        Assert.assertEquals(funcName, SignatureHelpUtil.getCallableItemName(position, stringContent));
+    }
+
+    @DataProvider(name = "positionData")
+    public Object[][] getPositions() {
+        return new Object[][]{
+                {new Position(2, 65), "testFunction"},
+                {new Position(2, 60), "testFunction"},
+                {new Position(2, 42), "test2"}};
     }
 }

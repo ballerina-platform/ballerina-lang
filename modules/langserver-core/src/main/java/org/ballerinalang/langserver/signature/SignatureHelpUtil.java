@@ -28,14 +28,21 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
  * Utility functions for the signature help.
  */
 public class SignatureHelpUtil {
+
+    private static final String OPEN_BRACKET = "(";
+    private static final String CLOSE_BRACKET = ")";
+    private static final String COMMA = ",";
+    private static final List<String> TERMINAL_CHARACTERS = Arrays.asList(OPEN_BRACKET, COMMA, ".");
 
     /**
      * Get the name of the callable item. This ideally should be a ballerina function.
@@ -50,20 +57,27 @@ public class SignatureHelpUtil {
         // Here add offset of 2 since the indexing is zero based
         String[] lineTokens = fileContent.split("\\r?\\n", lineNumber + 2);
         String line = lineTokens[lineNumber];
-        int counter = character - 2;
-        String callableItemName = "";
+
+        int backTrackPosition = character - 1;
+        Stack<String> closeBracketStack = new Stack<>();
+
+
         while (true) {
-            if (counter < 0) {
-                return callableItemName;
+            if (backTrackPosition < 0) {
+                return "";
             }
-            char c = line.charAt(counter);
-            if (!(Character.isLetterOrDigit(c) || ("" + c).equals("_"))) {
-                callableItemName = line.substring(counter + 1, character - 1);
-                break;
+            String currentToken = Character.toString(line.charAt(backTrackPosition));
+            if (CLOSE_BRACKET.equals(currentToken)) {
+                closeBracketStack.push(CLOSE_BRACKET);
+            } else if (OPEN_BRACKET.equals(currentToken)) {
+                if (!closeBracketStack.isEmpty()) {
+                    closeBracketStack.pop();
+                } else {
+                    return getFunctionName(line, backTrackPosition - 1);
+                }
             }
-            counter--;
+            backTrackPosition--;
         }
-        return callableItemName;
     }
 
     /**
@@ -123,6 +137,24 @@ public class SignatureHelpUtil {
             signatureInformationList.add(signatureInformation);
         });
         return signatureInformationList;
+    }
+
+    private static String getFunctionName(String line, int startPosition) {
+        int counter = startPosition;
+        String callableItemName = "";
+        while (true) {
+            if (counter < 0) {
+                return callableItemName;
+            }
+            char c = line.charAt(counter);
+            if (!(Character.isLetterOrDigit(c)
+                    || "_".equals(Character.toString(c))) || TERMINAL_CHARACTERS.contains(Character.toString(c))) {
+                callableItemName = line.substring(counter + 1, startPosition + 1);
+                break;
+            }
+            counter--;
+        }
+        return callableItemName;
     }
 
     private static class SignatureParamInfo {
