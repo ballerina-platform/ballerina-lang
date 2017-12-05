@@ -59,8 +59,10 @@ import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
 import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.AggregationDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.definition.WindowDefinition;
 import org.wso2.siddhi.query.api.exception.SiddhiAppContextException;
 import org.wso2.siddhi.query.api.execution.query.StoreQuery;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
@@ -94,6 +96,12 @@ public class SiddhiAppRuntime {
     private Map<String, AbstractDefinition> tableDefinitionMap =
             new ConcurrentHashMap<String,
                     AbstractDefinition>(); // Contains table definition.
+    private Map<String, AbstractDefinition> windowDefinitionMap =
+            new ConcurrentHashMap<String,
+                    AbstractDefinition>(); // Contains window definition.
+    private Map<String, AbstractDefinition> aggregationDefinitionMap =
+            new ConcurrentHashMap<String,
+                    AbstractDefinition>(); // Contains aggregation definition.
     private InputManager inputManager;
     private Map<String, QueryRuntime> queryProcessorMap =
             Collections.synchronizedMap(new LinkedHashMap<String, QueryRuntime>());
@@ -183,6 +191,30 @@ public class SiddhiAppRuntime {
                 .stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
                         e -> (TableDefinition) e.getValue()));
+    }
+
+    /**
+     * Get the window definition map.
+     *
+     * @return Map of {@link WindowDefinition}s.
+     */
+    public Map<String, WindowDefinition> getWindowDefinitionMap() {
+        return windowDefinitionMap.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        e -> (WindowDefinition) e.getValue()));
+    }
+
+    /**
+     * Get the aggregation definition map.
+     *
+     * @return Map of {@link AggregationDefinition}s.
+     */
+    public Map<String, AggregationDefinition> getAggregationDefinitionMap() {
+        return aggregationDefinitionMap.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        e -> (AggregationDefinition) e.getValue()));
     }
 
     /**
