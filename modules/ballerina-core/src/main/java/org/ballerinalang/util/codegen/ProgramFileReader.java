@@ -170,9 +170,15 @@ public class ProgramFileReader {
         PackageInfo packageInfo;
         switch (cpEntryType) {
             case CP_ENTRY_UTF8:
-                // Discard the length of bytes for now.
-                dataInStream.readShort();
-                String strValue = dataInStream.readUTF();
+                short length = dataInStream.readShort();
+                String strValue = null;
+                
+                // If the length of the bytes is -1, that means no UTF value has been written.
+                // i.e: string value represented by the UTF should be null.
+                // Therefore we read the UTF value only if the length >= 0.
+                if (length >= 0) {
+                    strValue = dataInStream.readUTF();
+                }
                 return new UTF8CPEntry(strValue);
 
             case CP_ENTRY_INTEGER:
@@ -1435,6 +1441,8 @@ public class ProgramFileReader {
                 case InstructionCodes.TYPEOF:
                 case InstructionCodes.TYPELOAD:
                 case InstructionCodes.TCALL:
+                case InstructionCodes.SEQ_NULL:
+                case InstructionCodes.SNE_NULL:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1553,6 +1561,7 @@ public class ProgramFileReader {
                 case InstructionCodes.S2XML:
                 case InstructionCodes.XML2S:
                 case InstructionCodes.S2JSONX:
+                case InstructionCodes.NULL2S:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

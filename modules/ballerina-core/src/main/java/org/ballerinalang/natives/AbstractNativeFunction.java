@@ -31,6 +31,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
+import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
@@ -111,7 +112,11 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
 
     public String getStringArgument(Context context, int index) {
         if (index > -1) {
-            return context.getControlStackNew().getCurrentFrame().getStringLocalVars()[index];
+            String str = context.getControlStackNew().getCurrentFrame().getStringLocalVars()[index];
+            if (str == null) {
+                throw new BLangNullReferenceException();
+            }
+            return str;
         }
         throw new ArgumentOutOfRangeException(index);
     }

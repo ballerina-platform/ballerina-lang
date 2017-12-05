@@ -613,6 +613,7 @@ function testSignedIntMaxMinValues () (int maxInsert, int minInsert, int nullIns
     xmlStr = <string>x;
 
     dt = testDB.select(selectSQL, null, typeof ResultSignedInt);
+    str = "";
     while (dt.hasNext()) {
         var result, _ = (ResultSignedInt)dt.getNext();
         str = str + result.ID + "|" + result.TINYINTDATA + "|" + result.SMALLINTDATA + "|" + result.INTDATA + "|" +
@@ -659,10 +660,30 @@ function testComplexTypeInsertAndRetrieval () (int retDataInsert, int retNullIns
     xmlStr = <string>x;
 
     dt = testDB.select(selectSQL, null, typeof ResultComplexTypes);
+    str = "";
     while (dt.hasNext()) {
         var result,_ = (ResultComplexTypes)dt.getNext();
         str = str + result.ROW_ID + "|" + result.BLOB_TYPE.toString("UTF-8") + "|" + result.CLOB_TYPE + "|";
     }
+    testDB.close();
+    return;
+}
+
+function testJsonXMLConversionwithDuplicateColumnNames () (string jsonStr, string xmlStr) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+    datatable dt = testDB.select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
+            join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", null, null);
+    var j,_ = <json> dt;
+    jsonStr = j.toString();
+
+    datatable dt2 = testDB.select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
+            join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", null, null);
+    var x,_ = <xml> dt2;
+    xmlStr = <string> x;
+
     testDB.close();
     return;
 }

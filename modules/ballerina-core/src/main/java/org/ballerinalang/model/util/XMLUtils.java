@@ -204,24 +204,31 @@ public class XMLUtils {
      * @return BXML Element type BXML
      */
     public static BXML<?> createXMLElement(BXMLQName startTagName, BXMLQName endTagName, String defaultNsUri) {
-        if (!startTagName.getLocalName().equals(endTagName.getLocalName())
-                || !startTagName.getUri().equals(endTagName.getUri())
-                || !startTagName.getPrefix().equals(endTagName.getPrefix())) {
+        if (!StringUtils.isEqual(startTagName.getLocalName(), endTagName.getLocalName()) ||
+                !StringUtils.isEqual(startTagName.getUri(), endTagName.getUri()) ||
+                !StringUtils.isEqual(startTagName.getPrefix(), endTagName.getPrefix())) {
             throw new BallerinaException(
                     "start and end tag names mismatch: '" + startTagName + "' and '" + endTagName + "'");
         }
 
         String nsUri = startTagName.getUri();
         OMElement omElement;
-        if (nsUri.isEmpty() || nsUri.equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI)) {
-            omElement = OM_FACTORY.createOMElement(startTagName.getLocalName(), XMLConstants.NULL_NS_URI,
-                    startTagName.getPrefix());
+        if (defaultNsUri == null) {
+            defaultNsUri = XMLConstants.NULL_NS_URI;
+        }
+
+        String prefix = startTagName.getPrefix() == null ? XMLConstants.DEFAULT_NS_PREFIX : startTagName.getPrefix();
+
+        if (nsUri == null) {
+            omElement = OM_FACTORY.createOMElement(startTagName.getLocalName(), defaultNsUri, prefix);
+        } else if (nsUri.isEmpty()) {
+            omElement = OM_FACTORY.createOMElement(startTagName.getLocalName(), nsUri, prefix);
         } else if (nsUri.equals(defaultNsUri)) {
-            omElement = OM_FACTORY.createOMElement(startTagName.getLocalName(), defaultNsUri, startTagName.getPrefix());
+            omElement = OM_FACTORY.createOMElement(startTagName.getLocalName(), defaultNsUri, prefix);
         } else {
-            QName qname = new QName(nsUri, startTagName.getLocalName(), startTagName.getPrefix());
+            QName qname = getQName(startTagName.getLocalName(), nsUri, prefix);
             omElement = OM_FACTORY.createOMElement(qname);
-            if (!defaultNsUri.equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI)) {
+            if (!defaultNsUri.isEmpty()) {
                 omElement.declareDefaultNamespace(defaultNsUri);
             }
         }
@@ -583,5 +590,15 @@ public class XMLUtils {
     private static void addToRootMap(LinkedHashMap<String, ArrayList<JsonNode>> rootMap, String key, JsonNode node) {
         rootMap.putIfAbsent(key, new ArrayList<>());
         rootMap.get(key).add(node);
+    }
+
+    private static QName getQName(String localName, String namespaceUri, String prefix) {
+        QName qname;
+        if (prefix != null) {
+            qname = new QName(namespaceUri, localName, prefix);
+        } else {
+            qname = new QName(namespaceUri, localName);
+        }
+        return qname;
     }
 }

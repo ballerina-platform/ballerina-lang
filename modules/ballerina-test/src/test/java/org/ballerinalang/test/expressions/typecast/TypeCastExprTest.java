@@ -181,7 +181,7 @@ public class TypeCastExprTest {
     public void testJSONObjectToStringCast() {
         BValue[] returns = BRunUtil.invoke(result, "testJSONObjectToStringCast", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "");
+        Assert.assertNull(returns[0].stringValue());
 
         Assert.assertTrue(returns[1] instanceof BStruct);
         Assert.assertEquals(((BStruct) returns[1]).getStringField(0),
@@ -652,7 +652,8 @@ public class TypeCastExprTest {
 
         // check whether string is empty
         //TODO : Check with VM string registry maintain empty as null
-        Assert.assertEquals(returns[0].stringValue(), "");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertNull(returns[0].stringValue());
 
         // check the error
         Assert.assertTrue(returns[1] instanceof BStruct);
@@ -715,7 +716,7 @@ public class TypeCastExprTest {
 
         // check whether string is empty
         //TODO : Check with VM string registry maintain empty as null
-        Assert.assertEquals(returns[0].stringValue(), "");
+        Assert.assertNull(returns[0].stringValue());
 
         // check the error
         Assert.assertTrue(returns[1] instanceof BStruct);

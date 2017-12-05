@@ -657,3 +657,18 @@ function testErrorOnConversions() (TypeConversionError, TypeConversionError, Typ
 
     return err1, err2, err3;
 }
+
+function testNullStringToOtherTypes() (int, TypeConversionError, 
+                                       float, TypeConversionError,
+                                       boolean, TypeConversionError,
+                                       json, TypeConversionError,
+                                       xml, TypeConversionError) {
+    string s;
+    var i, err1 = <int> s;
+    var f, err2 = <float> s;
+    var b, err3 = <boolean> s;
+    var j, err4 = <json> s;
+    var x, err5 = <xml> s;
+    
+    return i, err1, f, err2, b, err3, j, err4, x, err5;
+}

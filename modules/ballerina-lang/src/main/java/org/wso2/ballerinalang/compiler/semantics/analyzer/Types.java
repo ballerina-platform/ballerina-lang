@@ -142,7 +142,7 @@ public class Types {
             return actualType;
         } else if (actualType.tag == TypeTags.ERROR) {
             return actualType;
-        } else if (actualType.tag == TypeTags.NULL && !isValueType(expType)) {
+        } else if (actualType.tag == TypeTags.NULL && isNullable(expType)) {
             return actualType;
         } else if (isSameType(actualType, expType)) {
             return actualType;
@@ -508,6 +508,19 @@ public class Types {
             }
         }
         return true;
+    }
+
+    private boolean isNullable(BType fieldType) {
+        if (!isValueType(fieldType)) {
+            return true;
+        }
+
+        // TODO: include blob as well, when the null support for blob is implemented
+        if (fieldType.tag == TypeTags.STRING) {
+            return true;
+        }
+
+        return false;
     }
 
     private boolean checkStructFieldToJSONConvertibility(BType structType, BType fieldType) {

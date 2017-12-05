@@ -68,8 +68,6 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
      */
     public static final String PI_END = "?>";
     
-    public static final String ZERO_STRING_VALUE = "";
-    
     /**
      * Check whether the XML sequence is empty.
      * 

@@ -107,7 +107,7 @@ public class ConfigTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
-        Assert.assertEquals(returnVals[0].stringValue(), "");
+        Assert.assertNull(returnVals[0].stringValue());
     }
 
     @Test(description = "test instance method with runtime and custom config file properties")
@@ -171,7 +171,7 @@ public class ConfigTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
-        Assert.assertEquals(returnVals[0].stringValue(), "");
+        Assert.assertNull(returnVals[0].stringValue());
     }
 
     @Test(description = "Test config entries with trailing whitespaces")

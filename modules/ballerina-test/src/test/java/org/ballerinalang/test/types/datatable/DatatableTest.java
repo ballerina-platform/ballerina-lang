@@ -397,6 +397,17 @@ public class DatatableTest {
     }
 
     @Test(groups = "DatatableTest", description = "Check result sets with same column name or complex name.")
+    public void testJsonXMLConversionwithDuplicateColumnNames() {
+        BValue[] returns = BRunUtil.invoke(result, "testJsonXMLConversionwithDuplicateColumnNames");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals((returns[0]).stringValue(), "[{\"ROW_ID\":1,\"INT_TYPE\":1,\"DATATABLEREP.ROW_ID\":1,"
+                + "\"DATATABLEREP.INT_TYPE\":100}]");
+        Assert.assertEquals((returns[1]).stringValue(), "<results><result><ROW_ID>1</ROW_ID><INT_TYPE>1</INT_TYPE>"
+                + "<DATATABLEREP.ROW_ID>1</DATATABLEREP.ROW_ID><DATATABLEREP.INT_TYPE>100</DATATABLEREP.INT_TYPE>"
+                + "</result></results>");
+    }
+
+    @Test(groups = "DatatableTest", description = "Check result sets with same column name or complex name.")
     public void testStructFieldNotMatchingColumnName() {
         BValue[] returns = BRunUtil.invoke(result, "testStructFieldNotMatchingColumnName");
         Assert.assertEquals(returns.length, 5);

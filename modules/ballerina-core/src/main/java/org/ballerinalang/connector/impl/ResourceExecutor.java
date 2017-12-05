@@ -29,6 +29,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
@@ -141,7 +142,7 @@ public class ResourceExecutor {
                 // Set default values
                 if (value == null || "".equals(value)) {
                     if (btype == BTypes.typeString) {
-                        stringLocalVars[stringParamCount++] = "";
+                        stringLocalVars[stringParamCount++] = BLangConstants.STRING_NULL_VALUE;
                     }
                     continue;
                 }

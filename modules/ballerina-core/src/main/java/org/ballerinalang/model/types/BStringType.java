@@ -19,6 +19,7 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.BLangConstants;
 
 /**
  * {@code BStringType} represents a String.
@@ -38,12 +39,12 @@ public class BStringType extends BType {
 
     @SuppressWarnings("unchecked")
     public <V extends BValue> V getZeroValue() {
-        return (V) new BString("");
+        return (V) new BString(BLangConstants.STRING_NULL_VALUE);
     }
-    
+
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BString("");
+        return (V) new BString(BLangConstants.STRING_EMPTY_VALUE);
     }
 
     @Override
