@@ -9,6 +9,11 @@
     color: #333333;
 }
 
+.tool-palette-error {
+    color: #c7c7c7;
+    padding: 20px;
+}
+
 .tool-group{
     width: 100%;
 }
