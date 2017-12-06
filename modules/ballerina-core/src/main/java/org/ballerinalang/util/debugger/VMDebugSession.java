@@ -20,15 +20,12 @@
 package org.ballerinalang.util.debugger;
 
 import io.netty.channel.Channel;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
 
 /**
  * {@code VMDebugSession} The Debug Session class will be used to hold context for each client.
@@ -43,46 +40,26 @@ public class VMDebugSession implements DebugSessionObserver {
     private ArrayList<BreakPointDTO> breakPoints;
 
     //key - threadid
-    private Map<String, Context> contextMap;
+    private Map<String, DebugContext> contextMap;
 
     public VMDebugSession() {
         this.contextMap = new HashMap<>();
     }
 
     @Override
-    public void addContext(Context bContext) {
+    public void addContext(DebugContext debugContext) {
         String threadId = Thread.currentThread().getName() + ":" + Thread.currentThread().getId();
-        bContext.setThreadId(threadId);
+        debugContext.setThreadId(threadId);
         //TODO check if that thread id already exist in the map
-        this.contextMap.put(threadId, bContext);
-        setBreakPoints(bContext);
+        this.contextMap.put(threadId, debugContext);
     }
 
-    public Context getContext(String threadId) {
+    public DebugContext getContext(String threadId) {
         return this.contextMap.get(threadId);
     }
 
-    /**
-     * Sets debug points.
-     *
-     * @param breakPoints the debug points
-     */
-    public void addDebugPoints(ArrayList<BreakPointDTO> breakPoints) {
-        this.breakPoints = breakPoints;
-        for (Context bContext : this.contextMap.values()) {
-            setBreakPoints(bContext);
-        }
-    }
-
-    /**
-     * Helper method to set debug points to the given context.
-     *
-     * @param bContext
-     */
-    private void setBreakPoints(Context bContext) {
-        if (null != breakPoints) {
-            bContext.getDebugInfoHolder().addDebugPoints(breakPoints);
-        }
+    public void updateAllDebugContexts(DebugCommand debugCommand) {
+        contextMap.forEach((k, v) -> v.setCurrentCommand(debugCommand));
     }
 
     /**
@@ -102,45 +79,10 @@ public class VMDebugSession implements DebugSessionObserver {
     }
 
     /**
-     * Method to start debugging process in all the threads.
-     */
-    public void startDebug() {
-        this.contextMap.values().stream().forEach(c -> c.getDebugInfoHolder().resume());
-    }
-
-    /**
-     * Method to stop debugging process in all the threads.
-     */
-    public void stopDebug() {
-        this.contextMap.values().stream().forEach(c -> {
-            c.getDebugInfoHolder().clearDebugLocations();
-            c.getDebugInfoHolder().resume();
-        });
-    }
-
-    /**
      * Method to clear the channel so that another debug session can connect.
      */
     public void clearSession() {
         this.channel.close();
         this.channel = null;
-    }
-
-    @Override
-    public void notifyComplete() {
-        VMDebugManager debugManager = VMDebugManager.getInstance();
-        debugManager.notifyComplete(this);
-    }
-
-    @Override
-    public void notifyExit() {
-        VMDebugManager debugManager = VMDebugManager.getInstance();
-        debugManager.notifyExit(this);
-    }
-
-    @Override
-    public void notifyHalt(BreakPointInfo breakPointInfo) {
-        VMDebugManager debugManager = VMDebugManager.getInstance();
-        debugManager.notifyDebugHit(this, breakPointInfo);
     }
 }

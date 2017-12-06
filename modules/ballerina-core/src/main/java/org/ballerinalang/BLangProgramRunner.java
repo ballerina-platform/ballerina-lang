@@ -22,7 +22,6 @@ import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.StackFrame;
-import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
@@ -83,11 +82,8 @@ public class BLangProgramRunner {
             throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
         }
 
-        if (ModeResolver.getInstance().isDebugEnabled()) {
-            VMDebugManager debugManager = VMDebugManager.getInstance();
-            // This will start the websocket server.
-            debugManager.serviceInit();
-            debugManager.setDebugEnabled(true);
+        if (programFile.getDebugManager().isDebugEnabled()) {
+            programFile.getDebugManager().init(programFile);
         }
     }
 
@@ -128,16 +124,16 @@ public class BLangProgramRunner {
         controlStackNew.pushFrame(stackFrame);
         bContext.startTrackWorker();
         bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
-        if (ModeResolver.getInstance().isDebugEnabled()) {
-            VMDebugManager debugManager = VMDebugManager.getInstance();
-            // This will start the websocket server.
-            debugManager.mainInit(bContext);
+        VMDebugManager debugManager = programFile.getDebugManager();
+        if (debugManager.isDebugEnabled()) {
+            debugManager.init(programFile);
+            debugManager.addDebugContextAndWait();
         }
         BLangVM bLangVM = new BLangVM(programFile);
         bLangVM.run(bContext);
         bContext.await();
-        if (bContext.isDebugEnabled()) {
-            bContext.getDebugInfoHolder().getDebugSessionObserver().notifyExit();
+        if (debugManager.isDebugEnabled()) {
+            debugManager.notifyExit();
         }
         if (bContext.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());

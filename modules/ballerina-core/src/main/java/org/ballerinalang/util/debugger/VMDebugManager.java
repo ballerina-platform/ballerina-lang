@@ -22,11 +22,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.channel.Channel;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
+import org.ballerinalang.runtime.Constants;
+import org.ballerinalang.util.codegen.LineNumberInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.dto.CommandDTO;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
+import java.util.concurrent.Semaphore;
 
 
 /**
@@ -36,70 +39,108 @@ import java.io.IOException;
  */
 public class VMDebugManager {
 
+    private boolean debugEnabled = false;
+
     private VMDebugServer debugServer;
 
-    private boolean debugEnabled;
-
-    /**
-     * Object to hold debug session related context.
-     */
     private VMDebugSession debugSession;
 
-    private static VMDebugManager debugManagerInstance = null;
+    private DebugInfoHolder debugInfoHolder;
 
-    private boolean debugManagerInitialized = false;
+    private volatile Semaphore executionSem;
 
-    /**
-     * Instantiates a new Debug manager.
-     */
-    private VMDebugManager() {
-        debugServer = new VMDebugServer();
-        debugSession = new VMDebugSession();
+    private volatile Semaphore debugSem;
+
+    public VMDebugManager() {
+        String debug = System.getProperty(Constants.SYSTEM_PROP_BAL_DEBUG);
+        if (debug != null && !debug.isEmpty()) {
+            debugEnabled = true;
+        }
     }
 
     /**
-     * Debug manager singleton.
+     * Method to check debug enabled or not.
      *
-     * @return DebugManager instance
+     * @return debugEnabled value.
      */
-    public static VMDebugManager getInstance() {
-        if (debugManagerInstance != null) {
-            return debugManagerInstance;
-        }
-        return initialize();
-    }
-
-    private static synchronized VMDebugManager initialize() {
-        if (debugManagerInstance == null) {
-            debugManagerInstance = new VMDebugManager();
-        }
-        return debugManagerInstance;
+    public boolean isDebugEnabled() {
+        return debugEnabled;
     }
 
     /**
-     * Initializes the debug manager single instance.
+     * Method to initialize debug manager.
+     *
+     * @param programFile used to initialize debug manager.
      */
-    public synchronized void serviceInit() {
-        if (this.debugManagerInitialized) {
-            throw new BallerinaException("Debugger instance already initialized");
-        }
-        // start the debug server if it is not started yet.
-        this.debugServer.startServer();
-        this.debugManagerInitialized = true;
+    public void init(ProgramFile programFile) {
+        this.executionSem = new Semaphore(0);
+        this.debugSem = new Semaphore(1);
+        this.initDebugInfoHolder(programFile);
+        this.debugSession = new VMDebugSession();
+        this.debugServer = new VMDebugServer();
+        this.debugServer.startServer(this);
     }
 
-    public synchronized void mainInit(Context mainThreadContext) {
-        if (this.debugManagerInitialized) {
-            throw new BallerinaException("Debugger instance already initialized");
+    private void initDebugInfoHolder(ProgramFile programFile) {
+        if (this.debugInfoHolder != null) {
+            return;
         }
-        mainThreadContext.setAndInitDebugInfoHolder(new DebugInfoHolder());
-        mainThreadContext.setDebugEnabled(true);
-        mainThreadContext.getDebugInfoHolder().setDebugSessionObserver(debugSession);
-        // start the debug server if it is not started yet.
-        this.debugServer.startServer();
-        mainThreadContext.getDebugInfoHolder().getDebugSessionObserver().addContext(mainThreadContext);
-        mainThreadContext.getDebugInfoHolder().waitTillDebuggeeResponds();
-        this.debugManagerInitialized = true;
+        synchronized (this) {
+            if (this.debugInfoHolder != null) {
+                return;
+            }
+            this.debugInfoHolder = new DebugInfoHolder();
+            this.debugInfoHolder.init(programFile);
+        }
+    }
+
+    /**
+     * Helper method to add debug context and wait until debugging starts.
+     */
+    public synchronized void addDebugContextAndWait() {
+        this.debugSession.addContext(new DebugContext());
+        this.waitTillDebuggeeResponds();
+    }
+
+    /**
+     * Helper method to wait till debuggee responds.
+     */
+    public void waitTillDebuggeeResponds() {
+        try {
+            executionSem.acquire();
+        } catch (InterruptedException e) {
+            //Ignore
+        }
+    }
+
+    private void releaseLock() {
+        executionSem.release();
+    }
+
+    /**
+     * Helper method to acquire debug lock.
+     *
+     * @return true if acquired successfully.
+     */
+    public boolean acquireDebugLock() {
+        return debugSem.tryAcquire();
+    }
+
+    /**
+     * Helper method to release debug lock.
+     */
+    public void releaseDebugLock() {
+        debugSem.release();
+    }
+
+    /**
+     * Helper method to get line number for given ip.
+     * @param packagePath   Executing package.
+     * @param ip            Instruction pointer.
+     * @return  line number.
+     */
+    public LineNumberInfo getLineNumber(String packagePath, int ip) {
+        return this.debugInfoHolder.getLineNumber(packagePath, ip);
     }
 
     /**
@@ -130,43 +171,75 @@ public class VMDebugManager {
 
         switch (command.getCommand()) {
             case DebugConstants.CMD_RESUME:
-                getHolder(command.getThreadId()).resume();
+                resume(command.getThreadId());
                 break;
             case DebugConstants.CMD_STEP_OVER:
-                getHolder(command.getThreadId()).stepOver();
+                stepOver(command.getThreadId());
                 break;
             case DebugConstants.CMD_STEP_IN:
-                getHolder(command.getThreadId()).stepIn();
+                stepIn(command.getThreadId());
                 break;
             case DebugConstants.CMD_STEP_OUT:
-                getHolder(command.getThreadId()).stepOut();
+                stepOut(command.getThreadId());
                 break;
             case DebugConstants.CMD_STOP:
                 // When stopping the debug session, it will clear all debug points and resume all threads.
-                debugSession.stopDebug();
-                debugSession.clearSession();
+                stopDebugging();
                 break;
             case DebugConstants.CMD_SET_POINTS:
                 // we expect { "command": "SET_POINTS", points: [{ "fileName": "sample.bal", "lineNumber" : 5 },{...}]}
-                debugSession.addDebugPoints(command.getPoints());
-                sendAcknowledge(this.debugSession, "Debug points updated");
+                debugInfoHolder.addDebugPoints(command.getPoints());
+                sendAcknowledge("Debug points updated");
                 break;
             case DebugConstants.CMD_START:
                 // Client needs to explicitly start the execution once connected.
                 // This will allow client to set the breakpoints before starting the execution.
-                sendAcknowledge(this.debugSession, "Debug started.");
-                debugSession.startDebug();
+                sendAcknowledge("Debug started.");
+                startDebug();
                 break;
             default:
                 throw new DebugException(DebugConstants.MSG_INVALID);
         }
     }
 
-    private DebugInfoHolder getHolder(String threadId) {
-        if (debugSession.getContext(threadId) == null) {
+    private void startDebug() {
+        debugSession.updateAllDebugContexts(DebugCommand.RESUME);
+        releaseLock();
+    }
+
+    private void resume(String threadId) {
+        getDebugContext(threadId).setCurrentCommand(DebugCommand.RESUME);
+        releaseLock();
+    }
+
+    private void stepIn(String threadId) {
+        getDebugContext(threadId).setCurrentCommand(DebugCommand.STEP_IN);
+        releaseLock();
+    }
+
+    private void stepOver(String threadId) {
+        getDebugContext(threadId).setCurrentCommand(DebugCommand.STEP_OVER);
+        releaseLock();
+    }
+
+    private void stepOut(String threadId) {
+        getDebugContext(threadId).setCurrentCommand(DebugCommand.STEP_OUT);
+        releaseLock();
+    }
+
+    private void stopDebugging() {
+        debugInfoHolder.clearDebugLocations();
+        debugSession.updateAllDebugContexts(DebugCommand.RESUME);
+        debugSession.clearSession();
+        releaseLock();
+    }
+
+    private DebugContext getDebugContext(String threadId) {
+        DebugContext debugContext = debugSession.getContext(threadId);
+        if (debugContext == null) {
             throw new DebugException(DebugConstants.MSG_INVALID_THREAD_ID);
         }
-        return debugSession.getContext(threadId).getDebugInfoHolder();
+        return debugContext;
     }
 
     /**
@@ -176,44 +249,28 @@ public class VMDebugManager {
      */
     public void addDebugSession(Channel channel) throws DebugException {
         this.debugSession.setChannel(channel);
-        sendAcknowledge(this.debugSession, "Channel registered.");
+        sendAcknowledge("Channel registered.");
     }
 
     /**
      * Add {@link Context} to current execution.
      *
-     * @param bContext context to run
+     * @param debugContext context to run
      */
-    public void setDebuggerContext(Context bContext) {
-        // if we are handling multiple connections
-        // we need to check and set to correct debugger session
-        if (!isDebugSessionActive()) {
-            throw new IllegalStateException("Debug session has not initialize, Unable to set debugger.");
-        }
-        bContext.getDebugInfoHolder().setDebugSessionObserver(debugSession);
-        this.debugSession.addContext(bContext);
-    }
-
-    public boolean isDebugEnabled() {
-        return debugEnabled;
-    }
-
-    public void setDebugEnabled(boolean debugEnabled) {
-        this.debugEnabled = debugEnabled;
+    public void addDebugContext(DebugContext debugContext) {
+        this.debugSession.addContext(debugContext);
     }
 
     public boolean isDebugSessionActive() {
         return (this.debugSession.getChannel() != null);
     }
 
-
     /**
      * Send a message to the debug client when a breakpoint is hit.
      *
-     * @param debugSession current debugging session
      * @param breakPointInfo info of the current break point
      */
-    public void notifyDebugHit(VMDebugSession debugSession, BreakPointInfo breakPointInfo) {
+    public void notifyDebugHit(BreakPointInfo breakPointInfo) {
         MessageDTO message = new MessageDTO();
         message.setCode(DebugConstants.CODE_HIT);
         message.setMessage(DebugConstants.MSG_HIT);
@@ -226,10 +283,8 @@ public class VMDebugManager {
 
     /**
      * Notify client when debugger has finish execution.
-     *
-     * @param debugSession current debugging session
      */
-    public void notifyComplete(VMDebugSession debugSession) {
+    public void notifyComplete() {
         MessageDTO message = new MessageDTO();
         message.setCode(DebugConstants.CODE_COMPLETE);
         message.setMessage(DebugConstants.MSG_COMPLETE);
@@ -238,10 +293,8 @@ public class VMDebugManager {
 
     /**
      * Notify client when the debugger is exiting.
-     *
-     * @param debugSession current debugging session
      */
-    public void notifyExit(VMDebugSession debugSession) {
+    public void notifyExit() {
         if (!isDebugSessionActive()) {
             return;
         }
@@ -254,10 +307,9 @@ public class VMDebugManager {
     /**
      * Send a generic acknowledge message to the client.
      *
-     * @param debugSession current debugging session
      * @param messageText message to send to the client
      */
-    public void sendAcknowledge(VMDebugSession debugSession, String messageText) {
+    public void sendAcknowledge(String messageText) {
         MessageDTO message = new MessageDTO();
         message.setCode(DebugConstants.CODE_ACK);
         message.setMessage(messageText);

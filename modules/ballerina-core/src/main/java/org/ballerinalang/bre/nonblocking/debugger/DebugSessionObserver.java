@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.bre.nonblocking.debugger;
 
-import org.ballerinalang.bre.Context;
+import org.ballerinalang.util.debugger.DebugContext;
 
 /**
  * Represents a Debug sessions observer which will be notified by the the BLanExecutionDebugger.
@@ -27,24 +27,8 @@ public interface DebugSessionObserver {
     /**
      * Called when adding a context.
      *
-     * @param bContext to be added to the map.
+     * @param debugContext to be added to the map.
      */
-    void addContext(Context bContext);
+    void addContext(DebugContext debugContext);
 
-    /**
-     * Called when execution is end.
-     */
-    void notifyComplete();
-
-    /**
-     * Called when main program exit.
-     */
-    void notifyExit();
-
-    /**
-     * Called when executor hits a break point.
-     *
-     * @param breakPointInfo Break point information.
-     */
-    void notifyHalt(BreakPointInfo breakPointInfo);
 }

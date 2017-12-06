@@ -20,7 +20,6 @@ package org.ballerinalang.test.debugger;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.StackFrame;
-import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
 import org.ballerinalang.launcher.util.BCompileUtil;
@@ -56,7 +55,7 @@ public class VMDebuggerUtil {
             Assert.fail("VM doesn't start within 1000ms");
         }
 
-        bContext.getDebugInfoHolder().releaseLock();
+        bContext.getDebugContext().releaseLock();
 
         for (int i = 0; i <= expectedPoints.length; i++) {
             debugSessionObserver.aquireSem();
@@ -75,7 +74,7 @@ public class VMDebuggerUtil {
     private static boolean waitTillDebugStarts(long maxhWait, Context bContext) {
         long startTime = System.currentTimeMillis();
         while (true) {
-            if (bContext.getDebugInfoHolder().hasQueuedThreads()) {
+            if (bContext.getDebugContext().hasQueuedThreads()) {
                 return true;
             }
             long currentTime = System.currentTimeMillis();
@@ -103,16 +102,16 @@ public class VMDebuggerUtil {
     public static void executeDebuggerCmd(Context bContext, Step cmd) {
         switch (cmd) {
             case STEP_IN:
-                bContext.getDebugInfoHolder().stepIn();
+                bContext.getDebugContext().stepIn();
                 break;
             case STEP_OVER:
-                bContext.getDebugInfoHolder().stepOver();
+                bContext.getDebugContext().stepOver();
                 break;
             case STEP_OUT:
-                bContext.getDebugInfoHolder().stepOut();
+                bContext.getDebugContext().stepOut();
                 break;
             case RESUME:
-                bContext.getDebugInfoHolder().resume();
+                bContext.getDebugContext().resume();
                 break;
             default:
                 throw new IllegalStateException("Unknown Command");
@@ -126,8 +125,6 @@ public class VMDebuggerUtil {
 
         Context setup(String sourceFilePath, DebugSessionObserverImpl debugSessionObserver,
                       BreakPointDTO[] breakPoints) {
-            ModeResolver.getInstance().setNonblockingEnabled(true);
-
             result = BCompileUtil.compile(sourceFilePath);
 
             bContext = new Context(result.getProgFile());
@@ -163,9 +160,9 @@ public class VMDebuggerUtil {
             controlStackNew.pushFrame(stackFrame);
             bContext.setDebugEnabled(true);
             bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
-            bContext.getDebugInfoHolder().setDebugSessionObserver(debugSessionObserver);
-            bContext.getDebugInfoHolder().addDebugPoints(new ArrayList<>(Arrays.asList(breakPoints)));
-            bContext.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
+            bContext.getDebugContext().setDebugSessionObserver(debugSessionObserver);
+            bContext.getDebugContext().addDebugPoints(new ArrayList<>(Arrays.asList(breakPoints)));
+            bContext.getDebugContext().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
             DebuggerExecutor executor = new DebuggerExecutor(result.getProgFile(), bContext);
             (new Thread(executor)).start();
             return bContext;

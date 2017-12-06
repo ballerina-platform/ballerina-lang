@@ -101,7 +101,8 @@ import org.ballerinalang.util.codegen.cpentries.TransformerRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
-import org.ballerinalang.util.debugger.DebugInfoHolder;
+import org.ballerinalang.util.debugger.DebugCommand;
+import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -205,12 +206,12 @@ public class BLangVM {
 
     public void execWorker(Context context, int startIP) {
         context.setStartIP(startIP);
-        if (VMDebugManager.getInstance().isDebugSessionActive()) {
-            VMDebugManager debugManager = VMDebugManager.getInstance();
-            context.setAndInitDebugInfoHolder(new DebugInfoHolder());
-            context.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
-            context.setDebugEnabled(true);
-            debugManager.setDebuggerContext(context);
+        VMDebugManager debugManager = programFile.getDebugManager();
+        if (debugManager.isDebugEnabled() && debugManager.isDebugSessionActive()) {
+            DebugContext debugContext = new DebugContext();
+            debugContext.setCurrentCommand(DebugCommand.RESUME);
+            context.setDebugContext(debugContext);
+            debugManager.addDebugContext(debugContext);
         }
         run(context);
     }
@@ -233,7 +234,7 @@ public class BLangVM {
         WorkerDataChannelInfo workerDataChannel;
         ForkJoinCPEntry forkJoinCPEntry;
 
-        boolean isDebugging = context.isDebugEnabled();
+        boolean isDebugging = programFile.getDebugManager().isDebugEnabled();
 
         StackFrame currentSF, callersSF;
         int callersRetRegIndex;
@@ -2307,45 +2308,65 @@ public class BLangVM {
      *
      * @param cp Current instruction point.
      */
-    public void debugging(int cp) {
-        DebugInfoHolder holder = context.getDebugInfoHolder();
-        LineNumberInfo currentExecLine = holder.getLineNumber(controlStack.currentFrame.packageInfo.getPkgPath(), cp);
-        if (currentExecLine.equals(holder.getLastLine()) || debugPointCheck(currentExecLine, holder)) {
+    private void debugging(int cp) {
+        VMDebugManager debugManager = programFile.getDebugManager();
+        if (!debugManager.acquireDebugLock()) {
+            return;
+        }
+        try {
+            processDebugging(cp, debugManager);
+        } finally {
+            debugManager.releaseDebugLock();
+        }
+    }
+
+    /**
+     * Method which process debug related operations.
+     *
+     * @param cp            Current cp.
+     * @param debugManager  Debug manager object.
+     */
+    private void processDebugging(int cp, VMDebugManager debugManager) {
+        DebugContext debugContext = context.getDebugContext();
+        LineNumberInfo currentExecLine = debugManager
+                .getLineNumber(controlStack.currentFrame.packageInfo.getPkgPath(), cp);
+        if (currentExecLine.equals(debugContext.getLastLine())
+                || debugPointCheck(currentExecLine, debugManager, debugContext)) {
             return;
         }
 
-        switch (holder.getCurrentCommand()) {
+        switch (debugContext.getCurrentCommand()) {
             case RESUME:
-                holder.setLastLine(null);
+                debugContext.setLastLine(null);
                 break;
             case STEP_IN:
-                debugHit(currentExecLine, holder);
+                debugHit(currentExecLine, debugManager, debugContext);
                 break;
             case STEP_OVER:
-                if (controlStack.currentFrame == holder.getSF()) {
-                    debugHit(currentExecLine, holder);
+                if (controlStack.currentFrame == debugContext.getSF()) {
+                    debugHit(currentExecLine, debugManager, debugContext);
                     return;
                 }
-                if (holder.getLastLine().checkIpRangeForInstructionCode(code, InstructionCodes.RET)
-                        && controlStack.currentFrame == holder.getSF().prevStackFrame) {
-                    debugHit(currentExecLine, holder);
+                if (debugContext.getLastLine().checkIpRangeForInstructionCode(code, InstructionCodes.RET)
+                        && controlStack.currentFrame == debugContext.getSF().prevStackFrame) {
+                    debugHit(currentExecLine, debugManager, debugContext);
                     return;
                 }
-                holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_OVER_INTMDT);
+                debugContext.setCurrentCommand(DebugCommand.STEP_OVER_INTMDT);
                 break;
             case STEP_OVER_INTMDT:
-                if (controlStack.currentFrame != holder.getSF()) {
+                if (controlStack.currentFrame != debugContext.getSF()) {
                     return;
                 }
-                debugHit(currentExecLine, holder);
+                debugHit(currentExecLine, debugManager, debugContext);
                 break;
             case STEP_OUT:
-                holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_OUT_INTMDT);
-                holder.setSF(holder.getSF().prevStackFrame);
-                interMediateDebugCheck(currentExecLine, holder);
+                debugContext.setCurrentCommand(DebugCommand.STEP_OUT_INTMDT);
+                debugContext.setSF(debugContext.getSF().prevStackFrame);
+                interMediateDebugCheck(currentExecLine, debugManager, debugContext);
                 break;
             case STEP_OUT_INTMDT:
-                interMediateDebugCheck(currentExecLine, holder);
+                interMediateDebugCheck(currentExecLine, debugManager, debugContext);
                 break;
         }
     }
@@ -2353,29 +2374,33 @@ public class BLangVM {
     /**
      * Inter mediate debug check to avoid switch case falling through.
      *
-     * @param currentExecLine Current execution line.
-     * @param holder          Debug info holder.
+     * @param currentExecLine   Current execution line.
+     * @param debugManager      Debug manager object.
+     * @param debugContext      Current debug context.
      */
-    private void interMediateDebugCheck(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
-        if (controlStack.currentFrame != holder.getSF()) {
+    private void interMediateDebugCheck(LineNumberInfo currentExecLine, VMDebugManager debugManager,
+                                        DebugContext debugContext) {
+        if (controlStack.currentFrame != debugContext.getSF()) {
             return;
         }
-        debugHit(currentExecLine, holder);
+        debugHit(currentExecLine, debugManager, debugContext);
     }
 
     /**
      * Helper method to check whether given point is a debug point or not.
      * If it's a debug point, then notify the debugger.
      *
-     * @param currentExecLine Current execution line.
-     * @param holder          Debug info holder.
+     * @param currentExecLine   Current execution line.
+     * @param debugManager      Debug manager object.
+     * @param debugContext      Current debug context.
      * @return Boolean true if it's a debug point, false otherwise.
      */
-    private boolean debugPointCheck(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
+    private boolean debugPointCheck(LineNumberInfo currentExecLine, VMDebugManager debugManager,
+                                    DebugContext debugContext) {
         if (!currentExecLine.isDebugPoint()) {
             return false;
         }
-        debugHit(currentExecLine, holder);
+        debugHit(currentExecLine, debugManager, debugContext);
         return true;
     }
 
@@ -2383,29 +2408,39 @@ public class BLangVM {
      * Helper method to set required details when a debug point hits.
      * And also to notify the debugger.
      *
-     * @param currentExecLine Current execution line.
-     * @param holder          Debug info holder.
+     * @param currentExecLine   Current execution line.
+     * @param debugManager      Debug manager object.
+     * @param debugContext      Current debug context.
      */
-    private void debugHit(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
-        holder.setLastLine(currentExecLine);
-        holder.setSF(controlStack.currentFrame);
-        holder.getDebugSessionObserver().notifyHalt(getBreakPointInfo(currentExecLine));
-        holder.waitTillDebuggeeResponds();
+    private void debugHit(LineNumberInfo currentExecLine, VMDebugManager debugManager,
+                          DebugContext debugContext) {
+        debugContext.setLastLine(currentExecLine);
+        debugContext.setSF(controlStack.currentFrame);
+        debugManager.notifyDebugHit(getBreakPointInfo(currentExecLine, debugManager, debugContext));
+        debugManager.waitTillDebuggeeResponds();
     }
 
-    public BreakPointInfo getBreakPointInfo(LineNumberInfo current) {
-        NodeLocation location = new NodeLocation(current.getPackageInfo().getPkgPath(),
-                current.getFileName(), current.getLineNumber());
+    /**
+     * Helper method to get breakpoint information.
+     *
+     * @param currentExecLine   Current execution line.
+     * @param debugManager      Debug manager object.
+     * @param debugContext      Current debug context.
+     * @return
+     */
+    private BreakPointInfo getBreakPointInfo(LineNumberInfo currentExecLine, VMDebugManager debugManager,
+                                            DebugContext debugContext) {
+        NodeLocation location = new NodeLocation(currentExecLine.getPackageInfo().getPkgPath(),
+                currentExecLine.getFileName(), currentExecLine.getLineNumber());
         BreakPointInfo breakPointInfo = new BreakPointInfo(location);
-        breakPointInfo.setThreadId(context.getThreadId());
+        breakPointInfo.setThreadId(debugContext.getThreadId());
 
-        int callingIp = current.getIp();
+        int callingIp = currentExecLine.getIp();
         StackFrame frame = controlStack.currentFrame;
         while (frame != null) {
             String pck = frame.packageInfo.getPkgPath();
             String functionName = frame.callableUnitInfo.getName();
-            LineNumberInfo callingLine = context.getDebugInfoHolder()
-                    .getLineNumber(frame.packageInfo.getPkgPath(), callingIp);
+            LineNumberInfo callingLine = debugManager.getLineNumber(frame.packageInfo.getPkgPath(), callingIp);
             FrameInfo frameInfo = new FrameInfo(pck, functionName, callingLine.getFileName(),
                     callingLine.getLineNumber());
             LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) frame.callableUnitInfo

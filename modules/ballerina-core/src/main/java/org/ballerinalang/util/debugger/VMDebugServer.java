@@ -45,35 +45,40 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
  */
 public class VMDebugServer {
 
-
     /**
      *  Debug server initializer class.
      */
     static class DebugServerInitializer extends ChannelInitializer<SocketChannel> {
+
+        VMDebugManager debugManager;
+
+        DebugServerInitializer(VMDebugManager debugManager) {
+            this.debugManager = debugManager;
+        }
 
         @Override
         public void initChannel(SocketChannel ch) throws Exception {
             ChannelPipeline pipeline = ch.pipeline();
             pipeline.addLast(new HttpServerCodec());
             pipeline.addLast(new HttpObjectAggregator(65536));
-            pipeline.addLast(new VMDebugServerHandler());
+            pipeline.addLast(new VMDebugServerHandler(debugManager));
         }
     }
 
     /**
      * Start the web socket server.
      */
-    public void startServer() {
+    public void startServer(VMDebugManager debugManager) {
         //lets start the server in a new thread.
         Runnable run = new Runnable() {
             public void run() {
-                VMDebugServer.this.startListning();
+                VMDebugServer.this.startListning(debugManager);
             }
         };
         (new Thread(run)).start();
     }
 
-    private void startListning() {
+    private void startListning(VMDebugManager debugManager) {
         int port = getDebugPort();
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -83,7 +88,7 @@ public class VMDebugServer {
                     .channel(NioServerSocketChannel.class)
                     //todo activate debug logs once implemented.
                     //.handler(new LoggingHandler(LogLevel.INFO))
-                    .childHandler(new DebugServerInitializer());
+                    .childHandler(new DebugServerInitializer(debugManager));
             Channel ch = b.bind(port).sync().channel();
 
             PrintStream out = System.out;

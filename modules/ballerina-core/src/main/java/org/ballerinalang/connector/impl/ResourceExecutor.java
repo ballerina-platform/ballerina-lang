@@ -35,7 +35,8 @@ import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
-import org.ballerinalang.util.debugger.DebugInfoHolder;
+import org.ballerinalang.util.debugger.DebugCommand;
+import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -154,12 +155,12 @@ public class ResourceExecutor {
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
         context.setAsResourceContext();
         context.startTrackWorker();
-        if (VMDebugManager.getInstance().isDebugEnabled() && VMDebugManager.getInstance().isDebugSessionActive()) {
-            VMDebugManager debugManager = VMDebugManager.getInstance();
-            context.setAndInitDebugInfoHolder(new DebugInfoHolder());
-            context.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
-            context.setDebugEnabled(true);
-            debugManager.setDebuggerContext(context);
+        VMDebugManager debugManager = programFile.getDebugManager();
+        if (debugManager.isDebugEnabled() && debugManager.isDebugSessionActive()) {
+            DebugContext debugContext = new DebugContext();
+            debugContext.setCurrentCommand(DebugCommand.RESUME);
+            context.setDebugContext(debugContext);
+            debugManager.addDebugContext(debugContext);
         }
         bLangVM.run(context);
     }

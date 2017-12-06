@@ -39,10 +39,10 @@ public class DebuggerExecutor implements Runnable {
     public void run() {
         BLangVM bLangVM = new BLangVM(programFile);
         bContext.startTrackWorker();
-        bContext.getDebugInfoHolder().getDebugSessionObserver().addContext(bContext);
-        bContext.getDebugInfoHolder().waitTillDebuggeeResponds();
+        bContext.getDebugContext().getDebugSessionObserver().addContext(bContext);
+        bContext.getDebugContext().waitTillDebuggeeResponds();
         bLangVM.run(bContext);
         bContext.await();
-        bContext.getDebugInfoHolder().getDebugSessionObserver().notifyExit();
+        bContext.getDebugContext().getDebugSessionObserver().notifyExit();
     }
 }

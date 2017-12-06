@@ -23,10 +23,7 @@ import org.ballerinalang.runtime.Constants;
  * Resolve which interpreter to run.
  */
 public class ModeResolver {
-
-
     private static final ModeResolver instance = new ModeResolver();
-    private boolean nonblockingEnabled = false;
     private boolean debugEnabled = false;
 
     private ModeResolver() {
@@ -38,15 +35,6 @@ public class ModeResolver {
 
     public static ModeResolver getInstance() {
         return instance;
-    }
-
-    public boolean isNonblockingEnabled() {
-        return nonblockingEnabled || debugEnabled;
-    }
-
-    public void setNonblockingEnabled(boolean enabled) {
-        // Testing purpose only.
-        this.nonblockingEnabled = enabled;
     }
 
     public boolean isDebugEnabled() {
