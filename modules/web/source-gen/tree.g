@@ -251,6 +251,10 @@ TypeConversionExpr
    | < <typeNode.source> > <expression.source>
    ;
 
+TypeofExpression
+   : typeof <typeNode.source>
+   ;
+
 UnaryExpr
    : <operatorKind> <expression.source>
    ;
