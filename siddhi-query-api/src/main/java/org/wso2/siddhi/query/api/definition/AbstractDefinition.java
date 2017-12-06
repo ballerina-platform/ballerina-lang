@@ -116,7 +116,7 @@ public abstract class AbstractDefinition implements SiddhiElement {
                 definitionBuilder.append(annotation.toString());
             }
         }
-        definitionBuilder.append("define " ).append(type).append(" ").append(id).append(" (");
+        definitionBuilder.append("define ").append(type).append(" ").append(id).append(" (");
         boolean isFirst = true;
         for (Attribute attribute : attributeList) {
             if (!isFirst) {
