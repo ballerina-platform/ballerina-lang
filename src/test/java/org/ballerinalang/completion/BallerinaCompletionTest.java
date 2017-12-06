@@ -1058,7 +1058,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testConnectorBodyVariableInitializationPackageInvocationAutoCompletion() {
         myFixture.addFileToProject("org/test/file.bal", "package org.test; public connector TEST () {}");
         doCheckResult("test.bal", "import org.test; connector C(){ test:TEST t = create test:T<caret> }",
-                "import org.test; connector C(){ test:TEST t = create test:TEST() }", null);
+                "import org.test; connector C(){ test:TEST t = create test:TEST }", null);
     }
 
     /**
