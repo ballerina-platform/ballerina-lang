@@ -104,7 +104,7 @@ public class VMDebugManager {
     /**
      * Helper method to add debug context and wait until debugging starts.
      */
-    public synchronized void addDebugContextAndWait() {
+    public void addDebugContextAndWait() {
         this.clientHandler.addContext(new DebugContext());
         this.waitTillDebuggeeResponds();
     }
@@ -120,8 +120,20 @@ public class VMDebugManager {
         }
     }
 
-    private void releaseLock() {
+    /**
+     * Method to release execution semaphore.
+     */
+    public void releaseLock() {
         executionSem.release();
+    }
+
+    /**
+     * Return whether there are queued threads or not.
+     *
+     * @return  Queued threads exist or not.
+     */
+    public boolean hasQueuedThreads() {
+        return executionSem.hasQueuedThreads();
     }
 
     /**
@@ -218,32 +230,32 @@ public class VMDebugManager {
         debugInfoHolder.addDebugPoints(breakPointDTOS);
     }
 
-    private void startDebug() {
+    public void startDebug() {
         clientHandler.updateAllDebugContexts(DebugCommand.RESUME);
         releaseLock();
     }
 
-    private void resume(String threadId) {
+    public void resume(String threadId) {
         getDebugContext(threadId).setCurrentCommand(DebugCommand.RESUME);
         releaseLock();
     }
 
-    private void stepIn(String threadId) {
+    public void stepIn(String threadId) {
         getDebugContext(threadId).setCurrentCommand(DebugCommand.STEP_IN);
         releaseLock();
     }
 
-    private void stepOver(String threadId) {
+    public void stepOver(String threadId) {
         getDebugContext(threadId).setCurrentCommand(DebugCommand.STEP_OVER);
         releaseLock();
     }
 
-    private void stepOut(String threadId) {
+    public void stepOut(String threadId) {
         getDebugContext(threadId).setCurrentCommand(DebugCommand.STEP_OUT);
         releaseLock();
     }
 
-    private void stopDebugging() {
+    public void stopDebugging() {
         debugInfoHolder.clearDebugLocations();
         clientHandler.updateAllDebugContexts(DebugCommand.RESUME);
         clientHandler.clearChannel();

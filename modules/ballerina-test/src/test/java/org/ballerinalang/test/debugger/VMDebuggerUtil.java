@@ -21,9 +21,6 @@ import io.netty.channel.Channel;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.StackFrame;
-import org.ballerinalang.util.debugger.info.BreakPointInfo;
-import org.ballerinalang.util.debugger.DebugClientHandler;
-import org.ballerinalang.util.debugger.DebugServer;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -32,18 +29,22 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.util.debugger.DebugClientHandler;
 import org.ballerinalang.util.debugger.DebugCommand;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.DebugException;
+import org.ballerinalang.util.debugger.DebugServer;
 import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
+import org.ballerinalang.util.debugger.info.BreakPointInfo;
 import org.testng.Assert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 /**
  * Test Util class to test debug scenarios.
@@ -54,34 +55,34 @@ public class VMDebuggerUtil {
 
     public static void startDebug(String sourceFilePath, BreakPointDTO[] breakPoints, BreakPointDTO[] expectedPoints,
                                   Step[] debugCommand) {
-        TestDebugClientHandler debugSessionObserver = new TestDebugClientHandler();
+        TestDebugClientHandler debugClientHandler = new TestDebugClientHandler();
         DebugRunner debugRunner = new DebugRunner();
-        Context bContext = debugRunner.setup(sourceFilePath, debugSessionObserver, breakPoints);
+        VMDebugManager debugManager = debugRunner.setup(sourceFilePath, debugClientHandler, breakPoints);
 
-        if (!waitTillDebugStarts(1000, bContext)) {
+        if (!waitTillDebugStarts(1000, debugManager)) {
             Assert.fail("VM doesn't start within 1000ms");
         }
 
-        bContext.getDebugContext().releaseLock();
+        debugManager.releaseLock();
 
         for (int i = 0; i <= expectedPoints.length; i++) {
-            debugSessionObserver.aquireSem();
+            debugClientHandler.aquireSem();
             if (i < expectedPoints.length) {
                 NodeLocation expected = new NodeLocation(expectedPoints[i].getFileName(),
                         expectedPoints[i].getLineNumber());
-                Assert.assertEquals(debugSessionObserver.haltPosition, expected,
+                Assert.assertEquals(debugClientHandler.haltPosition, expected,
                         "Unexpected halt position for debug step " + (i + 1));
-                executeDebuggerCmd(bContext, debugCommand[i]);
+                executeDebuggerCmd(debugManager, debugClientHandler, debugCommand[i]);
             } else {
-                Assert.assertTrue(debugSessionObserver.isExit, "Debugger didn't exit as expected.");
+                Assert.assertTrue(debugClientHandler.isExit, "Debugger didn't exit as expected.");
             }
         }
     }
 
-    private static boolean waitTillDebugStarts(long maxhWait, Context bContext) {
+    private static boolean waitTillDebugStarts(long maxhWait, VMDebugManager debugManager) {
         long startTime = System.currentTimeMillis();
         while (true) {
-            if (bContext.getDebugContext().hasQueuedThreads()) {
+            if (debugManager.hasQueuedThreads()) {
                 return true;
             }
             long currentTime = System.currentTimeMillis();
@@ -106,19 +107,20 @@ public class VMDebuggerUtil {
         return breakPointDTOS;
     }
 
-    public static void executeDebuggerCmd(Context bContext, Step cmd) {
+    public static void executeDebuggerCmd(VMDebugManager debugManager,
+                                          TestDebugClientHandler debugClientHandler, Step cmd) {
         switch (cmd) {
             case STEP_IN:
-                bContext.getDebugContext().stepIn();
+                debugManager.stepIn(debugClientHandler.getThreadId());
                 break;
             case STEP_OVER:
-                bContext.getDebugContext().stepOver();
+                debugManager.stepOver(debugClientHandler.getThreadId());
                 break;
             case STEP_OUT:
-                bContext.getDebugContext().stepOut();
+                debugManager.stepOut(debugClientHandler.getThreadId());
                 break;
             case RESUME:
-                bContext.getDebugContext().resume();
+                debugManager.resume(debugClientHandler.getThreadId());
                 break;
             default:
                 throw new IllegalStateException("Unknown Command");
@@ -130,7 +132,7 @@ public class VMDebuggerUtil {
         CompileResult result;
         Context bContext;
 
-        Context setup(String sourceFilePath, TestDebugClientHandler debugSessionObserver,
+        VMDebugManager setup(String sourceFilePath, TestDebugClientHandler debugSessionObserver,
                       BreakPointDTO[] breakPoints) {
             result = BCompileUtil.compile(sourceFilePath);
 
@@ -172,7 +174,7 @@ public class VMDebuggerUtil {
             bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
             DebuggerExecutor executor = new DebuggerExecutor(result.getProgFile(), bContext);
             (new Thread(executor)).start();
-            return bContext;
+            return debugManager;
         }
     }
 
@@ -181,17 +183,33 @@ public class VMDebuggerUtil {
         boolean isExit;
         int hitCount = -1;
         NodeLocation haltPosition;
+        private volatile Semaphore executionSem;
+        private String threadId;
 
         //key - threadid
         private Map<String, DebugContext> contextMap;
 
         TestDebugClientHandler() {
             this.contextMap = new HashMap<>();
+            executionSem = new Semaphore(0);
+        }
+
+        public void aquireSem() {
+            try {
+                executionSem.acquire();
+            } catch (InterruptedException e) {
+
+            }
+        }
+
+        public String getThreadId() {
+            return threadId;
         }
 
         @Override
         public void addContext(DebugContext debugContext) {
-            String threadId = Thread.currentThread().getName() + ":" + Thread.currentThread().getId();
+            //for debugging tests, only single threaded execution supported
+            threadId = Thread.currentThread().getName() + ":" + Thread.currentThread().getId();
             debugContext.setThreadId(threadId);
             //TODO check if that thread id already exist in the map
             this.contextMap.put(threadId, debugContext);
@@ -229,12 +247,14 @@ public class VMDebuggerUtil {
         @Override
         public void notifyExit() {
             isExit = true;
+            executionSem.release();
         }
 
         @Override
         public void notifyHalt(BreakPointInfo breakPointInfo) {
             hitCount++;
             haltPosition = breakPointInfo.getHaltLocation();
+            executionSem.release();
         }
 
         @Override
@@ -247,7 +267,6 @@ public class VMDebuggerUtil {
 
         @Override
         public void startServer(VMDebugManager debugManager) {
-
         }
     }
 }
