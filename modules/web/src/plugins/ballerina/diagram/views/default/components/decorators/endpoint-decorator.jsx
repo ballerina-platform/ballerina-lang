@@ -70,11 +70,14 @@ class ConnectorDeclarationDecorator extends React.Component {
      * @param {string} newName - new connector name
      */
     setEndpointName(newName) {
-        const model = this.props.model;
-        if (TreeUtils.isVariableDef(model)) {
-            const oldVariable = this.props.model.getVariable();
-            oldVariable.name.value = newName;
-            model.setVariable(oldVariable, false);
+        if (newName) {
+            newName = newName.replace(';', '');
+            const model = this.props.model;
+            if (TreeUtils.isVariableDef(model)) {
+                const oldVariable = this.props.model.getVariable();
+                oldVariable.name.value = newName;
+                model.setVariable(oldVariable, false);
+            }
         }
     }
 
