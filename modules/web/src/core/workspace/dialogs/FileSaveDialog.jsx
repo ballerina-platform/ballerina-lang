@@ -184,7 +184,7 @@ class FileSaveDialog extends React.Component {
             <div>
                 <Dialog
                     show={this.state.showDialog}
-                    title="Save File"
+                    title={this.props.mode === 'SAVE_FILE' ? 'Save File' : 'Save File As'}
                     actions={
                         <Button
                             bsStyle="primary"
@@ -297,11 +297,13 @@ FileSaveDialog.propTypes = {
     onSaveSuccess: PropTypes.func,
     onSaveFail: PropTypes.func,
     workspaceManager: PropTypes.objectOf(Object).isRequired,
+    mode: PropTypes.string,
 };
 
 FileSaveDialog.defaultProps = {
     onSaveSuccess: () => {},
     onSaveFail: () => {},
+    mode: '',
 };
 
 export default FileSaveDialog;
