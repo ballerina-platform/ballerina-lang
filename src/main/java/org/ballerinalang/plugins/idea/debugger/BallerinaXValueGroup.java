@@ -43,10 +43,11 @@ public class BallerinaXValueGroup extends XValueGroup {
         this.myFrame = myFrame;
     }
 
-    @Override
-    public boolean isRestoreExpansion() {
-        return true;
-    }
+    // Todo - Uncomment after required IDEA version is changed to 2017.
+    //    @Override
+    //    public boolean isRestoreExpansion() {
+    //        return true;
+    //    }
 
     @Nullable
     @Override
