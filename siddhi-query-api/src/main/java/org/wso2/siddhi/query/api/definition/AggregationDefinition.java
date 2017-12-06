@@ -132,4 +132,9 @@ public class AggregationDefinition extends AbstractDefinition {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return super.toString("aggregation");
+    }
+
 }
