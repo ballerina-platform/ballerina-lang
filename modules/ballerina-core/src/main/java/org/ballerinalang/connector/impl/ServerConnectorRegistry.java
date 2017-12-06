@@ -60,12 +60,14 @@ public class ServerConnectorRegistry {
         ServiceLoader<BallerinaServerConnector> serverConnectorServiceLoader =
                 ServiceLoader.load(BallerinaServerConnector.class);
         serverConnectorServiceLoader.forEach(serverConnector -> {
-            if (!serverConnectorMap.containsKey(serverConnector.getProtocolPackage())) {
-                serverConnectorMap.put(serverConnector.getProtocolPackage(), serverConnector);
-            } else {
-                throw new BLangRuntimeException("Multiple server connectors in the runtime for" +
-                        " given protocol package - " + serverConnector.getProtocolPackage());
-            }
+            serverConnector.getProtocolPackages().forEach(protocolPkg -> {
+                if (!serverConnectorMap.containsKey(protocolPkg)) {
+                    serverConnectorMap.put(protocolPkg, serverConnector);
+                } else {
+                    throw new BLangRuntimeException("Multiple server connectors in the runtime for" +
+                                                            " given protocol package - " + protocolPkg);
+                }
+            });
         });
         initialized = true;
     }

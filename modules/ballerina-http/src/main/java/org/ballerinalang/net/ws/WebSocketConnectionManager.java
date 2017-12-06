@@ -31,7 +31,7 @@ public class WebSocketConnectionManager {
     private static final WebSocketConnectionManager CONNECTION_MANAGER = new WebSocketConnectionManager();
 
     // Map <sessionId, WebSocketConnectionStruct>
-    private final Map<String, BStruct> wsConnecionsMap = new ConcurrentHashMap<>();
+    private final Map<String, BStruct> wsConnectionsMap = new ConcurrentHashMap<>();
 
     private WebSocketConnectionManager() {
     }
@@ -41,14 +41,14 @@ public class WebSocketConnectionManager {
     }
 
     public BStruct getConnection(String connectionID) {
-        return wsConnecionsMap.get(connectionID);
+        return wsConnectionsMap.get(connectionID);
     }
 
     public void addConnection(String connectionID, BStruct wsConnection) {
-        wsConnecionsMap.put(connectionID, wsConnection);
+        wsConnectionsMap.put(connectionID, wsConnection);
     }
 
     public BStruct removeConnection(String connectionID) {
-        return wsConnecionsMap.remove(connectionID);
+        return wsConnectionsMap.remove(connectionID);
     }
 }
