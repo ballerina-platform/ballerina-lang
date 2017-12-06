@@ -72,6 +72,7 @@ class WorkerNode extends React.Component {
      * */
     handleSetName(value) {
         if (value) {
+            value = value.replace(';', '');
             // Parse new worker node with changed identifier value.
             const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createWorkerFragment(`worker ${value} {
             }`));
