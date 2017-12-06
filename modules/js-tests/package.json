@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "test": "mocha target/test/js/source-gen-test.js",
+    "test": "mocha --timeout 3000 target/test/js/source-gen-test.js",
     "test:debug": "cross-env SOURCE_DEBUG=true mocha target/test/js/source-gen-test.js",
     "compile": "babel ./src --out-dir ./target"
   },
