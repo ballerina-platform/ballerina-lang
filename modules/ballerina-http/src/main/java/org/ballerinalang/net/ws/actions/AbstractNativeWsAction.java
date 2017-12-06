@@ -44,7 +44,7 @@ public abstract class AbstractNativeWsAction extends AbstractNativeAction {
     public BStruct createWsConnectionStruct(Context context, Session session, String parentConnectionID) {
 
         //gather package details from natives
-        PackageInfo wsConnectionPackageInfo = context.getProgramFile().getPackageInfo(Constants.WEBSOCKET_PACKAGE_NAME);
+        PackageInfo wsConnectionPackageInfo = context.getProgramFile().getPackageInfo(Constants.PROTOCOL_PACKAGE_WS);
         StructInfo wsConnectionStructInfo =
                 wsConnectionPackageInfo.getStructInfo(Constants.STRUCT_WEBSOCKET_CONNECTION);
 
@@ -60,7 +60,7 @@ public abstract class AbstractNativeWsAction extends AbstractNativeAction {
     public BStruct createWsErrorStruct(Context context, Throwable throwable) {
 
         //gather package details from natives
-        PackageInfo wsErrorPackageInfo = context.getProgramFile().getPackageInfo(Constants.WEBSOCKET_PACKAGE_NAME);
+        PackageInfo wsErrorPackageInfo = context.getProgramFile().getPackageInfo(Constants.PROTOCOL_PACKAGE_WS);
         StructInfo wsConnectionStructInfo =
                 wsErrorPackageInfo.getStructInfo(Constants.STRUCT_WEBSOCKET_ERROR);
 

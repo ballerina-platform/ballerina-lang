@@ -101,10 +101,11 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
      * @param schema     Schema of the provided JSON, as a string
      */
     public BJSON(String jsonString, String schema) {
-        if (jsonString == null || jsonString.isEmpty()) {
-            throw new IllegalArgumentException("cannot parse an empty string to json");
+        if (jsonString == null) {
+            this.value = OBJECT_MAPPER.getNodeFactory().nullNode();
+            return;
         }
-        
+
         try {
             this.value = OBJECT_MAPPER.readTree(jsonString);
             if (schema != null) {

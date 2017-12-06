@@ -177,8 +177,7 @@ public class ServiceTest {
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
-        Assert.assertEquals(bJson.value().get("Team").asText(), ""
-                , "Team variable not set properly.");
+        Assert.assertTrue(bJson.value().get("Team").isNull(), "Team variable not set properly.");
     }
 
     @Test(description = "Test GetFormParams empty payloads")
@@ -204,6 +203,26 @@ public class ServiceTest {
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
         Assert.assertNotNull(stringDataSource);
         Assert.assertTrue(stringDataSource.getValue().contains("unsupported media type"));
+    }
+
+    @Test(description = "Test Http PATCH verb dispatching with a payload")
+    public void testPATCHMethodWithBody() {
+        String path = "/echo/modify";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "PATCH", "WSO2");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 204);
+    }
+
+    @Test(description = "Test Http PATCH verb dispatching without a payload")
+    public void testPATCHMethodWithoutBody() {
+        String path = "/echo/modify";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "PATCH");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 204);
     }
 
     @AfterClass

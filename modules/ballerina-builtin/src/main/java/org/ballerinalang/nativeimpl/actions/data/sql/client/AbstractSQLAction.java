@@ -69,7 +69,10 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.TimeZone;
 import javax.sql.XAConnection;
 import javax.transaction.TransactionManager;
@@ -362,16 +365,22 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         return stmt;
     }
 
-    private ArrayList<ColumnDefinition> getColumnDefinitions(ResultSet rs)
+    private List<ColumnDefinition> getColumnDefinitions(ResultSet rs)
             throws SQLException {
-        ArrayList<ColumnDefinition> columnDefs = new ArrayList<>();
+        List<ColumnDefinition> columnDefs = new ArrayList<>();
+        Set<String> columnNames = new HashSet<>();
         ResultSetMetaData rsMetaData = rs.getMetaData();
         int cols = rsMetaData.getColumnCount();
         for (int i = 1; i <= cols; i++) {
             String colName = rsMetaData.getColumnLabel(i);
+            if (columnNames.contains(colName)) {
+                String tableName = rsMetaData.getTableName(i).toUpperCase();
+                colName = tableName + "." + colName;
+            }
             int colType = rsMetaData.getColumnType(i);
             TypeKind mappedType = SQLDatasourceUtils.getColumnType(colType);
             columnDefs.add(new SQLDataIterator.SQLColumnDefinition(colName, mappedType, colType));
+            columnNames.add(colName);
         }
         return columnDefs;
     }
@@ -772,7 +781,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     }
 
     private BDataTable constructDataTable(ResultSet rs, Statement stmt, Connection conn) throws SQLException {
-        ArrayList<ColumnDefinition> columnDefinitions = getColumnDefinitions(rs);
+        List<ColumnDefinition> columnDefinitions = getColumnDefinitions(rs);
         return new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar, columnDefinitions));
     }
 

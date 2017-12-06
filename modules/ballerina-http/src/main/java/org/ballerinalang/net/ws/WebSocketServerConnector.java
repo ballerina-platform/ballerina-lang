@@ -23,6 +23,9 @@ import org.ballerinalang.connector.api.BallerinaServerConnector;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.net.http.HttpUtil;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * {@code WebSocketServerConnector} This is the web socket implementation for the {@code BallerinaServerConnector} API.
  *
@@ -31,8 +34,10 @@ import org.ballerinalang.net.http.HttpUtil;
 @JavaSPIService("org.ballerinalang.connector.api.BallerinaServerConnector")
 public class WebSocketServerConnector implements BallerinaServerConnector {
     @Override
-    public String getProtocolPackage() {
-        return Constants.WEBSOCKET_PACKAGE_NAME;
+    public List<String> getProtocolPackages() {
+        List<String> protocolPackages = new LinkedList<>();
+        protocolPackages.add(Constants.PROTOCOL_PACKAGE_WS);
+        return protocolPackages;
     }
 
     @Override

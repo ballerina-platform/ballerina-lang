@@ -38,7 +38,6 @@ import java.util.regex.Pattern;
 
 import static org.ballerinalang.logging.util.Constants.BALLERINA_LOG_INSTANCES;
 import static org.ballerinalang.logging.util.Constants.BALLERINA_USER_LOG;
-import static org.ballerinalang.logging.util.Constants.EMPTY_CONFIG;
 import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG;
 import static org.ballerinalang.logging.util.Constants.LOG_LEVEL;
 
@@ -82,7 +81,7 @@ public class BLogManager extends LogManager {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
 
         String instancesVal = configRegistry.getGlobalConfigValue(BALLERINA_LOG_INSTANCES);
-        if (!EMPTY_CONFIG.equals(instancesVal)) {
+        if (instancesVal != null) {
             String[] loggerInstances = instancesVal.split(",");
 
             for (String instanceId : loggerInstances) {
@@ -93,7 +92,7 @@ public class BLogManager extends LogManager {
 
         // setup Ballerina user-level log level configuration
         String userLogLevel = configRegistry.getInstanceConfigValue(BALLERINA_USER_LOG, LOG_LEVEL);
-        if (!EMPTY_CONFIG.equals(userLogLevel)) {
+        if (userLogLevel != null) {
             ballerinaUserLogLevel = BLogLevel.toBLogLevel(userLogLevel);
         } else {
             // Default to INFO
@@ -102,7 +101,7 @@ public class BLogManager extends LogManager {
 
         // setup HTTP trace log level configuration
         String traceLogLevel = configRegistry.getInstanceConfigValue(HTTP_TRACE_LOG, LOG_LEVEL);
-        if (!EMPTY_CONFIG.equals(traceLogLevel)) {
+        if (traceLogLevel != null) {
             loggerLevels.put(HTTP_TRACE_LOG, BLogLevel.toBLogLevel(traceLogLevel));
         }
 
