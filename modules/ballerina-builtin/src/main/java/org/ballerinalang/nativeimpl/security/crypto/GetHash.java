@@ -18,6 +18,7 @@ package org.ballerinalang.nativeimpl.security.crypto;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -50,17 +51,19 @@ public class GetHash extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         String baseString = getStringArgument(context, 0);
-        String algorithm = getStringArgument(context, 1);
+        BEnumerator algorithm = (BEnumerator) getRefArgument(context, 0);
+        String hashAlgorithm;
 
         //todo document the supported algorithm
-        switch (algorithm) {
+        switch (algorithm.getName()) {
             case "SHA1":
-                algorithm = "SHA-1";
+                hashAlgorithm = "SHA-1";
                 break;
             case "SHA256":
-                algorithm = "SHA-256";
+                hashAlgorithm = "SHA-256";
                 break;
             case "MD5":
+                hashAlgorithm = "MD5";
                 break;
             default:
                 throw new BallerinaException("Unsupported algorithm " + algorithm + " for HMAC calculation");
@@ -69,7 +72,7 @@ public class GetHash extends AbstractNativeFunction {
         String result;
         try {
             MessageDigest messageDigest;
-            messageDigest = MessageDigest.getInstance(algorithm);
+            messageDigest = MessageDigest.getInstance(hashAlgorithm);
             messageDigest.update(baseString.getBytes("UTF-8"));
             byte[] bytes = messageDigest.digest();
 

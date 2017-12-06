@@ -103,7 +103,7 @@ public class UtilTest {
     @Test
     public void testHMACValueFromBase16ToBase64Encoding() {
         String expectedValue = "S4qhC4EdsEcvY64gs+JsmA==";
-        BValue[] args = new BValue[]{new BString("Hello Ballerina"), new BString("abcdefghijk"), new BString("MD5")};
+        BValue[] args = new BValue[]{new BString("Hello Ballerina"), new BString("abcdefghijk")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHMACValueFromBase16ToBase64Encoding", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                            "Invalid return value");
@@ -113,8 +113,7 @@ public class UtilTest {
     @Test
     public void testHMACValueFromBase64ToBase16Encoding() {
         String expectedValue = "4B8AA10B811DB0472F63AE20B3E26C98";
-        BValue[] args = new BValue[]{new BString("Hello Ballerina"), new BString("abcdefghijk"),
-                new BString("MD5")};
+        BValue[] args = new BValue[]{new BString("Hello Ballerina"), new BString("abcdefghijk")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHMACValueFromBase64ToBase16Encoding", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                            "Invalid return value");

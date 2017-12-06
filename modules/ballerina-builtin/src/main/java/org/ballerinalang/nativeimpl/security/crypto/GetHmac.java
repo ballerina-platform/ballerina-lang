@@ -18,6 +18,7 @@ package org.ballerinalang.nativeimpl.security.crypto;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -56,11 +57,11 @@ public class GetHmac extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         String baseString = getStringArgument(context, 0);
         String keyString = getStringArgument(context, 1);
-        String algorithm = getStringArgument(context, 2);
+        BEnumerator algorithm = (BEnumerator) getRefArgument(context, 0);
         String hmacAlgorithm;
 
         //todo document the supported algorithm
-        switch (algorithm) {
+        switch (algorithm.getName()) {
             case "SHA1":
                 hmacAlgorithm = "HmacSHA1";
                 break;
