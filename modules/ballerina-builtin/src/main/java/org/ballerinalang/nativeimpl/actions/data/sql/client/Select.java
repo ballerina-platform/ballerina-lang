@@ -25,7 +25,6 @@ import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BTypeValue;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;

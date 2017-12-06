@@ -176,6 +176,9 @@ public class SQLDataIterator implements DataIterator {
 
     @Override
     public BStruct generateNext() {
+        if (bStructType == null) {
+            throw new BallerinaException("the expected struct type is not specified in action");
+        }
         BStruct bStruct = new BStruct(bStructType);
         int longRegIndex = -1;
         int doubleRegIndex = -1;

@@ -257,9 +257,6 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         if (type != null) {
             structType = (BStructType) type.value();
         }
-        if (structType == null) {
-            throw new BallerinaException("the expected struct type is not specified in action");
-        }
         return structType;
     }
 
