@@ -17,18 +17,17 @@
 */
 package org.ballerinalang.bre.nonblocking.debugger;
 
-import org.ballerinalang.util.debugger.DebugContext;
+import org.ballerinalang.util.debugger.VMDebugManager;
 
 /**
- * Represents a Debug sessions observer which will be notified by the the BLanExecutionDebugger.
+ * Represents a debug server which will start listening to client connections.
  */
-public interface DebugSessionObserver {
-
+public interface DebugServer {
     /**
-     * Called when adding a context.
+     * Method to start debug server.
      *
-     * @param debugContext to be added to the map.
+     * @param debugManager object.
      */
-    void addContext(DebugContext debugContext);
+    void startServer(VMDebugManager debugManager);
 
 }

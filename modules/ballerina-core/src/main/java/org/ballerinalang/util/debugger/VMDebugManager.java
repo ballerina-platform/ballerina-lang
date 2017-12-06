@@ -22,13 +22,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.channel.Channel;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
+import org.ballerinalang.bre.nonblocking.debugger.DebugClientHandler;
+import org.ballerinalang.bre.nonblocking.debugger.DebugServer;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.debugger.dto.CommandDTO;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 
 
@@ -41,9 +45,9 @@ public class VMDebugManager {
 
     private boolean debugEnabled = false;
 
-    private VMDebugServer debugServer;
+    private DebugServer debugServer;
 
-    private VMDebugSession debugSession;
+    private DebugClientHandler clientHandler;
 
     private DebugInfoHolder debugInfoHolder;
 
@@ -67,17 +71,22 @@ public class VMDebugManager {
         return debugEnabled;
     }
 
+    public void setDebugEnabled(boolean debugEnabled) {
+        this.debugEnabled = debugEnabled;
+    }
+
     /**
      * Method to initialize debug manager.
      *
-     * @param programFile used to initialize debug manager.
+     * @param programFile   used to initialize debug manager.
+     * @param clientHandler session used to communicate with client.
      */
-    public void init(ProgramFile programFile) {
+    public void init(ProgramFile programFile, DebugClientHandler clientHandler, DebugServer debugServer) {
         this.executionSem = new Semaphore(0);
         this.debugSem = new Semaphore(1);
         this.initDebugInfoHolder(programFile);
-        this.debugSession = new VMDebugSession();
-        this.debugServer = new VMDebugServer();
+        this.clientHandler = clientHandler;
+        this.debugServer = debugServer;
         this.debugServer.startServer(this);
     }
 
@@ -98,7 +107,7 @@ public class VMDebugManager {
      * Helper method to add debug context and wait until debugging starts.
      */
     public synchronized void addDebugContextAndWait() {
-        this.debugSession.addContext(new DebugContext());
+        this.clientHandler.addContext(new DebugContext());
         this.waitTillDebuggeeResponds();
     }
 
@@ -155,7 +164,7 @@ public class VMDebugManager {
             MessageDTO message = new MessageDTO();
             message.setCode(DebugConstants.CODE_INVALID);
             message.setMessage(e.getMessage());
-            debugServer.pushMessageToClient(debugSession, message);
+            clientHandler.sendCustomMsg(message);
         }
     }
 
@@ -188,7 +197,7 @@ public class VMDebugManager {
                 break;
             case DebugConstants.CMD_SET_POINTS:
                 // we expect { "command": "SET_POINTS", points: [{ "fileName": "sample.bal", "lineNumber" : 5 },{...}]}
-                debugInfoHolder.addDebugPoints(command.getPoints());
+                addDebugPoints(command.getPoints());
                 sendAcknowledge("Debug points updated");
                 break;
             case DebugConstants.CMD_START:
@@ -202,8 +211,17 @@ public class VMDebugManager {
         }
     }
 
+    /**
+     * Method to add debug points.
+     *
+     * @param breakPointDTOS to be added.
+     */
+    public void addDebugPoints(List<BreakPointDTO> breakPointDTOS) {
+        debugInfoHolder.addDebugPoints(breakPointDTOS);
+    }
+
     private void startDebug() {
-        debugSession.updateAllDebugContexts(DebugCommand.RESUME);
+        clientHandler.updateAllDebugContexts(DebugCommand.RESUME);
         releaseLock();
     }
 
@@ -229,13 +247,13 @@ public class VMDebugManager {
 
     private void stopDebugging() {
         debugInfoHolder.clearDebugLocations();
-        debugSession.updateAllDebugContexts(DebugCommand.RESUME);
-        debugSession.clearSession();
+        clientHandler.updateAllDebugContexts(DebugCommand.RESUME);
+        clientHandler.clearChannel();
         releaseLock();
     }
 
     private DebugContext getDebugContext(String threadId) {
-        DebugContext debugContext = debugSession.getContext(threadId);
+        DebugContext debugContext = clientHandler.getContext(threadId);
         if (debugContext == null) {
             throw new DebugException(DebugConstants.MSG_INVALID_THREAD_ID);
         }
@@ -248,7 +266,7 @@ public class VMDebugManager {
      * @param channel the channel
      */
     public void addDebugSession(Channel channel) throws DebugException {
-        this.debugSession.setChannel(channel);
+        this.clientHandler.setChannel(channel);
         sendAcknowledge("Channel registered.");
     }
 
@@ -258,11 +276,16 @@ public class VMDebugManager {
      * @param debugContext context to run
      */
     public void addDebugContext(DebugContext debugContext) {
-        this.debugSession.addContext(debugContext);
+        this.clientHandler.addContext(debugContext);
     }
 
+    /**
+     * Helper method to know whether debug session active or not.
+     *
+     * @return true if active.
+     */
     public boolean isDebugSessionActive() {
-        return (this.debugSession.getChannel() != null);
+        return this.clientHandler.isChannelActive();
     }
 
     /**
@@ -271,13 +294,7 @@ public class VMDebugManager {
      * @param breakPointInfo info of the current break point
      */
     public void notifyDebugHit(BreakPointInfo breakPointInfo) {
-        MessageDTO message = new MessageDTO();
-        message.setCode(DebugConstants.CODE_HIT);
-        message.setMessage(DebugConstants.MSG_HIT);
-        message.setThreadId(breakPointInfo.getThreadId());
-        message.setLocation(breakPointInfo.getHaltLocation());
-        message.setFrames(breakPointInfo.getCurrentFrames());
-        debugServer.pushMessageToClient(debugSession, message);
+        clientHandler.notifyHalt(breakPointInfo);
     }
 
 
@@ -285,10 +302,7 @@ public class VMDebugManager {
      * Notify client when debugger has finish execution.
      */
     public void notifyComplete() {
-        MessageDTO message = new MessageDTO();
-        message.setCode(DebugConstants.CODE_COMPLETE);
-        message.setMessage(DebugConstants.MSG_COMPLETE);
-        debugServer.pushMessageToClient(debugSession, message);
+        clientHandler.notifyComplete();
     }
 
     /**
@@ -298,10 +312,7 @@ public class VMDebugManager {
         if (!isDebugSessionActive()) {
             return;
         }
-        MessageDTO message = new MessageDTO();
-        message.setCode(DebugConstants.CODE_EXIT);
-        message.setMessage(DebugConstants.MSG_EXIT);
-        debugServer.pushMessageToClient(debugSession, message);
+        clientHandler.notifyExit();
     }
 
     /**
@@ -313,6 +324,6 @@ public class VMDebugManager {
         MessageDTO message = new MessageDTO();
         message.setCode(DebugConstants.CODE_ACK);
         message.setMessage(messageText);
-        debugServer.pushMessageToClient(debugSession, message);
+        clientHandler.sendCustomMsg(message);
     }
 }

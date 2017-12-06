@@ -18,8 +18,6 @@
 package org.ballerinalang.util.debugger;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -30,8 +28,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import org.ballerinalang.util.debugger.dto.MessageDTO;
+import org.ballerinalang.bre.nonblocking.debugger.DebugServer;
 
 import java.io.PrintStream;
 
@@ -43,7 +40,7 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
  *
  * @since 0.88
  */
-public class VMDebugServer {
+public class VMDebugServer implements DebugServer {
 
     /**
      *  Debug server initializer class.
@@ -104,24 +101,6 @@ public class VMDebugServer {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
-    }
-
-    /**
-     * Push message to client.
-     *
-     * @param debugSession current debugging session
-     * @param status debug point information
-     */
-    public void pushMessageToClient(VMDebugSession debugSession, MessageDTO status) {
-        ObjectMapper mapper = new ObjectMapper();
-        String json = null;
-        try {
-            json = mapper.writeValueAsString(status);
-        } catch (JsonProcessingException e) {
-            json = DebugConstants.ERROR_JSON;
-        }
-        debugSession.getChannel().write(new TextWebSocketFrame(json));
-        debugSession.getChannel().flush();
     }
 
     private int getDebugPort() {

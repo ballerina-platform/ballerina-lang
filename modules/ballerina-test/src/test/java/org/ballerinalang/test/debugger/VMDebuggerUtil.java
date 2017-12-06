@@ -17,11 +17,13 @@
 */
 package org.ballerinalang.test.debugger;
 
+import io.netty.channel.Channel;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
-import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
+import org.ballerinalang.bre.nonblocking.debugger.DebugClientHandler;
+import org.ballerinalang.bre.nonblocking.debugger.DebugServer;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -30,12 +32,19 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.util.debugger.DebugCommand;
+import org.ballerinalang.util.debugger.DebugContext;
+import org.ballerinalang.util.debugger.DebugException;
 import org.ballerinalang.util.debugger.DebugInfoHolder;
+import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
+import org.ballerinalang.util.debugger.dto.MessageDTO;
 import org.testng.Assert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -47,7 +56,7 @@ public class VMDebuggerUtil {
 
     public static void startDebug(String sourceFilePath, BreakPointDTO[] breakPoints, BreakPointDTO[] expectedPoints,
                                   Step[] debugCommand) {
-        DebugSessionObserverImpl debugSessionObserver = new DebugSessionObserverImpl();
+        TestDebugClientHandler debugSessionObserver = new TestDebugClientHandler();
         DebugRunner debugRunner = new DebugRunner();
         Context bContext = debugRunner.setup(sourceFilePath, debugSessionObserver, breakPoints);
 
@@ -123,15 +132,19 @@ public class VMDebuggerUtil {
         CompileResult result;
         Context bContext;
 
-        Context setup(String sourceFilePath, DebugSessionObserverImpl debugSessionObserver,
+        Context setup(String sourceFilePath, TestDebugClientHandler debugSessionObserver,
                       BreakPointDTO[] breakPoints) {
             result = BCompileUtil.compile(sourceFilePath);
 
             bContext = new Context(result.getProgFile());
-            bContext.setAndInitDebugInfoHolder(new DebugInfoHolder());
 
             ControlStackNew controlStackNew = bContext.getControlStackNew();
             String mainPkgName = result.getProgFile().getEntryPkgName();
+
+            VMDebugManager debugManager = result.getProgFile().getDebugManager();
+            debugManager.setDebugEnabled(true);
+            debugManager.init(result.getProgFile(), debugSessionObserver, new TestDebugServer());
+            debugManager.addDebugPoints(new ArrayList<>(Arrays.asList(breakPoints)));
 
             PackageInfo mainPkgInfo = result.getProgFile().getPackageInfo(mainPkgName);
             if (mainPkgInfo == null) {
@@ -158,39 +171,57 @@ public class VMDebuggerUtil {
                     defaultWorkerInfo, -1, new int[0]);
             stackFrame.getRefLocalVars()[0] = arrayArgs;
             controlStackNew.pushFrame(stackFrame);
-            bContext.setDebugEnabled(true);
             bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
-            bContext.getDebugContext().setDebugSessionObserver(debugSessionObserver);
-            bContext.getDebugContext().addDebugPoints(new ArrayList<>(Arrays.asList(breakPoints)));
-            bContext.getDebugContext().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
             DebuggerExecutor executor = new DebuggerExecutor(result.getProgFile(), bContext);
             (new Thread(executor)).start();
             return bContext;
         }
     }
 
-    static class DebugSessionObserverImpl implements DebugSessionObserver {
+    static class TestDebugClientHandler implements DebugClientHandler {
 
         boolean isExit;
         int hitCount = -1;
         NodeLocation haltPosition;
-        private volatile Semaphore executionSem;
 
-        DebugSessionObserverImpl() {
-            executionSem = new Semaphore(0);
-        }
+        //key - threadid
+        private Map<String, DebugContext> contextMap;
 
-        public void aquireSem() {
-            try {
-                executionSem.acquire();
-            } catch (InterruptedException e) {
-
-            }
+        TestDebugClientHandler() {
+            this.contextMap = new HashMap<>();
         }
 
         @Override
-        public void addContext(Context bContext) {
+        public void addContext(DebugContext debugContext) {
+            String threadId = Thread.currentThread().getName() + ":" + Thread.currentThread().getId();
+            debugContext.setThreadId(threadId);
+            //TODO check if that thread id already exist in the map
+            this.contextMap.put(threadId, debugContext);
+        }
 
+        @Override
+        public DebugContext getContext(String threadId) {
+            return this.contextMap.get(threadId);
+        }
+
+        @Override
+        public void updateAllDebugContexts(DebugCommand debugCommand) {
+
+        }
+
+        @Override
+        public void setChannel(Channel channel) throws DebugException {
+
+        }
+
+        @Override
+        public void clearChannel() {
+
+        }
+
+        @Override
+        public boolean isChannelActive() {
+            return false;
         }
 
         @Override
@@ -200,14 +231,25 @@ public class VMDebuggerUtil {
         @Override
         public void notifyExit() {
             isExit = true;
-            executionSem.release();
         }
 
         @Override
         public void notifyHalt(BreakPointInfo breakPointInfo) {
             hitCount++;
             haltPosition = breakPointInfo.getHaltLocation();
-            executionSem.release();
+        }
+
+        @Override
+        public void sendCustomMsg(MessageDTO message) {
+
+        }
+    }
+
+    static class TestDebugServer implements DebugServer {
+
+        @Override
+        public void startServer(VMDebugManager debugManager) {
+
         }
     }
 }

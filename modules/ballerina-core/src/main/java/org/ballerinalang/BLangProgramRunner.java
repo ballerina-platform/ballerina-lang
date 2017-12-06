@@ -34,6 +34,8 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.debugger.VMDebugManager;
+import org.ballerinalang.util.debugger.VMDebugClientHandler;
+import org.ballerinalang.util.debugger.VMDebugServer;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -83,7 +85,7 @@ public class BLangProgramRunner {
         }
 
         if (programFile.getDebugManager().isDebugEnabled()) {
-            programFile.getDebugManager().init(programFile);
+            programFile.getDebugManager().init(programFile, new VMDebugClientHandler(), new VMDebugServer());
         }
     }
 
@@ -126,7 +128,7 @@ public class BLangProgramRunner {
         bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
         VMDebugManager debugManager = programFile.getDebugManager();
         if (debugManager.isDebugEnabled()) {
-            debugManager.init(programFile);
+            debugManager.init(programFile, new VMDebugClientHandler(), new VMDebugServer());
             debugManager.addDebugContextAndWait();
         }
         BLangVM bLangVM = new BLangVM(programFile);
