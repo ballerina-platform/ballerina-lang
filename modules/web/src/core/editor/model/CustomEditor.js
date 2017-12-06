@@ -44,6 +44,7 @@ class CustomEditor extends EventChannel {
         this._propsProvider = propsProvider;
         this._additionalProps = additionalProps;
         this._customTitleClass = customTitleClass;
+        this._props = {};
     }
 
     get id() {
@@ -76,6 +77,25 @@ class CustomEditor extends EventChannel {
 
     get customTitleClass() {
         return this._customTitleClass;
+    }
+
+    /**
+     * Get the value of given property.
+     *
+     * @param {string} propertyName
+     */
+    getProperty(propertyName) {
+        return this._props[propertyName];
+    }
+
+    /**
+     * Set the value of given property.
+     *
+     * @param {string} propertyName
+     * @param {any} propertyValue
+     */
+    setProperty(propertyName, propertyValue) {
+        this._props[propertyName] = propertyValue;
     }
 }
 

@@ -40,3 +40,7 @@ export const DIALOGS = {
 export const EVENTS = {
     ACTIVE_BAL_AST_CHANGED: 'active-bal-ast-changed',
 };
+
+export const VIEWS = {
+    TOOL_PALLETE: 'composer.views.ballerina.tool-pallette',
+};

@@ -1,12 +1,12 @@
 .tool-palette-container{
     border-right: 1px solid #c9c9c9;
     position: absolute;
-    width: 244px;
     left: 0;
     top: 0;
     background-color: #fff;
     height: calc(100%);
     z-index: 2;
+    color: #333333;
 }
 
 .tool-group{

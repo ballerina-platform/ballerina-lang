@@ -18,7 +18,8 @@
 import React from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import _ from 'lodash';
-import PropTypes from 'prop-types';
+import PropTypes, { instanceOf } from 'prop-types';
+import { EVENTS as EDITOR_EVENTS } from 'core/editor/constants';
 import DefaultTools from './item-provider/default-tools';
 import ToolGroupView from './tool-group-view';
 import './tool-palette.css';
@@ -286,6 +287,21 @@ class ToolPaletteView extends React.Component {
             tab: 'tools',
             search: '',
         };
+        this.reRender = this.reRender.bind(this);
+    }
+
+    reRender() {
+        this.forceUpdate();
+    }
+
+    componentDidMount() {
+        const { command: { on } } = this.context;
+        on(EDITOR_EVENTS.ACTIVE_TAB_CHANGE, this.reRender);
+    }
+
+    componentWillUnmount() {
+        const { command: { off } } = this.context;
+        off(EDITOR_EVENTS.ACTIVE_TAB_CHANGE, this.reRender);
     }
 
     onSearchTextChange(value) {
@@ -325,8 +341,7 @@ class ToolPaletteView extends React.Component {
         return data;
     }
 
-    addDyamicTools(defaultTools) {
-        const environment = this.context.environment;
+    addDyamicTools(environment, defaultTools) {
         if (environment.getPackages()) {
             let newToolItem,
                 indexToBeAdded;
@@ -524,15 +539,22 @@ class ToolPaletteView extends React.Component {
     }
 
     render() {
+        // check active editor before rendering tool-pallete
+        const activeEditor = this.context.editor.getActiveEditor();
+        if (!activeEditor || activeEditor.file.extension !== 'bal') {
+            return (<div className='tool-palette-error'>Not Supported for Current Editor.</div>);
+        }
+        const model = activeEditor.getProperty('ast');
+        const environment = activeEditor.getProperty('balEnvironment');
+        if (!model || !(model instanceof CompilationUnitNode)
+             || !environment || !(environment instanceof PackageScopedEnvironment)) {
+            return (<div className='tool-palette-error'>Ooops! Something is wrong. Unabale to load Tool Pallete.</div>);
+        }
         // assigned the state to local variable.
         let state = this.state.tab;
 
         const searching = this.state.search.length > 0;
-        // get the model
-        const model = this.context.astRoot;
         const topLevelNodes = model ? model.getTopLevelNodes() : [];
-        // get the environment
-        const environment = this.context.environment;
         // get the current package
         const currentPackage = environment.getCurrentPackage();
         const isCurrentPackage = true;
@@ -545,7 +567,7 @@ class ToolPaletteView extends React.Component {
         // get the constructs
         let constructs = _.cloneDeep(DefaultTools);
         if (environment.getPackages().length > 0) {
-            constructs = this.addDyamicTools(constructs);
+            constructs = this.addDyamicTools(environment, constructs);
         }
         // get imported packages
         const imports = topLevelNodes.filter(topLevelNode => topLevelNode.kind === 'Import');
@@ -673,8 +695,13 @@ ToolPaletteView.propTypes = {
 };
 
 ToolPaletteView.contextTypes = {
-    astRoot: PropTypes.instanceOf(CompilationUnitNode),
-    environment: PropTypes.instanceOf(PackageScopedEnvironment).isRequired,
+    editor: PropTypes.shape({
+        getActiveEditor: PropTypes.func,
+    }).isRequired,
+    command: PropTypes.shape({
+        on: PropTypes.func,
+        off: PropTypes.func,
+    }).isRequired,
 };
 
 export default ToolPaletteView;

@@ -126,6 +126,7 @@ class BallerinaFileEditor extends React.Component {
             }
         });
         this.environment = new PackageScopedEnvironment();
+        this.props.editorModel.setProperty('balEnvironment', this.environment);
 
         this.hideSwaggerAceEditor = false;
 

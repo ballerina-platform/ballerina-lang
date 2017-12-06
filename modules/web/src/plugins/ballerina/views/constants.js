@@ -34,4 +34,4 @@ export const CLASSES = {
     },
 };
 
-export const TOOL_PALETTE_WIDTH = 243;
+export const TOOL_PALETTE_WIDTH = 0;

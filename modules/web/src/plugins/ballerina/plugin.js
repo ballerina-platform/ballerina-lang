@@ -26,9 +26,10 @@ import { CLASSES } from 'plugins/ballerina/views/constants';
 import Document from 'plugins/ballerina/docerina/document.jsx';
 import Editor from './views/editor-wrapper';
 import { PLUGIN_ID, EDITOR_ID, DOC_VIEW_ID, COMMANDS as COMMAND_IDS, TOOLS as TOOL_IDS,
-            DIALOGS as DIALOG_IDS } from './constants';
+            DIALOGS as DIALOG_IDS, VIEWS as VIEW_IDS } from './constants';
 import OpenProgramDirConfirmDialog from './dialogs/OpenProgramDirConfirmDialog';
 import { getLangServerClientInstance } from './langserver/lang-server-client-controller';
+import ToolPaletteView from './tool-palette/tool-palette-view';
 
 /**
  * Plugin for Ballerina Lang
@@ -124,6 +125,22 @@ class BallerinaPlugin extends Plugin {
                         customTitleClass: CLASSES.TAB_TITLE.DESIGN_VIEW,
                     },
                     displayOnLoad: false,
+                },
+                {
+                    id: VIEW_IDS.TOOL_PALLETE,
+                    component: ToolPaletteView,
+                    propsProvider: () => {
+                        return {
+                            ballerinaPlugin: this,
+                        };
+                    },
+                    region: REGIONS.LEFT_PANEL,
+                    // region specific options for left-panel views
+                    regionOptions: {
+                        activityBarIcon: 'grip',
+                        panelTitle: 'Tool Palette',
+                        panelActions: [],
+                    },
                 },
             ],
             [HANDLERS]: [
