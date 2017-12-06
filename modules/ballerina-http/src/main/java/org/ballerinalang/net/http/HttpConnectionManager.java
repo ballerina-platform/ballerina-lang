@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
 import org.ballerinalang.net.ws.BallerinaWsServerConnectorListener;
+import org.ballerinalang.net.ws.WebSocketServicesRegistry;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.config.ConfigurationBuilder;
@@ -150,14 +151,16 @@ public class HttpConnectionManager {
      *
      * @throws ServerConnectorException if exception occurs while starting at least one connector.
      */
-    public void startPendingHTTPConnectors() throws ServerConnectorException {
+    public void startPendingHTTPConnectors(HttpServerConnector httpServerConnector) throws ServerConnectorException {
         ConnectorStartupSynchronizer startupSyncer =
                 new ConnectorStartupSynchronizer(new CountDownLatch(startupDelayedHTTPServerConnectors.size()));
 
         for (Map.Entry<String, ServerConnector> serverConnectorEntry : startupDelayedHTTPServerConnectors.entrySet()) {
             ServerConnector serverConnector = serverConnectorEntry.getValue();
             ServerConnectorFuture connectorFuture = serverConnector.start();
-            setConnectorListeners(connectorFuture, serverConnector.getConnectorID(), startupSyncer);
+            setConnectorListeners(connectorFuture, serverConnector.getConnectorID(), startupSyncer,
+                                  httpServerConnector.getHttpServicesRegistry(),
+                                  httpServerConnector.getWebSocketServicesRegistry());
             startedHTTPServerConnectors.put(serverConnector.getConnectorID(), serverConnector);
         }
         try {
@@ -249,9 +252,11 @@ public class HttpConnectionManager {
     }
 
     private void setConnectorListeners(ServerConnectorFuture connectorFuture, String serverConnectorId,
-                                       ConnectorStartupSynchronizer startupSyncer) {
-        connectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener());
-        connectorFuture.setWSConnectorListener(new BallerinaWsServerConnectorListener());
+                                       ConnectorStartupSynchronizer startupSyncer,
+                                       HTTPServicesRegistry httpServicesRegistry,
+                                       WebSocketServicesRegistry webSocketServicesRegistry) {
+        connectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener(httpServicesRegistry));
+        connectorFuture.setWSConnectorListener(new BallerinaWsServerConnectorListener(webSocketServicesRegistry));
         connectorFuture.setPortBindingEventListener(
                 new HttpConnectorPortBindingListener(startupSyncer, serverConnectorId));
     }

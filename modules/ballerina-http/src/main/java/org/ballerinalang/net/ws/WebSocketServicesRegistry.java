@@ -42,7 +42,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebSocketServicesRegistry {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketServicesRegistry.class);
-    private static final WebSocketServicesRegistry REGISTRY = new WebSocketServicesRegistry();
 
     // Map<interface, Map<uri, ServiceName>>
     private final Map<String, Map<String, String>> serviceEndpointsMap = new ConcurrentHashMap<>();
@@ -53,11 +52,7 @@ public class WebSocketServicesRegistry {
 
     private final Map<String, WebSocketService> slaveEndpoints = new HashMap<>();
 
-    private WebSocketServicesRegistry() {
-    }
-
-    public static WebSocketServicesRegistry getInstance() {
-        return REGISTRY;
+    public WebSocketServicesRegistry() {
     }
 
     /**

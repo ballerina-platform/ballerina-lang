@@ -113,7 +113,8 @@ public class ServerConnectorRegistry {
     }
 
     private Service buildService(ServiceInfo serviceInfo) {
-        BService service = new BService(serviceInfo.getName(), serviceInfo.getPackagePath());
+        BService service =
+                new BService(serviceInfo.getName(), serviceInfo.getPackagePath(), serviceInfo.getProtocolPkgPath());
         AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) serviceInfo.getAttributeInfo(
                 AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
         if (attributeInfo != null) {

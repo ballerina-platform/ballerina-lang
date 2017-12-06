@@ -19,9 +19,11 @@
 package org.ballerinalang.test.net.ws;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.net.ws.WebSocketServicesRegistry;
+import org.ballerinalang.net.http.HttpServerConnector;
+import org.ballerinalang.net.ws.Constants;
 import org.testng.annotations.Test;
 
 /**
@@ -36,7 +38,7 @@ public class HttpToWebSocketUpgradeTestCase {
         CompileResult compileResult =
                 BServiceUtil.setupProgramFile(this,
                                               "test-src/net/ws/http-to-websocket-upgrade-without-base-path.bal");
-        WebSocketServicesRegistry.getInstance().validateSeverEndpoints();
+        validateSeverEndpoints();
         BServiceUtil.cleanup(compileResult);
     }
 
@@ -45,7 +47,7 @@ public class HttpToWebSocketUpgradeTestCase {
         CompileResult compileResult =
                 BServiceUtil.setupProgramFile(this,
                                               "test-src/net/ws/http-to-websocket-upgrade-without-upgrade-ann.bal");
-        WebSocketServicesRegistry.getInstance().validateSeverEndpoints();
+        validateSeverEndpoints();
         BServiceUtil.cleanup(compileResult);
     }
 
@@ -53,7 +55,7 @@ public class HttpToWebSocketUpgradeTestCase {
     public void testSuccessfulUpgradeEndpointWithBasePathInBothEndpoints() {
         CompileResult compileResult =
                 BServiceUtil.setupProgramFile(this, "test-src/net/ws/http-to-websocket-upgrade-both-base-paths.bal");
-        WebSocketServicesRegistry.getInstance().validateSeverEndpoints();
+        validateSeverEndpoints();
         BServiceUtil.cleanup(compileResult);
     }
 
@@ -62,7 +64,7 @@ public class HttpToWebSocketUpgradeTestCase {
     public void testWrongServiceName() {
         CompileResult compileResult = BServiceUtil.setupProgramFile(
                 this, "test-src/net/ws/http-to-websocket-upgrade-service-name-negative.bal");
-        WebSocketServicesRegistry.getInstance().validateSeverEndpoints();
+        validateSeverEndpoints();
         BServiceUtil.cleanup(compileResult);
     }
 
@@ -72,7 +74,13 @@ public class HttpToWebSocketUpgradeTestCase {
     public void testHostPortWithoutBasePath() {
         CompileResult compileResult = BServiceUtil.setupProgramFile(
                 this, "test-src/net/ws/http-to-websocket-upgrade-host-port-without-basepath-negative.bal");
-        WebSocketServicesRegistry.getInstance().validateSeverEndpoints();
+        validateSeverEndpoints();
         BServiceUtil.cleanup(compileResult);
+    }
+
+    private void validateSeverEndpoints()throws BallerinaConnectorException {
+        HttpServerConnector httpServerConnector =
+                (HttpServerConnector) ConnectorUtils.getBallerinaServerConnector(Constants.HTTP_PACKAGE_PATH);
+        httpServerConnector.getWebSocketServicesRegistry().validateSeverEndpoints();
     }
 }
