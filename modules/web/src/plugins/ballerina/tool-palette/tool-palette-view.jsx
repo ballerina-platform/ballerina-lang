@@ -541,13 +541,12 @@ class ToolPaletteView extends React.Component {
     render() {
         // check active editor before rendering tool-pallete
         const activeEditor = this.context.editor.getActiveEditor();
-        if (!activeEditor || activeEditor.file.extension !== 'bal') {
-            return (<div className='tool-palette-error'>Not Supported for Current Editor.</div>);
+        if (!activeEditor || !activeEditor.file || activeEditor.file.extension !== 'bal') {
+            return (<div className='tool-palette-error'>Not applicable for current tab.</div>);
         }
         const model = activeEditor.getProperty('ast');
         const environment = activeEditor.getProperty('balEnvironment');
-        if (!model || !(model instanceof CompilationUnitNode)
-             || !environment || !(environment instanceof PackageScopedEnvironment)) {
+        if (!environment || !(environment instanceof PackageScopedEnvironment)) {
             return (<div className='tool-palette-error'>Ooops! Something is wrong. Unabale to load Tool Pallete.</div>);
         }
         // assigned the state to local variable.
