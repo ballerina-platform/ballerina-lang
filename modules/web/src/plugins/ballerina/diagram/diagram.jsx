@@ -117,9 +117,13 @@ class Diagram extends React.Component {
         this.props.model.accept(this.invocationArrowPositionVisitor);
 
         // 7. Now we will visit the model again and collect the errors of each node
-        //    in the tree. We will use ErrorRenderer for this.
-        this.errorRenderer.setErrorUtil(getErrorCollectorUtil(this.props.mode));
-        this.props.model.accept(this.errorRenderer);
+        //    in the tree. We will use ErrorRenderer for this. This will only collect errors
+        //    for default and compact view.
+        if (this.props.mode !== 'action') {
+            this.errorRenderer.setErrorUtil(getErrorCollectorUtil(this.props.mode));
+            this.props.model.accept(this.errorRenderer);
+        }
+
         /* TODOX
         // 2.1 Lets resolve arrow conflicts.
         this.props.model.accept(new ArrowConflictResolver());
