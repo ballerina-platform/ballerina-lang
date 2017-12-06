@@ -107,6 +107,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .after(LENGTHOF).spaceIf(true)
                 .before(SEMI).spaceIf(false)
                 .around(DOT).spaceIf(false)
+                .around(PUBLIC).spaceIf(true)
                 .between(LPAREN, RPAREN).spaceIf(false)
                 .between(RPAREN, LBRACE).spaceIf(true)
                 .around(COLON).spaceIf(false)
