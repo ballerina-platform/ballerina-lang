@@ -34,8 +34,8 @@ public abstract class CursorPositionResolver {
     public DiagnosticPos  toZeroBasedPosition(DiagnosticPos diagnosticPos) {
         int startLine = diagnosticPos.getStartLine() - 1;
         int endLine = diagnosticPos.getEndLine() - 1;
-        int startColumn = diagnosticPos.startColumn() - 1;
-        int endColumn = diagnosticPos.endColumn() - 1;
+        int startColumn = diagnosticPos.getStartColumn() - 1;
+        int endColumn = diagnosticPos.getEndColumn() - 1;
         return new DiagnosticPos(diagnosticPos.getSource(), startLine, endLine, startColumn, endColumn);
     }
 }

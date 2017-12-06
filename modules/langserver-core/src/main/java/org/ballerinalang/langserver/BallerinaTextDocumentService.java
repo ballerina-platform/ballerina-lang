@@ -318,9 +318,9 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             Range r = new Range();
 
             int startLine = diagnostic.getPosition().getStartLine() - 1; // LSP diagnostics range is 0 based
-            int startChar = diagnostic.getPosition().startColumn() - 1;
+            int startChar = diagnostic.getPosition().getStartColumn() - 1;
             int endLine = diagnostic.getPosition().getEndLine() - 1;
-            int endChar = diagnostic.getPosition().endColumn() - 1;
+            int endChar = diagnostic.getPosition().getEndColumn() - 1;
 
             if (endLine <= 0) {
                 endLine = startLine;

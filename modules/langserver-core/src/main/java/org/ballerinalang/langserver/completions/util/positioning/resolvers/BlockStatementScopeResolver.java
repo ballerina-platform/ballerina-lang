@@ -107,9 +107,9 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         } else if (blockOwner == null) {
             // When the else node is evaluating, block owner is null and the block statement only present
             // This is because, else node is represented with a blocks statement only
-            return bLangBlockStmt.getPosition().endColumn();
+            return bLangBlockStmt.getPosition().getEndColumn();
         } else {
-            return blockOwner.getPosition().endColumn();
+            return blockOwner.getPosition().getEndColumn();
         }
     }
 
