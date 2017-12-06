@@ -21,9 +21,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.util.debugger.info.BreakPointInfo;
-import org.ballerinalang.util.debugger.info.FrameInfo;
-import org.ballerinalang.util.debugger.info.VariableInfo;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.impl.BClientConnectorFutureListener;
@@ -104,6 +101,9 @@ import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
 import org.ballerinalang.util.debugger.DebugCommand;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.VMDebugManager;
+import org.ballerinalang.util.debugger.info.BreakPointInfo;
+import org.ballerinalang.util.debugger.info.FrameInfo;
+import org.ballerinalang.util.debugger.info.VariableInfo;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
@@ -2429,7 +2429,7 @@ public class BLangVM {
      * @return
      */
     private BreakPointInfo getBreakPointInfo(LineNumberInfo currentExecLine, VMDebugManager debugManager,
-                                            DebugContext debugContext) {
+                                             DebugContext debugContext) {
         NodeLocation location = new NodeLocation(currentExecLine.getPackageInfo().getPkgPath(),
                 currentExecLine.getFileName(), currentExecLine.getLineNumber());
         BreakPointInfo breakPointInfo = new BreakPointInfo(location);

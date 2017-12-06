@@ -18,9 +18,6 @@
 package org.ballerinalang.util.debugger;
 
 import io.netty.channel.Channel;
-import org.ballerinalang.util.debugger.DebugCommand;
-import org.ballerinalang.util.debugger.DebugContext;
-import org.ballerinalang.util.debugger.DebugException;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
 import org.ballerinalang.util.debugger.info.BreakPointInfo;
 

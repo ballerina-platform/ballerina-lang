@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.util.debugger;
 
-import org.ballerinalang.util.debugger.VMDebugManager;
-
 /**
  * Represents a debug server which will start listening to client connections.
  */

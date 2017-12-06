@@ -21,13 +21,13 @@ package org.ballerinalang.util.debugger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.channel.Channel;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.util.debugger.info.BreakPointInfo;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.debugger.dto.CommandDTO;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
+import org.ballerinalang.util.debugger.info.BreakPointInfo;
 
 import java.io.IOException;
 import java.util.List;
