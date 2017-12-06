@@ -21,6 +21,7 @@ import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -28,17 +29,21 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.nativeimpl.actions.data.sql.client.SQLDatasourceUtils;
+import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -59,15 +64,20 @@ public class SQLDataIterator implements DataIterator {
     private Calendar utcCalendar;
     private List<ColumnDefinition> columnDefs;
     private BStructType bStructType;
+    private StructInfo timeStructInfo;
+    private StructInfo zoneStructInfo;
 
     public SQLDataIterator(Connection conn, Statement stmt, ResultSet rs, Calendar utcCalendar,
-            List<ColumnDefinition> columnDefs, BStructType structType) throws SQLException {
+            List<ColumnDefinition> columnDefs, BStructType structType, StructInfo timeStructInfo,
+            StructInfo zoneStructInfo) throws SQLException {
         this.conn = conn;
         this.stmt = stmt;
         this.rs = rs;
         this.utcCalendar = utcCalendar;
         this.columnDefs = columnDefs;
         this.bStructType = structType;
+        this.timeStructInfo = timeStructInfo;
+        this.zoneStructInfo = zoneStructInfo;
     }
 
     @Override
@@ -177,11 +187,12 @@ public class SQLDataIterator implements DataIterator {
         int blobRegIndex = -1;
         int refRegIndex = -1;
         int index = 0;
+        String columnName = null;
         try {
             for (ColumnDefinition columnDef : columnDefs) {
                 if (columnDef instanceof SQLColumnDefinition) {
                     SQLColumnDefinition def = (SQLColumnDefinition) columnDef;
-                    String columnName = def.getName();
+                    columnName = def.getName();
                     int sqlType = def.getSqlType();
                     ++index;
                     switch (sqlType) {
@@ -218,18 +229,42 @@ public class SQLDataIterator implements DataIterator {
                         bStruct.setStringField(++stringRegIndex, nClobValue);
                         break;
                     case Types.DATE:
-                        String dateValue = SQLDatasourceUtils.getString(rs.getDate(index));
-                        bStruct.setStringField(++stringRegIndex, dateValue);
+                        Date date = rs.getDate(index);
+                        int fieldType = bStructType.getStructFields()[index - 1].getFieldType().getTag();
+                        if (fieldType == TypeTags.STRING_TAG) {
+                            String dateValue = SQLDatasourceUtils.getString(date);
+                            bStruct.setStringField(++stringRegIndex, dateValue);
+                        } else if (fieldType == TypeTags.STRUCT_TAG) {
+                            bStruct.setRefField(++refRegIndex, createTimeStruct(date.getTime()));
+                        } else if (fieldType == TypeTags.INT_TAG) {
+                            bStruct.setIntField(++longRegIndex, date.getTime());
+                        }
                         break;
                     case Types.TIME:
                     case Types.TIME_WITH_TIMEZONE:
-                        String timeValue = SQLDatasourceUtils.getString(rs.getTime(index, utcCalendar));
-                        bStruct.setStringField(++stringRegIndex, timeValue);
+                        Time time = rs.getTime(index, utcCalendar);
+                        fieldType = bStructType.getStructFields()[index - 1].getFieldType().getTag();
+                        if (fieldType == TypeTags.STRING_TAG) {
+                            String timeValue = SQLDatasourceUtils.getString(time);
+                            bStruct.setStringField(++stringRegIndex, timeValue);
+                        } else if (fieldType == TypeTags.STRUCT_TAG) {
+                            bStruct.setRefField(++refRegIndex, createTimeStruct(time.getTime()));
+                        } else if (fieldType == TypeTags.INT_TAG) {
+                            bStruct.setIntField(++longRegIndex, time.getTime());
+                        }
                         break;
                     case Types.TIMESTAMP:
                     case Types.TIMESTAMP_WITH_TIMEZONE:
-                        String timestmpValue = SQLDatasourceUtils.getString(rs.getTimestamp(index, utcCalendar));
-                        bStruct.setStringField(++stringRegIndex, timestmpValue);
+                        Timestamp timestamp = rs.getTimestamp(index, utcCalendar);
+                        fieldType = bStructType.getStructFields()[index - 1].getFieldType().getTag();
+                        if (fieldType == TypeTags.STRING_TAG) {
+                            String timestmpValue = SQLDatasourceUtils.getString(timestamp);
+                            bStruct.setStringField(++stringRegIndex, timestmpValue);
+                        } else if (fieldType == TypeTags.STRUCT_TAG) {
+                            bStruct.setRefField(++refRegIndex, createTimeStruct(timestamp.getTime()));
+                        } else if (fieldType == TypeTags.INT_TAG) {
+                            bStruct.setIntField(++longRegIndex, timestamp.getTime());
+                        }
                         break;
                     case Types.ROWID:
                         BValue strValue = new BString(new String(rs.getRowId(index).getBytes(), "UTF-8"));
@@ -275,10 +310,10 @@ public class SQLDataIterator implements DataIterator {
                     }
                 }
             }
-        } catch (SQLException e) {
-            throw new BallerinaException("error in retrieving next value: " + e.getMessage());
-        } catch (UnsupportedEncodingException e) {
-            throw new BallerinaException("error in retrieving next value for rowid type: " + e.getCause().getMessage());
+        }  catch (Throwable e) {
+            throw new BallerinaException(
+                    "error in retrieving next value for column: " + columnName + ": at index:" + index + ":" + e
+                            .getMessage());
         }
         return bStruct;
     }
@@ -311,6 +346,10 @@ public class SQLDataIterator implements DataIterator {
             }
         }
         return returnMap;
+    }
+
+    private BStruct createTimeStruct(long millis) {
+        return Utils.createTimeStruct(zoneStructInfo, timeStructInfo, millis, Constants.TIMEZONE_UTC);
     }
 
     /**
