@@ -273,7 +273,10 @@ class DefaultNodeFactory {
                     // Check if its a struct or enum
                     const packageDef = getPackageDefinition(fullPackageName);
                     const identifier = param.type.split(':')[1];
-                    const type = ConnectorHelper.getTypeOfParam(identifier, packageDef.getStructDefinitions(), packageDef.getEnums());
+                    // TODO: Current package content should handle properly
+                    const structs = packageDef ? packageDef.getStructDefinitions() : [];
+                    const enums = packageDef ? packageDef.getEnums() : [];
+                    const type = ConnectorHelper.getTypeOfParam(identifier, structs, enums);
                     if (type === 'struct') {
                         defaultValue = '{}';
                     } else {
