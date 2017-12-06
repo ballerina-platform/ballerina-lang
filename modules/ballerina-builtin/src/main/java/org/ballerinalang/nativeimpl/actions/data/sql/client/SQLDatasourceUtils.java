@@ -909,7 +909,7 @@ public class SQLDatasourceUtils {
         }
         Calendar calendar = Calendar.getInstance();
         calendar.clear();
-        calendar.setTimeInMillis(value.getTime());
+        calendar.setTime(value);
         return getString(calendar, "date");
     }
 

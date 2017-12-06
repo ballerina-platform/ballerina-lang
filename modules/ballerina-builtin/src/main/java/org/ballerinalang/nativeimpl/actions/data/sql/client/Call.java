@@ -58,11 +58,7 @@ public class Call extends AbstractSQLAction {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String query = getStringArgument(context, 0);
         BRefValueArray parameters = (BRefValueArray) getRefArgument(context, 1);
-        BStructType structType = null;
-        BTypeValue type = (BTypeValue) getRefArgument(context, 2);
-        if (type != null) {
-            structType = (BStructType) type.value();
-        }
+        BStructType structType = getStructType(context);
         BMap sharedMap = (BMap) bConnector.getRefField(2);
         SQLDatasource datasource = null;
         if (sharedMap.get(new BString(Constants.DATASOURCE_KEY)) != null) {

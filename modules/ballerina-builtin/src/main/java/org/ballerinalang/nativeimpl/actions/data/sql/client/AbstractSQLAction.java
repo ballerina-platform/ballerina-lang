@@ -41,6 +41,7 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BTypeValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
@@ -248,6 +249,18 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             }
         }
         context.getControlStackNew().getCurrentFrame().returnValues[0] = countArray;
+    }
+
+    protected BStructType getStructType(Context context) {
+        BStructType structType = null;
+        BTypeValue type = (BTypeValue) getRefArgument(context, 2);
+        if (type != null) {
+            structType = (BStructType) type.value();
+        }
+        if (structType == null) {
+            throw new BallerinaException("the expected struct type is not specified in action");
+        }
+        return structType;
     }
 
     /**
