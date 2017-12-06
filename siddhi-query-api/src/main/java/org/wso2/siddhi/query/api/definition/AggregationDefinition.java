@@ -24,7 +24,6 @@ import org.wso2.siddhi.query.api.execution.query.selection.BasicSelector;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Variable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,7 +36,6 @@ public class AggregationDefinition extends AbstractDefinition {
     private Selector selector = null;
     private Variable aggregateAttribute = null;
     private TimePeriod timePeriod = null;
-    private List<Annotation> annotations = new ArrayList<>();
 
     protected AggregationDefinition(String id) {
         super(id);
