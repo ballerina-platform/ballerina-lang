@@ -25,7 +25,6 @@ import TransformExpanded from 'plugins/ballerina/diagram/views/default/component
 import TreeUtil from 'plugins/ballerina/model/tree-util.js';
 import DragLayer from './../drag-drop/drag-layer';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
-import ToolPaletteView from './../tool-palette/tool-palette-view';
 import { TOOL_PALETTE_WIDTH } from './constants';
 
 class DesignView extends React.Component {
@@ -190,13 +189,7 @@ class DesignView extends React.Component {
                     }
                 </div>
                 <div className='tool-palette-container' ref={this.setToolPaletteContainer}>
-                    <ToolPaletteView
-                        getContainer={this.getToolPaletteContainer}
-                        isTransformActive={isTransformActive}
-                        mode={this.state.mode}
-                        height={this.props.height}
-                        width={TOOL_PALETTE_WIDTH}
-                    />
+                    
                 </div>
                 <div className={cn('bottom-right-controls-container', { hide: this.context.isPreviewViewEnabled })}>
                     <div
