@@ -21,6 +21,8 @@ import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import SplitPane from 'react-split-pane';
+import { DragDropContext } from 'react-dnd';
+import HTML5Backend from 'react-dnd-html5-backend';
 import LeftPanel from './LeftPanel';
 import EditorArea from './EditorArea';
 import BottomPanel from './BottomPanel';
@@ -350,4 +352,4 @@ App.childContextTypes = {
     }).isRequired,
 };
 
-export default App;
+export default DragDropContext(HTML5Backend)(App);
