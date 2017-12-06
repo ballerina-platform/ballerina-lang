@@ -15,13 +15,14 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.bre.nonblocking.debugger;
+package org.ballerinalang.util.debugger;
 
 import io.netty.channel.Channel;
 import org.ballerinalang.util.debugger.DebugCommand;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.DebugException;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
+import org.ballerinalang.util.debugger.info.BreakPointInfo;
 
 /**
  * Represents a debug client handler which is used to communicate with the debug client.

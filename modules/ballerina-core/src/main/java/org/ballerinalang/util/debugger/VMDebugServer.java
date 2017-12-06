@@ -28,7 +28,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import org.ballerinalang.bre.nonblocking.debugger.DebugServer;
 
 import java.io.PrintStream;
 

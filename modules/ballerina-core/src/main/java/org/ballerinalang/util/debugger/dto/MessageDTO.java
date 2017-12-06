@@ -18,7 +18,7 @@
 
 package org.ballerinalang.util.debugger.dto;
 
-import org.ballerinalang.bre.nonblocking.debugger.FrameInfo;
+import org.ballerinalang.util.debugger.info.FrameInfo;
 import org.ballerinalang.model.NodeLocation;
 
 import java.util.ArrayList;

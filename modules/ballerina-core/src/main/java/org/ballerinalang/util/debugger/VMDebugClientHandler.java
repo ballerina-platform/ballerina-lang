@@ -23,8 +23,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
-import org.ballerinalang.bre.nonblocking.debugger.DebugClientHandler;
+import org.ballerinalang.util.debugger.info.BreakPointInfo;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
 
 import java.util.HashMap;
