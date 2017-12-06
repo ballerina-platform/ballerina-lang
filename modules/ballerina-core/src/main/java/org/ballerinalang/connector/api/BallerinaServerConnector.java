@@ -28,9 +28,9 @@ import java.util.List;
 public interface BallerinaServerConnector {
 
     /**
-     * This should return relevant protocol package path.
+     * This should return relevant protocol package paths.
      *
-     * @return relevant protocol package path.
+     * @return relevant protocol package paths.
      */
     List<String> getProtocolPackages();
 

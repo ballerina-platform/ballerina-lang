@@ -36,7 +36,7 @@ public class WebSocketServerConnector implements BallerinaServerConnector {
     @Override
     public List<String> getProtocolPackages() {
         List<String> protocolPackages = new LinkedList<>();
-        protocolPackages.add(Constants.WEBSOCKET_PACKAGE_NAME);
+        protocolPackages.add(Constants.PROTOCOL_PACKAGE_WS);
         return protocolPackages;
     }
 
