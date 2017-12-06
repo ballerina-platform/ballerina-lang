@@ -93,12 +93,12 @@ public class BallerinaGlobalVariableCompletionTest extends BallerinaCompletionTe
     }
 
     public void testGlobalVariableInDifferentPackage() {
-        myFixture.addFileToProject("org/test/file.bal", "string S=\"\";");
+        myFixture.addFileToProject("org/test/file.bal", "public string S=\"\";");
         doTest("import org.test; function F(){ test:<caret> }", "S");
     }
 
     public void testGlobalVariableInDifferentPackageImportedAsAlias() {
-        myFixture.addFileToProject("org/test/file.bal", "string S=\"\";");
+        myFixture.addFileToProject("org/test/file.bal", "public string S=\"\";");
         doTest("import org.test as utils; function F(){ utils:<caret> }", "S");
     }
 }

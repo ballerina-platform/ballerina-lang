@@ -600,9 +600,15 @@ public class BallerinaPsiImplUtil {
         Collection<T> definitions = PsiTreeUtil.findChildrenOfType(psiFile, clazz);
         for (T definition : definitions) {
             PsiElement firstChild = definition.getFirstChild();
-            if (!includePrivate && firstChild instanceof LeafPsiElement) {
-                IElementType elementType = ((LeafPsiElement) firstChild).getElementType();
-                if (elementType != BallerinaTypes.PUBLIC) {
+            if (!includePrivate) {
+                if (firstChild instanceof LeafPsiElement) {
+                    IElementType elementType = ((LeafPsiElement) firstChild).getElementType();
+                    if (elementType != BallerinaTypes.PUBLIC) {
+                        continue;
+                    }
+                } else {
+                    // Global variables, etc. If the first element is not a LeafPsiElement, that means public keyword
+                    // is not present.
                     continue;
                 }
             }
