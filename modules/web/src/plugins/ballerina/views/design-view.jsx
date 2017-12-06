@@ -19,9 +19,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
-import HTML5Backend from 'react-dnd-html5-backend';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { DragDropContext } from 'react-dnd';
 import BallerinaDiagram from 'plugins/ballerina/diagram/diagram';
 import TransformExpanded from 'plugins/ballerina/diagram/views/default/components/transform/transform-expanded';
 import TreeUtil from 'plugins/ballerina/model/tree-util.js';
@@ -272,4 +270,4 @@ DesignView.childContextTypes = {
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
 };
 
-export default DragDropContext(HTML5Backend)(DesignView);
+export default DesignView;
