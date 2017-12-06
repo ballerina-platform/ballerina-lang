@@ -248,6 +248,7 @@ class Package {
             log.error(err);
             throw err;
         }
+        functionDefinitions.kind = 'Function';
         this._functionDefinitions = this._functionDefinitions || [];
         this._functionDefinitions = _.concat(this._functionDefinitions, functionDefinitions);
     }

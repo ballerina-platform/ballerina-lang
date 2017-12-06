@@ -545,11 +545,13 @@ class TreeUtil extends AbstractTreeUtil {
      * */
     isMainFunction(node) {
         return (node.kind === 'Function'
-            && node.getName().value === 'main'
-            && node.getReturnParameters().length === 0
+            && (node.getName().value === 'main' || node.getName() === 'main')
             && node.getParameters().length === 1
-            && node.getParameters()[0].typeNode.kind === 'ArrayType'
-            && node.getParameters()[0].typeNode.elementType.typeKind === 'string');
+            && ((node.getReturnParameters && node.getReturnParameters().length === 0) ||
+                (node.getReturnParams && node.getReturnParams().length === 0))
+            && ((node.getParameters()[0].typeNode && node.getParameters()[0].typeNode.kind === 'ArrayType'
+                && node.getParameters()[0].typeNode.elementType.typeKind === 'string')
+                || node.getParameters()[0].type === 'string[]'));
     }
 }
 
