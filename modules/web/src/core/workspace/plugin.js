@@ -179,6 +179,16 @@ class WorkspacePlugin extends Plugin {
     }
 
     /**
+     * Gets the parent folder opened in explorer for the given file
+     * @param {String} filePath target file path
+     */
+    getExplorerFolderForPath(filePath) {
+        return this.openedFolders.find((folder) => {
+            return filePath.startsWith(folder.fullPath);
+        });
+    }
+
+    /**
      * Checks whether the given path is opened in explorer
      * @param {String} filePath target path
      */
@@ -283,6 +293,7 @@ class WorkspacePlugin extends Plugin {
             removeFolder: this.removeFolder.bind(this),
             goToFileInExplorer: this.goToFileInExplorer.bind(this),
             isFilePathOpenedInExplorer: this.isFilePathOpenedInExplorer.bind(this),
+            getExplorerFolderForPath: this.getExplorerFolderForPath.bind(this),
             refreshPathInExplorer: this.refreshPathInExplorer.bind(this),
         };
     }
