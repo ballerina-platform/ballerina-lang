@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.net.http;
 
+import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.ParamDetail;
@@ -93,11 +94,25 @@ public class HttpDispatcher {
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.REQUEST);
         BStruct response = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.RESPONSE);
+        BStruct header = ConnectorUtils.createStruct(httpResource.getBalResource(),
+                Constants.PROTOCOL_PACKAGE_HTTP, Constants.HEADER);
+//        httpCarbonMessage.setProperty(Constants.LISTENER_INTERFACE_ID, "feiw:wh:uiu");
+        HttpHeaders httpHeaders = httpCarbonMessage.getHeaders();
+//        Accept-Encoding: gzip;q=1.0, identity; q=0.5, *;q=0
+//        Accept: text/*;q=0.3, text/html;level=2;q=0.4, */*;q=0.5
+        httpHeaders.add("name", "chamil");
+//        httpHeaders.add("name", "text/*;level=2;q=0.3");
+        httpHeaders.add("name", "text/html;    level =2 ;q=0.4 , application/json;q    =0.3");
+
+//        httpCarbonMessage.setHeader("team", "SL");
+//        httpCarbonMessage.setHeader("team", "Ballerina");
+
         HttpUtil.addCarbonMsg(request, httpCarbonMessage);
         HttpUtil.addCarbonMsg(response, HttpUtil.createHttpCarbonMessage(false));
         // Add inbound request msg to the response struct
         response.addNativeData(Constants.INBOUND_REQUEST_MESSAGE, httpCarbonMessage);
         HttpUtil.addRequestResponseFlag(request, response);
+        HttpUtil.populateRequest(request, httpCarbonMessage, header);
 
         List<ParamDetail> paramDetails = httpResource.getParamDetails();
         Map<String, String> resourceArgumentValues =

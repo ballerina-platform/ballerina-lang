@@ -34,6 +34,8 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -60,12 +62,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Utility class providing utility methods.
@@ -523,10 +530,10 @@ public class HttpUtil {
     }
 
     public static BStruct getServerConnectorError(Context context, Throwable throwable) {
-        PackageInfo sessionPackageInfo = context.getProgramFile()
+        PackageInfo httpPackageInfo = context.getProgramFile()
                 .getPackageInfo(Constants.PROTOCOL_PACKAGE_HTTP);
-        StructInfo sessionStructInfo = sessionPackageInfo.getStructInfo(Constants.HTTP_CONNECTOR_ERROR);
-        BStruct httpConnectorError = new BStruct(sessionStructInfo.getType());
+        StructInfo errorStructInfo = httpPackageInfo.getStructInfo(Constants.HTTP_CONNECTOR_ERROR);
+        BStruct httpConnectorError = new BStruct(errorStructInfo.getType());
         if (throwable.getMessage() == null) {
             httpConnectorError.setStringField(0, IO_EXCEPTION_OCCURED);
         } else {
@@ -552,6 +559,86 @@ public class HttpUtil {
     public static void addRequestResponseFlag(BStruct request, BStruct response) {
         request.addNativeData(Constants.INBOUND_REQUEST, true);
         response.addNativeData(Constants.OUTBOUND_RESPONSE, true);
+    }
+
+    public static void populateRequest(BStruct request, HTTPCarbonMessage cMsg, BStruct headerStruct) {
+        request.setStringField(Constants.REQUEST_URI_INDEX, (String) cMsg.getProperty(Constants.REQUEST_URL));
+        request.setStringField(Constants.REQUEST_HOST_INDEX,
+                ((InetSocketAddress)cMsg.getProperty(Constants.LOCAL_ADDRESS)).getHostName());
+        request.setIntField(Constants.REQUEST_PORT_INDEX, (Integer) cMsg.getProperty(Constants.LISTENER_PORT));
+        request.setStringField(Constants.REQUEST_METHOD_INDEX, (String) cMsg.getProperty(Constants.HTTP_METHOD));
+        request.setStringField(Constants.REQUEST_VERSION_INDEX, (String) cMsg.getProperty(Constants.HTTP_VERSION));
+        request.setRefField(Constants.REQUEST_HEADERS_INDEX, createHeaderBMap(headerStruct, cMsg.getHeaders()));
+    }
+
+    public static void populateResponse(BStruct response, HTTPCarbonMessage cMsg, BStruct headerStruct) {
+        response.setStringField(Constants.REQUEST_URI_INDEX, (String) cMsg.getProperty(Constants.REQUEST_URL));
+        response.setStringField(Constants.REQUEST_HOST_INDEX,
+                ((InetSocketAddress)cMsg.getProperty(Constants.LOCAL_ADDRESS)).getHostName());
+        response.setIntField(Constants.REQUEST_PORT_INDEX, (Integer) cMsg.getProperty(Constants.LISTENER_PORT));
+        response.setStringField(Constants.REQUEST_METHOD_INDEX, (String) cMsg.getProperty(Constants.HTTP_METHOD));
+        response.setStringField(Constants.REQUEST_VERSION_INDEX, (String) cMsg.getProperty(Constants.HTTP_VERSION));
+        response.setRefField(Constants.REQUEST_HEADERS_INDEX, createHeaderBMap(headerStruct, cMsg.getHeaders()));
+    }
+
+    private static BMap createHeaderBMap(BStruct headerStruct, HttpHeaders headers) {
+        Map<String, ArrayList> headerStructHolder = new HashMap<>();
+        for (Map.Entry<String, String> headerEntry : headers) {
+            String headerKey = headerEntry.getKey().trim();
+            String headerValue = headerEntry.getValue().trim();
+            //Get the list of HeaderStruct for a given key
+            ArrayList headerList = headerStructHolder.get(headerKey) != null ? headerStructHolder.get(headerKey) :
+                    new ArrayList();
+            if(headerValue.contains(",")) {
+                List<String> valueList = Arrays.stream(headerValue.split(",")).map(String::trim)
+                        .collect(Collectors.toList());
+                for (String value: valueList) {
+                    if (value.contains(";")) {
+                        headerList.add(populateWithHeaderValueAndParams(new BStruct(headerStruct.getType()), value));
+                    } else {
+                        headerList.add(populateWithHeaderValue(new BStruct(headerStruct.getType()), value));
+                    }
+                }
+            } else if (headerValue.contains(";")) {
+                headerList.add(populateWithHeaderValueAndParams(new BStruct(headerStruct.getType()), headerValue));
+            } else {
+                headerList.add(populateWithHeaderValue(new BStruct(headerStruct.getType()), headerValue));
+            }
+            headerStructHolder.put(headerKey, headerList);
+        }
+        //create BMap of BRefValueArray
+        BMap<String, BValue> headerMap = new BMap<>();
+        for (Map.Entry<String, ArrayList> structHolder : headerStructHolder.entrySet()) {
+            headerMap.put(structHolder.getKey(), new BRefValueArray((BRefType[]) structHolder.getValue()
+                    .toArray(new BRefType[0]), headerStruct.getType()));
+        }
+        return headerMap;
+    }
+
+    private static BStruct populateWithHeaderValueAndParams(BStruct headerStruct, String headerValue) {
+        String value = headerValue.substring(0, headerValue.indexOf(";")).trim();
+        String paramString = headerValue.substring(headerValue.indexOf(";")+1);
+        List<String> paramList = Arrays.stream(paramString.split(";")).map(String::trim)
+                .collect(Collectors.toList());
+        headerStruct.setStringField(0, value);
+        headerStruct.setRefField(0, createParamBMap(paramList));
+        return headerStruct;
+    }
+
+    private static BStruct populateWithHeaderValue(BStruct headerStruct, String headerValue) {
+        headerStruct.setStringField(0, headerValue.trim());
+        return headerStruct;
+    }
+
+    private static BMap<String, BValue> createParamBMap(List<String> paramList) {
+        BMap<String, BValue> paramMap = new BMap<>();
+        for (String param: paramList) {
+            if (param.contains("=")) {
+                String[] keyValuePair = param.split("=");
+                paramMap.put(keyValuePair[0].trim(), new BString(keyValuePair[1].trim()));
+            }
+        }
+        return paramMap;
     }
 
     /**

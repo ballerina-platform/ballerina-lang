@@ -49,6 +49,9 @@ public class Constants {
     public static final String PROTOCOL = "PROTOCOL";
     public static final String PORT = "PORT";
     public static final String TO = "TO";
+    public static final String LOCAL_ADDRESS = "LOCAL_ADDRESS";
+    public static final String HTTP_VERSION = "HTTP_VERSION";
+    public static final String LISTENER_PORT = "LISTENER_PORT";
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
     public static final String TLS_STORE_TYPE = "tlsStoreType";
     public static final String PKCS_STORE_TYPE = "PKCS12";
@@ -136,6 +139,7 @@ public class Constants {
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
     public static final String REQUEST = "Request";
     public static final String RESPONSE = "Response";
+    public static final String HEADER = "Header";
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
@@ -162,6 +166,14 @@ public class Constants {
     public static final int SSL_ENABLED_PROTOCOLS_INDEX = 4;
     public static final int CIPHERS_INDEX = 5;
     public static final int SSL_PROTOCOL_INDEX = 6;
+
+    //Request struct index
+    public static final int REQUEST_URI_INDEX = 0;
+    public static final int REQUEST_HOST_INDEX = 1;
+    public static final int REQUEST_METHOD_INDEX = 2;
+    public static final int REQUEST_VERSION_INDEX = 3;
+    public static final int REQUEST_PORT_INDEX = 0;
+    public static final int REQUEST_HEADERS_INDEX = 0;
 
     //Proxy server struct indexes
     public static final int PROXY_STRUCT_INDEX = 3;
