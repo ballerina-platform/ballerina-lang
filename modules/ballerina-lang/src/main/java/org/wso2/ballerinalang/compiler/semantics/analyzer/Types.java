@@ -163,6 +163,10 @@ public class Types {
         return type.tag <= TypeTags.TYPE;
     }
 
+    public boolean isType(BType type) {
+        return type.tag != TypeTags.ENDPOINT;
+    }
+
     public boolean isAnnotationFieldType(BType type) {
         return this.isValueType(type) ||
                 (type.tag == TypeTags.ANNOTATION) ||
@@ -184,6 +188,9 @@ public class Types {
      * @return true if source type is assignable to the target type.
      */
     public boolean isAssignable(BType source, BType target) {
+        if (!isType(source)) {
+            return false;
+        }
         if (target.tag == TypeTags.ANY && !isValueType(source)) {
             return true;
         }
