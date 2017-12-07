@@ -70,8 +70,10 @@ public class SiddhiAppParser {
      * Parse an SiddhiApp returning SiddhiAppRuntime
      *
      * @param siddhiApp       plan to be parsed
-     * @param siddhiAppString
+     * @param siddhiAppString content of Siddhi application as string
      * @param siddhiContext   SiddhiContext  @return SiddhiAppRuntime
+     *
+     * @return SiddhiAppRuntimeBuilder
      */
     public static SiddhiAppRuntimeBuilder parse(SiddhiApp siddhiApp, String siddhiAppString, SiddhiContext siddhiContext) {
 

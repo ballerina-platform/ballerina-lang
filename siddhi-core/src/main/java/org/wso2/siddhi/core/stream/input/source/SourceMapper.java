@@ -157,7 +157,7 @@ public abstract class SourceMapper implements SourceEventListener {
      *
      * @param eventObject       Incoming event Object
      * @param inputEventHandler Handler to pass the converted Siddhi Event for processing
-     * @throws InterruptedException
+     * @throws InterruptedException Throws InterruptedException
      */
     protected abstract void mapAndProcess(Object eventObject,
                                           InputEventHandler inputEventHandler)

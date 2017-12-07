@@ -73,6 +73,7 @@ public abstract class DistributedTransport extends Sink {
      * @param sinkMapper               Hold the mapper that's used in this sink
      * @param mapType                  Type of the mapper
      * @param mapOptionHolder          Options of the mapper
+     * @param sinkHandler              Sink handler to do optional processing
      * @param payloadElementList       The template list of the payload messages
      * @param mapperConfigReader       This hold the {@link Sink} extensions configuration reader for the mapper
      * @param siddhiAppContext         The siddhi app context

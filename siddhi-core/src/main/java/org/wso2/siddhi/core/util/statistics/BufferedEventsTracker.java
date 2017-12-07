@@ -31,7 +31,7 @@ public interface BufferedEventsTracker {
     void registerEventBufferHolder(EventBufferHolder eventBufferHolder, String name);
 
     /**
-     * @param eventBufferHolder
+     * @param eventBufferHolder Event Buffer holder
      * @return Name of the buffered event tracker.
      */
     String getName(EventBufferHolder eventBufferHolder);

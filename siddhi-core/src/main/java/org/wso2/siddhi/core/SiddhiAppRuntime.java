@@ -623,6 +623,8 @@ public class SiddhiAppRuntime {
 
     /**
      * To enable and disable Siddhi App statistics on runtime.
+     *
+     * @param statsEnabled whether statistics is enabled or not
      */
     public void enableStats(boolean statsEnabled) {
         siddhiAppContext.setStatsEnabled(statsEnabled);

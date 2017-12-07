@@ -395,7 +395,7 @@ public abstract class Table implements FindableProcessor, MemoryCalculable {
      * @param variableExpressionExecutors the list of variable ExpressionExecutors already created
      * @param tableMap                    map of event tables
      * @param queryName                   query name to which the update statement belongs.
-     * @return
+     * @return CompiledUpdateSet
      */
     public abstract CompiledUpdateSet compileUpdateSet(UpdateSet updateSet,
                                                        MatchingMetaInfoHolder matchingMetaInfoHolder,

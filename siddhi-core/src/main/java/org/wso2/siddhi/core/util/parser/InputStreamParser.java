@@ -51,6 +51,7 @@ public class InputStreamParser {
      * @param streamDefinitionMap        map containing user given stream definitions
      * @param tableDefinitionMap         table definition map
      * @param windowDefinitionMap        window definition map
+     * @param aggregationDefinitionMap   aggregation definition map
      * @param tableMap                   Table Map
      * @param windowMap                  event window map
      * @param aggregationMap             aggregator map

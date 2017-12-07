@@ -48,6 +48,9 @@ public interface QueryableProcessor extends FindableProcessor {
      *                          the matchingEvent based on pool of events at Processor
      * @param compiledSelection the execution element responsible for transforming the corresponding events to the
      *                          given selection
+     *
+     * @throws ConnectionUnavailableException
+     *
      * @return the matched events
      */
     StreamEvent query(StateEvent matchingEvent, CompiledCondition compiledCondition,

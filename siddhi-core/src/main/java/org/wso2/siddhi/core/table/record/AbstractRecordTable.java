@@ -104,6 +104,8 @@ public abstract class AbstractRecordTable extends Table {
      *
      * @param records records that need to be added to the table, each Object[] represent a record and it will match
      *                the attributes of the Table Definition.
+     *
+     * @throws ConnectionUnavailableException
      */
     protected abstract void add(List<Object[]> records) throws ConnectionUnavailableException;
 
@@ -144,6 +146,8 @@ public abstract class AbstractRecordTable extends Table {
      * @param findConditionParameterMap map of matching StreamVariable Ids and their values
      *                                  corresponding to the compiled condition
      * @param compiledCondition         the compiledCondition against which records should be matched
+     *
+     * @throws ConnectionUnavailableException
      * @return RecordIterator of matching records
      */
     protected abstract RecordIterator<Object[]> find(Map<String, Object> findConditionParameterMap,
@@ -174,6 +178,8 @@ public abstract class AbstractRecordTable extends Table {
      * @param containsConditionParameterMap map of matching StreamVariable Ids and their values corresponding to the
      *                                      compiled condition
      * @param compiledCondition             the compiledCondition against which records should be matched
+     *
+     * @throws ConnectionUnavailableException
      * @return if matching record found or not
      */
     protected abstract boolean contains(Map<String, Object> containsConditionParameterMap,
@@ -214,6 +220,8 @@ public abstract class AbstractRecordTable extends Table {
      * @param deleteConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
      *                                     compiled condition
      * @param compiledCondition            the compiledCondition against which records should be matched for deletion
+     *
+     * @throws ConnectionUnavailableException
      */
     protected abstract void delete(List<Map<String, Object>> deleteConditionParameterMaps,
                                    CompiledCondition compiledCondition)
@@ -266,6 +274,8 @@ public abstract class AbstractRecordTable extends Table {
      *                                     compiled condition based on which the records will be updated
      * @param updateSetExpressions         the set of updates mappings and related complied expressions
      * @param updateSetParameterMaps       map of matching StreamVariable Ids and their values corresponding to the
+     *
+     * @throws ConnectionUnavailableException
      */
     protected abstract void update(CompiledCondition updateCondition,
                                    List<Map<String, Object>> updateConditionParameterMaps,
@@ -326,6 +336,8 @@ public abstract class AbstractRecordTable extends Table {
      * @param updateSetParameterMaps       map of matching StreamVariable Ids and their values corresponding to the
      *                                     update set
      * @param addingRecords                the values for adding new records if the update condition did not match
+     *
+     * @throws ConnectionUnavailableException
      */
     protected abstract void updateOrAdd(CompiledCondition updateCondition,
                                         List<Map<String, Object>> updateConditionParameterMaps,

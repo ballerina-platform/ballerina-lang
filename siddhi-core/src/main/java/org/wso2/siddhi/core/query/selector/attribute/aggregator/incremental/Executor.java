@@ -50,6 +50,7 @@ public interface Executor {
     /**
      * Set next executor element in execution chain
      *
+     * @param executor Event executor for incremental execution
      */
     void setNextExecutor(Executor executor);
 

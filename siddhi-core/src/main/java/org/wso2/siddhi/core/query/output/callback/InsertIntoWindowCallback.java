@@ -47,7 +47,7 @@ public class InsertIntoWindowCallback extends OutputCallback {
      * Add the event into the {@link Window}
      *
      * @param complexEventChunk the event to add
-     * @param noOfEvents
+     * @param noOfEvents number of events
      */
     @Override
     public void send(ComplexEventChunk complexEventChunk, int noOfEvents) {

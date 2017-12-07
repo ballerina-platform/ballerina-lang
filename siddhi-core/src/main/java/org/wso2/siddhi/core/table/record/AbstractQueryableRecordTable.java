@@ -98,9 +98,12 @@ public abstract class AbstractQueryableRecordTable extends AbstractRecordTable i
      * Query records matching the compiled condition and selection
      *
      * @param parameterMap      map of matching StreamVariable Ids and their values
-     *                          corresponding to the compiled condition & selection
+     *                          corresponding to the compiled condition and selection
      * @param compiledCondition the compiledCondition against which records should be matched
      * @param compiledSelection the compiledSelection that maps records based to requested format
+     *
+     * @throws ConnectionUnavailableException
+     *
      * @return RecordIterator of matching records
      */
     protected abstract RecordIterator<Object[]> query(Map<String, Object> parameterMap,

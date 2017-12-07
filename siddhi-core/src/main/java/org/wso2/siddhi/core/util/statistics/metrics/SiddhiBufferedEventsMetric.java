@@ -53,7 +53,7 @@ public class SiddhiBufferedEventsMetric implements BufferedEventsTracker {
     }
 
     /**
-     * @param eventBufferHolder
+     * @param eventBufferHolder Event buffer holder
      * @return Name of the BufferedEvents tracker.
      */
     @Override

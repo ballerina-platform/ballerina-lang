@@ -62,6 +62,7 @@ public class SelectorParser {
      * @param tableMap                    Table Map
      * @param variableExpressionExecutors variable expression executors
      * @param queryName                   query name of selector belongs to.
+     * @param metaPosition                helps to identify the meta position of aggregates
      * @return QuerySelector
      */
     public static QuerySelector parse(Selector selector, OutputStream outputStream, SiddhiAppContext siddhiAppContext,

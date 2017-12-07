@@ -75,7 +75,9 @@ public class SingleInputStreamParser {
      * @param processStreamReceiver       ProcessStreamReceiver
      * @param supportsBatchProcessing     supports batch processing
      * @param outputExpectsExpiredEvents  is output expects ExpiredEvents
-     * @param queryName                   query name of single input stream belongs to.       @return SingleStreamRuntime
+     * @param queryName                   query name of single input stream belongs to.
+     *
+     * @return SingleStreamRuntime
      */
     public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream,
                                                        SiddhiAppContext siddhiAppContext,
