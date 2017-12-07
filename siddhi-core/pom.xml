@@ -109,7 +109,7 @@
                             org.wso2.siddhi.core.*
                         </Export-Package>
                         <Import-Package>
-                            org.wso2.orbit.org.owasp.encoder.*;version="0.0.0",
+                            org.owasp.encoder.*;version="${owasp.encoder.version.range}",
                             *;resolution:=optional
                         </Import-Package>
                         <Include-Resource>
