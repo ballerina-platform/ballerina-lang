@@ -84,6 +84,7 @@ public class HttpServerConnector implements BallerinaServerConnector {
         //basePath will get cached after registering service
         sortedServiceURIs.add(httpService.getBasePath());
         sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
+        log.info("Service deployed : " + service.getName() + " with context " + httpService.getBasePath());
     }
 
     @Override

@@ -63,8 +63,8 @@ public class WebSocketService implements Service {
     }
 
     @Override
-    public List<Annotation> getAnnotation(String pkgPath, String name) {
-        return service.getAnnotation(pkgPath, name);
+    public List<Annotation> getAnnotationList(String pkgPath, String name) {
+        return service.getAnnotationList(pkgPath, name);
     }
 
     @Override

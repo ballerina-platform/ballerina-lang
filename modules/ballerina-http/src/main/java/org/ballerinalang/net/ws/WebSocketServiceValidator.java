@@ -43,8 +43,8 @@ public class WebSocketServiceValidator {
     }
 
     public static boolean validateServiceEndpoint(WebSocketService wsService) {
-        if (wsService.getAnnotation(Constants.PROTOCOL_PACKAGE_WS,
-                                    Constants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE) != null) {
+        if (wsService.getAnnotationList(Constants.PROTOCOL_PACKAGE_WS,
+                                        Constants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE) != null) {
             throw new BallerinaException(
                     String.format("Cannot define %s:%s annotation for WebSocket client service",
                                   Constants.PROTOCOL_PACKAGE_WS, Constants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE));
@@ -102,7 +102,7 @@ public class WebSocketServiceValidator {
      * @return true if the given service is a client service.
      */
     public static boolean isWebSocketClientService(WebSocketService service) {
-        List<Annotation> annotationList = service.getAnnotation(
+        List<Annotation> annotationList = service.getAnnotationList(
                 Constants.PROTOCOL_PACKAGE_WS, Constants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE);
         return !(annotationList == null);
     }

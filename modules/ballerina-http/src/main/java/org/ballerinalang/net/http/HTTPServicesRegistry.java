@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -110,7 +111,6 @@ public class HTTPServicesRegistry {
                 }
             }
         }
-        logger.info("Service deployed : " + service.getName() + " with context " + basePath);
     }
 
     /**
@@ -119,24 +119,16 @@ public class HTTPServicesRegistry {
      * @param service requested service to be removed.
      */
     public void unregisterService(HttpService service) {
-        Annotation annotation = HttpUtil.getServiceConfigAnnotation(service.getBalService(),
-                                                                    Constants.HTTP_PACKAGE_PATH);
+        List<Annotation> annotationList = service.getBalService().getAnnotationList(Constants.PROTOCOL_PACKAGE_HTTP,
+                                                                                    Constants.ANN_NAME_CONFIG);
 
-        String basePath = discoverBasePathFrom(service, annotation);
-        service.setBasePath(basePath);
-        Set<ListenerConfiguration> listenerConfigurationSet = HttpUtil.getDefaultOrDynamicListenerConfig(annotation);
+        if (annotationList == null) {
+            removeService(service, null);
+            return;
+        }
 
-        for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
-            String entryListenerInterface = listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
-            Map<String, HttpService> servicesOnInterface = servicesInfoMap.get(entryListenerInterface);
-            if (servicesOnInterface == null) {
-                continue;
-            }
-            servicesOnInterface.remove(basePath);
-            if (servicesOnInterface.isEmpty()) {
-                servicesInfoMap.remove(entryListenerInterface);
-                HttpConnectionManager.getInstance().closeIfLast(entryListenerInterface);
-            }
+        for (Annotation annotation : annotationList) {
+            removeService(service, annotation);
         }
     }
 
@@ -176,5 +168,25 @@ public class HTTPServicesRegistry {
                 webSocketAnn.getAnnAttrValue(Constants.ANN_WEBSOCKET_ATTR_SERVICE_NAME).getStringValue().trim();
         String uri = basePath.concat(upgradePath);
         WebSocketServicesRegistry.getInstance().registerServiceByName(serviceInterface, uri, serviceName);
+    }
+
+    private void removeService(HttpService service, Annotation annotation) {
+        String basePath = discoverBasePathFrom(service, annotation);
+        service.setBasePath(basePath);
+        Set<ListenerConfiguration> listenerConfigurationSet = HttpUtil.getDefaultOrDynamicListenerConfig(
+                annotation);
+
+        for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
+            String entryListenerInterface = listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
+            Map<String, HttpService> servicesOnInterface = servicesInfoMap.get(entryListenerInterface);
+            if (servicesOnInterface == null) {
+                continue;
+            }
+            servicesOnInterface.remove(basePath);
+            if (servicesOnInterface.isEmpty()) {
+                servicesInfoMap.remove(entryListenerInterface);
+                HttpConnectionManager.getInstance().closeIfLast(entryListenerInterface);
+            }
+        }
     }
 }

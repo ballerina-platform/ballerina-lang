@@ -771,30 +771,31 @@ public class HttpUtil {
     }
 
     public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
-        List<Annotation> annotationList = service.getAnnotation(pkgPath, Constants.ANN_NAME_CONFIG);
+        List<Annotation> annotationList = service.getAnnotationList(pkgPath, Constants.ANN_NAME_CONFIG);
 
         if (annotationList == null) {
             return null;
         }
 
         if (annotationList.size() > 1) {
-            throw new BallerinaConnectorException(
-                    "multiple service configuration annotations found in " + service.getName());
+            throw new BallerinaException(
+                    "multiple service configuration annotations found in service: " + service.getName());
         }
 
         return annotationList.isEmpty() ? null : annotationList.get(0);
     }
 
-    public static Annotation getResourceConfigAnnotation(Resource service, String pkgPath) {
-        List<Annotation> annotationList = service.getAnnotation(pkgPath, Constants.ANN_NAME_RESOURCE_CONFIG);
+    public static Annotation getResourceConfigAnnotation(Resource resource, String pkgPath) {
+        List<Annotation> annotationList = resource.getAnnotation(pkgPath, Constants.ANN_NAME_RESOURCE_CONFIG);
 
         if (annotationList == null) {
             return null;
         }
 
         if (annotationList.size() > 1) {
-            throw new BallerinaConnectorException(
-                    "multiple resource configuration annotations found in " + service.getName());
+            throw new BallerinaException(
+                    "multiple resource configuration annotations found in resource: " +
+                            resource.getServiceName() + "." + resource.getName());
         }
 
         return annotationList.isEmpty() ? null : annotationList.get(0);

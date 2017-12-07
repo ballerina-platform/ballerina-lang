@@ -42,13 +42,13 @@ public interface Service {
     String getPackage();
 
     /**
-     * This method will return annotation for the given package path and annotation name.
+     * This method will return the list of annotations for the given package path and annotation name.
      *
      * @param pkgPath of the annotation.
      * @param name  of the annotation.
      * @return matching annotations list.
      */
-    List<Annotation> getAnnotation(String pkgPath, String name);
+    List<Annotation> getAnnotationList(String pkgPath, String name);
 
     /**
      * This method will return Resources associated with the service as a array.
