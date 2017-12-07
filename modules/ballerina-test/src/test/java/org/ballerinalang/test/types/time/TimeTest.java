@@ -42,8 +42,6 @@ public class TimeTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testCurrentTime", args);
         Assert.assertTrue(((BInteger) returns[0]).intValue() > 1498621376460L);
-        //Assert.assertEquals((returns[1]).stringValue(), "Asia/Colombo");
-        //Assert.assertTrue(((BInteger) returns[2]).intValue() > 0);
     }
 
     @Test(description = "Test create time with offset ID provided.")
@@ -67,8 +65,6 @@ public class TimeTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testCreateTimeWithNoZone", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1498488382000L);
-        //Assert.assertEquals((returns[1]).stringValue(), "Asia/Colombo");
-        //Assert.assertEquals(((BInteger) returns[2]).intValue(), 19800);
     }
 
     @Test(description = "Test create time with no zone info provided.")
@@ -223,7 +219,7 @@ public class TimeTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*invalid timezone id test.*")
+          expectedExceptionsMessageRegExp = ".*invalid timezone id: test.*")
     public void testToTimezoneWithInvalidZone() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testToTimezoneWithInvalidZone", args);

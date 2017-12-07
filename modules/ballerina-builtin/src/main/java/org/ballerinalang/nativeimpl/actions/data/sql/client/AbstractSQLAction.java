@@ -23,6 +23,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
@@ -40,7 +41,9 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BTypeValue;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDataIterator;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
@@ -99,7 +102,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         throw new ArgumentOutOfRangeException(index);
     }
 
-    protected void executeQuery(Context context, SQLDatasource datasource, String query, BRefValueArray parameters) {
+    protected void executeQuery(Context context, SQLDatasource datasource, String query, BRefValueArray parameters,
+            BStructType structType) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -110,7 +114,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             stmt = getPreparedStatement(conn, datasource, processedQuery);
             createProcessedStatement(conn, stmt, parameters);
             rs = stmt.executeQuery();
-            context.getControlStackNew().getCurrentFrame().returnValues[0] = constructDataTable(rs, stmt, conn);
+            context.getControlStackNew().getCurrentFrame().returnValues[0] = constructDataTable(context, rs, stmt, conn,
+                    structType);
         } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
             throw new BallerinaException("execute query failed: " + e.getMessage(), e);
@@ -177,7 +182,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     }
 
     protected void executeProcedure(Context context, SQLDatasource datasource,
-                                    String query, BRefValueArray parameters) {
+                                    String query, BRefValueArray parameters, BStructType structType) {
         Connection conn = null;
         CallableStatement stmt = null;
         ResultSet rs = null;
@@ -189,7 +194,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             rs = executeStoredProc(stmt);
             setOutParameters(stmt, parameters);
             if (rs != null) {
-                context.getControlStackNew().getCurrentFrame().returnValues[0] = constructDataTable(rs, stmt, conn);
+                context.getControlStackNew().getCurrentFrame().returnValues[0] = constructDataTable(context, rs, stmt,
+                        conn, structType);
             } else {
                 SQLDatasourceUtils.cleanupConnection(null, stmt, conn, isInTransaction);
             }
@@ -243,6 +249,15 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             }
         }
         context.getControlStackNew().getCurrentFrame().returnValues[0] = countArray;
+    }
+
+    protected BStructType getStructType(Context context) {
+        BStructType structType = null;
+        BTypeValue type = (BTypeValue) getRefArgument(context, 2);
+        if (type != null) {
+            structType = (BStructType) type.value();
+        }
+        return structType;
     }
 
     /**
@@ -780,9 +795,11 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         return conn;
     }
 
-    private BDataTable constructDataTable(ResultSet rs, Statement stmt, Connection conn) throws SQLException {
+    private BDataTable constructDataTable(Context context, ResultSet rs, Statement stmt, Connection conn,
+            BStructType structType) throws SQLException {
         List<ColumnDefinition> columnDefinitions = getColumnDefinitions(rs);
-        return new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar, columnDefinitions));
+        return new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar, columnDefinitions, structType,
+                Utils.getTimeStructInfo(context), Utils.getTimeZoneStructInfo(context)));
     }
 
     private String getSQLType(BStruct parameter) {
