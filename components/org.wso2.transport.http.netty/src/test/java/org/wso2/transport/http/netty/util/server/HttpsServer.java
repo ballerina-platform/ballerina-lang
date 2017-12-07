@@ -70,7 +70,6 @@ public class HttpsServer implements TestServer {
             ServerBootstrap b = new ServerBootstrap();
             b.option(ChannelOption.SO_BACKLOG, 100);
             b.childOption(ChannelOption.TCP_NODELAY, true);
-            b.option(ChannelOption.SO_KEEPALIVE, true);
             b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
 
             KeyStore ks = KeyStore.getInstance("JKS");
