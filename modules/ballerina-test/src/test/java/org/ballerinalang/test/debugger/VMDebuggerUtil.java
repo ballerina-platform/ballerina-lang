@@ -17,34 +17,15 @@
 */
 package org.ballerinalang.test.debugger;
 
-import io.netty.channel.Channel;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.ControlStackNew;
-import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.NodeLocation;
-import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.util.codegen.FunctionInfo;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.WorkerInfo;
-import org.ballerinalang.util.debugger.DebugClientHandler;
-import org.ballerinalang.util.debugger.DebugCommand;
-import org.ballerinalang.util.debugger.DebugContext;
-import org.ballerinalang.util.debugger.DebugException;
-import org.ballerinalang.util.debugger.DebugServer;
 import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
-import org.ballerinalang.util.debugger.dto.MessageDTO;
-import org.ballerinalang.util.debugger.info.BreakPointInfo;
 import org.testng.Assert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Semaphore;
 
 /**
  * Test Util class to test debug scenarios.
@@ -56,14 +37,13 @@ public class VMDebuggerUtil {
     public static void startDebug(String sourceFilePath, BreakPointDTO[] breakPoints, BreakPointDTO[] expectedPoints,
                                   Step[] debugCommand) {
         TestDebugClientHandler debugClientHandler = new TestDebugClientHandler();
-        DebugRunner debugRunner = new DebugRunner();
-        VMDebugManager debugManager = debugRunner.setup(sourceFilePath, debugClientHandler, breakPoints);
+        VMDebugManager debugManager = setupProgram(sourceFilePath, debugClientHandler, breakPoints);
 
-        if (!waitTillDebugStarts(1000, debugManager)) {
+        if (!waitTillDebugStarts(100000, debugManager)) {
             Assert.fail("VM doesn't start within 1000ms");
         }
 
-        debugManager.releaseLock();
+        debugManager.resume(debugClientHandler.getThreadId());
 
         for (int i = 0; i <= expectedPoints.length; i++) {
             debugClientHandler.aquireSem();
@@ -127,146 +107,20 @@ public class VMDebuggerUtil {
         }
     }
 
-    static class DebugRunner {
+    private static VMDebugManager setupProgram(String sourceFilePath, TestDebugClientHandler clientHandler,
+                                               BreakPointDTO[] breakPoints) {
+        CompileResult result = BCompileUtil.compile(sourceFilePath);
 
-        CompileResult result;
-        Context bContext;
+        VMDebugManager debugManager = result.getProgFile().getDebugManager();
+        debugManager.setDebugEnabled(true);
+        debugManager.init(result.getProgFile(), clientHandler, new TestDebugServer());
+        debugManager.addDebugPoints(new ArrayList<>(Arrays.asList(breakPoints)));
 
-        VMDebugManager setup(String sourceFilePath, TestDebugClientHandler debugSessionObserver,
-                      BreakPointDTO[] breakPoints) {
-            result = BCompileUtil.compile(sourceFilePath);
+        String[] args = {"Hello", "World"};
 
-            bContext = new Context(result.getProgFile());
-
-            ControlStackNew controlStackNew = bContext.getControlStackNew();
-            String mainPkgName = result.getProgFile().getEntryPkgName();
-
-            VMDebugManager debugManager = result.getProgFile().getDebugManager();
-            debugManager.setDebugEnabled(true);
-            debugManager.init(result.getProgFile(), debugSessionObserver, new TestDebugServer());
-            debugManager.addDebugPoints(new ArrayList<>(Arrays.asList(breakPoints)));
-
-            PackageInfo mainPkgInfo = result.getProgFile().getPackageInfo(mainPkgName);
-            if (mainPkgInfo == null) {
-                throw new RuntimeException("cannot find main function '"
-                        + result.getProgFile().getProgramFilePath() + "'");
-            }
-
-            FunctionInfo mainFuncInfo = mainPkgInfo.getFunctionInfo("main");
-            if (mainFuncInfo == null) {
-                throw new RuntimeException("cannot find main function '"
-                        + result.getProgFile().getProgramFilePath() + "'");
-            }
-
-            // Invoke package init function
-            BRunUtil.invoke(result, mainPkgInfo.getInitFunctionInfo(), bContext);
-
-            // Prepare main function arguments
-            BStringArray arrayArgs = new BStringArray();
-            arrayArgs.add(0, "Hello");
-            arrayArgs.add(1, "World");
-
-            WorkerInfo defaultWorkerInfo = mainFuncInfo.getDefaultWorkerInfo();
-            StackFrame stackFrame = new StackFrame(mainFuncInfo,
-                    defaultWorkerInfo, -1, new int[0]);
-            stackFrame.getRefLocalVars()[0] = arrayArgs;
-            controlStackNew.pushFrame(stackFrame);
-            bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
-            DebuggerExecutor executor = new DebuggerExecutor(result.getProgFile(), bContext);
-            (new Thread(executor)).start();
-            return debugManager;
-        }
+        DebuggerExecutor executor = new DebuggerExecutor(result, args);
+        (new Thread(executor)).start();
+        return debugManager;
     }
 
-    static class TestDebugClientHandler implements DebugClientHandler {
-
-        boolean isExit;
-        int hitCount = -1;
-        NodeLocation haltPosition;
-        private volatile Semaphore executionSem;
-        private String threadId;
-
-        //key - threadid
-        private Map<String, DebugContext> contextMap;
-
-        TestDebugClientHandler() {
-            this.contextMap = new HashMap<>();
-            executionSem = new Semaphore(0);
-        }
-
-        public void aquireSem() {
-            try {
-                executionSem.acquire();
-            } catch (InterruptedException e) {
-
-            }
-        }
-
-        public String getThreadId() {
-            return threadId;
-        }
-
-        @Override
-        public void addContext(DebugContext debugContext) {
-            //for debugging tests, only single threaded execution supported
-            threadId = Thread.currentThread().getName() + ":" + Thread.currentThread().getId();
-            debugContext.setThreadId(threadId);
-            //TODO check if that thread id already exist in the map
-            this.contextMap.put(threadId, debugContext);
-        }
-
-        @Override
-        public DebugContext getContext(String threadId) {
-            return this.contextMap.get(threadId);
-        }
-
-        @Override
-        public void updateAllDebugContexts(DebugCommand debugCommand) {
-
-        }
-
-        @Override
-        public void setChannel(Channel channel) throws DebugException {
-
-        }
-
-        @Override
-        public void clearChannel() {
-
-        }
-
-        @Override
-        public boolean isChannelActive() {
-            return false;
-        }
-
-        @Override
-        public void notifyComplete() {
-        }
-
-        @Override
-        public void notifyExit() {
-            isExit = true;
-            executionSem.release();
-        }
-
-        @Override
-        public void notifyHalt(BreakPointInfo breakPointInfo) {
-            hitCount++;
-            haltPosition = breakPointInfo.getHaltLocation();
-            executionSem.release();
-        }
-
-        @Override
-        public void sendCustomMsg(MessageDTO message) {
-
-        }
-    }
-
-    static class TestDebugServer implements DebugServer {
-
-        @Override
-        public void startServer(VMDebugManager debugManager) {
-        }
-    }
 }

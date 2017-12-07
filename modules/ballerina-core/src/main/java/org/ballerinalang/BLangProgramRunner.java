@@ -33,6 +33,7 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.VMDebugClientHandler;
 import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.debugger.VMDebugServer;
@@ -61,6 +62,14 @@ public class BLangProgramRunner {
         // This is required to invoke package/service init functions;
         Context bContext = new Context(programFile);
 
+        VMDebugManager debugManager = programFile.getDebugManager();
+        if (debugManager.isDebugEnabled()) {
+            DebugContext debugContext = new DebugContext();
+            bContext.setDebugContext(debugContext);
+            debugManager.init(programFile, new VMDebugClientHandler(), new VMDebugServer());
+            debugManager.addDebugContextAndWait(debugContext);
+        }
+
         // Invoke package init function
         BLangFunctions.invokePackageInitFunction(programFile, servicesPackage.getInitFunctionInfo(), bContext);
 
@@ -83,10 +92,6 @@ public class BLangProgramRunner {
         if (serviceCount == 0) {
             throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
         }
-
-        if (programFile.getDebugManager().isDebugEnabled()) {
-            programFile.getDebugManager().init(programFile, new VMDebugClientHandler(), new VMDebugServer());
-        }
     }
 
     public static void runMain(ProgramFile programFile, String[] args) {
@@ -102,6 +107,14 @@ public class BLangProgramRunner {
 
         // Non blocking is not supported in the main program flow..
         Context bContext = new Context(programFile);
+
+        VMDebugManager debugManager = programFile.getDebugManager();
+        if (debugManager.isDebugEnabled()) {
+            DebugContext debugContext = new DebugContext();
+            bContext.setDebugContext(debugContext);
+            debugManager.init(programFile, new VMDebugClientHandler(), new VMDebugServer());
+            debugManager.addDebugContextAndWait(debugContext);
+        }
 
         // Invoke package init function
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
@@ -126,11 +139,7 @@ public class BLangProgramRunner {
         controlStackNew.pushFrame(stackFrame);
         bContext.startTrackWorker();
         bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
-        VMDebugManager debugManager = programFile.getDebugManager();
-        if (debugManager.isDebugEnabled()) {
-            debugManager.init(programFile, new VMDebugClientHandler(), new VMDebugServer());
-            debugManager.addDebugContextAndWait();
-        }
+
         BLangVM bLangVM = new BLangVM(programFile);
         bLangVM.run(bContext);
         bContext.await();
@@ -143,7 +152,7 @@ public class BLangProgramRunner {
         }
     }
 
-    private static FunctionInfo getMainFunction(PackageInfo mainPkgInfo) {
+    public static FunctionInfo getMainFunction(PackageInfo mainPkgInfo) {
         String errorMsg = "main function not found in  '" +
                 mainPkgInfo.getProgramFile().getProgramFilePath() + "'";
 

@@ -17,9 +17,22 @@
 */
 package org.ballerinalang.test.debugger;
 
+import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
+import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.bre.bvm.StackFrame;
+import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.util.codegen.FunctionInfo;
+import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.util.debugger.DebugContext;
+import org.ballerinalang.util.debugger.VMDebugManager;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.program.BLangFunctions;
 
 /**
  * {@link DebuggerExecutor} represents executor class which runs the main program when debugging.
@@ -27,21 +40,72 @@ import org.ballerinalang.util.codegen.ProgramFile;
  * @since 0.88
  */
 public class DebuggerExecutor implements Runnable {
-    private ProgramFile programFile;
-    private Context bContext;
+    private CompileResult result;
+    private String[] args;
+    private PackageInfo mainPkgInfo;
 
-    public DebuggerExecutor(ProgramFile programFile, Context bContext) {
-        this.programFile = programFile;
-        this.bContext = bContext;
+    public DebuggerExecutor(CompileResult result, String[] args) {
+        this.result = result;
+        this.args = args;
+        init();
+    }
+
+    private void init() {
+        ProgramFile programFile = result.getProgFile();
+
+        if (!programFile.isMainEPAvailable()) {
+            throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
+        }
+
+        // Get the main entry package
+        mainPkgInfo = programFile.getEntryPackage();
+        if (mainPkgInfo == null) {
+            throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
+        }
     }
 
     @Override
     public void run() {
-        BLangVM bLangVM = new BLangVM(programFile);
+        ProgramFile programFile = result.getProgFile();
+
+        // Non blocking is not supported in the main program flow..
+        Context bContext = new Context(programFile);
+
+        VMDebugManager debugManager = programFile.getDebugManager();
+        if (debugManager.isDebugEnabled()) {
+            DebugContext debugContext = new DebugContext();
+            bContext.setDebugContext(debugContext);
+            debugManager.addDebugContextAndWait(debugContext);
+        }
+
+        // Invoke package init function
+        FunctionInfo mainFuncInfo = BLangProgramRunner.getMainFunction(mainPkgInfo);
+        BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);
+
+        // Prepare main function arguments
+        BStringArray arrayArgs = new BStringArray();
+        for (int i = 0; i < args.length; i++) {
+            arrayArgs.add(i, args[i]);
+        }
+
+        WorkerInfo defaultWorkerInfo = mainFuncInfo.getDefaultWorkerInfo();
+
+        // Execute workers
+        StackFrame callerSF = new StackFrame(mainPkgInfo, -1, new int[0]);
+        callerSF.setRefRegs(new BRefType[1]);
+        callerSF.getRefRegs()[0] = arrayArgs;
+
+        StackFrame stackFrame = new StackFrame(mainFuncInfo, defaultWorkerInfo, -1, new int[0]);
+        stackFrame.getRefLocalVars()[0] = arrayArgs;
+        ControlStackNew controlStackNew = bContext.getControlStackNew();
+        controlStackNew.pushFrame(stackFrame);
         bContext.startTrackWorker();
-        programFile.getDebugManager().addDebugContextAndWait();
+        bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
+
+        BLangVM bLangVM = new BLangVM(programFile);
         bLangVM.run(bContext);
         bContext.await();
-        programFile.getDebugManager().notifyExit();
+        debugManager.notifyExit();
+
     }
 }

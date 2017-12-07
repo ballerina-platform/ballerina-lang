@@ -2363,10 +2363,8 @@ public class BLangVM {
      */
     private void debugging(int cp) {
         VMDebugManager debugManager = programFile.getDebugManager();
-        if (!debugManager.acquireDebugLock()) {
-            return;
-        }
         try {
+            debugManager.acquireDebugLock();
             processDebugging(cp, debugManager);
         } finally {
             debugManager.releaseDebugLock();

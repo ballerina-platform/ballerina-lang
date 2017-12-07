@@ -104,8 +104,8 @@ public class VMDebugManager {
     /**
      * Helper method to add debug context and wait until debugging starts.
      */
-    public void addDebugContextAndWait() {
-        this.clientHandler.addContext(new DebugContext());
+    public void addDebugContextAndWait(DebugContext debugContext) {
+        this.clientHandler.addContext(debugContext);
         this.waitTillDebuggeeResponds();
     }
 
@@ -138,11 +138,13 @@ public class VMDebugManager {
 
     /**
      * Helper method to acquire debug lock.
-     *
-     * @return true if acquired successfully.
      */
-    public boolean acquireDebugLock() {
-        return debugSem.tryAcquire();
+    public void acquireDebugLock() {
+        try {
+            debugSem.acquire();
+        } catch (InterruptedException e) {
+            //ignore
+        }
     }
 
     /**
