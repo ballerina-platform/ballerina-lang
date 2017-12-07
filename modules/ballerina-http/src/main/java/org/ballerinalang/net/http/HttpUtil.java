@@ -556,32 +556,41 @@ public class HttpUtil {
         struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
-    public static void addRequestResponseFlag(BStruct request, BStruct response) {
+    public static void populateInboundRequest(BStruct request, HTTPCarbonMessage cMsg, BStruct headerStruct) {
+        request.addNativeData(TRANSPORT_MESSAGE, cMsg);
         request.addNativeData(Constants.INBOUND_REQUEST, true);
-        response.addNativeData(Constants.OUTBOUND_RESPONSE, true);
-    }
-
-    public static void populateRequest(BStruct request, HTTPCarbonMessage cMsg, BStruct headerStruct) {
         request.setStringField(Constants.REQUEST_URI_INDEX, (String) cMsg.getProperty(Constants.REQUEST_URL));
-        request.setStringField(Constants.REQUEST_HOST_INDEX,
-                ((InetSocketAddress)cMsg.getProperty(Constants.LOCAL_ADDRESS)).getHostName());
-        request.setIntField(Constants.REQUEST_PORT_INDEX, (Integer) cMsg.getProperty(Constants.LISTENER_PORT));
+        if (cMsg.getProperty(Constants.LOCAL_ADDRESS) != null) {
+            request.setStringField(Constants.REQUEST_HOST_INDEX,
+                    ((InetSocketAddress) cMsg.getProperty(Constants.LOCAL_ADDRESS)).getHostName());
+        }
+        if (cMsg.getProperty(Constants.LISTENER_PORT) != null) {
+            request.setIntField(Constants.REQUEST_PORT_INDEX, (Integer) cMsg.getProperty(Constants.LISTENER_PORT));
+        }
         request.setStringField(Constants.REQUEST_METHOD_INDEX, (String) cMsg.getProperty(Constants.HTTP_METHOD));
         request.setStringField(Constants.REQUEST_VERSION_INDEX, (String) cMsg.getProperty(Constants.HTTP_VERSION));
         request.setRefField(Constants.REQUEST_HEADERS_INDEX, createHeaderBMap(headerStruct, cMsg.getHeaders()));
     }
 
-    public static void populateResponse(BStruct response, HTTPCarbonMessage cMsg, BStruct headerStruct) {
-        response.setStringField(Constants.REQUEST_URI_INDEX, (String) cMsg.getProperty(Constants.REQUEST_URL));
-        response.setStringField(Constants.REQUEST_HOST_INDEX,
-                ((InetSocketAddress)cMsg.getProperty(Constants.LOCAL_ADDRESS)).getHostName());
-        response.setIntField(Constants.REQUEST_PORT_INDEX, (Integer) cMsg.getProperty(Constants.LISTENER_PORT));
-        response.setStringField(Constants.REQUEST_METHOD_INDEX, (String) cMsg.getProperty(Constants.HTTP_METHOD));
-        response.setStringField(Constants.REQUEST_VERSION_INDEX, (String) cMsg.getProperty(Constants.HTTP_VERSION));
-        response.setRefField(Constants.REQUEST_HEADERS_INDEX, createHeaderBMap(headerStruct, cMsg.getHeaders()));
+    public static void populateOutboundResponse(BStruct response, HTTPCarbonMessage resMsg, HTTPCarbonMessage reqMsg) {
+        response.addNativeData(TRANSPORT_MESSAGE, resMsg);
+        response.addNativeData(Constants.INBOUND_REQUEST_MESSAGE, reqMsg);
+        response.addNativeData(Constants.OUTBOUND_RESPONSE, true);
+    }
+
+    public static void populateInboundResponse(BStruct response, HTTPCarbonMessage cMsg, BStruct headerStruct) {
+        response.addNativeData("transport_message", cMsg);
+        int statusCode = (Integer) cMsg.getProperty(Constants.HTTP_STATUS_CODE);
+        response.setIntField(Constants.RESPONSE_STATUS_CODE_INDEX, statusCode);
+        response.setStringField(Constants.RESPONSE_REASON_PHRASE_INDEX,
+                HttpResponseStatus.valueOf(statusCode).reasonPhrase());
+        response.setRefField(Constants.RESPONSE_HEADERS_INDEX, createHeaderBMap(headerStruct, cMsg.getHeaders()));
     }
 
     private static BMap createHeaderBMap(BStruct headerStruct, HttpHeaders headers) {
+        if (headers == null) {
+            return null;
+        }
         Map<String, ArrayList> headerStructHolder = new HashMap<>();
         for (Map.Entry<String, String> headerEntry : headers) {
             String headerKey = headerEntry.getKey().trim();
@@ -589,7 +598,7 @@ public class HttpUtil {
             //Get the list of HeaderStruct for a given key
             ArrayList headerList = headerStructHolder.get(headerKey) != null ? headerStructHolder.get(headerKey) :
                     new ArrayList();
-            if(headerValue.contains(",")) {
+            if (headerValue.contains(",")) {
                 List<String> valueList = Arrays.stream(headerValue.split(",")).map(String::trim)
                         .collect(Collectors.toList());
                 for (String value: valueList) {
@@ -617,9 +626,8 @@ public class HttpUtil {
 
     private static BStruct populateWithHeaderValueAndParams(BStruct headerStruct, String headerValue) {
         String value = headerValue.substring(0, headerValue.indexOf(";")).trim();
-        String paramString = headerValue.substring(headerValue.indexOf(";")+1);
-        List<String> paramList = Arrays.stream(paramString.split(";")).map(String::trim)
-                .collect(Collectors.toList());
+        List<String> paramList = Arrays.stream(headerValue.substring(headerValue.indexOf(";") + 1)
+                .split(";")).map(String::trim).collect(Collectors.toList());
         headerStruct.setStringField(0, value);
         headerStruct.setRefField(0, createParamBMap(paramList));
         return headerStruct;
@@ -632,10 +640,13 @@ public class HttpUtil {
 
     private static BMap<String, BValue> createParamBMap(List<String> paramList) {
         BMap<String, BValue> paramMap = new BMap<>();
-        for (String param: paramList) {
+        for (String param : paramList) {
             if (param.contains("=")) {
                 String[] keyValuePair = param.split("=");
                 paramMap.put(keyValuePair[0].trim(), new BString(keyValuePair[1].trim()));
+            } else {
+                //handle when parameter value is optional
+                paramMap.put(param.trim(), null);
             }
         }
         return paramMap;

@@ -175,6 +175,11 @@ public class Constants {
     public static final int REQUEST_PORT_INDEX = 0;
     public static final int REQUEST_HEADERS_INDEX = 0;
 
+    //Response struct index
+    public static final int RESPONSE_STATUS_CODE_INDEX = 0;
+    public static final int RESPONSE_REASON_PHRASE_INDEX = 0;
+    public static final int RESPONSE_HEADERS_INDEX = 0;
+
     //Proxy server struct indexes
     public static final int PROXY_STRUCT_INDEX = 3;
     public static final int PROXY_HOST_INDEX = 0;
