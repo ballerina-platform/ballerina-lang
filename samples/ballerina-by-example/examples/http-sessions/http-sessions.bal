@@ -1,6 +1,6 @@
 import ballerina.net.http;
 
-service<http> session {
+service<http> sessionTest {
 
     string key = "status";
     @http:resourceConfig {
