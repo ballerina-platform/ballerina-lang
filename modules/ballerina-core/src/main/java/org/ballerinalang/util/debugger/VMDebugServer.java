@@ -18,8 +18,6 @@
 package org.ballerinalang.util.debugger;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -30,8 +28,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import org.ballerinalang.util.debugger.dto.MessageDTO;
 
 import java.io.PrintStream;
 
@@ -43,37 +39,42 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
  *
  * @since 0.88
  */
-public class VMDebugServer {
-
+public class VMDebugServer implements DebugServer {
 
     /**
      *  Debug server initializer class.
      */
     static class DebugServerInitializer extends ChannelInitializer<SocketChannel> {
 
+        VMDebugManager debugManager;
+
+        DebugServerInitializer(VMDebugManager debugManager) {
+            this.debugManager = debugManager;
+        }
+
         @Override
         public void initChannel(SocketChannel ch) throws Exception {
             ChannelPipeline pipeline = ch.pipeline();
             pipeline.addLast(new HttpServerCodec());
             pipeline.addLast(new HttpObjectAggregator(65536));
-            pipeline.addLast(new VMDebugServerHandler());
+            pipeline.addLast(new VMDebugServerHandler(debugManager));
         }
     }
 
     /**
      * Start the web socket server.
      */
-    public void startServer() {
+    public void startServer(VMDebugManager debugManager) {
         //lets start the server in a new thread.
         Runnable run = new Runnable() {
             public void run() {
-                VMDebugServer.this.startListning();
+                VMDebugServer.this.startListning(debugManager);
             }
         };
         (new Thread(run)).start();
     }
 
-    private void startListning() {
+    private void startListning(VMDebugManager debugManager) {
         int port = getDebugPort();
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -83,7 +84,7 @@ public class VMDebugServer {
                     .channel(NioServerSocketChannel.class)
                     //todo activate debug logs once implemented.
                     //.handler(new LoggingHandler(LogLevel.INFO))
-                    .childHandler(new DebugServerInitializer());
+                    .childHandler(new DebugServerInitializer(debugManager));
             Channel ch = b.bind(port).sync().channel();
 
             PrintStream out = System.out;
@@ -99,24 +100,6 @@ public class VMDebugServer {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
-    }
-
-    /**
-     * Push message to client.
-     *
-     * @param debugSession current debugging session
-     * @param status debug point information
-     */
-    public void pushMessageToClient(VMDebugSession debugSession, MessageDTO status) {
-        ObjectMapper mapper = new ObjectMapper();
-        String json = null;
-        try {
-            json = mapper.writeValueAsString(status);
-        } catch (JsonProcessingException e) {
-            json = DebugConstants.ERROR_JSON;
-        }
-        debugSession.getChannel().write(new TextWebSocketFrame(json));
-        debugSession.getChannel().flush();
     }
 
     private int getDebugPort() {

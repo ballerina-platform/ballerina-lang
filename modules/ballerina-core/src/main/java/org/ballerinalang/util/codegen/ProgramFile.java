@@ -25,6 +25,7 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ConstantPool;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
+import org.ballerinalang.util.debugger.VMDebugManager;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -58,6 +59,8 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     private PackageInfo entryPackage;
     private boolean mainFucAvailable = false;
     private boolean servicesAvailable = false;
+
+    private VMDebugManager debugManager = new VMDebugManager();
 
     // Cached values.
     // This is the actual path given by the user and this is used primarily for error reporting
@@ -212,4 +215,9 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     public void addUnresolvedAnnAttrValue(AnnAttributeValue annAttributeValue) {
         unresolvedAnnAttrValues.add(annAttributeValue);
     }
+
+    public VMDebugManager getDebugManager() {
+        return debugManager;
+    }
+
 }
