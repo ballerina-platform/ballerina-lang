@@ -99,6 +99,6 @@ public class WindowDefinition extends StreamDefinition {
 
     @Override
     public String toString() {
-        return super.toString() + " " + window.toString();
+        return super.toString("window") + " " + window.toString();
     }
 }

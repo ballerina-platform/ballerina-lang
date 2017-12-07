@@ -106,13 +106,17 @@ public abstract class AbstractDefinition implements SiddhiElement {
 
     @Override
     public String toString() {
+       return toString("stream");
+    }
+
+     protected String toString(String type) {
         StringBuilder definitionBuilder = new StringBuilder();
         if (annotations != null && annotations.size() > 0) {
             for (Annotation annotation : annotations) {
                 definitionBuilder.append(annotation.toString());
             }
         }
-        definitionBuilder.append("define stream ").append(id).append(" (");
+        definitionBuilder.append("define ").append(type).append(" ").append(id).append(" (");
         boolean isFirst = true;
         for (Attribute attribute : attributeList) {
             if (!isFirst) {
@@ -126,7 +130,6 @@ public abstract class AbstractDefinition implements SiddhiElement {
         definitionBuilder.append(")");
         return definitionBuilder.toString();
     }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
