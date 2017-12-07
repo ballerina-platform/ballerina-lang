@@ -91,3 +91,21 @@ function testConstraintJSONToJSONCast() (json) {
     json j2 = (json) j1;
     return j2;
 }
+
+function testJSONToConstraintJsonUnsafeCast() (json, TypeCastError) {
+    json<Person> j;
+    TypeCastError err;
+    j,err = (json<Person>)getPlainJson();
+    return j,err;
+}
+
+function testJSONToConstraintJsonUnsafeCastPositive() (json) {
+    json<Person> j;
+    j,_ = (json<Person>)getPersonEquivalentPlainJson();
+    return j;
+}
+
+function testConstraintJSONToConstraintJsonAssignment() (json) {
+    json<Person> j = (json<Person>)getStudent();
+    return j;
+}

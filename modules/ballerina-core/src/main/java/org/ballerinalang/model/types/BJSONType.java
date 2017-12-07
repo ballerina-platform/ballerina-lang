@@ -21,19 +21,30 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * {@code BJSONType} represents a JSON document.
+ * {@code BJSONType} represents a JSON value.
  *
  * @since 0.8.0
  */
 public class BJSONType extends BType {
 
+    private BType constraint;
+
     /**
-     * Create a {@code BJSONType} which represents the boolean type.
+     * Create a {@code BJSONType} which represents the JSON type.
      *
      * @param typeName string name of the type
      */
-    BJSONType(String typeName, String pkgPath) {
+    public BJSONType(String typeName, String pkgPath) {
         super(typeName, pkgPath, BJSON.class);
+    }
+
+    public BJSONType(BType constraint) {
+        super(TypeConstants.JSON_TNAME, null, BJSON.class);
+        this.constraint = constraint;
+    }
+
+    public BType getConstrainedType() {
+        return constraint;
     }
 
     @Override
@@ -48,11 +59,40 @@ public class BJSONType extends BType {
 
     @Override
     public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_REFTYPE, TypeEnum.JSON.getName());
+        if (constraint == null) {
+            return new TypeSignature(TypeSignature.SIG_JSON);
+        } else {
+            return new TypeSignature(TypeSignature.SIG_JSON, constraint.getPackagePath(), constraint.getName());
+        }
     }
 
     @Override
     public int getTag() {
         return TypeTags.JSON_TAG;
+    }
+
+    @Override
+    public String toString() {
+        if (constraint == null) {
+            return super.toString();
+        } else {
+            return "json" + "<" + constraint.getName() + ">";
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj) || !(obj instanceof BJSONType)) {
+            return false;
+        }
+
+        BJSONType other = (BJSONType) obj;
+        if (constraint == other.constraint) {
+            return true;
+        } else if (constraint == null || other.constraint == null) {
+            return false;
+        }
+
+        return constraint.equals(other.constraint);
     }
 }

@@ -43,12 +43,13 @@ public class BJSONConstraintType extends BJSONType {
 
     @Override
     public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_CJSON, constraint.getPackagePath(), constraint.getName());
+//        return new TypeSignature(TypeSignature.SIG_CJSON, constraint.getPackagePath(), constraint.getName());
+        return null;
     }
 
     @Override
     public int getTag() {
-        return TypeTags.C_JSON_TAG;
+        return TypeTags.JSON_TAG;
     }
 
     public boolean equals(Object obj) {

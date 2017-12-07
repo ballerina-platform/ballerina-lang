@@ -803,6 +803,8 @@ public class JSONUtils {
                 return json.isInt() || json.isLong();
             case TypeTags.FLOAT_TAG:
                 return json.isFloat() || json.isDouble();
+            case TypeTags.BOOLEAN_TAG:
+                return json.isBoolean();
             case TypeTags.ARRAY_TAG:
                 if (!json.isArray()) {
                     return false;
@@ -818,8 +820,10 @@ public class JSONUtils {
                     }
                 }
                 return true;
-            default:
+            case TypeTags.JSON_TAG:
                 return true;
+            default:
+                return false;
         }
     }
 

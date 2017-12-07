@@ -575,8 +575,17 @@ public class Types {
         @Override
         public BSymbol visit(BJSONType t, BType s) {
             // Handle constrained JSON
-            if (isSameType(s, t) || (s.tag == TypeTags.JSON && t.constraint.tag == TypeTags.NONE)) {
+            if (isSameType(s, t)) {
                 return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
+            } else if (s.tag == TypeTags.JSON) {
+                if (t.constraint.tag == TypeTags.NONE) {
+                    return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
+                } else if (((BJSONType) s).constraint.tag == TypeTags.NONE) {
+                    return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
+                } else if (checkStructEquivalency(((BJSONType) s).constraint, t.constraint)) {
+                    return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
+                }
+                return symTable.notFoundSymbol;
             } else if (s.tag == TypeTags.ARRAY) {
                 return getExplicitArrayCastOperator(t, s, t, s);
             } else if (t.constraint.tag != TypeTags.NONE) {

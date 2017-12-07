@@ -22,7 +22,7 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BFunctionType;
-import org.ballerinalang.model.types.BJSONConstraintType;
+import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -844,7 +844,7 @@ public class ProgramFileReader {
                 typeStack.push(BTypes.getTypeFromName(typeName));
                 return nameIndex + 1;
             case 'C':
-            case 'K':
+            case 'J':
             case 'T':
             case 'E':
                 char typeChar = chars[index];
@@ -874,8 +874,12 @@ public class ProgramFileReader {
 
                 if (typeChar == 'C') {
                     typeStack.push(packageInfoOfType.getConnectorInfo(name).getType());
-                } else if (typeChar == 'K') {
-                    typeStack.push(new BJSONConstraintType(packageInfoOfType.getStructInfo(name).getType()));
+                } else if (typeChar == 'J') {
+                    if (name.isEmpty()) {
+                        typeStack.push(BTypes.typeJSON);
+                    } else {
+                        typeStack.push(new BJSONType(packageInfoOfType.getStructInfo(name).getType()));
+                    }
                 } else if (typeChar == 'E') {
                     typeStack.push(packageInfoOfType.getEnumInfo(name).getType());
                 } else {
@@ -919,22 +923,24 @@ public class ProgramFileReader {
             case 'R':
                 return BTypes.getTypeFromName(desc.substring(1, desc.length() - 1));
             case 'C':
-            case 'K':
+            case 'J':
             case 'T':
             case 'E':
-                String pkgPath;
-                String name;
-                PackageInfo packageInfoOfType;
                 String typeName = desc.substring(1, desc.length() - 1);
                 String[] parts = typeName.split(":");
-                pkgPath = parts[0];
-                name = parts[1];
-                packageInfoOfType = programFile.getPackageInfo(pkgPath);
 
-                if (ch == 'C') {
+                // TODO: improve
+                if (ch == 'J' && parts.length == 1) {
+                    return BTypes.typeJSON;
+                }
+
+                String pkgPath = parts[0];
+                String name = parts[1];
+                PackageInfo packageInfoOfType = programFile.getPackageInfo(pkgPath);
+                if (ch == 'J') {
+                    return new BJSONType(packageInfoOfType.getStructInfo(name).getType());
+                } else if (ch == 'C') {
                     return packageInfoOfType.getConnectorInfo(name).getType();
-                } else if (ch == 'K') {
-                    return new BJSONConstraintType(packageInfoOfType.getStructInfo(name).getType());
                 } else if (ch == 'E') {
                     return packageInfoOfType.getEnumInfo(name).getType();
                 } else {
