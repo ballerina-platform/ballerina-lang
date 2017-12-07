@@ -27,7 +27,6 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.BaseIncrementalValueStore;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalDataAggregator;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
 import org.wso2.siddhi.core.table.Table;
@@ -103,15 +102,16 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
         complexEventChunkToHoldWithinMatches.add(withinMatchFromPersistedEvents);
 
         // Optimization step.
-        // Get the newest and oldest events from in-memory (running) aggregates, and
-        // check whether at least one of those events is within the given time range. If it's not the case,
+        // Get the newest and oldest event timestamps from in-memory, and
+        // check whether at least one of those timestamps fall out of the given time range. If that's the case,
         // there's no need to iterate through in-memory data.
-        BaseIncrementalValueStore newestInMemoryEvent = getNewestInMemoryEvent(incrementalExecutorMap,
+        long oldestInMemoryEventTimestamp = getOldestInMemoryEventTimestamp(incrementalExecutorMap,
                 incrementalDurations, perValue);
-        BaseIncrementalValueStore oldestInMemoryEvent = getOldestInMemoryEvent(incrementalExecutorMap,
+        long newestInMemoryEventTimestamp = getNewestInMemoryEventTimestamp(incrementalExecutorMap,
                 incrementalDurations, perValue);
 
-        if (requiresAggregatingInMemoryData(newestInMemoryEvent, oldestInMemoryEvent, matchingEvent)) {
+        if (requiresAggregatingInMemoryData(newestInMemoryEventTimestamp, oldestInMemoryEventTimestamp,
+                startTimeEndTime)) {
             IncrementalDataAggregator incrementalDataAggregator = new IncrementalDataAggregator(incrementalDurations,
                     perValue, baseExecutors, timestampExecutor, tableMetaStreamEvent);
 
@@ -161,52 +161,53 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
         return aggregateSelectionComplexEventChunk;
     }
 
-    private boolean requiresAggregatingInMemoryData(BaseIncrementalValueStore newestInMemoryEvent,
-            BaseIncrementalValueStore oldestInMemoryEvent, StateEvent matchingEvent) {
-        ComplexEventChunk<StreamEvent> newestAndOldestEventChunk = new ComplexEventChunk<>(true);
-        if (newestInMemoryEvent == null && oldestInMemoryEvent == null) {
+    private boolean requiresAggregatingInMemoryData(long newestInMemoryEventTimestamp,
+            long oldestInMemoryEventTimestamp, Long[] startTimeEndTime) {
+        if (newestInMemoryEventTimestamp == -1 && oldestInMemoryEventTimestamp == -1) {
             return false;
         }
-        if (newestInMemoryEvent != null) {
-            newestAndOldestEventChunk.add(newestInMemoryEvent.createStreamEvent());
+        if (oldestInMemoryEventTimestamp != -1) {
+            long endTimeForWithin = startTimeEndTime[1];
+            if (endTimeForWithin <= oldestInMemoryEventTimestamp) {
+                return false;
+            }
         }
-        if (oldestInMemoryEvent != null) {
-            newestAndOldestEventChunk.add(oldestInMemoryEvent.createStreamEvent());
+        if (newestInMemoryEventTimestamp != -1) {
+            long startTimeForWithin = startTimeEndTime[0];
+            if (newestInMemoryEventTimestamp < startTimeForWithin) {
+                return false;
+            }
         }
-        return ((Operator) inMemoryStoreCompileCondition).find(matchingEvent, newestAndOldestEventChunk,
-                tableEventCloner) != null;
-
+        return true;
     }
 
-    private BaseIncrementalValueStore getNewestInMemoryEvent(
-            Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
+    private long getNewestInMemoryEventTimestamp(Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
             List<TimePeriod.Duration> incrementalDurations, TimePeriod.Duration perValue) {
-        BaseIncrementalValueStore newestEvent;
+        long newestEvent;
         for (TimePeriod.Duration incrementalDuration : incrementalDurations) {
-            newestEvent = incrementalExecutorMap.get(incrementalDuration).getNewestEvent();
-            if (newestEvent != null) {
+            newestEvent = incrementalExecutorMap.get(incrementalDuration).getNewestEventTimestamp();
+            if (newestEvent != -1) {
                 return newestEvent;
             }
             if (incrementalDuration == perValue) {
                 break;
             }
         }
-        return null;
+        return -1;
     }
 
-    private BaseIncrementalValueStore getOldestInMemoryEvent(
-            Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
+    private long getOldestInMemoryEventTimestamp(Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
             List<TimePeriod.Duration> incrementalDurations, TimePeriod.Duration perValue) {
-        BaseIncrementalValueStore oldestEvent;
+        long oldestEvent;
         TimePeriod.Duration incrementalDuration;
-        for (int i = perValue.ordinal(); i >= 0; i--) {
+        for (int i = perValue.ordinal(); i >= incrementalDurations.get(0).ordinal(); i--) {
             incrementalDuration = TimePeriod.Duration.values()[i];
-            oldestEvent = incrementalExecutorMap.get(incrementalDuration).getOldestEvent();
-            if (oldestEvent != null) {
+            oldestEvent = incrementalExecutorMap.get(incrementalDuration).getOldestEventTimestamp();
+            if (oldestEvent != -1) {
                 return oldestEvent;
             }
         }
-        return null;
+        return -1;
     }
 
     public void setComplexEventPopulater(ComplexEventPopulater complexEventPopulater) {
