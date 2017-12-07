@@ -60,7 +60,6 @@ public class HttpServer implements TestServer {
             ServerBootstrap b = new ServerBootstrap();
             b.option(ChannelOption.SO_BACKLOG, 100);
             b.childOption(ChannelOption.TCP_NODELAY, true);
-            b.option(ChannelOption.SO_KEEPALIVE, true);
             b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
             b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(channelInitializer);
             ChannelFuture ch = b.bind(new InetSocketAddress(TestUtil.TEST_HOST, port));
