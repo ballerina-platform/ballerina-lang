@@ -16,10 +16,13 @@
 
 package org.wso2.siddhi.core.table.record;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
+import org.wso2.siddhi.core.util.collection.operator.CompiledSelection;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +31,8 @@ import java.util.Map;
  * {@link RecordTableHandler}.
  */
 public class RecordTableHandlerCallback {
+
+    private static final Logger log = Logger.getLogger(RecordTableHandlerCallback.class);
 
     private AbstractRecordTable abstractRecordTable;
 
@@ -69,4 +74,16 @@ public class RecordTableHandlerCallback {
                 updateSetParameterMaps, addingRecords);
     }
 
+    public Iterator<Object[]> query(Map<String, Object> parameterMap, CompiledCondition compiledCondition,
+                                    CompiledSelection compiledSelection)
+            throws ConnectionUnavailableException {
+        if (abstractRecordTable instanceof AbstractQueryableRecordTable) {
+            return ((AbstractQueryableRecordTable) abstractRecordTable).query(parameterMap, compiledCondition,
+                    compiledSelection);
+        } else {
+            log.error("Record Table " + this.abstractRecordTable.getTableDefinition().getId() +
+                    " used is not a Queryable Record Table.");
+            return null;
+        }
+    }
 }
