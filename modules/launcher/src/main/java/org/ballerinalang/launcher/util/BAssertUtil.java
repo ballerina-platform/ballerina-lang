@@ -41,7 +41,7 @@ public class BAssertUtil {
         Assert.assertEquals(diag.getKind(), Diagnostic.Kind.ERROR, "incorrect diagnostic type");
         Assert.assertEquals(diag.getMessage(), expectedErrMsg, "incorrect error message:");
         Assert.assertEquals(diag.getPosition().getStartLine(), expectedErrLine, "incorrect line number:");
-        Assert.assertEquals(diag.getPosition().startColumn(), expectedErrCol, "incorrect column position:");
+        Assert.assertEquals(diag.getPosition().getStartColumn(), expectedErrCol, "incorrect column position:");
     }
 
     /**
@@ -59,6 +59,6 @@ public class BAssertUtil {
         Assert.assertEquals(diag.getKind(), Diagnostic.Kind.WARNING, "incorrect diagnostic type");
         Assert.assertEquals(diag.getMessage(), expectedWarnMsg, "incorrect warning message:");
         Assert.assertEquals(diag.getPosition().getStartLine(), expectedWarnLine, "incorrect line number:");
-        Assert.assertEquals(diag.getPosition().startColumn(), expectedWarnCol, "incorrect column position:");
+        Assert.assertEquals(diag.getPosition().getStartColumn(), expectedWarnCol, "incorrect column position:");
     }
 }

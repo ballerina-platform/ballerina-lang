@@ -22,13 +22,9 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Test Cases for ballerina.utils native functions.
@@ -39,7 +35,7 @@ public class UtilTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile(this, "test-src", "nativeimpl/functions/utils-test.bal");
+        compileResult = BCompileUtil.compile(this, "test-src", "nativeimpl/functions/util-test.bal");
     }
 
     @Test
@@ -62,64 +58,6 @@ public class UtilTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testRandomString");
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                            "Invalid return value");
-    }
-
-    @Test
-    public void testHmac() {
-        String messageString = "Ballerina HMAC test";
-        BString message = new BString(messageString);
-        String keyString = "abcdefghijk";
-        BString key = new BString(keyString);
-
-        String expectedMD5Hash = "3D5AC29160F2905A5C8153597798A4C1";
-        String expectedSHA1Hash = "13DD8D54D0EB702EDC6E8EDCAF616837D3A51499";
-        String expectedSHA256Hash = "2651203E18BF0088D3EF1215022D147E2534FD4BAD5689C9E5F12436E9758B15";
-
-        BValue[] args = {message, key, new BString("MD5")};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHmac", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedMD5Hash);
-
-        args = new BValue[]{message, key, new BString("SHA1")};
-        returnValues = BRunUtil.invoke(compileResult, "testHmac", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedSHA1Hash);
-
-        args = new BValue[]{message, key, new BString("SHA256")};
-        returnValues = BRunUtil.invoke(compileResult, "testHmac", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedSHA256Hash);
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class)
-    public void testHmacNegativeInvalidAlgo() {
-        final String key = "abcdefghijk";
-        BValue[] args = {new BString("Ballerina HMAC test"), new BString(key), new BString("SHA124")};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHmac", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-                           "Invalid return value");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class)
-    public void testHmacNegativeInvalidKey() {
-        BValue[] args = {new BString("Ballerina HMAC test"), new BString(""), new BString("SHA1")};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHmac", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-                           "Invalid return value");
-    }
-
-    @Test
-    public void testMessageDigest() {
-        List<BValue[]> argsList = new ArrayList<>();
-        argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString("SHA1")});
-        argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString("SHA256")});
-        argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString("MD5")});
-
-        for (BValue[] args : argsList) {
-            BValue[] returnValues = BRunUtil.invoke(compileResult, "testMessageDigest", args);
-            Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-                               "Invalid return value");
-        }
     }
 
     @Test
@@ -165,7 +103,7 @@ public class UtilTest {
     @Test
     public void testHMACValueFromBase16ToBase64Encoding() {
         String expectedValue = "S4qhC4EdsEcvY64gs+JsmA==";
-        BValue[] args = new BValue[]{new BString("Hello Ballerina"), new BString("abcdefghijk"), new BString("MD5")};
+        BValue[] args = new BValue[]{new BString("Hello Ballerina"), new BString("abcdefghijk")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHMACValueFromBase16ToBase64Encoding", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                            "Invalid return value");
@@ -175,8 +113,7 @@ public class UtilTest {
     @Test
     public void testHMACValueFromBase64ToBase16Encoding() {
         String expectedValue = "4B8AA10B811DB0472F63AE20B3E26C98";
-        BValue[] args = new BValue[]{new BString("Hello Ballerina"), new BString("abcdefghijk"),
-                new BString("MD5")};
+        BValue[] args = new BValue[]{new BString("Hello Ballerina"), new BString("abcdefghijk")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHMACValueFromBase64ToBase16Encoding", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                            "Invalid return value");
