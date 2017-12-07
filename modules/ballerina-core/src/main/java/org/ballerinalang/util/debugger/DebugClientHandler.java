@@ -23,6 +23,8 @@ import org.ballerinalang.util.debugger.info.BreakPointInfo;
 
 /**
  * Represents a debug client handler which is used to communicate with the debug client.
+ *
+ * @since 0.95.4
  */
 public interface DebugClientHandler {
 

@@ -128,15 +128,6 @@ public class VMDebugManager {
     }
 
     /**
-     * Return whether there are queued threads or not.
-     *
-     * @return  Queued threads exist or not.
-     */
-    public boolean hasQueuedThreads() {
-        return executionSem.hasQueuedThreads();
-    }
-
-    /**
      * Helper method to acquire debug lock.
      */
     public void acquireDebugLock() {
@@ -267,7 +258,7 @@ public class VMDebugManager {
     private DebugContext getDebugContext(String threadId) {
         DebugContext debugContext = clientHandler.getContext(threadId);
         if (debugContext == null) {
-            throw new DebugException(DebugConstants.MSG_INVALID_THREAD_ID);
+            throw new DebugException(DebugConstants.MSG_INVALID_THREAD_ID + threadId);
         }
         return debugContext;
     }

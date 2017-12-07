@@ -37,9 +37,10 @@ public class VMDebuggerUtil {
     public static void startDebug(String sourceFilePath, BreakPointDTO[] breakPoints, BreakPointDTO[] expectedPoints,
                                   Step[] debugCommand) {
         TestDebugClientHandler debugClientHandler = new TestDebugClientHandler();
-        VMDebugManager debugManager = setupProgram(sourceFilePath, debugClientHandler, breakPoints);
+        TestDebugServer debugServer = new TestDebugServer();
+        VMDebugManager debugManager = setupProgram(sourceFilePath, debugClientHandler, debugServer, breakPoints);
 
-        if (!waitTillDebugStarts(100000, debugManager)) {
+        if (!debugServer.tryAcquireLock(1000)) {
             Assert.fail("VM doesn't start within 1000ms");
         }
 
@@ -55,24 +56,6 @@ public class VMDebuggerUtil {
                 executeDebuggerCmd(debugManager, debugClientHandler, debugCommand[i]);
             } else {
                 Assert.assertTrue(debugClientHandler.isExit, "Debugger didn't exit as expected.");
-            }
-        }
-    }
-
-    private static boolean waitTillDebugStarts(long maxhWait, VMDebugManager debugManager) {
-        long startTime = System.currentTimeMillis();
-        while (true) {
-            if (debugManager.hasQueuedThreads()) {
-                return true;
-            }
-            long currentTime = System.currentTimeMillis();
-            if (currentTime - startTime > maxhWait) {
-                return false;
-            }
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-
             }
         }
     }
@@ -108,17 +91,16 @@ public class VMDebuggerUtil {
     }
 
     private static VMDebugManager setupProgram(String sourceFilePath, TestDebugClientHandler clientHandler,
-                                               BreakPointDTO[] breakPoints) {
+                                               TestDebugServer debugServer, BreakPointDTO[] breakPoints) {
         CompileResult result = BCompileUtil.compile(sourceFilePath);
 
         VMDebugManager debugManager = result.getProgFile().getDebugManager();
         debugManager.setDebugEnabled(true);
-        debugManager.init(result.getProgFile(), clientHandler, new TestDebugServer());
-        debugManager.addDebugPoints(new ArrayList<>(Arrays.asList(breakPoints)));
 
         String[] args = {"Hello", "World"};
 
-        DebuggerExecutor executor = new DebuggerExecutor(result, args);
+        DebuggerExecutor executor = new DebuggerExecutor(result, args, clientHandler, debugServer,
+                new ArrayList<>(Arrays.asList(breakPoints)));
         (new Thread(executor)).start();
         return debugManager;
     }

@@ -20,12 +20,32 @@ package org.ballerinalang.test.utils.debug;
 import org.ballerinalang.util.debugger.DebugServer;
 import org.ballerinalang.util.debugger.VMDebugManager;
 
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Test debug server implementation for tests.
  *
  * @since 0.95.4
  */
 public class TestDebugServer implements DebugServer {
+    private volatile Semaphore executionSem;
+
+    public TestDebugServer() {
+        this.executionSem = new Semaphore(0);
+    }
+
+    public boolean tryAcquireLock(long timeout) {
+        try {
+            return this.executionSem.tryAcquire(timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            return false;
+        }
+    }
+
+    public void releaseLock() {
+        this.executionSem.release();
+    }
 
     @Override
     public void startServer(VMDebugManager debugManager) {

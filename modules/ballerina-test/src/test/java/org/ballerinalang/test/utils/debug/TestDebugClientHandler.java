@@ -48,7 +48,7 @@ public class TestDebugClientHandler implements DebugClientHandler {
 
         TestDebugClientHandler() {
             this.contextMap = new HashMap<>();
-            executionSem = new Semaphore(0);
+            this.executionSem = new Semaphore(0);
         }
 
         public void aquireSem() {

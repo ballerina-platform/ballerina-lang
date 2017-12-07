@@ -31,8 +31,11 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.VMDebugManager;
+import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
+
+import java.util.List;
 
 /**
  * {@link DebuggerExecutor} represents executor class which runs the main program when debugging.
@@ -42,11 +45,18 @@ import org.ballerinalang.util.program.BLangFunctions;
 public class DebuggerExecutor implements Runnable {
     private CompileResult result;
     private String[] args;
+    private TestDebugClientHandler clientHandler;
+    private TestDebugServer debugServer;
+    private List<BreakPointDTO> breakPoints;
     private PackageInfo mainPkgInfo;
 
-    public DebuggerExecutor(CompileResult result, String[] args) {
+    public DebuggerExecutor(CompileResult result, String[] args, TestDebugClientHandler clientHandler,
+                            TestDebugServer debugServer, List<BreakPointDTO> breakPoints) {
         this.result = result;
         this.args = args;
+        this.clientHandler = clientHandler;
+        this.debugServer = debugServer;
+        this.breakPoints = breakPoints;
         init();
     }
 
@@ -75,7 +85,11 @@ public class DebuggerExecutor implements Runnable {
         if (debugManager.isDebugEnabled()) {
             DebugContext debugContext = new DebugContext();
             bContext.setDebugContext(debugContext);
-            debugManager.addDebugContextAndWait(debugContext);
+            debugManager.init(programFile, clientHandler, debugServer);
+            debugManager.addDebugPoints(breakPoints);
+            debugManager.addDebugContext(debugContext);
+            debugServer.releaseLock();
+            debugManager.waitTillDebuggeeResponds();
         }
 
         // Invoke package init function
