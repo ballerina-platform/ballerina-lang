@@ -44,3 +44,9 @@ public native function getHash (string baseString, string algorithm) (string);
 @Param {value:"algorithm: The hashing algorithm to be used"}
 @Return {value:"The hashed string"}
 public native function getHmac (string baseString, string keyString, string algorithm) (string);
+
+@doc:Description { value:"Returns validity of the jwt "}
+@doc:Param { value:"jwToken: JW Token" }
+@doc:Param { value:"publicKey: public key " }
+@doc:Return { value:"boolean: validity" }
+native function getShaWithRsa (string jwToken, string publicKey) (boolean);
