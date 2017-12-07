@@ -1,11 +1,13 @@
 import ballerina.net.http;
 
 function main (string[] args) {
-    http:HttpClient httpConnector = create http:HttpClient("http://www.mocky.io", getConnectorConfigs());
+    endpoint<http:HttpClient> httpEndoint {
+        create http:HttpClient("http://www.mocky.io", getConnectorConfigs());
+    }
     http:Request req = {};
 
     //Send a GET request to the specified endpoint
-    http:Response resp = httpConnector.get("/v2/59d590762700000a049cd694", req);
+    http:Response resp = httpEndoint.get("/v2/59d590762700000a049cd694", req);
 
     println("Response received for the GET request is : " + resp.getStringPayload());
 }
