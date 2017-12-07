@@ -34,6 +34,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -54,8 +55,10 @@ public class HttpServerConnector implements BallerinaServerConnector {
     }
 
     @Override
-    public String getProtocolPackage() {
-        return Constants.PROTOCOL_PACKAGE_HTTP;
+    public List<String> getProtocolPackages() {
+        List<String> protocolPackages = new LinkedList<>();
+        protocolPackages.add(Constants.PROTOCOL_PACKAGE_HTTP);
+        return protocolPackages;
     }
 
     @Override

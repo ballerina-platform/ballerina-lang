@@ -1172,9 +1172,10 @@ public class BLangPackageBuilder {
                 (BLangAnnotAttachmentAttributeValue) TreeBuilder.createAnnotAttributeValueNode();
         annotAttrVal.pos = currentPos;
         annotAttrVal.addWS(ws);
-        while (!annotAttribValStack.isEmpty()) {
-            annotAttrVal.addValue(annotAttribValStack.pop());
+        for (AnnotationAttachmentAttributeValueNode attributeValue : annotAttribValStack) {
+            annotAttrVal.addValue(attributeValue);
         }
+        annotAttribValStack.removeAllElements();
         annotAttribValStack.push(annotAttrVal);
     }
 

@@ -93,7 +93,7 @@ public class HTTPCorsTest {
         Assert.assertEquals(bJson.value().get("echo").asText(), "resOnlyCors");
         Assert.assertEquals("http://www.hello.com", response.getHeader(Constants.AC_ALLOW_ORIGIN));
         Assert.assertEquals(null, response.getHeader(Constants.AC_ALLOW_CREDENTIALS));
-        Assert.assertEquals("X-PINGOTHER, X-Content-Type-Options", response.getHeader(Constants.AC_EXPOSE_HEADERS));
+        Assert.assertEquals("X-Content-Type-Options, X-PINGOTHER", response.getHeader(Constants.AC_EXPOSE_HEADERS));
     }
 
     @Test(description = "Test simple request with multiple origins")
