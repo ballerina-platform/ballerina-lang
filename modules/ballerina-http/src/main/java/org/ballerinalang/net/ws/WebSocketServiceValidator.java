@@ -23,6 +23,7 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.List;
@@ -33,7 +34,7 @@ import java.util.List;
 public class WebSocketServiceValidator {
 
     public static boolean validateClientService(WebSocketService wsService) {
-        if (wsService.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_CONFIGURATION) != null) {
+        if (HttpUtil.getServiceConfigAnnotation(wsService, Constants.WEBSOCKET_PACKAGE_NAME) != null) {
             throw new BallerinaException(
                     String.format("Cannot define %s:%s annotation for WebSocket client service",
                                   Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_CONFIGURATION));
@@ -80,7 +81,7 @@ public class WebSocketServiceValidator {
 
     private static void validateConfigAnnotation(WebSocketService wsService) {
         Annotation configAnnotation =
-                wsService.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_CONFIGURATION);
+                HttpUtil.getServiceConfigAnnotation(wsService, Constants.WEBSOCKET_PACKAGE_NAME);
         if (configAnnotation == null) {
             return;
         }
@@ -101,9 +102,10 @@ public class WebSocketServiceValidator {
      * @return true if the given service is a client service.
      */
     public static boolean isWebSocketClientService(WebSocketService service) {
-        Annotation annotation = service.getAnnotation(
+        // TODO: check whether this is valid
+        List<Annotation> annotationList = service.getAnnotation(
                 Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE);
-        return !(annotation == null);
+        return !(annotationList == null);
     }
 
     private static void validateOnHandshakeResource(Resource resource) {

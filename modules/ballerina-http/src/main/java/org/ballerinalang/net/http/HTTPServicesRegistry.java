@@ -80,8 +80,8 @@ public class HTTPServicesRegistry {
      * @param service requested serviceInfo to be registered.
      */
     public void registerService(HttpService service) {
-        Annotation annotation = service.getBalService()
-                .getAnnotation(Constants.HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
+        Annotation annotation = HttpUtil.getServiceConfigAnnotation(service.getBalService(),
+                                                                    Constants.HTTP_PACKAGE_PATH);
 
         String basePath = discoverBasePathFrom(service, annotation);
         service.setBasePath(basePath);
@@ -119,8 +119,8 @@ public class HTTPServicesRegistry {
      * @param service requested service to be removed.
      */
     public void unregisterService(HttpService service) {
-        Annotation annotation = service.getBalService()
-                .getAnnotation(Constants.HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
+        Annotation annotation = HttpUtil.getServiceConfigAnnotation(service.getBalService(),
+                                                                    Constants.HTTP_PACKAGE_PATH);
 
         String basePath = discoverBasePathFrom(service, annotation);
         service.setBasePath(basePath);

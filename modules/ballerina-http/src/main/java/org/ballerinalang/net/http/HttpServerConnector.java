@@ -208,8 +208,7 @@ public class HttpServerConnector implements BallerinaServerConnector {
 
     private HttpResource buildHttpResource(Resource resource) {
         HttpResource httpResource = new HttpResource(resource);
-        Annotation rConfigAnnotation = resource.getAnnotation(Constants.HTTP_PACKAGE_PATH,
-                Constants.ANN_NAME_RESOURCE_CONFIG);
+        Annotation rConfigAnnotation = HttpUtil.getResourceConfigAnnotation(resource, Constants.HTTP_PACKAGE_PATH);
         if (rConfigAnnotation == null) {
             if (log.isDebugEnabled()) {
                 log.debug("resourceConfig not specified in the Resource, using default sub path");

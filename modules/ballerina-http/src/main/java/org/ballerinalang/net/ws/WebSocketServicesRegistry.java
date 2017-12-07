@@ -72,7 +72,7 @@ public class WebSocketServicesRegistry {
         } else {
             if (WebSocketServiceValidator.validateServiceEndpoint(service)) {
                 Annotation configAnnotation =
-                        service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_CONFIGURATION);
+                        HttpUtil.getServiceConfigAnnotation(service, Constants.WEBSOCKET_PACKAGE_NAME);
                 if (configAnnotation == null) {
                     slaveEndpoints.put(service.getName(), service);
                     return;
@@ -135,8 +135,7 @@ public class WebSocketServicesRegistry {
             String errorMsg = "Cannot register following services: \n";
             for (String serviceName : slaveEndpoints.keySet()) {
                 WebSocketService service = slaveEndpoints.remove(serviceName);
-                if (service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME,
-                                          Constants.ANNOTATION_CONFIGURATION) == null) {
+                if (HttpUtil.getServiceConfigAnnotation(service, Constants.WEBSOCKET_PACKAGE_NAME) == null) {
                     String msg = "Cannot deploy WebSocket service without configuration annotation";
                     errorMsg = errorMsg + String.format("\t%s: %s\n", serviceName, msg);
                 } else {
@@ -237,8 +236,7 @@ public class WebSocketServicesRegistry {
      */
     private String findFullWebSocketUpgradePath(WebSocketService service) {
         // Find Base path for WebSocket
-        Annotation configAnnotation = service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME,
-                Constants.ANN_NAME_CONFIG);
+        Annotation configAnnotation = HttpUtil.getServiceConfigAnnotation(service, Constants.WEBSOCKET_PACKAGE_NAME);
         String basePath = null;
         if (configAnnotation != null) {
             AnnAttrValue annotationAttributeBasePathValue = configAnnotation.getAnnAttrValue
