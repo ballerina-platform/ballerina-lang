@@ -55,7 +55,7 @@ public class TestDebugClientHandler implements DebugClientHandler {
             try {
                 executionSem.acquire();
             } catch (InterruptedException e) {
-
+                //ignore
             }
         }
 
@@ -79,17 +79,14 @@ public class TestDebugClientHandler implements DebugClientHandler {
 
         @Override
         public void updateAllDebugContexts(DebugCommand debugCommand) {
-
         }
 
         @Override
         public void setChannel(Channel channel) throws DebugException {
-
         }
 
         @Override
         public void clearChannel() {
-
         }
 
         @Override
@@ -116,7 +113,6 @@ public class TestDebugClientHandler implements DebugClientHandler {
 
         @Override
         public void sendCustomMsg(MessageDTO message) {
-
         }
     }
 

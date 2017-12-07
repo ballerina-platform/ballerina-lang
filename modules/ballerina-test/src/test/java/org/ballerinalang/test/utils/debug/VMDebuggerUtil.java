@@ -98,11 +98,9 @@ public class VMDebuggerUtil {
         debugManager.setDebugEnabled(true);
 
         String[] args = {"Hello", "World"};
-
         DebuggerExecutor executor = new DebuggerExecutor(result, args, clientHandler, debugServer,
                 new ArrayList<>(Arrays.asList(breakPoints)));
         (new Thread(executor)).start();
         return debugManager;
     }
-
 }
