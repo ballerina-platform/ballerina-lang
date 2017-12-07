@@ -86,7 +86,7 @@ import static org.wso2.siddhi.core.util.collection.expression.CollectionExpressi
 public class CollectionExpressionParser {
 
     /**
-     * Parse the given expression and create the appropriate Executor by recursively traversing the expression
+     * Parse the given expression and create the appropriate Executor by recursively traversing the expression.
      *
      * @param expression             Expression to be parsed
      * @param matchingMetaInfoHolder matchingMetaInfoHolder
@@ -106,7 +106,7 @@ public class CollectionExpressionParser {
     }
 
     /**
-     * Parse the given expression and create the appropriate Executor by recursively traversing the expression
+     * Parse the given expression and create the appropriate Executor by recursively traversing the expression.
      *
      * @param expression             Expression to be parsed
      * @param matchingMetaInfoHolder matchingMetaInfoHolder
@@ -196,7 +196,8 @@ public class CollectionExpressionParser {
                 case PRIMARY_KEY_RESULT_SET:
                 case INDEXED_RESULT_SET:
                 case OPTIMISED_PRIMARY_KEY_OR_INDEXED_RESULT_SET:
-                    return new NotCollectionExpression(expression, OPTIMISED_PRIMARY_KEY_OR_INDEXED_RESULT_SET, notCollectionExpression);
+                    return new NotCollectionExpression(expression, OPTIMISED_PRIMARY_KEY_OR_INDEXED_RESULT_SET,
+                            notCollectionExpression);
                 case PARTIAL_PRIMARY_KEY_ATTRIBUTE:
                 case PARTIAL_PRIMARY_KEY_RESULT_SET:
                 case EXHAUSTIVE:
@@ -391,6 +392,10 @@ public class CollectionExpressionParser {
             }
         } else if (matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvents().length == 1 &&
                 matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvents()[0].getEventType()
+                        != MetaStreamEvent.EventType.DEFAULT) {
+            return true;
+        } else if (matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvents().length == 2 &&
+                matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvents()[1].getEventType()
                         != MetaStreamEvent.EventType.DEFAULT) {
             return true;
         }
@@ -752,7 +757,7 @@ public class CollectionExpressionParser {
                         matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(),
                         tableMap, variableExpressionExecutors, siddhiAppContext, false, 0, queryName);
                 return new NonCollectionExecutor(expressionExecutor);
-            } else {// EXHAUSTIVE
+            } else { // EXHAUSTIVE
                 if (isFirst) {
                     expressionExecutor = ExpressionParser.parseExpression(collectionExpression.getExpression(),
                             matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(),
@@ -824,7 +829,7 @@ public class CollectionExpressionParser {
                         collectionExpression.getExpression().getQueryContextStartIndex(),
                         collectionExpression.getExpression().getQueryContextEndIndex());
             }
-        } else {//Attribute Collection
+        } else { //Attribute Collection
             throw new SiddhiAppCreationException("Only 'AND' and '" + Compare.Operator.EQUAL + "' operators are " +
                     "supported for multiple primary key optimization, but found '" +
                     ((CompareCollectionExpression) collectionExpression).getOperator() + "'",

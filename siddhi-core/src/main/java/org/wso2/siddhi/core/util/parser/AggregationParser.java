@@ -701,12 +701,12 @@ public class AggregationParser {
             List<Annotation> annotations, List<Variable> groupByVariableList) {
         HashMap<TimePeriod.Duration, Table> aggregationTableMap = new HashMap<>();
         // Create annotations for primary key
-        /*Annotation primaryKeyAnnotation = new Annotation(SiddhiConstants.ANNOTATION_PRIMARY_KEY);
+        Annotation primaryKeyAnnotation = new Annotation(SiddhiConstants.ANNOTATION_PRIMARY_KEY);
         primaryKeyAnnotation.element(null, "_TIMESTAMP");
         for (Variable groupByVariable : groupByVariableList) {
             primaryKeyAnnotation.element(null, groupByVariable.getAttributeName());
         }
-        annotations.add(primaryKeyAnnotation);*/
+        annotations.add(primaryKeyAnnotation);
         for (TimePeriod.Duration duration : durations) {
             String tableId = aggregatorName + "_" + duration.toString();
             TableDefinition tableDefinition = TableDefinition.id(tableId);
