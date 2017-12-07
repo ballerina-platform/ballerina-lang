@@ -13,8 +13,9 @@ import ballerina.lang.blobs;
 }
 service<ftp> ftpServerConnector {
     resource fileResource (message m) {
-        // Use the FTP Client Connector to connect to a remote FTP server.
-        ftp:ClientConnector c = create ftp:ClientConnector();
+        endpoint<ftp:ClientConnector> c {
+            create ftp:ClientConnector();
+        }
 
         // Create a File struct using the URL returned by 'm'.
         string url = messages:getStringPayload(m);
