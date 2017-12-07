@@ -31,6 +31,7 @@ import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.stream.single.EntryValveExecutor;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.RecreateInMemoryData;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.IncrementalAggregateCompileCondition;
@@ -78,6 +79,7 @@ public class AggregationRuntime implements MemoryCalculable {
     private ExpressionExecutor timestampExecutor;
     private List<ExpressionExecutor> outputExpressionExecutors;
     private MatchingMetaInfoHolder alteredMatchingMetaInfoHolder;
+    private RecreateInMemoryData recreateInMemoryData;
 
     public AggregationRuntime(AggregationDefinition aggregationDefinition,
                               Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
@@ -87,7 +89,8 @@ public class AggregationRuntime implements MemoryCalculable {
                               SiddhiAppContext siddhiAppContext, List<ExpressionExecutor> baseExecutors,
                               ExpressionExecutor timestampExecutor, MetaStreamEvent tableMetaStreamEvent,
                               List<ExpressionExecutor> outputExpressionExecutors,
-                              LatencyTracker latencyTrackerFind, ThroughputTracker throughputTrackerFind) {
+                              LatencyTracker latencyTrackerFind, ThroughputTracker throughputTrackerFind,
+                              RecreateInMemoryData recreateInMemoryData) {
         this.aggregationDefinition = aggregationDefinition;
         this.incrementalExecutorMap = incrementalExecutorMap;
         this.aggregationTables = aggregationTables;
@@ -101,6 +104,7 @@ public class AggregationRuntime implements MemoryCalculable {
         this.outputExpressionExecutors = outputExpressionExecutors;
         this.latencyTrackerFind = latencyTrackerFind;
         this.throughputTrackerFind = throughputTrackerFind;
+        this.recreateInMemoryData = recreateInMemoryData;
 
         aggregateMetaSteamEvent = new MetaStreamEvent();
         aggregationDefinition.getAttributeList().forEach(aggregateMetaSteamEvent::addOutputData);
@@ -324,5 +328,9 @@ public class AggregationRuntime implements MemoryCalculable {
 
     public MatchingMetaInfoHolder getAlteredMatchingMetaInfoHolder() {
         return alteredMatchingMetaInfoHolder;
+    }
+
+    public RecreateInMemoryData getRecreateInMemoryData() {
+        return this.recreateInMemoryData;
     }
 }

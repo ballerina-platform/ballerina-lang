@@ -33,6 +33,8 @@ import org.wso2.siddhi.core.query.selector.GroupByKeyGenerator;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalAggregationProcessor;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalAttributeAggregator;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.RecreateInMemoryData;
+import org.wso2.siddhi.core.table.InMemoryTable;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.Scheduler;
@@ -241,6 +243,14 @@ public class AggregationParser {
                     processedMetaStreamEvent, processExpressionExecutors, groupByKeyGenerator,
                     bufferSize, ignoreEventsOlderThanBuffer, incrementalDurations, aggregationTables);
 
+            RecreateInMemoryData recreateInMemoryData = null;
+            if (!(aggregationTables.get(incrementalDurations.get(0)) instanceof InMemoryTable)) {
+                //Recreate in-memory data from tables
+                recreateInMemoryData = new RecreateInMemoryData(incrementalDurations,
+                        aggregationTables, incrementalExecutorMap, siddhiAppContext, processedMetaStreamEvent, tableMap,
+                        windowMap, aggregationMap);
+            }
+
             IncrementalExecutor rootIncrementalExecutor = incrementalExecutorMap.get(incrementalDurations.get(0));
             rootIncrementalExecutor.setScheduler(scheduler);
             // Connect entry valve to root incremental executor
@@ -280,7 +290,7 @@ public class AggregationParser {
             return new AggregationRuntime(aggregationDefinition, incrementalExecutorMap,
                     aggregationTables, ((SingleStreamRuntime) streamRuntime), entryValveExecutor, incrementalDurations,
                     siddhiAppContext, baseExecutors, timestampExecutor, processedMetaStreamEvent,
-                    outputExpressionExecutors, latencyTrackerFind, throughputTrackerFind);
+                    outputExpressionExecutors, latencyTrackerFind, throughputTrackerFind, recreateInMemoryData);
         } catch (Throwable t) {
             ExceptionUtil.populateQueryContext(t, aggregationDefinition, siddhiAppContext);
             throw t;

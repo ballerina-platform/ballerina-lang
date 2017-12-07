@@ -79,8 +79,7 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
- * Keep streamDefinitions, partitionRuntimes, queryRuntimes of an SiddhiApp
- * and streamJunctions and inputHandlers used
+ * Keep streamDefinitions, partitionRuntimes, queryRuntimes of an SiddhiApp and streamJunctions and inputHandlers used.
  */
 public class SiddhiAppRuntime {
     private static final Logger log = Logger.getLogger(SiddhiAppRuntime.class);
@@ -297,6 +296,12 @@ public class SiddhiAppRuntime {
         for (List<Source> sources : sourceMap.values()) {
             for (Source source : sources) {
                 source.connectWithRetry();
+            }
+        }
+
+        for (AggregationRuntime aggregationRuntime : aggregationMap.values()) {
+            if (aggregationRuntime.getRecreateInMemoryData() != null) {
+                aggregationRuntime.getRecreateInMemoryData().recreateInMemoryData();
             }
         }
         running = true;
