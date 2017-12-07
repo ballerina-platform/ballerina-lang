@@ -29,6 +29,7 @@ service<ws> SimpleSecureServer {
 
     @Description {value:"This resource is triggered after a successful client connection."}
     resource onOpen(ws:Connection conn) {
+        conn.attributes["name"] = mkdsm;
         println("\nNew client connected");
         println("Connection ID: " + conn.getID());
         println("Negotiated Sub protocol: " + conn.getNegotiatedSubProtocol());

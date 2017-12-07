@@ -54,8 +54,7 @@ public class GetUpgradeHeaders extends AbstractNativeFunction {
         Map<String, String> upgradeHeaders =
                 (Map<String, String>) wsConnection.getNativeData(Constants.NATIVE_DATA_UPGRADE_HEADERS);
         BMap<String, BString> bUpgradeHeaders = new BMap<>();
-        upgradeHeaders.entrySet().forEach(
-                upgradeHeader -> bUpgradeHeaders.put(upgradeHeader.getKey(), new BString(upgradeHeader.getValue())));
+        upgradeHeaders.forEach((key, value) -> bUpgradeHeaders.put(key, new BString(value)));
         return getBValues(bUpgradeHeaders);
     }
 }

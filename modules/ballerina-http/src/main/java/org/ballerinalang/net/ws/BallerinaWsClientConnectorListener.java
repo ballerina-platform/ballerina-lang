@@ -34,9 +34,11 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 public class BallerinaWsClientConnectorListener implements WebSocketConnectorListener {
 
     private final WebSocketService wsService;
+    private final WebSocketResourceDispatcher resourceDispatcher;
 
-    public BallerinaWsClientConnectorListener(WebSocketService wsService) {
+    public BallerinaWsClientConnectorListener(WebSocketServerConnector serverConnector, WebSocketService wsService) {
         this.wsService = wsService;
+        this.resourceDispatcher = new WebSocketResourceDispatcher(serverConnector);
     }
 
     @Override
@@ -46,22 +48,22 @@ public class BallerinaWsClientConnectorListener implements WebSocketConnectorLis
 
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
-        WebSocketDispatcher.dispatchTextMessage(wsService, webSocketTextMessage);
+        resourceDispatcher.dispatchTextMessage(wsService, webSocketTextMessage);
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
-        WebSocketDispatcher.dispatchBinaryMessage(wsService, webSocketBinaryMessage);
+        resourceDispatcher.dispatchBinaryMessage(wsService, webSocketBinaryMessage);
     }
 
     @Override
     public void onMessage(WebSocketControlMessage webSocketControlMessage) {
-        WebSocketDispatcher.dispatchControlMessage(wsService, webSocketControlMessage);
+        resourceDispatcher.dispatchControlMessage(wsService, webSocketControlMessage);
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        WebSocketDispatcher.dispatchCloseMessage(wsService, webSocketCloseMessage);
+        resourceDispatcher.dispatchCloseMessage(wsService, webSocketCloseMessage);
     }
 
     @Override
@@ -71,7 +73,7 @@ public class BallerinaWsClientConnectorListener implements WebSocketConnectorLis
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
-        WebSocketDispatcher.dispatchIdleTimeout(wsService, controlMessage);
+        resourceDispatcher.dispatchIdleTimeout(wsService, controlMessage);
     }
 
 }

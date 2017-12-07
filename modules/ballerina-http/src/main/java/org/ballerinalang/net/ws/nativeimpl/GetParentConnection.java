@@ -26,8 +26,8 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.ws.Constants;
-import org.ballerinalang.net.ws.WebSocketConnectionManager;
 
 /**
  * Get parent connection is exists.
@@ -50,7 +50,8 @@ public class GetParentConnection extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BStruct wsConnection = (BStruct) getRefArgument(context, 0);
         String parentConnectionID = (String) wsConnection.getNativeData(Constants.NATIVE_DATA_PARENT_CONNECTION_ID);
-        BStruct parentConnection = WebSocketConnectionManager.getInstance().getConnection(parentConnectionID);
+        BStruct parentConnection = HttpConnectionManager.getInstance().
+                getWebSocketServerConnector().getWebSocketConnectionManager().getConnection(parentConnectionID);
         return getBValues(parentConnection);
     }
 }

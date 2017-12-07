@@ -50,8 +50,10 @@ public class HttpServerConnector implements BallerinaServerConnector {
     private static final Logger log = LoggerFactory.getLogger(HttpServerConnector.class);
 
     private CopyOnWriteArrayList<String> sortedServiceURIs = new CopyOnWriteArrayList<>();
+    private final HTTPServicesRegistry servicesRegistry = new HTTPServicesRegistry();
 
     public HttpServerConnector() {
+        HttpConnectionManager.getInstance().setHttpServerConnector(this);
     }
 
     @Override
@@ -64,7 +66,7 @@ public class HttpServerConnector implements BallerinaServerConnector {
     @Override
     public void serviceRegistered(Service service) throws BallerinaConnectorException {
         HttpService httpService = new HttpService(service);
-        HTTPServicesRegistry.getInstance().registerService(httpService);
+        servicesRegistry.registerService(httpService);
         CorsPopulator.populateServiceCors(httpService);
         List<HttpResource> resources = new ArrayList<>();
         for (Resource resource : service.getResources()) {
@@ -89,7 +91,7 @@ public class HttpServerConnector implements BallerinaServerConnector {
     @Override
     public void serviceUnregistered(Service service) throws BallerinaConnectorException {
         HttpService httpService = new HttpService(service);
-        HTTPServicesRegistry.getInstance().unregisterService(httpService);
+        servicesRegistry.unregisterService(httpService);
 
         //basePath will get cached after unregistering the service
         sortedServiceURIs.remove(httpService.getBasePath());
@@ -104,8 +106,7 @@ public class HttpServerConnector implements BallerinaServerConnector {
 
         try {
             String interfaceId = getInterface(cMsg);
-            Map<String, HttpService> servicesOnInterface = HTTPServicesRegistry
-                    .getInstance().getServicesInfoByInterface(interfaceId);
+            Map<String, HttpService> servicesOnInterface = servicesRegistry.getServicesInfoByInterface(interfaceId);
             if (servicesOnInterface == null) {
                 throw new BallerinaConnectorException("No services found for interface : " + interfaceId);
             }

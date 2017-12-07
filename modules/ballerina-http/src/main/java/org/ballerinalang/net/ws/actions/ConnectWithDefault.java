@@ -28,10 +28,11 @@ import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.ws.BallerinaWsClientConnectorListener;
 import org.ballerinalang.net.ws.Constants;
+import org.ballerinalang.net.ws.WebSocketServerConnector;
 import org.ballerinalang.net.ws.WebSocketService;
-import org.ballerinalang.net.ws.WebSocketServicesRegistry;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
@@ -62,7 +63,10 @@ public class ConnectWithDefault extends AbstractNativeWsAction {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
         String remoteUrl = getUrlFromConnector(bconnector);
         String clientServiceName = getClientServiceNameFromConnector(bconnector);
-        WebSocketService wsService = WebSocketServicesRegistry.getInstance().getClientService(clientServiceName);
+        WebSocketServerConnector webSocketServerConnector =
+                HttpConnectionManager.getInstance().getWebSocketServerConnector();
+        WebSocketService wsService =
+                webSocketServerConnector.getWebSocketServicesRegistry().getClientService(clientServiceName);
         if (wsService == null) {
             throw new BallerinaConnectorException("Cannot find client service: " + clientServiceName);
         }
@@ -74,7 +78,8 @@ public class ConnectWithDefault extends AbstractNativeWsAction {
         ClientConnectorFuture connectorFuture = new ClientConnectorFuture();
         WebSocketClientConnector clientConnector =
                 connectorFactory.createWsClientConnector(clientConnectorConfig);
-        HandshakeFuture handshakeFuture = clientConnector.connect(new BallerinaWsClientConnectorListener(wsService));
+        HandshakeFuture handshakeFuture =
+                clientConnector.connect(new BallerinaWsClientConnectorListener(webSocketServerConnector, wsService));
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {

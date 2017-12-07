@@ -57,16 +57,12 @@ public class HttpDispatcher {
      * @param httpCarbonMessage incoming message.
      * @return matching resource.
      */
-    public static HttpResource findResource(HTTPCarbonMessage httpCarbonMessage) {
+    public static HttpResource findResource(HttpServerConnector serverConnector, HTTPCarbonMessage httpCarbonMessage) {
         HttpResource resource = null;
         String protocol = (String) httpCarbonMessage.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
         if (protocol == null) {
             throw new BallerinaConnectorException("protocol not defined in the incoming request");
         }
-
-        // Find the Service Dispatcher
-        HttpServerConnector serverConnector = (HttpServerConnector) ConnectorUtils
-                .getBallerinaServerConnector(Constants.PROTOCOL_PACKAGE_HTTP);
         if (serverConnector == null) {
             throw new BallerinaConnectorException("no service dispatcher available to handle protocol: " + protocol);
         }

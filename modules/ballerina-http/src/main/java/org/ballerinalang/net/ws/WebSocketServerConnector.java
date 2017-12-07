@@ -21,7 +21,10 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.BallerinaServerConnector;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.services.ErrorHandlerUtils;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -33,6 +36,14 @@ import java.util.List;
  */
 @JavaSPIService("org.ballerinalang.connector.api.BallerinaServerConnector")
 public class WebSocketServerConnector implements BallerinaServerConnector {
+
+    private final WebSocketServicesRegistry webSocketServicesRegistry = new WebSocketServicesRegistry();
+    private final WebSocketConnectionManager webSocketConnectionManager = new WebSocketConnectionManager();
+
+    public WebSocketServerConnector() {
+        HttpConnectionManager.getInstance().setWebSocketServerConnector(this);
+    }
+
     @Override
     public List<String> getProtocolPackages() {
         List<String> protocolPackages = new LinkedList<>();
@@ -43,18 +54,61 @@ public class WebSocketServerConnector implements BallerinaServerConnector {
     @Override
     public void serviceRegistered(Service service) throws BallerinaConnectorException {
         WebSocketService wsService = new WebSocketService(service);
-        WebSocketServicesRegistry.getInstance().registerService(wsService);
+        webSocketServicesRegistry.registerService(wsService);
     }
 
     @Override
     public void serviceUnregistered(Service service) throws BallerinaConnectorException {
         WebSocketService webSocketService = new WebSocketService(service);
-        WebSocketServicesRegistry.getInstance().unregisterService(webSocketService);
+        webSocketServicesRegistry.unregisterService(webSocketService);
     }
 
     @Override
     public void deploymentComplete() throws BallerinaConnectorException {
-        WebSocketServicesRegistry.getInstance().validateSeverEndpoints();
+        webSocketServicesRegistry.validateSeverEndpoints();
         HttpUtil.startPendingHttpConnectors();
+    }
+
+
+    /**
+     * This will find the best matching service for given web socket request.
+     *
+     * @param webSocketMessage incoming message.
+     * @return matching service.
+     */
+    public WebSocketService findService(WebSocketMessage webSocketMessage) {
+        if (!webSocketMessage.isServerMessage()) {
+            String clientServiceName = webSocketMessage.getTarget();
+            WebSocketService clientService =
+                    webSocketServicesRegistry.getClientService(clientServiceName);
+            if (clientService == null) {
+                throw new BallerinaConnectorException("no client service found to handle the service request");
+            }
+            return clientService;
+        }
+        try {
+            String interfaceId = webSocketMessage.getListenerInterface();
+            String serviceUri = webSocketMessage.getTarget();
+            serviceUri = webSocketServicesRegistry.refactorUri(serviceUri);
+
+            WebSocketService service =
+                    webSocketServicesRegistry.getServiceEndpoint(interfaceId, serviceUri);
+
+            if (service == null) {
+                throw new BallerinaConnectorException("no Service found to handle the service request: " + serviceUri);
+            }
+            return service;
+        } catch (Throwable throwable) {
+            ErrorHandlerUtils.printError(throwable);
+            throw new BallerinaConnectorException("no Service found to handle the service request");
+        }
+    }
+
+    public WebSocketServicesRegistry getWebSocketServicesRegistry() {
+        return webSocketServicesRegistry;
+    }
+
+    public WebSocketConnectionManager getWebSocketConnectionManager() {
+        return webSocketConnectionManager;
     }
 }
