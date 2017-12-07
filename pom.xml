@@ -203,6 +203,7 @@
         <module>modules/packerina</module>
         <module>modules/ballerina-test</module>
         <module>modules/ballerina-http</module>
+        <module>modules/ballerina-mime</module>
     </modules>
 
 </project>
