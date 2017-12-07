@@ -132,9 +132,10 @@ public abstract class Source implements Snapshotable {
                 isTryingToConnect.set(false);
                 backoffRetryCounter.reset();
             } catch (ConnectionUnavailableException e) {
-                LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
-                        " Error while connecting at Source '" + type + "' at '" + streamDefinition.getId() +
-                        "'. Will retry in '" + backoffRetryCounter.getTimeInterval() + "'."), e);
+                LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                        " Error while connecting at Source '" + LogEncoder.getEncodedString(type) + "' at '" +
+                        LogEncoder.getEncodedString(streamDefinition.getId()) + "'. Will retry in '" +
+                        LogEncoder.getEncodedString(backoffRetryCounter.getTimeInterval()) + "'.", e);
                 scheduledExecutorService.schedule(new Runnable() {
                     @Override
                     public void run() {
@@ -143,8 +144,9 @@ public abstract class Source implements Snapshotable {
                 }, backoffRetryCounter.getTimeIntervalMillis(), TimeUnit.MILLISECONDS);
                 backoffRetryCounter.increment();
             } catch (RuntimeException e) {
-                LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
-                        "Error while connecting at Source '" + type + "' at '" + streamDefinition.getId() + "'."), e);
+                LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext)) +
+                        "Error while connecting at Source '" + LogEncoder.getEncodedString(type) + "' at '" +
+                        LogEncoder.getEncodedString(streamDefinition.getId()) + "'.", e);
                 throw e;
             }
         }
@@ -184,9 +186,9 @@ public abstract class Source implements Snapshotable {
         public void onError(ConnectionUnavailableException e) {
             disconnect();
             isConnected.set(false);
-            LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
-                    " Connection unavailable at Sink '" + type + "' at '" + streamDefinition.getId() +
-                    "', will retry connection immediately.", e);
+            LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext)) +
+                    " Connection unavailable at Sink '" + LogEncoder.getEncodedString(type) + "' at '" +
+                    LogEncoder.getEncodedString(streamDefinition.getId()) + "', will retry connection immediately.", e);
             connectWithRetry();
         }
     }

@@ -213,8 +213,9 @@ public abstract class Sink implements SinkListener, Snapshotable {
                 }, backoffRetryCounter.getTimeIntervalMillis(), TimeUnit.MILLISECONDS);
                 backoffRetryCounter.increment();
             } catch (RuntimeException e) {
-                LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
-                        " Error while connecting at Sink '" + type + "' at '" + streamDefinition.getId() + "'."), e);
+                LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext)) +
+                        " Error while connecting at Sink '" + LogEncoder.getEncodedString(type) + "' at '" +
+                        LogEncoder.getEncodedString(streamDefinition.getId()) + "'.", e);
                 throw e;
             }
         }

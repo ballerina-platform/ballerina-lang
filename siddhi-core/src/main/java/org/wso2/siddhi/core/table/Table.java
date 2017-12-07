@@ -366,9 +366,10 @@ public abstract class Table implements FindableProcessor, MemoryCalculable {
                 isTryingToConnect.set(false);
                 backoffRetryCounter.reset();
             } catch (ConnectionUnavailableException e) {
-                LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
-                        " Error while connecting to Table '" + tableDefinition.getId() + "', will retry in '" +
-                        backoffRetryCounter.getTimeInterval() + "'."), e);
+                LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext)) +
+                        " Error while connecting to Table '" + LogEncoder.getEncodedString(tableDefinition.getId())
+                        + "', will retry in '" + LogEncoder.getEncodedString(backoffRetryCounter.getTimeInterval()) +
+                        "'.", e);
                 scheduledExecutorService.schedule(new Runnable() {
                     @Override
                     public void run() {
@@ -377,8 +378,9 @@ public abstract class Table implements FindableProcessor, MemoryCalculable {
                 }, backoffRetryCounter.getTimeIntervalMillis(), TimeUnit.MILLISECONDS);
                 backoffRetryCounter.increment();
             } catch (RuntimeException e) {
-                LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
-                        " . Error while connecting to Table '" + tableDefinition.getId() + "'."), e);
+                LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext)) +
+                        " . Error while connecting to Table '" + LogEncoder.getEncodedString(tableDefinition.getId())
+                        + "'.", e);
                 throw e;
             }
         }
