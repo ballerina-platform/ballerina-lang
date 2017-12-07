@@ -52,6 +52,7 @@ public class Constants {
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
     public static final String TLS_STORE_TYPE = "tlsStoreType";
     public static final String PKCS_STORE_TYPE = "PKCS12";
+    public static final String SERVER = "Server";
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
 
@@ -187,17 +188,17 @@ public class Constants {
     /**
      * HTTP content-type application/json.
      */
-    public static final String APPLICATION_JSON = "application/json";
+    public static final String APPLICATION_JSON = "application/json; charset=UTF-8";
 
     /**
      * HTTP content-type application/xml.
      */
-    public static final String APPLICATION_XML = "application/xml";
+    public static final String APPLICATION_XML = "application/xml; charset=UTF-8";
 
     /**
      * HTTP content-type text/plain.
      */
-    public static final String TEXT_PLAIN = "text/plain";
+    public static final String TEXT_PLAIN = "text/plain; charset=UTF-8";
 
     /**
      * HTTP content-type application/octet-stream.
