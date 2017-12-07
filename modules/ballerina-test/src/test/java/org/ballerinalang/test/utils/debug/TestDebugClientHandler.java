@@ -15,33 +15,17 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.test.debugger;
+package org.ballerinalang.test.utils.debug;
 
 import io.netty.channel.Channel;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.ControlStackNew;
-import org.ballerinalang.bre.bvm.StackFrame;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.NodeLocation;
-import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.util.codegen.FunctionInfo;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.debugger.DebugClientHandler;
 import org.ballerinalang.util.debugger.DebugCommand;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.DebugException;
-import org.ballerinalang.util.debugger.DebugServer;
-import org.ballerinalang.util.debugger.VMDebugManager;
-import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
 import org.ballerinalang.util.debugger.info.BreakPointInfo;
-import org.testng.Assert;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
