@@ -37,7 +37,7 @@ public class EndpointConnectorTest {
 
     @BeforeClass()
     public void setup() {
-        result = BCompileUtil.compile("test-src/connectors/endpoint-connector.bal");
+//        result = BCompileUtil.compile("test-src/connectors/endpoint-connector.bal");
         resultNegative = BCompileUtil.compile("test-src/connectors/endpoint-connector-negative.bal");
     }
 
@@ -132,7 +132,7 @@ public class EndpointConnectorTest {
 
     @Test(description = "Test endpoint, connectors with errors")
     public void testConnectorNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 11);
+        Assert.assertEquals(resultNegative.getErrorCount(), 14);
         BAssertUtil.validateError(resultNegative, 0, "invalid action invocation on connector: 'Foo', expect endpoint",
                 27, 17);
         BAssertUtil.validateError(resultNegative, 1, "incompatible types: expected 'endpoint<Bar>', found 'Foo'",
@@ -153,8 +153,14 @@ public class EndpointConnectorTest {
                 91, 12);
         BAssertUtil.validateError(resultNegative, 8, "incompatible types: expected 'endpoint<Foo>', found 'string'",
                 96, 9);
-        BAssertUtil.validateError(resultNegative, 9, "unreachable code", 48, 5);
-        BAssertUtil.validateError(resultNegative, 10, "this function must return a result", 42, 1);
+        BAssertUtil.validateError(resultNegative, 9, "incompatible types: expected 'any', found 'endpoint<Foo>'",
+                104, 14);
+        BAssertUtil.validateError(resultNegative, 10, "incompatible types: expected 'any', found 'endpoint<Foo>'",
+                111, 12);
+        BAssertUtil.validateError(resultNegative, 11, "incompatible types: expected 'any', found 'endpoint<Foo>'",
+                118, 24);
+        BAssertUtil.validateError(resultNegative, 12, "unreachable code", 48, 5);
+        BAssertUtil.validateError(resultNegative, 13, "this function must return a result", 42, 1);
 
     }
 }
