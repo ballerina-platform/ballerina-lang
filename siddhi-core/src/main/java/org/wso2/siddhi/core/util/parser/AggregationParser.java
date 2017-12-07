@@ -395,7 +395,8 @@ public class AggregationParser {
                 incomingMetaStreamEvent);
         ExpressionExecutor timestampExecutor = timeStampTimeZoneExecutors[0];
         ExpressionExecutor timeZoneExecutor = timeStampTimeZoneExecutors[1];
-        incomingMetaStreamEvent.addOutputData(new Attribute("_TIMESTAMP", Attribute.Type.LONG));
+        Attribute timestampAttribute = new Attribute("_TIMESTAMP", Attribute.Type.LONG);
+        incomingMetaStreamEvent.addOutputData(timestampAttribute);
         incomingExpressionExecutors.add(timestampExecutor);
 
         incomingMetaStreamEvent.addOutputData(new Attribute("_TIMEZONE", Attribute.Type.STRING));
@@ -411,6 +412,9 @@ public class AggregationParser {
                     siddhiAppContext, false, 0, aggregatorName));
         }
 
+        // Add _TIMESTAMP to output as well
+        outputExpressions.add(Expression.variable("_TIMESTAMP"));
+        aggregationDefinition.getAttributeList().add(timestampAttribute);
         for (OutputAttribute outputAttribute : aggregationDefinition.getSelector().getSelectionList()) {
             Expression expression = outputAttribute.getExpression();
             if (expression instanceof AttributeFunction) {
