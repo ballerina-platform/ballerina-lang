@@ -157,7 +157,7 @@ public class ResourceExecutor {
         context.setAsResourceContext();
         context.startTrackWorker();
         VMDebugManager debugManager = programFile.getDebugManager();
-        if (debugManager.isDebugEnabled() && debugManager.isDebugSessionActive()) {
+        if (debugManager.isDebugEnabled()) {
             DebugContext debugContext = new DebugContext();
             debugContext.setCurrentCommand(DebugCommand.RESUME);
             context.setDebugContext(debugContext);
