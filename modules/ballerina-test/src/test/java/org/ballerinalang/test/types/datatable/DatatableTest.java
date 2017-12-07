@@ -200,24 +200,79 @@ public class DatatableTest {
             DateFormat dfDate = new SimpleDateFormat("yyyy-MM-dd");
             String dateReturned = returns[0].stringValue();
             long dateReturnedEpoch = dfDate.parse(dateReturned).getTime();
-            Assert.assertEquals(dateInserted, dateReturnedEpoch);
+            Assert.assertEquals(dateReturnedEpoch, dateInserted);
 
             DateFormat dfTime = new SimpleDateFormat("HH:mm:ss.SSS");
             String timeReturned = returns[1].stringValue();
             long timeReturnedEpoch = dfTime.parse(timeReturned).getTime();
-            Assert.assertEquals(timeInserted, timeReturnedEpoch);
+            Assert.assertEquals(timeReturnedEpoch, timeInserted);
 
             DateFormat dfTimestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
             String timestampReturned = returns[2].stringValue();
             long timestampReturnedEpoch = dfTimestamp.parse(timestampReturned).getTime();
-            Assert.assertEquals(timestampInserted, timestampReturnedEpoch);
+            Assert.assertEquals(timestampReturnedEpoch, timestampInserted);
 
             String datetimeReturned = returns[3].stringValue();
             long datetimeReturnedEpoch = dfTimestamp.parse(datetimeReturned).getTime();
-            Assert.assertEquals(timestampInserted, datetimeReturnedEpoch);
+            Assert.assertEquals(datetimeReturnedEpoch, timestampInserted);
         } catch (ParseException e) {
             //Ignore
         }
+    }
+
+    @Test(groups = "DatatableTest", description = "Check date time operation")
+    public void testDateTimeAsTimeStruct() {
+        BValue[] returns = BRunUtil.invoke(result,  "testDateTimeAsTimeStruct");
+        Assert.assertEquals(returns.length, 8);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), ((BInteger) returns[1]).intValue());
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), ((BInteger) returns[3]).intValue());
+        Assert.assertEquals(((BInteger) returns[4]).intValue(), ((BInteger) returns[5]).intValue());
+        Assert.assertEquals(((BInteger) returns[6]).intValue(), ((BInteger) returns[7]).intValue());
+    }
+
+    @Test(groups = "DatatableTest", description = "Check date time operation")
+    public void testDateTimeInt() {
+        BValue[] args = new BValue[3];
+        Calendar cal = Calendar.getInstance();
+
+        cal.clear();
+        cal.set(Calendar.YEAR, 2017);
+        cal.set(Calendar.MONTH, 5);
+        cal.set(Calendar.DAY_OF_MONTH, 23);
+        long dateInserted = cal.getTimeInMillis();
+        args[0] = new BInteger(dateInserted);
+
+        cal.clear();
+        cal.set(Calendar.HOUR, 14);
+        cal.set(Calendar.MINUTE, 15);
+        cal.set(Calendar.SECOND, 23);
+        long timeInserted = cal.getTimeInMillis();
+        args[1] = new BInteger(timeInserted);
+
+        cal.clear();
+        cal.set(Calendar.HOUR, 16);
+        cal.set(Calendar.MINUTE, 33);
+        cal.set(Calendar.SECOND, 55);
+        cal.set(Calendar.YEAR, 2017);
+        cal.set(Calendar.MONTH, 1);
+        cal.set(Calendar.DAY_OF_MONTH, 25);
+        long timestampInserted = cal.getTimeInMillis();
+        args[2] = new BInteger(timestampInserted);
+
+        BValue[] returns = BRunUtil.invoke(result,  "testDateTimeInt", args);
+        Assert.assertEquals(returns.length, 4);
+
+        long dateReturnedEpoch = ((BInteger) returns[0]).intValue();
+        Assert.assertEquals(dateReturnedEpoch, dateInserted);
+
+        long timeReturnedEpoch = ((BInteger) returns[1]).intValue();
+        Assert.assertEquals(timeReturnedEpoch, timeInserted);
+
+        long timestampReturnedEpoch = ((BInteger) returns[2]).intValue();
+        Assert.assertEquals(timestampReturnedEpoch, timestampInserted);
+
+        long datetimeReturnedEpoch = ((BInteger) returns[3]).intValue();
+        Assert.assertEquals(datetimeReturnedEpoch, timestampInserted);
     }
 
     @Test(groups = "DatatableTest", description = "Check JSON conversion with null values.")
@@ -405,6 +460,17 @@ public class DatatableTest {
         Assert.assertEquals((returns[1]).stringValue(), "<results><result><ROW_ID>1</ROW_ID><INT_TYPE>1</INT_TYPE>"
                 + "<DATATABLEREP.ROW_ID>1</DATATABLEREP.ROW_ID><DATATABLEREP.INT_TYPE>100</DATATABLEREP.INT_TYPE>"
                 + "</result></results>");
+    }
+
+    @Test(groups = "DatatableTest", description = "Check result sets with same column name or complex name.")
+    public void testStructFieldNotMatchingColumnName() {
+        BValue[] returns = BRunUtil.invoke(result, "testStructFieldNotMatchingColumnName");
+        Assert.assertEquals(returns.length, 5);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[4]).intValue(), 100);
     }
 
     @AfterSuite
