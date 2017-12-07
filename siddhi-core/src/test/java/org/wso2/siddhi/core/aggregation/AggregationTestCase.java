@@ -169,13 +169,16 @@ public class AggregationTestCase {
         for (int i = 0; i < events.length; i++) {
             switch (i) {
                 case 0:
-                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 60.0, 120.0, 700f}, events[i].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{1496289952000L, "WSO2", 80.0, 160.0, 1600f},
+                            events[i].getData());
                     break;
                 case 1:
-                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 80.0, 160.0, 1600f}, events[i].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{1496289950000L, "WSO2", 60.0, 120.0, 700f},
+                            events[i].getData());
                     break;
                 case 3:
-                    AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100.0, 200.0, 9600f}, events[i].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{1496289954000L, "IBM", 100.0, 200.0, 9600f},
+                            events[i].getData());
                     break;
                 default:
                     AssertJUnit.assertEquals(3, events.length);
@@ -210,7 +213,8 @@ public class AggregationTestCase {
                 "from inputStream as i join stockAggregation as s " +
                 "within i.startTime, i.endTime " +
                 "per i.perValue " +
-                "select s.symbol, avgPrice, totalPrice as sumPrice, lastTradeValue  " +
+                "select _TIMESTAMP, s.symbol, avgPrice, totalPrice as sumPrice, lastTradeValue  " +
+                "order by _TIMESTAMP " +
                 "insert all events into outputStream; ";
 
 
@@ -275,13 +279,13 @@ public class AggregationTestCase {
             Thread.sleep(100);
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"WSO2", 60.0, 240.0, 700f},
-                    new Object[]{"IBM", 600.0, 600.0, 3600f},
-                    new Object[]{"IBM", 100.0, 200.0, 9600f},
-                    new Object[]{"IBM", 700.0, 1400.0, 3500f},
-                    new Object[]{"IBM", 400.0, 400.0, 3600f},
-                    new Object[]{"WSO2", 100.0, 300.0, 1540f},
-                    new Object[]{"IBM", 1000.0, 1000.0, 9000f}
+                    new Object[]{1496289950000L, "WSO2", 60.0, 240.0, 700f},
+                    new Object[]{1496289951000L, "IBM", 100.0, 200.0, 9600f},
+                    new Object[]{1496289952000L, "IBM", 700.0, 1400.0, 3500f},
+                    new Object[]{1496289953000L, "WSO2", 100.0, 300.0, 1540f},
+                    new Object[]{1496289953000L, "IBM", 400.0, 400.0, 3600f},
+                    new Object[]{1496289954000L, "IBM", 600.0, 600.0, 3600f},
+                    new Object[]{1496290016000L, "IBM", 1000.0, 1000.0, 9000f}
             );
             SiddhiTestHelper.waitForEvents(100, 7, inEventCount, 60000);
             AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
@@ -435,7 +439,7 @@ public class AggregationTestCase {
                 "on i.symbol == s.symbol " +
                 "within \"2017-06-01 09:35:00 +05:30\", \"2017-06-01 10:37:57 +05:30\" " +
                 "per \"minutes\" " +
-                "select s.symbol, avgPrice, totalPrice as sumPrice, lastTradeValue  " +
+                "select s.symbol, avgPrice, totalPrice as sumPrice, lastTradeValue, _TIMESTAMP  " +
                 "insert all events into outputStream; ";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
@@ -508,10 +512,10 @@ public class AggregationTestCase {
             Thread.sleep(100);
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"IBM", 283.3333333333333, 1700.0, 3500f},
-                    new Object[]{"IBM", 400.0, 400.0, 3600f},
-                    new Object[]{"IBM", 700.0, 700.0, 14000f},
-                    new Object[]{"IBM", 600.0, 600.0, 3600f}
+                    new Object[]{"IBM", 283.3333333333333, 1700.0, 3500f, 1496289900000L},
+                    new Object[]{"IBM", 400.0, 400.0, 3600f, 1496289960000L},
+                    new Object[]{"IBM", 700.0, 700.0, 14000f, 1496293620000L},
+                    new Object[]{"IBM", 600.0, 600.0, 3600f, 1496290020000L}
             );
             SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
             AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
@@ -547,7 +551,8 @@ public class AggregationTestCase {
                 "from inputStream as i join stockAggregation as s " +
                 "within 1496200000000L, 1596434876000L " +
                 "per \"days\" " +
-                "select s.avgPrice, totalPrice, lastTradeValue, count  " +
+                "select _TIMESTAMP, s.avgPrice, totalPrice, lastTradeValue, count " +
+                "order by _TIMESTAMP " +
                 "insert all events into outputStream; ";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
@@ -634,14 +639,14 @@ public class AggregationTestCase {
             Thread.sleep(100);
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{303.3333333333333, 3640.0, 3360f, 12L},
-                    new Object[]{800.0, 800.0, 8000f, 1L},
-                    new Object[]{900.0, 900.0, 13500f, 1L},
-                    new Object[]{100.0, 100.0, 9600f, 1L},
-                    new Object[]{60.0, 60.0, 360f, 1L},
-                    new Object[]{400.0, 400.0, 3600f, 1L},
-                    new Object[]{260.0, 260.0, 4160f, 1L},
-                    new Object[]{260.0, 260.0, 4160f, 1L}
+                    new Object[]{1496275200000L, 303.3333333333333, 3640.0, 3360f, 12L},
+                    new Object[]{1496361600000L, 800.0, 800.0, 8000f, 1L},
+                    new Object[]{1496448000000L, 900.0, 900.0, 13500f, 1L},
+                    new Object[]{1499040000000L, 100.0, 100.0, 9600f, 1L},
+                    new Object[]{1501718400000L, 400.0, 400.0, 3600f, 1L},
+                    new Object[]{1533254400000L, 60.0, 60.0, 360f, 1L},
+                    new Object[]{1564790400000L, 260.0, 260.0, 4160f, 1L},
+                    new Object[]{1596412800000L, 260.0, 260.0, 4160f, 1L}
             );
             SiddhiTestHelper.waitForEvents(100, 8, inEventCount, 60000);
             AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
@@ -679,7 +684,8 @@ public class AggregationTestCase {
                 "from inputStream as i join stockAggregation as s " +
                 "within \"2017-06-** **:**:**\" " +
                 "per \"seconds\" " +
-                "select s.symbol, lastTradeValue, totalPrice " +
+                "select _TIMESTAMP, s.symbol, lastTradeValue, totalPrice " +
+                "order by _TIMESTAMP " +
                 "insert all events into outputStream; ";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
@@ -773,16 +779,16 @@ public class AggregationTestCase {
             Thread.sleep(100);
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"WSO2", 700f, 120.0},
-                    new Object[]{"WSO2", 700f, 280.0},
-                    new Object[]{"IBM", 9600f, 200.0},
-                    new Object[]{"IBM", 3500f, 1400.0},
-                    new Object[]{"IBM", 3600f, 400.0},
-                    new Object[]{"IBM", 3600f, 600.0},
-                    new Object[]{"CISCO", 14000f, 700.0},
-                    new Object[]{"WSO2", 3360f, 60.0},
-                    new Object[]{"CISCO", 8000f, 800.0},
-                    new Object[]{"CISCO", 13500f, 900.0}
+                    new Object[]{1496289950000L, "WSO2", 700f, 120.0},
+                    new Object[]{1496289952000L, "WSO2", 700f, 280.0},
+                    new Object[]{1496289954000L, "IBM", 9600f, 200.0},
+                    new Object[]{1496289956000L, "IBM", 3500f, 1400.0},
+                    new Object[]{1496290016000L, "IBM", 3600f, 400.0},
+                    new Object[]{1496290076000L, "IBM", 3600f, 600.0},
+                    new Object[]{1496293676000L, "CISCO", 14000f, 700.0},
+                    new Object[]{1496297276000L, "WSO2", 3360f, 60.0},
+                    new Object[]{1496383676000L, "CISCO", 8000f, 800.0},
+                    new Object[]{1496470076000L, "CISCO", 13500f, 900.0}
             );
             SiddhiTestHelper.waitForEvents(100, 10, inEventCount, 60000);
             AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
@@ -847,7 +853,9 @@ public class AggregationTestCase {
         for (int i = 0; i < events.length; i++) {
             switch (i) {
                 case 0:
-                    AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100.0, 200.0, 9600f}, events[i].getData());
+                    Object[] copyEventsWithoutTime = new Object[4];
+                    System.arraycopy(events[i].getData(), 1, copyEventsWithoutTime, 0, 4);
+                    AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100.0, 200.0, 9600f}, copyEventsWithoutTime);
                     break;
                 default:
                     AssertJUnit.assertEquals(1, events.length);
@@ -878,12 +886,17 @@ public class AggregationTestCase {
                 "define stream inputStream (symbol string, value int, startTime string, " +
                 "endTime string, perValue string); " +
 
-                "@info(name = 'query1') " +
                 "from inputStream as i join stockAggregation as s " +
                 "within \"2017-06-01 04:05:50\", \"2017-06-01 04:06:57\" " +
                 "per \"seconds\" " +
-                "select totalPrice, avgPrice, lastTradeValue, s.symbol " +
-                "insert all events into outputStream; ";
+                "select _TIMESTAMP, totalPrice, avgPrice, lastTradeValue, s.symbol " +
+                "order by _TIMESTAMP " +
+                "insert into tempStream; " +
+
+                "@info(name = 'query1') " +
+                "from tempStream " +
+                "select totalPrice, avgPrice, lastTradeValue, symbol " +
+                "insert into outputStream ";
 
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
@@ -952,19 +965,17 @@ public class AggregationTestCase {
 
             List<Object[]> expected = Arrays.asList(
                     new Object[]{240.0, 60.0, 700f, "WSO2"},
-                    new Object[]{600.0, 600.0, 3600f, "IBM"},
                     new Object[]{200.0, 100.0, 9600f, "IBM"},
                     new Object[]{1400.0, 700.0, 3500f, "IBM"},
-                    new Object[]{400.0, 400.0, 3600f, "IBM"},
                     new Object[]{300.0, 100.0, 1540f, "WSO2"},
+                    new Object[]{400.0, 400.0, 3600f, "IBM"},
+                    new Object[]{600.0, 600.0, 3600f, "IBM"},
                     new Object[]{1000.0, 1000.0, 9000f, "IBM"}
             );
             SiddhiTestHelper.waitForEvents(100, 7, inEventCount, 60000);
             AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
-            AssertJUnit.assertEquals("Remove events matched", true, SiddhiTestHelper.isEventsMatch(
-                    removeEventsList, expected));
             AssertJUnit.assertEquals("Number of success events", 7, inEventCount.get());
-            AssertJUnit.assertEquals("Number of remove events", 7, removeEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount.get());
             AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         }   finally {
@@ -1077,7 +1088,8 @@ public class AggregationTestCase {
                         "from inputStream as i join stockAggregation as s " +
                         "within \"2017-01-01 00:00:00\", \"2021-01-01 00:00:00\" " +
                         "per \"months\" " +
-                        "select s.symbol, avgPrice, totalPrice " +
+                        "select _TIMESTAMP, s.symbol, avgPrice, totalPrice " +
+                        "order by _TIMESTAMP " +
                         "insert all events into outputStream; ";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
@@ -1171,15 +1183,15 @@ public class AggregationTestCase {
             Thread.sleep(100);
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"CISCO", 800.0, 2400.0},
-                    new Object[]{"IBM", 433.3333333333333, 2600.0},
-                    new Object[]{"WSO2", 65.71428571428571, 460.0},
-                    new Object[]{"IBM", 100.0, 100.0},
-                    new Object[]{"CISCO", 260.0, 260.0},
-                    new Object[]{"WSO2", 260.0, 260.0},
-                    new Object[]{"IBM", 400.0, 400.0},
-                    new Object[]{"WSO2", 60.0, 60.0},
-                    new Object[]{"CISCO", 260.0, 260.0}
+                    new Object[]{1496275200000L, "WSO2", 65.71428571428571, 460.0},
+                    new Object[]{1496275200000L, "CISCO", 800.0, 2400.0},
+                    new Object[]{1496275200000L, "IBM", 433.3333333333333, 2600.0},
+                    new Object[]{1498867200000L, "IBM", 100.0, 100.0},
+                    new Object[]{1501545600000L, "IBM", 400.0, 400.0},
+                    new Object[]{1533081600000L, "WSO2", 60.0, 60.0},
+                    new Object[]{1564617600000L, "WSO2", 260.0, 260.0},
+                    new Object[]{1596240000000L, "CISCO", 260.0, 260.0},
+                    new Object[]{1606780800000L, "CISCO", 260.0, 260.0}
             );
             SiddhiTestHelper.waitForEvents(100, 9, inEventCount, 60000);
             AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
@@ -1216,7 +1228,8 @@ public class AggregationTestCase {
                         "from inputStream as i join stockAggregation as s " +
                         "within \"2017-01-01 00:00:00\", \"2021-01-01 00:00:00\" " +
                         "per \"years\" " +
-                        "select s.symbol, avgPrice, totalPrice " +
+                        "select _TIMESTAMP, s.symbol, avgPrice, totalPrice " +
+                        "order by _TIMESTAMP " +
                         "insert all events into outputStream; ";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
@@ -1310,12 +1323,12 @@ public class AggregationTestCase {
             Thread.sleep(100);
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"WSO2", 60.0, 60.0},
-                    new Object[]{"CISCO", 260.0, 520.0},
-                    new Object[]{"CISCO", 800.0, 2400.0},
-                    new Object[]{"IBM", 387.5, 3100.0},
-                    new Object[]{"WSO2", 65.71428571428571, 460.0},
-                    new Object[]{"WSO2", 260.0, 260.0}
+                    new Object[]{1483228800000L, "CISCO", 800.0, 2400.0},
+                    new Object[]{1483228800000L, "IBM", 387.5, 3100.0},
+                    new Object[]{1483228800000L, "WSO2", 65.71428571428571, 460.0},
+                    new Object[]{1514764800000L, "WSO2", 60.0, 60.0},
+                    new Object[]{1546300800000L, "WSO2", 260.0, 260.0},
+                    new Object[]{1577836800000L, "CISCO", 260.0, 520.0}
             );
             SiddhiTestHelper.waitForEvents(100, 6, inEventCount, 60000);
             AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
@@ -1528,13 +1541,16 @@ public class AggregationTestCase {
         for (int i = 0; i < events.length; i++) {
             switch (i) {
                 case 0:
-                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 60.0, 120.0, 700f}, events[i].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{1496289952000L, "WSO2", 80.0, 160.0, 1600f},
+                            events[i].getData());
                     break;
                 case 1:
-                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 80.0, 160.0, 1600f}, events[i].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{1496289950000L, "WSO2", 60.0, 120.0, 700f},
+                            events[i].getData());
                     break;
                 case 3:
-                    AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100.0, 200.0, 9600f}, events[i].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{1496289954000L, "IBM", 100.0, 200.0, 9600f},
+                            events[i].getData());
                     break;
                 default:
                     AssertJUnit.assertEquals(3, events.length);
@@ -1578,19 +1594,23 @@ public class AggregationTestCase {
         Event[] events = siddhiAppRuntime.query("from stockAggregation " +
                 "within \"2017-06-** **:**:**\" " +
                 "per \"seconds\" " +
-                "select *; ");
+                "select * " +
+                "order by _TIMESTAMP ;");
         EventPrinter.print(events);
         AssertJUnit.assertEquals(3, events.length);
         for (int i = 0; i < events.length; i++) {
             switch (i) {
                 case 0:
-                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 60.0, 120.0, 700f}, events[i].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{1496289950000L, "WSO2", 60.0, 120.0, 700f},
+                            events[i].getData());
                     break;
                 case 1:
-                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 80.0, 160.0, 1600f}, events[i].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{1496289952000L, "WSO2", 80.0, 160.0, 1600f},
+                            events[i].getData());
                     break;
                 case 3:
-                    AssertJUnit.assertArrayEquals(new Object[]{"IBM", 100.0, 200.0, 9600f}, events[i].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{1496289954000L, "IBM", 100.0, 200.0, 9600f},
+                            events[i].getData());
                     break;
                 default:
                     AssertJUnit.assertEquals(3, events.length);
@@ -1599,5 +1619,104 @@ public class AggregationTestCase {
 
         Thread.sleep(100);
         siddhiAppRuntime.shutdown();
+    }
+
+
+    @Test(dependsOnMethods = "incrementalStreamProcessorTest25")
+    public void incrementalStreamProcessorTest26() throws InterruptedException {
+        LOG.info("incrementalStreamProcessorTest26");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String stockStream =
+                "define stream stockStream (symbol string, price float, lastClosingPrice float, volume long , " +
+                        "quantity int, timestamp long);";
+        String query = "" +
+                "@BufferSize('3') " +
+                "define aggregation stockAggregation " +
+                "from stockStream " +
+                "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, (price * quantity) " +
+                "as lastTradeValue  " +
+                "group by symbol " +
+                "aggregate by timestamp every sec...year  ; " +
+
+                "define stream inputStream (symbol string, value int, startTime string, endTime string, " +
+                "perValue string); " +
+
+                "@info(name = 'query1') " +
+                "from inputStream as i join stockAggregation as s " +
+                "within i.startTime, i.endTime " +
+                "per i.perValue " +
+                "select s.symbol, avgPrice, totalPrice as sumPrice, lastTradeValue  " +
+                "insert all events into outputStream; ";
+
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
+
+        try {
+            siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+                @Override
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    if (inEvents != null) {
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
+                        for (Event event : inEvents) {
+                            inEventsList.add(event.getData());
+                            inEventCount.incrementAndGet();
+                        }
+                        eventArrived = true;
+                    }
+                    if (removeEvents != null) {
+                        EventPrinter.print(timestamp, inEvents, removeEvents);
+                        for (Event event : removeEvents) {
+                            removeEventsList.add(event.getData());
+                            removeEventCount.incrementAndGet();
+                        }
+                    }
+                    eventArrived = true;
+                }
+            });
+
+            InputHandler stockStreamInputHandler = siddhiAppRuntime.getInputHandler("stockStream");
+            InputHandler inputStreamInputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+            siddhiAppRuntime.start();
+
+            // Thursday, June 1, 2017 4:05:50 AM
+            stockStreamInputHandler.send(new Object[]{"WSO2", 50f, 60f, 90L, 6, 1496289950000L});
+            stockStreamInputHandler.send(new Object[]{"WSO2", 70f, null, 40L, 10, 1496289950000L});
+            stockStreamInputHandler.send(new Object[]{"WSO2", 50f, 60f, 90L, 6, 1496289950000L});
+            stockStreamInputHandler.send(new Object[]{"WSO2", 70f, null, 40L, 10, 1496289950000L});
+
+            // Thursday, June 1, 2017 4:05:51 AM
+            stockStreamInputHandler.send(new Object[]{"IBM", 100f, null, 200L, 26, 1496289951000L});
+            stockStreamInputHandler.send(new Object[]{"IBM", 100f, null, 200L, 96, 1496289951000L});
+
+            // Thursday, June 1, 2017 4:05:52 AM
+            stockStreamInputHandler.send(new Object[]{"IBM", 900f, null, 200L, 60, 1496289952000L});
+            stockStreamInputHandler.send(new Object[]{"IBM", 500f, null, 200L, 7, 1496289952000L});
+
+            // Thursday, June 1, 2017 4:05:53 AM
+            stockStreamInputHandler.send(new Object[]{"WSO2", 60f, 44f, 200L, 56, 1496289953000L});
+            stockStreamInputHandler.send(new Object[]{"WSO2", 100f, null, 200L, 16, 1496289953000L});
+            stockStreamInputHandler.send(new Object[]{"IBM", 400f, null, 200L, 9, 1496289953000L});
+            stockStreamInputHandler.send(new Object[]{"WSO2", 140f, null, 200L, 11, 1496289953000L});
+
+            Thread.sleep(100);
+            inputStreamInputHandler.send(new Object[]{"IBM", 1, 1496289951000L, 1496289952001L, "seconds"});
+            Thread.sleep(100);
+
+            List<Object[]> expected = Arrays.asList(
+                    new Object[]{"IBM", 100.0, 200.0, 9600f},
+                    new Object[]{"IBM", 700.0, 1400.0, 3500f}
+            );
+            SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
+            AssertJUnit.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList,
+                    expected));
+            AssertJUnit.assertEquals("Remove events matched", true, SiddhiTestHelper.isEventsMatch(
+                    removeEventsList, expected));
+            AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
+            AssertJUnit.assertEquals("Number of remove events", 2, removeEventCount.get());
+            AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        }   finally {
+            siddhiAppRuntime.shutdown();
+        }
     }
 }
