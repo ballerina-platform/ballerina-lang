@@ -286,7 +286,7 @@ public class UriTemplateDispatcherTest {
                 , "Response code mismatch");
 
         String allowHeader = response.getHeader(Constants.ALLOW);
-        Assert.assertEquals(allowHeader, "POST, UPDATE, GET, PUT, HEAD, OPTIONS");
+        Assert.assertEquals(allowHeader, "UPDATE, POST, PUT, GET, HEAD, OPTIONS");
     }
 
     @Test(description = "Test dispatching with OPTIONS request to Root")
