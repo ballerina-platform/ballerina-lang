@@ -97,7 +97,7 @@ public class IncrementalDataAggregator {
                     processInMemoryAggregates(aBaseIncrementalValueStoreList.createStreamEvent(),
                             aBaseIncrementalValueStoreList.getTimestamp(), null);
                 }
-            } else {
+            } else if (baseIncrementalValueStore.isProcessed()) {
                 processInMemoryAggregates(baseIncrementalValueStore.createStreamEvent(),
                         baseIncrementalValueStore.getTimestamp(), null);
             }

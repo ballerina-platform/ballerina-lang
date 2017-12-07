@@ -33,6 +33,8 @@ import org.wso2.siddhi.core.query.selector.GroupByKeyGenerator;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalAggregationProcessor;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalAttributeAggregator;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.RecreateInMemoryData;
+import org.wso2.siddhi.core.table.InMemoryTable;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.Scheduler;
@@ -241,6 +243,14 @@ public class AggregationParser {
                     processedMetaStreamEvent, processExpressionExecutors, groupByKeyGenerator,
                     bufferSize, ignoreEventsOlderThanBuffer, incrementalDurations, aggregationTables);
 
+            RecreateInMemoryData recreateInMemoryData = null;
+            if (!(aggregationTables.get(incrementalDurations.get(0)) instanceof InMemoryTable)) {
+                //Recreate in-memory data from tables
+                recreateInMemoryData = new RecreateInMemoryData(incrementalDurations,
+                        aggregationTables, incrementalExecutorMap, siddhiAppContext, processedMetaStreamEvent, tableMap,
+                        windowMap, aggregationMap);
+            }
+
             IncrementalExecutor rootIncrementalExecutor = incrementalExecutorMap.get(incrementalDurations.get(0));
             rootIncrementalExecutor.setScheduler(scheduler);
             // Connect entry valve to root incremental executor
@@ -280,7 +290,7 @@ public class AggregationParser {
             return new AggregationRuntime(aggregationDefinition, incrementalExecutorMap,
                     aggregationTables, ((SingleStreamRuntime) streamRuntime), entryValveExecutor, incrementalDurations,
                     siddhiAppContext, baseExecutors, timestampExecutor, processedMetaStreamEvent,
-                    outputExpressionExecutors, latencyTrackerFind, throughputTrackerFind);
+                    outputExpressionExecutors, latencyTrackerFind, throughputTrackerFind, recreateInMemoryData);
         } catch (Throwable t) {
             ExceptionUtil.populateQueryContext(t, aggregationDefinition, siddhiAppContext);
             throw t;
@@ -385,7 +395,8 @@ public class AggregationParser {
                 incomingMetaStreamEvent);
         ExpressionExecutor timestampExecutor = timeStampTimeZoneExecutors[0];
         ExpressionExecutor timeZoneExecutor = timeStampTimeZoneExecutors[1];
-        incomingMetaStreamEvent.addOutputData(new Attribute("_TIMESTAMP", Attribute.Type.LONG));
+        Attribute timestampAttribute = new Attribute("_TIMESTAMP", Attribute.Type.LONG);
+        incomingMetaStreamEvent.addOutputData(timestampAttribute);
         incomingExpressionExecutors.add(timestampExecutor);
 
         incomingMetaStreamEvent.addOutputData(new Attribute("_TIMEZONE", Attribute.Type.STRING));
@@ -401,6 +412,9 @@ public class AggregationParser {
                     siddhiAppContext, false, 0, aggregatorName));
         }
 
+        // Add _TIMESTAMP to output as well
+        outputExpressions.add(Expression.variable("_TIMESTAMP"));
+        aggregationDefinition.getAttributeList().add(timestampAttribute);
         for (OutputAttribute outputAttribute : aggregationDefinition.getSelector().getSelectionList()) {
             Expression expression = outputAttribute.getExpression();
             if (expression instanceof AttributeFunction) {
@@ -691,12 +705,12 @@ public class AggregationParser {
             List<Annotation> annotations, List<Variable> groupByVariableList) {
         HashMap<TimePeriod.Duration, Table> aggregationTableMap = new HashMap<>();
         // Create annotations for primary key
-        /*Annotation primaryKeyAnnotation = new Annotation(SiddhiConstants.ANNOTATION_PRIMARY_KEY);
+        Annotation primaryKeyAnnotation = new Annotation(SiddhiConstants.ANNOTATION_PRIMARY_KEY);
         primaryKeyAnnotation.element(null, "_TIMESTAMP");
         for (Variable groupByVariable : groupByVariableList) {
             primaryKeyAnnotation.element(null, groupByVariable.getAttributeName());
         }
-        annotations.add(primaryKeyAnnotation);*/
+        annotations.add(primaryKeyAnnotation);
         for (TimePeriod.Duration duration : durations) {
             String tableId = aggregatorName + "_" + duration.toString();
             TableDefinition tableDefinition = TableDefinition.id(tableId);
