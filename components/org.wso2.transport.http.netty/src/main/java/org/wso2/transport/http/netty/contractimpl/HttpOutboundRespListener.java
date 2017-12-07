@@ -34,14 +34,14 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 /**
  * Get executed when the response is available.
  */
-public class HttpOutBoundRespListener implements HttpConnectorListener {
+public class HttpOutboundRespListener implements HttpConnectorListener {
 
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
     private HandlerExecutor handlerExecutor;
     private HTTPCarbonMessage inboundRequestMsg;
 
-    public HttpOutBoundRespListener(ChannelHandlerContext channelHandlerContext, HTTPCarbonMessage requestMsg) {
+    public HttpOutboundRespListener(ChannelHandlerContext channelHandlerContext, HTTPCarbonMessage requestMsg) {
         this.sourceContext = channelHandlerContext;
         this.requestDataHolder = new RequestDataHolder(requestMsg);
         this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
