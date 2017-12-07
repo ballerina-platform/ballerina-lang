@@ -53,9 +53,8 @@ public abstract class AbstractRecordTable extends Table {
 
     private static final Logger log = Logger.getLogger(AbstractRecordTable.class);
 
-    private TableDefinition tableDefinition;
-    private StreamEventPool storeEventPool;
-    private RecordTableHandler recordTableHandler;
+    protected StreamEventPool storeEventPool;
+    protected RecordTableHandler recordTableHandler;
 
     @Override
     public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool,
@@ -66,7 +65,6 @@ public abstract class AbstractRecordTable extends Table {
                     new RecordTableHandlerCallback(this));
         }
         this.recordTableHandler = recordTableHandler;
-        this.tableDefinition = tableDefinition;
         this.storeEventPool = storeEventPool;
         init(tableDefinition, configReader);
     }
@@ -388,9 +386,12 @@ public abstract class AbstractRecordTable extends Table {
      */
     protected abstract CompiledExpression compileSetAttribute(ExpressionBuilder expressionBuilder);
 
-    private class RecordStoreCompiledCondition implements CompiledCondition {
-        private Map<String, ExpressionExecutor> variableExpressionExecutorMap;
-        private CompiledCondition compiledCondition;
+    /**
+     * Compiled condition of the {@link AbstractRecordTable}
+     */
+    protected class RecordStoreCompiledCondition implements CompiledCondition {
+        protected Map<String, ExpressionExecutor> variableExpressionExecutorMap;
+        protected CompiledCondition compiledCondition;
 
         RecordStoreCompiledCondition(Map<String, ExpressionExecutor> variableExpressionExecutorMap,
                                      CompiledCondition compiledCondition) {
@@ -399,7 +400,7 @@ public abstract class AbstractRecordTable extends Table {
         }
 
         @Override
-        public CompiledCondition cloneCompiledCondition(String key) {
+        public CompiledCondition cloneCompilation(String key) {
             Map<String, ExpressionExecutor> newVariableExpressionExecutorMap = new HashMap<>();
             for (Map.Entry<String, ExpressionExecutor> entry : variableExpressionExecutorMap.entrySet()) {
                 newVariableExpressionExecutorMap.put(entry.getKey(), entry.getValue().cloneExecutor(key));
@@ -407,4 +408,5 @@ public abstract class AbstractRecordTable extends Table {
             return new RecordStoreCompiledCondition(newVariableExpressionExecutorMap, compiledCondition);
         }
     }
+
 }

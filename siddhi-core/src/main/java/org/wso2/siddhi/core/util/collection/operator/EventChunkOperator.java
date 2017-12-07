@@ -41,7 +41,7 @@ public class EventChunkOperator implements Operator {
     }
 
     @Override
-    public CompiledCondition cloneCompiledCondition(String key) {
+    public CompiledCondition cloneCompilation(String key) {
         return new EventChunkOperator(expressionExecutor.cloneExecutor(key), storeEventPosition);
     }
 

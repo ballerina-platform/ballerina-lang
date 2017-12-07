@@ -38,7 +38,7 @@ public class MapOperator extends CollectionOperator {
     }
 
     @Override
-    public CompiledCondition cloneCompiledCondition(String key) {
+    public CompiledCondition cloneCompilation(String key) {
         return new MapOperator(expressionExecutor.cloneExecutor(key), storeEventPosition);
     }
 

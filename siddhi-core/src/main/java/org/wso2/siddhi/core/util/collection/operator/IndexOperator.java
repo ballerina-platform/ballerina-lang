@@ -49,7 +49,7 @@ public class IndexOperator implements Operator {
     }
 
     @Override
-    public CompiledCondition cloneCompiledCondition(String key) {
+    public CompiledCondition cloneCompilation(String key) {
         //todo check if there are any issues when not cloning
         return new IndexOperator(collectionExecutor, queryName);
     }

@@ -76,14 +76,14 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
     }
 
     @Override
-    public CompiledCondition cloneCompiledCondition(String key) {
+    public CompiledCondition cloneCompilation(String key) {
         Map<TimePeriod.Duration, CompiledCondition> copyOfWithinTableCompiledConditions = new HashMap<>();
         for (Map.Entry<TimePeriod.Duration, CompiledCondition> entry : withinTableCompiledConditions.entrySet()) {
-            copyOfWithinTableCompiledConditions.put(entry.getKey(), entry.getValue().cloneCompiledCondition(key));
+            copyOfWithinTableCompiledConditions.put(entry.getKey(), entry.getValue().cloneCompilation(key));
         }
         return new IncrementalAggregateCompileCondition(copyOfWithinTableCompiledConditions,
-                inMemoryStoreCompileCondition.cloneCompiledCondition(key),
-                onCompiledCondition.cloneCompiledCondition(key), tableMetaStreamEvent, aggregateMetaStreamEvent,
+                inMemoryStoreCompileCondition.cloneCompilation(key),
+                onCompiledCondition.cloneCompilation(key), tableMetaStreamEvent, aggregateMetaStreamEvent,
                 additionalAttributes);
     }
 

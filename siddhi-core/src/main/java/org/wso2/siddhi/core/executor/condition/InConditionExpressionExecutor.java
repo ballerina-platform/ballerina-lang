@@ -67,7 +67,7 @@ public class InConditionExpressionExecutor extends ConditionExpressionExecutor {
 
     @Override
     public ExpressionExecutor cloneExecutor(String key) {
-        return new InConditionExpressionExecutor(table, compiledCondition.cloneCompiledCondition(key),
+        return new InConditionExpressionExecutor(table, compiledCondition.cloneCompilation(key),
                 streamEventSize, isMatchingEventAStateEvent, matchingStreamIndex);
     }
 
