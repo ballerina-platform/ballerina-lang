@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.ExceptionUtil;
+import org.wso2.siddhi.core.util.LogEncoder;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.transport.BackoffRetryCounter;
@@ -131,9 +132,9 @@ public abstract class Source implements Snapshotable {
                 isTryingToConnect.set(false);
                 backoffRetryCounter.reset();
             } catch (ConnectionUnavailableException e) {
-                LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
                         " Error while connecting at Source '" + type + "' at '" + streamDefinition.getId() +
-                        "'. Will retry in '" + backoffRetryCounter.getTimeInterval() + "'.", e);
+                        "'. Will retry in '" + backoffRetryCounter.getTimeInterval() + "'."), e);
                 scheduledExecutorService.schedule(new Runnable() {
                     @Override
                     public void run() {
@@ -142,8 +143,8 @@ public abstract class Source implements Snapshotable {
                 }, backoffRetryCounter.getTimeIntervalMillis(), TimeUnit.MILLISECONDS);
                 backoffRetryCounter.increment();
             } catch (RuntimeException e) {
-                LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
-                        "Error while connecting at Source '" + type + "' at '" + streamDefinition.getId() + "'.", e);
+                LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                        "Error while connecting at Source '" + type + "' at '" + streamDefinition.getId() + "'."), e);
                 throw e;
             }
         }

@@ -30,6 +30,7 @@ import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
 import org.wso2.siddhi.core.table.record.RecordTableHandler;
 import org.wso2.siddhi.core.util.ExceptionUtil;
+import org.wso2.siddhi.core.util.LogEncoder;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
@@ -365,9 +366,9 @@ public abstract class Table implements FindableProcessor, MemoryCalculable {
                 isTryingToConnect.set(false);
                 backoffRetryCounter.reset();
             } catch (ConnectionUnavailableException e) {
-                LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) + " Error while " +
-                        "connecting to Table '" + tableDefinition.getId() + "', will retry in '" +
-                        backoffRetryCounter.getTimeInterval() + "'.", e);
+                LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                        " Error while connecting to Table '" + tableDefinition.getId() + "', will retry in '" +
+                        backoffRetryCounter.getTimeInterval() + "'."), e);
                 scheduledExecutorService.schedule(new Runnable() {
                     @Override
                     public void run() {
@@ -376,8 +377,8 @@ public abstract class Table implements FindableProcessor, MemoryCalculable {
                 }, backoffRetryCounter.getTimeIntervalMillis(), TimeUnit.MILLISECONDS);
                 backoffRetryCounter.increment();
             } catch (RuntimeException e) {
-                LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
-                        " . Error while connecting to Table '" + tableDefinition.getId() + "'.", e);
+                LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                        " . Error while connecting to Table '" + tableDefinition.getId() + "'."), e);
                 throw e;
             }
         }

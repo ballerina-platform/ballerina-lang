@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.ExceptionUtil;
+import org.wso2.siddhi.core.util.LogEncoder;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
@@ -201,9 +202,9 @@ public abstract class Sink implements SinkListener, Snapshotable {
                 isTryingToConnect.set(false);
                 backoffRetryCounter.reset();
             } catch (ConnectionUnavailableException e) {
-                LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
                         " Error while connecting at Sink '" + type + "' at '" + streamDefinition.getId() +
-                        "', will retry in '" + backoffRetryCounter.getTimeInterval() + "'.", e);
+                        "', will retry in '" + backoffRetryCounter.getTimeInterval() + "'."), e);
                 scheduledExecutorService.schedule(new Runnable() {
                     @Override
                     public void run() {
@@ -212,8 +213,8 @@ public abstract class Sink implements SinkListener, Snapshotable {
                 }, backoffRetryCounter.getTimeIntervalMillis(), TimeUnit.MILLISECONDS);
                 backoffRetryCounter.increment();
             } catch (RuntimeException e) {
-                LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
-                        " Error while connecting at Sink '" + type + "' at '" + streamDefinition.getId() + "'.", e);
+                LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                        " Error while connecting at Sink '" + type + "' at '" + streamDefinition.getId() + "'."), e);
                 throw e;
             }
         }
