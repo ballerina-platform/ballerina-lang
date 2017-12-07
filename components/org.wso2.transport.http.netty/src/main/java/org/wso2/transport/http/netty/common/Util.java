@@ -69,7 +69,7 @@ public class Util {
         }
     }
 
-    public static String getStringValue(HTTPCarbonMessage msg, String key, String defaultValue) {
+    private static String getStringValue(HTTPCarbonMessage msg, String key, String defaultValue) {
         String value = (String) msg.getProperty(key);
         if (value == null) {
             return defaultValue;
@@ -78,7 +78,7 @@ public class Util {
         return value;
     }
 
-    public static int getIntValue(HTTPCarbonMessage msg, String key, int defaultValue) {
+    private static int getIntValue(HTTPCarbonMessage msg, String key, int defaultValue) {
         Integer value = (Integer) msg.getProperty(key);
         if (value == null) {
             return defaultValue;
@@ -153,7 +153,7 @@ public class Util {
         }
     }
 
-    private static void  setContentLength(HTTPCarbonMessage cMsg) {
+    private static void setContentLength(HTTPCarbonMessage cMsg) {
         if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null && !cMsg.isEmpty())) {
             Util.prepareBuiltMessageForTransfer(cMsg);
             int contentLength = cMsg.getFullMessageLength();
@@ -165,7 +165,7 @@ public class Util {
         }
     }
 
-    private static void  setTransferEncodingHeader(HTTPCarbonMessage cMsg) {
+    private static void setTransferEncodingHeader(HTTPCarbonMessage cMsg) {
         if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null && !cMsg.isEmpty())) {
             HttpContent httpContent = cMsg.peek();
             if (httpContent instanceof LastHttpContent) {
@@ -186,21 +186,21 @@ public class Util {
     /**
      * Prepare response message with Transfer-Encoding/Content-Length/Content-Type.
      *
-     * @param cMsg Carbon message.
+     * @param outBoundResMsg Carbon message.
      * @param requestDataHolder Requested data holder.
      */
-    public static void setupTransferEncodingAndContentTypeForResponse(HTTPCarbonMessage cMsg
+    public static void setupTransferEncodingAndContentTypeForResponse(HTTPCarbonMessage outBoundResMsg
             , RequestDataHolder requestDataHolder) {
 
         // 1. Remove Transfer-Encoding and Content-Length as per rfc7230#section-3.3.1
-        int statusCode = Util.getIntValue(cMsg, Constants.HTTP_STATUS_CODE, 200);
+        int statusCode = Util.getIntValue(outBoundResMsg, Constants.HTTP_STATUS_CODE, 200);
         String httpMethod = requestDataHolder.getHttpMethod();
         if (statusCode == 204 ||
             statusCode >= 100 && statusCode < 200 ||
             (HttpMethod.CONNECT.name().equals(httpMethod) && statusCode >= 200 && statusCode < 300)) {
-            cMsg.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
-            cMsg.removeHeader(Constants.HTTP_CONTENT_LENGTH);
-            cMsg.removeHeader(Constants.HTTP_CONTENT_TYPE);
+            outBoundResMsg.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
+            outBoundResMsg.removeHeader(Constants.HTTP_CONTENT_LENGTH);
+            outBoundResMsg.removeHeader(Constants.HTTP_CONTENT_TYPE);
             return;
         }
 
@@ -210,38 +210,30 @@ public class Util {
         String requestTransferEncodingHeader = requestDataHolder.getTransferEncodingHeader();
         if (requestTransferEncodingHeader != null &&
             !Constants.HTTP_TRANSFER_ENCODING_IDENTITY.equalsIgnoreCase(requestTransferEncodingHeader)) {
-            cMsg.setHeader(Constants.HTTP_TRANSFER_ENCODING, requestTransferEncodingHeader);
-            cMsg.removeHeader(Constants.HTTP_CONTENT_LENGTH);
+            outBoundResMsg.setHeader(Constants.HTTP_TRANSFER_ENCODING, requestTransferEncodingHeader);
+            outBoundResMsg.removeHeader(Constants.HTTP_CONTENT_LENGTH);
             return;
         }
 
         // 3. Check for request Content-Length header
         String requestContentLength = requestDataHolder.getContentLengthHeader();
         if (requestContentLength != null &&
-            (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null))) {
-            Util.prepareBuiltMessageForTransfer(cMsg);
-            if (!cMsg.isEmpty()) {
-                int contentLength = cMsg.getFullMessageLength();
-                if (contentLength > 0) {
-                    cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
-                }
-                cMsg.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
-                return;
+            (outBoundResMsg.isAlreadyRead() || (outBoundResMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null))) {
+            int contentLength = outBoundResMsg.getFullMessageLength();
+            if (contentLength > 0) {
+                outBoundResMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
             }
+            outBoundResMsg.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
+            return;
         }
 
         // 4. If request doesn't have Transfer-Encoding or Content-Length header look for response properties
-        if (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) != null) {
-            cMsg.getHeaders().remove(Constants.HTTP_CONTENT_LENGTH);  // remove Content-Length if present
-        } else if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null)) {
-            Util.prepareBuiltMessageForTransfer(cMsg);
-            if (!cMsg.isEmpty()) {
-                int contentLength = cMsg.getFullMessageLength();
-                cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
-            } else {
-                cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(0));
-                cMsg.removeHeader(Constants.HTTP_CONTENT_TYPE);
-            }
+        if (outBoundResMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) != null) {
+            outBoundResMsg.getHeaders().remove(Constants.HTTP_CONTENT_LENGTH);  // remove Content-Length if present
+        } else if (outBoundResMsg.isAlreadyRead() ||
+                (outBoundResMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null)) {
+            int contentLength = outBoundResMsg.getFullMessageLength();
+            outBoundResMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
         }
     }
 
