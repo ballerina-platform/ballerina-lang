@@ -132,7 +132,7 @@ public class EndpointConnectorTest {
 
     @Test(description = "Test endpoint, connectors with errors")
     public void testConnectorNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 14);
+        Assert.assertEquals(resultNegative.getErrorCount(), 16);
         BAssertUtil.validateError(resultNegative, 0, "invalid action invocation on connector: 'Foo', expect endpoint",
                 27, 17);
         BAssertUtil.validateError(resultNegative, 1, "incompatible types: expected 'endpoint<Bar>', found 'Foo'",
@@ -161,6 +161,8 @@ public class EndpointConnectorTest {
                 118, 24);
         BAssertUtil.validateError(resultNegative, 12, "unreachable code", 48, 5);
         BAssertUtil.validateError(resultNegative, 13, "this function must return a result", 42, 1);
+        BAssertUtil.validateError(resultNegative, 14, "this action must return a result", 126, 5);
+        BAssertUtil.validateError(resultNegative, 15, "this action must return a result", 130, 5);
 
     }
 }
