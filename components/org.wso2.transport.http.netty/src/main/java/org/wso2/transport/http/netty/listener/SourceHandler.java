@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.HttpResponseListener;
+import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -138,8 +138,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (continueRequest) {
             if (serverConnectorFuture != null) {
                 try {
-                    ServerConnectorFuture serverConnectorFuture = httpRequestMsg.getHttpResponseFuture();
-                    serverConnectorFuture.setHttpConnectorListener(new HttpResponseListener(ctx, httpRequestMsg));
+                    ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
+                    outboundRespFuture.setHttpConnectorListener(new HttpOutboundRespListener(ctx, httpRequestMsg));
                     this.serverConnectorFuture.notifyHttpListener(httpRequestMsg);
                 } catch (Exception e) {
                     log.error("Error while notifying listeners", e);

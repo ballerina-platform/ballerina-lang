@@ -78,7 +78,6 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
 
         try {
             final HttpRoute route = getTargetRoute(httpCarbonRequest);
-            Util.setupTransferEncodingForRequest(httpCarbonRequest, chunkDisabled);
             TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, senderConfiguration);
             targetChannel.getChannelFuture().addListener(new ChannelFutureListener() {
                 @Override
@@ -96,6 +95,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                         if (!keepAlive) {
                             httpCarbonRequest.setHeader(Constants.CONNECTION, Constants.CONNECTION_CLOSE);
                         }
+                        Util.setupTransferEncodingForRequest(httpCarbonRequest, chunkDisabled);
                         targetChannel.setRequestWritten(true);
                         targetChannel.writeContent(httpCarbonRequest);
                     } else {

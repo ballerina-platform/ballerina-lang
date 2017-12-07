@@ -34,14 +34,14 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 /**
  * Get executed when the response is available.
  */
-public class HttpResponseListener implements HttpConnectorListener {
+public class HttpOutboundRespListener implements HttpConnectorListener {
 
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
     private HandlerExecutor handlerExecutor;
     private HTTPCarbonMessage inboundRequestMsg;
 
-    public HttpResponseListener(ChannelHandlerContext channelHandlerContext, HTTPCarbonMessage requestMsg) {
+    public HttpOutboundRespListener(ChannelHandlerContext channelHandlerContext, HTTPCarbonMessage requestMsg) {
         this.sourceContext = channelHandlerContext;
         this.requestDataHolder = new RequestDataHolder(requestMsg);
         this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
@@ -50,8 +50,6 @@ public class HttpResponseListener implements HttpConnectorListener {
 
     @Override
     public void onMessage(HTTPCarbonMessage httpResponseMessage) {
-        Util.setupTransferEncodingAndContentTypeForResponse(httpResponseMessage, requestDataHolder);
-
         sourceContext.channel().eventLoop().execute(() -> {
             boolean keepAlive = isKeepAlive(httpResponseMessage);
 
@@ -59,6 +57,7 @@ public class HttpResponseListener implements HttpConnectorListener {
                 handlerExecutor.executeAtSourceResponseReceiving(httpResponseMessage);
             }
 
+            Util.setupTransferEncodingAndContentTypeForResponse(httpResponseMessage, requestDataHolder);
             final HttpResponse response = Util.createHttpResponse(httpResponseMessage, keepAlive);
             sourceContext.write(response);
 
