@@ -49,22 +49,22 @@ public class ServiceTest {
     @Test
     public void testServiceDispatching() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
         // TODO: Improve with more assets
     }
-    
+
     @Test
     public void testServiceDispatchingWithWorker() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/message_worker", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
     }
 
     @Test(description = "Test for service availability check")
     public void testServiceAvailabilityCheck() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/foo/message", "GET");
-        HTTPCarbonMessage invoke = Services.invokeNew(cMsg);
+        HTTPCarbonMessage invoke = Services.invokeNew(compileResult, cMsg);
         Assert.assertEquals(invoke.getMessageDataSource().getMessageAsString(),
                 "no matching service found for path : /foo/message");
     }
@@ -72,7 +72,7 @@ public class ServiceTest {
     @Test(description = "Test for resource availability check")
     public void testResourceAvailabilityCheck() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/bar", "GET");
-        HTTPCarbonMessage invoke = Services.invokeNew(cMsg);
+        HTTPCarbonMessage invoke = Services.invokeNew(compileResult, cMsg);
         Assert.assertEquals(invoke.getMessageDataSource().getMessageAsString(),
                 "no matching resource found for path : /echo/bar , method : GET");
     }
@@ -83,7 +83,7 @@ public class ServiceTest {
         cMsg.waitAndReleaseAllEntities();
         cMsg.addMessageBody(ByteBuffer.wrap("hello".getBytes()));
         cMsg.setEndOfMsgAdded(true);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
 
         Assert.assertNotNull(response);
     }
@@ -91,7 +91,7 @@ public class ServiceTest {
     @Test(dependsOnMethods = "testSetString")
     public void testGetString() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/getString", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -102,7 +102,7 @@ public class ServiceTest {
     @Test(description = "Test accessing service level variable in resource")
     public void testGetServiceLevelString() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/getServiceLevelString", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -113,7 +113,7 @@ public class ServiceTest {
     @Test(description = "Test using constant as annotation attribute value")
     public void testConstantValueAsAnnAttributeVal() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/constantPath", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -128,10 +128,10 @@ public class ServiceTest {
         setStringCMsg.waitAndReleaseAllEntities();
         setStringCMsg.addMessageBody(ByteBuffer.wrap(stringPayload.getBytes()));
         setStringCMsg.setEndOfMsgAdded(true);
-        Services.invokeNew(setStringCMsg);
+        Services.invokeNew(compileResult, setStringCMsg);
 
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/getString", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -145,7 +145,7 @@ public class ServiceTest {
         cMsg.setHeader("header1", "wso2");
         cMsg.setHeader("header2", "ballerina");
         cMsg.setHeader("header3", "hello");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
         Assert.assertNull(response.getHeader("header1"));
@@ -158,7 +158,7 @@ public class ServiceTest {
         String path = "/echo/getFormParams";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&team=BalDance");
         cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -173,7 +173,7 @@ public class ServiceTest {
         String path = "/echo/getFormParams";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
         cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -185,7 +185,7 @@ public class ServiceTest {
         String path = "/echo/getFormParams";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "");
         cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -197,7 +197,7 @@ public class ServiceTest {
     public void testGetFormParamsWithUnsupportedMediaType() {
         String path = "/echo/getFormParams";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -209,7 +209,7 @@ public class ServiceTest {
     public void testPATCHMethodWithBody() {
         String path = "/echo/modify";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "PATCH", "WSO2");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 204);
@@ -219,7 +219,7 @@ public class ServiceTest {
     public void testPATCHMethodWithoutBody() {
         String path = "/echo/modify";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "PATCH");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 204);

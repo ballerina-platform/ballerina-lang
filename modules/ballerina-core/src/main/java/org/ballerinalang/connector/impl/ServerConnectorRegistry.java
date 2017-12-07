@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeKeyValuePair;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
@@ -36,6 +37,7 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * {@code ServerConnectorRegistry} This will hold all server connectors registered at ballerina side.
@@ -45,12 +47,21 @@ import java.util.ServiceLoader;
  */
 public class ServerConnectorRegistry {
 
-    private static ServerConnectorRegistry instance = new ServerConnectorRegistry();
+    private static final Map<ProgramFile, ServerConnectorRegistry> CONNECTOR_REGISTRY_MAP = new ConcurrentHashMap<>();
     private Map<String, BallerinaServerConnector> serverConnectorMap = new HashMap<>();
     private boolean initialized = false;
 
-    public static ServerConnectorRegistry getInstance() {
-        return instance;
+    public static ServerConnectorRegistry getInstance(ProgramFile programFile) {
+        if (!CONNECTOR_REGISTRY_MAP.containsKey(programFile)) {
+            ServerConnectorRegistry connectorRegistry = new ServerConnectorRegistry();
+            CONNECTOR_REGISTRY_MAP.put(programFile, connectorRegistry);
+            return connectorRegistry;
+        }
+        return CONNECTOR_REGISTRY_MAP.get(programFile);
+    }
+
+    public static void cleanup(ProgramFile programFile) {
+        CONNECTOR_REGISTRY_MAP.remove(programFile);
     }
 
     public void initServerConnectors() {
@@ -91,15 +102,6 @@ public class ServerConnectorRegistry {
         }
         Service service = buildService(serviceInfo);
         serverConnectorMap.get(serviceInfo.getProtocolPkgPath()).serviceRegistered(service);
-    }
-
-    public void unRegisterService(ServiceInfo serviceInfo) {
-        if (!serverConnectorMap.containsKey(serviceInfo.getProtocolPkgPath())) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_SERVICE_PROTOCOL,
-                    serviceInfo.getProtocolPkgPath());
-        }
-        Service service = buildService(serviceInfo);
-        serverConnectorMap.get(serviceInfo.getProtocolPkgPath()).serviceUnregistered(service);
     }
 
     /**

@@ -83,7 +83,7 @@ public class ResponseNativeFunctionSuccessTest {
         String value = "ballerina";
         String path = "/hello/addheader/" + key + "/" + value;
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -120,7 +120,7 @@ public class ResponseNativeFunctionSuccessTest {
         String value = "ballerina";
         String path = "/hello/cloneMethod/" + value;
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -169,7 +169,7 @@ public class ResponseNativeFunctionSuccessTest {
         String length = "10";
         String path = "/hello/getContentLength/" + header + "/" + length;
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -197,7 +197,7 @@ public class ResponseNativeFunctionSuccessTest {
         String value = "x-www-form-urlencoded";
         String path = "/hello/getHeader/" + header + "/" + value;
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -227,7 +227,7 @@ public class ResponseNativeFunctionSuccessTest {
         String value = "ballerina";
         String path = "/hello/getJsonPayload/" + value;
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getMessageDataSource().toString(), value);
@@ -255,7 +255,7 @@ public class ResponseNativeFunctionSuccessTest {
         String propertyValue = "Ballerina";
         String path = "/hello/GetProperty/" + propertyName + "/" + propertyValue;
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -284,7 +284,7 @@ public class ResponseNativeFunctionSuccessTest {
         String value = "ballerina";
         String path = "/hello/GetStringPayload/" + value;
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), value);
@@ -312,7 +312,7 @@ public class ResponseNativeFunctionSuccessTest {
         String value = "ballerina";
         String path = "/hello/GetXmlPayload";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), value);
@@ -341,7 +341,7 @@ public class ResponseNativeFunctionSuccessTest {
         String value = "x-www-form-urlencoded";
         String path = "/hello/RemoveHeader/" + key + "/" + value;
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -371,7 +371,7 @@ public class ResponseNativeFunctionSuccessTest {
     public void testServiceRemoveAllHeaders() {
         String path = "/hello/RemoveAllHeaders";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -382,7 +382,7 @@ public class ResponseNativeFunctionSuccessTest {
     public void testSendMethod() {
         String path = "/hello/11";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
     }
@@ -406,7 +406,7 @@ public class ResponseNativeFunctionSuccessTest {
     public void testServiceSetContentLength() {
         String path = "/hello/setContentLength";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -470,7 +470,7 @@ public class ResponseNativeFunctionSuccessTest {
         String phase = "ballerina";
         String path = "/hello/12/" + phase;
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_REASON_PHRASE), phase);
@@ -480,7 +480,7 @@ public class ResponseNativeFunctionSuccessTest {
     public void testSetStatusCode() {
         String path = "/hello/13";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 203);
@@ -524,7 +524,7 @@ public class ResponseNativeFunctionSuccessTest {
     public void testForwardMethod() {
         String path = "/hello/14";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), "hello"

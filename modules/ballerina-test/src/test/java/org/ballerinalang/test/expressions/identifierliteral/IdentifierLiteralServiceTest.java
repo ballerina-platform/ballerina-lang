@@ -46,7 +46,7 @@ public class IdentifierLiteralServiceTest {
     @Test(description = "Test using identifier literals in service and resource names")
     public void testUsingIdentifierLiteralsInServiceAndResourceNames() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/identifierLiteral/resource", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
         Assert.assertNotNull(response);
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("key").asText(), "keyVal");
@@ -56,7 +56,7 @@ public class IdentifierLiteralServiceTest {
     @Test(description = "Test identifier literals payload")
     public void testIdentifierLiteralsInPayload() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/identifierLiteral/resource2", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
         Assert.assertNotNull(response);
         String payload = response.getMessageDataSource().getMessageAsString();
         Assert.assertEquals(payload, "hello");

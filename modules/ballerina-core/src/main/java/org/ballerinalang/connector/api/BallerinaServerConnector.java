@@ -43,14 +43,6 @@ public interface BallerinaServerConnector {
     void serviceRegistered(Service service) throws BallerinaConnectorException;
 
     /**
-     * This will fire a service un-registration event to the server connector implementation.
-     *
-     * @param service to be un-registered
-     * @throws BallerinaConnectorException if an error occurs
-     */
-    void serviceUnregistered(Service service) throws BallerinaConnectorException;
-
-    /**
      * This will fire a deployment complete event so to the server connector implementation.
      *
      * @throws BallerinaConnectorException if an error occurs

@@ -111,12 +111,12 @@ public class LauncherUtils {
     public static void runServices(ProgramFile programFile) {
         PrintStream outStream = System.out;
 
-        ServerConnectorRegistry.getInstance().initServerConnectors();
+        ServerConnectorRegistry.getInstance(programFile).initServerConnectors();
 
         outStream.println("ballerina: deploying service(s) in '" + programFile.getProgramFilePath() + "'");
         BLangProgramRunner.runService(programFile);
 
-        ServerConnectorRegistry.getInstance().deploymentComplete();
+        ServerConnectorRegistry.getInstance(programFile).deploymentComplete();
     }
 
     public static Path getSourceRootPath(String sourceRoot) {

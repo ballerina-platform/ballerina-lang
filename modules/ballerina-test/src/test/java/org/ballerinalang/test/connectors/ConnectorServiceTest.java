@@ -47,7 +47,7 @@ public class ConnectorServiceTest {
     public void testAction3Resource() {
 
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/invoke/action3", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(result, cMsg);
 
         Assert.assertNotNull(response);
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -59,7 +59,7 @@ public class ConnectorServiceTest {
     public void testAction1Resource() {
 
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/invoke/action1", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(result, cMsg);
 
         Assert.assertNotNull(response);
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -70,10 +70,10 @@ public class ConnectorServiceTest {
     @Test(description = "Test action1Resource after calling action2Resource", priority = 2)
     public void testAction2Resource() {
         HTTPTestRequest action2Req = MessageUtils.generateHTTPMessage("/invoke/action2", "GET");
-        Services.invokeNew(action2Req);
+        Services.invokeNew(result, action2Req);
 
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/invoke/action1", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(result, cMsg);
 
         Assert.assertNotNull(response);
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -84,7 +84,7 @@ public class ConnectorServiceTest {
     @Test(description = "Test action5Resource")
     public void testAction5Resource() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/invoke/action5", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(result, cMsg);
 
         Assert.assertNotNull(response);
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -95,7 +95,7 @@ public class ConnectorServiceTest {
     @Test(description = "Test action6Resource")
     public void testAction6Resource() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/invoke/action6", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(result, cMsg);
 
         Assert.assertNotNull(response);
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();

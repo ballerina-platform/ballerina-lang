@@ -46,7 +46,7 @@ public class UriTemplateDefaultDispatcherTest {
     public void testServiceNameDispatchingWhenBasePathUndefined() {
         String path = "/serviceName";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -58,7 +58,7 @@ public class UriTemplateDefaultDispatcherTest {
     public void testServiceNameDispatchingWithEmptyBasePath() {
         String path = "/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -70,7 +70,7 @@ public class UriTemplateDefaultDispatcherTest {
     public void testServiceNameDispatchingWhenAnnotationUnavailable() {
         String path = "/serviceWithNoAnnotation/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());

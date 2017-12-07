@@ -23,6 +23,7 @@ import org.ballerinalang.connector.impl.StructHelper;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructInfo;
 
 /**
@@ -77,7 +78,7 @@ public class ConnectorUtils extends StructHelper {
      * @param protocolPkgPath   of the server connector.
      * @return  ballerinaServerConnector object.
      */
-    public static BallerinaServerConnector getBallerinaServerConnector(String protocolPkgPath) {
-        return ServerConnectorRegistry.getInstance().getBallerinaServerConnector(protocolPkgPath);
+    public static BallerinaServerConnector getBallerinaServerConnector(ProgramFile progFile, String protocolPkgPath) {
+        return ServerConnectorRegistry.getInstance(progFile).getBallerinaServerConnector(protocolPkgPath);
     }
 }

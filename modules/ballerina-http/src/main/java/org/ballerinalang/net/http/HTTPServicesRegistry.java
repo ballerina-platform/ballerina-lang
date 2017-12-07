@@ -120,34 +120,6 @@ public class HTTPServicesRegistry {
         postProcessService(service);
     }
 
-    /**
-     * Removing service from the service registry.
-     *
-     * @param service requested service to be removed.
-     */
-    public void unregisterService(HttpService service) {
-        Annotation annotation = service.getBalService()
-                .getAnnotation(Constants.HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
-
-        String basePath = discoverBasePathFrom(service, annotation);
-        service.setBasePath(basePath);
-        Set<ListenerConfiguration> listenerConfigurationSet = HttpUtil.getDefaultOrDynamicListenerConfig(annotation);
-
-        for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
-            String entryListenerInterface = listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
-            Map<String, HttpService> servicesOnInterface = servicesInfoMap.get(entryListenerInterface);
-            if (servicesOnInterface == null) {
-                continue;
-            }
-            servicesOnInterface.remove(basePath);
-            if (servicesOnInterface.isEmpty()) {
-                servicesInfoMap.remove(entryListenerInterface);
-                HttpConnectionManager.getInstance().closeIfLast(entryListenerInterface);
-            }
-        }
-        sortedServiceURIs.remove(service.getBasePath());
-    }
-
     private String discoverBasePathFrom(HttpService service, Annotation annotation) {
         String basePath = service.getName();
         if (annotation == null) {

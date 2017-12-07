@@ -38,7 +38,7 @@ public class HttpToWebSocketUpgradeTestCase {
         CompileResult compileResult =
                 BServiceUtil.setupProgramFile(this,
                                               "test-src/net/ws/http-to-websocket-upgrade-without-base-path.bal");
-        validateSeverEndpoints();
+        validateSeverEndpoints(compileResult);
         BServiceUtil.cleanup(compileResult);
     }
 
@@ -47,7 +47,7 @@ public class HttpToWebSocketUpgradeTestCase {
         CompileResult compileResult =
                 BServiceUtil.setupProgramFile(this,
                                               "test-src/net/ws/http-to-websocket-upgrade-without-upgrade-ann.bal");
-        validateSeverEndpoints();
+        validateSeverEndpoints(compileResult);
         BServiceUtil.cleanup(compileResult);
     }
 
@@ -55,7 +55,7 @@ public class HttpToWebSocketUpgradeTestCase {
     public void testSuccessfulUpgradeEndpointWithBasePathInBothEndpoints() {
         CompileResult compileResult =
                 BServiceUtil.setupProgramFile(this, "test-src/net/ws/http-to-websocket-upgrade-both-base-paths.bal");
-        validateSeverEndpoints();
+        validateSeverEndpoints(compileResult);
         BServiceUtil.cleanup(compileResult);
     }
 
@@ -64,7 +64,7 @@ public class HttpToWebSocketUpgradeTestCase {
     public void testWrongServiceName() {
         CompileResult compileResult = BServiceUtil.setupProgramFile(
                 this, "test-src/net/ws/http-to-websocket-upgrade-service-name-negative.bal");
-        validateSeverEndpoints();
+        validateSeverEndpoints(compileResult);
         BServiceUtil.cleanup(compileResult);
     }
 
@@ -74,13 +74,13 @@ public class HttpToWebSocketUpgradeTestCase {
     public void testHostPortWithoutBasePath() {
         CompileResult compileResult = BServiceUtil.setupProgramFile(
                 this, "test-src/net/ws/http-to-websocket-upgrade-host-port-without-basepath-negative.bal");
-        validateSeverEndpoints();
+        validateSeverEndpoints(compileResult);
         BServiceUtil.cleanup(compileResult);
     }
 
-    private void validateSeverEndpoints()throws BallerinaConnectorException {
-        HttpServerConnector httpServerConnector =
-                (HttpServerConnector) ConnectorUtils.getBallerinaServerConnector(Constants.HTTP_PACKAGE_PATH);
+    private void validateSeverEndpoints(CompileResult compileResult) throws BallerinaConnectorException {
+        HttpServerConnector httpServerConnector = (HttpServerConnector) ConnectorUtils.
+                getBallerinaServerConnector(compileResult.getProgFile(), Constants.HTTP_PACKAGE_PATH);
         httpServerConnector.getWebSocketServicesRegistry().validateSeverEndpoints();
     }
 }

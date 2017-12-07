@@ -67,17 +67,6 @@ public class HttpServerConnector implements BallerinaServerConnector {
     }
 
     @Override
-    public void serviceUnregistered(Service service) throws BallerinaConnectorException {
-        if (service.getProtocolPackage().equals(PROTOCOL_PACKAGE_HTTP)) {
-            HttpService httpService = new HttpService(service);
-            httpServicesRegistry.unregisterService(httpService);
-        } else if (service.getProtocolPackage().equals(PROTOCOL_PACKAGE_WS)) {
-            WebSocketService webSocketService = new WebSocketService(service);
-            webSocketServicesRegistry.unregisterService(webSocketService);
-        }
-    }
-
-    @Override
     public void deploymentComplete() throws BallerinaConnectorException {
         webSocketServicesRegistry.validateSeverEndpoints();
         HttpUtil.startPendingHttpConnectors(this);
