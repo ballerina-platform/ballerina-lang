@@ -32,11 +32,10 @@ import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.execution.query.StoreQuery;
 import org.wso2.siddhi.query.api.execution.query.input.store.InputStore;
+import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -77,15 +76,15 @@ public class RecreateInMemoryData {
         // Get all events from table corresponding to max duration
         Table tableForMaxDuration = aggregationTables.get(incrementalDurations.get(incrementalDurations.size() - 1));
         StoreQuery storeQuery = StoreQuery.query()
-                .from(InputStore.store(tableForMaxDuration.getTableDefinition().getId()));
+                .from(InputStore.store(tableForMaxDuration.getTableDefinition().getId()))
+                .select(Selector.selector().orderBy(Expression.variable("_TIMESTAMP")));
         StoreQueryRuntime storeQueryRuntime = StoreQueryParser.parse(storeQuery, siddhiAppContext, tableMap, windowMap,
                 aggregationMap);
 
         // Get latest event timestamp in tableForMaxDuration
         events = storeQueryRuntime.execute();
         if (events != null) {
-            sortedEvents = sortedEvents(events);
-            latestEventTimestamp = (Long) sortedEvents.get(sortedEvents.size() - 1).getData(0);
+            latestEventTimestamp = (Long) events[events.length - 1].getData(0);
         }
 
         for (int i = incrementalDurations.size() - 1; i > 0; i--) {
@@ -97,23 +96,24 @@ public class RecreateInMemoryData {
             Table recreateFromTable = aggregationTables.get(incrementalDurations.get(i - 1));
 
             if (latestEventTimestamp == null) {
-                storeQuery = StoreQuery.query().from(InputStore.store(recreateFromTable.getTableDefinition().getId()));
+                storeQuery = StoreQuery.query().from(InputStore.store(recreateFromTable.getTableDefinition().getId()))
+                        .select(Selector.selector().orderBy(Expression.variable("_TIMESTAMP")));
             } else {
                 Expression findMaxCondition = Expression.compare(Expression.variable("_TIMESTAMP"),
                         Compare.Operator.GREATER_THAN, Expression.value(latestEventTimestamp));
                 storeQuery = StoreQuery.query()
-                        .from(InputStore.store(recreateFromTable.getTableDefinition().getId()).on(findMaxCondition));
+                        .from(InputStore.store(recreateFromTable.getTableDefinition().getId()).on(findMaxCondition))
+                        .select(Selector.selector().orderBy(Expression.variable("_TIMESTAMP")));
             }
 
             storeQueryRuntime = StoreQueryParser.parse(storeQuery, siddhiAppContext, tableMap, windowMap,
                     aggregationMap);
             events = storeQueryRuntime.execute();
             if (events != null) {
-                sortedEvents = sortedEvents(events);
-                latestEventTimestamp = (Long) sortedEvents.get(sortedEvents.size() - 1).getData(0);
+                latestEventTimestamp = (Long) events[events.length - 1].getData(0);
 
                 ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<>(false);
-                for (Event event : sortedEvents) {
+                for (Event event : events) {
                     StreamEvent streamEvent = streamEventPool.borrowEvent();
                     streamEvent.setOutputData(event.getData());
                     complexEventChunk.add(streamEvent);
@@ -121,22 +121,5 @@ public class RecreateInMemoryData {
                 incrementalExecutor.execute(complexEventChunk);
             }
         }
-    }
-
-    private static List<Event> sortedEvents(Event[] events) {
-        List<Event> eventList = Arrays.asList((Event[]) events);
-
-        Comparator<Event> eventComparator = (firstEvent, secondEvent) -> {
-            long firstEventTimestamp = (long) firstEvent.getData()[0];
-            long secondEventTimestamp = (long) secondEvent.getData()[0];
-            if (firstEventTimestamp > secondEventTimestamp) {
-                return 1;
-            } else if (firstEventTimestamp < secondEventTimestamp) {
-                return -1;
-            }
-            return 0;
-        };
-        eventList.sort(eventComparator);
-        return eventList;
     }
 }
