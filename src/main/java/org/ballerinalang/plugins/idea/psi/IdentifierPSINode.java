@@ -300,6 +300,15 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                 }
                 reference = identifier.findReferenceAt(identifier.getTextLength());
             }
+            FunctionInvocationNode functionInvocationNode = PsiTreeUtil.getChildOfType(prevSibling,
+                    FunctionInvocationNode.class);
+            if (functionInvocationNode != null) {
+                FunctionReferenceNode functionReferenceNode = PsiTreeUtil.getChildOfType(functionInvocationNode,
+                        FunctionReferenceNode.class);
+                if (functionReferenceNode != null) {
+                    return new NameReference(this);
+                }
+            }
             if (reference == null) {
                 reference = prevSibling.findReferenceAt(prevSibling.getTextLength());
             }
@@ -326,6 +335,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
             if (connectorReferenceNode != null) {
                 return new ActionInvocationReference(this);
             }
+        } else if (definitionNode instanceof FunctionDefinitionNode) {
+            return new NameReference(this);
         }
         reference = checkAndSuggestReferenceAfterDot();
         if (reference != null) {

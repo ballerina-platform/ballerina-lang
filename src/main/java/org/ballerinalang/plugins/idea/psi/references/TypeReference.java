@@ -42,7 +42,11 @@ public class TypeReference extends BallerinaElementReference {
     @Nullable
     @Override
     public PsiElement resolve() {
-        IdentifierPSINode identifier = getElement();
+        return resolve(typeNameNode, getElement());
+    }
+
+    @Nullable
+    public static PsiElement resolve(PsiElement typeNameNode, IdentifierPSINode identifier) {
         String valueTypeName = typeNameNode.getText();
         Project project = typeNameNode.getProject();
         PsiFile psiFile = BallerinaPsiImplUtil.findPsiFileInSDK(project, typeNameNode,
@@ -63,6 +67,11 @@ public class TypeReference extends BallerinaElementReference {
     @NotNull
     @Override
     public Object[] getVariants() {
+        return getVariants(typeNameNode);
+    }
+
+    @NotNull
+    public static Object[] getVariants(PsiElement typeNameNode) {
         String valueTypeName = typeNameNode.getText();
         Project project = typeNameNode.getProject();
         PsiFile psiFile = BallerinaPsiImplUtil.findPsiFileInSDK(project, typeNameNode,

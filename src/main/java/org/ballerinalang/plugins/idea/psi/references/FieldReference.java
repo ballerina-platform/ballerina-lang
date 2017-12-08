@@ -38,6 +38,7 @@ import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -196,7 +197,9 @@ public class FieldReference extends BallerinaElementReference {
                             BallerinaPsiImplUtil.getReturnTypes(((FunctionDefinitionNode) parent));
                     if (returnTypes.size() == 1) {
                         TypeNameNode typeNameNode = returnTypes.get(0);
-                        reference = typeNameNode.findReferenceAt(typeNameNode.getTextLength());
+                        List<LookupElement> functions =
+                                Arrays.asList((LookupElement[]) TypeReference.getVariants(typeNameNode));
+                        return functions.toArray(new LookupElement[functions.size()]);
                     }
                 }
             }
