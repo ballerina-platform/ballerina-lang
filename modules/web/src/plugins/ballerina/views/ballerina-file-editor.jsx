@@ -211,6 +211,13 @@ class BallerinaFileEditor extends React.Component {
             type: CHANGE_EVT_TYPES.TREE_MODIFIED, originEvt: evt,
         });
         this.props.commandProxy.dispatch(EVENTS.ACTIVE_BAL_AST_CHANGED, { ast: this.state.model });
+        if (evt.type === EVENTS.UPDATE_PACKAGE_DECLARATION) {
+            this.props.commandProxy.dispatch(EVENTS.UPDATE_PACKAGE_DECLARATION, {
+                packageName: evt.data.packageName,
+                file: this.props.file,
+                ast: this.state.model,
+            });
+        }
     }
 
     /**

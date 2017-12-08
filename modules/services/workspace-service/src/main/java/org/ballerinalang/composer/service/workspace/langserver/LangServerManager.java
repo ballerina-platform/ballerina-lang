@@ -16,6 +16,7 @@
 
 package org.ballerinalang.composer.service.workspace.langserver;
 
+import com.google.gson.JsonParser;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.ballerinalang.composer.service.workspace.composerapi.ComposerApiImpl;
@@ -37,6 +38,8 @@ public class LangServerManager {
     private Endpoint languageServerServiceEndpoint;
 
     private RequestHandler requestHandler;
+
+    private static final String ID_KEY = "id";
 
     /**
      * Private constructor.
@@ -74,8 +77,12 @@ public class LangServerManager {
     }
 
     void processFrame(String json) {
+        JsonParser parser = new JsonParser();
+        boolean isNotification = !parser.parse(json).getAsJsonObject().has(ID_KEY);
         String response = requestHandler.routeRequestAndNotify(languageServerServiceEndpoint, json);
-        langServerSession.getChannel().write(new TextWebSocketFrame(response));
-        langServerSession.getChannel().flush();
+        if (!isNotification) {
+            langServerSession.getChannel().write(new TextWebSocketFrame(response));
+            langServerSession.getChannel().flush();
+        }
     }
 }

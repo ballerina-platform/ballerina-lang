@@ -20,7 +20,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import _ from 'lodash';
 import PropTypes, { instanceOf } from 'prop-types';
 import { EVENTS as EDITOR_EVENTS } from 'core/editor/constants';
-import DefaultTools from './item-provider/default-tools';
+import DefaultTools from './item-provider/default-design-tools';
 import ToolGroupView from './tool-group-view';
 import './tool-palette.css';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
@@ -84,20 +84,6 @@ class ToolsPane extends React.Component {
                         More connectors
                     </a>
                 </ToolsPanel>
-                { renderMode !== 'action' && <ToolsPanel name='Libraries'>
-                    {this.props.library}
-                    <a
-                        role='button'
-                        tabIndex='-1'
-                        className='tool-palette-add-button'
-                        onClick={() => this.changePane('library')}
-                    >
-                        <i className='fw fw-view icon' />
-                        More libraries
-                    </a>
-                    <br />
-                </ToolsPanel>
-                }
             </div>
         );
     }
@@ -430,15 +416,6 @@ class ToolPaletteView extends React.Component {
                 endpointTool.id = 'Endpoint';
                 endpointTool.icon = 'endpoint';
                 definitions.push(endpointTool);
-
-                const connTool = {};
-                connTool.nodeFactoryMethod = DefaultNodeFactory.createConnectorDeclaration;
-                connTool.factoryArgs = args;
-                connTool.title = connectorName;
-                connTool.name = connectorName;
-                connTool.id = connectorName;
-                connTool.icon = 'connector';
-                definitions.push(connTool);
 
                 // // Connector Actions ////
                 const actionsOrdered = _.sortBy(connector.getActions(), [function (action) {

@@ -153,9 +153,9 @@ public class BLangFileRestService {
         Diagnostic.DiagnosticPosition position = node.getPosition();
         if (position != null) {
             JsonObject positionJson = new JsonObject();
-            positionJson.addProperty("startColumn", position.startColumn());
+            positionJson.addProperty("startColumn", position.getStartColumn());
             positionJson.addProperty("startLine", position.getStartLine());
-            positionJson.addProperty("endColumn", position.endColumn());
+            positionJson.addProperty("endColumn", position.getEndColumn());
             positionJson.addProperty("endLine", position.getEndLine());
             nodeJson.add("position", positionJson);
         }
@@ -377,7 +377,7 @@ public class BLangFileRestService {
                 }
 
                 error.addProperty("row", position.getStartLine());
-                error.addProperty("column", position.startColumn());
+                error.addProperty("column", position.getStartColumn());
                 error.addProperty("type", "error");
                 error.addProperty("category", errorCategoryName);
             } else {
