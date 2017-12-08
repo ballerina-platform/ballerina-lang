@@ -43,7 +43,7 @@ function main (string[] args) {
     //Select data using select action. Select action returns a datatable
     //and see datatables section for more details on how to access data.
     params = [para1];
-    datatable dt = testDB.select("SELECT * FROM STUDENT WHERE AGE = ?", params);
+    datatable dt = testDB.select("SELECT * FROM STUDENT WHERE AGE = ?", params, null);
     var jsonRes, err = <json>dt;
     println(jsonRes);
 
@@ -66,7 +66,7 @@ function main (string[] args) {
     sql:Parameter pCount = {sqlType:sql:Type.INTEGER, direction: sql:Direction.IN};
     sql:Parameter pId = {sqlType:sql:Type.INTEGER, value:1, direction: sql:Direction.OUT};
     params = [pAge, pCount, pId];
-    var results = testDB.call("{CALL GETCOUNT(?,?,?)}", params);
+    var results = testDB.call("{CALL GETCOUNT(?,?,?)}", params, null);
     var countValue, _ = (int)pCount.value;
     println("Age 10 count:" + countValue);
     var idValue, _ = (int)pId.value;

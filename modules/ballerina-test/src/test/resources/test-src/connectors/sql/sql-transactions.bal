@@ -19,7 +19,8 @@ function testLocalTransacton () (int returnVal, int count) {
         returnVal = -1;
     }
     //check whether update action is performed
-    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 200", null);
+    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 200", null,
+                                 typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
@@ -47,7 +48,8 @@ function testTransactonRollback () (int returnVal, int count) {
         // ignore.
     }
     //check whether update action is performed
-    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 210", null);
+    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 210", null,
+                                 typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
@@ -76,7 +78,8 @@ function testTransactonAbort () (int returnVal, int count) {
         returnVal = -1;
     }
     //check whether update action is performed
-    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 220", null);
+    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 220", null,
+                                 typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
@@ -108,7 +111,8 @@ function testTransactonErrorThrow () (int returnVal, int catchValue, int count) 
         catchValue = -1;
     }
     //check whether update action is performed
-    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 260", null);
+    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 260", null,
+                                 typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
@@ -140,7 +144,8 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
         returnVal = -1;
     }
     //check whether update action is performed
-    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 250", null);
+    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 250", null,
+                                 typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
@@ -164,7 +169,8 @@ function testTransactonCommitted () (int returnVal, int count) {
         returnVal = 1;
     }
     //check whether update action is performed
-    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 300", null);
+    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 300", null,
+                                 typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
@@ -202,7 +208,8 @@ function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int coun
         returnVal2 = 1;
     }
     //check whether update action is performed
-    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 400", null);
+    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 400", null,
+                                 typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
@@ -224,7 +231,7 @@ function testTransactonWithoutHandlers () (int count) {
     }
     //check whether update action is performed
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where
-                                      registrationID = 350", null);
+                                      registrationID = 350", null, typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
@@ -259,7 +266,8 @@ function testLocalTransactionFailed () (string, int) {
         a = a + " inCatch";
     }
     a = a + " afterTrx";
-    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 111", null);
+    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 111", null,
+                                 typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
@@ -301,7 +309,8 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
         a = a + " inCatch";
     }
     a = a + " afterTrx";
-    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 222", null);
+    datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 222", null,
+                                 typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;

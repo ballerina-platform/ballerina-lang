@@ -160,7 +160,7 @@ public class Types {
     }
 
     public boolean isValueType(BType type) {
-        return type.tag <= TypeTags.TYPE;
+        return type.tag < TypeTags.TYPE;
     }
 
     public boolean isAnnotationFieldType(BType type) {

@@ -15,7 +15,7 @@ public function main (string[] args) {
     runtime:sleepCurrentThread(6000);
     // Since the cache expiry time is 4 seconds, cache cleanup task runs at 5th
     // second cleans the cache while this thread was sleeping. Now this value
-    // is empty.
+    // is null.
     name, _ = (string)cache.get("Name");
     println("Name: " + name);
 }

@@ -56,7 +56,7 @@ import javax.websocket.Session;
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "clientConnectorConfig", type = TypeKind.STRUCT, structType = "ClientConnectorConfig",
-                          structPackage = Constants.WEBSOCKET_PACKAGE_NAME)
+                          structPackage = Constants.PROTOCOL_PACKAGE_WS)
         },
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Connection",
                                   structPackage = "ballerina.net.ws")}
