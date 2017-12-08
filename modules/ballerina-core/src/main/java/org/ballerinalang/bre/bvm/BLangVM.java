@@ -2490,6 +2490,7 @@ public class BLangVM {
         StackFrame frame = controlStack.currentFrame;
         while (frame != null) {
             String pck = frame.packageInfo.getPkgPath();
+            //TODO is this ok to show function name when it's a worker which is executing?
             String functionName = frame.callableUnitInfo.getName();
             LineNumberInfo callingLine = debugManager.getLineNumber(frame.packageInfo.getPkgPath(), callingIp);
             FrameInfo frameInfo = new FrameInfo(pck, functionName, callingLine.getFileName(),

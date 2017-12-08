@@ -75,8 +75,9 @@ public class StackFrame {
     
     public StackFrame prevStackFrame;
 
-    public StackFrame(PackageInfo packageInfo, int retAddrs, int[] retRegIndexes) {
-        this.packageInfo = packageInfo;
+    public StackFrame(CallableUnitInfo callableUnitInfo, int retAddrs, int[] retRegIndexes) {
+        this.callableUnitInfo = callableUnitInfo;
+        this.packageInfo = callableUnitInfo.getPackageInfo();
         this.retAddrs = retAddrs;
         this.retRegIndexes = retRegIndexes;
     }
