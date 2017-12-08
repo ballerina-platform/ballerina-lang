@@ -83,7 +83,6 @@ import java.util.stream.Collectors;
  * @since 0.94
  */
 public class TreeVisitor extends BLangNodeVisitor {
-    private String cUnitName;
     private SymbolEnv symbolEnv;
     private SymbolResolver symbolResolver;
     private boolean terminateVisitor = false;
@@ -95,13 +94,11 @@ public class TreeVisitor extends BLangNodeVisitor {
     private Map<Class, CursorPositionResolver> cursorPositionResolvers;
     private Class cursorPositionResolver;
 
-    public TreeVisitor(String cUnitName, CompilerContext compilerContext,
-                       TextDocumentPositionParams positionParams, SuggestionsFilterDataModel filterDataModel) {
-        this.cUnitName = cUnitName;
+    public TreeVisitor(TextDocumentPositionParams positionParams, SuggestionsFilterDataModel filterDataModel) {
         this.positionParams = positionParams;
         this.filterDataModel = filterDataModel;
 
-        init(compilerContext);
+        init(this.filterDataModel.getCompilerContext());
     }
 
     private void init(CompilerContext compilerContext) {
@@ -130,7 +127,7 @@ public class TreeVisitor extends BLangNodeVisitor {
 
         // Then visit each top-level element sorted using the compilation unit
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes.stream().filter(node ->
-                    node.getPosition().getSource().getCompilationUnitName().equals(this.cUnitName)
+                    node.getPosition().getSource().getCompilationUnitName().equals(filterDataModel.getFileName())
             ).collect(Collectors.toList());
 
         if (topLevelNodes.isEmpty()) {

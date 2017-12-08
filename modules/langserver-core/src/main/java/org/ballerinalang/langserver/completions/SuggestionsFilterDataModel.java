@@ -7,6 +7,7 @@ import org.antlr.v4.runtime.Vocabulary;
 import org.ballerinalang.langserver.completions.models.ModelPackage;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,8 @@ public class SuggestionsFilterDataModel {
     private Set<Map.Entry<String, ModelPackage>> packages;
     private SymbolTable symbolTable;
     private List<SymbolInfo> visibleSymbols;
+    private String fileName;
+    private CompilerContext compilerContext;
 
     public SuggestionsFilterDataModel() {
         this.visibleSymbols = new ArrayList<>();
@@ -129,5 +132,21 @@ public class SuggestionsFilterDataModel {
      */
     public void setVisibleSymbols(ArrayList<SymbolInfo> visibleSymbols) {
         this.visibleSymbols = visibleSymbols;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public CompilerContext getCompilerContext() {
+        return compilerContext;
+    }
+
+    public void setCompilerContext(CompilerContext compilerContext) {
+        this.compilerContext = compilerContext;
     }
 }
