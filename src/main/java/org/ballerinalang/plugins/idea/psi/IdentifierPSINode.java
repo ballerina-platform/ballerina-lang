@@ -55,6 +55,8 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.*;
 
 public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedElement, PsiNameIdentifierOwner {
@@ -313,8 +315,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
         }
         PsiElement definitionNode = resolvedElement.getParent();
         if (definitionNode instanceof VariableDefinitionNode) {
-            ConnectorDefinitionNode connectorDefinitionNode = BallerinaPsiImplUtil
-                    .resolveConnectorFromVariableDefinitionNode((definitionNode));
+            ConnectorDefinitionNode connectorDefinitionNode =
+                    BallerinaPsiImplUtil.resolveConnectorFromVariableDefinitionNode((definitionNode));
             if (connectorDefinitionNode != null) {
                 return new ActionInvocationReference(this);
             }
@@ -369,11 +371,21 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
         if (resolvedElement == null) {
             return null;
         }
+        // Get the return type of the function definition.
+        PsiElement parent = resolvedElement.getParent();
+        if (parent instanceof FunctionDefinitionNode) {
+            List<TypeNameNode> returnTypes = BallerinaPsiImplUtil.getReturnTypes(((FunctionDefinitionNode) parent));
+            if (returnTypes.size() == 1) {
+                return new TypeReference(this, returnTypes.get(0));
+            }
+        }
+
         if (resolvedElement.getParent() instanceof EndpointDeclarationNode) {
             return new ActionInvocationReference(this);
         }
         PsiElement type = BallerinaPsiImplUtil.getType(((IdentifierPSINode) resolvedElement));
-        if (type == null || (!(type instanceof BuiltInReferenceTypeNameNode) && !(type instanceof ValueTypeNameNode))) {
+        if (type == null || (!(type instanceof BuiltInReferenceTypeNameNode) && !(type instanceof ReferenceTypeNameNode)
+                && !(type instanceof ValueTypeNameNode))) {
             return null;
         }
         return new TypeReference(this, type);
