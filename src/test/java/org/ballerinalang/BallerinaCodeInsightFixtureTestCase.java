@@ -45,7 +45,7 @@ abstract public class BallerinaCodeInsightFixtureTestCase extends LightPlatformC
             @NotNull
             @Override
             public Sdk getSdk() {
-                return createMockSdk("0.88");
+                return createMockSdk("0.95.4");
             }
 
             @NotNull

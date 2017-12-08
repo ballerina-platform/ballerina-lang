@@ -1,5 +1,5 @@
-import ballerina.lang.system;
+import ballerina.log;
 
 function main (string[] args) {
-    system:println(<caret>)
+    log:printDebug(<caret>)
 }
