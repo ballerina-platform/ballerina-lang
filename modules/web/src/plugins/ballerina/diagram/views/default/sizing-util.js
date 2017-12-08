@@ -1427,7 +1427,7 @@ class SizingUtil {
      * @param {object} node If Object
      */
     sizeIfNode(node) {
-        this.sizeCompoundNode(node, node.getCondition());
+        this.sizeFlowChartNode(node, node.getCondition());
         // If the parent of the if node is a block node, then it is only a if statement. Otherwise it is an else-if
         let nodeHeight = node.viewState.bBox.h;
         let elseStmt = node.elseStatement;
@@ -1743,7 +1743,7 @@ class SizingUtil {
         viewState.components['drop-zone'].w = bodyWidth;
         viewState.components['statement-box'].h = bodyHeight + this.config.flowChartblockStatement.heading.height;
         viewState.components['statement-box'].w = bodyWidth;
-        viewState.bBox.h = viewState.components['statement-box'].h + viewState.components['drop-zone'].h;
+        viewState.bBox.h = this.config.statement.height + viewState.components['statement-box'].h + viewState.components['drop-zone'].h;
         viewState.bBox.w = bodyWidth;
         components.body.w = bodyWidth;
 
