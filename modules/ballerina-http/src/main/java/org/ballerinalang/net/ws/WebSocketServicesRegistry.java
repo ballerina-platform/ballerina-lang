@@ -117,9 +117,7 @@ public class WebSocketServicesRegistry {
         try {
             servicesOnInterface.parse(basePath, serviceName, new WsDataElementFactory());
         } catch (URITemplateException e) {
-            throw new BallerinaConnectorException(
-                    "service with base path :" + basePath + " already exists in listener : "
-                            + entryListenerInterface);
+            throw new BallerinaConnectorException(e.getMessage());
         }
     }
 
