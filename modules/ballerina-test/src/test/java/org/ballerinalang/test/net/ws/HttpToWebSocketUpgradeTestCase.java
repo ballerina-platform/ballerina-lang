@@ -76,6 +76,6 @@ public class HttpToWebSocketUpgradeTestCase {
     private void validateSeverEndpoints(CompileResult compileResult) throws BallerinaConnectorException {
         BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
                 getBallerinaServerConnector(compileResult.getProgFile(), Constants.HTTP_PACKAGE_PATH);
-        httpServerConnector.getWebSocketServicesRegistry().validateSeverEndpoints();
+        httpServerConnector.getWebSocketServicesRegistry().completeDeployment();
     }
 }

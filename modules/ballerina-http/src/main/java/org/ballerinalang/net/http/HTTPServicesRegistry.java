@@ -155,7 +155,7 @@ public class HTTPServicesRegistry {
         String serviceName =
                 webSocketAnn.getAnnAttrValue(Constants.ANN_WEBSOCKET_ATTR_SERVICE_NAME).getStringValue().trim();
         String uri = basePath.concat(upgradePath);
-        webSocketServicesRegistry.registerServiceByName(serviceInterface, uri, serviceName);
+        webSocketServicesRegistry.addServiceByName(serviceInterface, uri, serviceName);
     }
 
     private void postProcessService(HttpService httpService) {

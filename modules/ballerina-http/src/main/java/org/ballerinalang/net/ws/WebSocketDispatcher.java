@@ -31,6 +31,8 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
+import java.util.Map;
+
 /**
  * {@code WebSocketDispatcher} This is the web socket request dispatcher implementation which finds
  * best matching resource for incoming web socket request.
@@ -46,7 +48,7 @@ public class WebSocketDispatcher {
      * @return matching service.
      */
     public static WebSocketService findService(WebSocketServicesRegistry servicesRegistry,
-                                               WebSocketMessage webSocketMessage) {
+                                               Map<String, String> variables, WebSocketMessage webSocketMessage) {
         if (!webSocketMessage.isServerMessage()) {
             String clientServiceName = webSocketMessage.getTarget();
             WebSocketService clientService = servicesRegistry.getClientService(clientServiceName);
@@ -60,7 +62,7 @@ public class WebSocketDispatcher {
             String serviceUri = webSocketMessage.getTarget();
             serviceUri = servicesRegistry.refactorUri(serviceUri);
 
-            WebSocketService service = servicesRegistry.getServiceEndpoint(interfaceId, serviceUri);
+            WebSocketService service = servicesRegistry.matchServiceEndpoint(interfaceId, serviceUri, variables);
 
             if (service == null) {
                 throw new BallerinaConnectorException("no Service found to handle the service request: " + serviceUri);
