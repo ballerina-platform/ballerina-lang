@@ -56,7 +56,7 @@ const tools = [
         name: 'Endpoint',
         icon: 'endpoint',
         title: 'Endpoint Declaration',
-        nodeFactoryMethod: DefaultNodeFactory.createConnector,
+        nodeFactoryMethod: DefaultNodeFactory.createEndpoint,
         description: 'Participant in the integration and is used to interact with an external'
         + ' system or a service defined',
     },
@@ -90,8 +90,8 @@ const tools = [
         name: 'Action Invoke',
         icon: 'action',
         title: 'Action Invoke',
-        nodeFactoryMethod: DefaultNodeFactory.createInvocation,
-        description: 'Provide a way to invoke/call functions',
+        nodeFactoryMethod: DefaultNodeFactory.createConnectorActionInvocationAssignmentStatement,
+        description: 'Provide a way to invoke/call endpoints',
     },
     {
         id: 'if',
