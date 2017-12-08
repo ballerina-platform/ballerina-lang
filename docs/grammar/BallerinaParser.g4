@@ -481,7 +481,6 @@ expression
     |   connectorInit                                                       # connectorInitExpression
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
-    |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   TYPEOF builtInTypeName                                              # typeAccessExpression
     |   (ADD | SUB | NOT | LENGTHOF | TYPEOF) expression                    # unaryExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression
@@ -492,6 +491,7 @@ expression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
+    |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     ;
 
 //reusable productions
