@@ -40,7 +40,7 @@ const CLASS_MAP = {
  * Wraps other UI elements and provide box with a heading.
  * Enrich elements with a action box and expression editors.
  */
-class FlowChartStatementDecorator extends React.Component {
+class FlowChartWhileStatementDecorator extends React.Component {
 
     /**
      * Initialize the block decorator.
@@ -364,7 +364,7 @@ class FlowChartStatementDecorator extends React.Component {
     }
 }
 
-FlowChartStatementDecorator.defaultProps = {
+FlowChartWhileStatementDecorator.defaultProps = {
     draggable: null,
     children: null,
     undeletable: false,
@@ -382,7 +382,7 @@ FlowChartStatementDecorator.defaultProps = {
     disableDropzoneMiddleLineOverlay: false,
 };
 
-FlowChartStatementDecorator.propTypes = {
+FlowChartWhileStatementDecorator.propTypes = {
     draggable: PropTypes.func,
     title: PropTypes.string.isRequired,
     model: PropTypes.instanceOf(Node).isRequired,
@@ -421,7 +421,7 @@ FlowChartStatementDecorator.propTypes = {
     disableDropzoneMiddleLineOverlay: PropTypes.bool,
 };
 
-FlowChartStatementDecorator.contextTypes = {
+FlowChartWhileStatementDecorator.contextTypes = {
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
@@ -430,4 +430,4 @@ FlowChartStatementDecorator.contextTypes = {
     designer: PropTypes.instanceOf(Object),
 };
 
-export default breakpointHoc(FlowChartStatementDecorator);
+export default breakpointHoc(FlowChartWhileStatementDecorator);

@@ -21,7 +21,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import WhileNodeModel from 'plugins/ballerina/model/tree/while-node';
 import DropZone from 'plugins/ballerina/drag-drop/DropZone';
-import FlowChartStatementDecorator from './flowchart-statement-decorator';
+import FlowChartWhileStatementDecorator from './flowchart-while-statement-decorator';
 import './try-node.css';
 
 class WhileNode extends React.Component {
@@ -50,7 +50,7 @@ class WhileNode extends React.Component {
                     enableDragBg
                     enableCenterOverlayLine
                 />
-                <FlowChartStatementDecorator
+                <FlowChartWhileStatementDecorator
                     dropTarget={model}
                     bBox={bBox}
                     title={'while'}
