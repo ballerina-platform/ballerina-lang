@@ -20,9 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
-public class MapStructKeyValueNode extends ANTLRPsiNode {
+public class RecordKeyValueNode extends ANTLRPsiNode {
 
-    public MapStructKeyValueNode(@NotNull ASTNode node) {
+    public RecordKeyValueNode(@NotNull ASTNode node) {
         super(node);
     }
 }

@@ -35,7 +35,7 @@ public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBas
     }
 
     public void testEmptyFilePackageKeyword() {
-        doTest("p<caret>", "public", "import", "package", "typemapper", "map", "type");
+        doTest("p<caret>", "public", "import", "package", "map", "type");
     }
 
     public void testEmptyFileImportKeyword() {
@@ -53,7 +53,7 @@ public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBas
     }
 
     public void testEmptyFileWithSpaceBeforeCaretPackageKeyword() {
-        doTest("\np<caret>", "public", "import", "package", "typemapper", "map", "type");
+        doTest("\np<caret>", "public", "import", "package", "map", "type");
     }
 
     public void testEmptyFileWithSpaceBeforeCaretImportKeyword() {
@@ -71,7 +71,7 @@ public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBas
     }
 
     public void testEmptyFileWithSpaceAfterCaretPackageKeyword() {
-        doTest("p<caret>\n", "public", "import", "package", "typemapper", "map", "type");
+        doTest("p<caret>\n", "public", "import", "package", "map", "type");
     }
 
     public void testEmptyFileWithSpaceAfterCaretImportKeyword() {
@@ -89,7 +89,7 @@ public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBas
     }
 
     public void testEmptyFileWithSpacesPackageKeyword() {
-        doTest("\np<caret>\n", "public", "import", "package", "typemapper", "map", "type");
+        doTest("\np<caret>\n", "public", "import", "package", "map", "type");
     }
 
     public void testEmptyFileWithSpacesImportKeyword() {
@@ -109,7 +109,6 @@ public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBas
         expectedLookups.add("function");
         expectedLookups.add("connector");
         expectedLookups.add("struct");
-        expectedLookups.add("typemapper");
         expectedLookups.add("annotation");
         expectedLookups.add("enum");
         expectedLookups.add("transformer");
@@ -133,7 +132,6 @@ public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBas
         expectedLookups.add("function");
         expectedLookups.add("connector");
         expectedLookups.add("struct");
-        expectedLookups.add("typemapper");
         expectedLookups.add("annotation");
         expectedLookups.add("enum");
         expectedLookups.add("transformer");
@@ -156,7 +154,7 @@ public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBas
     }
 
     public void testPackageBeforeImportPartialIdentifier() {
-        doTest("p<caret>\nimport test; \nfunction A(){}", "public", "import", "package", "typemapper", "map", "type");
+        doTest("p<caret>\nimport test; \nfunction A(){}", "public", "import", "package", "map", "type");
     }
 
     public void testImportBeforeImport() {
@@ -187,7 +185,6 @@ public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBas
         expectedLookups.add("function");
         expectedLookups.add("connector");
         expectedLookups.add("struct");
-        expectedLookups.add("typemapper");
         expectedLookups.add("annotation");
         expectedLookups.add("enum");
         expectedLookups.add("test");

@@ -87,13 +87,13 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testAnnotationAttachmentPoints() {
-        doTest("annotation A attach <caret>", "service", "connector", "action", "function", "typemapper", "struct",
-                "const", "parameter", "annotation", "resource");
+        doTest("annotation A attach <caret>", "service", "connector", "action", "function", "struct", "const",
+                "parameter", "annotation", "resource");
     }
 
     public void testMultipleAnnotationAttachmentPoints() {
-        doTest("annotation A attach service, <caret>", "service", "connector", "action", "function", "typemapper",
-                "struct", "const", "parameter", "annotation", "resource");
+        doTest("annotation A attach service, <caret>", "service", "connector", "action", "function", "struct",
+                "const", "parameter", "annotation", "resource");
     }
 
     /**
@@ -1226,77 +1226,6 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testMultiLevelStructInSameFileLevel2() {
         doTest("struct Name { string firstName; } struct User { Name name; } function test(){ User user = { }; user" +
                 ".name.<caret> }", "firstName");
-    }
-
-    /**
-     * Test typemapper level lookups.
-     */
-    public void testTypeMapperIdentifier() {
-        doTest("typemapper <caret>");
-    }
-
-    public void testTypeMapperAnnotation() {
-        doCheckResult("test.bal", "@<caret> typemapper T(int)(string) {}", null, '@');
-    }
-
-    public void testTypeMapperAnnotationWithImports() {
-        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
-        doCheckResult("test.bal", "import org.test; <caret>typemapper T(int)(string) {}", null, '@', "test");
-    }
-
-    public void testTypeMapperAnnotationWithImportsNoAnnotationDefinitions() {
-        myFixture.addFileToProject("org/test/file.bal", "function test(){}");
-        doCheckResult("test.bal", "import org.test; @test<caret> typemapper T(int)(string) {}", null, ':');
-    }
-
-    public void testTypeMapperAnnotationWithImportsWithNoMatchingAnnotationDefinitions() {
-        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach test {}");
-        doCheckResult("test.bal", "import org.test; @test:<caret> typemapper T(int)(string) {}", null, null);
-    }
-
-    public void testTypeMapperAnnotationWithImportsWithMatchingAnnotationDefinitions() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; public annotation TEST attach typemapper " +
-                "{} " +
-                "annotation TEST2 attach resource {}");
-        doCheckResult("test.bal", "import org.test; @test:<caret> typemapper T(int)(string) {}", null, null, "TEST");
-    }
-
-    public void testTypeMapperAnnotationWithImportsWithMatchingAnnotationDefinitionsAutoCompletion() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; public annotation TEST attach typemapper " +
-                "{}");
-        doCheckResult("test.bal", "import org.test; @test:T<caret> typemapper T(int)(string) {}",
-                "import org.test; @test:TEST {} typemapper T(int)(string) {}", null);
-    }
-
-    public void testTypeMapperAnnotationInCurrentPackageSameFile() {
-        doCheckResult("test.bal", "annotation TEST attach typemapper {} <caret> typemapper T(int)(string) {}", null,
-                '@', "TEST");
-    }
-
-    public void testTypeMapperAnnotationInCurrentPackageSameFileAutoComplete() {
-        doCheckResult("test.bal", "annotation TEST attach typemapper {} @T<caret> typemapper T(int)(string) {}",
-                "annotation TEST attach typemapper {} @TEST {} typemapper T(int)(string) {}", null);
-    }
-
-    public void testTypeMapperAnnotationInCurrentPackageDifferentFile() {
-        myFixture.addFileToProject("file.bal", "annotation TEST attach typemapper {}");
-        doCheckResult("test.bal", "<caret> typemapper T(int)(string) {}", null, '@', "TEST");
-    }
-
-    public void testTypeMapperAnnotationInCurrentPackageDifferentFileAutoComplete() {
-        myFixture.addFileToProject("file.bal", "annotation TEST attach typemapper {}");
-        doCheckResult("test.bal", "@T<caret> typemapper T(int)(string) {}", "@TEST {} typemapper T(int)(string) {}",
-                null);
-    }
-
-    public void testTypeMapperAnnotationInCurrentPackageDifferentFileHasMoreDefinitionsAfter() {
-        myFixture.addFileToProject("file.bal", "annotation TEST attach typemapper {}");
-        doCheckResult("test.bal", "<caret> typemapper T(int)(string) {} service R{}", null, '@', "TEST");
-    }
-
-    public void testTypeMapperAnnotationInCurrentPackageSameFileHasMoreDefinitionsAfter() {
-        doCheckResult("test.bal", "annotation TEST attach typemapper {} <caret> typemapper T(int)(string) {} " +
-                "service R{}", null, '@', "TEST");
     }
 
     /**

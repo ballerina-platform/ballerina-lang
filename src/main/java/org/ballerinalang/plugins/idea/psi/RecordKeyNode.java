@@ -17,22 +17,12 @@
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiNamedElement;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
-import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public class TypeMapperNode extends ANTLRPsiNode implements ScopeNode {
+public class RecordKeyNode extends ANTLRPsiNode {
 
-    public TypeMapperNode(@NotNull ASTNode node) {
+    public RecordKeyNode(@NotNull ASTNode node) {
         super(node);
-    }
-
-    @Nullable
-    @Override
-    public PsiElement resolve(PsiNamedElement element) {
-        return null;
     }
 }
