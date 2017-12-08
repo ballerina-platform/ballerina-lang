@@ -632,6 +632,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + w() + '>'
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
             }
+        case 'TypeofExpression':
+            return w() + 'typeof' + b(' ')
+                 + getSourceOf(node.typeNode, pretty, l, replaceLambda);
         case 'UnaryExpr':
             return w() + node.operatorKind + b(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda);

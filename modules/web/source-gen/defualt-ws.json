@@ -655,6 +655,12 @@
     "before expression": "",
     "after expression": ""
   },
+  "TypeofExpression": {
+    "before typeof": "",
+    "after typeof": "",
+    "before typeNode": " ",
+    "after typeNode": ""
+  },
   "UnaryExpr": {
     "before operatorKind": "",
     "after operatorKind": "",

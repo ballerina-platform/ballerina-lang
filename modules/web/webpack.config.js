@@ -26,6 +26,7 @@ const CircularDependencyPlugin = require('circular-dependency-plugin');
 const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const WebfontPlugin = require('webpack-webfont').default;
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const WriteFilePlugin = require('write-file-webpack-plugin');
 
 const extractThemes = new ExtractTextPlugin({ filename: './[name].css', allChunks: true });
 const extractCSSBundle = new ExtractTextPlugin({ filename: './bundle-[name].css', allChunks: true });
@@ -140,6 +141,7 @@ const config = [{
             },
             hash: new Date().getTime(),
         }),
+        new WriteFilePlugin(),
         /*
         new CircularDependencyPlugin({
             exclude: /a\.css|node_modules/,
