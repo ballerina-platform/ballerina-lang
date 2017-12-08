@@ -143,6 +143,26 @@ export const blockStatement = {
     },
 };
 
+export const flowChartblockStatement = {
+    width: 140,
+    heading: {
+        width: 80,
+        height: 80,
+        paramPaddingX: 5,
+        paramSeparatorOffsetX: 20, // blockStatement.heading.width - 40
+        paramEndOffsetX: 6,
+    },
+    body: {
+        padding: {
+            top: 25,
+            right: 25,
+            bottom: 25,
+            left: 25,
+        },
+        height: 100,
+    },
+};
+
 export const fork = {
     padding: {
         top: statement.gutter.v,
