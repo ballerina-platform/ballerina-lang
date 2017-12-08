@@ -118,7 +118,7 @@ public class TernaryExpressionTest {
 
         args = new BValue[]{new BString("two")};
         results = BRunUtil.invoke(compileResult, "test7", args);
-        Assert.assertEquals(results[0].stringValue(), "");
+        Assert.assertEquals(results[0].stringValue(), null);
         Assert.assertEquals(((BInteger) results[1]).intValue(), 2);
     }
 
