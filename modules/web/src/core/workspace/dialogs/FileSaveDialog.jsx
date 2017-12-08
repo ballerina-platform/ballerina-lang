@@ -184,10 +184,10 @@ class FileSaveDialog extends React.Component {
             <div>
                 <Dialog
                     show={this.state.showDialog}
-                    title="Save File"
+                    title={this.props.mode === 'SAVE_FILE' ? 'Save File' : 'Save File As'}
                     actions={
                         <Button
-                            bsStyle="primary"
+                            bsStyle='primary'
                             onClick={this.onFileSave}
                             disabled={this.state.filePath === '' || this.state.fileName === ''}
                         >
@@ -199,7 +199,7 @@ class FileSaveDialog extends React.Component {
                     error={this.state.error}
                 >
                     <Form horizontal>
-                        <FormGroup controlId="filePath">
+                        <FormGroup controlId='filePath'>
                             <Col componentClass={ControlLabel} sm={2}>
                                 File Path
                             </Col>
@@ -219,12 +219,12 @@ class FileSaveDialog extends React.Component {
                                             filePath: evt.target.value,
                                         });
                                     }}
-                                    type="text"
-                                    placeholder="eg: /home/user/ballerina-services"
+                                    type='text'
+                                    placeholder='eg: /home/user/ballerina-services'
                                 />
                             </Col>
                         </FormGroup>
-                        <FormGroup controlId="fileName">
+                        <FormGroup controlId='fileName'>
                             <Col componentClass={ControlLabel} sm={2}>
                                 File Name
                             </Col>
@@ -244,8 +244,8 @@ class FileSaveDialog extends React.Component {
                                             fileName: evt.target.value,
                                         });
                                     }}
-                                    type="text"
-                                    placeholder="eg: routing.bal"
+                                    type='text'
+                                    placeholder='eg: routing.bal'
                                 />
                             </Col>
                         </FormGroup>
@@ -297,11 +297,13 @@ FileSaveDialog.propTypes = {
     onSaveSuccess: PropTypes.func,
     onSaveFail: PropTypes.func,
     workspaceManager: PropTypes.objectOf(Object).isRequired,
+    mode: PropTypes.string,
 };
 
 FileSaveDialog.defaultProps = {
     onSaveSuccess: () => {},
     onSaveFail: () => {},
+    mode: '',
 };
 
 export default FileSaveDialog;

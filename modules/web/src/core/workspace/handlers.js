@@ -71,6 +71,7 @@ export function getHandlerDefinitions(workspaceManager) {
                         id,
                         additionalProps: {
                             file: targetFile,
+                            mode: 'SAVE_FILE',
                             onSuccess,
                             onSaveFail,
                         },
@@ -105,6 +106,7 @@ export function getHandlerDefinitions(workspaceManager) {
                         id,
                         additionalProps: {
                             file: activeEditor.file,
+                            mode: 'SAVE_FILE_AS',
                         },
                     });
                 }
