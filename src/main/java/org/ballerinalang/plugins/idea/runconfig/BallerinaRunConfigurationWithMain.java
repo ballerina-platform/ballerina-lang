@@ -43,9 +43,9 @@ public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunni
     @NotNull
     protected RunConfigurationKind myRunKind = RunConfigurationKind.MAIN;
     @NotNull
-    private String remoteDebugHost = "";
+    private String remoteDebugHost = "127.0.0.1";
     @NotNull
-    private String remoteDebugPort = "";
+    private String remoteDebugPort = "5005";
 
     public BallerinaRunConfigurationWithMain(String name, BallerinaModuleBasedConfiguration configurationModule,
                                              ConfigurationFactory factory) {
@@ -60,10 +60,16 @@ public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunni
                 FILE_PATH_ATTRIBUTE_NAME));
         myRunKind = RunConfigurationKind.valueOf(StringUtil.notNullize(
                 JDOMExternalizerUtil.getFirstChildValueAttribute(element, KIND_ATTRIBUTE_NAME)));
-        remoteDebugHost = StringUtil.notNullize(JDOMExternalizerUtil.getFirstChildValueAttribute(element,
+        String remoteDebugHost = StringUtil.notNullize(JDOMExternalizerUtil.getFirstChildValueAttribute(element,
                 REMOTE_DEBUGGING_HOST_ATTRIBUTE_NAME));
-        remoteDebugPort = StringUtil.notNullize(JDOMExternalizerUtil.getFirstChildValueAttribute(element,
+        if (!remoteDebugHost.isEmpty()) {
+            this.remoteDebugHost = remoteDebugHost;
+        }
+        String remoteDebugPort = StringUtil.notNullize(JDOMExternalizerUtil.getFirstChildValueAttribute(element,
                 REMOTE_DEBUGGING_PORT_ATTRIBUTE_NAME));
+        if (!remoteDebugPort.isEmpty()) {
+            this.remoteDebugPort = remoteDebugPort;
+        }
     }
 
     @Override
