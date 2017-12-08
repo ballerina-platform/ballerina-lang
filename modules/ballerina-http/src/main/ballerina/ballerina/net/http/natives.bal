@@ -63,9 +63,8 @@ public native function <Request req> setStringPayload (string payload);
 @Description { value:"Gets a transport header from the request"}
 @Param { value:"req: A request message" }
 @Param { value:"headerName: The header name" }
-@Return { value:"The first header value for the provided header name" }
-@Return { value:"Indicates whether the header exists" }
-public native function <Request req> getHeader (string headerName) (string, boolean);
+@Return { value:"The first header value for the provided header name. Returns null if the header does not exist." }
+public native function <Request req> getHeader (string headerName) (string);
 
 @Description { value:"Gets the request payload as a string"}
 @Param { value:"req: A request message" }
@@ -178,9 +177,8 @@ public native function <Response res> setStringPayload (string payload);
 @Description { value:"Gets the named HTTP header from the response"}
 @Param { value:"res: The response message" }
 @Param { value:"headerName: The header name" }
-@Return { value:"The first header value for the provided header name" }
-@Return { value:"Indicates whether the header exists" }
-public native function <Response res> getHeader (string headerName) (string, boolean);
+@Return { value:"The first header value for the provided header name. Returns null if the header does not exist." }
+public native function <Response res> getHeader (string headerName) (string);
 
 @Description { value:"Gets the response payload as a string"}
 @Param { value:"res: The response message" }
@@ -452,6 +450,13 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	@Return { value:"The response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
 	native action get (string path, Request req) (Response, HttpConnectorError);
+
+	@Description { value:"OPTIONS action implementation of the HTTP Connector"}
+	@Param { value:"path: Request path" }
+	@Param { value:"req: An HTTP Request struct" }
+	@Return { value:"The response message" }
+	@Return { value:"Error occured during HTTP client invocation" }
+	native action options (string path, Request req) (Response, HttpConnectorError);
 
 	@Description { value:"forward action can be used to invoke an HTTP call with incoming request HTTPVerb"}
 	@Param { value:"path: Request path" }

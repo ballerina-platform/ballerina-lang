@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.connector.api;
 
+import java.util.List;
+
 /**
  * {@code ServerConnector} This API provides the functionality to register ballerina servers in respective server
  * connector.
@@ -26,11 +28,11 @@ package org.ballerinalang.connector.api;
 public interface BallerinaServerConnector {
 
     /**
-     * This should return relevant protocol package path.
+     * This should return relevant protocol package paths.
      *
-     * @return relevant protocol package path.
+     * @return relevant protocol package paths.
      */
-    String getProtocolPackage();
+    List<String> getProtocolPackages();
 
     /**
      * This will fire a service registration event to the server connector implementation.

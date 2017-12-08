@@ -13,6 +13,9 @@ import ballerina.net.jms;
 }
 service<jms> jmsService {
     resource onMessage (message m) {
+        endpoint<jms:ClientConnector> jmsEP {
+
+        }
         // Read a message property.
         string myProperty = messages:getProperty(m, "MyProperty");
         // Print the property values.
@@ -30,7 +33,8 @@ service<jms> jmsService {
                          "connectionFactoryName": "QueueConnectionFactory",
                          "connectionFactoryType" :"queue"};
 
-        jms:ClientConnector jmsEP = create jms:ClientConnector(properties);
+        jms:ClientConnector jmsConn = create jms:ClientConnector(properties);
+        bind jmsConn with jmsEp;
         jmsEP.send("MySecondQueue", responseMessage);
 
     }

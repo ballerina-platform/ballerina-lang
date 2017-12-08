@@ -366,7 +366,8 @@ public class XMLLiteralTest {
         Assert.assertTrue(returns[0] instanceof BXMLItem);
 
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns1=\"http://ballerina.com/b\">hello</root>");
-        Assert.assertEquals(returns[1].stringValue(), "<root xmlns:ns1=\"http://ballerina.com/b\">hello</root>");
+        Assert.assertEquals(returns[1].stringValue(),
+                "<root xmlns=\"http://ballerina.com/\" xmlns:ns1=\"http://ballerina.com/b\">hello</root>");
         Assert.assertEquals(returns[2].stringValue(),
                 "<root xmlns=\"http://ballerina.com/\" xmlns:ns1=\"http://ballerina.com/b\">hello</root>");
     }

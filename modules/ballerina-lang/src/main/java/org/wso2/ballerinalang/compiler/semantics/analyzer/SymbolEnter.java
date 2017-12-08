@@ -302,8 +302,13 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangXMLNS xmlnsNode) {
         String nsURI = (String) ((BLangLiteral) xmlnsNode.namespaceURI).value;
 
-        if (!xmlnsNode.prefix.value.isEmpty() && nsURI.isEmpty()) {
+        if (xmlnsNode.prefix.value != null && nsURI.isEmpty()) {
             dlog.error(xmlnsNode.pos, DiagnosticCode.INVALID_NAMESPACE_DECLARATION, xmlnsNode.prefix);
+        }
+
+        // set the prefix of the default namespace
+        if (xmlnsNode.prefix.value == null) {
+            xmlnsNode.prefix.value = XMLConstants.DEFAULT_NS_PREFIX;
         }
 
         BXMLNSSymbol xmlnsSymbol = Symbols.createXMLNSSymbol(names.fromIdNode(xmlnsNode.prefix), nsURI,

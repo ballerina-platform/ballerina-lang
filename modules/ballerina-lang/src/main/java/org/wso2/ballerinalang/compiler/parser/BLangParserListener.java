@@ -1655,7 +1655,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addTransactionBlock(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.addTransactionBlock(getCurrentPos(ctx));
     }
 
     /**
@@ -1663,6 +1663,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) {
+        this.pkgBuilder.endTransactionBlock(getWS(ctx));
     }
 
     /**
@@ -1792,7 +1793,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String namespaceUri = ctx.QuotedStringLiteral().getText();
         namespaceUri = namespaceUri.substring(1, namespaceUri.length() - 1);
         namespaceUri = StringEscapeUtils.unescapeJava(namespaceUri);
-        String prefix = (ctx.Identifier() != null) ? ctx.Identifier().getText() : "";
+        String prefix = (ctx.Identifier() != null) ? ctx.Identifier().getText() : null;
 
         this.pkgBuilder.addXMLNSDeclaration(getCurrentPos(ctx), getWS(ctx), namespaceUri, prefix, isTopLevel);
     }

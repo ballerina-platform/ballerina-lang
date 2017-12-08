@@ -20,6 +20,7 @@ package org.ballerinalang.bre.bvm;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
@@ -91,7 +92,7 @@ public class StackFrame {
 
         this.stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
         // Setting the zero values for strings
-        Arrays.fill(stringLocalVars, "");
+        Arrays.fill(stringLocalVars, BLangConstants.STRING_NULL_VALUE);
 
         this.intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         this.byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
@@ -126,7 +127,7 @@ public class StackFrame {
 
         this.stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
         // Setting the zero values for strings
-        Arrays.fill(stringLocalVars, "");
+        Arrays.fill(stringLocalVars, BLangConstants.STRING_NULL_VALUE);
 
         this.intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         this.byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];

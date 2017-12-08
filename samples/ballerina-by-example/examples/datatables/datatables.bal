@@ -28,7 +28,7 @@ function main (string[] args) {
 
     //Query the table using SQL connector select action. Either select or call
     //action can return a datatable.
-    datatable dt = testDB.select("SELECT * from EMPLOYEE", null);
+    datatable dt = testDB.select("SELECT * from EMPLOYEE", null, typeof Employee);
     //Iterate through the result until hasNext() become false and retrieve
     //the data struct corresponding to each row.
     while (dt.hasNext()) {
@@ -38,12 +38,12 @@ function main (string[] args) {
     }
 
     //Convert a datatable to JSON.
-    dt = testDB.select("SELECT id,name FROM EMPLOYEE", null);
+    dt = testDB.select("SELECT id,name FROM EMPLOYEE", null, null);
     var jsonRes, _ = <json>dt;
     println(jsonRes);
 
     //Convert a datatable to XML.
-    dt = testDB.select("SELECT id,name FROM EMPLOYEE", null);
+    dt = testDB.select("SELECT id,name FROM EMPLOYEE", null, null);
     var xmlRes, _ = <xml>dt;
     println(xmlRes);
 
