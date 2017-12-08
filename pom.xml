@@ -4,7 +4,31 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>plugin-vscode</artifactId>
     <packaging>pom</packaging>
-    <version>0.95.1-SNAPSHOT</version>
+    <version>0.9.1</version>
+    <repositories>
+        <repository>
+            <id>wso2.releases</id>
+            <name>WSO2 Releases Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </repository>
+        <repository>
+            <id>wso2.snapshots</id>
+            <name>WSO2 Snapshot Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -46,6 +70,6 @@
     </build>
     <properties>
         <langserver.launcher.id>language-server-stdio-launcher</langserver.launcher.id>
-        <langserver.launcher.version>0.95.1-SNAPSHOT</langserver.launcher.version>
+        <langserver.launcher.version>0.95.3</langserver.launcher.version>
     </properties>
 </project>
