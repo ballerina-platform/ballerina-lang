@@ -89,6 +89,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -724,7 +725,9 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLAttribute xmlAttribute) {
-        xmlAttribute.name = rewriteExpr(xmlAttribute.name);
+        BLangXMLAttributeQName xmlAttributeName = new BLangXMLAttributeQName();
+        xmlAttributeName.nameExpr = rewriteExpr(xmlAttribute.name);
+        xmlAttribute.name = xmlAttributeName;
         xmlAttribute.value = rewriteExpr(xmlAttribute.value);
         result = xmlAttribute;
     }
@@ -747,8 +750,8 @@ public class Desugar extends BLangNodeVisitor {
             // Create local namepace declaration for all in-line namespace declarations
             BLangLocalXMLNS xmlns = new BLangLocalXMLNS();
             xmlns.namespaceURI = attribute.value.concatExpr;
-            xmlns.prefix = ((BLangXMLQName) attribute.name).localname;
-            xmlns.symbol = (BXMLNSSymbol) attribute.symbol;
+            xmlns.prefix = ((BLangXMLQName) ((BLangXMLAttributeQName) attribute.name).nameExpr).localname;
+            xmlns.symbol = attribute.symbol;
 
             xmlElementLiteral.inlineNamespaces.add(xmlns);
             attributesItr.remove();

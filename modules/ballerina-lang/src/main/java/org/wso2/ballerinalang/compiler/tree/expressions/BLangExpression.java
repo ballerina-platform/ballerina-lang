@@ -39,9 +39,29 @@ public abstract class BLangExpression extends BLangNode implements ExpressionNod
      * This result of this expression is saved in this virtual register index. This field is used
      * during the code generation phase of the compiler.
      */
-    public int regIndex;
+    private int regIndex = -1;
 
     public boolean isMultiReturnExpr() {
         return false;
     }
+
+    public int getRegIndex() {
+        return regIndex;
+    }
+
+    /**
+     * Set registry index.
+     * Note: Use this method only when you need to explicitly set the registry index. Else use assignRegIndex
+     * method in CodeGenerator.
+     *
+     * @param regIndex set index
+     */
+    public void setRegIndex(int regIndex) {
+        this.regIndex = regIndex;
+    }
+
+    public boolean isRegIndexSet() {
+        return regIndex > -1;
+    }
+
 }
