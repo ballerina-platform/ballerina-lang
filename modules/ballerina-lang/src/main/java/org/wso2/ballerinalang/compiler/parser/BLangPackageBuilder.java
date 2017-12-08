@@ -786,6 +786,17 @@ public class BLangPackageBuilder {
         ternaryExpr.elseExpr = (BLangExpression) exprNodeStack.pop();
         ternaryExpr.thenExpr = (BLangExpression) exprNodeStack.pop();
         ternaryExpr.expr = (BLangExpression) exprNodeStack.pop();
+        if (ternaryExpr.expr.getKind() == NodeKind.TERNARY_EXPR) {
+            // Re-organizing ternary expression tree if there nested ternary expressions.
+            BLangTernaryExpr root = (BLangTernaryExpr) ternaryExpr.expr;
+            BLangTernaryExpr parent = root;
+            while (parent.elseExpr.getKind() == NodeKind.TERNARY_EXPR) {
+                parent = (BLangTernaryExpr) parent.elseExpr;
+            }
+            ternaryExpr.expr = parent.elseExpr;
+            parent.elseExpr = ternaryExpr;
+            ternaryExpr = root;
+        }
         addExpressionNode(ternaryExpr);
     }
 
