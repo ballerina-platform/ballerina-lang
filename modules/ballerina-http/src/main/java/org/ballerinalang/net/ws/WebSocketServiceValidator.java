@@ -139,7 +139,8 @@ public class WebSocketServiceValidator {
                            Constants.STRUCT_WEBSOCKET_TEXT_FRAME);
     }
 
-    private static void validateOnBinaryMessageResource(String serviceName, Resource resource, boolean isClientService) {
+    private static void validateOnBinaryMessageResource(String serviceName, Resource resource,
+                                                        boolean isClientService) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamDetailsSize(paramDetails, 2, serviceName, resource.getName(), isClientService);
         validateStructType(resource.getName(), paramDetails.get(0), Constants.PROTOCOL_PACKAGE_WS,
@@ -185,7 +186,7 @@ public class WebSocketServiceValidator {
                            Constants.STRUCT_WEBSOCKET_CLOSE_FRAME);
     }
 
-    private static void validateParamDetailsSize(List<ParamDetail> paramDetails, int expectedSize,String serviceName,
+    private static void validateParamDetailsSize(List<ParamDetail> paramDetails, int expectedSize, String serviceName,
                                                  String resourceName, boolean isClientService) {
         if (paramDetails == null || paramDetails.size() < expectedSize) {
             throw new BallerinaException(String.format("Invalid resource signature for %s in service %s",

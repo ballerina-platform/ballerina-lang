@@ -47,7 +47,8 @@ public class WebSocketServicesRegistry {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketServicesRegistry.class);
 
     // Map<interface, URITemplate<WebSocketServiceName, messageType>>
-    private final Map<String, URITemplate<String, WebSocketMessage>> serviceEndpointsTemplate = new ConcurrentHashMap<>();
+    private final Map<String, URITemplate<String, WebSocketMessage>>
+            serviceEndpointsTemplate = new ConcurrentHashMap<>();
     // Map<clientServiceName, ClientService>
     private final Map<String, WebSocketService> clientServices = new ConcurrentHashMap<>();
     // Map<ServiceName, ServiceEndpoint>

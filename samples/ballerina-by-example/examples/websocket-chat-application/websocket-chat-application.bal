@@ -1,7 +1,7 @@
 import ballerina.net.ws;
 
 @ws:configuration {
-    basePath: "/chat/ws",
+    basePath: "/chat/{lname}+{fname}/{age}",
     port:9090,
     idleTimeoutInSeconds: 3600
 }
@@ -9,9 +9,17 @@ service<ws> ChatApp {
 
     map consMap = {};
 
-    resource onOpen(ws:Connection conn) {
-        broadcast(consMap, "New client connected");
+
+    resource onHandshake(ws:HandshakeConnection conn, string fname, string lname, string age) {
+        string msg = string`{{lname}} {{fname}} with age {{age}} trying to connect to the chat`;
+        println(msg);
+    }
+
+    resource onOpen(ws:Connection conn, string fname, string lname, string age) {
         consMap[conn.getID()] = conn;
+        println(fname);
+        string msg = string`{{lname}} {{fname}} with age {{age}} connected to the chat`;
+        broadcast(consMap, msg);
     }
 
     resource onTextMessage(ws:Connection con, ws:TextFrame frame) {

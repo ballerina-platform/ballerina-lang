@@ -22,6 +22,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.Executor;
+import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -40,8 +41,8 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.websocket.Session;
@@ -55,10 +56,11 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
 
     private static final Logger log = LoggerFactory.getLogger(BallerinaWsServerConnectorListener.class);
     private final WebSocketServicesRegistry servicesRegistry;
-    private final Map<String, WsOpenConnectionInfo> openConnectionInfoMap = new ConcurrentHashMap<>();
+    private final WebSocketConnectionManager connectionManager;
 
     public BallerinaWsServerConnectorListener(WebSocketServicesRegistry servicesRegistry) {
         this.servicesRegistry = servicesRegistry;
+        this.connectionManager = WebSocketConnectionManager.getInstance();
     }
 
     @Override
@@ -78,13 +80,12 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
             // Creating map
             Map<String, String> upgradeHeaders = webSocketInitMessage.getHeaders();
             BMap<String, BString> bUpgradeHeaders = new BMap<>();
-            upgradeHeaders.entrySet().forEach(
-                    upgradeHeader -> bUpgradeHeaders.put(upgradeHeader.getKey(),
-                                                         new BString(upgradeHeader.getValue()))
-            );
+            upgradeHeaders.forEach((key, value) -> bUpgradeHeaders.put(key, new BString(value)));
             handshakeStruct.setRefField(0, bUpgradeHeaders);
-
-            BValue[] bValues = {handshakeStruct};
+            List<ParamDetail> paramDetails = onHandshakeResource.getParamDetails();
+            BValue[] bValues = new BValue[paramDetails.size()];
+            bValues[0] = handshakeStruct;
+            WebSocketDispatcher.setPathParams(bValues, paramDetails, variables, 1);
             ConnectorFuture future = Executor.execute(onHandshakeResource, null, bValues);
             future.setConnectorFutureListener(new ConnectorFutureListener() {
                 @Override
@@ -121,25 +122,25 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
 
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
-        WebSocketService wsService = openConnectionInfoMap.get(webSocketTextMessage.getSessionID()).getService();
+        WsOpenConnectionInfo wsService = connectionManager.getConnectionInfo(webSocketTextMessage.getSessionID());
         WebSocketDispatcher.dispatchTextMessage(wsService, webSocketTextMessage);
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
-        WebSocketService wsService = openConnectionInfoMap.get(webSocketBinaryMessage.getSessionID()).getService();
+        WsOpenConnectionInfo wsService = connectionManager.getConnectionInfo(webSocketBinaryMessage.getSessionID());
         WebSocketDispatcher.dispatchBinaryMessage(wsService, webSocketBinaryMessage);
     }
 
     @Override
     public void onMessage(WebSocketControlMessage webSocketControlMessage) {
-        WebSocketService wsService = openConnectionInfoMap.get(webSocketControlMessage.getSessionID()).getService();
+        WsOpenConnectionInfo wsService = connectionManager.getConnectionInfo(webSocketControlMessage.getSessionID());
         WebSocketDispatcher.dispatchControlMessage(wsService, webSocketControlMessage);
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        WebSocketService wsService = openConnectionInfoMap.get(webSocketCloseMessage.getSessionID()).getService();
+        WsOpenConnectionInfo wsService = connectionManager.removeConnection(webSocketCloseMessage.getSessionID());
         WebSocketDispatcher.dispatchCloseMessage(wsService, webSocketCloseMessage);
     }
 
@@ -150,13 +151,13 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
-        WebSocketService wsService = openConnectionInfoMap.get(controlMessage.getSessionID()).getService();
+        WsOpenConnectionInfo wsService = connectionManager.getConnectionInfo(controlMessage.getSessionID());
         WebSocketDispatcher.dispatchIdleTimeout(wsService, controlMessage);
     }
 
 
     private void handleHandshake(WebSocketInitMessage initMessage, WebSocketService wsService,
-                                 Map<String, String> variables) {
+                                 final Map<String, String> variables) {
         String[] subProtocols = wsService.getNegotiableSubProtocols();
         int idleTimeoutInSeconds = wsService.getIdleTimeoutInSeconds();
         HandshakeFuture future = initMessage.handshake(subProtocols, true, idleTimeoutInSeconds * 1000);
@@ -167,16 +168,18 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
                 wsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, session);
                 wsConnection.addNativeData(Constants.WEBSOCKET_MESSAGE, initMessage);
                 wsConnection.addNativeData(Constants.NATIVE_DATA_UPGRADE_HEADERS, initMessage.getHeaders());
-
-                WebSocketConnectionManager.getInstance().addConnection(session.getId(), wsConnection);
-                openConnectionInfoMap.put(session.getId(),
-                                          new WsOpenConnectionInfo(wsService, wsConnection, variables));
+                connectionManager.addConnection(session.getId(),
+                                                new WsOpenConnectionInfo(wsService, wsConnection, variables));
 
                 Resource onOpenResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_OPEN);
-                BValue[] bValues = {wsConnection};
                 if (onOpenResource == null) {
                     return;
                 }
+                List<ParamDetail> paramDetails =
+                        onOpenResource.getParamDetails();
+                BValue[] bValues = new BValue[paramDetails.size()];
+                bValues[0] = wsConnection;
+                WebSocketDispatcher.setPathParams(bValues, paramDetails, variables, 1);
                 ConnectorFuture future = Executor.submit(onOpenResource, null, bValues);
                 future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
             }
