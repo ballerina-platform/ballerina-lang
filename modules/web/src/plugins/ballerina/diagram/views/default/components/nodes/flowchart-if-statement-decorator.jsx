@@ -40,7 +40,7 @@ const CLASS_MAP = {
  * Wraps other UI elements and provide box with a heading.
  * Enrich elements with a action box and expression editors.
  */
-class FlowChartWhileStatementDecorator extends React.Component {
+class FlowChartIfStatementDecorator extends React.Component {
 
     /**
      * Initialize the block decorator.
@@ -266,15 +266,7 @@ class FlowChartWhileStatementDecorator extends React.Component {
                 }}
             >
                 <polyline
-                    points={`${statementBBox.x},${p2Y} ${statementBBox.x},${p3Y + statementBBox.h} ${statementBBox.x + (statementBBox.w / 2)},${p3Y + statementBBox.h}`}
-                    className='background-empty-rect'
-                />
-                <ArrowDecorator
-                    start={{ x: statementBBox.x, y: p2Y }}
-                    end={{ x: p2X, y: p2Y }}
-                />
-                <polyline
-                    points={`${p4X},${p4Y} ${statementBBox.x + statementBBox.w},${p2Y} ${statementBBox.x + statementBBox.w},${p3Y + statementBBox.h + defaultTitleH}`}
+                    points={`${p4X},${p4Y} ${statementBBox.x + statementBBox.w},${p2Y} ${statementBBox.x + statementBBox.w}, ${p3Y + statementBBox.h + defaultTitleH}`}
                     className='background-empty-rect'
                 />
                 <ArrowDecorator
@@ -369,7 +361,7 @@ class FlowChartWhileStatementDecorator extends React.Component {
     }
 }
 
-FlowChartWhileStatementDecorator.defaultProps = {
+FlowChartIfStatementDecorator.defaultProps = {
     draggable: null,
     children: null,
     undeletable: false,
@@ -387,7 +379,7 @@ FlowChartWhileStatementDecorator.defaultProps = {
     disableDropzoneMiddleLineOverlay: false,
 };
 
-FlowChartWhileStatementDecorator.propTypes = {
+FlowChartIfStatementDecorator.propTypes = {
     draggable: PropTypes.func,
     title: PropTypes.string.isRequired,
     model: PropTypes.instanceOf(Node).isRequired,
@@ -426,7 +418,7 @@ FlowChartWhileStatementDecorator.propTypes = {
     disableDropzoneMiddleLineOverlay: PropTypes.bool,
 };
 
-FlowChartWhileStatementDecorator.contextTypes = {
+FlowChartIfStatementDecorator.contextTypes = {
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
@@ -435,4 +427,4 @@ FlowChartWhileStatementDecorator.contextTypes = {
     designer: PropTypes.instanceOf(Object),
 };
 
-export default breakpointHoc(FlowChartWhileStatementDecorator);
+export default breakpointHoc(FlowChartIfStatementDecorator);
