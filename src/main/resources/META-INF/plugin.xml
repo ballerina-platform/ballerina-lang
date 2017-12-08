@@ -189,8 +189,8 @@
         <languageInjector implementation="org.ballerinalang.plugins.idea.psi.injector.JsonLanguageInjector"/>
 
         <!--inspections-->
-        <localInspection groupPath="Ballerina" language="Ballerina" shortName="WrongPackageStatement" bundle="messages.InspectionsBundle" key="wrong.package.statement" groupKey="group.names.probable.bugs"
-                         enabledByDefault="true" level="WARNING"
+        <localInspection language="Ballerina" displayName="Wrong package statement" groupPath="Ballerina"
+                         groupName="Probable bugs" enabledByDefault="true" level="WARNING"
                          implementationClass="org.ballerinalang.plugins.idea.codeInspection.WrongPackageStatementInspection" />
 
         <localInspection language="Ballerina" displayName="Unused import inspection" groupPath="Ballerina"
