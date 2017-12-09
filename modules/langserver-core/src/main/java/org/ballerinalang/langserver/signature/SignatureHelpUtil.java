@@ -15,22 +15,19 @@
  */
 package org.ballerinalang.langserver.signature;
 
+import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
@@ -61,7 +58,6 @@ public class SignatureHelpUtil {
         int backTrackPosition = character - 1;
         Stack<String> closeBracketStack = new Stack<>();
 
-
         while (true) {
             if (backTrackPosition < 0) {
                 return "";
@@ -84,59 +80,117 @@ public class SignatureHelpUtil {
      * Get the functionSignatureHelp instance.
      *
      * @param functionName              name of the function
-     * @param pkg                       BLang Package
-     * @param compilerContext           compiler context instance
+     * @param context                   Signature help package context
      * @return {@link SignatureHelp}    Signature help for the completion
      */
-    public static SignatureHelp getFunctionSignatureHelp(String functionName, BLangPackage pkg,
-                                                         CompilerContext compilerContext) {
-        SymbolResolver symbolResolver = SymbolResolver.getInstance(compilerContext);
-        SymbolEnv pkgEnv = SymbolEnter.getInstance(compilerContext).packageEnvs.get(pkg.symbol);
-        List<List<SignatureParamInfo>> paramLists = new ArrayList<>();
+    public static SignatureHelp getFunctionSignatureHelp(String functionName, SignatureHelpPackageContext context) {
+        // Get the functions List
+        List<BLangFunction> functions = context.getItems(BLangFunction.class);
 
-        Map<Name, Scope.ScopeEntry> visibleSymbols = symbolResolver.getAllVisibleInScopeSymbols(pkgEnv);
-        // Scan through the visible packages
-        List<Scope.ScopeEntry> bInvokableSymbols = visibleSymbols.entrySet()
+        List<SignatureInformation> signatureInformationList = functions
                 .stream()
-                .filter(mapEntry -> mapEntry.getValue().symbol instanceof BInvokableSymbol
-                        && mapEntry.getValue().symbol.getName().getValue().equals(functionName))
-                .map(Map.Entry::getValue)
+                .map(bLangFunction -> {
+                    if (bLangFunction.getName().getValue().equals(functionName)) {
+                        return getSignatureInformation(bLangFunction);
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        bInvokableSymbols.forEach(bInvokableSymbol -> {
-            List<SignatureParamInfo> paramList = new ArrayList<>();
-            ((BInvokableSymbol) bInvokableSymbol.symbol).getParameters().forEach(bVarSymbol -> {
-                SignatureParamInfo signatureParamInfo = new SignatureParamInfo();
-                signatureParamInfo.setParamType(bVarSymbol.getType().toString());
-                signatureParamInfo.setParamValue(bVarSymbol.getName().getValue());
-                paramList.add(signatureParamInfo);
-            });
-            paramLists.add(paramList);
-        });
-
         SignatureHelp signatureHelp = new SignatureHelp();
-        signatureHelp.setSignatures(getSignatureInformations(paramLists, functionName));
+        signatureHelp.setSignatures(signatureInformationList);
         signatureHelp.setActiveParameter(0);
         signatureHelp.setActiveSignature(0);
 
         return signatureHelp;
     }
 
-    private static List<SignatureInformation> getSignatureInformations(List<List<SignatureParamInfo>> paramInfoList,
-                                                                      String funcName) {
+    /**
+     * Get the signature information for the given Ballerina function.
+     * @param bLangFunction                     Ballerina Function
+     * @return {@link SignatureInformation}     Signature information for the function
+     */
+    private static SignatureInformation getSignatureInformation(BLangFunction bLangFunction) {
+        List<ParameterInformation> parameterInformationList = new ArrayList<>();
+        SignatureInformation signatureInformation = new SignatureInformation();
+        List<ParameterInfoModel> paramInfoModels = getParamInfoList(bLangFunction);
+        String functionName = bLangFunction.getName().getValue();
 
-        List<SignatureInformation> signatureInformationList = new ArrayList<>();
-        paramInfoList.forEach(paramsList -> {
-            String signature = funcName + "(" +
-                    paramsList.stream()
-                            .map(SignatureParamInfo::toString)
-                            .collect(Collectors.joining(", ")) +
-                    ")";
-            SignatureInformation signatureInformation = new SignatureInformation();
-            signatureInformation.setLabel(signature);
-            signatureInformationList.add(signatureInformation);
+        // Join the function parameters to generate the function's signature
+        String paramsJoined = paramInfoModels.stream().map(parameterInfoModel -> {
+            // For each of the parameters, create a parameter info instance
+            ParameterInformation parameterInformation =
+                    new ParameterInformation(parameterInfoModel.paramValue, parameterInfoModel.description);
+            parameterInformationList.add(parameterInformation);
+
+            return parameterInfoModel.toString();
+        }).collect(Collectors.joining(", "));
+
+        signatureInformation.setLabel(functionName + "(" + paramsJoined + ")");
+        signatureInformation.setParameters(parameterInformationList);
+
+        return signatureInformation;
+    }
+
+    /**
+     * Get the list of Parameter information data models for the given ballerina function.
+     * @param bLangFunction     Ballerina Function
+     * @return {@link List}     List of parameter info data models
+     */
+    private static List<ParameterInfoModel> getParamInfoList(BLangFunction bLangFunction) {
+        List<ParameterInfoModel> paramList = new ArrayList<>();
+        bLangFunction.getParameters().forEach(bLangVariable -> {
+            ParameterInfoModel parameterInfoModel = new ParameterInfoModel();
+            parameterInfoModel.setParamType(bLangVariable.getTypeNode().type.toString());
+            parameterInfoModel.setParamValue(bLangVariable.getName().getValue());
+            parameterInfoModel.setDescription(getParameterDescription(bLangFunction.getAnnotationAttachments(),
+                    bLangVariable.getName().getValue()));
+            paramList.add(parameterInfoModel);
         });
-        return signatureInformationList;
+        return paramList;
+    }
+
+    /**
+     * Get the parameter description for the given parameter name from the annotation attachments.
+     * Need to filter out the Param annotations only.
+     * @param attachments       List of Annotation attachments
+     * @param paramName         Parameter name
+     * @return {@link String}   Parameter description
+     */
+    private static String getParameterDescription(List<BLangAnnotationAttachment> attachments, String paramName) {
+        return attachments
+                .stream()
+                .map(annotationAttachment -> {
+                    String desc = null;
+                    // Need to filter the Prams only
+                    if (annotationAttachment.getAnnotationName().getValue().equals("Param")) {
+                        List<BLangAnnotAttachmentAttribute> attributes = annotationAttachment.getAttributes();
+                        desc = filterParameterAttribute(attributes, paramName);
+                    }
+                    return desc;
+                })
+                .filter(Objects::nonNull).findFirst().orElse(null);
+    }
+
+    /**
+     * Filter the value attribute from the particular annotation attachment's attributes.
+     * @param attributes        Attributes of the annotation attachment related to the parameter name
+     * @param paramName         Parameter name
+     * @return {@link String}   Description of the parameter attribute
+     */
+    private static String filterParameterAttribute(List<BLangAnnotAttachmentAttribute> attributes, String paramName) {
+        return attributes.stream()
+                .map(attribute -> {
+                    String value = attribute.value.getValue().toString();
+                    // Need to filter the value attribute
+                    if (attribute.getName().getValue().equals("value") && value.startsWith(paramName)) {
+                        return value;
+                    } else {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull).findFirst().orElse(null);
     }
 
     private static String getFunctionName(String line, int startPosition) {
@@ -157,10 +211,16 @@ public class SignatureHelpUtil {
         return callableItemName;
     }
 
-    private static class SignatureParamInfo {
+    /**
+     * Parameter information model to hold the parameter information meta data.
+     */
+    private static class ParameterInfoModel {
+
         private String paramValue;
 
         private String paramType;
+
+        private String description;
 
         void setParamValue(String paramValue) {
             this.paramValue = paramValue;
@@ -170,9 +230,39 @@ public class SignatureHelpUtil {
             this.paramType = paramType;
         }
 
+        void setDescription(String description) {
+            this.description = description;
+        }
+
         @Override
         public String toString() {
             return this.paramType + " " + this.paramValue;
+        }
+    }
+
+    /**
+     * Package context to keep the builtin and the current package.
+     */
+    public static class SignatureHelpPackageContext {
+
+        BLangPackage builtin;
+
+        BLangPackage current;
+
+        public SignatureHelpPackageContext(BLangPackage builtin, BLangPackage current) {
+            this.builtin = builtin;
+            this.current = current;
+        }
+
+        @SuppressWarnings("unchecked")
+        <T> List<T> getItems(Class type) {
+            if (type.equals(BLangFunction.class)) {
+                List<BLangFunction> functions = new ArrayList<>();
+                functions.addAll((builtin.getFunctions()));
+                functions.addAll(current.getFunctions());
+                return (List<T>) functions;
+            }
+            return null;
         }
     }
 }
