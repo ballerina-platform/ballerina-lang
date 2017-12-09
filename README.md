@@ -9,11 +9,10 @@ for more info: http://ballerinalang.org/
 
 ## Installing the plugin to Visual Studio Code(vscode)
 
-1. Install [maven](https://maven.apache.org/install.html) and [nodejs](https://nodejs.org/en/).
-2. Clone the ballerina language server [repo](). Use `mvn clean install`. vscode plugin need the language server launcher executable.
-3. Clone this repo
-4. Run `npm install` and `mvn clean install`
-5. Run vscode with `code --extensionDevelopmentPath=/path/to/ballerina/plugin-vscode`
+1. Install [maven](https://maven.apache.org/install.html) and [nodejs](https://nodejs.org/en/)
+2. Clone this repo
+3. Run `npm install` and `mvn clean install`
+4. Run vscode with `code --extensionDevelopmentPath=/path/to/ballerina/plugin-vscode`
 
 Alternatively, in your home directory, locate .vscode/extentions/ directory and add the root directory into it.
 
