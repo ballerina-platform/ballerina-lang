@@ -63,7 +63,6 @@ import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
-import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
@@ -707,62 +706,32 @@ public class JSONUtils {
             BType fieldType = fieldInfo.getFieldType();
             String fieldName = fieldInfo.getName();
             try {
-                boolean containsField = jsonNode.has(fieldName);
-                DefaultValueAttributeInfo defaultValAttrInfo = null;
-                JsonNode jsonValue = null;
-
-                if (containsField) {
-                    jsonValue = jsonNode.get(fieldName);
-                } else {
-                    defaultValAttrInfo = (DefaultValueAttributeInfo) getAttributeInfo(fieldInfo,
-                            AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
+                if (!jsonNode.has(fieldName)) {
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.MISSING_FIELD_IN_JSON, fieldName);
                 }
+
+                JsonNode jsonValue = jsonNode.get(fieldName);
                 switch (fieldType.getTag()) {
                     case TypeTags.INT_TAG:
-                        longRegIndex++;
-                        if (containsField) {
-                            bStruct.setIntField(longRegIndex, jsonNodeToInt(jsonValue));
-                        } else if (defaultValAttrInfo != null) {
-                            bStruct.setIntField(longRegIndex, defaultValAttrInfo.getDefaultValue().getIntValue());
-                        }
+                        bStruct.setIntField(++longRegIndex, jsonNodeToInt(jsonValue));
                         break;
                     case TypeTags.FLOAT_TAG:
-                        doubleRegIndex++;
-                        if (containsField) {
-                            bStruct.setFloatField(doubleRegIndex, jsonNodeToFloat(jsonValue));
-                        } else if (defaultValAttrInfo != null) {
-                            bStruct.setFloatField(doubleRegIndex, defaultValAttrInfo.getDefaultValue().getFloatValue());
-                        }
+                        bStruct.setFloatField(++doubleRegIndex, jsonNodeToFloat(jsonValue));
                         break;
                     case TypeTags.STRING_TAG:
-                        stringRegIndex++;
-                        if (containsField) {
-                            String stringVal;
-                            if (jsonValue.isTextual()) {
-                                stringVal = jsonValue.textValue();
-                            } else {
-                                stringVal = jsonValue.toString();
-                            }
-                            bStruct.setStringField(stringRegIndex, stringVal);
-                        } else if (defaultValAttrInfo != null) {
-                            bStruct.setStringField(stringRegIndex,
-                                    defaultValAttrInfo.getDefaultValue().getStringValue());
+                        String stringVal;
+                        if (jsonValue.isTextual()) {
+                            stringVal = jsonValue.textValue();
+                        } else {
+                            stringVal = jsonValue.toString();
                         }
+                        bStruct.setStringField(++stringRegIndex, stringVal);
                         break;
                     case TypeTags.BOOLEAN_TAG:
-                        booleanRegIndex++;
-                        if (containsField) {
-                            bStruct.setBooleanField(booleanRegIndex, jsonNodeToBool(jsonValue) ? 1 : 0);
-                        } else if (defaultValAttrInfo != null) {
-                            bStruct.setBooleanField(booleanRegIndex,
-                                    defaultValAttrInfo.getDefaultValue().getBooleanValue() ? 1 : 0);
-                        }
+                        bStruct.setBooleanField(++booleanRegIndex, jsonNodeToBool(jsonValue) ? 1 : 0);
                         break;
                     default:
                         refRegIndex++;
-                        if (!containsField) {
-                            break;
-                        }
                         if ((jsonValue == null || jsonValue.isNull())) {
                             bStruct.setRefField(refRegIndex, null);
                         } else if (fieldType instanceof BJSONType || fieldType instanceof BAnyType) {

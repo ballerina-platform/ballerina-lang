@@ -18,8 +18,8 @@
 
 package org.ballerinalang.util.debugger.dto;
 
-import org.ballerinalang.bre.nonblocking.debugger.FrameInfo;
-import org.ballerinalang.bre.nonblocking.debugger.VariableInfo;
+import org.ballerinalang.util.debugger.info.FrameInfo;
+import org.ballerinalang.util.debugger.info.VariableInfo;
 
 import java.util.ArrayList;
 import java.util.List;
