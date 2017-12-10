@@ -20,6 +20,7 @@ package org.ballerinalang.test.expressions.identifierliteral;
 
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -59,7 +60,8 @@ public class IdentifierLiteralServiceTest {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/identifierLiteral/resource2", "GET");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
-        String payload = response.getMessageDataSource().getMessageAsString();
+        String payload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(payload, "hello");
     }
 

@@ -19,7 +19,6 @@
 package org.ballerinalang.test.services.testutils;
 
 import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.net.http.Constants;

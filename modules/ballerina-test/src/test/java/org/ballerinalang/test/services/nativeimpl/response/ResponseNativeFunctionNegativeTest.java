@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -230,7 +231,9 @@ public class ResponseNativeFunctionNegativeTest {
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
-        Assert.assertTrue(response.getMessageDataSource().getMessageAsString().contains("operation not allowed"));
+        Assert.assertTrue(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
+                .contains("operation not allowed"));
     }
 
     @Test
@@ -241,7 +244,9 @@ public class ResponseNativeFunctionNegativeTest {
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
-        Assert.assertTrue(response.getMessageDataSource().getMessageAsString().contains("operation not allowed"));
+        Assert.assertTrue(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
+                .contains("operation not allowed"));
     }
 
     @Test
@@ -252,7 +257,9 @@ public class ResponseNativeFunctionNegativeTest {
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
-        Assert.assertTrue(response.getMessageDataSource().getMessageAsString().contains("argument 1 is null"));
+        Assert.assertTrue(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
+                .contains("argument 1 is null"));
     }
 
     @Test
@@ -263,7 +270,8 @@ public class ResponseNativeFunctionNegativeTest {
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
-        Assert.assertTrue(response.getMessageDataSource().getMessageAsString()
+        Assert.assertTrue(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
                 .contains("failed to forward: empty response parameter"));
     }
 

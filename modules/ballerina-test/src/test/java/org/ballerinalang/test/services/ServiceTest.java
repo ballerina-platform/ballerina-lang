@@ -67,18 +67,18 @@ public class ServiceTest {
     public void testServiceAvailabilityCheck() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/foo/message", "GET");
         HTTPCarbonMessage responseMsg = Services.invokeNew(requestMsg);
-        String responseMsgresponseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(responseMsg)
+        String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(responseMsg)
                 .getInputStream());
-        Assert.assertEquals(responseMsgresponseMsgPayload, "no matching service found for path : /foo/message");
+        Assert.assertEquals(responseMsgPayload, "no matching service found for path : /foo/message");
     }
 
     @Test(description = "Test for resource availability check")
     public void testResourceAvailabilityCheck() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/bar", "GET");
         HTTPCarbonMessage responseMsg = Services.invokeNew(requestMsg);
-        String responseMsgresponseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(responseMsg)
+        String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(responseMsg)
                 .getInputStream());
-        Assert.assertEquals(responseMsgresponseMsgPayload,
+        Assert.assertEquals(responseMsgPayload,
                 "no matching resource found for path : /echo/bar , method : GET");
     }
 
@@ -145,9 +145,8 @@ public class ServiceTest {
 
         String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(responseMsg)
                 .getInputStream());
-        StringDataSource stringDataSource = new StringDataSource(responseMsgPayload);
-        Assert.assertNotNull(stringDataSource);
-        Assert.assertEquals(stringDataSource.getValue(), stringresponseMsgPayload);
+        Assert.assertNotNull(responseMsgPayload);
+        Assert.assertEquals(responseMsgPayload, stringresponseMsgPayload);
     }
 
     @Test(description = "Test remove headers native function")
@@ -167,7 +166,8 @@ public class ServiceTest {
     @Test(description = "Test GetFormParams Native Function")
     public void testGetFormParamsNativeFunction() {
         String path = "/echo/getFormParams";
-        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&team=BalDance");
+        HTTPTestRequest requestMsg = MessageUtils
+                .generateHTTPMessage(path, "POST", "firstName=WSO2&team=BalDance");
         requestMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
         HTTPCarbonMessage responseMsg = Services.invokeNew(requestMsg);
 
@@ -182,7 +182,8 @@ public class ServiceTest {
     @Test(description = "Test GetFormParams with undefined key")
     public void testGetFormParamsForUndefinedKey() {
         String path = "/echo/getFormParams";
-        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
+        HTTPTestRequest requestMsg = MessageUtils
+                .generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
         requestMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
         HTTPCarbonMessage responseMsg = Services.invokeNew(requestMsg);
 
@@ -209,7 +210,8 @@ public class ServiceTest {
     @Test(description = "Test GetFormParams with unsupported media type")
     public void testGetFormParamsWithUnsupportedMediaType() {
         String path = "/echo/getFormParams";
-        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
+        HTTPTestRequest requestMsg = MessageUtils
+                .generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
         HTTPCarbonMessage responseMsg = Services.invokeNew(requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
