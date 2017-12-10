@@ -94,18 +94,6 @@ public interface EntityCollector {
     void release();
 
     /**
-     * Allows check if the stream is consumed or not.
-     * @return true or false
-     */
-    boolean isAlreadyRead();
-
-    /**
-     * Update the state if already read.
-     * @param alreadyRead indicated using true or false
-     */
-    void setAlreadyRead(boolean alreadyRead);
-
-    /**
      * This is need to release content before GC
      */
     void waitAndReleaseAllEntities();

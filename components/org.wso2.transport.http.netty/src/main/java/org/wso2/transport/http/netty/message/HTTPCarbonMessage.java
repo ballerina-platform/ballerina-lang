@@ -150,14 +150,6 @@ public class HTTPCarbonMessage {
         blockingEntityCollector.setEndOfMsgAdded(endOfMsgAdded);
     }
 
-    public boolean isAlreadyRead() {
-        return blockingEntityCollector.isAlreadyRead();
-    }
-
-    public void setAlreadyRead(boolean alreadyRead) {
-        blockingEntityCollector.setAlreadyRead(alreadyRead);
-    }
-
     /**
      * Returns the header map of the request.
      *

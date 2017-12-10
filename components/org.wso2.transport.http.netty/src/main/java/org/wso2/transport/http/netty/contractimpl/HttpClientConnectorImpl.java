@@ -137,7 +137,6 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                     httpResponseFuture.notifyHttpListener(cause);
                 }
             });
-            Util.prepareBuiltMessageForTransfer(httpCarbonRequest);
         } catch (Exception failedCause) {
             httpResponseFuture.notifyHttpListener(failedCause);
         }

@@ -29,7 +29,6 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.Headers;
-import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.listener.RequestDataHolder;
@@ -154,8 +153,7 @@ public class Util {
     }
 
     private static void setContentLength(HTTPCarbonMessage cMsg) {
-        if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null && !cMsg.isEmpty())) {
-            Util.prepareBuiltMessageForTransfer(cMsg);
+        if (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null && !cMsg.isEmpty()) {
             int contentLength = cMsg.getFullMessageLength();
             if (contentLength > 0) {
                 cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
@@ -166,7 +164,7 @@ public class Util {
     }
 
     private static void setTransferEncodingHeader(HTTPCarbonMessage cMsg) {
-        if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null && !cMsg.isEmpty())) {
+        if (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null && !cMsg.isEmpty()) {
             HttpContent httpContent = cMsg.peek();
             if (httpContent instanceof LastHttpContent) {
                 if (httpContent.content().readableBytes() == 0 &&
@@ -218,7 +216,7 @@ public class Util {
         // 3. Check for request Content-Length header
         String requestContentLength = requestDataHolder.getContentLengthHeader();
         if (requestContentLength != null &&
-            (outboundResMsg.isAlreadyRead() || (outboundResMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null))) {
+            (outboundResMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null)) {
             int contentLength = outboundResMsg.getFullMessageLength();
             if (contentLength > 0) {
                 outboundResMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
@@ -230,26 +228,9 @@ public class Util {
         // 4. If request doesn't have Transfer-Encoding or Content-Length header look for response properties
         if (outboundResMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) != null) {
             outboundResMsg.getHeaders().remove(Constants.HTTP_CONTENT_LENGTH);  // remove Content-Length if present
-        } else if (outboundResMsg.isAlreadyRead() ||
-                (outboundResMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null)) {
+        } else if (outboundResMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null) {
             int contentLength = outboundResMsg.getFullMessageLength();
             outboundResMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
-        }
-    }
-
-    /**
-     * Prepare built message to transfer through the wire.
-     * This will populate the message content from the DataSource into the output stream of the carbon message
-     *
-     * @param cMsg Carbon Message
-     */
-    public static void prepareBuiltMessageForTransfer(HTTPCarbonMessage cMsg) {
-        if (cMsg.isAlreadyRead()) {
-            MessageDataSource messageDataSource = cMsg.getMessageDataSource();
-            if (messageDataSource != null) {
-                messageDataSource.serializeData();
-                cMsg.setMessageDataSource(null);
-            }
         }
     }
 

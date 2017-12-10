@@ -85,7 +85,6 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                 }
             }));
         });
-        Util.prepareBuiltMessageForTransfer(httpResponseMessage);
     }
 
     // Decides whether to close the connection after sending the response
