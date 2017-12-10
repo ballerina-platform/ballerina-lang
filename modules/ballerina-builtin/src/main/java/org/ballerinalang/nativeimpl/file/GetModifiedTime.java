@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -35,10 +36,10 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.time.ZonedDateTime;
 
+import static org.ballerinalang.nativeimpl.Utils.getTimeStructInfo;
+import static org.ballerinalang.nativeimpl.Utils.getTimeZoneStructInfo;
 import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createAccessDeniedError;
 import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createTimeStruct;
-
 /**
  * Retrieves the last modified time of the specified file.
  *
@@ -65,7 +66,8 @@ public class GetModifiedTime extends AbstractNativeFunction {
         try {
             FileTime lastModified = Files.getLastModifiedTime(Paths.get(path));
             ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
-            lastModifiedStruct = createTimeStruct(context, zonedDateTime, lastModified.toMillis());
+            lastModifiedStruct = Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context),
+                    lastModified.toMillis(), zonedDateTime.getZone().toString());
         } catch (IOException e) {
             String msg = "Error in reading file: " + path;
             log.error(msg, e);

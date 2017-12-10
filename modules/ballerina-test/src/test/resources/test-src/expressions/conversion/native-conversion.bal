@@ -73,7 +73,7 @@ function testStructToJson () (json) {
     return j;
 }
 
-function testJsonToStruct () (Person) {
+function testJsonToStruct () (Person, TypeConversionError) {
     json j = {name:"Child",
                  age:25,
                  parent:{
@@ -85,18 +85,19 @@ function testJsonToStruct () (Person) {
                             marks:null,
                             a:null,
                             score:4.57,
-                            alive:false
+                            alive:false,
+                            children:null
                         },
                  address:{"city":"Colombo", "country":"SriLanka"},
                  info:{status:"single"},
                  marks:[56, 79],
                  a:"any value",
                  score:5.67,
-                 alive:true
+                 alive:true,
+                 children:null
              };
-    Person p;
-    p, _ = <Person>j;
-    return p;
+    var p, e = <Person>j;
+    return p, e;
 }
 
 function testIncompatibleMapToStruct () (Person) {
@@ -599,11 +600,11 @@ struct StructWithDefaults {
     blob blb;
 }
 
-function testEmptyJSONtoStructWithDefaults () (StructWithDefaults) {
+function testEmptyJSONtoStructWithDefaults () (StructWithDefaults, TypeConversionError) {
     json j = {};
-    var testStruct, _ = <StructWithDefaults>j;
+    var testStruct, e = <StructWithDefaults>j;
 
-    return testStruct;
+    return testStruct, e;
 }
 
 struct StructWithoutDefaults {
@@ -615,11 +616,11 @@ struct StructWithoutDefaults {
     blob blb;
 }
 
-function testEmptyJSONtoStructWithoutDefaults () (StructWithoutDefaults) {
+function testEmptyJSONtoStructWithoutDefaults () (StructWithoutDefaults, TypeConversionError) {
     json j = {};
-    var testStruct, _ = <StructWithoutDefaults>j;
+    var testStruct, e = <StructWithoutDefaults>j;
 
-    return testStruct;
+    return testStruct, e;
 }
 
 function testEmptyMaptoStructWithDefaults () (StructWithDefaults) {

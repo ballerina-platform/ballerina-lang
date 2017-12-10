@@ -42,7 +42,6 @@ public class WorkerContext extends Context {
         this.setConnectorFuture(this.parent.getConnectorFuture());
         this.setBallerinaTransactionManager(this.parent.getBallerinaTransactionManager());
         this.setServiceInfo(this.parent.getServiceInfo());
-        this.setDebugInfoHolder(this.parent.getDebugInfoHolder());
     }
 
 }

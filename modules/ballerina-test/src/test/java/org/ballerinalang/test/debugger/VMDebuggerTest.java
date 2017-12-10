@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.test.debugger;
 
+import org.ballerinalang.test.utils.debug.Step;
+import org.ballerinalang.test.utils.debug.VMDebuggerUtil;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;

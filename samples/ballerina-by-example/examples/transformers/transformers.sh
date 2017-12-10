@@ -1,4 +1,4 @@
-$ ballerina run transform-structs.bal
-{name:"john", age:30, address:"london"}
-{name:"john", age:32, address:"LONDON"}
-{name:"john", age:30, address:"london, UK"}
+$ ballerina run transformers.bal
+{name:"John Doe", age:30, address:",LONDON"}
+{name:"John Doe", age:30, address:", New York"}
+{name:"John Doe", age:30, address:",LONDON, UK"}
