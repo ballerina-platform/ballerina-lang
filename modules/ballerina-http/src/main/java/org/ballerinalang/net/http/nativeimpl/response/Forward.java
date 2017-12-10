@@ -28,6 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -78,6 +79,13 @@ public class Forward extends AbstractNativeFunction {
             responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
         }
 
-        return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage);
+        if (responseStruct.getNativeData(HttpUtil.MESSAGE_DATA_SOURCE) != null) {
+            MessageDataSource messageDataSource = (MessageDataSource) responseStruct
+                    .getNativeData(HttpUtil.MESSAGE_DATA_SOURCE);
+            messageDataSource.serializeData();
+        }
+
+        return HttpUtil.prepareResponseAndSend(context, this, requestMessage,
+                responseMessage, (MessageDataSource) clientResponseStruct.getNativeData(HttpUtil.MESSAGE_DATA_SOURCE));
     }
 }

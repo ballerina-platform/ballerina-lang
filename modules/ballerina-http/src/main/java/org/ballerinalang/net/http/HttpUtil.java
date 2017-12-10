@@ -22,6 +22,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -32,7 +33,6 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
@@ -41,6 +41,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
@@ -99,24 +100,25 @@ public class HttpUtil {
 
     public static BValue[] getBinaryPayload(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BBlob result;
-        try {
-            BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-            HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-
-            if (httpCarbonMessage.isAlreadyRead()) {
-                result = new BBlob((byte[]) httpCarbonMessage.getMessageDataSource().getDataObject());
-            } else {
-                result = new BBlob(toByteArray(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream()));
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("Payload in String:" + result.stringValue());
-            }
-        } catch (Throwable e) {
-            throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());
-        }
-        return abstractNativeFunction.getBValues(result);
+//        BBlob result;
+//        try {
+//            BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+//            HTTPCarbonMessage httpCarbonMessage = HttpUtil
+//                    .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+//
+//            if (httpCarbonMessage.isAlreadyRead()) {
+//                result = new BBlob((byte[]) httpCarbonMessage.getMessageDataSource().getDataObject());
+//            } else {
+//                result = new BBlob(toByteArray(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream()));
+//            }
+//            if (log.isDebugEnabled()) {
+//                log.debug("Payload in String:" + result.stringValue());
+//            }
+//        } catch (Throwable e) {
+//            throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());
+//        }
+//        return abstractNativeFunction.getBValues(result);
+        return null;
     }
 
     public static BValue[] getHeader(Context context,
@@ -427,9 +429,13 @@ public class HttpUtil {
     }
 
     public static BValue[] prepareResponseAndSend(Context context, AbstractNativeFunction abstractNativeFunction
-            , HTTPCarbonMessage requestMessage, HTTPCarbonMessage responseMessage) {
+            , HTTPCarbonMessage requestMessage, HTTPCarbonMessage responseMessage,
+            MessageDataSource messageDataSource) {
         addHTTPSessionAndCorsHeaders(requestMessage, responseMessage);
         HttpResponseStatusFuture statusFuture = handleResponse(requestMessage, responseMessage);
+        if (messageDataSource != null) {
+            messageDataSource.serializeData();
+        }
         try {
             statusFuture = statusFuture.sync();
         } catch (InterruptedException e) {
@@ -478,7 +484,8 @@ public class HttpUtil {
 
     public static HTTPCarbonMessage createErrorMessage(String payload, int statusCode) {
         HTTPCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
-        response.addHttpContent(new DefaultHttpContent(Unpooled.wrappedBuffer(payload.getBytes())));
+        response.waitAndReleaseAllEntities();
+        response.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(payload.getBytes())));
         setHttpStatusCodes(payload, statusCode, response);
 
         return response;
@@ -743,5 +750,17 @@ public class HttpUtil {
         if (bStruct.getNativeData(Constants.OUTBOUND_RESPONSE) == null) {
             throw new BallerinaException("operation not allowed");
         }
+    }
+
+    private static BValue getRefArgument(Context context, int index) {
+        if (index > -1) {
+            BValue result = context.getControlStackNew().getCurrentFrame().getRefLocalVars()[index];
+            if (result == null) {
+                throw new BallerinaException("argument " + index + " is null");
+            }
+
+            return result;
+        }
+        throw new ArgumentOutOfRangeException(index);
     }
 }

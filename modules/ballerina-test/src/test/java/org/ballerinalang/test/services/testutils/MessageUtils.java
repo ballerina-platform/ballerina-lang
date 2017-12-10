@@ -20,6 +20,7 @@ package org.ballerinalang.test.services.testutils;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpContent;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.net.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -78,7 +79,7 @@ public class MessageUtils {
 
         // Set message body
         if (payload != null) {
-            carbonMessage.addHttpContent(new DefaultHttpContent(Unpooled.wrappedBuffer(payload.getBytes())));
+            carbonMessage.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(payload.getBytes())));
         } else {
             carbonMessage.setEndOfMsgAdded(true);
         }
