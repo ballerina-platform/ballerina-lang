@@ -26,7 +26,7 @@ import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
-import org.ballerinalang.util.debugger.DebugInfoHolder;
+import org.ballerinalang.util.debugger.DebugContext;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;
@@ -47,8 +47,7 @@ public class Context {
     protected Map<String, Object> properties = new HashMap<>();
     private ServiceInfo serviceInfo;
     private BallerinaTransactionManager ballerinaTransactionManager;
-    private DebugInfoHolder debugInfoHolder;
-    private boolean debugEnabled = false;
+    private DebugContext debugContext;
 
     private int startIP;
     private BStruct unhandledError;
@@ -60,7 +59,6 @@ public class Context {
     public ProgramFile programFile;
     public FunctionCallCPEntry funcCallCPEntry;
     public ActionInfo actionInfo;
-    private String threadId;
     // TODO : Fix this. Added this for fork-join. Issue #3718.
     public boolean blockingInvocation;
 
@@ -75,41 +73,12 @@ public class Context {
         this.workerCounter = new WorkerCounter();
     }
 
-    public DebugInfoHolder getDebugInfoHolder() {
-        return debugInfoHolder;
-    }
-
-    public void setAndInitDebugInfoHolder(DebugInfoHolder debugInfoHolder) {
-        if (this.debugInfoHolder != null) {
-            return;
-        }
-        synchronized (Context.class) {
-            if (this.debugInfoHolder != null) {
-                return;
-            }
-            this.setDebugInfoHolder(debugInfoHolder);
-            this.debugInfoHolder.init(programFile);
-        }
+    public DebugContext getDebugContext() {
+        return debugContext;
     }
     
-    public void setDebugInfoHolder(DebugInfoHolder debugInfoHolder) {
-        this.debugInfoHolder = debugInfoHolder;
-    }
-
-    public String getThreadId() {
-        return threadId;
-    }
-
-    public void setThreadId(String threadId) {
-        this.threadId = threadId;
-    }
-
-    public boolean isDebugEnabled() {
-        return debugEnabled;
-    }
-
-    public void setDebugEnabled(boolean debugEnabled) {
-        this.debugEnabled = debugEnabled;
+    public void setDebugContext(DebugContext debugContext) {
+        this.debugContext = debugContext;
     }
 
     public ControlStackNew getControlStackNew() {

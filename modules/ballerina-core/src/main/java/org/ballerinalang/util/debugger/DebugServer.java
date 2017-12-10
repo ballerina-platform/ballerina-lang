@@ -15,36 +15,17 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.bre.nonblocking.debugger;
-
-import org.ballerinalang.bre.Context;
+package org.ballerinalang.util.debugger;
 
 /**
- * Represents a Debug sessions observer which will be notified by the the BLanExecutionDebugger.
+ * Represents a debug server which will start listening to client connections.
  */
-public interface DebugSessionObserver {
-
+public interface DebugServer {
     /**
-     * Called when adding a context.
+     * Method to start debug server.
      *
-     * @param bContext to be added to the map.
+     * @param debugManager object.
      */
-    void addContext(Context bContext);
+    void startServer(VMDebugManager debugManager);
 
-    /**
-     * Called when execution is end.
-     */
-    void notifyComplete();
-
-    /**
-     * Called when main program exit.
-     */
-    void notifyExit();
-
-    /**
-     * Called when executor hits a break point.
-     *
-     * @param breakPointInfo Break point information.
-     */
-    void notifyHalt(BreakPointInfo breakPointInfo);
 }

@@ -1,7 +1,7 @@
 /*
 *   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 */
-package org.ballerinalang.bre.nonblocking.debugger;
+package org.ballerinalang.util.debugger.info;
 
 import java.util.ArrayList;
 import java.util.List;
