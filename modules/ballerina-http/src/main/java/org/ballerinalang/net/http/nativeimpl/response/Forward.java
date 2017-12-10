@@ -20,6 +20,7 @@ package org.ballerinalang.net.http.nativeimpl.response;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -56,7 +57,6 @@ public class Forward extends AbstractNativeFunction {
         if (clientResponseStruct.getNativeData(Constants.TRANSPORT_MESSAGE) == null) {
             throw new BallerinaException("Failed to forward: empty response parameter");
         }
-
         HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct
                 .getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
         HTTPCarbonMessage responseMessage = HttpUtil
@@ -76,6 +76,10 @@ public class Forward extends AbstractNativeFunction {
         } else {
             // default behaviour: keepAlive = true
             responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
+        }
+        if (clientResponseStruct.getRefField(Constants.RESPONSE_HEADERS_INDEX) != null) {
+            HttpUtil.setHeadersToTransportMessage(responseMessage,
+                    (BMap) clientResponseStruct.getRefField(Constants.RESPONSE_HEADERS_INDEX));
         }
 
         return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage);

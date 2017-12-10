@@ -28,6 +28,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
@@ -556,64 +557,82 @@ public class HttpUtil {
         struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
-    public static void populateInboundRequest(BStruct request, HTTPCarbonMessage cMsg, BStruct headerStruct) {
+    public static void populateInboundRequest(BStruct request, HTTPCarbonMessage cMsg, BStruct headerValueStruct) {
         request.addNativeData(TRANSPORT_MESSAGE, cMsg);
         request.addNativeData(Constants.INBOUND_REQUEST, true);
-        request.setStringField(Constants.REQUEST_URI_INDEX, (String) cMsg.getProperty(Constants.REQUEST_URL));
-        if (cMsg.getProperty(Constants.LOCAL_ADDRESS) != null) {
-            request.setStringField(Constants.REQUEST_HOST_INDEX,
-                    ((InetSocketAddress) cMsg.getProperty(Constants.LOCAL_ADDRESS)).getHostName());
-        }
-        if (cMsg.getProperty(Constants.LISTENER_PORT) != null) {
-            request.setIntField(Constants.REQUEST_PORT_INDEX, (Integer) cMsg.getProperty(Constants.LISTENER_PORT));
-        }
+        request.setStringField(Constants.REQUEST_PATH_INDEX, (String) cMsg.getProperty(Constants.REQUEST_URL));
+        request.setStringField(Constants.REQUEST_HOST_INDEX,
+                ((InetSocketAddress) cMsg.getProperty(Constants.LOCAL_ADDRESS)).getHostName());
+        request.setIntField(Constants.REQUEST_PORT_INDEX, (Integer) cMsg.getProperty(Constants.LISTENER_PORT));
         request.setStringField(Constants.REQUEST_METHOD_INDEX, (String) cMsg.getProperty(Constants.HTTP_METHOD));
         request.setStringField(Constants.REQUEST_VERSION_INDEX, (String) cMsg.getProperty(Constants.HTTP_VERSION));
-        request.setRefField(Constants.REQUEST_HEADERS_INDEX, createHeaderBMap(headerStruct, cMsg.getHeaders()));
+
+        Map<String, String> redundantHeaders = new HashMap();
+        String userAgent = cMsg.getHeader(Constants.USER_AGENT_HEADER);
+        if (userAgent != null) {
+            request.setStringField(Constants.REQUEST_USER_AGENT_INDEX, cMsg.getHeader(Constants.USER_AGENT_HEADER));
+            cMsg.removeHeader(Constants.USER_AGENT_HEADER);
+            redundantHeaders.put(Constants.USER_AGENT_HEADER, userAgent);
+        }
+        request.setRefField(Constants.REQUEST_HEADERS_INDEX, createHeaderBMap(headerValueStruct, cMsg.getHeaders()));
+        setRemovedHeaders(cMsg, redundantHeaders);
+    }
+
+    public static void populateInboundResponse(BStruct response, HTTPCarbonMessage cMsg, BStruct headerStruct) {
+        response.addNativeData(TRANSPORT_MESSAGE, cMsg);
+        int statusCode = (Integer) cMsg.getProperty(Constants.HTTP_STATUS_CODE);
+        response.setIntField(Constants.RESPONSE_STATUS_CODE_INDEX, statusCode);
+        response.setStringField(Constants.RESPONSE_REASON_PHRASE_INDEX,
+                HttpResponseStatus.valueOf(statusCode).reasonPhrase());
+
+        Map<String, String> redundantHeaders = new HashMap();
+        String server = cMsg.getHeader(Constants.SERVER_HEADER);
+        if (server != null) {
+            response.setStringField(Constants.RESPONSE_SERVER_INDEX, cMsg.getHeader(Constants.SERVER_HEADER));
+            cMsg.removeHeader(Constants.SERVER_HEADER);
+            redundantHeaders.put(Constants.SERVER_HEADER, server);
+        }
+        response.setRefField(Constants.RESPONSE_HEADERS_INDEX, createHeaderBMap(headerStruct, cMsg.getHeaders()));
+        setRemovedHeaders(cMsg, redundantHeaders);
+    }
+
+    private static void setRemovedHeaders(HTTPCarbonMessage cMsg, Map<String, String> redundantHeaders) {
+        for (Map.Entry<String, String> redundantHeader : redundantHeaders.entrySet()) {
+            cMsg.setHeader(redundantHeader.getKey(), redundantHeader.getValue());
+        }
+    }
+
+    public static void populateOutboundRequest(BStruct request, HTTPCarbonMessage reqMsg) {
+        BMap headers = (BMap) request.getRefField(Constants.REQUEST_HEADERS_INDEX);
+        setHeadersToTransportMessage(reqMsg, headers);
     }
 
     public static void populateOutboundResponse(BStruct response, HTTPCarbonMessage resMsg, HTTPCarbonMessage reqMsg) {
         response.addNativeData(TRANSPORT_MESSAGE, resMsg);
         response.addNativeData(Constants.INBOUND_REQUEST_MESSAGE, reqMsg);
         response.addNativeData(Constants.OUTBOUND_RESPONSE, true);
-    }
-
-    public static void populateInboundResponse(BStruct response, HTTPCarbonMessage cMsg, BStruct headerStruct) {
-        response.addNativeData("transport_message", cMsg);
-        int statusCode = (Integer) cMsg.getProperty(Constants.HTTP_STATUS_CODE);
-        response.setIntField(Constants.RESPONSE_STATUS_CODE_INDEX, statusCode);
-        response.setStringField(Constants.RESPONSE_REASON_PHRASE_INDEX,
-                HttpResponseStatus.valueOf(statusCode).reasonPhrase());
-        response.setRefField(Constants.RESPONSE_HEADERS_INDEX, createHeaderBMap(headerStruct, cMsg.getHeaders()));
+        response.setRefField(Constants.RESPONSE_HEADERS_INDEX, new BMap());
     }
 
     private static BMap createHeaderBMap(BStruct headerStruct, HttpHeaders headers) {
-        if (headers == null) {
-            return null;
-        }
         Map<String, ArrayList> headerStructHolder = new HashMap<>();
         for (Map.Entry<String, String> headerEntry : headers) {
             String headerKey = headerEntry.getKey().trim();
             String headerValue = headerEntry.getValue().trim();
             //Get the list of HeaderStruct for a given key
-            ArrayList headerList = headerStructHolder.get(headerKey) != null ? headerStructHolder.get(headerKey) :
+            ArrayList headerValueList = headerStructHolder.get(headerKey) != null ? headerStructHolder.get(headerKey) :
                     new ArrayList();
             if (headerValue.contains(",")) {
+                //TODO check with netty
                 List<String> valueList = Arrays.stream(headerValue.split(",")).map(String::trim)
                         .collect(Collectors.toList());
                 for (String value: valueList) {
-                    if (value.contains(";")) {
-                        headerList.add(populateWithHeaderValueAndParams(new BStruct(headerStruct.getType()), value));
-                    } else {
-                        headerList.add(populateWithHeaderValue(new BStruct(headerStruct.getType()), value));
-                    }
+                    populateHeaderStruct(headerStruct, headerValueList, value);
                 }
-            } else if (headerValue.contains(";")) {
-                headerList.add(populateWithHeaderValueAndParams(new BStruct(headerStruct.getType()), headerValue));
             } else {
-                headerList.add(populateWithHeaderValue(new BStruct(headerStruct.getType()), headerValue));
+                populateHeaderStruct(headerStruct, headerValueList, headerValue);
             }
-            headerStructHolder.put(headerKey, headerList);
+            headerStructHolder.put(headerKey, headerValueList);
         }
         //create BMap of BRefValueArray
         BMap<String, BValue> headerMap = new BMap<>();
@@ -622,6 +641,14 @@ public class HttpUtil {
                     .toArray(new BRefType[0]), headerStruct.getType()));
         }
         return headerMap;
+    }
+
+    private static void populateHeaderStruct(BStruct headerStruct, ArrayList headerValueList, String value) {
+        if (value.contains(";")) {
+            headerValueList.add(populateWithHeaderValueAndParams(new BStruct(headerStruct.getType()), value));
+        } else {
+            headerValueList.add(populateWithHeaderValue(new BStruct(headerStruct.getType()), value));
+        }
     }
 
     private static BStruct populateWithHeaderValueAndParams(BStruct headerStruct, String headerValue) {
@@ -650,6 +677,50 @@ public class HttpUtil {
             }
         }
         return paramMap;
+    }
+
+    /**
+     * Set headers of request/response struct to the transport message.
+     *
+     * @param cMsg transport Http carbon message.
+     * @param headers header map of struct.
+     */
+    public static void setHeadersToTransportMessage(HTTPCarbonMessage cMsg, BMap headers) {
+        Set<String> keys = headers.keySet();
+        for (String key : keys) {
+            StringBuilder headerValue = new StringBuilder();
+            if (headers.get(key).getType().getTag() != TypeTags.ARRAY_TAG) {
+                throw new BallerinaException("expects an array as value for header key: " + key);
+            }
+            BRefValueArray headerValues = (BRefValueArray) headers.get(key);
+            for (int i = 0; i < headerValues.size(); i++) {
+                //TODO remove this check when map supports exact type
+                if (headerValues.get(i).getType().getTag() == TypeTags.STRUCT_TAG) {
+                    BStruct headerStruct = (BStruct) headerValues.get(i);
+                    String value = headerStruct.getStringField(0);
+                    headerValue.append(i > 0 ? "," + value : value);
+                    BMap paramMap = (BMap) headerStruct.getRefField(0);
+                    concatParams(headerValue, paramMap);
+                } else if (headerValues.get(i).getType().getTag() == TypeTags.MAP_TAG) {
+                    BMap headerMap = (BMap) headerValues.get(i);
+                    String value = String.valueOf(headerMap.get("value"));
+                    headerValue.append(i > 0 ? "," + value : value);
+                    BMap paramMap = (BMap) headerMap.get("param");
+                    concatParams(headerValue, paramMap);
+                } else {
+                    throw new BallerinaException("invalid header assignment for key : " + key);
+                }
+            }
+            cMsg.setHeader(key, headerValue.toString());
+        }
+    }
+
+    private static void concatParams(StringBuilder headerValue, BMap paramMap) {
+        Set<String> paramKeys = paramMap.keySet();
+        for (String paramKey : paramKeys) {
+            String paramValue = paramMap.get(paramKey) != null ? paramMap.get(paramKey).stringValue() : null;
+            headerValue.append(paramValue == null ? ";" + paramKey : ";" + paramKey + "=" + paramValue);
+        }
     }
 
     /**

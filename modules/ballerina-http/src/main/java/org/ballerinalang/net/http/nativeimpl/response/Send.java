@@ -20,6 +20,7 @@ package org.ballerinalang.net.http.nativeimpl.response;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -70,6 +71,10 @@ public class Send extends AbstractNativeFunction {
         } else {
             // default behaviour: keepAlive = true
             responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
+        }
+        if (responseStruct.getRefField(Constants.RESPONSE_HEADERS_INDEX) != null) {
+            HttpUtil.setHeadersToTransportMessage(responseMessage,
+                    (BMap) responseStruct.getRefField(Constants.RESPONSE_HEADERS_INDEX));
         }
 
         return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage);

@@ -29,6 +29,7 @@ import org.wso2.carbon.messaging.StatusCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import java.net.InetSocketAddress;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -62,27 +63,20 @@ public class MessageUtils {
                                              BallerinaMessageDataSource payload) {
 
         HTTPTestRequest carbonMessage = new HTTPTestRequest();
-
-        // Set meta data
         carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL,
                                   Constants.PROTOCOL_HTTP);
         carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID,
                                   Constants.DEFAULT_INTERFACE);
-        // Set url
         carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.TO, path);
-
-        // Set method
         carbonMessage.setProperty(Constants.HTTP_METHOD, method.trim().toUpperCase(Locale.getDefault()));
-
-        // Set Headers
+        carbonMessage.setProperty(Constants.LOCAL_ADDRESS, new InetSocketAddress(Constants.HTTP_DEFAULT_HOST, 9090));
+        carbonMessage.setProperty(Constants.LISTENER_PORT, 9090);
         HttpHeaders httpHeaders = carbonMessage.getHeaders();
         if (headers != null) {
             for (Header header : headers) {
                 httpHeaders.set(header.getName(), header.getValue());
             }
         }
-
-        // Set message body
         if (payload != null) {
             payload.setOutputStream(new HttpMessageDataStreamer(carbonMessage).getOutputStream());
             carbonMessage.setMessageDataSource(payload);

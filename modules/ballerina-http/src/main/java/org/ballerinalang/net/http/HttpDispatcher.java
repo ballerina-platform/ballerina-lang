@@ -88,15 +88,14 @@ public class HttpDispatcher {
     }
 
     public static BValue[] getSignatureParameters(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
-
+        //TODO Think of creating structDef one time
         BStruct request = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.REQUEST);
         BStruct response = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.RESPONSE);
-        BStruct header = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                Constants.PROTOCOL_PACKAGE_HTTP, Constants.HEADER);
-        httpCarbonMessage.setHeader("chamil", "wso2;only key");
-        HttpUtil.populateInboundRequest(request, httpCarbonMessage, header);
+        BStruct headerValue = ConnectorUtils.createStruct(httpResource.getBalResource(),
+                Constants.PROTOCOL_PACKAGE_HTTP, Constants.HEADER_VALUE);
+        HttpUtil.populateInboundRequest(request, httpCarbonMessage, headerValue);
         HttpUtil.populateOutboundResponse(response, HttpUtil.createHttpCarbonMessage(false), httpCarbonMessage);
 
         List<ParamDetail> paramDetails = httpResource.getParamDetails();

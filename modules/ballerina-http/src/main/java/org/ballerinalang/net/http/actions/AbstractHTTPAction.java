@@ -67,10 +67,10 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
     }
 
-    protected void prepareRequest(BConnector connector, String path, HTTPCarbonMessage cMsg) {
+    protected void prepareRequest(BConnector connector, String path, HTTPCarbonMessage cMsg, BStruct requestStruct) {
 
         validateParams(connector);
-
+        HttpUtil.populateOutboundRequest(requestStruct, cMsg);
         String uri = null;
         try {
             uri = connector.getStringField(0) + path;
@@ -199,7 +199,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
             if (httpCarbonMessage.getMessagingException() == null) {
                 BStruct response = createStruct(this.context, Constants.RESPONSE);
-                BStruct header = createStruct(this.context, Constants.HEADER);
+                BStruct header = createStruct(this.context, Constants.HEADER_VALUE);
                 HttpUtil.populateInboundResponse(response, httpCarbonMessage, header);
                 ballerinaFuture.notifyReply(response);
             } else {
@@ -254,7 +254,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         //TODO check below line
         HTTPCarbonMessage requestMsg = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
-        prepareRequest(bConnector, path, requestMsg);
+        prepareRequest(bConnector, path, requestMsg, requestStruct);
         return requestMsg;
     }
 
