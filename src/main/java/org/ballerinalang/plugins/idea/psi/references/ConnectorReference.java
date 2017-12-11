@@ -76,7 +76,7 @@ public class ConnectorReference extends BallerinaElementReference {
         if (containingFile == null) {
             return null;
         }
-        PsiDirectory psiDirectory = containingFile.getParent();
+        PsiDirectory psiDirectory = containingFile.getOriginalFile().getParent();
         if (psiDirectory == null) {
             return null;
         }
