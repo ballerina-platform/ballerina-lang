@@ -39,6 +39,7 @@ public class ListenerConfiguration {
 
     public static final String DEFAULT_KEY = "default";
 
+    @Deprecated
     public static ListenerConfiguration getDefault() {
         ListenerConfiguration defaultConfig;
         defaultConfig = new ListenerConfiguration(DEFAULT_KEY, "0.0.0.0", 8080);
@@ -46,13 +47,13 @@ public class ListenerConfiguration {
     }
 
     @XmlAttribute(required = true)
-    private String id;
+    private String id = DEFAULT_KEY;
 
     @XmlAttribute
-    private String host;
+    private String host = "0.0.0.0";
 
     @XmlAttribute(required = true)
-    private int port;
+    private int port = 8080;
 
     @XmlAttribute
     private boolean bindOnStartup = false;
@@ -103,7 +104,7 @@ public class ListenerConfiguration {
     @XmlElement(name = "parameter")
     private List<Parameter> parameters = getDefaultParameters();
 
-    private RequestSizeValidationConfiguration requestSizeValidationConfig;
+    private RequestSizeValidationConfiguration requestSizeValidationConfig = new RequestSizeValidationConfiguration();
 
     public ListenerConfiguration() {
     }
