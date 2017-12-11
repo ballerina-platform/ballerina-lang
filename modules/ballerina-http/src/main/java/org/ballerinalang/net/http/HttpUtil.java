@@ -28,6 +28,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
@@ -567,15 +568,10 @@ public class HttpUtil {
         request.setStringField(Constants.REQUEST_METHOD_INDEX, (String) cMsg.getProperty(Constants.HTTP_METHOD));
         request.setStringField(Constants.REQUEST_VERSION_INDEX, (String) cMsg.getProperty(Constants.HTTP_VERSION));
 
-        Map<String, String> redundantHeaders = new HashMap();
-        String userAgent = cMsg.getHeader(Constants.USER_AGENT_HEADER);
-        if (userAgent != null) {
+        if (cMsg.getHeader(Constants.USER_AGENT_HEADER) != null) {
             request.setStringField(Constants.REQUEST_USER_AGENT_INDEX, cMsg.getHeader(Constants.USER_AGENT_HEADER));
-            cMsg.removeHeader(Constants.USER_AGENT_HEADER);
-            redundantHeaders.put(Constants.USER_AGENT_HEADER, userAgent);
         }
         request.setRefField(Constants.REQUEST_HEADERS_INDEX, createHeaderBMap(headerValueStruct, cMsg.getHeaders()));
-        setRemovedHeaders(cMsg, redundantHeaders);
     }
 
     public static void populateInboundResponse(BStruct response, HTTPCarbonMessage cMsg, BStruct headerStruct) {
@@ -585,25 +581,15 @@ public class HttpUtil {
         response.setStringField(Constants.RESPONSE_REASON_PHRASE_INDEX,
                 HttpResponseStatus.valueOf(statusCode).reasonPhrase());
 
-        Map<String, String> redundantHeaders = new HashMap();
-        String server = cMsg.getHeader(Constants.SERVER_HEADER);
-        if (server != null) {
+        if (cMsg.getHeader(Constants.SERVER_HEADER) != null) {
             response.setStringField(Constants.RESPONSE_SERVER_INDEX, cMsg.getHeader(Constants.SERVER_HEADER));
-            cMsg.removeHeader(Constants.SERVER_HEADER);
-            redundantHeaders.put(Constants.SERVER_HEADER, server);
         }
         response.setRefField(Constants.RESPONSE_HEADERS_INDEX, createHeaderBMap(headerStruct, cMsg.getHeaders()));
-        setRemovedHeaders(cMsg, redundantHeaders);
     }
 
-    private static void setRemovedHeaders(HTTPCarbonMessage cMsg, Map<String, String> redundantHeaders) {
-        for (Map.Entry<String, String> redundantHeader : redundantHeaders.entrySet()) {
-            cMsg.setHeader(redundantHeader.getKey(), redundantHeader.getValue());
-        }
-    }
-
+    @SuppressWarnings("unchecked")
     public static void populateOutboundRequest(BStruct request, HTTPCarbonMessage reqMsg) {
-        BMap headers = (BMap) request.getRefField(Constants.REQUEST_HEADERS_INDEX);
+        BMap<String, BValue> headers = (BMap) request.getRefField(Constants.REQUEST_HEADERS_INDEX);
         setHeadersToTransportMessage(reqMsg, headers);
     }
 
@@ -620,13 +606,13 @@ public class HttpUtil {
             String headerKey = headerEntry.getKey().trim();
             String headerValue = headerEntry.getValue().trim();
             //Get the list of HeaderStruct for a given key
-            ArrayList headerValueList = headerStructHolder.get(headerKey) != null ? headerStructHolder.get(headerKey) :
-                    new ArrayList();
+            ArrayList<BStruct> headerValueList = headerStructHolder.get(headerKey) != null ?
+                    headerStructHolder.get(headerKey) : new ArrayList<>();
             if (headerValue.contains(",")) {
                 //TODO check with netty
                 List<String> valueList = Arrays.stream(headerValue.split(",")).map(String::trim)
                         .collect(Collectors.toList());
-                for (String value: valueList) {
+                for (String value : valueList) {
                     populateHeaderStruct(headerStruct, headerValueList, value);
                 }
             } else {
@@ -638,11 +624,12 @@ public class HttpUtil {
         BMap<String, BValue> headerMap = new BMap<>();
         for (Map.Entry<String, ArrayList> structHolder : headerStructHolder.entrySet()) {
             headerMap.put(structHolder.getKey(), new BRefValueArray((BRefType[]) structHolder.getValue()
-                    .toArray(new BRefType[0]), headerStruct.getType()));
+                    .toArray(new BRefType[0]), new BArrayType(headerStruct.getType())));
         }
         return headerMap;
     }
 
+    @SuppressWarnings("unchecked")
     private static void populateHeaderStruct(BStruct headerStruct, ArrayList headerValueList, String value) {
         if (value.contains(";")) {
             headerValueList.add(populateWithHeaderValueAndParams(new BStruct(headerStruct.getType()), value));
@@ -655,8 +642,8 @@ public class HttpUtil {
         String value = headerValue.substring(0, headerValue.indexOf(";")).trim();
         List<String> paramList = Arrays.stream(headerValue.substring(headerValue.indexOf(";") + 1)
                 .split(";")).map(String::trim).collect(Collectors.toList());
-        headerStruct.setStringField(0, value);
-        headerStruct.setRefField(0, createParamBMap(paramList));
+        headerStruct.setStringField(Constants.HEADER_VALUE_INDEX, value);
+        headerStruct.setRefField(Constants.HEADER_PARAM_INDEX, createParamBMap(paramList));
         return headerStruct;
     }
 
@@ -685,7 +672,8 @@ public class HttpUtil {
      * @param cMsg transport Http carbon message.
      * @param headers header map of struct.
      */
-    public static void setHeadersToTransportMessage(HTTPCarbonMessage cMsg, BMap headers) {
+    @SuppressWarnings("unchecked")
+    public static void setHeadersToTransportMessage(HTTPCarbonMessage cMsg, BMap<String, BValue> headers) {
         Set<String> keys = headers.keySet();
         for (String key : keys) {
             StringBuilder headerValue = new StringBuilder();
@@ -697,16 +685,16 @@ public class HttpUtil {
                 //TODO remove this check when map supports exact type
                 if (headerValues.get(i).getType().getTag() == TypeTags.STRUCT_TAG) {
                     BStruct headerStruct = (BStruct) headerValues.get(i);
-                    String value = headerStruct.getStringField(0);
+                    String value = headerStruct.getStringField(Constants.HEADER_VALUE_INDEX);
                     headerValue.append(i > 0 ? "," + value : value);
-                    BMap paramMap = (BMap) headerStruct.getRefField(0);
-                    concatParams(headerValue, paramMap);
+                    BMap paramMap = (BMap) headerStruct.getRefField(Constants.HEADER_PARAM_INDEX);
+                    headerValue = paramMap != null ? concatParams(headerValue, paramMap) : headerValue;
                 } else if (headerValues.get(i).getType().getTag() == TypeTags.MAP_TAG) {
                     BMap headerMap = (BMap) headerValues.get(i);
-                    String value = String.valueOf(headerMap.get("value"));
+                    String value = headerMap.get(Constants.HEADER_VALUE).stringValue();
                     headerValue.append(i > 0 ? "," + value : value);
-                    BMap paramMap = (BMap) headerMap.get("param");
-                    concatParams(headerValue, paramMap);
+                    BMap paramMap = (BMap) headerMap.get(Constants.HEADER_PARAM);
+                    headerValue = paramMap != null ? concatParams(headerValue, paramMap) : headerValue;
                 } else {
                     throw new BallerinaException("invalid header assignment for key : " + key);
                 }
@@ -715,12 +703,14 @@ public class HttpUtil {
         }
     }
 
-    private static void concatParams(StringBuilder headerValue, BMap paramMap) {
+    @SuppressWarnings("unchecked")
+    private static StringBuilder concatParams(StringBuilder headerValue, BMap paramMap) {
         Set<String> paramKeys = paramMap.keySet();
         for (String paramKey : paramKeys) {
             String paramValue = paramMap.get(paramKey) != null ? paramMap.get(paramKey).stringValue() : null;
             headerValue.append(paramValue == null ? ";" + paramKey : ";" + paramKey + "=" + paramValue);
         }
+        return headerValue;
     }
 
     /**

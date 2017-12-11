@@ -91,6 +91,19 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(bJson.value().get(key).asText(), value);
     }
 
+    @Test(description = "Test req struct add Header function")
+    public void testStructAddHeader() {
+        String value = "ballerina";
+        String path = "/hello/addReqHeader";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("headerValue").asText(), value);
+        Assert.assertEquals(bJson.value().get("paramValue").asText(), String.valueOf(6));
+    }
+
     @Test
     public void testCloneMethod() {
         BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
@@ -201,6 +214,19 @@ public class RequestNativeFunctionSuccessTest {
     @Test(description = "Test GetHeader function within a service")
     public void testServiceGetHeader() {
         String path = "/hello/getHeader";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("value").asText(), Constants.APPLICATION_FORM);
+    }
+
+    //TODO fix this
+    @Test(description = "Test struct Get Header operation")
+    public void testStructGetHeader() {
+        String path = "/hello/getReqHeader";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
         HTTPCarbonMessage response = Services.invokeNew(cMsg);

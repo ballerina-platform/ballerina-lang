@@ -199,7 +199,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
             if (httpCarbonMessage.getMessagingException() == null) {
                 BStruct response = createStruct(this.context, Constants.RESPONSE);
-                BStruct header = createStruct(this.context, Constants.HEADER_VALUE);
+                BStruct header = createStruct(this.context, Constants.HEADER_VALUE_STRUCT);
                 HttpUtil.populateInboundResponse(response, httpCarbonMessage, header);
                 ballerinaFuture.notifyReply(response);
             } else {

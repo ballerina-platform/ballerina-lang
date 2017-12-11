@@ -94,7 +94,7 @@ public class HttpDispatcher {
         BStruct response = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.RESPONSE);
         BStruct headerValue = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                Constants.PROTOCOL_PACKAGE_HTTP, Constants.HEADER_VALUE);
+                Constants.PROTOCOL_PACKAGE_HTTP, Constants.HEADER_VALUE_STRUCT);
         HttpUtil.populateInboundRequest(request, httpCarbonMessage, headerValue);
         HttpUtil.populateOutboundResponse(response, HttpUtil.createHttpCarbonMessage(false), httpCarbonMessage);
 

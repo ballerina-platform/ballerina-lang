@@ -1,10 +1,17 @@
 package ballerina.net.http;
 
 @Description { value:"Represents an HTTP request message"}
+@Field {value:"host: The server host name"}
+@Field {value:"port: The server port"}
+@Field {value:"path: Resource path of request URI"}
+@Field {value:"method: HTTP request method"}
+@Field {value:"httpVersion: The version of HTTP"}
+@Field {value:"userAgent: User-Agent request header"}
+@Field {value:"headers: Request headers"}
 public struct Request {
-    string path;
 	string host;
 	int port;
+	string path;
 	string method;
 	string httpVersion;
 	string userAgent;
@@ -12,6 +19,8 @@ public struct Request {
 }
 
 @Description { value:"Represents an HTTP header value"}
+@Field {value:"value: The value of header"}
+@Field {value:"param: The param map of header"}
 public struct HeaderValue {
 	string value;
 	map param;
@@ -133,6 +142,10 @@ public native function <Request req> setHeader (string key, string value);
 
 
 @Description { value:"Represents an HTTP response message"}
+@Field {value:"statusCode: The response status code"}
+@Field {value:"reasonPhrase: The response reason phrase"}
+@Field {value:"server: The server header"}
+@Field {value:"headers: Response headers"}
 public struct Response {
     int statusCode;
     string reasonPhrase;

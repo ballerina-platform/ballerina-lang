@@ -131,6 +131,42 @@ service<http> helloServer {
     }
 
     @http:resourceConfig {
+        path:"/addReqHeader"
+    }
+    resource addReqHeader (http:Request req, http:Response res) {
+        http:HeaderValue[] headers = [{value:"ballerina", param:{b:"6", c:7}}, {value:"transport", param:{a:6}}];
+        req.headers["wso2"] = headers;
+
+        var values  = req.headers["wso2"];
+        var valueArr,err = (http:HeaderValue[]) values;
+        string header = valueArr[0].value;
+
+        map param = valueArr[0].param;
+        var paramVal,_ = (string)param["b"];
+
+        res.setJsonPayload({headerValue:header, paramValue:paramVal});
+        _ = res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/addReqHeaderWithoutParam"
+    }
+    resource addReqHeader (http:Request req, http:Response res) {
+        http:HeaderValue[] headers = [{value:"ballerina"}, {value:"transport", param:{a:6}}];
+        req.headers["wso2"] = headers;
+
+        var values  = req.headers["wso2"];
+        var valueArr,err = (http:HeaderValue[]) values;
+        string header = valueArr[0].value;
+
+        map param = valueArr[0].param;
+        var paramVal,_ = (string)param["b"];
+
+        res.setJsonPayload({headerValue:header, paramValue:paramVal});
+        _ = res.send();
+    }
+
+    @http:resourceConfig {
         path:"/cloneMethod"
     }
     resource CloneMethod (http:Request req, http:Response res) {
@@ -154,6 +190,18 @@ service<http> helloServer {
     }
     resource getHeader (http:Request req, http:Response res) {
         string header = req.getHeader("Content-Type");
+        res.setJsonPayload({value:header});
+        _ = res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/getReqHeader"
+    }
+    resource getReqHeader (http:Request req, http:Response res) {
+        var values  = req.headers["Content-Type"];
+        var valueArr,err = (http:HeaderValue[]) values;
+        string header = valueArr[0].value;
+
         res.setJsonPayload({value:header});
         _ = res.send();
     }
