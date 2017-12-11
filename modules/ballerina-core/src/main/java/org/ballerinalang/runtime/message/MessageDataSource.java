@@ -49,7 +49,7 @@ public interface MessageDataSource {
 
     /**
      * Returns the data-object of the data source.
-     * @return data-object.
+     * @return data-object
      */
     public Object getDataObject();
 
