@@ -39,6 +39,7 @@ class WhileNode extends React.Component {
         return (
             <g>
                 <DropZone
+                    model={this.props.model}
                     x={dropZone.x}
                     y={dropZone.y}
                     width={dropZone.w}

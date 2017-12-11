@@ -238,6 +238,7 @@ class StatementDecorator extends React.Component {
                 />
                 { children }
                 <DropZone
+                    model={this.props.model}
                     x={dropZone.x}
                     y={dropZone.y}
                     width={dropZone.w}

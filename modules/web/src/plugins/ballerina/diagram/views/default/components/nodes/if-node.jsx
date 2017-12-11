@@ -180,6 +180,7 @@ class IfNode extends React.Component {
                 {!isElseIfNode &&
                 <g>
                     <DropZone
+                        model={this.props.model}
                         x={dropZone.x}
                         y={dropZone.y}
                         width={dropZone.w}

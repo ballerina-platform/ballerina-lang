@@ -20,6 +20,7 @@ import PropTypes from 'prop-types';
 import cn from 'classnames';
 import { withDropEnabled } from './drop-target';
 import Node from './../model/tree/node';
+import DefaultNodeFactory from 'plugins/ballerina/model/default-node-factory';
 import './drop-zone.scss';
 
 const BASE_TYPES = {
@@ -36,6 +37,11 @@ class DropZone extends React.Component {
       };
       this.onMouseOverArea = this.onMouseOverArea.bind(this);
       this.onMouseOutArea = this.onMouseOutArea.bind(this);
+      this.onAddButtonClick = this.onAddButtonClick.bind(this);
+      this.onAddEndpointClick = this.onAddEndpointClick.bind(this);
+      this.onAddIfClick = this.onAddIfClick.bind(this);
+      this.onAddWhileClick = this.onAddWhileClick.bind(this);
+      this.onAddActionClick = this.onAddActionClick.bind(this);
   }
 
     render() {
@@ -115,6 +121,7 @@ class DropZone extends React.Component {
                       y={y + 2.5}
                       width='20'
                       height='20'
+                      onClick={this.onClick}
                       onMouseOver={this.onMouseOverArea}
                       onMouseOut={this.onMouseOutArea}
                       rx='10'
@@ -127,6 +134,7 @@ class DropZone extends React.Component {
                       y={y + 12.5}
                       width='20'
                       height='20'
+                      onClick={this.onAddButtonClick}
                       onMouseOver={this.onMouseOverArea}
                       onMouseOut={this.onMouseOutArea}
                       className={this.state.overArea ? 'add-statement-button-label'
@@ -140,6 +148,60 @@ class DropZone extends React.Component {
     }
     onMouseOutArea() {
         this.setState({ overArea:false });
+    }
+
+    onAddButtonClick() {
+      const blocksToBeAdded = [];
+      const endpointItem = {
+          name: 'endpoint',
+          addBlock: this.onAddEndpointClick,
+      };
+      const ifItem = {
+          name: 'if',
+          addBlock: this.onAddIfClick,
+      };
+      const whileItem = {
+          name: 'while',
+          addBlock: this.onAddWhileClick,
+      };
+      const actionItem = {
+          name: 'action',
+          addBlock: this.onAddActionClick,
+      };
+      blocksToBeAdded.push(endpointItem);
+      blocksToBeAdded.push(ifItem);
+      blocksToBeAdded.push(whileItem);
+      blocksToBeAdded.push(actionItem);
+      const overlayComponents = {
+          kind: 'MultiBlockSelect',
+          props: {
+              key: 'test',
+              model: this.props.model,
+              blocksToBeAdded,
+          },
+      };
+
+      this.props.model.viewState.showOverlayContainer = true;
+      this.props.model.viewState.overlayContainer = overlayComponents;
+      this.context.editor.update();
+    }
+
+    onAddEndpointClick() {
+
+    }
+
+    onAddIfClick() {
+      this.props.model.parent.addStatements(DefaultNodeFactory.createIf(),
+            this.props.model.parent.getIndexOfStatements(this.props.model));
+    }
+
+    onAddWhileClick() {
+      this.props.model.parent.addStatements(DefaultNodeFactory.createWhile(),
+            this.props.model.parent.getIndexOfStatements(this.props.model));
+    }
+
+    onAddActionClick() {
+
     }
 }
 
@@ -164,6 +226,10 @@ DropZone.defaultProps = {
     enableCenterOverlayLine: false,
     renderUponDragStart: false,
     className: '',
+};
+
+DropZone.contextTypes = {
+    editor: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default withDropEnabled(DropZone);
