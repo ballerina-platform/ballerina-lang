@@ -16,6 +16,14 @@ for more info: http://ballerinalang.org/
 
 Alternatively, in your home directory, locate .vscode/extentions/ directory and add the root directory into it.
 
+## Debugging language server
+
+To connect a remote debug client to the language server process, set `LSDEBUG` environment variable to "true".
+
+`LSDEBUG=true code --extensionDevelopmentPath=/home/aruna/projects/ballerina/plugin-vscode`
+
+Now connect the remote debug client to port 5005.
+
 ## How to contribute
 
 Pull requests are highly encouraged and we recommend you to create a GitHub issue
