@@ -109,7 +109,7 @@ public class BlockingEntityCollector implements EntityCollector {
                 contentList.add(httpContent);
 
             } catch (InterruptedException e) {
-                LOG.error("Error while getting full message length", e);
+                LOG.warn("Error while getting full message length", e);
             }
         }
         int size = 0;
