@@ -43,6 +43,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.BCONST_1] = "bconst_1";
         mnemonics[InstructionCodes.RCONST_NULL] = "rconst_null";
 
+        mnemonics[InstructionCodes.REG_DUPLICATE] = "reg_duplicate";
         mnemonics[InstructionCodes.ILOAD] = "iload";
         mnemonics[InstructionCodes.FLOAD] = "fload";
         mnemonics[InstructionCodes.SLOAD] = "sload";
