@@ -202,7 +202,7 @@ public abstract class Sink implements SinkListener, Snapshotable {
                 isTryingToConnect.set(false);
                 backoffRetryCounter.reset();
             } catch (ConnectionUnavailableException e) {
-                LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                LOG.error(LogEncoder.removeCRLFCharacters(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
                         " Error while connecting at Sink '" + type + "' at '" + streamDefinition.getId() +
                         "', will retry in '" + backoffRetryCounter.getTimeInterval() + "'."), e);
                 scheduledExecutorService.schedule(new Runnable() {
@@ -213,9 +213,9 @@ public abstract class Sink implements SinkListener, Snapshotable {
                 }, backoffRetryCounter.getTimeIntervalMillis(), TimeUnit.MILLISECONDS);
                 backoffRetryCounter.increment();
             } catch (RuntimeException e) {
-                LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext)) +
-                        " Error while connecting at Sink '" + LogEncoder.getEncodedString(type) + "' at '" +
-                        LogEncoder.getEncodedString(streamDefinition.getId()) + "'.", e);
+                LOG.error(LogEncoder.removeCRLFCharacters(ExceptionUtil.getMessageWithContext(e, siddhiAppContext)) +
+                        " Error while connecting at Sink '" + LogEncoder.removeCRLFCharacters(type) + "' at '" +
+                        LogEncoder.removeCRLFCharacters(streamDefinition.getId()) + "'.", e);
                 throw e;
             }
         }

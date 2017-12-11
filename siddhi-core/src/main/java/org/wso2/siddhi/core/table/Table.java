@@ -366,9 +366,9 @@ public abstract class Table implements FindableProcessor, MemoryCalculable {
                 isTryingToConnect.set(false);
                 backoffRetryCounter.reset();
             } catch (ConnectionUnavailableException e) {
-                LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext)) +
-                        " Error while connecting to Table '" + LogEncoder.getEncodedString(tableDefinition.getId())
-                        + "', will retry in '" + LogEncoder.getEncodedString(backoffRetryCounter.getTimeInterval()) +
+                LOG.error(LogEncoder.removeCRLFCharacters(ExceptionUtil.getMessageWithContext(e, siddhiAppContext)) +
+                        " Error while connecting to Table '" + LogEncoder.removeCRLFCharacters(tableDefinition.getId())
+                        + "', will retry in '" + LogEncoder.removeCRLFCharacters(backoffRetryCounter.getTimeInterval()) +
                         "'.", e);
                 scheduledExecutorService.schedule(new Runnable() {
                     @Override
@@ -378,8 +378,8 @@ public abstract class Table implements FindableProcessor, MemoryCalculable {
                 }, backoffRetryCounter.getTimeIntervalMillis(), TimeUnit.MILLISECONDS);
                 backoffRetryCounter.increment();
             } catch (RuntimeException e) {
-                LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext)) +
-                        " . Error while connecting to Table '" + LogEncoder.getEncodedString(tableDefinition.getId())
+                LOG.error(LogEncoder.removeCRLFCharacters(ExceptionUtil.getMessageWithContext(e, siddhiAppContext)) +
+                        " . Error while connecting to Table '" + LogEncoder.removeCRLFCharacters(tableDefinition.getId())
                         + "'.", e);
                 throw e;
             }

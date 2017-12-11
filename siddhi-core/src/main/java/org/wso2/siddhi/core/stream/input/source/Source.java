@@ -133,9 +133,9 @@ public abstract class Source implements Snapshotable {
                 backoffRetryCounter.reset();
             } catch (ConnectionUnavailableException e) {
                 LOG.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
-                        " Error while connecting at Source '" + LogEncoder.getEncodedString(type) + "' at '" +
-                        LogEncoder.getEncodedString(streamDefinition.getId()) + "'. Will retry in '" +
-                        LogEncoder.getEncodedString(backoffRetryCounter.getTimeInterval()) + "'.", e);
+                        " Error while connecting at Source '" + LogEncoder.removeCRLFCharacters(type) + "' at '" +
+                        LogEncoder.removeCRLFCharacters(streamDefinition.getId()) + "'. Will retry in '" +
+                        LogEncoder.removeCRLFCharacters(backoffRetryCounter.getTimeInterval()) + "'.", e);
                 scheduledExecutorService.schedule(new Runnable() {
                     @Override
                     public void run() {
@@ -144,9 +144,9 @@ public abstract class Source implements Snapshotable {
                 }, backoffRetryCounter.getTimeIntervalMillis(), TimeUnit.MILLISECONDS);
                 backoffRetryCounter.increment();
             } catch (RuntimeException e) {
-                LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext)) +
-                        "Error while connecting at Source '" + LogEncoder.getEncodedString(type) + "' at '" +
-                        LogEncoder.getEncodedString(streamDefinition.getId()) + "'.", e);
+                LOG.error(LogEncoder.removeCRLFCharacters(ExceptionUtil.getMessageWithContext(e, siddhiAppContext)) +
+                        "Error while connecting at Source '" + LogEncoder.removeCRLFCharacters(type) + "' at '" +
+                        LogEncoder.removeCRLFCharacters(streamDefinition.getId()) + "'.", e);
                 throw e;
             }
         }
@@ -186,9 +186,9 @@ public abstract class Source implements Snapshotable {
         public void onError(ConnectionUnavailableException e) {
             disconnect();
             isConnected.set(false);
-            LOG.error(LogEncoder.getEncodedString(ExceptionUtil.getMessageWithContext(e, siddhiAppContext)) +
-                    " Connection unavailable at Sink '" + LogEncoder.getEncodedString(type) + "' at '" +
-                    LogEncoder.getEncodedString(streamDefinition.getId()) + "', will retry connection immediately.", e);
+            LOG.error(LogEncoder.removeCRLFCharacters(ExceptionUtil.getMessageWithContext(e, siddhiAppContext)) +
+                    " Connection unavailable at Sink '" + LogEncoder.removeCRLFCharacters(type) + "' at '" +
+                    LogEncoder.removeCRLFCharacters(streamDefinition.getId()) + "', will retry connection immediately.", e);
             connectWithRetry();
         }
     }

@@ -88,10 +88,6 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
-            <artifactId>encoder</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
@@ -109,7 +105,6 @@
                             org.wso2.siddhi.core.*
                         </Export-Package>
                         <Import-Package>
-                            org.owasp.encoder.*;version="${owasp.encoder.version.range}",
                             *;resolution:=optional
                         </Import-Package>
                         <Include-Resource>
