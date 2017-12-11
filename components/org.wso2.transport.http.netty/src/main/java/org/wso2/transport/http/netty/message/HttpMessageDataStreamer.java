@@ -66,7 +66,6 @@ public class HttpMessageDataStreamer {
 
         @Override
         public int read() throws IOException {
-            httpCarbonMessage.setAlreadyRead(true); // TODO: No need to set this again and again
             if ((httpContent instanceof LastHttpContent) && chunkFinished) {
                 return -1;
             } else if (chunkFinished) {
