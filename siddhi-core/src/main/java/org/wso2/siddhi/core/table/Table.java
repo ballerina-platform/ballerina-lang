@@ -30,8 +30,8 @@ import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
 import org.wso2.siddhi.core.table.record.RecordTableHandler;
 import org.wso2.siddhi.core.util.ExceptionUtil;
-import org.wso2.siddhi.core.util.LogEncoder;
 import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.core.util.StringUtil;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
@@ -366,10 +366,10 @@ public abstract class Table implements FindableProcessor, MemoryCalculable {
                 isTryingToConnect.set(false);
                 backoffRetryCounter.reset();
             } catch (ConnectionUnavailableException e) {
-                LOG.error(LogEncoder.removeCRLFCharacters(ExceptionUtil.getMessageWithContext(e, siddhiAppContext)) +
-                        " Error while connecting to Table '" + LogEncoder.removeCRLFCharacters(tableDefinition.getId())
-                        + "', will retry in '" + LogEncoder.removeCRLFCharacters(backoffRetryCounter.getTimeInterval()) +
-                        "'.", e);
+                LOG.error(StringUtil.removeCRLFCharacters(ExceptionUtil.getMessageWithContext(e, siddhiAppContext)) +
+                        " Error while connecting to Table '" + StringUtil.removeCRLFCharacters(tableDefinition.getId())
+                        + "', will retry in '" + StringUtil.removeCRLFCharacters(backoffRetryCounter.
+                        getTimeInterval()) + "'.", e);
                 scheduledExecutorService.schedule(new Runnable() {
                     @Override
                     public void run() {
@@ -378,9 +378,9 @@ public abstract class Table implements FindableProcessor, MemoryCalculable {
                 }, backoffRetryCounter.getTimeIntervalMillis(), TimeUnit.MILLISECONDS);
                 backoffRetryCounter.increment();
             } catch (RuntimeException e) {
-                LOG.error(LogEncoder.removeCRLFCharacters(ExceptionUtil.getMessageWithContext(e, siddhiAppContext)) +
-                        " . Error while connecting to Table '" + LogEncoder.removeCRLFCharacters(tableDefinition.getId())
-                        + "'.", e);
+                LOG.error(StringUtil.removeCRLFCharacters(ExceptionUtil.getMessageWithContext(e, siddhiAppContext)) +
+                        " . Error while connecting to Table '" + StringUtil.removeCRLFCharacters(tableDefinition.
+                        getId()) + "'.", e);
                 throw e;
             }
         }

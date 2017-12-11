@@ -19,9 +19,9 @@ package org.wso2.siddhi.core.util;
 /**
  * Class used to encode strings before logging.
  */
-public class LogEncoder {
+public class StringUtil {
 
-    private LogEncoder() {}
+    private StringUtil() {}
 
     public static String removeCRLFCharacters(String str) {
         return str.replace('\n', '_').replace('\r', '_');
