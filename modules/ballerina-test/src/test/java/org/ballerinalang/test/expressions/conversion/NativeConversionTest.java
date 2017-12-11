@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.test.expressions.conversion;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BIntArray;
@@ -178,13 +178,13 @@ public class NativeConversionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJson");
         Assert.assertTrue(returns[0] instanceof BJSON);
         JsonNode child = ((BJSON) returns[0]).value();
-        Assert.assertEquals(child.get("name").textValue(), "Child");
-        Assert.assertEquals(child.get("age").intValue(), 25);
+        Assert.assertEquals(child.get("name").stringValue(), "Child");
+        Assert.assertEquals(child.get("age").longValue(), 25);
 
         JsonNode parent = child.get("parent");
         Assert.assertTrue(parent.isObject());
-        Assert.assertEquals(parent.get("name").textValue(), "Parent");
-        Assert.assertEquals(parent.get("age").intValue(), 50);
+        Assert.assertEquals(parent.get("name").stringValue(), "Parent");
+        Assert.assertEquals(parent.get("age").longValue(), 50);
         Assert.assertTrue(parent.get("parent").isNull());
         Assert.assertTrue(parent.get("info").isNull());
         Assert.assertTrue(parent.get("address").isNull());
@@ -192,19 +192,19 @@ public class NativeConversionTest {
 
         JsonNode info = child.get("info");
         Assert.assertTrue(info.isObject());
-        Assert.assertEquals(info.get("status").textValue(), "single");
+        Assert.assertEquals(info.get("status").stringValue(), "single");
 
         JsonNode address = child.get("address");
         Assert.assertTrue(info.isObject());
-        Assert.assertEquals(address.get("country").textValue(), "SriLanka");
-        Assert.assertEquals(address.get("city").textValue(), "Colombo");
+        Assert.assertEquals(address.get("country").stringValue(), "SriLanka");
+        Assert.assertEquals(address.get("city").stringValue(), "Colombo");
 
         JsonNode marks = child.get("marks");
         Assert.assertTrue(marks.isArray());
         Assert.assertEquals(marks.size(), 3);
-        Assert.assertEquals(marks.get(0).intValue(), 87);
-        Assert.assertEquals(marks.get(1).intValue(), 94);
-        Assert.assertEquals(marks.get(2).intValue(), 72);
+        Assert.assertEquals(marks.get(0).longValue(), 87);
+        Assert.assertEquals(marks.get(1).longValue(), 94);
+        Assert.assertEquals(marks.get(2).longValue(), 72);
     }
 
     @Test(description = "Test converting a struct to a struct")

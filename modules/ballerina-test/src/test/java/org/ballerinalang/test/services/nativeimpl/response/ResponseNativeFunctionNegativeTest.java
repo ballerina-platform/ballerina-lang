@@ -99,8 +99,7 @@ public class ResponseNativeFunctionNegativeTest {
         } catch (Throwable e) {
             error = e.getMessage();
         }
-        Assert.assertEquals(error.substring(23, 133), "error while retrieving json payload from message: " +
-                "failed to create json: No content to map due to end-of-input");
+        Assert.assertTrue(error.contains("unexpected end of JSON document"));
     }
 
     @Test(description = "Test method with string payload")
@@ -121,8 +120,7 @@ public class ResponseNativeFunctionNegativeTest {
         } catch (Throwable e) {
             error = e.getMessage();
         }
-        Assert.assertEquals(error.substring(23, 118), "error while retrieving json payload from message" +
-                ": Unrecognized token 'ballerina': was expecting");
+        Assert.assertTrue(error.contains("unrecognized token 'ballerina'"));
     }
 
     @Test
