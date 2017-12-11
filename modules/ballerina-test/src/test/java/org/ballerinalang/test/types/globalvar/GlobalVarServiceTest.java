@@ -50,7 +50,6 @@ public class GlobalVarServiceTest {
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarInt":800, "glbVarString":"value", "glbVarFloat":99.34323}
-//        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("glbVarInt").asText(), "800");
         Assert.assertEquals(bJson.value().get("glbVarString").asText(), "value");

@@ -76,6 +76,6 @@ public class Send extends AbstractNativeFunction {
         }
 
         return HttpUtil.prepareResponseAndSend(context, this, requestMessage,
-                responseMessage, (MessageDataSource) responseStruct.getNativeData(HttpUtil.MESSAGE_DATA_SOURCE));
+                responseMessage, (MessageDataSource) responseStruct.getNativeData(Constants.MESSAGE_DATA_SOURCE));
     }
 }

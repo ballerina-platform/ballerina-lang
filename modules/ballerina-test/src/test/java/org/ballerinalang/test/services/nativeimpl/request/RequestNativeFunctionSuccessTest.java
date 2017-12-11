@@ -92,46 +92,6 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(bJson.value().get(key).asText(), value);
     }
 
-//    @Test
-//    public void testCloneMethod() {
-//        BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
-//        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
-//
-//        String payload = "ballerina";
-//        BallerinaMessageDataSource dataSource = new StringDataSource(payload);
-//        dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-//        HttpUtil.addMessageDataSource(request, dataSource);
-//
-//        cMsg.setHeader(Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
-//        String propertyName = "wso2";
-//        String propertyValue = "Ballerina";
-//        cMsg.setProperty(propertyName, propertyValue);
-//        HttpUtil.addCarbonMsg(request, cMsg);
-//        BValue[] inputArg = {request};
-//        BValue[] returnVals = BRunUtil.invoke(result, "testClone", inputArg);
-//        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-//                "Invalid Return Values.");
-//        Assert.assertTrue(returnVals[0] instanceof BStruct);
-//        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
-//        Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), payload);
-//        Assert.assertEquals(response.getHeader(Constants.CONTENT_TYPE), Constants.TEXT_PLAIN);
-//        Assert.assertEquals(response.getProperty(propertyName), propertyValue);
-//    }
-//
-//    @Test(description = "Test CloneMethod function within a service")
-//    public void testServiceCloneMethod() {
-//        String key = "lang";
-//        String value = "ballerina";
-//        String path = "/hello/cloneMethod";
-//        String json = "{\"" + key + "\":\"" + value + "\"}";
-//        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_POST, json);
-//        HTTPCarbonMessage response = Services.invokeNew(cMsg);
-//
-//        Assert.assertNotNull(response, "Response message not found");
-//        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-//        Assert.assertEquals(bJson.value().get("lang").asText(), value);
-//    }
-
     //TODO Test this with multipart support, not needed for now
     @Test(enabled = false)
     public void testGetBinaryPayloadMethod() {

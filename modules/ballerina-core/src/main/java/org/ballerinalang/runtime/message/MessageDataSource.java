@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -25,20 +25,54 @@ import java.util.Map;
  */
 public interface MessageDataSource {
 
+    /**
+     * Returns the string value of the given path.
+     * @param path value path
+     * @return value
+     */
     public String getValueAsString(String path);
 
+    /**
+     * Returns the string value of the path.
+     * @param path value path
+     * @param properties meta info
+     * @return value
+     */
     public String getValueAsString(String path, Map<String, String> properties);
 
+    /**
+     * Returns the value.
+     * @param path value path
+     * @return value
+     */
     public Object getValue(String path);
 
+    /**
+     * Returns the data-object of the data source.
+     * @return data-object.
+     */
     public Object getDataObject();
 
+    /**
+     * Reruns the content-type of the data.
+     * @return content-type
+     */
     public String getContentType();
 
+    /**
+     * Set the content type of the data.
+     * @param type content-type
+     */
     public void setContentType(String type);
 
+    /**
+     * Serialize data in to a byte stream.
+     */
     public void serializeData();
 
+    /**
+     * Returns the entire message as string.
+     * @return message
+     */
     public String getMessageAsString();
-
 }

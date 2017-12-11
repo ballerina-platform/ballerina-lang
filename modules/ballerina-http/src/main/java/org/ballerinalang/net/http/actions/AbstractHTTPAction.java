@@ -162,9 +162,9 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     private void serializeDataSource(Context context) {
         BStruct requestStruct  = ((BStruct) getRefArgument(context, 1));
-        if (requestStruct.getNativeData(HttpUtil.MESSAGE_DATA_SOURCE) != null) {
+        if (requestStruct.getNativeData(Constants.MESSAGE_DATA_SOURCE) != null) {
             MessageDataSource messageDataSource = (MessageDataSource) requestStruct
-                    .getNativeData(HttpUtil.MESSAGE_DATA_SOURCE);
+                    .getNativeData(Constants.MESSAGE_DATA_SOURCE);
             messageDataSource.serializeData();
         }
     }

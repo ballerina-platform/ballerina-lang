@@ -79,13 +79,13 @@ public class Forward extends AbstractNativeFunction {
             responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
         }
 
-        if (responseStruct.getNativeData(HttpUtil.MESSAGE_DATA_SOURCE) != null) {
+        if (responseStruct.getNativeData(Constants.MESSAGE_DATA_SOURCE) != null) {
             MessageDataSource messageDataSource = (MessageDataSource) responseStruct
-                    .getNativeData(HttpUtil.MESSAGE_DATA_SOURCE);
+                    .getNativeData(Constants.MESSAGE_DATA_SOURCE);
             messageDataSource.serializeData();
         }
 
         return HttpUtil.prepareResponseAndSend(context, this, requestMessage,
-                responseMessage, (MessageDataSource) clientResponseStruct.getNativeData(HttpUtil.MESSAGE_DATA_SOURCE));
+                responseMessage, (MessageDataSource) clientResponseStruct.getNativeData(Constants.MESSAGE_DATA_SOURCE));
     }
 }

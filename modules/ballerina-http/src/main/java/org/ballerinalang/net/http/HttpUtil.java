@@ -32,6 +32,7 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
+import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
@@ -68,13 +69,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static org.ballerinalang.net.http.Constants.MESSAGE_DATA_SOURCE;
+
 /**
  * Utility class providing utility methods.
  */
 public class HttpUtil {
     private static final Logger log = LoggerFactory.getLogger(HttpUtil.class);
 
-    public static final String MESSAGE_DATA_SOURCE = "messageDataSource";
     private static final String METHOD_ACCESSED = "isMethodAccessed";
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
 
@@ -99,25 +101,25 @@ public class HttpUtil {
 
     public static BValue[] getBinaryPayload(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-//        BBlob result;
-//        try {
-//            BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-//            HTTPCarbonMessage httpCarbonMessage = HttpUtil
-//                    .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-//
-//            if (httpCarbonMessage.isAlreadyRead()) {
-//                result = new BBlob((byte[]) httpCarbonMessage.getMessageDataSource().getDataObject());
-//            } else {
-//                result = new BBlob(toByteArray(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream()));
-//            }
-//            if (log.isDebugEnabled()) {
-//                log.debug("Payload in String:" + result.stringValue());
-//            }
-//        } catch (Throwable e) {
-//            throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());
-//        }
-//        return abstractNativeFunction.getBValues(result);
-        return null;
+        BBlob result;
+        try {
+            BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+            HTTPCarbonMessage httpCarbonMessage = HttpUtil
+                    .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+
+            if (httpMessageStruct.getNativeData(MESSAGE_DATA_SOURCE) != null) {
+                result = (BBlob) httpMessageStruct.getNativeData(MESSAGE_DATA_SOURCE);
+            } else {
+                result = new BBlob(toByteArray(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream()));
+                httpMessageStruct.addNativeData(MESSAGE_DATA_SOURCE, result);
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Payload in String:" + result.stringValue());
+            }
+        } catch (Throwable e) {
+            throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());
+        }
+        return abstractNativeFunction.getBValues(result);
     }
 
     public static BValue[] getHeader(Context context,
