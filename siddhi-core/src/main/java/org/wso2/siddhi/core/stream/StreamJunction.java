@@ -301,7 +301,7 @@ public class StreamJunction implements EventBufferHolder {
 
     @Override
     public boolean containsBufferedEvents() {
-        return disruptor != null;
+        return (!receivers.isEmpty() && async);
     }
 
     /**
