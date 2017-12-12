@@ -1,8 +1,16 @@
 package ballerina.net.http;
 
+import ballerina.mime;
+
 @Description { value:"Represents an HTTP request message"}
 public struct Request {
+
 }
+
+@Description { value:"Gets entity of the request"}
+@Param { value:"req: The request message" }
+@Return { value:"Entity of the request" }
+public native function <Request req> getEntity () (mime:Entity);
 
 @Description { value:"Gets the request URL from the request"}
 @Param { value:"req: The request message" }

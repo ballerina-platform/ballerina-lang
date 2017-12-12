@@ -28,6 +28,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
@@ -66,6 +68,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import static org.ballerinalang.mime.util.MimeUtil.TEXT_DATA;
 
 /**
  * Utility class providing utility methods.
@@ -109,6 +113,56 @@ public class HttpUtil {
         HTTPCarbonMessage clonedHttpRequest = createHttpCarbonMessage(httpCarbonMessage);
         HttpUtil.addCarbonMsg(clonedRequestStruct, clonedHttpRequest);
         return abstractNativeFunction.getBValues(clonedRequestStruct);
+    }
+
+    public static BValue[] getEntity(Context context, AbstractNativeFunction abstractNativeFunction,
+            boolean isRequest) {
+        BStruct entity = ConnectorUtils
+                .createAndGetStruct(context, org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
+                        org.ballerinalang.mime.util.Constants.ENTITY);
+
+        int contentLength = -1;
+
+        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        HTTPCarbonMessage httpCarbonMessage = HttpUtil
+                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+
+        String lengthStr = httpCarbonMessage.getHeader(Constants.HTTP_CONTENT_LENGTH);
+        try {
+            contentLength = Integer.parseInt(lengthStr);
+            MimeUtil.setContentLength(entity, contentLength);
+        } catch (NumberFormatException e) {
+            throw new BallerinaException("Invalid content length");
+        }
+
+        if (httpCarbonMessage.isAlreadyRead()) {
+            MessageDataSource payload = httpCarbonMessage.getMessageDataSource();
+            if (payload instanceof StringDataSource) {
+                entity.setStringField(TEXT_DATA, httpCarbonMessage.getMessageDataSource().getMessageAsString());
+            }
+        } else {
+            InputStream inputStream = new HttpMessageDataStreamer(httpCarbonMessage).getInputStream();
+            String headerValue = httpCarbonMessage.getHeader(org.ballerinalang.mime.util.Constants.CONTENT_TYPE);
+            if (headerValue != null) {
+                switch (headerValue) {
+                    case org.ballerinalang.mime.util.Constants.TEXT_PLAIN:
+                        MimeUtil.setStringPayload(context, entity, inputStream, contentLength);
+                        break;
+                    case org.ballerinalang.mime.util.Constants.APPLICATION_JSON:
+                        MimeUtil.setJsonPayload(context, entity, inputStream, contentLength);
+                        break;
+                    case org.ballerinalang.mime.util.Constants.APPLICATION_XML:
+                        MimeUtil.setXmlPayload(context, entity, inputStream, contentLength);
+                        break;
+                    default:
+                        MimeUtil.setBinaryPayload(context, entity, inputStream, contentLength);
+                        break;
+                }
+            } else {
+                MimeUtil.setBinaryPayload(context, entity, inputStream, contentLength);
+            }
+        }
+        return abstractNativeFunction.getBValues(entity);
     }
 
     public static BValue[] getBinaryPayload(Context context,
