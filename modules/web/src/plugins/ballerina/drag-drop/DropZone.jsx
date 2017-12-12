@@ -88,7 +88,7 @@ class DropZone extends React.Component {
         } else {
             result = (
               <g>
-                {this.drawAddButton(restProps.x, restProps.y + (restProps.height - 25), restProps.height, restProps.width)}
+                {this.drawAddButton(restProps.x, restProps.y, restProps.height, restProps.width)}
                                 <Component
                                     {...restProps}
                                     className={
@@ -108,38 +108,6 @@ class DropZone extends React.Component {
 
     drawAddButton(x, y, height, width) {
       return (<g>
-                  <title>Add Block</title>
-                  <rect x={x}
-                    y={y}
-                    className='add-statement-area'
-                    onMouseOver={this.onMouseOverArea}
-                    onMouseOut={this.onMouseOutArea}
-                    width={120}
-                    height={50}/>
-                  <rect
-                      x={x + (width / 2) - 10}
-                      y={y + 2.5}
-                      width='20'
-                      height='20'
-                      onClick={this.onClick}
-                      onMouseOver={this.onMouseOverArea}
-                      onMouseOut={this.onMouseOutArea}
-                      rx='10'
-                      ry='10'
-                      className= {this.state.overArea ? 'add-statement-button'
-                        : 'add-statement-button-hidden'}
-                  />
-                  <text
-                      x={x - 4 + (width / 2)}
-                      y={y + 12.5}
-                      width='20'
-                      height='20'
-                      onClick={this.onAddButtonClick}
-                      onMouseOver={this.onMouseOverArea}
-                      onMouseOut={this.onMouseOutArea}
-                      className={this.state.overArea ? 'add-statement-button-label'
-                        : 'add-statement-button-label-hidden'}
-                  >+</text>
               </g>);
     }
 
@@ -152,26 +120,23 @@ class DropZone extends React.Component {
 
     onAddButtonClick() {
       const blocksToBeAdded = [];
-      const endpointItem = {
+      blocksToBeAdded.push({
           name: 'endpoint',
           addBlock: this.onAddEndpointClick,
-      };
-      const ifItem = {
+      });
+      blocksToBeAdded.push({
           name: 'if',
           addBlock: this.onAddIfClick,
-      };
-      const whileItem = {
+      });
+      blocksToBeAdded.push({
           name: 'while',
           addBlock: this.onAddWhileClick,
-      };
-      const actionItem = {
+      });
+      blocksToBeAdded.push({
           name: 'action',
           addBlock: this.onAddActionClick,
-      };
-      blocksToBeAdded.push(endpointItem);
-      blocksToBeAdded.push(ifItem);
-      blocksToBeAdded.push(whileItem);
-      blocksToBeAdded.push(actionItem);
+      });
+
       const overlayComponents = {
           kind: 'MultiBlockSelect',
           props: {
@@ -180,7 +145,6 @@ class DropZone extends React.Component {
               blocksToBeAdded,
           },
       };
-
       this.props.model.viewState.showOverlayContainer = true;
       this.props.model.viewState.overlayContainer = overlayComponents;
       this.context.editor.update();
