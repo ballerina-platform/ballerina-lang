@@ -331,6 +331,20 @@ class WhileStatementDecorator extends React.Component {
                         {displayExpression.text}
                     </text>
                 }
+                <text
+                    x={p8X}
+                    y={(p8Y + p12Y) / 2}
+                    className='flowchart-text'
+                >
+                    true
+                </text>
+                <text
+                    x={(p3X + p4X) / 2}
+                    y={p3Y}
+                    className='flowchart-text'
+                >
+                    false
+                </text>
                 <DropZone
                     x={p11X}
                     y={p11Y}

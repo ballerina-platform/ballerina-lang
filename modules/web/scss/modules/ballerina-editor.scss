@@ -1266,6 +1266,14 @@
         max-width: 250px;
         fill: "black"
     }
+
+    .flowchart-text {
+        paint-order: stroke;
+        text-anchor: middle;
+        dominant-baseline: central;
+        stroke:#ffffff;
+        stroke-width: 4;
+    }
     
     /*//////////////////////////////////////////////////*/
     /** Service container related styles | Start -> **/
