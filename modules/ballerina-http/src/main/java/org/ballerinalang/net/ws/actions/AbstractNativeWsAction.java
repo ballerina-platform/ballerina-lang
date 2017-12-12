@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.ws.Constants;
+import org.ballerinalang.net.ws.WebSocketService;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 
@@ -40,17 +41,8 @@ import javax.websocket.Session;
  */
 public abstract class AbstractNativeWsAction extends AbstractNativeAction {
 
-    public BStruct createWsConnectionStruct(Context context, Session session, String parentConnectionID) {
-
-        //gather package details from natives
-        PackageInfo wsConnectionPackageInfo = context.getProgramFile().getPackageInfo(Constants.PROTOCOL_PACKAGE_WS);
-        StructInfo wsConnectionStructInfo =
-                wsConnectionPackageInfo.getStructInfo(Constants.STRUCT_WEBSOCKET_CONNECTION);
-
-        //create session struct
-        BStructType structType = wsConnectionStructInfo.getType();
-        BStruct wsConnection = new BStruct(structType);
-
+    public BStruct createWsConnectionStruct(WebSocketService wsService, Session session, String parentConnectionID) {
+        BStruct wsConnection = wsService.createConnectionStruct();
         wsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, session);
         wsConnection.addNativeData(Constants.NATIVE_DATA_PARENT_CONNECTION_ID, parentConnectionID);
         return wsConnection;

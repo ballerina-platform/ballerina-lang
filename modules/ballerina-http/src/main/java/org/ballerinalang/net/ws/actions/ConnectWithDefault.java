@@ -67,7 +67,7 @@ public class ConnectWithDefault extends AbstractNativeWsAction {
         String clientServiceName = getClientServiceNameFromConnector(bconnector);
         BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
                 getBallerinaServerConnector(context, Constants.HTTP_PACKAGE_PATH);
-        WebSocketService wsService =
+        final WebSocketService wsService =
                 httpServerConnector.getWebSocketServicesRegistry().getClientService(clientServiceName);
         if (wsService == null) {
             throw new BallerinaConnectorException("Cannot find client service: " + clientServiceName);
@@ -85,7 +85,7 @@ public class ConnectWithDefault extends AbstractNativeWsAction {
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
-                BStruct wsConnection = createWsConnectionStruct(context, session, null);
+                BStruct wsConnection = createWsConnectionStruct(wsService, session, null);
                 context.getControlStackNew().currentFrame.returnValues[0] = wsConnection;
                 WsOpenConnectionInfo connectionInfo =
                         new WsOpenConnectionInfo(wsService, wsConnection, new HashMap<>());
