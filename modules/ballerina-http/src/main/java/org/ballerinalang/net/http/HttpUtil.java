@@ -597,7 +597,7 @@ public class HttpUtil {
         response.addNativeData(TRANSPORT_MESSAGE, resMsg);
         response.addNativeData(Constants.INBOUND_REQUEST_MESSAGE, reqMsg);
         response.addNativeData(Constants.OUTBOUND_RESPONSE, true);
-        response.setRefField(Constants.RESPONSE_HEADERS_INDEX, new BMap());
+        response.setRefField(Constants.RESPONSE_HEADERS_INDEX, new BMap<>());
     }
 
     private static BMap createHeaderBMap(BStruct headerStruct, HttpHeaders headers) {
@@ -680,18 +680,18 @@ public class HttpUtil {
                 throw new BallerinaException("expects an array as value for header key: " + key);
             }
             BRefValueArray headerValues = (BRefValueArray) headers.get(key);
-            for (int i = 0; i < headerValues.size(); i++) {
+            for (int index = 0; index < headerValues.size(); index++) {
                 //TODO remove this check when map supports exact type
-                if (headerValues.get(i).getType().getTag() == TypeTags.STRUCT_TAG) {
-                    BStruct headerStruct = (BStruct) headerValues.get(i);
+                if (headerValues.get(index).getType().getTag() == TypeTags.STRUCT_TAG) {
+                    BStruct headerStruct = (BStruct) headerValues.get(index);
                     String value = headerStruct.getStringField(Constants.HEADER_VALUE_INDEX);
-                    headerValue.append(i > 0 ? "," + value : value);
+                    headerValue.append(index > 0 ? "," + value : value);
                     BMap paramMap = (BMap) headerStruct.getRefField(Constants.HEADER_PARAM_INDEX);
                     headerValue = paramMap != null ? concatParams(headerValue, paramMap) : headerValue;
-                } else if (headerValues.get(i).getType().getTag() == TypeTags.MAP_TAG) {
-                    BMap headerMap = (BMap) headerValues.get(i);
+                } else if (headerValues.get(index).getType().getTag() == TypeTags.MAP_TAG) {
+                    BMap headerMap = (BMap) headerValues.get(index);
                     String value = headerMap.get(Constants.HEADER_VALUE).stringValue();
-                    headerValue.append(i > 0 ? "," + value : value);
+                    headerValue.append(index > 0 ? "," + value : value);
                     BMap paramMap = (BMap) headerMap.get(Constants.HEADER_PARAM);
                     headerValue = paramMap != null ? concatParams(headerValue, paramMap) : headerValue;
                 } else {

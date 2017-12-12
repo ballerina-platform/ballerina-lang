@@ -85,13 +85,16 @@ public native function <Request req> setStringPayload (string payload);
 @Description { value:"Gets a transport header from the request"}
 @Param { value:"req: A request message" }
 @Param { value:"headerName: The header name" }
-@Return { value:"The first header value for the provided header name. Returns null if the header does not exist." }
+@Return { value:"The first header value struct for the provided header name. Returns null if the header does not exist." }
 public function <Request req> getHeader (string headerName)(HeaderValue) {
-	var values  = req.headers[headerName];
-	if (values == null) {
-	    return null;
+	if (req.headers == null) {
+		return null;
 	}
-	var valueArray, err = (HeaderValue[]) values;
+	var headerValues = req.headers[headerName];
+	if (headerValues == null) {
+		return null;
+	}
+	var valueArray, err = (HeaderValue[])headerValues;
 	if (err != null) {
 		error errMsg = {msg:"expect 'ballerina.net.http:HeaderValue[]' as header value type of : " + headerName};
 		throw errMsg;
@@ -109,12 +112,15 @@ public native function <Request req> getStringPayload () (string);
 @Param { value:"key: The header name" }
 @Param { value:"value: The header value" }
 public function <Request req> addHeader (string key, string value) {
-	var values = req.headers[key];
-	if (values == null) {
+	if (req.headers == null) {
+		req.headers = {};
+	}
+	var headerValues = req.headers[key];
+	if (headerValues == null) {
 		HeaderValue[] headers = [{value:value}];
 		req.headers[key] = headers;
 	} else {
-		var valueArray, err =  (HeaderValue[]) values;
+		var valueArray, err =  (HeaderValue[])headerValues;
 		if (err != null) {
 			error errMsg = {msg:"expect 'ballerina.net.http:HeaderValue[]' as header value type of : " + key};
 			throw errMsg;
@@ -128,11 +134,14 @@ public function <Request req> addHeader (string key, string value) {
 @Param { value:"headerName: The header name" }
 @Return { value:"The header values struct array for a given header name" }
 public function <Request req> getHeaders (string headerName) (HeaderValue[]) {
-	var values  = req.headers[headerName];
-	if (values == null) {
+	if (req.headers == null) {
 		return null;
 	}
-	var valueArray, err =  (HeaderValue[]) values;
+	var headerValues = req.headers[headerName];
+	if (headerValues == null) {
+		return null;
+	}
+	var valueArray, err =  (HeaderValue[])headerValues;
 	if (err != null) {
 		error errMsg = {msg:"expect 'ballerina.net.http:HeaderValue[]' as header value type of : " + headerName};
 		throw errMsg;
@@ -179,8 +188,11 @@ public native function <Request req> clone () (Request);
 @Param { value:"key: The header name" }
 @Param { value:"value: The header value" }
 public function <Request req> setHeader (string key, string value) {
-	HeaderValue[] headers = [{value:value}];
-	req.headers[key] = headers;
+	if (req.headers == null) {
+		req.headers = {};
+	}
+	HeaderValue[] header = [{value:value}];
+	req.headers[key] = header;
 }
 
 @Description { value:"Represents an HTTP response message"}
@@ -249,13 +261,16 @@ public native function <Response res> setStringPayload (string payload);
 @Description { value:"Gets the named HTTP header from the response"}
 @Param { value:"res: The response message" }
 @Param { value:"headerName: The header name" }
-@Return { value:"The first header value for the provided header name. Returns null if the header does not exist." }
+@Return { value:"The first header value struct for the provided header name. Returns null if the header does not exist." }
 public function <Response res> getHeader (string headerName) (HeaderValue) {
-	var values  = res.headers[headerName];
-	if (values == null) {
+	if (res.headers == null) {
 		return null;
 	}
-	var valueArray, err = (HeaderValue[]) values;
+	var headerValues = res.headers[headerName];
+	if (headerValues == null) {
+		return null;
+	}
+	var valueArray, err = (HeaderValue[])headerValues;
 	if (err != null) {
 		error errMsg = {msg:"expect 'ballerina.net.http:HeaderValue[]' as header value type of : " + headerName};
 		throw errMsg;
@@ -273,12 +288,15 @@ public native function <Response res> getStringPayload () (string);
 @Param { value:"key: The header name" }
 @Param { value:"value: The header value" }
 public function <Response res> addHeader (string key, string value) {
-	var values = res.headers[key];
-	if (values == null) {
+	if (res.headers == null) {
+		res.headers = {};
+	}
+	var headerValues = res.headers[key];
+	if (headerValues == null) {
 		HeaderValue[] headers = [{value:value}];
 		res.headers[key] = headers;
 	} else {
-		var valueArray, err =  (HeaderValue[]) values;
+		var valueArray, err =  (HeaderValue[])headerValues;
 		if (err != null) {
 			error errMsg = {msg:"expect 'ballerina.net.http:HeaderValue[]' as header value type of : " + key};
 			throw errMsg;
@@ -292,11 +310,14 @@ public function <Response res> addHeader (string key, string value) {
 @Param { value:"headerName: The header name" }
 @Return { value:"The header values struct array for a given header name" }
 public function <Response res> getHeaders (string headerName) (HeaderValue[]) {
-	var values  = res.headers[headerName];
-	if (values == null) {
+	if (res.headers == null) {
 		return null;
 	}
-	var valueArray, err =  (HeaderValue[]) values;
+	var headerValues = res.headers[headerName];
+	if (headerValues == null) {
+		return null;
+	}
+	var valueArray, err =  (HeaderValue[])headerValues;
 	if (err != null) {
 		error errMsg = {msg:"expect 'ballerina.net.http:HeaderValue[]' as header value type of : " + headerName};
 		throw errMsg;
@@ -343,8 +364,11 @@ public native function <Response res> clone () (Response);
 @Param { value:"key: The header name" }
 @Param { value:"value: The header value" }
 public function <Response res> setHeader (string key, string value) {
-	HeaderValue[] headers = [{value:value}];
-	res.headers[key] = headers;
+	if (res.headers == null) {
+		res.headers = {};
+	}
+	HeaderValue[] header = [{value:value}];
+	res.headers[key] = header;
 }
 
 @Description { value:"Sends outbound response to the caller."}
