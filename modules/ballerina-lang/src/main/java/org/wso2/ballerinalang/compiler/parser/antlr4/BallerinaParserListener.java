@@ -1,4 +1,4 @@
-// Generated from BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from /home/anupama/Anupama/Workspace/WSO2_SRC/BallerinaLang/Release_Work/0.95.5/ballerina/docs/grammar/BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -1080,6 +1080,26 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTransactionStatement(BallerinaParser.TransactionStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#transactionPropertyInitStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterTransactionPropertyInitStatement(BallerinaParser.TransactionPropertyInitStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#transactionPropertyInitStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitTransactionPropertyInitStatement(BallerinaParser.TransactionPropertyInitStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#transactionPropertyInitStatementList}.
+	 * @param ctx the parse tree
+	 */
+	void enterTransactionPropertyInitStatementList(BallerinaParser.TransactionPropertyInitStatementListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#transactionPropertyInitStatementList}.
+	 * @param ctx the parse tree
+	 */
+	void exitTransactionPropertyInitStatementList(BallerinaParser.TransactionPropertyInitStatementListContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#transactionHandlers}.
 	 * @param ctx the parse tree
 	 */
@@ -1130,15 +1150,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitAbortStatement(BallerinaParser.AbortStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#retryStatement}.
+	 * Enter a parse tree produced by {@link BallerinaParser#retriesStatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterRetryStatement(BallerinaParser.RetryStatementContext ctx);
+	void enterRetriesStatement(BallerinaParser.RetriesStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#retryStatement}.
+	 * Exit a parse tree produced by {@link BallerinaParser#retriesStatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitRetryStatement(BallerinaParser.RetryStatementContext ctx);
+	void exitRetriesStatement(BallerinaParser.RetriesStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#namespaceDeclarationStatement}.
 	 * @param ctx the parse tree

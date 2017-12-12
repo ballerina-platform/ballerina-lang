@@ -1761,19 +1761,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterRetryStatement(BallerinaParser.RetryStatementContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitRetryStatement(BallerinaParser.RetryStatementContext ctx) {
+    public void exitRetriesStatement(BallerinaParser.RetriesStatementContext ctx) {
         if (ctx.exception != null) {
             return;
         }
-
-        this.pkgBuilder.addRetrytmt(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.addRetryCountExpression();
     }
 
     /**

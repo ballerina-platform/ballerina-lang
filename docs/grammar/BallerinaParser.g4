@@ -248,7 +248,6 @@ statement
     |   expressionStmt
     |   transactionStatement
     |   abortStatement
-    |   retryStatement
     |   namespaceDeclarationStatement
     ;
 
@@ -433,7 +432,15 @@ expressionStmt
     ;
 
 transactionStatement
-    :   TRANSACTION LEFT_BRACE statement* RIGHT_BRACE transactionHandlers
+    :   TRANSACTION (WITH transactionPropertyInitStatementList)? LEFT_BRACE statement* RIGHT_BRACE transactionHandlers
+    ;
+
+transactionPropertyInitStatement
+    : retriesStatement
+    ;
+
+transactionPropertyInitStatementList
+    : transactionPropertyInitStatement (COMMA transactionPropertyInitStatement)*
     ;
 
 transactionHandlers
@@ -456,8 +463,8 @@ abortStatement
     :   ABORT SEMICOLON
     ;
 
-retryStatement
-    :   RETRY expression SEMICOLON
+retriesStatement
+    :   RETRIES LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
     ;
 
 namespaceDeclarationStatement

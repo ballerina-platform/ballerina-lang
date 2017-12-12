@@ -1,29 +1,3 @@
-function testTransactionRetry1(int i) (string) {
-    string a = "start";
-    transaction {
-        a = a + " inTrx";
-    } committed {
-        a = a + " inTrx";
-        retry 4;
-    }
-    a = a + " end";
-    return a;
-}
-
-function testTransactionRetry2(int i) (string) {
-    string a = "start";
-    transaction {
-        a = a + " inTrx";
-    } failed {
-        a = a + " inFailed";
-        retry 4.5;
-    } committed {
-        a = a + " inTrx";
-    }
-        a = a + " end";
-    return a;
-}
-
 function testTransactionAbort1 () {
     int i = 10;
     transaction {
@@ -61,20 +35,6 @@ function testTransactionAbort4 () {
     }
 }
 
-function testTransactionRetry(int i) (string) {
-    string a = "start";
-    transaction {
-        a = a + " inTrx";
-    } failed {
-        retry 4;
-        a = a + " inFailed";
-    } committed {
-        a = a + " inTrx";
-    }
-    a = a + " end";
-    return a;
-}
-
 function testTransactionAbort5 () {
     int i = 10;
     transaction {
@@ -96,103 +56,28 @@ function testTransactionAbort5 () {
     }
 }
 
-
-function testTransactionRetry6(int i) (string) {
-    string a = "start";
-    transaction {
-        a = a + " inTrx";
-    } failed {
+function testBreakWithinTransaction () (string) {
+    int i = 0;
+    while (i < 5) {
+        i = i + 1;
         transaction {
-            retry 4;
+            if (i == 2) {
+                break;
+            }
         }
-    } committed {
-        a = a + " inTrx";
     }
-    a = a + " end";
-    return a;
+    return "done";
 }
 
-function testTransactionRetry7(int i) (string) {
-    string a = "start";
-    transaction {
-        a = a + " inTrx";
-    } failed {
+function testNextWithinTransaction () (string) {
+    int i = 0;
+    while (i < 5) {
+        i = i + 1;
         transaction {
-            a = a + " inTrx";
-        } aborted {
-            retry 4;
+            if (i == 2) {
+                next;
+            }
         }
-    } committed {
-        a = a + " inTrx";
     }
-    a = a + " end";
-    return a;
-}
-
-function testTransactionRetry8(int i) (string) {
-    string a = "start";
-    transaction {
-        a = a + " inTrx";
-    } failed {
-        transaction {
-            a = a + " inTrx";
-        } committed {
-            retry 4;
-        }
-    } committed {
-        a = a + " inTrx";
-    }
-    a = a + " end";
-    return a;
-}
-
-function testTransactionRetry9(int i) (string) {
-    string a = "start";
-    transaction {
-        a = a + " inTrx";
-    } failed {
-        try {
-            retry 4;
-        } finally {
-
-        }
-    } committed {
-        a = a + " inTrx";
-    }
-    a = a + " end";
-    return a;
-}
-
-function testTransactionRetry10(int i) (string) {
-    string a = "start";
-    transaction {
-        a = a + " inTrx";
-    } failed {
-        try {
-            a = a + "try";
-        } finally {
-            retry 5;
-        }
-    } committed {
-        a = a + " inTrx";
-    }
-    a = a + " end";
-    return a;
-}
-
-function testTransactionRetry11(int i) (string) {
-    string a = "start";
-    transaction {
-        a = a + " inTrx";
-    } failed {
-        try {
-            a = a + "try";
-        } catch (error e) {
-            retry 5;
-        }
-    } committed {
-        a = a + " inTrx";
-    }
-    a = a + " end";
-    return a;
+    return "done";
 }

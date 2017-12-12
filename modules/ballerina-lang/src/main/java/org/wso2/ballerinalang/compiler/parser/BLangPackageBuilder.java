@@ -113,7 +113,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -1377,22 +1376,16 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(abortNode);
     }
 
+    public void addRetryCountExpression() {
+        BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
+        transaction.retryCount = (BLangExpression) exprNodeStack.pop();
+    }
+
     public void startIfElseNode(DiagnosticPos pos) {
         BLangIf ifNode = (BLangIf) TreeBuilder.createIfElseStatementNode();
         ifNode.pos = pos;
         ifElseStatementStack.push(ifNode);
         startBlock();
-    }
-
-    public void addRetrytmt(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangRetry retryNode = (BLangRetry) TreeBuilder.createRetryNode();
-        retryNode.pos = pos;
-        retryNode.addWS(ws);
-        addStmtToCurrentBlock(retryNode);
-        TransactionNode transactionNode = transactionNodeStack.peek();
-        ExpressionNode count = exprNodeStack.pop();
-        retryNode.addWS(count.getWS());
-        transactionNode.setRetryCount(count);
     }
 
     public void addIfBlock(DiagnosticPos pos, Set<Whitespace> ws) {

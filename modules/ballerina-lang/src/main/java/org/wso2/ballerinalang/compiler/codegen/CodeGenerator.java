@@ -121,7 +121,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn.BLangWorkerReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -2735,10 +2734,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             emit(InstructionCodes.XMLATTRLOAD, varRefRegIndex, qnameRegIndex, xmlValueRegIndex);
             xmlAttributeAccessExpr.regIndex = xmlValueRegIndex;
         }
-    }
-
-    public void visit(BLangRetry retryNode) {
-        /* ignore */
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
