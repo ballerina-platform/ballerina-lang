@@ -44,6 +44,7 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
     private final WebSocketClient[] wsClients = new WebSocketClient[clientCount];
     private ServerInstance ballerinaServer;
     private WebSocketRemoteServer webSocketRemoteServer;
+    private final String name = "john";
 
     @BeforeClass
     private void setup() throws Exception {
@@ -60,7 +61,7 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
 
         // Initializing WebSocket clients.
         for (int i = 0; i < clientCount; i++) {
-            wsClients[i] = new WebSocketClient("ws://localhost:9090/proxy/ws");
+            wsClients[i] = new WebSocketClient("ws://localhost:9090/proxy/ws/" + name);
         }
     }
 
@@ -73,7 +74,7 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
         }
 
         for (int i = 0; i < clientCount; i++) {
-            String expectedMessage = "client service: " + i;
+            String expectedMessage = name + " client service: " + name + " " + i;
             assertWebSocketClientStringMessage(wsClients[i], expectedMessage, threadSleepTime,
                                                messageDeliveryCountDown);
         }
@@ -91,7 +92,7 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
         // Test ping and receive pong from remote server when ballerina client send a ping
         client.sendText("client_ping");
         Thread.sleep(threadSleepTime);
-        Assert.assertEquals(client.getTextReceived(), "remote_server_pong");
+        Assert.assertEquals(client.getTextReceived(), name + " remote_server_pong");
 
         // Test ping received from server
         client.sendText("ping");
@@ -101,7 +102,7 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
         // Test ping received from remote server
         client.sendText("client_ping_req");
         Thread.sleep(threadSleepTime);
-        Assert.assertEquals(client.getTextReceived(), "remote_server_ping");
+        Assert.assertEquals(client.getTextReceived(), name + " remote_server_ping");
     }
 
     @Test(priority = 2)
