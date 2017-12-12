@@ -17,7 +17,8 @@
 */
 package org.ballerinalang.langserver.completions.util.filters;
 
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.types.BType;
 
@@ -28,9 +29,9 @@ import java.util.stream.Collectors;
  * Filter the BTypes.
  */
 public class BTypeFilter implements SymbolFilter {
-    public List<SymbolInfo> filterItems(SuggestionsFilterDataModel dataModel) {
+    public List<SymbolInfo> filterItems(TextDocumentServiceContext completionContext) {
         List<SymbolInfo> filteredList;
-        filteredList = dataModel.getVisibleSymbols()
+        filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
                 .stream()
                 .filter(symbolInfo -> symbolInfo.getSymbol() instanceof BType)
                 .collect(Collectors.toList());

@@ -18,7 +18,8 @@
 
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.DocumentServiceKeys;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
 import org.eclipse.lsp4j.CompletionItem;
@@ -30,13 +31,14 @@ import java.util.ArrayList;
  */
 public class ParserRuleTypeNameContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
+    @SuppressWarnings("unchecked")
+    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
         // Add the statement templates
-        completionItems.addAll(statementTemplateFilter.filterItems(dataModel));
-        this.populateBasicTypes(completionItems, dataModel.getSymbolTable());
+        completionItems.addAll(statementTemplateFilter.filterItems(completionContext));
+        this.populateBasicTypes(completionItems, completionContext.get(DocumentServiceKeys.SYMBOL_TABLE_KEY));
         return completionItems;
     }
 }

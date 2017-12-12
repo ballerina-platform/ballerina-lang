@@ -15,8 +15,11 @@
  */
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
+import org.ballerinalang.langserver.DocumentServiceKeys;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
+import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -28,9 +31,11 @@ import java.util.Map;
  */
 public class ServiceScopeResolver extends CursorPositionResolver {
     @Override
-    public boolean isCursorBeforeStatement(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor) {
-        int line = treeVisitor.getTextDocumentPositionParams().getPosition().getLine();
-        int col = treeVisitor.getTextDocumentPositionParams().getPosition().getCharacter();
+    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor,
+                                      TextDocumentServiceContext completionContext) {
+        Position position = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        int line = position.getLine();
+        int col = position.getCharacter();
         DiagnosticPos zeroBasedPo = this.toZeroBasedPosition(nodePosition);
         int nodeSLine = zeroBasedPo.sLine;
         int nodeSCol = zeroBasedPo.sCol;

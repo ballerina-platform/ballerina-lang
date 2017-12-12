@@ -15,21 +15,20 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
+package org.ballerinalang.langserver.completions;
 
-package org.ballerinalang.langserver.completions.resolvers.parsercontext;
+import org.ballerinalang.langserver.LanguageServerContext;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
-import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
-import org.eclipse.lsp4j.CompletionItem;
-
-import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Parser rule based Item resolver for the Worker reply statement.
+ * Text Document Service context keys for the completion operation context
+ * @since 0.95.5
  */
-public class ParserRuleWorkerReplyContext extends AbstractItemResolver {
-    @Override
-    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
-        return new ArrayList<>();
-    }
+public class CompletionKeys {
+    public static final LanguageServerContext.Key<BLangNode> SYMBOL_ENV_NODE_KEY
+            = new LanguageServerContext.Key<>();
+    public static final LanguageServerContext.Key<List<SymbolInfo>> VISIBLE_SYMBOLS_KEY
+            = new LanguageServerContext.Key<>();
 }

@@ -19,7 +19,8 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.TokenStream;
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.DocumentServiceKeys;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -31,11 +32,11 @@ import java.util.ArrayList;
  */
 public class PackageNameContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
+    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-        TokenStream tokenStream = dataModel.getTokenStream();
-        int currentTokenIndex = dataModel.getTokenIndex();
+        TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
+        int currentTokenIndex = completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
         int tokenIterator = currentTokenIndex - 1;
         boolean proceed = true;
 

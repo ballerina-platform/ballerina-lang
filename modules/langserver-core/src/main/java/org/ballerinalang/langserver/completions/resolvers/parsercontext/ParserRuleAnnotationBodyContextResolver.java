@@ -18,7 +18,8 @@
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.antlr.v4.runtime.TokenStream;
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.DocumentServiceKeys;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
@@ -33,15 +34,15 @@ public class ParserRuleAnnotationBodyContextResolver extends AbstractItemResolve
 
     /**
      * here we provide the attach keyword completion item.
-     * @param dataModel suggestions filter data model
+     * @param completionContext completion operation context
      * @return {@link ArrayList}
      */
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
+    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        TokenStream tokenStream = dataModel.getTokenStream();
-        int tokenIndex = dataModel.getTokenIndex();
+        TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
+        int tokenIndex = completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
         int searchIndex = tokenIndex - 1;
 
         while (true) {

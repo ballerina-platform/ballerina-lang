@@ -15,10 +15,11 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.DocumentServiceKeys;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.consts.Priority;
@@ -37,19 +38,20 @@ import java.util.HashMap;
  */
 public class ParserRuleStatementContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
+    @SuppressWarnings("unchecked")
+    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
 
         HashMap<String, String> prioritiesMap = new HashMap<>();
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         // Here we specifically need to check whether the statement is function invocation,
         // action invocation or worker invocation
-        if (isActionOrFunctionInvocationStatement(dataModel)) {
+        if (isActionOrFunctionInvocationStatement(completionContext)) {
             PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
 
             // Get the action and function list
             ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
-            actionFunctionList.addAll(actionAndFunctionFilter.filterItems(dataModel));
+            actionFunctionList.addAll(actionAndFunctionFilter.filterItems(completionContext));
 
             // Populate the completion items
             this.populateCompletionItemList(actionFunctionList, completionItems);
@@ -61,11 +63,11 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
 
             return completionItems;
         } else {
-            populateCompletionItemList(dataModel.getVisibleSymbols(), completionItems);
+            populateCompletionItemList(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY), completionItems);
             StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
             // Add the statement templates
-            completionItems.addAll(statementTemplateFilter.filterItems(dataModel));
-            this.populateBasicTypes(completionItems, dataModel.getSymbolTable());
+            completionItems.addAll(statementTemplateFilter.filterItems(completionContext));
+            this.populateBasicTypes(completionItems, completionContext.get(DocumentServiceKeys.SYMBOL_TABLE_KEY));
 
             CompletionItem xmlns = new CompletionItem();
             xmlns.setLabel(ItemResolverConstants.XMLNS);

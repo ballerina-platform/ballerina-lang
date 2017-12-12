@@ -15,10 +15,10 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.consts.Snippet;
@@ -33,7 +33,8 @@ import java.util.ArrayList;
  */
 public class DefaultResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
+    @SuppressWarnings("unchecked")
+    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         CompletionItem workerItem = new CompletionItem();
@@ -44,11 +45,11 @@ public class DefaultResolver extends AbstractItemResolver {
         workerItem.setSortText(Priority.PRIORITY7.name());
         completionItems.add(workerItem);
 
-        populateCompletionItemList(dataModel.getVisibleSymbols(), completionItems);
+        populateCompletionItemList(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY), completionItems);
 
         // Add the statement templates
         StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
-        completionItems.addAll(statementTemplateFilter.filterItems(dataModel));
+        completionItems.addAll(statementTemplateFilter.filterItems(completionContext));
 
         return completionItems;
     }

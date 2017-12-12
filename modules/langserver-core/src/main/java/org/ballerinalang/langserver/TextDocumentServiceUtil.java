@@ -20,7 +20,6 @@ package org.ballerinalang.langserver;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.completions.BallerinaCustomErrorStrategy;
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.repository.PackageRepository;
@@ -119,31 +118,28 @@ class TextDocumentServiceUtil {
 
     /**
      * Get the BLangPackage for a given program.
-     * @param position              Text Document Position Parameters
+     * @param context               Text Document Service Context
      * @param docManager            Document manager
-     * @param filterDataModel       Suggestions Filter Data Model
      * @return {@link BLangPackage} BLang Package
      */
-    static BLangPackage getBLangPackage(TextDocumentPositionParams position, WorkspaceDocumentManager docManager,
-                                        SuggestionsFilterDataModel filterDataModel) {
+    static BLangPackage getBLangPackage(TextDocumentServiceContext context, WorkspaceDocumentManager docManager) {
+        TextDocumentPositionParams position = context.get(DocumentServiceKeys.POSITION_KEY);
         String uri = position.getTextDocument().getUri();
         String fileContent = docManager.getFileContent(Paths.get(URI.create(uri)));
         Path filePath = getPath(uri);
         String[] pathComponents = position.getTextDocument().getUri().split("\\" + File.separator);
         String fileName = pathComponents[pathComponents.length - 1];
-
         String pkgName = TextDocumentServiceUtil.getPackageFromContent(fileContent);
         String sourceRoot = TextDocumentServiceUtil.getSourceRoot(filePath, pkgName);
-
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, docManager);
         CompilerContext compilerContext = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceRoot);
-        filterDataModel.setFileName(fileName);
-        filterDataModel.setCompilerContext(compilerContext);
+
+        context.put(DocumentServiceKeys.FILE_NAME_KEY, fileName);
+        context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, compilerContext);
 
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
         CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
-        BallerinaCustomErrorStrategy customErrorStrategy = new BallerinaCustomErrorStrategy(compilerContext,
-                position, filterDataModel);
+        BallerinaCustomErrorStrategy customErrorStrategy = new BallerinaCustomErrorStrategy(context);
         compilerContext.put(DiagnosticListener.class, diagnosticListener);
         compilerContext.put(DefaultErrorStrategy.class, customErrorStrategy);
 

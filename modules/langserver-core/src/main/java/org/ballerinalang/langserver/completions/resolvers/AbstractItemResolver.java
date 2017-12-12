@@ -20,7 +20,8 @@ package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.DocumentServiceKeys;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.consts.Priority;
@@ -44,7 +45,7 @@ import java.util.List;
  * Interface for completion item resolvers.
  */
 public abstract class AbstractItemResolver {
-    public abstract ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel);
+    public abstract ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext);
 
     /**
      * Populate the completion item list by considering the.
@@ -77,7 +78,7 @@ public abstract class AbstractItemResolver {
      * @param symbolInfo - symbol information
      * @return completion item
      */
-    CompletionItem populateBallerinaFunctionCompletionItem(SymbolInfo symbolInfo) {
+    private CompletionItem populateBallerinaFunctionCompletionItem(SymbolInfo symbolInfo) {
         CompletionItem completionItem = new CompletionItem();
         BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
         assert bSymbol instanceof BInvokableSymbol;
@@ -103,33 +104,13 @@ public abstract class AbstractItemResolver {
      * @param symbolInfo - symbol information
      * @return completion item
      */
-    CompletionItem populateVariableDefCompletionItem(SymbolInfo symbolInfo) {
+    private CompletionItem populateVariableDefCompletionItem(SymbolInfo symbolInfo) {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(symbolInfo.getSymbolName());
         String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
         completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
         String typeName = symbolInfo.getScopeEntry().symbol.type.toString();
         completionItem.setDetail((typeName.equals("")) ? ItemResolverConstants.NONE : typeName);
-
-//        CompletionItemData data = new CompletionItemData();
-//        Type type = new Type();
-//
-//        type.setPkgName(symbolInfo.getScopeEntry().symbol.pkgID.toString());
-//        if (symbolInfo.getScopeEntry().symbol.getType() instanceof BJSONType) {
-//            assert symbolInfo.getScopeEntry().symbol.getType() instanceof BJSONType : "Invalid symbol type found";
-//            BType bType = symbolInfo.getScopeEntry().symbol.getType();
-//            if (bType instanceof BJSONType && !(((BJSONType) bType).getConstraint() instanceof BNoType)) {
-//                BJSONType bJsonType = (BJSONType) bType;
-//                type.setConstraint(true);
-//                type.setConstraintName(bJsonType.getConstraint().toString());
-//            }
-//        } else if (symbolInfo.getScopeEntry().symbol.getType() instanceof BArrayType) {
-//            type.setIsArrayType(true);
-//            type.setArrayType(symbolInfo.getScopeEntry().symbol.getType().toString());
-//        }
-//
-//        data.addData("type", type);
-//        completionItem.setData(data);
 
         completionItem.setSortText(Priority.PRIORITY7.name());
         completionItem.setKind(CompletionItemKind.Unit);
@@ -219,13 +200,13 @@ public abstract class AbstractItemResolver {
 
     /**
      * Check whether the token stream corresponds to a action invocation or a function invocation.
-     * @param dataModel - Suggestions filter data model
+     * @param documentServiceContext - Completion operation context
      * @return {@link Boolean}
      */
-    protected boolean isActionOrFunctionInvocationStatement(SuggestionsFilterDataModel dataModel) {
+    protected boolean isActionOrFunctionInvocationStatement(TextDocumentServiceContext documentServiceContext) {
         ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{"}));
-        TokenStream tokenStream = dataModel.getTokenStream();
-        int searchTokenIndex = dataModel.getTokenIndex();
+        TokenStream tokenStream = documentServiceContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
+        int searchTokenIndex = documentServiceContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
         String currentTokenStr = tokenStream.get(searchTokenIndex).getText();
 
         if (terminalTokens.contains(currentTokenStr)) {
@@ -256,46 +237,11 @@ public abstract class AbstractItemResolver {
 
     /**
      * Check whether the token stream contains an annotation start (@).
-     * @param dataModel - Suggestions filter data model
+     * @param documentServiceContext - Completion operation context
      * @return {@link Boolean}
      */
-    public boolean isAnnotationContext(SuggestionsFilterDataModel dataModel) {
-        return findPreviousToken(dataModel, "@", 3) >= 0;
-    }
-
-    /**
-     * Get the index of the equal sign.
-     * @param dataModel - suggestions filter data model
-     * @return {@link Integer}
-     */
-    public int isPreviousTokenEqualSign(SuggestionsFilterDataModel dataModel) {
-        int equalSignIndex;
-        int searchTokenIndex = dataModel.getTokenIndex() - 1;
-        TokenStream tokenStream = dataModel.getTokenStream();
-
-        while (true) {
-            if (searchTokenIndex > -1) {
-                Token token = tokenStream.get(searchTokenIndex);
-                String tokenStr = token.getText();
-
-                // If the token's channel is verbose channel we skip to the next token
-                if (token.getChannel() != 0) {
-                    searchTokenIndex--;
-                } else if (tokenStr.equals("=")) {
-                    equalSignIndex = searchTokenIndex;
-                    break;
-                } else {
-                    // In this case the token channel is the default channel and also not the equal sign token.
-                    equalSignIndex = -1;
-                    break;
-                }
-            } else {
-                equalSignIndex = -1;
-                break;
-            }
-        }
-
-        return equalSignIndex;
+    boolean isAnnotationContext(TextDocumentServiceContext documentServiceContext) {
+        return findPreviousToken(documentServiceContext, "@", 3) >= 0;
     }
 
     /**
@@ -328,12 +274,12 @@ public abstract class AbstractItemResolver {
         }
     }
 
-    protected int findPreviousToken(SuggestionsFilterDataModel dataModel, String needle, int maxSteps) {
-        TokenStream tokenStream = dataModel.getTokenStream();
+    int findPreviousToken(TextDocumentServiceContext documentServiceContext, String needle, int maxSteps) {
+        TokenStream tokenStream = documentServiceContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         if (tokenStream == null) {
             return -1;
         }
-        int searchIndex = dataModel.getTokenIndex() - 1;
+        int searchIndex = documentServiceContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY) - 1;
 
         while (maxSteps > 0) {
             if (searchIndex < 0) {
@@ -356,7 +302,7 @@ public abstract class AbstractItemResolver {
      * @param itemPriorityMap - Map of item priorities against the Item type
      * @param completionItems - list of completion items
      */
-    public void assignItemPriorities(HashMap<String, String> itemPriorityMap, List<CompletionItem> completionItems) {
+    protected void assignItemPriorities(HashMap<String, String> itemPriorityMap, List<CompletionItem> completionItems) {
         completionItems.forEach(completionItem -> {
             if (itemPriorityMap.containsKey(completionItem.getDetail())) {
                 completionItem.setSortText(itemPriorityMap.get(completionItem.getDetail()));
@@ -389,65 +335,5 @@ public abstract class AbstractItemResolver {
                         Priority.PRIORITY4.name(), insertText));
             }
         });
-    }
-
-    /**
-     * Type class for the variable def data.
-     */
-    public static class Type {
-        private boolean isArrayType;
-        private boolean constraint;
-        private String arrayType = null;
-        private String pkgName = null;
-        private String constraintName = null;
-        private String constraintPkgName = null;
-
-        public boolean isArrayType() {
-            return isArrayType;
-        }
-
-        public void setIsArrayType(boolean arrayType) {
-            isArrayType = arrayType;
-        }
-
-        public boolean isConstraint() {
-            return constraint;
-        }
-
-        public void setConstraint(boolean constraint) {
-            this.constraint = constraint;
-        }
-
-        public String getArrayType() {
-            return arrayType;
-        }
-
-        public void setArrayType(String arrayType) {
-            this.arrayType = arrayType;
-        }
-
-        public String getPkgName() {
-            return pkgName;
-        }
-
-        public void setPkgName(String pkgName) {
-            this.pkgName = pkgName;
-        }
-
-        public String getConstraintName() {
-            return constraintName;
-        }
-
-        public void setConstraintName(String constraintName) {
-            this.constraintName = constraintName;
-        }
-
-        public String getConstraintPkgName() {
-            return constraintPkgName;
-        }
-
-        public void setConstraintPkgName(String constraintPkgName) {
-            this.constraintPkgName = constraintPkgName;
-        }
     }
 }
