@@ -83,7 +83,7 @@ public class SignatureHelpUtil {
      * @param context                   Signature help package context
      * @return {@link SignatureHelp}    Signature help for the completion
      */
-    public static SignatureHelp getFunctionSignatureHelp(String functionName, SignatureHelpPackageContext context) {
+    public static SignatureHelp getFunctionSignatureHelp(String functionName, BLangPackageWrapper context) {
         // Get the functions List
         List<BLangFunction> functions = context.getItems(BLangFunction.class);
 
@@ -243,13 +243,13 @@ public class SignatureHelpUtil {
     /**
      * Package context to keep the builtin and the current package.
      */
-    public static class SignatureHelpPackageContext {
+    public static class BLangPackageWrapper {
 
         BLangPackage builtin;
 
         BLangPackage current;
 
-        public SignatureHelpPackageContext(BLangPackage builtin, BLangPackage current) {
+        public BLangPackageWrapper(BLangPackage builtin, BLangPackage current) {
             this.builtin = builtin;
             this.current = current;
         }

@@ -15,10 +15,9 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
@@ -31,14 +30,15 @@ import java.util.ArrayList;
  */
 public class ParserRuleAssignmentStatementContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
+    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
 
         // TODO: left hand side of the assignment statement should analyze when suggesting the completions
         // TODO: at the moment we are using the same completion resolving criteria as the variable definition
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         Class parserRuleContext = BallerinaParser.VariableDefinitionStatementContext.class;
-        completionItems.addAll(CompletionItemResolver.getResolverByClass(parserRuleContext).resolveItems(dataModel));
+        completionItems.addAll(
+                CompletionItemResolver.getResolverByClass(parserRuleContext).resolveItems(completionContext));
 
         return completionItems;
     }

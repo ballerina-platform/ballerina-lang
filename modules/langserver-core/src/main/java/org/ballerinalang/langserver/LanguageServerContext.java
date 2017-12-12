@@ -15,21 +15,34 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
-package org.ballerinalang.langserver.completions.resolvers.parsercontext;
-
-import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
-import org.eclipse.lsp4j.CompletionItem;
-
-import java.util.ArrayList;
+package org.ballerinalang.langserver;
 
 /**
- * Parser rule based Item resolver for the Worker reply statement.
+ * Ballerina Language server context.
+ * @since 0.95.5
  */
-public class ParserRuleWorkerReplyContext extends AbstractItemResolver {
-    @Override
-    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
-        return new ArrayList<>();
+public interface LanguageServerContext {
+
+    /**
+     * Add new Context property.
+     * @param key   Property Key
+     * @param value Property value
+     * @param <V>   Key Type
+     */
+    <V> void put(Key<V> key, V value);
+
+    /**
+     * Get property by Key.
+     * @param key   Property Key
+     * @param <V>   Key Type
+     * @return {@link Object}   Property
+     */
+    <V> V get(Key<V> key);
+
+    /**
+     * @param <K>
+     * @since 0.95.5
+     */
+    class Key<K> {
     }
 }

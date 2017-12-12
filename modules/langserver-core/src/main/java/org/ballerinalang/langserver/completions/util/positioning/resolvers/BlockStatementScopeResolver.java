@@ -16,6 +16,8 @@
 
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
+import org.ballerinalang.langserver.DocumentServiceKeys;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -45,9 +47,10 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
      * @return true|false
      */
     @Override
-    public boolean isCursorBeforeStatement(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor) {
-        int line = treeVisitor.getTextDocumentPositionParams().getPosition().getLine();
-        int col = treeVisitor.getTextDocumentPositionParams().getPosition().getCharacter();
+    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor,
+                                      TextDocumentServiceContext completionContext) {
+        int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
+        int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
         DiagnosticPos zeroBasedPos = this.toZeroBasedPosition(nodePosition);
         int nodeSLine = zeroBasedPos.sLine;
         int nodeSCol = zeroBasedPos.sCol;

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.consts.Snippet;
@@ -32,11 +32,11 @@ import java.util.ArrayList;
  */
 public class ConnectorDefinitionContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
+    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-        if (!this.isAnnotationContext(dataModel)) {
+        if (!this.isAnnotationContext(completionContext)) {
             CompletionItem connectorActionItem = new CompletionItem();
             connectorActionItem.setLabel(ItemResolverConstants.ACTION);
             connectorActionItem.setInsertText(Snippet.CONNECTOR_ACTION.toString());

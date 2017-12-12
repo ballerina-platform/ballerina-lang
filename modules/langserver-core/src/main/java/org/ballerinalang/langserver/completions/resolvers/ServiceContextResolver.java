@@ -17,7 +17,8 @@
 */
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.consts.Priority;
@@ -36,11 +37,11 @@ import java.util.stream.Collectors;
 public class ServiceContextResolver extends AbstractItemResolver {
 
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
+    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         // TODO: Add annotations
         this.addResourceCompletionItem(completionItems);
-        this.addTypes(completionItems, dataModel.getVisibleSymbols());
+        this.addTypes(completionItems, completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
         return completionItems;
     }
 

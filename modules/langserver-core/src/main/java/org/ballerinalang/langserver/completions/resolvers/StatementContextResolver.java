@@ -17,7 +17,8 @@
 */
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -28,13 +29,14 @@ import java.util.ArrayList;
  */
 public class StatementContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
+    @SuppressWarnings("unchecked")
+    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
-//        // Add the statement templates
-        completionItems.addAll(statementTemplateFilter.filterItems(dataModel));
-        populateCompletionItemList(dataModel.getVisibleSymbols(), completionItems);
+        // Add the statement templates
+        completionItems.addAll(statementTemplateFilter.filterItems(completionContext));
+        populateCompletionItemList(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY), completionItems);
 
         return completionItems;
     }

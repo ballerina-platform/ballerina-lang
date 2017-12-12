@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver;
 
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
@@ -99,19 +99,20 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     completion(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
             List<CompletionItem> completions;
-            SuggestionsFilterDataModel fDataModel = new SuggestionsFilterDataModel();
-            BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(position, documentManager, fDataModel);
+            TextDocumentServiceContext completionContext = new TextDocumentServiceContext();
+            completionContext.put(DocumentServiceKeys.POSITION_KEY, position);
+            BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext, documentManager);
             // Visit the package to resolve the symbols
-            TreeVisitor treeVisitor = new TreeVisitor(position, fDataModel);
+            TreeVisitor treeVisitor = new TreeVisitor(completionContext);
             bLangPackage.accept(treeVisitor);
 
-            BLangNode symbolEnvNode = fDataModel.getSymbolEnvNode();
+            BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
             if (symbolEnvNode == null) {
                 completions = CompletionItemResolver.getResolverByClass(TopLevelResolver.class)
-                        .resolveItems(fDataModel);
+                        .resolveItems(completionContext);
             } else {
                 completions = CompletionItemResolver.getResolverByClass(symbolEnvNode.getClass())
-                        .resolveItems(fDataModel);
+                        .resolveItems(completionContext);
             }
             return Either.forLeft(completions);
         });
@@ -133,10 +134,11 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             String uri = position.getTextDocument().getUri();
             String fileContent = this.documentManager.getFileContent(Paths.get(URI.create(uri)));
             String callableItemName = SignatureHelpUtil.getCallableItemName(position.getPosition(), fileContent);
-            SuggestionsFilterDataModel fDataModel = new SuggestionsFilterDataModel();
-            BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(position, documentManager, fDataModel);
-            SignatureHelpUtil.SignatureHelpPackageContext pkgContext =
-                    new SignatureHelpUtil.SignatureHelpPackageContext(builtinPkg, bLangPackage);
+            TextDocumentServiceContext signatureContext = new TextDocumentServiceContext();
+            signatureContext.put(DocumentServiceKeys.POSITION_KEY, position);
+            BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(signatureContext, documentManager);
+            SignatureHelpUtil.BLangPackageWrapper pkgContext =
+                    new SignatureHelpUtil.BLangPackageWrapper(builtinPkg, bLangPackage);
             return SignatureHelpUtil.getFunctionSignatureHelp(callableItemName, pkgContext);
         });
     }

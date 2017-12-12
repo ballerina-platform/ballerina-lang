@@ -17,7 +17,8 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.DocumentServiceKeys;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.consts.Priority;
@@ -38,31 +39,31 @@ import java.util.List;
 public class TopLevelResolver extends AbstractItemResolver {
 
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
+    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-
-        ParserRuleContext parserRuleContext = dataModel.getParserRuleContext();
+        ParserRuleContext parserRuleContext = completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
         AbstractItemResolver errorContextResolver = parserRuleContext == null ? null :
                 CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
 
-        boolean noAt = findPreviousToken(dataModel, "@", 5) < 0;
+        boolean noAt = findPreviousToken(completionContext, "@", 5) < 0;
         if (noAt && (errorContextResolver == null || errorContextResolver == this)) {
             addTopLevelItems(completionItems);
         }
         if (errorContextResolver instanceof PackageNameContextResolver) {
-            completionItems.addAll(errorContextResolver.resolveItems(dataModel));
+            completionItems.addAll(errorContextResolver.resolveItems(completionContext));
         } else if (errorContextResolver instanceof ParserRuleConstantDefinitionContextResolver) {
-            completionItems.addAll(errorContextResolver.resolveItems(dataModel));
+            completionItems.addAll(errorContextResolver.resolveItems(completionContext));
         } else if (errorContextResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver) {
             addTopLevelItems(completionItems);
-            completionItems.addAll(errorContextResolver.resolveItems(dataModel));
+            completionItems.addAll(errorContextResolver.resolveItems(completionContext));
         } else if (errorContextResolver instanceof ParserRuleTypeNameContextResolver) {
             addTopLevelItems(completionItems);
-            completionItems.addAll(errorContextResolver.resolveItems(dataModel));
+            completionItems.addAll(errorContextResolver.resolveItems(completionContext));
         } else {
             completionItems.addAll(
-                    CompletionItemResolver.getResolverByClass(AnnotationAttachment.class).resolveItems(dataModel)
+                    CompletionItemResolver
+                            .getResolverByClass(AnnotationAttachment.class).resolveItems(completionContext)
             );
         }
         return completionItems;
