@@ -106,11 +106,13 @@ public class WorkspaceService {
     @POST
     @Path("/create")
     @Produces("application/json")
-    public Response create(@FormParam("path") String pathParam, @FormParam("type") String typeParam) {
+    public Response create(@FormParam("path") String pathParam, @FormParam("type") String typeParam,
+                           @FormParam("content") String contentParam) {
         try {
             String path = new String(Base64.getDecoder().decode(pathParam), Charset.defaultCharset()),
-                    type = new String(Base64.getDecoder().decode(typeParam), Charset.defaultCharset());
-            workspace.create(path, type);
+                    type = new String(Base64.getDecoder().decode(typeParam), Charset.defaultCharset()),
+                    content = new String(Base64.getDecoder().decode(contentParam), Charset.defaultCharset());
+            workspace.create(path, type, content);
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
             return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*')

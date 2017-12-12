@@ -51,6 +51,9 @@ export function isInCorrectPath(pkgName, filePath) {
  * @returns {string} Correct folder path for given package
  */
 export function getCorrectPathForPackage(programDir, pkgName) {
+    if (!programDir || !pkgName) {
+        return;
+    }
     const pathSep = getPathSeperator();
     const pkgPart = pkgName.split(PKG_SEP).join(pathSep);
     return programDir.endsWith(pathSep)
@@ -67,6 +70,9 @@ export function getCorrectPathForPackage(programDir, pkgName) {
  * @returns {string} correct folder path for given package
  */
 export function getCorrectPackageForPath(programDir, filePath) {
+    if (!programDir || !filePath) {
+        return;
+    }
     const pathSep = getPathSeperator();
     const pkgPart = filePath.substring(programDir.length);
     let pkgPartToSplit = pkgPart.startsWith(pathSep)
