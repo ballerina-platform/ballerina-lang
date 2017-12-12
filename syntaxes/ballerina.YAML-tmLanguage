@@ -37,16 +37,16 @@ repository:
   keywords:
     patterns:
     - name: keyword.control.ballerina
-      match: \b(if|else|iterator|try|catch|finally|fork|join|while|throw|throws|return|break|timeout|transaction|aborted|abort|committed|failed|retry|next|bind|with|lengthof|typeof|enum)\b
+      match: \b(if|else|iterator|try|catch|finally|fork|join|all|some|while|throw|return|returns|break|timeout|transaction|aborted|abort|committed|failed|retry|next|bind|with|lengthof|typeof|enum)\b
 
     - name: keyword.other.ballerina
-      match: \b(import|version|public|attach|as)\b
+      match: \b(import|version|public|attach|as|native)\b
 
     - name: storage.type.ballerina
-      match: \b(boolean|int|float|string|var|any)\b
+      match: \b(boolean|int|float|string|var|any|datatable|blob)\b
 
     - name: storage.type.ballerina
-      match: \b(message|map|exception|json|xml|xmlDocument|xmlns|error)\b
+      match: \b(map|exception|json|xml|xmlns|error)\b
 
     - name: keyword.other.ballerina
       match: \b(annotation|package|type|connector|function|resource|service|action|worker|struct|transformer|endpoint)\b

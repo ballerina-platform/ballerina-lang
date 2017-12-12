@@ -91,25 +91,25 @@
 			<array>
 				<dict>
 					<key>match</key>
-					<string>\b(if|else|iterator|try|catch|finally|fork|join|while|throw|throws|return|break|timeout|transaction|aborted|abort|committed|failed|retry|next|bind|with|lengthof|typeof|enum)\b</string>
+					<string>\b(if|else|iterator|try|catch|finally|fork|join|all|some|while|throw|return|returns|break|timeout|transaction|aborted|abort|committed|failed|retry|next|bind|with|lengthof|typeof|enum)\b</string>
 					<key>name</key>
 					<string>keyword.control.ballerina</string>
 				</dict>
 				<dict>
 					<key>match</key>
-					<string>\b(import|version|public|attach|as)\b</string>
+					<string>\b(import|version|public|attach|as|native)\b</string>
 					<key>name</key>
 					<string>keyword.other.ballerina</string>
 				</dict>
 				<dict>
 					<key>match</key>
-					<string>\b(boolean|int|float|string|var|any)\b</string>
+					<string>\b(boolean|int|float|string|var|any|datatable|blob)\b</string>
 					<key>name</key>
 					<string>storage.type.ballerina</string>
 				</dict>
 				<dict>
 					<key>match</key>
-					<string>\b(message|map|exception|json|xml|xmlDocument|xmlns|error)\b</string>
+					<string>\b(map|exception|json|xml|xmlns|error)\b</string>
 					<key>name</key>
 					<string>storage.type.ballerina</string>
 				</dict>
