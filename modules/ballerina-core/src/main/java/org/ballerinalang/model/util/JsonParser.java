@@ -145,8 +145,9 @@ public class JsonParser {
         private final State arrayElementEndState = new ArrayElementEndState();
         
         private Reader reader;
-        private JsonNode currentJsonNode;        
-        private StringBuilder builder = new StringBuilder(128);
+        private JsonNode currentJsonNode;
+        private char[] charBuff = new char[1024];
+        private int charBuffIndex;
         
         private int index;
         private int line = 1;
@@ -198,7 +199,19 @@ public class JsonParser {
         }
         
         private void append(char ch) {
-            builder.append(ch);
+            try {
+                this.charBuff[charBuffIndex++] = ch;
+            } catch (ArrayIndexOutOfBoundsException e) {
+                /* this approach is faster than checking for the size by ourself */
+                this.growCharBuff();
+                this.charBuff[charBuffIndex++] = ch;
+            }
+        }
+        
+        private void growCharBuff() {
+            char[] newBuff = new char[charBuff.length * 2];
+            System.arraycopy(this.charBuff, 0, newBuff, 0, this.charBuff.length);
+            this.charBuff = newBuff;
         }
         
         private State finalizeObject() {
@@ -456,8 +469,8 @@ public class JsonParser {
         }
         
         private String value() {
-            String result = builder.toString();
-            builder.setLength(0);
+            String result = new String(charBuff, 0, charBuffIndex);
+            charBuffIndex = 0;
             return result;
         }
         
