@@ -30,9 +30,11 @@ import com.intellij.xdebugger.frame.XStackFrame;
 import com.intellij.xdebugger.frame.XValueChildrenList;
 import org.ballerinalang.plugins.idea.debugger.dto.Frame;
 import org.ballerinalang.plugins.idea.debugger.dto.Variable;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -83,8 +85,13 @@ public class BallerinaStackFrame extends XStackFrame {
             String filePath = constructFilePath(projectBasePath, "", fileName.substring(fileName.lastIndexOf("/")));
             return LocalFileSystem.getInstance().findFileByPath(filePath);
         } else {
-            String filePath = constructFilePath(projectBasePath, myFrame.getPackageName(), fileName);
-            return LocalFileSystem.getInstance().findFileByPath(filePath);
+            String filePath = constructFilePath(projectBasePath, packageName, fileName);
+            VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByPath(filePath);
+            if (virtualFile != null) {
+                return virtualFile;
+            }
+            String path = Paths.get(packageName.replaceAll("\\.", "/"), fileName).toString();
+            return BallerinaPsiImplUtil.findFileInProjectSDK(project, path);
         }
     }
 
