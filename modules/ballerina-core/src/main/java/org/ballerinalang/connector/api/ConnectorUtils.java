@@ -18,7 +18,6 @@
 package org.ballerinalang.connector.api;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.connector.impl.StructHelper;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
@@ -78,7 +77,13 @@ public class ConnectorUtils extends StructHelper {
      * @param protocolPkgPath   of the server connector.
      * @return  ballerinaServerConnector object.
      */
-    public static BallerinaServerConnector getBallerinaServerConnector(ProgramFile progFile, String protocolPkgPath) {
-        return ServerConnectorRegistry.getInstance(progFile).getBallerinaServerConnector(protocolPkgPath);
+    public static BallerinaServerConnector getBallerinaServerConnector(ProgramFile programFile,
+                                                                       String protocolPkgPath) {
+        return programFile.getServerConnectorRegistry().getBallerinaServerConnector(protocolPkgPath);
+    }
+
+    public static BallerinaServerConnector getBallerinaServerConnector(Context context, String protocolPkgPath) {
+        ProgramFile programFile = context.getProgramFile();
+        return getBallerinaServerConnector(programFile, protocolPkgPath);
     }
 }

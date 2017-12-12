@@ -64,7 +64,7 @@ public class ConnectWithDefault extends AbstractNativeWsAction {
         String remoteUrl = getUrlFromConnector(bconnector);
         String clientServiceName = getClientServiceNameFromConnector(bconnector);
         HttpServerConnector httpServerConnector = (HttpServerConnector) ConnectorUtils.
-                getBallerinaServerConnector(context.programFile, Constants.HTTP_PACKAGE_PATH);
+                getBallerinaServerConnector(context, Constants.HTTP_PACKAGE_PATH);
         WebSocketService wsService =
                 httpServerConnector.getWebSocketServicesRegistry().getClientService(clientServiceName);
         if (wsService == null) {

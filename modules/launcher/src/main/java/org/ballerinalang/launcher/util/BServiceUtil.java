@@ -35,7 +35,9 @@ public class BServiceUtil {
      */
     public static void runService(CompileResult compileResult) {
         // Initialize server connectors before starting the test cases
-        ServerConnectorRegistry.getInstance(compileResult.getProgFile()).initServerConnectors();
+        ServerConnectorRegistry serverConnectorRegistry = new ServerConnectorRegistry();
+        serverConnectorRegistry.initServerConnectors();
+        compileResult.getProgFile().setServerConnectorRegistry(serverConnectorRegistry);
         BLangProgramRunner.runService(compileResult.getProgFile());
     }
 
@@ -70,7 +72,7 @@ public class BServiceUtil {
     }
 
     public static void cleanup(CompileResult compileResult) {
-        ServerConnectorRegistry.cleanup(compileResult.getProgFile());
+//        ServerConnectorRegistry.cleanup(compileResult.getProgFile());
     }
 
 }
