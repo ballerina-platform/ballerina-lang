@@ -184,7 +184,8 @@ class TreeNode extends React.Component {
             onNodeDelete(node);
         } else if (!_.isEmpty(this.state.inputValue) && editType === EDIT_TYPES.NEW) {
             if (!this.state.editTargetExists) {
-                create(newFullPath, type)
+                const content = this.context.editor.getDefaultContent(newFullPath);
+                create(newFullPath, type, content)
                     .then((sucess) => {
                         if (sucess) {
                             this.props.onNodeRefresh(this.props.parentNode);
@@ -453,6 +454,7 @@ TreeNode.contextTypes = {
         getEditorByID: PropTypes.func,
         setActiveEditor: PropTypes.func,
         getActiveEditor: PropTypes.func,
+        getDefaultContent: PropTypes.func,
     }).isRequired,
     alert: PropTypes.shape({
         showInfo: PropTypes.func,
