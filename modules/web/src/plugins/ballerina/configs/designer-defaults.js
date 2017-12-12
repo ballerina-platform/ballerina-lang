@@ -142,12 +142,12 @@ export const blockStatement = {
     },
 };
 
-export const flowChartBlockStatement = {
+export const flowChartControlStatement = {
     heading: {
         width: 80,
         height: 80,
         paramPaddingX: 5,
-        paramSeparatorOffsetX: 20, // blockStatement.heading.width - 40
+        paramSeparatorOffsetX: 20,
         paramEndOffsetX: 6,
     },
     body: {
