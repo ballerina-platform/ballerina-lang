@@ -60,6 +60,7 @@ import org.ballerinalang.plugins.idea.psi.EndpointBodyNode;
 import org.ballerinalang.plugins.idea.psi.EndpointDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.EnumDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.EnumFieldNode;
+import org.ballerinalang.plugins.idea.psi.FailedClauseNode;
 import org.ballerinalang.plugins.idea.psi.FieldNode;
 import org.ballerinalang.plugins.idea.psi.ForkJoinStatementNode;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
@@ -398,6 +399,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new EndpointBodyNode(node);
             case BallerinaParser.RULE_anonStructTypeName:
                 return new AnonStructTypeNameNode(node);
+            case BallerinaParser.RULE_failedClause:
+                return new FailedClauseNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }
