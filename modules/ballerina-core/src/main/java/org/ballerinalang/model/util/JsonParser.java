@@ -200,11 +200,12 @@ public class JsonParser {
         
         private void append(char ch) {
             try {
-                this.charBuff[charBuffIndex++] = ch;
+                this.charBuff[this.charBuffIndex] = ch;
+                this.charBuffIndex++;
             } catch (ArrayIndexOutOfBoundsException e) {
                 /* this approach is faster than checking for the size by ourself */
                 this.growCharBuff();
-                this.charBuff[charBuffIndex++] = ch;
+                this.charBuff[this.charBuffIndex++] = ch;
             }
         }
         
@@ -469,8 +470,8 @@ public class JsonParser {
         }
         
         private String value() {
-            String result = new String(charBuff, 0, charBuffIndex);
-            charBuffIndex = 0;
+            String result = new String(this.charBuff, 0, this.charBuffIndex);
+            this.charBuffIndex = 0;
             return result;
         }
         
