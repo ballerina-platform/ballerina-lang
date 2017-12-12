@@ -111,7 +111,7 @@ export const statement = {
     height: 30,
     gutter: {
         v: 25,
-        h: 0,
+        h: 10,
     },
     padding: {
         top: 5,
