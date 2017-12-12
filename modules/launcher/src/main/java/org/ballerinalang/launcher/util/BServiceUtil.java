@@ -70,9 +70,4 @@ public class BServiceUtil {
     public static CompileResult setupProgramFile(Object obj, String sourcePath) {
         return setupProgramFile(obj, sourcePath, null);
     }
-
-    public static void cleanup(CompileResult compileResult) {
-//        ServerConnectorRegistry.cleanup(compileResult.getProgFile());
-    }
-
 }

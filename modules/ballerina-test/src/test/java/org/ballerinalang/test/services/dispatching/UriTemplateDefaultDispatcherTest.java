@@ -24,7 +24,6 @@ import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -76,10 +75,5 @@ public class UriTemplateDefaultDispatcherTest {
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("echo").asText(), "dispatched to a service without an annotation"
                 , "Resource dispatched to wrong template");
-    }
-
-    @AfterClass
-    public void tearDown() {
-        BServiceUtil.cleanup(application);
     }
 }

@@ -26,7 +26,6 @@ import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -188,10 +187,5 @@ public class ProducesConsumesAnnotationTest {
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
         Assert.assertEquals(bJson.value().get("echo33").asText(), "echo1", "No media types");
-    }
-
-    @AfterClass
-    public void tearDown() {
-        BServiceUtil.cleanup(compileResult);
     }
 }

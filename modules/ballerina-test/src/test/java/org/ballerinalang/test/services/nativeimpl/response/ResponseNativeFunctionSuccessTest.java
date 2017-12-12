@@ -35,7 +35,6 @@ import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -529,10 +528,5 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), "hello"
                 , "Payload is not set properly");
-    }
-
-    @AfterClass
-    public void tearDown() {
-        BServiceUtil.cleanup(serviceResult);
     }
 }

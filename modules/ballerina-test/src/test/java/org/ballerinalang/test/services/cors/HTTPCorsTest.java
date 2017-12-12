@@ -26,7 +26,6 @@ import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -354,10 +353,4 @@ public class HTTPCorsTest {
         assertEqualsCorsResponse(response, 200, "http://www.wso2.com", "true"
                 , "X-PINGOTHER", "POST", "-1");
     }
-
-    @AfterClass
-    public void tearDown() {
-        BServiceUtil.cleanup(complieResult);
-    }
-
 }

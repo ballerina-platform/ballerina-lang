@@ -25,7 +25,6 @@ import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -251,10 +250,5 @@ public class HTTPSessionSubMethodsTest {
         Assert.assertNotNull(stringDataSource);
         long timeInterval2 = Long.parseLong(stringDataSource.getValue().toString());
         Assert.assertEquals(timeInterval2, -1);
-    }
-
-    @AfterClass
-    public void tearDown() {
-        BServiceUtil.cleanup(compileResult);
     }
 }
