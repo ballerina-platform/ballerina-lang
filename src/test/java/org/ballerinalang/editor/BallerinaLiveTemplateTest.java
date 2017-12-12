@@ -208,4 +208,10 @@ public class BallerinaLiveTemplateTest extends BallerinaCodeInsightFixtureTestCa
         myFixture.checkResult("function test () {\n    fork {\n        \n    } join () () {\n        \n    }\n    " +
                 "int a = 10;\n}");
     }
+
+    public void testTransformer() {
+        myFixture.configureByText("test.bal", "<caret>");
+        myFixture.type("tra\t");
+        myFixture.checkResult("transformer <, > () {\n    \n}");
+    }
 }
