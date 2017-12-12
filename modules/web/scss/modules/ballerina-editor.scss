@@ -898,6 +898,18 @@
         stroke: $primary-line-bgcolor;
         fill: $primary-line-bgcolor;
     }
+
+    .flowchart-action-arrow,
+    .flowchart-action-arrow-head{
+        fill: $default-worker-lifeline-color;
+        stroke: $default-worker-lifeline-color;
+        stroke-width: 2;
+    }
+    .flowchart-dash-line{
+        stroke: #ffffff;
+        stroke-width: 2;
+        stroke-dasharray: 3,2;
+    }
     
     .struct-content-operations-wrapper{
         padding: 10px;
@@ -1216,6 +1228,13 @@
         fill-opacity: 0;
         stroke: #ff0202;
         stroke-width: 1;
+    }
+
+    .flowchart-background-empty-rect {
+        fill: #ffffff;
+        fill-opacity: 0;
+        stroke: $default-worker-lifeline-color;
+        stroke-width: 2;
     }
     
     .statement-text {

@@ -1676,7 +1676,7 @@ class SizingUtil {
         const bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
 
-        components['block-header'].h = this.config.flowChartControlStatement.heading.height;
+        components['block-header'].h = this.config.flowChartControlStatement.heading.height;//
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
@@ -1692,7 +1692,7 @@ class SizingUtil {
         // we will calculate the width of the expression and adjust the block statement
         if (expression) {
             // see how much space we have to draw the condition
-            const available = bodyWidth - this.config.blockStatement.heading.width - 10;
+            const available = bodyWidth - this.config.flowChartControlStatement.heading.width - 10;
             components.expression = this.getTextWidth(expression.getSource(), 0, available);
         }
     }

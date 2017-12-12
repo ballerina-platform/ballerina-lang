@@ -209,14 +209,14 @@ class WhileStatementDecorator extends React.Component {
 
         // Defining coordinates of the diagram
 
-        //                     (P8)
+        //                     (P9)
         //      (P1)      (P2)  |  (P3)        (P4)
         // (x,y)|--------->[condition]--false---|
         // (P11)|_____________\_|_/_____________| (statementBox)
-        //      |               |(p9)           |
+        //      |               |(p8)           |
         //      |               |               |
         //      |          true |               |
-        //      |               |               |
+        //      |             __|__ (p12)       |
         //      |             a = 1;            |
         //      |               |               |
         //  (P7)|_______________|(p10)          |
@@ -259,11 +259,14 @@ class WhileStatementDecorator extends React.Component {
         const p9X = p8X;
         const p9Y = p8Y - titleH;
 
-        const p10X = p1X + (statementBBox.w / 2);
+        const p10X = p8X;
         const p10Y = p7Y;
 
         const p11X = p1X;
         const p11Y = p1Y + (titleH / 2);
+
+        const p12X = p8X;
+        const p12Y = p8Y + 10;
 
         this.conditionBox = new SimpleBBox(p1X, (p2Y - (statement.height / 2)), bBox.w, statement.height);
 
@@ -290,23 +293,34 @@ class WhileStatementDecorator extends React.Component {
             >
                 <polyline
                     points={`${p10X},${p10Y} ${p7X},${p7Y} ${p11X},${p11Y}`}
-                    className='statement-title-polyline'
+                    className='flowchart-background-empty-rect'
                 />
                 <ArrowDecorator
                     start={{ x: p11X, y: p11Y }}
                     end={{ x: p2X, y: p2Y }}
+                    classNameArrow='flowchart-action-arrow'
+                    classNameArrowHead='flowchart-action-arrow-head'
                 />
                 <polyline
                     points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y} ${p6X}, ${p6Y}`}
-                    className='background-empty-rect'
-                />
-                <polyline
-                    points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y} ${p6X}, ${p6Y}`}
-                    className='background-empty-rect'
+                    className='flowchart-background-empty-rect'
                 />
                 <polyline
                     points={`${p2X},${p2Y} ${p8X},${p8Y} ${p3X},${p3Y} ${p9X}, ${p9Y} ${p2X},${p2Y}`}
                     className={statementRectClass}
+                />
+                <ArrowDecorator
+                    start={{ x: p8X, y: p8Y }}
+                    end={{ x: p12X, y: p12Y }}
+                    classNameArrow='flowchart-action-arrow'
+                    classNameArrowHead='flowchart-action-arrow-head'
+                />
+                <line
+                    x1={p10X}
+                    y1={p10Y}
+                    x2={p6X}
+                    y2={p6Y}
+                    className='flowchart-dash-line'
                 />
                 {expression &&
                     <text
@@ -317,6 +331,20 @@ class WhileStatementDecorator extends React.Component {
                         {displayExpression.text}
                     </text>
                 }
+                {/* <text
+                    x={p8X}
+                    y={p2Y}
+                    className='condition-text'
+                >
+                    YES
+                </text>
+                <text
+                    x={p8X}
+                    y={p2Y}
+                    className='condition-text'
+                >
+                    NO
+                </text> */}
                 <DropZone
                     x={p11X}
                     y={p11Y}
