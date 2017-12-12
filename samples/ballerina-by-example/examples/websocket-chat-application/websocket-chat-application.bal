@@ -1,41 +1,29 @@
 import ballerina.net.ws;
 
 @ws:configuration {
-    basePath: "/chat/{lname}+{fname}/{age}",
-    port:9090,
-    idleTimeoutInSeconds: 3600
+    basePath: "/chat/{fname}+{lname}/{age}",
+    port:9090
 }
 service<ws> ChatApp {
 
     map consMap = {};
 
-
-    resource onHandshake(ws:HandshakeConnection conn, string fname, string lname, string age) {
-        string msg = string`{{lname}} {{fname}} with age {{age}} trying to connect to the chat`;
-        println(msg);
-    }
-
     resource onOpen(ws:Connection conn, string fname, string lname, string age) {
         consMap[conn.getID()] = conn;
-        println(fname);
-        string msg = string`{{lname}} {{fname}} with age {{age}} connected to the chat`;
+        string msg = string `{{fname}} {{lname}} with age {{age}} connected to chat`;
         broadcast(consMap, msg);
     }
 
-    resource onTextMessage(ws:Connection con, ws:TextFrame frame) {
-        println(frame.text);
-        broadcast(consMap, frame.text);
+    resource onTextMessage(ws:Connection con, ws:TextFrame frame, string fname) {
+        string msg = string `{{fname}}: {{frame.text}}`;
+        println(msg);
+        broadcast(consMap, msg);
     }
 
-    resource onIdleTimeout(ws:Connection con) {
-        // Connection is closed due to inactivity after 1 hour.
-        println("Idle timeout: " + con.getID());
-        con.closeConnection(1000, "Closing connection due to inactivity in chat");
-    }
-
-    resource onClose(ws:Connection con, ws:CloseFrame frame) {
+    resource onClose(ws:Connection con, ws:CloseFrame frame, string fname) {
+        string msg = string `{{fname}} left the chat`;
         consMap.remove(con.getID());
-        broadcast(consMap, "User left");
+        broadcast(consMap, msg);
     }
 }
 
