@@ -86,23 +86,59 @@ public native function <Request req> setStringPayload (string payload);
 @Param { value:"req: A request message" }
 @Param { value:"headerName: The header name" }
 @Return { value:"The first header value for the provided header name. Returns null if the header does not exist." }
-public native function <Request req> getHeader (string headerName) (string);
+public function <Request req> getHeader (string headerName)(HeaderValue) {
+	var values  = req.headers[headerName];
+	if (values == null) {
+	    return null;
+	}
+	var valueArray, err = (HeaderValue[]) values;
+	if (err != null) {
+		error errMsg = {msg:"expect 'ballerina.net.http:HeaderValue[]' as header value type of : " + headerName};
+		throw errMsg;
+	}
+	return valueArray[0];
+}
 
 @Description { value:"Gets the request payload as a string"}
 @Param { value:"req: A request message" }
 @Return { value:"The string representation of the message payload" }
 public native function <Request req> getStringPayload () (string);
 
-@Description { value:"Adds a transport header to the request"}
+@Description { value:"Adds the specified key/value pair as an HTTP header to the request"}
 @Param { value:"req: A request message" }
 @Param { value:"key: The header name" }
 @Param { value:"value: The header value" }
-public native function <Request req> addHeader (string key, string value);
+public function <Request req> addHeader (string key, string value) {
+	var values = req.headers[key];
+	if (values == null) {
+		HeaderValue[] headers = [{value:value}];
+		req.headers[key] = headers;
+	} else {
+		var valueArray, err =  (HeaderValue[]) values;
+		if (err != null) {
+			error errMsg = {msg:"expect 'ballerina.net.http:HeaderValue[]' as header value type of : " + key};
+			throw errMsg;
+		}
+		valueArray[lengthof valueArray] = {value:value};
+	}
+}
 
 @Description { value:"Gets transport headers from the request"}
 @Param { value:"req: A request message" }
-@Return { value:"string[]: The header values" }
-public native function <Request req> getHeaders () (string[]);
+@Param { value:"headerName: The header name" }
+@Return { value:"The header values struct array for a given header name" }
+public function <Request req> getHeaders (string headerName) (HeaderValue[]) {
+	var values  = req.headers[headerName];
+	if (values == null) {
+		return null;
+	}
+	var valueArray, err =  (HeaderValue[]) values;
+	if (err != null) {
+		error errMsg = {msg:"expect 'ballerina.net.http:HeaderValue[]' as header value type of : " + headerName};
+		throw errMsg;
+	}
+    return valueArray;
+}
 
 @Description { value:"Sets a JSON as the request payload"}
 @Param { value:"req: A request message" }
@@ -118,11 +154,15 @@ public native function <Request req> getProperty (string propertyName) (string);
 @Description { value:"Removes a transport header from the request"}
 @Param { value:"req: A request message" }
 @Param { value:"key: The header name" }
-public native function <Request req> removeHeader (string key);
+public function <Request req> removeHeader (string key) {
+	req.headers.remove(key);
+}
 
 @Description { value:"Removes all transport headers from the message"}
 @Param { value:"req: A request message" }
-public native function <Request req> removeAllHeaders ();
+public function <Request req> removeAllHeaders () {
+    req.headers = {};
+}
 
 @Description { value:"Sets an XML as the payload"}
 @Param { value:"req: A request message" }
@@ -138,8 +178,10 @@ public native function <Request req> clone () (Request);
 @Param { value:"req: A request message" }
 @Param { value:"key: The header name" }
 @Param { value:"value: The header value" }
-public native function <Request req> setHeader (string key, string value);
-
+public function <Request req> setHeader (string key, string value) {
+	HeaderValue[] headers = [{value:value}];
+	req.headers[key] = headers;
+}
 
 @Description { value:"Represents an HTTP response message"}
 @Field {value:"statusCode: The response status code"}
@@ -208,7 +250,18 @@ public native function <Response res> setStringPayload (string payload);
 @Param { value:"res: The response message" }
 @Param { value:"headerName: The header name" }
 @Return { value:"The first header value for the provided header name. Returns null if the header does not exist." }
-public native function <Response res> getHeader (string headerName) (string);
+public function <Response res> getHeader (string headerName) (HeaderValue) {
+	var values  = res.headers[headerName];
+	if (values == null) {
+		return null;
+	}
+	var valueArray, err = (HeaderValue[]) values;
+	if (err != null) {
+		error errMsg = {msg:"expect 'ballerina.net.http:HeaderValue[]' as header value type of : " + headerName};
+		throw errMsg;
+	}
+	return valueArray[0];
+}
 
 @Description { value:"Gets the response payload as a string"}
 @Param { value:"res: The response message" }
@@ -219,12 +272,37 @@ public native function <Response res> getStringPayload () (string);
 @Param { value:"res: The response message" }
 @Param { value:"key: The header name" }
 @Param { value:"value: The header value" }
-public native function <Response res> addHeader (string key, string value);
+public function <Response res> addHeader (string key, string value) {
+	var values = res.headers[key];
+	if (values == null) {
+		HeaderValue[] headers = [{value:value}];
+		res.headers[key] = headers;
+	} else {
+		var valueArray, err =  (HeaderValue[]) values;
+		if (err != null) {
+			error errMsg = {msg:"expect 'ballerina.net.http:HeaderValue[]' as header value type of : " + key};
+			throw errMsg;
+		}
+		valueArray[lengthof valueArray] = {value:value};
+	}
+}
 
 @Description { value:"Gets the HTTP headers from the response"}
 @Param { value:"res: The response message" }
-@Return { value:"string[]: The header values" }
-public native function <Response res> getHeaders () (string[]);
+@Param { value:"headerName: The header name" }
+@Return { value:"The header values struct array for a given header name" }
+public function <Response res> getHeaders (string headerName) (HeaderValue[]) {
+	var values  = res.headers[headerName];
+	if (values == null) {
+		return null;
+	}
+	var valueArray, err =  (HeaderValue[]) values;
+	if (err != null) {
+		error errMsg = {msg:"expect 'ballerina.net.http:HeaderValue[]' as header value type of : " + headerName};
+		throw errMsg;
+	}
+	return valueArray;
+}
 
 @Description { value:"Sets a JSON as the response payload"}
 @Param { value:"req: The response message" }
@@ -240,11 +318,15 @@ public native function <Response res> getProperty (string propertyName) (string)
 @Description { value:"Removes a transport header from the response"}
 @Param { value:"res: The response message" }
 @Param { value:"key: The header name" }
-public native function <Response res> removeHeader (string key);
+public function <Response res> removeHeader (string key) {
+	res.headers.remove(key);
+}
 
 @Description { value:"Removes all transport headers from the response"}
 @Param { value:"res: The response message" }
-public native function <Response res> removeAllHeaders ();
+public function <Response res> removeAllHeaders () {
+	res.headers = {};
+}
 
 @Description { value:"Sets an XML as the response payload"}
 @Param { value:"res: The response message" }
@@ -260,17 +342,20 @@ public native function <Response res> clone () (Response);
 @Param { value:"res: The response message" }
 @Param { value:"key: The header name" }
 @Param { value:"value: The header value" }
-public native function <Response res> setHeader (string key, string value);
+public function <Response res> setHeader (string key, string value) {
+	HeaderValue[] headers = [{value:value}];
+	res.headers[key] = headers;
+}
 
 @Description { value:"Sends outbound response to the caller."}
 @Param { value:"res: The response message" }
-@Return { value:"httpConnectorError: Error occured during HTTP server connector send" }
+@Return { value:"Error occured during HTTP server connector send" }
 public native function <Response res> send () (HttpConnectorError);
 
 @Description { value:"Forwards client service response directly to the caller."}
 @Param { value:"res: The response message" }
 @Param { value:"resp: The new instance of the response message" }
-@Return { value:"httpConnectorError: Error occured during HTTP server connector forward" }
+@Return { value:"Error occured during HTTP server connector forward" }
 public native function <Response res> forward (Response resp) (HttpConnectorError);
 
 @Description { value:"Represents an HTTP Session"}
