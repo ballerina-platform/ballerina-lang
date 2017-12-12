@@ -248,7 +248,9 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                                 }
                             }
                             return new FieldReference(this);
-                        } else if (prevVisibleLeaf.getText().matches("[{,]")) {
+                        } else if (prevVisibleLeaf.getText().matches("[,]")) {
+                            return new NameReference(this);
+                        } else if (prevVisibleLeaf.getText().matches("[{]")) {
                             return new StructKeyReference(this);
                         }
                     }
