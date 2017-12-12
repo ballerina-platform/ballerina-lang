@@ -899,11 +899,15 @@
         fill: $primary-line-bgcolor;
     }
 
-    .flowchart-action-arrow,
-    .flowchart-action-arrow-head{
+    .flowchart-action-arrow {
         fill: $default-worker-lifeline-color;
         stroke: $default-worker-lifeline-color;
         stroke-width: 2;
+    }
+
+    .flowchart-action-arrow-head{
+        fill: $default-worker-lifeline-color;
+        stroke: $default-worker-lifeline-color;
     }
     .flowchart-dash-line{
         stroke: #ffffff;

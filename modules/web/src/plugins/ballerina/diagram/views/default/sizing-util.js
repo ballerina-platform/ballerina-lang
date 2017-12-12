@@ -1662,8 +1662,9 @@ class SizingUtil {
         const dropZoneHeight = TreeUtil.isBlock(node.parent) ? this.config.statement.gutter.v : 0;
         const nodeBodyViewState = node.body.viewState;
 
-        // flow chart while width is different to normal block node width
+        // flow chart while width and height is different to normal block node width and height
         nodeBodyViewState.bBox.w = this.config.flowChartControlStatement.width;
+        nodeBodyViewState.bBox.h += this.config.statement.gutter.v;
 
         components.body = new SimpleBBox();
 
@@ -1676,7 +1677,7 @@ class SizingUtil {
         const bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
 
-        components['block-header'].h = this.config.flowChartControlStatement.heading.height;//
+        components['block-header'].h = this.config.flowChartControlStatement.heading.height + this.config.statement.gutter.v;
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;

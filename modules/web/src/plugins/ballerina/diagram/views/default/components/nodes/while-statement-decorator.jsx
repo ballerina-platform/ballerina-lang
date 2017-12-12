@@ -266,7 +266,7 @@ class WhileStatementDecorator extends React.Component {
         const p11Y = p1Y + (titleH / 2);
 
         const p12X = p8X;
-        const p12Y = p8Y + 10;
+        const p12Y = p8Y + (titleH / 2) + statement.gutter.h;
 
         this.conditionBox = new SimpleBBox(p1X, (p2Y - (statement.height / 2)), bBox.w, statement.height);
 
@@ -331,20 +331,6 @@ class WhileStatementDecorator extends React.Component {
                         {displayExpression.text}
                     </text>
                 }
-                {/* <text
-                    x={p8X}
-                    y={p2Y}
-                    className='condition-text'
-                >
-                    YES
-                </text>
-                <text
-                    x={p8X}
-                    y={p2Y}
-                    className='condition-text'
-                >
-                    NO
-                </text> */}
                 <DropZone
                     x={p11X}
                     y={p11Y}
