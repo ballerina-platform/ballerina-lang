@@ -358,8 +358,9 @@ public class TernaryExpressionTest {
     @Test
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/expressions/ternary/ternary-expr-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 2);
+        Assert.assertEquals(compileResult.getErrorCount(), 3);
         BAssertUtil.validateError(compileResult, 0, "incompatible types: expected 'string', found 'int'", 6, 29);
         BAssertUtil.validateError(compileResult, 1, "incompatible types: expected 'boolean', found 'int'", 7, 13);
+        BAssertUtil.validateError(compileResult, 2, "incompatible types: expected 'string', found 'boolean'", 13, 30);
     }
 }
