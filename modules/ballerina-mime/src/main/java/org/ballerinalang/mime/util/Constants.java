@@ -1,5 +1,8 @@
 package org.ballerinalang.mime.util;
 
+/**
+ * Constants related to MIME.
+ */
 public class Constants {
 
     public static final String ENTITY = "Entity";
@@ -7,6 +10,8 @@ public class Constants {
     public static final String PROTOCOL_PACKAGE_MIME = "ballerina.mime";
     public static final String PROTOCOL_PACKAGE_FILE = "ballerina.file";
 
+
+    //TODO: Remove following properties from http package.
     /**
      * Content type HTTP header.
      */

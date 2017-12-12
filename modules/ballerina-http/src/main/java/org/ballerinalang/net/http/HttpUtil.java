@@ -115,6 +115,13 @@ public class HttpUtil {
         return abstractNativeFunction.getBValues(clonedRequestStruct);
     }
 
+    /**
+     * Get the entity from request or response.
+     * @param context
+     * @param abstractNativeFunction
+     * @param isRequest
+     * @return
+     */
     public static BValue[] getEntity(Context context, AbstractNativeFunction abstractNativeFunction,
             boolean isRequest) {
         BStruct entity = ConnectorUtils

@@ -8,6 +8,7 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
@@ -15,6 +16,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+/**
+ * Entity related operations and mime utility functions have been included here.
+ */
 public class MimeUtil {
 
     public static final int TEXT_DATA = 1;
@@ -68,7 +72,7 @@ public class MimeUtil {
             try {
                 payload = new BBlob(toByteArray(inputStream));
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new BallerinaException("Error while converting inputstream to a byte array: " + e.getMessage());
             }
             entityStruct.setRefField(BYTE_DATA, payload);
         }
@@ -101,7 +105,7 @@ public class MimeUtil {
             os.flush();
             os.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new BallerinaException("Error while writing the payload info into a temp file: " + e.getMessage());
         }
     }
 
