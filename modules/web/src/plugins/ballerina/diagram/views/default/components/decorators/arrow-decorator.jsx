@@ -40,7 +40,7 @@ class Arrow extends React.Component {
         const deltaY = end.y - start.y;
         const rad = Math.atan2(deltaY, deltaX);
         const deg = rad * (180 / Math.PI);
-        return deg - this.props.backward ? 180 : 0;
+        return deg;
     }
 
     /**
@@ -76,7 +76,7 @@ class Arrow extends React.Component {
                 <polygon
                     points={`-${arrowSize},-${arrowSize} 0,0 -${arrowSize},${arrowSize}`}
                     transform={`translate(${end.x}, ${end.y})
-                                rotate(${this.getArrowAngle(start, start)}, 0, 0)`}
+                                rotate(${this.getArrowAngle(start, end)}, 0, 0)`}
                     className={classNameArrowHead}
                 />
             </g>);
@@ -96,7 +96,6 @@ Arrow.propTypes = {
     dashed: PropTypes.bool,
     arrowSize: PropTypes.number,
     description: PropTypes.string,
-    backward: PropTypes.bool,
     classNameArrow: PropTypes.string,
     classNameArrowHead: PropTypes.string,
 };
@@ -107,7 +106,6 @@ Arrow.defaultProps = {
     dashed: false,
     arrowSize: 5,
     description: '',
-    backward: false,
     classNameArrow: 'action-arrow',
     classNameArrowHead: 'action-arrow-head',
 };

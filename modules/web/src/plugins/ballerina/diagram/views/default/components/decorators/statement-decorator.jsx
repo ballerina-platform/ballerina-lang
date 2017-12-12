@@ -284,7 +284,6 @@ class StatementDecorator extends React.Component {
                             start={backwardArrowStart}
                             end={backwardArrowEnd}
                             dashed
-                            backward
                         />
                     </g>
                 )
