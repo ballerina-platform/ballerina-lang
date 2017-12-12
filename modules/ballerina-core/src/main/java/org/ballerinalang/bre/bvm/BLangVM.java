@@ -2363,11 +2363,17 @@ public class BLangVM {
      */
     private void debugging(int cp) {
         VMDebugManager debugManager = programFile.getDebugManager();
+        if (!debugManager.isDebugSessionActive()) {
+            return;
+        }
+        DebugContext debugContext = context.getDebugContext();
         try {
-            debugManager.acquireDebugLock();
-            processDebugging(cp, debugManager);
+            debugManager.tryAcquireDebugSessionLock(debugContext);
+            processDebugging(cp, debugManager, debugContext);
         } finally {
-            debugManager.releaseDebugLock();
+            if (debugContext.getCurrentCommand() == DebugCommand.RESUME) {
+                debugManager.releaseDebugSessionLock(debugContext);
+            }
         }
     }
 
@@ -2376,9 +2382,9 @@ public class BLangVM {
      *
      * @param cp            Current cp.
      * @param debugManager  Debug manager object.
+     * @param debugContext  Current debug context object.
      */
-    private void processDebugging(int cp, VMDebugManager debugManager) {
-        DebugContext debugContext = context.getDebugContext();
+    private void processDebugging(int cp, VMDebugManager debugManager, DebugContext debugContext) {
         LineNumberInfo currentExecLine = debugManager
                 .getLineNumber(controlStack.currentFrame.packageInfo.getPkgPath(), cp);
         if (currentExecLine.equals(debugContext.getLastLine())

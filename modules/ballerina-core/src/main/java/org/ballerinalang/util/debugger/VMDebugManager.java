@@ -128,20 +128,30 @@ public class VMDebugManager {
     }
 
     /**
-     * Helper method to acquire debug lock.
+     * Method to acquire debug session.
+     *
+     * @param debugContext to set status.
      */
-    public void acquireDebugLock() {
+    public void tryAcquireDebugSessionLock(DebugContext debugContext) {
+        System.out.println(System.nanoTime() + " session TRY, thread - " + debugContext.getThreadId());
+        if (debugContext.isSessionActive()) {
+            return;
+        }
         try {
             debugSem.acquire();
+            debugContext.setSessionActive(true);
         } catch (InterruptedException e) {
             //ignore
         }
     }
 
     /**
-     * Helper method to release debug lock.
+     * Method to release the session and debug lock.
+     *
+     * @param debugContext  To remove session.
      */
-    public void releaseDebugLock() {
+    public void releaseDebugSessionLock(DebugContext debugContext) {
+        debugContext.setSessionActive(false);
         debugSem.release();
     }
 
@@ -168,6 +178,8 @@ public class VMDebugManager {
             message.setCode(DebugConstants.CODE_INVALID);
             message.setMessage(e.getMessage());
             clientHandler.sendCustomMsg(message);
+            //in case exception occurs, debug will resume and session disconnected
+            stopDebugging();
         }
     }
 

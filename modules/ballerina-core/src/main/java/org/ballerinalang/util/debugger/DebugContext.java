@@ -33,6 +33,8 @@ public class DebugContext {
 
     private String threadId;
 
+    private volatile boolean sessionActive = false;
+
     public DebugCommand getCurrentCommand() {
         return currentCommand;
     }
@@ -63,5 +65,13 @@ public class DebugContext {
 
     public void setThreadId(String threadId) {
         this.threadId = threadId;
+    }
+
+    public boolean isSessionActive() {
+        return sessionActive;
+    }
+
+    public void setSessionActive(boolean sessionActive) {
+        this.sessionActive = sessionActive;
     }
 }
