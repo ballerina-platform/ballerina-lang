@@ -143,13 +143,13 @@ export const blockStatement = {
     },
 };
 
-export const flowChartblockStatement = {
-    width: 140,
+export const flowChartControlStatement = {
+    width: 180,
     heading: {
         width: 80,
         height: 80,
         paramPaddingX: 5,
-        paramSeparatorOffsetX: 20, // blockStatement.heading.width - 40
+        paramSeparatorOffsetX: 20,
         paramEndOffsetX: 6,
     },
     body: {

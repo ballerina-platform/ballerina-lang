@@ -19,7 +19,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
-import { flowChartBlockStatement, blockStatement, statement, actionBox } from '../../../../../configs/designer-defaults.js';
+import { flowChartControlStatement, blockStatement, statement, actionBox } from '../../../../../configs/designer-defaults.js';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
 import './compound-statement-decorator.css';
@@ -40,7 +40,7 @@ const CLASS_MAP = {
  * Wraps other UI elements and provide box with a heading.
  * Enrich elements with a action box and expression editors.
  */
-class FlowChartWhileStatementDecorator extends React.Component {
+class WhileStatementDecorator extends React.Component {
 
     /**
      * Initialize the block decorator.
@@ -196,67 +196,90 @@ class FlowChartWhileStatementDecorator extends React.Component {
      * @returns {XML} rendered component.
      */
     render() {
-        const { bBox, title, dropTarget, expression, isBreakpoint, isDebugHit } = this.props;
+        const { bBox, title, expression, isBreakpoint, isDebugHit } = this.props;
+        const { designer } = this.context;
+
         const model = this.props.model;
         const viewState = model.viewState;
-        const titleH = flowChartBlockStatement.heading.height;
-        const titleW = flowChartBlockStatement.heading.height;
-        const defaultTitleH = blockStatement.heading.height;
+        const titleH = flowChartControlStatement.heading.height;
+        const titleW = flowChartControlStatement.heading.width;
         const statementBBox = viewState.components['statement-box'];
         const displayExpression = viewState.components.expression;
 
-        const p1X = statementBBox.x + (statementBBox.w / 2);
-        const p1Y = statementBBox.y + titleH;
-        const p2X = p1X - (titleW / 2);
-        const p2Y = p1Y - (titleH / 2);
-        const p3X = p1X;
-        const p3Y = p1Y - titleH;
-        const p4X = p2X + titleW;
+
+        // Defining coordinates of the diagram
+
+        //                     (P8)
+        //      (P1)      (P2)  |  (P3)        (P4)
+        // (x,y)|--------->[condition]--false---|
+        // (P11)|_____________\_|_/_____________| (statementBox)
+        //      |               |(p9)           |
+        //      |               |               |
+        //      |          true |               |
+        //      |               |               |
+        //      |             a = 1;            |
+        //      |               |               |
+        //  (P7)|_______________|(p10)          |
+        //                                      |
+        //                  (P6) _______________| (P5)
+        //                      |
+        //
+        // Defining coordinates for the title
+        //           (p8)
+        //            / \
+        //          /     \
+        // ------>[condition]--false---|
+        //    (p2)  \     /  (p3)
+        //            \ /
+        //           (p9)
+
+        const p1X = statementBBox.x;
+        const p1Y = statementBBox.y;
+
+        const p2X = statementBBox.x + ((statementBBox.w / 2) - (titleW / 2));
+        const p2Y = statementBBox.y + (titleH / 2);
+
+        const p3X = p1X + (statementBBox.w / 2) + (titleW / 2);
+        const p3Y = p2Y;
+
+        const p4X = p1X + statementBBox.w;
         const p4Y = p2Y;
 
-        const titleX = statementBBox.x + (titleW / 2);
-        const titleY = statementBBox.y + (titleH / 2);
+        const p5X = p4X;
+        const p5Y = p1Y + statementBBox.h + (statement.gutter.v);
 
-        let expressionX = 0;
-        if (expression) {
-            expressionX = ((p2X + p1X) / 2) + statement.padding.left;
-        }
-        let paramSeparatorX = 0;
-        let parameterText = null;
-        if (this.props.parameterBbox && this.props.parameterEditorOptions) {
-            paramSeparatorX = this.props.parameterBbox.x;
-            parameterText = this.props.parameterEditorOptions.value;
-        }
+        const p6X = p1X + (statementBBox.w / 2);
+        const p6Y = p5Y;
 
-        this.conditionBox = new SimpleBBox(p1X, statementBBox.y, bBox.w, titleH);
-        const { designer } = this.context;
+        const p7X = p1X;
+        const p7Y = p1Y + statementBBox.h;
+
+        const p8X = p1X + (statementBBox.w / 2);
+        const p8Y = p2Y + (titleH / 2);
+        const p9X = p8X;
+        const p9Y = p8Y - titleH;
+
+        const p10X = p1X + (statementBBox.w / 2);
+        const p10Y = p7Y;
+
+        const p11X = p1X;
+        const p11Y = p1Y + (titleH / 2);
+
+        this.conditionBox = new SimpleBBox(p1X, (p2Y - (statement.height / 2)), bBox.w, statement.height);
+
         const actionBoxBbox = new SimpleBBox();
         actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;
         actionBoxBbox.h = designer.config.actionBox.height;
         actionBoxBbox.x = bBox.x + ((bBox.w - actionBoxBbox.w) / 2);
         actionBoxBbox.y = statementBBox.y + titleH + designer.config.actionBox.padding.top;
-        const utilClassName = CLASS_MAP[this.state.active];
 
         let statementRectClass = 'statement-title-rect';
         if (isDebugHit) {
             statementRectClass = `${statementRectClass} debug-hit`;
         }
-        const separatorGapV = titleH / 3;
 
-        let body;
-        if (this.props.body.kind === 'ForkJoin') {
-            body = getComponentForNodeArray(this.props.body.workers);
-        } else {
-            body = getComponentForNodeArray(this.props.body);
-        }
+        const body = getComponentForNodeArray(this.props.model.body);
 
-        let bodyBBox = {};
-
-        if (this.props.model.kind === 'ForkJoin') {
-            bodyBBox = this.props.model.viewState.components['statement-body'];
-        } else if (this.props.body && !(this.props.body instanceof Array)) {
-            bodyBBox = this.props.body.viewState.bBox;
-        }
         return (
             <g
                 onMouseOut={this.setActionVisibilityFalse}
@@ -266,25 +289,37 @@ class FlowChartWhileStatementDecorator extends React.Component {
                 }}
             >
                 <polyline
-                    points={`${statementBBox.x},${p2Y} ${statementBBox.x},${p3Y + statementBBox.h} ${statementBBox.x + (statementBBox.w / 2)},${p3Y + statementBBox.h}`}
-                    className='background-empty-rect'
+                    points={`${p10X},${p10Y} ${p7X},${p7Y} ${p11X},${p11Y}`}
+                    className='statement-title-polyline'
                 />
                 <ArrowDecorator
-                    start={{ x: statementBBox.x, y: p2Y }}
+                    start={{ x: p11X, y: p11Y }}
                     end={{ x: p2X, y: p2Y }}
                 />
                 <polyline
-                    points={`${p4X},${p4Y} ${statementBBox.x + statementBBox.w},${p2Y} ${statementBBox.x + statementBBox.w},${p3Y + statementBBox.h + defaultTitleH}`}
+                    points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y} ${p6X}, ${p6Y}`}
                     className='background-empty-rect'
                 />
-                <ArrowDecorator
-                    start={{ x: (statementBBox.x + statementBBox.w), y: (p3Y + statementBBox.h + defaultTitleH) }}
-                    end={{ x: (statementBBox.x + (statementBBox.w / 2)), y: (p3Y + statementBBox.h + defaultTitleH) }}
-                    backward
+                <polyline
+                    points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y} ${p6X}, ${p6Y}`}
+                    className='background-empty-rect'
                 />
+                <polyline
+                    points={`${p2X},${p2Y} ${p8X},${p8Y} ${p3X},${p3Y} ${p9X}, ${p9Y} ${p2X},${p2Y}`}
+                    className={statementRectClass}
+                />
+                {expression &&
+                    <text
+                        x={p8X}
+                        y={p2Y}
+                        className='condition-text'
+                    >
+                        {displayExpression.text}
+                    </text>
+                }
                 <DropZone
-                    x={statementBBox.x}
-                    y={statementBBox.y + (titleH / 2)}
+                    x={p11X}
+                    y={p11Y}
                     width={statementBBox.w}
                     height={statementBBox.h}
                     baseComponent='rect'
@@ -292,20 +327,6 @@ class FlowChartWhileStatementDecorator extends React.Component {
                     enableDragBg
                     enableCenterOverlayLine={!this.props.disableDropzoneMiddleLineOverlay}
                 />
-                <polyline
-                    points={`${p1X},${p1Y} ${p2X},${p2Y} ${p3X},${p3Y} ${p4X},${p4Y} ${p1X},${p1Y}`}
-                    className={statementRectClass}
-                    onClick={!parameterText && this.openExpressionEditor}
-                />
-                {expression &&
-                    <text
-                        x={expressionX}
-                        y={titleY}
-                        className='condition-text'
-                    >
-                        {displayExpression.text}
-                    </text>
-                }
                 <g>
                     <rect
                         x={p2X}
@@ -317,42 +338,6 @@ class FlowChartWhileStatementDecorator extends React.Component {
                     />
                     {expression && <title> {expression.text} </title>}
                 </g>
-                {parameterText &&
-                <g>
-                    <line
-                        x1={paramSeparatorX}
-                        y1={titleY - separatorGapV}
-                        y2={titleY + separatorGapV}
-                        x2={paramSeparatorX}
-                        className='parameter-separator'
-                    />
-                    <text
-                        x={paramSeparatorX + flowChartBlockStatement.heading.paramPaddingX}
-                        y={titleY}
-                        className='condition-text'
-                    >
-                        ( {parameterText} )
-                    </text>
-                    <rect
-                        x={paramSeparatorX}
-                        y={statementBBox.y}
-                        width={statementBBox.w - paramSeparatorX + statementBBox.x}
-                        height={titleH}
-                        onClick={this.openParameterEditor}
-                        className='invisible-rect'
-                    />
-                </g>}
-
-                <polyline
-                    points={`${p1X},${p1Y} ${p2X},${p2Y} ${p3X},${p3Y} ${p4X},${p4Y} ${p1X},${p1Y}`}
-                    className='statement-title-polyline'
-                />
-
-                {
-                    <g className={utilClassName}>
-                        {this.props.utilities}
-                    </g>
-                }
                 { isBreakpoint && this.renderBreakpointIndicator() }
                 {this.props.children}
                 {body}
@@ -369,11 +354,10 @@ class FlowChartWhileStatementDecorator extends React.Component {
     }
 }
 
-FlowChartWhileStatementDecorator.defaultProps = {
+WhileStatementDecorator.defaultProps = {
     draggable: null,
     children: null,
     undeletable: false,
-    titleHeight: flowChartBlockStatement.heading.height,
     editorOptions: null,
     parameterEditorOptions: null,
     utilities: null,
@@ -387,7 +371,7 @@ FlowChartWhileStatementDecorator.defaultProps = {
     disableDropzoneMiddleLineOverlay: false,
 };
 
-FlowChartWhileStatementDecorator.propTypes = {
+WhileStatementDecorator.propTypes = {
     draggable: PropTypes.func,
     title: PropTypes.string.isRequired,
     model: PropTypes.instanceOf(Node).isRequired,
@@ -397,7 +381,6 @@ FlowChartWhileStatementDecorator.propTypes = {
     parameterBbox: PropTypes.instanceOf(SimpleBBox),
     undeletable: PropTypes.bool,
     dropTarget: PropTypes.instanceOf(Node).isRequired,
-    titleWidth: PropTypes.number,
     expression: PropTypes.shape({
         text: PropTypes.string,
     }),
@@ -426,7 +409,7 @@ FlowChartWhileStatementDecorator.propTypes = {
     disableDropzoneMiddleLineOverlay: PropTypes.bool,
 };
 
-FlowChartWhileStatementDecorator.contextTypes = {
+WhileStatementDecorator.contextTypes = {
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
@@ -435,4 +418,4 @@ FlowChartWhileStatementDecorator.contextTypes = {
     designer: PropTypes.instanceOf(Object),
 };
 
-export default breakpointHoc(FlowChartWhileStatementDecorator);
+export default breakpointHoc(WhileStatementDecorator);

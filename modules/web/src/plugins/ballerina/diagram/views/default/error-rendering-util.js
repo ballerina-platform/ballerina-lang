@@ -20,6 +20,7 @@ import _ from 'lodash';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
 import TreeUtil from './../../../model/tree-util';
 import SemanticErrorRenderingVisitor from './../../../visitors/semantic-errors-rendering-visitor';
+import { flowChartControlStatement } from './designer-defaults.js';
 
 class ErrorRenderingUtil {
 
@@ -119,6 +120,27 @@ class ErrorRenderingUtil {
             const errorBbox = new SimpleBBox();
             errorBbox.x = viewState.components['statement-box'].x;
             errorBbox.y = viewState.components['statement-box'].y;
+            this.setErrorToNode(node, errors, errorBbox, 'top');
+        }
+    }
+
+    /**
+     * Calculate error positions of flow control statement nodes
+     * @param node
+     */
+    placeErrorForFlowControlStatementComponents(node) {
+        const viewState = node.viewState;
+        let errors;
+        if (TreeUtil.isIf(node) || TreeUtil.isWhile(node)) {
+            errors = this.getSemanticErrorsOfNode(node.condition);
+        } else {
+            errors = node.errors;
+        }
+        // Check for errors in the model
+        if (errors.length > 0) {
+            const errorBbox = new SimpleBBox();
+            errorBbox.x = viewState.components['statement-box'].x + (3 * (flowChartControlStatement.heading.width / 4));
+            errorBbox.y = viewState.components['statement-box'].y + (flowChartControlStatement.heading.height / 4);
             this.setErrorToNode(node, errors, errorBbox, 'top');
         }
     }
@@ -1033,9 +1055,9 @@ class ErrorRenderingUtil {
      */
     placeErrorForIfNode(node) {
         const elseStatement = node.elseStatement;
-        this.placeErrorForCompoundStatementComponents(node);
+        this.placeErrorForFlowControlStatementComponents(node);
         if (elseStatement) {
-            this.placeErrorForCompoundStatementComponents(elseStatement);
+            this.placeErrorForFlowControlStatementComponents(elseStatement);
         }
     }
 
@@ -1176,7 +1198,7 @@ class ErrorRenderingUtil {
      *
      */
     placeErrorForWhileNode(node) {
-        this.placeErrorForCompoundStatementComponents(node);
+        this.placeErrorForFlowControlStatementComponents(node);
     }
 
 

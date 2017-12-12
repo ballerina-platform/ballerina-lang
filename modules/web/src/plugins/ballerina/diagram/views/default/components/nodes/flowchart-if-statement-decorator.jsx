@@ -19,7 +19,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
-import { flowChartBlockStatement, blockStatement, statement, actionBox } from '../../../../../configs/designer-defaults.js';
+import { flowChartControlStatement, blockStatement, statement, actionBox } from '../../../../../configs/designer-defaults.js';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
 import './compound-statement-decorator.css';
@@ -199,8 +199,8 @@ class FlowChartIfStatementDecorator extends React.Component {
         const { bBox, title, dropTarget, expression, isBreakpoint, isDebugHit } = this.props;
         const model = this.props.model;
         const viewState = model.viewState;
-        const titleH = flowChartBlockStatement.heading.height;
-        const titleW = flowChartBlockStatement.heading.height;
+        const titleH = flowChartControlStatement.heading.height;
+        const titleW = flowChartControlStatement.heading.height;
         const defaultTitleH = blockStatement.heading.height;
         const statementBBox = viewState.components['statement-box'];
         const displayExpression = viewState.components.expression;
@@ -319,7 +319,7 @@ class FlowChartIfStatementDecorator extends React.Component {
                         className='parameter-separator'
                     />
                     <text
-                        x={paramSeparatorX + flowChartBlockStatement.heading.paramPaddingX}
+                        x={paramSeparatorX + flowChartControlStatement.heading.paramPaddingX}
                         y={titleY}
                         className='condition-text'
                     >
@@ -365,7 +365,7 @@ FlowChartIfStatementDecorator.defaultProps = {
     draggable: null,
     children: null,
     undeletable: false,
-    titleHeight: flowChartBlockStatement.heading.height,
+    titleHeight: flowChartControlStatement.heading.height,
     editorOptions: null,
     parameterEditorOptions: null,
     utilities: null,
