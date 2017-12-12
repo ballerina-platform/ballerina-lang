@@ -50,13 +50,13 @@ class Arrow extends React.Component {
      * @memberof Arrow
      */
     render() {
-        const { start, end, dashed, arrowSize, description } = this.props;
+        const { start, end, dashed, arrowSize, description, classNameArrow, classNameArrowHead } = this.props;
         const descriptionX = (start.x + end.x) / 2;
         const descriptionY = start.y - 3;
 
-        let className = 'action-arrow';
+        let className = classNameArrow;
         if (dashed) {
-            className = 'action-arrow action-dash-line';
+            className = classNameArrow + ' action-dash-line';
         }
         return (
             <g >
@@ -77,7 +77,7 @@ class Arrow extends React.Component {
                     points={`-${arrowSize},-${arrowSize} 0,0 -${arrowSize},${arrowSize}`}
                     transform={`translate(${end.x}, ${end.y})
                                 rotate(${this.getArrowAngle(start, start)}, 0, 0)`}
-                    className='action-arrow-head'
+                    className={classNameArrowHead}
                 />
             </g>);
     }
@@ -97,6 +97,8 @@ Arrow.propTypes = {
     arrowSize: PropTypes.number,
     description: PropTypes.string,
     backward: PropTypes.bool,
+    classNameArrow: PropTypes.string,
+    classNameArrowHead: PropTypes.string,
 };
 
 Arrow.defaultProps = {
@@ -106,6 +108,8 @@ Arrow.defaultProps = {
     arrowSize: 5,
     description: '',
     backward: false,
+    classNameArrow: 'action-arrow',
+    classNameArrowHead: 'action-arrow-head',
 };
 
 export default Arrow;
