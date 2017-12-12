@@ -60,6 +60,7 @@ import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.BuiltInReferenceTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
+import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDeclarationStatementNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorReferenceNode;
@@ -1260,21 +1261,49 @@ public class BallerinaPsiImplUtil {
                 results.addAll(getAllGlobalVariablesInResolvableScope(context));
             }
         } else if (scope instanceof BallerinaFile) {
-            results.addAll(getAllGlobalVariablesInScope(scope));
+            results.addAll(getAllGlobalVariablesInScope(scope, -1));
         }
         return results;
     }
 
     @NotNull
-    public static List<IdentifierPSINode> getAllGlobalVariablesInScope(@NotNull ScopeNode scope) {
+    public static List<IdentifierPSINode> getAllGlobalVariablesInResolvableScope(@NotNull ScopeNode scope,
+                                                                                 int caretOffset) {
+        List<IdentifierPSINode> results = new LinkedList<>();
+        if (scope instanceof VariableContainer || scope instanceof ParameterContainer || scope instanceof CodeBlockScope
+                || scope instanceof TopLevelDefinition || scope instanceof LowerLevelDefinition) {
+            ScopeNode context = scope.getContext();
+            if (context != null) {
+                results.addAll(getAllGlobalVariablesInResolvableScope(context, caretOffset));
+            }
+        } else if (scope instanceof BallerinaFile) {
+            results.addAll(getAllGlobalVariablesInScope(scope, caretOffset));
+        }
+        return results;
+    }
+
+    @NotNull
+    public static List<IdentifierPSINode> getAllGlobalVariablesInScope(@NotNull ScopeNode scope, int caretOffset) {
         List<IdentifierPSINode> results = new LinkedList<>();
         Collection<GlobalVariableDefinitionNode> variableDefinitionNodes = PsiTreeUtil.findChildrenOfType(scope,
                 GlobalVariableDefinitionNode.class);
         for (GlobalVariableDefinitionNode variableDefinitionNode : variableDefinitionNodes) {
             PsiElement identifier = variableDefinitionNode.getNameIdentifier();
-            if (identifier != null && identifier instanceof IdentifierPSINode) {
-                results.add(((IdentifierPSINode) identifier));
+            if (caretOffset != -1) {
+                if (identifier == null || !(identifier instanceof IdentifierPSINode)
+                        || identifier.getTextOffset() > caretOffset) {
+                    continue;
+                }
+                PsiElement element = scope.findElementAt(caretOffset);
+                if (element != null) {
+                    GlobalVariableDefinitionNode definition = PsiTreeUtil.getParentOfType(element,
+                            GlobalVariableDefinitionNode.class);
+                    if (definition != null && definition.equals(variableDefinitionNode)) {
+                        continue;
+                    }
+                }
             }
+            results.add(((IdentifierPSINode) identifier));
         }
         PsiFile originalFile = ((BallerinaFile) scope).getOriginalFile();
         PsiDirectory containingPackage = originalFile.getParent();
@@ -1307,22 +1336,49 @@ public class BallerinaPsiImplUtil {
             if (context != null) {
                 results.addAll(getAllConstantsInResolvableScope(context));
             }
-        } else if (scope instanceof BallerinaFile) {
-            results.addAll(getAllConstantsInScope(scope));
+        } else if (scope instanceof BallerinaFile || scope instanceof CompilationUnitNode) {
+            results.addAll(getAllConstantsInScope(scope, -1));
         }
         return results;
     }
 
     @NotNull
-    public static List<IdentifierPSINode> getAllConstantsInScope(@NotNull ScopeNode scope) {
+    public static List<IdentifierPSINode> getAllConstantsInResolvableScope(@NotNull ScopeNode scope, int caretOffset) {
         List<IdentifierPSINode> results = new LinkedList<>();
-        Collection<ConstantDefinitionNode> variableDefinitionNodes = PsiTreeUtil.findChildrenOfType(scope,
-                ConstantDefinitionNode.class);
-        for (ConstantDefinitionNode variableDefinitionNode : variableDefinitionNodes) {
-            PsiElement identifier = variableDefinitionNode.getNameIdentifier();
-            if (identifier != null && identifier instanceof IdentifierPSINode) {
-                results.add(((IdentifierPSINode) identifier));
+        if (scope instanceof VariableContainer || scope instanceof ParameterContainer || scope instanceof CodeBlockScope
+                || scope instanceof TopLevelDefinition || scope instanceof LowerLevelDefinition) {
+            ScopeNode context = scope.getContext();
+            if (context != null) {
+                results.addAll(getAllConstantsInResolvableScope(context, caretOffset));
             }
+        } else if (scope instanceof BallerinaFile) {
+            results.addAll(getAllConstantsInScope(scope, caretOffset));
+        }
+        return results;
+    }
+
+    @NotNull
+    public static List<IdentifierPSINode> getAllConstantsInScope(@NotNull ScopeNode scope, int caretOffset) {
+        List<IdentifierPSINode> results = new LinkedList<>();
+        Collection<ConstantDefinitionNode> constantDefinitionNodes = PsiTreeUtil.findChildrenOfType(scope,
+                ConstantDefinitionNode.class);
+        for (ConstantDefinitionNode constantDefinitionNode : constantDefinitionNodes) {
+            PsiElement identifier = constantDefinitionNode.getNameIdentifier();
+            if (caretOffset != -1) {
+                if (identifier == null || !(identifier instanceof IdentifierPSINode)
+                        || identifier.getTextOffset() > caretOffset) {
+                    continue;
+                }
+                PsiElement element = scope.findElementAt(caretOffset);
+                if (element != null) {
+                    ConstantDefinitionNode definition = PsiTreeUtil.getParentOfType(element,
+                            ConstantDefinitionNode.class);
+                    if (definition != null && definition.equals(constantDefinitionNode)) {
+                        continue;
+                    }
+                }
+            }
+            results.add(((IdentifierPSINode) identifier));
         }
         PsiFile originalFile = ((BallerinaFile) scope).getOriginalFile();
         PsiDirectory containingPackage = originalFile.getParent();
@@ -1336,8 +1392,8 @@ public class BallerinaPsiImplUtil {
                 continue;
             }
 
-            variableDefinitionNodes = PsiTreeUtil.findChildrenOfType(file, ConstantDefinitionNode.class);
-            for (ConstantDefinitionNode variableDefinitionNode : variableDefinitionNodes) {
+            constantDefinitionNodes = PsiTreeUtil.findChildrenOfType(file, ConstantDefinitionNode.class);
+            for (ConstantDefinitionNode variableDefinitionNode : constantDefinitionNodes) {
                 PsiElement identifier = variableDefinitionNode.getNameIdentifier();
                 if (identifier != null && identifier instanceof IdentifierPSINode) {
                     results.add(((IdentifierPSINode) identifier));
@@ -1562,8 +1618,8 @@ public class BallerinaPsiImplUtil {
                 }
             }
             if (matchGlobalVariables) {
-                List<IdentifierPSINode> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope
-                        (scope);
+                List<IdentifierPSINode> globalVariables =
+                        BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope(scope);
                 for (IdentifierPSINode variable : globalVariables) {
                     if (identifier.getText().equals(variable.getText())) {
                         return variable;

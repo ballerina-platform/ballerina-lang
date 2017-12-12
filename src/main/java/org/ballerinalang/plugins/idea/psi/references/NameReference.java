@@ -31,7 +31,9 @@ import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
+import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
@@ -205,6 +207,26 @@ public class NameReference extends BallerinaElementReference {
                     List<IdentifierPSINode> endpoints = BallerinaPsiImplUtil.getAllEndpointsInResolvableScope(scope,
                             caretOffset);
                     results.addAll(BallerinaCompletionUtils.createEndpointLookupElements(endpoints));
+                } else {
+                    ConstantDefinitionNode constantDefinitionNode = PsiTreeUtil.getParentOfType(identifier,
+                            ConstantDefinitionNode.class);
+                    GlobalVariableDefinitionNode globalVariableDefinitionNode = PsiTreeUtil.getParentOfType
+                            (identifier, GlobalVariableDefinitionNode.class);
+                    if (constantDefinitionNode != null || globalVariableDefinitionNode != null) {
+                        scope = PsiTreeUtil.getParentOfType(constantDefinitionNode, BallerinaFile.class);
+                    }
+                    if (globalVariableDefinitionNode != null) {
+                        scope = PsiTreeUtil.getParentOfType(globalVariableDefinitionNode, BallerinaFile.class);
+                    }
+                    if (scope != null) {
+                        int caretOffset = identifier.getStartOffset();
+                        List<IdentifierPSINode> globalVars =
+                                BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope(scope, caretOffset);
+                        results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVars));
+                        List<IdentifierPSINode> constants =
+                                BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope, caretOffset);
+                        results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
+                    }
                 }
             }
 
