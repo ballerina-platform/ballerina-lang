@@ -330,8 +330,8 @@ public class BLangVM {
                     i = operands[0];
                     sf.refRegs[i] = null;
                     break;
-                case InstructionCodes.REG_DUPLICATE:
-                    duplicateRegistryValue(sf, operands[0], operands[1], operands[2]);
+                case InstructionCodes.REG_CP:
+                    copyRegistryValue(sf, operands[0], operands[1], operands[2]);
                     break;
 
                 case InstructionCodes.ILOAD:
@@ -2290,7 +2290,7 @@ public class BLangVM {
         }
     }
 
-    private void duplicateRegistryValue(StackFrame sf, int typeTag, int source, int target) {
+    private void copyRegistryValue(StackFrame sf, int typeTag, int source, int target) {
         switch (typeTag) {
             case TypeTags.INT_TAG:
                 sf.longRegs[target] = sf.longRegs[source];

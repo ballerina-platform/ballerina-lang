@@ -1217,7 +1217,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.emit(endJumpInstr);
         ifCondJumpInstr.setOperand(1, this.nextIP());
         this.genNode(ternaryExpr.elseExpr, this.env);
-        Instruction instruction = InstructionFactory.get(InstructionCodes.REG_DUPLICATE, ternaryExpr.type.tag,
+        Instruction instruction = InstructionFactory.get(InstructionCodes.REG_CP, ternaryExpr.type.tag,
                 ternaryExpr.elseExpr.regIndex, ternaryExpr.regIndex);
         this.emit(instruction);
         endJumpInstr.setOperand(0, this.nextIP());

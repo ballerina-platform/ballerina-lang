@@ -44,7 +44,6 @@ public interface InstructionCodes {
     int BCONST_1 = 18;
     int RCONST_NULL = 19;
 
-    int REG_DUPLICATE = 20;
     int ILOAD = 21;
     int FLOAD = 22;
     int SLOAD = 23;
@@ -251,6 +250,7 @@ public interface InstructionCodes {
     int NEWJSON = 213;
     int NEWDATATABLE = 215;
 
+    int REG_CP = 230;
     int IRET = 231;
     int FRET = 232;
     int SRET = 233;
