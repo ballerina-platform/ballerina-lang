@@ -143,8 +143,8 @@ public class HttpUtil {
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
                     .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
 
-            if (httpMessageStruct.getNativeData(MESSAGE_DATA_SOURCE) != null) {
-                MessageDataSource payload = (MessageDataSource) httpMessageStruct.getNativeData(MESSAGE_DATA_SOURCE);
+            MessageDataSource payload = HttpUtil.getMessageDataSource(httpMessageStruct);
+            if (payload != null) {
                 if (payload instanceof BJSON) {
                     result = (BJSON) payload;
                 } else {
@@ -189,9 +189,8 @@ public class HttpUtil {
         BString result;
         try {
             BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-            if (httpMessageStruct.getNativeData(MESSAGE_DATA_SOURCE) != null) {
-                MessageDataSource messageDataSource =
-                        (MessageDataSource) httpMessageStruct.getNativeData(MESSAGE_DATA_SOURCE);
+            MessageDataSource messageDataSource = HttpUtil.getMessageDataSource(httpMessageStruct);
+            if (messageDataSource != null) {
                 result = new BString(messageDataSource.getMessageAsString());
             } else {
                 HTTPCarbonMessage httpCarbonMessage = HttpUtil
@@ -220,14 +219,14 @@ public class HttpUtil {
         try {
             BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
 
-            if (httpMessageStruct.getNativeData(MESSAGE_DATA_SOURCE) != null) {
-                MessageDataSource payload = (MessageDataSource) httpMessageStruct.getNativeData(MESSAGE_DATA_SOURCE);
-                if (payload instanceof BXML) {
+            MessageDataSource messageDataSource = HttpUtil.getMessageDataSource(httpMessageStruct);
+            if (messageDataSource != null) {
+                if (messageDataSource instanceof BXML) {
                     // if the payload is already xml, return it as it is.
-                    result = (BXML) payload;
+                    result = (BXML) messageDataSource;
                 } else {
                     // else, build the xml from the string representation of the payload.
-                    result = XMLUtils.parse(payload.getMessageAsString());
+                    result = XMLUtils.parse(messageDataSource.getMessageAsString());
                 }
             } else {
                 HTTPCarbonMessage httpCarbonMessage = HttpUtil
@@ -763,5 +762,13 @@ public class HttpUtil {
             return result;
         }
         throw new ArgumentOutOfRangeException(index);
+    }
+
+    public static MessageDataSource getMessageDataSource(BStruct httpMsgStruct) {
+        MessageDataSource source = null;
+        if (httpMsgStruct.getNativeData(MESSAGE_DATA_SOURCE) != null) {
+            source = (MessageDataSource) httpMsgStruct.getNativeData(MESSAGE_DATA_SOURCE);
+        }
+        return source;
     }
 }

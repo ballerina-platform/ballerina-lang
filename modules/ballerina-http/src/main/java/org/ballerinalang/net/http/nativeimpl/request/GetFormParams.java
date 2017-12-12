@@ -59,9 +59,8 @@ public class GetFormParams extends AbstractNativeFunction {
             String contentType = httpCarbonMessage.getHeader(Constants.CONTENT_TYPE);
             if (contentType != null && contentType.contains(Constants.APPLICATION_FORM)) {
                 String payload;
-                if (requestStruct.getNativeData(Constants.MESSAGE_DATA_SOURCE) != null) {
-                    MessageDataSource messageDataSource = (MessageDataSource) requestStruct
-                            .getNativeData(Constants.MESSAGE_DATA_SOURCE);
+                MessageDataSource messageDataSource = HttpUtil.getMessageDataSource(requestStruct);
+                if (messageDataSource != null) {
                     payload = messageDataSource.getMessageAsString();
                 } else {
                     payload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(httpCarbonMessage)
