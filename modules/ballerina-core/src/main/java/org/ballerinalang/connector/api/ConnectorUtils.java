@@ -72,16 +72,25 @@ public class ConnectorUtils extends StructHelper {
 
     /**
      * This method can be used to access the {@code BallerinaServerConnector} object which is at
-     * Ballerina level.
+     * Ballerina level using programme file.
      *
-     * @param protocolPkgPath   of the server connector.
-     * @return  ballerinaServerConnector object.
+     * @param programFile Program file.
+     * @param protocolPkgPath Package of the registered protocol of the server connector.
+     * @return BallerinaServerConnector which matches to the given protocol package.
      */
     public static BallerinaServerConnector getBallerinaServerConnector(ProgramFile programFile,
                                                                        String protocolPkgPath) {
         return programFile.getServerConnectorRegistry().getBallerinaServerConnector(protocolPkgPath);
     }
 
+    /**
+     * This method can be used to access the {@code BallerinaServerConnector} object which is at
+     * Ballerina level using context of the programme.
+     *
+     * @param context {@link Context} of the programme.
+     * @param protocolPkgPath Package of the registered protocol of the server connector.
+     * @return BallerinaServerConnector which matches to the given protocol package.
+     */
     public static BallerinaServerConnector getBallerinaServerConnector(Context context, String protocolPkgPath) {
         ProgramFile programFile = context.getProgramFile();
         return getBallerinaServerConnector(programFile, protocolPkgPath);
