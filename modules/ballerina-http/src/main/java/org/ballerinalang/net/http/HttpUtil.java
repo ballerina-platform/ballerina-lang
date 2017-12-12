@@ -609,7 +609,6 @@ public class HttpUtil {
             ArrayList<BStruct> headerValueList = headerStructHolder.get(headerKey) != null ?
                     headerStructHolder.get(headerKey) : new ArrayList<>();
             if (headerValue.contains(",")) {
-                //TODO check with netty
                 List<String> valueList = Arrays.stream(headerValue.split(",")).map(String::trim)
                         .collect(Collectors.toList());
                 for (String value : valueList) {

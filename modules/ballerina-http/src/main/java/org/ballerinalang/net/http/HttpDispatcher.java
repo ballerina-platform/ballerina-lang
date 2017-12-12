@@ -88,7 +88,7 @@ public class HttpDispatcher {
     }
 
     public static BValue[] getSignatureParameters(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
-        //TODO Think of creating structDef one time
+
         BStruct request = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.REQUEST);
         BStruct response = ConnectorUtils.createStruct(httpResource.getBalResource(),
