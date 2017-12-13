@@ -76,3 +76,4 @@ Math Functions
 Task Timer
 Task Appointment
 Config API
+String Template
