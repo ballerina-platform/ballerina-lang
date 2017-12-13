@@ -30,6 +30,14 @@ class InvocationNode extends AbstractInvocationNode {
     getFunctionName() {
         return this.name.value;
     }
+
+    getInvocationSignature() {
+        const argExpSource = this.getArgumentExpressions().map((arg) => {
+            return arg.getSource();
+        }).join(',');
+        return this.getFunctionName() + '(' + argExpSource + ')';
+    }
+
 }
 
 export default InvocationNode;

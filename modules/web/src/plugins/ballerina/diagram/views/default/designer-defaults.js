@@ -123,6 +123,10 @@ export const statement = {
     maxWidth: 300,
 };
 
+export const actionInvocationStatement = {
+    width: 8,
+};
+
 export const blockStatement = {
     width: 140,
     heading: {

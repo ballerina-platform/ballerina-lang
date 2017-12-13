@@ -1247,6 +1247,12 @@
         stroke: #ff0202;
         stroke-width: 1;
     }
+
+    .action-invocation-statement-rect {
+        fill: $default-worker-lifeline-color;
+        // stroke: #adadad;
+        stroke-width: 1;
+    }
     
     .background-empty-rect {
         fill: #ffffff;
@@ -1292,7 +1298,15 @@
         dominant-baseline: central;
         width: 120px;
         max-width: 250px;
-        fill: "black"
+        fill: #000000
+    }
+
+    .action-invocation-text {
+        paint-order: stroke;
+        text-anchor: start;
+        dominant-baseline: central;
+        stroke:#ffffff;
+        stroke-width: 4;
     }
 
     .flowchart-text {
