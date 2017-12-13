@@ -1662,6 +1662,7 @@ class SizingUtil {
 
         if (TreeUtil.statementIsInvocation(node)) {
             viewState.bBox.w = this.config.actionInvocationStatement.width;
+            viewState.components['statement-box'].w = this.config.actionInvocationStatement.width;
         }
     }
 
