@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -50,7 +51,9 @@ public class Send extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct responseStruct = (BStruct) getRefArgument(context, 0);
+
         HttpUtil.checkFunctionValidity(responseStruct);
+
         HTTPCarbonMessage responseMessage = HttpUtil
                 .getCarbonMsg(responseStruct, HttpUtil.createHttpCarbonMessage(false));
         HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct
@@ -77,6 +80,7 @@ public class Send extends AbstractNativeFunction {
                     (BMap) responseStruct.getRefField(Constants.RESPONSE_HEADERS_INDEX));
         }
 
-        return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage);
+        return HttpUtil.prepareResponseAndSend(context, this, requestMessage,
+                responseMessage, (MessageDataSource) responseStruct.getNativeData(Constants.MESSAGE_DATA_SOURCE));
     }
 }

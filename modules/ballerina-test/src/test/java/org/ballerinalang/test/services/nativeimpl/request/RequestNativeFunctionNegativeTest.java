@@ -91,19 +91,19 @@ public class RequestNativeFunctionNegativeTest {
         } catch (Throwable e) {
             error = e.getMessage();
         }
-        Assert.assertEquals(error.substring(23, 133), "error while retrieving json payload from message: " +
-                "failed to create json: No content to map due to end-of-input");
+        Assert.assertTrue(error.contains("unexpected end of JSON document"));
     }
 
     @Test(description = "Test method with string payload")
     public void testGetJsonPayloadWithStringPayload() {
         BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
+
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        cMsg.setMessageDataSource(dataSource);
-        cMsg.setAlreadyRead(true);
+        HttpUtil.addMessageDataSource(request, dataSource);
+
         HttpUtil.addCarbonMsg(request, cMsg);
         BValue[] inputArg = {request};
         String error = null;
@@ -112,8 +112,7 @@ public class RequestNativeFunctionNegativeTest {
         } catch (Throwable e) {
             error = e.getMessage();
         }
-        Assert.assertEquals(error.substring(23, 118), "error while retrieving json payload from message: " +
-                "Unrecognized token 'ballerina': was expecting");
+        Assert.assertTrue(error.contains("unrecognized token 'ballerina'"));
     }
 
     @Test
@@ -145,11 +144,12 @@ public class RequestNativeFunctionNegativeTest {
     public void testGetStringPayloadMethodWithJsonPayload() {
         BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
+
         String payload = "{\"code\":\"123\"}";
         BallerinaMessageDataSource dataSource = new BJSON(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        cMsg.setMessageDataSource(dataSource);
-        cMsg.setAlreadyRead(true);
+        HttpUtil.addMessageDataSource(request, dataSource);
+
         HttpUtil.addCarbonMsg(request, cMsg);
         BValue[] inputArg = {request};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);

@@ -17,12 +17,10 @@
  */
 package org.ballerinalang.model;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.ballerinalang.model.util.JsonGenerator;
+import org.ballerinalang.model.util.JsonNode;
+import org.ballerinalang.model.util.JsonNode.Type;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BJSON.JSONDataSource;
 
@@ -52,10 +50,10 @@ public class DataTableJSONDataSource implements JSONDataSource {
     }
 
     @Override
-    public void serialize(JsonGenerator gen, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(JsonGenerator gen) throws IOException {
         gen.writeStartArray();
         while (this.df.hasNext(this.isInTransaction)) {
-            this.objGen.transform(this.df).serialize(gen, serializerProvider);
+            this.objGen.transform(this.df).serialize(gen);
         }
         gen.writeEndArray();
         this.df.close(this.isInTransaction);
@@ -69,42 +67,40 @@ public class DataTableJSONDataSource implements JSONDataSource {
 
         @Override
         public JsonNode transform(BDataTable df) throws IOException {
-            JsonNodeFactory fac = JsonNodeFactory.instance;
-            ObjectNode objNode = fac.objectNode();
+            JsonNode objNode = new JsonNode(Type.OBJECT);
             String name;
             for (ColumnDefinition col : df.getColumnDefs()) {
                 name = col.getName();
                 switch (col.getType()) {
                 case STRING:
-                    objNode.put(name, df.getString(name));
+                    objNode.set(name, df.getString(name));
                     break;
                 case INT:
-                    objNode.put(name, df.getInt(name));
+                    objNode.set(name, df.getInt(name));
                     break;
                 case FLOAT:
-                    objNode.put(name, df.getFloat(name));
+                    objNode.set(name, df.getFloat(name));
                     break;
                 case BOOLEAN:
-                    objNode.put(name, df.getBoolean(name));
+                    objNode.set(name, df.getBoolean(name));
                     break;
                 case BLOB:
-                    objNode.put(name, df.getBlob(name));
+                    objNode.set(name, df.getBlob(name));
                     break;
                 case ARRAY:
-                    //TODO: ARRAY
+                    /* not supported */
                     break;
                 case JSON:
-                    objNode.set(name, new ObjectMapper().readTree(""));
+                    objNode.set(name, JsonParser.parse(df.getString(name)));
                     break;
                 case MAP:
-                    //TODO: MAP
+                    /* not supported */
                     break;
                 case XML:
-                    objNode.put(name, "");
-                    //TODO: get XML
+                    /* not supported */
                     break;
                 default:
-                    objNode.put(name, df.getString(name));
+                    objNode.set(name, df.getString(name));
                     break;
                 }
             }

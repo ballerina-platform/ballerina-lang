@@ -5,11 +5,6 @@ function testAddHeader (http:Request req, string key, string value) (http:Reques
     return req;
 }
 
-function testClone (http:Request req) (http:Request) {
-    http:Request newReq = req.clone();
-    return newReq;
-}
-
 function testGetContentLength (http:Request req) (int) {
     int length = req.getContentLength();
     return length;

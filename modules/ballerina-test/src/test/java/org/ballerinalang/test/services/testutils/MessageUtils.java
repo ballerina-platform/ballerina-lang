@@ -18,16 +18,15 @@
 
 package org.ballerinalang.test.services.testutils;
 
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.net.http.Constants;
-import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
-import org.ballerinalang.runtime.message.StringDataSource;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.StatusCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.net.InetSocketAddress;
 import java.util.LinkedList;
@@ -51,22 +50,18 @@ public class MessageUtils {
         return generateHTTPMessage(path, method, null, null);
     }
 
-    public static HTTPTestRequest generateHTTPMessage(String path, String method, BallerinaMessageDataSource payload) {
+    public static HTTPTestRequest generateHTTPMessage(String path, String method, String payload) {
         return generateHTTPMessage(path, method, null, payload);
     }
 
-    public static HTTPTestRequest generateHTTPMessage(String path, String method, String payload) {
-        return generateHTTPMessage(path, method, null, new StringDataSource(payload));
-    }
-
     public static HTTPTestRequest generateHTTPMessage(String path, String method, List<Header> headers,
-                                             BallerinaMessageDataSource payload) {
-
+            String payload) {
         HTTPTestRequest carbonMessage = new HTTPTestRequest();
         carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL,
-                                  Constants.PROTOCOL_HTTP);
+                Constants.PROTOCOL_HTTP);
         carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID,
-                                  Constants.DEFAULT_INTERFACE);
+                Constants.DEFAULT_INTERFACE);
+        // Set url
         carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.TO, path);
         carbonMessage.setProperty(Constants.HTTP_METHOD, method.trim().toUpperCase(Locale.getDefault()));
         carbonMessage.setProperty(Constants.LOCAL_ADDRESS, new InetSocketAddress(Constants.HTTP_DEFAULT_HOST, 9090));
@@ -78,9 +73,7 @@ public class MessageUtils {
             }
         }
         if (payload != null) {
-            payload.setOutputStream(new HttpMessageDataStreamer(carbonMessage).getOutputStream());
-            carbonMessage.setMessageDataSource(payload);
-            carbonMessage.setAlreadyRead(true);
+            carbonMessage.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(payload.getBytes())));
         } else {
             carbonMessage.setEndOfMsgAdded(true);
         }

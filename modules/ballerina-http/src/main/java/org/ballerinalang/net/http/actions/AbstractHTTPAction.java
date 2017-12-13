@@ -30,6 +30,7 @@ import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.RetryConfig;
+import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -151,10 +152,19 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     HttpConnectionManager.getInstance().getHTTPHttpClientConnector(scheme, bConnector);
             HttpResponseFuture future = clientConnector.send(httpRequestMsg);
             future.setHttpConnectorListener(httpClientConnectorLister);
+            serializeDataSource(context);
         } catch (BallerinaConnectorException e) {
             throw new BallerinaException(e.getMessage(), e, context);
         } catch (Exception e) {
             throw new BallerinaException("Failed to send httpRequestMsg to the backend", e, context);
+        }
+    }
+
+    private void serializeDataSource(Context context) {
+        BStruct requestStruct  = ((BStruct) getRefArgument(context, 1));
+        MessageDataSource messageDataSource = HttpUtil.getMessageDataSource(requestStruct);
+        if (messageDataSource != null) {
+            messageDataSource.serializeData();
         }
     }
 

@@ -79,5 +79,4 @@ public class BServiceUtil {
             ServerConnectorRegistry.getInstance().unRegisterService(serviceInfo);
         }
     }
-
 }
