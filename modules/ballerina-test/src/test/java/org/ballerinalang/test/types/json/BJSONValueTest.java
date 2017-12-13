@@ -76,7 +76,7 @@ public class BJSONValueTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testIntAsJsonVal");
         Assert.assertTrue(returns[0] instanceof BJSON);
         BJSON person = ((BJSON) returns[0]);
-        Assert.assertEquals(person.value().asInt(), 5);
+        Assert.assertEquals(person.value().longValue(), 5);
     }
 
     @Test(description = "Test initializing json with a float")
@@ -84,7 +84,7 @@ public class BJSONValueTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFloatAsJsonVal");
         Assert.assertTrue(returns[0] instanceof BJSON);
         BJSON person = ((BJSON) returns[0]);
-        Assert.assertEquals(person.value().asDouble(), 7.65);
+        Assert.assertEquals(person.value().doubleValue(), 7.65);
     }
 
     @Test(description = "Test initializing json with a boolean")
@@ -92,7 +92,7 @@ public class BJSONValueTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanAsJsonVal");
         Assert.assertTrue(returns[0] instanceof BJSON);
         BJSON person = ((BJSON) returns[0]);
-        Assert.assertEquals(person.value().asBoolean(), true);
+        Assert.assertEquals(person.value().booleanValue(), true);
     }
 
     @Test(description = "Test initializing json with a null")
