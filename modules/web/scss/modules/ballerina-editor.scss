@@ -714,21 +714,43 @@
             fill-opacity: 0.2;
         }
     }
+
+    .client-life-line {
+        stroke: #000;
+        stroke-width: 1;
+        cursor: pointer;
+    }
+
+    .client-line-header{
+        fill:#FFF;
+        stroke-width: 1;
+        stroke: #000;
+    }
     
     .default-worker-life-line {
         stroke: $default-worker-lifeline-color;
-        stroke-width: 2;
+        stroke-width: 1;
         cursor: pointer;
     }
     .default-worker-life-line-polygon{
         fill: $default-worker-lifeline-color;
         stroke-width: 0;
     }
+
+    .default-worker-life-line.dot{
+        stroke-width: 1;
+        fill: $default-worker-lifeline-color;
+    }
     
     .worker-life-line {
         cursor: pointer;
         stroke: $worker-lifeline-color;
-        stroke-width: 2;
+        stroke-width: 1;
+    }
+
+    .worker-life-line.dot{
+        stroke-width: 1;
+        fill: $worker-lifeline-color;
     }
     
     .worker-life-line-polygon{
@@ -739,8 +761,14 @@
     .connector-life-line {
         cursor: pointer;
         stroke: $connector-lifeline-color;
-        stroke-width: 2;
+        stroke-width: 1;
     }
+
+    .connector-life-line.dot{
+        stroke-width: 0;
+        fill: none;
+    }
+
     .connector-life-line-polygon {
         fill: $connector-lifeline-color;
         stroke-width: 0;
@@ -4013,6 +4041,7 @@
     
     .bal-file-editor {
         height: 100%;
+        background: #FFF;
     }
     
     

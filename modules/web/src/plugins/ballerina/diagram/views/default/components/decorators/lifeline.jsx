@@ -248,6 +248,7 @@ class LifeLine extends React.Component {
                     isDefaultWorker={isDefaultWorker}
                 />
             }
+            <circle cx={centerX} cy={solidY1 + 30} r='4' className={lineClass + ' dot'} />
         </g>);
     }
 }

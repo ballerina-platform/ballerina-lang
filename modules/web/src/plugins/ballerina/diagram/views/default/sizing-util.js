@@ -386,14 +386,18 @@ class SizingUtil {
         cmp.argParameterHolder = {};
         cmp.returnParameterHolder = {};
         cmp.receiver = new SimpleBBox();
+        cmp.client = new SimpleBBox();
 
         // initialize the annotation status.
         if (_.isNil(viewState.showAnnotationContainer)) {
             viewState.showAnnotationContainer = true;
         }
         // calculate the annotation height.
-        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 35);
+        // cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 35);
 
+        cmp.client.w = 60;
+        cmp.client.h = maxWorkerHeight;
+        cmp.client.arrowLine = (cmp.client.w / 2);
         // calculate default worker
         cmp.defaultWorker.w = workers.length > 0 ? 0 : node.body.viewState.bBox.w;
         cmp.defaultWorker.h = maxWorkerHeight;

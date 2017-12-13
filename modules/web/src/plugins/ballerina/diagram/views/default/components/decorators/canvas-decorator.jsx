@@ -50,7 +50,7 @@ class CanvasDecorator extends React.Component {
             y: 0,
         };
         return (
-            <div className='grid-background' style={{ width: this.props.bBox.w }} >
+            <div className='' style={{ width: this.props.bBox.w }} >
                 <div ref={(x) => { setCanvasOverlay(x); }}>
                     {/* This space is used to render html elements over svg */ }
                 </div>

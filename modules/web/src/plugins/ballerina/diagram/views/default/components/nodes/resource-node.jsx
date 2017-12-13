@@ -31,6 +31,7 @@ import './service-definition.css';
 import AddResourceDefinition from './add-resource-definition';
 import TreeUtil from '../../../../../model/tree-util';
 import EndpointDecorator from '../decorators/endpoint-decorator';
+import Client from '../decorators/client';
 
 class ResourceNode extends React.Component {
 
@@ -124,7 +125,7 @@ class ResourceNode extends React.Component {
         }
         return (
             <g>
-                <ResourceTransportLink bBox={tLinkBox} />
+                {/* <ResourceTransportLink bBox={tLinkBox} /> */}
                 <PanelDecorator
                     icon='tool-icons/resource'
                     title={name}
@@ -135,6 +136,10 @@ class ResourceNode extends React.Component {
                     argumentParams={argumentParameters}
                     packageIdentifier={protocolPkgIdentifier}
                 >
+                    <Client
+                        title='http'
+                        bBox={this.props.model.viewState.components.client}
+                    />
                     <g>
                         { this.props.model.getWorkers().length === 0 &&
                             <g>

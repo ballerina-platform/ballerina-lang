@@ -119,10 +119,10 @@ class Diagram extends React.Component {
         // 7. Now we will visit the model again and collect the errors of each node
         //    in the tree. We will use ErrorRenderer for this. This will only collect errors
         //    for default and compact view.
-        if (this.props.mode !== 'action') {
+        /* if (this.props.mode !== 'action') { //TODOX
             this.errorRenderer.setErrorUtil(getErrorCollectorUtil(this.props.mode));
             this.props.model.accept(this.errorRenderer);
-        }
+        } */
 
         /* TODOX
         // 2.1 Lets resolve arrow conflicts.
@@ -135,7 +135,7 @@ class Diagram extends React.Component {
 
         // 3.1 lets filter out annotations so we can overlay html on top of svg.
         const annotationRenderer = new AnnotationRenderingVisitor();
-        this.props.model.accept(annotationRenderer);
+        // this.props.model.accept(annotationRenderer); TODOX Disable annotations.
         let annotations = [];
         if (annotationRenderer.getAnnotations()) {
             annotations = getComponentForNodeArray(annotationRenderer.getAnnotations(), this.props.mode);

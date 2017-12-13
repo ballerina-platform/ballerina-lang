@@ -381,10 +381,13 @@ class PositioningUtil {
         // position the function body.
         funcBodyViewState.bBox.x = viewState.bBox.x + this.config.panel.body.padding.left;
         funcBodyViewState.bBox.y = viewState.bBox.y + cmp.annotation.h + cmp.heading.h +
-                                                                                    this.config.panel.body.padding.top
-            + this.config.lifeLine.head.height;
+            this.config.panel.body.padding.top + this.config.lifeLine.head.height;
+
+        cmp.client.x = viewState.bBox.x + this.config.panel.body.padding.left;
+        cmp.client.y = viewState.bBox.y + cmp.annotation.h + cmp.heading.h + this.config.panel.body.padding.top;
+
         // position the default worker.
-        cmp.defaultWorker.x = viewState.bBox.x + this.config.panel.body.padding.left;
+        cmp.defaultWorker.x = cmp.client.x + cmp.client.w + this.config.lifeLine.gutter.h;
         cmp.defaultWorker.y = viewState.bBox.y + cmp.annotation.h + cmp.heading.h + this.config.panel.body.padding.top;
         // position default worker line.
         cmp.defaultWorkerLine.x = cmp.defaultWorker.x + ((cmp.defaultWorker.w - cmp.defaultWorkerLine.w) / 2);
@@ -392,7 +395,7 @@ class PositioningUtil {
 
         // position the children
         const body = node.getBody();
-        body.viewState.bBox.x = viewState.bBox.x + this.config.panel.body.padding.left;
+        body.viewState.bBox.x = cmp.client.x + cmp.client.w + this.config.panel.body.padding.left;
         body.viewState.bBox.y = cmp.defaultWorker.y + this.config.lifeLine.head.height;
 
         // ========== Header Positioning ==========
@@ -483,6 +486,10 @@ class PositioningUtil {
                 }
             }
         });
+
+        cmp.client.arrowLine = (workers instanceof Array && !_.isEmpty(workers)) ?
+            _.last(workers).viewState.bBox.x + (_.last(workers).viewState.bBox.w / 2) :
+            cmp.defaultWorkerLine.x + (cmp.defaultWorkerLine.w / 2);
     }
 
     /**

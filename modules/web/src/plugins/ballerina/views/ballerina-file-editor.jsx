@@ -107,7 +107,7 @@ class BallerinaFileEditor extends React.Component {
                         // update environment object with updated current package info
                         this.updateEnvironment(this.environment, state.packageInfo);
                         this.syncASTs(currentAST, newAST);
-                        
+
                         // remove new AST from new state to be set
                         delete state.model;
                         this.skipLoadingOverlay = false;
@@ -704,7 +704,7 @@ class BallerinaFileEditor extends React.Component {
         return (
             <div
                 id={`bal-file-editor-${this.props.file.id}`}
-                className='bal-file-editor grid-background '
+                className='bal-file-editor'
             >
                 <CSSTransitionGroup
                     transitionName='loading-overlay'

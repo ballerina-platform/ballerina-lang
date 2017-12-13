@@ -24,6 +24,7 @@ import ImageUtil from '../../../../image-util';
 import StatementDropZone from '../../../../../drag-drop/DropZone';
 import StatementAddZone from '../../../../../drag-drop/add-zone';
 import LifeLine from '../decorators/lifeline';
+import Client from '../decorators/client';
 import FunctionNodeModel from '../../../../../model/tree/function-node';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import TreeUtil from '../../../../../model/tree-util';
@@ -125,6 +126,10 @@ class FunctionNode extends React.Component {
                     title={name}
                     receiver={receiverType}
                 >
+                    <Client
+                        title='Caller'
+                        bBox={this.props.model.viewState.components.client}
+                    />
                     { this.props.model.getWorkers().length === 0 &&
                     <g>
                         <StatementDropZone
