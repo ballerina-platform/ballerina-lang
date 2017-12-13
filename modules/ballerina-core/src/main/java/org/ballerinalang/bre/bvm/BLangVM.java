@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
@@ -36,6 +35,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
+import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
@@ -3395,7 +3395,7 @@ public class BLangVM {
             return;
         }
 
-        if (jsonNode.isInt() || jsonNode.isLong()) {
+        if (jsonNode.isLong()) {
             sf.longRegs[j] = jsonNode.longValue();
             sf.refRegs[k] = null;
             return;
@@ -3427,7 +3427,7 @@ public class BLangVM {
             return;
         }
 
-        if (jsonNode.isFloat() || jsonNode.isDouble()) {
+        if (jsonNode.isDouble()) {
             sf.doubleRegs[j] = jsonNode.doubleValue();
             sf.refRegs[k] = null;
             return;
@@ -3460,8 +3460,8 @@ public class BLangVM {
             return;
         }
 
-        if (jsonNode.isTextual()) {
-            sf.stringRegs[j] = jsonNode.textValue();
+        if (jsonNode.isString()) {
+            sf.stringRegs[j] = jsonNode.stringValue();
             sf.refRegs[k] = null;
             return;
         }
