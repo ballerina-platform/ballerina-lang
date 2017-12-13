@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.consts.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.InsertTextFormat;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -165,6 +166,9 @@ public class StatementTemplateFilter implements SymbolFilter {
         completionItems.add(retryItem);
 
         completionItems.sort(Comparator.comparing(CompletionItem::getLabel));
+
+        // Set the insert text format to be snippet supported format
+        completionItems.forEach(completionItem -> completionItem.setInsertTextFormat(InsertTextFormat.Snippet));
 
         return completionItems;
     }
