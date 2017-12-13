@@ -33,6 +33,7 @@ import StatementPropertyItemSelector from './../utils/statement-property-item-se
 import TreeUtil from '../../../../../model/tree-util';
 import splitVariableDefByLambda from '../../../../../model/lambda-util';
 import { getComponentForNodeArray } from '../../../../diagram-util';
+import { statement } from '../../../../../configs/designer-defaults.js';
 
 
 /**
@@ -271,7 +272,7 @@ class StatementDecorator extends React.Component {
                                     {tooltip}
                                 </rect>
                                 <text
-                                    x={(viewState.components.invocation.start.x + viewState.components.invocation.end.x) / 2}
+                                    x={viewState.components.invocation.start.x + statement.padding.left}
                                     y={statementBox.y}
                                     className='action-invocation-text'
                                 >

@@ -1273,7 +1273,14 @@
         fill: #000000
     }
 
-    .action-invocation-text,
+    .action-invocation-text {
+        paint-order: stroke;
+        text-anchor: start;
+        dominant-baseline: central;
+        stroke:#ffffff;
+        stroke-width: 4;
+    }
+
     .flowchart-text {
         paint-order: stroke;
         text-anchor: middle;
