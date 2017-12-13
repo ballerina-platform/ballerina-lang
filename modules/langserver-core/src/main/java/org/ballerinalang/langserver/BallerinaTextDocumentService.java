@@ -15,14 +15,15 @@
  */
 package org.ballerinalang.langserver;
 
-import org.antlr.v4.runtime.DefaultErrorStrategy;
+
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.langserver.completions.BallerinaCustomErrorStrategy;
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
-import org.ballerinalang.langserver.completions.util.TextDocumentServiceUtil;
+import org.ballerinalang.langserver.hover.HoverKeys;
+import org.ballerinalang.langserver.hover.HoverTreeVisitor;
+import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
@@ -68,7 +69,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -94,58 +94,34 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     private final WorkspaceDocumentManager documentManager;
     private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaTextDocumentService.class);
     private Map<String, List<Diagnostic>> lastDiagnosticMap;
+    private BLangPackage builtinPkg;
 
     public BallerinaTextDocumentService(BallerinaLanguageServer ballerinaLanguageServer) {
         this.ballerinaLanguageServer = ballerinaLanguageServer;
         this.documentManager = new WorkspaceDocumentManagerImpl();
         this.lastDiagnosticMap = new HashMap<String, List<Diagnostic>>();
+        builtinPkg = BuiltinPackageLoader.getBuiltinPackage();
     }
 
     @Override
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>>
     completion(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
-            SuggestionsFilterDataModel filterDataModel = new SuggestionsFilterDataModel();
             List<CompletionItem> completions;
-            String uri = position.getTextDocument().getUri();
-            String fileContent = this.documentManager.getFileContent(Paths.get(URI.create(uri)));
-            Path filePath = this.getPath(uri);
-            String[] pathComponents = position.getTextDocument().getUri().split("\\" + File.separator);
-            String fileName = pathComponents[pathComponents.length - 1];
-
-            String pkgName = TextDocumentServiceUtil.getPackageFromContent(fileContent);
-            String sourceRoot = TextDocumentServiceUtil.getSourceRoot(filePath, pkgName);
-
-            PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
-            CompilerContext compilerContext = prepareCompilerContext(packageRepository, sourceRoot);
-
-            List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
-            CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
-            BallerinaCustomErrorStrategy customErrorStrategy = new BallerinaCustomErrorStrategy(compilerContext,
-                    position, filterDataModel);
-            compilerContext.put(DiagnosticListener.class, diagnosticListener);
-            compilerContext.put(DefaultErrorStrategy.class, customErrorStrategy);
-
-            Compiler compiler = Compiler.getInstance(compilerContext);
-            if ("".equals(pkgName)) {
-                compiler.compile(fileName);
-            } else {
-                compiler.compile(pkgName);
-            }
-
-            BLangPackage bLangPackage = (BLangPackage) compiler.getAST();
-
+            TextDocumentServiceContext completionContext = new TextDocumentServiceContext();
+            completionContext.put(DocumentServiceKeys.POSITION_KEY, position);
+            BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext, documentManager);
             // Visit the package to resolve the symbols
-            TreeVisitor treeVisitor = new TreeVisitor(fileName, compilerContext, position, filterDataModel);
+            TreeVisitor treeVisitor = new TreeVisitor(completionContext);
             bLangPackage.accept(treeVisitor);
 
-            BLangNode symbolEnvNode = filterDataModel.getSymbolEnvNode();
+            BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
             if (symbolEnvNode == null) {
                 completions = CompletionItemResolver.getResolverByClass(TopLevelResolver.class)
-                        .resolveItems(filterDataModel);
+                        .resolveItems(completionContext);
             } else {
                 completions = CompletionItemResolver.getResolverByClass(symbolEnvNode.getClass())
-                        .resolveItems(filterDataModel);
+                        .resolveItems(completionContext);
             }
             return Either.forLeft(completions);
         });
@@ -158,40 +134,36 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<Hover> hover(TextDocumentPositionParams position) {
-        return CompletableFuture.supplyAsync(() -> null);
+        return CompletableFuture.supplyAsync(() -> {
+            TextDocumentServiceContext hoverContext = new TextDocumentServiceContext();
+            hoverContext.put(DocumentServiceKeys.POSITION_KEY, position);
+            BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(hoverContext, documentManager);
+            HoverTreeVisitor hoverTreeVisitor = new HoverTreeVisitor(hoverContext);
+            bLangPackage.accept(hoverTreeVisitor);
+            Hover hover = null;
+            if(hoverContext.get(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY).name.getValue().equals("ballerina.builtin")){
+                HoverUtil hoverUtil = new HoverUtil();
+                BLangPackage packages = hoverUtil
+                        .getBuiltInPackage(hoverContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY),
+                                hoverContext.get(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY).name);
+                hover = hoverUtil.resolveBuiltInPackageDoc(packages, hoverContext);
+            }
+            return hover;
+        });
     }
 
     @Override
     public CompletableFuture<SignatureHelp> signatureHelp(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
-            SuggestionsFilterDataModel filterDataModel = new SuggestionsFilterDataModel();
             String uri = position.getTextDocument().getUri();
             String fileContent = this.documentManager.getFileContent(Paths.get(URI.create(uri)));
-            Path filePath = this.getPath(uri);
-            String[] pathComponents = position.getTextDocument().getUri().split("\\" + File.separator);
-            String fileName = pathComponents[pathComponents.length - 1];
-            String pkgName = TextDocumentServiceUtil.getPackageFromContent(fileContent);
-            String sourceRoot = TextDocumentServiceUtil.getSourceRoot(filePath, pkgName);
             String callableItemName = SignatureHelpUtil.getCallableItemName(position.getPosition(), fileContent);
-            List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
-            CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
-            PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
-            CompilerContext compilerContext = prepareCompilerContext(packageRepository, sourceRoot);
-            BallerinaCustomErrorStrategy customErrorStrategy = new BallerinaCustomErrorStrategy(compilerContext,
-                    position, filterDataModel);
-            compilerContext.put(DiagnosticListener.class, diagnosticListener);
-            compilerContext.put(DefaultErrorStrategy.class, customErrorStrategy);
-
-            Compiler compiler = Compiler.getInstance(compilerContext);
-            if ("".equals(pkgName)) {
-                compiler.compile(fileName);
-            } else {
-                compiler.compile(pkgName);
-            }
-
-            BLangPackage bLangPackage = (BLangPackage) compiler.getAST();
-
-            return SignatureHelpUtil.getFunctionSignatureHelp(callableItemName, bLangPackage, compilerContext);
+            TextDocumentServiceContext signatureContext = new TextDocumentServiceContext();
+            signatureContext.put(DocumentServiceKeys.POSITION_KEY, position);
+            BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(signatureContext, documentManager);
+            SignatureHelpUtil.BLangPackageWrapper pkgContext =
+                    new SignatureHelpUtil.BLangPackageWrapper(builtinPkg, bLangPackage);
+            return SignatureHelpUtil.getFunctionSignatureHelp(callableItemName, pkgContext);
         });
     }
 
@@ -290,7 +262,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         String sourceRoot = TextDocumentServiceUtil.getSourceRoot(path, pkgName);
 
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
-        CompilerContext context = prepareCompilerContext(packageRepository, sourceRoot);
+        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceRoot);
 
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
         CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
