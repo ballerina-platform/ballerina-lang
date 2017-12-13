@@ -309,12 +309,12 @@ class WhileStatementDecorator extends React.Component {
                     points={`${p2X},${p2Y} ${p8X},${p8Y} ${p3X},${p3Y} ${p9X}, ${p9Y} ${p2X},${p2Y}`}
                     className={statementRectClass}
                 />
-                <ArrowDecorator
+                {(this.props.model.body.statements.length > 0) && <ArrowDecorator
                     start={{ x: p8X, y: p8Y }}
                     end={{ x: p12X, y: p12Y }}
                     classNameArrow='flowchart-action-arrow'
                     classNameArrowHead='flowchart-action-arrow-head'
-                />
+                />}
                 <line
                     x1={p10X}
                     y1={p10Y}
