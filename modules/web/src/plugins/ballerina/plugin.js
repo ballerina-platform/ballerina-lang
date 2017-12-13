@@ -36,7 +36,6 @@ import ToolPaletteView from './tool-palette/tool-palette-view';
 import { isInCorrectPath, getCorrectPackageForPath, getCorrectPathForPackage } from './utils/program-dir-utils';
 import TreeBuilder from './model/tree-builder';
 import FragmentUtils from './utils/fragment-utils';
-import ToolPaletteView from './tool-palette/tool-palette-view';
 
 /**
  * Plugin for Ballerina Lang
