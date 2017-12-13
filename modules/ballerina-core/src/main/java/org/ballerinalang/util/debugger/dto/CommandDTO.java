@@ -18,12 +18,7 @@
 
 package org.ballerinalang.util.debugger.dto;
 
-import org.ballerinalang.model.NodeLocation;
-
-import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 
 /**
  * DTO class representing commands send to debugger from the client.

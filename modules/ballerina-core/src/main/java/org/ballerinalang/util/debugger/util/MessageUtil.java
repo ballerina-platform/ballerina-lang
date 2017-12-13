@@ -90,23 +90,23 @@ public class MessageUtil {
     public static CommandDTO buildCommandDTO(String json) {
         JsonNode node = JsonParser.parse(json);
         CommandDTO commandDTO = new CommandDTO();
-        commandDTO.setCommand(node.get(COMMAND).asText());
-        commandDTO.setThreadId(node.get(THREAD_ID).asText());
+        commandDTO.setCommand(node.get(COMMAND) == null ? null : node.get(COMMAND).asText());
+        commandDTO.setThreadId(node.get(THREAD_ID) == null ? null : node.get(THREAD_ID).asText());
         commandDTO.setPoints(buildBreakPoints(node.get(POINTS)));
         return commandDTO;
     }
 
     private static List<BreakPointDTO> buildBreakPoints(JsonNode node) {
-        if (!node.isArray()) {
+        if (node == null || !node.isArray()) {
             return null;
         }
         List<BreakPointDTO> bPoints = new ArrayList<>();
         for (int i = 0; i < node.size(); i++) {
             JsonNode element = node.get(i);
             BreakPointDTO bPoint = new BreakPointDTO();
-            bPoint.setPackagePath(element.get(PACKAGE_PATH).asText());
-            bPoint.setFileName(element.get(FILE_NAME).asText());
-            bPoint.setLineNumber((int) element.get(LINE_NUMBER).longValue());
+            bPoint.setPackagePath(element.get(PACKAGE_PATH) == null ? null : element.get(PACKAGE_PATH).asText());
+            bPoint.setFileName(element.get(FILE_NAME) == null ? null : element.get(FILE_NAME).asText());
+            bPoint.setLineNumber(element.get(LINE_NUMBER) == null ? -1 : (int) element.get(LINE_NUMBER).longValue());
             bPoints.add(bPoint);
         }
         return bPoints;
@@ -116,13 +116,13 @@ public class MessageUtil {
         gen.startObject();
 
         gen.writeFieldName(CODE);
-        gen.writeString(msg.getCode());
+        writeStringField(gen, msg.getCode());
 
         gen.writeFieldName(MESSAGE);
-        gen.writeString(msg.getMessage());
+        writeStringField(gen, msg.getMessage());
 
         gen.writeFieldName(THREAD_ID);
-        gen.writeString(msg.getThreadId());
+        writeStringField(gen, msg.getThreadId());
 
         gen.writeFieldName(LOCATION);
         parseBreakPoint(msg.getLocation(), gen);
@@ -135,13 +135,17 @@ public class MessageUtil {
     }
 
     private static void parseBreakPoint(BreakPointDTO bPoint, JsonGenerator gen) throws IOException {
+        if (bPoint == null) {
+            gen.writeNull();
+            return;
+        }
         gen.startObject();
 
         gen.writeFieldName(PACKAGE_PATH);
-        gen.writeString(bPoint.getPackagePath());
+        writeStringField(gen, bPoint.getPackagePath());
 
         gen.writeFieldName(FILE_NAME);
-        gen.writeString(bPoint.getFileName());
+        writeStringField(gen, bPoint.getFileName());
 
         gen.writeFieldName(LINE_NUMBER);
         gen.writeNumber(bPoint.getLineNumber());
@@ -150,6 +154,10 @@ public class MessageUtil {
     }
 
     private static void parseFrameList(List<FrameDTO> frames, JsonGenerator gen) throws IOException {
+        if (frames == null) {
+            gen.writeNull();
+            return;
+        }
         gen.writeStartArray();
         for (FrameDTO f : frames) {
             parseFrame(f, gen);
@@ -158,16 +166,20 @@ public class MessageUtil {
     }
 
     private static void parseFrame(FrameDTO frame, JsonGenerator gen) throws IOException {
+        if (frame == null) {
+            gen.writeNull();
+            return;
+        }
         gen.startObject();
 
         gen.writeFieldName(PACKAGE_NAME);
-        gen.writeString(frame.getPackageName());
+        writeStringField(gen, frame.getPackageName());
 
         gen.writeFieldName(FRAME_NAME);
-        gen.writeString(frame.getFrameName());
+        writeStringField(gen, frame.getFrameName());
 
         gen.writeFieldName(FILE_NAME);
-        gen.writeString(frame.getFileName());
+        writeStringField(gen, frame.getFileName());
 
         gen.writeFieldName(LINE_ID);
         gen.writeNumber(frame.getLineID());
@@ -180,6 +192,10 @@ public class MessageUtil {
     }
 
     private static void parseVarList(List<VariableDTO> vars, JsonGenerator gen) throws IOException {
+        if (vars == null) {
+            gen.writeNull();
+            return;
+        }
         gen.writeStartArray();
         for (VariableDTO v : vars) {
             parseVar(v, gen);
@@ -188,22 +204,32 @@ public class MessageUtil {
     }
 
     private static void parseVar(VariableDTO var, JsonGenerator gen) throws IOException {
+        if (var == null) {
+            gen.writeNull();
+            return;
+        }
         gen.startObject();
 
         gen.writeFieldName(SCOPE);
-        gen.writeString(var.getScope());
+        writeStringField(gen, var.getScope());
 
         gen.writeFieldName(NAME);
-        gen.writeString(var.getName());
+        writeStringField(gen, var.getName());
 
         gen.writeFieldName(TYPE);
-        gen.writeString(var.getType());
+        writeStringField(gen, var.getType());
 
         gen.writeFieldName(VALUE);
-        gen.writeString(var.getValue());
+        writeStringField(gen, var.getValue());
 
         gen.endObject();
     }
 
-
+    private static void writeStringField(JsonGenerator gen, String value) throws IOException {
+        if (value == null) {
+            gen.writeNull();
+            return;
+        }
+        gen.writeString(value);
+    }
 }
