@@ -320,7 +320,7 @@ public class JsonNode {
             this.serialize(gen);
             gen.flush();
         } catch (IOException e) {
-            throw new BallerinaException("Error in JSON toString: " + e.getMessage(), e);
+            throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
         }
         return new String(byteOut.toByteArray());
     }
