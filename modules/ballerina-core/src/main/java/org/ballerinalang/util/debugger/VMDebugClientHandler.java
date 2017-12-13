@@ -19,12 +19,11 @@
 
 package org.ballerinalang.util.debugger;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
 import org.ballerinalang.util.debugger.info.BreakPointInfo;
+import org.ballerinalang.util.debugger.util.MessageUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -118,16 +117,10 @@ public class VMDebugClientHandler implements DebugClientHandler {
     /**
      * Push message to client.
      *
-     * @param status debug point information
+     * @param msg debug point information
      */
-    private void pushMessageToClient(MessageDTO status) {
-        ObjectMapper mapper = new ObjectMapper();
-        String json = null;
-        try {
-            json = mapper.writeValueAsString(status);
-        } catch (JsonProcessingException e) {
-            json = DebugConstants.ERROR_JSON;
-        }
+    private void pushMessageToClient(MessageDTO msg) {
+        String json = MessageUtil.getMsgString(msg);
         channel.write(new TextWebSocketFrame(json));
         channel.flush();
     }
