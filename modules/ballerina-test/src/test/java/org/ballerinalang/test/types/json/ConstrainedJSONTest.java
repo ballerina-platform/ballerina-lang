@@ -37,7 +37,6 @@ public class ConstrainedJSONTest {
 
     private CompileResult compileResult;
     private CompileResult negativeResult;
-    private static final double DELTA = 0.01;
 
     @BeforeClass
     public void setup() {
@@ -76,15 +75,15 @@ public class ConstrainedJSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonStructConstraint");
 
         Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertTrue((((BJSON) returns[0]).value()).isTextual());
+        Assert.assertTrue((((BJSON) returns[0]).value()).isString());
         Assert.assertEquals(returns[0].stringValue(), "John Doe");
 
         Assert.assertTrue(returns[1] instanceof BJSON);
-        Assert.assertTrue((((BJSON) returns[1]).value()).isInt());
-        Assert.assertEquals((((BJSON) returns[1]).value()).asInt(), 30);
+        Assert.assertTrue((((BJSON) returns[1]).value()).isLong());
+        Assert.assertEquals((((BJSON) returns[1]).value()).longValue(), 30);
 
         Assert.assertTrue(returns[2] instanceof BJSON);
-        Assert.assertTrue((((BJSON) returns[2]).value()).isTextual());
+        Assert.assertTrue((((BJSON) returns[2]).value()).isString());
         Assert.assertEquals(returns[2].stringValue(), "London");
 
         // Todo - Fix incorrect return value issue
@@ -103,15 +102,15 @@ public class ConstrainedJSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonInitializationWithStructConstraint");
 
         Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertTrue((((BJSON) returns[0]).value()).isTextual());
+        Assert.assertTrue((((BJSON) returns[0]).value()).isString());
         Assert.assertEquals(returns[0].stringValue(), "John Doe");
 
         Assert.assertTrue(returns[1] instanceof BJSON);
-        Assert.assertTrue((((BJSON) returns[1]).value()).isInt());
-        Assert.assertEquals((((BJSON) returns[1]).value()).asInt(), 30);
+        Assert.assertTrue((((BJSON) returns[1]).value()).isLong());
+        Assert.assertEquals((((BJSON) returns[1]).value()).longValue(), 30);
 
         Assert.assertTrue(returns[2] instanceof BJSON);
-        Assert.assertTrue((((BJSON) returns[2]).value()).isTextual());
+        Assert.assertTrue((((BJSON) returns[2]).value()).isString());
         Assert.assertEquals(returns[2].stringValue(), "London");
     }
 

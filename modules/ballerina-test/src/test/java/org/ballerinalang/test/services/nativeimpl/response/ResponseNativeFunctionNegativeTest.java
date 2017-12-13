@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -99,19 +100,19 @@ public class ResponseNativeFunctionNegativeTest {
         } catch (Throwable e) {
             error = e.getMessage();
         }
-        Assert.assertEquals(error.substring(23, 133), "error while retrieving json payload from message: " +
-                "failed to create json: No content to map due to end-of-input");
+        Assert.assertTrue(error.contains("unexpected end of JSON document"));
     }
 
     @Test(description = "Test method with string payload")
     public void testGetJsonPayloadWithStringPayload() {
         BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
+
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        cMsg.setMessageDataSource(dataSource);
-        cMsg.setAlreadyRead(true);
+        HttpUtil.addMessageDataSource(request, dataSource);
+
         HttpUtil.addCarbonMsg(request, cMsg);
 
         BValue[] inputArg = {request};
@@ -121,8 +122,7 @@ public class ResponseNativeFunctionNegativeTest {
         } catch (Throwable e) {
             error = e.getMessage();
         }
-        Assert.assertEquals(error.substring(23, 118), "error while retrieving json payload from message" +
-                ": Unrecognized token 'ballerina': was expecting");
+        Assert.assertTrue(error.contains("unrecognized token 'ballerina'"));
     }
 
     @Test
@@ -156,11 +156,12 @@ public class ResponseNativeFunctionNegativeTest {
     public void testGetStringPayloadMethodWithJsonPayload() {
         BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
+
         String payload = "{\"code\":\"123\"}";
         BallerinaMessageDataSource dataSource = new BJSON(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        cMsg.setMessageDataSource(dataSource);
-        cMsg.setAlreadyRead(true);
+        HttpUtil.addMessageDataSource(request, dataSource);
+
         HttpUtil.addCarbonMsg(request, cMsg);
 
         BValue[] inputArg = {request};
@@ -228,7 +229,9 @@ public class ResponseNativeFunctionNegativeTest {
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
-        Assert.assertTrue(response.getMessageDataSource().getMessageAsString().contains("operation not allowed"));
+        Assert.assertTrue(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
+                .contains("operation not allowed"));
     }
 
     @Test
@@ -239,7 +242,9 @@ public class ResponseNativeFunctionNegativeTest {
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
-        Assert.assertTrue(response.getMessageDataSource().getMessageAsString().contains("operation not allowed"));
+        Assert.assertTrue(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
+                .contains("operation not allowed"));
     }
 
     @Test
@@ -250,7 +255,9 @@ public class ResponseNativeFunctionNegativeTest {
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
-        Assert.assertTrue(response.getMessageDataSource().getMessageAsString().contains("argument 1 is null"));
+        Assert.assertTrue(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
+                .contains("argument 1 is null"));
     }
 
     @Test
@@ -261,7 +268,8 @@ public class ResponseNativeFunctionNegativeTest {
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
-        Assert.assertTrue(response.getMessageDataSource().getMessageAsString()
+        Assert.assertTrue(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
                 .contains("failed to forward: empty response parameter"));
     }
 
