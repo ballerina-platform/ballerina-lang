@@ -930,7 +930,7 @@
     .flowchart-action-arrow {
         fill: $default-worker-lifeline-color;
         stroke: $default-worker-lifeline-color;
-        stroke-width: 2;
+        stroke-width: 1;
     }
 
     .flowchart-action-arrow-head{
@@ -1272,7 +1272,7 @@
         fill: #ffffff;
         fill-opacity: 0;
         stroke: $default-worker-lifeline-color;
-        stroke-width: 2;
+        stroke-width: 1;
     }
     
     .statement-text {

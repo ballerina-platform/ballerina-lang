@@ -86,6 +86,9 @@ export const lifeLine = {
     head: {
         height: 30,
     },
+    padding: {
+        top: 0,
+    },
     footer: {
         height: 30,
     },

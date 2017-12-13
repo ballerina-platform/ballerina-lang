@@ -912,7 +912,7 @@ class SizingUtil {
     sizeWorkerNode(node) {
         const bBox = node.viewState.bBox;
         const workerBody = node.body;
-        bBox.h = workerBody.viewState.bBox.h + this.config.lifeLine.head.height + this.config.lifeLine.footer.height;
+        bBox.h = workerBody.viewState.bBox.h + this.config.lifeLine.padding.top + this.config.lifeLine.head.height + this.config.lifeLine.footer.height;
         bBox.w = workerBody.viewState.bBox.w;
         // set the size of the lifeline.
         const cmp = node.viewState.components;
