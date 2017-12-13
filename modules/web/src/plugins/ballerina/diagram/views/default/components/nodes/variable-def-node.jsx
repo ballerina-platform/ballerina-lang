@@ -47,7 +47,11 @@ class VariableDefNode extends React.Component {
      * */
     render() {
         const model = this.props.model;
-        const expression = model.viewState.expression;
+        let expression = model.viewState.expression;
+
+        if (model.viewState.isActionInvocation) {
+            expression = model.getInitialExpression().getInvocationSignature();
+        }
 
         return (
             <g>

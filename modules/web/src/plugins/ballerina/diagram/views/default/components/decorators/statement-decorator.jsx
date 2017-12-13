@@ -164,7 +164,12 @@ class StatementDecorator extends React.Component {
         actionBoxBbox.h = designer.config.actionBox.height;
         actionBoxBbox.x = statementBox.x + (statementBox.w - actionBoxBbox.w) / 2;
         actionBoxBbox.y = statementBox.y + statementBox.h + designer.config.actionBox.padding.top;
+
         let statementRectClass = 'statement-rect';
+
+        if (viewState.isActionInvocation) {
+            statementRectClass = 'action-invocation-statement-rect';
+        }
         if (isDebugHit) {
             statementRectClass = `${statementRectClass} debug-hit`;
         }
@@ -251,22 +256,56 @@ class StatementDecorator extends React.Component {
                     enableDragBg
                     enableCenterOverlayLine
                 />
-                <rect
-                    x={statementBox.x}
-                    y={statementBox.y}
-                    width={statementBox.w}
-                    height={statementBox.h}
-                    className={statementRectClass}
-                    onClick={e => this.openEditor(e)}
-                >
-                    {tooltip}
-                </rect>
-                <g className='statement-body'>
-                    {tooltip}
-                    <text x={text.x} y={text.y} className={textClassName} onClick={e => this.openEditor(e)}>
-                        {_.trimEnd(expression, ';')}
-                    </text>
-                </g>
+                {(() => {
+                    if (viewState.isActionInvocation) {
+                        return (
+                            <g>
+                                <rect
+                                    x={statementBox.x}
+                                    y={statementBox.y}
+                                    width={statementBox.w}
+                                    height={statementBox.h}
+                                    className={statementRectClass}
+                                    onClick={e => this.openEditor(e)}
+                                >
+                                    {tooltip}
+                                </rect>
+                                <text
+                                    x={(viewState.components.invocation.start.x + viewState.components.invocation.end.x) / 2}
+                                    y={statementBox.y}
+                                    className='action-invocation-text'
+                                >
+                                    {expression}
+                                </text>
+                            </g>);
+                    } else {
+                        return (
+                            <g>
+                                <rect
+                                    x={statementBox.x}
+                                    y={statementBox.y}
+                                    width={statementBox.w}
+                                    height={statementBox.h}
+                                    className={statementRectClass}
+                                    onClick={e => this.openEditor(e)}
+                                >
+                                    {tooltip}
+                                </rect>
+                                <g className='statement-body'>
+                                    {tooltip}
+                                    <text
+                                        x={text.x}
+                                        y={text.y}
+                                        className={textClassName}
+                                        onClick={e => this.openEditor(e)}
+                                    >
+                                        {_.trimEnd(expression, ';')}
+                                    </text>
+                                </g>
+                            </g>
+                        );
+                    }
+                })()}
                 <ActionBox
                     bBox={actionBoxBbox}
                     show={this.state.active}
