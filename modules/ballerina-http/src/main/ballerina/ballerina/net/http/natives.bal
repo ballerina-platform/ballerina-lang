@@ -107,11 +107,6 @@ public native function <Request req> removeAllHeaders ();
 @Param { value:"payload: The XML payload object" }
 public native function <Request req> setXmlPayload (xml payload);
 
-@Description { value:"Clones and creates a new instance of a request message"}
-@Param { value:"req: A request message" }
-@Return { value:"The new instance of the request message" }
-public native function <Request req> clone () (Request);
-
 @Description { value:"Sets the value of a transport header"}
 @Param { value:"req: A request message" }
 @Param { value:"key: The header name" }
@@ -220,11 +215,6 @@ public native function <Response res> removeAllHeaders ();
 @Param { value:"res: The response message" }
 @Param { value:"payload: The XML payload object" }
 public native function <Response res> setXmlPayload (xml payload);
-
-@Description { value:"Clones and creates a new instance of a response message"}
-@Param { value:"res: The response message" }
-@Return { value:"The new instance of the response message" }
-public native function <Response res> clone () (Response);
 
 @Description { value:"Sets the value of a transport header"}
 @Param { value:"res: The response message" }
