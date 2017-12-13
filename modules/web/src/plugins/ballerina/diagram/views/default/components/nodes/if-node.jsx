@@ -25,7 +25,7 @@ import AddZone from 'plugins/ballerina/drag-drop/add-zone';
 import DefaultNodeFactory from 'plugins/ballerina/model/default-node-factory';
 import FragmentUtils from 'plugins/ballerina/utils/fragment-utils';
 import TreeBuilder from 'plugins/ballerina/model/tree-builder';
-import FlowChartIfStatementDecorator from './flowchart-if-statement-decorator';
+import IfStatementDecorator from './if-statement-decorator';
 import AddCompoundBlock from './add-compound-block';
 import './if-node.css';
 
@@ -205,7 +205,7 @@ class IfNode extends React.Component {
                     />
                 </g>
                 }
-                <FlowChartIfStatementDecorator
+                <IfStatementDecorator
                     dropTarget={model}
                     bBox={bBox}
                     title={title}
@@ -216,18 +216,18 @@ class IfNode extends React.Component {
                 />
                 {this.getAddBlockButton(isElseIfNode)}
 
-                {elseComp && TreeUtil.isIf(elseComp) &&
+                {/* {elseComp && TreeUtil.isIf(elseComp) &&
                 <IfNode model={elseComp} />
                 }
 
                 {elseComp && TreeUtil.isBlock(elseComp) &&
-                <FlowChartIfStatementDecorator
+                <IfStatementDecorator
                     dropTarget={model}
                     bBox={elseComp.viewState.bBox}
                     title={'else'}
                     model={elseComp}
                     body={elseComp}
-                />
+                /> */}
                 }
             </g>
         );
