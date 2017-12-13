@@ -16,21 +16,21 @@
 package org.ballerinalang.composer.service.workspace.util;
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.composer.service.workspace.langserver.dto.SymbolInformation;
-import org.ballerinalang.composer.service.workspace.langserver.model.Action;
-import org.ballerinalang.composer.service.workspace.langserver.model.AnnotationAttachment;
-import org.ballerinalang.composer.service.workspace.langserver.model.AnnotationDef;
-import org.ballerinalang.composer.service.workspace.langserver.model.Connector;
-import org.ballerinalang.composer.service.workspace.langserver.model.Enum;
-import org.ballerinalang.composer.service.workspace.langserver.model.Enumerator;
-import org.ballerinalang.composer.service.workspace.langserver.model.Function;
-import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
-import org.ballerinalang.composer.service.workspace.langserver.model.Parameter;
-import org.ballerinalang.composer.service.workspace.langserver.model.Struct;
-import org.ballerinalang.composer.service.workspace.langserver.model.StructField;
+import org.ballerinalang.composer.service.workspace.langconstruct.Action;
+import org.ballerinalang.composer.service.workspace.langconstruct.AnnotationAttachment;
+import org.ballerinalang.composer.service.workspace.langconstruct.AnnotationDef;
+import org.ballerinalang.composer.service.workspace.langconstruct.Connector;
+import org.ballerinalang.composer.service.workspace.langconstruct.Enum;
+import org.ballerinalang.composer.service.workspace.langconstruct.Enumerator;
+import org.ballerinalang.composer.service.workspace.langconstruct.Function;
+import org.ballerinalang.composer.service.workspace.langconstruct.ModelPackage;
+import org.ballerinalang.composer.service.workspace.langconstruct.Parameter;
+import org.ballerinalang.composer.service.workspace.langconstruct.Struct;
+import org.ballerinalang.composer.service.workspace.langconstruct.StructField;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaFile;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.ComposerDiagnosticListener;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPackageRepository;
+import org.ballerinalang.composer.service.workspace.util.dto.SymbolInformation;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.EnumNode;
@@ -70,6 +70,9 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 
+import java.io.IOException;
+import java.net.DatagramSocket;
+import java.net.ServerSocket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -745,5 +748,54 @@ public class WorkspaceUtils {
         builtInCorePkg.getStructs().forEach(s -> builtInPkg.getStructs().add(s));
         symbolTable.builtInPackageSymbol = builtInPkg.symbol;
         return builtInPkg;
+    }
+
+    /**
+     * Checks to see if a specific port is available.
+     *
+     * @param port the port number to check for availability
+     * @return <tt>true</tt> if the port is available, or <tt>false</tt> if not
+     * @throws IllegalArgumentException is thrown if the port number is out of range
+     */
+    public static boolean available(int port) {
+        ServerSocket ss = null;
+        DatagramSocket ds = null;
+        try {
+            ss = new ServerSocket(port);
+            ss.setReuseAddress(true);
+            ds = new DatagramSocket(port);
+            ds.setReuseAddress(true);
+            return true;
+        } catch (IOException e) {
+            // Do nothing
+        } finally {
+            if (ds != null) {
+                ds.close();
+            }
+
+            if (ss != null) {
+                try {
+                    ss.close();
+                } catch (IOException e) {
+                    /* should not be thrown */
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * return a available port from the seed port.
+     * If the seed port is available it will return that.
+     *
+     * @param seed to check port
+     * @return seed
+     */
+    public static int getAvailablePort(int seed) {
+        while (!WorkspaceUtils.available(seed)) {
+            seed++;
+        }
+        return seed;
     }
 }

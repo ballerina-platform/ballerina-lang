@@ -19,7 +19,7 @@ package org.ballerinalang.composer.service.workspace.swagger;
 import io.swagger.models.Swagger;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
+import org.ballerinalang.composer.service.workspace.langconstruct.ModelPackage;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BFile;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaFile;
 import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;

@@ -35,7 +35,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.util.CharsetUtil;
-import org.ballerinalang.composer.service.workspace.langserver.consts.LangServerConstants;
+import org.ballerinalang.composer.service.workspace.Constants;
 
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
@@ -78,7 +78,7 @@ public class LangServerHandler extends SimpleChannelInboundHandler<Object> {
             return;
         }
 
-        if (!LangServerConstants.B_LANGSERVER_WEBSOCKET_PATH.equals(req.uri())) {
+        if (!Constants.B_LANGSERVER_WEBSOCKET_PATH.equals(req.uri())) {
             FullHttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, NOT_FOUND);
             sendHttpResponse(ctx, req, res);
             return;
@@ -141,7 +141,7 @@ public class LangServerHandler extends SimpleChannelInboundHandler<Object> {
     }
 
     private static String getWebSocketLocation(FullHttpRequest req) {
-        String location = req.headers().get(HttpHeaderNames.HOST) + LangServerConstants.B_LANGSERVER_WEBSOCKET_PATH;
+        String location = req.headers().get(HttpHeaderNames.HOST) + Constants.B_LANGSERVER_WEBSOCKET_PATH;
         return "ws://" + location;
     }
 }
