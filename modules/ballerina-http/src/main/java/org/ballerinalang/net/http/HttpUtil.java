@@ -41,7 +41,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
@@ -750,18 +749,6 @@ public class HttpUtil {
         if (bStruct.getNativeData(Constants.OUTBOUND_RESPONSE) == null) {
             throw new BallerinaException("operation not allowed");
         }
-    }
-
-    private static BValue getRefArgument(Context context, int index) {
-        if (index > -1) {
-            BValue result = context.getControlStackNew().getCurrentFrame().getRefLocalVars()[index];
-            if (result == null) {
-                throw new BallerinaException("argument " + index + " is null");
-            }
-
-            return result;
-        }
-        throw new ArgumentOutOfRangeException(index);
     }
 
     public static MessageDataSource getMessageDataSource(BStruct httpMsgStruct) {
