@@ -46,7 +46,6 @@ definition
     |   connectorDefinition
     |   structDefinition
     |   enumDefinition
-    |   typeMapperDefinition
     |   constantDefinition
     |   annotationDefinition
     |   globalVariableDefinition
@@ -134,8 +133,8 @@ attachmentPoint
      | CONNECTOR                            # connectorAttachPoint
      | ACTION                               # actionAttachPoint
      | FUNCTION                             # functionAttachPoint
-     | TYPEMAPPER                           # typemapperAttachPoint
      | STRUCT                               # structAttachPoint
+     | ENUM                                 # enumAttachPoint
      | CONST                                # constAttachPoint
      | PARAMETER                            # parameterAttachPoint
      | ANNOTATION                           # annotationAttachPoint
@@ -144,15 +143,6 @@ attachmentPoint
 
 annotationBody
     :   fieldDefinition*
-    ;
-
-typeMapperDefinition
-    :   NATIVE TYPEMAPPER Identifier LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS SEMICOLON
-    |   TYPEMAPPER Identifier LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS LEFT_BRACE typeMapperBody RIGHT_BRACE
-    ;
-
-typeMapperBody
-    :   statement*
     ;
 
 constantDefinition
@@ -174,6 +164,14 @@ typeName
     |   referenceTypeName
     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+
     ;
+
+builtInTypeName
+     :   TYPE_ANY
+     |   TYPE_TYPE
+     |   valueTypeName
+     |   builtInReferenceTypeName
+     |   builtInTypeName (LEFT_BRACKET RIGHT_BRACKET)+
+     ;
 
 referenceTypeName
     :   builtInReferenceTypeName
@@ -262,22 +260,23 @@ statement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN  expression)? SEMICOLON
+    :   typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
-mapStructLiteral
-    :   LEFT_BRACE (mapStructKeyValue (COMMA mapStructKeyValue)*)? RIGHT_BRACE
+recordLiteral
+    :   LEFT_BRACE (recordKeyValue (COMMA recordKeyValue)*)? RIGHT_BRACE
     ;
 
-mapStructKeyValue
-    :   mapStructKey COLON mapStructValue
+recordKeyValue
+    :   recordKey COLON recordValue
     ;
 
-mapStructKey
-    :   expression
+recordKey
+    :   Identifier
+    |   simpleLiteral
     ;
 
-mapStructValue
+recordValue
     :   expression
     ;
 
@@ -478,7 +477,7 @@ namespaceDeclaration
 expression
     :   simpleLiteral                                                       # simpleLiteralExpression
     |   arrayLiteral                                                        # arrayLiteralExpression
-    |   mapStructLiteral                                                    # mapStructLiteralExpression
+    |   recordLiteral                                                       # recordLiteralExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   valueTypeName DOT Identifier                                        # valueTypeTypeExpression
@@ -489,6 +488,7 @@ expression
     |   typeCast                                                            # typeCastingExpression
     |   typeConversion                                                      # typeConversionExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
+    |   TYPEOF builtInTypeName                                              # typeAccessExpression
     |   (ADD | SUB | NOT | LENGTHOF | TYPEOF) simpleExpression              # unaryExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression
     |   expression POW expression                                           # binaryPowExpression

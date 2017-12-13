@@ -13,6 +13,6 @@ service<http> helloWorld {
     }
     resource sayHello (http:Request request, http:Response response) {
         response.setStringPayload("Hello World !!!");
-        response.send();
+        _ = response.send();
     }
 }

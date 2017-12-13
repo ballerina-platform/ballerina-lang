@@ -45,9 +45,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-public class StructKeyReference extends BallerinaElementReference {
+public class RecordKeyReference extends BallerinaElementReference {
 
-    public StructKeyReference(@NotNull IdentifierPSINode element) {
+    public RecordKeyReference(@NotNull IdentifierPSINode element) {
         super(element);
     }
 
@@ -229,10 +229,10 @@ public class StructKeyReference extends BallerinaElementReference {
             StructDefinitionNode structDefinitionNode = resolveStructDefinition(identifier);
             if (structDefinitionNode == null) {
                 // Todo - Check for enclosing {} since the parse errors might cause issues when identifying
-                // MapStructLiteralNode element
+                // RecordLiteralNode element
 
-                //                MapStructLiteralNode mapStructLiteralNode = PsiTreeUtil.getParentOfType(identifier,
-                //                        MapStructLiteralNode.class);
+                //                RecordLiteralNode mapStructLiteralNode = PsiTreeUtil.getParentOfType(identifier,
+                //                        RecordLiteralNode.class);
                 //                if (mapStructLiteralNode == null) {
                 //                    return results;
                 //                }

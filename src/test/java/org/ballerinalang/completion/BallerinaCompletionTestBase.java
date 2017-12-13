@@ -29,7 +29,7 @@ import java.util.List;
 public abstract class BallerinaCompletionTestBase extends BallerinaCodeInsightFixtureTestCase {
 
     static final List<String> FILE_LEVEL_KEYWORDS = Arrays.asList("public", "package", "import", "const",
-            "service", "function", "connector", "struct", "typemapper", "annotation", "enum", "transformer");
+            "service", "function", "connector", "struct", "annotation", "enum", "transformer");
     static final List<String> DATA_TYPES = Arrays.asList("boolean", "int", "float", "string", "blob");
     static final List<String> REFERENCE_TYPES = Arrays.asList("message", "map", "xml", "json", "datatable");
     static final List<String> XMLNS_TYPE = Collections.singletonList("xmlns");
