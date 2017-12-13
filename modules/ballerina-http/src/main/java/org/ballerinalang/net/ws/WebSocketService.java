@@ -61,6 +61,11 @@ public class WebSocketService implements Service {
     }
 
     @Override
+    public String getProtocolPackage() {
+        return service.getProtocolPackage();
+    }
+
+    @Override
     public Annotation getAnnotation(String pkgPath, String name) {
         return service.getAnnotation(pkgPath, name);
     }

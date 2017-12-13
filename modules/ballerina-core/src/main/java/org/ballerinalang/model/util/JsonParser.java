@@ -118,35 +118,42 @@ public class JsonParser {
         private static final String TRUE = "true";
         private static final String FALSE = "false";
         
-        private final State docStartState = new DocumentStartState();
-        private final State docEndState = new DocumentEndState();
-        private final State firstFieldReadyState = new FirstFieldReadyState();
-        private final State nonFirstFieldReadyState = new NonFirstFieldReadyState();
-        private final State fieldNameState = new FieldNameState();
-        private final State endFieldNameState = new EndFieldNameState();
-        private final State fieldValueReadyState = new FieldValueReadyState();
-        private final State stringFieldValueState = new StringFieldValueState();
-        private final State nonStringFieldValueState = new NonStringFieldValueState();
-        private final State nonStringValueState = new NonStringValueState();
-        private final State stringValueState = new StringValueState();
-        private final State fieldEndState = new FieldEndState();
-        private final State stringFieldEscCharProcessingState = new StringFieldEscapedCharacterProcessingState();
-        private final State stringAEEscCharProcessingState = new StringAEEscapedCharacterProcessingState();
-        private final State stringValEscCharProcessingState = new StringValueEscapedCharacterProcessingState();
-        private final State fieldNameEscCharProcessingState = new FieldNameEscapedCharacterProcessingState();
-        private final State stringFieldUnicodeHexProcessingState = new StringFieldUnicodeHexProcessingState();
-        private final State stringAEProcessingState = new StringAEProcessingState();
-        private final State stringValueUnicodeHexProcessingState = new StringValueUnicodeHexProcessingState();
-        private final State fieldNameUnicodeHexProcessingState = new FieldNameUnicodeHexProcessingState();
-        private final State firstArrayElementReadyState = new FirstArrayElementReadyState();
-        private final State nonFirstArrayElementReadyState = new NonFirstArrayElementReadyState();
-        private final State stringArrayElementState = new StringArrayElementState();
-        private final State nonStringArrayElementState = new NonStringArrayElementState();
-        private final State arrayElementEndState = new ArrayElementEndState();
+        private static final State DOC_START_STATE = new DocumentStartState();
+        private static final State DOC_END_STATE = new DocumentEndState();
+        private static final State FIRST_FIELD_READY_STATE = new FirstFieldReadyState();
+        private static final State NON_FIRST_FIELD_READY_STATE = new NonFirstFieldReadyState();
+        private static final State FIELD_NAME_STATE = new FieldNameState();
+        private static final State END_FIELD_NAME_STATE = new EndFieldNameState();
+        private static final State FIELD_VALUE_READY_STATE = new FieldValueReadyState();
+        private static final State STRING_FIELD_VALUE_STATE = new StringFieldValueState();
+        private static final State NON_STRING_FIELD_VALUE_STATE = new NonStringFieldValueState();
+        private static final State NON_STRING_VALUE_STATE = new NonStringValueState();
+        private static final State STRING_VALUE_STATE = new StringValueState();
+        private static final State FIELD_END_STATE = new FieldEndState();        
+        private static final State STRING_AE_ESC_CHAR_PROCESSING_STATE = new StringAEEscapedCharacterProcessingState();
+        private static final State STRING_AE_PROCESSING_STATE = new StringAEProcessingState();
+        private static final State FIELD_NAME_UNICODE_HEX_PROCESSING_STATE = new FieldNameUnicodeHexProcessingState();
+        private static final State FIRST_ARRAY_ELEMENT_READY_STATE = new FirstArrayElementReadyState();
+        private static final State NON_FIRST_ARRAY_ELEMENT_READY_STATE = new NonFirstArrayElementReadyState();
+        private static final State STRING_ARRAY_ELEMENT_STATE = new StringArrayElementState();
+        private static final State NON_STRING_ARRAY_ELEMENT_STATE = new NonStringArrayElementState();
+        private static final State ARRAY_ELEMENT_END_STATE = new ArrayElementEndState();        
+        private static final State STRING_FIELD_ESC_CHAR_PROCESSING_STATE = 
+                new StringFieldEscapedCharacterProcessingState();        
+        private static final State STRING_VAL_ESC_CHAR_PROCESSING_STATE = 
+                new StringValueEscapedCharacterProcessingState();        
+        private static final State FIELD_NAME_ESC_CHAR_PROCESSING_STATE = 
+                new FieldNameEscapedCharacterProcessingState();        
+        private static final State STRING_FIELD_UNICODE_HEX_PROCESSING_STATE = 
+                new StringFieldUnicodeHexProcessingState();
+        private static final State STRING_VALUE_UNICODE_HEX_PROCESSING_STATE = 
+                new StringValueUnicodeHexProcessingState();
         
         private Reader reader;
-        private JsonNode currentJsonNode;        
-        private StringBuilder builder = new StringBuilder(128);
+        private JsonNode currentJsonNode;
+        private StringBuilder hexBuilder = new StringBuilder(4);
+        private char[] charBuff = new char[1024];
+        private int charBuffIndex;
         
         private int index;
         private int line = 1;
@@ -157,11 +164,11 @@ public class JsonParser {
             this.reader = reader;
         }
         
-        private boolean isWhitespace(char ch) {
+        private static boolean isWhitespace(char ch) {
             return ch == SPACE || ch == HZ_TAB || ch == NEWLINE || ch == CR;
         }
         
-        private void throwExpected(String... chars) throws JsonParserException {
+        private static void throwExpected(String... chars) throws JsonParserException {
             throw new JsonParserException("expected " + String.join(" or ", chars));
         }
         
@@ -175,18 +182,18 @@ public class JsonParser {
         }
         
         public JsonNode execute() throws BallerinaException {
-            State currentState = docStartState;
+            State currentState = DOC_START_STATE;
             try {
                 char[] buff = new char[1024];
                 int count;
                 while ((count = this.reader.read(buff)) > 0) {
                     this.index = 0;
                     while (this.index < count) {
-                        currentState = currentState.transition(buff, this.index, count);
+                        currentState = currentState.transition(this, buff, this.index, count);
                     }
                 }
-                currentState = currentState.transition(new char[] { EOF }, 0, 1);
-                if (currentState != docEndState) {
+                currentState = currentState.transition(this, new char[] { EOF }, 0, 1);
+                if (currentState != DOC_END_STATE) {
                     throw new BallerinaException("invalid JSON document");
                 }
                 return this.currentJsonNode;
@@ -198,7 +205,20 @@ public class JsonParser {
         }
         
         private void append(char ch) {
-            builder.append(ch);
+            try {
+                this.charBuff[this.charBuffIndex] = ch;
+                this.charBuffIndex++;
+            } catch (ArrayIndexOutOfBoundsException e) {
+                /* this approach is faster than checking for the size by ourself */
+                this.growCharBuff();
+                this.charBuff[this.charBuffIndex++] = ch;
+            }
+        }
+        
+        private void growCharBuff() {
+            char[] newBuff = new char[charBuff.length * 2];
+            System.arraycopy(this.charBuff, 0, newBuff, 0, this.charBuff.length);
+            this.charBuff = newBuff;
         }
         
         private State finalizeObject() {
@@ -207,14 +227,14 @@ public class JsonParser {
                 if (parentNode.getType() == Type.OBJECT) {
                     parentNode.set(parentNode.fieldName, currentJsonNode);
                     currentJsonNode = parentNode;
-                    return fieldEndState;
+                    return FIELD_END_STATE;
                 } else {
                     parentNode.add(currentJsonNode);
                     currentJsonNode = parentNode;
-                    return arrayElementEndState;
+                    return ARRAY_ELEMENT_END_STATE;
                 }
             } else {
-                return docEndState;
+                return DOC_END_STATE;
             }
         }
         
@@ -226,7 +246,7 @@ public class JsonParser {
             } else {
                 currentJsonNode = new JsonNode();
             }
-            return firstFieldReadyState;
+            return FIRST_FIELD_READY_STATE;
         }
         
         private State initNewArray() {
@@ -237,7 +257,7 @@ public class JsonParser {
             } else {
                 currentJsonNode = new JsonNode(Type.ARRAY);
             }
-            return firstArrayElementReadyState;
+            return FIRST_ARRAY_ELEMENT_READY_STATE;
         }
         
         /**
@@ -248,48 +268,49 @@ public class JsonParser {
             /**
              * Input given to the current state for a transition. 
              * 
+             * @param sm the state machine
              * @param buff the input characters for the current state
              * @param i the location from the character should be read from
              * @param count the number of characters to read from the buffer
              * @return the new resulting state
              */
-            State transition(char[] buff, int i, int count) throws JsonParserException;
+            State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException;
             
         }
         
         /**
          * Represents the JSON document start state.
          */
-        private class DocumentStartState implements State {
+        private static class DocumentStartState implements State {
 
             @Override
-            public State transition(char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 char ch;
                 State state = null;
                 for (; i < count; i++) {
                     ch = buff[i];
-                    processLocation(ch);
+                    sm.processLocation(ch);
                     if (ch == '{') {
-                        state = initNewObject();
+                        state = sm.initNewObject();
                     } else if (ch == '[') {
-                        state = initNewArray();
-                    } else if (isWhitespace(ch)) {
+                        state = sm.initNewArray();
+                    } else if (StateMachine.isWhitespace(ch)) {
                         state = this;
                         continue;
                     } else if (ch == QUOTES || ch == SINGLE_QUOTES) {
-                        currentQuoteChar = ch;
-                        state = stringValueState;
+                        sm.currentQuoteChar = ch;
+                        state = STRING_VALUE_STATE;
                     } else if (ch == EOF) {
                         throw new JsonParserException("unexpected end of JSON document");
                     } else {
-                        state = nonStringValueState;
+                        state = NON_STRING_VALUE_STATE;
                     }
                     break;
                 }
-                if (state == nonStringValueState) {
-                    index = i;
+                if (state == NON_STRING_VALUE_STATE) {
+                    sm.index = i;
                 } else {
-                    index = i + 1;
+                    sm.index = i + 1;
                 }
                 return state;
             }
@@ -299,23 +320,23 @@ public class JsonParser {
         /**
          * Represents the JSON document end state.
          */
-        private class DocumentEndState implements State {
+        private static class DocumentEndState implements State {
 
             @Override
-            public State transition(char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 char ch;
                 State state = null;
                 for (; i < count; i++) {
                     ch = buff[i];
-                    processLocation(ch);
-                    if (isWhitespace(ch) || ch == EOF) {
+                    sm.processLocation(ch);
+                    if (StateMachine.isWhitespace(ch) || ch == EOF) {
                         state = this;
                         continue;
                     } else {
                         throw new JsonParserException("JSON document has already ended");
                     }
                 }
-                index = i + 1;
+                sm.index = i + 1;
                 return state;
             }
             
@@ -324,29 +345,29 @@ public class JsonParser {
         /**
          * Represents the state just before the first object field is defined.
          */
-        private class FirstFieldReadyState implements State {
+        private static class FirstFieldReadyState implements State {
 
             @Override
-            public State transition(char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 char ch;
                 State state =  null;
                 for (; i < count; i++) {
                     ch = buff[i];
-                    processLocation(ch);
+                    sm.processLocation(ch);
                     if (ch == QUOTES || ch == SINGLE_QUOTES) {
-                        state = fieldNameState;
-                        currentQuoteChar = ch;
-                    } else if (isWhitespace(ch)) {
+                        state = FIELD_NAME_STATE;
+                        sm.currentQuoteChar = ch;
+                    } else if (StateMachine.isWhitespace(ch)) {
                         state = this;
                         continue;
                     } else if (ch ==  '}') {
-                        state = finalizeObject();
+                        state = sm.finalizeObject();
                     } else {
-                        throwExpected("\"", "}");
+                        StateMachine.throwExpected("\"", "}");
                     }
                     break;
                 }
-                index = i + 1;
+                sm.index = i + 1;
                 return state;
             }
             
@@ -355,35 +376,35 @@ public class JsonParser {
         /**
          * Represents the state just before the first array element is defined.
          */
-        private class FirstArrayElementReadyState implements State {
+        private static class FirstArrayElementReadyState implements State {
 
             @Override
-            public State transition(char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 State state = null;
                 char ch;
                 for (; i < count; i++) {
                     ch = buff[i];
-                    processLocation(ch);
-                    if (isWhitespace(ch)) {
+                    sm.processLocation(ch);
+                    if (StateMachine.isWhitespace(ch)) {
                         state = this;
                         continue;
                     } else if (ch == QUOTES) {
-                        state = stringArrayElementState;
+                        state = STRING_ARRAY_ELEMENT_STATE;
                     } else if (ch == '{') {
-                        state = initNewObject(); 
+                        state = sm.initNewObject(); 
                     } else if (ch == '[') {
-                        state = initNewArray(); 
+                        state = sm.initNewArray(); 
                     } else if (ch == ']') {
-                        state = finalizeObject(); 
+                        state = sm.finalizeObject(); 
                     } else {
-                        state = nonStringArrayElementState;
+                        state = NON_STRING_ARRAY_ELEMENT_STATE;
                     }
                     break;
                 }
-                if (state == nonStringArrayElementState) {
-                    index = i;
+                if (state == NON_STRING_ARRAY_ELEMENT_STATE) {
+                    sm.index = i;
                 } else {
-                    index = i + 1;
+                    sm.index = i + 1;
                 }
                 return state;
             }
@@ -393,27 +414,27 @@ public class JsonParser {
         /**
          * Represents the state just before a non-first object field is defined.
          */
-        private class NonFirstFieldReadyState implements State {
+        private static class NonFirstFieldReadyState implements State {
 
             @Override
-            public State transition(char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 State state = null;
                 char ch;
                 for (; i < count; i++) {
                     ch = buff[i];
-                    processLocation(ch);
+                    sm.processLocation(ch);
                     if (ch == QUOTES || ch == SINGLE_QUOTES) {
-                        currentQuoteChar = ch;
-                        state = fieldNameState;
-                    } else if (isWhitespace(ch)) {
+                        sm.currentQuoteChar = ch;
+                        state = FIELD_NAME_STATE;
+                    } else if (StateMachine.isWhitespace(ch)) {
                         state = this;
                         continue;
                     } else {
-                        throwExpected("\"");
+                        StateMachine.throwExpected("\"");
                     }
                     break;
                 }
-                index = i + 1;
+                sm.index = i + 1;
                 return state;
             }
             
@@ -422,33 +443,33 @@ public class JsonParser {
         /**
          * Represents the state just before a non-first array element is defined.
          */
-        private class NonFirstArrayElementReadyState implements State {
+        private static class NonFirstArrayElementReadyState implements State {
 
             @Override
-            public State transition(char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 State state = null;
                 char ch;
                 for (; i < count; i++) {
                     ch = buff[i];
-                    processLocation(ch);
-                    if (isWhitespace(ch)) {
+                    sm.processLocation(ch);
+                    if (StateMachine.isWhitespace(ch)) {
                         state = this;
                         continue;
                     } else if (ch == QUOTES) {
-                        state = stringArrayElementState;
+                        state = STRING_ARRAY_ELEMENT_STATE;
                     } else if (ch == '{') {
-                        state = initNewObject(); 
+                        state = sm.initNewObject(); 
                     } else if (ch == '[') {
-                        state = initNewArray(); 
+                        state = sm.initNewArray(); 
                     } else {
-                        state = nonStringArrayElementState;
+                        state = NON_STRING_ARRAY_ELEMENT_STATE;
                     }
                     break;
                 }
-                if (state == nonStringArrayElementState) {
-                    index = i;
+                if (state == NON_STRING_ARRAY_ELEMENT_STATE) {
+                    sm.index = i;
                 } else {
-                    index = i + 1;
+                    sm.index = i + 1;
                 }
                 return state;
             }
@@ -456,8 +477,8 @@ public class JsonParser {
         }
         
         private String value() {
-            String result = builder.toString();
-            builder.setLength(0);
+            String result = new String(this.charBuff, 0, this.charBuffIndex);
+            this.charBuffIndex = 0;
             return result;
         }
         
@@ -468,30 +489,30 @@ public class JsonParser {
         /**
          * Represents the state during a field name.
          */
-        private class FieldNameState implements State {
+        private static class FieldNameState implements State {
 
             @Override
-            public State transition(char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 char ch;
                 State state = null;
                 for (; i < count; i++) {
                     ch = buff[i];
-                    processLocation(ch);
-                    if (ch == currentQuoteChar) {
-                        processFieldName();
-                        state = endFieldNameState;
+                    sm.processLocation(ch);
+                    if (ch == sm.currentQuoteChar) {
+                        sm.processFieldName();
+                        state = END_FIELD_NAME_STATE;
                     } else if (ch == REV_SOL) { 
-                        state = fieldNameEscCharProcessingState;
+                        state = FIELD_NAME_ESC_CHAR_PROCESSING_STATE;
                     } else if (ch == EOF) {
                         throw new JsonParserException("unexpected end of JSON document");
                     } else {
-                        append(ch);
+                        sm.append(ch);
                         state = this;
                         continue;
                     }
                     break;
                 }
-                index = i + 1;
+                sm.index = i + 1;
                 return state;
             }
              
@@ -500,26 +521,26 @@ public class JsonParser {
         /**
          * Represents the state where a field name definition has ended.
          */
-        private class EndFieldNameState implements State {
+        private static class EndFieldNameState implements State {
 
             @Override
-            public State transition(char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 State state = null;
                 char ch;
                 for (; i < count; i++) {
                     ch = buff[i];
-                    processLocation(ch);
-                    if (isWhitespace(ch)) {
+                    sm.processLocation(ch);
+                    if (StateMachine.isWhitespace(ch)) {
                         state = this;
                         continue;
                     } else if (ch == ':') {
-                        state = fieldValueReadyState;
+                        state = FIELD_VALUE_READY_STATE;
                     } else {
-                        throwExpected(":");
+                        StateMachine.throwExpected(":");
                     }
                     break;
                 }
-                index = i + 1;
+                sm.index = i + 1;
                 return state;
             }
             
@@ -528,34 +549,34 @@ public class JsonParser {
         /**
          * Represents the state where a field value is about to be defined.
          */
-        private class FieldValueReadyState implements State {
+        private static class FieldValueReadyState implements State {
 
             @Override
-            public State transition(char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 State state = null;
                 char ch;
                 for (; i < count; i++) {
                     ch = buff[i];
-                    processLocation(ch);
-                    if (isWhitespace(ch)) {
+                    sm.processLocation(ch);
+                    if (StateMachine.isWhitespace(ch)) {
                         state = this;
                         continue;
                     } else if (ch == QUOTES || ch == SINGLE_QUOTES) {
-                        state = stringFieldValueState;
-                        currentQuoteChar = ch;
+                        state = STRING_FIELD_VALUE_STATE;
+                        sm.currentQuoteChar = ch;
                     } else if (ch == '{') {
-                        state = initNewObject(); 
+                        state = sm.initNewObject(); 
                     } else if (ch == '[') {
-                        state = initNewArray(); 
+                        state = sm.initNewArray(); 
                     } else {
-                        state = nonStringFieldValueState;
+                        state = NON_STRING_FIELD_VALUE_STATE;
                     }
                     break;
                 }
-                if (state == nonStringFieldValueState) {
-                    index = i;
+                if (state == NON_STRING_FIELD_VALUE_STATE) {
+                    sm.index = i;
                 } else {
-                    index = i + 1;
+                    sm.index = i + 1;
                 }
                 return state;
             }
@@ -565,30 +586,30 @@ public class JsonParser {
         /**
          * Represents the state during a string field value is defined.
          */
-        private class StringFieldValueState implements State {
+        private static class StringFieldValueState implements State {
 
             @Override
-            public State transition(char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 State state = null;
                 char ch;
                 for (; i < count; i++) {
                     ch = buff[i];
-                    processLocation(ch);
-                    if (ch == currentQuoteChar) {
-                        currentJsonNode.set(currentJsonNode.fieldName, value());
-                        state = fieldEndState;
+                    sm.processLocation(ch);
+                    if (ch == sm.currentQuoteChar) {
+                        sm.currentJsonNode.set(sm.currentJsonNode.fieldName, sm.value());
+                        state = FIELD_END_STATE;
                     } else if (ch == REV_SOL) { 
-                        state = stringFieldEscCharProcessingState;
+                        state = STRING_FIELD_ESC_CHAR_PROCESSING_STATE;
                     } else if (ch == EOF) {
                         throw new JsonParserException("unexpected end of JSON document");
                     } else {
-                        append(ch);
+                        sm.append(ch);
                         state = this;
                         continue;
                     }
                     break;
                 }
-                index = i + 1;
+                sm.index = i + 1;
                 return state;
             }
             
@@ -597,30 +618,30 @@ public class JsonParser {
         /**
          * Represents the state during a string array element is defined.
          */
-        private class StringArrayElementState implements State {
+        private static class StringArrayElementState implements State {
 
             @Override
-            public State transition(char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 State state = null;
                 char ch;
                 for (; i < count; i++) {
                     ch = buff[i];
-                    processLocation(ch);
+                    sm.processLocation(ch);
                     if (ch == QUOTES) {
-                        currentJsonNode.add(new JsonNode(value()));
-                        state = arrayElementEndState;
+                        sm.currentJsonNode.add(new JsonNode(sm.value()));
+                        state = ARRAY_ELEMENT_END_STATE;
                     } else if (ch == REV_SOL) { 
-                        state = stringAEEscCharProcessingState;
+                        state = STRING_AE_ESC_CHAR_PROCESSING_STATE;
                     } else if (ch == EOF) {
                         throw new JsonParserException("unexpected end of JSON document");
                     } else {
-                        append(ch);
+                        sm.append(ch);
                         state = this;
                         continue;
                     }
                     break;
                 }
-                index = i + 1;
+                sm.index = i + 1;
                 return state;
             }
             
@@ -629,38 +650,38 @@ public class JsonParser {
         /**
          * Represents the state during a non-string field value is defined.
          */
-        private class NonStringFieldValueState implements State {
+        private static class NonStringFieldValueState implements State {
 
             @Override
-            public State transition(char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 State state = null;
                 char ch;
                 for (; i < count; i++) {
                     ch = buff[i];
-                    processLocation(ch);
+                    sm.processLocation(ch);
                     if (ch == '{') {
-                        state = initNewObject();
+                        state = sm.initNewObject();
                     } else if (ch == '[') {
-                        state = initNewArray();
+                        state = sm.initNewArray();
                     } else if (ch == '}' || ch == ']') {
-                        processNonStringValue(ValueType.FIELD);
-                        state = finalizeObject();
+                        sm.processNonStringValue(ValueType.FIELD);
+                        state = sm.finalizeObject();
                     } else if (ch == ',') {
-                        processNonStringValue(ValueType.FIELD);
-                        state = nonFirstFieldReadyState;
-                    } else if (isWhitespace(ch)) {
-                        processNonStringValue(ValueType.FIELD);
-                        state = fieldEndState;
+                        sm.processNonStringValue(ValueType.FIELD);
+                        state = NON_FIRST_FIELD_READY_STATE;
+                    } else if (StateMachine.isWhitespace(ch)) {
+                        sm.processNonStringValue(ValueType.FIELD);
+                        state = FIELD_END_STATE;
                     } else if (ch == EOF) {
                         throw new JsonParserException("unexpected end of JSON document");
                     } else {
-                        append(ch);
+                        sm.append(ch);
                         state = this;
                         continue;
                     }
                     break;
                 }
-                index = i + 1;
+                sm.index = i + 1;
                 return state;
             }
             
@@ -669,38 +690,38 @@ public class JsonParser {
         /**
          * Represents the state during a non-string array element is defined.
          */
-        private class NonStringArrayElementState implements State {
+        private static class NonStringArrayElementState implements State {
 
             @Override
-            public State transition(char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 State state = null;
                 char ch;
                 for (; i < count; i++) {
                     ch = buff[i];
-                    processLocation(ch);
+                    sm.processLocation(ch);
                     if (ch == '{') {
-                        state = initNewObject();
+                        state = sm.initNewObject();
                     } else if (ch == '[') {
-                        state = initNewArray();
+                        state = sm.initNewArray();
                     } else if (ch == ']') {
-                        processNonStringValue(ValueType.ARRAY_ELEMENT);
-                        state = finalizeObject();
+                        sm.processNonStringValue(ValueType.ARRAY_ELEMENT);
+                        state = sm.finalizeObject();
                     } else if (ch == ',') {
-                        processNonStringValue(ValueType.ARRAY_ELEMENT);
-                        state = nonFirstArrayElementReadyState;
-                    } else if (isWhitespace(ch)) {
-                        processNonStringValue(ValueType.ARRAY_ELEMENT);
-                        state = arrayElementEndState;
+                        sm.processNonStringValue(ValueType.ARRAY_ELEMENT);
+                        state = NON_FIRST_ARRAY_ELEMENT_READY_STATE;
+                    } else if (StateMachine.isWhitespace(ch)) {
+                        sm.processNonStringValue(ValueType.ARRAY_ELEMENT);
+                        state = ARRAY_ELEMENT_END_STATE;
                     } else if (ch == EOF) {
                         throw new JsonParserException("unexpected end of JSON document");
                     } else {
-                        append(ch);
+                        sm.append(ch);
                         state = this;
                         continue;
                     }
                     break;
                 }
-                index = i + 1;
+                sm.index = i + 1;
                 return state;
             }
             
@@ -709,31 +730,31 @@ public class JsonParser {
         /**
          * Represents the state during a string value is defined.
          */
-        private class StringValueState implements State {
+        private static class StringValueState implements State {
 
             @Override
-            public State transition(char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 State state = null;
                 char ch;
                 for (; i < count; i++) {
                     ch = buff[i];
-                    processLocation(ch);
-                    if (ch == currentQuoteChar) {
-                        currentJsonNode = new JsonNode(false);
-                        currentJsonNode.setString(value());
-                        state = docEndState;
+                    sm.processLocation(ch);
+                    if (ch == sm.currentQuoteChar) {
+                        sm.currentJsonNode = new JsonNode(false);
+                        sm.currentJsonNode.setString(sm.value());
+                        state = DOC_END_STATE;
                     } else if (ch == REV_SOL) { 
-                        state = stringValEscCharProcessingState;
+                        state = STRING_VAL_ESC_CHAR_PROCESSING_STATE;
                     } else if (ch == EOF) {
                         throw new JsonParserException("unexpected end of JSON document");
                     } else {
-                        append(ch);
+                        sm.append(ch);
                         state = this;
                         continue;
                     } 
                     break;
                 }
-                index = i + 1;
+                sm.index = i + 1;
                 return state;
             }
             
@@ -831,27 +852,27 @@ public class JsonParser {
         /**
          * Represents the state during a non-string value is defined.
          */
-        private class NonStringValueState implements State {
+        private static class NonStringValueState implements State {
 
             @Override
-            public State transition(char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 State state = null;
                 char ch;
                 for (; i < count; i++) {
                     ch = buff[i];
-                    processLocation(ch);
-                    if (isWhitespace(ch) || ch == EOF) {
-                        currentJsonNode = new JsonNode(false);
-                        processNonStringValue(ValueType.VALUE);
-                        state = docEndState;
+                    sm.processLocation(ch);
+                    if (StateMachine.isWhitespace(ch) || ch == EOF) {
+                        sm.currentJsonNode = new JsonNode(false);
+                        sm.processNonStringValue(ValueType.VALUE);
+                        state = DOC_END_STATE;
                     } else {
-                        append(ch);
+                        sm.append(ch);
                         state = this;
                         continue;
                     }
                     break;
                 }
-                index = i + 1;
+                sm.index = i + 1;
                 return state;
             }
             
@@ -860,28 +881,28 @@ public class JsonParser {
         /**
          * Represents the state where an object field has ended.
          */
-        private class FieldEndState implements State {
+        private static class FieldEndState implements State {
 
             @Override
-            public State transition(char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 State state = null;
                 char ch;
                 for (; i < count; i++) {
                     ch = buff[i];
-                    processLocation(ch);
-                    if (isWhitespace(ch)) {
+                    sm.processLocation(ch);
+                    if (StateMachine.isWhitespace(ch)) {
                         state = this;
                         continue;
                     } else if (ch == ',') {
-                        state = nonFirstFieldReadyState;
+                        state = NON_FIRST_FIELD_READY_STATE;
                     } else if (ch == '}') {
-                        state = finalizeObject();
+                        state = sm.finalizeObject();
                     } else {
-                        throwExpected(",", "}");
+                        StateMachine.throwExpected(",", "}");
                     }
                     break;
                 }
-                index = i + 1;
+                sm.index = i + 1;
                 return state;
             }
             
@@ -890,28 +911,28 @@ public class JsonParser {
         /**
          * Represents the state where an array element has ended.
          */
-        private class ArrayElementEndState implements State {
+        private static class ArrayElementEndState implements State {
 
             @Override
-            public State transition(char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 State state = null;
                 char ch;
                 for (; i < count; i++) {
                     ch = buff[i];
-                    processLocation(ch);
-                    if (isWhitespace(ch)) {
+                    sm.processLocation(ch);
+                    if (StateMachine.isWhitespace(ch)) {
                         state = this;
                         continue;
                     } else if (ch == ',') {
-                        state = nonFirstArrayElementReadyState;
+                        state = NON_FIRST_ARRAY_ELEMENT_READY_STATE;
                     } else if (ch == ']') {
-                        state = finalizeObject();
+                        state = sm.finalizeObject();
                     } else {
-                        throwExpected(",", "]");
+                        StateMachine.throwExpected(",", "]");
                     }
                     break;
                 }
-                index = i + 1;
+                sm.index = i + 1;
                 return state;
             }
             
@@ -921,11 +942,11 @@ public class JsonParser {
          * Represents the state where an escaped unicode character in hex format is processed
          * from a object string field.
          */
-        private class StringFieldUnicodeHexProcessingState extends UnicodeHexProcessingState {
+        private static class StringFieldUnicodeHexProcessingState extends UnicodeHexProcessingState {
 
             @Override
             protected State getSourceState() {
-                return stringFieldValueState;
+                return STRING_FIELD_VALUE_STATE;
             }
             
         }
@@ -934,11 +955,11 @@ public class JsonParser {
          * Represents the state where an escaped unicode character in hex format is processed
          * from an array string field.
          */
-        private class StringAEProcessingState extends UnicodeHexProcessingState {
+        private static class StringAEProcessingState extends UnicodeHexProcessingState {
 
             @Override
             protected State getSourceState() {
-                return stringArrayElementState;
+                return STRING_ARRAY_ELEMENT_STATE;
             }
             
         }
@@ -947,11 +968,11 @@ public class JsonParser {
          * Represents the state where an escaped unicode character in hex format is processed
          * from a string value.
          */
-        private class StringValueUnicodeHexProcessingState extends UnicodeHexProcessingState {
+        private static class StringValueUnicodeHexProcessingState extends UnicodeHexProcessingState {
 
             @Override
             protected State getSourceState() {
-                return stringValueState;
+                return STRING_VALUE_STATE;
             }
             
         }
@@ -960,11 +981,11 @@ public class JsonParser {
          * Represents the state where an escaped unicode character in hex format is processed
          * from a field name.
          */
-        private class FieldNameUnicodeHexProcessingState extends UnicodeHexProcessingState {
+        private static class FieldNameUnicodeHexProcessingState extends UnicodeHexProcessingState {
 
             @Override
             protected State getSourceState() {
-                return fieldNameState;
+                return FIELD_NAME_STATE;
             }
             
         }
@@ -972,24 +993,22 @@ public class JsonParser {
         /**
          * Represents the state where an escaped unicode character in hex format is processed.
          */
-        private abstract class UnicodeHexProcessingState implements State {
-
-            private StringBuilder hexBuilder = new StringBuilder(4);
+        private abstract static class UnicodeHexProcessingState implements State {
             
             protected abstract State getSourceState();
                         
             @Override
-            public State transition(char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 State state = null;
                 char ch;
                 for (; i < count; i++) {
                     ch = buff[i];
-                    processLocation(ch);
+                    sm.processLocation(ch);
                     if ((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F')) {
-                        this.hexBuilder.append(ch);
-                        if (this.hexBuilder.length() >= 4) {
-                            append(this.extractUnicodeChar());
-                            this.reset();
+                        sm.hexBuilder.append(ch);
+                        if (sm.hexBuilder.length() >= 4) {
+                            sm.append(this.extractUnicodeChar(sm));
+                            this.reset(sm);
                             state = this.getSourceState();
                             break;
                         } else {
@@ -997,21 +1016,21 @@ public class JsonParser {
                             continue;
                         }
                     } else {
-                        this.reset();
-                        throwExpected("hexadecimal value of an unicode character");
+                        this.reset(sm);
+                        StateMachine.throwExpected("hexadecimal value of an unicode character");
                     }
                     break;
                 }
-                index = i + 1;
+                sm.index = i + 1;
                 return state;
             }
             
-            private void reset() {
-                this.hexBuilder.setLength(0);
+            private void reset(StateMachine sm) {
+                sm.hexBuilder.setLength(0);
             }
             
-            private char extractUnicodeChar() {
-                return StringEscapeUtils.unescapeJava("\\u" + this.hexBuilder.toString()).charAt(0);
+            private char extractUnicodeChar(StateMachine sm) {
+                return StringEscapeUtils.unescapeJava("\\u" + sm.hexBuilder.toString()).charAt(0);
             }
             
         }
@@ -1019,11 +1038,11 @@ public class JsonParser {
         /**
          * Represents the state where an escaped character is processed in a object string field.
          */
-        private class StringFieldEscapedCharacterProcessingState extends EscapedCharacterProcessingState {
+        private static class StringFieldEscapedCharacterProcessingState extends EscapedCharacterProcessingState {
 
             @Override
             protected State getSourceState() {
-                return stringFieldValueState;
+                return STRING_FIELD_VALUE_STATE;
             }
             
         }
@@ -1031,11 +1050,11 @@ public class JsonParser {
         /**
          * Represents the state where an escaped character is processed in an array string field.
          */
-        private class StringAEEscapedCharacterProcessingState extends EscapedCharacterProcessingState {
+        private static class StringAEEscapedCharacterProcessingState extends EscapedCharacterProcessingState {
 
             @Override
             protected State getSourceState() {
-                return stringArrayElementState;
+                return STRING_ARRAY_ELEMENT_STATE;
             }
             
         }
@@ -1043,11 +1062,11 @@ public class JsonParser {
         /**
          * Represents the state where an escaped character is processed in a string value.
          */
-        private class StringValueEscapedCharacterProcessingState extends EscapedCharacterProcessingState {
+        private static class StringValueEscapedCharacterProcessingState extends EscapedCharacterProcessingState {
 
             @Override
             protected State getSourceState() {
-                return stringValueState;
+                return STRING_VALUE_STATE;
             }
             
         }
@@ -1055,11 +1074,11 @@ public class JsonParser {
         /**
          * Represents the state where an escaped character is processed in a field name.
          */
-        private class FieldNameEscapedCharacterProcessingState extends EscapedCharacterProcessingState {
+        private static class FieldNameEscapedCharacterProcessingState extends EscapedCharacterProcessingState {
 
             @Override
             protected State getSourceState() {
-                return fieldNameState;
+                return FIELD_NAME_STATE;
             }
             
         }
@@ -1067,70 +1086,69 @@ public class JsonParser {
         /**
          * Represents the state where an escaped character is processed.
          */
-        private abstract class EscapedCharacterProcessingState implements State {
+        private abstract static class EscapedCharacterProcessingState implements State {
 
             protected abstract State getSourceState();
             
             @Override
-            public State transition(char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
                 State state = null;
                 char ch;
                 if (i < count) {
                     ch = buff[i];
-                    processLocation(ch);
+                    sm.processLocation(ch);
                     switch (ch) {
                     case '"':
-                        append(QUOTES);
+                        sm.append(QUOTES);
                         state = this.getSourceState();
                         break;
                     case '\\':
-                        append(REV_SOL);
+                        sm.append(REV_SOL);
                         state = this.getSourceState();
                         break;
                     case '/':
-                        append(SOL);
+                        sm.append(SOL);
                         state = this.getSourceState();
                         break;
                     case 'b':
-                        append(BACKSPACE);
+                        sm.append(BACKSPACE);
                         state = this.getSourceState();
                         break;
                     case 'f':
-                        append(FORMFEED);
+                        sm.append(FORMFEED);
                         state = this.getSourceState();
                         break;
                     case 'n':
-                        append(NEWLINE);
+                        sm.append(NEWLINE);
                         state = this.getSourceState();
                         break;
                     case 'r':
-                        append(CR);
+                        sm.append(CR);
                         state = this.getSourceState();
                         break;
                     case 't':
-                        append(HZ_TAB);
+                        sm.append(HZ_TAB);
                         state = this.getSourceState();
                         break;
                     case 'u':
-                        if (this.getSourceState() == stringFieldValueState) {
-                            state = stringFieldUnicodeHexProcessingState;
-                        } else if (this.getSourceState() == stringValueState) {
-                            state = stringValueUnicodeHexProcessingState;
-                        } else if (this.getSourceState() == fieldNameState) {
-                            state = fieldNameUnicodeHexProcessingState;
-                        } else if (this.getSourceState() == stringArrayElementState) {
-                            state = stringAEProcessingState;
+                        if (this.getSourceState() == STRING_FIELD_VALUE_STATE) {
+                            state = STRING_FIELD_UNICODE_HEX_PROCESSING_STATE;
+                        } else if (this.getSourceState() == STRING_VALUE_STATE) {
+                            state = STRING_VALUE_UNICODE_HEX_PROCESSING_STATE;
+                        } else if (this.getSourceState() == FIELD_NAME_STATE) {
+                            state = FIELD_NAME_UNICODE_HEX_PROCESSING_STATE;
+                        } else if (this.getSourceState() == STRING_ARRAY_ELEMENT_STATE) {
+                            state = STRING_AE_PROCESSING_STATE;
                         } else {
                             throw new JsonParserException("unknown source '" + this.getSourceState() + 
                                     "' in escape char processing state");
                         }
                         break;
                     default:
-                         throwExpected("escaped characters");
-                         break;
+                        StateMachine.throwExpected("escaped characters");
                     }
                 }
-                index = i + 1;
+                sm.index = i + 1;
                 return state;
             }
             

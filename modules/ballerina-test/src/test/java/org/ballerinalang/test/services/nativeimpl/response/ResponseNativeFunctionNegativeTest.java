@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -34,7 +35,6 @@ import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -106,11 +106,12 @@ public class ResponseNativeFunctionNegativeTest {
     public void testGetJsonPayloadWithStringPayload() {
         BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
+
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        cMsg.setMessageDataSource(dataSource);
-        cMsg.setAlreadyRead(true);
+        HttpUtil.addMessageDataSource(request, dataSource);
+
         HttpUtil.addCarbonMsg(request, cMsg);
 
         BValue[] inputArg = {request};
@@ -154,11 +155,12 @@ public class ResponseNativeFunctionNegativeTest {
     public void testGetStringPayloadMethodWithJsonPayload() {
         BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
+
         String payload = "{\"code\":\"123\"}";
         BallerinaMessageDataSource dataSource = new BJSON(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        cMsg.setMessageDataSource(dataSource);
-        cMsg.setAlreadyRead(true);
+        HttpUtil.addMessageDataSource(request, dataSource);
+
         HttpUtil.addCarbonMsg(request, cMsg);
 
         BValue[] inputArg = {request};
@@ -222,44 +224,51 @@ public class ResponseNativeFunctionNegativeTest {
     public void testSend() {
         String path = "/hello/11";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
-        Assert.assertTrue(response.getMessageDataSource().getMessageAsString().contains("operation not allowed"));
+        Assert.assertTrue(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
+                .contains("operation not allowed"));
     }
 
     @Test
     public void testForward() {
         String path = "/hello/12";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
-        Assert.assertTrue(response.getMessageDataSource().getMessageAsString().contains("operation not allowed"));
+        Assert.assertTrue(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
+                .contains("operation not allowed"));
     }
 
     @Test
     public void testForwardWithNullParameter() {
         String path = "/hello/13";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
-        Assert.assertTrue(response.getMessageDataSource().getMessageAsString().contains("argument 1 is null"));
+        Assert.assertTrue(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
+                .contains("argument 1 is null"));
     }
 
     @Test
     public void testForwardWithEmptyResponse() {
         String path = "/hello/14";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
-        Assert.assertTrue(response.getMessageDataSource().getMessageAsString()
+        Assert.assertTrue(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
                 .contains("failed to forward: empty response parameter"));
     }
 
@@ -267,7 +276,7 @@ public class ResponseNativeFunctionNegativeTest {
     public void testRedeclarationOfTwoResponseMethods() {
         String path = "/hello/15";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), "wso2");
@@ -289,10 +298,4 @@ public class ResponseNativeFunctionNegativeTest {
         BAssertUtil.validateError(resultNegative, 2,
                 "undefined function 'getMethod' in struct 'ballerina.net.http:Response'", 14, 21);
     }
-
-    @AfterClass
-    public void tearDown() {
-        BServiceUtil.cleanup(serviceResult);
-    }
-
 }

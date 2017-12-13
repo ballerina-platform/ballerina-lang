@@ -29,9 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,7 +39,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebSocketServicesRegistry {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketServicesRegistry.class);
-    private static final WebSocketServicesRegistry REGISTRY = new WebSocketServicesRegistry();
 
     // Map<interface, Map<uri, ServiceName>>
     private final Map<String, Map<String, String>> serviceEndpointsMap = new ConcurrentHashMap<>();
@@ -53,11 +49,7 @@ public class WebSocketServicesRegistry {
 
     private final Map<String, WebSocketService> slaveEndpoints = new HashMap<>();
 
-    private WebSocketServicesRegistry() {
-    }
-
-    public static WebSocketServicesRegistry getInstance() {
-        return REGISTRY;
+    public WebSocketServicesRegistry() {
     }
 
     /**
@@ -158,32 +150,6 @@ public class WebSocketServicesRegistry {
             throw new BallerinaException("Already contains a client service with name " + clientService.getName());
         } else {
             clientServices.put(clientService.getName(), clientService);
-        }
-    }
-
-    /**
-     * Unregister service for Map.
-     *
-     * @param service service to unregister.
-     */
-    public void unregisterService(WebSocketService service) {
-        if (serviceEndpoints.containsKey(service.getName())) {
-            serviceEndpoints.remove(service.getName());
-            serviceEndpointsMap.entrySet().forEach(serviceInterface -> {
-                List<String> uriList = new LinkedList<>();
-                Map<String, String> uriToServiceNameMap = serviceInterface.getValue();
-                uriToServiceNameMap.entrySet().forEach(uriToServiceName -> {
-                    if (uriToServiceName.getValue().equals(service.getName())) {
-                        uriList.add(uriToServiceName.getKey());
-                    }
-                });
-                Iterator<String> uriListIterator = uriList.iterator();
-                while (uriListIterator.hasNext()) {
-                    uriToServiceNameMap.remove(uriListIterator.next());
-                }
-            });
-        } else {
-            clientServices.remove(service.getName());
         }
     }
 
