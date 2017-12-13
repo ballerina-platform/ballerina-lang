@@ -18,7 +18,9 @@
 
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.ballerinalang.langserver.DocumentServiceKeys;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.consts.Priority;
@@ -35,13 +37,14 @@ import java.util.HashMap;
  */
 public class BlockStatementContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
+    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         AbstractItemResolver itemResolver;
 
-        if (dataModel.getParserRuleContext() != null) {
-            itemResolver = CompletionItemResolver.getResolverByClass(dataModel.getParserRuleContext().getClass());
-            completionItems.addAll(itemResolver.resolveItems(dataModel));
+        ParserRuleContext parserRuleContext = completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
+        if (parserRuleContext != null) {
+            itemResolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
+            completionItems.addAll(itemResolver.resolveItems(completionContext));
         } else {
             CompletionItem workerItem = new CompletionItem();
             workerItem.setLabel(ItemResolverConstants.WORKER);
@@ -53,7 +56,7 @@ public class BlockStatementContextResolver extends AbstractItemResolver {
             completionItems.add(workerItem);
 
             itemResolver = CompletionItemResolver.getResolverByClass(StatementContextResolver.class);
-            completionItems.addAll(itemResolver.resolveItems(dataModel));
+            completionItems.addAll(itemResolver.resolveItems(completionContext));
 
             // Add the var keyword
             CompletionItem varKeyword = new CompletionItem();

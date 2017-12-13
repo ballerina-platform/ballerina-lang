@@ -18,7 +18,8 @@
 
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.consts.Priority;
@@ -37,14 +38,15 @@ import java.util.stream.Collectors;
  */
 public class ParserRuleVariableDefinitionStatementContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
+    @SuppressWarnings("unchecked")
+    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
 
         // Here we specifically need to check whether the statement is function invocation,
         // action invocation or worker invocation
-        if (isActionOrFunctionInvocationStatement(dataModel)) {
+        if (isActionOrFunctionInvocationStatement(completionContext)) {
             PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
             ArrayList<SymbolInfo> actionAndFunctions = new ArrayList<>();
-            actionAndFunctions.addAll(actionAndFunctionFilter.filterItems(dataModel));
+            actionAndFunctions.addAll(actionAndFunctionFilter.filterItems(completionContext));
             ArrayList<CompletionItem> completionItems = new ArrayList<>();
             this.populateCompletionItemList(actionAndFunctions, completionItems);
             return completionItems;
@@ -57,7 +59,7 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
             createKeyword.setSortText(Priority.PRIORITY7.name());
 
             ArrayList<CompletionItem> completionItems = new ArrayList<>();
-            List<SymbolInfo> filteredList = dataModel.getVisibleSymbols()
+            List<SymbolInfo> filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
                     .stream()
                     .filter(symbolInfo -> !((symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
                                     && !(symbolInfo.getScopeEntry().symbol instanceof BPackageSymbol)))

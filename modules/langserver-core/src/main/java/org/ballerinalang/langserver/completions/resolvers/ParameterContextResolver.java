@@ -18,7 +18,9 @@
 
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.DocumentServiceKeys;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
@@ -33,9 +35,9 @@ import java.util.stream.Collectors;
  */
 public class ParameterContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
+    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<SymbolInfo> filteredSymbols = dataModel.getVisibleSymbols()
+        List<SymbolInfo> filteredSymbols = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
                 .stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
                 .collect(Collectors.toList());
@@ -48,7 +50,7 @@ public class ParameterContextResolver extends AbstractItemResolver {
             completionItems.add(completionItem);
         });
 
-        this.populateBasicTypes(completionItems, dataModel.getSymbolTable());
+        this.populateBasicTypes(completionItems, completionContext.get(DocumentServiceKeys.SYMBOL_TABLE_KEY));
 
         return completionItems;
     }

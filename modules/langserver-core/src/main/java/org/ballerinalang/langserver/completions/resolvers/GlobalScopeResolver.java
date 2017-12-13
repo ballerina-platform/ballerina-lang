@@ -19,7 +19,9 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.DocumentServiceKeys;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
@@ -34,22 +36,23 @@ import java.util.stream.Collectors;
 public class GlobalScopeResolver extends AbstractItemResolver {
 
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
+    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
 
-        ParserRuleContext parserRuleContext = dataModel.getParserRuleContext();
+        ParserRuleContext parserRuleContext = completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
 
         if (parserRuleContext == null) {
             // If the parser rule context is null we don't have any errors. In this case we add the types
-            List<SymbolInfo> bTypeSymbolInfo = dataModel.getVisibleSymbols()
+            List<SymbolInfo> bTypeSymbolInfo = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
                     .stream()
                     .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol.type != null)
                     .collect(Collectors.toList());
             this.populateCompletionItemList(bTypeSymbolInfo, completionItems);
         } else {
-            return CompletionItemResolver.getResolverByClass(parserRuleContext.getClass()).resolveItems(dataModel);
+            return CompletionItemResolver
+                    .getResolverByClass(parserRuleContext.getClass()).resolveItems(completionContext);
         }
 
         return completionItems;

@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.util.filters;
 
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,8 +28,8 @@ import java.util.List;
 public interface SymbolFilter {
     /**
      * Filters the symbolInfo from the list based on a particular filter criteria.
-     * @param dataModel - Suggestion filter data model
+     * @param completionContext - Completion operation context
      * @return {@link ArrayList}
      */
-    List filterItems(SuggestionsFilterDataModel dataModel);
+    List filterItems(TextDocumentServiceContext completionContext);
 }

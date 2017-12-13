@@ -18,7 +18,8 @@
 
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.consts.Priority;
@@ -38,14 +39,14 @@ import java.util.stream.Collectors;
  */
 public class ParserRuleTransformStatementBodyContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
+    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         BTypeFilter bTypeFilter = new BTypeFilter();
-        populateCompletionItemList(bTypeFilter.filterItems(dataModel), completionItems);
+        populateCompletionItemList(bTypeFilter.filterItems(completionContext), completionItems);
 
-        List<SymbolInfo> variableDefs =  dataModel.getVisibleSymbols().stream()
+        List<SymbolInfo> variableDefs =  completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
                 .filter(symbolInfo -> symbolInfo.getSymbol() instanceof SimpleVariableDef)
                 .collect(Collectors.toList());
         populateCompletionItemList(variableDefs, completionItems);

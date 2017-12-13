@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
@@ -29,16 +29,16 @@ import java.util.List;
  */
 public class AnnotationAttachmentResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
-        return filterAnnotations(dataModel);
+    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
+        return filterAnnotations(completionContext);
     }
 
     /**
      * Filter the annotations from the data model.
-     * @param dataModel - Suggestions filter Data model
+     * @param completionContext - Completion operation context
      * @return {@link List}
      */
-    ArrayList<CompletionItem> filterAnnotations(SuggestionsFilterDataModel dataModel) {
+    ArrayList<CompletionItem> filterAnnotations(TextDocumentServiceContext completionContext) {
 
 //        Set<Map.Entry<String, ModelPackage>> packages = dataModel.getPackages();
 //        if (packages == null) {

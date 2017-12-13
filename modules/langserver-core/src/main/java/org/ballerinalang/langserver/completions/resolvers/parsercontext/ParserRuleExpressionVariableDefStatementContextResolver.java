@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
@@ -32,10 +32,10 @@ import java.util.ArrayList;
  */
 public class ParserRuleExpressionVariableDefStatementContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
+    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
 
         // Here we are using the existing variable statement itm resolver
         Class parserRuleContextResolver = BallerinaParser.VariableDefinitionStatementContext.class;
-        return CompletionItemResolver.getResolverByClass(parserRuleContextResolver).resolveItems(dataModel);
+        return CompletionItemResolver.getResolverByClass(parserRuleContextResolver).resolveItems(completionContext);
     }
 }

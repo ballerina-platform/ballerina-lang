@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.util.filters.BTypeFilter;
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -28,11 +28,12 @@ import java.util.ArrayList;
  */
 class VariableDefinitionStatementContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
+    @SuppressWarnings("unchecked")
+    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         BTypeFilter bTypeFilter = new BTypeFilter();
-        populateCompletionItemList(bTypeFilter.filterItems(dataModel), completionItems);
+        populateCompletionItemList(bTypeFilter.filterItems(completionContext), completionItems);
 
         return completionItems;
     }

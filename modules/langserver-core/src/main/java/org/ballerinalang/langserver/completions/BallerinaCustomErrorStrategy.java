@@ -1,3 +1,20 @@
+/*
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
 package org.ballerinalang.langserver.completions;
 
 import org.antlr.v4.runtime.InputMismatchException;
@@ -5,65 +22,52 @@ import org.antlr.v4.runtime.NoViableAltException;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.misc.IntervalSet;
-import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.ballerinalang.langserver.DocumentServiceKeys;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorStrategy;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Capture possible errors from source.
  */
 public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
 
-    protected final TextDocumentPositionParams positionParams;
-
-    protected List<PossibleToken> possibleTokens;
-
-    private SuggestionsFilterDataModel suggestionsFilterDataModel;
-
-    public BallerinaCustomErrorStrategy(CompilerContext compilerContext, TextDocumentPositionParams positionParams,
-                                        SuggestionsFilterDataModel filterDataModel) {
-        super(compilerContext, null);
-        this.positionParams = positionParams;
-        possibleTokens = new LinkedList<>();
-        this.suggestionsFilterDataModel = filterDataModel;
+    private TextDocumentServiceContext context;
+    public BallerinaCustomErrorStrategy(TextDocumentServiceContext context) {
+        super(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), null);
+        this.context = context;
     }
     @Override
     public void reportInputMismatch(Parser parser, InputMismatchException e) {
-        fetchPossibleTokens(parser, e.getOffendingToken(), e.getExpectedTokens());
+        fillContext(parser, e.getOffendingToken());
     }
 
     @Override
     public void reportMissingToken(Parser parser) {
-        fetchPossibleTokens(parser, parser.getCurrentToken(), parser.getExpectedTokens());
+        fillContext(parser, parser.getCurrentToken());
     }
 
     @Override
     public void reportNoViableAlternative(Parser parser, NoViableAltException e) {
-        fetchPossibleTokens(parser, e.getOffendingToken(), e.getExpectedTokens());
+        fillContext(parser, e.getOffendingToken());
     }
 
     @Override
     public void reportUnwantedToken(Parser parser) {
-        fetchPossibleTokens(parser, parser.getCurrentToken(), parser.getExpectedTokens());
+        fillContext(parser, parser.getCurrentToken());
     }
 
-    public List<PossibleToken> getPossibleTokens() {
-        return possibleTokens;
-    }
-
-    protected void fetchPossibleTokens(Parser parser, Token currentToken, IntervalSet expectedTokens) {
+    private void fillContext(Parser parser, Token currentToken) {
         ParserRuleContext currentContext = parser.getContext();
-        // Currently disabling the check since the possible token based implementation has been skipped
-
         if (isCursorBetweenGivenTokenAndLastNonHiddenToken(currentToken, parser)) {
-            this.suggestionsFilterDataModel.initParserContext(parser, currentContext, this.possibleTokens);
+            this.context.put(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY, currentContext);
+            this.context.put(DocumentServiceKeys.POSSIBLE_TOKENS_KEY, new ArrayList<>());
+            this.context.put(DocumentServiceKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
+            this.context.put(DocumentServiceKeys.VOCABULARY_KEY, parser.getVocabulary());
+            this.context.put(DocumentServiceKeys.TOKEN_INDEX_KEY, parser.getCurrentToken().getTokenIndex());
         }
-
     }
     /**
      * Checks whether cursor is within the whitespace region between current token to last token.
@@ -71,11 +75,11 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
      * @param parser Parser Instance
      * @return true|false
      */
-    protected boolean isCursorBetweenGivenTokenAndLastNonHiddenToken(Token token, Parser parser) {
+    private boolean isCursorBetweenGivenTokenAndLastNonHiddenToken(Token token, Parser parser) {
         this.setContextException(parser);
         boolean isCursorBetween = false;
-        int line = positionParams.getPosition().getLine();
-        int character = positionParams.getPosition().getCharacter();
+        int line = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
+        int character = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
 
         Token lastNonHiddenToken = null;
         for (int tokenIdx = token.getTokenIndex() - 1; tokenIdx >= 0; tokenIdx--) {

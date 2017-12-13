@@ -15,8 +15,6 @@
  */
 package org.ballerinalang.langserver;
 
-
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
@@ -67,7 +65,6 @@ import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -81,9 +78,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
  * Text document service implementation for ballerina.
@@ -99,7 +93,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     public BallerinaTextDocumentService(BallerinaLanguageServer ballerinaLanguageServer) {
         this.ballerinaLanguageServer = ballerinaLanguageServer;
         this.documentManager = new WorkspaceDocumentManagerImpl();
-        this.lastDiagnosticMap = new HashMap<String, List<Diagnostic>>();
+        this.lastDiagnosticMap = new HashMap<>();
         builtinPkg = BuiltinPackageLoader.getBuiltinPackage();
     }
 

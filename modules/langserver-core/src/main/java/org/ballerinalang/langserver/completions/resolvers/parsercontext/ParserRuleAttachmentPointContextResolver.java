@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
@@ -30,7 +30,7 @@ import java.util.ArrayList;
  */
 public class ParserRuleAttachmentPointContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel) {
+    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         completionItems.add(populateCompletionItem(ItemResolverConstants.ACTION,
                 ItemResolverConstants.KEYWORD_TYPE, Priority.PRIORITY7.name(), ItemResolverConstants.ACTION));

@@ -15,10 +15,9 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.langserver.completions.util.filters;
 
-import org.ballerinalang.langserver.completions.SuggestionsFilterDataModel;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.consts.Snippet;
@@ -33,7 +32,7 @@ import java.util.List;
  */
 public class StatementTemplateFilter implements SymbolFilter {
     @Override
-    public List filterItems(SuggestionsFilterDataModel dataModel) {
+    public List filterItems(TextDocumentServiceContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         // Populate the statement templates
