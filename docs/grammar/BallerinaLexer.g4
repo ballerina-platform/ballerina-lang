@@ -62,8 +62,6 @@ RETURN      : 'return' ;
 REPLY       : 'reply' ;
 TRANSACTION : 'transaction' ;
 ABORT       : 'abort' ;
-ABORTED     : 'aborted' ;
-COMMITTED   : 'committed' ;
 FAILED      : 'failed' ;
 RETRIES     : 'retries' ;
 LENGTHOF    : 'lengthof' ;

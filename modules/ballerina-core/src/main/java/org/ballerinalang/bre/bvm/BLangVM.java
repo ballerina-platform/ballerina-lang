@@ -2641,15 +2641,21 @@ public class BLangVM {
     private void endTransaction(int status) {
         BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
         if (ballerinaTransactionManager != null) {
-            if (status == 0) { //Transaction success
-                ballerinaTransactionManager.commitTransactionBlock();
-            } else if (status == -1) { //Transaction failed
-                ballerinaTransactionManager.rollbackTransactionBlock();
-            } else { //status = 1 Transaction end
-                ballerinaTransactionManager.endTransactionBlock();
-                if (ballerinaTransactionManager.isOuterTransaction()) {
-                    context.setBallerinaTransactionManager(null);
+            try {
+                if (status == 0) { //Transaction success
+                    ballerinaTransactionManager.commitTransactionBlock();
+                } else if (status == -1) { //Transaction failed
+                    ballerinaTransactionManager.rollbackTransactionBlock();
+                } else { //status = 1 Transaction end
+                    ballerinaTransactionManager.endTransactionBlock();
+                    if (ballerinaTransactionManager.isOuterTransaction()) {
+                        context.setBallerinaTransactionManager(null);
+                    }
                 }
+            } catch (Throwable e) {
+                context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
+                handleError();
+                return;
             }
         }
     }

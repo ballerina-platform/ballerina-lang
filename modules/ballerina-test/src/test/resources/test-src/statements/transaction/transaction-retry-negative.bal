@@ -4,8 +4,6 @@ function testTransaction(int i) (string) {
         a = a + " inTrx";
     } failed {
         a = a + " inFailed";
-    } committed {
-        a = a + " inTrx";
     }
     a = a + " end";
     return a;
@@ -19,8 +17,6 @@ function testTransactionStmtVariableRetry() (string) {
         a = a + " inTrx";
     } failed {
         a = a + " inFailed";
-    } committed {
-        a = a + " inTrx";
     }
     a = a + " end";
     return a;
@@ -36,8 +32,6 @@ function testTransactionRetry2(int i) (string) {
         a = a + " inTrx";
     } failed {
         a = a + " inFailed";
-    } committed {
-        a = a + " inTrx";
     }
     a = a + " end";
     return a;

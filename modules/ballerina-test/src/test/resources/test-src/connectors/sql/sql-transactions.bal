@@ -15,7 +15,7 @@ function testLocalTransacton () (int returnVal, int count) {
                                 values ('James', 'Clerk', 200, 5000.75, 'USA')", null);
         _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 200, 5000.75, 'USA')", null);
-    } aborted {
+    } failed {
         returnVal = -1;
     }
     //check whether update action is performed
@@ -41,7 +41,7 @@ function testTransactonRollback () (int returnVal, int count) {
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')", null);
             _ = testDB.update("Insert into Customers2 (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')", null);
-        } aborted {
+        } failed {
             returnVal = -1;
         }
     } catch (error e) {
@@ -63,7 +63,7 @@ function testTransactonAbort () (int returnVal, int count) {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
     }
-    returnVal = 0;
+    returnVal = -1;
     transaction {
         int insertCount = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                             values ('James', 'Clerk', 220, 5000.75, 'USA')", null);
@@ -74,7 +74,8 @@ function testTransactonAbort () (int returnVal, int count) {
         if (i == 0) {
             abort;
         }
-    } aborted {
+        returnVal = 0;
+    } failed {
         returnVal = -1;
     }
     //check whether update action is performed
@@ -104,7 +105,7 @@ function testTransactonErrorThrow () (int returnVal, int catchValue, int count) 
                 error err = {msg:"error"};
                 throw err;
             }
-        } aborted {
+        } failed {
             returnVal = -1;
         }
     } catch (error err) {
@@ -140,7 +141,7 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
         } catch (error err) {
             catchValue = -1;
         }
-    } aborted {
+    } failed {
         returnVal = -1;
     }
     //check whether update action is performed
@@ -159,14 +160,14 @@ function testTransactonCommitted () (int returnVal, int count) {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                         0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
     }
-    returnVal = 0;
+    returnVal = 1;
     transaction {
         _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
                country) values ('James', 'Clerk', 300, 5000.75, 'USA')", null);
         _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
                country) values ('James', 'Clerk', 300, 5000.75, 'USA')", null);
-    } committed {
-        returnVal = 1;
+    } failed {
+        returnVal = -1;
     }
     //check whether update action is performed
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 300", null,
@@ -179,22 +180,20 @@ function testTransactonCommitted () (int returnVal, int count) {
     return;
 }
 
-function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int count) {
+function testTwoTransactons () (int returnVal1, int returnVal2, int count) {
     endpoint<sql:ClientConnector> testDB {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                   0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
     }
-    returnVal1 = 0;
-    returnVal2 = 0;
+    returnVal1 = 1;
+    returnVal2 = 1;
     transaction {
         _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 400, 5000.75, 'USA')", null);
         _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 400, 5000.75, 'USA')", null);
-    } committed {
-        returnVal1 = 1;
-    } aborted {
-        returnVal1 = -1;
+    } failed {
+        returnVal1 = 0;
     }
 
     transaction {
@@ -202,10 +201,8 @@ function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int coun
                             values ('James', 'Clerk', 400, 5000.75, 'USA')", null);
         _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 400, 5000.75, 'USA')", null);
-    } aborted {
-        returnVal2 = -1;
-    } committed {
-        returnVal2 = 1;
+    } failed {
+        returnVal2 = 0;
     }
     //check whether update action is performed
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 400", null,
@@ -256,10 +253,6 @@ function testLocalTransactionFailed () (string, int) {
                         values ('Anne', 'Clerk', 111, 5000.75, 'USA')", null);
         } failed {
             a = a + " inFld";
-        } aborted {
-            a = a + " inAbrt";
-        } committed {
-            a = a + " inCmt";
         }
     } catch (error e) {
         a = a + " inCatch";
@@ -298,10 +291,6 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
         } failed {
             a = a + " inFld";
             i = i + 1;
-        } aborted {
-            a = a + " inAbrt";
-        } committed {
-            a = a + " inCmt";
         }
     } catch (error e) {
         a = a + " inCatch";

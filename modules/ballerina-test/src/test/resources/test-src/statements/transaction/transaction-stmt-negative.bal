@@ -1,23 +1,3 @@
-function testTransactionAbort1 () {
-    int i = 10;
-    transaction {
-        i = i + 1;
-    } aborted {
-        i = i + 10;
-        abort;
-    }
-}
-
-function testTransactionAbort2 () {
-    int i = 10;
-    transaction {
-        i = i + 1;
-    } committed {
-        i = i + 10;
-        abort;
-    }
-}
-
 function testTransactionAbort3 () {
     int i = 10;
     abort;
@@ -30,8 +10,6 @@ function testTransactionAbort4 () {
         i = i + 1;
         abort;
         i = i + 2;
-    } aborted {
-        i = i + 10;
     }
 }
 
@@ -51,8 +29,6 @@ function testTransactionAbort5 () {
         }
         abort;
         i = i + 2;
-    } aborted {
-        i = i + 10;
     }
 }
 

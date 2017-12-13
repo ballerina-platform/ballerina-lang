@@ -13,13 +13,13 @@ function testTransactionStmt (int i) (string) {
         transaction {
             a = a + " inTrx";
             try {
-                if (i == - 1) {
-                    error err = { msg:" err"};
+                if (i == -1) {
+                    error err = {msg:" err"};
                     throw err;
                 } else if (i == 0) {
                     a = a + " abort";
                     abort;
-                } else if (i < - 1) {
+                } else if (i < -1) {
                     TrxError err = {msg:" trxErr", data:"test"};
                     throw err;
                 }
@@ -28,10 +28,8 @@ function testTransactionStmt (int i) (string) {
                 a = a + err.msg;
             }
             a = a + " endTrx";
-        }aborted {
-            a = a + " inAbt";
-        }committed {
-            a = a + " inCmt";
+        } failed {
+            a = a + " inFailed";
         }
     } catch (error err) {
         a = a + err.msg;
@@ -40,29 +38,26 @@ function testTransactionStmt (int i) (string) {
     return a;
 }
 
-function testOptionalAborted(int i)(string) {
+function testOptionalFailed (int i) (string) {
     string a = "start";
     try {
         transaction {
             a = a + " inTrx";
             try {
-                if (i == - 1) {
-                    error err = { msg:" err"};
+                if (i == -1) {
+                    error err = {msg:" err"};
                     throw err;
                 } else if (i == 0) {
                     a = a + " abort";
                     abort;
-                } else if (i < - 1) {
+                } else if (i < -1) {
                     TrxError err = {msg:" trxErr", data:"test"};
                     throw err;
                 }
-
             } catch (TrxError err) {
                 a = a + err.msg;
             }
             a = a + " endTrx";
-        }committed {
-            a = a + " inCmt";
         }
     } catch (error err) {
         a = a + err.msg;
@@ -71,53 +66,21 @@ function testOptionalAborted(int i)(string) {
     return a;
 }
 
-function testOptionalCommitted(int i)(string) {
+function testNestedTransaction (int i) (string) {
     string a = "start";
     try {
         transaction {
-            a = a + " inTrx";
-            try {
-                if (i == - 1) {
-                    error err = { msg:" err"};
-                    throw err;
-                } else if (i == 0) {
-                    a = a + " abort";
-                    abort;
-                } else if (i < - 1) {
-                    TrxError err = {msg:" trxErr", data:"test"};
-                    throw err;
-                }
-
-            } catch (TrxError err) {
-                a = a + err.msg;
-            }
-            a = a + " endTrx";
-        }aborted {
-            a = a + " inAbt";
-        }
-    } catch (error err) {
-        a = a + err.msg;
-    }
-    a = a + " end";
-    return a;
-}
-
-function testNestedTransaction (int i)(string){
-    string a = "start";
-    try {
-        a = a + " ";
-        transaction {
-            a = a + "inOuterTrx";
+            a = a + " inOuterTrx";
             transaction {
                 a = a + " inInnerTrx";
                 try {
-                    if (i == - 1) {
-                        error err = { msg:" err"};
+                    if (i == -1) {
+                        error err = {msg:" err"};
                         throw err;
                     } else if (i == 0) {
                         a = a + " abort";
                         abort;
-                    } else if (i < - 1) {
+                    } else if (i < -1) {
                         TrxError err = {msg:" trxErr", data:"test"};
                         throw err;
                     }
@@ -125,19 +88,11 @@ function testNestedTransaction (int i)(string){
                     a = a + err.msg;
                 }
                 a = a + " endInnerTrx";
-            } aborted {
-                a = a + " innerAborted";
-            }committed {
-                a = a + " inInnerCmt";
             }
             a = a + " endOuterTrx";
-        } aborted {
-            a = a + " outerAborted";
-        }committed {
-            a = a + " inOuterCmt";
         }
         a = a + " ";
-    }catch (error err){
+    } catch (error err) {
         a = a + err.msg;
     }
     a = a + " end";
@@ -147,19 +102,18 @@ function testNestedTransaction (int i)(string){
 function testNestedTransactionWithFailed (int i)(string){
     string a = "start";
     try {
-        a = a + " ";
         transaction with retries(3){
             a = a + " inOuterTrx";
             transaction with retries(2) {
                 a = a + " inInnerTrx";
                 try {
-                    if (i == - 1) {
-                        error err = { msg:" err"};
+                    if (i == -1) {
+                        error err = {msg:" err"};
                         throw err;
                     } else if (i == 0) {
                         a = a + " abort";
                         abort;
-                    } else if (i < - 1) {
+                    } else if (i < -1) {
                         TrxError err = {msg:" trxErr", data:"test"};
                         throw err;
                     }
@@ -169,40 +123,32 @@ function testNestedTransactionWithFailed (int i)(string){
                 a = a + " endInnerTrx";
             } failed {
                 a = a + " innerFailed";
-            } aborted {
-                a = a + " innerAborted";
-            } committed {
-                a = a + " inInnerCmt";
             }
             a = a + " endOuterTrx";
         } failed {
             a = a + " outerFailed";
-        } aborted {
-            a = a + " outerAborted";
-        } committed {
-            a = a + " inOuterCmt";
         }
         a = a + " ";
-    }catch (error err){
+    } catch (error err){
         a = a + err.msg;
     }
     a = a + " end";
     return a;
 }
 
-function testTransactionStmtWithFailed (int i) (string) {
+function testTransactionStmtWithFailedAndNonDefaultRetries (int i) (string) {
     string a = "start";
     try {
         transaction with retries(4){
             a = a + " inTrx";
             try {
-                if (i == - 1) {
-                    error err = { msg:" err"};
+                if (i == -1) {
+                    error err = {msg:" err"};
                     throw err;
                 } else if (i == 0) {
                     a = a + " abort";
                     abort;
-                } else if (i < - 1) {
+                } else if (i < -1) {
                     TrxError err = {msg:" trxErr", data:"test"};
                     throw err;
                 } else {
@@ -214,40 +160,6 @@ function testTransactionStmtWithFailed (int i) (string) {
             a = a + " endTrx";
         } failed {
            a = a + " inFailed";
-        } aborted {
-            a = a + " inAbt";
-        } committed {
-            a = a + " inCmt";
-        }
-    } catch (error err) {
-        a = a + err.msg;
-    }
-    a = a + " end";
-    return a;
-}
-
-function testTransactionStmtWithoutFailed (int i) (string) {
-    string a = "start";
-    try {
-        transaction {
-            a = a + " inTrx";
-            try {
-                if (i == - 1) {
-                    error err = { msg:" err"};
-                    throw err;
-                } else if (i == 0) {
-                    a = a + " abort";
-                abort;
-                } else if (i < - 1) {
-                    TrxError err = {msg:" trxErr", data:"test"};
-                    throw err;
-                } else {
-                    a = a + " success";
-                }
-            } catch (TrxError err) {
-                a = a + err.msg;
-            }
-            a = a + " endTrx";
         }
     } catch (error err) {
         a = a + err.msg;
@@ -272,10 +184,6 @@ function testTransactionStmtWithRetryOff (int i) (string) {
             a = a + " endTrx";
         } failed {
             a = a + " inFailed";
-        } aborted {
-            a = a + " inAbt";
-        } committed {
-            a = a + " inCmt";
         }
     } catch (error err) {
         a = a + err.msg;
@@ -284,7 +192,7 @@ function testTransactionStmtWithRetryOff (int i) (string) {
     return a;
 }
 
-function testTransactionStmtConstRetry() (string) {
+function testTransactionStmtWithConstRetryFailed() (string) {
     string a = "start";
     try {
         transaction with retries(RETRYCOUNT){
@@ -293,8 +201,6 @@ function testTransactionStmtConstRetry() (string) {
             throw err;
         } failed {
             a = a + " inFailed";
-        } committed {
-            a = a + " inTrx";
         }
     } catch (error err) {
         a = a + err.msg;
@@ -303,15 +209,13 @@ function testTransactionStmtConstRetry() (string) {
     return a;
 }
 
-function testTransactionStmtSuccess() (string) {
+function testTransactionStmtWithConstRetrySuccess() (string) {
     string a = "start";
     try {
         transaction with retries(RETRYCOUNT){
             a = a + " inTrx";
         } failed {
             a = a + " inFailed";
-        } committed {
-            a = a + " inCmt";
         }
     } catch (error err) {
         a = a + err.msg;
@@ -324,23 +228,15 @@ function testMultipleTransactionStmtSuccess() (string) {
     string a = "start";
     try {
         transaction {
-            a = a + " inFirstTrxBlockBegin";
-            int i = 0;
-            a = a + " inFirstTrxBlockEnd";
-        } committed {
-            a = a + " inFirstCmt";
-        } aborted {
-            a = a + " inFirstAgt";
+            a = a + " inFirstTrxBlock";
+        } failed {
+            a = a + " inFirstTrxFailed";
         }
         a = a + " inFirstTrxEnd";
         transaction {
-            a = a + " inSecTrxBlockBegin";
-            int k = 0;
-            a = a + " inSecTrxBlockEnd";
-        } committed {
-            a = a + " inSecCmt";
-        } aborted {
-            a = a + " inSecAbt";
+            a = a + " inSecTrxBlock";
+        } failed {
+            a = a + " inSecTrxFailed";
         }
         a = a + " inFSecTrxEnd";
     } catch (error err) {
@@ -350,31 +246,19 @@ function testMultipleTransactionStmtSuccess() (string) {
     return a;
 }
 
-function testMultipleTransactionStmtError() (string) {
+function testMultipleTransactionStmtFailed1() (string) {
     string a = "start";
     try {
         transaction with retries(2){
-            a = a + " inFirstTrxBlockBegin";
-            int i = 0;
-            a = a + " inFirstTrxBlockEnd";
+            a = a + " inFirstTrxBlock";
             error err = {msg:" err"};
             throw err;
         } failed {
-            a = a + " inFirstTFld";
-        } committed {
-            a = a + " inFirstTCmt";
-        } aborted {
-            a = a + " inFirstTAbt";
+            a = a + " inFirstTrxFld";
         }
         a = a + " inFirstTrxEnd";
         transaction {
-            a = a + " inSecTrxBlockBegin";
-            int k = 0;
-            a = a + " inSecTrxBlockEnd";
-        } committed {
-            a = a + " inSecCmt";
-        } aborted {
-            a = a + " inSecAbt";
+            a = a + " inSecTrxBlock";
         }
         a = a + " inFSecTrxEnd";
     } catch (error err) {
@@ -384,48 +268,44 @@ function testMultipleTransactionStmtError() (string) {
     return a;
 }
 
-function test ()(string) {
+function testMultipleTransactionStmtFailed2() (string) {
+    string a = "start";
+    try {
+        transaction with retries(2) {
+            a = a + " inFirstTrxBlock";
+            error err = {msg:" err"};
+            throw err;
+        } failed {
+            a = a + " inFirstTrxFld";
+        }
+        a = a + " inFirstTrxEnd";
+    } catch (error err) {
+        a = a + err.msg;
+    }
+
+    transaction {
+        a = a + " inSecTrxBlock";
+    }
+    a = a + " inFSecTrxEnd";
+    a = a + " end";
+    return a;
+}
+
+function testAbort ()(string) {
     string i = "st";
     transaction {
+        i = i + " inOuterTrx";
         transaction {
-            i = i + " inTrx";
-            abort;
-        } aborted {
-            i = i + " inAbt";
+            i = i + " inInnerTrx";
             abort;
         }
-    } committed {
-        i = i + " outCom";
-    } aborted {
-        i = i + " outAbt";
+        i = i + " inOuterTrxEnd";
     }
+    i = i + " afterOuterTrx";
     return i;
 }
 
-function testReturn1 ()(string) {
-    string i = "st";
-    transaction {
-        i = i + " inTrx";
-    } committed {
-        i = i + " com";
-        return i;
-    }
-    return "done";
-}
-
-function testReturn2 ()(string) {
-    string i = "st";
-    transaction {
-        i = i + " inTrx";
-        abort;
-    } aborted {
-        i = i + " abt";
-        return i;
-    }
-    return "done";
-}
-
-function transactionWithBreak1 () (string) {
+function transactionWithBreak () (string) {
     int i = 0;
     transaction {
         while (i < 5) {
@@ -438,70 +318,11 @@ function transactionWithBreak1 () (string) {
     return "done";
 }
 
-function transactionWithBreak2 () (string) {
-    int i = 0;
-    while (i < 5) {
-        transaction {
-            i = i + 1;
-        } committed {
-            if (i == 2) {
-                break;
-            }
-        }
-    }
-    return "done";
-}
-
-function transactionWithBreak3 () (string) {
-    int i = 0;
-    while (i < 5) {
-        transaction {
-            i = i + 1;
-            abort;
-        } aborted {
-            if (i == 2) {
-            break;
-            }
-        }
-    }
-    return "done";
-}
-
-
-function transactionWithNext1 () (string) {
+function transactionWithNext () (string) {
     int i = 0;
     transaction {
         while (i < 5) {
             i = i + 1;
-            if (i == 2) {
-                next;
-            }
-        }
-    }
-    return "done";
-}
-
-function transactionWithNext2 () (string) {
-    int i = 0;
-    while (i < 5) {
-        transaction {
-            i = i + 1;
-        } committed {
-            if (i == 2) {
-                next;
-            }
-        }
-    }
-    return "done";
-}
-
-function transactionWithNext3 () (string) {
-    int i = 0;
-    while (i < 5) {
-        transaction {
-            i = i + 1;
-            abort;
-        } aborted {
             if (i == 2) {
                 next;
             }

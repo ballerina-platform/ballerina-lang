@@ -1252,6 +1252,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterTransactionClause(BallerinaParser.TransactionClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTransactionClause(BallerinaParser.TransactionClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterTransactionPropertyInitStatement(BallerinaParser.TransactionPropertyInitStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1276,18 +1288,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterFailedClause(BallerinaParser.FailedClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1295,30 +1295,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFailedClause(BallerinaParser.FailedClauseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitAbortedClause(BallerinaParser.AbortedClauseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterCommittedClause(BallerinaParser.CommittedClauseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCommittedClause(BallerinaParser.CommittedClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -432,7 +432,11 @@ expressionStmt
     ;
 
 transactionStatement
-    :   TRANSACTION (WITH transactionPropertyInitStatementList)? LEFT_BRACE statement* RIGHT_BRACE transactionHandlers
+    :   transactionClause failedClause?
+    ;
+
+transactionClause
+    : TRANSACTION (WITH transactionPropertyInitStatementList)? LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 transactionPropertyInitStatement
@@ -443,22 +447,9 @@ transactionPropertyInitStatementList
     : transactionPropertyInitStatement (COMMA transactionPropertyInitStatement)*
     ;
 
-transactionHandlers
-    : failedClause? abortedClause? committedClause?
-    | failedClause? committedClause? abortedClause?
-    ;
-
 failedClause
     :   FAILED LEFT_BRACE statement* RIGHT_BRACE
     ;
-abortedClause
-    :   ABORTED LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
-committedClause
-    :   COMMITTED LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
 abortStatement
     :   ABORT SEMICOLON
     ;

@@ -1080,6 +1080,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTransactionStatement(BallerinaParser.TransactionStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#transactionClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterTransactionClause(BallerinaParser.TransactionClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#transactionClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitTransactionClause(BallerinaParser.TransactionClauseContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#transactionPropertyInitStatement}.
 	 * @param ctx the parse tree
 	 */
@@ -1100,16 +1110,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTransactionPropertyInitStatementList(BallerinaParser.TransactionPropertyInitStatementListContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#transactionHandlers}.
-	 * @param ctx the parse tree
-	 */
-	void enterTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#transactionHandlers}.
-	 * @param ctx the parse tree
-	 */
-	void exitTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#failedClause}.
 	 * @param ctx the parse tree
 	 */
@@ -1119,26 +1119,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFailedClause(BallerinaParser.FailedClauseContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#abortedClause}.
-	 * @param ctx the parse tree
-	 */
-	void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#abortedClause}.
-	 * @param ctx the parse tree
-	 */
-	void exitAbortedClause(BallerinaParser.AbortedClauseContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#committedClause}.
-	 * @param ctx the parse tree
-	 */
-	void enterCommittedClause(BallerinaParser.CommittedClauseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#committedClause}.
-	 * @param ctx the parse tree
-	 */
-	void exitCommittedClause(BallerinaParser.CommittedClauseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#abortStatement}.
 	 * @param ctx the parse tree

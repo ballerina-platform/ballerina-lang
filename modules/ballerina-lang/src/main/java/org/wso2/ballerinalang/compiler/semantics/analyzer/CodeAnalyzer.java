@@ -284,14 +284,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.resetLastStatement();
             this.retryStmtCheckStack.pop();
         }
-        if (transactionNode.committedBody != null) {
-            transactionNode.committedBody.accept(this);
-            this.resetStatementReturns();
-        }
-        if (transactionNode.abortedBody != null) {
-            transactionNode.abortedBody.accept(this);
-            this.resetStatementReturns();
-        }
         this.loopWithintransactionCheckStack.pop();
         this.retryStmtCheckStack.pop();
     }
