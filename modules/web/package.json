@@ -103,6 +103,7 @@
     "jsplumb": "2.3.5",
     "lodash": "^4.13.1",
     "log4javascript": "^1.4.15",
+    "monaco-editor": "^0.10.1",
     "mousetrap": "^1.6.0",
     "prop-types": "^15.5.8",
     "rc-menu": "^5.0.10",
