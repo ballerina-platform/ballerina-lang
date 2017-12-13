@@ -45,13 +45,8 @@ import java.util.ServiceLoader;
  */
 public class ServerConnectorRegistry {
 
-    private static ServerConnectorRegistry instance = new ServerConnectorRegistry();
     private Map<String, BallerinaServerConnector> serverConnectorMap = new HashMap<>();
     private boolean initialized = false;
-
-    public static ServerConnectorRegistry getInstance() {
-        return instance;
-    }
 
     public void initServerConnectors() {
         if (initialized) {
@@ -93,15 +88,6 @@ public class ServerConnectorRegistry {
         serverConnectorMap.get(serviceInfo.getProtocolPkgPath()).serviceRegistered(service);
     }
 
-    public void unRegisterService(ServiceInfo serviceInfo) {
-        if (!serverConnectorMap.containsKey(serviceInfo.getProtocolPkgPath())) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_SERVICE_PROTOCOL,
-                    serviceInfo.getProtocolPkgPath());
-        }
-        Service service = buildService(serviceInfo);
-        serverConnectorMap.get(serviceInfo.getProtocolPkgPath()).serviceUnregistered(service);
-    }
-
     /**
      * This method is used to get {@code BallerinaServerConnector} instance for the given protocol package.
      *
@@ -113,7 +99,8 @@ public class ServerConnectorRegistry {
     }
 
     private Service buildService(ServiceInfo serviceInfo) {
-        BService service = new BService(serviceInfo.getName(), serviceInfo.getPackagePath());
+        BService service =
+                new BService(serviceInfo.getName(), serviceInfo.getPackagePath(), serviceInfo.getProtocolPkgPath());
         AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) serviceInfo.getAttributeInfo(
                 AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
         if (attributeInfo != null) {

@@ -21,6 +21,7 @@ package org.ballerinalang.net.ws.actions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
@@ -31,10 +32,10 @@ import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.BallerinaHttpServerConnector;
 import org.ballerinalang.net.ws.BallerinaWsClientConnectorListener;
 import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.net.ws.WebSocketService;
-import org.ballerinalang.net.ws.WebSocketServicesRegistry;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
@@ -69,7 +70,10 @@ public class Connect extends AbstractNativeWsAction {
         BStruct clientConfig = (BStruct) getRefArgument(context, 1);
         String remoteUrl = getUrlFromConnector(bconnector);
         String clientServiceName = getClientServiceNameFromConnector(bconnector);
-        WebSocketService wsService = WebSocketServicesRegistry.getInstance().getClientService(clientServiceName);
+        BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
+                getBallerinaServerConnector(context, Constants.HTTP_PACKAGE_PATH);
+        WebSocketService wsService =
+                httpServerConnector.getWebSocketServicesRegistry().getClientService(clientServiceName);
         if (wsService == null) {
             throw new BallerinaConnectorException("Cannot find client service: " + clientServiceName);
         }
