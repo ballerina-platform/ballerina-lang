@@ -18,11 +18,6 @@
 
 package org.wso2.transport.http.netty.https;
 
-import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.DefaultHttpRequest;
-import io.netty.handler.codec.http.DefaultLastHttpContent;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpVersion;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.common.Constants;
@@ -67,10 +62,6 @@ public class SSLProtocolsTest {
     private static HttpClientConnector httpClientConnector;
     private static ServerConnector serverConnector;
     private static String testValue = "Test";
-    private String keyStoreFile = "src/test/resources/simple-test-config/wso2carbon.jks";
-    private String trustStoreFile = "src/test/resources/simple-test-config/client-truststore.jks";
-    private String password = "wso2carbon";
-    private String scheme = "https";
     private String verifyClient = "require";
 
     @DataProvider(name = "protocols")
@@ -106,42 +97,41 @@ public class SSLProtocolsTest {
                 .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
         Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
         senderConfig.forEach(config -> {
-            config.setKeyStoreFile(keyStoreFile);
-            config.setKeyStorePassword(password);
-            config.setParameters(clientParams);
+            if (config.getId().contains(TestUtil.HTTPS_SCHEME)) {
+                config.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
+                config.setTrustStoreFile(TestUtil.getAbsolutePath(config.getTrustStoreFile()));
+                config.setKeyStorePassword(TestUtil.KEY_STORE_PASSWORD);
+                config.setParameters(clientParams);
+            }
         });
 
         HttpWsConnectorFactory factory = new HttpWsConnectorFactoryImpl();
         ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
         listenerConfiguration.setPort(serverPort);
         listenerConfiguration.setVerifyClient(verifyClient);
-        listenerConfiguration.setTrustStoreFile(trustStoreFile);
-        listenerConfiguration.setKeyStoreFile(keyStoreFile);
-        listenerConfiguration.setTrustStorePass(password);
-        listenerConfiguration.setKeyStorePass(password);
-        listenerConfiguration.setScheme(scheme);
+        listenerConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
+        listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
+        listenerConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
+        listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
+        listenerConfiguration.setScheme(TestUtil.HTTPS_SCHEME);
         listenerConfiguration.setParameters(severParams);
         serverConnector = factory
                 .createServerConnector(ServerBootstrapConfiguration.getInstance(), listenerConfiguration);
         ServerConnectorFuture future = serverConnector.start();
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();
+
         httpClientConnector = factory
                 .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
                         HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
+
         testSSLProtocols(hasException, serverPort);
     }
 
     public void testSSLProtocols(boolean hasException, int serverPort) {
         try {
             ByteBuffer byteBuffer = ByteBuffer.wrap(testValue.getBytes(Charset.forName("UTF-8")));
-            HTTPCarbonMessage msg = new HTTPCarbonMessage(
-                    new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, ""));
-            msg.setProperty("PORT", serverPort);
-            msg.setProperty("PROTOCOL", scheme);
-            msg.setProperty("HOST", TestUtil.TEST_HOST);
-            msg.setProperty("HTTP_METHOD", "GET");
-            msg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
+            HTTPCarbonMessage msg = TestUtil.createHttpsRequest(serverPort, byteBuffer);
 
             CountDownLatch latch = new CountDownLatch(1);
             SSLConnectorListener listener = new SSLConnectorListener(latch);

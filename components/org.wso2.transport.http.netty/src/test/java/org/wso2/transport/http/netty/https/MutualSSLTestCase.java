@@ -18,11 +18,6 @@
 
 package org.wso2.transport.http.netty.https;
 
-import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.DefaultHttpRequest;
-import io.netty.handler.codec.http.DefaultLastHttpContent;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpVersion;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.common.Constants;
@@ -64,10 +59,6 @@ public class MutualSSLTestCase {
 
     private static HttpClientConnector httpClientConnector;
     private static String testValue = "Test";
-    private String keyStoreFile = "src/test/resources/simple-test-config/wso2carbon.jks";
-    private String trustStoreFile = "src/test/resources/simple-test-config/client-truststore.jks";
-    private String password = "wso2carbon";
-    private String scheme = "https";
     private String verifyClient = "require";
     private static int serverPort = 9095;
 
@@ -77,8 +68,11 @@ public class MutualSSLTestCase {
                 .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
         Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
         senderConfig.forEach(config -> {
-            config.setKeyStoreFile(keyStoreFile);
-            config.setKeyStorePassword(password);
+            if (config.getId().contains(TestUtil.HTTPS_SCHEME)) {
+                config.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
+                config.setTrustStoreFile(TestUtil.getAbsolutePath(config.getTrustStoreFile()));
+                config.setKeyStorePassword(TestUtil.KEY_STORE_PASSWORD);
+            }
         });
 
         HttpWsConnectorFactory factory = new HttpWsConnectorFactoryImpl();
@@ -86,12 +80,12 @@ public class MutualSSLTestCase {
         ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
         listenerConfiguration.setPort(serverPort);
         listenerConfiguration.setVerifyClient(verifyClient);
-        listenerConfiguration.setTrustStoreFile(trustStoreFile);
-        listenerConfiguration.setKeyStoreFile(keyStoreFile);
-        listenerConfiguration.setTrustStorePass(password);
-        listenerConfiguration.setKeyStorePass(password);
-        listenerConfiguration.setCertPass(password);
-        listenerConfiguration.setScheme(scheme);
+        listenerConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
+        listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
+        listenerConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
+        listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
+        listenerConfiguration.setCertPass(TestUtil.KEY_STORE_PASSWORD);
+        listenerConfiguration.setScheme(TestUtil.HTTPS_SCHEME);
 
         ServerConnector connector = factory
                 .createServerConnector(ServerBootstrapConfiguration.getInstance(), listenerConfiguration);
@@ -105,16 +99,10 @@ public class MutualSSLTestCase {
     }
 
     @Test
-    public void testHttpsGet() {
+    public void testHttpsPost() {
         try {
             ByteBuffer byteBuffer = ByteBuffer.wrap(testValue.getBytes(Charset.forName("UTF-8")));
-            HTTPCarbonMessage msg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-                    HttpMethod.GET, ""));
-            msg.setProperty("PORT", serverPort);
-            msg.setProperty("PROTOCOL", scheme);
-            msg.setProperty("HOST", TestUtil.TEST_HOST);
-            msg.setProperty("HTTP_METHOD", "GET");
-            msg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
+            HTTPCarbonMessage msg = TestUtil.createHttpsRequest(serverPort, byteBuffer);
 
             CountDownLatch latch = new CountDownLatch(1);
             HTTPConnectorListener listener = new HTTPConnectorListener(latch);

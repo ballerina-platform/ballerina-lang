@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.HttpRoute;
-import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
@@ -65,10 +64,10 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     }
 
     @Override
-    public HttpResponseFuture send(HTTPCarbonMessage httpCarbonRequest) {
+    public HttpResponseFuture send(HTTPCarbonMessage httpOutboundRequest) {
         HttpResponseFuture httpResponseFuture = new HttpResponseFutureImpl();
 
-        SourceHandler srcHandler = (SourceHandler) httpCarbonRequest.getProperty(Constants.SRC_HANDLER);
+        SourceHandler srcHandler = (SourceHandler) httpOutboundRequest.getProperty(Constants.SRC_HANDLER);
         if (srcHandler == null) {
             if (log.isDebugEnabled()) {
                 log.debug(Constants.SRC_HANDLER + " property not found in the message."
@@ -77,27 +76,25 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
         }
 
         try {
-            final HttpRoute route = getTargetRoute(httpCarbonRequest);
+            final HttpRoute route = getTargetRoute(httpOutboundRequest);
             TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, senderConfiguration);
             targetChannel.getChannelFuture().addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture channelFuture) throws Exception {
                     if (isValidateChannel(channelFuture)) {
                         targetChannel.setChannel(channelFuture.channel());
-                        targetChannel.configTargetHandler(httpCarbonRequest, httpResponseFuture);
+                        targetChannel.configTargetHandler(httpOutboundRequest, httpResponseFuture);
                         targetChannel.setEndPointTimeout(socketIdleTimeout, followRedirect);
                         targetChannel.setCorrelationIdForLogging();
                         targetChannel.setChunkDisabled(chunkDisabled);
                         if (followRedirect) {
-                            setChannelAttributes(channelFuture.channel(), httpCarbonRequest, httpResponseFuture,
+                            setChannelAttributes(channelFuture.channel(), httpOutboundRequest, httpResponseFuture,
                                                  targetChannel);
                         }
                         if (!keepAlive) {
-                            httpCarbonRequest.setHeader(Constants.CONNECTION, Constants.CONNECTION_CLOSE);
+                            httpOutboundRequest.setHeader(Constants.CONNECTION, Constants.CONNECTION_CLOSE);
                         }
-                        Util.setupTransferEncodingForRequest(httpCarbonRequest, chunkDisabled);
-                        targetChannel.setRequestWritten(true);
-                        targetChannel.writeContent(httpCarbonRequest);
+                        targetChannel.writeContent(httpOutboundRequest);
                     } else {
                         notifyErrorState(channelFuture);
                     }
