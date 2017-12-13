@@ -765,10 +765,10 @@ public class HttpUtil {
     }
 
     public static MessageDataSource getMessageDataSource(BStruct httpMsgStruct) {
-        MessageDataSource source = null;
-        if (httpMsgStruct.getNativeData(MESSAGE_DATA_SOURCE) != null) {
-            source = (MessageDataSource) httpMsgStruct.getNativeData(MESSAGE_DATA_SOURCE);
+        MessageDataSource messageDataSource = (MessageDataSource) httpMsgStruct.getNativeData(MESSAGE_DATA_SOURCE);
+        if (messageDataSource != null) {
+            messageDataSource = (MessageDataSource) httpMsgStruct.getNativeData(MESSAGE_DATA_SOURCE);
         }
-        return source;
+        return messageDataSource;
     }
 }

@@ -85,6 +85,6 @@ public class Forward extends AbstractNativeFunction {
         }
 
         return HttpUtil.prepareResponseAndSend(context, this, requestMessage,
-                responseMessage, (MessageDataSource) clientResponseStruct.getNativeData(Constants.MESSAGE_DATA_SOURCE));
+                responseMessage, HttpUtil.getMessageDataSource(clientResponseStruct));
     }
 }
