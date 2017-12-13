@@ -56,16 +56,6 @@
         </context>
     </template>
 
-    <template name="typ" value="typemapper $NAME$ ($INPUT$) ($TYPE$) {&#10;    $END$&#10;}"
-              description="Typemapper Template" toReformat="false" toShortenFQNames="false">
-        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="INPUT" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="TYPE" expression="" defaultValue="" alwaysStopAt="true"/>
-        <context>
-            <option name="BALLERINA_FILE" value="true"/>
-        </context>
-    </template>
-
     <template name="str" value="struct $NAME$ {&#10;    $END$&#10;}"
               description="Struct Template" toReformat="false" toShortenFQNames="false">
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>

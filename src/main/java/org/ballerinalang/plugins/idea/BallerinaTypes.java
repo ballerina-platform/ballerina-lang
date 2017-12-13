@@ -76,7 +76,6 @@ public class BallerinaTypes {
     public static final RuleIElementType CONNECTOR_DEFINITION = ruleIElementTypes.get(RULE_connectorDefinition);
     public static final RuleIElementType ACTION_DEFINITION = ruleIElementTypes.get(RULE_actionDefinition);
     public static final RuleIElementType STRUCT_DEFINITION = ruleIElementTypes.get(RULE_structDefinition);
-    public static final RuleIElementType TYPE_MAPPER_DEFINTION = ruleIElementTypes.get(RULE_typeMapperDefinition);
 
     public static final RuleIElementType IF_ELSE_STATEMENT = ruleIElementTypes.get(RULE_ifElseStatement);
     public static final RuleIElementType IF_CLAUSE = ruleIElementTypes.get(RULE_ifClause);
@@ -89,7 +88,6 @@ public class BallerinaTypes {
     public static final RuleIElementType CATCH_CLAUSE = ruleIElementTypes.get(RULE_catchClause);
     public static final RuleIElementType CATCH_CLAUSES = ruleIElementTypes.get(RULE_catchClauses);
     public static final RuleIElementType FINALLY_CLAUSE = ruleIElementTypes.get(RULE_finallyClause);
-    public static final RuleIElementType TYPE_MAPPER_BODY = ruleIElementTypes.get(RULE_typeMapperBody);
     public static final RuleIElementType WORKER_DECLARATION = ruleIElementTypes.get(RULE_workerDeclaration);
     public static final RuleIElementType WORKER_BODY = ruleIElementTypes.get(RULE_workerBody);
     public static final RuleIElementType FORK_JOIN_STATEMENT = ruleIElementTypes.get(RULE_forkJoinStatement);
@@ -121,8 +119,8 @@ public class BallerinaTypes {
             ruleIElementTypes.get(RULE_annotationAttributeList);
     public static final RuleIElementType ANNOTATION_ATTRIBUTE_VALUE =
             ruleIElementTypes.get(RULE_annotationAttributeValue);
-    public static final RuleIElementType MAP_STRUCT_LITERAL = ruleIElementTypes.get(RULE_mapStructLiteral);
-    public static final RuleIElementType MAP_STRUCT_KEY_VALUE = ruleIElementTypes.get(RULE_mapStructKeyValue);
+    public static final RuleIElementType RECORD_LITERAL = ruleIElementTypes.get(RULE_recordLiteral);
+    public static final RuleIElementType RECORD_KEY_VALUE = ruleIElementTypes.get(RULE_recordKeyValue);
 
     public static final RuleIElementType EXPRESSION_LIST = ruleIElementTypes.get(RULE_expressionList);
     public static final RuleIElementType TYPE_LIST = ruleIElementTypes.get(RULE_typeList);
@@ -183,7 +181,6 @@ public class BallerinaTypes {
     public static final TokenIElementType TRY = tokenIElementTypes.get(BallerinaLexer.TRY);
     public static final TokenIElementType TYPE = tokenIElementTypes.get(BallerinaLexer.TYPE_TYPE);
     public static final TokenIElementType TYPEOF = tokenIElementTypes.get(BallerinaLexer.TYPEOF);
-    public static final TokenIElementType TYPEMAPPER = tokenIElementTypes.get(BallerinaLexer.TYPEMAPPER);
     public static final TokenIElementType VAR = tokenIElementTypes.get(BallerinaLexer.VAR);
     public static final TokenIElementType WHILE = tokenIElementTypes.get(BallerinaLexer.WHILE);
     public static final TokenIElementType WORKER = tokenIElementTypes.get(BallerinaLexer.WORKER);
