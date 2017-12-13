@@ -30,6 +30,7 @@ import org.apache.commons.io.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.TransportProperty;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
@@ -88,6 +89,7 @@ public class TestUtil {
     public static final String KEY_STORE_FILE_PATH = "/simple-test-config/wso2carbon.jks";
     public static final String TRUST_STORE_FILE_PATH = "/simple-test-config/client-truststore.jks";
     public static final String KEY_STORE_PASSWORD = "wso2carbon";
+    public static final String HTTPS_SCHEME = "https";
     private static List<ServerConnector> connectors;
     private static List<ServerConnectorFuture> futures;
 
@@ -254,9 +256,9 @@ public class TestUtil {
         HTTPCarbonMessage msg = new HTTPCarbonMessage(
                 new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, ""));
         msg.setProperty("PORT", serverPort);
-        msg.setProperty("PROTOCOL", "https");
+        msg.setProperty("PROTOCOL", TestUtil.HTTPS_SCHEME);
         msg.setProperty("HOST", TestUtil.TEST_HOST);
-        msg.setProperty("HTTP_METHOD", "POST");
+        msg.setProperty("HTTP_METHOD", Constants.HTTP_POST_METHOD);
         msg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
         return msg;
     }

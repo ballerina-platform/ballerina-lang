@@ -62,7 +62,6 @@ public class SSLProtocolsTest {
     private static HttpClientConnector httpClientConnector;
     private static ServerConnector serverConnector;
     private static String testValue = "Test";
-    private String scheme = "https";
     private String verifyClient = "require";
 
     @DataProvider(name = "protocols")
@@ -98,7 +97,7 @@ public class SSLProtocolsTest {
                 .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
         Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
         senderConfig.forEach(config -> {
-            if (config.getId().contains("https")) {
+            if (config.getId().contains(TestUtil.HTTPS_SCHEME)) {
                 config.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
                 config.setTrustStoreFile(TestUtil.getAbsolutePath(config.getTrustStoreFile()));
                 config.setKeyStorePassword(TestUtil.KEY_STORE_PASSWORD);
@@ -114,7 +113,7 @@ public class SSLProtocolsTest {
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         listenerConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
         listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
-        listenerConfiguration.setScheme(scheme);
+        listenerConfiguration.setScheme(TestUtil.HTTPS_SCHEME);
         listenerConfiguration.setParameters(severParams);
         serverConnector = factory
                 .createServerConnector(ServerBootstrapConfiguration.getInstance(), listenerConfiguration);

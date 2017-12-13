@@ -114,7 +114,7 @@ public class PKCSTest {
             msg.setProperty("PORT", serverPort);
             msg.setProperty("PROTOCOL", scheme);
             msg.setProperty("HOST", TestUtil.TEST_HOST);
-            msg.setProperty("HTTP_METHOD", "POST");
+            msg.setProperty("HTTP_METHOD", Constants.HTTP_POST_METHOD);
             msg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
 
             CountDownLatch latch = new CountDownLatch(1);

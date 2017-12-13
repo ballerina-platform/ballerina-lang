@@ -71,7 +71,7 @@ public class HTTPSClientTestCase {
                 TestUtil.getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
         Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
         senderConfig.forEach(config -> {
-            if (config.getId().contains("https")) {
+            if (config.getId().contains(TestUtil.HTTPS_SCHEME)) {
                 config.setTrustStoreFile(TestUtil.getAbsolutePath(config.getTrustStoreFile()));
             }
         });
@@ -90,7 +90,7 @@ public class HTTPSClientTestCase {
             HTTPCarbonMessage msg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
                                                                                  HttpMethod.GET, ""));
             msg.setProperty("PORT", TestUtil.TEST_HTTPS_SERVER_PORT);
-            msg.setProperty("PROTOCOL", "https");
+            msg.setProperty("PROTOCOL", TestUtil.HTTPS_SCHEME);
             msg.setProperty("HOST", "localhost");
             msg.setProperty("HTTP_METHOD", "GET");
             msg.setEndOfMsgAdded(true);

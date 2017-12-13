@@ -70,7 +70,6 @@ public class ProxyServerTestCase {
     private static HttpClientConnector httpClientConnector;
     private static ServerConnector serverConnector;
     private static String testValue = "Test";
-    private String scheme = "https";
     private static int serverPort = 8081;
     private ClientAndProxy proxy;
     private String password = "wso2carbon";
@@ -103,7 +102,7 @@ public class ProxyServerTestCase {
         HttpWsConnectorFactory factory = new HttpWsConnectorFactoryImpl();
         ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
         listenerConfiguration.setPort(serverPort);
-        listenerConfiguration.setScheme(scheme);
+        listenerConfiguration.setScheme(TestUtil.HTTPS_SCHEME);
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         listenerConfiguration.setKeyStorePass(password);
         serverConnector = factory
@@ -114,7 +113,7 @@ public class ProxyServerTestCase {
 
         httpClientConnector = factory
                 .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                        HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, scheme));
+                        HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, TestUtil.HTTPS_SCHEME));
     }
 
     @Test
