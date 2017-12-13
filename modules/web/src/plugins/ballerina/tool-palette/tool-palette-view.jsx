@@ -20,7 +20,6 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import _ from 'lodash';
 import PropTypes, { instanceOf } from 'prop-types';
 import { EVENTS as EDITOR_EVENTS } from 'core/editor/constants';
-import DefaultTools from './item-provider/default-tools';
 import DefaultTools from './item-provider/default-design-tools';
 import ToolGroupView from './tool-group-view';
 import './tool-palette.css';
