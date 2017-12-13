@@ -93,7 +93,7 @@ public class ProxyServerTestCase {
         //set proxy server configuration to client connector.
         Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
         for (SenderConfiguration config : senderConfig) {
-            if (config.getId().contains("https")) {
+            if (config.getId().contains(TestUtil.HTTPS_SCHEME)) {
                 config.setTrustStoreFile(TestUtil.getAbsolutePath(config.getTrustStoreFile()));
             }
             config.setProxyServerConfiguration(proxyServerConfiguration);

@@ -76,7 +76,7 @@ public class PKCSTest {
         Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
         //set PKCS12 truststore to ballerina client.
         senderConfig.forEach(config -> {
-            if (config.getId().contains("https")) {
+            if (config.getId().contains(TestUtil.HTTPS_SCHEME)) {
                 config.setTrustStoreFile(TestUtil.getAbsolutePath(trustStoreFile));
                 config.setTrustStorePass(password);
                 config.setTlsStoreType(tlsStoreType);
