@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.parser;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.repository.PackageSource;
@@ -67,7 +66,8 @@ public class Parser {
         this.context.put(PARSER_KEY, this);
 
         CompilerOptions options = CompilerOptions.getInstance(context);
-        this.preserveWhitespace = Boolean.parseBoolean(options.get(CompilerOptionName.PRESERVE_WHITESPACE));
+//        this.preserveWhitespace = Boolean.parseBoolean(options.get(CompilerOptionName.PRESERVE_WHITESPACE));
+        preserveWhitespace = true;
         this.dlog = DiagnosticLog.getInstance(context);
     }
 

@@ -1072,18 +1072,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCommentStatement(BallerinaParser.CommentStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCommentStatement(BallerinaParser.CommentStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterXmlAttribVariableReference(BallerinaParser.XmlAttribVariableReferenceContext ctx) { }
 	/**
 	 * {@inheritDoc}

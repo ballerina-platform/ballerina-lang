@@ -403,7 +403,7 @@ NEW_LINE  :  [\r\n\u000C]+ -> channel(HIDDEN)
     ;
 
 LINE_COMMENT
-    :   '//' ~[\r\n]*
+    :   '//' ~[\r\n]*   -> channel(HIDDEN)
     ;
 
 fragment
