@@ -41,6 +41,7 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
+import org.ballerinalang.runtime.message.BlobDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -131,6 +132,23 @@ public class HttpUtil {
             throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());
         }
         return abstractNativeFunction.getBValues(result);
+    }
+
+    public static BValue[] setBinaryPayload(Context context, AbstractNativeFunction nativeFunction, boolean isRequest) {
+        BStruct struct = (BStruct) nativeFunction.getRefArgument(context, 0);
+        HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(struct,
+                                                                    HttpUtil.createHttpCarbonMessage(isRequest));
+
+        httpCarbonMessage.waitAndReleaseAllEntities();
+
+        byte[] payload = nativeFunction.getBlobArgument(context, 0);
+        BlobDataSource blobDataSource = new BlobDataSource(payload
+                , new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
+        httpCarbonMessage.setMessageDataSource(blobDataSource);
+        httpCarbonMessage.setAlreadyRead(true);
+        httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_OCTET_STREAM);
+
+        return AbstractNativeFunction.VOID_RETURN;
     }
 
     public static BValue[] getHeader(Context context,
