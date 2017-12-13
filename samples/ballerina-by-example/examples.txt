@@ -6,6 +6,7 @@ Constants
 Global Variables
 While
 IF Else
+Ternary
 Functions
 Multiple Return Values
 Named Returns
@@ -75,3 +76,4 @@ Math Functions
 Task Timer
 Task Appointment
 Config API
+String Template
