@@ -23,6 +23,8 @@ import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -48,6 +50,7 @@ public class ResponseNativeFunctionSuccessTest {
 
     private CompileResult result, serviceResult;
     private final String responseStruct = Constants.RESPONSE;
+    private final String headerStruct = Constants.HEADER_VALUE_STRUCT;
     private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
     private String sourceFilePath = "test-src/statements/services/nativeimpl/response/response-native-function.bal";
 
@@ -73,8 +76,8 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage responseMsg = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
-        Assert.assertEquals(responseMsg.getHeader(headerName), headerValue);
+        Assert.assertEquals(((BStruct) ((BRefValueArray) ((BMap) ((BStruct) returnVals[0]).getRefField(0))
+                .get(headerName)).get(0)).getStringField(0), headerValue);
     }
 
     @Test(description = "Test addHeader function within a service")
@@ -155,7 +158,13 @@ public class ResponseNativeFunctionSuccessTest {
         cMsg.setMessageDataSource(dataSource);
         cMsg.setAlreadyRead(true);
         cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(payload.length()));
+        cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
         HttpUtil.addCarbonMsg(response, cMsg);
+
+        HttpUtil.setHeaderValueStructType(BCompileUtil.createAndGetStruct(result.getProgFile(),
+                protocolPackageHttp, headerStruct));
+        HttpUtil.populateInboundResponse(response, cMsg);
+
         BValue[] inputArg = {response};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetContentLength", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -181,9 +190,14 @@ public class ResponseNativeFunctionSuccessTest {
         BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
+        cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
         HttpUtil.addCarbonMsg(response, cMsg);
-        BString key = new BString(Constants.CONTENT_TYPE);
 
+        HttpUtil.setHeaderValueStructType(BCompileUtil.createAndGetStruct(result.getProgFile(),
+                protocolPackageHttp, headerStruct));
+        HttpUtil.populateInboundResponse(response, cMsg);
+
+        BString key = new BString(Constants.CONTENT_TYPE);
         BValue[] inputArg = {response, key};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -331,8 +345,7 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage responseMsg = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
-        Assert.assertNull(responseMsg.getHeader(expect));
+        Assert.assertNull((((BStruct) returnVals[0]).getRefField(0)));
     }
 
     @Test(description = "Test RemoveHeader function within a service")
@@ -345,7 +358,7 @@ public class ResponseNativeFunctionSuccessTest {
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
-        Assert.assertNull(bJson.value().get("value").textValue());
+        Assert.assertEquals(bJson.value().get("value").textValue(), "value is null");
     }
 
     @Test
@@ -362,9 +375,8 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage responseMsg = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
-        Assert.assertNull(responseMsg.getHeader(expect));
-        Assert.assertNull(responseMsg.getHeader(range));
+        Assert.assertNull((((BMap) ((BStruct) returnVals[0]).getRefField(0)).get(expect)));
+        Assert.assertNull((((BMap) ((BStruct) returnVals[0]).getRefField(0)).get(range)));
     }
 
     @Test(description = "Test RemoveAllHeaders function within a service")
@@ -375,7 +387,7 @@ public class ResponseNativeFunctionSuccessTest {
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
-        Assert.assertNull(bJson.value().get("value").textValue());
+        Assert.assertEquals(bJson.value().get("value").textValue(), "value is null");
     }
 
     @Test
@@ -385,32 +397,6 @@ public class ResponseNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-    }
-
-    @Test
-    public void testSetContentLength() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
-        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
-        HttpUtil.addCarbonMsg(response, cMsg);
-        BInteger length = new BInteger(10);
-        BValue[] inputArg = {response, length};
-        BValue[] returnVals = BRunUtil.invoke(result, "testSetContentLength", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage responseMsg = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
-        Assert.assertEquals(responseMsg.getHeader(Constants.HTTP_CONTENT_LENGTH), "10");
-    }
-
-    @Test(description = "Test SetContentLength function within a service")
-    public void testServiceSetContentLength() {
-        String path = "/hello/setContentLength";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
-        Assert.assertEquals(bJson.value().get("value").asText(), String.valueOf(100));
     }
 
     @Test
@@ -427,8 +413,8 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage responseMsg = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
-        Assert.assertEquals(responseMsg.getHeader(range), rangeValue);
+        Assert.assertEquals(((BStruct) ((BRefValueArray) ((BMap) ((BStruct) returnVals[0]).getRefField(0))
+                .get(range)).get(0)).getStringField(0), rangeValue);
     }
 
     @Test

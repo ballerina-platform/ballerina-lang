@@ -16,7 +16,7 @@ function testGetContentLength (http:Response res) (int) {
 }
 
 function testGetHeader (http:Response res, string key) (string) {
-    string contentType = res.getHeader(key);
+    string contentType = res.getHeader(key).value;
     return contentType;
 }
 
@@ -53,11 +53,6 @@ function testRemoveHeader (http:Response res, string key) (http:Response) {
 
 function testRemoveAllHeaders (http:Response res) (http:Response) {
     res.removeAllHeaders();
-    return res;
-}
-
-function testSetContentLength (http:Response res, int contentLength) (http:Response) {
-    res.setContentLength(contentLength);
     return res;
 }
 
@@ -126,7 +121,7 @@ service<http> helloServer {
     }
     resource addheader (http:Request req, http:Response res, string key, string value) {
         res.addHeader(key, value);
-        string result = res.getHeader(key);
+        string result = res.getHeader(key).value;
         res.setJsonPayload({lang:result});
         _ = res.send();
     }
@@ -157,7 +152,7 @@ service<http> helloServer {
     }
     resource getHeader (http:Request req, http:Response res, string header, string value) {
         res.setHeader(header, value);
-        string result = res.getHeader(header);
+        string result = res.getHeader(header).value;
         res.setJsonPayload({value:result});
         _ = res.send();
     }
@@ -212,7 +207,11 @@ service<http> helloServer {
     resource RemoveHeader (http:Request req, http:Response res, string key, string value) {
         res.setHeader(key, value);
         res.removeHeader(key);
-        string header = res.getHeader(key);
+        var headerValue = res.getHeader(key);
+        string header;
+        if (headerValue == null) {
+            header = "value is null";
+        }
         res.setJsonPayload({value:header});
         _ = res.send();
     }
@@ -224,18 +223,12 @@ service<http> helloServer {
         res.setHeader("Expect", "100-continue");
         res.setHeader("Range", "bytes=500-999");
         res.removeAllHeaders();
-        string header = res.getHeader("Range");
+        var headerValue = res.getHeader("Range");
+        string header;
+        if (headerValue == null) {
+            header = "value is null";
+        }
         res.setJsonPayload({value:header});
-        _ = res.send();
-    }
-
-    @http:resourceConfig {
-        path:"/setContentLength"
-    }
-    resource SetContentLength (http:Request req, http:Response res) {
-        res.setContentLength(100);
-        int length = res.getContentLength();
-        res.setJsonPayload({value:length});
         _ = res.send();
     }
 }

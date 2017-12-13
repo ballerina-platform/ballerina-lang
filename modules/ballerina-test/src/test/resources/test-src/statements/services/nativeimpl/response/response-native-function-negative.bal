@@ -16,8 +16,11 @@ function testGetContentLength (http:Response res) (int) {
 }
 
 function testGetHeader (http:Response res, string key) (string) {
-    string contentType = res.getHeader(key);
-    return contentType;
+    var contentType = res.getHeader(key);
+    if (contentType == null) {
+        return null;
+    }
+    return contentType.value;
 }
 
 function testGetJsonPayload (http:Response res) (json) {
@@ -52,11 +55,6 @@ function testRemoveHeader (http:Response res, string key) (http:Response) {
 
 function testRemoveAllHeaders (http:Response res) (http:Response) {
     res.removeAllHeaders();
-    return res;
-}
-
-function testSetContentLength (http:Response res, int contentLength) (http:Response) {
-    res.setContentLength(contentLength);
     return res;
 }
 

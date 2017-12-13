@@ -199,8 +199,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
             if (httpCarbonMessage.getMessagingException() == null) {
                 BStruct response = createStruct(this.context, Constants.RESPONSE);
-                BStruct header = createStruct(this.context, Constants.HEADER_VALUE_STRUCT);
-                HttpUtil.populateInboundResponse(response, httpCarbonMessage, header);
+                HttpUtil.setHeaderValueStructType(createStruct(this.context, Constants.HEADER_VALUE_STRUCT));
+                HttpUtil.populateInboundResponse(response, httpCarbonMessage);
                 ballerinaFuture.notifyReply(response);
             } else {
                 //TODO should we throw or should we create error struct and pass? or do we need this at all?

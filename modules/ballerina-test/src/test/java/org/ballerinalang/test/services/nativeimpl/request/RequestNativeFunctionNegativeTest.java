@@ -64,7 +64,7 @@ public class RequestNativeFunctionNegativeTest {
         } catch (Throwable e) {
             error = e.getMessage();
         }
-        Assert.assertEquals(error.substring(23, 45), "invalid content length");
+        Assert.assertTrue(error.contains("invalid content length"));
     }
 
     @Test
@@ -237,12 +237,9 @@ public class RequestNativeFunctionNegativeTest {
 
     @Test
     public void testCompilationErrorTestCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
         //testRequestSetStatusCode
         BAssertUtil.validateError(resultNegative, 0,
-                                 "undefined function 'setStatusCode' in struct 'ballerina.net.http:Request'", 4, 5);
-        //testRequestGetContentLengthWithString
-        BAssertUtil.validateError(resultNegative, 1, "incompatible types: expected 'int', found 'string'", 9, 26);
+                "undefined function 'setStatusCode' in struct 'ballerina.net.http:Request'", 4, 5);
     }
-
 }

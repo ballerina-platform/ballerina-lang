@@ -41,11 +41,6 @@ public native function <Request req> getContentLength () (int);
 @Return { value:"The HTTP request method associated with the request" }
 public native function <Request req> getMethod () (string);
 
-@Description { value:"Sets the Content-Length header on the request"}
-@Param { value:"req: A request message" }
-@Param { value:"contentLength: Length of the message" }
-public native function <Request req> setContentLength (int contentLength);
-
 @Description { value:"Gets the form parameters from the HTTP request as a map"}
 @Param { value:"req: The request message" }
 @Return { value:"The map of form params" }
@@ -164,6 +159,9 @@ public native function <Request req> getProperty (string propertyName) (string);
 @Param { value:"req: A request message" }
 @Param { value:"key: The header name" }
 public function <Request req> removeHeader (string key) {
+	if (req.headers == null) {
+		return;
+	}
 	req.headers.remove(key);
 }
 
@@ -216,11 +214,6 @@ public native function <Response res> getStatusCode () (int);
 @Param { value:"res: The response message" }
 @Return { value:"Length of the response payload" }
 public native function <Response res> getContentLength () (int);
-
-@Description { value:"Sets the Content-Length header on the response"}
-@Param { value:"res: The response message" }
-@Param { value:"contentLength: Length of the message" }
-public native function <Response res> setContentLength (int contentLength);
 
 @Description { value:"Sets the HTTP status code of the response"}
 @Param { value:"res: The response message" }
@@ -340,6 +333,9 @@ public native function <Response res> getProperty (string propertyName) (string)
 @Param { value:"res: The response message" }
 @Param { value:"key: The header name" }
 public function <Response res> removeHeader (string key) {
+	if (res.headers == null) {
+		return;
+	}
 	res.headers.remove(key);
 }
 
