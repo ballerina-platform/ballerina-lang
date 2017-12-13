@@ -33,18 +33,13 @@ class SourceEditor extends React.Component {
 
     constructor(props) {
         super(props);
-        this.editor = undefined;
+        this.monaco = undefined;
         this.inSilentMode = false;
         this.sourceViewCompleterFactory = new SourceViewCompleterFactory();
         this.goToCursorPosition = this.goToCursorPosition.bind(this);
         this.onFileContentChanged = this.onFileContentChanged.bind(this);
         this.lastUpdatedTimestamp = props.file.lastUpdated;
-    }
-
-    /**
-     * lifecycle hook for component did mount
-     */
-    componentDidMount() {
+        this.editorDidMount = this.editorDidMount.bind(this);
     }
 
     /**
@@ -58,6 +53,12 @@ class SourceEditor extends React.Component {
             // the second arg to skip update event
             this.replaceContent(evt.newContent, true);
         }
+    }
+
+    /**
+     * lifecycle hook for editor did mount
+     */
+    editorDidMount() {
     }
 
     /**
@@ -133,11 +134,21 @@ class SourceEditor extends React.Component {
         return (
             <div className='text-editor bal-source-editor'>
                 <MonacoEditor
-                    width="800"
-                    height="600"
-                    language="javascript"
-                    theme="vs-dark"
-                    value={` etes etrset est est est set est `}
+                    ref={(ref) => {
+                        this.monaco = ref;
+                    }}
+                    language='javascript'
+                    theme='vs-dark'
+                    value={this.props.file.content}
+                    editorDidMount={this.editorDidMount}
+                    onChange={(newValue) => {
+                        const changeEvent = {
+                            type: CHANGE_EVT_TYPES.SOURCE_MODIFIED,
+                            title: 'Modify source',
+                        };
+                        this.props.file
+                            .setContent(newValue, changeEvent);
+                    }}
                 />
             </div>
         );
