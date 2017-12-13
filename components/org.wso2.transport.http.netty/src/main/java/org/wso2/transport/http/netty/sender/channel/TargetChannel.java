@@ -146,26 +146,36 @@ public class TargetChannel {
         return channelFuture;
     }
 
-    public void writeContent(HTTPCarbonMessage httpCarbonRequest) {
+    public void writeContent(HTTPCarbonMessage httpOutboundRequest) {
         try {
             if (handlerExecutor != null) {
-                handlerExecutor.executeAtTargetRequestReceiving(httpCarbonRequest);
+                handlerExecutor.executeAtTargetRequestReceiving(httpOutboundRequest);
             }
-            HttpRequest httpRequest = Util.createHttpRequest(httpCarbonRequest);
 
-            this.setRequestWritten(true);
-            this.getChannel().write(httpRequest);
-
-            httpCarbonRequest.getHttpContentAsync().setMessageListener(httpContent ->
+            httpOutboundRequest.getHttpContentAsync().setMessageListener(httpContent ->
                     this.channel.eventLoop().execute(() -> {
                 if (Util.isLastHttpContent(httpContent)) {
+                    if (!this.isRequestWritten) {
+                        // this means we need to send an empty payload
+                        // depending on the http verb
+                        if (Util.isEntityBodyAllowed(httpOutboundRequest
+                                .getProperty(Constants.HTTP_METHOD).toString())) {
+                            Util.setupTransferEncodingForEmptyRequest(httpOutboundRequest, chunkDisabled);
+                        }
+                        writeOutboundRequestHeaders(httpOutboundRequest);
+                    }
+
                     this.getChannel().writeAndFlush(httpContent);
-                    httpCarbonRequest.removeHttpContentAsyncFuture();
+                    httpOutboundRequest.removeHttpContentAsyncFuture();
 
                     if (handlerExecutor != null) {
-                        handlerExecutor.executeAtTargetRequestSending(httpCarbonRequest);
+                        handlerExecutor.executeAtTargetRequestSending(httpOutboundRequest);
                     }
                 } else {
+                    if (!this.isRequestWritten) {
+                        Util.setupTransferEncodingForRequest(httpOutboundRequest, chunkDisabled);
+                        writeOutboundRequestHeaders(httpOutboundRequest);
+                    }
                     this.getChannel().write(httpContent);
                 }
             }));
@@ -179,8 +189,14 @@ public class TargetChannel {
 
             log.error(msg, e);
             MessagingException messagingException = new MessagingException(msg, e, 101500);
-            httpCarbonRequest.setMessagingException(messagingException);
-            this.targetHandler.getHttpResponseFuture().notifyHttpListener(httpCarbonRequest);
+            httpOutboundRequest.setMessagingException(messagingException);
+            this.targetHandler.getHttpResponseFuture().notifyHttpListener(httpOutboundRequest);
         }
+    }
+
+    public void writeOutboundRequestHeaders(HTTPCarbonMessage httpOutboundRequest) {
+        HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
+        this.setRequestWritten(true);
+        this.getChannel().write(httpRequest);
     }
 }

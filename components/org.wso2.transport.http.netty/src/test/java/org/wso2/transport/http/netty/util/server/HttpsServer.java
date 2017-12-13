@@ -51,7 +51,6 @@ public class HttpsServer implements TestServer {
     private SSLContext sslContext;
     private ChannelInitializer channelInitializer;
 
-    String ksName = "src/test/resources/simple-test-config/wso2carbon.jks";
     char ksPass[] = "wso2carbon".toCharArray();
     char ctPass[] = "wso2carbon".toCharArray();
 
@@ -73,7 +72,7 @@ public class HttpsServer implements TestServer {
             b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
 
             KeyStore ks = KeyStore.getInstance("JKS");
-            ks.load(new FileInputStream(ksName), ksPass);
+            ks.load(new FileInputStream(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH)), ksPass);
             KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
             kmf.init(ks, ctPass);
 

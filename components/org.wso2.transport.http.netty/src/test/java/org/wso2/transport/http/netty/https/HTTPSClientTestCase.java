@@ -28,6 +28,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -45,6 +46,7 @@ import org.wso2.transport.http.netty.util.server.initializers.MockServerInitiali
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -67,6 +69,13 @@ public class HTTPSClientTestCase {
     public void setup() {
         TransportsConfiguration transportsConfiguration =
                 TestUtil.getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
+        Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
+        senderConfig.forEach(config -> {
+            if (config.getId().contains("https")) {
+                config.setTrustStoreFile(TestUtil.getAbsolutePath(config.getTrustStoreFile()));
+            }
+        });
+
         httpsServer = TestUtil.startHttpsServer(TestUtil.TEST_HTTPS_SERVER_PORT,
                 new MockServerInitializer(testValue, "text/plain", 200));
         HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
@@ -91,7 +100,7 @@ public class HTTPSClientTestCase {
             HttpResponseFuture responseFuture = httpClientConnector.send(msg);
             responseFuture.setHttpConnectorListener(listener);
 
-            latch.await(5, TimeUnit.SECONDS);
+            latch.await(120, TimeUnit.SECONDS);
 
             HTTPCarbonMessage response = listener.getHttpResponseMessage();
             assertNotNull(response);

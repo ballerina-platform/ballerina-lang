@@ -52,7 +52,7 @@ public class PassThroughHttpTestCase {
     @BeforeClass
     public void setUp() {
         TransportsConfiguration configuration = YAMLTransportConfigurationBuilder
-                .build("src/test/resources/simple-test-config/netty-transports.yml");
+                .build(TestUtil.getAbsolutePath("/simple-test-config/netty-transports.yml"));
         serverConnectors = TestUtil.startConnectors(
                 configuration, new PassthroughMessageProcessorListener(configuration));
         httpServer = TestUtil.startHTTPServer(TestUtil.TEST_HTTP_SERVER_PORT,

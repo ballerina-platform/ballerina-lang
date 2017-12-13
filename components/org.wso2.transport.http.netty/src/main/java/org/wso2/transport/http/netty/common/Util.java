@@ -137,46 +137,46 @@ public class Util {
         return outgoingRequest;
     }
 
+    public static void setupTransferEncodingForEmptyRequest(HTTPCarbonMessage httpOutboundRequest,
+            boolean chunkDisabled) {
+        if (chunkDisabled) {
+            httpOutboundRequest.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
+            httpOutboundRequest.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(0));
+        } else {
+            httpOutboundRequest.removeHeader(Constants.HTTP_CONTENT_LENGTH);
+            httpOutboundRequest.setHeader(Constants.HTTP_TRANSFER_ENCODING, Constants.CHUNKED);
+        }
+    }
+
     /**
      * Prepare request message with Transfer-Encoding/Content-Length
      *
-     * @param cMsg HTTPCarbonMessage
+     * @param httpOutboundRequest HTTPCarbonMessage
      */
-    public static void setupTransferEncodingForRequest(HTTPCarbonMessage cMsg, boolean chunkDisabled) {
+    public static void setupTransferEncodingForRequest(HTTPCarbonMessage httpOutboundRequest, boolean chunkDisabled) {
         if (chunkDisabled) {
-            cMsg.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
-            setContentLength(cMsg);
+            httpOutboundRequest.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
+            setContentLength(httpOutboundRequest);
         } else {
-            cMsg.removeHeader(Constants.HTTP_CONTENT_LENGTH);
-            setTransferEncodingHeader(cMsg);
+            httpOutboundRequest.removeHeader(Constants.HTTP_CONTENT_LENGTH);
+            setTransferEncodingHeader(httpOutboundRequest);
         }
     }
 
-    private static void setContentLength(HTTPCarbonMessage cMsg) {
-        if (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null && !cMsg.isEmpty()) {
-            int contentLength = cMsg.getFullMessageLength();
-            if (contentLength > 0) {
-                cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
-            } else if (isEntityBodyAllowed(cMsg.getProperty(Constants.HTTP_METHOD).toString())) {
-                cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(0));
-            }
+    private static void setContentLength(HTTPCarbonMessage httpOutboundRequest) {
+        if (httpOutboundRequest.getHeader(Constants.HTTP_CONTENT_LENGTH) == null) {
+            int contentLength = httpOutboundRequest.getFullMessageLength();
+            httpOutboundRequest.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
         }
     }
 
-    private static void setTransferEncodingHeader(HTTPCarbonMessage cMsg) {
-        if (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null && !cMsg.isEmpty()) {
-            HttpContent httpContent = cMsg.peek();
-            if (httpContent instanceof LastHttpContent) {
-                if (httpContent.content().readableBytes() == 0 &&
-                        !isEntityBodyAllowed(cMsg.getProperty(Constants.HTTP_METHOD).toString())) {
-                    return;
-                }
-            }
-            cMsg.setHeader(Constants.HTTP_TRANSFER_ENCODING, Constants.CHUNKED);
+    private static void setTransferEncodingHeader(HTTPCarbonMessage httpOutboundRequest) {
+        if (httpOutboundRequest.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
+            httpOutboundRequest.setHeader(Constants.HTTP_TRANSFER_ENCODING, Constants.CHUNKED);
         }
     }
 
-    private static boolean isEntityBodyAllowed(String method) {
+    public static boolean isEntityBodyAllowed(String method) {
         return method.equals(Constants.HTTP_POST_METHOD) || method.equals(Constants.HTTP_PUT_METHOD)
                 || method.equals(Constants.HTTP_PATCH_METHOD);
     }

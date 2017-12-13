@@ -60,8 +60,8 @@ public class PKCSTest {
 
     private static HttpClientConnector httpClientConnector;
     private static String testValue = "Test";
-    private String keyStoreFile = "src/test/resources/simple-test-config/wso2carbon.p12";
-    private String trustStoreFile = "src/test/resources/simple-test-config/client-truststore.p12";
+    private String keyStoreFile = "/simple-test-config/wso2carbon.p12";
+    private String trustStoreFile = "/simple-test-config/client-truststore.p12";
     private String password = "ballerina";
     private String scheme = "https";
     private String tlsStoreType = "PKCS12";
@@ -76,9 +76,11 @@ public class PKCSTest {
         Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
         //set PKCS12 truststore to ballerina client.
         senderConfig.forEach(config -> {
-            config.setTrustStoreFile(trustStoreFile);
-            config.setTrustStorePass(password);
-            config.setTlsStoreType(tlsStoreType);
+            if (config.getId().contains("https")) {
+                config.setTrustStoreFile(TestUtil.getAbsolutePath(trustStoreFile));
+                config.setTrustStorePass(password);
+                config.setTlsStoreType(tlsStoreType);
+            }
         });
 
         HttpWsConnectorFactory factory = new HttpWsConnectorFactoryImpl();
@@ -86,7 +88,7 @@ public class PKCSTest {
         ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
         listenerConfiguration.setPort(serverPort);
         //set PKCS12 keystore to ballerina server.
-        listenerConfiguration.setKeyStoreFile(keyStoreFile);
+        listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(keyStoreFile));
         listenerConfiguration.setKeyStorePass(password);
         listenerConfiguration.setCertPass(password);
         listenerConfiguration.setScheme(scheme);
@@ -112,7 +114,7 @@ public class PKCSTest {
             msg.setProperty("PORT", serverPort);
             msg.setProperty("PROTOCOL", scheme);
             msg.setProperty("HOST", TestUtil.TEST_HOST);
-            msg.setProperty("HTTP_METHOD", "GET");
+            msg.setProperty("HTTP_METHOD", "POST");
             msg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
 
             CountDownLatch latch = new CountDownLatch(1);

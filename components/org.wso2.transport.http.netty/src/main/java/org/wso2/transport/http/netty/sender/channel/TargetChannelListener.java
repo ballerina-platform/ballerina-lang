@@ -20,8 +20,6 @@ package org.wso2.transport.http.netty.sender.channel;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -33,8 +31,6 @@ import java.net.ConnectException;
  * A class that get executed when the connection is created.
  */
 public class TargetChannelListener implements ChannelFutureListener {
-
-    private static final Logger log = LoggerFactory.getLogger(TargetChannelListener.class);
 
     private TargetChannel targetChannel;
     private HTTPCarbonMessage httpCarbonRequest;
@@ -71,9 +67,9 @@ public class TargetChannelListener implements ChannelFutureListener {
 
     private boolean isValidateChannel(ChannelFuture channelFuture) throws Exception {
         if (channelFuture.isDone() && channelFuture.isSuccess()) {
-            if (log.isDebugEnabled()) {
-                log.debug("Created the connection to address: {}", httpRoute.toString());
-            }
+//            if (log.isDebugEnabled()) {
+//                log.debug("Created the connection to address: {}", httpRoute.toString());
+//            }
             return true;
         }
         return false;

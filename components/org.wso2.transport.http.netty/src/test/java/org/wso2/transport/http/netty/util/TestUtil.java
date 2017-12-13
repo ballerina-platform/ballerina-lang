@@ -19,9 +19,13 @@
 package org.wso2.transport.http.netty.util;
 
 import com.google.common.io.ByteStreams;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpVersion;
 import org.apache.commons.io.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +40,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.HttpsServer;
@@ -52,6 +57,7 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,6 +85,9 @@ public class TestUtil {
     public static final String TEST_HOST = "localhost";
     public static final long HTTP2_RESPONSE_TIME_OUT = 30;
     public static final TimeUnit HTTP2_RESPONSE_TIME_UNIT = TimeUnit.SECONDS;
+    public static final String KEY_STORE_FILE_PATH = "/simple-test-config/wso2carbon.jks";
+    public static final String TRUST_STORE_FILE_PATH = "/simple-test-config/client-truststore.jks";
+    public static final String KEY_STORE_PASSWORD = "wso2carbon";
     private static List<ServerConnector> connectors;
     private static List<ServerConnectorFuture> futures;
 
@@ -235,6 +244,21 @@ public class TestUtil {
         }
 
         return transportsConfiguration;
+    }
+
+    public static String getAbsolutePath(String relativePath) {
+        return TestUtil.class.getResource(relativePath).getFile();
+    }
+
+    public static HTTPCarbonMessage createHttpsRequest(int serverPort, ByteBuffer byteBuffer) {
+        HTTPCarbonMessage msg = new HTTPCarbonMessage(
+                new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, ""));
+        msg.setProperty("PORT", serverPort);
+        msg.setProperty("PROTOCOL", "https");
+        msg.setProperty("HOST", TestUtil.TEST_HOST);
+        msg.setProperty("HTTP_METHOD", "POST");
+        msg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
+        return msg;
     }
 }
 

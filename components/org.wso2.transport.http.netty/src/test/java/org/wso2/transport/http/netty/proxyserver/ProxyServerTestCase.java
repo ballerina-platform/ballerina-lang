@@ -27,6 +27,7 @@ import org.mockserver.integration.ClientAndProxy;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
@@ -41,6 +42,7 @@ import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
@@ -71,7 +73,6 @@ public class ProxyServerTestCase {
     private String scheme = "https";
     private static int serverPort = 8081;
     private ClientAndProxy proxy;
-    private String keyStoreFile = "src/test/resources/simple-test-config/wso2carbon.jks";
     private String password = "wso2carbon";
     private int proxyPort = 15427;
 
@@ -93,6 +94,9 @@ public class ProxyServerTestCase {
         //set proxy server configuration to client connector.
         Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
         for (SenderConfiguration config : senderConfig) {
+            if (config.getId().contains("https")) {
+                config.setTrustStoreFile(TestUtil.getAbsolutePath(config.getTrustStoreFile()));
+            }
             config.setProxyServerConfiguration(proxyServerConfiguration);
         }
 
@@ -100,7 +104,7 @@ public class ProxyServerTestCase {
         ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
         listenerConfiguration.setPort(serverPort);
         listenerConfiguration.setScheme(scheme);
-        listenerConfiguration.setKeyStoreFile(keyStoreFile);
+        listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         listenerConfiguration.setKeyStorePass(password);
         serverConnector = factory
                 .createServerConnector(ServerBootstrapConfiguration.getInstance(), listenerConfiguration);
@@ -118,8 +122,9 @@ public class ProxyServerTestCase {
 
         try {
             ByteBuffer byteBuffer = ByteBuffer.wrap(testValue.getBytes(Charset.forName("UTF-8")));
-            HTTPCarbonMessage msg = new HTTPCarbonMessage(
+            HTTPCarbonMessage msg = new HttpCarbonRequest(
                     new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "https://localhost:8081"));
+            msg.setProperty(Constants.HTTP_METHOD, HttpMethod.POST.toString());
             msg.setHeader("Host", "localhost:8081");
             msg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
 
