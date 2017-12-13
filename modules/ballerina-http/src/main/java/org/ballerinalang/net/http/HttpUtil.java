@@ -18,8 +18,8 @@
 
 package org.ballerinalang.net.http;
 
-import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -319,7 +319,7 @@ public class HttpUtil {
         payload.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
         addMessageDataSource(httpMessageStruct, payload);
 
-        HttpUtil.setHeaderToStruct(context, requestStruct, Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        HttpUtil.setHeaderToStruct(context, httpMessageStruct, Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
 
         return AbstractNativeFunction.VOID_RETURN;
     }
@@ -352,7 +352,7 @@ public class HttpUtil {
 
         addMessageDataSource(httpMessageStruct, stringDataSource);
 
-        HttpUtil.setHeaderToStruct(context, requestStruct, Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
+        HttpUtil.setHeaderToStruct(context, httpMessageStruct, Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
         if (log.isDebugEnabled()) {
             log.debug("Setting new payload: " + payload);
         }
@@ -373,7 +373,7 @@ public class HttpUtil {
 
         addMessageDataSource(httpMessageStruct, payload);
 
-        HttpUtil.setHeaderToStruct(context, requestStruct, Constants.CONTENT_TYPE, Constants.APPLICATION_XML);
+        HttpUtil.setHeaderToStruct(context, httpMessageStruct, Constants.CONTENT_TYPE, Constants.APPLICATION_XML);
 
         return AbstractNativeFunction.VOID_RETURN;
     }
@@ -533,7 +533,7 @@ public class HttpUtil {
     }
 
     public static void populateInboundRequest(BStruct request, HTTPCarbonMessage cMsg) {
-        request.addNativeData(TRANSPORT_MESSAGE, cMsg);
+        request.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
         request.addNativeData(Constants.INBOUND_REQUEST, true);
         request.setStringField(Constants.REQUEST_PATH_INDEX, (String) cMsg.getProperty(Constants.REQUEST_URL));
         request.setStringField(Constants.REQUEST_HOST_INDEX,
@@ -550,7 +550,7 @@ public class HttpUtil {
     }
 
     public static void populateInboundResponse(BStruct response, HTTPCarbonMessage cMsg) {
-        response.addNativeData(TRANSPORT_MESSAGE, cMsg);
+        response.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
         int statusCode = (Integer) cMsg.getProperty(Constants.HTTP_STATUS_CODE);
         response.setIntField(Constants.RESPONSE_STATUS_CODE_INDEX, statusCode);
         response.setStringField(Constants.RESPONSE_REASON_PHRASE_INDEX,
@@ -570,7 +570,7 @@ public class HttpUtil {
     }
 
     public static void populateOutboundResponse(BStruct response, HTTPCarbonMessage resMsg, HTTPCarbonMessage reqMsg) {
-        response.addNativeData(TRANSPORT_MESSAGE, resMsg);
+        response.addNativeData(Constants.TRANSPORT_MESSAGE, resMsg);
         response.addNativeData(Constants.INBOUND_REQUEST_MESSAGE, reqMsg);
         response.addNativeData(Constants.OUTBOUND_RESPONSE, true);
         response.setRefField(Constants.RESPONSE_HEADERS_INDEX, new BMap<>());
