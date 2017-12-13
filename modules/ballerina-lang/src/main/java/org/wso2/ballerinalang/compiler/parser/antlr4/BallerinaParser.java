@@ -7810,7 +7810,7 @@ public class BallerinaParser extends Parser {
 					consume();
 				}
 				setState(1232);
-				expression(9);
+				expression(10);
 				}
 				break;
 			case 15:
@@ -7841,121 +7841,121 @@ public class BallerinaParser extends Parser {
 					switch ( getInterpreter().adaptivePredict(_input,125,_ctx) ) {
 					case 1:
 						{
-						_localctx = new TernaryExpressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new BinaryPowExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(1239);
-						if (!(precpred(_ctx, 11))) throw new FailedPredicateException(this, "precpred(_ctx, 11)");
+						if (!(precpred(_ctx, 8))) throw new FailedPredicateException(this, "precpred(_ctx, 8)");
 						setState(1240);
-						match(QUESTION_MARK);
+						match(POW);
 						setState(1241);
-						expression(0);
-						setState(1242);
-						match(COLON);
-						setState(1243);
-						expression(12);
+						expression(9);
 						}
 						break;
 					case 2:
 						{
-						_localctx = new BinaryPowExpressionContext(new ExpressionContext(_parentctx, _parentState));
-						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(1245);
-						if (!(precpred(_ctx, 7))) throw new FailedPredicateException(this, "precpred(_ctx, 7)");
-						setState(1246);
-						match(POW);
-						setState(1247);
-						expression(8);
-						}
-						break;
-					case 3:
-						{
 						_localctx = new BinaryDivMulModExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(1248);
-						if (!(precpred(_ctx, 6))) throw new FailedPredicateException(this, "precpred(_ctx, 6)");
-						setState(1249);
+						setState(1242);
+						if (!(precpred(_ctx, 7))) throw new FailedPredicateException(this, "precpred(_ctx, 7)");
+						setState(1243);
 						_la = _input.LA(1);
 						if ( !(((((_la - 75)) & ~0x3f) == 0 && ((1L << (_la - 75)) & ((1L << (MUL - 75)) | (1L << (DIV - 75)) | (1L << (MOD - 75)))) != 0)) ) {
 						_errHandler.recoverInline(this);
 						} else {
 							consume();
 						}
-						setState(1250);
-						expression(7);
+						setState(1244);
+						expression(8);
 						}
 						break;
-					case 4:
+					case 3:
 						{
 						_localctx = new BinaryAddSubExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(1251);
-						if (!(precpred(_ctx, 5))) throw new FailedPredicateException(this, "precpred(_ctx, 5)");
-						setState(1252);
+						setState(1245);
+						if (!(precpred(_ctx, 6))) throw new FailedPredicateException(this, "precpred(_ctx, 6)");
+						setState(1246);
 						_la = _input.LA(1);
 						if ( !(_la==ADD || _la==SUB) ) {
 						_errHandler.recoverInline(this);
 						} else {
 							consume();
 						}
-						setState(1253);
-						expression(6);
+						setState(1247);
+						expression(7);
 						}
 						break;
-					case 5:
+					case 4:
 						{
 						_localctx = new BinaryCompareExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(1254);
-						if (!(precpred(_ctx, 4))) throw new FailedPredicateException(this, "precpred(_ctx, 4)");
-						setState(1255);
+						setState(1248);
+						if (!(precpred(_ctx, 5))) throw new FailedPredicateException(this, "precpred(_ctx, 5)");
+						setState(1249);
 						_la = _input.LA(1);
 						if ( !(((((_la - 82)) & ~0x3f) == 0 && ((1L << (_la - 82)) & ((1L << (GT - 82)) | (1L << (LT - 82)) | (1L << (GT_EQUAL - 82)) | (1L << (LT_EQUAL - 82)))) != 0)) ) {
 						_errHandler.recoverInline(this);
 						} else {
 							consume();
 						}
-						setState(1256);
-						expression(5);
+						setState(1250);
+						expression(6);
 						}
 						break;
-					case 6:
+					case 5:
 						{
 						_localctx = new BinaryEqualExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(1257);
-						if (!(precpred(_ctx, 3))) throw new FailedPredicateException(this, "precpred(_ctx, 3)");
-						setState(1258);
+						setState(1251);
+						if (!(precpred(_ctx, 4))) throw new FailedPredicateException(this, "precpred(_ctx, 4)");
+						setState(1252);
 						_la = _input.LA(1);
 						if ( !(_la==EQUAL || _la==NOT_EQUAL) ) {
 						_errHandler.recoverInline(this);
 						} else {
 							consume();
 						}
-						setState(1259);
+						setState(1253);
+						expression(5);
+						}
+						break;
+					case 6:
+						{
+						_localctx = new BinaryAndExpressionContext(new ExpressionContext(_parentctx, _parentState));
+						pushNewRecursionContext(_localctx, _startState, RULE_expression);
+						setState(1254);
+						if (!(precpred(_ctx, 3))) throw new FailedPredicateException(this, "precpred(_ctx, 3)");
+						setState(1255);
+						match(AND);
+						setState(1256);
 						expression(4);
 						}
 						break;
 					case 7:
 						{
-						_localctx = new BinaryAndExpressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new BinaryOrExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(1260);
+						setState(1257);
 						if (!(precpred(_ctx, 2))) throw new FailedPredicateException(this, "precpred(_ctx, 2)");
-						setState(1261);
-						match(AND);
-						setState(1262);
+						setState(1258);
+						match(OR);
+						setState(1259);
 						expression(3);
 						}
 						break;
 					case 8:
 						{
-						_localctx = new BinaryOrExpressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new TernaryExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(1263);
+						setState(1260);
 						if (!(precpred(_ctx, 1))) throw new FailedPredicateException(this, "precpred(_ctx, 1)");
+						setState(1261);
+						match(QUESTION_MARK);
+						setState(1262);
+						expression(0);
+						setState(1263);
+						match(COLON);
 						setState(1264);
-						match(OR);
-						setState(1265);
 						expression(2);
 						}
 						break;
@@ -9713,7 +9713,7 @@ public class BallerinaParser extends Parser {
 	private boolean expression_sempred(ExpressionContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 6:
-			return precpred(_ctx, 11);
+			return precpred(_ctx, 8);
 		case 7:
 			return precpred(_ctx, 7);
 		case 8:
@@ -10192,23 +10192,23 @@ public class BallerinaParser extends Parser {
 		"\7U\2\2\u04c7\u04ca\5:\36\2\u04c8\u04c9\7B\2\2\u04c9\u04cb\5\u00a4S\2"+
 		"\u04ca\u04c8\3\2\2\2\u04ca\u04cb\3\2\2\2\u04cb\u04cc\3\2\2\2\u04cc\u04cd"+
 		"\7T\2\2\u04cd\u04ce\5\u00be`\16\u04ce\u04d8\3\2\2\2\u04cf\u04d0\7<\2\2"+
-		"\u04d0\u04d8\5<\37\2\u04d1\u04d2\t\3\2\2\u04d2\u04d8\5\u00be`\13\u04d3"+
+		"\u04d0\u04d8\5<\37\2\u04d1\u04d2\t\3\2\2\u04d2\u04d8\5\u00be`\f\u04d3"+
 		"\u04d4\7E\2\2\u04d4\u04d5\5\u00be`\2\u04d5\u04d6\7F\2\2\u04d6\u04d8\3"+
 		"\2\2\2\u04d7\u04b0\3\2\2\2\u04d7\u04b2\3\2\2\2\u04d7\u04b3\3\2\2\2\u04d7"+
 		"\u04b4\3\2\2\2\u04d7\u04b5\3\2\2\2\u04d7\u04b6\3\2\2\2\u04d7\u04ba\3\2"+
 		"\2\2\u04d7\u04be\3\2\2\2\u04d7\u04bf\3\2\2\2\u04d7\u04c0\3\2\2\2\u04d7"+
 		"\u04c1\3\2\2\2\u04d7\u04c6\3\2\2\2\u04d7\u04cf\3\2\2\2\u04d7\u04d1\3\2"+
-		"\2\2\u04d7\u04d3\3\2\2\2\u04d8\u04f6\3\2\2\2\u04d9\u04da\f\r\2\2\u04da"+
-		"\u04db\7I\2\2\u04db\u04dc\5\u00be`\2\u04dc\u04dd\7@\2\2\u04dd\u04de\5"+
-		"\u00be`\16\u04de\u04f5\3\2\2\2\u04df\u04e0\f\t\2\2\u04e0\u04e1\7O\2\2"+
-		"\u04e1\u04f5\5\u00be`\n\u04e2\u04e3\f\b\2\2\u04e3\u04e4\t\4\2\2\u04e4"+
-		"\u04f5\5\u00be`\t\u04e5\u04e6\f\7\2\2\u04e6\u04e7\t\5\2\2\u04e7\u04f5"+
-		"\5\u00be`\b\u04e8\u04e9\f\6\2\2\u04e9\u04ea\t\6\2\2\u04ea\u04f5\5\u00be"+
-		"`\7\u04eb\u04ec\f\5\2\2\u04ec\u04ed\t\7\2\2\u04ed\u04f5\5\u00be`\6\u04ee"+
-		"\u04ef\f\4\2\2\u04ef\u04f0\7X\2\2\u04f0\u04f5\5\u00be`\5\u04f1\u04f2\f"+
-		"\3\2\2\u04f2\u04f3\7Y\2\2\u04f3\u04f5\5\u00be`\4\u04f4\u04d9\3\2\2\2\u04f4"+
-		"\u04df\3\2\2\2\u04f4\u04e2\3\2\2\2\u04f4\u04e5\3\2\2\2\u04f4\u04e8\3\2"+
-		"\2\2\u04f4\u04eb\3\2\2\2\u04f4\u04ee\3\2\2\2\u04f4\u04f1\3\2\2\2\u04f5"+
+		"\2\2\u04d7\u04d3\3\2\2\2\u04d8\u04f6\3\2\2\2\u04d9\u04da\f\n\2\2\u04da"+
+		"\u04db\7O\2\2\u04db\u04f5\5\u00be`\13\u04dc\u04dd\f\t\2\2\u04dd\u04de"+
+		"\t\4\2\2\u04de\u04f5\5\u00be`\n\u04df\u04e0\f\b\2\2\u04e0\u04e1\t\5\2"+
+		"\2\u04e1\u04f5\5\u00be`\t\u04e2\u04e3\f\7\2\2\u04e3\u04e4\t\6\2\2\u04e4"+
+		"\u04f5\5\u00be`\b\u04e5\u04e6\f\6\2\2\u04e6\u04e7\t\7\2\2\u04e7\u04f5"+
+		"\5\u00be`\7\u04e8\u04e9\f\5\2\2\u04e9\u04ea\7X\2\2\u04ea\u04f5\5\u00be"+
+		"`\6\u04eb\u04ec\f\4\2\2\u04ec\u04ed\7Y\2\2\u04ed\u04f5\5\u00be`\5\u04ee"+
+		"\u04ef\f\3\2\2\u04ef\u04f0\7I\2\2\u04f0\u04f1\5\u00be`\2\u04f1\u04f2\7"+
+		"@\2\2\u04f2\u04f3\5\u00be`\4\u04f3\u04f5\3\2\2\2\u04f4\u04d9\3\2\2\2\u04f4"+
+		"\u04dc\3\2\2\2\u04f4\u04df\3\2\2\2\u04f4\u04e2\3\2\2\2\u04f4\u04e5\3\2"+
+		"\2\2\u04f4\u04e8\3\2\2\2\u04f4\u04eb\3\2\2\2\u04f4\u04ee\3\2\2\2\u04f5"+
 		"\u04f8\3\2\2\2\u04f6\u04f4\3\2\2\2\u04f6\u04f7\3\2\2\2\u04f7\u00bf\3\2"+
 		"\2\2\u04f8\u04f6\3\2\2\2\u04f9\u04fa\7c\2\2\u04fa\u04fc\7@\2\2\u04fb\u04f9"+
 		"\3\2\2\2\u04fb\u04fc\3\2\2\2\u04fc\u04fd\3\2\2\2\u04fd\u04fe\7c\2\2\u04fe"+
