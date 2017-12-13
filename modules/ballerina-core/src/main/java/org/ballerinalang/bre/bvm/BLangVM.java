@@ -330,6 +330,9 @@ public class BLangVM {
                     i = operands[0];
                     sf.refRegs[i] = null;
                     break;
+                case InstructionCodes.REG_CP:
+                    copyRegistryValue(sf, operands[0], operands[1], operands[2]);
+                    break;
 
                 case InstructionCodes.ILOAD:
                 case InstructionCodes.FLOAD:
@@ -2284,6 +2287,28 @@ public class BLangVM {
                 break;
             default:
                 throw new UnsupportedOperationException();
+        }
+    }
+
+    private void copyRegistryValue(StackFrame sf, int typeTag, int source, int target) {
+        switch (typeTag) {
+            case TypeTags.INT_TAG:
+                sf.longRegs[target] = sf.longRegs[source];
+                break;
+            case TypeTags.FLOAT_TAG:
+                sf.doubleRegs[target] = sf.doubleRegs[source];
+                break;
+            case TypeTags.STRING_TAG:
+                sf.stringRegs[target] = sf.stringRegs[source];
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                sf.intRegs[target] = sf.intRegs[source];
+                break;
+            case TypeTags.BLOB_TAG:
+                sf.byteRegs[target] = sf.byteRegs[source];
+                break;
+            default:
+                sf.refRegs[target] = sf.refRegs[source];
         }
     }
 
