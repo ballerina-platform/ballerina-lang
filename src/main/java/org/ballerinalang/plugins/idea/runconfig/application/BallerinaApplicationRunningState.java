@@ -71,7 +71,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
 
         // If debugging mode is running, we need to add the debugging flag.
         if (isDebug()) {
-            ballerinaExecutor.withParameters("--ballerina.debug", String.valueOf(myDebugPort));
+            ballerinaExecutor.withParameters("--debug", String.valueOf(myDebugPort));
         }
         return ballerinaExecutor;
     }
