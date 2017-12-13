@@ -211,7 +211,8 @@ class WorkspacePlugin extends Plugin {
             // provide user a choice on which type of file to create
             // TODO
         }
-        const newFile = new File({ extension });
+        const content = editor.getDefaultContent('temp.' + extension);
+        const newFile = new File({ extension, content });
         this.openedFiles.push(newFile);
         history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventAndCustomPropsSerialization);
         newFile.on(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);

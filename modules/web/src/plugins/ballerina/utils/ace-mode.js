@@ -29,11 +29,11 @@ ace.define('ace/mode/ballerina',
 
         const BallerinaHighlightRules = function () {
             const keywordMapper = this.createKeywordMapper({
-                'ballerina-keyword-control': 'if|else|iterator|try|catch|finally|fork|join|while|throw|throws|' +
-                'return|break|timeout|transaction|aborted|abort|committed|failed|retry|next|bind|with|lengthof|typeof',
-                'ballerina-keyword-other': 'import|version|public|attach|as',
-                'ballerina-keyword-primitive-type': 'boolean|int|float|string|var|any',
-                'ballerina-keyword-non-primitive-type': 'message|map|exception|json|xml|xmlDocument|xmlns|error',
+                'ballerina-keyword-control': 'if|else|iterator|try|catch|finally|fork|join|all|some|while|throw|' +
+                'return|returns|break|timeout|transaction|aborted|abort|committed|failed|retry|next|bind|with|lengthof|typeof',
+                'ballerina-keyword-other': 'import|version|public|attach|as|native|enum',
+                'ballerina-keyword-primitive-type': 'boolean|int|float|string|var|any|datatable|blob',
+                'ballerina-keyword-non-primitive-type': 'map|exception|json|xml|xmlns|error',
                 'ballerina-keyword-definition': 'annotation|package|type|connector|function|resource|' +
                 'service|action|worker|struct|transformer|endpoint',
                 'ballerina-keyword-language': 'const|true|false|reply|create|parameter',

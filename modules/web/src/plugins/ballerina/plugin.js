@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import Plugin from 'core/plugin/plugin';
-import { parseFile } from 'api-client/api-client';
+import { parseFile, getPathSeperator } from 'api-client/api-client';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
 import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
 import { EVENTS as WORKSPACE_EVENTS, COMMANDS as WORKSPACE_CMDS } from 'core/workspace/constants';
@@ -36,6 +36,7 @@ import ToolPaletteView from './tool-palette/tool-palette-view';
 import { isInCorrectPath, getCorrectPackageForPath, getCorrectPathForPackage } from './utils/program-dir-utils';
 import TreeBuilder from './model/tree-builder';
 import FragmentUtils from './utils/fragment-utils';
+import ToolPaletteView from './tool-palette/tool-palette-view';
 
 /**
  * Plugin for Ballerina Lang
@@ -75,6 +76,20 @@ class BallerinaPlugin extends Plugin {
                         },
                     },
                     tabTitleClass: CLASSES.TAB_TITLE.DESIGN_VIEW,
+                    newFileContentProvider: (fileFullPath) => {
+                        if (!fileFullPath) {
+                            return '';
+                        }
+                        const { workspace } = this.appContext;
+                        const pathSep = getPathSeperator();
+                        const pathParts = fileFullPath.split(pathSep);
+                        pathParts.splice(-1, 1);
+                        const filePath = pathParts.join(pathSep);
+                        const workspaceDir = workspace.getExplorerFolderForPath(filePath);
+                        const programDir = workspaceDir ? workspaceDir.fullPath : undefined;
+                        const pkg = getCorrectPackageForPath(programDir, filePath);
+                        return pkg ? `package ${pkg};` : '';
+                    },
                 },
             ],
             [TOOLS]: [

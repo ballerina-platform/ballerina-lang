@@ -49,7 +49,7 @@ public class CloudWorkspace implements Workspace {
     }
     
     @Override
-    public void create(String path, String type) throws IOException {
+    public void create(String path, String type, String content) throws IOException {
         
     }
     

@@ -46,7 +46,7 @@ public interface Workspace {
 
     void copy(String src, String dest) throws IOException;
     
-    void create(String path, String type) throws IOException;
+    void create(String path, String type, String content) throws IOException;
     
     void delete(String path) throws IOException;
     

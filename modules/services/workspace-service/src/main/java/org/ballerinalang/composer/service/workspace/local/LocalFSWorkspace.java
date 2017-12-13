@@ -115,12 +115,12 @@ public class LocalFSWorkspace implements Workspace {
     }
 
     @Override
-    public void create(String path, String type) throws IOException {
+    public void create(String path, String type, String content) throws IOException {
         Path ioPath = Paths.get(path);
         if (FOLDER_TYPE.equals(type)) {
             Files.createDirectories(ioPath);
         } else {
-            Files.createFile(ioPath);
+            Files.write(ioPath, content.getBytes(Charset.defaultCharset()));
         }
     }
 

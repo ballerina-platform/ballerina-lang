@@ -99,13 +99,14 @@ export function remove(path) {
  *
  * @param {String} path Path of the file/folder
  * @param {String} type file or folder
+ * @param {String} content file content - if creating a file
  *
  * @returns {Promise} Resolves created file path or reject with error.
  */
-export function create(path, type) {
+export function create(path, type, content) {
     const serviceEP = `${getServiceEndpoint(WORKSPACE_SERVICE)}/create`;
     // FIXME: Refactor backend params
-    const data = `path=${btoa(path)}&type=${btoa(type)}`;
+    const data = `path=${btoa(path)}&type=${btoa(type)}&content=${btoa(content)}`;
     return axios.post(serviceEP, data, { headers: FORM_CONTENT_COMMON_HEADERS })
         .then((response) => {
             return response.data;

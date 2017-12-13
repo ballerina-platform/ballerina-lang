@@ -143,6 +143,13 @@ class EditorPlugin extends Plugin {
             getSupportedExtensions: () => {
                 return this.editorDefinitions.map(editorDef => editorDef.extension);
             },
+            getDefaultContent: (filePath) => {
+                const ext = filePath.split('.').pop();
+                const editorDef = ext ? this.editorDefinitions.find(def => def.extension === ext) : undefined;
+                return editorDef && editorDef.newFileContentProvider instanceof Function
+                    ? editorDef.newFileContentProvider(filePath)
+                    : '';
+            },
         };
     }
 

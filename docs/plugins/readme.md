@@ -809,6 +809,7 @@ The react component for editor area will implicitely receive below props from co
          "customPropsProvider": PropTypes.func.isRequired,
     }),
     "tabTitleClass": PropTypes.string,
+    "newFileContentProvider": PropTypes.func,
 }
 
 
@@ -870,6 +871,8 @@ To all React components contributed via plugins, below APIs are available via re
         setActiveEditor: PropTypes.func,
         getActiveEditor: PropTypes.func,
         closeEditor: PropTypes.func,
+        getSupportedExtensions: PropTypes.func,
+        getDefaultContent: PropTypes.func,
     }).isRequired,
 }
 ```
