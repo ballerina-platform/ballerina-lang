@@ -398,6 +398,11 @@ class SizingUtil {
         cmp.client.w = 60;
         cmp.client.h = maxWorkerHeight;
         cmp.client.arrowLine = (cmp.client.w / 2);
+        cmp.client.text = '';
+        _.forEach(node.parameters, (param) => {
+            cmp.client.text += ' ' + param.name.value + ' ,';
+        });
+        cmp.client.text = cmp.client.text.slice(0, -1);
         // calculate default worker
         cmp.defaultWorker.w = workers.length > 0 ? 0 : node.body.viewState.bBox.w;
         cmp.defaultWorker.h = maxWorkerHeight;

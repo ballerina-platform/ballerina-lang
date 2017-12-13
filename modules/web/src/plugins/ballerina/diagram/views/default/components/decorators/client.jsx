@@ -102,6 +102,12 @@ class Client extends React.Component {
                 stroke='black'
                 strokeWidth='1'
             />
+            <text
+                x={line.x1 + 40}
+                y={topBox.y + topBox.h + 5}
+                dominantBaseline='central'
+                className='client-line-text genericT'
+            >{bBox.text}</text>
             {/* <circle cx={line.x1} cy={topBox.y + topBox.h + 15} r='6' stroke='black' strokeWidth='1' fill='white' /> */}
         </g>);
     }
