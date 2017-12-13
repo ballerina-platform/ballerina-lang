@@ -124,7 +124,10 @@ public class WorkspacePackageRepository extends GeneralFSPackageRepository {
 
         @Override
         public List<PackageSourceEntry> getPackageSourceEntries() {
-            return this.getEntryNames().stream().map(e -> getPackageSourceEntry(e)).collect(Collectors.toList());
+            if (this.getEntryNames() == null) {
+                return new ArrayList<>();
+            }
+            return this.getEntryNames().stream().map(this::getPackageSourceEntry).collect(Collectors.toList());
         }
 
         public PackageRepository getPackageRepository() {

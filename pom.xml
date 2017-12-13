@@ -76,6 +76,11 @@
                 <artifactId>ballerina-http</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${apache.commons.io.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -92,6 +97,12 @@
                         <xmlOutput>true</xmlOutput>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven.surefire.plugin.version}</version>
+                    <!-- keep maven-failsafe-plugin in sync -->
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -101,6 +112,7 @@
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
         <maven.findbugsplugin.version>3.0.3</maven.findbugsplugin.version>
         <lsp4j.version>0.3.0</lsp4j.version>
+        <apache.commons.io.version>2.6</apache.commons.io.version>
     </properties>
     <modules>
         <module>modules/langserver-core</module>
