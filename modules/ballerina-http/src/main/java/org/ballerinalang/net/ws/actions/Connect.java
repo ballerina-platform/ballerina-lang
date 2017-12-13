@@ -32,7 +32,7 @@ import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.HttpServerConnector;
+import org.ballerinalang.net.http.BallerinaHttpServerConnector;
 import org.ballerinalang.net.ws.BallerinaWsClientConnectorListener;
 import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.net.ws.WebSocketService;
@@ -70,7 +70,7 @@ public class Connect extends AbstractNativeWsAction {
         BStruct clientConfig = (BStruct) getRefArgument(context, 1);
         String remoteUrl = getUrlFromConnector(bconnector);
         String clientServiceName = getClientServiceNameFromConnector(bconnector);
-        HttpServerConnector httpServerConnector = (HttpServerConnector) ConnectorUtils.
+        BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
                 getBallerinaServerConnector(context, Constants.HTTP_PACKAGE_PATH);
         WebSocketService wsService =
                 httpServerConnector.getWebSocketServicesRegistry().getClientService(clientServiceName);

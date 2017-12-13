@@ -440,7 +440,7 @@ public class HttpUtil {
      *
      * @throws BallerinaConnectorException
      */
-    public static void startPendingHttpConnectors(HttpServerConnector httpServerConnector)
+    public static void startPendingHttpConnectors(BallerinaHttpServerConnector httpServerConnector)
             throws BallerinaConnectorException {
         try {
             // Starting up HTTP Server connectors

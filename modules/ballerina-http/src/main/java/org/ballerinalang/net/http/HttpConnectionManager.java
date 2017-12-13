@@ -149,9 +149,11 @@ public class HttpConnectionManager {
     /**
      * Start all the ServerConnectors which startup is delayed at the service deployment time.
      *
+     * @param httpServerConnector {@link BallerinaHttpServerConnector} of the pending transport server connectors.
      * @throws ServerConnectorException if exception occurs while starting at least one connector.
      */
-    public void startPendingHTTPConnectors(HttpServerConnector httpServerConnector) throws ServerConnectorException {
+    public void startPendingHTTPConnectors(BallerinaHttpServerConnector httpServerConnector)
+            throws ServerConnectorException {
         ConnectorStartupSynchronizer startupSyncer =
                 new ConnectorStartupSynchronizer(new CountDownLatch(startupDelayedHTTPServerConnectors.size()));
 
@@ -159,8 +161,7 @@ public class HttpConnectionManager {
             ServerConnector serverConnector = serverConnectorEntry.getValue();
             ServerConnectorFuture connectorFuture = serverConnector.start();
             setConnectorListeners(connectorFuture, serverConnector.getConnectorID(), startupSyncer,
-                                  httpServerConnector.getHttpServicesRegistry(),
-                                  httpServerConnector.getWebSocketServicesRegistry());
+                                  httpServerConnector);
             startedHTTPServerConnectors.put(serverConnector.getConnectorID(), serverConnector);
         }
         try {
@@ -253,8 +254,9 @@ public class HttpConnectionManager {
 
     private void setConnectorListeners(ServerConnectorFuture connectorFuture, String serverConnectorId,
                                        ConnectorStartupSynchronizer startupSyncer,
-                                       HTTPServicesRegistry httpServicesRegistry,
-                                       WebSocketServicesRegistry webSocketServicesRegistry) {
+                                       BallerinaHttpServerConnector httpServerConnector) {
+        HTTPServicesRegistry httpServicesRegistry = httpServerConnector.getHttpServicesRegistry();
+        WebSocketServicesRegistry webSocketServicesRegistry = httpServerConnector.getWebSocketServicesRegistry();
         connectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener(httpServicesRegistry));
         connectorFuture.setWSConnectorListener(new BallerinaWsServerConnectorListener(webSocketServicesRegistry));
         connectorFuture.setPortBindingEventListener(

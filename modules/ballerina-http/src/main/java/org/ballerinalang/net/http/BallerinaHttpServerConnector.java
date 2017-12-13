@@ -23,8 +23,6 @@ import org.ballerinalang.connector.api.BallerinaServerConnector;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.net.ws.WebSocketService;
 import org.ballerinalang.net.ws.WebSocketServicesRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -38,13 +36,11 @@ import static org.ballerinalang.net.ws.Constants.PROTOCOL_PACKAGE_WS;
  * @since 0.94
  */
 @JavaSPIService("org.ballerinalang.connector.api.BallerinaServerConnector")
-public class HttpServerConnector implements BallerinaServerConnector {
-    private static final Logger log = LoggerFactory.getLogger(HttpServerConnector.class);
-
+public class BallerinaHttpServerConnector implements BallerinaServerConnector {
     private final WebSocketServicesRegistry webSocketServicesRegistry = new WebSocketServicesRegistry();
     private final HTTPServicesRegistry httpServicesRegistry = new HTTPServicesRegistry(webSocketServicesRegistry);
 
-    public HttpServerConnector() {
+    public BallerinaHttpServerConnector() {
     }
 
     @Override

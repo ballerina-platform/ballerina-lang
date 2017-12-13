@@ -22,7 +22,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.net.http.HttpServerConnector;
+import org.ballerinalang.net.http.BallerinaHttpServerConnector;
 import org.ballerinalang.net.ws.Constants;
 import org.testng.annotations.Test;
 
@@ -74,7 +74,7 @@ public class HttpToWebSocketUpgradeTestCase {
     }
 
     private void validateSeverEndpoints(CompileResult compileResult) throws BallerinaConnectorException {
-        HttpServerConnector httpServerConnector = (HttpServerConnector) ConnectorUtils.
+        BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
                 getBallerinaServerConnector(compileResult.getProgFile(), Constants.HTTP_PACKAGE_PATH);
         httpServerConnector.getWebSocketServicesRegistry().validateSeverEndpoints();
     }

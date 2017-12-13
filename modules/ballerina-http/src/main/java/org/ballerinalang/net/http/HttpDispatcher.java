@@ -41,8 +41,7 @@ public class HttpDispatcher {
 
     private static final Logger breLog = LoggerFactory.getLogger(HttpDispatcher.class);
 
-    public static HttpService findService(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage cMsg) {
-
+    private static HttpService findService(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage cMsg) {
         try {
             String interfaceId = getInterface(cMsg);
             Map<String, HttpService> servicesOnInterface = servicesRegistry.getServicesInfoByInterface(interfaceId);
@@ -53,9 +52,6 @@ public class HttpDispatcher {
             //replace multiple slashes from single slash if exist in request path to enable
             // dispatchers when request path contains multiple slashes
             URI requestUri = URI.create(uriStr.replaceAll("//+", Constants.DEFAULT_BASE_PATH));
-            if (requestUri == null) {
-                throw new BallerinaConnectorException("uri not found in the message or found an invalid URI.");
-            }
 
             // Most of the time we will find service from here
             String basePath =
