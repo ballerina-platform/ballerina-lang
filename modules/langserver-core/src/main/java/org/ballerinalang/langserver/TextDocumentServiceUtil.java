@@ -52,7 +52,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 /**
  * Compilation unit builder is for building ballerina compilation units.
  */
-class TextDocumentServiceUtil {
+public class TextDocumentServiceUtil {
     private static final String PACKAGE_REGEX = "package\\s+([a-zA_Z_][\\.\\w]*);";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaTextDocumentService.class);
@@ -122,7 +122,8 @@ class TextDocumentServiceUtil {
      * @param docManager            Document manager
      * @return {@link BLangPackage} BLang Package
      */
-    static BLangPackage getBLangPackage(TextDocumentServiceContext context, WorkspaceDocumentManager docManager) {
+    public static BLangPackage getBLangPackage(TextDocumentServiceContext context,
+                                               WorkspaceDocumentManager docManager) {
         TextDocumentPositionParams position = context.get(DocumentServiceKeys.POSITION_KEY);
         String uri = position.getTextDocument().getUri();
         String fileContent = docManager.getFileContent(Paths.get(URI.create(uri)));

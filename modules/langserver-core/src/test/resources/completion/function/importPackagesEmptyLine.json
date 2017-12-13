@@ -1,0 +1,18 @@
+{
+  "position": {
+    "line": 2,
+    "character": 4
+  },
+  "source": "function/source/importPackagesEmptyLine.bal",
+  "items": [
+    {
+      "label": "http",
+      "kind": 2,
+      "detail": "BType",
+      "documentation": null,
+      "sortText": 6,
+      "insertText": "http",
+      "data": null
+    }
+  ]
+}
