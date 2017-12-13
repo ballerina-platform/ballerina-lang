@@ -19,6 +19,7 @@ package org.ballerinalang.test.services.dispatching;
 
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
@@ -29,6 +30,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
  * Test class for Uri Template based resource dispatchers.
@@ -54,7 +56,7 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"X-ORDER-ID":"ORD12345","ProductID":"PID123","RegID":"RID123"}
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get(xOrderIdHeadeName).asText(), xOrderIdHeadeValue
                 , "Header value mismatched");
         Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID123"
@@ -73,9 +75,10 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
         Assert.assertEquals(
                 response.getProperty(Constants.HTTP_STATUS_CODE), 404, "Response code mismatch");
-        Assert.assertNotNull(response.getMessageDataSource(), "Message body null");
         //checking the exception message
-        String errorMessage = response.getMessageDataSource().getMessageAsString();
+        String errorMessage = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertNotNull(errorMessage, "Message body null");
         Assert.assertTrue(errorMessage.contains("no matching resource found for path"),
                 "Expected error not found.");
     }
@@ -87,7 +90,7 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"X-ORDER-ID":"ORD12345","ProductID":"PID123","RegID":"RID123"}
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("Template").asText(), "T4"
                 , "Resource dispatched to wrong template");
         Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID123"
@@ -103,7 +106,7 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"Template":"T2","ProductID":"PID125","RegID":"RID125"}
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("Template").asText(), "T2"
                 , "Resource dispatched to wrong template");
         Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID125"
@@ -119,7 +122,7 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"Template":"T3","ProductID":"PID125","RegID":"RID125"}
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("Template").asText(), "T3"
                 , "Resource dispatched to wrong template");
         Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID125"
@@ -135,7 +138,7 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"Template":"T5","ProductID":"PID125","RegID":"RID125"}
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("Template").asText(), "T5"
                 , "Resource dispatched to wrong template");
         Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID125"
@@ -151,7 +154,7 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"X-ORDER-ID":"ORD12345","ProductID":"PID123","RegID":"RID123"}
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("Template").asText(), "T6"
                 , "Resource dispatched to wrong template");
         Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID123"
@@ -168,7 +171,7 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"X-ORDER-ID":"ORD12345","ProductID":"PID123","RegID":"RID123"}
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("Template").asText(), "T6"
                 , "Resource dispatched to wrong template");
         Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID 123"
@@ -210,7 +213,7 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
 
         Assert.assertEquals(bJson.value().get("echo11").asText(), "echo11"
                 , "Resource dispatched to wrong template");
@@ -223,7 +226,7 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("echo").asText(), "wso2"
                 , "Resource dispatched to wrong template");
     }
@@ -235,7 +238,8 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertNull(response.getMessageDataSource());
+        Assert.assertEquals(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), "");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
                 , "Response code mismatch");
 
@@ -250,7 +254,8 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertNull(response.getMessageDataSource());
+        Assert.assertEquals(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), "");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
                 , "Response code mismatch");
 
@@ -265,7 +270,8 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertNull(response.getMessageDataSource());
+        Assert.assertEquals(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), "");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
                 , "Response code mismatch");
 
@@ -280,7 +286,8 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertNull(response.getMessageDataSource());
+        Assert.assertEquals(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), "");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
                 , "Response code mismatch");
 
@@ -312,7 +319,8 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 404
                 , "Response code mismatch");
-        Assert.assertEquals(response.getMessageDataSource().getMessageAsString(),
+        Assert.assertEquals(StringUtils
+                        .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()),
                 "no matching service found for path : /optionss");
     }
 
@@ -325,7 +333,8 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 404
                 , "Response code mismatch");
-        Assert.assertEquals(response.getMessageDataSource().getMessageAsString(),
+        Assert.assertEquals(StringUtils
+                        .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()),
                 "no matching resource found for path : /noResource , method : OPTIONS");
     }
 
@@ -338,7 +347,8 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 404
                 , "Response code mismatch");
-        Assert.assertEquals(response.getMessageDataSource().getMessageAsString(),
+        Assert.assertEquals(StringUtils
+                        .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()),
                 "no matching resource found for path : /options/un , method : OPTIONS");
     }
 
@@ -349,7 +359,7 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("echo").asText(), "sanitized"
                 , "Resource dispatched to wrong template");
     }

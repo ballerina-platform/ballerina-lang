@@ -20,6 +20,7 @@ package org.ballerinalang.test.expressions.identifierliteral;
 
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -28,6 +29,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
  * identifier literals in service and resource names.
@@ -47,7 +49,7 @@ public class IdentifierLiteralServiceTest {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/identifierLiteral/resource", "GET");
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
         Assert.assertNotNull(response);
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("key").asText(), "keyVal");
         Assert.assertEquals(bJson.value().get("value").asText(), "valueOfTheString");
     }
@@ -57,7 +59,8 @@ public class IdentifierLiteralServiceTest {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/identifierLiteral/resource2", "GET");
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
         Assert.assertNotNull(response);
-        String payload = response.getMessageDataSource().getMessageAsString();
+        String payload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(payload, "hello");
     }
 }

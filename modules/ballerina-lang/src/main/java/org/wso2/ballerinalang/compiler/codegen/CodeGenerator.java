@@ -1212,10 +1212,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         Instruction ifCondJumpInstr = InstructionFactory.get(InstructionCodes.BR_FALSE, ternaryExpr.expr.regIndex, -1);
         this.emit(ifCondJumpInstr);
         this.genNode(ternaryExpr.thenExpr, this.env);
+        ternaryExpr.regIndex = ternaryExpr.thenExpr.regIndex;
         Instruction endJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, -1);
         this.emit(endJumpInstr);
         ifCondJumpInstr.setOperand(1, this.nextIP());
         this.genNode(ternaryExpr.elseExpr, this.env);
+        Instruction instruction = InstructionFactory.get(InstructionCodes.REG_CP, ternaryExpr.type.tag,
+                ternaryExpr.elseExpr.regIndex, ternaryExpr.regIndex);
+        this.emit(instruction);
         endJumpInstr.setOperand(0, this.nextIP());
     }
 
