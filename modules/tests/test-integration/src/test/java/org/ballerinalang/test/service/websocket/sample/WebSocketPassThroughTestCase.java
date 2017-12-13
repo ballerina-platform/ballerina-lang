@@ -32,14 +32,16 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import static org.awaitility.Awaitility.await;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 /**
  * Test class for WebSocket client connector.
  * This test the mediation of wsClient <-> balServer <-> balWSClient <-> remoteServer.
  */
 public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
 
-    private final int threadSleepTime = 100;
-    private final int messageDeliveryCountDown = 100;
+    private final int awaitTimeInSecs = 10;
     private final int clientCount = 5;
     private final WebSocketClient[] wsClients = new WebSocketClient[clientCount];
     private ServerInstance ballerinaServer;
@@ -48,7 +50,8 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
     @BeforeClass
     private void setup() throws Exception {
         // Initiating WebSocket remote server for pass through check.
-        webSocketRemoteServer = new WebSocketRemoteServer(15500);
+        int remoteServerPort = 15500;
+        webSocketRemoteServer = new WebSocketRemoteServer(remoteServerPort);
         webSocketRemoteServer.run();
 
         // Initializing ballerina server instance.
@@ -58,24 +61,22 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
                                  "websocket" + File.separator + "SimpleProxyServer.bal").getAbsolutePath();
         ballerinaServer.startBallerinaServer(balFilePath);
 
-        // Initializing WebSocket clients.
+        // Initializing and handshaking WebSocket clients.
         for (int i = 0; i < clientCount; i++) {
             wsClients[i] = new WebSocketClient("ws://localhost:9090/proxy/ws");
         }
+        handshakeAllClients(wsClients);
     }
 
     @Test(priority = 0)
     public void testFullTextMediation() throws Exception {
-        handshakeAllClients(wsClients);
-        // Send and wait to receive message back from the remote server.
         for (int i = 0; i < clientCount; i++) {
-            wsClients[i].sendText(i + "");
-        }
-
-        for (int i = 0; i < clientCount; i++) {
-            String expectedMessage = "client service: " + i;
-            assertWebSocketClientStringMessage(wsClients[i], expectedMessage, threadSleepTime,
-                                               messageDeliveryCountDown);
+            final int clientNo = i;
+            final String expectedMessage = "client service: " + i;
+            await().atMost(awaitTimeInSecs, SECONDS).until(() -> {
+                wsClients[clientNo].sendText(clientNo + "");
+                return expectedMessage.equals(wsClients[clientNo].getTextReceived());
+            });
         }
     }
 
@@ -84,30 +85,38 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
         WebSocketClient client = wsClients[0];
 
         // Test ping and receive pong from server
-        client.sendPing(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
-        Thread.sleep(threadSleepTime);
-        Assert.assertTrue(client.isPong());
+        await().atMost(awaitTimeInSecs, SECONDS).until(() -> {
+            client.sendPing(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
+            return client.isPong();
+        });
 
         // Test ping and receive pong from remote server when ballerina client send a ping
-        client.sendText("client_ping");
-        Thread.sleep(threadSleepTime);
-        Assert.assertEquals(client.getTextReceived(), "remote_server_pong");
+        final String expectedPongMessage = "remote_server_pong";
+        await().atMost(awaitTimeInSecs, SECONDS).until(() -> {
+            client.sendText("client_ping");
+            return expectedPongMessage.equals(client.getTextReceived());
+        });
 
         // Test ping received from server
-        client.sendText("ping");
-        Thread.sleep(threadSleepTime);
-        Assert.assertTrue(client.isPing());
+        await().atMost(awaitTimeInSecs, SECONDS).until(() -> {
+            client.sendText("ping");
+            return client.isPing();
+        });
 
         // Test ping received from remote server
-        client.sendText("client_ping_req");
-        Thread.sleep(threadSleepTime);
-        Assert.assertEquals(client.getTextReceived(), "remote_server_ping");
+        final String expectedPingMessage = "remote_server_ping";
+        await().atMost(awaitTimeInSecs, SECONDS).until(() -> {
+            client.sendText("client_ping_req");
+            return expectedPingMessage.equals(client.getTextReceived());
+        });
     }
 
     @Test(priority = 2)
     public void testRemoteConnectionClosureFromRemoteClient() throws InterruptedException {
-        wsClients[0].shutDown();
-        Thread.sleep(threadSleepTime);
+        await().atMost(awaitTimeInSecs, SECONDS).until(() -> {
+            wsClients[0].shutDown();
+            return !wsClients[0].isOpen();
+        });
         boolean isConnectionClosed = false;
         for (WebSocketRemoteServerFrameHandler frameHandler : WebSocketRemoteServerInitializer.FRAME_HANDLERS) {
             if (!frameHandler.isOpen()) {
@@ -121,8 +130,10 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
 
     @Test(priority = 3)
     public void testRemoteConnectionClosureFromBallerina() throws InterruptedException {
-        wsClients[1].sendText("closeMe");
-        Thread.sleep(threadSleepTime);
+        await().atMost(awaitTimeInSecs, SECONDS).until(() -> {
+            wsClients[1].sendText("closeMe");
+            return !wsClients[1].isOpen();
+        });
         boolean isConnectionClosed = false;
         for (WebSocketRemoteServerFrameHandler frameHandler : WebSocketRemoteServerInitializer.FRAME_HANDLERS) {
             if (!frameHandler.isOpen()) {
