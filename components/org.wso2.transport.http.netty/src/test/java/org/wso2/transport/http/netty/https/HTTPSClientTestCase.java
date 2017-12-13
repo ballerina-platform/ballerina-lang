@@ -100,7 +100,7 @@ public class HTTPSClientTestCase {
             HttpResponseFuture responseFuture = httpClientConnector.send(msg);
             responseFuture.setHttpConnectorListener(listener);
 
-            latch.await(120, TimeUnit.SECONDS);
+            latch.await(5, TimeUnit.SECONDS);
 
             HTTPCarbonMessage response = listener.getHttpResponseMessage();
             assertNotNull(response);
