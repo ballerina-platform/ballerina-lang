@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
@@ -30,6 +31,7 @@ import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
+import org.ballerinalang.runtime.message.BlobDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -588,6 +590,53 @@ public class RequestNativeFunctionSuccessTest {
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), path);
+    }
+
+    @Test(description = "Test setBinaryPayload() function within a service")
+    public void testServiceSetBinaryPayload() {
+        String value = "Ballerina";
+        String path = "/hello/SetBinaryPayload/";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("lang").asText(), value);
+    }
+
+    @Test(description = "Test getBinaryPayload() function within a service")
+    public void testServiceGetBinaryPayload() {
+        String value = "ballerina";
+        String path = "/hello/GetBinaryPayload";
+        BlobDataSource blobDataSource = new BlobDataSource(value.getBytes());
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_POST, blobDataSource);
+
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), value);
+    }
+
+    @Test(description = "Test setBinaryPayload() function")
+    public void testSetBinaryPayload() {
+        BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
+        HttpUtil.addCarbonMsg(request, cMsg);
+
+        BBlob value = new BBlob("Ballerina".getBytes());
+        BValue[] inputArg = {request, value};
+
+        BValue[] returnVals = BRunUtil.invoke(result, "testSetBinaryPayload", inputArg);
+
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BStruct);
+
+        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
+        BlobDataSource blobDataSource = ((BlobDataSource) response.getMessageDataSource());
+
+        Assert.assertEquals(blobDataSource.getMessageAsString(), "Ballerina", "Payload is not set properly");
     }
 
     @AfterClass
