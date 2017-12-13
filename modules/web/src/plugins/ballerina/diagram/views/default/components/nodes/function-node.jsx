@@ -144,6 +144,7 @@ class FunctionNode extends React.Component {
                             iconColor='#025482'
                         />
                         <StatementAddZone
+                            model={this.props.model}
                             x={bodyBBox.x}
                             y={bodyBBox.y}
                             width={bodyBBox.w}

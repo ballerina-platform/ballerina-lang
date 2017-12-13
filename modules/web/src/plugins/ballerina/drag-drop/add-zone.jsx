@@ -19,6 +19,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import DefaultNodeFactory from 'plugins/ballerina/model/default-node-factory';
 import { withDropEnabled } from './drop-target';
+import TreeUtil from '../model/tree-util';
 import './drop-zone.scss';
 
 
@@ -47,10 +48,10 @@ class AddZone extends React.Component {
 
     onAddButtonClick() {
         const blocksToBeAdded = [];
-        blocksToBeAdded.push({
-            name: 'endpoint',
-            addBlock: this.onAddEndpointClick,
-        });
+        // blocksToBeAdded.push({
+        //     name: 'endpoint',
+        //     addBlock: this.onAddEndpointClick,
+        // });
         blocksToBeAdded.push({
             name: 'if',
             addBlock: this.onAddIfClick,
@@ -59,13 +60,13 @@ class AddZone extends React.Component {
             name: 'while',
             addBlock: this.onAddWhileClick,
         });
-        blocksToBeAdded.push({
-            name: 'action',
-            addBlock: this.onAddActionClick,
-        });
+        // blocksToBeAdded.push({
+        //     name: 'action',
+        //     addBlock: this.onAddActionClick,
+        // });
 
         const overlayComponents = {
-            kind: 'MultiBlockSelect',
+            kind: 'AddBlockSelect',
             props: {
                 key: 'test',
                 model: this.props.model,
@@ -82,13 +83,25 @@ class AddZone extends React.Component {
     }
 
     onAddIfClick() {
-        this.props.model.parent.addStatements(DefaultNodeFactory.createIf(),
-              this.props.model.parent.getIndexOfStatements(this.props.model));
+        let block;
+        if (TreeUtil.isFunction(this.props.model) || TreeUtil.isResource(this.props.model)) {
+            block = this.props.model.getBody();
+        } else {
+            block = this.props.model.parent;
+        }
+        block.addStatements(DefaultNodeFactory.createIf(),
+              block.getIndexOfStatements(this.props.model));
     }
 
     onAddWhileClick() {
-        this.props.model.parent.addStatements(DefaultNodeFactory.createWhile(),
-              this.props.model.parent.getIndexOfStatements(this.props.model));
+        let block;
+        if (TreeUtil.isFunction(this.props.model) || TreeUtil.isResource(this.props.model)) {
+            block = this.props.model.getBody();
+        } else {
+            block = this.props.model.parent;
+        }
+        block.addStatements(DefaultNodeFactory.createWhile(),
+              block.getIndexOfStatements(this.props.model));
     }
 
     onAddActionClick() {
@@ -96,6 +109,8 @@ class AddZone extends React.Component {
     }
 
     drawAddButton(x, y, height, width) {
+        const buttonY = y + height - 25;
+
         return (<g>
             <title>Add Block</title>
             <rect
@@ -109,7 +124,7 @@ class AddZone extends React.Component {
             />
             <rect
                 x={x + (width / 2) - 10}
-                y={y + 2.5}
+                y={buttonY + 2.5}
                 width='20'
                 height='20'
                 onClick={this.onClick}
@@ -122,7 +137,7 @@ class AddZone extends React.Component {
             />
             <text
                 x={x - 4 + (width / 2)}
-                y={y + 12.5}
+                y={buttonY + 12.5}
                 width='20'
                 height='20'
                 onClick={this.onAddButtonClick}
@@ -137,17 +152,11 @@ class AddZone extends React.Component {
     render() {
         const { connectDropTarget, isDragging, renderUponDragStart,
             ...restProps } = this.props;
-        // render nothing when drag-drop isn't happening
-        if (!isDragging && renderUponDragStart) {
+        if (!isDragging) {
             return this.drawAddButton(restProps.x, restProps.y, restProps.height, restProps.width);
+        } else {
+            return connectDropTarget(<g />);
         }
-
-        const result = (
-            <g>
-                {this.drawAddButton(restProps.x, restProps.y, restProps.height, restProps.width)}
-            </g>
-        );
-        return connectDropTarget(result);
     }
 }
 

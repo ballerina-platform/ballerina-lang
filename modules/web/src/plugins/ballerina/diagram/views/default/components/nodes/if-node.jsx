@@ -21,6 +21,7 @@ import _ from 'lodash';
 import TreeUtil from 'plugins/ballerina/model/tree-util';
 import IfNodeModel from 'plugins/ballerina/model/tree/if-node';
 import DropZone from 'plugins/ballerina/drag-drop/DropZone';
+import AddZone from 'plugins/ballerina/drag-drop/add-zone';
 import DefaultNodeFactory from 'plugins/ballerina/model/default-node-factory';
 import FragmentUtils from 'plugins/ballerina/utils/fragment-utils';
 import TreeBuilder from 'plugins/ballerina/model/tree-builder';
@@ -188,6 +189,16 @@ class IfNode extends React.Component {
                         baseComponent='rect'
                         dropTarget={model.parent}
                         dropBefore={model}
+                        renderUponDragStart
+                        enableDragBg
+                        enableCenterOverlayLine
+                    />
+                    <AddZone
+                        model={this.props.model}
+                        x={dropZone.x}
+                        y={dropZone.y}
+                        width={dropZone.w}
+                        height={dropZone.h}
                         renderUponDragStart
                         enableDragBg
                         enableCenterOverlayLine

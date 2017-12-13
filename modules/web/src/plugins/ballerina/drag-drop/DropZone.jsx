@@ -20,7 +20,6 @@ import PropTypes from 'prop-types';
 import cn from 'classnames';
 import { withDropEnabled } from './drop-target';
 import Node from './../model/tree/node';
-import DefaultNodeFactory from 'plugins/ballerina/model/default-node-factory';
 import './drop-zone.scss';
 
 const BASE_TYPES = {
@@ -29,29 +28,14 @@ const BASE_TYPES = {
 };
 
 class DropZone extends React.Component {
-  constructor(props) {
-      super(props);
-      this.state = {
-          mouseHovering:false,
-          overButton: false,
-      };
-      this.onMouseOverArea = this.onMouseOverArea.bind(this);
-      this.onMouseOutArea = this.onMouseOutArea.bind(this);
-      this.onAddButtonClick = this.onAddButtonClick.bind(this);
-      this.onAddEndpointClick = this.onAddEndpointClick.bind(this);
-      this.onAddIfClick = this.onAddIfClick.bind(this);
-      this.onAddWhileClick = this.onAddWhileClick.bind(this);
-      this.onAddActionClick = this.onAddActionClick.bind(this);
-  }
-
     render() {
         const { baseComponent, className, connectDropTarget, isOver, isOverCurrent, enableCenterOverlayLine,
             isDragging, dropTarget, dropBefore, canDrop, enableDragBg, renderUponDragStart,
             ...restProps } = this.props;
         // render nothing when drag-drop isn't happening
         if (!isDragging && renderUponDragStart) {
-            return this.drawAddButton(restProps.x, restProps.y, restProps.height, restProps.width);
-}
+            return (<g />);
+        }
         const Component = baseComponent;
         let result;
         if (isDragging && enableDragBg && BASE_TYPES.RECT === baseComponent) {
@@ -87,85 +71,19 @@ class DropZone extends React.Component {
             );
         } else {
             result = (
-              <g>
-                {this.drawAddButton(restProps.x, restProps.y, restProps.height, restProps.width)}
-                                <Component
-                                    {...restProps}
-                                    className={
-                                        cn(baseComponent, className, 'drop-zone',
-                                            { active: isOverCurrent },
-                                            { blocked: !canDrop },
-                                            { possible: isDragging && !isOverCurrent && canDrop },
-                                        )
-                                    }
-                                />
-              </g>
-
+                <Component
+                    {...restProps}
+                    className={
+                        cn(baseComponent, className, 'drop-zone',
+                            { active: isOverCurrent },
+                            { blocked: !canDrop },
+                            { possible: isDragging && !isOverCurrent && canDrop },
+                        )
+                    }
+                />
             );
         }
         return connectDropTarget(result);
-    }
-
-    drawAddButton(x, y, height, width) {
-      return (<g>
-              </g>);
-    }
-
-    onMouseOverArea() {
-        this.setState({overArea:true});
-    }
-    onMouseOutArea() {
-        this.setState({ overArea:false });
-    }
-
-    onAddButtonClick() {
-      const blocksToBeAdded = [];
-      blocksToBeAdded.push({
-          name: 'endpoint',
-          addBlock: this.onAddEndpointClick,
-      });
-      blocksToBeAdded.push({
-          name: 'if',
-          addBlock: this.onAddIfClick,
-      });
-      blocksToBeAdded.push({
-          name: 'while',
-          addBlock: this.onAddWhileClick,
-      });
-      blocksToBeAdded.push({
-          name: 'action',
-          addBlock: this.onAddActionClick,
-      });
-
-      const overlayComponents = {
-          kind: 'MultiBlockSelect',
-          props: {
-              key: 'test',
-              model: this.props.model,
-              blocksToBeAdded,
-          },
-      };
-      this.props.model.viewState.showOverlayContainer = true;
-      this.props.model.viewState.overlayContainer = overlayComponents;
-      this.context.editor.update();
-    }
-
-    onAddEndpointClick() {
-
-    }
-
-    onAddIfClick() {
-      this.props.model.parent.addStatements(DefaultNodeFactory.createIf(),
-            this.props.model.parent.getIndexOfStatements(this.props.model));
-    }
-
-    onAddWhileClick() {
-      this.props.model.parent.addStatements(DefaultNodeFactory.createWhile(),
-            this.props.model.parent.getIndexOfStatements(this.props.model));
-    }
-
-    onAddActionClick() {
-
     }
 }
 
@@ -190,10 +108,6 @@ DropZone.defaultProps = {
     enableCenterOverlayLine: false,
     renderUponDragStart: false,
     className: '',
-};
-
-DropZone.contextTypes = {
-    editor: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default withDropEnabled(DropZone);
