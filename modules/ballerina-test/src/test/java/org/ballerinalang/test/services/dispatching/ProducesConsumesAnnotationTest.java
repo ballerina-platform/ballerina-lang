@@ -26,7 +26,6 @@ import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -50,7 +49,7 @@ public class ProducesConsumesAnnotationTest {
         String path = "/echo66/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
         cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, "application/xml; charset=ISO-8859-4");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
@@ -62,7 +61,7 @@ public class ProducesConsumesAnnotationTest {
         String path = "/echo66/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
         cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, "compileResult/json");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         int trueResponse = (int) response.getProperty(Constants.HTTP_STATUS_CODE);
@@ -74,7 +73,7 @@ public class ProducesConsumesAnnotationTest {
         String path = "/echo66/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
         cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, ",:vhjv");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         int trueResponse = (int) response.getProperty(Constants.HTTP_STATUS_CODE);
@@ -86,7 +85,7 @@ public class ProducesConsumesAnnotationTest {
         String path = "/echo66/test2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         cMsg.setHeader(Constants.ACCEPT_HEADER, "text/xml;q=0.3, multipart/*;Level=1;q=0.7");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
@@ -97,7 +96,7 @@ public class ProducesConsumesAnnotationTest {
     public void testProducesAnnotationWithNoHeaders() {
         String path = "/echo66/test2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
@@ -109,7 +108,7 @@ public class ProducesConsumesAnnotationTest {
         String path = "/echo66/test2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         cMsg.setHeader(Constants.ACCEPT_HEADER, "*/*, text/html;Level=1;q=0.7");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
@@ -121,7 +120,7 @@ public class ProducesConsumesAnnotationTest {
         String path = "/echo66/test2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         cMsg.setHeader(Constants.ACCEPT_HEADER, "text/*;q=0.3, text/html;Level=1;q=0.7");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
@@ -133,7 +132,7 @@ public class ProducesConsumesAnnotationTest {
         String path = "/echo66/test2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         cMsg.setHeader(Constants.ACCEPT_HEADER, "multipart/*;q=0.3, text/html;Level=1;q=0.7");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         int trueResponse = (int) response.getProperty(Constants.HTTP_STATUS_CODE);
@@ -145,7 +144,7 @@ public class ProducesConsumesAnnotationTest {
         String path = "/echo66/test2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         cMsg.setHeader(Constants.ACCEPT_HEADER, ":,;,v567br");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         int trueResponse = (int) response.getProperty(Constants.HTTP_STATUS_CODE);
@@ -158,7 +157,7 @@ public class ProducesConsumesAnnotationTest {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
         cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, "text/plain; charset=ISO-8859-4");
         cMsg.setHeader(Constants.ACCEPT_HEADER, "text/*;q=0.3, text/html;Level=1;q=0.7");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
@@ -171,7 +170,7 @@ public class ProducesConsumesAnnotationTest {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
         cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, "text/plain ; charset=ISO-8859-4");
         cMsg.setHeader(Constants.ACCEPT_HEADER, "compileResult/xml, text/html");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         int trueResponse = (int) response.getProperty(Constants.HTTP_STATUS_CODE);
@@ -184,15 +183,10 @@ public class ProducesConsumesAnnotationTest {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, "text/plain; charset=ISO-8859-4");
         cMsg.setHeader(Constants.ACCEPT_HEADER, "text/*;q=0.3, text/html;Level=1;q=0.7");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("echo33").asText(), "echo1", "No media types");
-    }
-
-    @AfterClass
-    public void tearDown() {
-        BServiceUtil.cleanup(compileResult);
     }
 }

@@ -413,10 +413,11 @@ public class HttpUtil {
      *
      * @throws BallerinaConnectorException
      */
-    public static void startPendingHttpConnectors() throws BallerinaConnectorException {
+    public static void startPendingHttpConnectors(BallerinaHttpServerConnector httpServerConnector)
+            throws BallerinaConnectorException {
         try {
             // Starting up HTTP Server connectors
-            HttpConnectionManager.getInstance().startPendingHTTPConnectors();
+            HttpConnectionManager.getInstance().startPendingHTTPConnectors(httpServerConnector);
         } catch (ServerConnectorException e) {
             throw new BallerinaConnectorException(e);
         }
