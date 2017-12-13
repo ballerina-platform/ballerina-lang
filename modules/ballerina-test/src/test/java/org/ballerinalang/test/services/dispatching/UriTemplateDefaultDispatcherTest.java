@@ -24,7 +24,6 @@ import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -47,7 +46,7 @@ public class UriTemplateDefaultDispatcherTest {
     public void testServiceNameDispatchingWhenBasePathUndefined() {
         String path = "/serviceName";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
@@ -59,7 +58,7 @@ public class UriTemplateDefaultDispatcherTest {
     public void testServiceNameDispatchingWithEmptyBasePath() {
         String path = "/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
@@ -71,16 +70,11 @@ public class UriTemplateDefaultDispatcherTest {
     public void testServiceNameDispatchingWhenAnnotationUnavailable() {
         String path = "/serviceWithNoAnnotation/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("echo").asText(), "dispatched to a service without an annotation"
                 , "Resource dispatched to wrong template");
-    }
-
-    @AfterClass
-    public void tearDown() {
-        BServiceUtil.cleanup(application);
     }
 }
