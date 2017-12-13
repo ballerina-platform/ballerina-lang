@@ -71,7 +71,9 @@ public class ServerConnectorRegistry {
      * This method will notify underline server connectors about the deployment complete event.
      */
     public void deploymentComplete() {
-        serverConnectorMap.values().forEach(sc -> sc.deploymentComplete());
+        serverConnectorMap.values(
+
+        ).forEach(sc -> sc.deploymentComplete());
     }
 
     /**

@@ -24,17 +24,17 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 /**
  * Data element for WebSocket URI template.
  */
-public class WsDataElement implements DataElement<String, WebSocketMessage> {
+public class WsDataElement implements DataElement<WebSocketService, WebSocketMessage> {
 
-    private String webSocketServiceName;
+    private WebSocketService webSocketService;
 
     @Override
-    public void setData(String webSocketService) {
-        this.webSocketServiceName = webSocketService;
+    public void setData(WebSocketService webSocketService) {
+        this.webSocketService = webSocketService;
     }
 
     @Override
-    public String getData(WebSocketMessage inboundMessage) {
-        return webSocketServiceName;
+    public WebSocketService getData(WebSocketMessage inboundMessage) {
+        return webSocketService;
     }
 }

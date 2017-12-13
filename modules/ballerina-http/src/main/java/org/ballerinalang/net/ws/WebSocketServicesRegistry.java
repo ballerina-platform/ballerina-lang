@@ -46,16 +46,16 @@ public class WebSocketServicesRegistry {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketServicesRegistry.class);
 
-    // Map<interface, URITemplate<WebSocketServiceName, messageType>>
-    private final Map<String, URITemplate<String, WebSocketMessage>>
+    // Map<interface, URITemplate<WebSocketService, messageType>>
+    private final Map<String, URITemplate<WebSocketService, WebSocketMessage>>
             serviceEndpointsTemplate = new ConcurrentHashMap<>();
     // Map<clientServiceName, ClientService>
     private final Map<String, WebSocketService> clientServices = new ConcurrentHashMap<>();
     // Map<ServiceName, ServiceEndpoint>
-    private final Map<String, WebSocketService> serviceEndpoints = new ConcurrentHashMap<>();
+    private Map<String, WebSocketService> masterServices = new ConcurrentHashMap<>();
 
-    private final Map<String, WebSocketService> slaveEndpoints = new HashMap<>();
-    private final List<String> httpToWsUpgradableEndpoints = new LinkedList<>();
+    private Map<String, WebSocketService> slaveServices = new HashMap<>();
+    private List<UpgradableServiceInfo> httpToWsUpgradableServices = new LinkedList<>();
 
     public WebSocketServicesRegistry() {
     }
@@ -74,13 +74,13 @@ public class WebSocketServicesRegistry {
                 Annotation configAnnotation =
                         service.getAnnotation(Constants.PROTOCOL_PACKAGE_WS, Constants.ANNOTATION_CONFIGURATION);
                 if (configAnnotation == null) {
-                    slaveEndpoints.put(service.getName(), service);
+                    slaveServices.put(service.getName(), service);
                     return;
                 }
 
                 String basePath = findFullWebSocketUpgradePath(service);
                 if (basePath == null) {
-                    slaveEndpoints.put(service.getName(), service);
+                    slaveServices.put(service.getName(), service);
                     return;
                 }
 
@@ -90,8 +90,8 @@ public class WebSocketServicesRegistry {
                 for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
                     String entryListenerInterface =
                             listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
-                    addServiceToURITemplate(entryListenerInterface, basePath, service.getName());
-                    serviceEndpoints.put(service.getName(), service);
+                    addServiceToURITemplate(entryListenerInterface, basePath, service);
+                    masterServices.put(service.getName(), service);
                     HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
                 }
 
@@ -100,13 +100,48 @@ public class WebSocketServicesRegistry {
         }
     }
 
-    public void addServiceByName(String entryListenerInterface, String basePath, String serviceName) {
-        addServiceToURITemplate(entryListenerInterface, basePath, serviceName);
-        httpToWsUpgradableEndpoints.add(serviceName);
+    public void addUpgradableServiceByName(String entryListenerInterface, String basePath, String serviceName) {
+        httpToWsUpgradableServices.add(new UpgradableServiceInfo(entryListenerInterface, basePath, serviceName));
     }
 
-    private void addServiceToURITemplate(String entryListenerInterface, String basePath, String serviceName) {
-        URITemplate<String, WebSocketMessage> servicesOnInterface = serviceEndpointsTemplate
+    public void completeDeployment() {
+        httpToWsUpgradableServices.forEach(upgradableServiceInfo -> {
+            String serviceName = upgradableServiceInfo.getServiceName();
+            if (!masterServices.containsKey(serviceName)) {
+                if (!slaveServices.containsKey(serviceName)) {
+                    throw new BallerinaConnectorException("Cannot find a WebSocket service for service name "
+                                                                  + upgradableServiceInfo.getServiceName());
+                }
+                masterServices.put(serviceName, slaveServices.remove(serviceName));
+            }
+            addServiceToURITemplate(upgradableServiceInfo.getServiceInterface(),
+                                    upgradableServiceInfo.getBasePath(), masterServices.get(serviceName));
+        });
+
+        if (slaveServices.size() > 0) {
+            StringBuilder errorMsg = new StringBuilder("Cannot register following services: \n");
+            for (String serviceName : slaveServices.keySet()) {
+                WebSocketService service = slaveServices.remove(serviceName);
+                if (service.getAnnotation(Constants.PROTOCOL_PACKAGE_WS,
+                                          Constants.ANNOTATION_CONFIGURATION) == null) {
+                    String msg = "Cannot deploy WebSocket service without configuration annotation";
+                    errorMsg.append(String.format("\t%s: %s\n", serviceName, msg));
+                } else {
+                    String msg = "Cannot deploy WebSocket service without associated path";
+                    errorMsg.append(String.format("\t%s: %s\n", serviceName, msg));
+                }
+            }
+            throw new BallerinaConnectorException(errorMsg.toString());
+        }
+
+        // After deployment is completed these data structures are not needed anymore.
+        masterServices.clear();
+        slaveServices.clear();
+        httpToWsUpgradableServices.clear();
+    }
+
+    private void addServiceToURITemplate(String entryListenerInterface, String basePath, WebSocketService service) {
+        URITemplate<WebSocketService, WebSocketMessage> servicesOnInterface = serviceEndpointsTemplate
                 .computeIfAbsent(entryListenerInterface, k -> {
                     try {
                         return new URITemplate<>(new Literal<>(new WsDataElement(), "/"));
@@ -116,37 +151,9 @@ public class WebSocketServicesRegistry {
                 });
 
         try {
-            servicesOnInterface.parse(basePath, serviceName, new WsDataElementFactory());
+            servicesOnInterface.parse(basePath, service, new WsDataElementFactory());
         } catch (URITemplateException e) {
             throw new BallerinaConnectorException(e.getMessage());
-        }
-    }
-
-    public void completeDeployment() {
-        httpToWsUpgradableEndpoints.forEach(serviceName -> {
-            if (!serviceEndpoints.containsKey(serviceName)) {
-                if (!slaveEndpoints.containsKey(serviceName)) {
-                    throw new BallerinaConnectorException("Cannot find a WebSocket service for service name "
-                                                                  + serviceName);
-                }
-                serviceEndpoints.put(serviceName, slaveEndpoints.remove(serviceName));
-            }
-        });
-
-        if (slaveEndpoints.size() > 0) {
-            String errorMsg = "Cannot register following services: \n";
-            for (String serviceName : slaveEndpoints.keySet()) {
-                WebSocketService service = slaveEndpoints.remove(serviceName);
-                if (service.getAnnotation(Constants.PROTOCOL_PACKAGE_WS,
-                                          Constants.ANNOTATION_CONFIGURATION) == null) {
-                    String msg = "Cannot deploy WebSocket service without configuration annotation";
-                    errorMsg = errorMsg + String.format("\t%s: %s\n", serviceName, msg);
-                } else {
-                    String msg = "Cannot deploy WebSocket service without associated path";
-                    errorMsg = errorMsg + String.format("\t%s: %s\n", serviceName, msg);
-                }
-            }
-            throw new BallerinaConnectorException(errorMsg);
         }
     }
 
@@ -172,7 +179,7 @@ public class WebSocketServicesRegistry {
      */
     public WebSocketService matchServiceEndpoint(String listenerInterface, String uri, Map<String, String> variables) {
         // Message can be null here since WsDataElement does not use inbound message to match services.
-        return serviceEndpoints.get(serviceEndpointsTemplate.get(listenerInterface).matches(uri, variables, null));
+        return serviceEndpointsTemplate.get(listenerInterface).matches(uri, variables, null);
     }
 
     /**
@@ -228,16 +235,28 @@ public class WebSocketServicesRegistry {
         return basePath;
     }
 
-    /**
-     * Find the listener interface of a given service.
-     *
-     * @param service {@link WebSocketService} which the listener interface should be found.
-     * @return the listener interface of the service.
-     */
-    private String getListenerInterface(WebSocketService service) {
-        // TODO : Handle correct interface addition to default interface.
-        String listenerInterface = Constants.DEFAULT_INTERFACE;
-        return listenerInterface;
+    private class UpgradableServiceInfo {
+        private final String basePath;
+        private final String serviceInterface;
+        private final String serviceName;
+
+        private UpgradableServiceInfo(String basePath, String serviceInterface, String serviceName) {
+            this.basePath = basePath;
+            this.serviceInterface = serviceInterface;
+            this.serviceName = serviceName;
+        }
+
+        private String getBasePath() {
+            return basePath;
+        }
+
+        private String getServiceInterface() {
+            return serviceInterface;
+        }
+
+        private String getServiceName() {
+            return serviceName;
+        }
     }
 
 }
