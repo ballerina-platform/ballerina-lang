@@ -45,15 +45,6 @@
         </context>
     </template>
 
-    <template description='Else Statement' id='ballerina_lang_else' name='ballerina_lang_else'
-              toReformat='false' toShortenFQNames='true' value='else {&#10;    $END$&#10;}'>
-        <context>
-            <option name="BALLERINA_RESOURCE" value="true"/>
-            <option name="BALLERINA_FUNCTION" value="true"/>
-            <option name="BALLERINA_ACTION" value="true"/>
-        </context>
-    </template>
-
     <template description='Fork Statement' id='ballerina_lang_fork' name='ballerina_lang_fork'
               toReformat='false' toShortenFQNames='true' value='fork {&#10;    $END$&#10;}'>
         <context>
