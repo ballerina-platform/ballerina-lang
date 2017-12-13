@@ -216,7 +216,7 @@ class IfNode extends React.Component {
                 />
                 {this.getAddBlockButton(isElseIfNode)}
 
-                {elseComp && TreeUtil.isIf(elseComp) &&
+                {/* {elseComp && TreeUtil.isIf(elseComp) &&
                 <IfNode model={elseComp} />
                 }
 
@@ -227,7 +227,7 @@ class IfNode extends React.Component {
                     title={'else'}
                     model={elseComp}
                     body={elseComp}
-                />
+                /> */}
                 }
             </g>
         );
