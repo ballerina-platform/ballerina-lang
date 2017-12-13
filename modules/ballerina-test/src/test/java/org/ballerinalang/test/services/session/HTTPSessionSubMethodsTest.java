@@ -20,7 +20,7 @@ package org.ballerinalang.test.services.session;
 
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.runtime.message.StringDataSource;
+import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -28,6 +28,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import static org.ballerinalang.net.http.Constants.COOKIE_HEADER;
 import static org.ballerinalang.net.http.Constants.RESPONSE_COOKIE_HEADER;
@@ -55,9 +56,10 @@ public class HTTPSessionSubMethodsTest {
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
         String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 16);
 
-        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
-        Assert.assertNotNull(stringDataSource);
-        Assert.assertEquals(stringDataSource.getValue(), sessionId);
+        String responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertNotNull(responseMsgPayload);
+        Assert.assertEquals(responseMsgPayload, sessionId);
     }
 
     @Test(description = "Test for null session GetId Function")
@@ -66,9 +68,10 @@ public class HTTPSessionSubMethodsTest {
         HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
-        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
-        Assert.assertNotNull(stringDataSource);
-        String error = stringDataSource.getValue().substring(0, 56);
+        String responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertNotNull(responseMsgPayload);
+        String error = responseMsgPayload.substring(0, 56);
         Assert.assertTrue(error.contains("message: argument 0 is null"));
     }
 
@@ -78,9 +81,10 @@ public class HTTPSessionSubMethodsTest {
         HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
-        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
-        Assert.assertNotNull(stringDataSource);
-        Assert.assertEquals(stringDataSource.getValue(), "true");
+        String responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertNotNull(responseMsgPayload);
+        Assert.assertEquals(responseMsgPayload, "true");
 
     }
 
@@ -90,9 +94,10 @@ public class HTTPSessionSubMethodsTest {
         HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
-        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
-        Assert.assertNotNull(stringDataSource);
-        Assert.assertEquals(stringDataSource.getValue(), "true");
+        String responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertNotNull(responseMsgPayload);
+        Assert.assertEquals(responseMsgPayload, "true");
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
         String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 14);
@@ -102,9 +107,10 @@ public class HTTPSessionSubMethodsTest {
         response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
-        stringDataSource = (StringDataSource) response.getMessageDataSource();
-        Assert.assertNotNull(stringDataSource);
-        Assert.assertEquals(stringDataSource.getValue(), "false");
+        responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertNotNull(responseMsgPayload);
+        Assert.assertEquals(responseMsgPayload, "false");
     }
 
     @Test(description = "Test for GetCreateTime Function")
@@ -113,8 +119,9 @@ public class HTTPSessionSubMethodsTest {
         HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
-        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
-        long firstAccess = Long.parseLong(stringDataSource.getValue().toString());
+        String responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        long firstAccess = Long.parseLong(responseMsgPayload.toString());
 
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
@@ -125,9 +132,10 @@ public class HTTPSessionSubMethodsTest {
         response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
-        stringDataSource = (StringDataSource) response.getMessageDataSource();
-        Assert.assertNotNull(stringDataSource);
-        long secondAccess = Long.parseLong(stringDataSource.getValue());
+        responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertNotNull(responseMsgPayload);
+        long secondAccess = Long.parseLong(responseMsgPayload);
         Assert.assertTrue(firstAccess == secondAccess);
     }
 
@@ -137,9 +145,10 @@ public class HTTPSessionSubMethodsTest {
         HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
-        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
-        Assert.assertNotNull(stringDataSource);
-        String error = stringDataSource.getValue().substring(38, 94);
+        String responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertNotNull(responseMsgPayload);
+        String error = responseMsgPayload.substring(38, 94);
         Assert.assertTrue(error.contains("No such session in progress"));
     }
 
@@ -149,9 +158,10 @@ public class HTTPSessionSubMethodsTest {
         HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
-        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
-        Assert.assertNotNull(stringDataSource);
-        long firstAccess = Long.parseLong(stringDataSource.getValue().toString());
+        String responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertNotNull(responseMsgPayload);
+        long firstAccess = Long.parseLong(responseMsgPayload.toString());
 
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
@@ -162,9 +172,10 @@ public class HTTPSessionSubMethodsTest {
         response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
-        stringDataSource = (StringDataSource) response.getMessageDataSource();
-        Assert.assertNotNull(stringDataSource);
-        long secondAccess = Long.parseLong(stringDataSource.getValue());
+        responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertNotNull(responseMsgPayload);
+        long secondAccess = Long.parseLong(responseMsgPayload);
         Assert.assertTrue(firstAccess == secondAccess);
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/new4", "GET");
@@ -172,9 +183,10 @@ public class HTTPSessionSubMethodsTest {
         response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
-        stringDataSource = (StringDataSource) response.getMessageDataSource();
-        Assert.assertNotNull(stringDataSource);
-        long thirdAccess = Long.parseLong(stringDataSource.getValue());
+        responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertNotNull(responseMsgPayload);
+        long thirdAccess = Long.parseLong(responseMsgPayload);
         Assert.assertTrue(firstAccess <= thirdAccess);
     }
 
@@ -184,9 +196,10 @@ public class HTTPSessionSubMethodsTest {
         HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
-        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
-        Assert.assertNotNull(stringDataSource);
-        String error = stringDataSource.getValue().substring(38, 99);
+        String responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertNotNull(responseMsgPayload);
+        String error = responseMsgPayload.substring(38, 99);
         Assert.assertTrue(error.contains("No such session in progress"));
     }
 
@@ -196,9 +209,10 @@ public class HTTPSessionSubMethodsTest {
         HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
-        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
-        Assert.assertNotNull(stringDataSource);
-        long timeInterval = Long.parseLong(stringDataSource.getValue().toString());
+        String responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertNotNull(responseMsgPayload);
+        long timeInterval = Long.parseLong(responseMsgPayload.toString());
         Assert.assertEquals(timeInterval, 900);
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
@@ -209,9 +223,10 @@ public class HTTPSessionSubMethodsTest {
         response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
-        stringDataSource = (StringDataSource) response.getMessageDataSource();
-        Assert.assertNotNull(stringDataSource);
-        long timeInterval2 = Long.parseLong(stringDataSource.getValue());
+        responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertNotNull(responseMsgPayload);
+        long timeInterval2 = Long.parseLong(responseMsgPayload);
         Assert.assertEquals(timeInterval2, 60);
     }
 
@@ -221,9 +236,10 @@ public class HTTPSessionSubMethodsTest {
         HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
-        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
-        Assert.assertNotNull(stringDataSource);
-        String error = stringDataSource.getValue().substring(38, 98);
+        String responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertNotNull(responseMsgPayload);
+        String error = responseMsgPayload.substring(38, 98);
         Assert.assertTrue(error.contains("No such session in progress"));
     }
 
@@ -233,9 +249,10 @@ public class HTTPSessionSubMethodsTest {
         HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
-        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
-        Assert.assertNotNull(stringDataSource);
-        long timeInterval = Long.parseLong(stringDataSource.getValue().toString());
+        String responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertNotNull(responseMsgPayload);
+        long timeInterval = Long.parseLong(responseMsgPayload.toString());
         Assert.assertEquals(timeInterval, 900);
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
@@ -246,9 +263,10 @@ public class HTTPSessionSubMethodsTest {
         response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
-        stringDataSource = (StringDataSource) response.getMessageDataSource();
-        Assert.assertNotNull(stringDataSource);
-        long timeInterval2 = Long.parseLong(stringDataSource.getValue().toString());
+        responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertNotNull(responseMsgPayload);
+        long timeInterval2 = Long.parseLong(responseMsgPayload.toString());
         Assert.assertEquals(timeInterval2, -1);
     }
 }

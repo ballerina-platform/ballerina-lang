@@ -492,7 +492,6 @@ public class TypeChecker extends BLangNodeVisitor {
         if (expType == symTable.errType || thenType == symTable.errType || elseType == symTable.errType) {
             resultTypes = Lists.of(symTable.errType);
         } else if (expTypes.get(0) == symTable.noType) {
-            // TODO : Fix this.
             if (thenType == elseType) {
                 resultTypes = Lists.of(thenType);
             } else {

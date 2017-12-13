@@ -29,6 +29,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
  * Testing global variables in services with package.
@@ -48,7 +49,7 @@ public class GlobalVarServicePkgTest {
         HTTPCarbonMessage response = Services.invokeNew(result, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarInt":22343, "glbVarString":"stringval", "glbVarFloat":6342.234234}
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("glbVarInt").asText(), "22343");
         Assert.assertEquals(bJson.value().get("glbVarString").asText(), "stringval");
         Assert.assertEquals(bJson.value().get("glbVarFloat").asText(), "6342.234234");
@@ -60,7 +61,7 @@ public class GlobalVarServicePkgTest {
         HTTPCarbonMessage response = Services.invokeNew(result, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarFloat1":6342.234234}
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("glbVarFloat1").asText(), "6342.234234");
     }
 
@@ -70,7 +71,7 @@ public class GlobalVarServicePkgTest {
         HTTPCarbonMessage response = Services.invokeNew(result, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarFunc":423277.72343}
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("glbVarFunc").asText(), "423277.72343");
     }
 
@@ -80,7 +81,7 @@ public class GlobalVarServicePkgTest {
         HTTPCarbonMessage response = Services.invokeNew(result, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarPkgFunc":8876}
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("glbVarPkgFunc").asText(), "8876");
     }
 
@@ -91,7 +92,7 @@ public class GlobalVarServicePkgTest {
         HTTPCarbonMessage response = Services.invokeNew(result, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"serviceVarString":"stringval"}
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("serviceVarString").asText(), "stringval");
     }
 
@@ -106,7 +107,7 @@ public class GlobalVarServicePkgTest {
         HTTPCarbonMessage response = Services.invokeNew(result, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"changeVarFloat":345432.454}
-        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("changeVarFloat").asText(), "345432.454");
     }
 

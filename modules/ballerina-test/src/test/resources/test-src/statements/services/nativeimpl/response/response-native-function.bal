@@ -5,11 +5,6 @@ function testAddHeader (http:Response res, string key, string value) (http:Respo
     return res;
 }
 
-function testClone (http:Response res) (http:Response) {
-    http:Response newres = res.clone();
-    return newres;
-}
-
 function testGetContentLength (http:Response res) (int) {
     int length = res.getContentLength();
     return length;
@@ -128,17 +123,6 @@ service<http> helloServer {
         res.addHeader(key, value);
         string result = res.getHeader(key);
         res.setJsonPayload({lang:result});
-        _ = res.send();
-    }
-
-    @http:resourceConfig {
-        path:"/cloneMethod/{value}"
-    }
-    resource CloneMethod (http:Request req, http:Response res, string value) {
-        res.setJsonPayload({lang:value});
-        http:Response newRes = res.clone();
-        json jsonValue = newRes.getJsonPayload();
-        res.setJsonPayload(jsonValue);
         _ = res.send();
     }
 
