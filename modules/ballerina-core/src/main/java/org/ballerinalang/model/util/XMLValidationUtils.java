@@ -253,8 +253,8 @@ public class XMLValidationUtils {
      */
 
     /**
-     * Validate a {@link BXMLQName} against the XSD definition.
-     * <p/>
+     * <p>Validate a {@link BXMLQName} against the XSD definition.</p>
+     * 
      * <i>
      * NCName ::= (Letter | '_') (NCNameChar)*
      * NCNameChar ::= Letter | Digit | '.' | '-' | '_' | CombiningChar | Extender
@@ -269,9 +269,8 @@ public class XMLValidationUtils {
     }
 
     /**
-     * Validate a name against the XSD definition. Checks whether the provided name is 
-     * a valid XML qualified name.
-     * <p/>
+     * <p>Validate a name against the XSD definition. Checks whether the provided name is 
+     * a valid XML qualified name.</p>
      * <i>
      * NCName ::= (Letter | '_') (NCNameChar)*
      * NCNameChar ::= Letter | Digit | '.' | '-' | '_' | CombiningChar | Extender
@@ -287,9 +286,8 @@ public class XMLValidationUtils {
     }
 
     /**
-     * Validate a name against the XSD definition. Checks whether the provided name is 
-     * a XML supported non-colonized name.
-     * <p/>
+     * <p>Validate a name against the XSD definition. Checks whether the provided name is 
+     * a XML supported non-colonized name.</p>
      * <i>
      * NCName ::= (Letter | '_') (NCNameChar)*
      * NCNameChar ::= Letter | Digit | '.' | '-' | '_' | CombiningChar | Extender
@@ -318,9 +316,8 @@ public class XMLValidationUtils {
      */
 
     /**
-     * Returns true if the specified character is a valid NCName (non-colonized name) start character 
-     * as defined by the production [4] in Namespaces in XML recommendation.
-     * <br/>
+     *<p> Returns true if the specified character is a valid NCName (non-colonized name) start character 
+     * as defined by the production [4] in Namespaces in XML recommendation.</p>
      * <i>NameChar ::= Letter | Digit | '.' | '-' | '_' | ':' | CombiningChar | Extender </i>
      *
      * @param c The character to check.
@@ -330,9 +327,8 @@ public class XMLValidationUtils {
     }
 
     /**
-     * Returns true if the specified character is a valid NCName (non-colonized name) character 
-     * as defined by the production [5] in Namespaces in XML recommendation.
-     * <br/>
+     * <p>Returns true if the specified character is a valid NCName (non-colonized name) character 
+     * as defined by the production [5] in Namespaces in XML recommendation.</p>
      * <i>Name ::= (Letter | '_' | ':') (NameChar)*</i>
      * 
      * @param c The character to check.
