@@ -37,15 +37,7 @@ public class AbstractServiceResource {
     protected Map<String, List<Annotation>> annotationMap = new HashMap<>();
 
     protected void addAnnotation(String key, Annotation annotation) {
-        List<Annotation> annotationList = annotationMap.get(key);
-
-        if (annotationList != null) {
-            annotationList.add(annotation);
-        } else {
-            annotationList = new ArrayList<>();
-            annotationList.add(annotation);
-            annotationMap.put(key, annotationList);
-        }
+        annotationMap.computeIfAbsent(key, k -> new ArrayList<>()).add(annotation);
     }
 
 
