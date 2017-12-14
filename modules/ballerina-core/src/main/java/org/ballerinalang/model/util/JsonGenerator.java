@@ -58,7 +58,7 @@ public class JsonGenerator {
     }
     
     public JsonGenerator(OutputStream out, Charset charset) {
-        this.writer = new BufferedWriter(new OutputStreamWriter(out, charset));
+        this(new BufferedWriter(new OutputStreamWriter(out, charset)));
     }
 
     public JsonGenerator(Writer writer) {
