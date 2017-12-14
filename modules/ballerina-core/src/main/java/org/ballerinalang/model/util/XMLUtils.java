@@ -83,8 +83,7 @@ public class XMLUtils {
 
             // If this is an XML document, parse it and return an element type XML.
             if (xmlStr.trim().startsWith(XML_DCLR_START)) {
-                OMElement omElement = AXIOMUtil.stringToOM(xmlStr);
-                return new BXMLItem(omElement);
+                return new BXMLItem(xmlStr);
             }
 
             // Here we add a dummy enclosing tag, and send to AXIOM to parse the XML.
@@ -205,6 +204,9 @@ public class XMLUtils {
             throw new BallerinaException(
                     "start and end tag names mismatch: '" + startTagName + "' and '" + endTagName + "'");
         }
+
+        // Validate whether the tag names are XML supported qualified names, according to the XML recommendation.
+        XMLValidationUtils.validateXMLQName(startTagName);
 
         String nsUri = startTagName.getUri();
         OMElement omElement;
