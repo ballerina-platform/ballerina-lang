@@ -57,8 +57,6 @@ import java.util.NoSuchElementException;
 )
 public class CreateSessionIfAbsent extends AbstractNativeFunction {
 
-    public static final String SESSION_PACKAGE = "ballerina.net.http";
-    public static final String STRUCT_SESSION = "Session";
     private static final Logger logger = LoggerFactory.getLogger(CreateSessionIfAbsent.class);
 
     @Override
@@ -73,13 +71,11 @@ public class CreateSessionIfAbsent extends AbstractNativeFunction {
             Session session = (Session) httpCarbonMessage.getProperty(Constants.HTTP_SESSION);
             if (cookieHeader != null) {
                 try {
-                    String sessionId = Arrays.stream(cookieHeader.split(";"))
-                                        .filter(cookie -> cookie.startsWith(Constants.SESSION_ID))
-                                        .findFirst().get().substring(Constants.SESSION_ID.length());
+                    String sessionId = Utils.getSessionID(cookieHeader);
                     //return value from cached session
                     if (session != null && sessionId.equals(session.getId())) {
                         session = session.setAccessed();
-                        return new BValue[]{createSessionStruct(context, session)};
+                        return new BValue[]{Utils.createSessionStruct(context, session)};
                     }
                     session = SessionManager.getInstance().getHTTPSession(sessionId);
                 } catch (NoSuchElementException e) {
@@ -98,33 +94,21 @@ public class CreateSessionIfAbsent extends AbstractNativeFunction {
                 //cached session will return of this function is called twice.
                 if (session != null) {
                     session = session.setAccessed();
-                    return new BValue[]{createSessionStruct(context, session)};
+                    return new BValue[]{Utils.createSessionStruct(context, session)};
                 }
                 //create session since request doesn't have a cookie
                 session = SessionManager.getInstance().createHTTPSession(path);
             }
             httpCarbonMessage.setProperty(Constants.HTTP_SESSION, session);
             httpCarbonMessage.removeHeader(Constants.COOKIE_HEADER);
-            return new BValue[]{createSessionStruct(context, session)};
+            return new BValue[]{Utils.createSessionStruct(context, session)};
 
         } catch (IllegalStateException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
     }
 
-    public static BStruct createSessionStruct(Context context, Session session) {
 
-        //gather package details from natives
-        PackageInfo sessionPackageInfo = context.getProgramFile().getPackageInfo(SESSION_PACKAGE);
-        StructInfo sessionStructInfo = sessionPackageInfo.getStructInfo(STRUCT_SESSION);
 
-        //create session struct
-        BStructType structType = sessionStructInfo.getType();
-        BStruct bStruct = new BStruct(structType);
 
-        //Add session to the struct as a native data
-        bStruct.addNativeData(Constants.HTTP_SESSION, session);
-
-        return bStruct;
-    }
 }

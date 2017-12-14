@@ -69,8 +69,8 @@ public class GetSession extends AbstractNativeFunction {
             if (cookieHeader != null) {
                 try {
                     String sessionId = Arrays.stream(cookieHeader.split(";"))
-                                        .filter(cookie -> cookie.startsWith(Constants.SESSION_ID))
-                                        .findFirst().get().substring(Constants.SESSION_ID.length());
+                                        .filter(cookie -> cookie.trim().startsWith(Constants.SESSION_ID))
+                                        .findFirst().get().trim().substring(Constants.SESSION_ID.length());
                     //return value from cached session
                     if (session != null && (sessionId.equals(session.getId()))) {
                         session = session.setAccessed();
