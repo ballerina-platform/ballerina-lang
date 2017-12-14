@@ -204,12 +204,10 @@ public class BallerinaTextDocumentService implements TextDocumentService {
                 .filter(cUnit -> (uri.endsWith(cUnit.getName())))
                 .findFirst();
 
-        if (!documentCUnit.isPresent()) {
-            return CompletableFuture.supplyAsync(() -> null);
-        }
-
-        SymbolFindingVisitor visitor = new SymbolFindingVisitor(symbolsContext);
-        documentCUnit.get().accept(visitor);
+        documentCUnit.ifPresent(cUnit -> {
+            SymbolFindingVisitor visitor = new SymbolFindingVisitor(symbolsContext);
+            cUnit.accept(visitor);
+        });
 
         return CompletableFuture.supplyAsync(() -> symbols);
     }
