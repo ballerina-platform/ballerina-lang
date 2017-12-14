@@ -23,7 +23,9 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -93,8 +95,11 @@ public class WebSocketService implements Service {
     }
 
     public BStruct createConnectionStruct() {
-        return ConnectorUtils.createStruct(service.getResources()[0], Constants.PROTOCOL_PACKAGE_WS,
+        BStruct wsConnection = ConnectorUtils.createStruct(service.getResources()[0], Constants.PROTOCOL_PACKAGE_WS,
                                     Constants.STRUCT_WEBSOCKET_CONNECTION);
+        BMap<String, BValue> attributes = new BMap<>();
+        wsConnection.setRefField(0, attributes);
+        return wsConnection;
     }
 
     public BStruct createTextFrameStruct() {

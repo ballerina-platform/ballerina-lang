@@ -113,7 +113,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -1350,30 +1349,6 @@ public class BLangPackageBuilder {
         transactionNode.setFailedBody(failedBlock);
     }
 
-    public void startCommittedBlock() {
-        startBlock();
-    }
-
-    public void addCommittedBlock(DiagnosticPos pos, Set<Whitespace> ws) {
-        TransactionNode transactionNode = transactionNodeStack.peek();
-        BLangBlockStmt committedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
-        committedBlock.pos = pos;
-        transactionNode.addWS(ws);
-        transactionNode.setCommittedBody(committedBlock);
-    }
-
-    public void startAbortedBlock() {
-        startBlock();
-    }
-
-    public void addAbortedBlock(DiagnosticPos pos, Set<Whitespace> ws) {
-        TransactionNode transactionNode = transactionNodeStack.peek();
-        BLangBlockStmt abortedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
-        abortedBlock.pos = pos;
-        transactionNode.addWS(ws);
-        transactionNode.setAbortedBody(abortedBlock);
-    }
-
     public void endTransactionStmt(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangTransaction transaction = (BLangTransaction) transactionNodeStack.pop();
         transaction.pos = pos;
@@ -1388,22 +1363,16 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(abortNode);
     }
 
+    public void addRetryCountExpression() {
+        BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
+        transaction.retryCount = (BLangExpression) exprNodeStack.pop();
+    }
+
     public void startIfElseNode(DiagnosticPos pos) {
         BLangIf ifNode = (BLangIf) TreeBuilder.createIfElseStatementNode();
         ifNode.pos = pos;
         ifElseStatementStack.push(ifNode);
         startBlock();
-    }
-
-    public void addRetrytmt(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangRetry retryNode = (BLangRetry) TreeBuilder.createRetryNode();
-        retryNode.pos = pos;
-        retryNode.addWS(ws);
-        addStmtToCurrentBlock(retryNode);
-        TransactionNode transactionNode = transactionNodeStack.peek();
-        ExpressionNode count = exprNodeStack.pop();
-        retryNode.addWS(count.getWS());
-        transactionNode.setRetryCount(count);
     }
 
     public void addIfBlock(DiagnosticPos pos, Set<Whitespace> ws) {

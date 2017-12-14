@@ -36,6 +36,7 @@ import org.ballerinalang.net.http.BallerinaHttpServerConnector;
 import org.ballerinalang.net.ws.BallerinaWsClientConnectorListener;
 import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.net.ws.WebSocketService;
+import org.ballerinalang.net.ws.WsOpenConnectionInfo;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
@@ -43,6 +44,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 
+import java.util.HashMap;
 import javax.websocket.Session;
 
 /**
@@ -72,7 +74,7 @@ public class Connect extends AbstractNativeWsAction {
         String clientServiceName = getClientServiceNameFromConnector(bconnector);
         BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
                 getBallerinaServerConnector(context, Constants.HTTP_PACKAGE_PATH);
-        WebSocketService wsService =
+        final WebSocketService wsService =
                 httpServerConnector.getWebSocketServicesRegistry().getClientService(clientServiceName);
         if (wsService == null) {
             throw new BallerinaConnectorException("Cannot find client service: " + clientServiceName);
@@ -98,13 +100,16 @@ public class Connect extends AbstractNativeWsAction {
         HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
         WebSocketClientConnector clientConnector =
                 connectorFactory.createWsClientConnector(clientConnectorConfig);
-        HandshakeFuture handshakeFuture = clientConnector.connect(new BallerinaWsClientConnectorListener(wsService));
+        BallerinaWsClientConnectorListener clientConnectorListener = new BallerinaWsClientConnectorListener();
+        HandshakeFuture handshakeFuture = clientConnector.connect(clientConnectorListener);
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
-                BStruct wsConnection = createWsConnectionStruct(context, session, wsParentConnectionID);
+                BStruct wsConnection = createWsConnectionStruct(wsService, session, wsParentConnectionID);
                 context.getControlStackNew().currentFrame.returnValues[0] = wsConnection;
-                storeWsConnection(session.getId(), wsConnection);
+                WsOpenConnectionInfo connectionInfo =
+                        new WsOpenConnectionInfo(wsService, wsConnection, new HashMap<>());
+                clientConnectorListener.setConnectionInfo(connectionInfo);
                 connectorFuture.notifySuccess();
             }
 

@@ -57,7 +57,7 @@ public class HttpToWebSocketUpgradeTestCase {
     }
 
     @Test(priority = 3, expectedExceptions = BallerinaConnectorException.class,
-          expectedExceptionsMessageRegExp = "Could not find a WebSocket service for the service name: wsServic")
+          expectedExceptionsMessageRegExp = "Cannot find a WebSocket service for service name wsServic")
     public void testWrongServiceName() {
         CompileResult compileResult = BServiceUtil.setupProgramFile(
                 this, "test-src/net/ws/http-to-websocket-upgrade-service-name-negative.bal");
@@ -76,6 +76,6 @@ public class HttpToWebSocketUpgradeTestCase {
     private void validateSeverEndpoints(CompileResult compileResult) throws BallerinaConnectorException {
         BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
                 getBallerinaServerConnector(compileResult.getProgFile(), Constants.HTTP_PACKAGE_PATH);
-        httpServerConnector.getWebSocketServicesRegistry().validateSeverEndpoints();
+        httpServerConnector.getWebSocketServicesRegistry().completeDeployment();
     }
 }

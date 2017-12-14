@@ -75,7 +75,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -737,12 +736,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (transactionNode.failedBody != null) {
             analyzeStmt(transactionNode.failedBody, env);
         }
-        if (transactionNode.committedBody != null) {
-            analyzeStmt(transactionNode.committedBody, env);
-        }
-        if (transactionNode.abortedBody != null) {
-            analyzeStmt(transactionNode.abortedBody, env);
-        }
         if (transactionNode.retryCount != null) {
             typeChecker.checkExpr(transactionNode.retryCount, env, Lists.of(symTable.intType));
             checkRetryStmtValidity(transactionNode.retryCount);
@@ -751,11 +744,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAbort abortNode) {
-    }
-
-    @Override
-    public void visit(BLangRetry retryNode) {
-
     }
 
     private boolean isJoinResultType(BLangVariable var) {
