@@ -136,7 +136,6 @@ public class BlockingEntityCollector implements EntityCollector {
                     if (httpContent instanceof LastHttpContent) {
                         isEndOfMessageProcessed = true;
                         isConsumed.set(true);
-                        isExpectingEntity.set(true);
                     }
                     httpContent.release();
                 } catch (InterruptedException e) {
@@ -144,6 +143,7 @@ public class BlockingEntityCollector implements EntityCollector {
                 }
             }
         }
+        isExpectingEntity.set(true);
     }
 
     @Deprecated

@@ -80,6 +80,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                     if (handlerExecutor != null) {
                         handlerExecutor.executeAtSourceResponseSending(httpResponseMessage);
                     }
+                    httpResponseMessage.removeHttpContentAsyncFuture();
                 } else {
                     sourceContext.write(httpContent);
                 }
