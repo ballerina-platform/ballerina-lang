@@ -157,8 +157,7 @@ public class BallerinaBlock extends AbstractBlock {
                 || parentElementType == CATCH_CLAUSE || parentElementType == CATCH_CLAUSES
                 || parentElementType == FINALLY_CLAUSE || parentElementType == JOIN_CLAUSE
                 || parentElementType == TIMEOUT_CLAUSE || parentElementType == TRANSACTION_STATEMENT
-                || parentElementType == FAILED_CLAUSE || parentElementType == ABORTED_CLAUSE
-                || parentElementType == COMMITTED_CLAUSE) {
+                || parentElementType == FAILED_CLAUSE) {
             return true;
         }
         return false;
