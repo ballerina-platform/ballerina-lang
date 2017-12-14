@@ -68,10 +68,10 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
     }
 
-    protected void prepareRequest(BConnector connector, String path, HTTPCarbonMessage cMsg) {
+    protected void prepareRequest(BConnector connector, String path, HTTPCarbonMessage cMsg, BStruct requestStruct) {
 
         validateParams(connector);
-
+        HttpUtil.populateOutboundRequest(requestStruct, cMsg);
         String uri = null;
         try {
             uri = connector.getStringField(0) + path;
@@ -208,8 +208,9 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         @Override
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
             if (httpCarbonMessage.getMessagingException() == null) {
-                BStruct response = createResponseStruct(this.context);
-                response.addNativeData("transport_message", httpCarbonMessage);
+                BStruct response = createStruct(this.context, Constants.RESPONSE);
+                HttpUtil.setHeaderValueStructType(createStruct(this.context, Constants.HEADER_VALUE_STRUCT));
+                HttpUtil.populateInboundResponse(response, httpCarbonMessage);
                 ballerinaFuture.notifyReply(response);
             } else {
                 //TODO should we throw or should we create error struct and pass? or do we need this at all?
@@ -235,7 +236,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
 
         private void notifyError(Throwable throwable) {
-            BStruct httpConnectorError = createErrorStruct(context);
+            BStruct httpConnectorError = createStruct(context, Constants.HTTP_CONNECTOR_ERROR);
             httpConnectorError.setStringField(0, throwable.getMessage());
             if (throwable instanceof ClientConnectorException) {
                 ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
@@ -245,21 +246,11 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             ballerinaFuture.notifyReply(null, httpConnectorError);
         }
 
-        private BStruct createResponseStruct(Context context) {
-            PackageInfo sessionPackageInfo = context.getProgramFile()
+        private BStruct createStruct(Context context, String structName) {
+            PackageInfo httpPackageInfo = context.getProgramFile()
                     .getPackageInfo(Constants.PROTOCOL_PACKAGE_HTTP);
-            StructInfo sessionStructInfo = sessionPackageInfo.getStructInfo(Constants.RESPONSE);
-            BStructType structType = sessionStructInfo.getType();
-            BStruct bStruct = new BStruct(structType);
-
-            return bStruct;
-        }
-
-        private BStruct createErrorStruct(Context context) {
-            PackageInfo sessionPackageInfo = context.getProgramFile()
-                    .getPackageInfo(Constants.PROTOCOL_PACKAGE_HTTP);
-            StructInfo sessionStructInfo = sessionPackageInfo.getStructInfo(Constants.HTTP_CONNECTOR_ERROR);
-            BStructType structType = sessionStructInfo.getType();
+            StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
+            BStructType structType = structInfo.getType();
             return new BStruct(structType);
         }
     }
@@ -273,7 +264,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         //TODO check below line
         HTTPCarbonMessage requestMsg = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
-        prepareRequest(bConnector, path, requestMsg);
+        prepareRequest(bConnector, path, requestMsg, requestStruct);
         return requestMsg;
     }
 
