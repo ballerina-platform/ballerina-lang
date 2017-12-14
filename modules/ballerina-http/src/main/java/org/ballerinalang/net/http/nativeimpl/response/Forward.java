@@ -53,12 +53,13 @@ public class Forward extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BStruct responseStruct = (BStruct) getRefArgument(context, 0);
         BStruct clientResponseStruct = (BStruct) getRefArgument(context, 1);
-        HttpUtil.checkFunctionValidity(responseStruct);
+        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct
+                .getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
+        HttpUtil.checkFunctionValidity(responseStruct, requestMessage);
         if (clientResponseStruct.getNativeData(Constants.TRANSPORT_MESSAGE) == null) {
             throw new BallerinaException("Failed to forward: empty response parameter");
         }
-        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct
-                .getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
+
         HTTPCarbonMessage responseMessage = HttpUtil
                 .getCarbonMsg(clientResponseStruct, HttpUtil.createHttpCarbonMessage(false));
 

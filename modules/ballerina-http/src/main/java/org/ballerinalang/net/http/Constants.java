@@ -206,7 +206,8 @@ public class Constants {
     public static final String CONNECTION_HEADER = "Connection";
     public static final String HEADER_VAL_CONNECTION_CLOSE = "Close";
     public static final String HEADER_VAL_CONNECTION_KEEP_ALIVE = "Keep-Alive";
-
+    public static final String EXPECT_HEADER = "Expect";
+    public static final String HEADER_VAL_100_CONTINUE = "100-continue";
     /**
      * Content type HTTP header.
      */
