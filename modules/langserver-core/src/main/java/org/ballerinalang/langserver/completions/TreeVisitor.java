@@ -61,7 +61,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -380,26 +379,10 @@ public class TreeVisitor extends BLangNodeVisitor {
             this.acceptNode(transactionNode.failedBody, symbolEnv);
             this.blockOwnerStack.pop();
         }
-
-        if (transactionNode.committedBody != null) {
-            this.blockOwnerStack.push(transactionNode);
-            this.acceptNode(transactionNode.committedBody, symbolEnv);
-            this.blockOwnerStack.pop();
-        }
-
-        if (transactionNode.abortedBody != null) {
-            this.blockOwnerStack.push(transactionNode);
-            this.acceptNode(transactionNode.abortedBody, symbolEnv);
-            this.blockOwnerStack.pop();
-        }
     }
 
     @Override
     public void visit(BLangAbort abortNode) {
-    }
-
-    @Override
-    public void visit(BLangRetry retryNode) {
     }
 
     private BLangVariableDef createVarDef(BLangVariable var) {
