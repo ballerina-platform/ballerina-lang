@@ -23,7 +23,7 @@ import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
 import org.ballerinalang.util.debugger.info.BreakPointInfo;
-import org.ballerinalang.util.debugger.util.MessageUtil;
+import org.ballerinalang.util.debugger.util.DebugMsgUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -120,7 +120,7 @@ public class VMDebugClientHandler implements DebugClientHandler {
      * @param msg debug point information
      */
     private void pushMessageToClient(MessageDTO msg) {
-        String json = MessageUtil.getMsgString(msg);
+        String json = DebugMsgUtil.getMsgString(msg);
         channel.write(new TextWebSocketFrame(json));
         channel.flush();
     }

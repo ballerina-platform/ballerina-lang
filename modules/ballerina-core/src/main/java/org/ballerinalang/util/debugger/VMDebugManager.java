@@ -27,7 +27,7 @@ import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.debugger.dto.CommandDTO;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
 import org.ballerinalang.util.debugger.info.BreakPointInfo;
-import org.ballerinalang.util.debugger.util.MessageUtil;
+import org.ballerinalang.util.debugger.util.DebugMsgUtil;
 
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -173,7 +173,7 @@ public class VMDebugManager {
     private void processCommand(String json) {
         CommandDTO command = null;
         try {
-            command = MessageUtil.buildCommandDTO(json);
+            command = DebugMsgUtil.buildCommandDTO(json);
         } catch (Exception e) {
             //invalid message will be passed
             throw new DebugException(DebugConstants.MSG_INVALID);

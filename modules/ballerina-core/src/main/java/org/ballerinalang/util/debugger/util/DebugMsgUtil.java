@@ -39,8 +39,8 @@ import java.util.List;
  *
  * @since 0.95.5
  */
-public class MessageUtil {
-    private static final Logger log = LoggerFactory.getLogger(MessageUtil.class);
+public class DebugMsgUtil {
+    private static final Logger log = LoggerFactory.getLogger(DebugMsgUtil.class);
     public static final String CODE = "code";
     public static final String MESSAGE = "message";
     public static final String THREAD_ID = "threadId";
