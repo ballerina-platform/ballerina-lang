@@ -1511,25 +1511,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgBuilder.addWorkerReceiveStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
     }
-//
-//    /**
-//     * {@inheritDoc}
-//     */
-//    @Override
-//    public void enterCommentStatement(BallerinaParser.CommentStatementContext ctx) {
-//    }
-//
-//    /**
-//     * {@inheritDoc}
-//     */
-//    @Override
-//    public void exitCommentStatement(BallerinaParser.CommentStatementContext ctx) {
-//        if (ctx.exception != null) {
-//            return;
-//        }
-//
-//        this.pkgBuilder.addCommentStmt(getCurrentPos(ctx), getWS(ctx), ctx.LINE_COMMENT().getText());
-//    }
 
     /**
      * {@inheritDoc}

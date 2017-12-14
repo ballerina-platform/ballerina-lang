@@ -117,7 +117,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -454,7 +453,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         for (BLangStatement stmt : blockNode.stmts) {
             if (stmt.getKind() != NodeKind.TRY && stmt.getKind() != NodeKind.CATCH
-                    && stmt.getKind() != NodeKind.IF && stmt.getKind() != NodeKind.COMMENT) {
+                    && stmt.getKind() != NodeKind.IF) {
                 addLineNumberInfo(stmt.pos);
             }
 
@@ -2422,10 +2421,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangThrow throwNode) {
         genNode(throwNode.expr, env);
         emit(InstructionFactory.get(InstructionCodes.THROW, throwNode.expr.regIndex));
-    }
-
-    public void visit(BLangComment commentNode) {
-        /* ignore */
     }
 
     public void visit(BLangIf ifNode) {

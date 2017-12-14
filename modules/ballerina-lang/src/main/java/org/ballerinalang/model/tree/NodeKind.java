@@ -86,7 +86,6 @@ public enum NodeKind {
     IF,
     REPLY,
     RETURN,
-    COMMENT,
     THROW,
     TRANSACTION,
     TRANSFORM,

@@ -80,7 +80,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -477,8 +476,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     // TODO: support other types, once they are implemented.
                     dlog.error(stmt.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER, "invocation");
                     break;
-                case COMMENT:
-                    break;
                 default:
                     dlog.error(stmt.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER,
                             stmt.getKind().name().toLowerCase().replace('_', ' '));
@@ -522,10 +519,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangExpressionStmt exprStmtNode) {
         this.checkStatementExecutionValidity(exprStmtNode);
-    }
-
-    public void visit(BLangComment commentNode) {
-        /* ignore */
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
