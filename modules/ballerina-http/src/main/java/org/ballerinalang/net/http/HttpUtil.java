@@ -945,10 +945,13 @@ public class HttpUtil {
     }
 
     public static void methodInvocationCheck(BStruct bStruct, HTTPCarbonMessage httpMsg) {
-        if (bStruct.getNativeData(METHOD_ACCESSED) != null && !is100ContinueRequest(httpMsg)) {
+        if (bStruct.getNativeData(METHOD_ACCESSED) != null) {
             throw new IllegalStateException("illegal function invocation");
         }
-        bStruct.addNativeData(METHOD_ACCESSED, true);
+
+        if (!is100ContinueRequest(httpMsg)) {
+            bStruct.addNativeData(METHOD_ACCESSED, true);
+        }
     }
 
     public static void outboundResponseStructCheck(BStruct bStruct) {
