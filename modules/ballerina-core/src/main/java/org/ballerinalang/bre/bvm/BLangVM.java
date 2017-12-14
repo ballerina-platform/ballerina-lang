@@ -2687,26 +2687,24 @@ public class BLangVM {
     }
 
     private void beginTransaction(int transactionId, int retryCountAvailable) {
-        try {
-            //Transaction is attempted three times by default to improve resiliency
-            int retryCount = 3;
-            if (retryCountAvailable == 1) {
-                retryCount = (int) controlStack.currentFrame.getLongRegs()[0];
-                if (retryCount < 0) {
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_RETRY_COUNT);
-                }
+        //Transaction is attempted three times by default to improve resiliency
+        int retryCount = 3;
+        if (retryCountAvailable == 1) {
+            retryCount = (int) controlStack.currentFrame.getLongRegs()[0];
+            if (retryCount < 0) {
+                context.setError(BLangVMErrors.createError(this.context, ip,
+                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
+                handleError();
+                return;
             }
-            BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
-            if (ballerinaTransactionManager == null) {
-                ballerinaTransactionManager = new BallerinaTransactionManager();
-                context.setBallerinaTransactionManager(ballerinaTransactionManager);
-            }
-            ballerinaTransactionManager.beginTransactionBlock(transactionId, retryCount);
-        } catch (Throwable e) {
-            context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
-            handleError();
-            return;
         }
+        BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
+        if (ballerinaTransactionManager == null) {
+            ballerinaTransactionManager = new BallerinaTransactionManager();
+            context.setBallerinaTransactionManager(ballerinaTransactionManager);
+        }
+        ballerinaTransactionManager.beginTransactionBlock(transactionId, retryCount);
+
     }
 
     private void retryTransaction(int transactionId, int startOfAbortIP) {
