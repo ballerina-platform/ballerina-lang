@@ -118,4 +118,14 @@
         </context>
     </template>
 
+    <template name="tra" value="transformer &lt;$TYPE1$, $TYPE2$&gt; $NAME$() {&#10;    $END$&#10;}"
+              description="Transformer template" toReformat="false" toShortenFQNames="false">
+        <variable name="TYPE1" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="TYPE2" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="BALLERINA_FILE" value="true"/>
+        </context>
+    </template>
+
 </templateSet>
