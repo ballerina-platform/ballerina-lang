@@ -74,6 +74,7 @@ public class DebugMsgUtil {
         JsonGenerator gen = new JsonGenerator(writer);
         try {
             parseMessageDTO(msg, gen);
+            gen.flush();
             return writer.toString();
         } catch (IOException e) {
             log.error("error parsing MessageDTO to json, " + e.getMessage(), e);
