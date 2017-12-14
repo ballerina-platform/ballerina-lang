@@ -49,6 +49,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.http.session.Session;
+import org.ballerinalang.runtime.message.BlobDataSource;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.services.ErrorHandlerUtils;
@@ -113,25 +114,44 @@ public class HttpUtil {
 
     public static BValue[] getBinaryPayload(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BBlob result;
+        BlobDataSource result;
         try {
             BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
                     .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
 
             if (httpMessageStruct.getNativeData(MESSAGE_DATA_SOURCE) != null) {
-                result = (BBlob) httpMessageStruct.getNativeData(MESSAGE_DATA_SOURCE);
+                result = (BlobDataSource) httpMessageStruct.getNativeData(MESSAGE_DATA_SOURCE);
             } else {
-                result = new BBlob(toByteArray(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream()));
+                result = new BlobDataSource(
+                        toByteArray(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream()));
                 httpMessageStruct.addNativeData(MESSAGE_DATA_SOURCE, result);
             }
             if (log.isDebugEnabled()) {
-                log.debug("Payload in String:" + result.stringValue());
+                log.debug("String representation of the payload:" + result.getMessageAsString());
             }
         } catch (Throwable e) {
             throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());
         }
-        return abstractNativeFunction.getBValues(result);
+        return abstractNativeFunction.getBValues(new BBlob(result.getValue()));
+    }
+
+    public static BValue[] setBinaryPayload(Context context, AbstractNativeFunction nativeFunction, boolean isRequest) {
+        BStruct httpMessageStruct = (BStruct) nativeFunction.getRefArgument(context, 0);
+        HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(httpMessageStruct,
+                                                                    HttpUtil.createHttpCarbonMessage(isRequest));
+
+        httpCarbonMessage.waitAndReleaseAllEntities();
+
+        byte[] payload = nativeFunction.getBlobArgument(context, 0);
+        BlobDataSource blobDataSource = new BlobDataSource(payload
+                , new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
+
+        addMessageDataSource(httpMessageStruct, blobDataSource);
+
+        httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+
+        return AbstractNativeFunction.VOID_RETURN;
     }
 
     public static BValue[] getHeader(Context context,
@@ -425,7 +445,7 @@ public class HttpUtil {
 
     public static BValue[] prepareResponseAndSend(Context context, AbstractNativeFunction abstractNativeFunction
             , HTTPCarbonMessage requestMessage, HTTPCarbonMessage responseMessage,
-            MessageDataSource messageDataSource) {
+                                                  MessageDataSource messageDataSource) {
         addHTTPSessionAndCorsHeaders(requestMessage, responseMessage);
         HttpResponseStatusFuture statusFuture = handleResponse(requestMessage, responseMessage);
         if (messageDataSource != null) {
@@ -489,11 +509,11 @@ public class HttpUtil {
     private static void setHttpStatusCodes(String payload, int statusCode, HTTPCarbonMessage response) {
         HttpHeaders httpHeaders = response.getHeaders();
         httpHeaders.set(org.wso2.transport.http.netty.common.Constants.HTTP_CONTENT_TYPE,
-                org.wso2.transport.http.netty.common.Constants.TEXT_PLAIN);
+                        org.wso2.transport.http.netty.common.Constants.TEXT_PLAIN);
 
         byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
         httpHeaders.set(org.wso2.transport.http.netty.common.Constants.HTTP_CONTENT_LENGTH,
-                (String.valueOf(errorMessageBytes.length)));
+                        (String.valueOf(errorMessageBytes.length)));
 
         response.setProperty(org.wso2.transport.http.netty.common.Constants.HTTP_STATUS_CODE, statusCode);
     }
