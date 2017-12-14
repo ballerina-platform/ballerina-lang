@@ -84,7 +84,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -263,10 +262,6 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangReturn.BLangWorkerReturn returnNode) {
-        // ignore
-    }
-
-    public void visit(BLangRetry retryNode) {
         // ignore
     }
 
