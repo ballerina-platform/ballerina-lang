@@ -318,41 +318,41 @@ public class SQLDataIterator implements DataIterator {
             if (length > 0) {
                 Object obj = dataArray[0];
                 if (obj instanceof String) {
-                    String[] stringArray = new String[dataArray.length];
-                    for (int i = 0; i < dataArray.length; i++) {
-                        stringArray[i] = (String) dataArray[i];
+                    BStringArray stringDataArray = new BStringArray();
+                    for (int i = 0; i < length; i++) {
+                        stringDataArray.add(i, (String) dataArray[i]);
                     }
-                    return new BStringArray(stringArray);
+                    return stringDataArray;
                 } else if (obj instanceof Boolean) {
-                    int[] booleanArray = new int[dataArray.length];
-                    for (int i = 0; i < dataArray.length; i++) {
-                        booleanArray[i] = ((Boolean) dataArray[i]) ? 1 : 0;
+                    BBooleanArray boolDataArray = new BBooleanArray();
+                    for (int i = 0; i < length; i++) {
+                        boolDataArray.add(i, ((Boolean) dataArray[i]) ? 1 : 0);
                     }
-                    return new BBooleanArray(booleanArray);
+                    return boolDataArray;
                 } else if (obj instanceof Integer) {
-                    long[] intArray = new long[dataArray.length];
-                    for (int i = 0; i < dataArray.length; i++) {
-                        intArray[i] = (int) dataArray[i];
+                    BIntArray intDataArray = new BIntArray();
+                    for (int i = 0; i < length; i++) {
+                        intDataArray.add(i, ((Integer) dataArray[i]));
                     }
-                    return new BIntArray(intArray);
+                    return intDataArray;
                 } else if (obj instanceof Long) {
-                    long[] intArray = new long[dataArray.length];
-                    for (int i = 0; i < dataArray.length; i++) {
-                        intArray[i] = (long) dataArray[i];
+                    BIntArray longDataArray = new BIntArray();
+                    for (int i = 0; i < length; i++) {
+                        longDataArray.add(i, (Long) dataArray[i]);
                     }
-                    return new BIntArray(intArray);
+                    return longDataArray;
                 } else if (obj instanceof Float) {
-                    double[] floatArray = new double[dataArray.length];
-                    for (int i = 0; i < dataArray.length; i++) {
-                        floatArray[i] = (float) dataArray[i];
+                    BFloatArray floatDataArray = new BFloatArray();
+                    for (int i = 0; i < length; i++) {
+                        floatDataArray.add(i, (Float) dataArray[i]);
                     }
-                    return new BFloatArray(floatArray);
+                    return floatDataArray;
                 } else if (obj instanceof Double) {
-                    double[] doubleArray = new double[dataArray.length];
+                    BFloatArray doubleDataArray = new BFloatArray();
                     for (int i = 0; i < dataArray.length; i++) {
-                        doubleArray[i] = (double) dataArray[i];
+                        doubleDataArray.add(i, (Double) dataArray[i]);
                     }
-                    return new BFloatArray(doubleArray);
+                    return doubleDataArray;
                 }
             }
         }
