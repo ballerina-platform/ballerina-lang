@@ -1513,6 +1513,11 @@ class SizingUtil {
         // We ignore the previously calculated node height and re calculate it based on the component heights
         if (node.transactionBody) {
             node.transactionBody.viewState.components.titleWidth = this.getTextWidth('Transaction');
+            if (node.condition) {
+                node.transactionBody.viewState.components.withKeywordWidth = this.getTextWidth('with');
+                node.transactionBody.viewState.components.retiresKeywordWidth = this.getTextWidth('retries');
+                node.viewState.components.expression = this.getTextWidth(node.condition.getSource());
+            }
             node.viewState.components['statement-box'].h
                 += node.transactionBody.viewState.components['statement-box'].h;
             node.viewState.bBox.w = Math.max(node.viewState.bBox.w, node.transactionBody.viewState.bBox.w);
@@ -1524,26 +1529,13 @@ class SizingUtil {
             node.viewState.components['statement-box'].h += node.failedBody.viewState.components['statement-box'].h;
             node.viewState.bBox.w = Math.max(node.viewState.bBox.w, node.failedBody.viewState.bBox.w);
         }
-        if (node.abortedBody) {
-            node.abortedBody.viewState.components.titleWidth = this.getTextWidth('Aborted');
-            node.abortedBody.viewState.components['statement-box'].h
-                += node.abortedBody.viewState.components['block-header'].h;
-            node.viewState.components['statement-box'].h += node.abortedBody.viewState.components['statement-box'].h;
-            node.viewState.bBox.w = Math.max(node.viewState.bBox.w, node.abortedBody.viewState.bBox.w);
-        }
-        if (node.committedBody) {
-            node.committedBody.viewState.components.titleWidth = this.getTextWidth('Committed');
-            node.committedBody.viewState.components['statement-box'].h
-                += node.committedBody.viewState.components['block-header'].h;
-            node.viewState.components['statement-box'].h += node.committedBody.viewState.components['statement-box'].h;
-            node.viewState.bBox.w = Math.max(node.viewState.bBox.w, node.committedBody.viewState.bBox.w);
-        }
         node.viewState.bBox.h = node.viewState.components['statement-box'].h + node.viewState.components['drop-zone'].h
             + node.viewState.components['block-header'].h;
-        node.viewState.bBox.w += Math.max(node.transactionBody.viewState.components.titleWidth.w,
-            (node.failedBody ? node.failedBody.viewState.components.titleWidth.w : 0),
-            (node.abortedBody ? node.abortedBody.viewState.components.titleWidth.w : 0),
-            (node.committedBody ? node.committedBody.viewState.components.titleWidth.w : 0));
+        node.viewState.bBox.w += Math.max(node.condition ? (node.transactionBody.viewState.components.titleWidth.w
+            + node.transactionBody.viewState.components.withKeywordWidth.w
+            + node.transactionBody.viewState.components.retiresKeywordWidth.w)
+            : node.transactionBody.viewState.components.titleWidth.w,
+            (node.failedBody ? node.failedBody.viewState.components.titleWidth.w : 0));
     }
 
     /**

@@ -233,14 +233,6 @@ const tools = [
         description: 'Can be executed after the transaction is rolled back due to any conditions',
     },
     {
-        id: 'Retry',
-        name: 'Retry',
-        icon: 'refresh',
-        title: 'Retry',
-        nodeFactoryMethod: DefaultNodeFactory.createRetry,
-        description: 'Statement which sets the retry count for the transaction when transaction fails',
-    },
-    {
         id: 'Fork',
         name: 'Fork',
         icon: 'fork-join',
