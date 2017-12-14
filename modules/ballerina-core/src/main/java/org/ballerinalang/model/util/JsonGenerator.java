@@ -58,9 +58,13 @@ public class JsonGenerator {
     }
     
     public JsonGenerator(OutputStream out, Charset charset) {
-        this.writer = new BufferedWriter(new OutputStreamWriter(out, charset));
+        this(new BufferedWriter(new OutputStreamWriter(out, charset)));
     }
-    
+
+    public JsonGenerator(Writer writer) {
+        this.writer = writer;
+    }
+
     private void setLevelInit(int index, boolean init) {
         this.checkAndResizeLevels(index);
         this.levelInit[index] = init;
