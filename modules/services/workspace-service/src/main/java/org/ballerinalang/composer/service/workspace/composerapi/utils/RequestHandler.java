@@ -154,13 +154,16 @@ public class RequestHandler {
                 responseError = handleError(-32002, "Attempted to retrieve the result of a task/s " +
                         "that was aborted by throwing an exception");
                 jsonrpcResponse.setError(responseError);
+                jsonrpcResponse.setId(jsonrpcRequest.getId());
             } catch (ExecutionException e) {
                 responseError = handleError(-32001, "Current thread was interrupted");
                 jsonrpcResponse.setError(responseError);
+                jsonrpcResponse.setId(jsonrpcRequest.getId());
             }
         } else {
             responseError = handleError(-32003, "Response received from the endpoint is null");
             jsonrpcResponse.setError(responseError);
+            jsonrpcResponse.setId(jsonrpcRequest.getId());
         }
         return jsonrpcResponse;
     }
