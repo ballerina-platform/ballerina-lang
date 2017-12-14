@@ -117,7 +117,8 @@ public class StartService extends AbstractNativeFunction {
     }
 
     private void startService(ProgramFile programFile, ServiceInfo matchingService) {
-        ServerConnectorRegistry.getInstance().initServerConnectors();
+        ServerConnectorRegistry serverConnectorRegistry = new ServerConnectorRegistry();
+        serverConnectorRegistry.initServerConnectors();
 
         if (!programFile.isServiceEPAvailable()) {
             throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
@@ -145,7 +146,7 @@ public class StartService extends AbstractNativeFunction {
         }
 
         // Deploy service
-        ServerConnectorRegistry.getInstance().registerService(matchingService);
+        serverConnectorRegistry.registerService(matchingService);
 
         serviceCount++;
 
@@ -153,7 +154,7 @@ public class StartService extends AbstractNativeFunction {
             throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
         }
 
-        ServerConnectorRegistry.getInstance().deploymentComplete();
+        serverConnectorRegistry.deploymentComplete();
     }
 
     private String getServiceURL(ServiceInfo service) {
