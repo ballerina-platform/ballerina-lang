@@ -18,20 +18,18 @@
 
 package org.ballerinalang.net.ws;
 
-import org.ballerinalang.model.values.BStruct;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * This contains all the sessions which are received via a {@link org.wso2.carbon.messaging.CarbonMessage}.
+ * This contains the connection information of successfully handshaked connections.
  */
 public class WebSocketConnectionManager {
 
     private static final WebSocketConnectionManager CONNECTION_MANAGER = new WebSocketConnectionManager();
 
     // Map <sessionId, WebSocketConnectionStruct>
-    private final Map<String, BStruct> wsConnectionsMap = new ConcurrentHashMap<>();
+    private final Map<String, WsOpenConnectionInfo> wsConnectionsMap = new ConcurrentHashMap<>();
 
     private WebSocketConnectionManager() {
     }
@@ -40,15 +38,15 @@ public class WebSocketConnectionManager {
         return CONNECTION_MANAGER;
     }
 
-    public BStruct getConnection(String connectionID) {
+    public WsOpenConnectionInfo getConnectionInfo(String connectionID) {
         return wsConnectionsMap.get(connectionID);
     }
 
-    public void addConnection(String connectionID, BStruct wsConnection) {
+    public void addConnection(String connectionID, WsOpenConnectionInfo wsConnection) {
         wsConnectionsMap.put(connectionID, wsConnection);
     }
 
-    public BStruct removeConnection(String connectionID) {
+    public WsOpenConnectionInfo removeConnection(String connectionID) {
         return wsConnectionsMap.remove(connectionID);
     }
 }

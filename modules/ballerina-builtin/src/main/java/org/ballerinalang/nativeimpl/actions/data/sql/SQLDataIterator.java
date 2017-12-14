@@ -22,11 +22,12 @@ import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BFloatArray;
+import org.ballerinalang.model.values.BIntArray;
+import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.Utils;
@@ -46,9 +47,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This iterator mainly wrap java.sql.ResultSet. This will provide datatable operations
@@ -147,7 +146,7 @@ public class SQLDataIterator implements DataIterator {
     }
 
     @Override
-    public Map<String, Object> getArray(String columnName) {
+    public Object[] getArray(String columnName) {
         try {
             return generateArrayDataResult(rs.getArray(columnName));
         } catch (SQLException e) {
@@ -155,23 +154,12 @@ public class SQLDataIterator implements DataIterator {
         }
     }
 
-    private Map<String, Object> getArray(int columnIndex) {
-        try {
-            return generateArrayDataResult(rs.getArray(columnIndex));
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-    }
-
-    private Map<String, Object> generateArrayDataResult(Array array) throws SQLException {
-        Map<String, Object> resultMap = new HashMap<>();
+    private Object[] generateArrayDataResult(Array array) throws SQLException {
+        Object[] objArray = null;
         if (!rs.wasNull()) {
-            Object[] objArray = (Object[]) array.getArray();
-            for (int i = 0; i < objArray.length; i++) {
-                resultMap.put(String.valueOf(i), objArray[i]);
-            }
+            objArray = (Object[]) array.getArray();
         }
-        return resultMap;
+        return objArray;
     }
 
     @Override
@@ -197,8 +185,8 @@ public class SQLDataIterator implements DataIterator {
                     ++index;
                     switch (sqlType) {
                     case Types.ARRAY:
-                        BMap<String, BValue> bMapvalue = getDataArray(index);
-                        bStruct.setRefField(++refRegIndex, bMapvalue);
+                        Array dataArray = rs.getArray(index);
+                        bStruct.setRefField(++refRegIndex, getDataArray(dataArray));
                         break;
                     case Types.CHAR:
                     case Types.VARCHAR:
@@ -323,29 +311,52 @@ public class SQLDataIterator implements DataIterator {
         return this.columnDefs;
     }
 
-    private BMap<String, BValue> getDataArray(int columnIndex) {
-        Map<String, Object> arrayMap = getArray(columnIndex);
-        BMap<String, BValue> returnMap = new BMap<>();
-        if (!arrayMap.isEmpty()) {
-            for (Map.Entry<String, Object> entry : arrayMap.entrySet()) {
-                String key = entry.getKey();
-                Object obj = entry.getValue();
+    private BNewArray getDataArray(Array array) throws SQLException {
+        Object[] dataArray = generateArrayDataResult(array);
+        if (dataArray != null) {
+            int length = dataArray.length;
+            if (length > 0) {
+                Object obj = dataArray[0];
                 if (obj instanceof String) {
-                    returnMap.put(key, new BString(String.valueOf(obj)));
+                    BStringArray stringDataArray = new BStringArray();
+                    for (int i = 0; i < length; i++) {
+                        stringDataArray.add(i, (String) dataArray[i]);
+                    }
+                    return stringDataArray;
                 } else if (obj instanceof Boolean) {
-                    returnMap.put(key, new BBoolean(Boolean.valueOf(obj.toString())));
+                    BBooleanArray boolDataArray = new BBooleanArray();
+                    for (int i = 0; i < length; i++) {
+                        boolDataArray.add(i, ((Boolean) dataArray[i]) ? 1 : 0);
+                    }
+                    return boolDataArray;
                 } else if (obj instanceof Integer) {
-                    returnMap.put(key, new BInteger(Integer.parseInt(obj.toString())));
+                    BIntArray intDataArray = new BIntArray();
+                    for (int i = 0; i < length; i++) {
+                        intDataArray.add(i, ((Integer) dataArray[i]));
+                    }
+                    return intDataArray;
                 } else if (obj instanceof Long) {
-                    returnMap.put(key, new BInteger(Long.parseLong(obj.toString())));
+                    BIntArray longDataArray = new BIntArray();
+                    for (int i = 0; i < length; i++) {
+                        longDataArray.add(i, (Long) dataArray[i]);
+                    }
+                    return longDataArray;
                 } else if (obj instanceof Float) {
-                    returnMap.put(key, new BFloat(Float.parseFloat(obj.toString())));
+                    BFloatArray floatDataArray = new BFloatArray();
+                    for (int i = 0; i < length; i++) {
+                        floatDataArray.add(i, (Float) dataArray[i]);
+                    }
+                    return floatDataArray;
                 } else if (obj instanceof Double) {
-                    returnMap.put(key, new BFloat(Double.parseDouble(obj.toString())));
+                    BFloatArray doubleDataArray = new BFloatArray();
+                    for (int i = 0; i < dataArray.length; i++) {
+                        doubleDataArray.add(i, (Double) dataArray[i]);
+                    }
+                    return doubleDataArray;
                 }
             }
         }
-        return returnMap;
+        return null;
     }
 
     private BStruct createTimeStruct(long millis) {
