@@ -1,17 +1,16 @@
 package ballerina.net.http;
 
-const string CONTINUE_100 = "100-continue";
+const string HEADER_VAL_100_CONTINUE = "100-continue";
+const string HEADER_KEY_EXPECT = "Expect";
 
-@Description { value:"This function can be used to check whether the client expects a 100-continue response."}
+@Description { value:"Checks whether the client expects a 100-continue response."}
 @Param { value:"req: A request struct" }
 @Return { value:"Returns true if the client expects a 100-continue response. If not, returns false." }
 public function <Request req> expects100Continue() (boolean) {
-    string expectHeader = req.getHeader("Expect");
-
-    if (expectHeader == CONTINUE_100) {
+    string expectHeader = req.getHeader(HEADER_KEY_EXPECT);
+    if (expectHeader == HEADER_VAL_100_CONTINUE) {
         return true;
     }
-
     return false;
 }
 
