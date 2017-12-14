@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.regex;
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -26,7 +26,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -34,19 +33,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Native function ballerina.regex:replaceAll.
- *
+ * Native function ballerina.model.strings:replaceAll.
  */
 @BallerinaFunction(
-        packageName = "ballerina.regex",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Regex", structPackage = "ballerina.regex"),
-        functionName = "replaceAll",
+        packageName = "ballerina.builtin",
+        functionName = "string.replaceAllWithRegex",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
+                @Argument(name = "reg", type = TypeKind.STRUCT, structType = "Regex",
+                        structPackage = "ballerina.builtin"),
                 @Argument(name = "replaceWith", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class ReplaceAll extends AbstractNativeFunction {
+public class ReplaceAllWithRegex extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {

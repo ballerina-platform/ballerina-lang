@@ -16,12 +16,10 @@
  * under the License.
  */
 
-
-package org.ballerinalang.nativeimpl.regex;
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 /**
- * Constants for Ballerina regex package.
- *
+ * Constants for Ballerina Regex.
  */
 public class REGEXConstants {
     public static final String COMPILED_REGEX = "compiled.regex";

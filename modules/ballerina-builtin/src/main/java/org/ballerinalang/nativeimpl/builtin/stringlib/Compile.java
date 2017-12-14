@@ -16,29 +16,29 @@
  * under the License.
  */
 
-
-package org.ballerinalang.nativeimpl.regex;
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
  * Native function ballerina.model.strings:compile.
- *
  */
 @BallerinaFunction(
-        packageName = "ballerina.regex",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Regex", structPackage = "ballerina.regex"),
+        packageName = "ballerina.builtin",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Regex", structPackage = "ballerina.builtin"),
         functionName = "compile",
+        returnType = {@ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class Compile extends AbstractNativeFunction {
@@ -52,7 +52,7 @@ public class Compile extends AbstractNativeFunction {
             regexStruct.addNativeData(REGEXConstants.COMPILED_REGEX, pattern);
             return VOID_RETURN;
         } catch (PatternSyntaxException e) {
-            throw new BallerinaException("Syntax error in the regular-expression pattern", e);
+            return getBValues(BLangVMErrors.createError(context, 0, e.getMessage()));
         }
     }
 }

@@ -16,17 +16,16 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.regex;
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -34,19 +33,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Native function ballerina.regex:findAll.
- *
+ * Native function ballerina.model.strings:matches.
  */
 @BallerinaFunction(
-        packageName = "ballerina.regex",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Regex", structPackage = "ballerina.regex"),
-        functionName = "findAll",
-        args = {@Argument(name = "mainString", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
+        packageName = "ballerina.builtin",
+        functionName = "string.matchesWithRegex",
+        args = {@Argument(name = "mainString", type = TypeKind.STRING),
+                @Argument(name = "reg", type = TypeKind.STRUCT, structType = "Regex",
+                        structPackage = "ballerina.builtin")},
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class FindAll extends AbstractNativeFunction {
-
+public class MatchesWithRegex extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         String initialString = getStringArgument(context, 0);
@@ -57,12 +55,8 @@ public class FindAll extends AbstractNativeFunction {
             throw new BallerinaException("Regular Expression has to be compiled first.");
         }
 
-        BStringArray stringArray = new BStringArray();
         Matcher matcher = pattern.matcher(initialString);
-        int i = 0;
-        while (matcher.find()) {
-            stringArray.add(i++, matcher.group());
-        }
-        return getBValues(stringArray);
+        BBoolean matches = new BBoolean(matcher.matches());
+        return getBValues(matches);
     }
 }

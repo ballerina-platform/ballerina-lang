@@ -1,29 +1,23 @@
-import ballerina.regex;
-
 function matches(string s, string r)(boolean) {
-    regex:Regex reg = {};
-    reg.regex = r;
+    Regex reg = {pattern:r};
     reg.compile();
-    return reg.matches(s);
+    return s.matchesWithRegex(reg);
 }
 
 function findAll(string s, string r) (string[]) {
-    regex:Regex reg = {};
-    reg.regex = r;
+    Regex reg = {pattern:r};
     reg.compile();
-    return reg.findAll(s);
+    return s.findAllWithRegex(reg);
 }
 
 function replaceAllRgx(string s, string r, string target) (string) {
-    regex:Regex reg = {};
-    reg.regex = r;
+    Regex reg = {pattern:r};
     reg.compile();
-    return reg.replaceAll(s, target);
+    return s.replaceAllWithRegex(reg, target);
 }
 
 function replaceFirstRgx(string s, string r, string target) (string) {
-    regex:Regex reg = {};
-    reg.regex = r;
+    Regex reg = {pattern:r};
     reg.compile();
-    return reg.replaceFirst(s, target);
+    return s.replaceFirstWithRegex(reg, target);
 }
