@@ -167,6 +167,8 @@ class AbstractAssignmentNode extends StatementNode {
     }
 
 
+
+
     isDeclaredWithVar() {
         return this.declaredWithVar;
     }

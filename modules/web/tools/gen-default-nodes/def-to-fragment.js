@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import FragmentUtils from '../../js/ballerina/utils/fragment-utils';
+import FragmentUtils from '../../src/plugins/ballerina/utils/fragment-utils';
 
 export default {
     createHTTPServiceDef: () => {
@@ -253,21 +253,12 @@ export default {
 
             } failed {
 
-            } aborted {
-            
-            } committed {
-            
             }
         `);
     },
     createAbort: () => {
         return FragmentUtils.createStatementFragment(`
             abort;
-        `);
-    },
-    createRetry: () => {
-        return FragmentUtils.createTransactionFailedFragment(`
-            retry 3;
         `);
     },
     createForkJoin: () => {

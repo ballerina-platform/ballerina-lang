@@ -556,6 +556,16 @@
   "Transaction": {
     "before transaction": "",
     "after transaction": "",
+    "before with": " ",
+    "after with": "",
+    "before retries": " ",
+    "after retries": "",
+    "before (": " ",
+    "after (": "",
+    "before condition":"",
+    "after condition": "",
+    "before )":"",
+    "after )": "",
     "before {": " ",
     "after {": "",
     "before transactionBody": "",
@@ -565,15 +575,7 @@
     "before failed": " ",
     "after failed": "",
     "before failedBody": "",
-    "after failedBody": "",
-    "before aborted": " ",
-    "after aborted": "",
-    "before abortedBody": "",
-    "after abortedBody": "",
-    "before committed": " ",
-    "after committed": "",
-    "before committedBody": "",
-    "after committedBody": ""
+    "after failedBody": ""
   },
   "Transform": {
     "before transform": "",
