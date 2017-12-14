@@ -62,10 +62,8 @@ RETURN      : 'return' ;
 REPLY       : 'reply' ;
 TRANSACTION : 'transaction' ;
 ABORT       : 'abort' ;
-ABORTED     : 'aborted' ;
-COMMITTED   : 'committed' ;
 FAILED      : 'failed' ;
-RETRY       : 'retry' ;
+RETRIES     : 'retries' ;
 LENGTHOF    : 'lengthof' ;
 TYPEOF      : 'typeof' ;
 WITH        : 'with' ;
@@ -403,7 +401,7 @@ NEW_LINE  :  [\r\n\u000C]+ -> channel(HIDDEN)
     ;
 
 LINE_COMMENT
-    :   '//' ~[\r\n]*
+    :   '//' ~[\r\n]*   -> channel(HIDDEN)
     ;
 
 fragment

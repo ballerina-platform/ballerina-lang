@@ -24,7 +24,7 @@ import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMProcessingInstruction;
 import org.apache.axiom.om.OMText;
-import org.apache.axiom.om.impl.builder.StAXOMBuilder;
+import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.impl.common.OMNamespaceImpl;
 import org.apache.axiom.om.impl.dom.CommentImpl;
 import org.apache.axiom.om.impl.dom.TextImpl;
@@ -35,6 +35,7 @@ import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
+import org.ballerinalang.model.util.XMLValidationUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.InputStream;
@@ -79,13 +80,15 @@ public final class BXMLItem extends BXML<OMNode> {
      * @param xmlValue A XML string
      */
     public BXMLItem(String xmlValue) {
-        if (xmlValue != null) {
-            try {
-                omNode = AXIOMUtil.stringToOM(xmlValue);
-                setXMLNodeType();
-            } catch (Throwable t) {
-                handleXmlException("failed to create xml: ", t);
-            }
+        if (xmlValue == null) {
+            return;
+        }
+
+        try {
+            omNode = AXIOMUtil.stringToOM(xmlValue);
+            setXMLNodeType();
+        } catch (Throwable t) {
+            handleXmlException("failed to create xml: ", t);
         }
     }
 
@@ -105,14 +108,15 @@ public final class BXMLItem extends BXML<OMNode> {
      * @param inputStream Input Stream
      */
     public BXMLItem(InputStream inputStream) {
-        // TODO
-        if (inputStream != null) {
-            try {
-                omNode = (OMNode) new StAXOMBuilder(inputStream).getDocumentElement();
-                setXMLNodeType();
-            } catch (Throwable t) {
-                handleXmlException("failed to create xml: ", t);
-            }
+        if (inputStream == null) {
+            return;
+        }
+
+        try {
+            omNode = OMXMLBuilderFactory.createOMBuilder(inputStream).getDocumentElement();
+            setXMLNodeType();
+        } catch (Throwable t) {
+            handleXmlException("failed to create xml: ", t);
         }
     }
     
@@ -224,6 +228,10 @@ public final class BXMLItem extends BXML<OMNode> {
             throw new BallerinaException("localname of the attribute cannot be empty");
         }
 
+        // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.
+        XMLValidationUtils.validateXMLName(localName);
+        XMLValidationUtils.validateXMLName(prefix);
+        
         // If the attribute already exists, update the value.
         OMElement node = (OMElement) omNode;
         QName qname = getQName(localName, namespaceUri, prefix);
@@ -366,6 +374,9 @@ public final class BXMLItem extends BXML<OMNode> {
                 uri = STRING_NULL_VALUE;
             }
             
+            // Validate whether the attribute name is an XML supported qualified name, 
+            // according to the XML recommendation.
+            XMLValidationUtils.validateXMLName(localName);
             setAttribute(localName, uri, STRING_NULL_VALUE, attributes.get(qname).stringValue());
         }
     }

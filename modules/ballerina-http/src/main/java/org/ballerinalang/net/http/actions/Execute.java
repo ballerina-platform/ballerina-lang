@@ -87,7 +87,7 @@ public class Execute extends AbstractHTTPAction {
         //TODO check below line
         HTTPCarbonMessage defaultCarbonMsg = HttpUtil.createHttpCarbonMessage(true);
         HTTPCarbonMessage cMsg = HttpUtil.getCarbonMsg(requestStruct, defaultCarbonMsg);
-        prepareRequest(bConnector, path, cMsg);
+        prepareRequest(bConnector, path, cMsg, requestStruct);
 
         // If the verb is not specified, use the verb in incoming message
         if (httpVerb == null || "".equals(httpVerb)) {

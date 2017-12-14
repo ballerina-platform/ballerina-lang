@@ -11,7 +11,13 @@ function testGetContentLength (http:Request req) (int) {
 }
 
 function testGetHeader (http:Request req, string key) (string) {
-    string contentType = req.getHeader(key);
+    string contentType = req.getHeader(key).value;
+    return contentType;
+}
+
+function testGetHeaders (http:Request req, string key) (string) {
+    var headers = req.getHeaders(key);
+    var contentType, _ = (string)headers[1].value;
     return contentType;
 }
 
@@ -55,13 +61,14 @@ function testRemoveAllHeaders (http:Request req) (http:Request) {
     return req;
 }
 
-function testSetContentLength (http:Request req, int contentLength) (http:Request) {
-    req.setContentLength(contentLength);
+function testSetHeader (http:Request req, string key, string value) (http:Request) {
+    req.setHeader(key, value);
     return req;
 }
 
-function testSetHeader (http:Request req, string key, string value) (http:Request) {
-    req.setHeader(key, value);
+function testSetHeaderStruct (http:Request req, string key, string value) (http:Request) {
+    http:HeaderValue[] headers = [{value:value, param:{b:"6", c:7}}, {value:value, param:{a:6}}];
+    req.headers[key] = headers;
     return req;
 }
 
@@ -120,8 +127,64 @@ service<http> helloServer {
     }
     resource addheader (http:Request req, http:Response res, string key, string value) {
         req.addHeader(key, value);
-        string result = req.getHeader(key);
+        string result = req.getHeader(key).value;
         res.setJsonPayload({lang:result});
+        _ = res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/addReqHeader"
+    }
+    resource addReqHeader (http:Request req, http:Response res) {
+        http:HeaderValue[] headers = [{value:"ballerina", param:{b:"6", c:7}}, {value:"transport", param:{a:6}}];
+        req.headers["wso2"] = headers;
+
+        var values  = req.headers["wso2"];
+        var valueArr,_ = (http:HeaderValue[]) values;
+        string header = valueArr[0].value;
+
+        map param = valueArr[0].param;
+        var paramVal,_ = (string)param["b"];
+
+        res.setJsonPayload({headerValue:header, paramValue:paramVal});
+        _ = res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/addReqHeaderFunc"
+    }
+    resource addReqHeaderFunc (http:Request req, http:Response res) {
+        http:HeaderValue[] headers = [{value:"ballerina", param:{b:"6", c:7}}, {value:"transport", param:{a:6}}];
+        req.headers["wso2"] = headers;
+        req.addHeader("wso2", "chamil");
+
+        var values  = req.headers["wso2"];
+        var valueArr,_ = (http:HeaderValue[]) values;
+        int size =  lengthof valueArr;
+        string header = valueArr[2].value;
+
+        res.setJsonPayload({headerValue:header, size:size});
+        _ = res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/addReqHeaderWithoutParam"
+    }
+    resource addReqHeaderNoParam (http:Request req, http:Response res) {
+        http:HeaderValue[] headers = [{value:"ballerina", param:{}}, {value:"transport", param:{a:6}}];
+        req.headers["wso2"] = headers;
+
+        var values  = req.headers["wso2"];
+        var valueArr,_ = (http:HeaderValue[]) values;
+        string header = valueArr[0].value;
+
+        map param = valueArr[0].param;
+        var paramVal,err = (string)param["b"];
+
+        if (err != null) {
+            paramVal = "param is null";
+        }
+        res.setJsonPayload({headerValue:header, paramValue:paramVal});
         _ = res.send();
     }
 
@@ -138,8 +201,47 @@ service<http> helloServer {
         path:"/getHeader"
     }
     resource getHeader (http:Request req, http:Response res) {
-        string header = req.getHeader("Content-Type");
+        string header = req.getHeader("Content-Type").value;
         res.setJsonPayload({value:header});
+        _ = res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/getReqHeader"
+    }
+    resource getReqHeader (http:Request req, http:Response res) {
+        var values  = req.headers["Content-Type"];
+        var valueArr,_ = (http:HeaderValue[]) values;
+        string header = valueArr[0].value;
+
+        res.setJsonPayload({value:header});
+        _ = res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/getHeaders"
+    }
+    resource getHeaders (http:Request req, http:Response res) {
+        var headers = req.getHeaders("Content-Type");
+        var headerValue, _ = (string)headers[1].value;
+
+        map param = headers[1].param;
+        var paramVal,err = (string)param["b"];
+
+        res.setJsonPayload({value:headerValue, paramValue:paramVal});
+        _ = res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/getReqHeaders"
+    }
+    resource getReqHeadersStruct (http:Request req, http:Response res) {
+        http:HeaderValue[] headers = [{value:"ballerina"}, {value:"transport", param:{a:6}}];
+        req.headers["wso2"] = headers;
+
+        var headerValues = req.getHeaders("wso2");
+        var headerValue, _ = (string)headerValues[1].value;
+        res.setJsonPayload({value:headerValue});
         _ = res.send();
     }
 
@@ -186,7 +288,11 @@ service<http> helloServer {
     }
     resource RemoveHeader (http:Request req, http:Response res) {
         req.removeHeader("Content-Type");
-        string header = req.getHeader("Content-Type");
+        var headerValue = req.getHeader("Content-Type");
+        string header;
+        if (headerValue == null) {
+            header = "value is null";
+        }
         res.setJsonPayload({value:header});
         _ = res.send();
     }
@@ -196,18 +302,12 @@ service<http> helloServer {
     }
     resource RemoveAllHeaders (http:Request req, http:Response res) {
         req.removeAllHeaders();
-        string header = req.getHeader("Range");
+        var headerValue = req.getHeader("Range");
+        string header;
+        if (headerValue == null) {
+            header = "value is null";
+        }
         res.setJsonPayload({value:header});
-        _ = res.send();
-    }
-
-    @http:resourceConfig {
-        path:"/setContentLength"
-    }
-    resource SetContentLength (http:Request req, http:Response res) {
-        req.setContentLength(100);
-        int length = req.getContentLength();
-        res.setJsonPayload({value:length});
         _ = res.send();
     }
 
@@ -216,7 +316,18 @@ service<http> helloServer {
     }
     resource setHeader (http:Request req, http:Response res, string key, string value) {
         req.setHeader(key, value);
-        string result = req.getHeader(key);
+        string result = req.getHeader(key).value;
+        res.setJsonPayload({value:result});
+        _ = res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/setHeaderStruct/{key}/{value}"
+    }
+    resource setHeaderStruct (http:Request req, http:Response res, string key, string value) {
+        http:HeaderValue[] headers = [{value:value, param:{b:"6", c:7}}, {value:value, param:{a:6}}];
+        req.headers[key] = headers;
+        string result = req.getHeader(key).value;
         res.setJsonPayload({value:result});
         _ = res.send();
     }

@@ -244,11 +244,9 @@ statement
     |   throwStatement
     |   returnStatement
     |   workerInteractionStatement
-    |   commentStatement
     |   expressionStmt
     |   transactionStatement
     |   abortStatement
-    |   retryStatement
     |   namespaceDeclarationStatement
     ;
 
@@ -391,10 +389,6 @@ workerReply
     :   expressionList LARROW Identifier SEMICOLON
     ;
 
-commentStatement
-    :   LINE_COMMENT
-    ;
-
 variableReference
     :   nameReference                                                           # simpleVariableReference
     |   functionInvocation                                                      # functionInvocationReference
@@ -433,31 +427,30 @@ expressionStmt
     ;
 
 transactionStatement
-    :   TRANSACTION LEFT_BRACE statement* RIGHT_BRACE transactionHandlers
+    :   transactionClause failedClause?
     ;
 
-transactionHandlers
-    : failedClause? abortedClause? committedClause?
-    | failedClause? committedClause? abortedClause?
+transactionClause
+    : TRANSACTION (WITH transactionPropertyInitStatementList)? LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
+transactionPropertyInitStatement
+    : retriesStatement
+    ;
+
+transactionPropertyInitStatementList
+    : transactionPropertyInitStatement (COMMA transactionPropertyInitStatement)*
     ;
 
 failedClause
     :   FAILED LEFT_BRACE statement* RIGHT_BRACE
     ;
-abortedClause
-    :   ABORTED LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
-committedClause
-    :   COMMITTED LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
 abortStatement
     :   ABORT SEMICOLON
     ;
 
-retryStatement
-    :   RETRY expression SEMICOLON
+retriesStatement
+    :   RETRIES LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
     ;
 
 namespaceDeclarationStatement

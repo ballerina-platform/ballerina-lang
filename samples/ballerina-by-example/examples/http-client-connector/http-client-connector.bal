@@ -55,7 +55,7 @@ function main (string[] args) {
     resp, _ = httpEndpoint.get("/get", req);
 
     string contentType;
-    contentType = resp.getHeader("Content-Type");
+    contentType = resp.getHeader("Content-Type").value;
     println("\nContent-Type: " + contentType);
 
     int statusCode = resp.getStatusCode();

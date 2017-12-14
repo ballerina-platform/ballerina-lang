@@ -90,4 +90,8 @@ public class FrameDTO {
     public List<VariableDTO> getVariables() {
         return variables;
     }
+
+    public void setVariables(List<VariableDTO> variables) {
+        this.variables = variables;
+    }
 }

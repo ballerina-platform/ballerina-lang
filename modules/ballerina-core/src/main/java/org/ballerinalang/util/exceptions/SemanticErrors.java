@@ -132,7 +132,6 @@ public enum SemanticErrors {
     UNKNOWN_FIELD_IN_JSON_STRUCT("unknown.field.in.json.struct", "SEMANTIC_0108"),
     RETRY_STMT_NOT_ALLOWED_HERE("retry.stmt.not.allowed.here", "SEMANTIC_0109"),
     INVALID_RETRY_COUNT("invalid.retry.count", "SEMANTIC_0110"),
-    INVALID_RETRY_STMT_LOCATION("invalid.retry.stmt.location", "SEMANTIC_0111"),
     ARGUMENTS_COUNT_MISMATCH("arguments.count.mismatch", "SEMANTIC_0109")
     ;
 
