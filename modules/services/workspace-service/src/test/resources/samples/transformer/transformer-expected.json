@@ -469,7 +469,7 @@
         "text": "{",
         "static": true
       }, {
-        "ws": "\n",
+        "ws": " // using transformer\n",
         "i": 201,
         "text": "}",
         "static": true
@@ -1586,21 +1586,6 @@
           "kind": "Assignment"
         }, {
           "ws": [{
-            "ws": " ",
-            "i": 171,
-            "text": "//not using transformer",
-            "static": true
-          }],
-          "position": {
-            "startColumn": 31,
-            "startLine": 20,
-            "endColumn": 31,
-            "endLine": 20
-          },
-          "comment": "//not using transformer",
-          "kind": "Comment"
-        }, {
-          "ws": [{
             "ws": "",
             "i": 180,
             "text": ";",
@@ -1673,7 +1658,7 @@
               },
               "type": {
                 "ws": [{
-                  "ws": "\n    ",
+                  "ws": " //not using transformer\n    ",
                   "i": 174,
                   "text": "json",
                   "static": true
@@ -1892,21 +1877,6 @@
           },
           "declaredWithVar": false,
           "kind": "Assignment"
-        }, {
-          "ws": [{
-            "ws": " ",
-            "i": 199,
-            "text": "// using transformer",
-            "static": true
-          }],
-          "position": {
-            "startColumn": 33,
-            "startLine": 22,
-            "endColumn": 33,
-            "endLine": 22
-          },
-          "comment": "// using transformer",
-          "kind": "Comment"
         }],
         "kind": "Block"
       },
