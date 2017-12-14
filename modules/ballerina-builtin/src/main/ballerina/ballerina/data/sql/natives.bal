@@ -61,7 +61,7 @@ public struct ConnectionProperties {
 @Field { value:"SQLSERVER: SQL Server DB with connection url in the format of jdbc:sqlserver://[HOST]:[PORT];databaseName=[database]"}
 @Field { value:"ORACLE: Oracle DB with connection url in the format of  jdbc:oracle:thin:[username/password]@[HOST]:[PORT]/[database]"}
 @Field { value:"SYBASE: Sybase DB with connection url in the format of  jdbc:sybase:Tds:[HOST]:[PORT]/[database]"}
-@Field { value:"POSTGRE: Postgre DB with connection url in the format of  jdbc:postgresql://[HOST]:[PORT]/[database]"}
+@Field { value:"POSTGRES: PostgreSQL DB with connection url in the format of  jdbc:postgresql://[HOST]:[PORT]/[database]"}
 @Field { value:"IBMDB2: IBMDB2 DB with connection url in the format of  jdbc:db2://[HOST]:[PORT]/[database]"}
 @Field { value:"HSQLDB_SERVER: HSQL Server with connection url in the format of jdbc:hsqldb:hsql://[HOST]:[PORT]/[database]"}
 @Field { value:"HSQLDB_FILE: HSQL Server with connection url in the format of jdbc:hsqldb:file:[path]/[database]"}
@@ -75,7 +75,7 @@ public enum DB {
 	SQLSERVER,
 	ORACLE,
 	SYBASE,
-	POSTGRE,
+	POSTGRES,
 	IBMDB2,
 	HSQLDB_SERVER,
 	HSQLDB_FILE,
