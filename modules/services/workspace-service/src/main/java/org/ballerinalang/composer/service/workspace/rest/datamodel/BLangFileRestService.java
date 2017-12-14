@@ -28,7 +28,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
+import org.ballerinalang.composer.service.workspace.langconstruct.ModelPackage;
 import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;

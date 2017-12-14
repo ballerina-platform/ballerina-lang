@@ -18,7 +18,7 @@ package org.ballerinalang.composer.service.workspace.launcher.util;
 
 
 import org.ballerinalang.composer.service.workspace.launcher.LauncherConstants;
-import org.ballerinalang.composer.service.workspace.utils.WorkspaceUtils;
+import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
 
 import java.util.Locale;
 

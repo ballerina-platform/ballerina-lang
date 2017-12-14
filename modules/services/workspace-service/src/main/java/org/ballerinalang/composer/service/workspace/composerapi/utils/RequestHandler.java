@@ -21,10 +21,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.ballerinalang.composer.service.workspace.Constants;
 import org.ballerinalang.composer.service.workspace.common.Utils;
 import org.ballerinalang.composer.service.workspace.composerapi.ComposerApi;
-import org.ballerinalang.composer.service.workspace.langserver.consts.LangServerConstants;
-import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
+import org.ballerinalang.composer.service.workspace.langconstruct.ModelPackage;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.json.JsonRpcMethod;
 import org.eclipse.lsp4j.jsonrpc.messages.RequestMessage;
@@ -56,7 +56,7 @@ public class RequestHandler {
             jsonrpcRequest = gson.fromJson(text, RequestMessage.class);
             if (jsonrpcRequest.getMethod().equals("PING")) {
                 return sendPong();
-            } else if (jsonrpcRequest.getMethod().equals(LangServerConstants.BUILT_IN_PACKAGES)) {
+            } else if (jsonrpcRequest.getMethod().equals(Constants.BUILT_IN_PACKAGES)) {
                 return getBuiltInPackages(jsonrpcRequest);
             } else if (jsonrpcRequest.getId() != null) { // Its a request
                 return handlerRequest(endpoint, jsonrpcRequest);

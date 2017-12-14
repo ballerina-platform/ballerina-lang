@@ -17,8 +17,8 @@
 
 package org.ballerinalang.composer.service.workspace.common;
 
-import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
-import org.ballerinalang.composer.service.workspace.utils.BallerinaProgramContentProvider;
+import org.ballerinalang.composer.service.workspace.langconstruct.ModelPackage;
+import org.ballerinalang.composer.service.workspace.util.BallerinaProgramContentProvider;
 import java.util.Map;
 
 /**
