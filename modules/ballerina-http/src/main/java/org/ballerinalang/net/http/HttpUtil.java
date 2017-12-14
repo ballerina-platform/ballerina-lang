@@ -29,7 +29,7 @@ import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
-import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.net.mime.util.MimeUtil;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
@@ -69,7 +69,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.ballerinalang.mime.util.MimeUtil.TEXT_DATA;
+import static org.ballerinalang.net.mime.util.MimeUtil.TEXT_DATA;
 
 /**
  * Utility class providing utility methods.
@@ -125,9 +125,8 @@ public class HttpUtil {
     public static BValue[] getEntity(Context context, AbstractNativeFunction abstractNativeFunction,
             boolean isRequest) {
         BStruct entity = ConnectorUtils
-                .createAndGetStruct(context, org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
-                        org.ballerinalang.mime.util.Constants.ENTITY);
-
+                .createAndGetStruct(context, org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
+                        org.ballerinalang.net.mime.util.Constants.ENTITY);
         int contentLength = -1;
 
         BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
@@ -149,16 +148,18 @@ public class HttpUtil {
             }
         } else {
             InputStream inputStream = new HttpMessageDataStreamer(httpCarbonMessage).getInputStream();
-            String headerValue = httpCarbonMessage.getHeader(org.ballerinalang.mime.util.Constants.CONTENT_TYPE);
-            if (headerValue != null) {
-                switch (headerValue) {
-                    case org.ballerinalang.mime.util.Constants.TEXT_PLAIN:
+            String contentType = httpCarbonMessage.getHeader(org.ballerinalang.net.mime.util.Constants.CONTENT_TYPE);
+            MimeUtil.setContentType(context, entity, contentType);
+            String baseType = MimeUtil.getBaseType(contentType);
+            if (baseType != null) {
+                switch (baseType) {
+                    case org.ballerinalang.net.mime.util.Constants.TEXT_PLAIN:
                         MimeUtil.setStringPayload(context, entity, inputStream, contentLength);
                         break;
-                    case org.ballerinalang.mime.util.Constants.APPLICATION_JSON:
+                    case org.ballerinalang.net.mime.util.Constants.APPLICATION_JSON:
                         MimeUtil.setJsonPayload(context, entity, inputStream, contentLength);
                         break;
-                    case org.ballerinalang.mime.util.Constants.APPLICATION_XML:
+                    case org.ballerinalang.net.mime.util.Constants.APPLICATION_XML:
                         MimeUtil.setXmlPayload(context, entity, inputStream, contentLength);
                         break;
                     default:

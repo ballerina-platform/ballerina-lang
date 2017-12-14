@@ -1,6 +1,6 @@
 package ballerina.net.http;
 
-import ballerina.mime;
+import ballerina.net.mime;
 
 @Description { value:"Represents an HTTP request message"}
 public struct Request {

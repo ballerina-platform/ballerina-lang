@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.mime;
+package org.ballerinalang.net.mime;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.repository.PackageRepository;

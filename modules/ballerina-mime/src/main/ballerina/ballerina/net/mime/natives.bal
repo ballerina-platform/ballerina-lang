@@ -1,6 +1,7 @@
-package ballerina.mime;
+package ballerina.net.mime;
 
 import ballerina.file;
+import ballerina.io;
 
 @Description {value:"Key name for 'boundary' parameter in MediaType. This is needed for composite type media types"}
 public const string BOUNDARY = "boundary";
@@ -15,6 +16,8 @@ public const string TYPE = "type";
 
 @Description {value:"Key name for 'charset' parameter in MediaType. Indicate the character set of the body text"}
 public const string CHARSET = "charset";
+
+public const string READ_PERMISSION = "r";
 
 @Description {value:"Describes the nature of the data in the body of a MIME entity"}
 @Field {value:"primaryType: Declares the general type of data"}
@@ -83,7 +86,101 @@ public enum Disposition {
     FORM_DATA
 }
 
+@Description {value:"Given an entity, get the text payload"}
+@Param {value:"entity: "}
+@Return {value:""}
+public function getText (Entity entity) (string) {
+    if (entity.isInMemory) {
+        return entity.textData;
+    } else {
+        file:File overFlowData = entity.overflowData;
+        var encoding, _ = (string)entity.contentType.parameters.CHARSET;
+        io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
+        io:CharacterChannel characterChannel = channel.toCharacterChannel(encoding);
+        string characters = characterChannel.readAllCharacters();
+        return characters;
+    }
+}
 
+@Description {value:"Given an entity, get the json payload"}
+@Param {value:"entity: "}
+@Return {value:""}
+public function getJson (Entity entity) (json) {
+    if (entity.isInMemory) {
+        return entity.jsonData;
+    } else {
+        file:File overFlowData = entity.overflowData;
+        io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
+        blob bytes = readAll(channel);
+        var encoding, _ = (string)entity.contentType.parameters.CHARSET;
+        string content = bytes.toString("UTF-8");
+        TypeConversionError err;
+        var jsonContent, err = <json>content;
+        //if (err != null) {
+        //    throw e;
+        //}
+        return jsonContent;
+    }
+}
+
+@Description {value:"Given an entity, get the xml payload"}
+@Param {value:"entity: "}
+@Return {value:""}
+public function getXml (Entity entity) (xml) {
+    if (entity.isInMemory) {
+        return entity.xmlData;
+    } else {
+        file:File overFlowData = entity.overflowData;
+        io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
+        blob bytes = readAll(channel);
+        var encoding, _ = (string)entity.contentType.parameters.CHARSET;
+        string content = bytes.toString("UTF-8");
+        TypeConversionError err;
+        var xmlContent, err = <xml>content;
+        //  if (err != null) {
+        //      throw e;
+        //  }
+        return xmlContent;
+    }
+}
+
+@Description {value:"Given an entity, get the content as a byte array"}
+@Param {value:"entity: "}
+@Return {value:""}
+public function getBlob (Entity entity) (blob) {
+    if (entity.isInMemory) {
+        return entity.byteData;
+    } else {
+        file:File overFlowData = entity.overflowData;
+        io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
+        return readAll(channel);
+    }
+}
+
+public native function getMediaType (string contentType) (MediaType);
+
+public function <MediaType mediaType> toString () (string) {
+    return mediaType.primaryType + "/" + mediaType.subType;
+}
+
+public function <MediaType mediaType> toStringWithParameters () (string) {
+    string contentType = "Content-Type: " + mediaType.toString() + "; ";
+    map parameters = mediaType.parameters;
+    string[] arrKeys = mediaType.parameters.keys();
+    int size = lengthof arrKeys;
+    int index = 0;
+    while (index < size) {
+        var value, _ =(string)parameters[arrKeys[index]];
+        if (index == size - 1) {
+            contentType = contentType + arrKeys[index] + "=" + value;
+            break;
+        } else {
+            contentType = contentType + arrKeys[index] + "=" + value + ";";
+            index = index + 1;
+        }
+    }
+    return contentType;
+}
 
 struct MimeBase64Encoder {
 }
@@ -99,3 +196,10 @@ struct QuotedPrintableDecoder {
 
 public const string APPLICATION_JSON = "application/json";
 public const string MULTIPART_FORM_DATA = "multipart/form-data";
+
+function readAll (io:ByteChannel channel) (blob) {
+    blob bytes;
+    int numberOfBytesRead;
+    bytes, numberOfBytesRead = channel.readAllBytes();
+    return bytes;
+}
