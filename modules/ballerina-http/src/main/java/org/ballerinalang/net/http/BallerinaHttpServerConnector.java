@@ -64,7 +64,7 @@ public class BallerinaHttpServerConnector implements BallerinaServerConnector {
 
     @Override
     public void deploymentComplete() throws BallerinaConnectorException {
-        webSocketServicesRegistry.validateSeverEndpoints();
+        webSocketServicesRegistry.completeDeployment();
         HttpUtil.startPendingHttpConnectors(this);
     }
 
