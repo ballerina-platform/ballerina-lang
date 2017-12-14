@@ -65,7 +65,7 @@ import java.util.stream.Collectors;
 
 /**
  * Tree visitor for the hover functionality.
- * */
+ */
 public class HoverTreeVisitor extends BLangNodeVisitor {
 
     private String fileName;
