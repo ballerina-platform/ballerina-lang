@@ -20,7 +20,6 @@ package org.ballerinalang.model;
 import org.apache.axiom.om.ds.AbstractPushOMDataSource;
 import org.ballerinalang.model.values.BDataTable;
 
-import java.util.Map;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -100,13 +99,12 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
         xmlStreamWriter.flush();
     }
 
-    private void processArray(XMLStreamWriter xmlStreamWriter, ColumnDefinition col)
-            throws XMLStreamException {
-        Map<String, Object> array = dataTable.getArray(col.getName());
-        if (array != null && !array.isEmpty()) {
-            for (Map.Entry<String, Object> values : array.entrySet()) {
+    private void processArray(XMLStreamWriter xmlStreamWriter, ColumnDefinition col) throws XMLStreamException {
+        Object[] array = dataTable.getArray(col.getName());
+        if (array != null) {
+            for (Object value  : array) {
                 xmlStreamWriter.writeStartElement(ARRAY_ELEMENT_NAME);
-                xmlStreamWriter.writeCharacters(String.valueOf(values.getValue()));
+                xmlStreamWriter.writeCharacters(String.valueOf(value));
                 xmlStreamWriter.writeEndElement();
             }
         }
