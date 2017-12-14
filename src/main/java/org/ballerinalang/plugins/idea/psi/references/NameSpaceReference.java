@@ -58,7 +58,7 @@ public class NameSpaceReference extends BallerinaElementReference {
                 }
             }
         }
-        return null;
+        return BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true, true);
     }
 
     @NotNull
@@ -77,9 +77,22 @@ public class NameSpaceReference extends BallerinaElementReference {
                 List<PsiElement> namespaces = BallerinaPsiImplUtil.getAllXmlNamespacesInResolvableScope(scope,
                         caretOffset);
                 results.addAll(BallerinaCompletionUtils.createNamespaceLookupElements(namespaces));
-            }
-        } else {
 
+                List<IdentifierPSINode> variables =
+                        BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope, caretOffset);
+                results.addAll(BallerinaCompletionUtils.createVariableLookupElements(variables));
+
+                List<IdentifierPSINode> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope,
+                        caretOffset);
+                results.addAll(BallerinaCompletionUtils.createParameterLookupElements(parameters));
+
+                List<IdentifierPSINode> globalVariables =
+                        BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope(scope);
+                results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
+
+                List<IdentifierPSINode> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
+                results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
+            }
         }
         return results.toArray(new LookupElement[results.size()]);
     }
