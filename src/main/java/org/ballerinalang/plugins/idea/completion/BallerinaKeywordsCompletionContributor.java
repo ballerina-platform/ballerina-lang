@@ -36,6 +36,7 @@ import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
+import org.ballerinalang.plugins.idea.psi.FailedClauseNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
@@ -140,12 +141,14 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
         }
 
         if (parent instanceof PsiErrorElement) {
+            FailedClauseNode failedClauseNode = PsiTreeUtil.getParentOfType(parent, FailedClauseNode.class);
+            if (failedClauseNode != null) {
+                result.addElement(getRetryKeyword());
+            }
 
             PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
-
-            PsiElement definitionNode = PsiTreeUtil.getParentOfType(element,
-                    FunctionDefinitionNode.class, ServiceDefinitionNode.class, ConnectorDefinitionNode.class,
-                    ResourceDefinitionNode.class);
+            PsiElement definitionNode = PsiTreeUtil.getParentOfType(element, FunctionDefinitionNode.class,
+                    ServiceDefinitionNode.class, ConnectorDefinitionNode.class, ResourceDefinitionNode.class);
             if (definitionNode != null) {
 
                 if (prevVisibleSibling != null && "=".equals(prevVisibleSibling.getText())) {
