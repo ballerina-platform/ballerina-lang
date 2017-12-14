@@ -45,11 +45,11 @@ public class WebSocketDispatcher {
      * @param webSocketMessage incoming message.
      * @return matching service.
      */
-    public static WebSocketService findService(WebSocketMessage webSocketMessage) {
+    public static WebSocketService findService(WebSocketServicesRegistry servicesRegistry,
+                                               WebSocketMessage webSocketMessage) {
         if (!webSocketMessage.isServerMessage()) {
             String clientServiceName = webSocketMessage.getTarget();
-            WebSocketService clientService =
-                    WebSocketServicesRegistry.getInstance().getClientService(clientServiceName);
+            WebSocketService clientService = servicesRegistry.getClientService(clientServiceName);
             if (clientService == null) {
                 throw new BallerinaConnectorException("no client service found to handle the service request");
             }
@@ -58,10 +58,9 @@ public class WebSocketDispatcher {
         try {
             String interfaceId = webSocketMessage.getListenerInterface();
             String serviceUri = webSocketMessage.getTarget();
-            serviceUri = WebSocketServicesRegistry.getInstance().refactorUri(serviceUri);
+            serviceUri = servicesRegistry.refactorUri(serviceUri);
 
-            WebSocketService service =
-                    WebSocketServicesRegistry.getInstance().getServiceEndpoint(interfaceId, serviceUri);
+            WebSocketService service = servicesRegistry.getServiceEndpoint(interfaceId, serviceUri);
 
             if (service == null) {
                 throw new BallerinaConnectorException("no Service found to handle the service request: " + serviceUri);
