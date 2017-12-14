@@ -26,7 +26,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test Native functions in ballerina.regex.
+ * Test Native functions in ballerina regular expression support.
  */
 public class RegexTest {
 
@@ -38,7 +38,7 @@ public class RegexTest {
         result = BCompileUtil.compile(this, "test-src", "regex/regex-test.bal");
     }
 
-    @Test
+    @Test(description = "Test for executing on matches regex method")
     public void testMatches() {
         BValue[] args = { new BString(s1), new BString("WSO2.*") };
         BValue[] returns = BRunUtil.invoke(result, "matches", args);
@@ -46,7 +46,7 @@ public class RegexTest {
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
     }
 
-    @Test
+    @Test(description = "Test for executing on find all regex method")
     public void testFindAll() {
         BValue[] args = { new BString("This is a sentence."), new BString("[a-zA-Z]*is") };
         BValue[] returns = BRunUtil.invoke(result, "findAll", args);
@@ -56,7 +56,7 @@ public class RegexTest {
         Assert.assertEquals(bStringArray.get(1), "is");
     }
 
-    @Test
+    @Test(description = "Test for executing on replace all regex method")
     public void testReplaceAllRgx() {
         BValue[] args = { new BString("abc is not abc as abc anymore"), new BString("[a-zA-Z]*bc"),
                 new BString("xyz") };
@@ -65,7 +65,7 @@ public class RegexTest {
         Assert.assertEquals(returns[0].stringValue(), "xyz is not xyz as xyz anymore");
     }
 
-    @Test
+    @Test(description = "Test for executing on replace first regex method")
     public void testReplaceFirstRgx() {
         BValue[] args = { new BString("abc is not abc as abc anymore"), new BString("[a-zA-Z]*bc"),
                 new BString("xyz") };
@@ -74,7 +74,7 @@ public class RegexTest {
         Assert.assertEquals(returns[0].stringValue(), "xyz is not abc as abc anymore");
     }
 
-    @Test
+    @Test(description = "Test for executing on invalid regex pattern")
     public void testInvalidPattern() {
         BValue[] args = { new BString("[") };
         BValue[] returns = BRunUtil.invoke(result, "invalidPattern", args);
@@ -103,6 +103,5 @@ public class RegexTest {
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "xyz is not xyz as abc anymore");
     }
-
 
 }

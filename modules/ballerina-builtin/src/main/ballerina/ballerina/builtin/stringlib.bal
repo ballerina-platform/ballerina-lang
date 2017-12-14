@@ -123,7 +123,7 @@ public native function <string mainString> findAllWithRegex (Regex reg) (string[
 @Return { value: "True if the string matches the regex; false otherwise"}
 public native function <string mainString>  matchesWithRegex (Regex reg) (boolean);
 
-@Description { value:"Replaces the mainString with the replacement on occurrences that matches the given regular expression" }
+@Description { value:"Replaces the mainString with the replacement of occurrences that matches the given regular expression" }
 @Param { value:"mainString: The original string argument" }
 @Param { value:"reg: The Compiled Pattern/Regex" }
 @Param { value:"replaceWith: The replacement string" }
