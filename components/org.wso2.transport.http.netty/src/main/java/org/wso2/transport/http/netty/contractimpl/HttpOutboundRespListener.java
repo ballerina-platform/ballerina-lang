@@ -82,7 +82,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                     }
                     httpResponseMessage.removeHttpContentAsyncFuture();
                 } else {
-                    sourceContext.write(httpContent);
+                    sourceContext.writeAndFlush(httpContent);
                 }
             }));
         });
