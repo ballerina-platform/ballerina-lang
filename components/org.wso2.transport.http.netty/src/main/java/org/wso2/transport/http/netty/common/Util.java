@@ -108,7 +108,9 @@ public class Util {
             msg.setHeader(Constants.HTTP_CONNECTION, Constants.CONNECTION_CLOSE);
         }
 
-        outgoingResponse.headers().setAll(msg.getHeaders());
+        for (Map.Entry<String, String> entry : msg.getHeaders()) {
+            outgoingResponse.headers().add(entry.getKey(), entry.getValue());
+        }
 
         return outgoingResponse;
     }
