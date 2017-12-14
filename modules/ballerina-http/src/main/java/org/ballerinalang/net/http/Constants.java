@@ -107,6 +107,7 @@ public class Constants {
     public static final String SESSION_ID = "BSESSIONID=";
     public static final String PATH = "Path=";
     public static final String RESPONSE_COOKIE_HEADER = "Set-Cookie";
+    public static final String SESSION = "Session";
 
     public static final String ORIGIN = "Origin";
     public static final String AC_REQUEST_METHOD = "Access-Control-Request-Method";

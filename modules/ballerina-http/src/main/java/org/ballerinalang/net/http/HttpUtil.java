@@ -463,6 +463,20 @@ public class HttpUtil {
         return abstractNativeFunction.VOID_RETURN;
     }
 
+    public static BStruct createSessionStruct(Context context, Session session) {
+        BStruct sessionStruct = ConnectorUtils
+                .createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_HTTP, Constants.SESSION);
+        //Add session to the struct as a native data
+        sessionStruct.addNativeData(Constants.HTTP_SESSION, session);
+        return sessionStruct;
+    }
+
+    public static String getSessionID(String cookieHeader) {
+        return Arrays.stream(cookieHeader.split(";"))
+                .filter(cookie -> cookie.trim().startsWith(Constants.SESSION_ID))
+                .findFirst().get().trim().substring(Constants.SESSION_ID.length());
+    }
+
     public static void addHTTPSessionAndCorsHeaders(HTTPCarbonMessage requestMsg, HTTPCarbonMessage responseMsg) {
         Session session = (Session) requestMsg.getProperty(Constants.HTTP_SESSION);
         if (session != null) {
