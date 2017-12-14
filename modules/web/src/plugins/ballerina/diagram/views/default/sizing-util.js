@@ -1513,7 +1513,7 @@ class SizingUtil {
         // We ignore the previously calculated node height and re calculate it based on the component heights
         if (node.transactionBody) {
             node.transactionBody.viewState.components.titleWidth = this.getTextWidth('Transaction');
-            if(node.condition){
+            if (node.condition) {
                 node.transactionBody.viewState.components.withKeywordWidth = this.getTextWidth('with');
                 node.transactionBody.viewState.components.retiresKeywordWidth = this.getTextWidth('retries');
                 node.viewState.components.expression = this.getTextWidth(node.condition.getSource());
