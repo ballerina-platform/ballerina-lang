@@ -75,3 +75,12 @@ public function <Response res> removeHeader (string key) {
 public function <Response res> removeAllHeaders () {
     res.headers = {};
 }
+
+@Description { value:"Sends a 100-continue response to the client."}
+@Param { value:"res: A response struct" }
+@Return { value:"Returns an HttpConnectorError if there was any issue in sending the response." }
+public function <Response res> send100Continue() (HttpConnectorError) {
+    res.setStatusCode(100);
+    HttpConnectorError err = res.send();
+    return err;
+}
