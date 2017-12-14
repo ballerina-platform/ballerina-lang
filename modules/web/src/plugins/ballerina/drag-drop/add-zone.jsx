@@ -36,7 +36,7 @@ class AddZone extends React.Component {
         this.onAddEndpointClick = this.onAddEndpointClick.bind(this);
         this.onAddIfClick = this.onAddIfClick.bind(this);
         this.onAddWhileClick = this.onAddWhileClick.bind(this);
-        this.onAddActionClick = this.onAddActionClick.bind(this);
+        this.onAddWorkerClick = this.onAddWorkerClick.bind(this);
     }
 
     onMouseOverArea() {
@@ -48,10 +48,8 @@ class AddZone extends React.Component {
 
     onAddButtonClick() {
         const blocksToBeAdded = [];
-        // blocksToBeAdded.push({
-        //     name: 'endpoint',
-        //     addBlock: this.onAddEndpointClick,
-        // });
+        let yPosition;
+
         blocksToBeAdded.push({
             name: 'if',
             addBlock: this.onAddIfClick,
@@ -61,9 +59,23 @@ class AddZone extends React.Component {
             addBlock: this.onAddWhileClick,
         });
         // blocksToBeAdded.push({
-        //     name: 'action',
-        //     addBlock: this.onAddActionClick,
+        //     name: 'endpoint',
+        //     addBlock: this.onAddEndpointClick,
         // });
+        // blocksToBeAdded.push({
+        //     name: 'action',
+        //     addBlock: this.onAddWorkerClick,
+        // });
+
+        let component;
+        if (TreeUtil.isFunction(this.props.model) || TreeUtil.isResource(this.props.model)) {
+            component = this.props.model.viewState.components.defaultWorkerLine;
+            yPosition = component.y + component.h - 30;
+        } else {
+            component = this.props.model.viewState.components['statement-box'];
+            yPosition = component.y - 10;
+        }
+        const xPosition = component.w + this.props.model.viewState.bBox.expansionW + (component.x / 2) + 10;
 
         const overlayComponents = {
             kind: 'AddBlockSelect',
@@ -71,6 +83,8 @@ class AddZone extends React.Component {
                 key: 'test',
                 model: this.props.model,
                 blocksToBeAdded,
+                x: xPosition,
+                y: yPosition,
             },
         };
         this.props.model.viewState.showOverlayContainer = true;
@@ -79,7 +93,14 @@ class AddZone extends React.Component {
     }
 
     onAddEndpointClick() {
-
+        let block;
+        if (TreeUtil.isFunction(this.props.model) || TreeUtil.isResource(this.props.model)) {
+            block = this.props.model.getBody();
+        } else {
+            block = this.props.model.parent;
+        }
+        block.addStatements(DefaultNodeFactory.createEndpoint(),
+        block.getIndexOfStatements(this.props.model));
     }
 
     onAddIfClick() {
@@ -104,8 +125,10 @@ class AddZone extends React.Component {
               block.getIndexOfStatements(this.props.model));
     }
 
-    onAddActionClick() {
-
+    onAddWorkerClick() {
+        if (TreeUtil.isFunction(this.props.model) || TreeUtil.isResource(this.props.model)) {
+            this.props.model.addWorkers(DefaultNodeFactory.createWorker());
+        }
     }
 
     drawAddButton(x, y, height, width) {
