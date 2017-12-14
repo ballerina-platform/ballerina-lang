@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -121,7 +122,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn.BLangWorkerReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -1212,10 +1212,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         Instruction ifCondJumpInstr = InstructionFactory.get(InstructionCodes.BR_FALSE, ternaryExpr.expr.regIndex, -1);
         this.emit(ifCondJumpInstr);
         this.genNode(ternaryExpr.thenExpr, this.env);
+        ternaryExpr.regIndex = ternaryExpr.thenExpr.regIndex;
         Instruction endJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, -1);
         this.emit(endJumpInstr);
         ifCondJumpInstr.setOperand(1, this.nextIP());
         this.genNode(ternaryExpr.elseExpr, this.env);
+        Instruction instruction = InstructionFactory.get(InstructionCodes.REG_CP, ternaryExpr.type.tag,
+                ternaryExpr.elseExpr.regIndex, ternaryExpr.regIndex);
+        this.emit(instruction);
         endJumpInstr.setOperand(0, this.nextIP());
     }
 
@@ -2467,8 +2471,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
         Instruction gotoEndOfTransactionBlock = InstructionFactory.get(InstructionCodes.GOTO, -1);
-        Instruction gotoStartOfAbortedBlock = InstructionFactory.get(InstructionCodes.GOTO, -1);
-        abortInstructions.push(gotoStartOfAbortedBlock);
+        abortInstructions.push(gotoEndOfTransactionBlock);
 
         //start transaction
         this.emit(InstructionFactory.get(InstructionCodes.TR_BEGIN, transactionIndex, retryCountAvailable));
@@ -2484,29 +2487,16 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         //end the transaction
         int endIP = nextIP();
-        this.emit(InstructionFactory.get(InstructionCodes.TR_END, 0));
+        this.emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.SUCCESS.value()));
 
-        //process committed block
-        if (transactionNode.committedBody != null) {
-            this.genNode(transactionNode.committedBody, this.env);
-        }
-        if (transactionNode.abortedBody != null) {
-            this.emit(gotoEndOfTransactionBlock);
-        }
         abortInstructions.pop();
-        int startOfAbortedIP = nextIP();
-        gotoStartOfAbortedBlock.setOperand(0, startOfAbortedIP);
-        emit(InstructionFactory.get(InstructionCodes.TR_END, -1));
+        emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.FAILED.value()));
 
-        //process aborted block
-        if (transactionNode.abortedBody != null) {
-            this.genNode(transactionNode.abortedBody, this.env);
-        }
         emit(gotoEndOfTransactionBlock);
 
         // CodeGen for error handling.
         int errorTargetIP = nextIP();
-        emit(InstructionFactory.get(InstructionCodes.TR_END, -1));
+        emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.FAILED.value()));
         if (transactionNode.failedBody != null) {
             this.genNode(transactionNode.failedBody, this.env);
 
@@ -2514,17 +2504,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit(gotoInstruction);
         int ifIP = nextIP();
         retryInstruction.setOperand(1, ifIP);
-        if (transactionNode.abortedBody != null) {
-            this.genNode(transactionNode.abortedBody, this.env);
-        }
-
 
         emit(InstructionFactory.get(InstructionCodes.THROW, -1));
         gotoEndOfTransactionBlock.setOperand(0, nextIP());
 
         ErrorTableEntry errorTableEntry = new ErrorTableEntry(startIP, endIP, errorTargetIP, 0, -1);
         errorTable.addErrorTableEntry(errorTableEntry);
-        emit(InstructionFactory.get(InstructionCodes.TR_END, 1));
+        emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.END.value()));
     }
 
     public void visit(BLangAbort abortNode) {
@@ -2735,10 +2721,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             emit(InstructionCodes.XMLATTRLOAD, varRefRegIndex, qnameRegIndex, xmlValueRegIndex);
             xmlAttributeAccessExpr.regIndex = xmlValueRegIndex;
         }
-    }
-
-    public void visit(BLangRetry retryNode) {
-        /* ignore */
     }
 
     public void visit(BLangTryCatchFinally tryNode) {

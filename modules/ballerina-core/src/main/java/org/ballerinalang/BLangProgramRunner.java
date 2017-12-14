@@ -22,7 +22,6 @@ import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.StackFrame;
-import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -85,7 +84,7 @@ public class BLangProgramRunner {
             }
 
             // Deploy service
-            ServerConnectorRegistry.getInstance().registerService(serviceInfo);
+            programFile.getServerConnectorRegistry().registerService(serviceInfo);
             serviceCount++;
         }
 

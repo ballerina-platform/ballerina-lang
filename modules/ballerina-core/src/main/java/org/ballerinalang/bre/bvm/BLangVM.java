@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
@@ -36,6 +35,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
+import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
@@ -65,6 +65,7 @@ import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ConnectorInfo;
@@ -329,6 +330,9 @@ public class BLangVM {
                 case InstructionCodes.RCONST_NULL:
                     i = operands[0];
                     sf.refRegs[i] = null;
+                    break;
+                case InstructionCodes.REG_CP:
+                    copyRegistryValue(sf, operands[0], operands[1], operands[2]);
                     break;
 
                 case InstructionCodes.ILOAD:
@@ -2287,6 +2291,28 @@ public class BLangVM {
         }
     }
 
+    private void copyRegistryValue(StackFrame sf, int typeTag, int source, int target) {
+        switch (typeTag) {
+            case TypeTags.INT_TAG:
+                sf.longRegs[target] = sf.longRegs[source];
+                break;
+            case TypeTags.FLOAT_TAG:
+                sf.doubleRegs[target] = sf.doubleRegs[source];
+                break;
+            case TypeTags.STRING_TAG:
+                sf.stringRegs[target] = sf.stringRegs[source];
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                sf.intRegs[target] = sf.intRegs[source];
+                break;
+            case TypeTags.BLOB_TAG:
+                sf.byteRegs[target] = sf.byteRegs[source];
+                break;
+            default:
+                sf.refRegs[target] = sf.refRegs[source];
+        }
+    }
+
     private void execXMLCreationOpcodes(StackFrame sf, int opcode, int[] operands) {
         int i;
         int j;
@@ -2648,15 +2674,21 @@ public class BLangVM {
     private void endTransaction(int status) {
         BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
         if (ballerinaTransactionManager != null) {
-            if (status == 0) { //Transaction success
-                ballerinaTransactionManager.commitTransactionBlock();
-            } else if (status == -1) { //Transaction failed
-                ballerinaTransactionManager.rollbackTransactionBlock();
-            } else { //status = 1 Transaction end
-                ballerinaTransactionManager.endTransactionBlock();
-                if (ballerinaTransactionManager.isOuterTransaction()) {
-                    context.setBallerinaTransactionManager(null);
+            try {
+                if (status == TransactionStatus.SUCCESS.value()) {
+                    ballerinaTransactionManager.commitTransactionBlock();
+                } else if (status == TransactionStatus.FAILED.value()) {
+                    ballerinaTransactionManager.rollbackTransactionBlock();
+                } else { //status = 1 Transaction end
+                    ballerinaTransactionManager.endTransactionBlock();
+                    if (ballerinaTransactionManager.isOuterTransaction()) {
+                        context.setBallerinaTransactionManager(null);
+                    }
                 }
+            } catch (Throwable e) {
+                context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
+                handleError();
+                return;
             }
         }
     }
@@ -2667,7 +2699,10 @@ public class BLangVM {
         if (retryCountAvailable == 1) {
             retryCount = (int) controlStack.currentFrame.getLongRegs()[0];
             if (retryCount < 0) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_RETRY_COUNT);
+                context.setError(BLangVMErrors.createError(this.context, ip,
+                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
+                handleError();
+                return;
             }
         }
         BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
@@ -2676,6 +2711,7 @@ public class BLangVM {
             context.setBallerinaTransactionManager(ballerinaTransactionManager);
         }
         ballerinaTransactionManager.beginTransactionBlock(transactionId, retryCount);
+
     }
 
     private void retryTransaction(int transactionId, int startOfAbortIP) {
@@ -3371,7 +3407,7 @@ public class BLangVM {
             return;
         }
 
-        if (jsonNode.isInt() || jsonNode.isLong()) {
+        if (jsonNode.isLong()) {
             sf.longRegs[j] = jsonNode.longValue();
             sf.refRegs[k] = null;
             return;
@@ -3403,7 +3439,7 @@ public class BLangVM {
             return;
         }
 
-        if (jsonNode.isFloat() || jsonNode.isDouble()) {
+        if (jsonNode.isDouble()) {
             sf.doubleRegs[j] = jsonNode.doubleValue();
             sf.refRegs[k] = null;
             return;
@@ -3436,8 +3472,8 @@ public class BLangVM {
             return;
         }
 
-        if (jsonNode.isTextual()) {
-            sf.stringRegs[j] = jsonNode.textValue();
+        if (jsonNode.isString()) {
+            sf.stringRegs[j] = jsonNode.stringValue();
             sf.refRegs[k] = null;
             return;
         }

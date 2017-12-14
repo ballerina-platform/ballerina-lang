@@ -220,10 +220,8 @@ function testToXmlWithinTransaction () (string, int) {
             xml xmlResult;
             xmlResult, _ = <xml>dt;
             result = <string> xmlResult;
-        } aborted {
-        returnValue = -1;
-    }
-    return result, returnValue;
+        }
+        return result, returnValue;
     } finally {
         testDB.close();
     }
@@ -243,10 +241,8 @@ function testToJsonWithinTransaction () (string, int) {
             json jsonResult;
             jsonResult, _ = <json>dt;
             result = jsonResult.toString();
-        } aborted {
-        returnValue = -1;
-    }
-    return result, returnValue;
+        }
+        return result, returnValue;
     } finally {
         testDB.close();
     }
