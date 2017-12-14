@@ -734,13 +734,13 @@ public class HttpUtil {
         return "/".concat(uri);
     }
 
-    public static void checkFunctionValidity(BStruct bStruct) {
-        methodInvocationCheck(bStruct);
+    public static void checkFunctionValidity(BStruct bStruct, HTTPCarbonMessage httpMsg) {
+        methodInvocationCheck(bStruct, httpMsg);
         outboundResponseStructCheck(bStruct);
     }
 
-    public static void methodInvocationCheck(BStruct bStruct) {
-        if (bStruct.getNativeData(METHOD_ACCESSED) != null) {
+    public static void methodInvocationCheck(BStruct bStruct, HTTPCarbonMessage httpMsg) {
+        if (bStruct.getNativeData(METHOD_ACCESSED) != null && !is100ContinueRequest(httpMsg)) {
             throw new IllegalStateException("illegal function invocation");
         }
         bStruct.addNativeData(METHOD_ACCESSED, true);
@@ -754,5 +754,9 @@ public class HttpUtil {
 
     public static MessageDataSource getMessageDataSource(BStruct httpMsgStruct) {
         return (MessageDataSource) httpMsgStruct.getNativeData(MESSAGE_DATA_SOURCE);
+    }
+
+    private static boolean is100ContinueRequest(HTTPCarbonMessage httpMsg) {
+        return Constants.HEADER_VAL_100_CONTINUE.equalsIgnoreCase(httpMsg.getHeader(Constants.EXPECT_HEADER));
     }
 }

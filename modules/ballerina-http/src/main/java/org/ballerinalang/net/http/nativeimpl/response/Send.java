@@ -50,13 +50,12 @@ public class Send extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct responseStruct = (BStruct) getRefArgument(context, 0);
-
-        HttpUtil.outboundResponseStructCheck(responseStruct);
+        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct
+                .getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
+        HttpUtil.checkFunctionValidity(responseStruct, requestMessage);
 
         HTTPCarbonMessage responseMessage = HttpUtil
                 .getCarbonMsg(responseStruct, HttpUtil.createHttpCarbonMessage(false));
-        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct
-                .getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
 
         AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.ANN_NAME_CONFIG);
