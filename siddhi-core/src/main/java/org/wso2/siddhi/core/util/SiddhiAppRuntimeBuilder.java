@@ -184,7 +184,7 @@ public class SiddhiAppRuntimeBuilder {
                 if (streamJuction != null) {
                     streamJuction.subscribe(processStreamReceiver);
                 } else {
-                    throw new SiddhiAppCreationException("Expecting a stream but '"
+                    throw new SiddhiAppCreationException("Expecting a stream, but provided '"
                             + processStreamReceiver.getStreamId() + "' is not a stream");
                 }
             }
