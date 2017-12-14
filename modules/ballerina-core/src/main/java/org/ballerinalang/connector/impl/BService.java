@@ -33,13 +33,15 @@ import java.util.Map;
 public class BService extends AbstractServiceResource implements Service {
     private String name;
     private String packagePath;
+    private String protocolPackage;
 
     //key - resourceName, value - resource
     private Map<String, Resource> resourceMap = new HashMap<>();
 
-    public BService(String name, String packagePath) {
+    public BService(String name, String packagePath, String protocolPackage) {
         this.name = name;
         this.packagePath = packagePath;
+        this.protocolPackage = protocolPackage;
     }
 
     public void addResource(String name, Resource resource) {
@@ -54,6 +56,11 @@ public class BService extends AbstractServiceResource implements Service {
     @Override
     public String getPackage() {
         return packagePath;
+    }
+
+    @Override
+    public String getProtocolPackage() {
+        return protocolPackage;
     }
 
     @Override

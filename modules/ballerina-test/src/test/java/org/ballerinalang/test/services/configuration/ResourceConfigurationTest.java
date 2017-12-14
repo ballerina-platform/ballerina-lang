@@ -22,7 +22,6 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 /**
@@ -39,10 +38,5 @@ public class ResourceConfigurationTest {
     public void testDuplicateResourceConfigAnnotations() {
         compileResult = BCompileUtil.compile("test-src/services/configuration/resource-config-annotation.bal");
         BServiceUtil.runService(compileResult);
-    }
-
-    @AfterClass
-    public void cleanup() {
-        BServiceUtil.cleanup(compileResult);
     }
 }

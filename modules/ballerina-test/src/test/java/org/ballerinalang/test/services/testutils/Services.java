@@ -20,8 +20,11 @@ package org.ballerinalang.test.services.testutils;
 
 
 import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Executor;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.http.BallerinaHttpServerConnector;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
@@ -37,10 +40,12 @@ import java.util.Map;
  */
 public class Services {
 
-    public static HTTPCarbonMessage invokeNew(HTTPTestRequest request) {
+    public static HTTPCarbonMessage invokeNew(CompileResult compileResult, HTTPTestRequest request) {
+        BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
+                getBallerinaServerConnector(compileResult.getProgFile(), Constants.HTTP_PACKAGE_PATH);
         TestHttpFutureListener futureListener = new TestHttpFutureListener(request);
         request.setFutureListener(futureListener);
-        HttpResource resource = HttpDispatcher.findResource(request);
+        HttpResource resource = HttpDispatcher.findResource(httpServerConnector.getHttpServicesRegistry(), request);
         if (resource == null) {
             return futureListener.getResponseMsg();
         }

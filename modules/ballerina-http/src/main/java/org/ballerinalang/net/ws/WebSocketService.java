@@ -23,7 +23,9 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpUtil;
 
 import java.util.List;
@@ -63,6 +65,11 @@ public class WebSocketService implements Service {
     }
 
     @Override
+    public String getProtocolPackage() {
+        return service.getProtocolPackage();
+    }
+
+    @Override
     public List<Annotation> getAnnotationList(String pkgPath, String name) {
         return service.getAnnotationList(pkgPath, name);
     }
@@ -90,8 +97,11 @@ public class WebSocketService implements Service {
     }
 
     public BStruct createConnectionStruct() {
-        return ConnectorUtils.createStruct(service.getResources()[0], Constants.PROTOCOL_PACKAGE_WS,
+        BStruct wsConnection = ConnectorUtils.createStruct(service.getResources()[0], Constants.PROTOCOL_PACKAGE_WS,
                                     Constants.STRUCT_WEBSOCKET_CONNECTION);
+        BMap<String, BValue> attributes = new BMap<>();
+        wsConnection.setRefField(0, attributes);
+        return wsConnection;
     }
 
     public BStruct createTextFrameStruct() {

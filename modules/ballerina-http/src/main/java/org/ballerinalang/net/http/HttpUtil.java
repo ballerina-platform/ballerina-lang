@@ -18,8 +18,10 @@
 
 package org.ballerinalang.net.http;
 
+import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -42,7 +44,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.http.session.Session;
-import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
+import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -50,7 +52,6 @@ import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contractimpl.HttpResponseStatusFuture;
@@ -70,22 +71,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.ballerinalang.net.http.Constants.MESSAGE_DATA_SOURCE;
+
 /**
  * Utility class providing utility methods.
  */
 public class HttpUtil {
     private static final Logger log = LoggerFactory.getLogger(HttpUtil.class);
 
-    private static final String TRANSPORT_MESSAGE = "transport_message";
     private static final String METHOD_ACCESSED = "isMethodAccessed";
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
 
-
     public static BValue[] addHeader(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BStruct requestStruct = ((BStruct) abstractNativeFunction.getRefArgument(context, 0));
+        BStruct httpMessageStruct = ((BStruct) abstractNativeFunction.getRefArgument(context, 0));
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
 
         String headerName = abstractNativeFunction.getStringArgument(context, 0);
         String headerValue = abstractNativeFunction.getStringArgument(context, 1);
@@ -100,32 +101,19 @@ public class HttpUtil {
         return AbstractNativeFunction.VOID_RETURN;
     }
 
-    public static BValue[] clone(Context context, AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        if (log.isDebugEnabled()) {
-            log.debug("Invoke message clone.");
-        }
-        BStruct requestStruct = ((BStruct) abstractNativeFunction.getRefArgument(context, 0));
-        HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-
-        BStruct clonedRequestStruct = new BStruct(requestStruct.getType());
-        HTTPCarbonMessage clonedHttpRequest = createHttpCarbonMessage(httpCarbonMessage);
-        HttpUtil.addCarbonMsg(clonedRequestStruct, clonedHttpRequest);
-        return abstractNativeFunction.getBValues(clonedRequestStruct);
-    }
-
     public static BValue[] getBinaryPayload(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BBlob result;
         try {
-            BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+            BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                    .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
 
-            if (httpCarbonMessage.isAlreadyRead()) {
-                result = new BBlob((byte[]) httpCarbonMessage.getMessageDataSource().getDataObject());
+            if (httpMessageStruct.getNativeData(MESSAGE_DATA_SOURCE) != null) {
+                result = (BBlob) httpMessageStruct.getNativeData(MESSAGE_DATA_SOURCE);
             } else {
                 result = new BBlob(toByteArray(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream()));
+                httpMessageStruct.addNativeData(MESSAGE_DATA_SOURCE, result);
             }
             if (log.isDebugEnabled()) {
                 log.debug("Payload in String:" + result.stringValue());
@@ -138,9 +126,9 @@ public class HttpUtil {
 
     public static BValue[] getHeader(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
 
         String headerName = abstractNativeFunction.getStringArgument(context, 0);
         String headerValue = httpCarbonMessage.getHeader(headerName);
@@ -153,23 +141,23 @@ public class HttpUtil {
         BJSON result = null;
         try {
             // Accessing First Parameter Value.
-            BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+            BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                    .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
 
-            if (httpCarbonMessage.isAlreadyRead()) {
-                MessageDataSource payload = httpCarbonMessage.getMessageDataSource();
+            MessageDataSource payload = HttpUtil.getMessageDataSource(httpMessageStruct);
+            if (payload != null) {
                 if (payload instanceof BJSON) {
                     result = (BJSON) payload;
                 } else {
                     // else, build the JSON from the string representation of the payload.
-                    result = new BJSON(httpCarbonMessage.getMessageDataSource().getMessageAsString());
+                    result = new BJSON(payload.getMessageAsString());
                 }
             } else {
                 result = new BJSON(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
-                httpCarbonMessage.setMessageDataSource(result);
                 result.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
-                httpCarbonMessage.setAlreadyRead(true);
+
+                addMessageDataSource(httpMessageStruct, result);
             }
         } catch (Throwable e) {
             throw new BallerinaException("Error while retrieving json payload from message: " + e.getMessage());
@@ -180,9 +168,9 @@ public class HttpUtil {
 
     public static BValue[] getProperty(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         String propertyName = abstractNativeFunction.getStringArgument(context, 0);
 
         Object propertyValue = httpCarbonMessage.getProperty(propertyName);
@@ -202,20 +190,21 @@ public class HttpUtil {
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BString result;
         try {
-            BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-            HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-            if (httpCarbonMessage.isAlreadyRead()) {
-                result = new BString(httpCarbonMessage.getMessageDataSource().getMessageAsString());
+            BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+            MessageDataSource messageDataSource = HttpUtil.getMessageDataSource(httpMessageStruct);
+            if (messageDataSource != null) {
+                result = new BString(messageDataSource.getMessageAsString());
             } else {
+                HTTPCarbonMessage httpCarbonMessage = HttpUtil
+                        .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
                 if (httpCarbonMessage.isEmpty() && httpCarbonMessage.isEndOfMsgAdded()) {
                     return abstractNativeFunction.getBValues(new BString(""));
                 }
                 String payload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(httpCarbonMessage)
                         .getInputStream());
                 result = new BString(payload);
-                httpCarbonMessage.setMessageDataSource(new StringDataSource(payload));
-                httpCarbonMessage.setAlreadyRead(true);
+
+                addMessageDataSource(httpMessageStruct, new StringDataSource(payload));
             }
             if (log.isDebugEnabled()) {
                 log.debug("Payload in String:" + result.stringValue());
@@ -228,47 +217,32 @@ public class HttpUtil {
 
     public static BValue[] getXMLPayload(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BXML result = null;
+        BXML result;
         try {
-            BStruct struct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-            HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(struct, HttpUtil.createHttpCarbonMessage(isRequest));
+            BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
 
-            if (httpCarbonMessage.isAlreadyRead()) {
-                MessageDataSource payload = httpCarbonMessage.getMessageDataSource();
-                if (payload instanceof BXML) {
+            MessageDataSource messageDataSource = HttpUtil.getMessageDataSource(httpMessageStruct);
+            if (messageDataSource != null) {
+                if (messageDataSource instanceof BXML) {
                     // if the payload is already xml, return it as it is.
-                    result = (BXML) payload;
+                    result = (BXML) messageDataSource;
                 } else {
                     // else, build the xml from the string representation of the payload.
-                    result = XMLUtils.parse(httpCarbonMessage.getMessageDataSource().getMessageAsString());
+                    result = XMLUtils.parse(messageDataSource.getMessageAsString());
                 }
             } else {
+                HTTPCarbonMessage httpCarbonMessage = HttpUtil
+                        .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
                 result = XMLUtils.parse(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
-                httpCarbonMessage.setMessageDataSource(result);
+
                 result.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
-                httpCarbonMessage.setAlreadyRead(true);
+                addMessageDataSource(httpMessageStruct, result);
             }
         } catch (Throwable e) {
             throw new BallerinaException("Error while retrieving XML payload from message: " + e.getMessage());
         }
         // Setting output value.
         return abstractNativeFunction.getBValues(result);
-    }
-
-    private static HTTPCarbonMessage createHttpCarbonMessage(HTTPCarbonMessage httpCarbonMessage) {
-        HTTPCarbonMessage clonedHttpCarbonMessage;
-        if (httpCarbonMessage.getMessageDataSource() != null &&
-                httpCarbonMessage.getMessageDataSource() instanceof BallerinaMessageDataSource) {
-            // Clone the headers and the properties map of this message
-            clonedHttpCarbonMessage = httpCarbonMessage.cloneCarbonMessageWithOutData();
-            clonedHttpCarbonMessage.setMessageDataSource(((BallerinaMessageDataSource) httpCarbonMessage
-                    .getMessageDataSource()).clone());
-            clonedHttpCarbonMessage.setAlreadyRead(httpCarbonMessage.isAlreadyRead());
-        } else {
-            clonedHttpCarbonMessage = httpCarbonMessage.cloneCarbonMessageWithData();
-        }
-        return clonedHttpCarbonMessage;
     }
 
     private static byte[] toByteArray(InputStream input) throws IOException {
@@ -285,20 +259,20 @@ public class HttpUtil {
 
     public static BValue[] removeAllHeaders(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         httpCarbonMessage.getHeaders().clear();
         return AbstractNativeFunction.VOID_RETURN;
     }
 
     public static BValue[] removeHeader(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         String headerName = abstractNativeFunction.getStringArgument(context, 0);
 
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         httpCarbonMessage.removeHeader(headerName);
         if (log.isDebugEnabled()) {
             log.debug("Remove header:" + headerName);
@@ -308,12 +282,12 @@ public class HttpUtil {
 
     public static BValue[] setHeader(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         String headerName = abstractNativeFunction.getStringArgument(context, 0);
         String headerValue = abstractNativeFunction.getStringArgument(context, 1);
 
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         httpCarbonMessage.setHeader(headerName, headerValue);
 
         if (log.isDebugEnabled()) {
@@ -324,30 +298,31 @@ public class HttpUtil {
 
     public static BValue[] setJsonPayload(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         BJSON payload = (BJSON) abstractNativeFunction.getRefArgument(context, 1);
 
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
 
         httpCarbonMessage.waitAndReleaseAllEntities();
 
-        httpCarbonMessage.setMessageDataSource(payload);
         payload.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
-        httpCarbonMessage.setAlreadyRead(true);
+        addMessageDataSource(httpMessageStruct, payload);
+
         httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+
         return AbstractNativeFunction.VOID_RETURN;
     }
 
     public static BValue[] setProperty(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         String propertyName = abstractNativeFunction.getStringArgument(context, 0);
         String propertyValue = abstractNativeFunction.getStringArgument(context, 1);
 
         if (propertyName != null && propertyValue != null) {
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                    .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
             httpCarbonMessage.setProperty(propertyName, propertyValue);
         }
         return AbstractNativeFunction.VOID_RETURN;
@@ -355,17 +330,18 @@ public class HttpUtil {
 
     public static BValue[] setStringPayload(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
 
         httpCarbonMessage.waitAndReleaseAllEntities();
 
         String payload = abstractNativeFunction.getStringArgument(context, 0);
         StringDataSource stringDataSource = new StringDataSource(payload
                 , new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
-        httpCarbonMessage.setMessageDataSource(stringDataSource);
-        httpCarbonMessage.setAlreadyRead(true);
+
+        addMessageDataSource(httpMessageStruct, stringDataSource);
+
         httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
         if (log.isDebugEnabled()) {
             log.debug("Setting new payload: " + payload);
@@ -375,27 +351,29 @@ public class HttpUtil {
 
     public static BValue[] setXMLPayload(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         BXML payload = (BXML) abstractNativeFunction.getRefArgument(context, 1);
 
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
 
         httpCarbonMessage.waitAndReleaseAllEntities();
 
-        httpCarbonMessage.setMessageDataSource(payload);
-        httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_XML);
         payload.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
-        httpCarbonMessage.setAlreadyRead(true);
+
+        addMessageDataSource(httpMessageStruct, payload);
+
+        httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_XML);
+
         return AbstractNativeFunction.VOID_RETURN;
     }
 
     public static BValue[] getContentLength(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         int contentLength = -1;
-        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
 
         String lengthStr = httpCarbonMessage.getHeader(Constants.HTTP_CONTENT_LENGTH);
         try {
@@ -409,9 +387,9 @@ public class HttpUtil {
     public static BValue[] setContentLength(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         try {
-            BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+            BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+                    .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
             long contentLength = abstractNativeFunction.getIntArgument(context, 0);
             httpCarbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
         } catch (ClassCastException e) {
@@ -443,19 +421,24 @@ public class HttpUtil {
      *
      * @throws BallerinaConnectorException
      */
-    public static void startPendingHttpConnectors() throws BallerinaConnectorException {
+    public static void startPendingHttpConnectors(BallerinaHttpServerConnector httpServerConnector)
+            throws BallerinaConnectorException {
         try {
             // Starting up HTTP Server connectors
-            HttpConnectionManager.getInstance().startPendingHTTPConnectors();
+            HttpConnectionManager.getInstance().startPendingHTTPConnectors(httpServerConnector);
         } catch (ServerConnectorException e) {
             throw new BallerinaConnectorException(e);
         }
     }
 
     public static BValue[] prepareResponseAndSend(Context context, AbstractNativeFunction abstractNativeFunction
-            , HTTPCarbonMessage requestMessage, HTTPCarbonMessage responseMessage) {
+            , HTTPCarbonMessage requestMessage, HTTPCarbonMessage responseMessage,
+            MessageDataSource messageDataSource) {
         addHTTPSessionAndCorsHeaders(requestMessage, responseMessage);
         HttpResponseStatusFuture statusFuture = handleResponse(requestMessage, responseMessage);
+        if (messageDataSource != null) {
+            messageDataSource.serializeData();
+        }
         try {
             statusFuture = statusFuture.sync();
         } catch (InterruptedException e) {
@@ -503,26 +486,24 @@ public class HttpUtil {
     }
 
     public static HTTPCarbonMessage createErrorMessage(String payload, int statusCode) {
-
         HTTPCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
-        StringDataSource stringDataSource = new StringDataSource(payload
-                , new HttpMessageDataStreamer(response).getOutputStream());
-        response.setMessageDataSource(stringDataSource);
-        response.setAlreadyRead(true);
-        byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
+        response.waitAndReleaseAllEntities();
+        response.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(payload.getBytes())));
+        setHttpStatusCodes(payload, statusCode, response);
 
+        return response;
+    }
+
+    private static void setHttpStatusCodes(String payload, int statusCode, HTTPCarbonMessage response) {
         HttpHeaders httpHeaders = response.getHeaders();
-        httpHeaders.set(org.wso2.transport.http.netty.common.Constants.HTTP_CONNECTION,
-                org.wso2.transport.http.netty.common.Constants.CONNECTION_KEEP_ALIVE);
         httpHeaders.set(org.wso2.transport.http.netty.common.Constants.HTTP_CONTENT_TYPE,
                 org.wso2.transport.http.netty.common.Constants.TEXT_PLAIN);
+
+        byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
         httpHeaders.set(org.wso2.transport.http.netty.common.Constants.HTTP_CONTENT_LENGTH,
                 (String.valueOf(errorMessageBytes.length)));
 
         response.setProperty(org.wso2.transport.http.netty.common.Constants.HTTP_STATUS_CODE, statusCode);
-        response.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
-                org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
-        return response;
     }
 
     public static BStruct getServerConnectorError(Context context, Throwable throwable) {
@@ -540,7 +521,7 @@ public class HttpUtil {
 
     public static HTTPCarbonMessage getCarbonMsg(BStruct struct, HTTPCarbonMessage defaultMsg) {
         HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) struct
-                .getNativeData(TRANSPORT_MESSAGE);
+                .getNativeData(Constants.TRANSPORT_MESSAGE);
         if (httpCarbonMessage != null) {
             return httpCarbonMessage;
         }
@@ -549,7 +530,11 @@ public class HttpUtil {
     }
 
     public static void addCarbonMsg(BStruct struct, HTTPCarbonMessage httpCarbonMessage) {
-        struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
+        struct.addNativeData(Constants.TRANSPORT_MESSAGE, httpCarbonMessage);
+    }
+
+    public static void addMessageDataSource(BStruct struct, MessageDataSource messageDataSource) {
+        struct.addNativeData(MESSAGE_DATA_SOURCE, messageDataSource);
     }
 
     public static void addRequestResponseFlag(BStruct request, BStruct response) {
@@ -768,6 +753,10 @@ public class HttpUtil {
         if (bStruct.getNativeData(Constants.OUTBOUND_RESPONSE) == null) {
             throw new BallerinaException("operation not allowed");
         }
+    }
+
+    public static MessageDataSource getMessageDataSource(BStruct httpMsgStruct) {
+        return (MessageDataSource) httpMsgStruct.getNativeData(MESSAGE_DATA_SOURCE);
     }
 
     public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
