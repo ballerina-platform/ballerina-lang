@@ -135,6 +135,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFuture.supplyAsync(() -> {
             TextDocumentServiceContext hoverContext = new TextDocumentServiceContext();
             HoverUtil hoverUtil = new HoverUtil();
+            hoverContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
             hoverContext.put(DocumentServiceKeys.POSITION_KEY, position);
             BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(hoverContext, documentManager);
             HoverTreeVisitor hoverTreeVisitor = new HoverTreeVisitor(hoverContext);
