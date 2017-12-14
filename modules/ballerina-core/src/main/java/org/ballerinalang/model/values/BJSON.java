@@ -54,7 +54,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     private OutputStream outputStream;
 
     /**
-     * Initialize a {@link BJSON} from a {@link com.fasterxml.jackson.databind.JsonNode} object.
+     * Initialize a {@link BJSON} from a {@link JsonNode} object.
      *
      * @param json json object
      */
