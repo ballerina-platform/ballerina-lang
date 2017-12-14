@@ -34,7 +34,7 @@ public class BallerinaHiddenTemplateCompletionTest extends BallerinaCompletionTe
     }
 
     public void testElseKeyword() {
-        doCheckResult("test.bal", "function test(){ else<caret> }", "function test(){ else {\n    \n} }", null);
+        doCheckResult("test.bal", "function test(){ else<caret> }", "function test(){ else }", null);
     }
 
     public void testForkKeyword() {
