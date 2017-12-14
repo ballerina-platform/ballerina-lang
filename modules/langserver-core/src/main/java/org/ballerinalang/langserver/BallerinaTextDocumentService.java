@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.hover.HoverTreeVisitor;
 import org.ballerinalang.langserver.hover.constants.HoverConstants;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
+import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
@@ -63,6 +64,7 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -77,6 +79,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -105,11 +108,11 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             List<CompletionItem> completions;
             TextDocumentServiceContext completionContext = new TextDocumentServiceContext();
             completionContext.put(DocumentServiceKeys.POSITION_KEY, position);
+            completionContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
             BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext, documentManager);
             // Visit the package to resolve the symbols
             TreeVisitor treeVisitor = new TreeVisitor(completionContext);
             bLangPackage.accept(treeVisitor);
-
             BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
             if (symbolEnvNode == null) {
                 completions = CompletionItemResolver.getResolverByClass(TopLevelResolver.class)
@@ -162,6 +165,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             String callableItemName = SignatureHelpUtil.getCallableItemName(position.getPosition(), fileContent);
             TextDocumentServiceContext signatureContext = new TextDocumentServiceContext();
             signatureContext.put(DocumentServiceKeys.POSITION_KEY, position);
+            signatureContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
             BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(signatureContext, documentManager);
             SignatureHelpUtil.BLangPackageWrapper pkgContext =
                     new SignatureHelpUtil.BLangPackageWrapper(builtinPkg, bLangPackage);
@@ -187,7 +191,27 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<? extends SymbolInformation>> documentSymbol(DocumentSymbolParams params) {
-        return CompletableFuture.supplyAsync(() -> null);
+        String uri = params.getTextDocument().getUri();
+        List<SymbolInformation> symbols = new ArrayList<SymbolInformation>();
+
+        TextDocumentServiceContext symbolsContext = new TextDocumentServiceContext();
+        symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
+        symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
+
+        BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(symbolsContext, documentManager);
+
+        Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
+                .filter(cUnit -> (uri.endsWith(cUnit.getName())))
+                .findFirst();
+
+        if (!documentCUnit.isPresent()) {
+            return CompletableFuture.supplyAsync(() -> null);
+        }
+
+        SymbolFindingVisitor visitor = new SymbolFindingVisitor(symbolsContext);
+        documentCUnit.get().accept(visitor);
+
+        return CompletableFuture.supplyAsync(() -> symbols);
     }
 
     @Override

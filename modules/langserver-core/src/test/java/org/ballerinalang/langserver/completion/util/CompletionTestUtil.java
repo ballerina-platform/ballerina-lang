@@ -119,6 +119,7 @@ public class CompletionTestUtil {
         List<CompletionItem> completions;
         TextDocumentServiceContext completionContext = new TextDocumentServiceContext();
         completionContext.put(DocumentServiceKeys.POSITION_KEY, pos);
+        completionContext.put(DocumentServiceKeys.FILE_URI_KEY, pos.getTextDocument().getUri());
         BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext, documentManager);
         // Visit the package to resolve the symbols
         TreeVisitor treeVisitor = new TreeVisitor(completionContext);

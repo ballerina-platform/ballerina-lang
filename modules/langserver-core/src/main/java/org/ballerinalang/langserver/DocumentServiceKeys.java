@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.Vocabulary;
 import org.ballerinalang.langserver.completions.PossibleToken;
+import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -32,6 +33,8 @@ import java.util.List;
  * @since 0.95.5
  */
 public class DocumentServiceKeys {
+    public static final LanguageServerContext.Key<String> FILE_URI_KEY
+            = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<TextDocumentPositionParams> POSITION_KEY
             = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<String> FILE_NAME_KEY
@@ -49,5 +52,7 @@ public class DocumentServiceKeys {
     public static final LanguageServerContext.Key<Integer> TOKEN_INDEX_KEY
             = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<SymbolTable> SYMBOL_TABLE_KEY
+            = new LanguageServerContext.Key<>();
+    public static final LanguageServerContext.Key<List<SymbolInformation>> SYMBOL_LIST_KEY
             = new LanguageServerContext.Key<>();
 }
