@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -2486,16 +2487,16 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         //end the transaction
         int endIP = nextIP();
-        this.emit(InstructionFactory.get(InstructionCodes.TR_END, 0));
+        this.emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.SUCCESS.value()));
 
         abortInstructions.pop();
-        emit(InstructionFactory.get(InstructionCodes.TR_END, -1));
+        emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.FAILED.value()));
 
         emit(gotoEndOfTransactionBlock);
 
         // CodeGen for error handling.
         int errorTargetIP = nextIP();
-        emit(InstructionFactory.get(InstructionCodes.TR_END, -1));
+        emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.FAILED.value()));
         if (transactionNode.failedBody != null) {
             this.genNode(transactionNode.failedBody, this.env);
 
@@ -2509,7 +2510,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         ErrorTableEntry errorTableEntry = new ErrorTableEntry(startIP, endIP, errorTargetIP, 0, -1);
         errorTable.addErrorTableEntry(errorTableEntry);
-        emit(InstructionFactory.get(InstructionCodes.TR_END, 1));
+        emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.END.value()));
     }
 
     public void visit(BLangAbort abortNode) {

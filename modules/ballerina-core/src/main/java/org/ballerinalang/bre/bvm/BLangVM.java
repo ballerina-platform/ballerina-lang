@@ -65,6 +65,7 @@ import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ConnectorInfo;
@@ -2667,9 +2668,9 @@ public class BLangVM {
         BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
         if (ballerinaTransactionManager != null) {
             try {
-                if (status == 0) { //Transaction success
+                if (status == TransactionStatus.SUCCESS.value()) {
                     ballerinaTransactionManager.commitTransactionBlock();
-                } else if (status == -1) { //Transaction failed
+                } else if (status == TransactionStatus.FAILED.value()) {
                     ballerinaTransactionManager.rollbackTransactionBlock();
                 } else { //status = 1 Transaction end
                     ballerinaTransactionManager.endTransactionBlock();
@@ -2690,9 +2691,6 @@ public class BLangVM {
         int retryCount = 3;
         if (retryCountAvailable == 1) {
             retryCount = (int) controlStack.currentFrame.getLongRegs()[0];
-            if (retryCount < 0) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_RETRY_COUNT);
-            }
         }
         BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
         if (ballerinaTransactionManager == null) {
