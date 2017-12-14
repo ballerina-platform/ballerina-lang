@@ -176,7 +176,7 @@ public class TargetChannel {
                         Util.setupTransferEncodingForRequest(httpOutboundRequest, chunkDisabled);
                         writeOutboundRequestHeaders(httpOutboundRequest);
                     }
-                    this.getChannel().write(httpContent);
+                    this.getChannel().writeAndFlush(httpContent);
                 }
             }));
         } catch (Exception e) {
