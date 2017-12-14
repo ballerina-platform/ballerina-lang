@@ -80,7 +80,7 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
             // Creating map
             Map<String, String> upgradeHeaders = webSocketInitMessage.getHeaders();
             BMap<String, BString> bUpgradeHeaders = new BMap<>();
-            upgradeHeaders.forEach((key, value) -> bUpgradeHeaders.put(key, new BString(value)));
+            upgradeHeaders.forEach((headerKey, headerVal) -> bUpgradeHeaders.put(headerKey, new BString(headerVal)));
             handshakeStruct.setRefField(0, bUpgradeHeaders);
             List<ParamDetail> paramDetails = onHandshakeResource.getParamDetails();
             BValue[] bValues = new BValue[paramDetails.size()];
