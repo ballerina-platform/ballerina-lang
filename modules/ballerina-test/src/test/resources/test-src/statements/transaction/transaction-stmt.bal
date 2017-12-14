@@ -6,6 +6,7 @@ struct TrxError {
 }
 
 const int RETRYCOUNT = 4;
+const int RETRYCOUNT_2 = -4;
 
 function testTransactionStmt (int i) (string) {
     string a = "start";
@@ -196,6 +197,23 @@ function testTransactionStmtWithConstRetryFailed() (string) {
     string a = "start";
     try {
         transaction with retries(RETRYCOUNT){
+            a = a + " inTrx";
+            error err = {msg:" err"};
+            throw err;
+        } failed {
+            a = a + " inFailed";
+        }
+    } catch (error err) {
+        a = a + err.msg;
+    }
+    a = a + " end";
+    return a;
+}
+
+function testTransactionStmtWithConstRetryFailed2() (string) {
+    string a = "start ";
+    try {
+        transaction with retries(RETRYCOUNT_2){
             a = a + " inTrx";
             error err = {msg:" err"};
             throw err;

@@ -230,6 +230,14 @@ public class TransactionStmtFlowTest {
     }
 
     @Test
+    public void testTransactionStmtWithConstRetryFailed2() {
+        BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtWithConstRetryFailed2");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "start invalid retry count end");
+    }
+
+    @Test
     public void testTransactionStmtWithConstRetrySuccess() {
         BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtWithConstRetrySuccess");
 
