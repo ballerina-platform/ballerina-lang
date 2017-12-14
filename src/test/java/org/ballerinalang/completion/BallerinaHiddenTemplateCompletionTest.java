@@ -61,15 +61,6 @@ public class BallerinaHiddenTemplateCompletionTest extends BallerinaCompletionTe
                 "}", null);
     }
 
-    public void testAbortedKeyword() {
-        doCheckResult("test.bal", "function test(){ aborted<caret> }", "function test(){ aborted {\n    \n} }", null);
-    }
-
-    public void testCommittedKeyword() {
-        doCheckResult("test.bal", "function test(){ committed<caret> }", "function test(){ committed {\n    \n} }",
-                null);
-    }
-
     public void testTryKeyword() {
         doCheckResult("test.bal", "function test(){ try<caret> }", "function test(){ try {\n    \n} }", null);
     }

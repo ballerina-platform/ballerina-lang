@@ -266,14 +266,13 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("finally");
         expectedLookups.add("iterate");
         expectedLookups.add("while");
-        expectedLookups.add("committed");
         expectedLookups.add("failed");
         doTest("function test () { i<caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testFunctionBodyWithFunctionLevelKeywords() {
         doTest("function test () { r<caret> }", "return", "string", "fork", "worker", "transaction",
-                "abort", "aborted", "try", "break", "iterate", "throw", "var");
+                "abort", "try", "break", "iterate", "throw", "var");
     }
 
     public void testInvokingFunctionInDifferentFile1() {
