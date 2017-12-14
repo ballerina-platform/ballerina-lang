@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
@@ -31,6 +32,7 @@ import org.wso2.siddhi.core.query.selector.attribute.processor.executor.GroupByA
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.IncrementalTimeConverterUtil;
 import org.wso2.siddhi.core.util.Scheduler;
+import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 
 import java.time.Instant;
@@ -44,7 +46,7 @@ import java.util.concurrent.Semaphore;
 /**
  * Incremental executor class which is responsible for performing incremental aggregation.
  */
-public class IncrementalExecutor implements Executor {
+public class IncrementalExecutor implements Executor, Snapshotable {
     private static final Logger LOG = Logger.getLogger(IncrementalExecutor.class);
 
     private final StreamEvent resetEvent;
@@ -70,7 +72,9 @@ public class IncrementalExecutor implements Executor {
     private int countEvents = 0;
     private int maxTimestampPosition;
     private long maxTimestampInBuffer;
-    private final Semaphore mutex;
+    private Semaphore mutex;
+    private boolean isRootAndLoadedFromTable = false;
+    private String elementId;
 
     private BaseIncrementalValueStore baseIncrementalValueStore = null;
     private Map<String, BaseIncrementalValueStore> baseIncrementalValueStoreMap = null;
@@ -78,9 +82,10 @@ public class IncrementalExecutor implements Executor {
     private ArrayList<HashMap<String, BaseIncrementalValueStore>> baseIncrementalValueGroupByStoreList = null;
 
     public IncrementalExecutor(TimePeriod.Duration duration, List<ExpressionExecutor> processExpressionExecutors,
-            GroupByKeyGenerator groupByKeyGenerator, MetaStreamEvent metaStreamEvent, int bufferSize,
-            boolean ignoreEventsOlderThanBuffer, IncrementalExecutor child, boolean isRoot, Table table,
-            boolean isProcessingOnExternalTime) {
+                               GroupByKeyGenerator groupByKeyGenerator, MetaStreamEvent metaStreamEvent, int bufferSize,
+                               boolean ignoreEventsOlderThanBuffer, IncrementalExecutor child, boolean isRoot,
+                               Table table, boolean isProcessingOnExternalTime, SiddhiAppContext siddhiAppContext,
+                               String aggregatorName) {
         this.duration = duration;
         this.next = child;
         this.isRoot = isRoot;
@@ -91,7 +96,8 @@ public class IncrementalExecutor implements Executor {
         this.isProcessingOnExternalTime = isProcessingOnExternalTime;
         this.timestampExpressionExecutor = processExpressionExecutors.remove(0);
         this.timeZoneExpressionExecutor = processExpressionExecutors.get(0);
-        this.baseIncrementalValueStore = new BaseIncrementalValueStore(-1, processExpressionExecutors, streamEventPool);
+        this.baseIncrementalValueStore = new BaseIncrementalValueStore(-1, processExpressionExecutors, streamEventPool,
+                siddhiAppContext, aggregatorName);
 
         if (groupByKeyGenerator != null) {
             this.groupByKeyGenerator = groupByKeyGenerator;
@@ -121,6 +127,12 @@ public class IncrementalExecutor implements Executor {
         setNextExecutor(child);
 
         mutex = new Semaphore(1);
+
+        if (elementId == null) {
+            elementId = "IncrementalExecutor-" + siddhiAppContext.getElementIdGenerator().createNewId();
+        }
+        siddhiAppContext.getSnapshotService().addSnapshotable(aggregatorName, this);
+
     }
 
     public void setScheduler(Scheduler scheduler) {
@@ -140,6 +152,22 @@ public class IncrementalExecutor implements Executor {
 
             startTimeOfAggregates = IncrementalTimeConverterUtil.getStartTimeOfAggregates(timestamp, duration,
                     timeZone);
+
+            if (isRootAndLoadedFromTable) {
+                // If events are loaded to in-memory from tables, we would not process any data until the
+                // first event that is greater than or equal to emitTimeOfLatestEventInTable arrives.
+                // Note that nextEmitTime is set to emitTimeOfLatestEventInTable with
+                // setValuesForInMemoryRecreateFromTable method.
+                // Hence, even if ignoreEventsOlderThanBuffer is false (meaning that we want old events to be processed)
+                // the first few old events would be dropped. This avoids certain issues which may
+                // arise when replaying data.
+                if (timestamp < nextEmitTime) {
+                    continue;
+                } else {
+                    isRootAndLoadedFromTable = false;
+                }
+            }
+
             if (bufferSize > 0 && isRoot) {
                 try {
                     mutex.acquire();
@@ -359,13 +387,9 @@ public class IncrementalExecutor implements Executor {
             StreamEvent streamEvent = aBaseIncrementalValueStore.createStreamEvent();
             ComplexEventChunk<StreamEvent> eventChunk = new ComplexEventChunk<>(true);
             eventChunk.add(streamEvent);
-            try {
-                table.addEvents(eventChunk, 1);
-                LOG.debug("Event dispatched by " + this.duration + " incremental executor: " + eventChunk.toString());
-                next.execute(eventChunk);
-            } catch (RuntimeException e)  {
-                LOG.debug("Could not persist events in table", e);
-            }
+            LOG.debug("Event dispatched by " + this.duration + " incremental executor: " + eventChunk.toString());
+            table.addEvents(eventChunk, 1);
+            next.execute(eventChunk);
         }
         cleanBaseIncrementalValueStore(startTimeOfNewAggregates, aBaseIncrementalValueStore);
     }
@@ -378,13 +402,9 @@ public class IncrementalExecutor implements Executor {
                 StreamEvent streamEvent = aBaseIncrementalValueStore.createStreamEvent();
                 eventChunk.add(streamEvent);
             }
-            try {
-                table.addEvents(eventChunk, noOfEvents);
-                LOG.debug("Event dispatched by " + this.duration + " incremental executor: " + eventChunk.toString());
-                next.execute(eventChunk);
-            } catch (RuntimeException e)  {
-                LOG.debug("Could not persist events in table", e);
-            }
+            LOG.debug("Event dispatched by " + this.duration + " incremental executor: " + eventChunk.toString());
+            table.addEvents(eventChunk, noOfEvents);
+            next.execute(eventChunk);
         }
         baseIncrementalValueGroupByStore.clear();
     }
@@ -467,5 +487,51 @@ public class IncrementalExecutor implements Executor {
                 return baseIncrementalValueStore.isProcessed() ? baseIncrementalValueStore.getTimestamp() : -1;
             }
         }
+    }
+
+    public long getNextEmitTime() {
+        return nextEmitTime;
+    }
+
+    public void setValuesForInMemoryRecreateFromTable(boolean isRootAndLoadedFromTable,
+                                                      long emitTimeOfLatestEventInTable) {
+        this.isRootAndLoadedFromTable = isRootAndLoadedFromTable;
+        this.nextEmitTime = emitTimeOfLatestEventInTable;
+    }
+
+    @Override
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+
+        state.put("NextEmitTime", nextEmitTime);
+        state.put("CurrentBufferIndex", currentBufferIndex);
+        state.put("StartTimeOfAggregates", startTimeOfAggregates);
+        state.put("TimerStarted", timerStarted);
+        state.put("EventOlderThanBuffer", eventOlderThanBuffer);
+        state.put("CountEvents", countEvents);
+        state.put("MaxTimestampPosition", maxTimestampPosition);
+        state.put("MaxTimestampInBuffer", maxTimestampInBuffer);
+        state.put("IsRootAndLoadedFromTable", isRootAndLoadedFromTable);
+        state.put("Mutex", mutex);
+        return state;
+    }
+
+    @Override
+    public void restoreState(Map<String, Object> state) {
+        nextEmitTime = (long) state.get("NextEmitTime");
+        currentBufferIndex = (int) state.get("CurrentBufferIndex");
+        startTimeOfAggregates = (long) state.get("StartTimeOfAggregates");
+        timerStarted = (boolean) state.get("TimerStarted");
+        eventOlderThanBuffer = (boolean) state.get("EventOlderThanBuffer");
+        countEvents = (int) state.get("CountEvents");
+        maxTimestampPosition = (int) state.get("MaxTimestampPosition");
+        maxTimestampInBuffer = (long) state.get("MaxTimestampInBuffer");
+        isRootAndLoadedFromTable = (boolean) state.get("IsRootAndLoadedFromTable");
+        mutex = (Semaphore) state.get("Mutex");
+    }
+
+    @Override
+    public String getElementId() {
+        return elementId;
     }
 }

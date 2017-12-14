@@ -18,30 +18,47 @@
 
 package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Store for maintaining the base values related to incremental aggregation. (e.g. for average,
  * the base incremental values would be sum and count. The timestamp too is stored here.
  */
-public class BaseIncrementalValueStore {
+public class BaseIncrementalValueStore implements Snapshotable {
     private long timestamp; // This is the starting timeStamp of aggregates
     private Object[] values;
     private List<ExpressionExecutor> expressionExecutors;
     private boolean isProcessed = false;
     private StreamEventPool streamEventPool;
+    private String elementId;
+    private SiddhiAppContext siddhiAppContext;
+    private String aggregatorName;
 
     public BaseIncrementalValueStore(long timeStamp, List<ExpressionExecutor> expressionExecutors,
-            StreamEventPool streamEventPool) {
+            StreamEventPool streamEventPool, SiddhiAppContext siddhiAppContext, String aggregatorName) {
         this.timestamp = timeStamp;
         this.values = new Object[expressionExecutors.size() + 1];
         this.expressionExecutors = expressionExecutors;
         this.streamEventPool = streamEventPool;
+        this.siddhiAppContext = siddhiAppContext;
+        this.aggregatorName = aggregatorName;
+        if (siddhiAppContext != null) { // Null is given as siddhiAppContext when aggregating in-memory data
+            // at retrieval phase (IncrementalDataAggregator class)
+            if (elementId == null) {
+                elementId = "IncrementalBaseStore-" + siddhiAppContext.getElementIdGenerator().createNewId();
+            }
+            siddhiAppContext.getSnapshotService().addSnapshotable(aggregatorName, this);
+        }
+
     }
 
     public void clearValues() {
@@ -88,7 +105,29 @@ public class BaseIncrementalValueStore {
         List<ExpressionExecutor> newExpressionExecutors = new ArrayList<>(expressionExecutors.size());
         expressionExecutors
                 .forEach(expressionExecutor -> newExpressionExecutors.add(expressionExecutor.cloneExecutor(key)));
-        return new BaseIncrementalValueStore(timestamp, newExpressionExecutors, streamEventPool);
+        return new BaseIncrementalValueStore(timestamp, newExpressionExecutors, streamEventPool, siddhiAppContext,
+                aggregatorName);
+
     }
 
+    @Override
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("Timestamp", timestamp);
+        state.put("Values", values);
+        state.put("IsProcessed", isProcessed);
+        return state;
+    }
+
+    @Override
+    public void restoreState(Map<String, Object> state) {
+        timestamp = (long) state.get("Timestamp");
+        values = (Object[]) state.get("Values");
+        isProcessed = (boolean) state.get("IsProcessed");
+    }
+
+    @Override
+    public String getElementId() {
+        return elementId;
+    }
 }

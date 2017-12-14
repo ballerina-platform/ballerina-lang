@@ -59,7 +59,7 @@ public class IncrementalDataAggregator {
         this.timestampExecutor = timestampExecutor;
         this.timeZoneExecutor = baseExecutors.get(0);
         StreamEventPool streamEventPool = new StreamEventPool(metaStreamEvent, 10);
-        this.baseIncrementalValueStore = new BaseIncrementalValueStore(-1, baseExecutors, streamEventPool);
+        this.baseIncrementalValueStore = new BaseIncrementalValueStore(-1, baseExecutors, streamEventPool, null, null);
 
         this.baseIncrementalValueStoreMap = new HashMap<>();
         this.baseIncrementalValueGroupByStoreMap = new HashMap<>();

@@ -34,7 +34,6 @@ import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.Incr
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalAttributeAggregator;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.RecreateInMemoryData;
-import org.wso2.siddhi.core.table.InMemoryTable;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.Scheduler;
@@ -239,17 +238,14 @@ public class AggregationParser {
 
 
             Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap = buildIncrementalExecutors(
-                    isProcessingOnExternalTime,
-                    processedMetaStreamEvent, processExpressionExecutors, groupByKeyGenerator,
-                    bufferSize, ignoreEventsOlderThanBuffer, incrementalDurations, aggregationTables);
+                    isProcessingOnExternalTime, processedMetaStreamEvent, processExpressionExecutors,
+                    groupByKeyGenerator, bufferSize, ignoreEventsOlderThanBuffer, incrementalDurations,
+                    aggregationTables, siddhiAppContext, aggregatorName);
 
-            RecreateInMemoryData recreateInMemoryData = null;
-            if (!(aggregationTables.get(incrementalDurations.get(0)) instanceof InMemoryTable)) {
-                //Recreate in-memory data from tables
-                recreateInMemoryData = new RecreateInMemoryData(incrementalDurations,
+            //Recreate in-memory data from tables
+            RecreateInMemoryData recreateInMemoryData = new RecreateInMemoryData(incrementalDurations,
                         aggregationTables, incrementalExecutorMap, siddhiAppContext, processedMetaStreamEvent, tableMap,
                         windowMap, aggregationMap);
-            }
 
             IncrementalExecutor rootIncrementalExecutor = incrementalExecutorMap.get(incrementalDurations.get(0));
             rootIncrementalExecutor.setScheduler(scheduler);
@@ -302,7 +298,8 @@ public class AggregationParser {
             List<ExpressionExecutor> processExpressionExecutors,
             GroupByKeyGenerator groupByKeyGenerator, int bufferSize, boolean ignoreEventsOlderThanBuffer,
             List<TimePeriod.Duration> incrementalDurations,
-            Map<TimePeriod.Duration, Table> aggregationTables) {
+            Map<TimePeriod.Duration, Table> aggregationTables, SiddhiAppContext siddhiAppContext,
+            String aggregatorName) {
         Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap = new HashMap<>();
         // Create incremental executors
         IncrementalExecutor child;
@@ -318,7 +315,8 @@ public class AggregationParser {
             IncrementalExecutor incrementalExecutor = new IncrementalExecutor(duration,
                     cloneExpressionExecutors(processExpressionExecutors),
                     groupByKeyGenerator, processedMetaStreamEvent, bufferSize, ignoreEventsOlderThanBuffer,
-                    child, isRoot, aggregationTables.get(duration), isProcessingOnExternalTime);
+                    child, isRoot, aggregationTables.get(duration), isProcessingOnExternalTime, siddhiAppContext,
+                    aggregatorName);
             incrementalExecutorMap.put(duration, incrementalExecutor);
             root = incrementalExecutor;
 
