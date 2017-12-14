@@ -140,9 +140,9 @@ class ToolView extends React.Component {
                     data-toggle='tooltip'
                     title={toolTip + '\n' + toolDesc}
                 >
-                    {tool.title}
+                    {tool.name}
                 </div>
-                <p className='tool-title'>{tool.name}</p>
+                <p className='tool-title'>{tool.title}</p>
                 {this.props.isDocEnable &&
                 <a onClick={e => this.handleClickOpenDocumentation(e)} className='pull-right'>
                     <span className='fw fw-document' />
