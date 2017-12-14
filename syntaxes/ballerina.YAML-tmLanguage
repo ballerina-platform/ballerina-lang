@@ -37,7 +37,7 @@ repository:
   keywords:
     patterns:
     - name: keyword.control.ballerina
-      match: \b(if|else|iterator|try|catch|finally|fork|join|all|some|while|throw|return|returns|break|timeout|transaction|aborted|abort|committed|failed|retry|next|bind|with|lengthof|typeof|enum)\b
+      match: \b(if|else|iterator|try|catch|finally|fork|join|all|some|while|throw|return|returns|break|timeout|transaction|aborted|abort|committed|failed|retries|next|bind|with|lengthof|typeof|enum)\b
 
     - name: keyword.other.ballerina
       match: \b(import|version|public|attach|as|native)\b

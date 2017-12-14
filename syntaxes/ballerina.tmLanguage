@@ -91,7 +91,7 @@
 			<array>
 				<dict>
 					<key>match</key>
-					<string>\b(if|else|iterator|try|catch|finally|fork|join|all|some|while|throw|return|returns|break|timeout|transaction|aborted|abort|committed|failed|retry|next|bind|with|lengthof|typeof|enum)\b</string>
+					<string>\b(if|else|iterator|try|catch|finally|fork|join|all|some|while|throw|return|returns|break|timeout|transaction|abort|failed|retries|next|bind|with|lengthof|typeof|enum)\b</string>
 					<key>name</key>
 					<string>keyword.control.ballerina</string>
 				</dict>
