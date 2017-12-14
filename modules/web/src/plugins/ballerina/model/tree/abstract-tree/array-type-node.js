@@ -46,6 +46,7 @@ class AbstractArrayTypeNode extends Node {
     }
 
 
+
     setElementType(newValue, silent, title) {
         const oldValue = this.elementType;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -70,6 +71,7 @@ class AbstractArrayTypeNode extends Node {
     getElementType() {
         return this.elementType;
     }
+
 
 
 }

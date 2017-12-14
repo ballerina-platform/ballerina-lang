@@ -167,6 +167,7 @@ class AbstractActionNode extends Node {
     }
 
 
+
     setWorkers(newValue, silent, title) {
         const oldValue = this.workers;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -312,6 +313,7 @@ class AbstractActionNode extends Node {
     }
 
 
+
     setParameters(newValue, silent, title) {
         const oldValue = this.parameters;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -453,6 +455,7 @@ class AbstractActionNode extends Node {
     getFlags() {
         return this.flags;
     }
+
 
 
     setAnnotationAttachments(newValue, silent, title) {
