@@ -48,7 +48,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -255,11 +254,6 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangNext nextNode) {
-        // TODO: implement support for hover.
-    }
-
-    @Override
-    public void visit(BLangComment comment) {
         // TODO: implement support for hover.
     }
 
