@@ -49,7 +49,7 @@ import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.ballerinalang.plugins.idea.psi.XmlAttribNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
-import org.ballerinalang.plugins.idea.psi.references.StructKeyReference;
+import org.ballerinalang.plugins.idea.psi.references.RecordKeyReference;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -210,7 +210,7 @@ public class BallerinaAnnotator implements Annotator {
             }
         } else if (element instanceof IdentifierPSINode) {
             PsiReference reference = element.getReference();
-            if (reference == null || reference instanceof StructKeyReference) {
+            if (reference == null || reference instanceof RecordKeyReference) {
                 return;
             }
             PsiElement resolvedElement = reference.resolve();

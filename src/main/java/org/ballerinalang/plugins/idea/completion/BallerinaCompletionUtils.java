@@ -71,7 +71,6 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder CONNECTOR;
     private static final LookupElementBuilder ACTION;
     private static final LookupElementBuilder STRUCT;
-    private static final LookupElementBuilder TYPEMAPPER;
     private static final LookupElementBuilder ANNOTATION;
     private static final LookupElementBuilder ATTACH;
     private static final LookupElementBuilder PARAMETER;
@@ -124,6 +123,7 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder NEXT;
     private static final LookupElementBuilder BREAK;
     private static final LookupElementBuilder THROW;
+    private static final LookupElementBuilder RETRY;
 
     private static final LookupElementBuilder TRUE;
     private static final LookupElementBuilder FALSE;
@@ -141,7 +141,6 @@ public class BallerinaCompletionUtils {
         CONNECTOR = createKeywordLookupElement("connector");
         ACTION = createKeywordLookupElement("action");
         STRUCT = createKeywordLookupElement("struct");
-        TYPEMAPPER = createKeywordLookupElement("typemapper");
         ANNOTATION = createKeywordLookupElement("annotation");
         ATTACH = createKeywordLookupElement("attach");
         PARAMETER = createKeywordLookupElement("parameter");
@@ -190,6 +189,7 @@ public class BallerinaCompletionUtils {
         NEXT = createKeywordLookupElement("next", ";");
         BREAK = createKeywordLookupElement("break", ";");
         THROW = createKeywordLookupElement("throw");
+        RETRY = createKeywordLookupElement("retry");
 
         TRUE = createKeywordLookupElement("true", null);
         FALSE = createKeywordLookupElement("false", null);
@@ -339,7 +339,6 @@ public class BallerinaCompletionUtils {
         lookupElements.add(PrioritizedLookupElement.withPriority(FUNCTION, KEYWORDS_PRIORITY));
         lookupElements.add(PrioritizedLookupElement.withPriority(CONNECTOR, KEYWORDS_PRIORITY));
         lookupElements.add(PrioritizedLookupElement.withPriority(STRUCT, KEYWORDS_PRIORITY));
-        lookupElements.add(PrioritizedLookupElement.withPriority(TYPEMAPPER, KEYWORDS_PRIORITY));
         lookupElements.add(PrioritizedLookupElement.withPriority(ANNOTATION, KEYWORDS_PRIORITY));
         lookupElements.add(PrioritizedLookupElement.withPriority(XMLNS, KEYWORDS_PRIORITY));
         lookupElements.add(PrioritizedLookupElement.withPriority(ENUM, KEYWORDS_PRIORITY));
@@ -354,7 +353,6 @@ public class BallerinaCompletionUtils {
         lookupElements.add(createKeywordAsLookup(CONNECTOR));
         lookupElements.add(createKeywordAsLookup(ACTION));
         lookupElements.add(createKeywordAsLookup(FUNCTION));
-        lookupElements.add(createKeywordAsLookup(TYPEMAPPER));
         lookupElements.add(createKeywordAsLookup(STRUCT));
         lookupElements.add(createKeywordAsLookup(CONST));
         lookupElements.add(createKeywordAsLookup(PARAMETER));
@@ -416,6 +414,10 @@ public class BallerinaCompletionUtils {
         lookupElements.add(createKeywordAsLookup(ALL));
         lookupElements.add(createKeywordAsLookup(SOME));
         return lookupElements;
+    }
+
+    static LookupElement getRetryKeyword() {
+        return createKeywordAsLookup(RETRY);
     }
 
     @NotNull

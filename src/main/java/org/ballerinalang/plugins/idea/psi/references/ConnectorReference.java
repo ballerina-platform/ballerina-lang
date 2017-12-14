@@ -76,7 +76,7 @@ public class ConnectorReference extends BallerinaElementReference {
         if (containingFile == null) {
             return null;
         }
-        PsiDirectory psiDirectory = containingFile.getParent();
+        PsiDirectory psiDirectory = containingFile.getOriginalFile().getParent();
         if (psiDirectory == null) {
             return null;
         }
@@ -85,7 +85,7 @@ public class ConnectorReference extends BallerinaElementReference {
         if (element != null) {
             return element;
         }
-        return BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true,true);
+        return BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true, true);
     }
 
     @Nullable
@@ -132,8 +132,7 @@ public class ConnectorReference extends BallerinaElementReference {
         PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
         List<IdentifierPSINode> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(resolvedPackage, false,
                 false);
-        results.addAll(BallerinaCompletionUtils.createConnectorLookupElements(connectors,
-                ParenthesisInsertHandler.INSTANCE));
+        results.addAll(BallerinaCompletionUtils.createConnectorLookupElements(connectors, null));
         return results;
     }
 }

@@ -93,7 +93,6 @@ import org.ballerinalang.plugins.idea.psi.TransformerDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeCastNode;
 import org.ballerinalang.plugins.idea.psi.TypeConversionNode;
 import org.ballerinalang.plugins.idea.psi.TypeListNode;
-import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
@@ -1648,8 +1647,6 @@ public class BallerinaPsiImplUtil {
             type = "connector";
         } else if (definitionNode instanceof StructDefinitionNode) {
             type = "struct";
-        } else if (definitionNode instanceof TypeMapperNode) {
-            type = "typemapper";
         } else if (definitionNode instanceof ConstantDefinitionNode) {
             type = "const";
         } else if (definitionNode instanceof AnnotationDefinitionNode) {

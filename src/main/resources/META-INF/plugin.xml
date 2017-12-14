@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.ballerinalang</id>
     <name>Ballerina</name>
-    <version>0.9.4</version>
+    <version>0.9.5</version>
     <vendor email="ballerinalang@wso2.com" url="http://wso2.org">WSO2 Inc.</vendor>
 
     <description><![CDATA[
@@ -11,10 +11,13 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Supports Ballerina 0.95.0 grammar.</li>
-        <li>Improve anonymous struct support.</li>
+        <li>Supports Ballerina 0.95.4 grammar.</li>
+        <li>Update file templates.</li>
+        <li>Update live templates.</li>
+        <li>Improve code completion.</li>
+        <li>Improve debugging.</li>
       </ul>
-      <a href="https://github.com/ballerinalang/plugin-intellij/milestone/15?closed=1">View all changes and bug fixes.</a>
+      <a href="https://github.com/ballerinalang/plugin-intellij/milestone/16?closed=1">View all changes and bug fixes.</a>
     ]]>
     </change-notes>
 
@@ -189,8 +192,8 @@
         <languageInjector implementation="org.ballerinalang.plugins.idea.psi.injector.JsonLanguageInjector"/>
 
         <!--inspections-->
-        <localInspection groupPath="Ballerina" language="Ballerina" shortName="WrongPackageStatement" bundle="messages.InspectionsBundle" key="wrong.package.statement" groupKey="group.names.probable.bugs"
-                         enabledByDefault="true" level="WARNING"
+        <localInspection language="Ballerina" displayName="Wrong package statement" groupPath="Ballerina"
+                         groupName="Probable bugs" enabledByDefault="true" level="WARNING"
                          implementationClass="org.ballerinalang.plugins.idea.codeInspection.WrongPackageStatementInspection" />
 
         <localInspection language="Ballerina" displayName="Unused import inspection" groupPath="Ballerina"
