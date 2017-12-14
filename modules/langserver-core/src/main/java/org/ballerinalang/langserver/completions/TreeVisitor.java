@@ -56,7 +56,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -461,12 +460,6 @@ public class TreeVisitor extends BLangNodeVisitor {
     public void visit(BLangNext nextNode) {
         CursorScopeResolver.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(nextNode.getPosition(), nextNode, this, this.documentServiceContext);
-    }
-
-    @Override
-    public void visit(BLangComment comment) {
-        CursorScopeResolver.getResolverByClass(cursorPositionResolver)
-                .isCursorBeforeNode(comment.getPosition(), comment, this, this.documentServiceContext);
     }
 
     /**
