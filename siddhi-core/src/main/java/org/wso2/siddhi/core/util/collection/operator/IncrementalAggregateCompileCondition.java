@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.util.collection.operator;
 
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -87,10 +88,11 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
     }
 
     public StreamEvent find(StateEvent matchingEvent, TimePeriod.Duration perValue,
-            Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
-            List<TimePeriod.Duration> incrementalDurations, Table tableForPerDuration,
-            List<ExpressionExecutor> baseExecutors, ExpressionExecutor timestampExecutor,
-            List<ExpressionExecutor> outputExpressionExecutors, Long[] startTimeEndTime) {
+                            Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
+                            List<TimePeriod.Duration> incrementalDurations, Table tableForPerDuration,
+                            List<ExpressionExecutor> baseExecutors, ExpressionExecutor timestampExecutor,
+                            List<ExpressionExecutor> outputExpressionExecutors, Long[] startTimeEndTime,
+                            SiddhiAppContext siddhiAppContext) {
 
         ComplexEventChunk<StreamEvent> complexEventChunkToHoldWithinMatches = new ComplexEventChunk<>(true);
 
@@ -113,7 +115,7 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
         if (requiresAggregatingInMemoryData(newestInMemoryEventTimestamp, oldestInMemoryEventTimestamp,
                 startTimeEndTime)) {
             IncrementalDataAggregator incrementalDataAggregator = new IncrementalDataAggregator(incrementalDurations,
-                    perValue, baseExecutors, timestampExecutor, tableMetaStreamEvent);
+                    perValue, baseExecutors, timestampExecutor, tableMetaStreamEvent, siddhiAppContext);
 
             // Aggregate in-memory data and create an event chunk out of it
             ComplexEventChunk<StreamEvent> aggregatedInMemoryEventChunk = incrementalDataAggregator
@@ -162,7 +164,7 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
     }
 
     private boolean requiresAggregatingInMemoryData(long newestInMemoryEventTimestamp,
-            long oldestInMemoryEventTimestamp, Long[] startTimeEndTime) {
+                                                    long oldestInMemoryEventTimestamp, Long[] startTimeEndTime) {
         if (newestInMemoryEventTimestamp == -1 && oldestInMemoryEventTimestamp == -1) {
             return false;
         }
@@ -182,7 +184,8 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
     }
 
     private long getNewestInMemoryEventTimestamp(Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
-            List<TimePeriod.Duration> incrementalDurations, TimePeriod.Duration perValue) {
+                                                 List<TimePeriod.Duration> incrementalDurations,
+                                                 TimePeriod.Duration perValue) {
         long newestEvent;
         for (TimePeriod.Duration incrementalDuration : incrementalDurations) {
             newestEvent = incrementalExecutorMap.get(incrementalDuration).getNewestEventTimestamp();
@@ -197,7 +200,8 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
     }
 
     private long getOldestInMemoryEventTimestamp(Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
-            List<TimePeriod.Duration> incrementalDurations, TimePeriod.Duration perValue) {
+                                                 List<TimePeriod.Duration> incrementalDurations,
+                                                 TimePeriod.Duration perValue) {
         long oldestEvent;
         TimePeriod.Duration incrementalDuration;
         for (int i = perValue.ordinal(); i >= incrementalDurations.get(0).ordinal(); i--) {

@@ -44,21 +44,18 @@ public class BaseIncrementalValueStore implements Snapshotable {
     private String aggregatorName;
 
     public BaseIncrementalValueStore(long timeStamp, List<ExpressionExecutor> expressionExecutors,
-            StreamEventPool streamEventPool, SiddhiAppContext siddhiAppContext, String aggregatorName) {
+                                     StreamEventPool streamEventPool,
+                                     SiddhiAppContext siddhiAppContext, String aggregatorName) {
         this.timestamp = timeStamp;
         this.values = new Object[expressionExecutors.size() + 1];
         this.expressionExecutors = expressionExecutors;
         this.streamEventPool = streamEventPool;
         this.siddhiAppContext = siddhiAppContext;
         this.aggregatorName = aggregatorName;
-        if (siddhiAppContext != null) { // Null is given as siddhiAppContext when aggregating in-memory data
-            // at retrieval phase (IncrementalDataAggregator class)
-            if (elementId == null) {
-                elementId = "IncrementalBaseStore-" + siddhiAppContext.getElementIdGenerator().createNewId();
-            }
-            siddhiAppContext.getSnapshotService().addSnapshotable(aggregatorName, this);
+        if (elementId == null) {
+            elementId = "IncrementalBaseStore-" + siddhiAppContext.getElementIdGenerator().createNewId();
         }
-
+        siddhiAppContext.getSnapshotService().addSnapshotable(aggregatorName, this);
     }
 
     public void clearValues() {

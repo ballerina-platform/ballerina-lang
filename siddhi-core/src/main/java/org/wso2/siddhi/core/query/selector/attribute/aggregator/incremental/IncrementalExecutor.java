@@ -96,8 +96,8 @@ public class IncrementalExecutor implements Executor, Snapshotable {
         this.isProcessingOnExternalTime = isProcessingOnExternalTime;
         this.timestampExpressionExecutor = processExpressionExecutors.remove(0);
         this.timeZoneExpressionExecutor = processExpressionExecutors.get(0);
-        this.baseIncrementalValueStore = new BaseIncrementalValueStore(-1, processExpressionExecutors, streamEventPool,
-                siddhiAppContext, aggregatorName);
+        this.baseIncrementalValueStore = new BaseIncrementalValueStore(-1, processExpressionExecutors,
+                streamEventPool, siddhiAppContext, aggregatorName);
 
         if (groupByKeyGenerator != null) {
             this.groupByKeyGenerator = groupByKeyGenerator;
@@ -410,7 +410,7 @@ public class IncrementalExecutor implements Executor, Snapshotable {
     }
 
     private void cleanBaseIncrementalValueStore(long startTimeOfNewAggregates,
-            BaseIncrementalValueStore baseIncrementalValueStore) {
+                                                BaseIncrementalValueStore baseIncrementalValueStore) {
         baseIncrementalValueStore.clearValues();
         baseIncrementalValueStore.setTimestamp(startTimeOfNewAggregates);
         baseIncrementalValueStore.setProcessed(false);
@@ -454,7 +454,7 @@ public class IncrementalExecutor implements Executor, Snapshotable {
             if (isGroupBy) {
                 return baseIncrementalValueStoreMap.size() != 0
                         ? ((BaseIncrementalValueStore) baseIncrementalValueStoreMap.values().toArray()[0])
-                                .getTimestamp()
+                        .getTimestamp()
                         : -1;
             } else {
                 return baseIncrementalValueStore.isProcessed() ? baseIncrementalValueStore.getTimestamp() : -1;
@@ -481,7 +481,7 @@ public class IncrementalExecutor implements Executor, Snapshotable {
             if (isGroupBy) {
                 return baseIncrementalValueStoreMap.size() != 0
                         ? ((BaseIncrementalValueStore) baseIncrementalValueStoreMap.values().toArray()[0])
-                                .getTimestamp()
+                        .getTimestamp()
                         : -1;
             } else {
                 return baseIncrementalValueStore.isProcessed() ? baseIncrementalValueStore.getTimestamp() : -1;

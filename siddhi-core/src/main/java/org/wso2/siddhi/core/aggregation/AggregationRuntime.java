@@ -38,6 +38,7 @@ import org.wso2.siddhi.core.util.collection.operator.IncrementalAggregateCompile
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.parser.ExpressionParser;
 import org.wso2.siddhi.core.util.parser.OperatorParser;
+import org.wso2.siddhi.core.util.snapshot.SnapshotService;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.core.util.statistics.MemoryCalculable;
 import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
@@ -203,6 +204,7 @@ public class AggregationRuntime implements MemoryCalculable {
     public StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
 
         try {
+            SnapshotService.getSkipSnapshotableThreadLocal().set(true);
             if (latencyTrackerFind != null && siddhiAppContext.isStatsEnabled()) {
                 latencyTrackerFind.markIn();
                 throughputTrackerFind.eventIn();
@@ -220,8 +222,9 @@ public class AggregationRuntime implements MemoryCalculable {
             Long[] startTimeEndTime = (Long[]) startTimeEndTimeExpressionExecutor.execute(matchingEvent);
             return ((IncrementalAggregateCompileCondition) compiledCondition).find(matchingEvent, perValue,
                     incrementalExecutorMap, incrementalDurations, tableForPerDuration, baseExecutors,
-                    timestampExecutor, outputExpressionExecutors, startTimeEndTime);
+                    timestampExecutor, outputExpressionExecutors, startTimeEndTime, siddhiAppContext);
         } finally {
+            SnapshotService.getSkipSnapshotableThreadLocal().set(null);
             if (latencyTrackerFind != null && siddhiAppContext.isStatsEnabled()) {
                 latencyTrackerFind.markOut();
             }

@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -36,7 +37,7 @@ import java.util.Map;
 
 /**
  * This class implements the logic to aggregate data that is in-memory or in tables, in incremental data processing.
- * 
+ * <p>
  * In-memory data is required to be aggregated when retrieving values from an aggregate.
  * Table data (tables used to persist incremental aggregates) needs to be aggregated when querying aggregate data from
  * a different server (apart from the server, which was used to define the aggregation).
@@ -52,15 +53,16 @@ public class IncrementalDataAggregator {
     private final Map<Long, Map<String, BaseIncrementalValueStore>> baseIncrementalValueGroupByStoreMap;
 
     public IncrementalDataAggregator(List<TimePeriod.Duration> incrementalDurations,
-            TimePeriod.Duration aggregateForDuration, List<ExpressionExecutor> baseExecutors,
-            ExpressionExecutor timestampExecutor, MetaStreamEvent metaStreamEvent) {
+                                     TimePeriod.Duration aggregateForDuration, List<ExpressionExecutor> baseExecutors,
+                                     ExpressionExecutor timestampExecutor, MetaStreamEvent metaStreamEvent,
+                                     SiddhiAppContext siddhiAppContext) {
         this.incrementalDurations = incrementalDurations;
         this.aggregateForDuration = aggregateForDuration;
         this.timestampExecutor = timestampExecutor;
         this.timeZoneExecutor = baseExecutors.get(0);
         StreamEventPool streamEventPool = new StreamEventPool(metaStreamEvent, 10);
-        this.baseIncrementalValueStore = new BaseIncrementalValueStore(-1, baseExecutors, streamEventPool, null, null);
-
+        this.baseIncrementalValueStore = new BaseIncrementalValueStore(-1, baseExecutors, streamEventPool,
+                siddhiAppContext, null);
         this.baseIncrementalValueStoreMap = new HashMap<>();
         this.baseIncrementalValueGroupByStoreMap = new HashMap<>();
     }
@@ -111,7 +113,7 @@ public class IncrementalDataAggregator {
     }
 
     public ComplexEventChunk<StreamEvent> aggregateTableData(Map<TimePeriod.Duration, Table> aggregationTables,
-            GroupByKeyGenerator groupByKeyGenerator) {
+                                                             GroupByKeyGenerator groupByKeyGenerator) {
         for (TimePeriod.Duration duration : incrementalDurations) {
             // TODO: 8/18/17 implement logic to create stream events out of table data. These stream events must be
             // processed using processTableAggregates method.

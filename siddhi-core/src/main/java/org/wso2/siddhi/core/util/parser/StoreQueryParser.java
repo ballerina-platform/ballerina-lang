@@ -41,6 +41,7 @@ import org.wso2.siddhi.core.util.collection.operator.CompiledSelection;
 import org.wso2.siddhi.core.util.collection.operator.IncrementalAggregateCompileCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
+import org.wso2.siddhi.core.util.snapshot.SnapshotService;
 import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.aggregation.Within;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
@@ -80,51 +81,56 @@ public class StoreQueryParser {
         int metaPosition = SiddhiConstants.UNKNOWN_STATE;
         Within within = null;
         Expression per = null;
-        Expression onCondition = Expression.value(true);
-        MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
-        metaStreamEvent.setInputReferenceId(inputStore.getStoreReferenceId());
+        try {
+            SnapshotService.getSkipSnapshotableThreadLocal().set(true);
+            Expression onCondition = Expression.value(true);
+            MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
+            metaStreamEvent.setInputReferenceId(inputStore.getStoreReferenceId());
 
-        if (inputStore instanceof AggregationInputStore) {
-            AggregationInputStore aggregationInputStore = (AggregationInputStore) inputStore;
-            if (aggregationMap.get(inputStore.getStoreId()) == null) {
-                throw new StoreQueryCreationException("Aggregation \"" + inputStore.getStoreId() + "\" has not been " +
-                        "defined");
-            }
-            if (aggregationInputStore.getPer() != null && aggregationInputStore.getWithin() != null) {
-                within = aggregationInputStore.getWithin();
-                per = aggregationInputStore.getPer();
-            } else if (aggregationInputStore.getPer() != null || aggregationInputStore.getWithin() != null) {
-                throw new StoreQueryCreationException(
-                        inputStore.getStoreId() + " should either have both 'within' and 'per' defined or none.");
-            }
-            if (((AggregationInputStore) inputStore).getOnCondition() != null) {
-                onCondition = ((AggregationInputStore) inputStore).getOnCondition();
-            }
-        } else if (inputStore instanceof ConditionInputStore) {
-            if (((ConditionInputStore) inputStore).getOnCondition() != null) {
-                onCondition = ((ConditionInputStore) inputStore).getOnCondition();
-            }
-        }
-        List<VariableExpressionExecutor> variableExpressionExecutors = new ArrayList<>();
-        Table table = tableMap.get(inputStore.getStoreId());
-        if (table != null) {
-            return constructStoreQueryRuntime(table, storeQuery, siddhiAppContext, tableMap, queryName, metaPosition,
-                    onCondition, metaStreamEvent, variableExpressionExecutors);
-        } else {
-            AggregationRuntime aggregation = aggregationMap.get(inputStore.getStoreId());
-            if (aggregation != null) {
-                return constructStoreQueryRuntime(aggregation, storeQuery, siddhiAppContext, tableMap, queryName,
-                        within, per, onCondition, metaStreamEvent, variableExpressionExecutors);
-            } else {
-                Window window = windowMap.get(inputStore.getStoreId());
-                if (window != null) {
-                    return constructStoreQueryRuntime(window, storeQuery, siddhiAppContext, tableMap, queryName,
-                            metaPosition, onCondition, metaStreamEvent, variableExpressionExecutors);
-                } else {
+            if (inputStore instanceof AggregationInputStore) {
+                AggregationInputStore aggregationInputStore = (AggregationInputStore) inputStore;
+                if (aggregationMap.get(inputStore.getStoreId()) == null) {
+                    throw new StoreQueryCreationException("Aggregation \"" + inputStore.getStoreId() +
+                            "\" has not been defined");
+                }
+                if (aggregationInputStore.getPer() != null && aggregationInputStore.getWithin() != null) {
+                    within = aggregationInputStore.getWithin();
+                    per = aggregationInputStore.getPer();
+                } else if (aggregationInputStore.getPer() != null || aggregationInputStore.getWithin() != null) {
                     throw new StoreQueryCreationException(
-                            inputStore.getStoreId() + " is neither a table, aggregation or window");
+                            inputStore.getStoreId() + " should either have both 'within' and 'per' defined or none.");
+                }
+                if (((AggregationInputStore) inputStore).getOnCondition() != null) {
+                    onCondition = ((AggregationInputStore) inputStore).getOnCondition();
+                }
+            } else if (inputStore instanceof ConditionInputStore) {
+                if (((ConditionInputStore) inputStore).getOnCondition() != null) {
+                    onCondition = ((ConditionInputStore) inputStore).getOnCondition();
                 }
             }
+            List<VariableExpressionExecutor> variableExpressionExecutors = new ArrayList<>();
+            Table table = tableMap.get(inputStore.getStoreId());
+            if (table != null) {
+                return constructStoreQueryRuntime(table, storeQuery, siddhiAppContext, tableMap, queryName,
+                        metaPosition, onCondition, metaStreamEvent, variableExpressionExecutors);
+            } else {
+                AggregationRuntime aggregation = aggregationMap.get(inputStore.getStoreId());
+                if (aggregation != null) {
+                    return constructStoreQueryRuntime(aggregation, storeQuery, siddhiAppContext, tableMap, queryName,
+                            within, per, onCondition, metaStreamEvent, variableExpressionExecutors);
+                } else {
+                    Window window = windowMap.get(inputStore.getStoreId());
+                    if (window != null) {
+                        return constructStoreQueryRuntime(window, storeQuery, siddhiAppContext, tableMap, queryName,
+                                metaPosition, onCondition, metaStreamEvent, variableExpressionExecutors);
+                    } else {
+                        throw new StoreQueryCreationException(
+                                inputStore.getStoreId() + " is neither a table, aggregation or window");
+                    }
+                }
+            }
+        } finally {
+            SnapshotService.getSkipSnapshotableThreadLocal().set(null);
         }
     }
 
@@ -143,7 +149,13 @@ public class StoreQueryParser {
         return findStoreQueryRuntime;
     }
 
-    private static StoreQueryRuntime constructStoreQueryRuntime(AggregationRuntime aggregation, StoreQuery storeQuery, SiddhiAppContext siddhiAppContext, Map<String, Table> tableMap, String queryName, Within within, Expression per, Expression onCondition, MetaStreamEvent metaStreamEvent, List<VariableExpressionExecutor> variableExpressionExecutors) {
+    private static StoreQueryRuntime constructStoreQueryRuntime(AggregationRuntime aggregation, StoreQuery storeQuery,
+                                                                SiddhiAppContext siddhiAppContext,
+                                                                Map<String, Table> tableMap, String queryName,
+                                                                Within within, Expression per, Expression onCondition,
+                                                                MetaStreamEvent metaStreamEvent,
+                                                                List<VariableExpressionExecutor>
+                                                                        variableExpressionExecutors) {
         int metaPosition;
         metaStreamEvent.setEventType(EventType.AGGREGATE);
         initMetaStreamEvent(metaStreamEvent, aggregation.getAggregationDefinition());
@@ -166,7 +178,13 @@ public class StoreQueryParser {
         return findStoreQueryRuntime;
     }
 
-    private static StoreQueryRuntime constructStoreQueryRuntime(Table table, StoreQuery storeQuery, SiddhiAppContext siddhiAppContext, Map<String, Table> tableMap, String queryName, int metaPosition, Expression onCondition, MetaStreamEvent metaStreamEvent, List<VariableExpressionExecutor> variableExpressionExecutors) {
+    private static StoreQueryRuntime constructStoreQueryRuntime(Table table, StoreQuery storeQuery,
+                                                                SiddhiAppContext siddhiAppContext,
+                                                                Map<String, Table> tableMap, String queryName,
+                                                                int metaPosition, Expression onCondition,
+                                                                MetaStreamEvent metaStreamEvent,
+                                                                List<VariableExpressionExecutor>
+                                                                        variableExpressionExecutors) {
         metaStreamEvent.setEventType(EventType.TABLE);
         initMetaStreamEvent(metaStreamEvent, table.getTableDefinition());
         MatchingMetaInfoHolder metaStreamInfoHolder = generateMatchingMetaInfoHolder(metaStreamEvent,

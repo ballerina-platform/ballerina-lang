@@ -34,6 +34,8 @@ public class SnapshotService {
 
 
     private static final Logger log = Logger.getLogger(SnapshotService.class);
+    private static final ThreadLocal<Boolean> skipSnapshotableThreadLocal = new ThreadLocal<Boolean>();
+
     private final ThreadBarrier threadBarrier;
     private HashMap<String, List<Snapshotable>> snapshotableMap = new HashMap<String, List<Snapshotable>>();
     private SiddhiAppContext siddhiAppContext;
@@ -44,19 +46,25 @@ public class SnapshotService {
 
     }
 
+    public static ThreadLocal<Boolean> getSkipSnapshotableThreadLocal() {
+        return skipSnapshotableThreadLocal;
+    }
+
     public synchronized void addSnapshotable(String queryName, Snapshotable snapshotable) {
+        Boolean skipSnapshotable = skipSnapshotableThreadLocal.get();
+        if (skipSnapshotable == null || !skipSnapshotable) {
+            List<Snapshotable> snapshotableList = snapshotableMap.get(queryName);
 
-        List<Snapshotable> snapshotableList = snapshotableMap.get(queryName);
-
-        // if List does not exist create it
-        if (snapshotableList == null) {
-            snapshotableList = new ArrayList<Snapshotable>();
-            snapshotableList.add(snapshotable);
-            snapshotableMap.put(queryName, snapshotableList);
-        } else {
-            // add if item is not already in list
-            if (!snapshotableList.contains(snapshotable)) {
+            // if List does not exist create it
+            if (snapshotableList == null) {
+                snapshotableList = new ArrayList<Snapshotable>();
                 snapshotableList.add(snapshotable);
+                snapshotableMap.put(queryName, snapshotableList);
+            } else {
+                // add if item is not already in list
+                if (!snapshotableList.contains(snapshotable)) {
+                    snapshotableList.add(snapshotable);
+                }
             }
         }
     }
