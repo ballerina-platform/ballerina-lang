@@ -143,13 +143,13 @@ public class RequestHandler {
      */
     public ResponseMessage handleResult(RequestMessage jsonrpcRequest, CompletableFuture completableFutureResp) {
         ResponseMessage jsonrpcResponse = new ResponseMessage();
+        jsonrpcResponse.setId(jsonrpcRequest.getId());
         ResponseError responseError = null;
         // Check if response object is null or not
         if (completableFutureResp != null) {
             try {
                 jsonrpcResponse.setResult(completableFutureResp.get());
                 jsonrpcResponse.setJsonrpc(jsonrpcRequest.getJsonrpc());
-                jsonrpcResponse.setId(jsonrpcRequest.getId());
             } catch (InterruptedException e) {
                 responseError = handleError(-32002, "Attempted to retrieve the result of a task/s " +
                         "that was aborted by throwing an exception");
