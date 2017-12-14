@@ -130,16 +130,15 @@ public class HttpDispatcher {
     }
 
     public static BValue[] getSignatureParameters(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
-
+        //TODO Think of keeping struct type globally rather than creating for each request
         BStruct request = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.REQUEST);
         BStruct response = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.RESPONSE);
-        HttpUtil.addCarbonMsg(request, httpCarbonMessage);
-        HttpUtil.addCarbonMsg(response, HttpUtil.createHttpCarbonMessage(false));
-        // Add inbound request msg to the response struct
-        response.addNativeData(Constants.INBOUND_REQUEST_MESSAGE, httpCarbonMessage);
-        HttpUtil.addRequestResponseFlag(request, response);
+        HttpUtil.setHeaderValueStructType(ConnectorUtils.createStruct(httpResource.getBalResource(),
+                Constants.PROTOCOL_PACKAGE_HTTP, Constants.HEADER_VALUE_STRUCT));
+        HttpUtil.populateInboundRequest(request, httpCarbonMessage);
+        HttpUtil.populateOutboundResponse(response, HttpUtil.createHttpCarbonMessage(false), httpCarbonMessage);
 
         List<ParamDetail> paramDetails = httpResource.getParamDetails();
         Map<String, String> resourceArgumentValues =

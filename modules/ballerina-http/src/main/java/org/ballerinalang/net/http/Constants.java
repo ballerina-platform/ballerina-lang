@@ -45,10 +45,14 @@ public class Constants {
     public static final String CONTENT_TYPE_HEADER = "Content-Type";
     public static final String ACCEPT_HEADER = "Accept";
     public static final String ALLOW = "Allow";
+    public static final String SERVER_HEADER = "Server";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     public static final String PROTOCOL = "PROTOCOL";
     public static final String PORT = "PORT";
     public static final String TO = "TO";
+    public static final String LOCAL_ADDRESS = "LOCAL_ADDRESS";
+    public static final String HTTP_VERSION = "HTTP_VERSION";
+    public static final String LISTENER_PORT = "LISTENER_PORT";
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
     public static final String TLS_STORE_TYPE = "tlsStoreType";
     public static final String PKCS_STORE_TYPE = "PKCS12";
@@ -137,6 +141,9 @@ public class Constants {
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
     public static final String REQUEST = "Request";
     public static final String RESPONSE = "Response";
+    public static final String HEADER_VALUE_STRUCT = "HeaderValue";
+    public static final String HEADER_VALUE = "value";
+    public static final String HEADER_PARAM = "param";
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
@@ -164,6 +171,25 @@ public class Constants {
     public static final int SSL_ENABLED_PROTOCOLS_INDEX = 4;
     public static final int CIPHERS_INDEX = 5;
     public static final int SSL_PROTOCOL_INDEX = 6;
+
+    //Request struct indexes
+    public static final int REQUEST_HOST_INDEX = 0;
+    public static final int REQUEST_PATH_INDEX = 1;
+    public static final int REQUEST_METHOD_INDEX = 2;
+    public static final int REQUEST_VERSION_INDEX = 3;
+    public static final int REQUEST_USER_AGENT_INDEX = 4;
+    public static final int REQUEST_PORT_INDEX = 0;
+    public static final int REQUEST_HEADERS_INDEX = 0;
+
+    //Response struct indexes
+    public static final int RESPONSE_STATUS_CODE_INDEX = 0;
+    public static final int RESPONSE_REASON_PHRASE_INDEX = 0;
+    public static final int RESPONSE_SERVER_INDEX = 1;
+    public static final int RESPONSE_HEADERS_INDEX = 0;
+
+    //HeaderValue struct indexes
+    public static final int HEADER_VALUE_INDEX = 0;
+    public static final int HEADER_PARAM_INDEX = 0;
 
     //Proxy server struct indexes
     public static final int PROXY_STRUCT_INDEX = 3;

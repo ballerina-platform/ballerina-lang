@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http;
 
 import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -31,12 +32,17 @@ import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -62,13 +68,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.net.http.Constants.MESSAGE_DATA_SOURCE;
 
@@ -80,6 +90,7 @@ public class HttpUtil {
 
     private static final String METHOD_ACCESSED = "isMethodAccessed";
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
+    private static BStructType headerValueStructType;
 
     public static BValue[] addHeader(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
@@ -308,7 +319,7 @@ public class HttpUtil {
         payload.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
         addMessageDataSource(httpMessageStruct, payload);
 
-        httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        HttpUtil.setHeaderToStruct(context, httpMessageStruct, Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
 
         return AbstractNativeFunction.VOID_RETURN;
     }
@@ -341,7 +352,7 @@ public class HttpUtil {
 
         addMessageDataSource(httpMessageStruct, stringDataSource);
 
-        httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
+        HttpUtil.setHeaderToStruct(context, httpMessageStruct, Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
         if (log.isDebugEnabled()) {
             log.debug("Setting new payload: " + payload);
         }
@@ -362,39 +373,21 @@ public class HttpUtil {
 
         addMessageDataSource(httpMessageStruct, payload);
 
-        httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_XML);
+        HttpUtil.setHeaderToStruct(context, httpMessageStruct, Constants.CONTENT_TYPE, Constants.APPLICATION_XML);
 
         return AbstractNativeFunction.VOID_RETURN;
     }
 
-    public static BValue[] getContentLength(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
+    public static BValue[] getContentLength(Context context, AbstractNativeFunction abstractNativeFunction) {
         int contentLength = -1;
-        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-        HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-
-        String lengthStr = httpCarbonMessage.getHeader(Constants.HTTP_CONTENT_LENGTH);
+        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        String lengthStr = HttpUtil.getHeaderFromStruct(requestStruct, Constants.HTTP_CONTENT_LENGTH);
         try {
             contentLength = Integer.parseInt(lengthStr);
         } catch (NumberFormatException e) {
             throw new BallerinaException("Invalid content length");
         }
         return abstractNativeFunction.getBValues(new BInteger(contentLength));
-    }
-
-    public static BValue[] setContentLength(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        try {
-            BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-            HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-            long contentLength = abstractNativeFunction.getIntArgument(context, 0);
-            httpCarbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
-        } catch (ClassCastException e) {
-            throw new BallerinaException("Invalid message or Content-Length");
-        }
-        return AbstractNativeFunction.VOID_RETURN;
     }
 
     public static BMap<String, BValue> getParamMap(String payload) throws UnsupportedEncodingException {
@@ -520,10 +513,10 @@ public class HttpUtil {
     }
 
     public static BStruct getServerConnectorError(Context context, Throwable throwable) {
-        PackageInfo sessionPackageInfo = context.getProgramFile()
+        PackageInfo httpPackageInfo = context.getProgramFile()
                 .getPackageInfo(Constants.PROTOCOL_PACKAGE_HTTP);
-        StructInfo sessionStructInfo = sessionPackageInfo.getStructInfo(Constants.HTTP_CONNECTOR_ERROR);
-        BStruct httpConnectorError = new BStruct(sessionStructInfo.getType());
+        StructInfo errorStructInfo = httpPackageInfo.getStructInfo(Constants.HTTP_CONNECTOR_ERROR);
+        BStruct httpConnectorError = new BStruct(errorStructInfo.getType());
         if (throwable.getMessage() == null) {
             httpConnectorError.setStringField(0, IO_EXCEPTION_OCCURED);
         } else {
@@ -550,9 +543,219 @@ public class HttpUtil {
         struct.addNativeData(MESSAGE_DATA_SOURCE, messageDataSource);
     }
 
-    public static void addRequestResponseFlag(BStruct request, BStruct response) {
+    public static void setHeaderValueStructType(BStruct struct) {
+        headerValueStructType = struct.getType();
+    }
+
+    public static void populateInboundRequest(BStruct request, HTTPCarbonMessage cMsg) {
+        request.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
         request.addNativeData(Constants.INBOUND_REQUEST, true);
+        request.setStringField(Constants.REQUEST_PATH_INDEX, (String) cMsg.getProperty(Constants.REQUEST_URL));
+        request.setStringField(Constants.REQUEST_HOST_INDEX,
+                ((InetSocketAddress) cMsg.getProperty(Constants.LOCAL_ADDRESS)).getHostName());
+        request.setIntField(Constants.REQUEST_PORT_INDEX, (Integer) cMsg.getProperty(Constants.LISTENER_PORT));
+        request.setStringField(Constants.REQUEST_METHOD_INDEX, (String) cMsg.getProperty(Constants.HTTP_METHOD));
+        request.setStringField(Constants.REQUEST_VERSION_INDEX, (String) cMsg.getProperty(Constants.HTTP_VERSION));
+
+        if (cMsg.getHeader(Constants.USER_AGENT_HEADER) != null) {
+            request.setStringField(Constants.REQUEST_USER_AGENT_INDEX, cMsg.getHeader(Constants.USER_AGENT_HEADER));
+            cMsg.removeHeader(Constants.USER_AGENT_HEADER);
+        }
+        request.setRefField(Constants.REQUEST_HEADERS_INDEX,
+                prepareHeaderMap(cMsg.getHeaders(), new BMap<>()));
+    }
+
+    public static void populateInboundResponse(BStruct response, HTTPCarbonMessage cMsg) {
+        response.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
+        int statusCode = (Integer) cMsg.getProperty(Constants.HTTP_STATUS_CODE);
+        response.setIntField(Constants.RESPONSE_STATUS_CODE_INDEX, statusCode);
+        response.setStringField(Constants.RESPONSE_REASON_PHRASE_INDEX,
+                HttpResponseStatus.valueOf(statusCode).reasonPhrase());
+
+        if (cMsg.getHeader(Constants.SERVER_HEADER) != null) {
+            response.setStringField(Constants.RESPONSE_SERVER_INDEX, cMsg.getHeader(Constants.SERVER_HEADER));
+            cMsg.removeHeader(Constants.SERVER_HEADER);
+        }
+        response.setRefField(Constants.RESPONSE_HEADERS_INDEX,
+                prepareHeaderMap(cMsg.getHeaders(), new BMap<>()));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void populateOutboundRequest(BStruct request, HTTPCarbonMessage reqMsg) {
+        setHeadersToTransportMessage(reqMsg, request);
+    }
+
+    public static void populateOutboundResponse(BStruct response, HTTPCarbonMessage resMsg, HTTPCarbonMessage reqMsg) {
+        response.addNativeData(Constants.TRANSPORT_MESSAGE, resMsg);
+        response.addNativeData(Constants.INBOUND_REQUEST_MESSAGE, reqMsg);
         response.addNativeData(Constants.OUTBOUND_RESPONSE, true);
+        response.setRefField(Constants.RESPONSE_HEADERS_INDEX, new BMap<>());
+    }
+
+    private static BMap<String, BValue> prepareHeaderMap(HttpHeaders headers, BMap<String, BValue> headerMap) {
+        Map<String, ArrayList> headerStructHolder = new HashMap<>();
+        for (Map.Entry<String, String> headerEntry : headers) {
+            String headerKey = headerEntry.getKey().trim();
+            String headerValue = headerEntry.getValue().trim();
+            //Get the list of HeaderStruct for a given key
+            ArrayList<BStruct> headerValueList = headerStructHolder.get(headerKey) != null ?
+                    headerStructHolder.get(headerKey) : new ArrayList<>();
+            if (headerValue.contains(",")) {
+                List<String> valueList = Arrays.stream(headerValue.split(",")).map(String::trim)
+                        .collect(Collectors.toList());
+                for (String value : valueList) {
+                    populateHeaderStruct(headerValueList, value);
+                }
+            } else {
+                populateHeaderStruct(headerValueList, headerValue);
+            }
+            headerStructHolder.put(headerKey, headerValueList);
+        }
+        //create BMap of BRefValueArray
+        for (Map.Entry<String, ArrayList> structHolder : headerStructHolder.entrySet()) {
+            headerMap.put(structHolder.getKey(), new BRefValueArray((BRefType[]) structHolder.getValue()
+                    .toArray(new BRefType[0]), new BArrayType(headerValueStructType)));
+        }
+        return headerMap;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void populateHeaderStruct(ArrayList headerValueList, String value) {
+        if (value.contains(";")) {
+            headerValueList.add(populateWithHeaderValueAndParams(new BStruct(headerValueStructType), value));
+        } else {
+            headerValueList.add(populateWithHeaderValue(new BStruct(headerValueStructType), value));
+        }
+    }
+
+    private static BStruct populateWithHeaderValueAndParams(BStruct headerStruct, String headerValue) {
+        String value = headerValue.substring(0, headerValue.indexOf(";")).trim();
+        List<String> paramList = Arrays.stream(headerValue.substring(headerValue.indexOf(";") + 1)
+                .split(";")).map(String::trim).collect(Collectors.toList());
+        headerStruct.setStringField(Constants.HEADER_VALUE_INDEX, value);
+        headerStruct.setRefField(Constants.HEADER_PARAM_INDEX, createParamBMap(paramList));
+        return headerStruct;
+    }
+
+    private static BStruct populateWithHeaderValue(BStruct headerStruct, String headerValue) {
+        headerStruct.setStringField(0, headerValue.trim());
+        return headerStruct;
+    }
+
+    private static BMap<String, BValue> createParamBMap(List<String> paramList) {
+        BMap<String, BValue> paramMap = new BMap<>();
+        for (String param : paramList) {
+            if (param.contains("=")) {
+                String[] keyValuePair = param.split("=");
+                paramMap.put(keyValuePair[0].trim(), new BString(keyValuePair[1].trim()));
+            } else {
+                //handle when parameter value is optional
+                paramMap.put(param.trim(), null);
+            }
+        }
+        return paramMap;
+    }
+
+    /**
+     * Set headers of request/response struct to the transport message.
+     *
+     * @param cMsg transport Http carbon message.
+     * @param struct req/resp struct.
+     */
+    public static void setHeadersToTransportMessage(HTTPCarbonMessage cMsg, BStruct struct) {
+        cMsg.getHeaders().clear();
+        BMap<String, BValue> headers = struct.getType().getName().equals(Constants.REQUEST) ?
+                getRequestStructHeaders(struct) : getResponseStructHeaders(struct);
+        if (headers == null) {
+            return;
+        }
+        Set<String> keys = headers.keySet();
+        for (String key : keys) {
+            String headerValue = buildHeaderValue(headers, key);
+            cMsg.setHeader(key, headerValue);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static BMap<String, BValue> getRequestStructHeaders(BStruct struct) {
+        BMap<String, BValue> headers = (BMap) struct.getRefField(Constants.REQUEST_HEADERS_INDEX);
+        if (headers == null) {
+            return null;
+        }
+        HttpHeaders removedHeaders = new DefaultHttpHeaders();
+        if (!struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX).equals("")) {
+            removedHeaders.add(Constants.USER_AGENT_HEADER, struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX));
+        }
+        return prepareHeaderMap(removedHeaders, headers);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static BMap<String, BValue> getResponseStructHeaders(BStruct struct) {
+        BMap<String, BValue> headers = (BMap) struct.getRefField(Constants.RESPONSE_HEADERS_INDEX);
+        if (headers == null) {
+            return null;
+        }
+        HttpHeaders removedHeaders = new DefaultHttpHeaders();
+        if (struct.getNativeData(Constants.OUTBOUND_RESPONSE) == null
+                && !struct.getStringField(Constants.RESPONSE_SERVER_INDEX).equals("")) {
+            removedHeaders.add(Constants.SERVER_HEADER, struct.getStringField(Constants.RESPONSE_SERVER_INDEX));
+        }
+        return prepareHeaderMap(removedHeaders, headers);
+    }
+
+    private static String buildHeaderValue(BMap<String, BValue> headers, String key) {
+        StringBuilder headerValue = new StringBuilder();
+        if (headers.get(key).getType().getTag() != TypeTags.ARRAY_TAG) {
+            throw new BallerinaException("expects an array as header value for header : " + key);
+        }
+        BRefValueArray headerValues = (BRefValueArray) headers.get(key);
+        for (int index = 0; index < headerValues.size(); index++) {
+            //TODO remove this check when map supports exact type
+            if (headerValues.get(index).getType().getTag() == TypeTags.STRUCT_TAG) {
+                BStruct headerStruct = (BStruct) headerValues.get(index);
+                String value = headerStruct.getStringField(Constants.HEADER_VALUE_INDEX);
+                headerValue.append(index > 0 ? "," + value : value);
+                BMap paramMap = (BMap) headerStruct.getRefField(Constants.HEADER_PARAM_INDEX);
+                headerValue = paramMap != null ? concatParams(headerValue, paramMap) : headerValue;
+            } else if (headerValues.get(index).getType().getTag() == TypeTags.MAP_TAG) {
+                BMap headerMap = (BMap) headerValues.get(index);
+                String value = headerMap.get(Constants.HEADER_VALUE).stringValue();
+                headerValue.append(index > 0 ? "," + value : value);
+                BMap paramMap = (BMap) headerMap.get(Constants.HEADER_PARAM);
+                headerValue = paramMap != null ? concatParams(headerValue, paramMap) : headerValue;
+            } else {
+                throw new BallerinaException("invalid header assignment for key : " + key);
+            }
+        }
+        return headerValue.toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static StringBuilder concatParams(StringBuilder headerValue, BMap paramMap) {
+        Set<String> paramKeys = paramMap.keySet();
+        for (String paramKey : paramKeys) {
+            String paramValue = paramMap.get(paramKey) != null ? paramMap.get(paramKey).stringValue() : null;
+            headerValue.append(paramValue == null ? ";" + paramKey : ";" + paramKey + "=" + paramValue);
+        }
+        return headerValue;
+    }
+
+    private static void setHeaderToStruct(Context context, BStruct struct, String key, String value) {
+        headerValueStructType = headerValueStructType == null ? ConnectorUtils.createAndGetStruct(context,
+                Constants.HTTP_PACKAGE_PATH, Constants.HEADER_VALUE_STRUCT).getType() : headerValueStructType;
+        int headersIndex = struct.getType().getName().equals(Constants.REQUEST) ? Constants.REQUEST_HEADERS_INDEX :
+                Constants.RESPONSE_HEADERS_INDEX;
+        BMap<String, BValue> headerMap = struct.getRefField(headersIndex) != null ?
+                (BMap) struct.getRefField(headersIndex) : new BMap<>();
+        struct.setRefField(headersIndex, prepareHeaderMap(new DefaultHttpHeaders().add(key, value), headerMap));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static String getHeaderFromStruct(BStruct struct, String key) {
+        int headersIndex = struct.getType().getName().equals(Constants.REQUEST) ? Constants.REQUEST_HEADERS_INDEX :
+                Constants.RESPONSE_HEADERS_INDEX;
+        return struct.getRefField(headersIndex) != null ?
+                buildHeaderValue((BMap) struct.getRefField(headersIndex), key) : null;
     }
 
     /**

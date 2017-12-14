@@ -304,7 +304,7 @@ service<http> sample2 {
     resource getmap (http:Request req, http:Response res) {
 
         http:Session session = req.createSessionIfAbsent();
-        string value = req.getHeader("counter");
+        var value = req.getHeader("counter");
         if (value == null) {
             println("null header");
             session.setAttribute("Name", "chamil");
