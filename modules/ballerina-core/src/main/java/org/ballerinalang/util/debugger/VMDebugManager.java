@@ -121,19 +121,11 @@ public class VMDebugManager {
     }
 
     /**
-     * Method to release execution semaphore.
-     */
-    public void releaseLock() {
-        executionSem.release();
-    }
-
-    /**
      * Method to acquire debug session.
      *
      * @param debugContext to set status.
      */
     public void tryAcquireDebugSessionLock(DebugContext debugContext) {
-        System.out.println(System.nanoTime() + " session TRY, thread - " + debugContext.getThreadId());
         if (debugContext.isSessionActive()) {
             return;
         }
@@ -237,34 +229,36 @@ public class VMDebugManager {
 
     public void startDebug() {
         clientHandler.updateAllDebugContexts(DebugCommand.RESUME);
-        releaseLock();
+        executionSem.release();
     }
 
     public void resume(String threadId) {
         getDebugContext(threadId).setCurrentCommand(DebugCommand.RESUME);
-        releaseLock();
+        executionSem.release();
     }
 
     public void stepIn(String threadId) {
         getDebugContext(threadId).setCurrentCommand(DebugCommand.STEP_IN);
-        releaseLock();
+        executionSem.release();
     }
 
     public void stepOver(String threadId) {
         getDebugContext(threadId).setCurrentCommand(DebugCommand.STEP_OVER);
-        releaseLock();
+        executionSem.release();
     }
 
     public void stepOut(String threadId) {
         getDebugContext(threadId).setCurrentCommand(DebugCommand.STEP_OUT);
-        releaseLock();
+        executionSem.release();
     }
 
     public void stopDebugging() {
         debugInfoHolder.clearDebugLocations();
         clientHandler.updateAllDebugContexts(DebugCommand.RESUME);
         clientHandler.clearChannel();
-        releaseLock();
+        //releasing session lock and execution lock to resume debug
+        debugSem.release();
+        executionSem.release();
     }
 
     private DebugContext getDebugContext(String threadId) {
