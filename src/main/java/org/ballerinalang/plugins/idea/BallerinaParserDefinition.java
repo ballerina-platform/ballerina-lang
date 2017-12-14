@@ -89,6 +89,7 @@ import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.NamespaceDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.psi.ReferenceTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.ReturnParametersNode;
 import org.ballerinalang.plugins.idea.psi.ReturnStatementNode;
 import org.ballerinalang.plugins.idea.psi.SimpleLiteralNode;
@@ -382,6 +383,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new EnumFieldNode(node);
             case BallerinaParser.RULE_builtInReferenceTypeName:
                 return new BuiltInReferenceTypeNameNode(node);
+            case BallerinaParser.RULE_referenceTypeName:
+                return new ReferenceTypeNameNode(node);
             case BallerinaParser.RULE_functionTypeName:
                 return new FunctionTypeNameNode(node);
             case BallerinaParser.RULE_lambdaFunction:

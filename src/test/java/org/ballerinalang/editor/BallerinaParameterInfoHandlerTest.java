@@ -111,28 +111,24 @@ public class BallerinaParameterInfoHandlerTest extends BallerinaCodeInsightFixtu
         doTest(NO_PARAMETER);
     }
 
-    public void testSDKConnectorWithSingleParam() {
-        doTest("<html><b>string serviceUri</b></html>");
-    }
-
     public void testSDKActionWithMultipleParam() {
-        doTest("<html><b>ClientConnector c</b>, string path, message m</html>");
+        doTest("<html><b>string serviceUri</b>, Options connectorOptions</html>");
     }
 
     public void testSDKActionWithMultipleParamSecondElement() {
-        doTest(1, "<html>ClientConnector c, <b>string path</b>, message m</html>");
+        doTest(1, "<html>string serviceUri, <b>Options connectorOptions</b></html>");
     }
 
     public void testSDKFunctionWithSingleParam() {
-        doTest("<html><b>any a</b></html>");
+        doTest("<html><b>string msg</b></html>");
     }
 
     public void testSDKFunctionWithMultipleParam() {
-        doTest("<html><b>int logLevel</b>, any value</html>");
+        doTest("<html><b>string name</b>, string value</html>");
     }
 
     public void testSDKFunctionWithMultipleParamSecondElement() {
-        doTest(1, "<html>int logLevel, <b>any value</b></html>");
+        doTest(1, "<html>string name, <b>string value</b></html>");
     }
 
     private void doTest(@NotNull String expectedPresentation) {

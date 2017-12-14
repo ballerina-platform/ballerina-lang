@@ -1,5 +1,5 @@
-import ballerina.lang.system;
+import ballerina.os;
 
 function main (string[] args) {
-    system:epochTime(<caret>)
+    os:getName(<caret>)
 }

@@ -46,12 +46,12 @@ public class BallerinaCompletionSDKAwareTest extends BallerinaCompletionTestBase
     }
 
     public void testImportFromSDKSecondLevel() {
-        doTest("import ballerina.<caret>", "data", "doc", "lang", "net", "utils");
+        doTest("import ballerina.<caret>", "builtin", "caching", "config", "data", "file", "io", "log", "math",
+                "net", "os", "runtime", "security", "task", "user", "util");
     }
 
     public void testImportFromSDKThirdLevel() {
-        doTest("import ballerina.lang.<caret>", "arrays", "blobs", "datatables", "errors", "files", "jsons", "maps",
-                "messages", "strings", "system", "type", "xmls");
+        doTest("import ballerina.net.<caret>", "http", "uri", "ws");
     }
 
     public void testImportFromSDKAfterPackage() {
@@ -71,17 +71,40 @@ public class BallerinaCompletionSDKAwareTest extends BallerinaCompletionTestBase
     }
 
     public void testPackageInvocationAutoCompletion() {
-        doCheckResult("test.bal", "import ballerina.lang.system; function test() {sys<caret>}",
-                "import ballerina.lang.system; function test() {system:}", null);
+        doCheckResult("test.bal", "import ballerina.net.http; function test() {ht<caret>}",
+                "import ballerina.net.http; function test() {http:}", null);
     }
 
     public void testFunctionInvocationFromAPackage() {
-        doTest("import ballerina.lang.system; function test() {system:<caret>}", "currentTimeMillis", "epochTime",
-                "getDateFormat", "getEnv", "log", "nanoTime", "print", "println");
+        doTest("import ballerina.net.uri; function test() {uri:<caret>}", "encode");
     }
 
     public void testFunctionInvocationFromAPackageAutoCompletion() {
-        doCheckResult("test.bal", "import ballerina.lang.system; function test() {system:nano<caret>}",
-                "import ballerina.lang.system; function test() {system:nanoTime()}", null);
+        doCheckResult("test.bal", "import ballerina.net.uri; function test() {uri:en<caret>}",
+                "import ballerina.net.uri; function test() {uri:encode()}", null);
+    }
+
+    public void testMultiLevelFunctionInvocation1() {
+        doTest("function test() {string s =\"\"; \n    string s2 = s.<caret>}", "contains", "equalsIgnoreCase",
+                "hasPrefix", "hasSuffix", "indexOf", "lastIndexOf", "length", "replace", "replaceAll",
+                "replaceFirst", "split", "subString", "toBlob", "toLowerCase", "toUpperCase", "trim", "unescape");
+    }
+
+    public void testMultiLevelFunctionInvocation2() {
+        doTest("function test() {string s =\"\"; \n    string s2 = s.toUpperCase().<caret>}", "contains",
+                "equalsIgnoreCase", "hasPrefix", "hasSuffix", "indexOf", "lastIndexOf", "length", "replace",
+                "replaceAll", "replaceFirst", "split", "subString", "toBlob", "toLowerCase", "toUpperCase", "trim",
+                "unescape");
+    }
+
+    public void testMultiLevelFunctionInvocation3() {
+        doTest("function test() {string s =\"\"; \n    string s2 = s.toUpperCase().toLowerCase().<caret>}", "contains",
+                "equalsIgnoreCase", "hasPrefix", "hasSuffix", "indexOf", "lastIndexOf", "length", "replace",
+                "replaceAll", "replaceFirst", "split", "subString", "toBlob", "toLowerCase", "toUpperCase", "trim",
+                "unescape");
+    }
+
+    public void testMultiLevelFunctionInvocation4() {
+        doTest("function test() {string s =\"\"; \n    string s2 = s.toUpperCase().toBlob().<caret>}", "toString");
     }
 }
