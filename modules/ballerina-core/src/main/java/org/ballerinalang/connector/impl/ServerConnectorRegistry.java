@@ -45,13 +45,8 @@ import java.util.ServiceLoader;
  */
 public class ServerConnectorRegistry {
 
-    private static ServerConnectorRegistry instance = new ServerConnectorRegistry();
     private Map<String, BallerinaServerConnector> serverConnectorMap = new HashMap<>();
     private boolean initialized = false;
-
-    public static ServerConnectorRegistry getInstance() {
-        return instance;
-    }
 
     public void initServerConnectors() {
         if (initialized) {
@@ -60,12 +55,14 @@ public class ServerConnectorRegistry {
         ServiceLoader<BallerinaServerConnector> serverConnectorServiceLoader =
                 ServiceLoader.load(BallerinaServerConnector.class);
         serverConnectorServiceLoader.forEach(serverConnector -> {
-            if (!serverConnectorMap.containsKey(serverConnector.getProtocolPackage())) {
-                serverConnectorMap.put(serverConnector.getProtocolPackage(), serverConnector);
-            } else {
-                throw new BLangRuntimeException("Multiple server connectors in the runtime for" +
-                        " given protocol package - " + serverConnector.getProtocolPackage());
-            }
+            serverConnector.getProtocolPackages().forEach(protocolPkg -> {
+                if (!serverConnectorMap.containsKey(protocolPkg)) {
+                    serverConnectorMap.put(protocolPkg, serverConnector);
+                } else {
+                    throw new BLangRuntimeException("Multiple server connectors in the runtime for" +
+                                                            " given protocol package - " + protocolPkg);
+                }
+            });
         });
         initialized = true;
     }
@@ -74,7 +71,7 @@ public class ServerConnectorRegistry {
      * This method will notify underline server connectors about the deployment complete event.
      */
     public void deploymentComplete() {
-        serverConnectorMap.values().forEach(sc -> sc.deploymentComplete());
+        serverConnectorMap.values().forEach(BallerinaServerConnector::deploymentComplete);
     }
 
     /**
@@ -91,15 +88,6 @@ public class ServerConnectorRegistry {
         serverConnectorMap.get(serviceInfo.getProtocolPkgPath()).serviceRegistered(service);
     }
 
-    public void unRegisterService(ServiceInfo serviceInfo) {
-        if (!serverConnectorMap.containsKey(serviceInfo.getProtocolPkgPath())) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_SERVICE_PROTOCOL,
-                    serviceInfo.getProtocolPkgPath());
-        }
-        Service service = buildService(serviceInfo);
-        serverConnectorMap.get(serviceInfo.getProtocolPkgPath()).serviceUnregistered(service);
-    }
-
     /**
      * This method is used to get {@code BallerinaServerConnector} instance for the given protocol package.
      *
@@ -111,7 +99,8 @@ public class ServerConnectorRegistry {
     }
 
     private Service buildService(ServiceInfo serviceInfo) {
-        BService service = new BService(serviceInfo.getName(), serviceInfo.getPackagePath());
+        BService service =
+                new BService(serviceInfo.getName(), serviceInfo.getPackagePath(), serviceInfo.getProtocolPkgPath());
         AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) serviceInfo.getAttributeInfo(
                 AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
         if (attributeInfo != null) {

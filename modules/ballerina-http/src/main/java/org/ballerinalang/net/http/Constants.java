@@ -50,6 +50,8 @@ public class Constants {
     public static final String PORT = "PORT";
     public static final String TO = "TO";
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
+    public static final String TLS_STORE_TYPE = "tlsStoreType";
+    public static final String PKCS_STORE_TYPE = "PKCS12";
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
 
@@ -71,8 +73,10 @@ public class Constants {
     public static final String ANN_CONFIG_ATTR_HOST = "host";
     public static final String ANN_CONFIG_ATTR_PORT = "port";
     public static final String ANN_CONFIG_ATTR_HTTPS_PORT = "httpsPort";
+    public static final String ANN_CONFIG_ATTR_KEEP_ALIVE = "keepAlive";
     public static final String ANN_CONFIG_ATTR_BASE_PATH = "basePath";
     public static final String ANN_CONFIG_ATTR_SCHEME = "scheme";
+    public static final String ANN_CONFIG_ATTR_TLS_STORE_TYPE = "tlsStoreType";
     public static final String ANN_CONFIG_ATTR_KEY_STORE_FILE = "keyStoreFile";
     public static final String ANN_CONFIG_ATTR_KEY_STORE_PASS = "keyStorePassword";
     public static final String ANN_CONFIG_ATTR_TRUST_STORE_FILE = "trustStoreFile";
@@ -120,7 +124,7 @@ public class Constants {
     public static final String RESOURCES_CORS = "RESOURCES_CORS";
 
 
-    public static final String CONNECTOR_NAME = "ClientConnector";
+    public static final String CONNECTOR_NAME = "HttpClient";
 
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
@@ -132,8 +136,12 @@ public class Constants {
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
     public static final String REQUEST = "Request";
     public static final String RESPONSE = "Response";
+    public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
+    public static final String MESSAGE_DATA_SOURCE = "message_dataSource";
+    public static final String INBOUND_REQUEST_MESSAGE = "inbound_request_msg";
+    public static final String INBOUND_REQUEST = "inbound_request";
     public static final String OUTBOUND_RESPONSE = "outbound_response";
     public static final String HTTP_SESSION = "http_session";
 
@@ -142,7 +150,8 @@ public class Constants {
     public static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final int OPTIONS_STRUCT_INDEX = 0;
     public static final int ENDPOINT_TIMEOUT_STRUCT_INDEX = 1;
-    public static final int CHUNK_DISABLED_STRUCT_INDEX = 0;
+    public static final int ENABLE_CHUNKING_INDEX = 0;
+    public static final int IS_KEEP_ALIVE_INDEX = 1;
     public static final int SSL_STRUCT_INDEX = 1;
     public static final int FOLLOW_REDIRECT_STRUCT_INDEX = 0;
     public static final int FOLLOW_REDIRECT_INDEX = 0;
@@ -154,6 +163,22 @@ public class Constants {
     public static final int SSL_ENABLED_PROTOCOLS_INDEX = 4;
     public static final int CIPHERS_INDEX = 5;
     public static final int SSL_PROTOCOL_INDEX = 6;
+
+    //Proxy server struct indexes
+    public static final int PROXY_STRUCT_INDEX = 3;
+    public static final int PROXY_HOST_INDEX = 0;
+    public static final int PROXY_PORT_INDEX = 0;
+    public static final int PROXY_USER_NAME_INDEX = 1;
+    public static final int PROXY_PASSWORD_INDEX = 2;
+
+    //Retry Struct indexes
+    public static final int RETRY_STRUCT_INDEX = 2;
+    public static final int RETRY_COUNT_INDEX = 0;
+    public static final int RETRY_INTERVAL_INDEX = 1;
+
+    public static final String CONNECTION_HEADER = "Connection";
+    public static final String HEADER_VAL_CONNECTION_CLOSE = "Close";
+    public static final String HEADER_VAL_CONNECTION_KEEP_ALIVE = "Keep-Alive";
 
     /**
      * Content type HTTP header.

@@ -1,4 +1,4 @@
 $ ballerina run try-catch-finally.bal
-content is written to file
+start Accessing texts
 NullReferenceError error occurred
-File Closed
+finally Block executed

@@ -38,7 +38,7 @@ public class OSTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/osTest.bal");
+        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/os-test.bal");
     }
 
     @Test
@@ -53,7 +53,7 @@ public class OSTest {
     public void testEmptyEnv() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyEnv");
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "");
+        Assert.assertNull(returns[0].stringValue());
     }
 
     @Test

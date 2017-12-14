@@ -5,7 +5,10 @@ import ballerina.net.http;
 @http:configuration {basePath:"/ecommerceservice"}
 service<http> Ecommerce {
 
-    http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090", {});
+    endpoint<http:HttpClient> productsService {
+        create http:HttpClient("http://localhost:9090", {});
+    }
+    http:HttpConnectorError err;
 
     @http:resourceConfig {
         methods:["GET"],
@@ -13,8 +16,9 @@ service<http> Ecommerce {
     }
     resource productsInfo (http:Request req, http:Response resp, string prodId) {
         string reqPath = "/productsservice/" + prodId;
-        http:Response clientResponse = productsService.get(reqPath, req);
-        resp.forward(clientResponse);
+        http:Response clientResponse = {};
+        clientResponse, err = productsService.get(reqPath, req);
+        _ = resp.forward(clientResponse);
     }
 
     @http:resourceConfig {
@@ -22,8 +26,9 @@ service<http> Ecommerce {
         path:"/products"
     }
     resource productMgt (http:Request req, http:Response resp) {
-        http:Response clientResponse = productsService.post("/productsservice", req);
-        resp.forward(clientResponse);
+        http:Response clientResponse = {};
+        clientResponse, err = productsService.post("/productsservice", req);
+        _ = resp.forward(clientResponse);
     }
 
     @http:resourceConfig {
@@ -31,9 +36,12 @@ service<http> Ecommerce {
         path:"/orders"
     }
     resource ordersInfo (http:Request req, http:Response resp) {
-        http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090", {});
-        http:Response clientResponse = productsService.get("/orderservice/orders", req);
-        resp.forward(clientResponse);
+        endpoint<http:HttpClient> productsService {
+            create http:HttpClient("http://localhost:9090", {});
+        }
+        http:Response clientResponse = {};
+        clientResponse, err = productsService.get("/orderservice/orders", req);
+        _ = resp.forward(clientResponse);
     }
 
     @http:resourceConfig {
@@ -41,8 +49,9 @@ service<http> Ecommerce {
         path:"/orders"
     }
     resource ordersMgt (http:Request req, http:Response resp) {
-        http:Response clientResponse = productsService.post("/orderservice/orders", req);
-        resp.forward(clientResponse);
+        http:Response clientResponse = {};
+        clientResponse, err = productsService.post("/orderservice/orders", req);
+        _ = resp.forward(clientResponse);
     }
 
     @http:resourceConfig {
@@ -50,8 +59,9 @@ service<http> Ecommerce {
         path:"/customers"
     }
     resource customersInfo (http:Request req, http:Response resp) {
-        http:Response clientResponse = productsService.get("/customerservice/customers", req);
-        resp.forward(clientResponse);
+        http:Response clientResponse = {};
+        clientResponse, err = productsService.get("/customerservice/customers", req);
+        _ = resp.forward(clientResponse);
     }
 
     @http:resourceConfig {
@@ -59,7 +69,8 @@ service<http> Ecommerce {
         path:"/customers"
     }
     resource customerMgt (http:Request req, http:Response resp) {
-        http:Response clientResponse = productsService.post("/customerservice/customers", req);
-        resp.forward(clientResponse);
+        http:Response clientResponse = {};
+        clientResponse, err = productsService.post("/customerservice/customers", req);
+        _ = resp.forward(clientResponse);
     }
 }

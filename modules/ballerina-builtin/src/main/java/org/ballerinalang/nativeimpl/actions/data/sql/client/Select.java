@@ -19,6 +19,7 @@ package org.ballerinalang.nativeimpl.actions.data.sql.client;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
@@ -56,7 +57,8 @@ public class Select extends AbstractSQLAction {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String query = getStringArgument(context, 0);
         BRefValueArray parameters = (BRefValueArray) getRefArgument(context, 1);
-        BMap sharedMap = (BMap) bConnector.getRefField(1);
+        BStructType structType = getStructType(context);
+        BMap sharedMap = (BMap) bConnector.getRefField(2);
         SQLDatasource datasource = null;
         if (sharedMap.get(new BString(Constants.DATASOURCE_KEY)) != null) {
             datasource = (SQLDatasource) sharedMap.get(new BString(Constants.DATASOURCE_KEY));
@@ -64,7 +66,7 @@ public class Select extends AbstractSQLAction {
             throw new BallerinaException("Datasource have not been initialized properly at " +
                     "Init native action invocation.");
         }
-        executeQuery(context, datasource, query, parameters);
+        executeQuery(context, datasource, query, parameters, structType);
         ClientConnectorFuture future = new ClientConnectorFuture();
         future.notifySuccess();
         return future;

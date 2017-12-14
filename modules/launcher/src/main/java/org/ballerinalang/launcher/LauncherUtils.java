@@ -20,7 +20,10 @@ package org.ballerinalang.launcher;
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.config.utils.ConfigFileParserException;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
+import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -47,6 +50,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.LogManager;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
@@ -76,6 +80,13 @@ public class LauncherUtils {
             throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
         }
 
+        try {
+            ConfigRegistry.getInstance().loadConfigurations();
+            ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
+        } catch (ConfigFileParserException e) {
+            throw new RuntimeException("failed to start ballerina runtime: " + e.getMessage(), e);
+        }
+
         if (runServices || !programFile.isMainEPAvailable()) {
             if (args.length > 0) {
                 throw LauncherUtils.createUsageException("too many arguments");
@@ -100,12 +111,14 @@ public class LauncherUtils {
     public static void runServices(ProgramFile programFile) {
         PrintStream outStream = System.out;
 
-        ServerConnectorRegistry.getInstance().initServerConnectors();
+        ServerConnectorRegistry serverConnectorRegistry = new ServerConnectorRegistry();
+        programFile.setServerConnectorRegistry(serverConnectorRegistry);
+        serverConnectorRegistry.initServerConnectors();
 
         outStream.println("ballerina: deploying service(s) in '" + programFile.getProgramFilePath() + "'");
         BLangProgramRunner.runService(programFile);
 
-        ServerConnectorRegistry.getInstance().deploymentComplete();
+        serverConnectorRegistry.deploymentComplete();
     }
 
     public static Path getSourceRootPath(String sourceRoot) {
@@ -228,7 +241,7 @@ public class LauncherUtils {
 
     /**
      * Get the executable program ({@link ProgramFile}) given the compiled program 
-     * ({@link org.wso2.ballerinalang.programfile.ProgramFile})
+     * ({@link org.wso2.ballerinalang.programfile.ProgramFile}).
      * 
      * @param programFile Compiled program
      * @return Executable program

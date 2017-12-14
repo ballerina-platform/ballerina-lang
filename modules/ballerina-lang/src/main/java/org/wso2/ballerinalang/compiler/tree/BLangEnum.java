@@ -24,6 +24,8 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -36,13 +38,15 @@ import java.util.Set;
 public class BLangEnum extends BLangNode implements EnumNode {
 
     public BLangIdentifier name;
-    public Set<Flag> flags;
+    public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
-    public List<BLangIdentifier> enumFields;
+    public List<BLangEnumerator> enumerators;
+    public BSymbol symbol;
 
     public BLangEnum() {
-        this.enumFields = new ArrayList<>();
-        this.flags = EnumSet.noneOf(Flag.class);
+        this.enumerators = new ArrayList<>();
+        this.flagSet = EnumSet.noneOf(Flag.class);
+        this.annAttachments = new ArrayList<>();
     }
 
     @Override
@@ -55,13 +59,12 @@ public class BLangEnum extends BLangNode implements EnumNode {
         this.name = (BLangIdentifier) name;
     }
 
-    @Override
-    public List<BLangIdentifier> getEnumFields() {
-        return enumFields;
+    public List<BLangEnumerator> getEnumerators() {
+        return enumerators;
     }
 
-    public void addEnumField(IdentifierNode enumField) {
-        this.enumFields.add((BLangIdentifier) enumField);
+    public void addEnumerator(Enumerator enumField) {
+        this.enumerators.add((BLangEnumerator) enumField);
     }
 
     @Override
@@ -76,12 +79,12 @@ public class BLangEnum extends BLangNode implements EnumNode {
 
     @Override
     public String toString() {
-        return "BLangEnum: " + this.name + " -> " + this.enumFields;
+        return "BLangEnum: " + this.name + " -> " + this.enumerators;
     }
 
     @Override
     public Set<Flag> getFlags() {
-        return flags;
+        return flagSet;
     }
 
     @Override
@@ -97,5 +100,29 @@ public class BLangEnum extends BLangNode implements EnumNode {
     @Override
     public void addAnnotationAttachment(AnnotationAttachmentNode annAttachement) {
         this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachement);
+    }
+
+    /**
+     * @since 0.95
+     */
+    public static class BLangEnumerator extends BLangNode implements Enumerator {
+
+        public BLangIdentifier name;
+        public BVarSymbol symbol;
+
+        @Override
+        public BLangIdentifier getName() {
+            return name;
+        }
+
+        @Override
+        public NodeKind getKind() {
+            return NodeKind.ENUMERATOR;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
     }
 }

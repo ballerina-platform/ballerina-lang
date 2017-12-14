@@ -20,9 +20,6 @@ package org.ballerinalang.launcher.util;
 
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.ServiceInfo;
 
 /**
  * {@code BServiceUtil} is responsible for initializing an environment for a particular ballerina file.
@@ -30,6 +27,19 @@ import org.ballerinalang.util.codegen.ServiceInfo;
  * @since 0.94
  */
 public class BServiceUtil {
+
+    /**
+     * Helper method for running a service given a CompileResult instance.
+     *
+     * @param compileResult CompileResult instance for the service to be run.
+     */
+    public static void runService(CompileResult compileResult) {
+        // Initialize server connectors before starting the test cases
+        ServerConnectorRegistry serverConnectorRegistry = new ServerConnectorRegistry();
+        serverConnectorRegistry.initServerConnectors();
+        compileResult.getProgFile().setServerConnectorRegistry(serverConnectorRegistry);
+        BLangProgramRunner.runService(compileResult.getProgFile());
+    }
 
     /**
      * Helper method to setup program file for tests.
@@ -40,16 +50,13 @@ public class BServiceUtil {
      * @return compileResult of the compilation.
      */
     public static CompileResult setupProgramFile(Object obj, String sourcePath, String pkgPath) {
-        // Initialize server connectors before starting the test cases
-        ServerConnectorRegistry.getInstance().initServerConnectors();
         CompileResult compileResult;
         if (pkgPath == null) {
             compileResult = BCompileUtil.compile(sourcePath);
         } else {
             compileResult = BCompileUtil.compile(obj, sourcePath, pkgPath);
         }
-        ProgramFile programFile = compileResult.getProgFile();
-        BLangProgramRunner.runService(programFile);
+        runService(compileResult);
         return compileResult;
     }
 
@@ -63,13 +70,4 @@ public class BServiceUtil {
     public static CompileResult setupProgramFile(Object obj, String sourcePath) {
         return setupProgramFile(obj, sourcePath, null);
     }
-
-    public static void cleanup(CompileResult compileResult) {
-        ProgramFile programFile = compileResult.getProgFile();
-        PackageInfo packageInfo = programFile.getEntryPackage();
-        for (ServiceInfo serviceInfo : packageInfo.getServiceInfoEntries()) {
-            ServerConnectorRegistry.getInstance().unRegisterService(serviceInfo);
-        }
-    }
-
 }

@@ -20,29 +20,33 @@ package org.ballerinalang.net.http;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
 import org.ballerinalang.net.ws.BallerinaWsServerConnectorListener;
+import org.ballerinalang.net.ws.WebSocketServicesRegistry;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
-import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
-import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.config.Parameter;
-import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
-import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
-import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
-import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WsClientConnectorConfig;
-import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
-import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
-import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
+import org.wso2.transport.http.netty.config.ConfigurationBuilder;
+import org.wso2.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.config.Parameter;
+import org.wso2.transport.http.netty.config.SenderConfiguration;
+import org.wso2.transport.http.netty.config.TransportsConfiguration;
+import org.wso2.transport.http.netty.contract.HttpClientConnector;
+import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
+import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
+import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
+import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,6 +54,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.logging.LogManager;
 
 /**
  * {@code HttpConnectionManager} is responsible for managing all the server connectors with ballerina runtime.
@@ -59,10 +64,10 @@ import java.util.concurrent.CountDownLatch;
 public class HttpConnectionManager {
 
     private static HttpConnectionManager instance = new HttpConnectionManager();
-    private Map<String, org.wso2.carbon.transport.http.netty.contract.ServerConnector>
+    private Map<String, org.wso2.transport.http.netty.contract.ServerConnector>
             startupDelayedHTTPServerConnectors = new HashMap<>();
 
-    private Map<String, org.wso2.carbon.transport.http.netty.contract.ServerConnector>
+    private Map<String, org.wso2.transport.http.netty.contract.ServerConnector>
             startedHTTPServerConnectors = new HashMap<>();
     private Map<String, HttpServerConnectorContext>
             serverConnectorPool = new HashMap<>();
@@ -101,7 +106,7 @@ public class HttpConnectionManager {
         return listenerConfigurationSet;
     }
 
-    public org.wso2.carbon.transport.http.netty.contract.ServerConnector createHttpServerConnector(
+    public org.wso2.transport.http.netty.contract.ServerConnector createHttpServerConnector(
             ListenerConfiguration listenerConfig) {
         String listenerInterface = listenerConfig.getHost() + ":" + listenerConfig.getPort();
         HttpServerConnectorContext httpServerConnectorContext =
@@ -121,7 +126,7 @@ public class HttpConnectionManager {
 
         serverBootstrapConfiguration = HTTPConnectorUtil
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
-        org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector =
+        org.wso2.transport.http.netty.contract.ServerConnector serverConnector =
                 httpConnectorFactory.createServerConnector(serverBootstrapConfiguration, listenerConfig);
 
         httpServerConnectorContext = new HttpServerConnectorContext(serverConnector, listenerConfig);
@@ -137,23 +142,26 @@ public class HttpConnectionManager {
      * @param serverConnector ServerConnector
      */
     public void addStartupDelayedHTTPServerConnector(String id,
-            org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector) {
+            org.wso2.transport.http.netty.contract.ServerConnector serverConnector) {
         startupDelayedHTTPServerConnectors.put(id, serverConnector);
     }
 
     /**
      * Start all the ServerConnectors which startup is delayed at the service deployment time.
      *
+     * @param httpServerConnector {@link BallerinaHttpServerConnector} of the pending transport server connectors.
      * @throws ServerConnectorException if exception occurs while starting at least one connector.
      */
-    public void startPendingHTTPConnectors() throws ServerConnectorException {
+    public void startPendingHTTPConnectors(BallerinaHttpServerConnector httpServerConnector)
+            throws ServerConnectorException {
         ConnectorStartupSynchronizer startupSyncer =
                 new ConnectorStartupSynchronizer(new CountDownLatch(startupDelayedHTTPServerConnectors.size()));
 
         for (Map.Entry<String, ServerConnector> serverConnectorEntry : startupDelayedHTTPServerConnectors.entrySet()) {
             ServerConnector serverConnector = serverConnectorEntry.getValue();
             ServerConnectorFuture connectorFuture = serverConnector.start();
-            setConnectorListeners(connectorFuture, serverConnector.getConnectorID(), startupSyncer);
+            setConnectorListeners(connectorFuture, serverConnector.getConnectorID(), startupSyncer,
+                                  httpServerConnector);
             startedHTTPServerConnectors.put(serverConnector.getConnectorID(), serverConnector);
         }
         try {
@@ -174,6 +182,7 @@ public class HttpConnectionManager {
         if (isHTTPTraceLoggerEnabled()) {
             senderConfiguration.setHttpTraceLogEnabled(true);
         }
+        senderConfiguration.setTlsStoreType(Constants.PKCS_STORE_TYPE);
 
         BStruct options = (BStruct) bConnector.getRefField(Constants.OPTIONS_STRUCT_INDEX);
         if (options != null) {
@@ -183,11 +192,11 @@ public class HttpConnectionManager {
     }
 
     private static class HttpServerConnectorContext {
-        private org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector;
+        private org.wso2.transport.http.netty.contract.ServerConnector serverConnector;
         private ListenerConfiguration listenerConfiguration;
         private int referenceCount = 0;
 
-        public HttpServerConnectorContext(org.wso2.carbon.transport.http.netty.contract.ServerConnector
+        public HttpServerConnectorContext(org.wso2.transport.http.netty.contract.ServerConnector
                 serverConnector, ListenerConfiguration listenerConfiguration) {
             this.serverConnector = serverConnector;
             this.listenerConfiguration = listenerConfiguration;
@@ -201,7 +210,7 @@ public class HttpConnectionManager {
             this.referenceCount--;
         }
 
-        public org.wso2.carbon.transport.http.netty.contract.ServerConnector getServerConnector() {
+        public org.wso2.transport.http.netty.contract.ServerConnector getServerConnector() {
             return this.serverConnector;
         }
 
@@ -244,9 +253,12 @@ public class HttpConnectionManager {
     }
 
     private void setConnectorListeners(ServerConnectorFuture connectorFuture, String serverConnectorId,
-                                       ConnectorStartupSynchronizer startupSyncer) {
-        connectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener());
-        connectorFuture.setWSConnectorListener(new BallerinaWsServerConnectorListener());
+                                       ConnectorStartupSynchronizer startupSyncer,
+                                       BallerinaHttpServerConnector httpServerConnector) {
+        HTTPServicesRegistry httpServicesRegistry = httpServerConnector.getHttpServicesRegistry();
+        WebSocketServicesRegistry webSocketServicesRegistry = httpServerConnector.getWebSocketServicesRegistry();
+        connectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener(httpServicesRegistry));
+        connectorFuture.setWSConnectorListener(new BallerinaWsServerConnectorListener(webSocketServicesRegistry));
         connectorFuture.setPortBindingEventListener(
                 new HttpConnectorPortBindingListener(startupSyncer, serverConnectorId));
     }
@@ -270,11 +282,14 @@ public class HttpConnectionManager {
     }
 
     private boolean isHTTPTraceLoggerEnabled() {
-        return System.getProperty(BLogManager.HTTP_TRACE_LOGGER) != null ? true : false;
+        // TODO: Take a closer look at this since looking up from the Config Registry here caused test failures
+        return ((BLogManager) LogManager.getLogManager()).getPackageLogLevel(
+                org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG) == BLogLevel.TRACE;
     }
 
     private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, BStruct options) {
         //TODO Define default values until we get Anonymous struct (issues #3635)
+        ProxyServerConfiguration proxyServerConfiguration = null;
         int followRedirect = 0;
         int maxRedirectCount = 5;
         if (options.getRefField(Constants.FOLLOW_REDIRECT_STRUCT_INDEX) != null) {
@@ -321,16 +336,39 @@ public class HttpConnectionManager {
                 senderConfiguration.setParameters(clientParams);
             }
         }
-        senderConfiguration.setFollowRedirect(followRedirect == 1 ? true : false);
+        if (options.getRefField(Constants.PROXY_STRUCT_INDEX) != null) {
+            BStruct proxy = (BStruct) options.getRefField(Constants.PROXY_STRUCT_INDEX);
+            String proxyHost = proxy.getStringField(Constants.PROXY_HOST_INDEX);
+            int proxyPort = (int) proxy.getIntField(Constants.PROXY_PORT_INDEX);
+            String proxyUserName = proxy.getStringField(Constants.PROXY_USER_NAME_INDEX);
+            String proxyPassword = proxy.getStringField(Constants.PROXY_PASSWORD_INDEX);
+            try {
+                proxyServerConfiguration = new ProxyServerConfiguration(proxyHost, proxyPort);
+            } catch (UnknownHostException e) {
+                throw new BallerinaConnectorException("Failed to resolve host" + proxyHost, e);
+            }
+            if (!proxyUserName.isEmpty()) {
+                proxyServerConfiguration.setProxyUsername(proxyUserName);
+            }
+            if (!proxyPassword.isEmpty()) {
+                proxyServerConfiguration.setProxyPassword(proxyPassword);
+            }
+            senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
+        }
+
+        senderConfiguration.setFollowRedirect(followRedirect == 1);
         senderConfiguration.setMaxRedirectCount(maxRedirectCount);
-        int chunkDisabled = options.getBooleanField(Constants.CHUNK_DISABLED_STRUCT_INDEX);
-        senderConfiguration.setChunkDisabled(chunkDisabled == 1 ? true : false);
+        int enableChunking = options.getBooleanField(Constants.ENABLE_CHUNKING_INDEX);
+        senderConfiguration.setChunkDisabled(enableChunking == 0);
 
         long endpointTimeout = options.getIntField(Constants.ENDPOINT_TIMEOUT_STRUCT_INDEX);
         if (endpointTimeout < 0 || (int) endpointTimeout != endpointTimeout) {
             throw new BallerinaConnectorException("Invalid idle timeout: " + endpointTimeout);
         }
         senderConfiguration.setSocketIdleTimeout((int) endpointTimeout);
+
+        boolean isKeepAlive = options.getBooleanField(Constants.IS_KEEP_ALIVE_INDEX) == 1;
+        senderConfiguration.setKeepAlive(isKeepAlive);
     }
 
     private String makeFirstLetterLowerCase(String str) {

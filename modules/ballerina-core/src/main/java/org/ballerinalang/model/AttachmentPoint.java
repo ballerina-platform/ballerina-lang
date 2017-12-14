@@ -27,7 +27,6 @@ public enum AttachmentPoint {
     CONNECTOR("connector"),
     ACTION("action"),
     FUNCTION("function"),
-    TYPEMAPPER("typemapper"),
     STRUCT("struct"),
     CONSTANT("const"),
     PARAMETER("parameter"),

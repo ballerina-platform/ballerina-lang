@@ -69,7 +69,7 @@ public class CharacterChannel {
     private Buffer contentBuffer;
 
     /**
-     * Defines character which will be included when malformed input is detected from the decoder
+     * Defines character which will be included when malformed input is detected from the decoder.
      */
     private static final char UN_MAPPABLE_CHARACTER = '�';
 
@@ -88,6 +88,11 @@ public class CharacterChannel {
      * Specifies the minimum buffer size which should be held in content buffer.
      */
     private static final int MINIMUM_BYTE_BUFFER_SIZE = 0;
+
+    /**
+     * Maximum number of characters which should be read per single read.
+     */
+    private static final int MAX_CHAR_COUNT_PER_READ = 1024;
 
 
     public CharacterChannel(AbstractChannel channel, String encoding) {
@@ -260,6 +265,21 @@ public class CharacterChannel {
             throw new BallerinaIOException("Error occurred while reading characters from buffer", e);
         }
         return content.toString();
+    }
+
+    /**
+     * Reads all content from the I/O source.
+     *
+     * @return all content which is read.
+     */
+    public String readAll() {
+        StringBuilder response = new StringBuilder();
+        String value;
+        do {
+            value = read(MAX_CHAR_COUNT_PER_READ);
+            response.append(value);
+        } while (!value.isEmpty());
+        return response.toString();
     }
 
     /**

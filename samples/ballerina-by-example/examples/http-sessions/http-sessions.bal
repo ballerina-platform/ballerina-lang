@@ -1,6 +1,6 @@
 import ballerina.net.http;
 
-service<http> session {
+service<http> sessionTest {
 
     string key = "status";
     @http:resourceConfig {
@@ -19,7 +19,7 @@ service<http> session {
         //Binds a string attribute to this session with a key(string).
         session.setAttribute(key, "Session sample");
         res.setStringPayload(result);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -36,7 +36,7 @@ service<http> session {
             attributeValue = "Session unavailable";
         }
         res.setStringPayload(attributeValue);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -53,6 +53,6 @@ service<http> session {
         } else {
             res.setStringPayload("Session unavailable");
         }
-        res.send();
+        _ = res.send();
     }
 }

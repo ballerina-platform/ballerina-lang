@@ -16,16 +16,19 @@
  */
 package org.ballerinalang.test.expressions.unaryoperations;
 
-    import org.ballerinalang.launcher.util.BCompileUtil;
-    import org.ballerinalang.launcher.util.BRunUtil;
-    import org.ballerinalang.launcher.util.CompileResult;
-    import org.ballerinalang.model.values.BInteger;
-    import org.ballerinalang.model.values.BTypeValue;
-    import org.ballerinalang.model.values.BValue;
-    import org.testng.Assert;
-    import org.testng.annotations.BeforeClass;
-    import org.testng.annotations.Test;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BTypeValue;
+import org.ballerinalang.model.values.BValue;
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
+/**
+ * Class to test functionality of typeof operator.
+ */
 public class TypeOfOperatorTest {
 
     CompileResult result;
@@ -427,4 +430,119 @@ public class TypeOfOperatorTest {
         String typeStringExpected = "Person";
         Assert.assertEquals(typeString, typeStringExpected);
     }
+
+    @Test(description = "Test TypeAccessExpr with ValueType.")
+    public void testTypeAccessExprValueType() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result,
+                "testTypeAccessExprValueType", args);
+
+        Assert.assertEquals(returns.length, 1);
+
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 1;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test TypeAccessExpr with ValueType negative.")
+    public void testTypeAccessExprValueTypeNegative() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result,
+                "testTypeAccessExprValueTypeNegative", args);
+
+        Assert.assertEquals(returns.length, 1);
+
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 0;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test TypeAccessExpr with ValueType array.")
+    public void testTypeAccessExprValueTypeArray() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result,
+                "testTypeAccessExprValueTypeArray", args);
+
+        Assert.assertEquals(returns.length, 1);
+
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 0;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test TypeAccessExpr with ValueType array negative.")
+    public void testTypeAccessExprValueTypeArrayNegative() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result,
+                "testTypeAccessExprValueTypeArrayNegative", args);
+
+        Assert.assertEquals(returns.length, 1);
+
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 0;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test TypeAccessExpr with Struct Type with its own value.")
+    public void testTypeAccessExprStructTypeWithValue() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result,
+                "testTypeAccessExprStructWithValue", args);
+
+        Assert.assertEquals(returns.length, 1);
+
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 1;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test TypeAccessExpr with two Struct with a value Negative.")
+    public void testTypeAccessExprStructTypeWithValueNegative() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result,
+                "testTypeAccessExprStructWithValueNegative", args);
+
+        Assert.assertEquals(returns.length, 1);
+
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 0;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test TypeAccessExpr with two Struct types.")
+    public void testTypeAccessExprTwoStructTypes() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result,
+                "testTypeAccessExprTwoStructTypes", args);
+
+        Assert.assertEquals(returns.length, 1);
+
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 0;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test TypeAccessExpr with Same Struct type.")
+    public void testTypeAccessExprSameStructType() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result,
+                "testTypeAccessExprSameStructType", args);
+
+        Assert.assertEquals(returns.length, 1);
+
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 1;
+        Assert.assertEquals(actual, expected);
+    }
+
 }
+
+

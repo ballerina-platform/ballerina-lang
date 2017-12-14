@@ -22,6 +22,7 @@ package org.ballerinalang.test.services.interceptors;
 
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.runtime.message.StringDataSource;
+import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -29,7 +30,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 //import org.ballerinalang.runtime.model.BLangRuntimeRegistry;
 //import org.ballerinalang.test.services.testutils.EnvironmentInitializer;
@@ -46,7 +47,7 @@ public class ResourceInterceptorTest {
     @BeforeClass
     public void setup() {
 //        compileResult = EnvironmentInitializer
-//                .setupProgramFile("test-src/services/echoService.bal");
+//                .setupProgramFile("test-src/services/echo-service.bal");
 //        System.setProperty(ConfigConstants.SYS_PROP_BALLERINA_HOME, "src/test/resources/ballerina");
 //        BLangRuntimeRegistry.getInstance().initialize();
     }
@@ -61,28 +62,28 @@ public class ResourceInterceptorTest {
 
     @Test(priority = 0, enabled = false)
     public void testSuccessfulRequestIntercept() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
         cMsg.setHeader("username", "admin");
         cMsg.setHeader("password", "admin");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         String value = response.getHeader("test");
         Assert.assertEquals(value, "req1 res1 (1) res2");
     }
 
     @Test(priority = 1, enabled = false)
     public void testFailedRequestIntercept() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         String value = ((StringDataSource) response.getMessageDataSource()).getValue();
         Assert.assertEquals(value, "invalid login ");
     }
 
     @Test(priority = 2, enabled = false)
     public void testFailedRequestInterceptInvalidLogin() {
-        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
         cMsg.setHeader("username", "bob");
         cMsg.setHeader("password", "bob");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         String value = ((StringDataSource) response.getMessageDataSource()).getValue();
         Assert.assertEquals(value, "invalid login bob");
     }

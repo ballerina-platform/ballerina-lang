@@ -4,7 +4,9 @@ const string myConst = "MyParam1";
 
 connector TestConnector(string param1, string param2, int param3) {
 
-    EchoConnector echoConnector = create EchoConnector(param1);
+    endpoint<EchoConnector> echoConnector {
+        create EchoConnector(param1);
+    }
 
     boolean action2Invoked;
 
@@ -31,7 +33,9 @@ connector TestConnector(string param1, string param2, int param3) {
     }
 
     action action6(string echoConnectorParam, string actionParam) (string) {
-        EchoConnector localEchoConnector = create EchoConnector(echoConnectorParam);
+        endpoint<EchoConnector> localEchoConnector {
+            create EchoConnector(echoConnectorParam);
+        }
         string s;
 
         s =  localEchoConnector.echoAction(actionParam);
@@ -52,7 +56,9 @@ connector EchoConnector(string greeting) {
 }
 service<http> actionInvokeService {
 
-    TestConnector testConnector = create TestConnector(myConst, "MyParam2", 5);
+    endpoint<TestConnector> testConnector {
+        create TestConnector(myConst, "MyParam2", 5);
+    }
 
     @http:resourceConfig {
         methods:["GET"],
@@ -63,7 +69,7 @@ service<http> actionInvokeService {
         string actionResponse;
         actionResponse = testConnector.action3();
         res.setStringPayload(actionResponse);
-        res.send();
+        _ = res.send();
     }
 
     
@@ -77,7 +83,7 @@ service<http> actionInvokeService {
         actionResponse = testConnector.action1();
         string payload = <string> actionResponse;
         res.setStringPayload(payload);
-        res.send();
+        _ = res.send();
     }
     
     @http:resourceConfig {
@@ -87,7 +93,7 @@ service<http> actionInvokeService {
     resource action2Resource (http:Request req, http:Response res) {
 
         testConnector.action2();
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -99,7 +105,7 @@ service<http> actionInvokeService {
         string actionResponse;
         actionResponse = testConnector.action5(myConst);
         res.setStringPayload(actionResponse);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -111,6 +117,6 @@ service<http> actionInvokeService {
         string actionResponse;
         actionResponse = testConnector.action6("Hello", "World");
         res.setStringPayload(actionResponse);
-        res.send();
+        _ = res.send();
     }
 }

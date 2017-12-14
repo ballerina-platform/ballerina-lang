@@ -18,30 +18,36 @@
 
 package org.ballerinalang.net.uri.parser;
 
-import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.uri.URITemplateException;
 
 /**
  * URITemplateParser parses the provided uri-template and build the tree.
+ *
+ * @param <DataType> Data type stored in the data element.
+ * @param <InboundMgsType> Inbound message type for additional checks.
  */
-public class URITemplateParser {
+public class URITemplateParser<DataType, InboundMgsType> {
 
     private static final char[] operators = new char[] { '+', '.', '/', ';', '?', '&', '#' };
 
-    private Node syntaxTree;
-    private Node currentNode;
+    private Node<DataElement<DataType, InboundMgsType>> syntaxTree;
+    private Node<DataElement<DataType, InboundMgsType>> currentNode;
+    private final DataElementFactory<? extends DataElement<DataType, InboundMgsType>> elementCreator;
 
-    public URITemplateParser(Node rootNode) {
+    public URITemplateParser(Node<DataElement<DataType, InboundMgsType>> rootNode,
+                             DataElementFactory<? extends DataElement<DataType, InboundMgsType>> elementCreator) {
         this.syntaxTree = rootNode;
+        this.elementCreator = elementCreator;
     }
 
-    public Node parse(String template, HttpResource resource) throws URITemplateException {
+    public Node<DataElement<DataType, InboundMgsType>> parse(String template, DataType resource)
+            throws URITemplateException {
         if (!"/".equals(template) && template.endsWith("/")) {
             template = template.substring(0, template.length() - 1);
         }
 
         if ("/".equals(template)) {
-            this.syntaxTree.setResource(resource);
+            this.syntaxTree.getDataElement().setData(resource);
             return syntaxTree;
         }
         String[] segments = template.split("/");
@@ -63,7 +69,7 @@ public class URITemplateParser {
                         }
                         expression = true;
                         if (pointerIndex > startIndex) {
-                            addNode(new Literal(segment.substring(startIndex, pointerIndex)));
+                            addNode(new Literal<>(createElement(), segment.substring(startIndex, pointerIndex)));
                             startIndex = pointerIndex + 1;
                             // TODO: Check whether we really need this.
                         /*} else if (segment.charAt(pointerIndex - 1) != '}') {
@@ -96,35 +102,31 @@ public class URITemplateParser {
                             if (expression) {
                                 createExpressionNode(tokenVal, maxIndex, pointerIndex);
                             } else {
-                                addNode(new Literal(tokenVal));
+                                addNode(new Literal<>(createElement(), tokenVal));
                             }
                         }
                 }
             }
         }
-        this.currentNode.setResource(resource);
+        this.currentNode.getDataElement().setData(resource);
 
         return syntaxTree;
     }
 
-    private void addNode(Node node) {
+    private void addNode(Node<DataElement<DataType, InboundMgsType>> node) {
         if (currentNode == null) {
             currentNode = syntaxTree;
         }
-        if (node.getToken().equals("*")) {
-            currentNode = currentNode.addChild("." + node.getToken(), node);
-        } else {
-            currentNode = currentNode.addChild(node.getToken(), node);
-        }
+        currentNode = currentNode.addChild(node);
     }
 
     private void createExpressionNode(String expression, int maxIndex, int pointerIndex) throws URITemplateException {
-        Node node = null;
+        Node<DataElement<DataType, InboundMgsType>> node = null;
         if (isSimpleString(expression)) {
             if (maxIndex == pointerIndex) {
-                node = new SimpleStringExpression(expression);
+                node = new SimpleStringExpression<>(createElement(), expression);
             } else {
-                node = new SimpleSplitStringExpression(expression);
+                node = new SimpleSplitStringExpression<>(createElement(), expression);
             }
         }
 
@@ -134,13 +136,13 @@ public class URITemplateParser {
 
         // TODO: Re-verify the usage of these nodes
         if (expression.startsWith("#")) {
-            node = new FragmentExpression(expression.substring(1));
+            node = new FragmentExpression<>(createElement(), expression.substring(1));
         } else if (expression.startsWith("+")) {
-            node = new ReservedStringExpression(expression.substring(1));
+            node = new ReservedStringExpression<>(createElement(), expression.substring(1));
         } else if (expression.startsWith(".")) {
-            node = new LabelExpression(expression.substring(1));
+            node = new LabelExpression<>(createElement(), expression.substring(1));
         } else if (expression.startsWith("/")) {
-            node = new PathSegmentExpression(expression.substring(1));
+            node = new PathSegmentExpression<>(createElement(), expression.substring(1));
         }
 
         if (node != null) {
@@ -157,5 +159,9 @@ public class URITemplateParser {
             }
         }
         return true;
+    }
+
+    private DataElement<DataType, InboundMgsType> createElement() {
+        return elementCreator.createDataElement();
     }
 }

@@ -20,8 +20,8 @@ package org.ballerinalang.model.tree.expressions;
 import org.ballerinalang.model.tree.OperatorKind;
 
 /**
- * -a
- * !b
+ * -a.
+ * !b.
  *
  * @since 0.94
  */

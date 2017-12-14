@@ -61,12 +61,12 @@ public class DiagnosticPos implements DiagnosticPosition {
     }
 
     @Override
-    public int startColumn() {
+    public int getStartColumn() {
         return sCol;
     }
 
     @Override
-    public int endColumn() {
+    public int getEndColumn() {
         return eCol;
     }
 

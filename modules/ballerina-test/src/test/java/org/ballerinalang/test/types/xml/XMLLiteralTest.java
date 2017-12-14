@@ -366,7 +366,8 @@ public class XMLLiteralTest {
         Assert.assertTrue(returns[0] instanceof BXMLItem);
 
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns1=\"http://ballerina.com/b\">hello</root>");
-        Assert.assertEquals(returns[1].stringValue(), "<root xmlns:ns1=\"http://ballerina.com/b\">hello</root>");
+        Assert.assertEquals(returns[1].stringValue(),
+                "<root xmlns=\"http://ballerina.com/\" xmlns:ns1=\"http://ballerina.com/b\">hello</root>");
         Assert.assertEquals(returns[2].stringValue(),
                 "<root xmlns=\"http://ballerina.com/\" xmlns:ns1=\"http://ballerina.com/b\">hello</root>");
     }
@@ -395,5 +396,12 @@ public class XMLLiteralTest {
 
         Assert.assertTrue(returns[2] instanceof BString);
         Assert.assertEquals(returns[2].stringValue(), "{http://ballerina.com/b}foo");
+    }
+
+    @Test
+    public void testNullXMLinXMLLiteral() {
+        BValue[] returns = BRunUtil.invoke(result, "testNullXMLinXMLLiteral");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root></root>");
     }
 }

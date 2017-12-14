@@ -26,11 +26,11 @@ struct ResultObject {
 }
 
 struct ResultMap {
-    map INT_ARRAY;
-    map LONG_ARRAY;
-    map FLOAT_ARRAY;
-    map BOOLEAN_ARRAY;
-    map STRING_ARRAY;
+    int[] INT_ARRAY;
+    int[] LONG_ARRAY;
+    float[] FLOAT_ARRAY;
+    boolean[] BOOLEAN_ARRAY;
+    string[] STRING_ARRAY;
 }
 
 struct ResultBlob {
@@ -44,6 +44,27 @@ struct ResultDates {
     string DATETIME_TYPE;
 }
 
+struct ResultDatesStruct {
+    Time DATE_TYPE;
+    Time TIME_TYPE;
+    Time TIMESTAMP_TYPE;
+    Time DATETIME_TYPE;
+}
+
+struct ResultDatesInt {
+    int DATE_TYPE;
+    int TIME_TYPE;
+    int TIMESTAMP_TYPE;
+    int DATETIME_TYPE;
+}
+
+struct ResultSetFloat {
+    float FLOAT_TYPE;
+    float DOUBLE_TYPE;
+    float NUMERIC_TYPE;
+    float DECIMAL_TYPE;
+}
+
 struct ResultPrimitiveInt {
     int INT_TYPE;
 }
@@ -52,16 +73,38 @@ struct ResultCount {
     int COUNTVAL;
 }
 
+struct ResultTest {
+    int t1Row;
+    int t1Int;
+    int t2Row;
+    int t2Int;
+}
 
+struct ResultSignedInt {
+    int ID;
+    int TINYINTDATA;
+    int SMALLINTDATA;
+    int INTDATA;
+    int BIGINTDATA;
+}
+
+struct ResultComplexTypes {
+    int ROW_ID;
+    blob BLOB_TYPE;
+    string CLOB_TYPE;
+    blob BINARY_TYPE;
+}
 
 function testToJson () (json) {
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
     sql:Parameter[] parameters = [];
 
     try {
         datatable dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
-                  boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
+                  boolean_type, string_type from DataTable WHERE row_id = 1", parameters, null);
         json result;
         result, _ = <json>dt;
         return result;
@@ -72,13 +115,14 @@ function testToJson () (json) {
 }
 
 function testToXml () (xml) {
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
-    sql:Parameter[] parameters = [];
+    }
 
     try {
         datatable dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
-                   boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
+                   boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
         xml result;
         result, _ = <xml>dt;
         return result;
@@ -88,17 +132,57 @@ function testToXml () (xml) {
     return null;
 }
 
+function testToXmlMultipleConsume () (xml) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+
+    try {
+        datatable dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
+        boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
+        xml result;
+        result, _ = <xml>dt;
+        println(result);
+        return result;
+    } finally {
+        testDB.close();
+    }
+    return null;
+}
+
+
 function toXmlComplex () (xml) {
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
-    sql:Parameter[] parameters = [];
+    }
 
     try {
         datatable dt = testDB.select("SELECT int_type, int_array, long_type, long_array, float_type,
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
-                    from MixTypes where row_id =1", parameters);
+                    from MixTypes where row_id =1", null, null);
         xml result;
         result, _ = <xml>dt;
+        return result;
+    } finally {
+        testDB.close();
+    }
+    return null;
+}
+
+function testToJsonComplex () (json) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+
+    try {
+        datatable dt = testDB.select("SELECT int_type, int_array, long_type, long_array, float_type,
+                    float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
+                    from MixTypes where row_id =1", null, null);
+        json result;
+        result, _ = <json>dt;
         return result;
     } finally {
         testDB.close();
@@ -107,13 +191,14 @@ function toXmlComplex () (xml) {
 }
 
 function testJsonWithNull () (json) {
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
 
-    sql:Parameter[] parameters = [];
     try {
         datatable dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
-                  boolean_type, string_type from DataTable WHERE row_id = 2", parameters);
+                  boolean_type, string_type from DataTable WHERE row_id = 2", null, null);
         json result;
         result, _ = <json>dt;
         return result;
@@ -124,13 +209,14 @@ function testJsonWithNull () (json) {
 }
 
 function testXmlWithNull () (xml) {
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
 
-    sql:Parameter[] parameters = [];
     try {
         datatable dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
-                   boolean_type, string_type from DataTable WHERE row_id = 2", parameters);
+                   boolean_type, string_type from DataTable WHERE row_id = 2", null, null);
         xml result;
         result, _ = <xml>dt;
         return result;
@@ -141,21 +227,20 @@ function testXmlWithNull () (xml) {
 }
 
 function testToXmlWithinTransaction () (string, int) {
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
     int returnValue = 0;
     string result;
     try {
         transaction {
-            sql:Parameter[] parameters = [];
-            datatable dt = testDB.select("SELECT int_type, long_type from DataTable WHERE row_id = 1", parameters);
+            datatable dt = testDB.select("SELECT int_type, long_type from DataTable WHERE row_id = 1", null, null);
             xml xmlResult;
             xmlResult, _ = <xml>dt;
             result = <string> xmlResult;
-        } aborted {
-        returnValue = -1;
-    }
-    return result, returnValue;
+        }
+        return result, returnValue;
     } finally {
         testDB.close();
     }
@@ -163,21 +248,20 @@ function testToXmlWithinTransaction () (string, int) {
 }
 
 function testToJsonWithinTransaction () (string, int) {
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
     int returnValue = 0;
     string result;
     try {
         transaction {
-            sql:Parameter[] parameters = [];
-            datatable dt = testDB.select("SELECT int_type, long_type from DataTable WHERE row_id = 1", parameters);
+            datatable dt = testDB.select("SELECT int_type, long_type from DataTable WHERE row_id = 1", null, null);
             json jsonResult;
             jsonResult, _ = <json>dt;
             result = jsonResult.toString();
-        } aborted {
-        returnValue = -1;
-    }
-    return result, returnValue;
+        }
+        return result, returnValue;
     } finally {
         testDB.close();
     }
@@ -185,15 +269,14 @@ function testToJsonWithinTransaction () (string, int) {
 }
 
 function testGetPrimitiveTypes () (int i, int l, float f, float d, boolean b, string s) {
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
-    sql:Parameter[] parameters = [];
+    }
     datatable dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
-              boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
-    ResultPrimitive rs;
+              boolean_type, string_type from DataTable WHERE row_id = 1", null, typeof ResultPrimitive);
     while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, _ = (ResultPrimitive)dataStruct;
+        var rs, _ = (ResultPrimitive)dt.getNext();
         i = rs.INT_TYPE;
         l = rs.LONG_TYPE;
         f = rs.FLOAT_TYPE;
@@ -206,15 +289,14 @@ function testGetPrimitiveTypes () (int i, int l, float f, float d, boolean b, st
 }
 
 function testGetComplexTypes () (string blobValue, string clob, string binary) {
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
-    sql:Parameter[] parameters = [];
-    datatable dt = testDB.select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1",parameters);
-    ResultObject rs;
+    }
+    datatable dt = testDB.select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1",null,
+                         typeof ResultObject);
     while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, _ = (ResultObject)dataStruct;
-
+        var rs, _ = (ResultObject)dt.getNext();
         blob blobData = rs.BLOB_TYPE;
         blobValue = blobData.toString("UTF-8");
         clob = rs.CLOB_TYPE;
@@ -225,17 +307,15 @@ function testGetComplexTypes () (string blobValue, string clob, string binary) {
     return;
 }
 
-function testArrayData () (map int_arr, map long_arr, map float_arr, map string_arr, map boolean_arr) {
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+function testArrayData () (int[] int_arr, int[] long_arr, float[] float_arr, string[] string_arr, boolean[] boolean_arr) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
-    sql:Parameter[] parameters = [];
+    }
     datatable dt = testDB.select("SELECT int_array, long_array, float_array, boolean_array,
-              string_array from ArrayTypes where row_id = 1", parameters);
-    ResultMap rs;
+              string_array from ArrayTypes where row_id = 1", null, typeof ResultMap);
     while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, _ = (ResultMap)dataStruct;
-
+        var rs, _ = (ResultMap)dt.getNext();
         int_arr = rs.INT_ARRAY;
         long_arr = rs.LONG_ARRAY;
         float_arr = rs.FLOAT_ARRAY;
@@ -246,27 +326,135 @@ function testArrayData () (map int_arr, map long_arr, map float_arr, map string_
     return;
 }
 
+function testArrayDataInsertAndPrint () (int updateRet, int intArrLen, int longArrLen, int floatArrLen, int boolArrLen,
+                                         int strArrLen) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+    int[] dataint = [1, 2, 3];
+    float[] datafloat = [33.4, 55.4];
+    string[] datastring = ["hello", "world"];
+    boolean[] databoolean = [true, false, false, true, true];
+
+    sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:4};
+    sql:Parameter paraInt = {sqlType:sql:Type.ARRAY, value:dataint};
+    sql:Parameter paraLong = {sqlType:sql:Type.ARRAY, value:dataint};
+    sql:Parameter paraFloat = {sqlType:sql:Type.ARRAY, value:datafloat};
+    sql:Parameter paraString = {sqlType:sql:Type.ARRAY, value:datastring};
+    sql:Parameter paraBool = {sqlType:sql:Type.ARRAY, value:databoolean};
+    sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraString, paraBool];
+
+    updateRet = testDB.update("insert into ArrayTypes(row_id, int_array, long_array, float_array,
+                                string_array, boolean_array) values (?,?,?,?,?,?)", parameters);
+    datatable dt = testDB.select("SELECT int_array, long_array, float_array, boolean_array, string_array
+                                 from ArrayTypes where row_id = 4", null, typeof ResultMap);
+    while (dt.hasNext()) {
+        var rs, _ = (ResultMap)dt.getNext();
+        println(rs.INT_ARRAY);
+        intArrLen = lengthof rs.INT_ARRAY;
+        println(rs.LONG_ARRAY);
+        longArrLen = lengthof rs.LONG_ARRAY;
+        println(rs.FLOAT_ARRAY);
+        floatArrLen = lengthof rs.FLOAT_ARRAY;
+        println(rs.BOOLEAN_ARRAY);
+        boolArrLen = lengthof rs.BOOLEAN_ARRAY;
+        println(rs.STRING_ARRAY);
+        strArrLen = lengthof rs.STRING_ARRAY;
+    }
+    testDB.close();
+    return;
+}
+
 function testDateTime (int datein, int timein, int timestampin) (string date, string time, string timestamp,
                                                                  string datetime) {
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
-    sql:Parameter para0 = {sqlType:"integer", value:1};
-    sql:Parameter para1 = {sqlType:"DATE", value:datein};
-    sql:Parameter para2 = {sqlType:"TIME", value:timein};
-    sql:Parameter para3 = {sqlType:"TIMESTAMP", value:timestampin};
-    sql:Parameter para4 = {sqlType:"DATETIME", value:timestampin};
+    }
+    sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:1};
+    sql:Parameter para1 = {sqlType:sql:Type.DATE, value:datein};
+    sql:Parameter para2 = {sqlType:sql:Type.TIME, value:timein};
+    sql:Parameter para3 = {sqlType:sql:Type.TIMESTAMP, value:timestampin};
+    sql:Parameter para4 = {sqlType:sql:Type.DATETIME, value:timestampin};
     sql:Parameter[] parameters = [para0, para1, para2, para3, para4];
 
     int insertCount = testDB.update("Insert into DateTimeTypes
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)", parameters);
 
-    sql:Parameter[] emptyParam = [];
     datatable dt = testDB.select("SELECT date_type, time_type, timestamp_type, datetime_type
-                from DateTimeTypes where row_id = 1", emptyParam);
-    ResultDates rs;
+                from DateTimeTypes where row_id = 1", null, typeof ResultDates);
     while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, _ = (ResultDates)dataStruct;
+        var rs, _ = (ResultDates)dt.getNext();
+        time = rs.TIME_TYPE;
+        date = rs.DATE_TYPE;
+        timestamp = rs.TIMESTAMP_TYPE;
+        datetime = rs.DATETIME_TYPE;
+    }
+    testDB.close();
+    return;
+}
+
+function testDateTimeAsTimeStruct () (int dateInserted, int dateRetrieved, int timeInserted, int timeRetrieved,
+                                      int timestampInserted, int timestampRetrieved, int datetimeInserted, int datetimeRetrieved ) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+
+    Time dateStruct = createTime(2017, 5, 23, 0, 0, 0, 0, "");
+    Timezone zoneValue = {zoneId:"UTC"};
+    Time timeStruct = {time:51323000, zone:zoneValue};
+    Time timestampStruct = createTime(2017, 1, 25, 16, 12, 23, 0, "UTC");
+    Time datetimeStruct = createTime(2017, 1, 31, 16, 12, 23, 332, "UTC");
+    dateInserted = dateStruct.time;
+    timeInserted = timeStruct.time;
+    timestampInserted = timestampStruct.time;
+    datetimeInserted = datetimeStruct.time;
+
+    sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:31};
+    sql:Parameter para1 = {sqlType:sql:Type.DATE, value:dateStruct};
+    sql:Parameter para2 = {sqlType:sql:Type.TIME, value:timeStruct};
+    sql:Parameter para3 = {sqlType:sql:Type.TIMESTAMP, value:timestampStruct};
+    sql:Parameter para4 = {sqlType:sql:Type.DATETIME, value:datetimeStruct};
+    sql:Parameter[] parameters = [para0, para1, para2, para3, para4];
+
+    _ = testDB.update("Insert into DateTimeTypes
+        (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)", parameters);
+
+    datatable dt = testDB.select("SELECT date_type, time_type, timestamp_type, datetime_type
+                from DateTimeTypes where row_id = 31", null, typeof ResultDatesStruct);
+    while (dt.hasNext()) {
+        var rs, _ = (ResultDatesStruct)dt.getNext();
+        dateRetrieved = rs.DATE_TYPE.time;
+        timeRetrieved = rs.TIME_TYPE.time;
+        timestampRetrieved = rs.TIMESTAMP_TYPE.time;
+        datetimeRetrieved = rs.DATETIME_TYPE.time;
+    }
+    testDB.close();
+    return;
+}
+
+function testDateTimeInt (int datein, int timein, int timestampin) (int  date, int time, int timestamp,
+                                                                 int datetime) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+    sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:32};
+    sql:Parameter para1 = {sqlType:sql:Type.DATE, value:datein};
+    sql:Parameter para2 = {sqlType:sql:Type.TIME, value:timein};
+    sql:Parameter para3 = {sqlType:sql:Type.TIMESTAMP, value:timestampin};
+    sql:Parameter para4 = {sqlType:sql:Type.DATETIME, value:timestampin};
+    sql:Parameter[] parameters = [para0, para1, para2, para3, para4];
+
+    int insertCount = testDB.update("Insert into DateTimeTypes
+        (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)", parameters);
+
+    datatable dt = testDB.select("SELECT date_type, time_type, timestamp_type, datetime_type
+                from DateTimeTypes where row_id = 32", null, typeof ResultDatesInt);
+    while (dt.hasNext()) {
+        var rs, _ = (ResultDatesInt)dt.getNext();
         time = rs.TIME_TYPE;
         date = rs.DATE_TYPE;
         timestamp = rs.TIMESTAMP_TYPE;
@@ -277,17 +465,15 @@ function testDateTime (int datein, int timein, int timestampin) (string date, st
 }
 
 function testBlobData () (string blobStringData) {
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
 
-    sql:Parameter[] parameters = [];
-    datatable dt = testDB.select("SELECT blob_type from ComplexTypes where row_id = 1", parameters);
+    datatable dt = testDB.select("SELECT blob_type from ComplexTypes where row_id = 1", null, typeof ResultBlob);
     blob blobData;
     while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        ResultBlob rs;
-        TypeCastError err;
-        rs, err = (ResultBlob)dataStruct;
+        var rs, err = (ResultBlob)dt.getNext();
         blobData = rs.BLOB_TYPE;
     }
     blobStringData = blobData.toString("UTF-8");
@@ -297,19 +483,17 @@ function testBlobData () (string blobStringData) {
 }
 
 function testColumnAlias () (int i, int l, float f, float d, boolean b, string s, int i2) {
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
 
-    sql:Parameter[] parameters = [];
     datatable dt = testDB.select("SELECT dt1.int_type, dt1.long_type, dt1.float_type,
            dt1.double_type,dt1.boolean_type, dt1.string_type,dt2.int_type as dt2int_type from DataTable dt1
-           left join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1;", parameters);
+           left join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1;", null,
+                                 typeof ResultSetTestAlias);
     while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        ResultSetTestAlias rs;
-        TypeCastError err;
-        rs, err = (ResultSetTestAlias)dataStruct;
-
+        var rs, err = (ResultSetTestAlias)dt.getNext();
         i = rs.INT_TYPE;
         l = rs.LONG_TYPE;
         f = rs.FLOAT_TYPE;
@@ -323,19 +507,20 @@ function testColumnAlias () (int i, int l, float f, float d, boolean b, string s
 }
 
 function testBlobInsert () (int i) {
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
 
     sql:Parameter[] params = [];
-    datatable dt = testDB.select("SELECT blob_type from ComplexTypes where row_id = 1", params);
+    datatable dt = testDB.select("SELECT blob_type from ComplexTypes where row_id = 1", params, typeof ResultBlob);
     blob blobData;
     while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        var rs, err = (ResultBlob)dataStruct;
+        var rs, _ = (ResultBlob)dt.getNext();
         blobData = rs.BLOB_TYPE;
     }
-    sql:Parameter para0 = {sqlType:"integer", value:10};
-    sql:Parameter para1 = {sqlType:"blob", value:blobData};
+    sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:10};
+    sql:Parameter para1 = {sqlType:sql:Type.BLOB, value:blobData};
     params = [para0, para1];
     int insertCount = testDB.update("Insert into ComplexTypes (row_id, blob_type) values (?,?)", params);
     testDB.close();
@@ -344,40 +529,38 @@ function testBlobInsert () (int i) {
 
 
 function testDatatableAutoClose () (int i, string test) {
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
 
-    sql:Parameter[] parameters = [];
-    datatable dt =testDB.select("SELECT int_type from DataTable WHERE row_id = 1", parameters);
-    ResultPrimitiveInt rs;
+    datatable dt =testDB.select("SELECT int_type from DataTable WHERE row_id = 1", null, typeof ResultPrimitiveInt);
     while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, _ = (ResultPrimitiveInt)dataStruct;
+        var rs, _ = (ResultPrimitiveInt)dt.getNext();
         i = rs.INT_TYPE;
     }
 
     datatable dt2 = testDB.select("SELECT int_type, long_type, float_type, double_type,
-              boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
+              boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
     var jsonstring,err = <json> dt2;
     test = jsonstring.toString();
 
     datatable dt3 = testDB.select("SELECT int_type, long_type, float_type, double_type,
-              boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
+              boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
     testDB.close();
     return;
 }
 
 function testDatatableManualClose () (int data) {
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
 
-    sql:Parameter[] parameters = [];
-    datatable dt = testDB.select("SELECT int_type from DataTable", parameters);
-    ResultPrimitiveInt rs;
+    datatable dt = testDB.select("SELECT int_type from DataTable", null, typeof ResultPrimitiveInt);
     int i = 0;
     while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, _ = (ResultPrimitiveInt)dataStruct;
+        var rs, _ = (ResultPrimitiveInt)dt.getNext();
         int ret = rs.INT_TYPE;
         i = i + 1;
         if (i == 1) {
@@ -386,11 +569,9 @@ function testDatatableManualClose () (int data) {
     }
     dt.close();
 
-    datatable dt2 = testDB.select("SELECT int_type from DataTable WHERE row_id = 1", parameters);
-    ResultPrimitiveInt rs2;
+    datatable dt2 = testDB.select("SELECT int_type from DataTable WHERE row_id = 1", null, typeof ResultPrimitiveInt);
     while (dt2.hasNext()) {
-        any dataStruct = dt2.getNext();
-        rs2, _ = (ResultPrimitiveInt)dataStruct;
+        var rs2, _ = (ResultPrimitiveInt)dt2.getNext();
         data = rs2.INT_TYPE;
     }
     dt2.close();
@@ -399,15 +580,14 @@ function testDatatableManualClose () (int data) {
 }
 
 function testCloseConnectionPool () (int count) {
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
-    sql:Parameter[] parameters = [];
-    datatable dt = testDB.select ("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", parameters);
-    TypeCastError err;
-    ResultCount rs;
+    }
+    datatable dt = testDB.select ("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
+                                  typeof ResultCount);
     while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, err = (ResultCount) dataStruct;
+        var rs, err = (ResultCount) dt.getNext();
         count = rs.COUNTVAL;
     }
     testDB.close();
@@ -415,13 +595,197 @@ function testCloseConnectionPool () (int count) {
 }
 
 function testPrintandPrintlnDatatable() {
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
-    sql:Parameter[] parameters = [];
+    }
     datatable dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
-    boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
+    boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
 
     println(dt);
     print(dt);
     testDB.close();
+}
+function testMutltipleRows () (int i1, int i2) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                          0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+
+    datatable dt = testDB.select("SELECT int_type from DataTableRep", null, typeof ResultPrimitiveInt);
+    ResultPrimitiveInt rs1;
+    ResultPrimitiveInt rs2;
+    int i = 0;
+    while (dt.hasNext()) {
+        if (i == 0) {
+            rs1, _ = (ResultPrimitiveInt)dt.getNext();
+        } else {
+            rs2, _ = (ResultPrimitiveInt)dt.getNext();
+        }
+        i = i +1;
+    }
+    testDB.close();
+    return rs1.INT_TYPE, rs2.INT_TYPE;
+}
+
+function testGetFloatTypes () (float f, float d, float num, float dec) {
+    endpoint<sql:ClientConnector> testDB {
+                                  create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+    datatable dt = testDB.select("SELECT float_type, double_type,
+                  numeric_type, decimal_type from FloatTable WHERE row_id = 1", null, typeof ResultSetFloat);
+    while (dt.hasNext()) {
+        var rs, _ = (ResultSetFloat)dt.getNext();
+        f = rs.FLOAT_TYPE;
+        d = rs.DOUBLE_TYPE;
+        num = rs.NUMERIC_TYPE;
+        dec = rs.DECIMAL_TYPE;
+    }
+    testDB.close();
+    return;
+}
+
+function testSignedIntMaxMinValues () (int maxInsert, int minInsert, int nullInsert, string jsonStr, string xmlStr,
+                                       string str) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:3});
+    }
+    string insertSQL = "INSERT INTO IntegerTypes(id,tinyIntData, smallIntData, intData, bigIntData) VALUES (?,?, ?,?,?)";
+    string selectSQL = "SELECT id,tinyIntData,smallIntData,intData,bigIntData FROM IntegerTypes";
+
+    //Insert signed max
+    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:1};
+    sql:Parameter para2 = {sqlType:sql:Type.TINYINT, value:127};
+    sql:Parameter para3 = {sqlType:sql:Type.SMALLINT, value:32767};
+    sql:Parameter para4 = {sqlType:sql:Type.INTEGER, value:2147483647};
+    sql:Parameter para5 = {sqlType:sql:Type.BIGINT, value:9223372036854775807};
+    sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
+    maxInsert = testDB.update(insertSQL, parameters);
+
+    //Insert signed min
+    para1 = {sqlType:sql:Type.INTEGER, value:2};
+    para2 = {sqlType:sql:Type.TINYINT, value:-128};
+    para3 = {sqlType:sql:Type.SMALLINT, value:-32768};
+    para4 = {sqlType:sql:Type.INTEGER, value:-2147483648};
+    para5 = {sqlType:sql:Type.BIGINT, value:-9223372036854775808};
+    parameters = [para1, para2, para3, para4, para5];
+    minInsert = testDB.update(insertSQL, parameters);
+
+    //Insert null
+    para1 = {sqlType:sql:Type.INTEGER, value:3};
+    para2 = {sqlType:sql:Type.TINYINT, value:null};
+    para3 = {sqlType:sql:Type.SMALLINT, value:null};
+    para4 = {sqlType:sql:Type.INTEGER, value:null};
+    para5 = {sqlType:sql:Type.BIGINT, value:null};
+    parameters = [para1, para2, para3, para4, para5];
+    nullInsert = testDB.update(insertSQL, parameters);
+
+    datatable dt = testDB.select(selectSQL, null, null);
+    var j, _ = <json>dt;
+    jsonStr = j.toString();
+
+    dt = testDB.select(selectSQL, null, null);
+    var x, _ = <xml>dt;
+    xmlStr = <string>x;
+
+    dt = testDB.select(selectSQL, null, typeof ResultSignedInt);
+    str = "";
+    while (dt.hasNext()) {
+        var result, _ = (ResultSignedInt)dt.getNext();
+        str = str + result.ID + "|" + result.TINYINTDATA + "|" + result.SMALLINTDATA + "|" + result.INTDATA + "|" +
+              result.BIGINTDATA + "#";
+    }
+    testDB.close();
+    return;
+}
+
+function testComplexTypeInsertAndRetrieval () (int retDataInsert, int retNullInsert, string jsonStr, string xmlStr,
+                                               string str) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:3});
+    }
+
+    string insertSQL = "INSERT INTO ComplexTypes(row_id, blob_type, clob_type, binary_type) VALUES (?,?,?,?)";
+    string selectSQL = "SELECT row_id, blob_type, clob_type, binary_type FROM ComplexTypes where row_id = 100 or row_id = 200";
+    string text = "Sample Text";
+    blob content = text.toBlob("UTF-8");
+
+    //Insert data
+    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:100};
+    sql:Parameter para2 = {sqlType:sql:Type.BLOB, value:content};
+    sql:Parameter para3 = {sqlType:sql:Type.CLOB, value:text};
+    sql:Parameter para4 = {sqlType:sql:Type.BINARY, value:content};
+    sql:Parameter[] parameters = [para1, para2, para3, para4];
+    retDataInsert = testDB.update(insertSQL, parameters);
+
+    //Insert null values
+    para1 = {sqlType:sql:Type.INTEGER, value:200};
+    para2 = {sqlType:sql:Type.BLOB, value:null};
+    para3 = {sqlType:sql:Type.CLOB, value:null};
+    para4 = {sqlType:sql:Type.BINARY, value:null};
+    parameters = [para1, para2, para3, para4];
+    retNullInsert = testDB.update(insertSQL, parameters);
+
+    datatable dt = testDB.select(selectSQL, null, null);
+    var j,_ = <json>dt;
+    jsonStr = j.toString();
+
+    dt = testDB.select(selectSQL, null, null);
+    var x,_ = <xml>dt;
+    xmlStr = <string>x;
+
+    dt = testDB.select(selectSQL, null, typeof ResultComplexTypes);
+    str = "";
+    while (dt.hasNext()) {
+        var result,_ = (ResultComplexTypes)dt.getNext();
+        str = str + result.ROW_ID + "|" + result.BLOB_TYPE.toString("UTF-8") + "|" + result.CLOB_TYPE + "|";
+    }
+    testDB.close();
+    return;
+}
+
+function testJsonXMLConversionwithDuplicateColumnNames () (string jsonStr, string xmlStr) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+    datatable dt = testDB.select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
+            join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", null, null);
+    var j,_ = <json> dt;
+    jsonStr = j.toString();
+
+    datatable dt2 = testDB.select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
+            join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", null, null);
+    var x,_ = <xml> dt2;
+    xmlStr = <string> x;
+
+    testDB.close();
+    return;
+}
+
+function testStructFieldNotMatchingColumnName () (int countAll, int i1, int i2, int i3, int i4) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+    datatable dt = testDB.select("SELECT count(*) from DataTable WHERE row_id = 1", null, typeof ResultCount);
+    while (dt.hasNext()) {
+        var rs, _ = (ResultCount)dt.getNext();
+        countAll = rs.COUNTVAL;
+    }
+
+    datatable dt2 = testDB.select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
+            join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", null, typeof ResultTest);
+    while (dt2.hasNext()) {
+        var rs, _ = (ResultTest)dt2.getNext();
+        i1 = rs.t1Row;
+        i2 = rs.t1Int;
+        i3 = rs.t2Row;
+        i4 = rs.t2Int;
+    }
+    testDB.close();
+    return;
 }

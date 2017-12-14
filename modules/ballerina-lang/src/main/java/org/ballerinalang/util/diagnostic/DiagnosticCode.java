@@ -32,6 +32,7 @@ public enum DiagnosticCode {
     MISSING_PACKAGE_DECLARATION("missing.package.declaration"),
     UNEXPECTED_PACKAGE_DECLARATION("unexpected.package.declaration"),
     REDECLARED_SYMBOL("redeclared.symbol"),
+    REDECLARED_BUILTIN_SYMBOL("redeclared.builtin.symbol"),
     UNDEFINED_SYMBOL("undefined.symbol"),
     UNDEFINED_FUNCTION("undefined.function"),
     UNDEFINED_FUNCTION_IN_STRUCT("undefined.function.in.struct"),
@@ -62,11 +63,19 @@ public enum DiagnosticCode {
     NEXT_CANNOT_BE_OUTSIDE_LOOP("next.cannot.be.outside.loop"),
     BREAK_CANNOT_BE_OUTSIDE_LOOP("break.cannot.be.outside.loop"),
     ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("abort.cannot.be.outside.transaction.block"),
-    INVALID_RETRY_POSITION("invalid.retry.position"),
     BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION("break.statement.cannot.be.used.to.exit.from.a.transaction"),
     NEXT_CANNOT_BE_USED_TO_EXIT_TRANSACTION("next.statement.cannot.be.used.to.exit.from.a.transaction"),
     INVALID_RETRY_COUNT("invalid.retry.count"),
-    TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT("transform.statement.invalid.input.output"),
+
+    // Transformer related error codes
+    UNDEFINED_TRANSFORMER("undefined.transformer"),
+    TRANSFORMER_INVALID_OUTPUT_USAGE("transformer.invalid.output.usage"),
+    TRANSFORMER_INVALID_INPUT_UPDATE("transformer.invalid.input.update"),
+    INVALID_STATEMENT_IN_TRANSFORMER("invalid.statement.in.transformer"),
+    TRANSFORMER_MUST_HAVE_OUTPUT("transformer.must.have.output"),
+    TOO_MANY_OUTPUTS_FOR_TRANSFORMER("too.many.outputs.for.transformer"),
+    TRANSFORMER_CONFLICTS_WITH_CONVERSION("transformer.conflicts.with.conversion"),
+    TRANSFORMER_UNSUPPORTED_TYPES("transformer.unsupported.types"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
@@ -97,16 +106,20 @@ public enum DiagnosticCode {
     TOO_MANY_RETURN_VALUES("return.value.too.many"),
     NOT_ENOUGH_RETURN_VALUES("return.value.not.enough"),
     RETURN_VALUE_NOT_EXPECTED("return.value.not.expected"),
+    INVALID_ACTION_INVOCATION("invalid.action.invocation"),
+    INVALID_FUNCTION_INVOCATION("invalid.function.invocation"),
 
     DUPLICATED_ERROR_CATCH("duplicated.error.catch"),
 
     NO_NEW_VARIABLES_VAR_ASSIGNMENT("no.new.variables.var.assignment"),
     INVALID_VARIABLE_ASSIGNMENT("invalid.variable.assignment"),
     CANNOT_ASSIGN_VALUE_CONSTANT("cannot.assign.value.to.constant"),
+    CANNOT_ASSIGN_VALUE_ENDPOINT("cannot.assign.value.to.endpoint"),
     UNDERSCORE_NOT_ALLOWED("underscore.not.allowed"),
     OPERATION_DOES_NOT_SUPPORT_INDEXING("operation.does.not.support.indexing"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS("operation.does.not.support.field.access"),
     INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS("invalid.index.expr.struct.field.access"),
+    INVALID_ENUM_EXPR("invalid.enum.expr"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),

@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.runtime.message;
 
-import org.wso2.carbon.messaging.MessageDataSource;
-
 import java.io.OutputStream;
 import java.util.Map;
 

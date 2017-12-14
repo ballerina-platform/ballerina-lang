@@ -1,6 +1,6 @@
 import ballerina.net.ws;
 
-@Description {value:"This example gives you the basic idea of WebSocket endpoint"}
+@Description {value:"This example gives you the basic idea of WebSocket endpoint."}
 @ws:configuration {
     basePath: "/basic/ws",
     subProtocols: ["xml", "json"],
@@ -8,9 +8,9 @@ import ballerina.net.ws;
     host: "0.0.0.0",
     port: 9090,
     wssPort: 9095,
-    keyStoreFile: "${ballerina.home}/bre/security/wso2carbon.jks",
-    keyStorePassword: "wso2carbon",
-    certPassword: "wso2carbon"
+    keyStoreFile: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+    keyStorePassword: "ballerina",
+    certPassword: "ballerina"
 }
 service<ws> SimpleSecureServer {
 
@@ -39,7 +39,7 @@ service<ws> SimpleSecureServer {
         printHeaders(conn.getUpgradeHeaders());
     }
 
-    @Description {value:"This resource is triggered when a new text frame is received from a client"}
+    @Description {value:"This resource is triggered when a new text frame is received from a client."}
     resource onTextMessage (ws:Connection conn, ws:TextFrame frame) {
         println("\ntext message: " + frame.text + " & is final fragment: " + frame.isFinalFragment);
         string text = frame.text;
@@ -54,7 +54,7 @@ service<ws> SimpleSecureServer {
         }
     }
 
-    @Description {value:"This resource is triggered when a new binary frame is received from a client"}
+    @Description {value:"This resource is triggered when a new binary frame is received from a client."}
     resource onBinaryMessage(ws:Connection conn, ws:BinaryFrame frame) {
         println("\nNew binary message received");
         blob b = frame.data;
@@ -62,7 +62,7 @@ service<ws> SimpleSecureServer {
         conn.pushBinary(b);
     }
 
-    @Description {value:"This resource is triggered when a ping message is received from the client"}
+    @Description {value:"This resource is triggered when a ping message is received from the client."}
     resource onPing(ws:Connection conn, ws:PingFrame frame) {
         conn.pong(frame.data);
     }
@@ -72,7 +72,7 @@ service<ws> SimpleSecureServer {
         println("Pong received");
     }
 
-    @Description {value:"This resource is triggered when a particular client reaches it's idle timeout defined in the ws:configuration annotation"}
+    @Description {value:"This resource is triggered when a particular client reaches it's idle timeout defined in the ws:configuration annotation."}
     resource onIdleTimeout(ws:Connection conn) {
         // This resource will be triggered after 180 seconds if there is no activity in a given channel.
         println("\nReached idle timeout");
@@ -80,7 +80,7 @@ service<ws> SimpleSecureServer {
         conn.closeConnection(1001, "Connection timeout");
     }
 
-    @Description {value:"This resource is triggered when a client connection is closed from the client side"}
+    @Description {value:"This resource is triggered when a client connection is closed from the client side."}
     resource onClose(ws:Connection conn, ws:CloseFrame closeFrame) {
         println("\nClient left with status code " + closeFrame.statusCode + " because " + closeFrame.reason);
     }

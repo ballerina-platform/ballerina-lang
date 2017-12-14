@@ -18,12 +18,13 @@
 
 package org.ballerinalang.launcher;
 
+import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
-import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
@@ -34,6 +35,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -208,12 +210,11 @@ public class Main {
         @Parameter(names = "--debug", hidden = true)
         private String debugPort;
 
-        @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
-        private String ballerinaDebugPort;
+        @Parameter(names = "--java.debug", hidden = true, description = "remote java debugging port")
+        private String javaDebugPort;
 
-        //TODO: Fix this. Hardcoded parameter for HTTP trace logs due to an issue with JCommander. Github issue #3245
-        @Parameter(names = "-Btracelog.http", hidden = true, description = "enable HTTP trace logging")
-        private boolean httpTraceLogEnabled;
+        @DynamicParameter(names = "-B", description = "collects dynamic parameters")
+        private Map<String, String> configRuntimeParams = new HashMap<>();
 
         public void execute() {
             if (helpFlag) {
@@ -226,13 +227,11 @@ public class Main {
                 throw LauncherUtils.createUsageException("no ballerina program given");
             }
 
-            if (httpTraceLogEnabled) {
-                System.setProperty(BLogManager.HTTP_TRACE_LOGGER, BLogManager.LOG_DEST_CONSOLE);
-            }
+            ConfigRegistry.getInstance().initRegistry(configRuntimeParams);
 
             // Enable remote debugging
-            if (null != ballerinaDebugPort) {
-                System.setProperty(SYSTEM_PROP_BAL_DEBUG, ballerinaDebugPort);
+            if (null != debugPort) {
+                System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
             }
 
             Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
@@ -305,8 +304,8 @@ public class Main {
         @Parameter(description = "Command name")
         private List<String> helpCommands;
 
-        @Parameter(names = "--debug", hidden = true)
-        private String debugPort;
+        @Parameter(names = "--java.debug", hidden = true)
+        private String javaDebugPort;
 
         private JCommander parentCmdParser;
 
@@ -363,8 +362,8 @@ public class Main {
         @Parameter(description = "Command name")
         private List<String> versionCommands;
 
-        @Parameter(names = "--debug", hidden = true)
-        private String debugPort;
+        @Parameter(names = "--java.debug", hidden = true)
+        private String javaDebugPort;
 
         @Parameter(names = {"--help", "-h"}, hidden = true)
         private boolean helpFlag;
@@ -427,8 +426,11 @@ public class Main {
         @Parameter(names = {"--help", "-h"}, description = "for more information")
         private boolean helpFlag;
 
-        @Parameter(names = "--debug", hidden = true)
+        @Parameter(names = "--debug <port>", description = "start Ballerina in remote debugging mode")
         private String debugPort;
+
+        @Parameter(names = "--java.debug", hidden = true)
+        private String javaDebugPort;
 
         private JCommander parentCmdParser;
 

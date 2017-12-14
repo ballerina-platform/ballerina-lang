@@ -23,7 +23,7 @@ import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -89,7 +89,6 @@ public class HTTPResourceDispatcher {
         }
         CorsHeaderGenerator.process(cMsg, response, false);
         response.setProperty(Constants.HTTP_STATUS_CODE, 200);
-        response.setAlreadyRead(true);
         response.setEndOfMsgAdded(true);
         HttpUtil.handleResponse(cMsg, response);
     }

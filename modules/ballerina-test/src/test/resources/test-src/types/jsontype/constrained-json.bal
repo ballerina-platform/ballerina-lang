@@ -85,3 +85,9 @@ function testContrainingWithNestedStructs() (json, json, json) {
     json<Employee> e = {first_name:"John", last_name:"Doe", age:30, address:{phoneNumber:{number:"1234"}, street:"York St"}};
     return e, e.address.phoneNumber.number, e["address"]["phoneNumber"]["number"];
 }
+
+function testConstraintJSONToJSONCast() (json) {
+    json<Person> j1 = getPerson();
+    json j2 = (json) j1;
+    return j2;
+}

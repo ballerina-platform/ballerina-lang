@@ -27,7 +27,7 @@ function main (string[] args) {
     xml x3 = xml `<{{rootTag}}>
                     <name>Sherlock Holmes</name>
                     <author>{{title}} Arthur Conan Doyle</author>
-                    <!--Price: $ {{ 40 / 5 + 4 }}-->
+                    <!--Price: ${{ 40 / 5 + 4 }}-->
                   </{{rootTag}}>`;
     println(x3);
 }

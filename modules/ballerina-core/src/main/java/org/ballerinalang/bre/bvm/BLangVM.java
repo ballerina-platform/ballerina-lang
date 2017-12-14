@@ -17,19 +17,17 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
-import org.ballerinalang.bre.nonblocking.debugger.FrameInfo;
-import org.ballerinalang.bre.nonblocking.debugger.VariableInfo;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.impl.BClientConnectorFutureListener;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BConnectorType;
+import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BJSONConstraintType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -37,6 +35,8 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
+import org.ballerinalang.model.util.JsonNode;
+import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
@@ -65,6 +65,7 @@ import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ConnectorInfo;
@@ -79,6 +80,7 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.TransformerInfo;
 import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
@@ -94,12 +96,18 @@ import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.TransformerRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
-import org.ballerinalang.util.debugger.DebugInfoHolder;
+import org.ballerinalang.util.debugger.DebugCommand;
+import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.VMDebugManager;
+import org.ballerinalang.util.debugger.info.BreakPointInfo;
+import org.ballerinalang.util.debugger.info.FrameInfo;
+import org.ballerinalang.util.debugger.info.VariableInfo;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.slf4j.Logger;
@@ -119,6 +127,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+
+import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
  * This class executes Ballerina instruction codes.
@@ -201,12 +211,12 @@ public class BLangVM {
 
     public void execWorker(Context context, int startIP) {
         context.setStartIP(startIP);
-        if (VMDebugManager.getInstance().isDebugSessionActive()) {
-            VMDebugManager debugManager = VMDebugManager.getInstance();
-            context.setAndInitDebugInfoHolder(new DebugInfoHolder());
-            context.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
-            context.setDebugEnabled(true);
-            debugManager.setDebuggerContext(context);
+        VMDebugManager debugManager = programFile.getDebugManager();
+        if (debugManager.isDebugEnabled() && debugManager.isDebugSessionActive()) {
+            DebugContext debugContext = new DebugContext();
+            debugContext.setCurrentCommand(DebugCommand.RESUME);
+            context.setDebugContext(debugContext);
+            debugManager.addDebugContext(debugContext);
         }
         run(context);
     }
@@ -224,13 +234,12 @@ public class BLangVM {
         TypeRefCPEntry typeRefCPEntry;
         ActionRefCPEntry actionRefCPEntry;
         FunctionInfo functionInfo;
-        ActionInfo actionInfo;
         WorkerDataChannelRefCPEntry workerRefCPEntry;
         WrkrInteractionArgsCPEntry wrkrIntRefCPEntry;
         WorkerDataChannelInfo workerDataChannel;
         ForkJoinCPEntry forkJoinCPEntry;
 
-        boolean isDebugging = context.isDebugEnabled();
+        boolean isDebugging = programFile.getDebugManager().isDebugEnabled();
 
         StackFrame currentSF, callersSF;
         int callersRetRegIndex;
@@ -322,6 +331,9 @@ public class BLangVM {
                     i = operands[0];
                     sf.refRegs[i] = null;
                     break;
+                case InstructionCodes.REG_CP:
+                    copyRegistryValue(sf, operands[0], operands[1], operands[2]);
+                    break;
 
                 case InstructionCodes.ILOAD:
                 case InstructionCodes.FLOAD:
@@ -350,6 +362,7 @@ public class BLangVM {
                 case InstructionCodes.RFIELDLOAD:
                 case InstructionCodes.MAPLOAD:
                 case InstructionCodes.JSONLOAD:
+                case InstructionCodes.ENUMERATORLOAD:
                     execLoadOpcodes(sf, opcode, operands);
                     break;
 
@@ -421,20 +434,23 @@ public class BLangVM {
                         break;
                     }
 
-                    BValue array = sf.refRegs[i];
-                    if (array.getType().getTag() == TypeTags.XML_TAG) {
-                        sf.longRegs[j] = ((BXML) array).length();
+                    BValue entity = sf.refRegs[i];
+                    if (entity.getType().getTag() == TypeTags.XML_TAG) {
+                        sf.longRegs[j] = ((BXML) entity).length();
                         break;
-                    } else if (array.getType().getTag() == TypeTags.JSON_TAG) {
-                        if (JSONUtils.isJSONArray((BJSON) array)) {
+                    } else if (entity.getType().getTag() == TypeTags.JSON_TAG) {
+                        if (JSONUtils.isJSONArray((BJSON) entity)) {
                             sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
                         } else {
                             sf.longRegs[j] = -1;
                         }
                         break;
+                    } else if (entity.getType().getTag() == TypeTags.MAP_TAG) {
+                        sf.longRegs[j] = ((BMap) entity).size();
+                        break;
                     }
 
-                    BNewArray newArray = (BNewArray) array;
+                    BNewArray newArray = (BNewArray) entity;
                     sf.longRegs[j] = newArray.size();
                     break;
 
@@ -468,6 +484,8 @@ public class BLangVM {
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.GOTO:
                 case InstructionCodes.HALT:
+                case InstructionCodes.SEQ_NULL:
+                case InstructionCodes.SNE_NULL:
                     execCmpAndBranchOpcodes(sf, opcode, operands);
                     break;
 
@@ -536,20 +554,10 @@ public class BLangVM {
                 case InstructionCodes.ACALL:
                     cpIndex = operands[0];
                     actionRefCPEntry = (ActionRefCPEntry) constPool[cpIndex];
-                    actionInfo = actionRefCPEntry.getActionInfo();
 
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeCallableUnit(actionInfo, funcCallCPEntry);
-                    break;
-                case InstructionCodes.NACALL:
-                    cpIndex = operands[0];
-                    actionRefCPEntry = (ActionRefCPEntry) constPool[cpIndex];
-                    actionInfo = actionRefCPEntry.getActionInfo();
-
-                    cpIndex = operands[1];
-                    funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeNativeAction(actionInfo, funcCallCPEntry);
+                    invokeAction(actionRefCPEntry.getActionName(), funcCallCPEntry);
                     break;
                 case InstructionCodes.THROW:
                     i = operands[0];
@@ -593,6 +601,14 @@ public class BLangVM {
                     funcRefCPEntry = (FunctionRefCPEntry) constPool[i];
                     sf.refRegs[j] = new BFunctionPointer(funcRefCPEntry);
                     break;
+                case InstructionCodes.TCALL:
+                    cpIndex = operands[0];
+                    TransformerInfo transformerInfo = ((TransformerRefCPEntry) constPool[cpIndex]).getTransformerInfo();
+
+                    cpIndex = operands[1];
+                    funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
+                    invokeCallableUnit(transformerInfo, funcCallCPEntry);
+                    break;
 
                 case InstructionCodes.I2ANY:
                 case InstructionCodes.F2ANY:
@@ -608,10 +624,17 @@ public class BLangVM {
                 case InstructionCodes.ANY2XML:
                 case InstructionCodes.ANY2MAP:
                 case InstructionCodes.ANY2TYPE:
+                case InstructionCodes.ANY2E:
                 case InstructionCodes.ANY2T:
                 case InstructionCodes.ANY2C:
                 case InstructionCodes.NULL2JSON:
                 case InstructionCodes.CHECKCAST:
+                case InstructionCodes.B2JSON:
+                case InstructionCodes.JSON2I:
+                case InstructionCodes.JSON2F:
+                case InstructionCodes.JSON2S:
+                case InstructionCodes.JSON2B:
+                case InstructionCodes.NULL2S:
                     execTypeCastOpcodes(sf, opcode, operands);
                     break;
 
@@ -630,11 +653,6 @@ public class BLangVM {
                 case InstructionCodes.B2I:
                 case InstructionCodes.B2F:
                 case InstructionCodes.B2S:
-                case InstructionCodes.B2JSON:
-                case InstructionCodes.JSON2I:
-                case InstructionCodes.JSON2F:
-                case InstructionCodes.JSON2S:
-                case InstructionCodes.JSON2B:
                 case InstructionCodes.DT2XML:
                 case InstructionCodes.DT2JSON:
                 case InstructionCodes.T2MAP:
@@ -698,7 +716,7 @@ public class BLangVM {
                     // This is a temporary solution to create n-valued JSON array
                     StringJoiner stringJoiner = new StringJoiner(",", "[", "]");
                     for (int index = 0; index < sf.longRegs[j]; index++) {
-                        stringJoiner.add("0");
+                        stringJoiner.add(null);
                     }
                     sf.refRegs[i] = new BJSON(stringJoiner.toString());
                     break;
@@ -719,7 +737,7 @@ public class BLangVM {
                     break;
                 case InstructionCodes.NEWDATATABLE:
                     i = operands[0];
-                    sf.refRegs[i] = new BDataTable(null, new ArrayList<>(0));
+                    sf.refRegs[i] = new BDataTable(null);
                     break;
                 case InstructionCodes.IRET:
                     i = operands[0];
@@ -852,17 +870,38 @@ public class BLangVM {
                 i = operands[0];
                 j = operands[1];
                 if (sf.refRegs[i] == null) {
-                    ip = j;
+                    sf.intRegs[j] = 1;
+                } else {
+                    sf.intRegs[j] = 0;
                 }
                 break;
             case InstructionCodes.RNE_NULL:
                 i = operands[0];
                 j = operands[1];
                 if (sf.refRegs[i] != null) {
-                    ip = j;
+                    sf.intRegs[j] = 1;
+                } else {
+                    sf.intRegs[j] = 0;
                 }
                 break;
-
+            case InstructionCodes.SEQ_NULL:
+                i = operands[0];
+                j = operands[1];
+                if (sf.stringRegs[i] == null) {
+                    sf.intRegs[j] = 1;
+                } else {
+                    sf.intRegs[j] = 0;
+                }
+                break;
+            case InstructionCodes.SNE_NULL:
+                i = operands[0];
+                j = operands[1];
+                if (sf.stringRegs[i] != null) {
+                    sf.intRegs[j] = 1;
+                } else {
+                    sf.intRegs[j] = 0;
+                }
+                break;
             case InstructionCodes.BR_TRUE:
                 i = operands[0];
                 j = operands[1];
@@ -1185,6 +1224,14 @@ public class BLangVM {
                 }
 
                 sf.refRegs[k] = JSONUtils.getElement(jsonVal, sf.stringRegs[j]);
+                break;
+            case InstructionCodes.ENUMERATORLOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) constPool[i];
+                BEnumType enumType = (BEnumType) typeRefCPEntry.getType();
+                sf.refRegs[k] = enumType.getEnumerator(j);
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -1634,7 +1681,7 @@ public class BLangVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = sf.stringRegs[i].equals(sf.stringRegs[j]) ? 1 : 0;
+                sf.intRegs[k] = StringUtils.isEqual(sf.stringRegs[i], sf.stringRegs[j]) ? 1 : 0;
                 break;
             case InstructionCodes.BEQ:
                 i = operands[0];
@@ -1674,7 +1721,7 @@ public class BLangVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = !(sf.stringRegs[i].equals(sf.stringRegs[j])) ? 1 : 0;
+                sf.intRegs[k] = !StringUtils.isEqual(sf.stringRegs[i], sf.stringRegs[j]) ? 1 : 0;
                 break;
             case InstructionCodes.BNE:
                 i = operands[0];
@@ -1779,7 +1826,7 @@ public class BLangVM {
                     sf.stringRegs[k] = qNameStr.substring(1, parenEndIndex);
                 } else {
                     sf.stringRegs[j] = qNameStr;
-                    sf.stringRegs[k] = "";
+                    sf.stringRegs[k] = STRING_NULL_VALUE;
                 }
 
                 break;
@@ -1899,13 +1946,13 @@ public class BLangVM {
 
                 bRefType = sf.refRegs[i];
                 if (bRefType == null) {
-                    sf.stringRegs[j] = "";
+                    sf.stringRegs[j] = STRING_NULL_VALUE;
                     handleTypeCastError(sf, k, BTypes.typeNull, BTypes.typeString);
                 } else if (bRefType.getType() == BTypes.typeString) {
                     sf.refRegs[k] = null;
                     sf.stringRegs[j] = bRefType.stringValue();
                 } else {
-                    sf.stringRegs[j] = "";
+                    sf.stringRegs[j] = STRING_NULL_VALUE;
                     handleTypeCastError(sf, k, bRefType.getType(), BTypes.typeString);
                 }
                 break;
@@ -1958,6 +2005,7 @@ public class BLangVM {
             case InstructionCodes.ANY2DT:
                 handleAnyToRefTypeCast(sf, operands, BTypes.typeDatatable);
                 break;
+            case InstructionCodes.ANY2E:
             case InstructionCodes.ANY2T:
             case InstructionCodes.ANY2C:
             case InstructionCodes.CHECKCAST:
@@ -1971,6 +2019,7 @@ public class BLangVM {
 
                 if (bRefType == null) {
                     sf.refRegs[j] = null;
+                    sf.refRegs[k] = null;
                 } else if (checkCast(bRefType, typeRefCPEntry.getType())) {
                     sf.refRegs[j] = sf.refRegs[i];
                     sf.refRegs[k] = null;
@@ -1982,6 +2031,27 @@ public class BLangVM {
             case InstructionCodes.NULL2JSON:
                 j = operands[1];
                 sf.refRegs[j] = new BJSON("null");
+                break;
+            case InstructionCodes.B2JSON:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BJSON(sf.intRegs[i] == 1 ? "true" : "false");
+                break;
+            case InstructionCodes.JSON2I:
+                castJSONToInt(operands, sf);
+                break;
+            case InstructionCodes.JSON2F:
+                castJSONToFloat(operands, sf);
+                break;
+            case InstructionCodes.JSON2S:
+                castJSONToString(operands, sf);
+                break;
+            case InstructionCodes.JSON2B:
+                castJSONToBoolean(operands, sf);
+                break;
+            case InstructionCodes.NULL2S:
+                j = operands[1];
+                sf.stringRegs[j] = null;
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -2011,6 +2081,7 @@ public class BLangVM {
         int j;
         int k;
         BRefType bRefType;
+        String str;
 
         switch (opcode) {
             case InstructionCodes.I2F:
@@ -2058,8 +2129,16 @@ public class BLangVM {
                 j = operands[1];
                 k = operands[2];
 
+                str = sf.stringRegs[i];
+                if (str == null) {
+                    sf.longRegs[j] = 0;
+                    handleTypeConversionError(sf, k, null, TypeConstants.INT_TNAME);
+                    break;
+                }
+
                 try {
-                    sf.longRegs[j] = Long.parseLong(sf.stringRegs[i]);
+                    sf.longRegs[j] = Long.parseLong(str);
+                    sf.refRegs[k] = null;
                 } catch (NumberFormatException e) {
                     sf.longRegs[j] = 0;
                     handleTypeConversionError(sf, k, TypeConstants.STRING_TNAME, TypeConstants.INT_TNAME);
@@ -2070,8 +2149,16 @@ public class BLangVM {
                 j = operands[1];
                 k = operands[2];
 
+                str = sf.stringRegs[i];
+                if (str == null) {
+                    sf.doubleRegs[j] = 0;
+                    handleTypeConversionError(sf, k, null, TypeConstants.FLOAT_TNAME);
+                    break;
+                }
+
                 try {
-                    sf.doubleRegs[j] = Double.parseDouble(sf.stringRegs[i]);
+                    sf.doubleRegs[j] = Double.parseDouble(str);
+                    sf.refRegs[k] = null;
                 } catch (NumberFormatException e) {
                     sf.doubleRegs[j] = 0;
                     handleTypeConversionError(sf, k, TypeConstants.STRING_TNAME, TypeConstants.FLOAT_TNAME);
@@ -2082,12 +2169,13 @@ public class BLangVM {
                 j = operands[1];
                 k = operands[2];
                 sf.intRegs[j] = Boolean.parseBoolean(sf.stringRegs[i]) ? 1 : 0;
+                sf.refRegs[k] = null;
                 break;
             case InstructionCodes.S2JSON:
                 i = operands[0];
                 j = operands[1];
-                String jsonStr = StringEscapeUtils.escapeJson(sf.stringRegs[i]);
-                sf.refRegs[j] = new BJSON("\"" + jsonStr + "\"");
+                str = StringEscapeUtils.escapeJson(sf.stringRegs[i]);
+                sf.refRegs[j] = str == null ? null : new BJSON("\"" + str + "\"");
                 break;
             case InstructionCodes.B2I:
                 i = operands[0];
@@ -2104,23 +2192,6 @@ public class BLangVM {
                 j = operands[1];
                 sf.stringRegs[j] = sf.intRegs[i] == 1 ? "true" : "false";
                 break;
-            case InstructionCodes.B2JSON:
-                i = operands[0];
-                j = operands[1];
-                sf.refRegs[j] = new BJSON(sf.intRegs[i] == 1 ? "true" : "false");
-                break;
-            case InstructionCodes.JSON2I:
-                convertJSONToInt(operands, sf);
-                break;
-            case InstructionCodes.JSON2F:
-                convertJSONToFloat(operands, sf);
-                break;
-            case InstructionCodes.JSON2S:
-                convertJSONToString(operands, sf);
-                break;
-            case InstructionCodes.JSON2B:
-                convertJSONToBoolean(operands, sf);
-                break;
             case InstructionCodes.DT2XML:
                 i = operands[0];
                 j = operands[1];
@@ -2134,6 +2205,7 @@ public class BLangVM {
 
                 try {
                     sf.refRegs[j] = XMLUtils.datatableToXML((BDataTable) bRefType, context.isInTransaction());
+                    sf.refRegs[k] = null;
                 } catch (Exception e) {
                     sf.refRegs[j] = null;
                     handleTypeConversionError(sf, k, TypeConstants.DATATABLE_TNAME, TypeConstants.XML_TNAME);
@@ -2152,6 +2224,7 @@ public class BLangVM {
 
                 try {
                     sf.refRegs[j] = JSONUtils.toJSON((BDataTable) bRefType, context.isInTransaction());
+                    sf.refRegs[k] = null;
                 } catch (Exception e) {
                     sf.refRegs[j] = null;
                     handleTypeConversionError(sf, k, TypeConstants.DATATABLE_TNAME, TypeConstants.XML_TNAME);
@@ -2172,7 +2245,6 @@ public class BLangVM {
             case InstructionCodes.XMLATTRS2MAP:
                 i = operands[0];
                 j = operands[1];
-                k = operands[2];
 
                 bRefType = sf.refRegs[i];
                 if (bRefType == null) {
@@ -2180,19 +2252,23 @@ public class BLangVM {
                     break;
                 }
 
-                try {
-                    sf.refRegs[j] = ((BXMLAttributes) sf.refRegs[i]).value();
-                } catch (BallerinaException e) {
-                    sf.refRegs[j] = null;
-                    handleTypeConversionError(sf, k, TypeConstants.XML_ATTRIBUTES_TNAME, TypeConstants.MAP_TNAME);
-                }
+                sf.refRegs[j] = ((BXMLAttributes) sf.refRegs[i]).value();
                 break;
             case InstructionCodes.S2XML:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
+
+                str = sf.stringRegs[i];
+                if (str == null) {
+                    sf.refRegs[j] = null;
+                    sf.refRegs[k] = null;
+                    break;
+                }
+
                 try {
-                    sf.refRegs[j] = XMLUtils.parse(sf.stringRegs[i]);
+                    sf.refRegs[j] = XMLUtils.parse(str);
+                    sf.refRegs[k] = null;
                 } catch (BallerinaException e) {
                     sf.refRegs[j] = null;
                     handleTypeConversionError(sf, k, e.getMessage(), TypeConstants.STRING_TNAME,
@@ -2202,7 +2278,8 @@ public class BLangVM {
             case InstructionCodes.S2JSONX:
                 i = operands[0];
                 j = operands[1];
-                sf.refRegs[j] = new BJSON(sf.stringRegs[i]);
+                str = sf.stringRegs[i];
+                sf.refRegs[j] = str == null ? null : new BJSON(str);
                 break;
             case InstructionCodes.XML2S:
                 i = operands[0];
@@ -2211,6 +2288,28 @@ public class BLangVM {
                 break;
             default:
                 throw new UnsupportedOperationException();
+        }
+    }
+
+    private void copyRegistryValue(StackFrame sf, int typeTag, int source, int target) {
+        switch (typeTag) {
+            case TypeTags.INT_TAG:
+                sf.longRegs[target] = sf.longRegs[source];
+                break;
+            case TypeTags.FLOAT_TAG:
+                sf.doubleRegs[target] = sf.doubleRegs[source];
+                break;
+            case TypeTags.STRING_TAG:
+                sf.stringRegs[target] = sf.stringRegs[source];
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                sf.intRegs[target] = sf.intRegs[source];
+                break;
+            case TypeTags.BLOB_TAG:
+                sf.byteRegs[target] = sf.byteRegs[source];
+                break;
+            default:
+                sf.refRegs[target] = sf.refRegs[source];
         }
     }
 
@@ -2288,45 +2387,63 @@ public class BLangVM {
      *
      * @param cp Current instruction point.
      */
-    public void debugging(int cp) {
-        DebugInfoHolder holder = context.getDebugInfoHolder();
-        LineNumberInfo currentExecLine = holder.getLineNumber(controlStack.currentFrame.packageInfo.getPkgPath(), cp);
-        if (currentExecLine.equals(holder.getLastLine()) || debugPointCheck(currentExecLine, holder)) {
+    private void debugging(int cp) {
+        VMDebugManager debugManager = programFile.getDebugManager();
+        try {
+            debugManager.acquireDebugLock();
+            processDebugging(cp, debugManager);
+        } finally {
+            debugManager.releaseDebugLock();
+        }
+    }
+
+    /**
+     * Method which process debug related operations.
+     *
+     * @param cp            Current cp.
+     * @param debugManager  Debug manager object.
+     */
+    private void processDebugging(int cp, VMDebugManager debugManager) {
+        DebugContext debugContext = context.getDebugContext();
+        LineNumberInfo currentExecLine = debugManager
+                .getLineNumber(controlStack.currentFrame.packageInfo.getPkgPath(), cp);
+        if (currentExecLine.equals(debugContext.getLastLine())
+                || debugPointCheck(currentExecLine, debugManager, debugContext)) {
             return;
         }
 
-        switch (holder.getCurrentCommand()) {
+        switch (debugContext.getCurrentCommand()) {
             case RESUME:
-                holder.setLastLine(null);
+                debugContext.setLastLine(null);
                 break;
             case STEP_IN:
-                debugHit(currentExecLine, holder);
+                debugHit(currentExecLine, debugManager, debugContext);
                 break;
             case STEP_OVER:
-                if (controlStack.currentFrame == holder.getSF()) {
-                    debugHit(currentExecLine, holder);
+                if (controlStack.currentFrame == debugContext.getSF()) {
+                    debugHit(currentExecLine, debugManager, debugContext);
                     return;
                 }
-                if (holder.getLastLine().checkIpRangeForInstructionCode(code, InstructionCodes.RET)
-                        && controlStack.currentFrame == holder.getSF().prevStackFrame) {
-                    debugHit(currentExecLine, holder);
+                if (debugContext.getLastLine().checkIpRangeForInstructionCode(code, InstructionCodes.RET)
+                        && controlStack.currentFrame == debugContext.getSF().prevStackFrame) {
+                    debugHit(currentExecLine, debugManager, debugContext);
                     return;
                 }
-                holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_OVER_INTMDT);
+                debugContext.setCurrentCommand(DebugCommand.STEP_OVER_INTMDT);
                 break;
             case STEP_OVER_INTMDT:
-                if (controlStack.currentFrame != holder.getSF()) {
+                if (controlStack.currentFrame != debugContext.getSF()) {
                     return;
                 }
-                debugHit(currentExecLine, holder);
+                debugHit(currentExecLine, debugManager, debugContext);
                 break;
             case STEP_OUT:
-                holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_OUT_INTMDT);
-                holder.setSF(holder.getSF().prevStackFrame);
-                interMediateDebugCheck(currentExecLine, holder);
+                debugContext.setCurrentCommand(DebugCommand.STEP_OUT_INTMDT);
+                debugContext.setSF(debugContext.getSF().prevStackFrame);
+                interMediateDebugCheck(currentExecLine, debugManager, debugContext);
                 break;
             case STEP_OUT_INTMDT:
-                interMediateDebugCheck(currentExecLine, holder);
+                interMediateDebugCheck(currentExecLine, debugManager, debugContext);
                 break;
         }
     }
@@ -2334,29 +2451,33 @@ public class BLangVM {
     /**
      * Inter mediate debug check to avoid switch case falling through.
      *
-     * @param currentExecLine Current execution line.
-     * @param holder          Debug info holder.
+     * @param currentExecLine   Current execution line.
+     * @param debugManager      Debug manager object.
+     * @param debugContext      Current debug context.
      */
-    private void interMediateDebugCheck(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
-        if (controlStack.currentFrame != holder.getSF()) {
+    private void interMediateDebugCheck(LineNumberInfo currentExecLine, VMDebugManager debugManager,
+                                        DebugContext debugContext) {
+        if (controlStack.currentFrame != debugContext.getSF()) {
             return;
         }
-        debugHit(currentExecLine, holder);
+        debugHit(currentExecLine, debugManager, debugContext);
     }
 
     /**
      * Helper method to check whether given point is a debug point or not.
      * If it's a debug point, then notify the debugger.
      *
-     * @param currentExecLine Current execution line.
-     * @param holder          Debug info holder.
+     * @param currentExecLine   Current execution line.
+     * @param debugManager      Debug manager object.
+     * @param debugContext      Current debug context.
      * @return Boolean true if it's a debug point, false otherwise.
      */
-    private boolean debugPointCheck(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
+    private boolean debugPointCheck(LineNumberInfo currentExecLine, VMDebugManager debugManager,
+                                    DebugContext debugContext) {
         if (!currentExecLine.isDebugPoint()) {
             return false;
         }
-        debugHit(currentExecLine, holder);
+        debugHit(currentExecLine, debugManager, debugContext);
         return true;
     }
 
@@ -2364,29 +2485,39 @@ public class BLangVM {
      * Helper method to set required details when a debug point hits.
      * And also to notify the debugger.
      *
-     * @param currentExecLine Current execution line.
-     * @param holder          Debug info holder.
+     * @param currentExecLine   Current execution line.
+     * @param debugManager      Debug manager object.
+     * @param debugContext      Current debug context.
      */
-    private void debugHit(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
-        holder.setLastLine(currentExecLine);
-        holder.setSF(controlStack.currentFrame);
-        holder.getDebugSessionObserver().notifyHalt(getBreakPointInfo(currentExecLine));
-        holder.waitTillDebuggeeResponds();
+    private void debugHit(LineNumberInfo currentExecLine, VMDebugManager debugManager,
+                          DebugContext debugContext) {
+        debugContext.setLastLine(currentExecLine);
+        debugContext.setSF(controlStack.currentFrame);
+        debugManager.notifyDebugHit(getBreakPointInfo(currentExecLine, debugManager, debugContext));
+        debugManager.waitTillDebuggeeResponds();
     }
 
-    public BreakPointInfo getBreakPointInfo(LineNumberInfo current) {
-        NodeLocation location = new NodeLocation(current.getPackageInfo().getPkgPath(),
-                current.getFileName(), current.getLineNumber());
+    /**
+     * Helper method to get breakpoint information.
+     *
+     * @param currentExecLine   Current execution line.
+     * @param debugManager      Debug manager object.
+     * @param debugContext      Current debug context.
+     * @return
+     */
+    private BreakPointInfo getBreakPointInfo(LineNumberInfo currentExecLine, VMDebugManager debugManager,
+                                             DebugContext debugContext) {
+        NodeLocation location = new NodeLocation(currentExecLine.getPackageInfo().getPkgPath(),
+                currentExecLine.getFileName(), currentExecLine.getLineNumber());
         BreakPointInfo breakPointInfo = new BreakPointInfo(location);
-        breakPointInfo.setThreadId(context.getThreadId());
+        breakPointInfo.setThreadId(debugContext.getThreadId());
 
-        int callingIp = current.getIp();
+        int callingIp = currentExecLine.getIp();
         StackFrame frame = controlStack.currentFrame;
         while (frame != null) {
             String pck = frame.packageInfo.getPkgPath();
             String functionName = frame.callableUnitInfo.getName();
-            LineNumberInfo callingLine = context.getDebugInfoHolder()
-                    .getLineNumber(frame.packageInfo.getPkgPath(), callingIp);
+            LineNumberInfo callingLine = debugManager.getLineNumber(frame.packageInfo.getPkgPath(), callingIp);
             FrameInfo frameInfo = new FrameInfo(pck, functionName, callingLine.getFileName(),
                     callingLine.getLineNumber());
             LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) frame.callableUnitInfo
@@ -2432,8 +2563,10 @@ public class BLangVM {
         BRefType bRefType = sf.refRegs[i];
         if (bRefType == null) {
             sf.refRegs[j] = null;
+            sf.refRegs[k] = null;
         } else if (bRefType.getType() == targetType) {
             sf.refRegs[j] = bRefType;
+            sf.refRegs[k] = null;
         } else {
             sf.refRegs[j] = null;
             handleTypeCastError(sf, k, bRefType.getType(), targetType);
@@ -2441,8 +2574,12 @@ public class BLangVM {
     }
 
     private void handleTypeCastError(StackFrame sf, int errorRegIndex, BType sourceType, BType targetType) {
+        handleTypeCastError(sf, errorRegIndex, sourceType.toString(), targetType.toString());
+    }
+
+    private void handleTypeCastError(StackFrame sf, int errorRegIndex, String sourceType, String targetType) {
         BStruct errorVal;
-        errorVal = BLangVMErrors.createTypeCastError(context, ip, sourceType, targetType);
+        errorVal = BLangVMErrors.createTypeCastError(context, ip, sourceType.toString(), targetType.toString());
         if (errorRegIndex == -1) {
             context.setError(errorVal);
             handleError();
@@ -2530,16 +2667,21 @@ public class BLangVM {
     private void endTransaction(int status) {
         BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
         if (ballerinaTransactionManager != null) {
-            if (status == 0) { //Transaction success
-                ballerinaTransactionManager.commitTransactionBlock();
-            } else if (status == -1) { //Transaction failed
-                ballerinaTransactionManager.setTransactionError(true);
-                ballerinaTransactionManager.rollbackTransactionBlock();
-            } else { //status = 1 Transaction end
-                ballerinaTransactionManager.endTransactionBlock();
-                if (ballerinaTransactionManager.isOuterTransaction()) {
-                    context.setBallerinaTransactionManager(null);
+            try {
+                if (status == TransactionStatus.SUCCESS.value()) {
+                    ballerinaTransactionManager.commitTransactionBlock();
+                } else if (status == TransactionStatus.FAILED.value()) {
+                    ballerinaTransactionManager.rollbackTransactionBlock();
+                } else { //status = 1 Transaction end
+                    ballerinaTransactionManager.endTransactionBlock();
+                    if (ballerinaTransactionManager.isOuterTransaction()) {
+                        context.setBallerinaTransactionManager(null);
+                    }
                 }
+            } catch (Throwable e) {
+                context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
+                handleError();
+                return;
             }
         }
     }
@@ -2550,7 +2692,10 @@ public class BLangVM {
         if (retryCountAvailable == 1) {
             retryCount = (int) controlStack.currentFrame.getLongRegs()[0];
             if (retryCount < 0) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_RETRY_COUNT);
+                context.setError(BLangVMErrors.createError(this.context, ip,
+                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
+                handleError();
+                return;
             }
         }
         BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
@@ -2559,6 +2704,7 @@ public class BLangVM {
             context.setBallerinaTransactionManager(ballerinaTransactionManager);
         }
         ballerinaTransactionManager.beginTransactionBlock(transactionId, retryCount);
+
     }
 
     private void retryTransaction(int transactionId, int startOfAbortIP) {
@@ -2590,6 +2736,27 @@ public class BLangVM {
         this.code = calleeSF.packageInfo.getInstructions();
         ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
 
+    }
+
+    public void invokeAction(String actionName, FunctionCallCPEntry funcCallCPEntry) {
+        int[] argRegs = funcCallCPEntry.getArgRegs();
+        StackFrame callerSF = controlStack.currentFrame;
+
+        if (callerSF.refRegs[argRegs[0]] == null) {
+            context.setError(BLangVMErrors.createNullRefError(this.context, ip));
+            handleError();
+            return;
+        }
+        BConnectorType actualCon = (BConnectorType) ((BConnector) callerSF.refRegs[argRegs[0]]).getConnectorType();
+        //TODO find a way to change this to method table
+        ActionInfo newActionInfo = programFile.getPackageInfo(actualCon.getPackagePath())
+                .getConnectorInfo(actualCon.getName()).getActionInfo(actionName);
+
+        if (newActionInfo.isNative()) {
+            invokeNativeAction(newActionInfo, funcCallCPEntry);
+        } else {
+            invokeCallableUnit(newActionInfo, funcCallCPEntry);
+        }
     }
 
     public void invokeWorker(WorkerDataChannelInfo workerDataChannel,
@@ -2694,11 +2861,9 @@ public class BLangVM {
             StackFrame workerCallerSF = workerContext.getControlStackNew().currentFrame;
             workerContext.parentSF.returnedWorker = workerCallerSF.workerInfo.getWorkerName();
 
-            ControlStackNew parentControlStack = workerContext.parent.getControlStackNew();
             StackFrame parentSF = workerContext.parentSF;
-            StackFrame parentCallersSF = parentControlStack.currentFrame.prevStackFrame;
 
-            copyWorkersReturnValues(workerCallerSF, parentSF, parentCallersSF);
+            copyWorkersReturnValues(workerCallerSF, parentSF);
             // Switch to parent context
             this.context = workerContext.parent;
             this.controlStack = this.context.getControlStackNew();
@@ -2872,7 +3037,7 @@ public class BLangVM {
         ip = currentSF.retAddrs;
     }
 
-    private void copyWorkersReturnValues(StackFrame workerCallerSF, StackFrame parentsSF, StackFrame parentCallersSF) {
+    private void copyWorkersReturnValues(StackFrame workerSF, StackFrame parentsSF) {
         int callersRetRegIndex;
         int longRegCount = 0;
         int doubleRegCount = 0;
@@ -2880,6 +3045,8 @@ public class BLangVM {
         int intRegCount = 0;
         int refRegCount = 0;
         int byteRegCount = 0;
+        StackFrame workerCallerSF = workerSF.prevStackFrame;
+        StackFrame parentCallersSF = parentsSF.prevStackFrame;
         BType[] retTypes = parentsSF.getCallableUnitInfo().getRetParamTypes();
         for (int i = 0; i < retTypes.length; i++) {
             BType retType = retTypes[i];
@@ -2942,6 +3109,10 @@ public class BLangVM {
         AbstractNativeFunction nativeFunction = functionInfo.getNativeFunction();
         try {
             nativeFunction.executeNative(context);
+        } catch (BLangNullReferenceException e) {
+            context.setError(BLangVMErrors.createNullRefError(context, ip));
+            handleError();
+            return;
         } catch (Throwable e) {
             context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
             handleError();
@@ -3047,7 +3218,7 @@ public class BLangVM {
                     break;
                 case TypeTags.STRING_TAG:
                     if (returnValues[i] == null) {
-                        callerSF.stringRegs[callersRetRegIndex] = "";
+                        callerSF.stringRegs[callersRetRegIndex] = STRING_NULL_VALUE;
                         break;
                     }
                     callerSF.stringRegs[callersRetRegIndex] = returnValues[i].stringValue();
@@ -3207,7 +3378,7 @@ public class BLangVM {
         return false;
     }
 
-    private void convertJSONToInt(int[] operands, StackFrame sf) {
+    private void castJSONToInt(int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
@@ -3229,16 +3400,17 @@ public class BLangVM {
             return;
         }
 
-        if (jsonNode.isInt() || jsonNode.isLong()) {
+        if (jsonNode.isLong()) {
             sf.longRegs[j] = jsonNode.longValue();
+            sf.refRegs[k] = null;
             return;
         }
 
         sf.longRegs[j] = 0;
-        handleTypeConversionError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.INT_TNAME);
+        handleTypeCastError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.INT_TNAME);
     }
 
-    private void convertJSONToFloat(int[] operands, StackFrame sf) {
+    private void castJSONToFloat(int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
@@ -3260,16 +3432,17 @@ public class BLangVM {
             return;
         }
 
-        if (jsonNode.isFloat() || jsonNode.isDouble()) {
+        if (jsonNode.isDouble()) {
             sf.doubleRegs[j] = jsonNode.doubleValue();
+            sf.refRegs[k] = null;
             return;
         }
 
         sf.doubleRegs[j] = 0;
-        handleTypeConversionError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.FLOAT_TNAME);
+        handleTypeCastError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.FLOAT_TNAME);
     }
 
-    private void convertJSONToString(int[] operands, StackFrame sf) {
+    private void castJSONToString(int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
@@ -3292,16 +3465,17 @@ public class BLangVM {
             return;
         }
 
-        if (jsonNode.isTextual()) {
-            sf.stringRegs[j] = jsonNode.textValue();
+        if (jsonNode.isString()) {
+            sf.stringRegs[j] = jsonNode.stringValue();
+            sf.refRegs[k] = null;
             return;
         }
 
-        sf.stringRegs[j] = "";
-        handleTypeConversionError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.STRING_TNAME);
+        sf.stringRegs[j] = STRING_NULL_VALUE;
+        handleTypeCastError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.STRING_TNAME);
     }
 
-    private void convertJSONToBoolean(int[] operands, StackFrame sf) {
+    private void castJSONToBoolean(int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
@@ -3325,12 +3499,13 @@ public class BLangVM {
 
         if (jsonNode.isBoolean()) {
             sf.intRegs[j] = jsonNode.booleanValue() ? 1 : 0;
+            sf.refRegs[k] = null;
             return;
         }
 
         // Reset the value in the case of an error;
         sf.intRegs[j] = 0;
-        handleTypeConversionError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.BOOLEAN_TNAME);
+        handleTypeCastError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.BOOLEAN_TNAME);
     }
 
     private void convertStructToMap(int[] operands, StackFrame sf) {
@@ -3502,6 +3677,7 @@ public class BLangVM {
         }
 
         sf.refRegs[j] = bStruct;
+        sf.refRegs[k] = null;
     }
 
     private void convertJSONToStruct(int[] operands, StackFrame sf) {
@@ -3520,6 +3696,7 @@ public class BLangVM {
         try {
             sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeRefCPEntry.getType(),
                     sf.packageInfo);
+            sf.refRegs[k] = null;
         } catch (Exception e) {
             sf.refRegs[j] = null;
             String errorMsg = "cannot convert '" + TypeConstants.JSON_TNAME + "' to type '" +

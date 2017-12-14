@@ -17,18 +17,27 @@
  */
 package org.ballerinalang.nativeimpl.actions.data.sql;
 
+import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.DataIterator;
-import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BFloatArray;
+import org.ballerinalang.model.values.BIntArray;
+import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.nativeimpl.actions.data.sql.client.SQLDatasourceUtils;
+import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
@@ -38,8 +47,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
  * This iterator mainly wrap java.sql.ResultSet. This will provide datatable operations
@@ -53,12 +61,22 @@ public class SQLDataIterator implements DataIterator {
     private Statement stmt;
     private ResultSet rs;
     private Calendar utcCalendar;
+    private List<ColumnDefinition> columnDefs;
+    private BStructType bStructType;
+    private StructInfo timeStructInfo;
+    private StructInfo zoneStructInfo;
 
-    public SQLDataIterator(Connection conn, Statement stmt, ResultSet rs, Calendar utcCalendar) throws SQLException {
+    public SQLDataIterator(Connection conn, Statement stmt, ResultSet rs, Calendar utcCalendar,
+            List<ColumnDefinition> columnDefs, BStructType structType, StructInfo timeStructInfo,
+            StructInfo zoneStructInfo) throws SQLException {
         this.conn = conn;
         this.stmt = stmt;
         this.rs = rs;
         this.utcCalendar = utcCalendar;
+        this.columnDefs = columnDefs;
+        this.bStructType = structType;
+        this.timeStructInfo = timeStructInfo;
+        this.zoneStructInfo = zoneStructInfo;
     }
 
     @Override
@@ -71,17 +89,11 @@ public class SQLDataIterator implements DataIterator {
 
     @Override
     public boolean next() {
+        if (rs == null) {
+            return false;
+        }
         try {
             return rs.next();
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public boolean isLast() {
-        try {
-            return rs.isLast();
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
@@ -123,112 +135,256 @@ public class SQLDataIterator implements DataIterator {
         }
     }
 
-    private String getString(Object object) throws SQLException {
-        String value;
-        if (object instanceof Blob) {
-            value = getBString((Blob) object).stringValue();
-        } else if (object instanceof Timestamp) {
-            value = SQLDatasourceUtils.getString((Timestamp) object);
-        } else if (object instanceof Clob) {
-            value = getBString((Clob) object).stringValue();
-        } else if (object instanceof Date) {
-            value = SQLDatasourceUtils.getString((Date) object);
-        } else if (object instanceof Time) {
-            value = SQLDatasourceUtils.getString((Time) object);
-        } else if (object instanceof InputStream) {
-            value = getBString((InputStream) object).stringValue();
-        } else {
-            value = String.valueOf(object);
-        }
-        return value;
-    }
-
     @Override
-    public String getObjectAsString(String columnName) {
+    public String getBlob(String columnName) {
         try {
-            Object object = rs.getObject(columnName);
-            if (object != null) {
-                return getString(object);
-            } else {
-                return null;
-            }
+            Blob bValue = rs.getBlob(columnName);
+            return SQLDatasourceUtils.getString(bValue);
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
     }
 
-    // Below method doesn't support streaming.
     @Override
-    public BValue get(String columnName, int type) {
+    public Object[] getArray(String columnName) {
         try {
-            switch (type) {
-            case Types.BLOB:
-            case Types.BINARY:
-            case Types.LONGVARBINARY:
-            case Types.VARBINARY:
-                Blob value = rs.getBlob(columnName);
-                return new BBlob(value.getBytes(1L, (int) value.length()));
-            case Types.CLOB:
-                return getBString(rs.getClob(columnName));
-            case Types.NCLOB:
-                return getBString(rs.getNClob(columnName));
-            case Types.DATE:
-                return getBString(rs.getDate(columnName));
-            case Types.TIME:
-            case Types.TIME_WITH_TIMEZONE:
-                return getBString(rs.getTime(columnName, utcCalendar));
-            case Types.TIMESTAMP:
-            case Types.TIMESTAMP_WITH_TIMEZONE:
-                return getBString(rs.getTimestamp(columnName, utcCalendar));
-            case Types.ROWID:
-                return new BString(new String(rs.getRowId(columnName).getBytes(), "UTF-8"));
-            }
+            return generateArrayDataResult(rs.getArray(columnName));
         } catch (SQLException e) {
-            throw new BallerinaException("failed to get the value of " + type + ": " + e.getMessage(), e);
-        } catch (UnsupportedEncodingException e) {
-            throw new BallerinaException("failed to get the value of " + type + ": " + e.getCause().getMessage(), e);
+            throw new BallerinaException(e.getMessage(), e);
+        }
+    }
+
+    private Object[] generateArrayDataResult(Array array) throws SQLException {
+        Object[] objArray = null;
+        if (!rs.wasNull()) {
+            objArray = (Object[]) array.getArray();
+        }
+        return objArray;
+    }
+
+    @Override
+    public BStruct generateNext() {
+        if (bStructType == null) {
+            throw new BallerinaException("the expected struct type is not specified in action");
+        }
+        BStruct bStruct = new BStruct(bStructType);
+        int longRegIndex = -1;
+        int doubleRegIndex = -1;
+        int stringRegIndex = -1;
+        int booleanRegIndex = -1;
+        int blobRegIndex = -1;
+        int refRegIndex = -1;
+        int index = 0;
+        String columnName = null;
+        try {
+            for (ColumnDefinition columnDef : columnDefs) {
+                if (columnDef instanceof SQLColumnDefinition) {
+                    SQLColumnDefinition def = (SQLColumnDefinition) columnDef;
+                    columnName = def.getName();
+                    int sqlType = def.getSqlType();
+                    ++index;
+                    switch (sqlType) {
+                    case Types.ARRAY:
+                        Array dataArray = rs.getArray(index);
+                        bStruct.setRefField(++refRegIndex, getDataArray(dataArray));
+                        break;
+                    case Types.CHAR:
+                    case Types.VARCHAR:
+                    case Types.LONGVARCHAR:
+                    case Types.NCHAR:
+                    case Types.NVARCHAR:
+                    case Types.LONGNVARCHAR:
+                        String sValue = rs.getString(index);
+                        bStruct.setStringField(++stringRegIndex, sValue);
+                        break;
+                    case Types.BLOB:
+                    case Types.BINARY:
+                    case Types.VARBINARY:
+                    case Types.LONGVARBINARY:
+                        Blob value = rs.getBlob(index);
+                        if (value != null) {
+                            bStruct.setBlobField(++blobRegIndex, value.getBytes(1L, (int) value.length()));
+                        } else {
+                            bStruct.setBlobField(++blobRegIndex, new byte[0]);
+                        }
+                        break;
+                    case Types.CLOB:
+                        String clobValue = SQLDatasourceUtils.getString((rs.getClob(index)));
+                        bStruct.setStringField(++stringRegIndex, clobValue);
+                        break;
+                    case Types.NCLOB:
+                        String nClobValue = SQLDatasourceUtils.getString(rs.getNClob(index));
+                        bStruct.setStringField(++stringRegIndex, nClobValue);
+                        break;
+                    case Types.DATE:
+                        Date date = rs.getDate(index);
+                        int fieldType = bStructType.getStructFields()[index - 1].getFieldType().getTag();
+                        if (fieldType == TypeTags.STRING_TAG) {
+                            String dateValue = SQLDatasourceUtils.getString(date);
+                            bStruct.setStringField(++stringRegIndex, dateValue);
+                        } else if (fieldType == TypeTags.STRUCT_TAG) {
+                            bStruct.setRefField(++refRegIndex, createTimeStruct(date.getTime()));
+                        } else if (fieldType == TypeTags.INT_TAG) {
+                            bStruct.setIntField(++longRegIndex, date.getTime());
+                        }
+                        break;
+                    case Types.TIME:
+                    case Types.TIME_WITH_TIMEZONE:
+                        Time time = rs.getTime(index, utcCalendar);
+                        fieldType = bStructType.getStructFields()[index - 1].getFieldType().getTag();
+                        if (fieldType == TypeTags.STRING_TAG) {
+                            String timeValue = SQLDatasourceUtils.getString(time);
+                            bStruct.setStringField(++stringRegIndex, timeValue);
+                        } else if (fieldType == TypeTags.STRUCT_TAG) {
+                            bStruct.setRefField(++refRegIndex, createTimeStruct(time.getTime()));
+                        } else if (fieldType == TypeTags.INT_TAG) {
+                            bStruct.setIntField(++longRegIndex, time.getTime());
+                        }
+                        break;
+                    case Types.TIMESTAMP:
+                    case Types.TIMESTAMP_WITH_TIMEZONE:
+                        Timestamp timestamp = rs.getTimestamp(index, utcCalendar);
+                        fieldType = bStructType.getStructFields()[index - 1].getFieldType().getTag();
+                        if (fieldType == TypeTags.STRING_TAG) {
+                            String timestmpValue = SQLDatasourceUtils.getString(timestamp);
+                            bStruct.setStringField(++stringRegIndex, timestmpValue);
+                        } else if (fieldType == TypeTags.STRUCT_TAG) {
+                            bStruct.setRefField(++refRegIndex, createTimeStruct(timestamp.getTime()));
+                        } else if (fieldType == TypeTags.INT_TAG) {
+                            bStruct.setIntField(++longRegIndex, timestamp.getTime());
+                        }
+                        break;
+                    case Types.ROWID:
+                        BValue strValue = new BString(new String(rs.getRowId(index).getBytes(), "UTF-8"));
+                        bStruct.setStringField(++stringRegIndex, strValue.stringValue());
+                        break;
+                    case Types.TINYINT:
+                    case Types.SMALLINT:
+                        long iValue = rs.getInt(index);
+                        bStruct.setIntField(++longRegIndex, iValue);
+                        break;
+                    case Types.INTEGER:
+                    case Types.BIGINT:
+                        long lValue = rs.getLong(index);
+                        bStruct.setIntField(++longRegIndex, lValue);
+                        break;
+                    case Types.REAL:
+                    case Types.FLOAT:
+                        double fValue = rs.getFloat(index);
+                        bStruct.setFloatField(++doubleRegIndex, fValue);
+                        break;
+                    case Types.DOUBLE:
+                        double dValue = rs.getDouble(index);
+                        bStruct.setFloatField(++doubleRegIndex, dValue);
+                        break;
+                    case Types.NUMERIC:
+                    case Types.DECIMAL:
+                        double decimalValue = 0;
+                        BigDecimal bigDecimalValue = rs.getBigDecimal(index);
+                        if (bigDecimalValue != null) {
+                            decimalValue = bigDecimalValue.doubleValue();
+                        }
+                        bStruct.setFloatField(++doubleRegIndex, decimalValue);
+                        break;
+                    case Types.BIT:
+                    case Types.BOOLEAN:
+                        boolean boolValue = rs.getBoolean(index);
+                        bStruct.setBooleanField(++booleanRegIndex, boolValue ? 1 : 0);
+                        break;
+                    default:
+                        throw new BallerinaException(
+                                "unsupported sql type " + sqlType + " found for the column " + columnName + " index:"
+                                        + index);
+                    }
+                }
+            }
+        }  catch (Throwable e) {
+            throw new BallerinaException(
+                    "error in retrieving next value for column: " + columnName + ": at index:" + index + ":" + e
+                            .getMessage());
+        }
+        return bStruct;
+    }
+
+    @Override
+    public List<ColumnDefinition> getColumnDefinitions() {
+        return this.columnDefs;
+    }
+
+    private BNewArray getDataArray(Array array) throws SQLException {
+        Object[] dataArray = generateArrayDataResult(array);
+        if (dataArray != null) {
+            int length = dataArray.length;
+            if (length > 0) {
+                Object obj = dataArray[0];
+                if (obj instanceof String) {
+                    BStringArray stringDataArray = new BStringArray();
+                    for (int i = 0; i < length; i++) {
+                        stringDataArray.add(i, (String) dataArray[i]);
+                    }
+                    return stringDataArray;
+                } else if (obj instanceof Boolean) {
+                    BBooleanArray boolDataArray = new BBooleanArray();
+                    for (int i = 0; i < length; i++) {
+                        boolDataArray.add(i, ((Boolean) dataArray[i]) ? 1 : 0);
+                    }
+                    return boolDataArray;
+                } else if (obj instanceof Integer) {
+                    BIntArray intDataArray = new BIntArray();
+                    for (int i = 0; i < length; i++) {
+                        intDataArray.add(i, ((Integer) dataArray[i]));
+                    }
+                    return intDataArray;
+                } else if (obj instanceof Long) {
+                    BIntArray longDataArray = new BIntArray();
+                    for (int i = 0; i < length; i++) {
+                        longDataArray.add(i, (Long) dataArray[i]);
+                    }
+                    return longDataArray;
+                } else if (obj instanceof Float) {
+                    BFloatArray floatDataArray = new BFloatArray();
+                    for (int i = 0; i < length; i++) {
+                        floatDataArray.add(i, (Float) dataArray[i]);
+                    }
+                    return floatDataArray;
+                } else if (obj instanceof Double) {
+                    BFloatArray doubleDataArray = new BFloatArray();
+                    for (int i = 0; i < dataArray.length; i++) {
+                        doubleDataArray.add(i, (Double) dataArray[i]);
+                    }
+                    return doubleDataArray;
+                }
+            }
         }
         return null;
     }
 
-    @Override
-    public Map<String, Object> getArray(String columnName) {
-        Map<String, Object> resultMap = new HashMap<>();
-        try {
-            Array array = rs.getArray(columnName);
-            if (!rs.wasNull()) {
-                Object[] objArray = (Object[]) array.getArray();
-                for (int i = 0; i < objArray.length; i++) {
-                    resultMap.put(String.valueOf(i), objArray[i]);
-                }
-            }
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
+    private BStruct createTimeStruct(long millis) {
+        return Utils.createTimeStruct(zoneStructInfo, timeStructInfo, millis, Constants.TIMEZONE_UTC);
+    }
+
+    /**
+     * This represents a column definition for a column in a datatable.
+     */
+    public static class SQLColumnDefinition extends ColumnDefinition {
+
+        private int sqlType;
+
+        public SQLColumnDefinition(String name, TypeKind mappedType, int sqlType) {
+            super(name, mappedType);
+            this.sqlType = sqlType;
         }
-        return resultMap;
-    }
 
-    private BValue getBString(Clob clob) throws SQLException {
-        return new BString(SQLDatasourceUtils.getString(clob));
-    }
+        public String getName() {
+            return name;
+        }
 
-    private BValue getBString(InputStream inputStream) throws SQLException {
-        return new BString(SQLDatasourceUtils.getString(inputStream));
-    }
+        public TypeKind getType() {
+            return mappedType;
+        }
 
-    private BValue getBString(Blob blob) throws SQLException {
-        return new BString(SQLDatasourceUtils.getString(blob));
-    }
-
-    private BValue getBString(Date date) throws SQLException {
-        return new BString(SQLDatasourceUtils.getString(date));
-    }
-
-    private BValue getBString(Time time) throws SQLException {
-        return new BString(SQLDatasourceUtils.getString(time));
-    }
-
-    private BValue getBString(Timestamp timestamp) throws SQLException {
-        return new BString(SQLDatasourceUtils.getString(timestamp));
+        public int getSqlType() {
+            return sqlType;
+        }
     }
 }

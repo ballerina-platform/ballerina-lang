@@ -36,7 +36,7 @@ import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Arrays;
 import java.util.NoSuchElementException;
@@ -70,7 +70,7 @@ public class CreateSessionIfAbsent extends AbstractNativeFunction {
                     .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
             String cookieHeader = httpCarbonMessage.getHeader(Constants.COOKIE_HEADER);
             String path = (String) httpCarbonMessage.getProperty(Constants.BASE_PATH);
-            Session session = (Session) requestStruct.getNativeData(Constants.HTTP_SESSION);
+            Session session = (Session) httpCarbonMessage.getProperty(Constants.HTTP_SESSION);
             if (cookieHeader != null) {
                 try {
                     String sessionId = Arrays.stream(cookieHeader.split(";"))
@@ -88,16 +88,14 @@ public class CreateSessionIfAbsent extends AbstractNativeFunction {
                 }
                 if (session == null) {
                     session = SessionManager.getInstance().createHTTPSession(path);
-                }
-                //path Validity check
-                if (session != null && session.getPath().equals(path)) {
+                } else if (session != null && session.getPath().equals(path)) { //path validity check
                     session.setNew(false);
                     session.setAccessed();
                 } else {
                     throw new BallerinaException("Failed to get session: " + path + " is not an allowed path");
                 }
             } else {
-                //Cached session will return of this function is called twice.
+                //cached session will return of this function is called twice.
                 if (session != null) {
                     session = session.setAccessed();
                     return new BValue[]{createSessionStruct(context, session)};
@@ -105,7 +103,7 @@ public class CreateSessionIfAbsent extends AbstractNativeFunction {
                 //create session since request doesn't have a cookie
                 session = SessionManager.getInstance().createHTTPSession(path);
             }
-            requestStruct.addNativeData(Constants.HTTP_SESSION, session);
+            httpCarbonMessage.setProperty(Constants.HTTP_SESSION, session);
             httpCarbonMessage.removeHeader(Constants.COOKIE_HEADER);
             return new BValue[]{createSessionStruct(context, session)};
 

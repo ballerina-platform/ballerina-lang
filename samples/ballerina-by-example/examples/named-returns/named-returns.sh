@@ -4,5 +4,5 @@ $ ballerina run named-returns.bal
 a: 0
 b: 0.0
 c: false
-d:
+d: null
 

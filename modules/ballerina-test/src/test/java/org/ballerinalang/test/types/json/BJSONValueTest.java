@@ -59,9 +59,8 @@ public class BJSONValueTest {
 
     @Test
     public void testJSONWithUnsupportedKey() {
-        // testJSONWithUnsupportedKey
-        BAssertUtil.validateError(negativeResult, 2,
-                "invalid field name in json literal. identifier or string literal expected", 14, 16);
+        CompileResult result = BCompileUtil.compile("test-src/types/jsontype/json-literal-invalid-key-negative.bal");
+        BAssertUtil.validateError(result, 0, "missing token ':' before '('", 2, 19);
     }
 
     @Test(description = "Test initializing json with a string")
@@ -77,7 +76,7 @@ public class BJSONValueTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testIntAsJsonVal");
         Assert.assertTrue(returns[0] instanceof BJSON);
         BJSON person = ((BJSON) returns[0]);
-        Assert.assertEquals(person.value().asInt(), 5);
+        Assert.assertEquals(person.value().longValue(), 5);
     }
 
     @Test(description = "Test initializing json with a float")
@@ -85,7 +84,7 @@ public class BJSONValueTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFloatAsJsonVal");
         Assert.assertTrue(returns[0] instanceof BJSON);
         BJSON person = ((BJSON) returns[0]);
-        Assert.assertEquals(person.value().asDouble(), 7.65);
+        Assert.assertEquals(person.value().doubleValue(), 7.65);
     }
 
     @Test(description = "Test initializing json with a boolean")
@@ -93,7 +92,7 @@ public class BJSONValueTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanAsJsonVal");
         Assert.assertTrue(returns[0] instanceof BJSON);
         BJSON person = ((BJSON) returns[0]);
-        Assert.assertEquals(person.value().asBoolean(), true);
+        Assert.assertEquals(person.value().booleanValue(), true);
     }
 
     @Test(description = "Test initializing json with a null")

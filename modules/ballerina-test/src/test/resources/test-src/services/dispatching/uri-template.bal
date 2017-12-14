@@ -7,14 +7,15 @@ service<http> Ecommerce {
         path:"/products/{productId}/{regId}"
     }
     resource productsInfo1 (http:Request req, http:Response res, string productId, string regId) {
-        string orderId = req.getHeader("X-ORDER-ID");
+        string orderId;
+        orderId = req.getHeader("X-ORDER-ID");
         println("Order ID " + orderId);
         println("Product ID " + productId);
         println("Reg ID " + regId);
         json responseJson = {"X-ORDER-ID":orderId, "ProductID":productId, "RegID":regId};
         println(responseJson.toString());
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -28,7 +29,7 @@ service<http> Ecommerce {
         responseJson = {"Template":"T2", "ProductID":productId, "RegID":regId};
         println(responseJson.toString());
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -42,7 +43,7 @@ service<http> Ecommerce {
         responseJson = {"Template":"T3", "ProductID":productId, "RegID":regId};
         println(responseJson.toString());
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -59,7 +60,7 @@ service<http> Ecommerce {
         responseJson = {"Template":"T4", "ProductID":productId, "RegID":rID};
         println(responseJson.toString());
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -78,7 +79,7 @@ service<http> Ecommerce {
         responseJson = {"Template":"T6", "ProductID":prdID, "RegID":rID};
         println (responseJson.toString ());
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -95,7 +96,7 @@ service<http> Ecommerce {
         responseJson = {"Template":"T5", "ProductID":productId, "RegID":rID};
         println(responseJson.toString());
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -104,7 +105,7 @@ service<http> Ecommerce {
     resource echo1 (http:Request req, http:Response res) {
         json responseJson = {"echo11":"echo11"};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 }
 
@@ -118,7 +119,7 @@ service<http> echo111 {
         path : "/test"
     }
     resource productsInfo99 (http:Request req, http:Response res) {
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -128,7 +129,7 @@ service<http> echo111 {
     resource productsOptions (http:Request req, http:Response res) {
         json responseJson = {"echo":"wso2"};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -136,7 +137,7 @@ service<http> echo111 {
         path : "/test"
     }
     resource productsInfo98 (http:Request req, http:Response res) {
-        res.send();
+        _ = res.send();
 
     }
 
@@ -147,7 +148,7 @@ service<http> echo111 {
     resource productsGet (http:Request req, http:Response res) {
         json responseJson = {"echo":"get"};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -157,7 +158,7 @@ service<http> echo111 {
     resource productsPOST (http:Request req, http:Response res) {
         json responseJson = {"echo":"post"};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -167,7 +168,7 @@ service<http> echo111 {
     resource productsPUT (http:Request req, http:Response res) {
         json responseJson = {"echo":"put"};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 }
 
@@ -189,6 +190,6 @@ service<http> serviceHello {
     resource productsInfo (http:Request req, http:Response res) {
         json responseJson = {"echo":"sanitized"};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 }

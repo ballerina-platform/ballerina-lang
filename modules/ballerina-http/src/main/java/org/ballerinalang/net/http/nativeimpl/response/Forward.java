@@ -28,9 +28,11 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.runtime.message.MessageDataSource;
+import org.ballerinalang.util.codegen.AnnAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * Native function to send client service response directly to the caller.
@@ -47,18 +49,42 @@ import org.slf4j.LoggerFactory;
 )
 public class Forward extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(Forward.class);
-
     @Override
     public BValue[] execute(Context context) {
         BStruct responseStruct = (BStruct) getRefArgument(context, 0);
         BStruct clientResponseStruct = (BStruct) getRefArgument(context, 1);
-        HttpUtil.methodInvocationCheck(responseStruct);
-        HttpUtil.operationNotAllowedCheck(responseStruct);
+        HttpUtil.checkFunctionValidity(responseStruct);
         if (clientResponseStruct.getNativeData(Constants.TRANSPORT_MESSAGE) == null) {
             throw new BallerinaException("Failed to forward: empty response parameter");
         }
-        context.getConnectorFuture().notifyReply(clientResponseStruct);
-        return VOID_RETURN;
+
+        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct
+                .getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
+        HTTPCarbonMessage responseMessage = HttpUtil
+                .getCarbonMsg(clientResponseStruct, HttpUtil.createHttpCarbonMessage(false));
+
+        AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
+                Constants.PROTOCOL_PACKAGE_HTTP, Constants.ANN_NAME_CONFIG);
+        if (configAnn != null) {
+            AnnAttributeValue keepAliveAttrVal = configAnn.getAttributeValue(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE);
+
+            if (keepAliveAttrVal != null && !keepAliveAttrVal.getBooleanValue()) {
+                responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_CLOSE);
+            } else {
+                // default behaviour: keepAlive = true
+                responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
+            }
+        } else {
+            // default behaviour: keepAlive = true
+            responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
+        }
+
+        MessageDataSource messageDataSource = HttpUtil.getMessageDataSource(responseStruct);
+        if (messageDataSource != null) {
+            messageDataSource.serializeData();
+        }
+
+        return HttpUtil.prepareResponseAndSend(context, this, requestMessage,
+                responseMessage, HttpUtil.getMessageDataSource(clientResponseStruct));
     }
 }

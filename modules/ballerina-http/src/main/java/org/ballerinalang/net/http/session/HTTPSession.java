@@ -18,16 +18,15 @@
 
 package org.ballerinalang.net.http.session;
 
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.Constants;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.Serializable;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * HTTPSession represents a session.
+ * HTTPSession represents the Java session object.
  *
  * @since 0.89
  */
@@ -36,9 +35,10 @@ public class HTTPSession implements Session, Serializable {
     private final String sessionPath;
     private String id;
     private Long createTime;
+    private Long accessedTime;
     private Long lastAccessedTime;
     private int maxInactiveInterval;
-    private Map<String, BValue> attributeMap = new ConcurrentHashMap<>();
+    private BMap<String, BValue> attributeMap = new BMap<>();
     private SessionManager sessionManager;
     private boolean isValid = true;
     private boolean isNew = true;
@@ -47,7 +47,8 @@ public class HTTPSession implements Session, Serializable {
         this.id = id;
         this.maxInactiveInterval = maxInactiveInterval;
         createTime = System.currentTimeMillis();
-        lastAccessedTime = createTime;
+        accessedTime = createTime;
+        lastAccessedTime = accessedTime;
         this.sessionPath = path;
     }
 
@@ -58,22 +59,23 @@ public class HTTPSession implements Session, Serializable {
 
     @Override
     public void setAttribute(String attributeKey, BValue attributeValue) {
-        checkValidity();
         attributeMap.put(attributeKey, attributeValue);
     }
 
     @Override
     public BValue getAttributeValue(String attributeKey) {
-        checkValidity();
         return attributeMap.get(attributeKey);
     }
 
     @Override
     public String[] getAttributeNames() {
-        checkValidity();
         return attributeMap.keySet().toArray(new String[attributeMap.size()]);
     }
 
+    @Override
+    public BMap<String, BValue> getAttributes() {
+        return attributeMap;
+    }
 
     @Override
     public Session setNew(boolean isNew) {
@@ -88,7 +90,6 @@ public class HTTPSession implements Session, Serializable {
 
     @Override
     public void removeAttribute(String name) {
-        checkValidity();
         attributeMap.remove(name);
     }
 
@@ -115,14 +116,15 @@ public class HTTPSession implements Session, Serializable {
     @Override
     public void invalidate() {
         sessionManager.invalidateSession(this);
-        attributeMap.clear();
+        attributeMap = new BMap<>();
         isValid = false;
     }
 
     @Override
     public Session setAccessed() {
         checkValidity();
-        lastAccessedTime = System.currentTimeMillis();
+        lastAccessedTime = this.accessedTime;
+        accessedTime = System.currentTimeMillis();
         return this;
     }
 

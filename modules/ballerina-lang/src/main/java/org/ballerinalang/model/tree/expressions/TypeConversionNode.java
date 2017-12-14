@@ -20,7 +20,7 @@ package org.ballerinalang.model.tree.expressions;
 import org.ballerinalang.model.tree.types.TypeNode;
 
 /**
- * &lt;string&gt;i
+ * &lt;string&gt;i.
  *
  * @since 0.94
  */
@@ -33,5 +33,7 @@ public interface TypeConversionNode extends ExpressionNode {
     TypeNode  getTypeNode();
 
     void setTypeNode(TypeNode typeNode);
+
+    InvocationNode getTransformerInvocation();
 
 }

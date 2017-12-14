@@ -21,8 +21,9 @@ ANNOTATION  : 'annotation' ;
 ENUM        : 'enum' ;
 PARAMETER   : 'parameter' ;
 CONST       : 'const' ;
-TYPEMAPPER  : 'typemapper' ;
+TRANSFORMER : 'transformer' ;
 WORKER      : 'worker' ;
+ENDPOINT    : 'endpoint' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
 VERSION     : 'version';
@@ -42,7 +43,6 @@ TYPE_TYPE       : 'type' ;
 VAR         : 'var' ;
 CREATE      : 'create' ;
 ATTACH      : 'attach' ;
-TRANSFORM   : 'transform' ;
 IF          : 'if' ;
 ELSE        : 'else' ;
 ITERATE     : 'iterate' ;
@@ -62,13 +62,12 @@ RETURN      : 'return' ;
 REPLY       : 'reply' ;
 TRANSACTION : 'transaction' ;
 ABORT       : 'abort' ;
-ABORTED     : 'aborted' ;
-COMMITTED   : 'committed' ;
 FAILED      : 'failed' ;
-RETRY       : 'retry' ;
+RETRIES     : 'retries' ;
 LENGTHOF    : 'lengthof' ;
 TYPEOF      : 'typeof' ;
 WITH        : 'with' ;
+BIND        : 'bind' ;
 
 // Separators
 

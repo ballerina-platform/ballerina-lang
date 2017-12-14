@@ -23,7 +23,9 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,7 +47,7 @@ public class WebSocketService implements Service {
         }
 
         Annotation configAnnotation =
-                service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_CONFIGURATION);
+                service.getAnnotation(Constants.PROTOCOL_PACKAGE_WS, Constants.ANNOTATION_CONFIGURATION);
         negotiableSubProtocols = findNegotiableSubProtocols(configAnnotation);
         idleTimeoutInSeconds = findIdleTimeoutInSeconds(configAnnotation);
     }
@@ -58,6 +60,11 @@ public class WebSocketService implements Service {
     @Override
     public String getPackage() {
         return service.getPackage();
+    }
+
+    @Override
+    public String getProtocolPackage() {
+        return service.getProtocolPackage();
     }
 
     @Override
@@ -83,37 +90,40 @@ public class WebSocketService implements Service {
     }
 
     public BStruct createHandshakeConnectionStruct() {
-        return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
+        return ConnectorUtils.createStruct(service.getResources()[0], Constants.PROTOCOL_PACKAGE_WS,
                                            Constants.STRUCT_WEBSOCKET_HANDSHAKE_CONNECTION);
     }
 
     public BStruct createConnectionStruct() {
-        return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
+        BStruct wsConnection = ConnectorUtils.createStruct(service.getResources()[0], Constants.PROTOCOL_PACKAGE_WS,
                                     Constants.STRUCT_WEBSOCKET_CONNECTION);
+        BMap<String, BValue> attributes = new BMap<>();
+        wsConnection.setRefField(0, attributes);
+        return wsConnection;
     }
 
     public BStruct createTextFrameStruct() {
-        return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
+        return ConnectorUtils.createStruct(service.getResources()[0], Constants.PROTOCOL_PACKAGE_WS,
                                            Constants.STRUCT_WEBSOCKET_TEXT_FRAME);
     }
 
     public BStruct createBinaryFrameStruct() {
-        return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
+        return ConnectorUtils.createStruct(service.getResources()[0], Constants.PROTOCOL_PACKAGE_WS,
                                            Constants.STRUCT_WEBSOCKET_BINARY_FRAME);
     }
 
     public BStruct createCloseFrameStruct() {
-        return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
+        return ConnectorUtils.createStruct(service.getResources()[0], Constants.PROTOCOL_PACKAGE_WS,
                                            Constants.STRUCT_WEBSOCKET_CLOSE_FRAME);
     }
 
     public BStruct createPingFrameStruct() {
-        return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
+        return ConnectorUtils.createStruct(service.getResources()[0], Constants.PROTOCOL_PACKAGE_WS,
                                            Constants.STRUCT_WEBSOCKET_PING_FRAME);
     }
 
     public BStruct createPongFrameStruct() {
-        return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
+        return ConnectorUtils.createStruct(service.getResources()[0], Constants.PROTOCOL_PACKAGE_WS,
                                            Constants.STRUCT_WEBSOCKET_PONG_FRAME);
     }
 

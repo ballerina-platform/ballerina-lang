@@ -4,63 +4,82 @@ package ballerina.io;
 public struct ByteChannel{
 }
 
-@Description {value:"Ballerina CharacterChannel reprsents a channel which will allow reading/writing characters"}
+@Description {value:"Ballerina CharacterChannel represents a channel which will allow to read/write characters"}
 public struct CharacterChannel{
 }
 
-@Description {value:"Ballerina TextRecordChannel represents a channel which will allow read/write text records"}
+@Description {value:"Ballerina TextRecordChannel represents a channel which will allow to read/write text records"}
 public struct TextRecordChannel{
 }
 
-@Description { value:"Function to convert ByteChannel to CharacterChannel"}
-@Param {value:"encoding: the charset/encoding of the content (i.e UTF-8, ASCCI)"}
+@Description { value:"Function to convert a ByteChannel to CharacterChannel"}
+@Param {value:"channel: The ByteChannel to be converted"}
+@Param {value:"encoding: The charset/encoding of the content (i.e UTF-8, ASCII)"}
 @Return {value:"CharacterChannel converted from ByteChannel"}
 public native function <ByteChannel channel> toCharacterChannel(string encoding)(CharacterChannel);
 
-@Description {value:"Function to convert CharacterChannel to TextRecordChannel"}
-@Param {value:"recordSeparator: terminating expression to distingush between records"}
-@Param {value:"fieldSeparator: terminating expression to ditingish between feilds"}
+@Description {value:"Function to convert a CharacterChannel to TextRecordChannel"}
+@Param {value:"channel: The CharacterChannel to be converted"}
+@Param {value:"recordSeparator: Terminating expression to distinguish between records"}
+@Param {value:"fieldSeparator: Terminating expression to distinguish between fields"}
 @Return {value:"TextRecordChannel converted from CharacterChannel"}
 public native function <CharacterChannel channel> toTextRecordChannel(string recordSeparator,
                                                                       string fieldSeparator)
                                                                       (TextRecordChannel);
 
 @Description {value:"Function to read text records"}
+@Param {value:"channel: The TextRecordChannel to read text records from"}
 @Return {value:"Fields listed in the record"}
 public native function <TextRecordChannel channel> readTextRecord()(string []);
 
 @Description {value:"Function to write text records"}
-@Param {value:"records: feilds which are included in the record"}
+@Param {value:"channel: The TextRecordChannel to write text records to"}
+@Param {value:"records: Fields which are included in the record"}
 public native function <TextRecordChannel channel> writeTextRecord(string [] records);
 
 @Description{value:"Function to close the text record channel"}
+@Param {value:"channel: The TextRecordChannel to be closed"}
 public native function <TextRecordChannel channel> closeTextRecordChannel();
 
 @Description {value:"Function to read characters"}
-@Param {value:"numberOfChars: number of characters which should be read"}
-@Return {value:"the characters which will be read"}
+@Param {value:"channel: The CharacterChannel to read characters from"}
+@Param {value:"numberOfChars: Number of characters which should be read"}
+@Return {value:"The character sequence which was read"}
 public native function <CharacterChannel channel> readCharacters(int numberOfChars)(string);
 
+@Description {value:"Function to read all characters in the give I/O source"}
+@Return {value:"all characters read"}
+public native function <CharacterChannel channel> readAllCharacters()(string);
+
 @Description {value:"Function to write characters"}
-@Param {value:"content: text content which should be written"}
-@Param {value:"startOffset: if the content needs to be written with an offset"}
-@Return {value:"int: number of characters written"}
+@Param {value:"channel: The CharacterChannel to write characters to"}
+@Param {value:"content: Text content which should be written"}
+@Param {value:"startOffset: If the content needs to be written with an offset, the value of that offset"}
+@Return { value:"Number of characters written"}
 public native function <CharacterChannel channel> writeCharacters(string content,int startOffset)(int);
 
-@Description {value:"Function to close character channel"}
+@Description {value:"Function to close a character channel"}
+@Param {value:"channel: The CharacterChannel to be closed"}
 public native function <CharacterChannel channel> closeCharacterChannel();
 
 @Description { value:"Function to read bytes"}
-@Param { value:"numberOfBytes: number of bytes which should be read" }
-@Return { value:"blob: the bytes which were read" }
-@Return {value:"int: number of bytes which were read"}
+@Param {value:"channel: The ByteChannel to read bytes from"}
+@Param { value:"numberOfBytes: Number of bytes which should be read" }
+@Return { value:"The bytes which were read" }
+@Return { value:"Number of bytes read"}
 public native function <ByteChannel channel> readBytes (int numberOfBytes) (blob, int);
 
+@Description {value:"Function to read all bytes in the given I/O source"}
+@Return {value:"all bytes read from the channel"}
+public native function <ByteChannel channel> readAllBytes()(blob,int);
+
 @Description { value:"Function to write bytes"}
-@Param { value:"content: bytes which should be written" }
-@Param { value:"content: whether the bytes should be writtne with an offset" }
-@Return {value:"int: number of bytes written"}
+@Param {value:"channel: The ByteChannel to write bytes to"}
+@Param { value:"content: Bytes which should be written" }
+@Param { value:"startOffset: If the bytes need to be written with an offset, the value of that offset" }
+@Return { value:"Number of bytes written"}
 public native function <ByteChannel channel> writeBytes(blob content,int startOffset) (int);
 
-@Description { value:"Function to close the byte channel"}
+@Description { value:"Function to close a byte channel"}
+@Param {value:"channel: The ByteChannel to be closed"}
 public native function <ByteChannel channel> close();

@@ -33,7 +33,7 @@ import org.ballerinalang.net.http.session.SessionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Arrays;
 import java.util.NoSuchElementException;
@@ -64,7 +64,7 @@ public class GetSession extends AbstractNativeFunction {
             HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, null);
             String cookieHeader = httpCarbonMessage.getHeader(Constants.COOKIE_HEADER);
             String path = (String) httpCarbonMessage.getProperty(Constants.BASE_PATH);
-            Session session = (Session) requestStruct.getNativeData(Constants.HTTP_SESSION);
+            Session session = (Session) httpCarbonMessage.getProperty(Constants.HTTP_SESSION);
 
             if (cookieHeader != null) {
                 try {
@@ -98,8 +98,8 @@ public class GetSession extends AbstractNativeFunction {
                 logger.info("Failed to get session: session cookie is not available");
                 return new BValue[]{};
             }
+            httpCarbonMessage.setProperty(Constants.HTTP_SESSION, session);
             httpCarbonMessage.removeHeader(Constants.COOKIE_HEADER);
-            requestStruct.addNativeData(Constants.HTTP_SESSION, session);
             return new BValue[]{CreateSessionIfAbsent.createSessionStruct(context, session)};
         } catch (IllegalStateException e) {
             throw new BallerinaException(e.getMessage(), e);

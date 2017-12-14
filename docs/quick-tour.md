@@ -19,14 +19,13 @@ Let's take a look at what the sample looks like in the Ballerina programming lan
 ```
 function main (string[] args) {
   println("Hello, World!");
-}
 ``` 
 
 The HelloWorld sample doesn't take any specific input, so simply running it will cause it to print "Hello, World!" at the command line.
 
 At the command prompt, navigate to the `<ballerina_home>/samples/helloWorld` directory and enter the following line:
 
-```
+```bash
 ballerina run helloworld.bal
 ```
 
@@ -56,7 +55,7 @@ You can build your integrations by creating sequence diagrams, dragging elements
     
     ![alt text](images/ComposerNew.png "Welcome page")
     
-    Let's open a sample and take a look around. 
+Let's open a sample and take a look around. 
 
 ## Explore the Ballerina Composer
 

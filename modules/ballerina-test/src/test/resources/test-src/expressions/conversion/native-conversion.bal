@@ -30,7 +30,7 @@ function testStructToMap () (map) {
     return m;
 }
 
-function testMapToStruct () (Person) {
+function testMapToStruct () (Person, TypeConversionError) {
     int[] marks = [87, 94, 72];
     Person parent = {
                         name:"Parent",
@@ -55,9 +55,8 @@ function testMapToStruct () (Person) {
                 score:5.67,
                 alive:true
             };
-    Person p;
-    p, _ = <Person>m;
-    return p;
+    var p, e = <Person> m;
+    return p, e;
 }
 
 function testStructToJson () (json) {
@@ -74,7 +73,7 @@ function testStructToJson () (json) {
     return j;
 }
 
-function testJsonToStruct () (Person) {
+function testJsonToStruct () (Person, TypeConversionError) {
     json j = {name:"Child",
                  age:25,
                  parent:{
@@ -86,18 +85,19 @@ function testJsonToStruct () (Person) {
                             marks:null,
                             a:null,
                             score:4.57,
-                            alive:false
+                            alive:false,
+                            children:null
                         },
                  address:{"city":"Colombo", "country":"SriLanka"},
                  info:{status:"single"},
                  marks:[56, 79],
                  a:"any value",
                  score:5.67,
-                 alive:true
+                 alive:true,
+                 children:null
              };
-    Person p;
-    p, _ = <Person>j;
-    return p;
+    var p, e = <Person>j;
+    return p, e;
 }
 
 function testIncompatibleMapToStruct () (Person) {
@@ -541,12 +541,12 @@ struct PersonA {
 
 function JsonToStructWithErrors () (PersonA, TypeConversionError) {
     TypeConversionError err;
-    PersonA person;
+    PersonA pA;
     json j = {name:"supun"};
 
-    person, err = <PersonA>j;
+    pA, err = <PersonA>j;
 
-    return person, err;
+    return pA, err;
 }
 
 struct PhoneBook {
@@ -555,7 +555,7 @@ struct PhoneBook {
 
 function testStructWithStringArrayToJSON () (json) {
     PhoneBook phonebook = {names:["John", "Doe"]};
-    var phonebookJson, error = <json>phonebook;
+    var phonebookJson, cError = <json>phonebook;
     return phonebookJson;
 }
 
@@ -600,11 +600,11 @@ struct StructWithDefaults {
     blob blb;
 }
 
-function testEmptyJSONtoStructWithDefaults () (StructWithDefaults) {
+function testEmptyJSONtoStructWithDefaults () (StructWithDefaults, TypeConversionError) {
     json j = {};
-    var testStruct, _ = <StructWithDefaults>j;
+    var testStruct, e = <StructWithDefaults>j;
 
-    return testStruct;
+    return testStruct, e;
 }
 
 struct StructWithoutDefaults {
@@ -616,11 +616,11 @@ struct StructWithoutDefaults {
     blob blb;
 }
 
-function testEmptyJSONtoStructWithoutDefaults () (StructWithoutDefaults) {
+function testEmptyJSONtoStructWithoutDefaults () (StructWithoutDefaults, TypeConversionError) {
     json j = {};
-    var testStruct, _ = <StructWithoutDefaults>j;
+    var testStruct, e = <StructWithoutDefaults>j;
 
-    return testStruct;
+    return testStruct, e;
 }
 
 function testEmptyMaptoStructWithDefaults () (StructWithDefaults) {
@@ -642,4 +642,34 @@ function testSameTypeConversion() (int) {
     var i= <int> f;
     i = <int>i;
     return i;
+}
+
+function testErrorOnConversions() (TypeConversionError, TypeConversionError, TypeConversionError) {
+    string s1 = "4";
+
+    // string to int
+    var i , err1 = <int> s1;
+
+    // string to float
+    var f , err2 = <float> s1;
+
+    // string to xml
+    var x1, err3 = <xml> "<root id=\"123\"/>";
+
+    return err1, err2, err3;
+}
+
+function testNullStringToOtherTypes() (int, TypeConversionError, 
+                                       float, TypeConversionError,
+                                       boolean, TypeConversionError,
+                                       json, TypeConversionError,
+                                       xml, TypeConversionError) {
+    string s;
+    var i, err1 = <int> s;
+    var f, err2 = <float> s;
+    var b, err3 = <boolean> s;
+    var j, err4 = <json> s;
+    var x, err5 = <xml> s;
+    
+    return i, err1, f, err2, b, err3, j, err4, x, err5;
 }

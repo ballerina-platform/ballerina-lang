@@ -181,11 +181,11 @@ public class TypeCastExprTest {
     public void testJSONObjectToStringCast() {
         BValue[] returns = BRunUtil.invoke(result, "testJSONObjectToStringCast", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "");
+        Assert.assertNull(returns[0].stringValue());
 
         Assert.assertTrue(returns[1] instanceof BStruct);
         Assert.assertEquals(((BStruct) returns[1]).getStringField(0),
-                            "'json-object' cannot be converted to 'string'");
+                            "'json-object' cannot be cast to 'string'");
     }
 
     @Test
@@ -333,40 +333,40 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting an incomatible JSON to integer",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: TypeConversionError, message: " +
-                    "'string' cannot be converted to 'int'.*")
+            expectedExceptionsMessageRegExp = "error: TypeCastError, message: " +
+                    "'string' cannot be cast to 'int'.*")
     public void testIncompatibleJsonToInt() {
         BRunUtil.invoke(result, "testIncompatibleJsonToInt", new BValue[]{});
     }
 
     @Test(description = "Test casting an incomatible JSON to float",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: TypeConversionError, message: " +
-                    "'string' cannot be converted to 'float'.*")
+            expectedExceptionsMessageRegExp = "error: TypeCastError, message: " +
+                    "'string' cannot be cast to 'float'.*")
     public void testIncompatibleJsonToFloat() {
         BRunUtil.invoke(result, "testIncompatibleJsonToFloat", new BValue[]{});
     }
 
     @Test(description = "Test casting an incomatible JSON to boolean",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: TypeConversionError, message: " +
-                    "'string' cannot be converted to 'boolean'.*")
+            expectedExceptionsMessageRegExp = "error: TypeCastError, message: " +
+                    "'string' cannot be cast to 'boolean'.*")
     public void testIncompatibleJsonToBoolean() {
         BRunUtil.invoke(result, "testIncompatibleJsonToBoolean", new BValue[]{});
     }
 
     @Test(description = "Test casting a boolean in JSON to int",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: TypeConversionError, message: 'boolean' " +
-                    "cannot be converted to 'int'.*")
+            expectedExceptionsMessageRegExp = "error: TypeCastError, message: 'boolean' " +
+                    "cannot be cast to 'int'.*")
     public void testBooleanInJsonToInt() {
         BRunUtil.invoke(result, "testBooleanInJsonToInt", new BValue[]{});
     }
 
     @Test(description = "Test casting an integer in JSON to float",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: TypeConversionError, message: 'int' " +
-                    "cannot be converted to 'float'.*")
+            expectedExceptionsMessageRegExp = "error: TypeCastError, message: 'int' " +
+                    "cannot be cast to 'float'.*")
     public void testIntInJsonToFloat() {
         BRunUtil.invoke(result, "testIntInJsonToFloat", new BValue[]{});
     }
@@ -652,7 +652,8 @@ public class TypeCastExprTest {
 
         // check whether string is empty
         //TODO : Check with VM string registry maintain empty as null
-        Assert.assertEquals(returns[0].stringValue(), "");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertNull(returns[0].stringValue());
 
         // check the error
         Assert.assertTrue(returns[1] instanceof BStruct);
@@ -715,7 +716,7 @@ public class TypeCastExprTest {
 
         // check whether string is empty
         //TODO : Check with VM string registry maintain empty as null
-        Assert.assertEquals(returns[0].stringValue(), "");
+        Assert.assertNull(returns[0].stringValue());
 
         // check the error
         Assert.assertTrue(returns[1] instanceof BStruct);
@@ -844,5 +845,14 @@ public class TypeCastExprTest {
         Assert.assertTrue(returns[0] instanceof BInteger);
         final int expected = 10;
         Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);
+    }
+
+    @Test
+    public void testErrorOnCasting() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorOnCasting");
+        Assert.assertNull(returns[0]);
+        Assert.assertNull(returns[1]);
+        Assert.assertNull(returns[2]);
+        Assert.assertNull(returns[3]);
     }
 }

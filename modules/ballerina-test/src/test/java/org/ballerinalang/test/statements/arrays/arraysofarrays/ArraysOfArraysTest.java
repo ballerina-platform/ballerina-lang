@@ -36,7 +36,7 @@ public class ArraysOfArraysTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/statements/arrays/arraysofarrays/arraysOfArrays.bal");
+        result = BCompileUtil.compile("test-src/statements/arrays/arraysofarrays/arrays-of-arrays.bal");
     }
 
     @Test(description = "Test Basic arrays of arrays operations")
@@ -92,7 +92,7 @@ public class ArraysOfArraysTest {
     @Test(description = "Test setting incorrect type")
     public void testAssignIncorrectValue() {
         CompileResult result =
-                BCompileUtil.compile("test-src/statements/arrays/arraysofarrays/arraysOfArraysFailures.bal");
+                BCompileUtil.compile("test-src/statements/arrays/arraysofarrays/arrays-of-arrays-failures.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
         BAssertUtil.validateError(result, 0, "incompatible types: expected 'string[]', found 'int[]'", 3, 22);
     }

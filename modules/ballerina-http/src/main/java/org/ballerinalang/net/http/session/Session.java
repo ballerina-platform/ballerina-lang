@@ -18,8 +18,9 @@
 
 package org.ballerinalang.net.http.session;
 
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * {@code Session} represents the session interface.
@@ -82,9 +83,16 @@ public interface Session {
     /**
      * Get attribute name list.
      *
-     * @return name array.
+     * @return array of attribute names.
      */
     String[]  getAttributeNames();
+
+    /**
+     * Get attribute key value map.
+     *
+     * @return map of key value pairs.
+     */
+    BMap<String, BValue> getAttributes();
 
     /**
      * Remove attribute from session.

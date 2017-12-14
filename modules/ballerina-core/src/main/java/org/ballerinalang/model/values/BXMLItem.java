@@ -28,6 +28,7 @@ import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.impl.common.OMNamespaceImpl;
 import org.apache.axiom.om.impl.dom.CommentImpl;
 import org.apache.axiom.om.impl.dom.TextImpl;
+import org.apache.axiom.om.impl.llom.OMAttributeImpl;
 import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
@@ -44,6 +45,8 @@ import java.util.Set;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
+
+import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
  * {@code BXML} represents a single XML item in Ballerina.
@@ -194,17 +197,18 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public String getAttribute(String localName, String namespace, String prefix) {
-        if (nodeType != XMLNodeType.ELEMENT || localName.isEmpty()) {
-            return ZERO_STRING_VALUE;
+        if (nodeType != XMLNodeType.ELEMENT || localName == null || localName.isEmpty()) {
+            return STRING_NULL_VALUE;
         }
-        OMAttribute attribute = ((OMElement) omNode).getAttribute(new QName(namespace, localName, prefix));
+        QName attributeName = getQName(localName, namespace, prefix); 
+        OMAttribute attribute = ((OMElement) omNode).getAttribute(attributeName);
         
         if (attribute != null) {
             return attribute.getAttributeValue();
         }
         
         OMNamespace ns = ((OMElement) omNode).findNamespaceURI(localName);
-        return ns == null ? ZERO_STRING_VALUE : ns.getNamespaceURI();
+        return ns == null ? STRING_NULL_VALUE : ns.getNamespaceURI();
     }
     
     /**
@@ -216,20 +220,31 @@ public final class BXMLItem extends BXML<OMNode> {
             return;
         }
 
-        if (localName.isEmpty()) {
+        if (localName == null || localName.isEmpty()) {
             throw new BallerinaException("localname of the attribute cannot be empty");
         }
-        
+
         // If the attribute already exists, update the value.
         OMElement node = (OMElement) omNode;
-        OMAttribute attr = node.getAttribute(new QName(namespaceUri, localName, prefix));
+        QName qname = getQName(localName, namespaceUri, prefix);
+        OMAttribute attr = node.getAttribute(qname);
         if (attr != null) {
             attr.setAttributeValue(value);
             return;
         }
 
-        if (prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+        // If the prefix is 'xmlns' then this is a namespace addition
+        if (prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             node.declareNamespace(value, localName);
+            return;
+        }
+
+        // If the namespace is null/empty, only the local part exists. Therefore add a simple attribute.
+        if (namespaceUri == null || namespaceUri.isEmpty()) {
+            attr = new OMAttributeImpl();
+            attr.setAttributeValue(value);
+            attr.setLocalName(localName);
+            node.addAttribute(attr);
             return;
         }
 
@@ -243,7 +258,7 @@ public final class BXMLItem extends BXML<OMNode> {
         }
 
         OMNamespace ns = null;
-        if (!prefix.isEmpty()) {
+        if (prefix != null && !prefix.isEmpty()) {
             OMNamespace existingNs = node.findNamespaceURI(prefix);
 
             // If a namespace exists with the same prefix but a different uri, then do not add the new attribute.
@@ -256,9 +271,9 @@ public final class BXMLItem extends BXML<OMNode> {
             node.addAttribute(localName, value, ns);
             return;
         }
-        
-        // We reach here if the namespace prefix is empty, and a namespace uri exists
-        if (!namespaceUri.isEmpty()) {
+
+        // We reach here if the namespace prefix is null/empty, and a namespace uri exists
+        if (namespaceUri != null && !namespaceUri.isEmpty()) {
             prefix = null;
             // Find a prefix that has the same namespaceUri, out of the defined namespaces
             Iterator<String> prefixes = node.getNamespaceContext(false).getPrefixes(namespaceUri);
@@ -277,7 +292,7 @@ public final class BXMLItem extends BXML<OMNode> {
                 return;
             }
 
-            // else create use the prefix. If the prefix is null, it will generate a random prefix.
+            // else use the prefix. If the prefix is null, it will generate a random prefix.
             ns = new OMNamespaceImpl(namespaceUri, prefix);
         }
         node.addAttribute(localName, value, ns);
@@ -322,10 +337,10 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void setAttributes(BMap<String, ?> attributes) {
-        if (nodeType != XMLNodeType.ELEMENT) {
+        if (nodeType != XMLNodeType.ELEMENT || attributes == null) {
             return;
         }
-        
+
         // Remove existing attributes
         OMElement omElement = ((OMElement) omNode);
         Iterator<OMAttribute> attrIterator = omElement.getAllAttributes();
@@ -348,10 +363,10 @@ public final class BXMLItem extends BXML<OMNode> {
                 uri = qname.substring(1, qname.indexOf('}'));
             } else {
                 localName = qname;
-                uri = "";
+                uri = STRING_NULL_VALUE;
             }
             
-            setAttribute(localName, uri, "", attributes.get(qname).stringValue());
+            setAttribute(localName, uri, STRING_NULL_VALUE, attributes.get(qname).stringValue());
         }
     }
     
@@ -436,6 +451,10 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void setChildren(BXML<?> seq) {
+        if (seq == null) {
+            return;
+        }
+
         OMElement currentNode;
         switch (nodeType) {
             case ELEMENT:
@@ -462,6 +481,10 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void addChildren(BXML<?> seq) {
+        if (seq == null) {
+            return;
+        }
+
         OMElement currentNode;
         switch (nodeType) {
             case ELEMENT:
@@ -536,7 +559,7 @@ public final class BXMLItem extends BXML<OMNode> {
                 break;
         }
 
-        return new BXMLSequence(new BRefValueArray(descendants.toArray(new BXML[descendants.size()])));
+        return new BXMLSequence(new BRefValueArray(descendants.toArray(new BXML[descendants.size()]), BTypes.typeXML));
     }
     
     // Methods from Datasource impl
@@ -582,7 +605,7 @@ public final class BXMLItem extends BXML<OMNode> {
         } catch (Throwable t) {
             handleXmlException("failed to get xml as string: ", t);
         }
-        return ZERO_STRING_VALUE;
+        return STRING_NULL_VALUE;
     }
     
     /**
@@ -656,11 +679,11 @@ public final class BXMLItem extends BXML<OMNode> {
             case OMNode.TEXT_NODE:
                 return ((OMText) node).getText();
             case OMNode.COMMENT_NODE:
-                return ZERO_STRING_VALUE;
+                return STRING_NULL_VALUE;
             case OMNode.PI_NODE:
-                return ZERO_STRING_VALUE;
+                return STRING_NULL_VALUE;
             default:
-                return ZERO_STRING_VALUE;
+                return STRING_NULL_VALUE;
         }
     }
 
@@ -700,5 +723,15 @@ public final class BXMLItem extends BXML<OMNode> {
         }
 
         omElement.removeAttribute(attribute);
+    }
+
+    private QName getQName(String localName, String namespaceUri, String prefix) {
+        QName qname;
+        if (prefix != null) {
+            qname = new QName(namespaceUri, localName, prefix);
+        } else {
+            qname = new QName(namespaceUri, localName);
+        }
+        return qname;
     }
 }
