@@ -65,6 +65,7 @@ import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ConnectorInfo;
@@ -2666,15 +2667,21 @@ public class BLangVM {
     private void endTransaction(int status) {
         BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
         if (ballerinaTransactionManager != null) {
-            if (status == 0) { //Transaction success
-                ballerinaTransactionManager.commitTransactionBlock();
-            } else if (status == -1) { //Transaction failed
-                ballerinaTransactionManager.rollbackTransactionBlock();
-            } else { //status = 1 Transaction end
-                ballerinaTransactionManager.endTransactionBlock();
-                if (ballerinaTransactionManager.isOuterTransaction()) {
-                    context.setBallerinaTransactionManager(null);
+            try {
+                if (status == TransactionStatus.SUCCESS.value()) {
+                    ballerinaTransactionManager.commitTransactionBlock();
+                } else if (status == TransactionStatus.FAILED.value()) {
+                    ballerinaTransactionManager.rollbackTransactionBlock();
+                } else { //status = 1 Transaction end
+                    ballerinaTransactionManager.endTransactionBlock();
+                    if (ballerinaTransactionManager.isOuterTransaction()) {
+                        context.setBallerinaTransactionManager(null);
+                    }
                 }
+            } catch (Throwable e) {
+                context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
+                handleError();
+                return;
             }
         }
     }
@@ -2685,7 +2692,10 @@ public class BLangVM {
         if (retryCountAvailable == 1) {
             retryCount = (int) controlStack.currentFrame.getLongRegs()[0];
             if (retryCount < 0) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_RETRY_COUNT);
+                context.setError(BLangVMErrors.createError(this.context, ip,
+                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
+                handleError();
+                return;
             }
         }
         BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
@@ -2694,6 +2704,7 @@ public class BLangVM {
             context.setBallerinaTransactionManager(ballerinaTransactionManager);
         }
         ballerinaTransactionManager.beginTransactionBlock(transactionId, retryCount);
+
     }
 
     private void retryTransaction(int transactionId, int startOfAbortIP) {
