@@ -149,6 +149,31 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertEquals(responseMsgPayload, "session is returned");
     }
 
+    @Test(description = "Test create session if absent with multiple cookies")
+    public void testCreateSessionIfAbsentWithMultipleCookies() {
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/new9", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
+        Assert.assertNotNull(response);
+
+        String responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertNotNull(responseMsgPayload);
+        Assert.assertEquals(responseMsgPayload, "FirstName");
+
+        String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
+        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 15);
+
+        cMsg = MessageUtils.generateHTTPMessage("/sample2/new9", "GET");
+        cMsg.setHeader(COOKIE_HEADER, "A=5454252;  " + SESSION_ID + sessionId + "; JSESSIONID=5454252");
+        response = Services.invokeNew(compileResult, cMsg);
+        Assert.assertNotNull(response);
+
+        responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertNotNull(responseMsgPayload);
+        Assert.assertEquals(responseMsgPayload, "SecondName");
+    }
+
     @Test(description = "Test getting a session with multiple cookies")
     public void testGetSessionWithMultipleCookies() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample/test1", "GET");

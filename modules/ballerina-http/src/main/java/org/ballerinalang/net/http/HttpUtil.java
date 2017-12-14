@@ -30,6 +30,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
@@ -63,6 +64,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -446,6 +448,20 @@ public class HttpUtil {
                     , statusFuture.getStatus().getCause()));
         }
         return abstractNativeFunction.VOID_RETURN;
+    }
+
+    public static BStruct createSessionStruct(Context context, Session session) {
+        BStruct sessionStruct = ConnectorUtils
+                .createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_HTTP, Constants.SESSION);
+        //Add session to the struct as a native data
+        sessionStruct.addNativeData(Constants.HTTP_SESSION, session);
+        return sessionStruct;
+    }
+
+    public static String getSessionID(String cookieHeader) {
+        return Arrays.stream(cookieHeader.split(";"))
+                .filter(cookie -> cookie.trim().startsWith(Constants.SESSION_ID))
+                .findFirst().get().trim().substring(Constants.SESSION_ID.length());
     }
 
     public static void addHTTPSessionAndCorsHeaders(HTTPCarbonMessage requestMsg, HTTPCarbonMessage responseMsg) {
