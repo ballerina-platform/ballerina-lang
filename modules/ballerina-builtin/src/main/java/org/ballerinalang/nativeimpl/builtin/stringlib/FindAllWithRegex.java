@@ -33,7 +33,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Native function ballerina.model.strings:findAll.
+ * Native function ballerina.model.strings:findAllWithRegex.
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
