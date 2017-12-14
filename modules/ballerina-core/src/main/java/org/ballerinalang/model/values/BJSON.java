@@ -175,6 +175,8 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
                 JsonGenerator gen = new JsonGenerator(this.outputStream);
                 this.datasource.serialize(gen);
                 gen.flush();
+                //TEMP FIX, this should be removed after this is done from the transport code
+                this.outputStream.close();
             }
         } catch (Throwable t) {
             handleJsonException("error occurred during writing the message to the output stream: ", t);
