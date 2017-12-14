@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.StructureType;
@@ -57,6 +58,7 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     private int entryPkgCPIndex;
     private String entryPkgName;
     private PackageInfo entryPackage;
+    private ServerConnectorRegistry serverConnectorRegistry;
     private boolean mainFucAvailable = false;
     private boolean servicesAvailable = false;
 
@@ -122,6 +124,14 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
 
     public void setServiceEPAvailable(boolean servicesAvailable) {
         this.servicesAvailable = servicesAvailable;
+    }
+
+    public ServerConnectorRegistry getServerConnectorRegistry() {
+        return serverConnectorRegistry;
+    }
+
+    public void setServerConnectorRegistry(ServerConnectorRegistry serverConnectorRegistry) {
+        this.serverConnectorRegistry = serverConnectorRegistry;
     }
 
     // CP

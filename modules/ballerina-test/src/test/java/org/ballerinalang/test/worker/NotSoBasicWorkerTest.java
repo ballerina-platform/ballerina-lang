@@ -156,7 +156,7 @@ public class NotSoBasicWorkerTest {
         Assert.assertEquals(ret.intValue(), 65000);
     }
 
-    @Test
+//    @Test
     public void testForkJoinWorkersWithNonBlockingConnector() {
         CompileResult result = BCompileUtil.compile("test-src/workers/fork-join-blocking.bal");
         Context ctx = new Context(result.getProgFile());
