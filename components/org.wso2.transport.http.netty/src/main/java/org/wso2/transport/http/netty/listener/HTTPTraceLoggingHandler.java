@@ -88,7 +88,7 @@ public class HTTPTraceLoggingHandler extends LoggingHandler {
         if (logger.isEnabled(internalLevel)) {
             logger.log(internalLevel, format(ctx, EVENT_OUTBOUND, msg));
         }
-        ctx.write(msg);
+        ctx.write(msg, promise);
     }
 
     @Override
