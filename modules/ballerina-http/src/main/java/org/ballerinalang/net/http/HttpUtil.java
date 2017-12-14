@@ -945,7 +945,7 @@ public class HttpUtil {
     }
 
     public static void methodInvocationCheck(BStruct bStruct, HTTPCarbonMessage httpMsg) {
-        if (bStruct.getNativeData(METHOD_ACCESSED) != null) {
+        if (bStruct.getNativeData(METHOD_ACCESSED) != null || httpMsg == null) {
             throw new IllegalStateException("illegal function invocation");
         }
 

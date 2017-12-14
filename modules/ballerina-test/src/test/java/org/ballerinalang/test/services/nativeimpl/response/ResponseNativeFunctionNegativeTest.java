@@ -230,7 +230,7 @@ public class ResponseNativeFunctionNegativeTest {
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
         Assert.assertTrue(StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
-                .contains("operation not allowed"));
+                .contains("illegal function invocation"));
     }
 
     @Test
@@ -243,7 +243,7 @@ public class ResponseNativeFunctionNegativeTest {
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
         Assert.assertTrue(StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
-                .contains("operation not allowed"));
+                .contains("illegal function invocation"));
     }
 
     @Test
