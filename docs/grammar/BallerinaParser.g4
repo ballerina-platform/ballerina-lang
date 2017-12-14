@@ -244,7 +244,6 @@ statement
     |   throwStatement
     |   returnStatement
     |   workerInteractionStatement
-    |   commentStatement
     |   expressionStmt
     |   transactionStatement
     |   abortStatement
@@ -388,10 +387,6 @@ triggerWorker
 // below left Identifier is of type WORKER and the right Identifier is of type message
 workerReply
     :   expressionList LARROW Identifier SEMICOLON
-    ;
-
-commentStatement
-    :   LINE_COMMENT
     ;
 
 variableReference
