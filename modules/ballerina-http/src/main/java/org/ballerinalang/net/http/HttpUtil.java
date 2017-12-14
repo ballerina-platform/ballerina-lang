@@ -545,6 +545,7 @@ public class HttpUtil {
 
         if (cMsg.getHeader(Constants.USER_AGENT_HEADER) != null) {
             request.setStringField(Constants.REQUEST_USER_AGENT_INDEX, cMsg.getHeader(Constants.USER_AGENT_HEADER));
+            cMsg.removeHeader(Constants.USER_AGENT_HEADER);
         }
         request.setRefField(Constants.REQUEST_HEADERS_INDEX,
                 prepareHeaderMap(cMsg.getHeaders(), new BMap<>()));
@@ -559,6 +560,7 @@ public class HttpUtil {
 
         if (cMsg.getHeader(Constants.SERVER_HEADER) != null) {
             response.setStringField(Constants.RESPONSE_SERVER_INDEX, cMsg.getHeader(Constants.SERVER_HEADER));
+            cMsg.removeHeader(Constants.SERVER_HEADER);
         }
         response.setRefField(Constants.RESPONSE_HEADERS_INDEX,
                 prepareHeaderMap(cMsg.getHeaders(), new BMap<>()));
@@ -566,8 +568,7 @@ public class HttpUtil {
 
     @SuppressWarnings("unchecked")
     public static void populateOutboundRequest(BStruct request, HTTPCarbonMessage reqMsg) {
-        BMap<String, BValue> headers = (BMap) request.getRefField(Constants.REQUEST_HEADERS_INDEX);
-        setHeadersToTransportMessage(reqMsg, headers);
+        setHeadersToTransportMessage(reqMsg, request);
     }
 
     public static void populateOutboundResponse(BStruct response, HTTPCarbonMessage resMsg, HTTPCarbonMessage reqMsg) {
@@ -645,11 +646,12 @@ public class HttpUtil {
      * Set headers of request/response struct to the transport message.
      *
      * @param cMsg transport Http carbon message.
-     * @param headers header map of struct.
+     * @param struct req/resp struct.
      */
-    @SuppressWarnings("unchecked")
-    public static void setHeadersToTransportMessage(HTTPCarbonMessage cMsg, BMap<String, BValue> headers) {
+    public static void setHeadersToTransportMessage(HTTPCarbonMessage cMsg, BStruct struct) {
         cMsg.getHeaders().clear();
+        BMap<String, BValue> headers = struct.getType().getName().equals(Constants.REQUEST) ?
+                getRequestStructHeaders(struct) : getResponseStructHeaders(struct);
         if (headers == null) {
             return;
         }
@@ -660,10 +662,37 @@ public class HttpUtil {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    private static BMap<String, BValue> getRequestStructHeaders(BStruct struct) {
+        BMap<String, BValue> headers = (BMap) struct.getRefField(Constants.REQUEST_HEADERS_INDEX);
+        if (headers == null) {
+            return null;
+        }
+        HttpHeaders removedHeaders = new DefaultHttpHeaders();
+        if (!struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX).equals("")) {
+            removedHeaders.add(Constants.USER_AGENT_HEADER, struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX));
+        }
+        return prepareHeaderMap(removedHeaders, headers);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static BMap<String, BValue> getResponseStructHeaders(BStruct struct) {
+        BMap<String, BValue> headers = (BMap) struct.getRefField(Constants.RESPONSE_HEADERS_INDEX);
+        if (headers == null) {
+            return null;
+        }
+        HttpHeaders removedHeaders = new DefaultHttpHeaders();
+        if (struct.getNativeData(Constants.OUTBOUND_RESPONSE) == null
+                && !struct.getStringField(Constants.RESPONSE_SERVER_INDEX).equals("")) {
+            removedHeaders.add(Constants.SERVER_HEADER, struct.getStringField(Constants.RESPONSE_SERVER_INDEX));
+        }
+        return prepareHeaderMap(removedHeaders, headers);
+    }
+
     private static String buildHeaderValue(BMap<String, BValue> headers, String key) {
         StringBuilder headerValue = new StringBuilder();
         if (headers.get(key).getType().getTag() != TypeTags.ARRAY_TAG) {
-            throw new BallerinaException("expects an array as value for header key: " + key);
+            throw new BallerinaException("expects an array as header value for header : " + key);
         }
         BRefValueArray headerValues = (BRefValueArray) headers.get(key);
         for (int index = 0; index < headerValues.size(); index++) {

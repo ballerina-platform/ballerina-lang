@@ -9,7 +9,7 @@ package ballerina.net.http;
 @Field {value:"userAgent: User-Agent request header"}
 @Field {value:"headers: Request headers"}
 public struct Request {
-	string host;
+	string remoteHost;
 	int port;
 	string path;
 	string method;
@@ -77,72 +77,10 @@ public native function <Request req> setProperty (string propertyName, string pr
 @Param { value:"payload: The payload to be set to the request as a string" }
 public native function <Request req> setStringPayload (string payload);
 
-@Description { value:"Gets a transport header from the request"}
-@Param { value:"req: A request message" }
-@Param { value:"headerName: The header name" }
-@Return { value:"The first header value struct for the provided header name. Returns null if the header does not exist." }
-public function <Request req> getHeader (string headerName)(HeaderValue) {
-	if (req.headers == null) {
-		return null;
-	}
-	var headerValues = req.headers[headerName];
-	if (headerValues == null) {
-		return null;
-	}
-	var valueArray, err = (HeaderValue[])headerValues;
-	if (err != null) {
-		error errMsg = {msg:"expect 'ballerina.net.http:HeaderValue[]' as header value type of : " + headerName};
-		throw errMsg;
-	}
-	return valueArray[0];
-}
-
 @Description { value:"Gets the request payload as a string"}
 @Param { value:"req: A request message" }
 @Return { value:"The string representation of the message payload" }
 public native function <Request req> getStringPayload () (string);
-
-@Description { value:"Adds the specified key/value pair as an HTTP header to the request"}
-@Param { value:"req: A request message" }
-@Param { value:"key: The header name" }
-@Param { value:"value: The header value" }
-public function <Request req> addHeader (string key, string value) {
-	if (req.headers == null) {
-		req.headers = {};
-	}
-	var headerValues = req.headers[key];
-	if (headerValues == null) {
-		HeaderValue[] headers = [{value:value}];
-		req.headers[key] = headers;
-	} else {
-		var valueArray, err =  (HeaderValue[])headerValues;
-		if (err != null) {
-			error errMsg = {msg:"expect 'ballerina.net.http:HeaderValue[]' as header value type of : " + key};
-			throw errMsg;
-		}
-		valueArray[lengthof valueArray] = {value:value};
-	}
-}
-
-@Description { value:"Gets transport headers from the request"}
-@Param { value:"req: A request message" }
-@Param { value:"headerName: The header name" }
-@Return { value:"The header values struct array for a given header name" }
-public function <Request req> getHeaders (string headerName) (HeaderValue[]) {
-	if (req.headers == null) {
-		return null;
-	}
-	var headerValues = req.headers[headerName];
-	if (headerValues == null) {
-		return null;
-	}
-	var valueArray, err =  (HeaderValue[])headerValues;
-	if (err != null) {
-		error errMsg = {msg:"expect 'ballerina.net.http:HeaderValue[]' as header value type of : " + headerName};
-		throw errMsg;
-	}
-    return valueArray;
-}
 
 @Description { value:"Sets a JSON as the request payload"}
 @Param { value:"req: A request message" }
@@ -155,48 +93,20 @@ public native function <Request req> setJsonPayload (json payload);
 @Return { value:"The property value" }
 public native function <Request req> getProperty (string propertyName) (string);
 
-@Description { value:"Removes a transport header from the request"}
-@Param { value:"req: A request message" }
-@Param { value:"key: The header name" }
-public function <Request req> removeHeader (string key) {
-	if (req.headers == null) {
-		return;
-	}
-	req.headers.remove(key);
-}
-
-@Description { value:"Removes all transport headers from the message"}
-@Param { value:"req: A request message" }
-public function <Request req> removeAllHeaders () {
-    req.headers = {};
-}
-
 @Description { value:"Sets an XML as the payload"}
 @Param { value:"req: A request message" }
 @Param { value:"payload: The XML payload object" }
 public native function <Request req> setXmlPayload (xml payload);
 
-@Description { value:"Sets the value of a transport header"}
-@Param { value:"req: A request message" }
-@Param { value:"key: The header name" }
-@Param { value:"value: The header value" }
-public function <Request req> setHeader (string key, string value) {
-	if (req.headers == null) {
-		req.headers = {};
-	}
-	HeaderValue[] header = [{value:value}];
-	req.headers[key] = header;
-}
-
 @Description { value:"Represents an HTTP response message"}
 @Field {value:"statusCode: The response status code"}
-@Field {value:"reasonPhrase: The response reason phrase"}
+@Field {value:"reasonPhrase: The status code reason phrase"}
 @Field {value:"server: The server header"}
 @Field {value:"headers: Response headers"}
 public struct Response {
     int statusCode;
     string reasonPhrase;
-	string server;
+    string server;
     map headers;
 }
 
@@ -246,72 +156,10 @@ public native function <Response res> setProperty (string propertyName, string p
 @Param { value:"payload: The string payload to be set" }
 public native function <Response res> setStringPayload (string payload);
 
-@Description { value:"Gets the named HTTP header from the response"}
-@Param { value:"res: The response message" }
-@Param { value:"headerName: The header name" }
-@Return { value:"The first header value struct for the provided header name. Returns null if the header does not exist." }
-public function <Response res> getHeader (string headerName) (HeaderValue) {
-	if (res.headers == null) {
-		return null;
-	}
-	var headerValues = res.headers[headerName];
-	if (headerValues == null) {
-		return null;
-	}
-	var valueArray, err = (HeaderValue[])headerValues;
-	if (err != null) {
-		error errMsg = {msg:"expect 'ballerina.net.http:HeaderValue[]' as header value type of : " + headerName};
-		throw errMsg;
-	}
-	return valueArray[0];
-}
-
 @Description { value:"Gets the response payload as a string"}
 @Param { value:"res: The response message" }
 @Return { value:"The string representation of the message payload" }
 public native function <Response res> getStringPayload () (string);
-
-@Description { value:"Adds the specified key/value pair as an HTTP header to the response"}
-@Param { value:"res: The response message" }
-@Param { value:"key: The header name" }
-@Param { value:"value: The header value" }
-public function <Response res> addHeader (string key, string value) {
-	if (res.headers == null) {
-		res.headers = {};
-	}
-	var headerValues = res.headers[key];
-	if (headerValues == null) {
-		HeaderValue[] headers = [{value:value}];
-		res.headers[key] = headers;
-	} else {
-		var valueArray, err =  (HeaderValue[])headerValues;
-		if (err != null) {
-			error errMsg = {msg:"expect 'ballerina.net.http:HeaderValue[]' as header value type of : " + key};
-			throw errMsg;
-		}
-		valueArray[lengthof valueArray] = {value:value};
-	}
-}
-
-@Description { value:"Gets the HTTP headers from the response"}
-@Param { value:"res: The response message" }
-@Param { value:"headerName: The header name" }
-@Return { value:"The header values struct array for a given header name" }
-public function <Response res> getHeaders (string headerName) (HeaderValue[]) {
-	if (res.headers == null) {
-		return null;
-	}
-	var headerValues = res.headers[headerName];
-	if (headerValues == null) {
-		return null;
-	}
-	var valueArray, err =  (HeaderValue[])headerValues;
-	if (err != null) {
-		error errMsg = {msg:"expect 'ballerina.net.http:HeaderValue[]' as header value type of : " + headerName};
-		throw errMsg;
-	}
-	return valueArray;
-}
 
 @Description { value:"Sets a JSON as the response payload"}
 @Param { value:"req: The response message" }
@@ -324,38 +172,10 @@ public native function <Response res> setJsonPayload (json payload);
 @Return { value:"The property value" }
 public native function <Response res> getProperty (string propertyName) (string);
 
-@Description { value:"Removes a transport header from the response"}
-@Param { value:"res: The response message" }
-@Param { value:"key: The header name" }
-public function <Response res> removeHeader (string key) {
-	if (res.headers == null) {
-		return;
-	}
-	res.headers.remove(key);
-}
-
-@Description { value:"Removes all transport headers from the response"}
-@Param { value:"res: The response message" }
-public function <Response res> removeAllHeaders () {
-	res.headers = {};
-}
-
 @Description { value:"Sets an XML as the response payload"}
 @Param { value:"res: The response message" }
 @Param { value:"payload: The XML payload object" }
 public native function <Response res> setXmlPayload (xml payload);
-
-@Description { value:"Sets the value of a transport header"}
-@Param { value:"res: The response message" }
-@Param { value:"key: The header name" }
-@Param { value:"value: The header value" }
-public function <Response res> setHeader (string key, string value) {
-	if (res.headers == null) {
-		res.headers = {};
-	}
-	HeaderValue[] header = [{value:value}];
-	res.headers[key] = header;
-}
 
 @Description { value:"Sends outbound response to the caller."}
 @Param { value:"res: The response message" }

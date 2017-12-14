@@ -20,7 +20,6 @@ package org.ballerinalang.net.http.nativeimpl.response;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -79,8 +78,7 @@ public class Forward extends AbstractNativeFunction {
             responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
         }
         if (clientResponseStruct.getRefField(Constants.RESPONSE_HEADERS_INDEX) != null) {
-            HttpUtil.setHeadersToTransportMessage(responseMessage,
-                    (BMap) clientResponseStruct.getRefField(Constants.RESPONSE_HEADERS_INDEX));
+            HttpUtil.setHeadersToTransportMessage(responseMessage, clientResponseStruct);
         }
 
         MessageDataSource messageDataSource = HttpUtil.getMessageDataSource(responseStruct);
