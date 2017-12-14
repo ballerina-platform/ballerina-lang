@@ -24,7 +24,6 @@ import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
-import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -124,11 +123,10 @@ public class TextDocumentServiceUtil {
      */
     public static BLangPackage getBLangPackage(TextDocumentServiceContext context,
                                                WorkspaceDocumentManager docManager) {
-        TextDocumentPositionParams position = context.get(DocumentServiceKeys.POSITION_KEY);
-        String uri = position.getTextDocument().getUri();
+        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         String fileContent = docManager.getFileContent(Paths.get(URI.create(uri)));
         Path filePath = getPath(uri);
-        String[] pathComponents = position.getTextDocument().getUri().split("\\" + File.separator);
+        String[] pathComponents = uri.split("\\" + File.separator);
         String fileName = pathComponents[pathComponents.length - 1];
         String pkgName = TextDocumentServiceUtil.getPackageFromContent(fileContent);
         String sourceRoot = TextDocumentServiceUtil.getSourceRoot(filePath, pkgName);
