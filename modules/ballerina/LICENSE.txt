@@ -32,10 +32,7 @@ commons-pool-1.5.6.wso2v1.jar                                                   
 geronimo-activation_1.1_spec-1.1.jar                                            bundle         apache2   2103      
 geronimo-stax-api_1.0_spec-1.0.1.jar                                            bundle         apache2   635       
 HikariCP-2.5.1.jar                                                              bundle         apache2   2101      
-jackson-annotations-2.8.0.jar                                                   bundle         apache2   2100      
-jackson-core-2.8.6.jar                                                          bundle         apache2   2099      
-jackson-databind-2.8.6.jar                                                      bundle         apache2   2098      
-javax.transaction-api-1.2.jar                                                   bundle         cddl+gpl  2200      
+javax.transaction-api-1.2.jar                                                   bundle         cddl+gpl  2200
 javax.websocket-api-1.1.jar                                                     bundle         cddl+gpl  2096      
 jaxen-1.1.6.jar                                                                 bundle         apache2   2095      
 jcommander-1.60.jar                                                             jar            apache2   2094      
