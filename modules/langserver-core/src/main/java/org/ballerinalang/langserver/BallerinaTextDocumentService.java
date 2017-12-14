@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
 import org.ballerinalang.langserver.hover.HoverKeys;
 import org.ballerinalang.langserver.hover.HoverTreeVisitor;
+import org.ballerinalang.langserver.hover.constants.HoverConstants;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
@@ -130,15 +131,22 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<Hover> hover(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
             TextDocumentServiceContext hoverContext = new TextDocumentServiceContext();
+            HoverUtil hoverUtil = new HoverUtil();
             hoverContext.put(DocumentServiceKeys.POSITION_KEY, position);
             BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(hoverContext, documentManager);
             HoverTreeVisitor hoverTreeVisitor = new HoverTreeVisitor(hoverContext);
             bLangPackage.accept(hoverTreeVisitor);
-            Hover hover = null;
-            if(hoverContext.get(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY).name.getValue().equals("ballerina.builtin")){
-                HoverUtil hoverUtil = new HoverUtil();
+            Hover hover;
+            if (hoverContext.get(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY) != null
+                    && hoverContext.get(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY).name.getValue()
+                    .equals(HoverConstants.BUILT_IN_PACKAGE)) {
                 BLangPackage packages = hoverUtil
                         .getBuiltInPackage(hoverContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY),
+                                hoverContext.get(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY).name);
+                hover = hoverUtil.resolveBuiltInPackageDoc(packages, hoverContext);
+            } else {
+                BLangPackage packages = hoverUtil
+                        .getNativePackage(hoverContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY),
                                 hoverContext.get(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY).name);
                 hover = hoverUtil.resolveBuiltInPackageDoc(packages, hoverContext);
             }
@@ -358,14 +366,5 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         } finally {
             return path;
         }
-    }
-
-    protected CompilerContext prepareCompilerContext(PackageRepository packageRepository, String sourceRoot) {
-        CompilerContext context = new CompilerContext();
-        context.put(PackageRepository.class, packageRepository);
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, sourceRoot);
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_ANALYZE.toString());
-        return context;
     }
 }

@@ -18,49 +18,59 @@ package org.ballerinalang.langserver.hover.util;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.hover.HoverKeys;
 import org.ballerinalang.langserver.hover.constants.HoverConstants;
-import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
- * Utility class for Hover functionality of language server
+ * Utility class for Hover functionality of language server.
  */
 public class HoverUtil {
 
-    public BLangPackage loadBuiltInPackage(CompilerContext context) {
-        BLangPackage builtInCorePkg = getBuiltInPackage(context, Names.BUILTIN_CORE_PACKAGE);
-        SymbolTable symbolTable = SymbolTable.getInstance(context);
-        symbolTable.createErrorTypes();
-        symbolTable.loadOperators();
-        // Load built-in packages.
-        BLangPackage builtInPkg = getBuiltInPackage(context, Names.BUILTIN_PACKAGE);
-        builtInCorePkg.getStructs().forEach(s -> {
-            builtInPkg.getStructs().add(s);
-            builtInPkg.topLevelNodes.add(s);
-        });
-        symbolTable.builtInPackageSymbol = builtInPkg.symbol;
-        return builtInPkg;
+    public BLangPackage getNativePackage(CompilerContext context, Name name) {
+        BLangPackage nativePackage = null;
+        PackageLoader packageLoader = PackageLoader.getInstance(context);
+        // max depth for the recursive function which search for child directories
+        int maxDepth = 15;
+        Set<PackageID> packages = packageLoader.listPackages(maxDepth);
+        for (PackageID pkg : packages) {
+            Name version = pkg.getPackageVersion();
+            BLangIdentifier bLangIdentifier = new BLangIdentifier();
+            bLangIdentifier.setValue(version.getValue());
+
+            List<BLangIdentifier> pkgNameComps = pkg.getNameComps().stream().map(nameToBLangIdentifier)
+                    .collect(Collectors.<BLangIdentifier>toList());
+            // we have already loaded ballerina.builtin and ballerina.builtin.core. hence skipping loading those
+            // packages.
+            if (!"ballerina.builtin".equals(pkg.getName().getValue())
+                    && !"ballerina.builtin.core".equals(pkg.getName().getValue())
+                    && name.getValue().equals(pkg.getName().getValue())) {
+                org.wso2.ballerinalang.compiler.tree.BLangPackage bLangPackage = packageLoader
+                        .loadPackage(pkgNameComps, bLangIdentifier);
+                nativePackage = bLangPackage;
+            }
+        }
+
+        return nativePackage;
     }
 
     public BLangPackage getBuiltInPackage(CompilerContext context, Name name) {
@@ -80,15 +90,13 @@ public class HoverUtil {
                         .findAny().orElse(null);
                 if (bLangFunction != null) {
                     hover = new Hover();
-                    String content = "";
-                    content += getAnnotationValue(HoverConstants.DESCRIPTION, bLangFunction.annAttachments);
-                    content += getAnnotationValue(HoverConstants.PARAM, bLangFunction.annAttachments);
+                    StringBuilder content = new StringBuilder();
+                    content.append(getAnnotationValue(HoverConstants.DESCRIPTION, bLangFunction.annAttachments));
+                    content.append(getAnnotationValue(HoverConstants.PARAM, bLangFunction.annAttachments));
                     List<Either<String, MarkedString>> contents = new ArrayList<>();
-                    contents.add(Either.forLeft(content));
+                    contents.add(Either.forLeft(content.toString()));
                     hover.setContents(contents);
                 }
-                break;
-            case HoverConstants.ACTION:
                 break;
             default:
                 break;
@@ -96,43 +104,48 @@ public class HoverUtil {
         return hover;
     }
 
-    public Node resolveNodeAsToPosition(String fileName,
-                                        BLangPackage bLangPackage, TextDocumentPositionParams positionParams) {
-        BLangCompilationUnit bLangCompilationUnit =
-                bLangPackage.compUnits.stream().filter(unit -> unit.name.equals(fileName)).findAny().orElse(null);
-        TopLevelNode topLevelNode = bLangCompilationUnit.getTopLevelNodes().stream().filter(node ->
-                node.getPosition().getStartLine() <= positionParams.getPosition().getLine()
-                        && node.getPosition().getEndLine() >= positionParams.getPosition().getLine()).findAny().orElse(null);
-        return null;
-    }
-
     public static boolean isMatchingPosition(DiagnosticPos nodePosition, Position textPosition) {
         boolean isCorrectPosition = false;
-        if (nodePosition.sLine <= textPosition.getLine() && nodePosition.eLine >= textPosition.getLine()
-                && nodePosition.sCol <= textPosition.getCharacter() && nodePosition.eCol >= textPosition.getCharacter()) {
+        if (nodePosition.sLine <= textPosition.getLine()
+                && nodePosition.eLine >= textPosition.getLine()
+                && nodePosition.sCol <= textPosition.getCharacter()
+                && nodePosition.eCol >= textPosition.getCharacter()) {
             isCorrectPosition = true;
         }
         return isCorrectPosition;
     }
 
     private String getAnnotationValue(String annotationName, List<BLangAnnotationAttachment> annotationAttachments) {
-        String value = "";
+        StringBuilder value = new StringBuilder();
         for (BLangAnnotationAttachment annotationAttachment : annotationAttachments) {
             if (annotationAttachment.annotationName.getValue().equals(annotationName)) {
-                value += getAnnotationAttributes("value", annotationAttachment.attributes)+"\n";
+                value.append(getAnnotationAttributes("value", annotationAttachment.attributes))
+                        .append("\n");
             }
         }
-        return value;
+        return value.toString();
     }
 
-    private String getAnnotationAttributes(String attributeName, List<BLangAnnotAttachmentAttribute> annotAttachmentAttributes) {
+    private String getAnnotationAttributes(String attributeName,
+                                           List<BLangAnnotAttachmentAttribute> annotAttachmentAttributes) {
         String value = "";
-        for(BLangAnnotAttachmentAttribute attribute : annotAttachmentAttributes){
-            if(attribute.name.getValue().equals(attributeName)){
-                value = ((BLangLiteral)attribute.value.value).getValue().toString();
+        for (BLangAnnotAttachmentAttribute attribute : annotAttachmentAttributes) {
+            if (attribute.name.getValue().equals(attributeName)) {
+                value = ((BLangLiteral) attribute.value.value).getValue().toString();
                 break;
             }
         }
         return value;
     }
+
+    /**
+     * Function to convert org.wso2.ballerinalang.compiler.util.Name instance to
+     * org.wso2.ballerinalang.compiler.tree.BLangIdentifier instance.
+     */
+    private static java.util.function.Function<Name, BLangIdentifier> nameToBLangIdentifier =
+            name -> {
+                BLangIdentifier bLangIdentifier = new BLangIdentifier();
+                bLangIdentifier.setValue(name.getValue());
+                return bLangIdentifier;
+            };
 }
