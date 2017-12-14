@@ -53,7 +53,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -227,11 +226,6 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAbort abortNode) {
-        // TODO: implement support for hover.
-    }
-
-    @Override
-    public void visit(BLangRetry retryNode) {
         // TODO: implement support for hover.
     }
 

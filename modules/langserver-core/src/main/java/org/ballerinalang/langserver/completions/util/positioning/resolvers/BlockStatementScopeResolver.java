@@ -152,15 +152,11 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
 
     private int getTransactionBlockComponentEndLine(BLangTransaction bLangTransaction, BLangBlockStmt bLangBlockStmt) {
         BLangBlockStmt transactionBody = bLangTransaction.transactionBody;
-        BLangBlockStmt committedBody = bLangTransaction.committedBody;
         BLangBlockStmt failedBody = bLangTransaction.failedBody;
-        BLangBlockStmt abortedBody = bLangTransaction.abortedBody;
 
         List<BLangBlockStmt> components = new ArrayList<>();
         components.add(transactionBody);
-        components.add(committedBody);
         components.add(failedBody);
-        components.add(abortedBody);
 
         components.sort(Comparator.comparing(component -> {
             if (component != null) {
