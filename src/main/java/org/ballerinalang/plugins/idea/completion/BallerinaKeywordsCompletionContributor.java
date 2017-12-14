@@ -141,11 +141,6 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
         }
 
         if (parent instanceof PsiErrorElement) {
-            FailedClauseNode failedClauseNode = PsiTreeUtil.getParentOfType(parent, FailedClauseNode.class);
-            if (failedClauseNode != null) {
-                result.addElement(getRetryKeyword());
-            }
-
             PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
             PsiElement definitionNode = PsiTreeUtil.getParentOfType(element, FunctionDefinitionNode.class,
                     ServiceDefinitionNode.class, ConnectorDefinitionNode.class, ResourceDefinitionNode.class);

@@ -96,8 +96,6 @@ public class BallerinaTypes {
     public static final RuleIElementType JOIN_CONDITIONS = ruleIElementTypes.get(RULE_joinConditions);
     public static final RuleIElementType TRANSACTION_STATEMENT = ruleIElementTypes.get(RULE_transactionStatement);
     public static final RuleIElementType FAILED_CLAUSE = ruleIElementTypes.get(RULE_failedClause);
-    public static final RuleIElementType ABORTED_CLAUSE = ruleIElementTypes.get(RULE_abortedClause);
-    public static final RuleIElementType COMMITTED_CLAUSE = ruleIElementTypes.get(RULE_committedClause);
     public static final RuleIElementType XML_LOCAL_NAME = ruleIElementTypes.get(RULE_xmlLocalName);
     public static final RuleIElementType NAME_REFERENCE = ruleIElementTypes.get(RULE_nameReference);
     public static final RuleIElementType VARIABLE_REFERENCE = ruleIElementTypes.get(RULE_variableReference);
@@ -135,10 +133,11 @@ public class BallerinaTypes {
     public static final RuleIElementType PACKAGE_NAME = ruleIElementTypes.get(RULE_packageName);
     public static final RuleIElementType INVOCATION = ruleIElementTypes.get(RULE_invocation);
     public static final RuleIElementType ENUM_FIELD_LIST = ruleIElementTypes.get(RULE_enumFieldList);
+    public static final RuleIElementType TRANSACTION_PROPERTY_INIT_STATEMENT_LIST =
+            ruleIElementTypes.get(RULE_transactionPropertyInitStatementList);
 
     // Keywords
     public static final TokenIElementType ALL = tokenIElementTypes.get(BallerinaLexer.ALL);
-    public static final TokenIElementType ABORTED = tokenIElementTypes.get(BallerinaLexer.ABORTED);
     public static final TokenIElementType ACTION = tokenIElementTypes.get(BallerinaLexer.ACTION);
     public static final TokenIElementType ANNOTATION = tokenIElementTypes.get(BallerinaLexer.ANNOTATION);
     public static final TokenIElementType ANY = tokenIElementTypes.get(BallerinaLexer.TYPE_ANY);
@@ -147,7 +146,6 @@ public class BallerinaTypes {
     public static final TokenIElementType BIND = tokenIElementTypes.get(BallerinaLexer.BIND);
     public static final TokenIElementType BREAK = tokenIElementTypes.get(BallerinaLexer.BREAK);
     public static final TokenIElementType CATCH = tokenIElementTypes.get(BallerinaLexer.CATCH);
-    public static final TokenIElementType COMMITTED = tokenIElementTypes.get(BallerinaLexer.COMMITTED);
     public static final TokenIElementType CONNECTOR = tokenIElementTypes.get(BallerinaLexer.CONNECTOR);
     public static final TokenIElementType CONST = tokenIElementTypes.get(BallerinaLexer.CONST);
     public static final TokenIElementType CREATE = tokenIElementTypes.get(BallerinaLexer.CREATE);
@@ -168,7 +166,7 @@ public class BallerinaTypes {
     public static final TokenIElementType PACKAGE = tokenIElementTypes.get(BallerinaLexer.PACKAGE);
     public static final TokenIElementType PUBLIC = tokenIElementTypes.get(BallerinaLexer.PUBLIC);
     public static final TokenIElementType REPLY = tokenIElementTypes.get(BallerinaLexer.REPLY);
-    public static final TokenIElementType RETRY = tokenIElementTypes.get(BallerinaLexer.RETRY);
+    public static final TokenIElementType RETRIES = tokenIElementTypes.get(BallerinaLexer.RETRIES);
     public static final TokenIElementType RESOURCE = tokenIElementTypes.get(BallerinaLexer.RESOURCE);
     public static final TokenIElementType RETURN = tokenIElementTypes.get(BallerinaLexer.RETURN);
     public static final TokenIElementType RETURNS = tokenIElementTypes.get(BallerinaLexer.RETURNS);

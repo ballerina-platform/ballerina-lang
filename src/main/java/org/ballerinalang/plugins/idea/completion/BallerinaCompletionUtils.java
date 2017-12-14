@@ -123,7 +123,6 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder NEXT;
     private static final LookupElementBuilder BREAK;
     private static final LookupElementBuilder THROW;
-    private static final LookupElementBuilder RETRY;
 
     private static final LookupElementBuilder TRUE;
     private static final LookupElementBuilder FALSE;
@@ -189,7 +188,6 @@ public class BallerinaCompletionUtils {
         NEXT = createKeywordLookupElement("next", ";");
         BREAK = createKeywordLookupElement("break", ";");
         THROW = createKeywordLookupElement("throw");
-        RETRY = createKeywordLookupElement("retry");
 
         TRUE = createKeywordLookupElement("true", null);
         FALSE = createKeywordLookupElement("false", null);
@@ -414,10 +412,6 @@ public class BallerinaCompletionUtils {
         lookupElements.add(createKeywordAsLookup(ALL));
         lookupElements.add(createKeywordAsLookup(SOME));
         return lookupElements;
-    }
-
-    static LookupElement getRetryKeyword() {
-        return createKeywordAsLookup(RETRY);
     }
 
     @NotNull

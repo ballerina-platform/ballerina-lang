@@ -255,7 +255,6 @@ statement
     |   expressionStmt
     |   transactionStatement
     |   abortStatement
-    |   retryStatement
     |   namespaceDeclarationStatement
     ;
 
@@ -439,31 +438,26 @@ expressionStmt
     ;
 
 transactionStatement
-    :   TRANSACTION LEFT_BRACE codeBlockBody transactionHandlers? RIGHT_BRACE
+    :   TRANSACTION (WITH transactionPropertyInitStatementList)? LEFT_BRACE codeBlockBody failedClause? RIGHT_BRACE
     ;
 
-transactionHandlers
-    :   failedClause abortedClause committedClause
+transactionPropertyInitStatement
+    : retriesStatement
+    ;
+
+transactionPropertyInitStatementList
+    : transactionPropertyInitStatement (COMMA transactionPropertyInitStatement)*
     ;
 
 failedClause
     :   RIGHT_BRACE FAILED LEFT_BRACE codeBlockBody
     ;
-
-abortedClause
-    :   RIGHT_BRACE ABORTED LEFT_BRACE codeBlockBody
-    ;
-
-committedClause
-    :   RIGHT_BRACE COMMITTED LEFT_BRACE codeBlockBody
-    ;
-
 abortStatement
     :   ABORT SEMICOLON
     ;
 
-retryStatement
-    :   RETRY expression SEMICOLON
+retriesStatement
+    :   RETRIES LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
     ;
 
 namespaceDeclarationStatement
@@ -498,6 +492,7 @@ expression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
+    |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     ;
 
 simpleExpression

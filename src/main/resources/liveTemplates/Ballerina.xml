@@ -100,8 +100,9 @@
         </context>
     </template>
 
-    <template name="tran" value="transaction {&#10;    $END$&#10;} failed {&#10;    &#10;} aborted {&#10;    &#10;} committed {&#10;    &#10;}"
+    <template name="tran" value="transaction with retries($COUNT$){ {&#10;    $END$&#10;} failed {&#10;    &#10;}"
               description="Transaction Template" toReformat="false" toShortenFQNames="false">
+        <variable name="COUNT" expression="" defaultValue="" alwaysStopAt="true"/>
         <context>
             <option name="BALLERINA_RESOURCE" value="true"/>
             <option name="BALLERINA_FUNCTION" value="true"/>
