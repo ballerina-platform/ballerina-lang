@@ -38,6 +38,10 @@ public class HttpService {
     private CorsHeaders corsHeaders;
     private URITemplate<HttpResource, HTTPCarbonMessage> uriTemplate;
 
+    public Service getBalerinaService() {
+        return balService;
+    }
+
     public HttpService(Service service) {
         this.balService = service;
     }

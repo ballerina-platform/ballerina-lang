@@ -17,12 +17,12 @@
 */
 package org.ballerinalang.test.types.json;
 
-import com.fasterxml.jackson.databind.node.JsonNodeType;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.JsonNode.Type;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -99,7 +99,7 @@ public class JSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().getNodeType(), JsonNodeType.STRING);
+        Assert.assertEquals(((BJSON) returns[0]).value().getType(), Type.STRING);
         Assert.assertEquals(returns[0].stringValue(), "hello");
     }
 
@@ -109,7 +109,7 @@ public class JSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().getNodeType(), JsonNodeType.BOOLEAN);
+        Assert.assertEquals(((BJSON) returns[0]).value().getType(), Type.BOOLEAN);
         Assert.assertEquals(returns[0].stringValue(), "true");
     }
 
@@ -119,7 +119,7 @@ public class JSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().getNodeType(), JsonNodeType.NUMBER);
+        Assert.assertEquals(((BJSON) returns[0]).value().getType(), Type.LONG);
         Assert.assertEquals(returns[0].stringValue(), "45678");
     }
 
@@ -129,7 +129,7 @@ public class JSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().getNodeType(), JsonNodeType.NULL);
+        Assert.assertEquals(((BJSON) returns[0]).value().getType(), Type.NULL);
         Assert.assertEquals(returns[0].stringValue(), "null");
     }
 
@@ -139,7 +139,7 @@ public class JSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().getNodeType(), JsonNodeType.OBJECT);
+        Assert.assertEquals(((BJSON) returns[0]).value().getType(), Type.OBJECT);
         Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"supun\"}");
     }
 
@@ -149,7 +149,7 @@ public class JSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().getNodeType(), JsonNodeType.ARRAY);
+        Assert.assertEquals(((BJSON) returns[0]).value().getType(), Type.ARRAY);
         Assert.assertEquals(returns[0].stringValue(), "[\"supun\",45,true,null]");
     }
 
@@ -160,17 +160,14 @@ public class JSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().getNodeType(), JsonNodeType.OBJECT);
+        Assert.assertEquals(((BJSON) returns[0]).value().getType(), Type.OBJECT);
         Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"supun\",\"address\":{\"street\":\"Palm Grove\"}," +
                 "\"marks\":[78,45,87]}");
     }
 
     @Test(description = "Get JSON from a malformed string",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: error, message: " +
-                  "unrecognized token 'some': was expecting \\('true', 'false' or 'null'\\)\n at \\[Source: some " +
-                  "words " +
-                  "without quotes; line: 1, column: 5\\].*")
+          expectedExceptionsMessageRegExp = ".*unrecognized token 'some'.*")
     public void testParseMalformedString() {
         BValue[] args = {new BString("some words without quotes")};
         BRunUtil.invoke(compileResult, "testParse", args);

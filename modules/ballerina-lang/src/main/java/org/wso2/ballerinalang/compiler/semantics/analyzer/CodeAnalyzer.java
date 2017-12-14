@@ -85,7 +85,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -285,14 +284,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.resetLastStatement();
             this.retryStmtCheckStack.pop();
         }
-        if (transactionNode.committedBody != null) {
-            transactionNode.committedBody.accept(this);
-            this.resetStatementReturns();
-        }
-        if (transactionNode.abortedBody != null) {
-            transactionNode.abortedBody.accept(this);
-            this.resetStatementReturns();
-        }
         this.loopWithintransactionCheckStack.pop();
         this.retryStmtCheckStack.pop();
     }
@@ -301,16 +292,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangAbort abortNode) {
         if (this.transactionCount == 0) {
             this.dlog.error(abortNode.pos, DiagnosticCode.ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
-            return;
-        }
-        this.lastStatement = true;
-    }
-
-    @Override
-    public void visit(BLangRetry retryNode) {
-        boolean valid = !this.retryStmtCheckStack.isEmpty() && this.retryStmtCheckStack.peek();
-        if (!valid) {
-            this.dlog.error(retryNode.pos, DiagnosticCode.INVALID_RETRY_POSITION);
             return;
         }
         this.lastStatement = true;
