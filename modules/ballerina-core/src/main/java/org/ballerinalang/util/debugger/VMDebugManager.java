@@ -77,6 +77,7 @@ public class VMDebugManager {
      *
      * @param programFile   used to initialize debug manager.
      * @param clientHandler session used to communicate with client.
+     * @param debugServer Debug server
      */
     public void init(ProgramFile programFile, DebugClientHandler clientHandler, DebugServer debugServer) {
         this.executionSem = new Semaphore(0);
@@ -102,6 +103,8 @@ public class VMDebugManager {
 
     /**
      * Helper method to add debug context and wait until debugging starts.
+     * 
+     * @param debugContext Debug context
      */
     public void addDebugContextAndWait(DebugContext debugContext) {
         this.clientHandler.addContext(debugContext);

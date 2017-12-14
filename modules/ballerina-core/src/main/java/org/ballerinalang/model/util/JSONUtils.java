@@ -476,6 +476,7 @@ public class JSONUtils {
      *
      * @param json JSON object to get the corresponding xml
      * @param attributePrefix String prefix used for attributes
+     * @param arrayEntryTag String used as the tag in the arrays
      * @return BXML XML representation of the given json object
      */
     @SuppressWarnings("rawtypes")

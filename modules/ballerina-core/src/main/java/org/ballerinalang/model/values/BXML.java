@@ -233,6 +233,7 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
     /**
      * Get an item from the XML sequence, at the given index.
      * 
+     * @param index Index of the item to retrieve
      * @return Item at the given index in the sequence
      */
     public abstract BXML<?> getItem(long index);
