@@ -83,7 +83,7 @@ public class InputStreamParser {
             processStreamReceiver.setBatchProcessingAllowed(batchProcessingAllowed);
             return SingleInputStreamParser.parseInputStream((SingleInputStream) inputStream,
                     siddhiAppContext, executors, streamDefinitionMap,
-                    null, windowDefinitionMap, aggregationDefinitionMap, tableMap,
+                    tableDefinitionMap, windowDefinitionMap, aggregationDefinitionMap, tableMap,
                     new MetaStreamEvent(), processStreamReceiver,
                     true, outputExpectsExpiredEvents, queryName);
         } else if (inputStream instanceof JoinInputStream) {
@@ -95,8 +95,8 @@ public class InputStreamParser {
         } else if (inputStream instanceof StateInputStream) {
             MetaStateEvent metaStateEvent = new MetaStateEvent(inputStream.getAllStreamIds().size());
             return StateInputStreamParser.parseInputStream(((StateInputStream) inputStream), siddhiAppContext,
-                    metaStateEvent, streamDefinitionMap, null,
-                    null, aggregationDefinitionMap, tableMap, executors, latencyTracker,
+                    metaStateEvent, streamDefinitionMap, tableDefinitionMap,
+                    windowDefinitionMap, aggregationDefinitionMap, tableMap, executors, latencyTracker,
                     queryName);
         } else {
             throw new OperationNotSupportedException();
