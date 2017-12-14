@@ -24,8 +24,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.regex.Pattern;
@@ -36,9 +36,10 @@ import java.util.regex.PatternSyntaxException;
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Regex", structPackage = "ballerina.builtin"),
-        functionName = "compile",
+        functionName = "Regex.compile",
         returnType = {@ReturnType(type = TypeKind.STRUCT)},
+        args = {@Argument(name = "reg", type = TypeKind.STRUCT, structType = "Regex",
+                structPackage = "ballerina.builtin")},
         isPublic = true
 )
 public class Compile extends AbstractNativeFunction {

@@ -104,7 +104,7 @@ public native function <string mainString> toBlob (string encoding) (blob);
 @Description { value: "Represents a Regular expression in ballerina and can perform various Regular expression methods."}
 @Field { value : "regex:Pattern as a String"}
 public struct Regex {
-   private string pattern;
+   string pattern;
 }
 
 @Description { value:"Parse Regular Expression/Pattern"}
