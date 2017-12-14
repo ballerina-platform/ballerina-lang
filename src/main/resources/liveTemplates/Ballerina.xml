@@ -100,7 +100,7 @@
         </context>
     </template>
 
-    <template name="tran" value="transaction with retries($COUNT$){ {&#10;    $END$&#10;} failed {&#10;    &#10;}"
+    <template name="tran" value="transaction with retries($COUNT$){ &#10;    $END$&#10;} failed {&#10;    &#10;}"
               description="Transaction Template" toReformat="false" toShortenFQNames="false">
         <variable name="COUNT" expression="" defaultValue="" alwaysStopAt="true"/>
         <context>

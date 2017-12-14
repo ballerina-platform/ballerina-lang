@@ -34,9 +34,8 @@ public abstract class BallerinaCompletionTestBase extends BallerinaCodeInsightFi
     static final List<String> REFERENCE_TYPES = Arrays.asList("message", "map", "xml", "json", "datatable");
     static final List<String> XMLNS_TYPE = Collections.singletonList("xmlns");
     static final List<String> OTHER_TYPES = Arrays.asList("any", "type", "var");
-    static final List<String> COMMON_KEYWORDS = Arrays.asList("if", "else", "fork", "join", "timeout",
-            "worker", "transaction", "failed", "aborted", "committed", "abort", "try", "catch", "finally",
-            "iterate", "while", "next", "break", "throw");
+    static final List<String> COMMON_KEYWORDS = Arrays.asList("if", "else", "fork", "join", "timeout", "worker",
+            "transaction", "failed", "abort", "try", "catch", "finally", "iterate", "while", "next", "break", "throw");
     static final List<String> VALUE_KEYWORDS = Arrays.asList("true", "false", "null");
     static final List<String> FUNCTION_LEVEL_KEYWORDS = Collections.singletonList("return");
 

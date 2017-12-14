@@ -112,8 +112,6 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder WORKER;
     private static final LookupElementBuilder TRANSACTION;
     private static final LookupElementBuilder FAILED;
-    private static final LookupElementBuilder ABORTED;
-    private static final LookupElementBuilder COMMITTED;
     private static final LookupElementBuilder ABORT;
     private static final LookupElementBuilder TRY;
     private static final LookupElementBuilder CATCH;
@@ -177,8 +175,6 @@ public class BallerinaCompletionUtils {
         WORKER = createKeywordLookupElement("worker");
         TRANSACTION = createKeywordLookupElement("transaction");
         FAILED = createKeywordLookupElement("failed");
-        ABORTED = createKeywordLookupElement("aborted");
-        COMMITTED = createKeywordLookupElement("committed");
         ABORT = createKeywordLookupElement("abort");
         TRY = createKeywordLookupElement("try");
         CATCH = createKeywordLookupElement("catch");
@@ -381,8 +377,6 @@ public class BallerinaCompletionUtils {
         lookupElements.add(createKeywordAsLookup(WORKER));
         lookupElements.add(createKeywordAsLookup(TRANSACTION));
         lookupElements.add(createKeywordAsLookup(FAILED));
-        lookupElements.add(createKeywordAsLookup(ABORTED));
-        lookupElements.add(createKeywordAsLookup(COMMITTED));
         lookupElements.add(createKeywordAsLookup(ABORT));
         lookupElements.add(createKeywordAsLookup(TRY));
         lookupElements.add(createKeywordAsLookup(CATCH));
