@@ -91,8 +91,8 @@ public class DebugMsgUtil {
     public static CommandDTO buildCommandDTO(String json) {
         JsonNode node = JsonParser.parse(json);
         CommandDTO commandDTO = new CommandDTO();
-        commandDTO.setCommand(node.get(COMMAND) == null ? null : node.get(COMMAND).asText());
-        commandDTO.setThreadId(node.get(THREAD_ID) == null ? null : node.get(THREAD_ID).asText());
+        commandDTO.setCommand(node.get(COMMAND) == null ? null : node.get(COMMAND).stringValue());
+        commandDTO.setThreadId(node.get(THREAD_ID) == null ? null : node.get(THREAD_ID).stringValue());
         commandDTO.setPoints(buildBreakPoints(node.get(POINTS)));
         return commandDTO;
     }
@@ -105,8 +105,8 @@ public class DebugMsgUtil {
         for (int i = 0; i < node.size(); i++) {
             JsonNode element = node.get(i);
             BreakPointDTO bPoint = new BreakPointDTO();
-            bPoint.setPackagePath(element.get(PACKAGE_PATH) == null ? null : element.get(PACKAGE_PATH).asText());
-            bPoint.setFileName(element.get(FILE_NAME) == null ? null : element.get(FILE_NAME).asText());
+            bPoint.setPackagePath(element.get(PACKAGE_PATH) == null ? null : element.get(PACKAGE_PATH).stringValue());
+            bPoint.setFileName(element.get(FILE_NAME) == null ? null : element.get(FILE_NAME).stringValue());
             bPoint.setLineNumber(element.get(LINE_NUMBER) == null ? -1 : (int) element.get(LINE_NUMBER).longValue());
             bPoints.add(bPoint);
         }
