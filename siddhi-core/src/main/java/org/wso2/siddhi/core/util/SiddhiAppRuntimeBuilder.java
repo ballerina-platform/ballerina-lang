@@ -180,7 +180,13 @@ public class SiddhiAppRuntimeBuilder {
         for (SingleStreamRuntime singleStreamRuntime : streamRuntime.getSingleStreamRuntimes()) {
             ProcessStreamReceiver processStreamReceiver = singleStreamRuntime.getProcessStreamReceiver();
             if (processStreamReceiver.toStream()) {
-                streamJunctionMap.get(processStreamReceiver.getStreamId()).subscribe(processStreamReceiver);
+                StreamJunction streamJuction = streamJunctionMap.get(processStreamReceiver.getStreamId());
+                if (streamJuction != null) {
+                    streamJuction.subscribe(processStreamReceiver);
+                } else {
+                    throw new SiddhiAppCreationException("Expecting a stream, but provided '"
+                            + processStreamReceiver.getStreamId() + "' is not a stream");
+                }
             }
         }
 

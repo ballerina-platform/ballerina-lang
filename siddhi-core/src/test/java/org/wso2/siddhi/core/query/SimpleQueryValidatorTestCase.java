@@ -19,6 +19,8 @@ package org.wso2.siddhi.core.query;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
+import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.util.parser.SiddhiAppParser;
@@ -95,5 +97,63 @@ public class SimpleQueryValidatorTestCase {
 
         SiddhiAppParser.parse(SiddhiCompiler.parse(cseEventStream + query),
                 cseEventStream + query, siddhiContext);
+    }
+
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
+    public void testQueryWithTable() throws InterruptedException {
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String tables = "define table TestTable(symbol string, volume float); " +
+                "" +
+                "from TestTable " +
+                "select * " +
+                "insert into OutputStream; ";
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(tables);
+        siddhiAppRuntime.shutdown();
+    }
+
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
+    public void testQueryWithAggregation() throws InterruptedException {
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String tables = "define stream TradeStream (symbol string, price double, volume long, timestamp long);\n" +
+                "define aggregation TradeAggregation\n" +
+                "  from TradeStream\n" +
+                "  select symbol, avg(price) as avgPrice, sum(price) as total\n" +
+                "    group by symbol\n" +
+                "    aggregate by symbol every sec ... year; " +
+                "" +
+                "from every TradeAggregation \n" +
+                "select * \n" +
+                "insert into OutputStream; ";
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(tables);
+        siddhiAppRuntime.shutdown();
+    }
+
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
+    public void testQueryWithEveryTable() throws InterruptedException {
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String tables = "define table TestTable(symbol string, volume float);\n" +
+                "" +
+                "from every TestTable " +
+                "select * " +
+                "insert into OutputStream; ";
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(tables);
+        siddhiAppRuntime.shutdown();
+    }
+
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
+    public void testQueryWithEveryAggregation() throws InterruptedException {
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String tables = "define stream TradeStream (symbol string, price double, volume long, timestamp long);\n" +
+                "define aggregation TradeAggregation\n" +
+                "  from TradeStream\n" +
+                "  select symbol, avg(price) as avgPrice, sum(price) as total\n" +
+                "    group by symbol\n" +
+                "    aggregate by symbol every sec ... year; " +
+                "" +
+                "from every TradeAggregation " +
+                "select * " +
+                "insert into OutputStream; ";
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(tables);
+        siddhiAppRuntime.shutdown();
     }
 }
