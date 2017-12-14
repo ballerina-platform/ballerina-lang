@@ -20,7 +20,6 @@ import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import StatementDropZone from '../../../../../drag-drop/DropZone';
-import StatementAddZone from '../../../../../drag-drop/add-zone';
 import LifeLineDecorator from './../decorators/lifeline.jsx';
 import PanelDecorator from './../decorators/panel-decorator';
 import ResourceTransportLink from './resource-transport-link';
@@ -153,14 +152,6 @@ class ResourceNode extends React.Component {
                                     classes={classes}
                                     icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
                                     iconColor='#025482'
-                                />
-                                <StatementAddZone
-                                    model={this.props.model}
-                                    x={bodyBBox.x}
-                                    y={bodyBBox.y}
-                                    width={bodyBBox.w}
-                                    height={bodyBBox.h}
-                                    enableDragBg
                                 />
                                 {blockNode}
                             </g>

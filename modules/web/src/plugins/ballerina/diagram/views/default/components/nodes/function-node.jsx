@@ -22,7 +22,6 @@ import _ from 'lodash';
 import PanelDecorator from '../decorators/panel-decorator';
 import ImageUtil from '../../../../image-util';
 import StatementDropZone from '../../../../../drag-drop/DropZone';
-import StatementAddZone from '../../../../../drag-drop/add-zone';
 import LifeLine from '../decorators/lifeline';
 import FunctionNodeModel from '../../../../../model/tree/function-node';
 import { getComponentForNodeArray } from './../../../../diagram-util';
@@ -142,14 +141,6 @@ class FunctionNode extends React.Component {
                             classes={classes}
                             icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
                             iconColor='#025482'
-                        />
-                        <StatementAddZone
-                            model={this.props.model}
-                            x={bodyBBox.x}
-                            y={bodyBBox.y}
-                            width={bodyBBox.w}
-                            height={bodyBBox.h}
-                            alignment={'middle'}
                         />
                         {blockNode}
                     </g>
