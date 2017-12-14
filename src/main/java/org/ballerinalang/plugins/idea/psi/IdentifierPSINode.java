@@ -39,7 +39,6 @@ import org.ballerinalang.plugins.idea.psi.references.AnnotationReference;
 import org.ballerinalang.plugins.idea.psi.references.AttachmentPointReference;
 import org.ballerinalang.plugins.idea.psi.references.ConnectorReference;
 import org.ballerinalang.plugins.idea.psi.references.EnumFieldReference;
-import org.ballerinalang.plugins.idea.psi.references.EnumReference;
 import org.ballerinalang.plugins.idea.psi.references.FieldReference;
 import org.ballerinalang.plugins.idea.psi.references.FunctionReference;
 import org.ballerinalang.plugins.idea.psi.references.NameSpaceReference;
@@ -252,7 +251,9 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                                 }
                             }
                             return new FieldReference(this);
-                        } else if (prevVisibleLeaf.getText().matches("[{,]")) {
+                        } else if (prevVisibleLeaf.getText().matches("[,]")) {
+                            return new NameReference(this);
+                        } else if (prevVisibleLeaf.getText().matches("[{]")) {
                             return new RecordKeyReference(this);
                         }
                     }
