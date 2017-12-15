@@ -21,6 +21,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
 import org.ballerinalang.plugins.idea.psi.EnumDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.EnumFieldNode;
@@ -225,7 +226,14 @@ public class FieldReference extends BallerinaElementReference {
             structDefinitionNode =
                     BallerinaPsiImplUtil.resolveTypeNodeStruct((resolvedElementParent));
         } else if (resolvedElementParent instanceof NameReferenceNode) {
-            structDefinitionNode = BallerinaPsiImplUtil.findStructDefinition((IdentifierPSINode) resolvedElement);
+            AssignmentStatementNode assignmentStatementNode = PsiTreeUtil.getParentOfType(resolvedElement,
+                    AssignmentStatementNode.class);
+            if (assignmentStatementNode != null) {
+                structDefinitionNode = BallerinaPsiImplUtil.getStructDefinition(assignmentStatementNode,
+                        ((IdentifierPSINode) resolvedElement));
+            } else {
+                structDefinitionNode = BallerinaPsiImplUtil.findStructDefinition((IdentifierPSINode) resolvedElement);
+            }
             if (structDefinitionNode != null) {
                 IdentifierPSINode structName = PsiTreeUtil.findChildOfType(structDefinitionNode,
                         IdentifierPSINode.class);
