@@ -929,7 +929,6 @@ public class ProgramFileReader {
                 String typeName = desc.substring(1, desc.length() - 1);
                 String[] parts = typeName.split(":");
 
-                // TODO: improve
                 if (ch == 'J' && parts.length == 1) {
                     return BTypes.typeJSON;
                 }

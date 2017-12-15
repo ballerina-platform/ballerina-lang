@@ -56,7 +56,6 @@ public class BJSONType extends BBuiltInRefType implements ConstrainedType {
     @Override
     public String getDesc() {
         if (constraint.tag == TypeTags.NONE || constraint.tag == TypeTags.ERROR) {
-            // TODO: improve
             return TypeDescriptor.SIG_JSON + ";";
         }
 
