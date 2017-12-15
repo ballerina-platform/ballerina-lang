@@ -289,9 +289,12 @@ public class HttpUtil {
             if (httpMessageStruct.getNativeData(MESSAGE_DATA_SOURCE) != null) {
                 result = (BlobDataSource) httpMessageStruct.getNativeData(MESSAGE_DATA_SOURCE);
             } else {
-                result = new BlobDataSource(
-                        toByteArray(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream()));
-                httpMessageStruct.addNativeData(MESSAGE_DATA_SOURCE, result);
+                HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
+                OutputStream messageOutputStream = httpMessageDataStreamer.getOutputStream();
+                result = new BlobDataSource(toByteArray(httpMessageDataStreamer.getInputStream()),
+                        messageOutputStream);
+                HttpUtil.addMessageDataSource(httpMessageStruct, result);
+                HttpUtil.addMessageOutputStream(httpMessageStruct, messageOutputStream);
             }
             if (log.isDebugEnabled()) {
                 log.debug("String representation of the payload:" + result.getMessageAsString());
@@ -322,10 +325,10 @@ public class HttpUtil {
             } else {
                 HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
                 result = new BJSON(httpMessageDataStreamer.getInputStream());
-                OutputStream outputStream = httpMessageDataStreamer.getOutputStream();
-                result.setOutputStream(outputStream);
+                OutputStream messageOutputStream = httpMessageDataStreamer.getOutputStream();
+                result.setOutputStream(messageOutputStream);
                 addMessageDataSource(httpMessageStruct, result);
-                addMessageOutputStream(httpMessageStruct, outputStream);
+                addMessageOutputStream(httpMessageStruct, messageOutputStream);
             }
         } catch (Throwable e) {
             throw new BallerinaException("Error while retrieving json payload from message: " + e.getMessage());
