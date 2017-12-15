@@ -918,16 +918,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitWorkerReply(BallerinaParser.WorkerReplyContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#commentStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterCommentStatement(BallerinaParser.CommentStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#commentStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitCommentStatement(BallerinaParser.CommentStatementContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code xmlAttribVariableReference}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
 	 * @param ctx the parse tree

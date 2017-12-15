@@ -70,7 +70,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -1036,11 +1035,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
             typeChecker.checkExpr(simpleVarRef, env);
         }
-    }
-
-    @Override
-    public void visit(BLangComment commentNode) {
-        // do nothing
     }
 
     private void checkRetryStmtValidity(BLangExpression retryCountExpr) {

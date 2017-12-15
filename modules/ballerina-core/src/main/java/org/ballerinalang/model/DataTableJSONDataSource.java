@@ -146,7 +146,7 @@ public class DataTableJSONDataSource implements JSONDataSource {
 
     /**
      * This represents the logic that will transform the current entry of a
-     * data table to a {@link com.fasterxml.jackson.databind.JsonNode}.
+     * data table to a {@link JsonNode}.
      */
     public static interface JSONObjectGenerator {
 

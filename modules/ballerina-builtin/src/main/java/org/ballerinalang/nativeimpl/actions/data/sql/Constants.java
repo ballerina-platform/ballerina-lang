@@ -67,7 +67,7 @@ public final class Constants {
         public static final String SQLSERVER = "SQLSERVER";
         public static final String ORACLE = "ORACLE";
         public static final String SYBASE = "SYBASE";
-        public static final String POSTGRE = "POSTGRE";
+        public static final String POSTGRES = "POSTGRES";
         public static final String IBMDB2 = "IBMDB2";
         public static final String HSQLDB_SERVER = "HSQLDB_SERVER";
         public static final String HSQLDB_FILE = "HSQLDB_FILE";
@@ -86,7 +86,7 @@ public final class Constants {
         public static final String SQLSERVER_XA_DATASOURCE = "com.microsoft.sqlserver.jdbc.SQLServerXADataSource";
         public static final String ORACLE_XA_DATASOURCE  = "oracle.jdbc.xa.client.OracleXADataSource";
         public static final String SYBASE_XA_DATASOURCE  = "com.sybase.jdbc3.jdbc.SybXADataSource";
-        public static final String POSTGRE_XA_DATASOURCE  = "org.postgresql.xa.PGXADataSource";
+        public static final String POSTGRES_XA_DATASOURCE  = "org.postgresql.xa.PGXADataSource";
         public static final String IBMDB2_XA_DATASOURCE  = "com.ibm.db2.jdbc.DB2XADataSource";
         public static final String HSQLDB_XA_DATASOURCE  = "org.hsqldb.jdbc.pool.JDBCXADataSource";
         public static final String H2_XA_DATASOURCE = "org.h2.jdbcx.JdbcDataSource";
@@ -102,7 +102,7 @@ public final class Constants {
         public static final int SQLSERVER = 1433;
         public static final int ORACLE = 1521;
         public static final int SYBASE = 5000;
-        public static final int POSTGRE = 5432;
+        public static final int POSTGRES = 5432;
         public static final int IBMDB2 =  50000;
         public static final int HSQLDB_SERVER = 9001;
         public static final int H2_SERVER = 9092;

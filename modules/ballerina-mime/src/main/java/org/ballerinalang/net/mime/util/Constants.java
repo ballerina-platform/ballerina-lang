@@ -11,7 +11,6 @@ public class Constants {
     public static final String PROTOCOL_PACKAGE_MIME = "ballerina.net.mime";
     public static final String PROTOCOL_PACKAGE_FILE = "ballerina.file";
 
-
     //TODO: Remove following properties from http package.
     /**
      * Content type HTTP header.
@@ -45,5 +44,26 @@ public class Constants {
 
     public static final String DEFAULT_PRIMARY_TYPE = "application";
     public static final String DEFAULT_SUB_TYPE = "octet-stream";
-    public static final String SUFFIX = "+";
+    public static final String SUFFIX_ATTACHMENT = "+";
+
+    //Entity properties
+    public static final int TEXT_DATA_INDEX = 1;
+    public static final int JSON_DATA_INDEX = 2;
+    public static final int XML_DATA_INDEX = 3;
+    public static final int BYTE_DATA_INDEX = 0;
+    public static final int SIZE_INDEX = 0;
+    public static final int OVERFLOW_DATA_INDEX = 4;
+    public static final int TEMP_FILE_PATH_INDEX = 0;
+    public static final int IS_IN_MEMORY_INDEX = 0;
+    public static final int MEDIA_TYPE_INDEX = 0;
+    public static final int ENTITY_HEADERS_INDEX = 1;
+
+    public static final int TRUE = 1;
+    public static final int FALSE = 0;
+
+    //Media type properties
+    public static final int PRIMARY_TYPE_INDEX = 0;
+    public static final int SUBTYPE_INDEX = 1;
+    public static final int SUFFIX_INDEX = 2;
+    public static final int PARAMETER_MAP_INDEX = 0;
 }

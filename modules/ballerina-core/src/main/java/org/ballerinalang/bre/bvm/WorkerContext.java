@@ -40,7 +40,6 @@ public class WorkerContext extends Context {
     
     private void populateContextPropsFromParent() {
         this.setConnectorFuture(this.parent.getConnectorFuture());
-        this.setBallerinaTransactionManager(this.parent.getBallerinaTransactionManager());
         this.setServiceInfo(this.parent.getServiceInfo());
     }
 

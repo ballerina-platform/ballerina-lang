@@ -41,7 +41,7 @@ public class JsonParser {
      * 
      * @param in input stream which contains the JSON content
      * @return JSON structure as a {@link JsonNode} object
-     * @throws BallerinaException
+     * @throws BallerinaException for any parsing error
      */
     public static JsonNode parse(InputStream in) throws BallerinaException {
         return parse(in, Charset.defaultCharset().name());
@@ -53,7 +53,7 @@ public class JsonParser {
      * @param in input stream which contains the JSON content
      * @param charsetName the character set name of the input stream
      * @return JSON structure as a {@link JsonNode} object
-     * @throws BallerinaException
+     * @throws BallerinaException for any parsing error
      */
     public static JsonNode parse(InputStream in, String charsetName) throws BallerinaException {
         try {
@@ -68,7 +68,7 @@ public class JsonParser {
      * 
      * @param jsonStr the string which contains the JSON content
      * @return JSON structure as a {@link JsonNode} object
-     * @throws BallerinaException
+     * @throws BallerinaException for any parsing error
      */
     public static JsonNode parse(String jsonStr) throws BallerinaException {
         return parse(new StringReader(jsonStr));
@@ -79,7 +79,7 @@ public class JsonParser {
      * 
      * @param reader reader which contains the JSON content
      * @return JSON structure as a {@link JsonNode} object
-     * @throws BallerinaException
+     * @throws BallerinaException for any parsing error
      */
     public static JsonNode parse(Reader reader) throws BallerinaException {
         return new StateMachine(reader).execute();

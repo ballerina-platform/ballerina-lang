@@ -476,29 +476,26 @@ public class JSONUtils {
      *
      * @param json JSON object to get the corresponding xml
      * @param attributePrefix String prefix used for attributes
+     * @param arrayEntryTag String used as the tag in the arrays
      * @return BXML XML representation of the given json object
      */
     @SuppressWarnings("rawtypes")
     public static BXML convertToXML(BJSON json, String attributePrefix, String arrayEntryTag) {
-        try {
-            BXML xml;
-            JsonNode jsonNode = json.value();
-            List<BXML> omElementArrayList = traverseTree(jsonNode, attributePrefix, arrayEntryTag);
-            if (omElementArrayList.size() == 1) {
-                xml = omElementArrayList.get(0);
-            } else {
-                //There is a multi rooted node and create xml sequence from it
-                BRefValueArray elementsSeq = new BRefValueArray();
-                int count = omElementArrayList.size();
-                for (int i = 0; i < count; i++) {
-                    elementsSeq.add(i, omElementArrayList.get(i));
-                }
-                xml = new BXMLSequence(elementsSeq);
+        BXML xml;
+        JsonNode jsonNode = json.value();
+        List<BXML> omElementArrayList = traverseTree(jsonNode, attributePrefix, arrayEntryTag);
+        if (omElementArrayList.size() == 1) {
+            xml = omElementArrayList.get(0);
+        } else {
+            // There is a multi rooted node and create xml sequence from it
+            BRefValueArray elementsSeq = new BRefValueArray();
+            int count = omElementArrayList.size();
+            for (int i = 0; i < count; i++) {
+                elementsSeq.add(i, omElementArrayList.get(i));
             }
-            return xml;
-        } catch (Throwable t) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_SET_ERROR, t.getMessage());
+            xml = new BXMLSequence(elementsSeq);
         }
+        return xml;
     }
 
     /**
@@ -510,8 +507,7 @@ public class JSONUtils {
      * @return List of xml items genereated during the traversal.
      */
     @SuppressWarnings("rawtypes")
-    private static List<BXML> traverseTree(JsonNode node, String attributePrefix, String arrayEntryTag)
-            throws Exception {
+    private static List<BXML> traverseTree(JsonNode node, String attributePrefix, String arrayEntryTag) {
         List<BXML> xmlArray = new ArrayList<>();
         if (node.isValueNode()) {
             BXML xml = XMLUtils.parse(node.asText());
@@ -531,27 +527,35 @@ public class JSONUtils {
      * @param omElementArrayList List of xml iterms generated
      * @param attributePrefix String prefix used for attributes
      * @param arrayEntryTag String used as the tag in the arrays
-     * @return List of xml items genereated during the traversal.
+     * @return List of xml items generated during the traversal.
      */
     @SuppressWarnings("rawtypes")
     private static OMElement traverseJsonNode(JsonNode node, String nodeName, OMElement parentElement,
-            List<BXML> omElementArrayList, String attributePrefix, String arrayEntryTag) throws Exception {
+            List<BXML> omElementArrayList, String attributePrefix, String arrayEntryTag) {
         OMElement currentRoot = null;
-        boolean processNode = true;
         if (nodeName != null) {
-            currentRoot = OM_FACTORY.createOMElement(nodeName, null);
-            //Extract attributes and set to the immidiate parent.
+            //Extract attributes and set to the immediate parent.
             if (nodeName.startsWith(attributePrefix)) {
                 if (!node.isValueNode()) {
                     throw new BallerinaException("attribute cannot be an object or array");
                 }
                 if (parentElement != null) {
                     String attributeKey = nodeName.substring(1);
+                    // Validate whether the attribute name is an XML supported qualified name, according to the XML
+                    // recommendation.
+                    XMLValidationUtils.validateXMLName(attributeKey);
+
                     parentElement.addAttribute(attributeKey, node.asText(), null);
-                    processNode = false;
                 }
+                return parentElement;
             }
+
+            // Validate whether the tag name is an XML supported qualified name, according to the XML recommendation.
+            XMLValidationUtils.validateXMLName(nodeName);
+            
+            currentRoot = OM_FACTORY.createOMElement(nodeName, null);
         }
+
         if (node.isObject()) {
             Iterator<Entry<String, JsonNode>> nodeIterator = node.fields();
             while (nodeIterator.hasNext()) {
@@ -586,11 +590,10 @@ public class JSONUtils {
         } else {
             throw new BallerinaException("error in converting json to xml");
         }
+
         //Set the current constructed root the parent element
         if (parentElement != null) {
-            if (processNode) {
-                parentElement.addChild(currentRoot);
-            }
+            parentElement.addChild(currentRoot);
             currentRoot = parentElement;
         }
         return currentRoot;

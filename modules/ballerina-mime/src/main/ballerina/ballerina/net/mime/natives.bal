@@ -182,20 +182,24 @@ public function <MediaType mediaType> toStringWithParameters () (string) {
     return contentType;
 }
 
-struct MimeBase64Encoder {
+public struct MimeBase64Encoder {
 }
 
-struct MimeBase64Decoder {
+public struct MimeBase64Decoder {
 }
 
-struct QuotedPrintableEncoder {
+public struct QuotedPrintableEncoder {
 }
 
-struct QuotedPrintableDecoder {
+public struct QuotedPrintableDecoder {
 }
 
-public const string APPLICATION_JSON = "application/json";
-public const string MULTIPART_FORM_DATA = "multipart/form-data";
+public native function <MimeBase64Encoder encoder> encode(blob content)  (blob);
+public native function <MimeBase64Encoder encoder> encodeString(string content, string charset) (string);
+public native function <MimeBase64Decoder decoder> decode(blob content) (blob);
+public native function <MimeBase64Decoder decoder> decodeString(string content,string charset) (string);
+
+public native function <QuotedPrintableEncoder encoder> encode(blob content)  (blob);
 
 function readAll (io:ByteChannel channel) (blob) {
     blob bytes;
@@ -203,3 +207,6 @@ function readAll (io:ByteChannel channel) (blob) {
     bytes, numberOfBytesRead = channel.readAllBytes();
     return bytes;
 }
+
+public const string APPLICATION_JSON = "application/json";
+public const string MULTIPART_FORM_DATA = "multipart/form-data";
