@@ -25,7 +25,7 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
+import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -42,14 +42,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
         args = {@Argument(name = "j", type = TypeKind.JSON),
                 @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
                           structPackage = "ballerina.builtin")},
-        returnType = {@ReturnType(type = TypeKind.XML)},
+        returnType = { @ReturnType(type = TypeKind.XML), @ReturnType(type = TypeKind.STRUCT) },
         isPublic = true
 )
 public class ToXML extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context ctx) {
-        BXML xml = null;
+        BXML<?> xml = null;
+        BStruct error = null;
         try {
             // Accessing Parameters
             BJSON json = (BJSON) getRefArgument(ctx, 0);
@@ -59,8 +60,8 @@ public class ToXML extends AbstractNativeFunction {
             //Converting to xml.
             xml = JSONUtils.convertToXML(json, attributePrefix, arrayEntryTag);
         } catch (Throwable e) {
-            ErrorHandler.handleJsonException("convert json to xml", e);
+            error = Utils.createConversionError(ctx, "failed to convert json to xml: " + e.getMessage());
         }
-        return getBValues(xml);
+        return getBValues(xml, error);
     }
 }

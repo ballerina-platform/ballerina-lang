@@ -65,7 +65,7 @@ public class ResourceInterceptorTest {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
         cMsg.setHeader("username", "admin");
         cMsg.setHeader("password", "admin");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         String value = response.getHeader("test");
         Assert.assertEquals(value, "req1 res1 (1) res2");
     }
@@ -73,7 +73,7 @@ public class ResourceInterceptorTest {
     @Test(priority = 1, enabled = false)
     public void testFailedRequestIntercept() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         String value = ((StringDataSource) response.getMessageDataSource()).getValue();
         Assert.assertEquals(value, "invalid login ");
     }
@@ -83,7 +83,7 @@ public class ResourceInterceptorTest {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
         cMsg.setHeader("username", "bob");
         cMsg.setHeader("password", "bob");
-        HTTPCarbonMessage response = Services.invokeNew(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         String value = ((StringDataSource) response.getMessageDataSource()).getValue();
         Assert.assertEquals(value, "invalid login bob");
     }

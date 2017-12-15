@@ -4,16 +4,10 @@ $ ballerina run websocket-chat-application.bal
 
 # To check the sample,use Chrome or Firefox javascript console and run the below commands <br>
 # Run first 3 lines of the below code in two or more consoles and see how the messages are received by sending messages
-$ var ws = new WebSocket("ws://localhost:9090/chat/ws");
+# To check the capability of change the names the URI such that /chat/fistName+LastName/age with multiple clients
+$ var ws = new WebSocket("ws://localhost:9090/chat/bruce+wayne/30");
 $ ws.onmessage = function(frame) {console.log(frame.data)};
 $ ws.onclose = function(frame) {console.log(frame)};
 
 # To send messages
 $ ws.send("hello world");
-
-#To close the connection
-$ ws.close(1000, "I want to go");
-
-# To close connection from server side
-$ ws.send("closeMe");
-

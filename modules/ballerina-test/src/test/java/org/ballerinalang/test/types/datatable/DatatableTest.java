@@ -20,11 +20,13 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BFloatArray;
+import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.test.utils.SQLDBUtils;
@@ -117,6 +119,18 @@ public class DatatableTest {
                         + "<element>Ballerina</element></STRING_ARRAY></result></results>");
     }
 
+    @Test(groups = "DatatableTest", description = "Check json conversion with complex element.")
+    public void testToJsonComplex() {
+        BValue[] returns = BRunUtil.invoke(result, "testToJsonComplex");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "[{\"INT_TYPE\":1,\"INT_ARRAY\":[1,2,3],"
+                + "\"LONG_TYPE\":9223372036854774807,\"LONG_ARRAY\":[100000000,200000000,300000000],"
+                + "\"FLOAT_TYPE\":123.34,\"FLOAT_ARRAY\":[245.23,5559.49,8796.123],\"DOUBLE_TYPE\":2.139095039E9,"
+                + "\"BOOLEAN_TYPE\":true,\"STRING_TYPE\":\"Hello\",\"DOUBLE_ARRAY\":[245.23,5559.49,8796.123],"
+                + "\"BOOLEAN_ARRAY\":[true,false,true],\"STRING_ARRAY\":[\"Hello\",\"Ballerina\"]}]");
+    }
+
     @Test(groups = "DatatableTest",  description = "Check retrieving blob clob binary data.")
     public void testGetComplexTypes() {
         BValue[] returns = BRunUtil.invoke(result, "testGetComplexTypes");
@@ -130,39 +144,35 @@ public class DatatableTest {
     public void testArrayData() {
         BValue[] returns = BRunUtil.invoke(result, "testArrayData");
         Assert.assertEquals(returns.length, 5);
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BInteger> intArray = (BMap) returns[0];
-        Assert.assertTrue(intArray.get("0") instanceof BInteger);
-        Assert.assertEquals(intArray.get("0").intValue(), 1);
-        Assert.assertEquals(intArray.get("1").intValue(), 2);
-        Assert.assertEquals(intArray.get("2").intValue(), 3);
 
-        Assert.assertTrue(returns[1] instanceof BMap);
-        BMap<String, BInteger> longArray = (BMap) returns[1];
-        Assert.assertTrue(longArray.get("0") instanceof BInteger);
-        Assert.assertEquals(longArray.get("0").intValue(), 100000000);
-        Assert.assertEquals(longArray.get("1").intValue(), 200000000);
-        Assert.assertEquals(longArray.get("2").intValue(), 300000000);
+        Assert.assertTrue(returns[0] instanceof BIntArray);
+        BIntArray intArray = (BIntArray) returns[0];
+        Assert.assertEquals(intArray.get(0), 1);
+        Assert.assertEquals(intArray.get(1), 2);
+        Assert.assertEquals(intArray.get(2), 3);
 
-        Assert.assertTrue(returns[2] instanceof BMap);
-        BMap<String, BFloat> doubleArray = (BMap) returns[2];
-        Assert.assertTrue(doubleArray.get("0") instanceof BFloat);
-        Assert.assertEquals(doubleArray.get("0").floatValue(), 245.23);
-        Assert.assertEquals(doubleArray.get("1").floatValue(), 5559.49);
-        Assert.assertEquals(doubleArray.get("2").floatValue(), 8796.123);
+        Assert.assertTrue(returns[1] instanceof BIntArray);
+        BIntArray longArray = (BIntArray) returns[1];
+        Assert.assertEquals(longArray.get(0), 100000000);
+        Assert.assertEquals(longArray.get(1), 200000000);
+        Assert.assertEquals(longArray.get(2), 300000000);
 
-        Assert.assertTrue(returns[3] instanceof BMap);
-        BMap<String, BString> stringArray = (BMap) returns[3];
-        Assert.assertTrue(stringArray.get("0") instanceof BString);
-        Assert.assertEquals(stringArray.get("0").stringValue(), "Hello");
-        Assert.assertEquals(stringArray.get("1").stringValue(), "Ballerina");
+        Assert.assertTrue(returns[2] instanceof BFloatArray);
+        BFloatArray doubleArray = (BFloatArray) returns[2];
+        Assert.assertEquals(doubleArray.get(0), 245.23);
+        Assert.assertEquals(doubleArray.get(1), 5559.49);
+        Assert.assertEquals(doubleArray.get(2), 8796.123);
 
-        Assert.assertTrue(returns[4] instanceof BMap);
-        BMap<String, BBoolean> booleanArray = (BMap) returns[4];
-        Assert.assertTrue(booleanArray.get("0") instanceof BBoolean);
-        Assert.assertEquals(booleanArray.get("0").booleanValue(), true);
-        Assert.assertEquals(booleanArray.get("1").booleanValue(), false);
-        Assert.assertEquals(booleanArray.get("2").booleanValue(), true);
+        Assert.assertTrue(returns[3] instanceof BStringArray);
+        BStringArray stringArray = (BStringArray) returns[3];
+        Assert.assertEquals(stringArray.get(0), "Hello");
+        Assert.assertEquals(stringArray.get(1), "Ballerina");
+
+        Assert.assertTrue(returns[4] instanceof BBooleanArray);
+        BBooleanArray booleanArray = (BBooleanArray) returns[4];
+        Assert.assertEquals(booleanArray.get(0), 1);
+        Assert.assertEquals(booleanArray.get(1), 0);
+        Assert.assertEquals(booleanArray.get(2), 1);
     }
 
     @Test(groups = "DatatableTest", description = "Check date time operation")

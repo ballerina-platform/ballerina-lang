@@ -20,9 +20,6 @@ package org.ballerinalang.launcher.util;
 
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.ServiceInfo;
 
 /**
  * {@code BServiceUtil} is responsible for initializing an environment for a particular ballerina file.
@@ -38,7 +35,9 @@ public class BServiceUtil {
      */
     public static void runService(CompileResult compileResult) {
         // Initialize server connectors before starting the test cases
-        ServerConnectorRegistry.getInstance().initServerConnectors();
+        ServerConnectorRegistry serverConnectorRegistry = new ServerConnectorRegistry();
+        serverConnectorRegistry.initServerConnectors();
+        compileResult.getProgFile().setServerConnectorRegistry(serverConnectorRegistry);
         BLangProgramRunner.runService(compileResult.getProgFile());
     }
 
@@ -71,13 +70,4 @@ public class BServiceUtil {
     public static CompileResult setupProgramFile(Object obj, String sourcePath) {
         return setupProgramFile(obj, sourcePath, null);
     }
-
-    public static void cleanup(CompileResult compileResult) {
-        ProgramFile programFile = compileResult.getProgFile();
-        PackageInfo packageInfo = programFile.getEntryPackage();
-        for (ServiceInfo serviceInfo : packageInfo.getServiceInfoEntries()) {
-            ServerConnectorRegistry.getInstance().unRegisterService(serviceInfo);
-        }
-    }
-
 }

@@ -36,9 +36,15 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(BallerinaHTTPConnectorListener.class);
 
+    private final HTTPServicesRegistry httpServicesRegistry;
+
+    public BallerinaHTTPConnectorListener(HTTPServicesRegistry httpServicesRegistry) {
+        this.httpServicesRegistry = httpServicesRegistry;
+    }
+
     @Override
     public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-        HttpResource httpResource = HttpDispatcher.findResource(httpCarbonMessage);
+        HttpResource httpResource = HttpDispatcher.findResource(httpServicesRegistry, httpCarbonMessage);
         //TODO below should be fixed properly
         //basically need to find a way to pass information from server connector side to client connector side
         Map<String, Object> properties = null;

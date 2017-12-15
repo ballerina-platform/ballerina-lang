@@ -23,7 +23,6 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * The {@code BDataTable} represents a data set in Ballerina.
@@ -89,7 +88,7 @@ public class BDataTable implements BRefType<Object> {
         return iterator.getBlob(columnName);
     }
 
-    public Map<String, Object> getArray(String columnName) {
+    public Object[] getArray(String columnName) {
         return iterator.getArray(columnName);
     }
 

@@ -99,10 +99,10 @@ function testJSONToConstraintJsonUnsafeCast() (json, TypeCastError) {
     return j,err;
 }
 
-function testJSONToConstraintJsonUnsafeCastPositive() (json) {
+function testJSONToConstraintJsonUnsafeCastPositive() (json, json, json, TypeCastError) {
     json<Person> j;
-    j,_ = (json<Person>)getPersonEquivalentPlainJson();
-    return j;
+    var j, e = (json<Person>)getPersonEquivalentPlainJson();
+    return j.name, j.age, j.address, e;
 }
 
 function testConstraintJSONToConstraintJsonAssignment() (json) {

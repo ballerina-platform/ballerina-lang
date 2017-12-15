@@ -16,10 +16,9 @@ The HelloWorld sample will show you how easy it is to run Ballerina, send it a r
 
 Let's take a look at what the sample looks like in the Ballerina programming language:
 
-```Ballerina
+```
 function main (string[] args) {
-    println("Hello, World!");
-}
+  println("Hello, World!");
 ``` 
 
 The HelloWorld sample doesn't take any specific input, so simply running it will cause it to print "Hello, World!" at the command line.
@@ -104,6 +103,3 @@ Once you have accessed the composer, you can have a look around using the availa
 
 1. Click the "x" to the right of "echoService.bal" in the tab title to close this sample, and click **Don't Save** when prompted.
 
-## Whats Next
-
-Now that you've had a look around, it's time to start using Ballerina and [write your first Ballerina program](tutorials/first-program.md).

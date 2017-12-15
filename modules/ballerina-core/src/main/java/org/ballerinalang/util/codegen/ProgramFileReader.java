@@ -1454,6 +1454,7 @@ public class ProgramFileReader {
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
                     break;
 
+                case InstructionCodes.REG_CP:
                 case InstructionCodes.IALOAD:
                 case InstructionCodes.FALOAD:
                 case InstructionCodes.SALOAD:
