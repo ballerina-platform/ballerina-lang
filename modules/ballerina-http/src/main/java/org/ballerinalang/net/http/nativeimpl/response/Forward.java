@@ -82,11 +82,6 @@ public class Forward extends AbstractNativeFunction {
             HttpUtil.setHeadersToTransportMessage(responseMessage, inboundResponseStruct);
         }
 
-        MessageDataSource messageDataSource = HttpUtil.getMessageDataSource(outboundResponseStruct);
-        if (messageDataSource != null) {
-            messageDataSource.serializeData();
-        }
-
         return HttpUtil.prepareResponseAndSend(context, this, requestMessage,
                 responseMessage, inboundResponseStruct);
     }

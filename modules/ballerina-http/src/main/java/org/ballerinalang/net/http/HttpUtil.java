@@ -478,8 +478,8 @@ public class HttpUtil {
         HttpResponseStatusFuture outboundResponseStatusFuture = sendOutboundResponse(requestMessage, responseMessage);
         if (outboundMessageSource != null) {
             outboundMessageSource.serializeData();
+            HttpUtil.closeMessageOutputStream(httpMessageStruct);
         }
-        HttpUtil.closeMessageOutputStream(httpMessageStruct);
 
         try {
             outboundResponseStatusFuture = outboundResponseStatusFuture.sync();
