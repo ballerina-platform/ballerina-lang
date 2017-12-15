@@ -24,8 +24,6 @@ import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.PackageLoader;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -46,7 +44,13 @@ import java.util.stream.Collectors;
  */
 public class HoverUtil {
 
-    public BLangPackage getNativePackage(CompilerContext context, Name name) {
+    /**
+     * get BLangPackage by name
+     * @param context compiler context.
+     * @param name name of the package.
+     * @return return BLangPackage
+     * */
+    public BLangPackage getPackageByName(CompilerContext context, Name name) {
         BLangPackage nativePackage = null;
         PackageLoader packageLoader = PackageLoader.getInstance(context);
         // max depth for the recursive function which search for child directories
@@ -59,11 +63,7 @@ public class HoverUtil {
 
             List<BLangIdentifier> pkgNameComps = pkg.getNameComps().stream().map(nameToBLangIdentifier)
                     .collect(Collectors.<BLangIdentifier>toList());
-            // we have already loaded ballerina.builtin and ballerina.builtin.core. hence skipping loading those
-            // packages.
-            if (!"ballerina.builtin".equals(pkg.getName().getValue())
-                    && !"ballerina.builtin.core".equals(pkg.getName().getValue())
-                    && name.getValue().equals(pkg.getName().getValue())) {
+            if (name.getValue().equals(pkg.getName().getValue())) {
                 org.wso2.ballerinalang.compiler.tree.BLangPackage bLangPackage = packageLoader
                         .loadPackage(pkgNameComps, bLangIdentifier);
                 nativePackage = bLangPackage;
@@ -73,14 +73,13 @@ public class HoverUtil {
         return nativePackage;
     }
 
-    public BLangPackage getBuiltInPackage(CompilerContext context, Name name) {
-        PackageLoader pkgLoader = PackageLoader.getInstance(context);
-        SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
-        CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
-        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadEntryPackage(name.getValue())));
-    }
-
-    public Hover resolveBuiltInPackageDoc(BLangPackage bLangPackage, TextDocumentServiceContext hoverContext) {
+    /**
+     * Get the hover information for the given hover context.
+     * @param bLangPackage resolved bLangPackage for the hover context.
+     * @param hoverContext context of the hover.
+     * @return hover content.
+     * */
+    public Hover getHoverInformation(BLangPackage bLangPackage, TextDocumentServiceContext hoverContext) {
         Hover hover = null;
         switch (hoverContext.get(HoverKeys.SYMBOL_KIND_OF_HOVER_NODE_KEY).name()) {
             case HoverConstants.FUNCTION:
@@ -91,19 +90,40 @@ public class HoverUtil {
                 if (bLangFunction != null) {
                     hover = new Hover();
                     StringBuilder content = new StringBuilder();
-                    content.append(getAnnotationValue(HoverConstants.DESCRIPTION, bLangFunction.annAttachments));
-                    content.append(getAnnotationValue(HoverConstants.PARAM, bLangFunction.annAttachments));
+                    if (!getAnnotationValue(HoverConstants.DESCRIPTION, bLangFunction.annAttachments).isEmpty()) {
+                        content.append(getFormattedHoverContent(HoverConstants.DESCRIPTION,
+                                getAnnotationValue(HoverConstants.DESCRIPTION, bLangFunction.annAttachments)));
+                    }
+                    if (!getAnnotationValue(HoverConstants.PARAM, bLangFunction.annAttachments).isEmpty()) {
+                        content.append(getFormattedHoverContent(HoverConstants.PARAM,
+                                getAnnotationValue(HoverConstants.PARAM, bLangFunction.annAttachments)));
+                    }
+
+                    if (!getAnnotationValue(HoverConstants.RETURN, bLangFunction.annAttachments).isEmpty()) {
+                        content.append(getFormattedHoverContent(HoverConstants.RETURN,
+                                getAnnotationValue(HoverConstants.RETURN, bLangFunction.annAttachments)));
+                    }
                     List<Either<String, MarkedString>> contents = new ArrayList<>();
                     contents.add(Either.forLeft(content.toString()));
                     hover.setContents(contents);
                 }
                 break;
             default:
+                hover = new Hover();
+                List<Either<String, MarkedString>> contents = new ArrayList<>();
+                contents.add(Either.forLeft(""));
+                hover.setContents(contents);
                 break;
         }
         return hover;
     }
 
+    /**
+     * check whether given position matches the given node's position.
+     * @param nodePosition position of the current node.
+     * @param textPosition position to be matched.
+     * @return return true if position are a match else return false.
+     * */
     public static boolean isMatchingPosition(DiagnosticPos nodePosition, Position textPosition) {
         boolean isCorrectPosition = false;
         if (nodePosition.sLine <= textPosition.getLine()
@@ -115,17 +135,29 @@ public class HoverUtil {
         return isCorrectPosition;
     }
 
+    /**
+     * get annotation value for a given annotation.
+     * @param annotationName annotation name.
+     * @param annotationAttachments available annotation attachments.
+     * @return concatenated string with annotation value.
+     * */
     private String getAnnotationValue(String annotationName, List<BLangAnnotationAttachment> annotationAttachments) {
         StringBuilder value = new StringBuilder();
         for (BLangAnnotationAttachment annotationAttachment : annotationAttachments) {
             if (annotationAttachment.annotationName.getValue().equals(annotationName)) {
                 value.append(getAnnotationAttributes("value", annotationAttachment.attributes))
-                        .append("\n");
+                        .append("\r\n");
             }
         }
         return value.toString();
     }
 
+    /**
+     * get annotation attribute value.
+     * @param attributeName annotation attribute name.
+     * @param annotAttachmentAttributes available attributes.
+     * @return concatenated string with annotation attribute value.
+     * */
     private String getAnnotationAttributes(String attributeName,
                                            List<BLangAnnotAttachmentAttribute> annotAttachmentAttributes) {
         String value = "";
@@ -142,10 +174,20 @@ public class HoverUtil {
      * Function to convert org.wso2.ballerinalang.compiler.util.Name instance to
      * org.wso2.ballerinalang.compiler.tree.BLangIdentifier instance.
      */
-    private static java.util.function.Function<Name, BLangIdentifier> nameToBLangIdentifier =
-            name -> {
-                BLangIdentifier bLangIdentifier = new BLangIdentifier();
-                bLangIdentifier.setValue(name.getValue());
-                return bLangIdentifier;
-            };
+    private static java.util.function.Function<Name, BLangIdentifier> nameToBLangIdentifier = name -> {
+        BLangIdentifier bLangIdentifier = new BLangIdentifier();
+        bLangIdentifier.setValue(name.getValue());
+        return bLangIdentifier;
+    };
+
+    /**
+     * get the formatted string with markdowns.
+     * @param header header.
+     * @param content content.
+     * @return string formatted using markdown.
+     * */
+    private static String getFormattedHoverContent(String header, String content) {
+        return String.format("**%s**\r%n```\r%n%s\r%n```\r%n", header, content);
+    }
+
 }
