@@ -281,6 +281,22 @@ public class HttpUtil {
         return AbstractNativeFunction.VOID_RETURN;
     }
 
+    public static BValue[] setEntity(Context context,
+            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
+        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+
+        HTTPCarbonMessage httpCarbonMessage = HttpUtil
+                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+
+        httpCarbonMessage.waitAndReleaseAllEntities();
+
+        BStruct entity = (BStruct) abstractNativeFunction.getRefArgument(context, 1);
+        entity.getRefField(0);
+
+
+        return AbstractNativeFunction.VOID_RETURN;
+    }
+
     /**
      * Get the entity from request or response.
      *
@@ -682,8 +698,6 @@ public class HttpUtil {
             request.setStringField(Constants.REQUEST_USER_AGENT_INDEX, cMsg.getHeader(Constants.USER_AGENT_HEADER));
             cMsg.removeHeader(Constants.USER_AGENT_HEADER);
         }
-       /* request.setRefField(Constants.REQUEST_HEADERS_INDEX,
-                prepareHeaderMap(cMsg.getHeaders(), new BMap<>()));*/
     }
 
     public static void populateInboundResponse(BStruct response, HTTPCarbonMessage cMsg) {
@@ -697,8 +711,6 @@ public class HttpUtil {
             response.setStringField(Constants.RESPONSE_SERVER_INDEX, cMsg.getHeader(Constants.SERVER_HEADER));
             cMsg.removeHeader(Constants.SERVER_HEADER);
         }
-       /* response.setRefField(Constants.RESPONSE_HEADERS_INDEX,
-                prepareHeaderMap(cMsg.getHeaders(), new BMap<>()));*/
     }
 
     @SuppressWarnings("unchecked")
@@ -710,7 +722,6 @@ public class HttpUtil {
         response.addNativeData(Constants.TRANSPORT_MESSAGE, resMsg);
         response.addNativeData(Constants.INBOUND_REQUEST_MESSAGE, reqMsg);
         response.addNativeData(Constants.OUTBOUND_RESPONSE, true);
-        response.setRefField(Constants.RESPONSE_HEADERS_INDEX, new BMap<>());
     }
 
     private static BMap<String, BValue> prepareHeaderMap(HttpHeaders headers, BMap<String, BValue> headerMap) {

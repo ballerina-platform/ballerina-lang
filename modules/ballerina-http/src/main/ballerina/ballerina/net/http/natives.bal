@@ -9,7 +9,6 @@ import ballerina.net.mime;
 @Field {value:"method: HTTP request method"}
 @Field {value:"httpVersion: The version of HTTP"}
 @Field {value:"userAgent: User-Agent request header"}
-@Field {value:"headers: Request headers"}
 public struct Request {
 	string remoteHost;
 	int port;
@@ -17,18 +16,9 @@ public struct Request {
 	string method;
 	string httpVersion;
 	string userAgent;
-	map headers;
 }
 
-@Description { value:"Represents an HTTP header value"}
-@Field {value:"value: The value of header"}
-@Field {value:"param: The param map of header"}
-public struct HeaderValue {
-	string value;
-	map param;
-}
-
-@Description { value:"Get the entity of the request"}
+@Description { value:"Get the entity from the request"}
 @Param { value:"req: The request message" }
 @Return { value:"Entity of the request" }
 public native function <Request req> getEntity () (mime:Entity);
@@ -114,13 +104,16 @@ public native function <Request req> setXmlPayload (xml payload);
 @Field {value:"statusCode: The response status code"}
 @Field {value:"reasonPhrase: The status code reason phrase"}
 @Field {value:"server: The server header"}
-@Field {value:"headers: Response headers"}
 public struct Response {
     int statusCode;
     string reasonPhrase;
     string server;
-    map headers;
 }
+
+@Description { value:"Get the entity from the response"}
+@Param { value:"req: The response message" }
+@Return { value:"Entity of the response" }
+public native function <Response res> getEntity () (mime:Entity);
 
 @Description { value:"Gets the HTTP status code from the response"}
 @Param { value:"res: The response message" }

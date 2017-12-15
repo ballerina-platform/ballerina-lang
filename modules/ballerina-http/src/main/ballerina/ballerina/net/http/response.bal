@@ -1,14 +1,17 @@
 package ballerina.net.http;
 
+import ballerina.net.mime;
+
 @Description { value:"Gets the named HTTP header from the response"}
 @Param { value:"res: The response message" }
 @Param { value:"headerName: The header name" }
 @Return { value:"The first header value struct for the provided header name. Returns null if the header does not exist." }
-public function <Response res> getHeader (string headerName) (HeaderValue) {
-    if (res.headers == null) {
+public function <Response res> getHeader (string headerName) (mime:HeaderValue) {
+    mime:Entity entity = res.getEntity();
+    if (entity.headers == null) {
         return null;
     }
-    var headerValues = res.headers[headerName];
+    var headerValues = entity.headers[headerName];
     if (headerValues == null) {
         return null;
     }
@@ -20,13 +23,14 @@ public function <Response res> getHeader (string headerName) (HeaderValue) {
 @Param { value:"headerName: The header name" }
 @Param { value:"headerValue: The header value" }
 public function <Response res> addHeader (string headerName, string headerValue) {
-    if (res.headers == null) {
-        res.headers = {};
+    mime:Entity entity = res.getEntity();
+    if (entity.headers == null) {
+        entity.headers = {};
     }
-    var headerValues = res.headers[headerName];
+    var headerValues = entity.headers[headerName];
     if (headerValues == null) {
-        HeaderValue[] headers = [{value:headerValue}];
-        res.headers[headerName] = headers;
+        mime:HeaderValue[] headers = [{value:headerValue}];
+        entity.headers[headerName] = headers;
     } else {
         var valueArray =  getHeaderValueArray(headerValues, headerName);
         valueArray[lengthof valueArray] = {value:headerValue};
@@ -37,11 +41,12 @@ public function <Response res> addHeader (string headerName, string headerValue)
 @Param { value:"res: The response message" }
 @Param { value:"headerName: The header name" }
 @Return { value:"The header values struct array for a given header name" }
-public function <Response res> getHeaders (string headerName) (HeaderValue[]) {
-    if (res.headers == null) {
+public function <Response res> getHeaders (string headerName) (mime:HeaderValue[]) {
+    mime:Entity entity = res.getEntity();
+    if (entity.headers == null) {
         return null;
     }
-    var headerValues = res.headers[headerName];
+    var headerValues = entity.headers[headerName];
     if (headerValues == null) {
         return null;
     }
@@ -53,27 +58,30 @@ public function <Response res> getHeaders (string headerName) (HeaderValue[]) {
 @Param { value:"key: The header name" }
 @Param { value:"value: The header value" }
 public function <Response res> setHeader (string key, string value) {
-    if (res.headers == null) {
-        res.headers = {};
+    mime:Entity entity = res.getEntity();
+    if (entity.headers == null) {
+        entity.headers = {};
     }
-    HeaderValue[] header = [{value:value}];
-    res.headers[key] = header;
+    mime:HeaderValue[] header = [{value:value}];
+    entity.headers[key] = header;
 }
 
 @Description { value:"Removes a transport header from the response"}
 @Param { value:"res: The response message" }
 @Param { value:"key: The header name" }
 public function <Response res> removeHeader (string key) {
-    if (res.headers == null) {
+    mime:Entity entity = res.getEntity();
+    if (entity.headers == null) {
         return;
     }
-    res.headers.remove(key);
+    entity.headers.remove(key);
 }
 
 @Description { value:"Removes all transport headers from the response"}
 @Param { value:"res: The response message" }
 public function <Response res> removeAllHeaders () {
-    res.headers = {};
+    mime:Entity entity = res.getEntity();
+    entity.headers = {};
 }
 
 @Description { value:"Sends a 100-continue response to the client."}

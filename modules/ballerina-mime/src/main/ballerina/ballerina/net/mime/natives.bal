@@ -31,12 +31,12 @@ public struct MediaType {
     map parameters;
 }
 
-@Description {value:"Header struct represent general, request/respose and entity headers"}
-@Field {value:"value: Represent header value"}
-@Field {value:"params: Represent parameters of the header"}
-struct Header {
+@Description { value:"Represents a header value"}
+@Field {value:"value: The value of header"}
+@Field {value:"param: The param map of header"}
+public struct HeaderValue {
     string value;
-    map params;
+    map param;
 }
 
 @Description {value:"Represent the headers and body of a message. This can be used to represent both the entity of a top

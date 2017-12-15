@@ -10,6 +10,7 @@ public class Constants {
     public static final String MEDIA_TYPE = "MediaType";
     public static final String PROTOCOL_PACKAGE_MIME = "ballerina.net.mime";
     public static final String PROTOCOL_PACKAGE_FILE = "ballerina.file";
+    public static final String HEADER_VALUE_STRUCT = "HeaderValue";
 
     //TODO: Remove following properties from http package.
     /**

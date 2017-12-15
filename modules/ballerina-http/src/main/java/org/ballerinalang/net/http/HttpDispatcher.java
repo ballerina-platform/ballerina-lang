@@ -32,6 +32,9 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.net.mime.util.Constants.HEADER_VALUE_STRUCT;
+import static org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+
 /**
  * {@code HttpDispatcher} is responsible for dispatching incoming http requests to the correct resource.
  *
@@ -136,7 +139,7 @@ public class HttpDispatcher {
         BStruct response = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.RESPONSE);
         HttpUtil.setHeaderValueStructType(ConnectorUtils.createStruct(httpResource.getBalResource(),
-                Constants.PROTOCOL_PACKAGE_HTTP, Constants.HEADER_VALUE_STRUCT));
+                PROTOCOL_PACKAGE_MIME, HEADER_VALUE_STRUCT));
         HttpUtil.populateInboundRequest(request, httpCarbonMessage);
         HttpUtil.populateOutboundResponse(response, HttpUtil.createHttpCarbonMessage(false), httpCarbonMessage);
 
