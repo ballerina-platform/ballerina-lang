@@ -23,11 +23,9 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,7 +43,7 @@ import java.util.regex.Pattern;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class ReplaceAllWithRegex extends AbstractNativeFunction {
+public class ReplaceAllWithRegex extends AbstractRegexFunction {
 
     @Override
     public BValue[] execute(Context context) {
@@ -54,10 +52,8 @@ public class ReplaceAllWithRegex extends AbstractNativeFunction {
         String replaceWith = getStringArgument(context, 1);
 
         BStruct regexStruct = (BStruct) getRefArgument(context, 0);
-        Pattern pattern = (Pattern) regexStruct.getNativeData(REGEXConstants.COMPILED_REGEX);
-        if (pattern == null) {
-            throw new BallerinaException("Regular Expression has to be compiled first.");
-        }
+
+        Pattern pattern = validatePattern(regexStruct);
 
         Matcher matcher = pattern.matcher(mainString);
         String replacedString = matcher.replaceAll(replaceWith);

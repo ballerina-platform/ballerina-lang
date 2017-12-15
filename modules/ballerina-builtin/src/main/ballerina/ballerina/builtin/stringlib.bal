@@ -107,10 +107,6 @@ public struct Regex {
    string pattern;
 }
 
-@Description { value:"Parse Regular Expression/Pattern"}
-@Param { value:"reg: The Regular Expression" }
-public native function <Regex reg> compile ()(error);
-
 @Description { value:"Finds all the strings matching the regular expression"}
 @Param { value:"mainString: The original string argument" }
 @Param { value:"reg: The Compiled Pattern/Regex" }

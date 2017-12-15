@@ -78,7 +78,12 @@ public class RegexTest {
         Assert.assertEquals(returns[0].stringValue(), "xyz is not abc as abc anymore");
     }
 
-    @Test(description = "Test for executing on invalid regex pattern")
+    @Test(description = "Test for executing on invalid regex pattern",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: error, message: failed to compile \\[ syntax error " +
+                    "in regular\\-expression pattern: " +
+                    "Unclosed character class near index 0\n" +
+                    "\\[.*")
     public void testInvalidPattern() {
         BValue[] args = {new BString("[")};
         BValue[] returns = BRunUtil.invoke(result, "invalidPattern", args);
@@ -90,13 +95,14 @@ public class RegexTest {
     }
 
     @Test(description = "Test for executing regex functions on noninitialized pattern",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: " +
-                    "error, message: regular Expression has to be compiled first..*")
+           expectedExceptions = {BLangRuntimeException.class},
+           expectedExceptionsMessageRegExp = "error: error, message: failed to compile \\[ syntax error " +
+                   "in regular\\-expression pattern: " +
+                   "Unclosed character class near index 0\n" +
+                   "\\[.*")
     public void testInvalidPatternWithMatch() {
         BValue[] args = {new BString(s1), new BString("[")};
-        BValue[] returns = BRunUtil.invoke(result, "matches", args);
-        Assert.assertNotNull(returns[0]);
+        BRunUtil.invoke(result, "matches", args);
     }
 
     @Test(description = "Test for executing multiple regex functions on same pattern")

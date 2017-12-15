@@ -23,11 +23,9 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,17 +42,15 @@ import java.util.regex.Pattern;
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )
-public class FindAllWithRegex extends AbstractNativeFunction {
+public class FindAllWithRegex extends AbstractRegexFunction {
 
     @Override
     public BValue[] execute(Context context) {
         String initialString = getStringArgument(context, 0);
 
         BStruct regexStruct = (BStruct) getRefArgument(context, 0);
-        Pattern pattern = (Pattern) regexStruct.getNativeData(REGEXConstants.COMPILED_REGEX);
-        if (pattern == null) {
-            throw new BallerinaException("Regular Expression has to be compiled first.");
-        }
+
+        Pattern pattern = validatePattern(regexStruct);
 
         BStringArray stringArray = new BStringArray();
         Matcher matcher = pattern.matcher(initialString);
