@@ -161,7 +161,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     }
 
     private void serializeDataSource(Context context) {
-        BStruct requestStruct  = ((BStruct) getRefArgument(context, 1));
+        BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
         MessageDataSource messageDataSource = HttpUtil.getMessageDataSource(requestStruct);
         if (messageDataSource != null) {
             messageDataSource.serializeData();
