@@ -417,7 +417,9 @@ public class HttpUtil {
     public static void closeMessageOutputStream(BStruct httpMsgStruct) {
         OutputStream messageOutputStream = (OutputStream) httpMsgStruct.getNativeData(MESSAGE_OUTPUT_STREAM);
         try {
-            messageOutputStream.close();
+            if (messageOutputStream != null) {
+                messageOutputStream.close();
+            }
         } catch (IOException e) {
             log.error("Couldn't close message output stream", e);
         }
