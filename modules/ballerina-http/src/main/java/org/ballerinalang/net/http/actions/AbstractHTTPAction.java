@@ -165,8 +165,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         MessageDataSource messageDataSource = HttpUtil.getMessageDataSource(requestStruct);
         if (messageDataSource != null) {
             messageDataSource.serializeData();
+            HttpUtil.closeMessageOutputStream(requestStruct);
         }
-        HttpUtil.closeMessageOutputStream(requestStruct);
     }
 
     private RetryConfig getRetryConfiguration(Context context) {
