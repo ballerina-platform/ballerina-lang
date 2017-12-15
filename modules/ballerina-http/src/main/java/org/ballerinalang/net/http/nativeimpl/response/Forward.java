@@ -51,17 +51,17 @@ public class Forward extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BStruct responseStruct = (BStruct) getRefArgument(context, 0);
-        BStruct clientResponseStruct = (BStruct) getRefArgument(context, 1);
-        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct
+        BStruct outboundResponseStruct = (BStruct) getRefArgument(context, 0);
+        BStruct inboundResponseStruct = (BStruct) getRefArgument(context, 1);
+        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) outboundResponseStruct
                 .getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
-        HttpUtil.checkFunctionValidity(responseStruct, requestMessage);
-        if (clientResponseStruct.getNativeData(Constants.TRANSPORT_MESSAGE) == null) {
+        HttpUtil.checkFunctionValidity(outboundResponseStruct, requestMessage);
+        if (inboundResponseStruct.getNativeData(Constants.TRANSPORT_MESSAGE) == null) {
             throw new BallerinaException("Failed to forward: empty response parameter");
         }
 
         HTTPCarbonMessage responseMessage = HttpUtil
-                .getCarbonMsg(clientResponseStruct, HttpUtil.createHttpCarbonMessage(false));
+                .getCarbonMsg(inboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
 
         AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.ANN_NAME_CONFIG);
@@ -78,16 +78,16 @@ public class Forward extends AbstractNativeFunction {
             // default behaviour: keepAlive = true
             responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
         }
-        if (clientResponseStruct.getRefField(Constants.RESPONSE_HEADERS_INDEX) != null) {
-            HttpUtil.setHeadersToTransportMessage(responseMessage, clientResponseStruct);
+        if (inboundResponseStruct.getRefField(Constants.RESPONSE_HEADERS_INDEX) != null) {
+            HttpUtil.setHeadersToTransportMessage(responseMessage, inboundResponseStruct);
         }
 
-        MessageDataSource messageDataSource = HttpUtil.getMessageDataSource(responseStruct);
+        MessageDataSource messageDataSource = HttpUtil.getMessageDataSource(outboundResponseStruct);
         if (messageDataSource != null) {
             messageDataSource.serializeData();
         }
 
         return HttpUtil.prepareResponseAndSend(context, this, requestMessage,
-                responseMessage, HttpUtil.getMessageDataSource(clientResponseStruct));
+                responseMessage, inboundResponseStruct);
     }
 }
