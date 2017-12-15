@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -116,12 +117,10 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn.BLangWorkerReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -454,7 +453,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         for (BLangStatement stmt : blockNode.stmts) {
             if (stmt.getKind() != NodeKind.TRY && stmt.getKind() != NodeKind.CATCH
-                    && stmt.getKind() != NodeKind.IF && stmt.getKind() != NodeKind.COMMENT) {
+                    && stmt.getKind() != NodeKind.IF) {
                 addLineNumberInfo(stmt.pos);
             }
 
@@ -2424,10 +2423,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit(InstructionFactory.get(InstructionCodes.THROW, throwNode.expr.regIndex));
     }
 
-    public void visit(BLangComment commentNode) {
-        /* ignore */
-    }
-
     public void visit(BLangIf ifNode) {
         addLineNumberInfo(ifNode.pos);
         this.genNode(ifNode.expr, this.env);
@@ -2471,8 +2466,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
         Instruction gotoEndOfTransactionBlock = InstructionFactory.get(InstructionCodes.GOTO, -1);
-        Instruction gotoStartOfAbortedBlock = InstructionFactory.get(InstructionCodes.GOTO, -1);
-        abortInstructions.push(gotoStartOfAbortedBlock);
+        abortInstructions.push(gotoEndOfTransactionBlock);
 
         //start transaction
         this.emit(InstructionFactory.get(InstructionCodes.TR_BEGIN, transactionIndex, retryCountAvailable));
@@ -2488,29 +2482,16 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         //end the transaction
         int endIP = nextIP();
-        this.emit(InstructionFactory.get(InstructionCodes.TR_END, 0));
+        this.emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.SUCCESS.value()));
 
-        //process committed block
-        if (transactionNode.committedBody != null) {
-            this.genNode(transactionNode.committedBody, this.env);
-        }
-        if (transactionNode.abortedBody != null) {
-            this.emit(gotoEndOfTransactionBlock);
-        }
         abortInstructions.pop();
-        int startOfAbortedIP = nextIP();
-        gotoStartOfAbortedBlock.setOperand(0, startOfAbortedIP);
-        emit(InstructionFactory.get(InstructionCodes.TR_END, -1));
+        emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.FAILED.value()));
 
-        //process aborted block
-        if (transactionNode.abortedBody != null) {
-            this.genNode(transactionNode.abortedBody, this.env);
-        }
         emit(gotoEndOfTransactionBlock);
 
         // CodeGen for error handling.
         int errorTargetIP = nextIP();
-        emit(InstructionFactory.get(InstructionCodes.TR_END, -1));
+        emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.FAILED.value()));
         if (transactionNode.failedBody != null) {
             this.genNode(transactionNode.failedBody, this.env);
 
@@ -2518,17 +2499,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit(gotoInstruction);
         int ifIP = nextIP();
         retryInstruction.setOperand(1, ifIP);
-        if (transactionNode.abortedBody != null) {
-            this.genNode(transactionNode.abortedBody, this.env);
-        }
-
 
         emit(InstructionFactory.get(InstructionCodes.THROW, -1));
         gotoEndOfTransactionBlock.setOperand(0, nextIP());
 
         ErrorTableEntry errorTableEntry = new ErrorTableEntry(startIP, endIP, errorTargetIP, 0, -1);
         errorTable.addErrorTableEntry(errorTableEntry);
-        emit(InstructionFactory.get(InstructionCodes.TR_END, 1));
+        emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.END.value()));
     }
 
     public void visit(BLangAbort abortNode) {
@@ -2621,24 +2598,15 @@ public class CodeGenerator extends BLangNodeVisitor {
             genNode(xmlns, xmlElementEnv);
         });
 
+        // Create start tag name
         BLangExpression startTagName = (BLangExpression) xmlElementLiteral.getStartTagName();
-        genNode(startTagName, xmlElementEnv);
-        int startTagNameRegIndex = startTagName.regIndex;
+        int startTagNameRegIndex = visitXMLTagName(startTagName, xmlElementEnv, xmlElementLiteral);
 
-        // If this is a string representation of element name, generate the namespace lookup instructions
-        if (startTagName.getKind() != NodeKind.XML_QNAME) {
-            int localNameRegIndex = ++regIndexes.tString;
-            int uriRegIndex = ++regIndexes.tString;
-            emit(InstructionCodes.S2QNAME, startTagNameRegIndex, localNameRegIndex, uriRegIndex);
-
-            startTagNameRegIndex = ++regIndexes.tRef;
-            generateURILookupInstructions(xmlElementLiteral.namespacesInScope, localNameRegIndex, uriRegIndex,
-                    startTagNameRegIndex, xmlElementLiteral.pos, xmlElementEnv);
-            startTagName.regIndex = startTagNameRegIndex;
-        }
-
-        // TODO: do we need to generate end tag name?
-        int endTagNameRegIndex = startTagNameRegIndex;
+        // Create end tag name. If there is no endtag name (empty XML tag), 
+        // then consider start tag name as the end tag name too.
+        BLangExpression endTagName = (BLangExpression) xmlElementLiteral.getEndTagName();
+        int endTagNameRegIndex = endTagName == null ? startTagNameRegIndex
+                : visitXMLTagName(endTagName, xmlElementEnv, xmlElementLiteral);
 
         // Create an XML with the given QName
         int defaultNsURIIndex = getNamespaceURIIndex(xmlElementLiteral.defaultNsSymbol, xmlElementEnv);
@@ -2739,10 +2707,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             emit(InstructionCodes.XMLATTRLOAD, varRefRegIndex, qnameRegIndex, xmlValueRegIndex);
             xmlAttributeAccessExpr.regIndex = xmlValueRegIndex;
         }
-    }
-
-    public void visit(BLangRetry retryNode) {
-        /* ignore */
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
@@ -2947,5 +2911,34 @@ public class CodeGenerator extends BLangNodeVisitor {
         prefixLiteral.type = symTable.stringType;
         genNode(prefixLiteral, env);
         return prefixLiteral.regIndex;
+    }
+
+    /**
+     * Visit XML tag name and return the index of the tag name in the reference registry.
+     * 
+     * @param tagName Tag name expression
+     * @param xmlElementEnv Environment of the XML element of the tag
+     * @param xmlElementLiteral XML element literal to which the tag name belongs to
+     * @return Index of the tag name, in the reference registry 
+     */
+    private int visitXMLTagName(BLangExpression tagName, 
+                                SymbolEnv xmlElementEnv,
+                                BLangXMLElementLiteral xmlElementLiteral) {
+        genNode(tagName, xmlElementEnv);
+        int startTagNameRegIndex = tagName.regIndex;
+
+        // If this is a string representation of element name, generate the namespace lookup instructions
+        if (tagName.getKind() != NodeKind.XML_QNAME) {
+            int localNameRegIndex = ++regIndexes.tString;
+            int uriRegIndex = ++regIndexes.tString;
+            emit(InstructionCodes.S2QNAME, startTagNameRegIndex, localNameRegIndex, uriRegIndex);
+
+            startTagNameRegIndex = ++regIndexes.tRef;
+            generateURILookupInstructions(xmlElementLiteral.namespacesInScope, localNameRegIndex, uriRegIndex,
+                    startTagNameRegIndex, xmlElementLiteral.pos, xmlElementEnv);
+            tagName.regIndex = startTagNameRegIndex;
+        }
+
+        return startTagNameRegIndex;
     }
 }

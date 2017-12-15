@@ -48,7 +48,7 @@ public interface Resource {
      * @param name  of the annotation.
      * @return matching annotations list.
      */
-    List<Annotation> getAnnotation(String pkgPath, String name);
+    List<Annotation> getAnnotationList(String pkgPath, String name);
 
     /**
      * This method will return parameter list of the resource.

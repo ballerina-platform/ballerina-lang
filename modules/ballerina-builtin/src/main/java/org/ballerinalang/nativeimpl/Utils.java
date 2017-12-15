@@ -39,6 +39,7 @@ public class Utils {
     public static final String PACKAGE_BUILTIN = "ballerina.builtin";
     public static final String STRUCT_TYPE_TIME = "Time";
     public static final String STRUCT_TYPE_TIMEZONE = "Timezone";
+    public static final String TYPE_CONVERSION_ERROR_STRUCT = "TypeConversionError";
 
     public static BStruct createTimeZone(StructInfo timezoneStructInfo, String zoneIdValue) {
         String zoneIdName;
@@ -69,5 +70,11 @@ public class Utils {
     public static StructInfo getTimeStructInfo(Context context) {
         PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
         return timePackageInfo.getStructInfo(STRUCT_TYPE_TIME);
+    }
+
+    public static BStruct createConversionError(Context context, String msg) {
+        PackageInfo filePkg = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
+        StructInfo accessErrInfo = filePkg.getStructInfo(TYPE_CONVERSION_ERROR_STRUCT);
+        return BLangVMStructs.createBStruct(accessErrInfo, msg);
     }
 }

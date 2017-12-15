@@ -28,7 +28,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -49,14 +48,13 @@ public class Send extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BStruct responseStruct = (BStruct) getRefArgument(context, 0);
-
-        HttpUtil.checkFunctionValidity(responseStruct);
+        BStruct outboundResponseStruct = (BStruct) getRefArgument(context, 0);
+        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) outboundResponseStruct
+                .getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
+        HttpUtil.checkFunctionValidity(outboundResponseStruct, requestMessage);
 
         HTTPCarbonMessage responseMessage = HttpUtil
-                .getCarbonMsg(responseStruct, HttpUtil.createHttpCarbonMessage(false));
-        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct
-                .getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
+                .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
 
         AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.ANN_NAME_CONFIG);
@@ -74,8 +72,11 @@ public class Send extends AbstractNativeFunction {
             // default behaviour: keepAlive = true
             responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
         }
+        if (outboundResponseStruct.getRefField(Constants.RESPONSE_HEADERS_INDEX) != null) {
+            HttpUtil.setHeadersToTransportMessage(responseMessage, outboundResponseStruct);
+        }
 
-        return HttpUtil.prepareResponseAndSend(context, this, requestMessage,
-                responseMessage, (MessageDataSource) responseStruct.getNativeData(Constants.MESSAGE_DATA_SOURCE));
+        return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage,
+                outboundResponseStruct);
     }
 }

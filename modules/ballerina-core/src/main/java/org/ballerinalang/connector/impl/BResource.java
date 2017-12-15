@@ -64,7 +64,7 @@ public class BResource extends AbstractServiceResource  implements Resource {
     }
 
     @Override
-    public List<Annotation> getAnnotation(String pkgPath, String name) {
+    public List<Annotation> getAnnotationList(String pkgPath, String name) {
         String key = pkgPath + ":" + name;
         return annotationMap.get(key);
     }

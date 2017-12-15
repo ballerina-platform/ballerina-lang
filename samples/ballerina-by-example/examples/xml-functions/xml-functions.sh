@@ -1,27 +1,27 @@
 $ ballerina run xml-functions.bal
-# Type of the XML
+# Type of the XML.
 comment
-# Name of the XML
+# Name of the XML.
 name
-# Text content of the XML
+# Text content of the XML.
 Book1
 # Is the XML emtpy?
 false
-# Has only one element?
+# Does it have only one element?
 false
-# Subsequence of a sequence
+# Subsequence of a sequence.
 <!--some comment-->
-# All the element type items
+# All the element type items.
 <name>Book1</name>
-# Selected element
+# Selected element.
 <name>Book1</name>
-# XML after setting the children
+# XML after setting the children.
 <book>Hello, World!<name>Book1</name><!--some comment--></book>
-# All the children
+# All the children.
 Hello, World!<name>Book1</name><!--some comment-->
-# Selected child
+# Selected child.
 <name>Book1</name>
-# Stripped XML
+# Stripped XML.
 Hello, World!<name>Book1</name><!--some comment-->
-# Coppied XML
+# Copied XML.
 <!--some comment-->

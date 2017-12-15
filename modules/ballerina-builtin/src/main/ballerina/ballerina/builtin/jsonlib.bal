@@ -27,4 +27,4 @@ public native function <json j> getKeys() (string[]);
 @Param { value:"j: A JSON object" }
 @Param { value:"options: jsonOptions struct for JSON to XML conversion properties" }
 @Return { value:"The XML representation of the JSON" }
-public native function <json j> toXML (jsonOptions options) (xml);
+public native function <json j> toXML (jsonOptions options) (xml, TypeConversionError);
