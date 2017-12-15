@@ -79,6 +79,7 @@ import org.ballerinalang.plugins.idea.psi.FunctionTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.InvocationNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.NamespaceDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
@@ -2004,32 +2005,52 @@ public class BallerinaPsiImplUtil {
     private static StructDefinitionNode getStructDefinition(@NotNull VariableReferenceNode variableReferenceNode,
                                                             @NotNull AssignmentStatementNode assignmentStatementNode,
                                                             @NotNull IdentifierPSINode structReferenceNode) {
+        InvocationNode invocationNode = PsiTreeUtil.getChildOfType(variableReferenceNode, InvocationNode.class);
+        if (invocationNode != null) {
+            IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(invocationNode, IdentifierPSINode.class);
+            if (identifier != null) {
+                PsiReference reference = identifier.findReferenceAt(identifier.getTextLength());
+                if (reference == null) {
+                    return null;
+                }
+                PsiElement resolvedElement = reference.resolve();
+                if (resolvedElement == null) {
+                    return null;
+                }
+                // Check whether the resolved element's parent is a connector definition.
+                PsiElement definitionNode = resolvedElement.getParent();
+                if (!(definitionNode instanceof ActionDefinitionNode)) {
+                    return null;
+                }
+                return getStructDefinition(assignmentStatementNode, structReferenceNode, definitionNode);
+            }
+        }
+
         // Get the first child.
         PsiElement node = variableReferenceNode.getFirstChild();
         // If te first child is a VariableReferenceNode, it can be a function invocation.
         if (node instanceof VariableReferenceNode) {
             // Check whether the node is a function invocation.
             boolean isFunctionInvocation = isFunctionInvocation((VariableReferenceNode) node);
-            if (!isFunctionInvocation) {
-                return null;
+            if (isFunctionInvocation) {
+                // If it is a function invocation, the first child node will contain the function name.
+                PsiElement functionName = node.getFirstChild();
+                // We need to resolve the function name to the corresponding function definition.
+                PsiReference reference = functionName.findReferenceAt(functionName.getTextLength());
+                if (reference == null) {
+                    return null;
+                }
+                PsiElement resolvedFunctionIdentifier = reference.resolve();
+                if (resolvedFunctionIdentifier == null) {
+                    return null;
+                }
+                // Check whether the resolved element's parent is a function definition.
+                PsiElement definitionNode = resolvedFunctionIdentifier.getParent();
+                if (!(definitionNode instanceof FunctionDefinitionNode)) {
+                    return null;
+                }
+                return getStructDefinition(assignmentStatementNode, structReferenceNode, definitionNode);
             }
-            // If it is a function invocation, the first child node will contain the function name.
-            PsiElement functionName = node.getFirstChild();
-            // We need to resolve the function name to the corresponding function definition.
-            PsiReference reference = functionName.findReferenceAt(functionName.getTextLength());
-            if (reference == null) {
-                return null;
-            }
-            PsiElement resolvedFunctionIdentifier = reference.resolve();
-            if (resolvedFunctionIdentifier == null) {
-                return null;
-            }
-            // Check whether the resolved element's parent is a function definition.
-            PsiElement definitionNode = resolvedFunctionIdentifier.getParent();
-            if (!(definitionNode instanceof FunctionDefinitionNode)) {
-                return null;
-            }
-            return getStructDefinition(assignmentStatementNode, structReferenceNode, definitionNode);
         } else if (node instanceof NameReferenceNode) {
             // If the node is a NameReferenceNode, that means RHS contains a variable.
             PsiReference reference = node.findReferenceAt(node.getTextLength());
@@ -2075,7 +2096,13 @@ public class BallerinaPsiImplUtil {
             return null;
         }
         // Now we get all of the return types from the function.
-        List<TypeNameNode> returnTypes = getReturnTypes(((FunctionDefinitionNode) definitionNode));
+        List<TypeNameNode> returnTypes = new LinkedList<>();
+        if (definitionNode instanceof FunctionDefinitionNode) {
+            returnTypes = getReturnTypes(((FunctionDefinitionNode) definitionNode));
+        }
+        if (definitionNode instanceof ActionDefinitionNode) {
+            returnTypes = getReturnTypes(((ActionDefinitionNode) definitionNode));
+        }
         // There should be at least 'index+1' amount of elements in the list. If the index is 0, size should be
         // at least 1, etc.
         if (returnTypes.size() <= index) {
@@ -2209,17 +2236,17 @@ public class BallerinaPsiImplUtil {
     }
 
     /**
-     * Returns the return types of the provided function.
+     * Generic function to get return types from a definition.
      *
-     * @param functionDefinitionNode {@link FunctionDefinitionNode} which we want to get the return types of
-     * @return return types of the provided {@link FunctionDefinitionNode}.
+     * @param definitionNode definition node
+     * @return list of return values of the provided definition.
      */
     @NotNull
-    public static List<TypeNameNode> getReturnTypes(@NotNull FunctionDefinitionNode functionDefinitionNode) {
+    public static List<TypeNameNode> getReturnTypes(@NotNull PsiElement definitionNode) {
         List<TypeNameNode> results = new LinkedList<>();
         // Parameters are in the ReturnParametersNode. So we first get the ReturnParametersNode from the definition
         // node.
-        ReturnParametersNode node = PsiTreeUtil.findChildOfType(functionDefinitionNode, ReturnParametersNode.class);
+        ReturnParametersNode node = PsiTreeUtil.findChildOfType(definitionNode, ReturnParametersNode.class);
         if (node == null) {
             return results;
         }
