@@ -122,6 +122,9 @@
                 <include>org.ballerinalang:swagger-ballerina-generator:jar</include>
                 <include>org.ballerinalang:ballerina-container-support:jar</include>
                 <include>org.ballerinalang:docerina:jar</include>
+                <include>com.fasterxml.jackson.core:jackson-databind</include>
+                <include>com.fasterxml.jackson.core:jackson-core</include>
+                <include>com.fasterxml.jackson.core:jackson-annotations</include>
                 <include>com.fasterxml.jackson.dataformat:jackson-dataformat-yaml</include>
             </includes>
             <unpack>false</unpack>
