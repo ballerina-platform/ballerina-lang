@@ -53,8 +53,8 @@ public class BlobDataSource extends BallerinaMessageDataSource {
 
     @Override
     public void serializeData() {
-        try (OutputStream out = outputStream) {
-            out.write(value);
+        try {
+            outputStream.write(value);
         } catch (IOException e) {
             throw new BallerinaException("Error occurred while writing the binary payload to the output stream", e);
         }
