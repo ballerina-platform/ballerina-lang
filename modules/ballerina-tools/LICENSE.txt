@@ -35,6 +35,9 @@ docerina-0.95.5.jar                                                             
 geronimo-activation_1.1_spec-1.1.jar                                            bundle         apache2   2103
 geronimo-stax-api_1.0_spec-1.0.1.jar                                            bundle         apache2   635
 HikariCP-2.5.1.jar                                                              bundle         apache2   2101
+jackson-annotations-2.8.0.jar                                                   bundle         apache2   2100
+jackson-core-2.8.6.jar                                                          bundle         apache2   2099
+jackson-databind-2.8.6.jar                                                      bundle         apache2   2098
 jackson-dataformat-yaml-2.8.8.jar                                               bundle         apache2   2203
 javax.transaction-api-1.2.jar                                                   bundle         cddl+gpl  2200
 javax.websocket-api-1.1.jar                                                     bundle         cddl+gpl  2096
@@ -62,7 +65,7 @@ staxon-core-1.2.0.wso2v2.jar                                                    
 swagger-ballerina-generator-0.95.5.jar                                          jar            apache2   2434
 testerina-core-0.95.5.jar                                                       jar            apache2   2433
 workspace-service-0.95.5.jar                                                    jar            apache2   2438
-xml-resolver-1.2.jar                                                            jarinbundle    apache2   431   
+xml-resolver-1.2.jar                                                            jarinbundle    apache2   431
 
 
 
