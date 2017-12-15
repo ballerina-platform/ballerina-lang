@@ -7,14 +7,28 @@ programming language with both textual and graphical syntaxes.
 
 for more info: http://ballerinalang.org/
 
-## Installing the plugin to Visual Studio Code(vscode)
+## Installing
+
+Find the plugin in the visual studio [marketplace](https://marketplace.visualstudio.com/items?itemName=WSO2.Ballerina) and follow the instructions.
+
+### Installing from `.vsix`
+
+The visual studio marketplace only contains the latest build. If you want to work with an older version of Ballerina, or need to downgrade the plugin version you can install from the `.vsix` file.
+
+Find `.vsix` files listed in [Releases](https://github.com/ballerinalang/plugin-vscode/releases). Download the file for the required version.
+
+Install by 
+~~~
+code --install-extension myextension.vsix
+~~~
+Find more info [here](https://code.visualstudio.com/docs/editor/extension-gallery#_install-from-a-vsix)
+
+## Running the plugin for development
 
 1. Install [maven](https://maven.apache.org/install.html) and [nodejs](https://nodejs.org/en/)
 2. Clone this repo
 3. Run `npm install` and `mvn clean install`
 4. Run vscode with `code --extensionDevelopmentPath=/path/to/ballerina/plugin-vscode`
-
-Alternatively, in your home directory, locate .vscode/extentions/ directory and add the root directory into it.
 
 ## Debugging language server
 
