@@ -1,5 +1,8 @@
 package ballerina.net.http;
 
+const string HEADER_VAL_100_CONTINUE = "100-continue";
+const string HEADER_KEY_EXPECT = "Expect";
+
 @Description { value:"Gets a transport header from the request"}
 @Param { value:"req: A request message" }
 @Param { value:"headerName: The header name" }
@@ -74,4 +77,15 @@ public function <Request req> removeHeader (string key) {
 @Param { value:"req: A request message" }
 public function <Request req> removeAllHeaders () {
     req.headers = {};
+}
+
+@Description { value:"Checks whether the client expects a 100-continue response."}
+@Param { value:"req: A request struct" }
+@Return { value:"Returns true if the client expects a 100-continue response. If not, returns false." }
+public function <Request req> expects100Continue() (boolean) {
+    var expectHeader = req.getHeader(HEADER_KEY_EXPECT);
+    if (expectHeader != null && expectHeader.value == HEADER_VAL_100_CONTINUE) {
+        return true;
+    }
+    return false;
 }

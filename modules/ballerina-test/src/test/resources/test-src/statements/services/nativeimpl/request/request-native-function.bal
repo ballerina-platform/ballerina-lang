@@ -92,6 +92,11 @@ function testSetXmlPayload (http:Request req, xml value) (http:Request) {
     return req;
 }
 
+function testSetBinaryPayload(http:Request req, blob value) (http:Request) {
+    req.setBinaryPayload(value);
+    return req;
+}
+
 @http:configuration{basePath:"/hello"}
 service<http> helloServer {
 
@@ -372,6 +377,29 @@ service<http> helloServer {
         xml value = req.getXmlPayload();
         string name = value.getTextValue();
         res.setJsonPayload({lang:name});
+        _ = res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/SetBinaryPayload"
+    }
+    resource SetBinaryPayload (http:Request req, http:Response res) {
+        string text = "Ballerina";
+        blob payload = text.toBlob("UTF-8");
+        req.setBinaryPayload(payload);
+        blob value = req.getBinaryPayload();
+        string name = value.toString("UTF-8");
+        res.setJsonPayload({lang:name});
+        _ = res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/GetBinaryPayload"
+    }
+    resource GetBinaryPayload(http:Request req, http:Response res) {
+        blob value = req.getBinaryPayload();
+        string name = value.toString("UTF-8");
+        res.setStringPayload(name);
         _ = res.send();
     }
 }

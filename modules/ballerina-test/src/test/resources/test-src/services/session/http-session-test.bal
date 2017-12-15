@@ -466,4 +466,17 @@ service<http> sample2 {
         res.setStringPayload(<string>(time));
         _ = res.send();
     }
+
+    resource new9 (http:Request req, http:Response res) {
+        string myName = "FirstName";
+        TypeCastError err;
+        http:Session Session = req.createSessionIfAbsent();
+        any attribute = Session.getAttribute("name");
+        if (attribute != null) {
+            myName, err = (string)attribute;
+        }
+        Session.setAttribute("name", "SecondName");
+        res.setStringPayload(myName);
+        _ = res.send();
+    }
 }

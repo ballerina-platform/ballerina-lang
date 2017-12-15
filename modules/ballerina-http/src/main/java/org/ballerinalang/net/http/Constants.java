@@ -107,6 +107,7 @@ public class Constants {
     public static final String SESSION_ID = "BSESSIONID=";
     public static final String PATH = "Path=";
     public static final String RESPONSE_COOKIE_HEADER = "Set-Cookie";
+    public static final String SESSION = "Session";
 
     public static final String ORIGIN = "Origin";
     public static final String AC_REQUEST_METHOD = "Access-Control-Request-Method";
@@ -147,6 +148,7 @@ public class Constants {
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
     public static final String MESSAGE_DATA_SOURCE = "message_dataSource";
+    public static final String MESSAGE_OUTPUT_STREAM = "message_output_stream";
     public static final String INBOUND_REQUEST_MESSAGE = "inbound_request_msg";
     public static final String INBOUND_REQUEST = "inbound_request";
     public static final String OUTBOUND_RESPONSE = "outbound_response";
@@ -205,7 +207,8 @@ public class Constants {
     public static final String CONNECTION_HEADER = "Connection";
     public static final String HEADER_VAL_CONNECTION_CLOSE = "Close";
     public static final String HEADER_VAL_CONNECTION_KEEP_ALIVE = "Keep-Alive";
-
+    public static final String EXPECT_HEADER = "Expect";
+    public static final String HEADER_VAL_100_CONTINUE = "100-continue";
     /**
      * Content type HTTP header.
      */

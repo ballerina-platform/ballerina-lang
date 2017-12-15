@@ -16,6 +16,7 @@ function main (string[] args) {
     println("The output from Ternary expression: " + ternaryOutput);
 
     // Writing nested conditions using ternary expression.
-    string nestedOutput = x >= 50 ? "more than 50" : x >= 10 ? "more than 10" : "less than 10";
+    string nestedOutput = x >= 50 ? "more than 50" :
+                               x >= 10 ? "more than 10" : "less than 10";
     println("The output from nested ternary expression: " + nestedOutput);
 }
