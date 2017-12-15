@@ -1587,51 +1587,61 @@ public class BallerinaPsiImplUtil {
                                                    boolean matchConstants, boolean matchEndpoint) {
         ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CodeBlockScope.class, VariableContainer.class,
                 TopLevelDefinition.class, LowerLevelDefinition.class);
-        if (scope != null) {
-            int caretOffset = identifier.getStartOffset();
-            if (matchLocalVariables) {
-                List<IdentifierPSINode> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope,
-                        caretOffset);
-                for (IdentifierPSINode variable : variables) {
-                    if (identifier.getText().equals(variable.getText())) {
-                        return variable;
-                    }
-                }
+        if (scope == null) {
+            return null;
+        }
+        int caretOffset = identifier.getStartOffset();
+        if (matchLocalVariables) {
+            List<IdentifierPSINode> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope,
+                    caretOffset);
+            PsiElement element = getMatchingElement(identifier, variables);
+            if (element != null) {
+                return element;
             }
-            if (matchEndpoint) {
-                List<IdentifierPSINode> endpoints = BallerinaPsiImplUtil.getAllEndpointsInResolvableScope(scope,
-                        caretOffset);
-                for (IdentifierPSINode endpoint : endpoints) {
-                    if (identifier.getText().equals(endpoint.getText())) {
-                        return endpoint;
-                    }
-                }
+        }
+        if (matchEndpoint) {
+            List<IdentifierPSINode> endpoints = BallerinaPsiImplUtil.getAllEndpointsInResolvableScope(scope,
+                    caretOffset);
+            PsiElement element = getMatchingElement(identifier, endpoints);
+            if (element != null) {
+                return element;
             }
-            if (matchParameters) {
-                List<IdentifierPSINode> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope,
-                        caretOffset);
-                for (IdentifierPSINode parameter : parameters) {
-                    if (identifier.getText().equals(parameter.getText())) {
-                        return parameter;
-                    }
-                }
+        }
+        if (matchParameters) {
+            List<IdentifierPSINode> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope,
+                    caretOffset);
+            PsiElement element = getMatchingElement(identifier, parameters);
+            if (element != null) {
+                return element;
             }
-            if (matchGlobalVariables) {
-                List<IdentifierPSINode> globalVariables =
-                        BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope(scope);
-                for (IdentifierPSINode variable : globalVariables) {
-                    if (identifier.getText().equals(variable.getText())) {
-                        return variable;
-                    }
-                }
+        }
+        if (matchGlobalVariables) {
+            List<IdentifierPSINode> globalVariables =
+                    BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope(scope);
+            PsiElement element = getMatchingElement(identifier, globalVariables);
+            if (element != null) {
+                return element;
             }
-            if (matchConstants) {
-                List<IdentifierPSINode> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
-                for (IdentifierPSINode constant : constants) {
-                    if (identifier.getText().equals(constant.getText())) {
-                        return constant;
-                    }
-                }
+        }
+        if (matchConstants) {
+            List<IdentifierPSINode> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
+            PsiElement element = getMatchingElement(identifier, constants);
+            if (element != null) {
+                return element;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    private static PsiElement getMatchingElement(@NotNull IdentifierPSINode identifier,
+                                                 @NotNull List<IdentifierPSINode> variables) {
+        for (IdentifierPSINode variable : variables) {
+            if (variable == null) {
+                continue;
+            }
+            if (identifier.getText().equals(variable.getText())) {
+                return variable;
             }
         }
         return null;
