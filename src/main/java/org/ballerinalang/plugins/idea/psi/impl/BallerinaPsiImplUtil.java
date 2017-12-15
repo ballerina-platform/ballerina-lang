@@ -713,7 +713,7 @@ public class BallerinaPsiImplUtil {
                 if (nonEmptyElement == null) {
                     nonEmptyElement = children[0];
                 }
-                addedNode = file.addBefore(importDeclaration, nonEmptyElement);
+                addedNode = file.addBefore(importDeclaration, children[0]);
                 file.addBefore(BallerinaElementFactory.createDoubleNewLine(project), nonEmptyElement);
             } else {
                 PackageDeclarationNode packageDeclarationNode = packageDeclarationNodes.iterator().next();
