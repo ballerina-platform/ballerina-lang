@@ -112,7 +112,7 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
         });
     }
 
-    @Test(priority = 2)
+    @Test(priority = 2, enabled = false)
     public void testRemoteConnectionClosureFromRemoteClient() throws InterruptedException {
         await().atMost(awaitTimeInSecs, SECONDS).until(() -> {
             wsClients[0].shutDown();
