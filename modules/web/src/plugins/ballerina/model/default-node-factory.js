@@ -228,12 +228,6 @@ class DefaultNodeFactory {
         return getStaticDefaultNode('createAbort');
     }
 
-    // FIXME
-    createRetry() {
-        const tempNode = getStaticDefaultNode('createRetry');
-        return tempNode.failedBody.statements[0];
-    }
-
     createForkJoin() {
         return getStaticDefaultNode('createForkJoin');
     }

@@ -411,9 +411,9 @@ class ToolPaletteView extends React.Component {
                 const endpointTool = {};
                 endpointTool.nodeFactoryMethod = DefaultNodeFactory.createEndpoint;
                 endpointTool.factoryArgs = args;
-                endpointTool.title = 'Endpoint';
-                endpointTool.name = 'Endpoint';
-                endpointTool.id = 'Endpoint';
+                endpointTool.title = connectorName + ' Endpoint';
+                endpointTool.name = connectorName;
+                endpointTool.id = 'Endpoint' + connectorName;
                 endpointTool.icon = 'endpoint';
                 definitions.push(endpointTool);
 

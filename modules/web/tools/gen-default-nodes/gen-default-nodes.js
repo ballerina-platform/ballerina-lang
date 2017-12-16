@@ -27,7 +27,7 @@ import defToFragment from './def-to-fragment';
  */
 
 const CONFIG_URL = 'http://localhost:9091/config';
-const fileLocation = 'js/ballerina/model/default-nodes.js';
+const fileLocation = 'src/plugins/ballerina/model/default-nodes.js';
 
 /**
  * @param {String} fragment - fragment

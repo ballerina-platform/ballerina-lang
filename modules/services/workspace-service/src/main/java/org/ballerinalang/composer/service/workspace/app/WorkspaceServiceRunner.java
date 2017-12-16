@@ -39,7 +39,7 @@ import org.ballerinalang.composer.service.workspace.rest.exception.ParseCancella
 import org.ballerinalang.composer.service.workspace.rest.exception.SemanticExceptionMapper;
 import org.ballerinalang.composer.service.workspace.rest.typelattice.TypeLatticeService;
 import org.ballerinalang.composer.service.workspace.swagger.factories.ServicesApiServiceFactory;
-import org.ballerinalang.composer.service.workspace.utils.WorkspaceUtils;
+import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.msf4j.MicroservicesRunner;

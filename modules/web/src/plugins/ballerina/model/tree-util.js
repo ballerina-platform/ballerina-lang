@@ -499,7 +499,7 @@ class TreeUtil extends AbstractTreeUtil {
                 return client.getCompletions(options);
             })
             .then((response) => {
-                if (!response) {
+                if (!response || response.error) {
                     return Array(numberOfVars).fill().map((el, index) => (`${varPrefix}${index + 1}`));
                 }
 

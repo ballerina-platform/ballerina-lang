@@ -1285,8 +1285,6 @@ class PositioningUtil {
      * @param {object} node Transaction object
      */
     positionTransactionNode(node) {
-        const abortedBody = node.abortedBody;
-        const committedBody = node.committedBody;
         const failedBody = node.failedBody;
         const transactionBody = node.transactionBody;
         const viewState = node.viewState;
@@ -1316,25 +1314,7 @@ class PositioningUtil {
             failedBody.viewState.bBox.x = bBox.x;
             failedBody.viewState.bBox.y = nextComponentY + failedBody.viewState.components['block-header'].h;
             this.positionCompoundStatementComponents(failedBody);
-            nextComponentY += failedBody.viewState.components['statement-box'].h;
             this.increaseNodeComponentWidth(failedBody, newWidth);
-        }
-
-        // Set the position of the aborted body
-        if (abortedBody) {
-            abortedBody.viewState.bBox.x = bBox.x;
-            abortedBody.viewState.bBox.y = nextComponentY + abortedBody.viewState.components['block-header'].h;
-            this.positionCompoundStatementComponents(abortedBody);
-            nextComponentY += abortedBody.viewState.components['statement-box'].h;
-            this.increaseNodeComponentWidth(abortedBody, newWidth);
-        }
-
-        // Set the position of the aborted body
-        if (committedBody) {
-            committedBody.viewState.bBox.x = bBox.x;
-            committedBody.viewState.bBox.y = nextComponentY + committedBody.viewState.components['block-header'].h;
-            this.positionCompoundStatementComponents(committedBody);
-            this.increaseNodeComponentWidth(committedBody, newWidth);
         }
     }
 

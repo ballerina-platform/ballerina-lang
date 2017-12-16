@@ -43,9 +43,6 @@ class TransactionNode extends React.Component {
             active: 'hidden',
         };
 
-        // Bind this context to the following functions.
-        this.addCommittedBody = this.addCommittedBody.bind(this);
-        this.addAbortedBody = this.addAbortedBody.bind(this);
         this.addFailedBody = this.addFailedBody.bind(this);
     }
 
@@ -57,8 +54,6 @@ class TransactionNode extends React.Component {
         const model = this.props.model;
         const transactionBody = model.transactionBody;
         const failedBody = model.failedBody;
-        const abortedBody = model.abortedBody;
-        const committedBody = model.committedBody;
         const blocksToBeAdded = [];
 
         if (!failedBody) {
@@ -67,22 +62,6 @@ class TransactionNode extends React.Component {
                 addBlock: this.addFailedBody,
             };
             blocksToBeAdded.push(failedBlock);
-        }
-
-        if (!abortedBody) {
-            const abortedBlock = {
-                name: 'aborted',
-                addBlock: this.addAbortedBody,
-            };
-            blocksToBeAdded.push(abortedBlock);
-        }
-
-        if (!committedBody) {
-            const committedBlock = {
-                name: 'committed',
-                addBlock: this.addCommittedBody,
-            };
-            blocksToBeAdded.push(committedBlock);
         }
 
         if (blocksToBeAdded.length > 0) {
@@ -109,39 +88,23 @@ class TransactionNode extends React.Component {
     }
 
     /**
-     * Add aborted body to transaction statement.
-     * */
-    addAbortedBody() {
-        const parent = this.props.model;
-        const newTransactionBlock = DefaultNodeFactory.createTransaction();
-        const newAbortedBlock = newTransactionBlock.abortedBody;
-        newAbortedBlock.clearWS();
-        parent.setAbortedBody(newAbortedBlock, false, 'Add Aborted Body');
-    }
-
-    /**
-     * Add committed body to transaction statement.
-     * */
-    addCommittedBody() {
-        const parent = this.props.model;
-        const newTransactionBlock = DefaultNodeFactory.createTransaction();
-        const newCommittedBlock = newTransactionBlock.committedBody;
-        newCommittedBlock.clearWS();
-        parent.setCommittedBody(newCommittedBlock, false, 'Add Committed Body');
-    }
-
-    /**
      * Render the transaction node.
      * @return {XML} react component for transaction.
      * */
     render() {
         const model = this.props.model;
         const transactionBody = model.transactionBody;
+        const condition = model.condition;
         const failedBody = model.failedBody;
-        const abortedBody = model.abortedBody;
-        const committedBody = model.committedBody;
         const dropZone = model.viewState.components['drop-zone'];
-
+        const expression = {
+            text: condition ? condition.getSource() : '',
+        };
+        const editorOptions = {
+            propertyType: 'text',
+            key: 'Retries count',
+            model: model.condition,
+        };
         return (
             <g>
                 <DropZone
@@ -156,7 +119,22 @@ class TransactionNode extends React.Component {
                     enableDragBg
                     enableCenterOverlayLine
                 />
+                {condition &&
+                <CompoundStatementDecorator
+                    dropTarget={model}
+                    bBox={transactionBody.viewState.bBox}
+                    title={'transaction with retries'}
+                    titleWidth={transactionBody.viewState.components.titleWidth.w
+                            + transactionBody.viewState.components.withKeywordWidth.w
+                            + transactionBody.viewState.components.retiresKeywordWidth.w}
+                    model={model}
+                    expression={expression}
+                    editorOptions={editorOptions}
+                    body={transactionBody}
+                />
+                }
 
+                {!condition &&
                 <CompoundStatementDecorator
                     dropTarget={model}
                     bBox={transactionBody.viewState.bBox}
@@ -165,33 +143,17 @@ class TransactionNode extends React.Component {
                     model={model}
                     body={transactionBody}
                 />
+                }
+
                 {this.getAddBlockButton()}
                 {failedBody &&
                 <CompoundStatementDecorator
                     dropTarget={failedBody}
                     bBox={failedBody.viewState.bBox}
-                    title={'Failed'}
+                    title={'failed'}
                     titleWidth={failedBody.viewState.components.titleWidth.w}
                     model={failedBody}
                     body={failedBody}
-                />
-                }
-                {abortedBody &&
-                <CompoundStatementDecorator
-                    bBox={abortedBody.viewState.bBox}
-                    title={'Aborted'}
-                    titleWidth={abortedBody.viewState.components.titleWidth.w}
-                    model={abortedBody}
-                    body={abortedBody}
-                />
-                }
-                {committedBody &&
-                <CompoundStatementDecorator
-                    bBox={committedBody.viewState.bBox}
-                    title={'Committed'}
-                    titleWidth={committedBody.viewState.components.titleWidth.w}
-                    model={committedBody}
-                    body={committedBody}
                 />
                 }
             </g>

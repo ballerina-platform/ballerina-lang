@@ -27,6 +27,8 @@ class AbstractAnnotationAttachmentAttributeNode extends ExpressionNode {
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.name = newValue;
 
+        this.name.parent = this;
+
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -44,6 +46,7 @@ class AbstractAnnotationAttachmentAttributeNode extends ExpressionNode {
     getName() {
         return this.name;
     }
+
 
 
     setValue(newValue, silent, title) {
@@ -70,6 +73,7 @@ class AbstractAnnotationAttachmentAttributeNode extends ExpressionNode {
     getValue() {
         return this.value;
     }
+
 
 
 }

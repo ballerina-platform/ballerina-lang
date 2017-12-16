@@ -34,7 +34,6 @@ import PackageNode from './tree/package-node';
 import PackageDeclarationNode from './tree/package-declaration-node';
 import RecordLiteralKeyValueNode from './tree/record-literal-key-value-node';
 import ResourceNode from './tree/resource-node';
-import RetryNode from './tree/retry-node';
 import ServiceNode from './tree/service-node';
 import StructNode from './tree/struct-node';
 import VariableNode from './tree/variable-node';
@@ -284,14 +283,6 @@ class NodeFactory {
         node.name = new IdentifierNode();
         node.parameters = [];
         node.annotationAttachments = [];
-        node = Object.assign(node, json);
-        // Set any aditional default properties below.
-        return node;
-    }
-
-    createRetry(json = {}) {
-        json.kind = 'Retry';
-        let node = new RetryNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;

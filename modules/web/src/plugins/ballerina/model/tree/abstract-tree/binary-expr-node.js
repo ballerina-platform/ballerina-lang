@@ -46,6 +46,7 @@ class AbstractBinaryExprNode extends ExpressionNode {
     }
 
 
+
     setLeftExpression(newValue, silent, title) {
         const oldValue = this.leftExpression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -72,6 +73,7 @@ class AbstractBinaryExprNode extends ExpressionNode {
     }
 
 
+
     setRightExpression(newValue, silent, title) {
         const oldValue = this.rightExpression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -96,6 +98,7 @@ class AbstractBinaryExprNode extends ExpressionNode {
     getRightExpression() {
         return this.rightExpression;
     }
+
 
 
 }

@@ -86,10 +86,9 @@ public class SwaggerServiceMapperTest {
     @Test(dataProvider = "SwaggerSamples")
     public void testBallerinaToSwaggerConversion(String ballerinaSource, String expectedSwagger) throws IOException {
         String generatedSwagger = SwaggerConverterUtils.generateSwaggerDefinitions(ballerinaSource, null);
-    
-        Assert.assertTrue(parser.parse(generatedSwagger).equals(parser.parse(expectedSwagger)),
-                "Invalid Swagger definition generated.\nExpected: " + parser.parse(expectedSwagger).toString() +
-                "\nActual: " + parser.parse(generatedSwagger).toString());
+
+        Assert.assertEquals(parser.parse(generatedSwagger), parser.parse(expectedSwagger),
+                "Invalid Swagger definition generated.");
     }
     
     /**
