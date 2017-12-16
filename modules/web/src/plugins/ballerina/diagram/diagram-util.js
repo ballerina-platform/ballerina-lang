@@ -22,15 +22,12 @@ import _ from 'lodash';
 import Hidden from './views/action/components/hidden';
 
 import * as DefaultConfig from './views/default/designer-defaults';
-import * as compactConfig from './views/compact/designer-defaults';
 import * as actionConfig from './views/action/designer-defaults';
 
 import DefaultSizingUtil from './views/default/sizing-util';
-import CompactSizingUtil from './views/compact/sizing-util';
 import ActionSizingUtil from './views/action/sizing-util';
 
 import DefaultPositioningUtil from './views/default/positioning-util';
-import CompactPositioningUtil from './views/compact/positioning-util';
 import ActionPositioningUtil from './views/action/positioning-util';
 
 
@@ -43,16 +40,13 @@ const components = {};
 
 // We need to refactor this big time for the time being implementing the functionality.
 // extend configs from default
-const CompactConfig = _.merge(_.cloneDeep(DefaultConfig), compactConfig);
 const ActionConfig = _.merge(_.cloneDeep(DefaultConfig), actionConfig);
 
 // initialize the utils.
 const defaultSizingUtil = new DefaultSizingUtil();
-const compactSizingUtil = new CompactSizingUtil();
 const actionSizingUtil = new ActionSizingUtil();
 
 const defaultPositioningUtil = new DefaultPositioningUtil();
-const compactPositioningUtil = new CompactPositioningUtil();
 const actionPositioningUtil = new ActionPositioningUtil();
 
 const defaultWorkerInvocationSyncUtil = new DefaultWorkerInvocationSyncUtil();
@@ -62,9 +56,6 @@ const defaultErrorCollectorUtil = new DefaultErrorCollectorUtil();
 // assign configs to utils.
 defaultPositioningUtil.config = DefaultConfig;
 defaultSizingUtil.config = DefaultConfig;
-
-compactPositioningUtil.config = CompactConfig;
-compactSizingUtil.config = CompactConfig;
 
 actionPositioningUtil.config = ActionConfig;
 actionSizingUtil.config = ActionConfig;
@@ -129,8 +120,6 @@ function getSizingUtil(mode) {
     switch (mode) {
         case 'action':
             return actionSizingUtil;
-        case 'compact':
-            return compactSizingUtil;
         default:
             return defaultSizingUtil;
     }
@@ -140,8 +129,6 @@ function getPositioningUtil(mode) {
     switch (mode) {
         case 'action':
             return actionPositioningUtil;
-        case 'compact':
-            return compactPositioningUtil;
         default:
             return defaultPositioningUtil;
     }
@@ -177,17 +164,19 @@ function getOverlayComponent(nodeArray, mode = 'default') {
     }).map((child) => {
         // hide hidden elements
         const compName = child.kind;
+        let element;
         if (components[mode][compName]) {
-            return React.createElement(components[mode][compName], {
+            element = React.createElement(components[mode][compName], {
                 model: child,
                 key: child.props.key,
             }, null);
         } else if (components.default[compName]) {
-            return React.createElement(components.default[compName], {
+            element = React.createElement(components.default[compName], {
                 model: child,
                 key: child.props.key,
             }, null);
         }
+        return element;
     });
 }
 
