@@ -27,6 +27,7 @@ import MonacoEditor from 'react-monaco-editor';
 import { getLangServerClientInstance } from 'plugins/ballerina/langserver/lang-server-client-controller';
 import SourceViewCompleterFactory from './../../ballerina/utils/source-view-completer-factory';
 import { CHANGE_EVT_TYPES } from './constants';
+import Grammar from './../utils/monarch-grammar';
 
 
 class SourceEditor extends React.Component {
@@ -58,7 +59,10 @@ class SourceEditor extends React.Component {
     /**
      * lifecycle hook for editor did mount
      */
-    editorDidMount() {
+    editorDidMount(editor, monaco) {
+        this.monaco = monaco;
+        monaco.languages.register({ id: 'ballerinalang' });
+        monaco.languages.setMonarchTokensProvider('ballerinalang', Grammar);
     }
 
     /**
@@ -137,7 +141,7 @@ class SourceEditor extends React.Component {
                     ref={(ref) => {
                         this.monaco = ref;
                     }}
-                    language='javascript'
+                    language='ballerinalang'
                     theme='vs-dark'
                     value={this.props.file.content}
                     editorDidMount={this.editorDidMount}
