@@ -76,7 +76,7 @@ function getComponentForNodeArray(nodeArray, mode = 'default') {
     // lets load the view components diffrent modes.
     components.default = requireAll(require.context('./views/default/components/nodes', true, /\.jsx$/));
     components.action = requireAll(require.context('./views/action/components/', true, /\.jsx$/));
-    components.compact = requireAll(require.context('./views/compact/components/', true, /\.jsx$/));
+
 
     // make sure what is passed is an array.
     nodeArray = _.concat([], nodeArray);
