@@ -10,7 +10,7 @@ const string HEADER_KEY_EXPECT = "Expect";
 @Param { value:"headerName: The header name" }
 @Return { value:"The first header value struct for the provided header name. Returns null if the header does not exist." }
 public function <Request req> getHeader (string headerName)(mime:HeaderValue) {
-    mime:Entity entity = req.getEntity();
+    mime:Entity entity = req.getEntity(false);
     if (entity.headers == null) {
         return null;
     }
@@ -26,7 +26,7 @@ public function <Request req> getHeader (string headerName)(mime:HeaderValue) {
 @Param { value:"headerName: The header name" }
 @Param { value:"headerValue: The header value" }
 public function <Request req> addHeader (string headerName, string headerValue) {
-    mime:Entity entity = req.getEntity();
+    mime:Entity entity = req.getEntity(false);
     if (entity.headers == null) {
         entity.headers = {};
     }
@@ -45,7 +45,7 @@ public function <Request req> addHeader (string headerName, string headerValue) 
 @Param { value:"headerName: The header name" }
 @Return { value:"The header values struct array for a given header name" }
 public function <Request req> getHeaders (string headerName) (mime:HeaderValue[]) {
-    mime:Entity entity = req.getEntity();
+    mime:Entity entity = req.getEntity(false);
     if (entity.headers == null) {
         return null;
     }
@@ -61,7 +61,7 @@ public function <Request req> getHeaders (string headerName) (mime:HeaderValue[]
 @Param { value:"headerName: The header name" }
 @Param { value:"headerValue: The header value" }
 public function <Request req> setHeader (string headerName, string headerValue) {
-    mime:Entity entity = req.getEntity();
+    mime:Entity entity = req.getEntity(false);
     if (entity.headers == null) {
         entity.headers = {};
     }
@@ -73,7 +73,7 @@ public function <Request req> setHeader (string headerName, string headerValue) 
 @Param { value:"req: A request message" }
 @Param { value:"key: The header name" }
 public function <Request req> removeHeader (string key) {
-    mime:Entity entity = req.getEntity();
+    mime:Entity entity = req.getEntity(false);
     if (entity.headers == null) {
         return;
     }
@@ -83,7 +83,7 @@ public function <Request req> removeHeader (string key) {
 @Description { value:"Removes all transport headers from the message"}
 @Param { value:"req: A request message" }
 public function <Request req> removeAllHeaders () {
-    mime:Entity entity = req.getEntity();
+    mime:Entity entity = req.getEntity(false);
     entity.headers = {};
 }
 
@@ -91,7 +91,7 @@ public function <Request req> removeAllHeaders () {
 @Param { value:"req: A request struct" }
 @Return { value:"Returns true if the client expects a 100-continue response. If not, returns false." }
 public function <Request req> expects100Continue() (boolean) {
-    mime:Entity entity = req.getEntity();
+    mime:Entity entity = req.getEntity(false);
     var expectHeader = req.getHeader(HEADER_KEY_EXPECT);
     if (expectHeader != null && expectHeader.value == HEADER_VAL_100_CONTINUE) {
         return true;

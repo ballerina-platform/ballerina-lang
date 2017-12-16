@@ -45,7 +45,7 @@ import static org.ballerinalang.net.mime.util.Constants.XML_DATA_INDEX;
 public class MimeUtil {
 
     public static void setStringPayload(Context context, BStruct entityStruct, InputStream inputStream,
-            int contentLength) {
+            long contentLength) {
         if (contentLength > 1) {
             writeToTemporaryFile(inputStream);
             createBallerinaFileHandler(context, entityStruct);
@@ -58,7 +58,7 @@ public class MimeUtil {
     }
 
     public static void setJsonPayload(Context context, BStruct entityStruct, InputStream inputStream,
-            int contentLength) {
+            long contentLength) {
         if (contentLength > 30) {
             writeToTemporaryFile(inputStream);
             createBallerinaFileHandler(context, entityStruct);
@@ -71,7 +71,7 @@ public class MimeUtil {
     }
 
     public static void setXmlPayload(Context context, BStruct entityStruct, InputStream inputStream,
-            int contentLength) {
+            long contentLength) {
         if (contentLength > 30) {
             writeToTemporaryFile(inputStream);
             createBallerinaFileHandler(context, entityStruct);
@@ -84,7 +84,7 @@ public class MimeUtil {
     }
 
     public static void setBinaryPayload(Context context, BStruct entityStruct, InputStream inputStream,
-            int contentLength) {
+            long contentLength) {
         if (contentLength > 30) {
             writeToTemporaryFile(inputStream);
             createBallerinaFileHandler(context, entityStruct);
@@ -101,13 +101,13 @@ public class MimeUtil {
         }
     }
 
-    public static void setContentType(Context context, BStruct entityStruct, String contentType) {
-        BStruct mediaType = parseMediaType(context, contentType);
+    public static void setContentType(BStruct mediaType, BStruct entityStruct, String contentType) {
+        BStruct mimeType = parseMediaType(mediaType, contentType);
         if (contentType == null) {
-            mediaType.setStringField(PRIMARY_TYPE_INDEX, Constants.DEFAULT_PRIMARY_TYPE);
-            mediaType.setStringField(SUBTYPE_INDEX, Constants.DEFAULT_SUB_TYPE);
+            mimeType.setStringField(PRIMARY_TYPE_INDEX, Constants.DEFAULT_PRIMARY_TYPE);
+            mimeType.setStringField(SUBTYPE_INDEX, Constants.DEFAULT_SUB_TYPE);
         }
-        entityStruct.setRefField(MEDIA_TYPE_INDEX, mediaType);
+        entityStruct.setRefField(MEDIA_TYPE_INDEX, mimeType);
     }
 
     public static String getBaseType(String contentType) {
@@ -119,9 +119,7 @@ public class MimeUtil {
         }
     }
 
-    public static BStruct parseMediaType(Context context, String contentType) {
-        BStruct mediaType = ConnectorUtils
-                .createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_MIME, Constants.MEDIA_TYPE);
+    public static BStruct parseMediaType(BStruct mediaType, String contentType) {
         MimeType mimeType = null;
         try {
             mimeType = new MimeType(contentType);

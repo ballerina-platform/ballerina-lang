@@ -83,8 +83,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.net.http.Constants.ENTITY_WITH_BODY;
+import static org.ballerinalang.net.http.Constants.ENTITY_WITH_ONLY_HEADERS;
 import static org.ballerinalang.net.http.Constants.MESSAGE_DATA_SOURCE;
-import static org.ballerinalang.net.http.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.net.http.Constants.MESSAGE_OUTPUT_STREAM;
 import static org.ballerinalang.net.mime.util.Constants.ENTITY_HEADERS_INDEX;
 
@@ -97,6 +98,7 @@ public class HttpUtil {
     private static final String METHOD_ACCESSED = "isMethodAccessed";
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
     private static BStructType headerValueStructType;
+    private static BStructType entityStructType;
 
     public static BValue[] addHeader(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
@@ -307,51 +309,38 @@ public class HttpUtil {
      */
     public static BValue[] getEntity(Context context, AbstractNativeFunction abstractNativeFunction,
             boolean isRequest) {
-        BStruct entity;
         BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        BStruct entity = (BStruct) httpMessageStruct.getNativeData(ENTITY_WITH_ONLY_HEADERS);
+        boolean isEntityBodyRequired = abstractNativeFunction.getBooleanArgument(context, 0);
+
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
 
-        if (httpMessageStruct.getNativeData(MESSAGE_ENTITY) != null) {
-            entity = (BStruct) httpMessageStruct.getNativeData(MESSAGE_ENTITY);
-        } else {
+        if (isEntityBodyRequired) {
             HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
-            entity = ConnectorUtils
-                    .createAndGetStruct(context, org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
-                            org.ballerinalang.net.mime.util.Constants.ENTITY);
-
-            String contentType = httpCarbonMessage.getHeader(org.ballerinalang.net.mime.util.Constants.CONTENT_TYPE);
-            MimeUtil.setContentType(context, entity, contentType);
-            int contentLength = -1;
-            String lengthStr = httpCarbonMessage.getHeader(Constants.HTTP_CONTENT_LENGTH);
-            try {
-                contentLength = Integer.parseInt(lengthStr);
-                MimeUtil.setContentLength(entity, contentLength);
-            } catch (NumberFormatException e) {
-                throw new BallerinaException("Invalid content length");
-            }
-            entity.setRefField(ENTITY_HEADERS_INDEX, prepareHeaderMap(httpCarbonMessage.getHeaders(), new BMap<>()));
             InputStream inputStream = httpMessageDataStreamer.getInputStream();
-            String baseType = MimeUtil.getBaseType(contentType);
-            if (baseType != null) {
-                switch (baseType) {
-                    case org.ballerinalang.net.mime.util.Constants.TEXT_PLAIN:
-                        MimeUtil.setStringPayload(context, entity, inputStream, contentLength);
-                        break;
-                    case org.ballerinalang.net.mime.util.Constants.APPLICATION_JSON:
-                        MimeUtil.setJsonPayload(context, entity, inputStream, contentLength);
-                        break;
-                    case org.ballerinalang.net.mime.util.Constants.APPLICATION_XML:
-                        MimeUtil.setXmlPayload(context, entity, inputStream, contentLength);
-                        break;
-                    default:
-                        MimeUtil.setBinaryPayload(context, entity, inputStream, contentLength);
-                        break;
+            BStruct mediaType = (BStruct) entity.getRefField(0);
+            String baseType  = mediaType.getStringField(0) + "/" + mediaType.getStringField(1);
+            long contentLength = entity.getIntField(0);
+                if (baseType != null) {
+                    switch (baseType) {
+                        case org.ballerinalang.net.mime.util.Constants.TEXT_PLAIN:
+                            MimeUtil.setStringPayload(context, entity, inputStream, contentLength);
+                            break;
+                        case org.ballerinalang.net.mime.util.Constants.APPLICATION_JSON:
+                            MimeUtil.setJsonPayload(context, entity, inputStream, contentLength);
+                            break;
+                        case org.ballerinalang.net.mime.util.Constants.APPLICATION_XML:
+                            MimeUtil.setXmlPayload(context, entity, inputStream, contentLength);
+                            break;
+                        default:
+                            MimeUtil.setBinaryPayload(context, entity, inputStream, contentLength);
+                            break;
+                    }
+                } else {
+                    MimeUtil.setBinaryPayload(context, entity, inputStream, contentLength);
                 }
-            } else {
-                MimeUtil.setBinaryPayload(context, entity, inputStream, contentLength);
-            }
-            httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
+            httpMessageStruct.addNativeData(ENTITY_WITH_BODY, entity);
             OutputStream messageOutputStream = httpMessageDataStreamer.getOutputStream();
             HttpUtil.addMessageOutputStream(httpMessageStruct, messageOutputStream);
         }
@@ -684,7 +673,12 @@ public class HttpUtil {
         headerValueStructType = struct.getType();
     }
 
-    public static void populateInboundRequest(BStruct request, HTTPCarbonMessage cMsg) {
+    public static void setEntityStructType(BStruct struct) {
+        entityStructType = struct.getType();
+    }
+
+    public static void populateInboundRequest(BStruct request, BStruct entity, BStruct mediaType,
+            HTTPCarbonMessage cMsg) {
         request.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
         request.addNativeData(Constants.INBOUND_REQUEST, true);
         request.setStringField(Constants.REQUEST_PATH_INDEX, (String) cMsg.getProperty(Constants.REQUEST_URL));
@@ -698,6 +692,18 @@ public class HttpUtil {
             request.setStringField(Constants.REQUEST_USER_AGENT_INDEX, cMsg.getHeader(Constants.USER_AGENT_HEADER));
             cMsg.removeHeader(Constants.USER_AGENT_HEADER);
         }
+        String contentType = cMsg.getHeader(org.ballerinalang.net.mime.util.Constants.CONTENT_TYPE);
+        MimeUtil.setContentType(mediaType, entity, contentType);
+        int contentLength = -1;
+        String lengthStr = cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH);
+        try {
+            contentLength = Integer.parseInt(lengthStr);
+            MimeUtil.setContentLength(entity, contentLength);
+        } catch (NumberFormatException e) {
+            throw new BallerinaException("Invalid content length");
+        }
+        entity.setRefField(ENTITY_HEADERS_INDEX, prepareHeaderMap(cMsg.getHeaders(), new BMap<>()));
+        request.addNativeData(Constants.ENTITY_WITH_ONLY_HEADERS, entity);
     }
 
     public static void populateInboundResponse(BStruct response, HTTPCarbonMessage cMsg) {

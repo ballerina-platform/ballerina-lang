@@ -20,8 +20,9 @@ public struct Request {
 
 @Description { value:"Get the entity from the request"}
 @Param { value:"req: The request message" }
+@Param { value:"isEntityBodyRequired: Whether the entity body should be populated" }
 @Return { value:"Entity of the request" }
-public native function <Request req> getEntity () (mime:Entity);
+public native function <Request req> getEntity (boolean isEntityBodyRequired) (mime:Entity);
 
 @Description { value:"Gets the request URL from the request"}
 @Param { value:"req: The request message" }
@@ -113,7 +114,7 @@ public struct Response {
 @Description { value:"Get the entity from the response"}
 @Param { value:"req: The response message" }
 @Return { value:"Entity of the response" }
-public native function <Response res> getEntity () (mime:Entity);
+public native function <Response res> getEntity (boolean isEntityBodyRequired) (mime:Entity);
 
 @Description { value:"Gets the HTTP status code from the response"}
 @Param { value:"res: The response message" }

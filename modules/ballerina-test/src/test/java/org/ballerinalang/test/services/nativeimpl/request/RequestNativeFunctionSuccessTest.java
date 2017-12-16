@@ -167,7 +167,7 @@ public class RequestNativeFunctionSuccessTest {
 
         HttpUtil.setHeaderValueStructType(BCompileUtil.createAndGetStruct(result.getProgFile(),
                 protocolPackageHttp, headerStruct));
-        HttpUtil.populateInboundRequest(request, cMsg);
+        HttpUtil.populateInboundRequest(request, null, null, cMsg);
 
         BValue[] inputArg = {request};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetContentLength", inputArg);
@@ -201,7 +201,7 @@ public class RequestNativeFunctionSuccessTest {
 
         HttpUtil.setHeaderValueStructType(BCompileUtil.createAndGetStruct(result.getProgFile(),
                 protocolPackageHttp, headerStruct));
-        HttpUtil.populateInboundRequest(request, cMsg);
+        HttpUtil.populateInboundRequest(request, null, null, cMsg);
 
         BString key = new BString(Constants.CONTENT_TYPE);
         BValue[] inputArg = {request, key};
@@ -243,7 +243,7 @@ public class RequestNativeFunctionSuccessTest {
 
         HttpUtil.setHeaderValueStructType(BCompileUtil.createAndGetStruct(result.getProgFile(),
                 protocolPackageHttp, headerStruct));
-        HttpUtil.populateInboundRequest(request, cMsg);
+        HttpUtil.populateInboundRequest(request, null, null,cMsg);
 
         BString key = new BString(Constants.CONTENT_TYPE);
         BValue[] inputArg = {request, key};
@@ -490,7 +490,7 @@ public class RequestNativeFunctionSuccessTest {
 
         HttpUtil.setHeaderValueStructType(BCompileUtil.createAndGetStruct(result.getProgFile(),
                 protocolPackageHttp, headerStruct));
-        HttpUtil.populateInboundRequest(request, cMsg);
+        HttpUtil.populateInboundRequest(request, null, null, cMsg);
 
 
         String range = "Range";

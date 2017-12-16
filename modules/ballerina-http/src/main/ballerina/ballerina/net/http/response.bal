@@ -7,7 +7,7 @@ import ballerina.net.mime;
 @Param { value:"headerName: The header name" }
 @Return { value:"The first header value struct for the provided header name. Returns null if the header does not exist." }
 public function <Response res> getHeader (string headerName) (mime:HeaderValue) {
-    mime:Entity entity = res.getEntity();
+    mime:Entity entity = res.getEntity(false);
     if (entity.headers == null) {
         return null;
     }
@@ -23,7 +23,7 @@ public function <Response res> getHeader (string headerName) (mime:HeaderValue) 
 @Param { value:"headerName: The header name" }
 @Param { value:"headerValue: The header value" }
 public function <Response res> addHeader (string headerName, string headerValue) {
-    mime:Entity entity = res.getEntity();
+    mime:Entity entity = res.getEntity(false);
     if (entity.headers == null) {
         entity.headers = {};
     }
@@ -42,7 +42,7 @@ public function <Response res> addHeader (string headerName, string headerValue)
 @Param { value:"headerName: The header name" }
 @Return { value:"The header values struct array for a given header name" }
 public function <Response res> getHeaders (string headerName) (mime:HeaderValue[]) {
-    mime:Entity entity = res.getEntity();
+    mime:Entity entity = res.getEntity(false);
     if (entity.headers == null) {
         return null;
     }
@@ -58,7 +58,7 @@ public function <Response res> getHeaders (string headerName) (mime:HeaderValue[
 @Param { value:"key: The header name" }
 @Param { value:"value: The header value" }
 public function <Response res> setHeader (string key, string value) {
-    mime:Entity entity = res.getEntity();
+    mime:Entity entity = res.getEntity(false);
     if (entity.headers == null) {
         entity.headers = {};
     }
@@ -70,7 +70,7 @@ public function <Response res> setHeader (string key, string value) {
 @Param { value:"res: The response message" }
 @Param { value:"key: The header name" }
 public function <Response res> removeHeader (string key) {
-    mime:Entity entity = res.getEntity();
+    mime:Entity entity = res.getEntity(false);
     if (entity.headers == null) {
         return;
     }
@@ -80,7 +80,7 @@ public function <Response res> removeHeader (string key) {
 @Description { value:"Removes all transport headers from the response"}
 @Param { value:"res: The response message" }
 public function <Response res> removeAllHeaders () {
-    mime:Entity entity = res.getEntity();
+    mime:Entity entity = res.getEntity(false);
     entity.headers = {};
 }
 

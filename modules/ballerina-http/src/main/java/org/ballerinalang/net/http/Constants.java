@@ -147,7 +147,8 @@ public class Constants {
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
-    public static final String MESSAGE_ENTITY = "message_entity";
+    public static final String ENTITY_WITH_BODY = "message_entity_body";
+    public static final String ENTITY_WITH_ONLY_HEADERS = "message_entity_with_headers";
     public static final String MESSAGE_DATA_SOURCE = "message_dataSource";
     public static final String MESSAGE_OUTPUT_STREAM = "message_output_stream";
     public static final String INBOUND_REQUEST_MESSAGE = "inbound_request_msg";

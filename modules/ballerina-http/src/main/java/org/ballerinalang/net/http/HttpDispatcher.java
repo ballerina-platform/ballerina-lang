@@ -134,18 +134,27 @@ public class HttpDispatcher {
 
     public static BValue[] getSignatureParameters(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
         //TODO Think of keeping struct type globally rather than creating for each request
-        BStruct request = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                Constants.PROTOCOL_PACKAGE_HTTP, Constants.REQUEST);
-        BStruct response = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                Constants.PROTOCOL_PACKAGE_HTTP, Constants.RESPONSE);
-        HttpUtil.setHeaderValueStructType(ConnectorUtils.createStruct(httpResource.getBalResource(),
-                PROTOCOL_PACKAGE_MIME, HEADER_VALUE_STRUCT));
-        HttpUtil.populateInboundRequest(request, httpCarbonMessage);
+        BStruct request = ConnectorUtils
+                .createStruct(httpResource.getBalResource(), Constants.PROTOCOL_PACKAGE_HTTP, Constants.REQUEST);
+        BStruct response = ConnectorUtils
+                .createStruct(httpResource.getBalResource(), Constants.PROTOCOL_PACKAGE_HTTP, Constants.RESPONSE);
+        HttpUtil.setHeaderValueStructType(
+                ConnectorUtils.createStruct(httpResource.getBalResource(), PROTOCOL_PACKAGE_MIME, HEADER_VALUE_STRUCT));
+        BStruct entity = ConnectorUtils.createStruct(httpResource.getBalResource(),
+                org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
+                org.ballerinalang.net.mime.util.Constants.ENTITY);
+        HttpUtil.setEntityStructType(entity);
+
+        BStruct mediaType = ConnectorUtils.createStruct(httpResource.getBalResource(),
+                org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
+                org.ballerinalang.net.mime.util.Constants.MEDIA_TYPE);
+
+        HttpUtil.populateInboundRequest(request, entity, mediaType, httpCarbonMessage);
         HttpUtil.populateOutboundResponse(response, HttpUtil.createHttpCarbonMessage(false), httpCarbonMessage);
 
         List<ParamDetail> paramDetails = httpResource.getParamDetails();
-        Map<String, String> resourceArgumentValues =
-                (Map<String, String>) httpCarbonMessage.getProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS);
+        Map<String, String> resourceArgumentValues = (Map<String, String>) httpCarbonMessage
+                .getProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS);
 
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = request;
