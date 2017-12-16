@@ -59,7 +59,7 @@ class SourceEditor extends React.Component {
     /**
      * lifecycle hook for editor did mount
      */
-    editorWillMount( monaco) {
+    editorWillMount(monaco) {
         this.monaco = monaco;
         monaco.languages.register({ id: 'ballerinalang' });
         monaco.languages.setMonarchTokensProvider('ballerinalang', Grammar);
@@ -135,6 +135,7 @@ class SourceEditor extends React.Component {
     }
 
     render() {
+        const { width, height } = this.props;
         return (
             <div className='text-editor bal-source-editor'>
                 <MonacoEditor
@@ -150,9 +151,17 @@ class SourceEditor extends React.Component {
                         this.props.file
                             .setContent(newValue, changeEvent);
                     }}
+                    width={width}
+                    height={height}
                 />
             </div>
         );
+    }
+
+    componentDidUpdate() {
+        if (this.editor) {
+            this.monaco.editor.layout();
+        }
     }
 
     /**
@@ -212,6 +221,8 @@ SourceEditor.propTypes = {
     addBreakpoint: PropTypes.func.isRequired,
     removeBreakpoint: PropTypes.func.isRequired,
     debugHit: PropTypes.number,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
 };
 
 SourceEditor.defaultProps = {
