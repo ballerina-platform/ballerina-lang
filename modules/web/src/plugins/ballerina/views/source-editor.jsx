@@ -40,7 +40,7 @@ class SourceEditor extends React.Component {
         this.goToCursorPosition = this.goToCursorPosition.bind(this);
         this.onFileContentChanged = this.onFileContentChanged.bind(this);
         this.lastUpdatedTimestamp = props.file.lastUpdated;
-        this.editorDidMount = this.editorDidMount.bind(this);
+        this.editorWillMount = this.editorWillMount.bind(this);
     }
 
     /**
@@ -59,7 +59,7 @@ class SourceEditor extends React.Component {
     /**
      * lifecycle hook for editor did mount
      */
-    editorDidMount(editor, monaco) {
+    editorWillMount( monaco) {
         this.monaco = monaco;
         monaco.languages.register({ id: 'ballerinalang' });
         monaco.languages.setMonarchTokensProvider('ballerinalang', Grammar);
@@ -138,13 +138,10 @@ class SourceEditor extends React.Component {
         return (
             <div className='text-editor bal-source-editor'>
                 <MonacoEditor
-                    ref={(ref) => {
-                        this.monaco = ref;
-                    }}
                     language='ballerinalang'
                     theme='vs-dark'
                     value={this.props.file.content}
-                    editorDidMount={this.editorDidMount}
+                    editorWillMount={this.editorWillMount}
                     onChange={(newValue) => {
                         const changeEvent = {
                             type: CHANGE_EVT_TYPES.SOURCE_MODIFIED,
