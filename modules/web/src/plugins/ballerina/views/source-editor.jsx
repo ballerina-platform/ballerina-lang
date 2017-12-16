@@ -151,6 +151,14 @@ class SourceEditor extends React.Component {
                         this.props.file
                             .setContent(newValue, changeEvent);
                     }}
+                    options={{
+                        autoIndent: true,
+                        fontSize: 14,
+                        contextmenu: false,
+                        renderIndentGuides: true,
+                        autoClosingBrackets: true,
+                        automaticLayout: true,
+                    }}
                     width={width}
                     height={height}
                 />
