@@ -24,7 +24,7 @@ import DimensionVisitor from './visitors/dimension-visitor';
 import ErrorRenderer from './visitors/error-rendering-visitor';
 import WorkerInvocationSyncVisitor from './visitors/worker-invocation-sync-visitor';
 import InvocationArrowPositionVisitor from './visitors/worker-invocation-arrow-position-sync-visitor';
-import ArrowConflictResolver from '../visitors/arrow-conflict-resolver';
+// import ArrowConflictResolver from '../visitors/arrow-conflict-resolver';
 import Clean from './visitors/clean';
 import AnnotationRenderingVisitor from '../visitors/annotation-rendering-visitor';
 import OverlayComponentsRenderingVisitor from '../visitors/overlay-comp-rendering-visitor';
@@ -36,7 +36,7 @@ import {
     getWorkerInvocationSyncUtil,
     getInvocationArrowPositionUtil,
     getOverlayComponent,
-    getErrorCollectorUtil,
+//    getErrorCollectorUtil,
 } from './diagram-util';
 import ActiveArbiter from './views/default/components/decorators/active-arbiter';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';

@@ -33,7 +33,7 @@ class DesignView extends React.Component {
         super(props);
         this.state = {
             isTransformActive: false,
-            mode: 'default',
+            mode: 'action',
         };
         this.overlayContainer = undefined;
         this.diagramContainer = undefined;
@@ -188,9 +188,7 @@ class DesignView extends React.Component {
                         />
                     }
                 </div>
-                <div className='tool-palette-container' ref={this.setToolPaletteContainer}>
-                    
-                </div>
+                <div className='tool-palette-container' ref={this.setToolPaletteContainer} />
                 <div className={cn('bottom-right-controls-container', { hide: this.context.isPreviewViewEnabled })}>
                     <div
                         className='view-source-btn btn-icon'

@@ -31,6 +31,7 @@ class Clean {
     beginVisit(node) {
         node.viewState.offSet = 0;
         node.viewState.hidden = false;
+        node.viewState.alias = undefined;
         node.viewState.dimensionsSynced = false;
         // Component for worker invocation
         node.viewState.components['invocation-arrow'] = undefined;

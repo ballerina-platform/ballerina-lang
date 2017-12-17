@@ -19,10 +19,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
+import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import ActionBox from './action-box';
 import SimpleBBox from './../../../../../model/view/simple-bounding-box';
 import './statement-decorator.css';
-import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import Breakpoint from './breakpoint';
 import ActiveArbiter from './active-arbiter';
 import Node from '../../../../../model/tree/node';
@@ -122,7 +122,8 @@ class StatementDecorator extends React.Component {
         const ballerinaFileEditor = this.context.editor;
         if (options) {
             new ExpressionEditor(this.state.statementBox,
-                text => this.onUpdate(text), options, packageScope, ballerinaFileEditor).render(this.context.getOverlayContainer());
+                text => this.onUpdate(text), options, packageScope, ballerinaFileEditor)
+                        .render(this.context.getOverlayContainer());
         }
     }
 
@@ -163,7 +164,7 @@ class StatementDecorator extends React.Component {
         const { designer } = this.context;
         actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;
         actionBoxBbox.h = designer.config.actionBox.height;
-        actionBoxBbox.x = statementBox.x + (statementBox.w - actionBoxBbox.w) / 2;
+        actionBoxBbox.x = statementBox.x + ((statementBox.w - actionBoxBbox.w) / 2);
         actionBoxBbox.y = statementBox.y + statementBox.h + designer.config.actionBox.padding.top;
 
         let statementRectClass = 'statement-rect';
@@ -281,28 +282,16 @@ class StatementDecorator extends React.Component {
                             </g>);
                     } else {
                         return (
-                            <g>
-                                <rect
-                                    x={statementBox.x}
-                                    y={statementBox.y}
-                                    width={statementBox.w}
-                                    height={statementBox.h}
-                                    className={statementRectClass}
+                            <g className='statement-body'>
+                                {tooltip}
+                                <text
+                                    x={text.x}
+                                    y={text.y}
+                                    className={textClassName}
                                     onClick={e => this.openEditor(e)}
                                 >
-                                    {tooltip}
-                                </rect>
-                                <g className='statement-body'>
-                                    {tooltip}
-                                    <text
-                                        x={text.x}
-                                        y={text.y}
-                                        className={textClassName}
-                                        onClick={e => this.openEditor(e)}
-                                    >
-                                        {_.trimEnd(expression, ';')}
-                                    </text>
-                                </g>
+                                    {_.trimEnd(expression, ';')}
+                                </text>
                             </g>
                         );
                     }

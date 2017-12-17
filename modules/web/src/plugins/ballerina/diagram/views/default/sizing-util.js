@@ -19,7 +19,6 @@
 import _ from 'lodash';
 import SimpleBBox from './../../../model/view/simple-bounding-box';
 import TreeUtil from './../../../model/tree-util';
-import { getWorkerMaxHeight } from './../../diagram-util';
 import * as DesignerDefaults from './designer-defaults';
 import splitVariableDefByLambda from '../../../model/lambda-util';
 
@@ -372,7 +371,7 @@ class SizingUtil {
         const cmp = viewState.components;
         const workers = node.workers;
         const defaultWorkerHeight = functionBodyViewState.bBox.h + (this.config.lifeLine.head.height * 2);
-        let maxWorkerHeight = workers.length > 0 ? getWorkerMaxHeight(workers) : -1;
+        let maxWorkerHeight = workers.length > 0 ? this.getWorkerMaxHeight(workers) : -1;
         maxWorkerHeight = Math.max(maxWorkerHeight, defaultWorkerHeight);
 
         /* Define the sub components */
@@ -912,7 +911,8 @@ class SizingUtil {
     sizeWorkerNode(node) {
         const bBox = node.viewState.bBox;
         const workerBody = node.body;
-        bBox.h = workerBody.viewState.bBox.h + this.config.lifeLine.padding.top + this.config.lifeLine.head.height + this.config.lifeLine.footer.height;
+        bBox.h = workerBody.viewState.bBox.h + this.config.lifeLine.padding.top
+            + this.config.lifeLine.head.height + this.config.lifeLine.footer.height;
         bBox.w = workerBody.viewState.bBox.w;
         // set the size of the lifeline.
         const cmp = node.viewState.components;
@@ -1463,13 +1463,15 @@ class SizingUtil {
         const bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
 
-        components['block-header'].h = this.config.flowChartControlStatement.heading.height + this.config.statement.gutter.v;
+        components['block-header'].h = this.config.flowChartControlStatement.heading.height
+                                        + this.config.statement.gutter.v;
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
         viewState.components['statement-box'].h = bodyHeight + this.config.flowChartControlStatement.heading.height;
         viewState.components['statement-box'].w = bodyWidth;
-        viewState.bBox.h = this.config.statement.gutter.v + viewState.components['statement-box'].h + viewState.components['drop-zone'].h;
+        viewState.bBox.h = this.config.statement.gutter.v + viewState.components['statement-box'].h
+                            + viewState.components['drop-zone'].h;
         viewState.bBox.w = bodyWidth;
         components.body.w = bodyWidth;
 
@@ -1687,13 +1689,15 @@ class SizingUtil {
         const bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
 
-        components['block-header'].h = this.config.flowChartControlStatement.heading.height + this.config.statement.gutter.v;
+        components['block-header'].h = this.config.flowChartControlStatement.heading.height
+                                        + this.config.statement.gutter.v;
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
         viewState.components['statement-box'].h = bodyHeight + this.config.flowChartControlStatement.heading.height;
         viewState.components['statement-box'].w = bodyWidth;
-        viewState.bBox.h = this.config.statement.gutter.v + viewState.components['statement-box'].h + viewState.components['drop-zone'].h;
+        viewState.bBox.h = this.config.statement.gutter.v + viewState.components['statement-box'].h
+                            + viewState.components['drop-zone'].h;
         viewState.bBox.w = bodyWidth;
         components.body.w = bodyWidth;
 
@@ -1931,6 +1935,19 @@ class SizingUtil {
         }
 
         return height;
+    }
+
+    /**
+     * Get the max height among the workers
+     * @param {Array} workers - array of workers
+     * @returns {number} maximum worker height
+     */
+    getWorkerMaxHeight(workers) {
+        const workerNode = _.maxBy(workers, (worker) => {
+            return worker.body.viewState.bBox.h;
+        });
+
+        return workerNode.body.viewState.bBox.h + this.config.lifeLine.head.height + this.config.lifeLine.footer.height;
     }
 }
 

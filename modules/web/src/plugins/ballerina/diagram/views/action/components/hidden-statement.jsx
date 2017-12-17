@@ -16,13 +16,14 @@
  * under the License.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
-import './hidden.css';
+import './hidden-statement.css';
 
 /**
  * Add an mark to hidden elements.
  */
-class Hidden extends React.Component {
+class HiddenStatement extends React.Component {
 
     /**
      *
@@ -42,17 +43,15 @@ class Hidden extends React.Component {
     render() {
         const viewState = this.props.model.viewState;
         const bBox = viewState.bBox;
-        const designer = this.props.designer;
 
-        // calculate the bBox for the statement
-        const textX = bBox.x + bBox.w / 2 - 7;
-        const textY = bBox.y + 20;
+        const h = 10;
+        const y = bBox.y + ((bBox.h - h) / 2);
         return (
             <g>
-                <g className='statement-body'>
-                    <rect x={textX - 30} y={textY - 15} width='80' height='15' style={{ fill: '#FFF', strokeWidth: 0 }} />
-                    <text x={textX - 30} y={textY - 3} className='hidden-code'>
-                        Hidden Code
+                <g className='hidden-statement'>
+                    <rect x={bBox.x} y={y} width={bBox.w} height={h} rx='2' ry='2' />
+                    <text x={bBox.x + 3} y={y + 6} className='hidden-code' fontSize='35' >
+                        ...
                     </text>
                 </g>
             </g>);
@@ -60,4 +59,8 @@ class Hidden extends React.Component {
 
 }
 
-export default Hidden;
+HiddenStatement.propTypes = {
+    model: PropTypes.instanceOf(Object).isRequired,
+};
+
+export default HiddenStatement;

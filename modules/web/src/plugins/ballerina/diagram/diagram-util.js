@@ -19,7 +19,6 @@
 import log from 'log';
 import React from 'react';
 import _ from 'lodash';
-import Hidden from './views/action/components/hidden';
 
 import * as DefaultConfig from './views/default/designer-defaults';
 import * as actionConfig from './views/action/designer-defaults';
@@ -91,13 +90,14 @@ function getComponentForNodeArray(nodeArray, mode = 'default') {
     }).map((child) => {
         // hide hidden elements
         if (child.viewState && child.viewState.hidden) {
-            return React.createElement(Hidden, {
-                model: child,
-                key: child.getID(),
-            });
+            return undefined;
         }
 
-        const compName = child.constructor.name;
+        let compName = child.constructor.name;
+        if (child.viewState.alias !== undefined) {
+            compName = child.viewState.alias;
+        }
+
         if (components[mode][compName]) {
             return React.createElement(components[mode][compName], {
                 model: child,
@@ -180,18 +180,7 @@ function getOverlayComponent(nodeArray, mode = 'default') {
     });
 }
 
-/**
- * Get the max height among the workers
- * @param {Array} workers - array of workers
- * @returns {number} maximum worker height
- */
-function getWorkerMaxHeight(workers) {
-    const workerNode = _.maxBy(workers, (worker) => {
-        return worker.body.viewState.bBox.h;
-    });
 
-    return workerNode.body.viewState.bBox.h + DefaultConfig.lifeLine.head.height + DefaultConfig.lifeLine.footer.height;
-}
 export {
     getComponentForNodeArray,
     requireAll,
@@ -200,6 +189,14 @@ export {
     getWorkerInvocationSyncUtil,
     getInvocationArrowPositionUtil,
     getOverlayComponent,
-    getWorkerMaxHeight,
     getErrorCollectorUtil,
 };
+
+// WIP please do not remove.
+export class DiagramUtil {
+
+    constructor(mode) {
+        this.mode = mode;
+    }
+
+}
