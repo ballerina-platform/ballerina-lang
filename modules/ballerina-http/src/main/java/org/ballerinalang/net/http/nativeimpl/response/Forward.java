@@ -33,6 +33,9 @@ import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import static org.ballerinalang.net.mime.util.Constants.ENTITY_HEADERS_INDEX;
+import static org.ballerinalang.net.mime.util.Constants.MESSAGE_ENTITY;
+
 /**
  * Native function to send client service response directly to the caller.
  *
@@ -77,8 +80,10 @@ public class Forward extends AbstractNativeFunction {
             // default behaviour: keepAlive = true
             responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
         }
-        if (inboundResponseStruct.getRefField(Constants.RESPONSE_HEADERS_INDEX) != null) {
-            HttpUtil.setHeadersToTransportMessage(responseMessage, inboundResponseStruct);
+
+        BStruct entity = (BStruct) inboundResponseStruct.getNativeData(MESSAGE_ENTITY);
+        if (entity.getRefField(ENTITY_HEADERS_INDEX) != null) {
+            HttpUtil.setHeadersToTransportMessage(responseMessage, entity);
         }
 
         return HttpUtil.prepareResponseAndSend(context, this, requestMessage,

@@ -32,6 +32,9 @@ import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import static org.ballerinalang.net.mime.util.Constants.ENTITY_HEADERS_INDEX;
+import static org.ballerinalang.net.mime.util.Constants.MESSAGE_ENTITY;
+
 /**
  * Native function to send response back to the caller.
  */
@@ -72,10 +75,11 @@ public class Send extends AbstractNativeFunction {
             // default behaviour: keepAlive = true
             responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
         }
-        if (outboundResponseStruct.getRefField(Constants.RESPONSE_HEADERS_INDEX) != null) {
-            HttpUtil.setHeadersToTransportMessage(responseMessage, outboundResponseStruct);
-        }
 
+        BStruct entity = (BStruct) outboundResponseStruct.getNativeData(MESSAGE_ENTITY);
+        if (entity.getRefField(ENTITY_HEADERS_INDEX) != null) {
+            HttpUtil.setHeadersToTransportMessage(responseMessage, entity);
+        }
         return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage,
                 outboundResponseStruct);
     }

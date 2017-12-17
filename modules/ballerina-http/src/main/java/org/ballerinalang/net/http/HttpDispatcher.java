@@ -150,7 +150,8 @@ public class HttpDispatcher {
                 org.ballerinalang.net.mime.util.Constants.MEDIA_TYPE);
 
         HttpUtil.populateInboundRequest(request, entity, mediaType, httpCarbonMessage);
-        HttpUtil.populateOutboundResponse(response, HttpUtil.createHttpCarbonMessage(false), httpCarbonMessage);
+        HttpUtil.populateOutboundResponse(response, entity, HttpUtil.createHttpCarbonMessage(false),
+                httpCarbonMessage);
 
         List<ParamDetail> paramDetails = httpResource.getParamDetails();
         Map<String, String> resourceArgumentValues = (Map<String, String>) httpCarbonMessage

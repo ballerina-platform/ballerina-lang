@@ -116,6 +116,8 @@ public struct Response {
 @Return { value:"Entity of the response" }
 public native function <Response res> getEntity (boolean isEntityBodyRequired) (mime:Entity);
 
+public native function <Response res> setEntity (mime:Entity entity);
+
 @Description { value:"Gets the HTTP status code from the response"}
 @Param { value:"res: The response message" }
 @Return { value:"HTTP status code of the response" }

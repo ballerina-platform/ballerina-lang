@@ -140,6 +140,8 @@ public class Constants {
     public static final String ANNOTATION_NAME_PATH = "Path";
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
     public static final String REQUEST = "Request";
+    public static final String ENTITY = "Entity";
+    public static final String MEDIA_TYPE = "MediaType";
     public static final String RESPONSE = "Response";
     public static final String HEADER_VALUE_STRUCT = "HeaderValue";
     public static final String HEADER_VALUE = "value";
@@ -147,8 +149,6 @@ public class Constants {
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
-    public static final String ENTITY_WITH_BODY = "message_entity_body";
-    public static final String ENTITY_WITH_ONLY_HEADERS = "message_entity_with_headers";
     public static final String MESSAGE_DATA_SOURCE = "message_dataSource";
     public static final String MESSAGE_OUTPUT_STREAM = "message_output_stream";
     public static final String INBOUND_REQUEST_MESSAGE = "inbound_request_msg";

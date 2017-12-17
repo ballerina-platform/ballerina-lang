@@ -71,6 +71,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     protected void prepareRequest(BConnector connector, String path, HTTPCarbonMessage cMsg, BStruct requestStruct) {
 
         validateParams(connector);
+
+        //TODO requestStruct should be entity
         HttpUtil.populateOutboundRequest(requestStruct, cMsg);
         String uri = null;
         try {
@@ -210,8 +212,9 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
             if (httpCarbonMessage.getMessagingException() == null) {
                 BStruct response = createStruct(this.context, Constants.RESPONSE);
+                BStruct entity = createStruct(this.context, Constants.ENTITY);
                 HttpUtil.setHeaderValueStructType(createStruct(this.context, Constants.HEADER_VALUE_STRUCT));
-                HttpUtil.populateInboundResponse(response, httpCarbonMessage);
+                HttpUtil.populateInboundResponse(response, entity, httpCarbonMessage);
                 ballerinaFuture.notifyReply(response);
             } else {
                 //TODO should we throw or should we create error struct and pass? or do we need this at all?

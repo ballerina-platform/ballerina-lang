@@ -44,9 +44,9 @@ import static org.ballerinalang.net.mime.util.Constants.XML_DATA_INDEX;
  */
 public class MimeUtil {
 
-    public static void setStringPayload(Context context, BStruct entityStruct, InputStream inputStream,
+    public static void readAndSetStringPayload(Context context, BStruct entityStruct, InputStream inputStream,
             long contentLength) {
-        if (contentLength > 1) {
+        if (contentLength > Constants.BYTE_LIMIT) {
             writeToTemporaryFile(inputStream);
             createBallerinaFileHandler(context, entityStruct);
             entityStruct.setBooleanField(IS_IN_MEMORY_INDEX, FALSE);
@@ -57,9 +57,9 @@ public class MimeUtil {
         }
     }
 
-    public static void setJsonPayload(Context context, BStruct entityStruct, InputStream inputStream,
+    public static void readAndSetJsonPayload(Context context, BStruct entityStruct, InputStream inputStream,
             long contentLength) {
-        if (contentLength > 30) {
+        if (contentLength > Constants.BYTE_LIMIT) {
             writeToTemporaryFile(inputStream);
             createBallerinaFileHandler(context, entityStruct);
             entityStruct.setBooleanField(IS_IN_MEMORY_INDEX, FALSE);
@@ -70,9 +70,9 @@ public class MimeUtil {
         }
     }
 
-    public static void setXmlPayload(Context context, BStruct entityStruct, InputStream inputStream,
+    public static void readAndSetXmlPayload(Context context, BStruct entityStruct, InputStream inputStream,
             long contentLength) {
-        if (contentLength > 30) {
+        if (contentLength > Constants.BYTE_LIMIT) {
             writeToTemporaryFile(inputStream);
             createBallerinaFileHandler(context, entityStruct);
             entityStruct.setBooleanField(IS_IN_MEMORY_INDEX, FALSE);
@@ -83,9 +83,9 @@ public class MimeUtil {
         }
     }
 
-    public static void setBinaryPayload(Context context, BStruct entityStruct, InputStream inputStream,
+    public static void readAndSetBinaryPayload(Context context, BStruct entityStruct, InputStream inputStream,
             long contentLength) {
-        if (contentLength > 30) {
+        if (contentLength > Constants.BYTE_LIMIT) {
             writeToTemporaryFile(inputStream);
             createBallerinaFileHandler(context, entityStruct);
             entityStruct.setBooleanField(IS_IN_MEMORY_INDEX, FALSE);
@@ -99,6 +99,54 @@ public class MimeUtil {
             entityStruct.setRefField(BYTE_DATA_INDEX, payload);
             entityStruct.setBooleanField(IS_IN_MEMORY_INDEX, TRUE);
         }
+    }
+
+    public static boolean isTextBodyPresent(BStruct entity) {
+        String textPayload = entity.getStringField(TEXT_DATA_INDEX);
+        if (textPayload != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean isJsonBodyPresent(BStruct entity) {
+        String textPayload = entity.getStringField(TEXT_DATA_INDEX);
+        if (textPayload != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean isXmlBodyPresent(BStruct entity) {
+        String textPayload = entity.getStringField(TEXT_DATA_INDEX);
+        if (textPayload != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean isBinaryBodyPresent(BStruct entity) {
+        String textPayload = entity.getStringField(TEXT_DATA_INDEX);
+        if (textPayload != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public static String getTextPayload(BStruct entity) {
+        return null;
+    }
+
+    public static BJSON getJsonPayload(BStruct entity) {
+        return null;
+    }
+
+    public static BXML getXmlPayload(BStruct entity) {
+        return null;
+    }
+
+    public static byte[] getBinaryPayload(BStruct entity) {
+        return null;
     }
 
     public static void setContentType(BStruct mediaType, BStruct entityStruct, String contentType) {
@@ -120,7 +168,7 @@ public class MimeUtil {
     }
 
     public static BStruct parseMediaType(BStruct mediaType, String contentType) {
-        MimeType mimeType = null;
+        MimeType mimeType;
         try {
             mimeType = new MimeType(contentType);
         } catch (MimeTypeParseException e) {

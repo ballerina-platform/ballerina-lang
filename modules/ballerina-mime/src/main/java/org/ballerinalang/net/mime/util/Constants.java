@@ -47,6 +47,11 @@ public class Constants {
     public static final String DEFAULT_SUB_TYPE = "octet-stream";
     public static final String SUFFIX_ATTACHMENT = "+";
 
+   // public static final String ENTITY_WITH_BODY = "message_entity_with_body";
+  //  public static final String ENTITY_WITH_ONLY_HEADERS = "message_entity_with_headers";
+    public static final String MESSAGE_ENTITY = "message_entity";
+    public static final String IS_ENTITY_BODY_PRESENT = "is_entity_body_present";
+
     //Entity properties
     public static final int TEXT_DATA_INDEX = 1;
     public static final int JSON_DATA_INDEX = 2;
@@ -67,4 +72,6 @@ public class Constants {
     public static final int SUBTYPE_INDEX = 1;
     public static final int SUFFIX_INDEX = 2;
     public static final int PARAMETER_MAP_INDEX = 0;
+
+    public static final int BYTE_LIMIT = 2097152; //2MB
 }
