@@ -1,5 +1,9 @@
 package ballerina.net.http;
 
+@Description { value:"Represents the HTTP connector connection"}
+public struct Connection {
+}
+
 @Description { value:"Represents an HTTP request message"}
 @Field {value:"host: The server host name"}
 @Field {value:"port: The server port"}

@@ -131,14 +131,16 @@ public class HttpDispatcher {
 
     public static BValue[] getSignatureParameters(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
         //TODO Think of keeping struct type globally rather than creating for each request
+        BStruct connection = ConnectorUtils.createStruct(httpResource.getBalResource(),
+                Constants.PROTOCOL_PACKAGE_HTTP, Constants.CONNECTION);
         BStruct request = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.REQUEST);
-        BStruct response = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                Constants.PROTOCOL_PACKAGE_HTTP, Constants.RESPONSE);
+//        BStruct response = ConnectorUtils.createStruct(httpResource.getBalResource(),
+//                Constants.PROTOCOL_PACKAGE_HTTP, Constants.RESPONSE);
         HttpUtil.setHeaderValueStructType(ConnectorUtils.createStruct(httpResource.getBalResource(),
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.HEADER_VALUE_STRUCT));
         HttpUtil.populateInboundRequest(request, httpCarbonMessage);
-        HttpUtil.populateOutboundResponse(response, HttpUtil.createHttpCarbonMessage(false), httpCarbonMessage);
+//        HttpUtil.populateOutboundResponse(response, HttpUtil.createHttpCarbonMessage(false), httpCarbonMessage);
 
         List<ParamDetail> paramDetails = httpResource.getParamDetails();
         Map<String, String> resourceArgumentValues =
@@ -146,7 +148,7 @@ public class HttpDispatcher {
 
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = request;
-        bValues[1] = response;
+//        bValues[1] = response;
         if (paramDetails.size() <= 2) {
             return bValues;
         }

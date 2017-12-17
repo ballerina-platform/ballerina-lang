@@ -633,10 +633,11 @@ public class HttpUtil {
     }
 
     public static void populateOutboundResponse(BStruct response, HTTPCarbonMessage resMsg, HTTPCarbonMessage reqMsg) {
-        response.addNativeData(Constants.TRANSPORT_MESSAGE, resMsg);
-        response.addNativeData(Constants.INBOUND_REQUEST_MESSAGE, reqMsg);
-        response.addNativeData(Constants.OUTBOUND_RESPONSE, true);
-        response.setRefField(Constants.RESPONSE_HEADERS_INDEX, new BMap<>());
+//        response.addNativeData(Constants.TRANSPORT_MESSAGE, resMsg);
+//        response.addNativeData(Constants.INBOUND_REQUEST_MESSAGE, reqMsg);
+//        response.addNativeData(Constants.OUTBOUND_RESPONSE, true);
+//        response.setRefField(Constants.RESPONSE_HEADERS_INDEX, new BMap<>());
+        setHeadersToTransportMessage(reqMsg, response);
     }
 
     private static BMap<String, BValue> prepareHeaderMap(HttpHeaders headers, BMap<String, BValue> headerMap) {

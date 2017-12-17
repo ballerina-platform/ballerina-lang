@@ -139,6 +139,7 @@ public class Constants {
     public static final String ANNOTATION_NAME_BASE_PATH = "BasePath";
     public static final String ANNOTATION_NAME_PATH = "Path";
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
+    public static final String CONNECTION = "Connection";
     public static final String REQUEST = "Request";
     public static final String RESPONSE = "Response";
     public static final String HEADER_VALUE_STRUCT = "HeaderValue";
