@@ -29,18 +29,75 @@ import SourceViewCompleterFactory from './../../ballerina/utils/source-view-comp
 import { CHANGE_EVT_TYPES } from './constants';
 import Grammar from './../utils/monarch-grammar';
 
+const BAL_LANGUAGE = 'ballerina-lang';
 
+/**
+ * Source editor component which wraps monaco editor
+ */
 class SourceEditor extends React.Component {
 
+    /**
+     * @inheritDoc
+     */
     constructor(props) {
         super(props);
         this.monaco = undefined;
+        this.editorInstance = undefined;
         this.inSilentMode = false;
         this.sourceViewCompleterFactory = new SourceViewCompleterFactory();
         this.goToCursorPosition = this.goToCursorPosition.bind(this);
         this.onFileContentChanged = this.onFileContentChanged.bind(this);
         this.lastUpdatedTimestamp = props.file.lastUpdated;
-        this.editorWillMount = this.editorWillMount.bind(this);
+        this.editorDidMount = this.editorDidMount.bind(this);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    componentWillReceiveProps(nextProps) {
+        // if (!nextProps.parseFailed) {
+        //     getLangServerClientInstance()
+        //         .then((langserverClient) => {
+        //             // Set source view completer
+        //             const sourceViewCompleterFactory = this.sourceViewCompleterFactory;
+        //             const fileData = {
+        //                 fileName: nextProps.file.name,
+        //                 filePath: nextProps.file.path,
+        //                 fullPath: nextProps.file.fullPath,
+        //                 packageName: nextProps.file.packageName,
+        //             };
+        //             const completer = sourceViewCompleterFactory.getSourceViewCompleter(langserverClient, fileData);
+        //             langTools.setCompleters(completer);
+        //         })
+        //         .catch(error => log.error(error));
+        // }
+
+        // const { debugHit, sourceViewBreakpoints } = nextProps;
+        // if (this.debugPointMarker) {
+        //     this.editor.getSession().removeMarker(this.debugPointMarker);
+        // }
+        // if (debugHit > 0) {
+        //     this.debugPointMarker = this.editor.getSession().addMarker(
+        //         new Range(debugHit, 0, debugHit, 2000), 'debug-point-hit', 'line', true);
+        // }
+
+        if (this.props.file.id !== nextProps.file.id) {
+            if (this.monaco && this.editorInstance) {
+                const uri = this.monaco.Uri.parse(nextProps.file.toURI());
+                let modelForFile = this.monaco.editor.getModel(uri);
+                if (!modelForFile) {
+                    modelForFile = this.monaco.editor.createModel(nextProps.file.content, BAL_LANGUAGE, uri);
+                }
+                if (this.editorInstance.getModel().uri !== modelForFile.uri) {
+                    this.editorInstance.setModel(modelForFile);
+                }
+            }
+            // Removing the file content changed event of the previous file.
+            this.props.file.off(CONTENT_MODIFIED, this.onFileContentChanged);
+            // Adding the file content changed event to the new file.
+            nextProps.file.on(CONTENT_MODIFIED, this.onFileContentChanged);
+        }
+        // this.editor.getSession().setBreakpoints(sourceViewBreakpoints);
     }
 
     /**
@@ -50,19 +107,33 @@ class SourceEditor extends React.Component {
      */
     onFileContentChanged(evt) {
         if (evt.originEvt.type !== CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
-            // no need to update the file again, hence
-            // the second arg to skip update event
-            this.replaceContent(evt.newContent, true);
+            if (this.monaco && this.editorInstance && evt.file) {
+                const uri = this.monaco.Uri.parse(evt.file.toURI());
+                const modelForFile = this.monaco.editor.getModel(uri);
+                if (modelForFile) {
+                    modelForFile.setValue(evt.file.content);
+                }
+            }
         }
     }
 
     /**
-     * lifecycle hook for editor did mount
+     * Life-cycle hook for editor did mount
+     *
+     * @param {IEditor} editorInstance Current editor instance
+     * @param {Object} monaco Monaco API
      */
-    editorWillMount(monaco) {
+    editorDidMount(editorInstance, monaco) {
         this.monaco = monaco;
-        monaco.languages.register({ id: 'ballerinalang' });
-        monaco.languages.setMonarchTokensProvider('ballerinalang', Grammar);
+        this.editorInstance = editorInstance;
+        monaco.languages.register({ id: BAL_LANGUAGE });
+        monaco.languages.setMonarchTokensProvider(BAL_LANGUAGE, Grammar);
+        const uri = monaco.Uri.parse(this.props.file.toURI());
+        let modelForFile = monaco.editor.getModel(uri);
+        if (!modelForFile) {
+            modelForFile = monaco.editor.createModel(this.props.file.content, BAL_LANGUAGE, uri);
+        }
+        editorInstance.setModel(modelForFile);
     }
 
     /**
@@ -100,11 +171,7 @@ class SourceEditor extends React.Component {
         if (skipFileUpdate) {
             this.skipFileUpdate = true;
         }
-        const session = this.editor.getSession();
-        const contentRange = new Range(0, 0, session.getLength(),
-                        session.getRowLength(session.getLength()));
-        session.replace(contentRange, newContent);
-        this.lastUpdatedTimestamp = this.props.file.lastUpdated;
+        this.monaco.editor.getModels()[1].setValue(newContent);
     }
 
     /**
@@ -134,6 +201,9 @@ class SourceEditor extends React.Component {
         }
     }
 
+    /**
+     * @inheritDoc
+     */
     render() {
         const { width, height } = this.props;
         return (
@@ -141,8 +211,8 @@ class SourceEditor extends React.Component {
                 <MonacoEditor
                     language='ballerinalang'
                     theme='vs-dark'
-                    value={this.props.file.content}
-                    editorWillMount={this.editorWillMount}
+                    value=''
+                    editorDidMount={this.editorDidMount}
                     onChange={(newValue) => {
                         const changeEvent = {
                             type: CHANGE_EVT_TYPES.SOURCE_MODIFIED,
@@ -164,55 +234,6 @@ class SourceEditor extends React.Component {
                 />
             </div>
         );
-    }
-
-    componentDidUpdate() {
-        if (this.editor) {
-            this.monaco.editor.layout();
-        }
-    }
-
-    /**
-     * lifecycle hook for component will receive props
-     */
-    componentWillReceiveProps(nextProps) {
-        // if (!nextProps.parseFailed) {
-        //     getLangServerClientInstance()
-        //         .then((langserverClient) => {
-        //             // Set source view completer
-        //             const sourceViewCompleterFactory = this.sourceViewCompleterFactory;
-        //             const fileData = {
-        //                 fileName: nextProps.file.name,
-        //                 filePath: nextProps.file.path,
-        //                 fullPath: nextProps.file.fullPath,
-        //                 packageName: nextProps.file.packageName,
-        //             };
-        //             const completer = sourceViewCompleterFactory.getSourceViewCompleter(langserverClient, fileData);
-        //             langTools.setCompleters(completer);
-        //         })
-        //         .catch(error => log.error(error));
-        // }
-
-        // const { debugHit, sourceViewBreakpoints } = nextProps;
-        // if (this.debugPointMarker) {
-        //     this.editor.getSession().removeMarker(this.debugPointMarker);
-        // }
-        // if (debugHit > 0) {
-        //     this.debugPointMarker = this.editor.getSession().addMarker(
-        //         new Range(debugHit, 0, debugHit, 2000), 'debug-point-hit', 'line', true);
-        // }
-
-        // if (this.props.file.id !== nextProps.file.id) {
-        //     // Removing the file content changed event of the previous file.
-        //     this.props.file.off(CONTENT_MODIFIED, this.onFileContentChanged);
-        //     // Adding the file content changed event to the new file.
-        //     nextProps.file.on(CONTENT_MODIFIED, this.onFileContentChanged);
-        //     this.replaceContent(nextProps.file.content, true);
-        // } else if (this.editor.session.getValue() !== nextProps.file.content) {
-        //     this.replaceContent(nextProps.file.content, true);
-        // }
-
-        // this.editor.getSession().setBreakpoints(sourceViewBreakpoints);
     }
 }
 
