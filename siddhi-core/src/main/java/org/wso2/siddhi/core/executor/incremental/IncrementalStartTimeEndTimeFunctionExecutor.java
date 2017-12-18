@@ -152,7 +152,8 @@ public class IncrementalStartTimeEndTimeFunctionExecutor extends FunctionExecuto
                     + "<yyyy>-<MM>-** **:**:** <ZZ>, " + "<yyyy>-<MM>-<dd> **:**:** <ZZ>, "
                     + "<yyyy>-<MM>-<dd> <HH>:**:** <ZZ>, " + "<yyyy>-<MM>-<dd> <HH>:<mm>:** <ZZ>, and "
                     + "<yyyy>-<MM>-<dd> <HH>:<mm>:<ss> <ZZ>. The ISO 8601 UTC offset must be provided for "
-                    + "<ZZ> (ex. +05:30, -11:00). For GMT timezone the same formats must be adhered to, without <ZZ>");
+                    + "<ZZ> (ex. +05:30, -11:00). For GMT timezone the same formats must be adhered to, without <ZZ>. "
+                    + "However the given format is " + singleWithinTimeAsString);
         }
         for (int i = 0; i < TimePeriod.Duration.values().length; i++) {
             if (supportedPatterns.get(i).matcher(singleWithinTimeAsString).matches()) {
@@ -204,6 +205,7 @@ public class IncrementalStartTimeEndTimeFunctionExecutor extends FunctionExecuto
                 + "<yyyy>-<MM>-** **:**:** <ZZ>, " + "<yyyy>-<MM>-<dd> **:**:** <ZZ>, "
                 + "<yyyy>-<MM>-<dd> <HH>:**:** <ZZ>, " + "<yyyy>-<MM>-<dd> <HH>:<mm>:** <ZZ>, and "
                 + "<yyyy>-<MM>-<dd> <HH>:<mm>:<ss> <ZZ>. The ISO 8601 UTC offset must be provided for "
-                + "<ZZ> (ex. +05:30, -11:00). For GMT timezone the same formats must be adhered to, without <ZZ>");
+                + "<ZZ> (ex. +05:30, -11:00). For GMT timezone the same formats must be adhered to, without <ZZ>. "
+                + "However the given format is " + singleWithinTimeAsString);
     }
 }

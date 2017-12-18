@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
+package org.wso2.siddhi.core.aggregation;
 
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -76,10 +76,6 @@ public class BaseIncrementalValueStore implements Snapshotable {
 
     public long getTimestamp() {
         return timestamp;
-    }
-
-    public Object[] getValues() {
-        return values;
     }
 
     public List<ExpressionExecutor> getExpressionExecutors() {

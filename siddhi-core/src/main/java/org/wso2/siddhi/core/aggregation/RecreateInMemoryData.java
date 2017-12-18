@@ -16,9 +16,8 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
+package org.wso2.siddhi.core.aggregation;
 
-import org.wso2.siddhi.core.aggregation.AggregationRuntime;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;

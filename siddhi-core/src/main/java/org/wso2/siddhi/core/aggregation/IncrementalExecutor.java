@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
+package org.wso2.siddhi.core.aggregation;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
@@ -69,7 +69,7 @@ public class IncrementalExecutor implements Executor, Snapshotable {
     private boolean isRoot;
     private long millisecondsPerDuration;
     private boolean eventOlderThanBuffer;
-    private int countEvents = 0;
+    private int countEventsGreaterThanCurrentMax = 0;
     private int maxTimestampPosition;
     private long maxTimestampInBuffer;
     private Semaphore mutex;
@@ -285,6 +285,9 @@ public class IncrementalExecutor implements Executor, Snapshotable {
                 if (baseIncrementalValueStoreList != null) {
                     BaseIncrementalValueStore aBaseIncrementalValueStore = baseIncrementalValueStoreList
                             .get(currentBufferIndex);
+                    if (!aBaseIncrementalValueStore.isProcessed()) {
+                        aBaseIncrementalValueStore.setTimestamp(startTimeOfAggregates);
+                    }
                     process(streamEvent, aBaseIncrementalValueStore);
                 } else {
                     process(streamEvent, baseIncrementalValueStore);
@@ -311,9 +314,9 @@ public class IncrementalExecutor implements Executor, Snapshotable {
     }
 
     private void dispatchBufferedAggregateEvents(long startTimeOfNewAggregates) {
-        ++countEvents;
         int lastDispatchIndex;
         if (currentBufferIndex == -1) {
+            ++countEventsGreaterThanCurrentMax;
             maxTimestampPosition = 0;
             maxTimestampInBuffer = startTimeOfNewAggregates;
             currentBufferIndex = 0;
@@ -321,6 +324,7 @@ public class IncrementalExecutor implements Executor, Snapshotable {
             return;
         }
         if (startTimeOfNewAggregates > maxTimestampInBuffer) {
+            ++countEventsGreaterThanCurrentMax;
             if ((startTimeOfNewAggregates - maxTimestampInBuffer) / millisecondsPerDuration >= bufferSize + 1) {
                 // Need to flush all events
                 if (isGroupBy) {
@@ -348,10 +352,12 @@ public class IncrementalExecutor implements Executor, Snapshotable {
                         }
                     }
                 } else {
-                    BaseIncrementalValueStore aBaseIncrementalValueStore = baseIncrementalValueStoreList
-                            .get(lastDispatchIndex);
-                    if (aBaseIncrementalValueStore.isProcessed()) {
-                        for (int i = 0; i <= lastDispatchIndex; i++) {
+                    for (int i = 0; i <= lastDispatchIndex; i++) {
+                        BaseIncrementalValueStore aBaseIncrementalValueStore = baseIncrementalValueStoreList
+                                .get(i);
+                        if (aBaseIncrementalValueStore.isProcessed() &&
+                                aBaseIncrementalValueStore.getTimestamp() <= baseIncrementalValueStoreList
+                                .get(lastDispatchIndex).getTimestamp()) {
                             dispatchEvent(startTimeOfNewAggregates, baseIncrementalValueStoreList.get(i));
                         }
                     }
@@ -373,7 +379,7 @@ public class IncrementalExecutor implements Executor, Snapshotable {
 
         } else {
             // Incoming event is older than buffer
-            if (countEvents <= bufferSize + 1) {
+            if (countEventsGreaterThanCurrentMax <= bufferSize + 1) {
                 currentBufferIndex = 0;
             } else {
                 currentBufferIndex = (maxTimestampPosition + 1) % (bufferSize + 1);
@@ -508,7 +514,7 @@ public class IncrementalExecutor implements Executor, Snapshotable {
         state.put("StartTimeOfAggregates", startTimeOfAggregates);
         state.put("TimerStarted", timerStarted);
         state.put("EventOlderThanBuffer", eventOlderThanBuffer);
-        state.put("CountEvents", countEvents);
+        state.put("CountEventsGreaterThanCurrentMax", countEventsGreaterThanCurrentMax);
         state.put("MaxTimestampPosition", maxTimestampPosition);
         state.put("MaxTimestampInBuffer", maxTimestampInBuffer);
         state.put("IsRootAndLoadedFromTable", isRootAndLoadedFromTable);
@@ -523,7 +529,7 @@ public class IncrementalExecutor implements Executor, Snapshotable {
         startTimeOfAggregates = (long) state.get("StartTimeOfAggregates");
         timerStarted = (boolean) state.get("TimerStarted");
         eventOlderThanBuffer = (boolean) state.get("EventOlderThanBuffer");
-        countEvents = (int) state.get("CountEvents");
+        countEventsGreaterThanCurrentMax = (int) state.get("CountEventsGreaterThanCurrentMax");
         maxTimestampPosition = (int) state.get("MaxTimestampPosition");
         maxTimestampInBuffer = (long) state.get("MaxTimestampInBuffer");
         isRootAndLoadedFromTable = (boolean) state.get("IsRootAndLoadedFromTable");

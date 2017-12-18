@@ -19,6 +19,9 @@
 package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.aggregation.AggregationRuntime;
+import org.wso2.siddhi.core.aggregation.IncrementalAggregationProcessor;
+import org.wso2.siddhi.core.aggregation.IncrementalExecutor;
+import org.wso2.siddhi.core.aggregation.RecreateInMemoryData;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
@@ -30,10 +33,7 @@ import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.EntryValveExecutor;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.selector.GroupByKeyGenerator;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalAggregationProcessor;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalAttributeAggregator;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.RecreateInMemoryData;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.Scheduler;

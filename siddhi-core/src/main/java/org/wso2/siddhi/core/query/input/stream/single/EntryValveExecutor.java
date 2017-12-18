@@ -18,14 +18,14 @@
 
 package org.wso2.siddhi.core.query.input.stream.single;
 
+import org.wso2.siddhi.core.aggregation.Executor;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.Executor;
 import org.wso2.siddhi.core.util.Schedulable;
 import org.wso2.siddhi.core.util.ThreadBarrier;
 
 /**
- * Entry point to incremental executors
+ * Entry point to incremental executors.
  */
 public class EntryValveExecutor implements Executor, Schedulable {
     private Executor next;
