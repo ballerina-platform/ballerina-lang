@@ -22,7 +22,6 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.common.Util;
@@ -179,22 +178,20 @@ public class TargetChannel {
                     this.getChannel().writeAndFlush(httpContent);
                 }
             }));
-        } catch (Exception e) {
-            String msg;
-            if (e instanceof NullPointerException) {
-                msg = "Failed to send the request";
+        } catch (Exception exception) {
+            String errorMsg;
+            if (exception instanceof NullPointerException) {
+                errorMsg = "Failed to send the request";
             } else {
-                msg = "Failed to send the request : " + e.getMessage().toLowerCase(Locale.ENGLISH);
+                errorMsg = "Failed to send the request : " + exception.getMessage().toLowerCase(Locale.ENGLISH);
             }
 
-            log.error(msg, e);
-            MessagingException messagingException = new MessagingException(msg, e, 101500);
-            httpOutboundRequest.setMessagingException(messagingException);
-            this.targetHandler.getHttpResponseFuture().notifyHttpListener(httpOutboundRequest);
+            log.error(errorMsg, exception);
+            this.targetHandler.getHttpResponseFuture().notifyHttpListener(exception);
         }
     }
 
-    public void writeOutboundRequestHeaders(HTTPCarbonMessage httpOutboundRequest) {
+    private void writeOutboundRequestHeaders(HTTPCarbonMessage httpOutboundRequest) {
         HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
         this.setRequestWritten(true);
         this.getChannel().write(httpRequest);

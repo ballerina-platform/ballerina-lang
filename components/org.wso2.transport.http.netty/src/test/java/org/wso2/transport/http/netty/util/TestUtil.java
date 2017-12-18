@@ -84,12 +84,13 @@ public class TestUtil {
     public static final int TEST_DEFAULT_INTERFACE_PORT = 8490;
     public static final int TEST_ALTER_INTERFACE_PORT = 8590;
     public static final int TEST_REMOTE_WS_SERVER_PORT = 9010;
-    public static final String TEST_HOST = "localhost";
     public static final long HTTP2_RESPONSE_TIME_OUT = 30;
-    public static final TimeUnit HTTP2_RESPONSE_TIME_UNIT = TimeUnit.SECONDS;
+    public static final String TEST_HOST = "localhost";
     public static final String KEY_STORE_FILE_PATH = "/simple-test-config/wso2carbon.jks";
     public static final String TRUST_STORE_FILE_PATH = "/simple-test-config/client-truststore.jks";
     public static final String KEY_STORE_PASSWORD = "wso2carbon";
+    public static final TimeUnit HTTP2_RESPONSE_TIME_UNIT = TimeUnit.SECONDS;
+
     private static List<ServerConnector> connectors;
     private static List<ServerConnectorFuture> futures;
 
