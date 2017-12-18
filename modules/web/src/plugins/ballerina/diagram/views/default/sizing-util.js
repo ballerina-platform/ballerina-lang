@@ -1489,18 +1489,17 @@ class SizingUtil {
 
         // If the parent of the if node is a block node, then it is only a if statement. Otherwise it is an else-if
         let nodeHeight = node.viewState.bBox.h;
+        // let nodeWidth = node.viewState.bBox.w;
         let elseStmt = node.elseStatement;
         let proceed = true;
 
-        // If the else statement's width is greater than the node's width, we increase the node width
-        // Eventually the top most if node ends up with the max width. During the positioning, increase the width to the
-        // bottom most node
-        if (elseStmt && elseStmt.viewState.bBox.w > node.viewState.bBox.w) {
-            node.viewState.bBox.w = elseStmt.viewState.bBox.w;
-        }
         if (TreeUtil.isBlock(node.parent)) {
             while (elseStmt && proceed) {
-                nodeHeight += elseStmt.viewState.bBox.h;
+                // elseStmt.viewState.bBox.h -= elseStmt.viewState.components['block-header'].h;
+                nodeHeight += (elseStmt.viewState.bBox.h);// - elseStmt.viewState.components['block-header'].h);// this.config.flowChartControlStatement.heading.height
+                                    // - this.config.statement.gutter.h);
+                elseStmt.viewState.bBox.w = bodyWidth;
+                // nodeWidth += elseStmt.viewState.bBox.w;
                 // If the current else statement is for an else if only, we proceed
                 if (TreeUtil.isBlock(elseStmt)) {
                     proceed = false;
@@ -1510,8 +1509,8 @@ class SizingUtil {
             }
         }
 
-        // Need to make the width of all the components (if, else, else if) equal
         node.viewState.bBox.h = nodeHeight;
+        // node.viewState.bBox.w = nodeWidth;
     }
 
     /**
