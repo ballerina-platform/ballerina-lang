@@ -272,7 +272,6 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 }
                 URL locationUrl = new URL(redirectState.get(Constants.LOCATION));
                 HTTPCarbonMessage httpCarbonRequest = createHttpCarbonRequest();
-                Util.setupTransferEncodingForRequest(httpCarbonRequest, chunkDisabled);
                 HttpRequest httpRequest = Util.createHttpRequest(httpCarbonRequest);
 
                 if (isCrossDoamin) {
@@ -683,39 +682,36 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      */
     private void registerListener(ChannelHandlerContext channelHandlerContext, ChannelFuture channelFuture,
             HTTPCarbonMessage httpCarbonRequest, HttpRequest httpRequest) {
-        channelFuture.addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-                if (future.isSuccess() && future.isDone()) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Connected to the new channel " + future.channel().id() + " and getting ready to "
-                                + "write request.");
-                    }
-                    long channelStartTime = channelHandlerContext.channel().attr(Constants.ORIGINAL_CHANNEL_START_TIME)
-                            .get();
-                    int timeoutOfOriginalRequest = channelHandlerContext.channel()
-                            .attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).get();
-                    setChannelAttributes(channelHandlerContext, future, httpCarbonRequest, channelStartTime,
-                            timeoutOfOriginalRequest);
-                    long remainingTimeForRedirection = getRemainingTimeForRedirection(channelStartTime,
-                            timeoutOfOriginalRequest);
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Remaining time for redirection is : " + remainingTimeForRedirection);
-                    }
-                    future.channel().pipeline().addBefore(Constants.REDIRECT_HANDLER, Constants.IDLE_STATE_HANDLER,
-                            new IdleStateHandler(remainingTimeForRedirection, remainingTimeForRedirection, 0,
-                                    TimeUnit.MILLISECONDS));
-                    future.channel().write(httpRequest);
-                    future.channel().writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                    /* if the previous channel is not original channel, closes it after sending the request through
-                     new channel*/
-                    if (channelHandlerContext != originalChannelContext) {
-                        channelHandlerContext.close();
-                    }
-                } else {
-                    LOG.error("Error occurred while trying to connect to redirect channel.", future.cause());
-                    exceptionCaught(channelHandlerContext, future.cause());
+        channelFuture.addListener((ChannelFutureListener) future -> {
+            if (future.isSuccess() && future.isDone()) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Connected to the new channel " + future.channel().id() + " and getting ready to "
+                            + "write request.");
                 }
+                long channelStartTime = channelHandlerContext.channel().attr(Constants.ORIGINAL_CHANNEL_START_TIME)
+                        .get();
+                int timeoutOfOriginalRequest = channelHandlerContext.channel()
+                        .attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).get();
+                setChannelAttributes(channelHandlerContext, future, httpCarbonRequest, channelStartTime,
+                        timeoutOfOriginalRequest);
+                long remainingTimeForRedirection = getRemainingTimeForRedirection(channelStartTime,
+                        timeoutOfOriginalRequest);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Remaining time for redirection is : " + remainingTimeForRedirection);
+                }
+                future.channel().pipeline().addBefore(Constants.REDIRECT_HANDLER, Constants.IDLE_STATE_HANDLER,
+                        new IdleStateHandler(remainingTimeForRedirection, remainingTimeForRedirection, 0,
+                                TimeUnit.MILLISECONDS));
+                future.channel().write(httpRequest);
+                future.channel().writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                /* if the previous channel is not original channel, closes it after sending the request through
+                 new channel*/
+                if (channelHandlerContext != originalChannelContext) {
+                    channelHandlerContext.close();
+                }
+            } else {
+                LOG.error("Error occurred while trying to connect to redirect channel.", future.cause());
+                exceptionCaught(channelHandlerContext, future.cause());
             }
         });
     }

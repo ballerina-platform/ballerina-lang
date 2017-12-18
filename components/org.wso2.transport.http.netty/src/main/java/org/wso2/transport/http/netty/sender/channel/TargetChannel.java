@@ -18,6 +18,7 @@ package org.wso2.transport.http.netty.sender.channel;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelPipeline;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
@@ -35,6 +36,8 @@ import org.wso2.transport.http.netty.sender.HTTPClientInitializer;
 import org.wso2.transport.http.netty.sender.TargetHandler;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -55,6 +58,9 @@ public class TargetChannel {
     private boolean isRequestWritten = false;
     private boolean chunkDisabled = false;
     private HandlerExecutor handlerExecutor;
+
+    private List<HttpContent> contentList = new ArrayList<>();
+    private int contentLength = 0;
 
     public TargetChannel(HTTPClientInitializer httpClientInitializer, ChannelFuture channelFuture) {
         this.httpClientInitializer = httpClientInitializer;
@@ -159,23 +165,41 @@ public class TargetChannel {
                         // depending on the http verb
                         if (Util.isEntityBodyAllowed(httpOutboundRequest
                                 .getProperty(Constants.HTTP_METHOD).toString())) {
-                            Util.setupTransferEncodingForEmptyRequest(httpOutboundRequest, chunkDisabled);
+                            if (chunkDisabled) {
+                                contentLength += httpContent.content().readableBytes();
+                                Util.setupContentLengthRequest(httpOutboundRequest, contentLength);
+                            } else {
+                                Util.setupChunkedRequest(httpOutboundRequest);
+                            }
                         }
                         writeOutboundRequestHeaders(httpOutboundRequest);
                     }
 
+                    if (chunkDisabled) {
+                        for (HttpContent cachedHttpContent : contentList) {
+                            this.getChannel().writeAndFlush(cachedHttpContent);
+                        }
+                    }
                     this.getChannel().writeAndFlush(httpContent);
+
                     httpOutboundRequest.removeHttpContentAsyncFuture();
+                    contentList.clear();
+                    contentLength = 0;
 
                     if (handlerExecutor != null) {
                         handlerExecutor.executeAtTargetRequestSending(httpOutboundRequest);
                     }
                 } else {
-                    if (!this.isRequestWritten) {
-                        Util.setupTransferEncodingForRequest(httpOutboundRequest, chunkDisabled);
-                        writeOutboundRequestHeaders(httpOutboundRequest);
+                    if (chunkDisabled) {
+                        this.contentList.add(httpContent);
+                        contentLength += httpContent.content().readableBytes();
+                    } else {
+                        if (!this.isRequestWritten) {
+                            Util.setupChunkedRequest(httpOutboundRequest);
+                            writeOutboundRequestHeaders(httpOutboundRequest);
+                        }
+                        this.getChannel().writeAndFlush(httpContent);
                     }
-                    this.getChannel().writeAndFlush(httpContent);
                 }
             }));
         } catch (Exception exception) {

@@ -134,29 +134,30 @@ public class Util {
         return httpMethod;
     }
 
-    public static void setupTransferEncodingForEmptyRequest(HTTPCarbonMessage httpOutboundRequest,
-            boolean chunkDisabled) {
-        if (chunkDisabled) {
-            httpOutboundRequest.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
-            httpOutboundRequest.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(0));
-        } else {
-            httpOutboundRequest.removeHeader(Constants.HTTP_CONTENT_LENGTH);
-            httpOutboundRequest.setHeader(Constants.HTTP_TRANSFER_ENCODING, Constants.CHUNKED);
-        }
-    }
-
     /**
      * Prepare request message with Transfer-Encoding/Content-Length
      *
      * @param httpOutboundRequest HTTPCarbonMessage
      */
-    public static void setupTransferEncodingForRequest(HTTPCarbonMessage httpOutboundRequest, boolean chunkDisabled) {
+    public static void setupChunkedOrContentLengthForReq(HTTPCarbonMessage httpOutboundRequest, boolean chunkDisabled) {
         if (chunkDisabled) {
             httpOutboundRequest.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
             setContentLength(httpOutboundRequest);
         } else {
             httpOutboundRequest.removeHeader(Constants.HTTP_CONTENT_LENGTH);
             setTransferEncodingHeader(httpOutboundRequest);
+        }
+    }
+
+    public static void setupChunkedRequest(HTTPCarbonMessage httpOutboundRequest) {
+        httpOutboundRequest.removeHeader(Constants.HTTP_CONTENT_LENGTH);
+        setTransferEncodingHeader(httpOutboundRequest);
+    }
+
+    public static void setupContentLengthRequest(HTTPCarbonMessage httpOutboundRequest, int contentLength) {
+        httpOutboundRequest.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
+        if (httpOutboundRequest.getHeader(Constants.HTTP_CONTENT_LENGTH) == null) {
+            httpOutboundRequest.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
         }
     }
 
@@ -228,6 +229,32 @@ public class Util {
         } else if (outboundResMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null) {
             int contentLength = outboundResMsg.getFullMessageLength();
             outboundResMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
+        }
+    }
+
+    public static boolean isChunkedOutboundResponse(HTTPCarbonMessage outboundResMsg,
+            RequestDataHolder requestDataHolder) {
+        // 2. Check for transfer encoding header is set in the request
+        // As per RFC 2616, Section 4.4, Content-Length must be ignored if Transfer-Encoding header
+        // is present and its value not equal to 'identity'
+        String requestTransferEncodingHeader = requestDataHolder.getTransferEncodingHeader();
+        if (requestTransferEncodingHeader != null &&
+                !Constants.HTTP_TRANSFER_ENCODING_IDENTITY.equalsIgnoreCase(requestTransferEncodingHeader)) {
+            return true;
+        }
+
+        // 3. Check for request Content-Length header
+        String requestContentLength = requestDataHolder.getContentLengthHeader();
+        if (requestContentLength != null &&
+                (outboundResMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null)) {
+            return false;
+        }
+
+        // 4. If request doesn't have Transfer-Encoding or Content-Length header look for response properties
+        if (outboundResMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) != null) {
+            return true;
+        } else {
+            return true;
         }
     }
 
