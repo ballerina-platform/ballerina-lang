@@ -49,12 +49,13 @@ public class DispatcherUtil {
     }
 
     public static String[] getHttpMethods(Resource resource) {
-        Annotation rConfigAnnAtchmnt = HttpUtil.getResourceConfigAnnotation(resource, Constants.HTTP_PACKAGE_PATH);
-        if (rConfigAnnAtchmnt == null) {
+        Annotation resourceConfigAnnotation = HttpUtil.getResourceConfigAnnotation(resource,
+                                                                                   Constants.HTTP_PACKAGE_PATH);
+        if (resourceConfigAnnotation == null) {
             return null;
         }
 
-        AnnAttrValue methodsAttrVal = rConfigAnnAtchmnt.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_METHODS);
+        AnnAttrValue methodsAttrVal = resourceConfigAnnotation.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_METHODS);
         if (methodsAttrVal == null) {
             return null;
         }
