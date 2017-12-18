@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.wso2.transport.http</groupId>
         <artifactId>http-parent</artifactId>
-        <version>6.0.63-SNAPSHOT</version>
+        <version>6.0.65-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -208,11 +208,5 @@
             org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
             org.apache.commons.pool.*;version="${commons.pool.package.import.version.range}",
         </import.package>
-        <carbon.component>
-            startup.connectorListener;componentName="netty-transports-mgt";
-            requiredService="org.wso2.carbon.messaging.CarbonTransportInitializer,
-            org.wso2.carbon.messaging.CarbonMessageProcessor",
-            osgi.service; objectClass="org.wso2.carbon.messaging.ServerConnectorProvider"
-        </carbon.component>
     </properties>
 </project>
