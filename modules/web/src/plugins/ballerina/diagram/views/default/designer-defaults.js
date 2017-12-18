@@ -112,9 +112,9 @@ export const actionBox = {
 
 export const statement = {
     width: 120,
-    height: 30,
+    height: 15,
     gutter: {
-        v: 25,
+        v: 5,
         h: 10,
     },
     padding: {
