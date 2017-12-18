@@ -111,29 +111,25 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                             ByteBuffer byteBuffer = ByteBuffer.allocate(length);
                             byteBufferList.forEach(byteBuffer::put);
 
-                            String responseValue = new String(byteBuffer.array()) + ":" + requestValue;
+                            String responseStringValue = new String(byteBuffer.array()) + ":" + requestValue;
 
-                            byte[] array = null;
+                            byte[] responseByteValues = null;
                             try {
-                                array = responseValue.getBytes("UTF-8");
+                                responseByteValues = responseStringValue.getBytes("UTF-8");
                             } catch (UnsupportedEncodingException e) {
                                 logger.error("Failed to get the byte array from responseValue", e);
                             }
 
-//                            ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
-//                            byteBuff.put(array);
-//                            byteBuff.flip();
-
-                            ByteBuffer byteBuff = ByteBuffer.wrap(array);
+                            ByteBuffer responseValueByteBuffer = ByteBuffer.wrap(responseByteValues);
 
                             HTTPCarbonMessage httpCarbonMessage = httpResponse
                                     .cloneCarbonMessageWithOutData();
                             if (httpCarbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
                                 httpCarbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH,
-                                        String.valueOf(array.length));
+                                        String.valueOf(responseByteValues.length));
                             }
                             httpCarbonMessage.addHttpContent(
-                                    new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuff)));
+                                    new DefaultLastHttpContent(Unpooled.wrappedBuffer(responseValueByteBuffer)));
 
                             try {
                                 httpRequest.respond(httpCarbonMessage);
