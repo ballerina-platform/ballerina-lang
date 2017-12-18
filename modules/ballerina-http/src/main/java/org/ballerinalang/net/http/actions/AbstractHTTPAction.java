@@ -45,6 +45,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import static org.ballerinalang.net.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
 /**
@@ -72,8 +73,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         validateParams(connector);
 
-        //TODO requestStruct should be entity
-        HttpUtil.populateOutboundRequest(requestStruct, cMsg);
+        BStruct entity = (BStruct) requestStruct.getNativeData(MESSAGE_ENTITY);
+        HttpUtil.populateOutboundRequest(requestStruct, entity, cMsg);
         String uri = null;
         try {
             uri = connector.getStringField(0) + path;

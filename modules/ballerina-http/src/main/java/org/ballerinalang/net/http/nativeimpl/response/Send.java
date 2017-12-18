@@ -78,7 +78,7 @@ public class Send extends AbstractNativeFunction {
 
         BStruct entity = (BStruct) outboundResponseStruct.getNativeData(MESSAGE_ENTITY);
         if (entity.getRefField(ENTITY_HEADERS_INDEX) != null) {
-            HttpUtil.setHeadersToTransportMessage(responseMessage, entity);
+            HttpUtil.setHeadersToTransportMessage(responseMessage, entity, entity);
         }
         return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage,
                 outboundResponseStruct);

@@ -164,10 +164,16 @@ public native function <Response res> setBinaryPayload (blob payload);
 @Param { value:"propertyValue: The value of the property" }
 public native function <Response res> setProperty (string propertyName, string propertyValue);
 
-@Description { value:"Sets a string as the response payload"}
-@Param { value:"res: The response message" }
-@Param { value:"payload: The string payload to be set" }
-public native function <Response res> setStringPayload (string payload);
+public function <Response res> setStringPayload(string payload) {
+    mime:Entity entity = {};
+    entity.textData = payload;
+    mime:MediaType mediaType = {};
+    mediaType.primaryType = "text";
+    mediaType.subType = "plain";
+    entity.contentType = mediaType;
+    entity.overflowData = {path:"/tmp/copy.txt"};
+    res.setEntity(entity);
+}
 
 @Description { value:"Gets the response payload as a string"}
 @Param { value:"res: The response message" }

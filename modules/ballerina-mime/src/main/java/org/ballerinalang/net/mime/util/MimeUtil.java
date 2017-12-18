@@ -44,6 +44,13 @@ import static org.ballerinalang.net.mime.util.Constants.XML_DATA_INDEX;
  */
 public class MimeUtil {
 
+    /**
+     * Read the string payload from inputstream and set it into request or response's entiity struct.
+     * @param context
+     * @param entityStruct
+     * @param inputStream
+     * @param contentLength
+     */
     public static void readAndSetStringPayload(Context context, BStruct entityStruct, InputStream inputStream,
             long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
@@ -90,7 +97,7 @@ public class MimeUtil {
             createBallerinaFileHandler(context, entityStruct);
             entityStruct.setBooleanField(IS_IN_MEMORY_INDEX, FALSE);
         } else {
-            BBlob payload = null;
+            BBlob payload;
             try {
                 payload = new BBlob(toByteArray(inputStream));
             } catch (IOException e) {
@@ -103,7 +110,8 @@ public class MimeUtil {
 
     public static boolean isTextBodyPresent(BStruct entity) {
         String textPayload = entity.getStringField(TEXT_DATA_INDEX);
-        if (textPayload != null) {
+        BStruct overFlowData  = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
+        if (textPayload != null || overFlowData != null) {
             return true;
         }
         return false;
@@ -133,8 +141,14 @@ public class MimeUtil {
         return false;
     }
 
+    /**
+     * Extract the text payload from entity.
+     * @param entity
+     * @return
+     */
     public static String getTextPayload(BStruct entity) {
-        return null;
+        String textData = entity.getStringField(TEXT_DATA_INDEX);
+        return textData;
     }
 
     public static BJSON getJsonPayload(BStruct entity) {

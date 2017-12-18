@@ -797,8 +797,8 @@ public class HttpUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public static void populateOutboundRequest(BStruct entity, HTTPCarbonMessage reqMsg) {
-        setHeadersToTransportMessage(reqMsg, entity);
+    public static void populateOutboundRequest(BStruct message, BStruct entity, HTTPCarbonMessage reqMsg) {
+        setHeadersToTransportMessage(reqMsg, message, entity);
     }
 
     public static void populateOutboundResponse(BStruct response, BStruct entity, HTTPCarbonMessage resMsg,
@@ -874,15 +874,14 @@ public class HttpUtil {
         return paramMap;
     }
 
-    /**
-     * Set headers of request/response struct to the transport message.
-     *
-     * @param cMsg transport Http carbon message.
-     * @param struct req/resp struct.
-     */
-    public static void setHeadersToTransportMessage(HTTPCarbonMessage cMsg, BStruct struct) {
+
+    public static void setHeadersToTransportMessage(HTTPCarbonMessage cMsg, BStruct messageStruct, BStruct
+            entityStruct) {
         cMsg.getHeaders().clear();
-        BMap<String, BValue> headers = getEntityStructHeaders(struct);
+        HttpHeaders removedHeaders = messageStruct.getType().getName().equals(Constants.REQUEST) ?
+                getRequestStructHeaders(messageStruct) : getResponseStructHeaders(messageStruct);
+
+        BMap<String, BValue> headers = getEntityStructHeaders(entityStruct, removedHeaders);
         if (headers == null) {
             return;
         }
@@ -894,43 +893,31 @@ public class HttpUtil {
     }
 
     @SuppressWarnings("unchecked")
-    private static BMap<String, BValue> getEntityStructHeaders(BStruct struct) {
+    private static BMap<String, BValue> getEntityStructHeaders(BStruct struct, HttpHeaders removedHeaders) {
         BMap<String, BValue> headers = (BMap) struct.getRefField(ENTITY_HEADERS_INDEX);
         if (headers == null) {
             return null;
         }
-        HttpHeaders removedHeaders = new DefaultHttpHeaders();
-        if (!struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX).equals("")) {
-            removedHeaders.add(Constants.USER_AGENT_HEADER, struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX));
-        }
         return prepareHeaderMap(removedHeaders, headers);
     }
 
     @SuppressWarnings("unchecked")
-    private static BMap<String, BValue> getRequestStructHeaders(BStruct struct) {
-        BMap<String, BValue> headers = (BMap) struct.getRefField(Constants.REQUEST_HEADERS_INDEX);
-        if (headers == null) {
-            return null;
-        }
+    private static HttpHeaders getRequestStructHeaders(BStruct struct) {
         HttpHeaders removedHeaders = new DefaultHttpHeaders();
         if (!struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX).equals("")) {
             removedHeaders.add(Constants.USER_AGENT_HEADER, struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX));
         }
-        return prepareHeaderMap(removedHeaders, headers);
+        return removedHeaders;
     }
 
     @SuppressWarnings("unchecked")
-    private static BMap<String, BValue> getResponseStructHeaders(BStruct struct) {
-        BMap<String, BValue> headers = (BMap) struct.getRefField(Constants.RESPONSE_HEADERS_INDEX);
-        if (headers == null) {
-            return null;
-        }
+    private static HttpHeaders getResponseStructHeaders(BStruct struct) {
         HttpHeaders removedHeaders = new DefaultHttpHeaders();
         if (struct.getNativeData(Constants.OUTBOUND_RESPONSE) == null
                 && !struct.getStringField(Constants.RESPONSE_SERVER_INDEX).equals("")) {
             removedHeaders.add(Constants.SERVER_HEADER, struct.getStringField(Constants.RESPONSE_SERVER_INDEX));
         }
-        return prepareHeaderMap(removedHeaders, headers);
+        return removedHeaders;
     }
 
     private static String buildHeaderValue(BMap<String, BValue> headers, String key) {

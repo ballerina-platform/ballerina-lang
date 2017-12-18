@@ -83,7 +83,7 @@ public class Forward extends AbstractNativeFunction {
 
         BStruct entity = (BStruct) inboundResponseStruct.getNativeData(MESSAGE_ENTITY);
         if (entity.getRefField(ENTITY_HEADERS_INDEX) != null) {
-            HttpUtil.setHeadersToTransportMessage(responseMessage, entity);
+            HttpUtil.setHeadersToTransportMessage(responseMessage, inboundResponseStruct, entity);
         }
 
         return HttpUtil.prepareResponseAndSend(context, this, requestMessage,
