@@ -18,6 +18,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Enumeration;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
@@ -45,7 +47,8 @@ import static org.ballerinalang.net.mime.util.Constants.XML_DATA_INDEX;
 public class MimeUtil {
 
     /**
-     * Read the string payload from inputstream and set it into request or response's entiity struct.
+     * Read the string payload from inputstream and set it into request or response's entity struct.
+     *
      * @param context
      * @param entityStruct
      * @param inputStream
@@ -110,7 +113,7 @@ public class MimeUtil {
 
     public static boolean isTextBodyPresent(BStruct entity) {
         String textPayload = entity.getStringField(TEXT_DATA_INDEX);
-        BStruct overFlowData  = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
+        BStruct overFlowData = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
         if (textPayload != null || overFlowData != null) {
             return true;
         }
@@ -118,24 +121,27 @@ public class MimeUtil {
     }
 
     public static boolean isJsonBodyPresent(BStruct entity) {
-        String textPayload = entity.getStringField(TEXT_DATA_INDEX);
-        if (textPayload != null) {
+        String jsonPayload = entity.getStringField(JSON_DATA_INDEX);
+        BStruct overFlowData = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
+        if (jsonPayload != null || overFlowData != null) {
             return true;
         }
         return false;
     }
 
     public static boolean isXmlBodyPresent(BStruct entity) {
-        String textPayload = entity.getStringField(TEXT_DATA_INDEX);
-        if (textPayload != null) {
+        String xmlPayload = entity.getStringField(XML_DATA_INDEX);
+        BStruct overFlowData = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
+        if (xmlPayload != null || overFlowData != null) {
             return true;
         }
         return false;
     }
 
     public static boolean isBinaryBodyPresent(BStruct entity) {
-        String textPayload = entity.getStringField(TEXT_DATA_INDEX);
-        if (textPayload != null) {
+        String binaryPayload = entity.getStringField(BYTE_DATA_INDEX);
+        BStruct overFlowData = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
+        if (binaryPayload != null || overFlowData != null) {
             return true;
         }
         return false;
@@ -143,24 +149,52 @@ public class MimeUtil {
 
     /**
      * Extract the text payload from entity.
+     *
      * @param entity
      * @return
      */
     public static String getTextPayload(BStruct entity) {
         String textData = entity.getStringField(TEXT_DATA_INDEX);
-        return textData;
+        if (textData != null && !textData.isEmpty()) {
+            return textData;
+        } else {
+            BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
+            String filePath = fileHandler.getStringField(0);
+            return new String(readFromFile(filePath));
+        }
     }
 
     public static BJSON getJsonPayload(BStruct entity) {
-        return null;
+        BJSON jsonData = (BJSON) entity.getRefField(JSON_DATA_INDEX);
+        if (jsonData != null) {
+            return jsonData;
+        } else {
+            BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
+            String filePath = fileHandler.getStringField(0);
+            return new BJSON(new String(readFromFile(filePath)));
+        }
     }
 
     public static BXML getXmlPayload(BStruct entity) {
-        return null;
+        BXML xmlData = (BXML) entity.getRefField(XML_DATA_INDEX);
+        if (xmlData != null) {
+            return xmlData;
+        } else {
+            BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
+            String filePath = fileHandler.getStringField(0);
+            return XMLUtils.parse(new String(readFromFile(filePath)));
+        }
     }
 
     public static byte[] getBinaryPayload(BStruct entity) {
-        return null;
+        BBlob byteData = (BBlob) entity.getRefField(BYTE_DATA_INDEX);
+        if (byteData != null) {
+            return byteData.blobValue();
+        } else {
+            BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
+            String filePath = fileHandler.getStringField(0);
+            return readFromFile(filePath);
+        }
     }
 
     public static void setContentType(BStruct mediaType, BStruct entityStruct, String contentType) {
@@ -234,6 +268,14 @@ public class MimeUtil {
             os.close();
         } catch (IOException e) {
             throw new BallerinaException("Error while writing the payload info into a temp file: " + e.getMessage());
+        }
+    }
+
+    private static byte[] readFromFile(String fileName) {
+        try {
+            return Files.readAllBytes(Paths.get(fileName));
+        } catch (IOException e) {
+            throw new BallerinaException("Error while reading content from file handler: " + e.getMessage());
         }
     }
 
