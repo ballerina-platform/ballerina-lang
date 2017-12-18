@@ -7,7 +7,7 @@
     - Hover provider support
     - Document symbol support
 ### Fixed
-- Fixed the issue with endpoint snippet completion 
+- Fixed the issue with endpoint snippet completion ([#20](https://github.com/ballerinalang/plugin-vscode/issues/20))
 
 #### note 
 - Here on plugin version will be synced with ballerina language version.

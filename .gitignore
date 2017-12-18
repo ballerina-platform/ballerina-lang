@@ -18,3 +18,5 @@ server-build
 .project
 .settings
 .vscode
+.idea/
+*.iml
