@@ -211,7 +211,7 @@ class SourceEditor extends React.Component {
                 <MonacoEditor
                     language='ballerinalang'
                     theme='vs-dark'
-                    value=''
+                    value={this.props.file.content}
                     editorDidMount={this.editorDidMount}
                     onChange={(newValue) => {
                         const changeEvent = {
