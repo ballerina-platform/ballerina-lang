@@ -45,6 +45,7 @@ const config = [{
         path: path.resolve(__dirname, 'dist'),
     },
     module: {
+        noParse: /vscode-languageserver-types/,
         rules: [{
             test: /\.js$/,
             exclude: /(node_modules|modules\/web\/lib\/scss)/,

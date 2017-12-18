@@ -19,6 +19,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import log from 'log';
 import _ from 'lodash';
+import { getServiceEndpoint } from 'api-client/api-client';
+import { listen, MessageConnection } from 'vscode-ws-jsonrpc';
+import {
+    BaseLanguageClient, CloseAction, ErrorAction,
+    createMonacoServices, createConnection
+} from 'monaco-languageclient';
+import ReconnectingWebSocket from 'reconnecting-websocket';
 import debuggerHoc from 'src/plugins/debugger/views/DebuggerHoc';
 import File from 'core/workspace/model/file';
 import { CONTENT_MODIFIED } from 'plugins/ballerina/constants/events';
@@ -134,6 +141,54 @@ class SourceEditor extends React.Component {
             modelForFile = monaco.editor.createModel(this.props.file.content, BAL_LANGUAGE, uri);
         }
         editorInstance.setModel(modelForFile);
+
+        const services = createMonacoServices(editorInstance);
+        function createLanguageClient(connection) {
+            return new BaseLanguageClient({
+                name: 'Ballerina Language Client',
+                clientOptions: {
+                    // use a language id as a document selector
+                    documentSelector: [BAL_LANGUAGE],
+                    // disable the default error handler
+                    errorHandler: {
+                        error: () => ErrorAction.Continue,
+                        closed: () => CloseAction.DoNotRestart,
+                    },
+                },
+                services,
+                // create a language client connection from the JSON RPC connection on demand
+                connectionProvider: {
+                    get: (errorHandler, closeHandler) => {
+                        return Promise.resolve(createConnection(connection, errorHandler, closeHandler));
+                    },
+                },
+            });
+        }
+
+        function createWebSocket(url) {
+            const socketOptions = {
+                maxReconnectionDelay: 10000,
+                minReconnectionDelay: 1000,
+                reconnectionDelayGrowFactor: 1.3,
+                connectionTimeout: 10000,
+                maxRetries: Infinity,
+                debug: false,
+            };
+            return new ReconnectingWebSocket(url, undefined, socketOptions);
+        }
+        // create the web socket
+        const url = getServiceEndpoint('langserver');
+        const webSocket = createWebSocket(url);
+        // listen when the web socket is opened
+        listen({
+            webSocket,
+            onConnection: (connection) => {
+                // create and start the language client
+                const languageClient = createLanguageClient(connection);
+                const disposable = languageClient.start();
+                connection.onClose(() => disposable.dispose());
+            },
+        });
     }
 
     /**
