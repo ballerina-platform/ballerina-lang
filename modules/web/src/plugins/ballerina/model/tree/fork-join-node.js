@@ -80,15 +80,15 @@ class ForkJoinNode extends AbstractForkJoinNode {
     }
 
     /**
-     * set children alias.
+     * set whether the children are compound
      * */
-    setChildrenAlias() {
+    setChildrenCompoundStatus() {
         if (this.joinBody) {
-            this.joinBody.viewState.alias = 'Join';
+            this.joinBody.viewState.compound = true;
         }
 
         if (this.timeoutBody) {
-            this.timeoutBody.viewState.alias = 'Timeout';
+            this.timeoutBody.viewState.compound = true;
         }
     }
 

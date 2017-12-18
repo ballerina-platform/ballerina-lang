@@ -1285,7 +1285,7 @@ class SizingUtil {
         const viewState = node.viewState;
         const statements = node.getStatements();
         this.setContainerSize(statements, viewState, this.config.statement.width);
-        if (viewState.alias) {
+        if (viewState.compound) {
             this.sizeCompoundNode(node);
         }
     }
