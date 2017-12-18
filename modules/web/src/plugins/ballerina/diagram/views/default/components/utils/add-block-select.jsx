@@ -97,25 +97,10 @@ class AddBlockSelect extends React.Component {
     render() {
         const props = this.props.model.props;
         const blocksToBeAdded = this.props.model.props.blocksToBeAdded;
-        let component = props.model.viewState.components['statement-box'];
-        let xPosition;
-        let yPosition;
-        if (!component) {
-            component = props.model.viewState.components.defaultWorkerLine;
-            xPosition = (component.x / 2) + 30;
-            yPosition = component.y + component.h - 30;
-        } else {
-            xPosition = (component.x / 2) + 15;
-            yPosition = component.y - 10;
-        }
-
-
         const style = {
             display: 'block',
-            top: yPosition,
-            left: xPosition
-            + component.w
-            + props.model.viewState.bBox.expansionW - 10 + 20,
+            top: props.y,
+            left: props.x,
         };
 
         return (

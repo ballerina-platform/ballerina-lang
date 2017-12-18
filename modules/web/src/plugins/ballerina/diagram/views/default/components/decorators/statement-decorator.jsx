@@ -27,7 +27,6 @@ import Breakpoint from './breakpoint';
 import ActiveArbiter from './active-arbiter';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
-import AddZone from '../../../../../drag-drop/add-zone';
 import ArrowDecorator from './arrow-decorator';
 import StatementPropertyItemSelector from './../utils/statement-property-item-selector';
 import TreeUtil from '../../../../../model/tree-util';
@@ -303,16 +302,6 @@ class StatementDecorator extends React.Component {
                     onDelete={() => this.onDelete()}
                     onJumptoCodeLine={() => this.onJumpToCodeLine()}
                     onBreakpointClick={() => this.props.onBreakpointClick()}
-                />
-                <AddZone
-                    model={this.props.model}
-                    x={dropZone.x}
-                    y={dropZone.y}
-                    width={dropZone.w}
-                    height={dropZone.h}
-                    renderUponDragStart
-                    enableDragBg
-                    enableCenterOverlayLine
                 />
                 {viewState.isActionInvocation && viewState.components.invocation &&
                 (
