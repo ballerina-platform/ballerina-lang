@@ -594,13 +594,17 @@ public class HttpUtil {
         headerValueStructType = struct.getType();
     }
 
+    public static void populateConnection(BStruct request, HTTPCarbonMessage cMsg) {
+        request.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
+        request.setStringField(Constants.CONNECTION_HOST_INDEX,
+                ((InetSocketAddress) cMsg.getProperty(Constants.LOCAL_ADDRESS)).getHostName());
+        request.setIntField(Constants.CONNECTION_PORT_INDEX, (Integer) cMsg.getProperty(Constants.LISTENER_PORT));
+    }
+
     public static void populateInboundRequest(BStruct request, HTTPCarbonMessage cMsg) {
         request.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
         request.addNativeData(Constants.INBOUND_REQUEST, true);
         request.setStringField(Constants.REQUEST_PATH_INDEX, (String) cMsg.getProperty(Constants.REQUEST_URL));
-        request.setStringField(Constants.REQUEST_HOST_INDEX,
-                ((InetSocketAddress) cMsg.getProperty(Constants.LOCAL_ADDRESS)).getHostName());
-        request.setIntField(Constants.REQUEST_PORT_INDEX, (Integer) cMsg.getProperty(Constants.LISTENER_PORT));
         request.setStringField(Constants.REQUEST_METHOD_INDEX, (String) cMsg.getProperty(Constants.HTTP_METHOD));
         request.setStringField(Constants.REQUEST_VERSION_INDEX, (String) cMsg.getProperty(Constants.HTTP_VERSION));
 
@@ -744,8 +748,7 @@ public class HttpUtil {
             return null;
         }
         HttpHeaders removedHeaders = new DefaultHttpHeaders();
-        if (struct.getNativeData(Constants.OUTBOUND_RESPONSE) == null
-                && !struct.getStringField(Constants.RESPONSE_SERVER_INDEX).equals("")) {
+        if (!struct.getStringField(Constants.RESPONSE_SERVER_INDEX).equals("")) {
             removedHeaders.add(Constants.SERVER_HEADER, struct.getStringField(Constants.RESPONSE_SERVER_INDEX));
         }
         return prepareHeaderMap(removedHeaders, headers);
@@ -1001,11 +1004,6 @@ public class HttpUtil {
         return "/".concat(uri);
     }
 
-    public static void checkFunctionValidity(BStruct bStruct, HTTPCarbonMessage httpMsg) {
-        methodInvocationCheck(bStruct, httpMsg);
-        outboundResponseStructCheck(bStruct);
-    }
-
     public static void methodInvocationCheck(BStruct bStruct, HTTPCarbonMessage httpMsg) {
         if (bStruct.getNativeData(METHOD_ACCESSED) != null || httpMsg == null) {
             throw new IllegalStateException("illegal function invocation");
@@ -1013,12 +1011,6 @@ public class HttpUtil {
 
         if (!is100ContinueRequest(httpMsg)) {
             bStruct.addNativeData(METHOD_ACCESSED, true);
-        }
-    }
-
-    public static void outboundResponseStructCheck(BStruct bStruct) {
-        if (bStruct.getNativeData(Constants.OUTBOUND_RESPONSE) == null) {
-            throw new BallerinaException("operation not allowed");
         }
     }
 

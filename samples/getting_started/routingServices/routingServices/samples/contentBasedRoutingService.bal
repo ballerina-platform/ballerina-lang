@@ -9,7 +9,7 @@ service<http> contentBasedRouting {
         methods:["POST"],
         path:"/"
     }
-    resource cbrResource (http:Request req, http:Response resp) {
+    resource cbrResource (http:Connection con, http:Request req) {
         endpoint<http:HttpClient> nasdaqEP {
             create http:HttpClient("http://localhost:9090/nasdaqStocks", {});
         }
@@ -26,6 +26,6 @@ service<http> contentBasedRouting {
         } else {
             clientResponse, err = nasdaqEP.post("/stocks", req);
         }
-        _ = resp.forward(clientResponse);
+        _ = con.respond(clientResponse);
     }
 }

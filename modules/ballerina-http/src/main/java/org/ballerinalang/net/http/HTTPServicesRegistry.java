@@ -235,8 +235,20 @@ public class HTTPServicesRegistry {
             throw new BallerinaConnectorException("resource signature parameter count should be more than two");
         }
 
+        //validate connection parameter
+        ParamDetail connectionParamDetail = paramDetails.get(0);
+        if (connectionParamDetail == null) {
+            throw new BallerinaConnectorException("connection parameter cannot be null");
+        }
+        if (connectionParamDetail.getVarType().getPackagePath() == null
+                || !connectionParamDetail.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)
+                || !connectionParamDetail.getVarType().getName().equals(Constants.CONNECTION)) {
+            throw new BallerinaConnectorException("connection parameter should be of type - "
+                    + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.CONNECTION);
+        }
+
         //Validate request parameter
-        ParamDetail reqParamDetail = paramDetails.get(0);
+        ParamDetail reqParamDetail = paramDetails.get(1);
         if (reqParamDetail == null) {
             throw new BallerinaConnectorException("request parameter cannot be null");
         }
@@ -244,18 +256,6 @@ public class HTTPServicesRegistry {
                 || !reqParamDetail.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)
                 || !reqParamDetail.getVarType().getName().equals(Constants.REQUEST)) {
             throw new BallerinaConnectorException("request parameter should be of type - "
-                                                          + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.REQUEST);
-        }
-
-        //validate response parameter
-        ParamDetail respParamDetail = paramDetails.get(1);
-        if (respParamDetail == null) {
-            throw new BallerinaConnectorException("response parameter cannot be null");
-        }
-        if (respParamDetail.getVarType().getPackagePath() == null
-                || !respParamDetail.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)
-                || !respParamDetail.getVarType().getName().equals(Constants.RESPONSE)) {
-            throw new BallerinaConnectorException("response parameter should be of type - "
                                                           + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.REQUEST);
         }
 

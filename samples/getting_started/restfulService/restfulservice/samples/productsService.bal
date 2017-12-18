@@ -11,24 +11,28 @@ service<http> productmgt {
         methods:["GET"],
         path:"/{prodId}"
     }
-    resource product (http:Request req, http:Response res, string prodId) {
+    resource product (http:Connection con, http:Request req, string prodId) {
         json payload;
         payload, _ = (json)productsMap[prodId];
+
+        http:Response res = {};
         res.setJsonPayload(payload);
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/"
     }
-    resource addProduct (http:Request req, http:Response res) {
+    resource addProduct (http:Connection con, http:Request req) {
         json jsonReq = req.getJsonPayload();
         var productId, _ = (string)jsonReq.Product.ID;
         productsMap[productId] = jsonReq;
         json payload = {"Status":"Product is successfully added."};
+
+        http:Response res = {};
         res.setJsonPayload(payload);
-        _ = res.send();
+        _ = con.respond(res);
     }
 }
 

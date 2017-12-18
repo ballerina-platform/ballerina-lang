@@ -45,7 +45,7 @@ import java.util.NoSuchElementException;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "getSession",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Request",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
                              structPackage = "ballerina.net.http"),
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Session",
                                   structPackage = "ballerina.net.http")},
@@ -58,9 +58,9 @@ public class GetSession extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         try {
-            BStruct requestStruct  = ((BStruct) getRefArgument(context, 0));
+            BStruct connectionStruct  = ((BStruct) getRefArgument(context, 0));
             //TODO check below line
-            HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, null);
+            HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(connectionStruct, null);
             String cookieHeader = httpCarbonMessage.getHeader(Constants.COOKIE_HEADER);
             String path = (String) httpCarbonMessage.getProperty(Constants.BASE_PATH);
             Session session = (Session) httpCarbonMessage.getProperty(Constants.HTTP_SESSION);

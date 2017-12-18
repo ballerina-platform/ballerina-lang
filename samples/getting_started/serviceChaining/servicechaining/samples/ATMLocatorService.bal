@@ -8,7 +8,7 @@ service<http> ATMLocator {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource locator (http:Request req, http:Response resp) {
+    resource locator (http:Connection con, http:Request req) {
         endpoint<http:HttpClient> bankInfoService {
             create http:HttpClient("http://localhost:9090/bankinfo/product", {});
         }
@@ -38,6 +38,6 @@ service<http> ATMLocator {
 
         http:Response infoResponse = {};
         infoResponse, err = bankInfoService.post("", backendServiceReq);
-        _ = resp.forward(infoResponse);
+        _ = con.respond(infoResponse);
     }
 }

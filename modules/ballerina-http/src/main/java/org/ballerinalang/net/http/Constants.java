@@ -150,9 +150,7 @@ public class Constants {
     public static final String TRANSPORT_MESSAGE = "transport_message";
     public static final String MESSAGE_DATA_SOURCE = "message_dataSource";
     public static final String MESSAGE_OUTPUT_STREAM = "message_output_stream";
-    public static final String INBOUND_REQUEST_MESSAGE = "inbound_request_msg";
     public static final String INBOUND_REQUEST = "inbound_request";
-    public static final String OUTBOUND_RESPONSE = "outbound_response";
     public static final String HTTP_SESSION = "http_session";
 
     public static final String HTTP_TRANSPORT_CONF = "transports.netty.conf";
@@ -174,13 +172,15 @@ public class Constants {
     public static final int CIPHERS_INDEX = 5;
     public static final int SSL_PROTOCOL_INDEX = 6;
 
+    //Connection struct indexes
+    public static final int CONNECTION_HOST_INDEX = 0;
+    public static final int CONNECTION_PORT_INDEX = 0;
+
     //Request struct indexes
-    public static final int REQUEST_HOST_INDEX = 0;
-    public static final int REQUEST_PATH_INDEX = 1;
-    public static final int REQUEST_METHOD_INDEX = 2;
-    public static final int REQUEST_VERSION_INDEX = 3;
-    public static final int REQUEST_USER_AGENT_INDEX = 4;
-    public static final int REQUEST_PORT_INDEX = 0;
+    public static final int REQUEST_PATH_INDEX = 0;
+    public static final int REQUEST_METHOD_INDEX = 1;
+    public static final int REQUEST_VERSION_INDEX = 2;
+    public static final int REQUEST_USER_AGENT_INDEX = 3;
     public static final int REQUEST_HEADERS_INDEX = 0;
 
     //Response struct indexes

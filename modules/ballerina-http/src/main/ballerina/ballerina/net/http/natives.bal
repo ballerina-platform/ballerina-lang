@@ -1,20 +1,36 @@
 package ballerina.net.http;
 
 @Description { value:"Represents the HTTP connector connection"}
+@Field {value:"remoteHost: The server host name"}
+@Field {value:"port: The server port"}
 public struct Connection {
+	string remoteHost;
+	int port;
 }
 
+@Description { value:"Respond to the caller"}
+@Param { value:"con: The server connector connection" }
+@Param { value:"res: A response message" }
+@Return { value:"Error occured during HTTP server connector respond" }
+public native function <Connection con> respond (Response res) (HttpConnectorError);
+
+@Description { value:"Gets the Session struct for a valid session cookie from the connection. Otherwise creates a new Session struct." }
+@Param { value:"con: The server connector connection" }
+@Return { value:"HTTP Session struct" }
+public native function <Connection con> createSessionIfAbsent () (Session);
+
+@Description { value:"Gets the Session struct from the connection if it is present" }
+@Param { value:"con: The server connector connection" }
+@Return { value:"The HTTP Session struct assoicated with the request" }
+public native function <Connection con> getSession () (Session);
+
 @Description { value:"Represents an HTTP request message"}
-@Field {value:"host: The server host name"}
-@Field {value:"port: The server port"}
 @Field {value:"path: Resource path of request URI"}
 @Field {value:"method: HTTP request method"}
 @Field {value:"httpVersion: The version of HTTP"}
 @Field {value:"userAgent: User-Agent request header"}
 @Field {value:"headers: Request headers"}
 public struct Request {
-	string remoteHost;
-	int port;
 	string path;
 	string method;
 	string httpVersion;
@@ -191,30 +207,9 @@ public native function <Response res> getProperty (string propertyName) (string)
 @Param { value:"payload: The XML payload object" }
 public native function <Response res> setXmlPayload (xml payload);
 
-@Description { value:"Sends outbound response to the caller."}
-@Param { value:"res: The response message" }
-@Return { value:"Error occured during HTTP server connector send" }
-public native function <Response res> send () (HttpConnectorError);
-
-@Description { value:"Forwards client service response directly to the caller."}
-@Param { value:"res: The response message" }
-@Param { value:"resp: The new instance of the response message" }
-@Return { value:"Error occured during HTTP server connector forward" }
-public native function <Response res> forward (Response resp) (HttpConnectorError);
-
 @Description { value:"Represents an HTTP Session"}
 public struct Session {
 }
-
-@Description { value:"Gets the Session struct for a valid session cookie from the request. Otherwise creates a new Session struct." }
-@Param { value:"req: A request message" }
-@Return { value:"HTTP Session struct" }
-public native function <Request req> createSessionIfAbsent () (Session);
-
-@Description { value:"Gets the Session struct from the request if it is present" }
-@Param { value:"req: A request message" }
-@Return { value:"The HTTP Session struct assoicated with the request" }
-public native function <Request req> getSession () (Session);
 
 @Description { value:"Gets the named session attribute" }
 @Param { value:"session: A Session struct" }
