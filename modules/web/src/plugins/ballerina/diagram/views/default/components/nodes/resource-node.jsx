@@ -70,12 +70,6 @@ class ResourceNode extends React.Component {
         const parentNode = this.props.model.parent;
         const body = this.props.model.getBody();
         const bodyBBox = this.props.model.body.viewState.bBox;
-        // lets calculate function worker lifeline bounding box.
-        const resource_worker_bBox = {};
-        resource_worker_bBox.x = bodyBBox.x + (bodyBBox.w - lifeLine.width) / 2;
-        resource_worker_bBox.y = bodyBBox.y - lifeLine.head.height;
-        resource_worker_bBox.w = lifeLine.width;
-        resource_worker_bBox.h = bodyBBox.h + lifeLine.head.height * 2;
 
         const classes = {
             lineClass: 'default-worker-life-line',
@@ -153,7 +147,7 @@ class ResourceNode extends React.Component {
                                 />
                                 <LifeLineDecorator
                                     title='default'
-                                    bBox={resource_worker_bBox}
+                                    bBox={this.props.model.viewState.components.defaultWorkerLine}
                                     classes={classes}
                                     icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
                                     iconColor='#025482'
