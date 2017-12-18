@@ -117,7 +117,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -454,7 +453,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         for (BLangStatement stmt : blockNode.stmts) {
             if (stmt.getKind() != NodeKind.TRY && stmt.getKind() != NodeKind.CATCH
-                    && stmt.getKind() != NodeKind.IF && stmt.getKind() != NodeKind.COMMENT) {
+                    && stmt.getKind() != NodeKind.IF) {
                 addLineNumberInfo(stmt.pos);
             }
 
@@ -2424,10 +2423,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit(InstructionFactory.get(InstructionCodes.THROW, throwNode.expr.regIndex));
     }
 
-    public void visit(BLangComment commentNode) {
-        /* ignore */
-    }
-
     public void visit(BLangIf ifNode) {
         addLineNumberInfo(ifNode.pos);
         this.genNode(ifNode.expr, this.env);
@@ -2603,24 +2598,15 @@ public class CodeGenerator extends BLangNodeVisitor {
             genNode(xmlns, xmlElementEnv);
         });
 
+        // Create start tag name
         BLangExpression startTagName = (BLangExpression) xmlElementLiteral.getStartTagName();
-        genNode(startTagName, xmlElementEnv);
-        int startTagNameRegIndex = startTagName.regIndex;
+        int startTagNameRegIndex = visitXMLTagName(startTagName, xmlElementEnv, xmlElementLiteral);
 
-        // If this is a string representation of element name, generate the namespace lookup instructions
-        if (startTagName.getKind() != NodeKind.XML_QNAME) {
-            int localNameRegIndex = ++regIndexes.tString;
-            int uriRegIndex = ++regIndexes.tString;
-            emit(InstructionCodes.S2QNAME, startTagNameRegIndex, localNameRegIndex, uriRegIndex);
-
-            startTagNameRegIndex = ++regIndexes.tRef;
-            generateURILookupInstructions(xmlElementLiteral.namespacesInScope, localNameRegIndex, uriRegIndex,
-                    startTagNameRegIndex, xmlElementLiteral.pos, xmlElementEnv);
-            startTagName.regIndex = startTagNameRegIndex;
-        }
-
-        // TODO: do we need to generate end tag name?
-        int endTagNameRegIndex = startTagNameRegIndex;
+        // Create end tag name. If there is no endtag name (empty XML tag), 
+        // then consider start tag name as the end tag name too.
+        BLangExpression endTagName = (BLangExpression) xmlElementLiteral.getEndTagName();
+        int endTagNameRegIndex = endTagName == null ? startTagNameRegIndex
+                : visitXMLTagName(endTagName, xmlElementEnv, xmlElementLiteral);
 
         // Create an XML with the given QName
         int defaultNsURIIndex = getNamespaceURIIndex(xmlElementLiteral.defaultNsSymbol, xmlElementEnv);
@@ -2925,5 +2911,34 @@ public class CodeGenerator extends BLangNodeVisitor {
         prefixLiteral.type = symTable.stringType;
         genNode(prefixLiteral, env);
         return prefixLiteral.regIndex;
+    }
+
+    /**
+     * Visit XML tag name and return the index of the tag name in the reference registry.
+     * 
+     * @param tagName Tag name expression
+     * @param xmlElementEnv Environment of the XML element of the tag
+     * @param xmlElementLiteral XML element literal to which the tag name belongs to
+     * @return Index of the tag name, in the reference registry 
+     */
+    private int visitXMLTagName(BLangExpression tagName, 
+                                SymbolEnv xmlElementEnv,
+                                BLangXMLElementLiteral xmlElementLiteral) {
+        genNode(tagName, xmlElementEnv);
+        int startTagNameRegIndex = tagName.regIndex;
+
+        // If this is a string representation of element name, generate the namespace lookup instructions
+        if (tagName.getKind() != NodeKind.XML_QNAME) {
+            int localNameRegIndex = ++regIndexes.tString;
+            int uriRegIndex = ++regIndexes.tString;
+            emit(InstructionCodes.S2QNAME, startTagNameRegIndex, localNameRegIndex, uriRegIndex);
+
+            startTagNameRegIndex = ++regIndexes.tRef;
+            generateURILookupInstructions(xmlElementLiteral.namespacesInScope, localNameRegIndex, uriRegIndex,
+                    startTagNameRegIndex, xmlElementLiteral.pos, xmlElementEnv);
+            tagName.regIndex = startTagNameRegIndex;
+        }
+
+        return startTagNameRegIndex;
     }
 }

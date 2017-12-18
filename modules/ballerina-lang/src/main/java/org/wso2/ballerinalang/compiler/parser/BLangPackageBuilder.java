@@ -108,7 +108,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -1272,14 +1271,6 @@ public class BLangPackageBuilder {
 
     public void startWhileStmt() {
         startBlock();
-    }
-
-    public void addCommentStmt(DiagnosticPos pos, Set<Whitespace> ws, String commentText) {
-        BLangComment comment = (BLangComment) TreeBuilder.createCommentNode();
-        comment.pos = pos;
-        comment.addWS(ws);
-        comment.value = commentText;
-        addStmtToCurrentBlock(comment);
     }
 
     public void addWhileStmt(DiagnosticPos pos, Set<Whitespace> ws) {

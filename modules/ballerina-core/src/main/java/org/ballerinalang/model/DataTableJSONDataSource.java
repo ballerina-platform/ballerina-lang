@@ -88,7 +88,7 @@ public class DataTableJSONDataSource implements JSONDataSource {
                     objNode.set(name, df.getBlob(name));
                     break;
                 case ARRAY:
-                    /* not supported */
+                    objNode.set(name, getDataArray(df, name));
                     break;
                 case JSON:
                     objNode.set(name, JsonParser.parse(df.getString(name)));
@@ -109,9 +109,44 @@ public class DataTableJSONDataSource implements JSONDataSource {
 
     }
 
+    private static JsonNode getDataArray(BDataTable df, String columnName) {
+        Object[] dataArray = df.getArray(columnName);
+        int length = dataArray.length;
+        JsonNode jsonArray = new JsonNode(Type.ARRAY);
+        if (length > 0) {
+            Object obj = dataArray[0];
+            if (obj instanceof String) {
+                for (Object value  : dataArray) {
+                    jsonArray.add((String) value);
+                }
+            } else if (obj instanceof Boolean) {
+                for (Object value  : dataArray) {
+                    jsonArray.add((Boolean) value);
+                }
+            } else if (obj instanceof Integer) {
+                for (Object value  : dataArray) {
+                    jsonArray.add((int) value);
+                }
+            } else if (obj instanceof Long) {
+                for (Object value  : dataArray) {
+                    jsonArray.add((long) value);
+                }
+            } else if (obj instanceof Float) {
+                for (Object value  : dataArray) {
+                    jsonArray.add((float) value);
+                }
+            } else if (obj instanceof Double) {
+                for (Object value  : dataArray) {
+                    jsonArray.add((double) value);
+                }
+            }
+        }
+        return  jsonArray;
+    }
+
     /**
      * This represents the logic that will transform the current entry of a
-     * data table to a {@link com.fasterxml.jackson.databind.JsonNode}.
+     * data table to a {@link JsonNode}.
      */
     public static interface JSONObjectGenerator {
 

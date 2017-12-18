@@ -80,7 +80,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -138,7 +137,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private DiagnosticLog dlog;
     private TypeChecker typeChecker;
     private Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
-    private Stack<Boolean> retryStmtCheckStack = new Stack<>();
     private Stack<Boolean> loopWithintransactionCheckStack = new Stack<>();
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
@@ -272,20 +270,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTransaction transactionNode) {
         this.checkStatementExecutionValidity(transactionNode);
         this.loopWithintransactionCheckStack.push(false);
-        this.retryStmtCheckStack.push(false);
         this.transactionCount++;
         transactionNode.transactionBody.accept(this);
         this.transactionCount--;
         this.resetLastStatement();
         if (transactionNode.failedBody != null) {
-            this.retryStmtCheckStack.push(true);
             transactionNode.failedBody.accept(this);
             this.resetStatementReturns();
             this.resetLastStatement();
-            this.retryStmtCheckStack.pop();
         }
         this.loopWithintransactionCheckStack.pop();
-        this.retryStmtCheckStack.pop();
     }
 
     @Override
@@ -332,7 +326,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangIf ifStmt) {
-        this.retryStmtCheckStack.push(false);
         this.checkStatementExecutionValidity(ifStmt);
         ifStmt.body.accept(this);
         boolean ifStmtReturns = this.statementReturns;
@@ -341,12 +334,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             ifStmt.elseStmt.accept(this);
             this.statementReturns = ifStmtReturns && this.statementReturns;
         }
-        this.retryStmtCheckStack.pop();
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
-        this.retryStmtCheckStack.push(false);
         this.loopWithintransactionCheckStack.push(true);
         this.checkStatementExecutionValidity(whileNode);
         this.loopCount++;
@@ -354,7 +345,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.loopCount--;
         this.resetLastStatement();
         this.loopWithintransactionCheckStack.pop();
-        this.retryStmtCheckStack.pop();
     }
     
     @Override
@@ -477,8 +467,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     // TODO: support other types, once they are implemented.
                     dlog.error(stmt.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER, "invocation");
                     break;
-                case COMMENT:
-                    break;
                 default:
                     dlog.error(stmt.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER,
                             stmt.getKind().name().toLowerCase().replace('_', ' '));
@@ -524,13 +512,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(exprStmtNode);
     }
 
-    public void visit(BLangComment commentNode) {
-        /* ignore */
-    }
-
     public void visit(BLangTryCatchFinally tryNode) {
         this.checkStatementExecutionValidity(tryNode);
-        this.retryStmtCheckStack.push(false);
         tryNode.tryBody.accept(this);
         this.resetStatementReturns();
         List<BType> caughtTypes = new ArrayList<>();
@@ -547,7 +530,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             tryNode.finallyBody.accept(this);
             this.resetStatementReturns();
         }
-        this.retryStmtCheckStack.pop();
     }
 
     public void visit(BLangCatch catchNode) {

@@ -18,7 +18,6 @@
 
 package org.ballerinalang.util.debugger;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.channel.Channel;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.runtime.Constants;
@@ -28,8 +27,8 @@ import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.debugger.dto.CommandDTO;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
 import org.ballerinalang.util.debugger.info.BreakPointInfo;
+import org.ballerinalang.util.debugger.util.DebugMsgUtil;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
@@ -78,6 +77,7 @@ public class VMDebugManager {
      *
      * @param programFile   used to initialize debug manager.
      * @param clientHandler session used to communicate with client.
+     * @param debugServer Debug server
      */
     public void init(ProgramFile programFile, DebugClientHandler clientHandler, DebugServer debugServer) {
         this.executionSem = new Semaphore(0);
@@ -103,6 +103,8 @@ public class VMDebugManager {
 
     /**
      * Helper method to add debug context and wait until debugging starts.
+     * 
+     * @param debugContext Debug context
      */
     public void addDebugContextAndWait(DebugContext debugContext) {
         this.clientHandler.addContext(debugContext);
@@ -176,11 +178,10 @@ public class VMDebugManager {
     }
 
     private void processCommand(String json) {
-        ObjectMapper mapper = new ObjectMapper();
         CommandDTO command = null;
         try {
-            command = mapper.readValue(json, CommandDTO.class);
-        } catch (IOException e) {
+            command = DebugMsgUtil.buildCommandDTO(json);
+        } catch (Exception e) {
             //invalid message will be passed
             throw new DebugException(DebugConstants.MSG_INVALID);
         }

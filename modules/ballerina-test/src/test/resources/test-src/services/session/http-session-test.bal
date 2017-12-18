@@ -304,7 +304,7 @@ service<http> sample2 {
     resource getmap (http:Request req, http:Response res) {
 
         http:Session session = req.createSessionIfAbsent();
-        string value = req.getHeader("counter");
+        var value = req.getHeader("counter");
         if (value == null) {
             println("null header");
             session.setAttribute("Name", "chamil");
@@ -464,6 +464,19 @@ service<http> sample2 {
         int time = session.getMaxInactiveInterval();
         session.setMaxInactiveInterval(-1);
         res.setStringPayload(<string>(time));
+        _ = res.send();
+    }
+
+    resource new9 (http:Request req, http:Response res) {
+        string myName = "FirstName";
+        TypeCastError err;
+        http:Session Session = req.createSessionIfAbsent();
+        any attribute = Session.getAttribute("name");
+        if (attribute != null) {
+            myName, err = (string)attribute;
+        }
+        Session.setAttribute("name", "SecondName");
+        res.setStringPayload(myName);
         _ = res.send();
     }
 }

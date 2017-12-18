@@ -71,7 +71,7 @@ public class ResponseNativeFunctionNegativeTest {
         } catch (Throwable e) {
             error = e.getMessage();
         }
-        Assert.assertEquals(error.substring(23, 45), "invalid content length");
+        Assert.assertTrue(error.contains("invalid content length"));
     }
 
     @Test
@@ -230,7 +230,7 @@ public class ResponseNativeFunctionNegativeTest {
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
         Assert.assertTrue(StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
-                .contains("operation not allowed"));
+                .contains("illegal function invocation"));
     }
 
     @Test
@@ -243,7 +243,7 @@ public class ResponseNativeFunctionNegativeTest {
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
         Assert.assertTrue(StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
-                .contains("operation not allowed"));
+                .contains("illegal function invocation"));
     }
 
     @Test
@@ -289,13 +289,11 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test
     public void testCompilationErrorTestCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 3);
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
         //testResponseSetStatusCodeWithString
         BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'string'", 4, 23);
-        //testResponseGetContentLengthWithString
-        BAssertUtil.validateError(resultNegative, 1, "incompatible types: expected 'int', found 'string'", 9, 26);
         //testResponseGetMethod
-        BAssertUtil.validateError(resultNegative, 2,
-                "undefined function 'getMethod' in struct 'ballerina.net.http:Response'", 14, 21);
+        BAssertUtil.validateError(resultNegative, 1,
+                "undefined function 'getMethod' in struct 'ballerina.net.http:Response'", 9, 21);
     }
 }

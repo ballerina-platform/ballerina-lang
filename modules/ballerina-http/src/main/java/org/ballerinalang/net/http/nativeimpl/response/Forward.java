@@ -28,7 +28,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -51,17 +50,17 @@ public class Forward extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BStruct responseStruct = (BStruct) getRefArgument(context, 0);
-        BStruct clientResponseStruct = (BStruct) getRefArgument(context, 1);
-        HttpUtil.checkFunctionValidity(responseStruct);
-        if (clientResponseStruct.getNativeData(Constants.TRANSPORT_MESSAGE) == null) {
+        BStruct outboundResponseStruct = (BStruct) getRefArgument(context, 0);
+        BStruct inboundResponseStruct = (BStruct) getRefArgument(context, 1);
+        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) outboundResponseStruct
+                .getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
+        HttpUtil.checkFunctionValidity(outboundResponseStruct, requestMessage);
+        if (inboundResponseStruct.getNativeData(Constants.TRANSPORT_MESSAGE) == null) {
             throw new BallerinaException("Failed to forward: empty response parameter");
         }
 
-        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct
-                .getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
         HTTPCarbonMessage responseMessage = HttpUtil
-                .getCarbonMsg(clientResponseStruct, HttpUtil.createHttpCarbonMessage(false));
+                .getCarbonMsg(inboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
 
         AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.ANN_NAME_CONFIG);
@@ -78,13 +77,11 @@ public class Forward extends AbstractNativeFunction {
             // default behaviour: keepAlive = true
             responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
         }
-
-        MessageDataSource messageDataSource = HttpUtil.getMessageDataSource(responseStruct);
-        if (messageDataSource != null) {
-            messageDataSource.serializeData();
+        if (inboundResponseStruct.getRefField(Constants.RESPONSE_HEADERS_INDEX) != null) {
+            HttpUtil.setHeadersToTransportMessage(responseMessage, inboundResponseStruct);
         }
 
         return HttpUtil.prepareResponseAndSend(context, this, requestMessage,
-                responseMessage, HttpUtil.getMessageDataSource(clientResponseStruct));
+                responseMessage, inboundResponseStruct);
     }
 }

@@ -20,7 +20,6 @@ package org.ballerinalang.model;
 import org.ballerinalang.model.values.BStruct;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  *  This interface represents an data iterator operations.
@@ -46,7 +45,7 @@ public interface DataIterator {
 
     String getBlob(String columnName);
 
-    Map<String, Object> getArray(String columnName);
+    Object[] getArray(String columnName);
 
     BStruct generateNext();
 
