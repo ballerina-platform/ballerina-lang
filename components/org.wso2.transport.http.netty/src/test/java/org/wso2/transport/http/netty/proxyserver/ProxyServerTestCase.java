@@ -93,7 +93,7 @@ public class ProxyServerTestCase {
         //set proxy server configuration to client connector.
         Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
         for (SenderConfiguration config : senderConfig) {
-            if (config.getId().contains(TestUtil.HTTPS_SCHEME)) {
+            if (config.getId().contains(Constants.HTTPS_SCHEME)) {
                 config.setTrustStoreFile(TestUtil.getAbsolutePath(config.getTrustStoreFile()));
             }
             config.setProxyServerConfiguration(proxyServerConfiguration);
@@ -102,7 +102,7 @@ public class ProxyServerTestCase {
         HttpWsConnectorFactory factory = new HttpWsConnectorFactoryImpl();
         ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
         listenerConfiguration.setPort(serverPort);
-        listenerConfiguration.setScheme(TestUtil.HTTPS_SCHEME);
+        listenerConfiguration.setScheme(Constants.HTTPS_SCHEME);
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         listenerConfiguration.setKeyStorePass(password);
         serverConnector = factory
@@ -113,7 +113,7 @@ public class ProxyServerTestCase {
 
         httpClientConnector = factory
                 .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                        HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, TestUtil.HTTPS_SCHEME));
+                        HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
     }
 
     @Test

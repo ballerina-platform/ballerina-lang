@@ -110,7 +110,9 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
 
                             ByteBuffer byteBuffer = ByteBuffer.allocate(length);
                             byteBufferList.forEach(byteBuffer::put);
+
                             String responseValue = new String(byteBuffer.array()) + ":" + requestValue;
+
                             byte[] array = null;
                             try {
                                 array = responseValue.getBytes("UTF-8");
@@ -118,9 +120,12 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                                 logger.error("Failed to get the byte array from responseValue", e);
                             }
 
-                            ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
-                            byteBuff.put(array);
-                            byteBuff.flip();
+//                            ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
+//                            byteBuff.put(array);
+//                            byteBuff.flip();
+
+                            ByteBuffer byteBuff = ByteBuffer.wrap(array);
+
                             HTTPCarbonMessage httpCarbonMessage = httpResponse
                                     .cloneCarbonMessageWithOutData();
                             if (httpCarbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
