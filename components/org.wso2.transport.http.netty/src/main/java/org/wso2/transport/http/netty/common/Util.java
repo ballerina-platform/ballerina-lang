@@ -203,7 +203,7 @@ public class Util {
         // 2. Check for transfer encoding header is set in the request
         // As per RFC 2616, Section 4.4, Content-Length must be ignored if Transfer-Encoding header
         // is present and its value not equal to 'identity'
-        String requestTransferEncodingHeader = requestDataHolder.getTransferEncodingHeader();
+        String requestTransferEncodingHeader = requestDataHolder.getTransferEncodingHeaderValue();
         if (requestTransferEncodingHeader != null &&
             !Constants.HTTP_TRANSFER_ENCODING_IDENTITY.equalsIgnoreCase(requestTransferEncodingHeader)) {
             outboundResMsg.setHeader(Constants.HTTP_TRANSFER_ENCODING, requestTransferEncodingHeader);
@@ -212,7 +212,7 @@ public class Util {
         }
 
         // 3. Check for request Content-Length header
-        String requestContentLength = requestDataHolder.getContentLengthHeader();
+        String requestContentLength = requestDataHolder.getContentLengthHeaderValue();
         if (requestContentLength != null &&
             (outboundResMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null)) {
             int contentLength = outboundResMsg.getFullMessageLength();
@@ -237,25 +237,20 @@ public class Util {
         // 2. Check for transfer encoding header is set in the request
         // As per RFC 2616, Section 4.4, Content-Length must be ignored if Transfer-Encoding header
         // is present and its value not equal to 'identity'
-        String requestTransferEncodingHeader = requestDataHolder.getTransferEncodingHeader();
-        if (requestTransferEncodingHeader != null &&
-                !Constants.HTTP_TRANSFER_ENCODING_IDENTITY.equalsIgnoreCase(requestTransferEncodingHeader)) {
+        String inboundReqTransferEncodingHeaderValue = requestDataHolder.getTransferEncodingHeaderValue();
+        if (inboundReqTransferEncodingHeaderValue != null &&
+                !Constants.HTTP_TRANSFER_ENCODING_IDENTITY.equalsIgnoreCase(inboundReqTransferEncodingHeaderValue)) {
             return true;
         }
 
         // 3. Check for request Content-Length header
-        String requestContentLength = requestDataHolder.getContentLengthHeader();
-        if (requestContentLength != null &&
-                (outboundResMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null)) {
+        String requestContentLength = requestDataHolder.getContentLengthHeaderValue();
+        if (requestContentLength != null) {
             return false;
         }
 
         // 4. If request doesn't have Transfer-Encoding or Content-Length header look for response properties
-        if (outboundResMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) != null) {
-            return true;
-        } else {
-            return true;
-        }
+        return outboundResMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) != null;
     }
 
     public static SSLConfig getSSLConfigForListener(String certPass, String keyStorePass, String keyStoreFilePath,

@@ -124,7 +124,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     // Decides whether to close the connection after sending the response
     private boolean isKeepAlive(HTTPCarbonMessage responseMsg) {
         String responseConnectionHeader = responseMsg.getHeader(Constants.HTTP_CONNECTION);
-        String requestConnectionHeader = requestDataHolder.getConnectionHeader();
+        String requestConnectionHeader = requestDataHolder.getConnectionHeaderValue();
         if ((responseConnectionHeader != null &&
                 Constants.CONNECTION_CLOSE.equalsIgnoreCase(responseConnectionHeader))
                 || (requestConnectionHeader != null &&
