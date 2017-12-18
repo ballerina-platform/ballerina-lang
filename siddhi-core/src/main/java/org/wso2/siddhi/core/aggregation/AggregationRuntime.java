@@ -71,7 +71,6 @@ public class AggregationRuntime implements MemoryCalculable {
     private final ThroughputTracker throughputTrackerFind;
     private List<TimePeriod.Duration> incrementalDurations;
     private SingleStreamRuntime singleStreamRuntime;
-    private EntryValveExecutor entryValveExecutor;
     private ExpressionExecutor perExpressionExecutor;
     private ExpressionExecutor startTimeEndTimeExpressionExecutor;
     private List<ExpressionExecutor> baseExecutors;
@@ -96,7 +95,6 @@ public class AggregationRuntime implements MemoryCalculable {
         this.incrementalDurations = incrementalDurations;
         this.siddhiAppContext = siddhiAppContext;
         this.singleStreamRuntime = singleStreamRuntime;
-        this.entryValveExecutor = entryValveExecutor;
         this.baseExecutors = baseExecutors;
         this.timestampExecutor = timestampExecutor;
         this.tableMetaStreamEvent = tableMetaStreamEvent;

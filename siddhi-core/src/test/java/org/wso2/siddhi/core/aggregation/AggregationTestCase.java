@@ -1898,6 +1898,7 @@ public class AggregationTestCase {
                 case 3:
                     AssertJUnit.assertArrayEquals(new Object[]{1513578087000L, "CISCO", 100.0, 200.0, 9600f},
                             events[i].getData());
+                    break;
                 default:
                     AssertJUnit.assertEquals(4, events.length);
             }
@@ -1953,6 +1954,7 @@ public class AggregationTestCase {
                 case 1:
                     AssertJUnit.assertArrayEquals(new Object[]{1513578087000L, "CISCO", 100.0, 200.0, 9600f},
                             events[i].getData());
+                    break;
                 default:
                     AssertJUnit.assertEquals(1, events.length);
             }
@@ -2008,6 +2010,7 @@ public class AggregationTestCase {
                 case 1:
                     AssertJUnit.assertArrayEquals(new Object[]{1513578087000L, "CISCO", 100.0, 200.0, 9600f},
                             events[i].getData());
+                    break;
                 default:
                     AssertJUnit.assertEquals(1, events.length);
             }
@@ -2063,6 +2066,7 @@ public class AggregationTestCase {
                 case 1:
                     AssertJUnit.assertArrayEquals(new Object[]{1513578087000L, "CISCO", 100.0, 200.0, 9600f},
                             events[i].getData());
+                    break;
                 default:
                     AssertJUnit.assertEquals(1, events.length);
             }
@@ -2118,6 +2122,7 @@ public class AggregationTestCase {
                 case 1:
                     AssertJUnit.assertArrayEquals(new Object[]{1513578087000L, "CISCO", 100.0, 200.0, 9600f},
                             events[i].getData());
+                    break;
                 default:
                     AssertJUnit.assertEquals(1, events.length);
             }
