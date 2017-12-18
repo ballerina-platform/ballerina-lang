@@ -26,7 +26,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 
 /**
@@ -35,12 +34,9 @@ import org.wso2.carbon.messaging.CarbonMessageProcessor;
  */
 @Component(
         name = "org.wso2.carbon.transport.http.netty.internal.HTTPTransportServiceComponent",
-        immediate = true,
-        property = {
-                "componentName=netty-transports-mgt"
-        })
-@SuppressWarnings("unused")
-public class HTTPTransportServiceComponent implements RequiredCapabilityListener {
+        immediate = true)
+@Deprecated
+public class HTTPTransportServiceComponent {
 
     private static final Logger log = LoggerFactory.getLogger(HTTPTransportServiceComponent.class);
 
@@ -79,12 +75,5 @@ public class HTTPTransportServiceComponent implements RequiredCapabilityListener
 
     protected void removeNettyStatHandler(MessagingHandler messagingHandler) {
         HTTPTransportContextHolder.getInstance().getHandlerExecutor().removeHandler(messagingHandler);
-    }
-
-    @Override
-    public void onAllRequiredCapabilitiesAvailable() {
-        HTTPTransportContextHolder.getInstance().getBundleContext().
-                registerService(HTTPTransportServiceComponent.class, this, null);
-        log.info("All CarbonHTTPServerInitializers are available");
     }
 }
