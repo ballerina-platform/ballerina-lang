@@ -19,7 +19,7 @@ Find `.vsix` files listed in [Releases](https://github.com/ballerinalang/plugin-
 
 Install by 
 ~~~
-code --install-extension myextension.vsix
+code --install-extension Ballerina-[version].vsix
 ~~~
 Find more info [here](https://code.visualstudio.com/docs/editor/extension-gallery#_install-from-a-vsix)
 
@@ -37,6 +37,10 @@ To connect a remote debug client to the language server process, set `LSDEBUG` e
 `LSDEBUG=true code --extensionDevelopmentPath=/home/aruna/projects/ballerina/plugin-vscode`
 
 Now connect the remote debug client to port 5005.
+
+## Publishing a new release
+
+See the [wiki page](https://github.com/ballerinalang/plugin-vscode/wiki/Drafting-a-new-release)
 
 ## How to contribute
 
