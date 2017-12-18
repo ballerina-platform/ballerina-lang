@@ -763,7 +763,7 @@ public class HttpUtil {
     private static String buildHeaderValue(BMap<String, BValue> headers, String key) {
         StringBuilder headerValue = new StringBuilder();
         if (headers.get(key).getType().getTag() != TypeTags.ARRAY_TAG) {
-            throw new BallerinaException("expects an array as header value for header : " + key);
+            throw new BallerinaException("expects HeaderValue struct array as header value for header : " + key);
         }
         BRefValueArray headerValues = (BRefValueArray) headers.get(key);
         for (int index = 0; index < headerValues.size(); index++) {

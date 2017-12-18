@@ -278,38 +278,6 @@ public class RequestNativeFunctionNegativeTest {
         Assert.assertTrue(error.contains("expect 'ballerina.net.http:HeaderValue[]' as header value type of : wso2"));
     }
 
-    @Test(description = "Test outbound request with incorrect type of header value")
-    public void testSetHeaderToStructNegative4() {
-        BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
-        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
-        HttpUtil.addCarbonMsg(request, cMsg);
-
-        BValue[] inputArg = {request};
-        String error = null;
-        try {
-            BRunUtil.invoke(result, "setHeaderToStruct4", inputArg);
-        } catch (Throwable e) {
-            error = e.getMessage();
-        }
-        Assert.assertTrue(error.contains("error: error, message: expects an array as header value for header : wso2"));
-    }
-
-    @Test(description = "Test outbound request with incorrect type of header value in array")
-    public void testSetHeaderToStructNegative5() {
-        BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
-        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
-        HttpUtil.addCarbonMsg(request, cMsg);
-
-        BValue[] inputArg = {request};
-        String error = null;
-        try {
-            BRunUtil.invoke(result, "setHeaderToStruct5", inputArg);
-        } catch (Throwable e) {
-            error = e.getMessage();
-        }
-        Assert.assertTrue(error.contains("error: error, message: expects an array as header value for header : wso2"));
-    }
-
     @Test
     public void testCompilationErrorTestCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
