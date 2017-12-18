@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -126,6 +127,19 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangStruct structNode) {
+        if (HoverUtil.isMatchingPosition(structNode.getPosition(), this.position)) {
+            this.context.put(HoverKeys.HOVERING_OVER_NODE_KEY, structNode);
+            this.context.put(HoverKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+            this.context.put(HoverKeys.NAME_OF_HOVER_NODE_KEY, structNode.name);
+            this.context.put(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY, structNode.symbol.pkgID);
+            this.context.put(HoverKeys.SYMBOL_KIND_OF_HOVER_NODE_KEY, structNode.symbol.kind);
+        } else {
+            structNode.fields.forEach(e -> this.acceptNode(e));
+        }
+    }
+
+    @Override
+    public void visit(BLangUserDefinedType userDefinedType) {
         // TODO: implement support for hover.
     }
 
@@ -136,6 +150,9 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangVariable varNode) {
+        if (varNode.expr != null) {
+            this.acceptNode(varNode.expr);
+        }
     }
 
     @Override
@@ -160,7 +177,9 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangVariableDef varDefNode) {
-        // TODO: implement support for hover.
+        if (varDefNode.getVariable() != null) {
+            this.acceptNode(varDefNode.getVariable());
+        }
     }
 
     @Override
@@ -264,6 +283,7 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
             this.context.put(HoverKeys.NAME_OF_HOVER_NODE_KEY, invocationExpr.name);
             this.context.put(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY, invocationExpr.symbol.pkgID);
             this.context.put(HoverKeys.SYMBOL_KIND_OF_HOVER_NODE_KEY, invocationExpr.symbol.kind);
+            this.terminateVisitor = true;
         }
     }
 
