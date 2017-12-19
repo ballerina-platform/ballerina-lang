@@ -25,6 +25,8 @@ import org.testng.annotations.Test;
 
 /**
  * Resource signature validation test class.
+ *
+ * @since 0.95.6
  */
 public class SignatureTest {
 
