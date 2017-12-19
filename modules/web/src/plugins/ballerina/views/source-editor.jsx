@@ -177,7 +177,7 @@ class SourceEditor extends React.Component {
             return new ReconnectingWebSocket(url, undefined, socketOptions);
         }
         // create the web socket
-        const url = getServiceEndpoint('langserver');
+        const url = 'ws://localhost:8289/blangserve2';
         const webSocket = createWebSocket(url);
         // listen when the web socket is opened
         listen({
