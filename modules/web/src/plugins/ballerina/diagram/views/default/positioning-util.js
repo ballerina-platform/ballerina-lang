@@ -395,8 +395,9 @@ class PositioningUtil {
         // position the children
         const body = node.getBody();
         body.viewState.bBox.x = cmp.client.x + cmp.client.w + this.config.panel.body.padding.left
-            + (cmp.defaultWorker.w / 2);
-        body.viewState.bBox.y = cmp.defaultWorker.y + this.config.lifeLine.head.height;
+            + (cmp.defaultWorkerLine.w / 2);
+        body.viewState.bBox.y = cmp.defaultWorker.y + this.config.lifeLine.head.height
+        + this.config.statement.height;
 
         // ========== Header Positioning ==========
         let publicPrivateFlagoffset = 0;
@@ -486,9 +487,8 @@ class PositioningUtil {
                 }
             }
         });
-
         cmp.client.arrowLine = (workers instanceof Array && !_.isEmpty(workers)) ?
-            _.last(workers).viewState.bBox.x + (_.last(workers).viewState.bBox.w / 2) :
+            _.last(workers).viewState.components.lifeLine.x + (_.last(workers).viewState.components.lifeLine.w / 2) :
             cmp.defaultWorkerLine.x + (cmp.defaultWorkerLine.w / 2);
     }
 
