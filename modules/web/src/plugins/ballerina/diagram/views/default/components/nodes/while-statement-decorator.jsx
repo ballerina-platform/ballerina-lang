@@ -29,12 +29,6 @@ import Breakpoint from '../decorators/breakpoint';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import ArrowDecorator from '../decorators/arrow-decorator';
 
-const CLASS_MAP = {
-    hidden: 'hide-action',
-    visible: 'show-action',
-    fade: 'delayed-hide-action',
-};
-
 /**
  * Wraps other UI elements and provide box with a heading.
  * Enrich elements with a action box and expression editors.

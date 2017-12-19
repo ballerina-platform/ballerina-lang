@@ -19,6 +19,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
+import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
 import './compound-statement-decorator.css';
@@ -198,13 +199,15 @@ class IfStatementDecorator extends React.Component {
         const titleW = this.context.designer.config.flowChartControlStatement.heading.width;
         const statementBBox = viewState.components['statement-box'];
         const displayExpression = viewState.components.expression;
+        const gapLeft = this.context.designer.config.flowChartControlStatement.padding.left;
+        const gapTop = this.context.designer.config.flowChartControlStatement.padding.top;
 
 
         // Defining coordinates of the diagram
 
         //                     (P9)
         //                (P2)  |  (P3)        (P4)
-        // (x,y)           [condition]--false---|
+        // (x,y)(P1)       [condition]--false---|
         // (P11)              \_|_/_____________| (statementBox)
         //                      |(p8)           |
         //                      |               |
@@ -226,25 +229,25 @@ class IfStatementDecorator extends React.Component {
         //            \ /
         //           (p9)
 
-        const p1X = statementBBox.x;
-        const p1Y = statementBBox.y;
+        const p1X = statementBBox.x - gapLeft;
+        const p1Y = statementBBox.y + gapTop;
 
-        const p2X = statementBBox.x + ((statementBBox.w / 2) - (titleW / 2));
-        const p2Y = statementBBox.y + (titleH / 2);
+        const p2X = statementBBox.x - (titleW / 2);
+        const p2Y = p1Y + (titleH / 2);
 
-        const p3X = p1X + (statementBBox.w / 2) + (titleW / 2);
+        const p3X = statementBBox.x + (titleW / 2);
         const p3Y = p2Y;
 
         const p4X = p1X + statementBBox.w;
         const p4Y = p2Y;
 
         const p5X = p4X;
-        const p5Y = p1Y + bBox.h;
+        const p5Y = p1Y + statementBBox.h;
 
-        const p6X = p1X + (statementBBox.w / 2);
+        const p6X = statementBBox.x;
         const p6Y = p5Y;
 
-        const p8X = p1X + (statementBBox.w / 2);
+        const p8X = statementBBox.x;
         const p8Y = p2Y + (titleH / 2);
 
         const p9X = p8X;
@@ -254,7 +257,7 @@ class IfStatementDecorator extends React.Component {
         const p11Y = p1Y + (titleH / 2);
 
         const p12X = p8X;
-        const p12Y = p8Y + (titleH / 2) + this.context.designer.config.statement.gutter.h;
+        const p12Y = p8Y + (titleH / 2) + this.context.designer.config.flowChartControlStatement.gutter.h;
 
         this.conditionBox = new SimpleBBox(p1X, (p2Y - (this.context.designer.config.statement.height / 2)),
             bBox.w, this.context.designer.config.statement.height);
