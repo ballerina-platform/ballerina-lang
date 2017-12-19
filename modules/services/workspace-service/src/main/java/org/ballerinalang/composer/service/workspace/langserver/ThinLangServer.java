@@ -71,7 +71,7 @@ public class ThinLangServer {
         if (launcher != null) {
             return;
         }
-        Launcher<LanguageClient> launcher = this.launchRPCServer(server, LanguageClient.class);
+        this.launcher = this.launchRPCServer(server, LanguageClient.class);
         LanguageClient client = launcher.getRemoteProxy();
         ((LanguageClientAware) server).connect(client);
         Future<?> startListening = launcher.startListening();

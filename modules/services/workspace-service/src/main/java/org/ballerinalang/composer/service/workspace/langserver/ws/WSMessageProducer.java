@@ -29,7 +29,8 @@ public class WSMessageProducer implements MessageProducer {
             }
         });
         this.thinLangServer.addTextMessageListener((message, session) -> {
-            messageConsumer.consume(this.jsonHandler.parseMessage(message));
+            String json = message.split("Content-Length:\\s[\\d]*\\s\\n")[1];
+            messageConsumer.consume(this.jsonHandler.parseMessage(json));
         });
     }
 }
