@@ -399,7 +399,7 @@ public class MimeUtil {
      * @return a byte array
      * @throws IOException
      */
-    private static byte[] toByteArray(InputStream input) throws IOException {
+    public static byte[] toByteArray(InputStream input) throws IOException {
         byte[] buffer = new byte[4096];
         int n1;
         ByteArrayOutputStream output = new ByteArrayOutputStream();

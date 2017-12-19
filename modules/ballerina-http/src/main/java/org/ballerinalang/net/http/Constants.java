@@ -141,9 +141,7 @@ public class Constants {
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
     public static final String REQUEST = "Request";
     public static final String ENTITY = "Entity";
-    public static final String MEDIA_TYPE = "MediaType";
     public static final String RESPONSE = "Response";
-    public static final String HEADER_VALUE_STRUCT = "HeaderValue";
     public static final String HEADER_VALUE = "value";
     public static final String HEADER_PARAM = "param";
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";

@@ -45,6 +45,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import static org.ballerinalang.net.mime.util.Constants.HEADER_VALUE_STRUCT;
 import static org.ballerinalang.net.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
@@ -214,7 +215,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             if (httpCarbonMessage.getMessagingException() == null) {
                 BStruct response = createStruct(this.context, Constants.RESPONSE);
                 BStruct entity = createStruct(this.context, Constants.ENTITY);
-                HttpUtil.setHeaderValueStructType(createStruct(this.context, Constants.HEADER_VALUE_STRUCT));
+                HttpUtil.setHeaderValueStructType(createStruct(this.context, HEADER_VALUE_STRUCT));
                 HttpUtil.populateInboundResponse(response, entity, httpCarbonMessage);
                 ballerinaFuture.notifyReply(response);
             } else {

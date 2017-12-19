@@ -47,8 +47,6 @@ public class Constants {
     public static final String DEFAULT_SUB_TYPE = "octet-stream";
     public static final String SUFFIX_ATTACHMENT = "+";
 
-   // public static final String ENTITY_WITH_BODY = "message_entity_with_body";
-  //  public static final String ENTITY_WITH_ONLY_HEADERS = "message_entity_with_headers";
     public static final String MESSAGE_ENTITY = "message_entity";
     public static final String IS_ENTITY_BODY_PRESENT = "is_entity_body_present";
 

@@ -66,7 +66,6 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -86,6 +85,7 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.net.http.Constants.MESSAGE_DATA_SOURCE;
 import static org.ballerinalang.net.http.Constants.MESSAGE_OUTPUT_STREAM;
 import static org.ballerinalang.net.mime.util.Constants.ENTITY_HEADERS_INDEX;
+import static org.ballerinalang.net.mime.util.Constants.HEADER_VALUE_STRUCT;
 import static org.ballerinalang.net.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
 import static org.ballerinalang.net.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
@@ -99,7 +99,6 @@ public class HttpUtil {
     private static final String METHOD_ACCESSED = "isMethodAccessed";
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
     private static BStructType headerValueStructType;
-    private static BStructType entityStructType;
 
     public static BValue[] addHeader(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
@@ -284,6 +283,14 @@ public class HttpUtil {
         return AbstractNativeFunction.VOID_RETURN;
     }
 
+    /**
+     * Set the given entity to request or response message.
+     *
+     * @param context                Ballerina context
+     * @param abstractNativeFunction Reference to abstract native ballerina function
+     * @param isRequest              boolean representing whether the message is a request or a response
+     * @return void return
+     */
     public static BValue[] setEntity(Context context, AbstractNativeFunction abstractNativeFunction,
             boolean isRequest) {
         BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
@@ -329,10 +336,10 @@ public class HttpUtil {
     /**
      * Get the entity from request or response.
      *
-     * @param context
-     * @param abstractNativeFunction
-     * @param isRequest
-     * @return
+     * @param context                Ballerina context
+     * @param abstractNativeFunction Reference to abstract native ballerina function
+     * @param isRequest              boolean representing whether the message is a request or a response
+     * @return Entity of the request or response
      */
     public static BValue[] getEntity(Context context, AbstractNativeFunction abstractNativeFunction,
             boolean isRequest) {
@@ -346,7 +353,7 @@ public class HttpUtil {
         if (httpMessageStruct.getNativeData(IS_ENTITY_BODY_PRESENT) != null) {
             isEntityBodyAvailable = (Boolean) httpMessageStruct.getNativeData(IS_ENTITY_BODY_PRESENT);
         }
-        if (isEntityBodyRequired && !isEntityBodyAvailable) {
+        if (entity != null && isEntityBodyRequired && !isEntityBodyAvailable) {
             HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
             InputStream inputStream = httpMessageDataStreamer.getInputStream();
             String baseType = getContentType(entity);
@@ -396,7 +403,7 @@ public class HttpUtil {
             } else {
                 HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
                 OutputStream messageOutputStream = httpMessageDataStreamer.getOutputStream();
-                result = new BlobDataSource(toByteArray(httpMessageDataStreamer.getInputStream()),
+                result = new BlobDataSource(MimeUtil.toByteArray(httpMessageDataStreamer.getInputStream()),
                         messageOutputStream);
                 HttpUtil.addMessageDataSource(httpMessageStruct, result);
                 HttpUtil.addMessageOutputStream(httpMessageStruct, messageOutputStream);
@@ -505,18 +512,6 @@ public class HttpUtil {
         return abstractNativeFunction.getBValues(result);
     }
 
-    private static byte[] toByteArray(InputStream input) throws IOException {
-        byte[] buffer = new byte[4096];
-        int n1;
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        for (; -1 != (n1 = input.read(buffer)); ) {
-            output.write(buffer, 0, n1);
-        }
-        byte[] bytes = output.toByteArray();
-        output.close();
-        return bytes;
-    }
-
     public static void addMessageDataSource(BStruct struct, MessageDataSource messageDataSource) {
         struct.addNativeData(MESSAGE_DATA_SOURCE, messageDataSource);
     }
@@ -609,8 +604,16 @@ public class HttpUtil {
         return abstractNativeFunction.VOID_RETURN;
     }
 
+    /**
+     * Extract entity body from the request/response message and construct 'MessageDataSource' with the extracted
+     * content.
+     *
+     * @param httpMessageStruct Represent request/response struct
+     * @return Newly created 'MessageDataSource' from the entity body
+     */
     private static MessageDataSource readMessageDataSource(BStruct httpMessageStruct) {
         boolean isEntityBodyAvailable = (Boolean) httpMessageStruct.getNativeData(IS_ENTITY_BODY_PRESENT);
+
         if (isEntityBodyAvailable) {
             BStruct entity = (BStruct) httpMessageStruct.getNativeData(MESSAGE_ENTITY);
             OutputStream messageOutputStream = (OutputStream) httpMessageStruct.getNativeData(MESSAGE_OUTPUT_STREAM);
@@ -620,14 +623,17 @@ public class HttpUtil {
                     case org.ballerinalang.net.mime.util.Constants.TEXT_PLAIN:
                         String textPayload = MimeUtil.getTextPayload(entity);
                         return new StringDataSource(textPayload, messageOutputStream);
+
                     case org.ballerinalang.net.mime.util.Constants.APPLICATION_JSON:
                         BJSON jsonPayload = MimeUtil.getJsonPayload(entity);
                         jsonPayload.setOutputStream(messageOutputStream);
                         return jsonPayload;
+
                     case org.ballerinalang.net.mime.util.Constants.APPLICATION_XML:
                         BXML xmlPayload = MimeUtil.getXmlPayload(entity);
                         xmlPayload.setOutputStream(messageOutputStream);
                         return xmlPayload;
+
                     default:
                         byte[] binaryPayload = MimeUtil.getBinaryPayload(entity);
                         return new BlobDataSource(binaryPayload, messageOutputStream);
@@ -741,24 +747,6 @@ public class HttpUtil {
         headerValueStructType = struct.getType();
     }
 
-    public static void setEntityStructType(BStruct struct) {
-        entityStructType = struct.getType();
-    }
-
-    private static void populateEntity(BStruct entity, BStruct mediaType, HTTPCarbonMessage cMsg) {
-        String contentType = cMsg.getHeader(org.ballerinalang.net.mime.util.Constants.CONTENT_TYPE);
-        MimeUtil.setContentType(mediaType, entity, contentType);
-        int contentLength = -1;
-        String lengthStr = cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH);
-        try {
-            contentLength = Integer.parseInt(lengthStr);
-            MimeUtil.setContentLength(entity, contentLength);
-        } catch (NumberFormatException e) {
-            throw new BallerinaException("Invalid content length");
-        }
-        entity.setRefField(ENTITY_HEADERS_INDEX, prepareHeaderMap(cMsg.getHeaders(), new BMap<>()));
-    }
-
     public static void populateInboundRequest(BStruct request, BStruct entity, BStruct mediaType,
             HTTPCarbonMessage cMsg) {
         request.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
@@ -796,18 +784,31 @@ public class HttpUtil {
         response.addNativeData(IS_ENTITY_BODY_PRESENT, false);
     }
 
+    private static void populateEntity(BStruct entity, BStruct mediaType, HTTPCarbonMessage cMsg) {
+        String contentType = cMsg.getHeader(org.ballerinalang.net.mime.util.Constants.CONTENT_TYPE);
+        MimeUtil.setContentType(mediaType, entity, contentType);
+        int contentLength = -1;
+        String lengthStr = cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH);
+        try {
+            contentLength = Integer.parseInt(lengthStr);
+            MimeUtil.setContentLength(entity, contentLength);
+        } catch (NumberFormatException e) {
+            throw new BallerinaException("Invalid content length");
+        }
+        entity.setRefField(ENTITY_HEADERS_INDEX, prepareHeaderMap(cMsg.getHeaders(), new BMap<>()));
+    }
+
     @SuppressWarnings("unchecked")
     public static void populateOutboundRequest(BStruct message, BStruct entity, HTTPCarbonMessage reqMsg) {
         setHeadersToTransportMessage(reqMsg, message, entity);
     }
 
-    public static void populateOutboundResponse(BStruct response, BStruct entity, HTTPCarbonMessage resMsg,
+    public static void populateOutboundResponse(BStruct response, HTTPCarbonMessage resMsg,
             HTTPCarbonMessage
             reqMsg) {
         response.addNativeData(Constants.TRANSPORT_MESSAGE, resMsg);
         response.addNativeData(Constants.INBOUND_REQUEST_MESSAGE, reqMsg);
         response.addNativeData(Constants.OUTBOUND_RESPONSE, true);
-        entity.setRefField(ENTITY_HEADERS_INDEX, new BMap<>());
     }
 
     private static BMap<String, BValue> prepareHeaderMap(HttpHeaders headers, BMap<String, BValue> headerMap) {
@@ -959,7 +960,7 @@ public class HttpUtil {
 
     private static void setHeaderToStruct(Context context, BStruct struct, String key, String value) {
         headerValueStructType = headerValueStructType == null ? ConnectorUtils.createAndGetStruct(context,
-                PROTOCOL_PACKAGE_MIME, Constants.HEADER_VALUE_STRUCT).getType() : headerValueStructType;
+                PROTOCOL_PACKAGE_MIME, HEADER_VALUE_STRUCT).getType() : headerValueStructType;
         BMap<String, BValue> headerMap = struct.getRefField(ENTITY_HEADERS_INDEX) != null ?
                 (BMap) struct.getRefField(ENTITY_HEADERS_INDEX) : new BMap<>();
         struct.setRefField(ENTITY_HEADERS_INDEX, prepareHeaderMap(new DefaultHttpHeaders().add(key, value), headerMap));

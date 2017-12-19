@@ -143,14 +143,13 @@ public class HttpDispatcher {
         BStruct entity = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
                 org.ballerinalang.net.mime.util.Constants.ENTITY);
-        HttpUtil.setEntityStructType(entity);
 
         BStruct mediaType = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
                 org.ballerinalang.net.mime.util.Constants.MEDIA_TYPE);
 
         HttpUtil.populateInboundRequest(request, entity, mediaType, httpCarbonMessage);
-        HttpUtil.populateOutboundResponse(response, entity, HttpUtil.createHttpCarbonMessage(false),
+        HttpUtil.populateOutboundResponse(response, HttpUtil.createHttpCarbonMessage(false),
                 httpCarbonMessage);
 
         List<ParamDetail> paramDetails = httpResource.getParamDetails();
