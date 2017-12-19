@@ -1243,7 +1243,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int exprIndex;
 
         if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
-            if (unaryExpr.expr.type.tag == TypeTags.ANY) {
+            if (unaryExpr.expr.type.tag == TypeTags.ANY || unaryExpr.expr.type.tag == TypeTags.JSON) {
                 exprIndex = ++regIndexes.tRef;
                 opcode = unaryExpr.opSymbol.opcode;
                 emit(opcode, unaryExpr.expr.regIndex, exprIndex);
