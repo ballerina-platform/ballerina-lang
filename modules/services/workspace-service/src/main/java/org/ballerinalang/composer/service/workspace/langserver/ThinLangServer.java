@@ -66,20 +66,36 @@ public class ThinLangServer {
     private Gson gson = new Gson();
 
     @OnOpen
-    public void onOpen (Session session) throws IOException, ExecutionException, InterruptedException {
+    public void onOpen (Session session) {
         sessions.add(session);
-        inputStream .connect(pipedOutputStream);
-        BallerinaLanguageServer server = new BallerinaLanguageServer();
-        Launcher<LanguageClient> l = LSPLauncher.createServerLauncher(server, inputStream,
-                session.getBasicRemote().getSendStream());
-        LanguageClient client = l.getRemoteProxy();
-        ((LanguageClientAware) server).connect(client);
-        Future<?> startListening = l.startListening();
-        startListening.get();
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                try {
+
+                    inputStream.connect(pipedOutputStream);
+                    BallerinaLanguageServer server = new BallerinaLanguageServer();
+                    Launcher<LanguageClient> l = LSPLauncher.createServerLauncher(server, inputStream,
+                            session.getBasicRemote().getSendStream());
+                    LanguageClient client = l.getRemoteProxy();
+                    ((LanguageClientAware) server).connect(client);
+                    Future<?> startListening = l.startListening();
+                    startListening.get();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        r.run();
+
     }
 
     @OnMessage
-    public void onTextMessage(String request, Session session) throws IOException {
+    public void onTextMessage(String request, Session session){
 //        String json = request.split("Content-Length:\\s[\\d]*\\s\\n")[1];
 //        RequestMessage jsonrpcRequest = gson.fromJson(json, RequestMessage.class);
 //        ResponseMessage jsonrpcResponse = null;
@@ -102,9 +118,21 @@ public class ThinLangServer {
 //        String jsonTxt = gson.toJson(jsonrpcResponse);
 //        responseStr = "Content-Length: " + jsonTxt.length() + " \n\n" + jsonTxt;
 //        session.getBasicRemote().sendText(responseStr);
-        byte[] bytes = request.getBytes();
-        pipedOutputStream.write(bytes, 0, bytes.length);
-        pipedOutputStream.flush();
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                byte[] bytes = request.getBytes();
+                try {
+                    pipedOutputStream.write(bytes, 0, bytes.length);
+                    pipedOutputStream.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        };
+        r.run();
+
     }
 
     @OnMessage
