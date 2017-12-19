@@ -1475,7 +1475,16 @@ class SizingUtil {
         viewState.components['statement-box'].w = bodyWidth;
         viewState.bBox.h = viewState.components['statement-box'].h
                             + viewState.components['drop-zone'].h
+                            + this.config.flowChartControlStatement.gutter.h
                             + this.config.statement.gutter.h;
+        // viewState.bBox.h = viewState.components['statement-box'].h
+        //                     // + components['block-header'].h
+        //                      + (this.config.flowChartControlStatement.heading.height / 2)
+        //                      + this.config.flowChartControlStatement.padding.top
+        //                     // + this.config.flowChartControlStatement.gutter.h
+        //                     + viewState.components['drop-zone'].h;
+        //                     // + this.config.flowChartControlStatement.gutter.h;
+        //                     // + components['block-header'].h;
         viewState.bBox.w = bodyWidth;
         components.body.w = bodyWidth;
 
@@ -1492,7 +1501,7 @@ class SizingUtil {
         // end of if block sizing
 
         // If the parent of the if node is a block node, then it is only a if statement. Otherwise it is an else-if
-        let nodeHeight = node.viewState.bBox.h;
+        let nodeHeight = viewState.bBox.h;
         // let nodeWidth = node.viewState.bBox.w;
         let elseStmt = node.elseStatement;
         let proceed = true;
