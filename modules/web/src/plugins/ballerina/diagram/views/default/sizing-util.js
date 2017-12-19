@@ -1465,7 +1465,7 @@ class SizingUtil {
         const bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
 
-        components['block-header'].h = this.config.flowChartControlStatement.heading.height
+        components['block-header'].h = (2 * this.config.flowChartControlStatement.heading.height)
                                         + this.config.statement.gutter.v;
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
@@ -1510,6 +1510,10 @@ class SizingUtil {
                 }
             }
         }
+
+        nodeHeight += this.config.flowChartControlStatement.padding.top;
+        nodeHeight += this.config.flowChartControlStatement.padding.bottom;
+        nodeHeight += this.config.flowChartControlStatement.gutter.h;
 
         node.viewState.bBox.h = nodeHeight;
         // node.viewState.bBox.w = nodeWidth;
@@ -1690,15 +1694,18 @@ class SizingUtil {
         const bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
 
-        components['block-header'].h = this.config.flowChartControlStatement.heading.height
-                                        + this.config.statement.gutter.v;
+        components['block-header'].h = ((3 / 2) * this.config.flowChartControlStatement.heading.height)
+                                        + this.config.flowChartControlStatement.padding.top
+                                        + this.config.flowChartControlStatement.gutter.h;
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
         viewState.components['statement-box'].h = bodyHeight + this.config.flowChartControlStatement.heading.height;
         viewState.components['statement-box'].w = bodyWidth;
-        viewState.bBox.h = this.config.statement.gutter.v + viewState.components['statement-box'].h
-                            + viewState.components['drop-zone'].h;
+        viewState.bBox.h = viewState.components['statement-box'].h
+                            + viewState.components['drop-zone'].h
+                            + this.config.flowChartControlStatement.gutter.h
+                            + this.config.statement.gutter.h;
         viewState.bBox.w = bodyWidth;
         components.body.w = bodyWidth;
 
