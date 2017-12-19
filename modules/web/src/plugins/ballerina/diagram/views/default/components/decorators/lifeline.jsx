@@ -250,7 +250,7 @@ class LifeLine extends React.Component {
             }
             <circle
                 cx={centerX}
-                cy={solidY1 + this.context.designer.config.statement.height}
+                cy={bBox.y + titleBoxH + this.context.designer.config.statement.height}
                 r='4'
                 className={lineClass + ' dot'}
             />
