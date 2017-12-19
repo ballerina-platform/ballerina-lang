@@ -19,11 +19,12 @@ service<http> helloWorld {
         path:"/"
     }
 
-    resource sayHello (http:Request req, http:Response res) {
+    resource sayHello (http:Connection con, http:Request req) {
+        http:Response res = {};
         //Set response payload.
         res.setStringPayload("Successful");
         //Send response to client.
-        _ = res.send();
+        _ = con.respond(res);
     }
 }
 

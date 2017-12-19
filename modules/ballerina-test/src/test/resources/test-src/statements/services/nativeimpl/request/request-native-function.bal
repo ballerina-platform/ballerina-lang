@@ -103,44 +103,48 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/11"
     }
-    resource echo1 (http:Request req, http:Response res) {
+    resource echo1 (http:Connection con, http:Request req) {
+        http:Response res = {};
         string method = req.getMethod();
         res.setStringPayload(method);
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/12"
     }
-    resource echo2 (http:Request req, http:Response res) {
+    resource echo2 (http:Connection con, http:Request req) {
+        http:Response res = {};
         string url = req.getRequestURL();
         res.setStringPayload(url);
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/13"
     }
-    resource echo3 (http:Request req, http:Response res) {
+    resource echo3 (http:Connection con, http:Request req) {
+        http:Response res = {};
         string url = req.getRequestURL();
         res.setStringPayload(url);
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/addheader/{key}/{value}"
     }
-    resource addheader (http:Request req, http:Response res, string key, string value) {
+    resource addheader (http:Connection con, http:Request req, string key, string value) {
+        http:Response res = {};
         req.addHeader(key, value);
         string result = req.getHeader(key).value;
         res.setJsonPayload({lang:result});
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/addReqHeader"
     }
-    resource addReqHeader (http:Request req, http:Response res) {
+    resource addReqHeader (http:Connection con, http:Request req) {
         http:HeaderValue[] headers = [{value:"ballerina", param:{b:"6", c:7}}, {value:"transport", param:{a:6}}];
         req.headers["wso2"] = headers;
 
@@ -151,14 +155,15 @@ service<http> helloServer {
         map param = valueArr[0].param;
         var paramVal,_ = (string)param["b"];
 
+        http:Response res = {};
         res.setJsonPayload({headerValue:header, paramValue:paramVal});
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/addReqHeaderFunc"
     }
-    resource addReqHeaderFunc (http:Request req, http:Response res) {
+    resource addReqHeaderFunc (http:Connection con, http:Request req) {
         http:HeaderValue[] headers = [{value:"ballerina", param:{b:"6", c:7}}, {value:"transport", param:{a:6}}];
         req.headers["wso2"] = headers;
         req.addHeader("wso2", "chamil");
@@ -168,14 +173,15 @@ service<http> helloServer {
         int size =  lengthof valueArr;
         string header = valueArr[2].value;
 
+        http:Response res = {};
         res.setJsonPayload({headerValue:header, size:size});
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/addReqHeaderWithoutParam"
     }
-    resource addReqHeaderNoParam (http:Request req, http:Response res) {
+    resource addReqHeaderNoParam (http:Connection con, http:Request req) {
         http:HeaderValue[] headers = [{value:"ballerina", param:{}}, {value:"transport", param:{a:6}}];
         req.headers["wso2"] = headers;
 
@@ -189,217 +195,240 @@ service<http> helloServer {
         if (err != null) {
             paramVal = "param is null";
         }
+        http:Response res = {};
         res.setJsonPayload({headerValue:header, paramValue:paramVal});
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/getContentLength"
     }
-    resource GetContentLength (http:Request req, http:Response res) {
+    resource GetContentLength (http:Connection con, http:Request req) {
+        http:Response res = {};
         int length = req.getContentLength();
         res.setJsonPayload({value:length});
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/getHeader"
     }
-    resource getHeader (http:Request req, http:Response res) {
+    resource getHeader (http:Connection con, http:Request req) {
+        http:Response res = {};
         string header = req.getHeader("Content-Type").value;
         res.setJsonPayload({value:header});
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/getReqHeader"
     }
-    resource getReqHeader (http:Request req, http:Response res) {
+    resource getReqHeader (http:Connection con, http:Request req) {
         var values  = req.headers["Content-Type"];
         var valueArr,_ = (http:HeaderValue[]) values;
         string header = valueArr[0].value;
 
+        http:Response res = {};
         res.setJsonPayload({value:header});
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/getHeaders"
     }
-    resource getHeaders (http:Request req, http:Response res) {
+    resource getHeaders (http:Connection con, http:Request req) {
         var headers = req.getHeaders("Content-Type");
         var headerValue, _ = (string)headers[1].value;
 
         map param = headers[1].param;
         var paramVal,err = (string)param["b"];
 
+        http:Response res = {};
         res.setJsonPayload({value:headerValue, paramValue:paramVal});
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/getReqHeaders"
     }
-    resource getReqHeadersStruct (http:Request req, http:Response res) {
+    resource getReqHeadersStruct (http:Connection con, http:Request req) {
         http:HeaderValue[] headers = [{value:"ballerina"}, {value:"transport", param:{a:6}}];
         req.headers["wso2"] = headers;
 
         var headerValues = req.getHeaders("wso2");
         var headerValue, _ = (string)headerValues[1].value;
+
+        http:Response res = {};
         res.setJsonPayload({value:headerValue});
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/getJsonPayload"
     }
-    resource GetJsonPayload(http:Request req, http:Response res) {
+    resource GetJsonPayload(http:Connection con, http:Request req) {
+        http:Response res = {};
         json value = req.getJsonPayload();
         json lang = value.lang;
         res.setJsonPayload(lang);
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/GetProperty"
     }
-    resource GetProperty (http:Request req, http:Response res) {
+    resource GetProperty (http:Connection con, http:Request req) {
+        http:Response res = {};
         string property = req.getProperty("wso2");
         res.setJsonPayload({value:property});
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/GetStringPayload"
     }
-    resource GetStringPayload(http:Request req, http:Response res) {
+    resource GetStringPayload(http:Connection con, http:Request req) {
+        http:Response res = {};
         string value = req.getStringPayload();
         res.setStringPayload(value);
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/GetXmlPayload"
     }
-    resource GetXmlPayload(http:Request req, http:Response res) {
+    resource GetXmlPayload(http:Connection con, http:Request req) {
+        http:Response res = {};
         xml value = req.getXmlPayload();
         string name = value.getTextValue();
         res.setStringPayload(name);
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/RemoveHeader"
     }
-    resource RemoveHeader (http:Request req, http:Response res) {
+    resource RemoveHeader (http:Connection con, http:Request req) {
         req.removeHeader("Content-Type");
         var headerValue = req.getHeader("Content-Type");
         string header;
         if (headerValue == null) {
             header = "value is null";
         }
+        http:Response res = {};
         res.setJsonPayload({value:header});
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/RemoveAllHeaders"
     }
-    resource RemoveAllHeaders (http:Request req, http:Response res) {
+    resource RemoveAllHeaders (http:Connection con, http:Request req) {
         req.removeAllHeaders();
         var headerValue = req.getHeader("Range");
         string header;
         if (headerValue == null) {
             header = "value is null";
         }
+        http:Response res = {};
         res.setJsonPayload({value:header});
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/setHeader/{key}/{value}"
     }
-    resource setHeader (http:Request req, http:Response res, string key, string value) {
+    resource setHeader (http:Connection con, http:Request req, string key, string value) {
+        http:Response res = {};
         req.setHeader(key, value);
         string result = req.getHeader(key).value;
         res.setJsonPayload({value:result});
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/setHeaderStruct/{key}/{value}"
     }
-    resource setHeaderStruct (http:Request req, http:Response res, string key, string value) {
+    resource setHeaderStruct (http:Connection con, http:Request req, string key, string value) {
         http:HeaderValue[] headers = [{value:value, param:{b:"6", c:7}}, {value:value, param:{a:6}}];
         req.headers[key] = headers;
         string result = req.getHeader(key).value;
+        http:Response res = {};
         res.setJsonPayload({value:result});
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/SetJsonPayload/{value}"
     }
-    resource SetJsonPayload (http:Request req, http:Response res, string value) {
+    resource SetJsonPayload (http:Connection con, http:Request req, string value) {
         json jsonStr = {lang:value};
         req.setJsonPayload(jsonStr);
         json result = req.getJsonPayload();
+        http:Response res = {};
         res.setJsonPayload(result);
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/SetProperty/{key}/{value}"
     }
-    resource SetProperty (http:Request req, http:Response res, string key, string value) {
+    resource SetProperty (http:Connection con, http:Request req, string key, string value) {
         req.setProperty(key, value);
         string result = req.getProperty(key);
+        http:Response res = {};
         res.setJsonPayload({value:result});
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/SetStringPayload/{value}"
     }
-    resource SetStringPayload (http:Request req, http:Response res, string value) {
+    resource SetStringPayload (http:Connection con, http:Request req, string value) {
         req.setStringPayload(value);
         string result = req.getStringPayload();
+        http:Response res = {};
         res.setJsonPayload({lang:result});
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/SetXmlPayload"
     }
-    resource SetXmlPayload (http:Request req, http:Response res) {
+    resource SetXmlPayload (http:Connection con, http:Request req) {
         xml xmlStr = xml `<name>Ballerina</name>`;
         req.setXmlPayload(xmlStr);
         xml value = req.getXmlPayload();
         string name = value.getTextValue();
+
+        http:Response res = {};
         res.setJsonPayload({lang:name});
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/SetBinaryPayload"
     }
-    resource SetBinaryPayload (http:Request req, http:Response res) {
+    resource SetBinaryPayload (http:Connection con, http:Request req) {
         string text = "Ballerina";
         blob payload = text.toBlob("UTF-8");
         req.setBinaryPayload(payload);
         blob value = req.getBinaryPayload();
         string name = value.toString("UTF-8");
+
+        http:Response res = {};
         res.setJsonPayload({lang:name});
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         path:"/GetBinaryPayload"
     }
-    resource GetBinaryPayload(http:Request req, http:Response res) {
+    resource GetBinaryPayload(http:Connection con, http:Request req) {
+        http:Response res = {};
         blob value = req.getBinaryPayload();
         string name = value.toString("UTF-8");
         res.setStringPayload(name);
-        _ = res.send();
+        _ = con.respond(res);
     }
 }

@@ -389,7 +389,7 @@ public class HTTPSessionEssentialMethodsTest {
         responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        Assert.assertEquals(responseMsgPayload, "chamil");
+        Assert.assertEquals(responseMsgPayload, "aclyte");
     }
 
     @Test(description = "Test for struct attribute")
@@ -406,7 +406,7 @@ public class HTTPSessionEssentialMethodsTest {
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
         String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 14);
 
-        cMsg = MessageUtils.generateHTTPMessage("/sample2/myStruct", "POST", "chamil");
+        cMsg = MessageUtils.generateHTTPMessage("/sample2/myStruct", "POST", "aclyte");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
         response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
@@ -419,14 +419,14 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for POST method string attribute")
     public void testPOSTForStringOutput() {
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample/hello", "POST", "chamil");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample/hello", "POST", "aclyte");
         HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        Assert.assertEquals(responseMsgPayload, "chamil");
+        Assert.assertEquals(responseMsgPayload, "aclyte");
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
         String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 14);
@@ -439,7 +439,7 @@ public class HTTPSessionEssentialMethodsTest {
         responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        Assert.assertEquals(responseMsgPayload, "chamil");
+        Assert.assertEquals(responseMsgPayload, "aclyte");
     }
 
     @Test(description = "Test for getAttributeNames function")
@@ -487,7 +487,7 @@ public class HTTPSessionEssentialMethodsTest {
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        Assert.assertEquals(responseMsgPayload, "Name:chamil");
+        Assert.assertEquals(responseMsgPayload, "Name:aclyte");
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
         String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 14);

@@ -57,7 +57,7 @@ public class Respond extends AbstractNativeFunction {
         BStruct outboundResponseStruct = (BStruct) getRefArgument(context, 1);
         HTTPCarbonMessage requestMessage = HttpUtil.getCarbonMsg(connectionStruct, null);
 
-        HttpUtil.methodInvocationCheck(outboundResponseStruct, requestMessage);
+        HttpUtil.checkFunctionValidity(connectionStruct, requestMessage);
         HTTPCarbonMessage responseMessage = HttpUtil
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
 

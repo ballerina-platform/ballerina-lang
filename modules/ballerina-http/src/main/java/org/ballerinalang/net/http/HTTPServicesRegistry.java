@@ -237,25 +237,19 @@ public class HTTPServicesRegistry {
 
         //validate connection parameter
         ParamDetail connectionParamDetail = paramDetails.get(0);
-        if (connectionParamDetail == null) {
-            throw new BallerinaConnectorException("connection parameter cannot be null");
-        }
         if (connectionParamDetail.getVarType().getPackagePath() == null
                 || !connectionParamDetail.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)
                 || !connectionParamDetail.getVarType().getName().equals(Constants.CONNECTION)) {
-            throw new BallerinaConnectorException("connection parameter should be of type - "
+            throw new BallerinaConnectorException("first parameter should be of type - "
                     + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.CONNECTION);
         }
 
         //Validate request parameter
         ParamDetail reqParamDetail = paramDetails.get(1);
-        if (reqParamDetail == null) {
-            throw new BallerinaConnectorException("request parameter cannot be null");
-        }
         if (reqParamDetail.getVarType().getPackagePath() == null
                 || !reqParamDetail.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)
                 || !reqParamDetail.getVarType().getName().equals(Constants.REQUEST)) {
-            throw new BallerinaConnectorException("request parameter should be of type - "
+            throw new BallerinaConnectorException("second parameter should be of type - "
                                                           + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.REQUEST);
         }
 

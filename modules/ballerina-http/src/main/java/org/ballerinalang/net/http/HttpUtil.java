@@ -1004,17 +1004,28 @@ public class HttpUtil {
         return "/".concat(uri);
     }
 
-    public static void methodInvocationCheck(BStruct bStruct, HTTPCarbonMessage httpMsg) {
-        if (bStruct.getNativeData(METHOD_ACCESSED) != null || httpMsg == null) {
+    public static void checkFunctionValidity(BStruct bStruct, HTTPCarbonMessage reqMsg) {
+        serverConnectionStructCheck(reqMsg);
+        methodInvocationCheck(bStruct, reqMsg);
+    }
+
+    private static void methodInvocationCheck(BStruct bStruct, HTTPCarbonMessage reqMsg) {
+        if (bStruct.getNativeData(METHOD_ACCESSED) != null || reqMsg == null) {
             throw new IllegalStateException("illegal function invocation");
         }
 
-        if (!is100ContinueRequest(httpMsg)) {
+        if (!is100ContinueRequest(reqMsg)) {
             bStruct.addNativeData(METHOD_ACCESSED, true);
         }
     }
 
-    private static boolean is100ContinueRequest(HTTPCarbonMessage httpMsg) {
-        return Constants.HEADER_VAL_100_CONTINUE.equalsIgnoreCase(httpMsg.getHeader(Constants.EXPECT_HEADER));
+    private static void serverConnectionStructCheck(HTTPCarbonMessage reqMsg) {
+        if (reqMsg == null) {
+            throw new BallerinaException("operation not allowed:invalid Connection variable");
+        }
+    }
+
+    private static boolean is100ContinueRequest(HTTPCarbonMessage reqMsg) {
+        return Constants.HEADER_VAL_100_CONTINUE.equalsIgnoreCase(reqMsg.getHeader(Constants.EXPECT_HEADER));
     }
 }

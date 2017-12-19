@@ -19,41 +19,45 @@ service<http> GlobalVar {
         methods:["GET"],
         path:"/defined"
     }
-    resource defineGlobalVar (http:Request req, http:Response res) {
+    resource defineGlobalVar (http:Connection con, http:Request req) {
+        http:Response res = {};
         json responseJson = {"glbVarInt":glbVarInt, "glbVarString":glbVarString, "glbVarFloat":glbVarFloat};
         res.setJsonPayload(responseJson);
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/access-service-level"
     }
-    resource accessGlobalVarAtServiceLevel (http:Request req, http:Response res) {
+    resource accessGlobalVarAtServiceLevel (http:Connection con, http:Request req) {
+        http:Response res = {};
         json responseJson = {"serviceVarFloat":serviceVarFloat};
         res.setJsonPayload(responseJson);
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/change-resource-level"
     }
-    resource changeGlobalVarAtResourceLevel (http:Request req, http:Response res) {
+    resource changeGlobalVarAtResourceLevel (http:Connection con, http:Request req) {
+        http:Response res = {};
         glbVarFloatChange = 77.87;
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         res.setJsonPayload(responseJson);
-        _ = res.send();
+        _ = con.respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/get-changed-resource-level"
     }
-    resource getChangedGlobalVarAtResourceLevel (http:Request req, http:Response res) {
+    resource getChangedGlobalVarAtResourceLevel (http:Connection con, http:Request req) {
+        http:Response res = {};
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         res.setJsonPayload(responseJson);
-        _ = res.send();
+        _ = con.respond(res);
     }
 
 }
@@ -66,10 +70,11 @@ service<http> GlobalVarSecond {
         methods:["GET"],
         path:"/get-changed-resource-level"
     }
-    resource getChangedGlobalVarAtResourceLevel (http:Request req, http:Response res) {
+    resource getChangedGlobalVarAtResourceLevel (http:Connection con, http:Request req) {
+        http:Response res = {};
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         res.setJsonPayload(responseJson);
-        _ = res.send();
+        _ = con.respond(res);
     }
 
 }
