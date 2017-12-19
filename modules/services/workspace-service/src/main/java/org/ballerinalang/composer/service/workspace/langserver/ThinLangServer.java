@@ -123,8 +123,26 @@ public class ThinLangServer {
             public void run() {
                 byte[] bytes = request.getBytes();
                 try {
-                    pipedOutputStream.write(bytes, 0, bytes.length);
-                    pipedOutputStream.flush();
+                    if (bytes.length > 1020) {
+                        int currentPos = 0;
+                        int remainLength = bytes.length;
+                        int amountToWrite = 1020;
+                        while (true) {
+                            if (remainLength < 1020) {
+                                amountToWrite = remainLength;
+                            }
+                            pipedOutputStream.write(bytes, currentPos, amountToWrite);
+                            pipedOutputStream.flush();
+                            remainLength = remainLength - amountToWrite;
+                            currentPos = currentPos + amountToWrite;
+                            if (remainLength <= 0) {
+                                break;
+                            }
+                        }
+                    } else {
+                        pipedOutputStream.write(bytes, 0, bytes.length);
+                        pipedOutputStream.flush();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
