@@ -93,10 +93,11 @@ class SourceEditor extends React.Component {
             if (this.monaco && this.editorInstance) {
                 const uri = this.monaco.Uri.parse(nextProps.file.toURI());
                 let modelForFile = this.monaco.editor.getModel(uri);
+                const currentModel = this.editorInstance.getModel();
                 if (!modelForFile) {
                     modelForFile = this.monaco.editor.createModel(nextProps.file.content, BAL_LANGUAGE, uri);
                 }
-                if (this.editorInstance.getModel().uri !== modelForFile.uri) {
+                if (currentModel && modelForFile && currentModel.uri !== modelForFile.uri) {
                     this.editorInstance.setModel(modelForFile);
                 }
             }
