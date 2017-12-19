@@ -17,21 +17,20 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import log from 'log';
 import _ from 'lodash';
 import { getServiceEndpoint } from 'api-client/api-client';
-import { listen, MessageConnection } from 'vscode-ws-jsonrpc';
+import { listen } from 'vscode-ws-jsonrpc';
 import {
     BaseLanguageClient, CloseAction, ErrorAction,
-    createMonacoServices, createConnection
+    createMonacoServices, createConnection,
 } from 'monaco-languageclient';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import debuggerHoc from 'src/plugins/debugger/views/DebuggerHoc';
 import File from 'core/workspace/model/file';
+import { PLUGIN_ID as BAL_PLUGIN_ID } from 'plugins/ballerina/constants';
 import { CONTENT_MODIFIED } from 'plugins/ballerina/constants/events';
 import { GO_TO_POSITION } from 'plugins/ballerina/constants/commands';
 import MonacoEditor from 'react-monaco-editor';
-import { getLangServerClientInstance } from 'plugins/ballerina/langserver/lang-server-client-controller';
 import SourceViewCompleterFactory from './../../ballerina/utils/source-view-completer-factory';
 import { CHANGE_EVT_TYPES } from './constants';
 import Grammar from './../utils/monarch-grammar';
@@ -143,52 +142,29 @@ class SourceEditor extends React.Component {
         editorInstance.setModel(modelForFile);
 
         const services = createMonacoServices(editorInstance);
-        function createLanguageClient(connection) {
-            return new BaseLanguageClient({
-                name: 'Ballerina Language Client',
-                clientOptions: {
-                    // use a language id as a document selector
-                    documentSelector: [BAL_LANGUAGE],
-                    // disable the default error handler
-                    errorHandler: {
-                        error: () => ErrorAction.Continue,
-                        closed: () => CloseAction.DoNotRestart,
-                    },
+        const connection = this.props.ballerinaPlugin.getLangServerConnection();
+        // create and start the language client
+        const languageClient = new BaseLanguageClient({
+            name: 'Ballerina Language Client',
+            clientOptions: {
+                // use a language id as a document selector
+                documentSelector: [BAL_LANGUAGE],
+                // disable the default error handler
+                errorHandler: {
+                    error: () => ErrorAction.Continue,
+                    closed: () => CloseAction.DoNotRestart,
                 },
-                services,
-                // create a language client connection from the JSON RPC connection on demand
-                connectionProvider: {
-                    get: (errorHandler, closeHandler) => {
-                        return Promise.resolve(createConnection(connection, errorHandler, closeHandler));
-                    },
+            },
+            services,
+            // create a language client connection from the JSON RPC connection on demand
+            connectionProvider: {
+                get: (errorHandler, closeHandler) => {
+                    return Promise.resolve(createConnection(connection, errorHandler, closeHandler));
                 },
-            });
-        }
-
-        function createWebSocket(url) {
-            const socketOptions = {
-                maxReconnectionDelay: 10000,
-                minReconnectionDelay: 1000,
-                reconnectionDelayGrowFactor: 1.3,
-                connectionTimeout: 10000,
-                maxRetries: Infinity,
-                debug: false,
-            };
-            return new ReconnectingWebSocket(url, undefined, socketOptions);
-        }
-        // create the web socket
-        const url = 'ws://localhost:8289/blangserve2';
-        const webSocket = createWebSocket(url);
-        // listen when the web socket is opened
-        listen({
-            webSocket,
-            onConnection: (connection) => {
-                // create and start the language client
-                const languageClient = createLanguageClient(connection);
-                const disposable = languageClient.start();
-                connection.onClose(() => disposable.dispose());
             },
         });
+        const disposable = languageClient.start();
+        connection.onClose(() => disposable.dispose());
     }
 
     /**
@@ -299,6 +275,7 @@ SourceEditor.propTypes = {
         dispatch: PropTypes.func.isRequired,
         getCommands: PropTypes.func.isRequired,
     }).isRequired,
+    ballerinaPlugin: PropTypes.objectOf(Object).isRequired,
     parseFailed: PropTypes.bool.isRequired,
     onLintErrors: PropTypes.func,
     sourceViewBreakpoints: PropTypes.arrayOf(Number).isRequired,

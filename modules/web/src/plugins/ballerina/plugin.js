@@ -18,6 +18,8 @@
 import _ from 'lodash';
 import log from 'log';
 import Plugin from 'core/plugin/plugin';
+import { listen } from 'vscode-ws-jsonrpc';
+import ReconnectingWebSocket from 'reconnecting-websocket';
 import { parseFile, getPathSeperator } from 'api-client/api-client';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
 import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
@@ -41,12 +43,62 @@ import FragmentUtils from './utils/fragment-utils';
  */
 class BallerinaPlugin extends Plugin {
 
+    /**
+     * @inheritdoc
+     */
+    constructor() {
+        super();
+        this.langServerConnection = undefined;
+        this.getLangServerConnection = this.getLangServerConnection.bind(this);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    init(config) {
+        super.init(config);
+        return {
+            getLangServerConnection: this.getLangServerConnection,
+        };
+    }
 
     /**
      * @inheritdoc
      */
     getID() {
         return PLUGIN_ID;
+    }
+
+    /**
+     * Get connection to langserver
+     */
+    getLangServerConnection() {
+        return this.langServerConnection;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    activate(appContext) {
+        super.activate(appContext);
+        const socketOptions = {
+            maxReconnectionDelay: 10000,
+            minReconnectionDelay: 1000,
+            reconnectionDelayGrowFactor: 1.3,
+            connectionTimeout: 10000,
+            maxRetries: Infinity,
+            debug: false,
+        };
+        // create the web socket
+        const url = 'ws://localhost:8289/blangserve2'; // FIXME: Get URL via config api
+        const webSocket = new ReconnectingWebSocket(url, undefined, socketOptions);
+        // listen when the web socket is opened
+        listen({
+            webSocket,
+            onConnection: (connection) => {
+                this.langServerConnection = connection;
+            },
+        });
     }
 
     /**
@@ -69,6 +121,7 @@ class BallerinaPlugin extends Plugin {
                         component: SourceEditor,
                         customPropsProvider: () => {
                             return {
+                                ballerinaPlugin: this,
                                 parseFailed: false,
                             };
                         },
