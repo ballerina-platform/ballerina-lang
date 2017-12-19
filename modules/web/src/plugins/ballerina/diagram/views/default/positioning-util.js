@@ -460,6 +460,8 @@ class PositioningUtil {
                         cmp.defaultWorker.x + cmp.defaultWorker.w + this.config.lifeLine.gutter.h;
 
         let maxLifeLineHeight = cmp.defaultWorker.h;
+        // Set the client invocation arrow end x coordinates.
+        cmp.client.arrowLine = cmp.defaultWorkerLine.x + (cmp.defaultWorkerLine.w / 2);
         // Position Workers
         if (workers instanceof Array && !_.isEmpty(workers)) {
             const maxHeightWorker = _.maxBy(workers, (worker) => {
@@ -472,6 +474,8 @@ class PositioningUtil {
                 worker.viewState.bBox.y = cmp.defaultWorker.y;
                 xindex += worker.viewState.bBox.w + this.config.lifeLine.gutter.h;
                 worker.viewState.components.lifeLine.h = maxLifeLineHeight;
+                // increase the arrow length of the client invokation line.
+                cmp.client.arrowLine = worker.viewState.bBox.x + (this.config.lifeLine.width / 2);
             });
         }
 
@@ -487,9 +491,6 @@ class PositioningUtil {
                 }
             }
         });
-        cmp.client.arrowLine = (workers instanceof Array && !_.isEmpty(workers)) ?
-            _.last(workers).viewState.components.lifeLine.x + (_.last(workers).viewState.components.lifeLine.w / 2) :
-            cmp.defaultWorkerLine.x + (cmp.defaultWorkerLine.w / 2);
     }
 
     /**
@@ -741,7 +742,8 @@ class PositioningUtil {
         cmp.lifeLine.y = node.viewState.bBox.y;
 
         node.body.viewState.bBox.x = node.viewState.bBox.x + (cmp.lifeLine.w / 2);
-        node.body.viewState.bBox.y = node.viewState.bBox.y + this.config.lifeLine.head.height;
+        node.body.viewState.bBox.y = node.viewState.bBox.y + this.config.lifeLine.head.height
+            + this.config.statement.height;
     }
 
 

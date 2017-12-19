@@ -1952,10 +1952,10 @@ class SizingUtil {
      */
     getWorkerMaxHeight(workers) {
         const workerNode = _.maxBy(workers, (worker) => {
-            return worker.body.viewState.bBox.h;
+            return worker.viewState.bBox.h;
         });
 
-        return workerNode.body.viewState.bBox.h + this.config.lifeLine.head.height + this.config.lifeLine.footer.height;
+        return workerNode.viewState.bBox.h;
     }
 }
 

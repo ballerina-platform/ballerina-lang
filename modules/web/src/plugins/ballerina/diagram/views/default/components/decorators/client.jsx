@@ -40,6 +40,7 @@ class Client extends React.Component {
         const topBox = Object.assign({}, bBox);
         const bottomBox = Object.assign({}, bBox);
 
+        const header = 40;
         bottomBox.h = lifeLine.head.height;
         topBox.h = lifeLine.head.height;
 
@@ -47,8 +48,8 @@ class Client extends React.Component {
 
         // calculate the line coordinates
         const line = {};
-        line.x1 = (bBox.w / 2) + bBox.x;
-        line.x2 = (bBox.w / 2) + bBox.x;
+        line.x1 = (header / 2) + bBox.x;
+        line.x2 = (header / 2) + bBox.x;
         line.y1 = bBox.y;
         line.y2 = bBox.y + bBox.h;
 
@@ -67,31 +68,33 @@ class Client extends React.Component {
             <rect
                 x={topBox.x}
                 y={topBox.y}
-                width={topBox.w}
-                height={topBox.h}
-                rx='0'
-                ry='0'
+                width={header}
+                height={header}
+                rx='3'
+                ry='3'
                 className='client-line-header'
+                transform={`translate(${header / 2} -${header / 2}) rotate(45 ${topBox.x} ${topBox.y})`}
             />
             <rect
                 x={bottomBox.x}
                 y={bottomBox.y}
-                width={bottomBox.w}
-                height={bottomBox.h}
-                rx='0'
-                ry='0'
+                width={header}
+                height={header}
+                rx='3'
+                ry='3'
                 className='client-line-header'
+                transform={`translate(${header / 2}) rotate(45 ${bottomBox.x} ${bottomBox.y})`}
             />
             <text
                 x={topBox.x + 10}
-                y={topBox.y + (topBox.h / 2)}
+                y={topBox.y + 10}
 
                 dominantBaseline='central'
                 className='client-line-text genericT'
             >{this.props.title}</text>
             <text
                 x={bottomBox.x + 10}
-                y={bottomBox.y + (bottomBox.h / 2)}
+                y={bottomBox.y + 30}
 
                 dominantBaseline='central'
                 className='client-line-text genericT'
@@ -105,8 +108,8 @@ class Client extends React.Component {
                 strokeWidth='1'
             />
             <text
-                x={line.x1 + 40}
-                y={topBox.y + topBox.h + 5}
+                x={line.x1 + this.context.designer.config.statement.gutter.h}
+                y={topBox.y + topBox.h + (this.context.designer.config.statement.height / 2)}
                 dominantBaseline='central'
                 className='client-line-text genericT'
             >{bBox.text}</text>
