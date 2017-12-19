@@ -21,6 +21,7 @@ import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
@@ -29,10 +30,12 @@ import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
+import org.wso2.siddhi.query.api.execution.partition.PartitionType;
 import org.wso2.siddhi.query.api.execution.query.Query;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -47,6 +50,7 @@ public class PartitionParser {
                                          int queryIndex) {
         PartitionRuntime partitionRuntime = new PartitionRuntime(siddhiAppRuntimeBuilder.getStreamDefinitionMap(),
                 siddhiAppRuntimeBuilder.getStreamJunctions(), partition, siddhiAppContext);
+        validateStreamPartitions(partition.getPartitionTypeMap(), streamDefinitionMap);
         for (Query query : partition.getQueryList()) {
             List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
             ConcurrentMap<String, AbstractDefinition> combinedStreamMap =
@@ -76,6 +80,17 @@ public class PartitionParser {
         }
         return partitionRuntime;
 
+    }
+
+    private static void validateStreamPartitions(Map<String, PartitionType> partitionTypeMap,
+                                                 ConcurrentMap<String, AbstractDefinition> streamDefinitionMap) {
+        for (Map.Entry<String, PartitionType> entry : partitionTypeMap.entrySet()) {
+            if (!streamDefinitionMap.containsKey(entry.getKey())) {
+                throw new SiddhiAppCreationException("Stream with name '" + entry.getKey() + "' does not defined!",
+                        entry.getValue().getQueryContextStartIndex(),
+                        entry.getValue().getQueryContextEndIndex());
+            }
+        }
     }
 
     /**
