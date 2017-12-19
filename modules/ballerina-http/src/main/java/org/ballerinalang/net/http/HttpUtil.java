@@ -32,6 +32,8 @@ import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeTags;
@@ -206,8 +208,9 @@ public class HttpUtil {
 
         httpCarbonMessage.waitAndReleaseAllEntities();
 
+        HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
         byte[] payload = nativeFunction.getBlobArgument(context, 0);
-        OutputStream messageOutputStream = new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream();
+        OutputStream messageOutputStream = httpMessageDataStreamer.getOutputStream();
         BlobDataSource blobDataSource = new BlobDataSource(payload, messageOutputStream);
         addMessageDataSource(httpMessageStruct, blobDataSource);
         addMessageOutputStream(httpMessageStruct, messageOutputStream);
@@ -288,9 +291,12 @@ public class HttpUtil {
             if (httpMessageStruct.getNativeData(MESSAGE_DATA_SOURCE) != null) {
                 result = (BlobDataSource) httpMessageStruct.getNativeData(MESSAGE_DATA_SOURCE);
             } else {
-                result = new BlobDataSource(
-                        toByteArray(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream()));
-                httpMessageStruct.addNativeData(MESSAGE_DATA_SOURCE, result);
+                HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
+                OutputStream messageOutputStream = httpMessageDataStreamer.getOutputStream();
+                result = new BlobDataSource(toByteArray(httpMessageDataStreamer.getInputStream()),
+                        messageOutputStream);
+                HttpUtil.addMessageDataSource(httpMessageStruct, result);
+                HttpUtil.addMessageOutputStream(httpMessageStruct, messageOutputStream);
             }
             if (log.isDebugEnabled()) {
                 log.debug("String representation of the payload:" + result.getMessageAsString());
@@ -319,10 +325,12 @@ public class HttpUtil {
                     result = new BJSON(payload.getMessageAsString());
                 }
             } else {
-                result = new BJSON(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
-                result.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
-
+                HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
+                result = new BJSON(httpMessageDataStreamer.getInputStream());
+                OutputStream messageOutputStream = httpMessageDataStreamer.getOutputStream();
+                result.setOutputStream(messageOutputStream);
                 addMessageDataSource(httpMessageStruct, result);
+                addMessageOutputStream(httpMessageStruct, messageOutputStream);
             }
         } catch (Throwable e) {
             throw new BallerinaException("Error while retrieving json payload from message: " + e.getMessage());
@@ -345,11 +353,13 @@ public class HttpUtil {
                 if (httpCarbonMessage.isEmpty() && httpCarbonMessage.isEndOfMsgAdded()) {
                     return abstractNativeFunction.getBValues(new BString(""));
                 }
-                String payload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(httpCarbonMessage)
-                        .getInputStream());
+                HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
+                String payload = StringUtils.getStringFromInputStream(httpMessageDataStreamer.getInputStream());
                 result = new BString(payload);
 
-                addMessageDataSource(httpMessageStruct, new StringDataSource(payload));
+                addMessageDataSource(httpMessageStruct,
+                        new StringDataSource(payload, httpMessageDataStreamer.getOutputStream()));
+                addMessageOutputStream(httpMessageStruct, httpMessageDataStreamer.getOutputStream());
             }
             if (log.isDebugEnabled()) {
                 log.debug("Payload in String:" + result.stringValue());
@@ -378,10 +388,12 @@ public class HttpUtil {
             } else {
                 HTTPCarbonMessage httpCarbonMessage = HttpUtil
                         .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-                result = XMLUtils.parse(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
-
-                result.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
+                HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
+                result = XMLUtils.parse(httpMessageDataStreamer.getInputStream());
+                OutputStream outputStream = httpMessageDataStreamer.getOutputStream();
+                result.setOutputStream(outputStream);
                 addMessageDataSource(httpMessageStruct, result);
+                addMessageOutputStream(httpMessageStruct, outputStream);
             }
         } catch (Throwable e) {
             throw new BallerinaException("Error while retrieving XML payload from message: " + e.getMessage());
@@ -1027,5 +1039,36 @@ public class HttpUtil {
 
     private static boolean is100ContinueRequest(HTTPCarbonMessage reqMsg) {
         return Constants.HEADER_VAL_100_CONTINUE.equalsIgnoreCase(reqMsg.getHeader(Constants.EXPECT_HEADER));
+    }
+
+    public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
+        List<Annotation> annotationList = service.getAnnotationList(pkgPath, Constants.ANN_NAME_CONFIG);
+
+        if (annotationList == null) {
+            return null;
+        }
+
+        if (annotationList.size() > 1) {
+            throw new BallerinaException(
+                    "multiple service configuration annotations found in service: " + service.getName());
+        }
+
+        return annotationList.isEmpty() ? null : annotationList.get(0);
+    }
+
+    public static Annotation getResourceConfigAnnotation(Resource resource, String pkgPath) {
+        List<Annotation> annotationList = resource.getAnnotationList(pkgPath, Constants.ANN_NAME_RESOURCE_CONFIG);
+
+        if (annotationList == null) {
+            return null;
+        }
+
+        if (annotationList.size() > 1) {
+            throw new BallerinaException(
+                    "multiple resource configuration annotations found in resource: " +
+                            resource.getServiceName() + "." + resource.getName());
+        }
+
+        return annotationList.isEmpty() ? null : annotationList.get(0);
     }
 }

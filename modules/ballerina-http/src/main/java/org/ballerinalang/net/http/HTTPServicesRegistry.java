@@ -86,8 +86,8 @@ public class HTTPServicesRegistry {
      * @param service requested serviceInfo to be registered.
      */
     public void registerService(HttpService service) {
-        Annotation annotation = service.getBalService()
-                .getAnnotation(Constants.HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
+        Annotation annotation = HttpUtil.getServiceConfigAnnotation(service.getBalService(),
+                                                                    Constants.HTTP_PACKAGE_PATH);
 
         String basePath = discoverBasePathFrom(service, annotation);
         service.setBasePath(basePath);
@@ -182,9 +182,9 @@ public class HTTPServicesRegistry {
 
     private HttpResource buildHttpResource(Resource resource) {
         HttpResource httpResource = new HttpResource(resource);
-        Annotation rConfigAnnotation = resource.getAnnotation(Constants.HTTP_PACKAGE_PATH,
-                                                              Constants.ANN_NAME_RESOURCE_CONFIG);
-        if (rConfigAnnotation == null) {
+        Annotation resourceConfigAnnotation = HttpUtil.getResourceConfigAnnotation(resource,
+                                                                                   Constants.HTTP_PACKAGE_PATH);
+        if (resourceConfigAnnotation == null) {
             if (logger.isDebugEnabled()) {
                 logger.debug("resourceConfig not specified in the Resource, using default sub path");
             }
@@ -192,7 +192,7 @@ public class HTTPServicesRegistry {
             return httpResource;
         }
         String subPath;
-        AnnAttrValue pathAttrVal = rConfigAnnotation.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_PATH);
+        AnnAttrValue pathAttrVal = resourceConfigAnnotation.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_PATH);
         if (pathAttrVal == null) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Path not specified in the Resource, using default sub path");
@@ -206,15 +206,15 @@ public class HTTPServicesRegistry {
         }
         httpResource.setPath(subPath);
 
-        AnnAttrValue methodsAttrVal = rConfigAnnotation.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_METHODS);
+        AnnAttrValue methodsAttrVal = resourceConfigAnnotation.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_METHODS);
         if (methodsAttrVal != null) {
             httpResource.setMethods(DispatcherUtil.getValueList(methodsAttrVal, null));
         }
-        AnnAttrValue consumesAttrVal = rConfigAnnotation.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_CONSUMES);
+        AnnAttrValue consumesAttrVal = resourceConfigAnnotation.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_CONSUMES);
         if (consumesAttrVal != null) {
             httpResource.setConsumes(DispatcherUtil.getValueList(consumesAttrVal, null));
         }
-        AnnAttrValue producesAttrVal = rConfigAnnotation.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_PRODUCES);
+        AnnAttrValue producesAttrVal = resourceConfigAnnotation.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_PRODUCES);
         if (producesAttrVal != null) {
             httpResource.setProduces(DispatcherUtil.getValueList(producesAttrVal, null));
         }

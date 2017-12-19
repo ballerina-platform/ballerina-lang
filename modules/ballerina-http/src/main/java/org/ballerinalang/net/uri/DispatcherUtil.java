@@ -25,6 +25,7 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
+import org.ballerinalang.net.http.HttpUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,14 +48,14 @@ public class DispatcherUtil {
         return resourceInfo.getMethods().contains(method);
     }
 
-    public static String[] getHttpMethods(Resource resourceInfo) {
-        Annotation rConfigAnnAtchmnt = resourceInfo.getAnnotation(Constants.HTTP_PACKAGE_PATH,
-                Constants.ANN_NAME_RESOURCE_CONFIG);
-        if (rConfigAnnAtchmnt == null) {
+    public static String[] getHttpMethods(Resource resource) {
+        Annotation resourceConfigAnnotation = HttpUtil.getResourceConfigAnnotation(resource,
+                                                                                   Constants.HTTP_PACKAGE_PATH);
+        if (resourceConfigAnnotation == null) {
             return null;
         }
 
-        AnnAttrValue methodsAttrVal = rConfigAnnAtchmnt.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_METHODS);
+        AnnAttrValue methodsAttrVal = resourceConfigAnnotation.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_METHODS);
         if (methodsAttrVal == null) {
             return null;
         }
