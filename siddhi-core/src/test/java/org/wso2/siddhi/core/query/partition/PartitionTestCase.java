@@ -1863,6 +1863,7 @@ public class PartitionTestCase {
         String siddhiApp = "" +
                 "@app:name('PartitionTest') " +
                 "define stream streamA (symbol string,  price int); " +
+                "define stream streamB (symbol string,  price int); " +
                 "partition with (symbol of streamA,  symbol of streamB) " +
                 "begin " +
                 "@info(name = 'query1') " +
