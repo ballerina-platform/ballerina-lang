@@ -36,10 +36,7 @@ import org.eclipse.lsp4j.services.LanguageClientAware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -62,41 +59,52 @@ import javax.websocket.server.ServerEndpoint;
 public class ThinLangServer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ThinLangServer.class);
     private List<Session> sessions = new LinkedList<Session>();
+    PipedOutputStream pipedOutputStream = new PipedOutputStream();
+    PipedInputStream inputStream = new PipedInputStream();
     BallerinaLanguageServer server = new BallerinaLanguageServer();
     Endpoint endpoint = ServiceEndpoints.toEndpoint(server);
     private Gson gson = new Gson();
 
     @OnOpen
-    public void onOpen (Session session) {
+    public void onOpen (Session session) throws IOException, ExecutionException, InterruptedException {
         sessions.add(session);
-        String msg = " connected to chat";
-        LOGGER.info(msg);
+        inputStream .connect(pipedOutputStream);
+        BallerinaLanguageServer server = new BallerinaLanguageServer();
+        Launcher<LanguageClient> l = LSPLauncher.createServerLauncher(server, inputStream,
+                session.getBasicRemote().getSendStream());
+        LanguageClient client = l.getRemoteProxy();
+        ((LanguageClientAware) server).connect(client);
+        Future<?> startListening = l.startListening();
+        startListening.get();
     }
 
     @OnMessage
     public void onTextMessage(String request, Session session) throws IOException {
-        String json = request.split("Content-Length:\\s[\\d]*\\s\\n")[1];
-        RequestMessage jsonrpcRequest = gson.fromJson(json, RequestMessage.class);
-        ResponseMessage jsonrpcResponse = null;
-        ResponseError responseError = null;
-        String responseStr = null;
-        JsonRpcMethod delegateMethod = ServiceEndpoints.getSupportedMethods(BallerinaLanguageServer.class)
-                .get(jsonrpcRequest.getMethod());
-        if (delegateMethod != null) {
-            // Cast parameters to the type requested by the delegate method
-            Class paramCls = (Class) delegateMethod.getParameterTypes()[0];
-            CompletableFuture completableFutureResp = endpoint.request(jsonrpcRequest.getMethod(),
-                    new Gson().fromJson(new Gson().toJson((jsonrpcRequest.getParams())), paramCls));
-            jsonrpcResponse = handleResult(jsonrpcRequest, completableFutureResp);
-        } else {
-            jsonrpcResponse = new ResponseMessage();
-            jsonrpcResponse.setId(jsonrpcRequest.getId());
-            responseError = handleError(-32601, "Method not found");
-            jsonrpcResponse.setError(responseError);
-        }
-        String jsonTxt = gson.toJson(jsonrpcResponse);
-        responseStr = "Content-Length: " + jsonTxt.length() + " \n\n" + jsonTxt;
-        session.getBasicRemote().sendText(responseStr);
+//        String json = request.split("Content-Length:\\s[\\d]*\\s\\n")[1];
+//        RequestMessage jsonrpcRequest = gson.fromJson(json, RequestMessage.class);
+//        ResponseMessage jsonrpcResponse = null;
+//        ResponseError responseError = null;
+//        String responseStr = null;
+//        JsonRpcMethod delegateMethod = ServiceEndpoints.getSupportedMethods(BallerinaLanguageServer.class)
+//                .get(jsonrpcRequest.getMethod());
+//        if (delegateMethod != null) {
+//            // Cast parameters to the type requested by the delegate method
+//            Class paramCls = (Class) delegateMethod.getParameterTypes()[0];
+//            CompletableFuture completableFutureResp = endpoint.request(jsonrpcRequest.getMethod(),
+//                    new Gson().fromJson(new Gson().toJson((jsonrpcRequest.getParams())), paramCls));
+//            jsonrpcResponse = handleResult(jsonrpcRequest, completableFutureResp);
+//        } else {
+//            jsonrpcResponse = new ResponseMessage();
+//            jsonrpcResponse.setId(jsonrpcRequest.getId());
+//            responseError = handleError(-32601, "Method not found");
+//            jsonrpcResponse.setError(responseError);
+//        }
+//        String jsonTxt = gson.toJson(jsonrpcResponse);
+//        responseStr = "Content-Length: " + jsonTxt.length() + " \n\n" + jsonTxt;
+//        session.getBasicRemote().sendText(responseStr);
+        byte[] bytes = request.getBytes();
+        pipedOutputStream.write(bytes, 0, bytes.length);
+        pipedOutputStream.flush();
     }
 
     @OnMessage
