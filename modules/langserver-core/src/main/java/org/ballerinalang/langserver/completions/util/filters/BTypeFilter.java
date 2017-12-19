@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 /**
  * Filter the BTypes.
  */
-public class BTypeFilter implements SymbolFilter {
+public class BTypeFilter extends SymbolFilter {
     public List<SymbolInfo> filterItems(TextDocumentServiceContext completionContext) {
         List<SymbolInfo> filteredList;
         filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)

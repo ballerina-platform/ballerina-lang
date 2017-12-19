@@ -39,7 +39,11 @@ public class ResourceDefinition extends CompletionTest {
                 {"allVisibleSymbolsNonEmptyLine.json", "resource"},
                 {"allVisibleSymbolsEmptyLine.json", "resource"},
                 {"languageConstructsEmptyLine.json", "resource"},
-                {"languageConstructsNonEmptyLine.json", "resource"}
+                {"languageConstructsNonEmptyLine.json", "resource"},
+                {"connectorInitAssignment1.json", "resource"},
+                {"connectorInitAssignment2.json", "resource"},
+                {"connectorInitVarDef1.json", "resource"},
+                {"connectorInitVarDef2.json", "resource"}
         };
     }
 }

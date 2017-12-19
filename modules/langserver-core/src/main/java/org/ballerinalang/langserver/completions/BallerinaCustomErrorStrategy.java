@@ -90,12 +90,18 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
             }
         }
         if (lastNonHiddenToken != null) {
-            if (line >= lastNonHiddenToken.getLine() && line <= token.getLine()) {
-                if (line == lastNonHiddenToken.getLine()) {
-                    isCursorBetween = character >= (lastNonHiddenToken.getCharPositionInLine()
-                                    + lastNonHiddenToken.getText().length());
+
+            // Convert the token lines and char positions to zero based indexing
+            int lastNonHiddenTokenLine = lastNonHiddenToken.getLine() - 1;
+            int lastNonHiddenTokenChar = lastNonHiddenToken.getCharPositionInLine();
+            int tokenLine = token.getLine() - 1;
+            int tokenChar = token.getCharPositionInLine();
+
+            if (line >= lastNonHiddenTokenLine && line <= tokenLine) {
+                if (line == lastNonHiddenTokenLine) {
+                    isCursorBetween = character >= (lastNonHiddenTokenChar + lastNonHiddenToken.getText().length());
                 } else {
-                    isCursorBetween = line != token.getLine() || character <= token.getCharPositionInLine();
+                    isCursorBetween = line != tokenLine || character <= tokenChar;
                 }
             }
         }
@@ -118,6 +124,26 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
         // We need to set the error for the variable definition as well.
         if (context.getParent() instanceof BallerinaParser.VariableDefinitionStatementContext) {
             context.getParent().exception = e;
+            return;
+        }
+
+        setContextIfConnectorInit(context, e);
+    }
+
+    private void setContextIfConnectorInit(ParserRuleContext context, InputMismatchException e) {
+        ParserRuleContext connectorInitContext = context.getParent().getParent().getParent();
+        if (context instanceof BallerinaParser.NameReferenceContext
+                && connectorInitContext instanceof BallerinaParser.ConnectorInitExpressionContext) {
+            ParserRuleContext tempContext = context;
+            while (true) {
+                tempContext.exception = e;
+                tempContext = tempContext.getParent();
+                if (tempContext.equals(connectorInitContext)) {
+                    tempContext.getParent().exception = e;
+                    break;
+                }
+            }
+            connectorInitContext.getParent().exception = e;
         }
     }
 }
