@@ -65,6 +65,10 @@ public class ThinLangServer {
     Endpoint endpoint = ServiceEndpoints.toEndpoint(server);
     private Gson gson = new Gson();
 
+    public ThinLangServer() throws IOException {
+        inputStream.connect(pipedOutputStream);
+    }
+
     @OnOpen
     public void onOpen (Session session) {
         sessions.add(session);
@@ -72,9 +76,6 @@ public class ThinLangServer {
             @Override
             public void run() {
                 try {
-
-                    inputStream.connect(pipedOutputStream);
-                    BallerinaLanguageServer server = new BallerinaLanguageServer();
                     Launcher<LanguageClient> l = LSPLauncher.createServerLauncher(server, inputStream,
                             session.getBasicRemote().getSendStream());
                     LanguageClient client = l.getRemoteProxy();
@@ -123,12 +124,13 @@ public class ThinLangServer {
             public void run() {
                 byte[] bytes = request.getBytes();
                 try {
-                    if (bytes.length > 1020) {
+                    int available = inputStream.available();
+                    if (bytes.length > available) {
                         int currentPos = 0;
                         int remainLength = bytes.length;
-                        int amountToWrite = 1020;
+                        int amountToWrite = available;
                         while (true) {
-                            if (remainLength < 1020) {
+                            if (remainLength < amountToWrite) {
                                 amountToWrite = remainLength;
                             }
                             pipedOutputStream.write(bytes, currentPos, amountToWrite);
@@ -138,12 +140,18 @@ public class ThinLangServer {
                             if (remainLength <= 0) {
                                 break;
                             }
+                            while (inputStream.available() < 100) {
+                                Thread.sleep(100);
+                            }
+                            amountToWrite = inputStream.available();
                         }
                     } else {
                         pipedOutputStream.write(bytes, 0, bytes.length);
                         pipedOutputStream.flush();
                     }
                 } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
