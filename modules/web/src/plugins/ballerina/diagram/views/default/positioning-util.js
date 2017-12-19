@@ -33,8 +33,7 @@ class PositioningUtil {
         viewState.components['drop-zone'].y = viewState.bBox.y;
         viewState.components['statement-box'].x = viewState.bBox.x;
         viewState.components['statement-box'].y = viewState.bBox.y + viewState.components['drop-zone'].h;
-        viewState.components.text.x = viewState.components['statement-box'].x +
-            (viewState.components['statement-box'].w / 2);
+        viewState.components.text.x = viewState.components['statement-box'].x + this.config.statement.gutter.h;
         viewState.components.text.y = viewState.components['statement-box'].y +
             (viewState.components['statement-box'].h / 2);
 
@@ -390,13 +389,15 @@ class PositioningUtil {
         cmp.defaultWorker.x = cmp.client.x + cmp.client.w + this.config.lifeLine.gutter.h;
         cmp.defaultWorker.y = viewState.bBox.y + cmp.annotation.h + cmp.heading.h + this.config.panel.body.padding.top;
         // position default worker line.
-        cmp.defaultWorkerLine.x = cmp.defaultWorker.x + ((cmp.defaultWorker.w - cmp.defaultWorkerLine.w) / 2);
+        cmp.defaultWorkerLine.x = cmp.defaultWorker.x;
         cmp.defaultWorkerLine.y = cmp.defaultWorker.y;
 
         // position the children
         const body = node.getBody();
-        body.viewState.bBox.x = cmp.client.x + cmp.client.w + this.config.panel.body.padding.left;
-        body.viewState.bBox.y = cmp.defaultWorker.y + this.config.lifeLine.head.height;
+        body.viewState.bBox.x = cmp.client.x + cmp.client.w + this.config.panel.body.padding.left
+            + (cmp.defaultWorkerLine.w / 2);
+        body.viewState.bBox.y = cmp.defaultWorker.y + this.config.lifeLine.head.height
+        + this.config.statement.height;
 
         // ========== Header Positioning ==========
         let publicPrivateFlagoffset = 0;
@@ -486,9 +487,8 @@ class PositioningUtil {
                 }
             }
         });
-
         cmp.client.arrowLine = (workers instanceof Array && !_.isEmpty(workers)) ?
-            _.last(workers).viewState.bBox.x + (_.last(workers).viewState.bBox.w / 2) :
+            _.last(workers).viewState.components.lifeLine.x + (_.last(workers).viewState.components.lifeLine.w / 2) :
             cmp.defaultWorkerLine.x + (cmp.defaultWorkerLine.w / 2);
     }
 
@@ -736,12 +736,12 @@ class PositioningUtil {
      * @param {object} node Worker object
      */
     positionWorkerNode(node) {
-        node.body.viewState.bBox.x = node.viewState.bBox.x;
-        node.body.viewState.bBox.y = node.viewState.bBox.y + this.config.lifeLine.head.height;
-
         const cmp = node.viewState.components;
-        cmp.lifeLine.x = node.viewState.bBox.x + ((node.viewState.bBox.w - cmp.lifeLine.w) / 2);
+        cmp.lifeLine.x = node.viewState.bBox.x;
         cmp.lifeLine.y = node.viewState.bBox.y;
+
+        node.body.viewState.bBox.x = node.viewState.bBox.x + (cmp.lifeLine.w / 2);
+        node.body.viewState.bBox.y = node.viewState.bBox.y + this.config.lifeLine.head.height;
     }
 
 
@@ -1034,7 +1034,7 @@ class PositioningUtil {
         let height = 0;
         statements.forEach((element) => {
             if (!TreeUtil.isEndpointTypeVariableDef(element)) {
-                element.viewState.bBox.x = viewState.bBox.x + ((viewState.bBox.w - element.viewState.bBox.w) / 2);
+                element.viewState.bBox.x = viewState.bBox.x;
                 element.viewState.bBox.y = viewState.bBox.y + height;
                 height += element.viewState.bBox.h;
             }

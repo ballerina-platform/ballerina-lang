@@ -17,13 +17,12 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
-import { flowChartControlStatement, blockStatement, statement, actionBox } from '../../../../../configs/designer-defaults.js';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
 import './compound-statement-decorator.css';
-import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import ActionBox from '../decorators/action-box';
 import ActiveArbiter from '../decorators/active-arbiter';
 import Breakpoint from '../decorators/breakpoint';
@@ -201,8 +200,8 @@ class WhileStatementDecorator extends React.Component {
 
         const model = this.props.model;
         const viewState = model.viewState;
-        const titleH = flowChartControlStatement.heading.height;
-        const titleW = flowChartControlStatement.heading.width;
+        const titleH = this.context.designer.config.flowChartControlStatement.heading.height;
+        const titleW = this.context.designer.config.flowChartControlStatement.heading.width;
         const statementBBox = viewState.components['statement-box'];
         const displayExpression = viewState.components.expression;
 
@@ -246,7 +245,7 @@ class WhileStatementDecorator extends React.Component {
         const p4Y = p2Y;
 
         const p5X = p4X;
-        const p5Y = p1Y + statementBBox.h + (statement.gutter.v);
+        const p5Y = p1Y + statementBBox.h + (this.context.designer.config.statement.gutter.v);
 
         const p6X = p1X + (statementBBox.w / 2);
         const p6Y = p5Y;
@@ -266,9 +265,10 @@ class WhileStatementDecorator extends React.Component {
         const p11Y = p1Y + (titleH / 2);
 
         const p12X = p8X;
-        const p12Y = p8Y + (titleH / 2) + statement.gutter.h;
+        const p12Y = p8Y + (titleH / 2) + this.context.designer.config.statement.gutter.h;
 
-        this.conditionBox = new SimpleBBox(p1X, (p2Y - (statement.height / 2)), bBox.w, statement.height);
+        this.conditionBox = new SimpleBBox(p1X, (p2Y - (this.context.designer.config.statement.height / 2)),
+            bBox.w, this.context.designer.config.statement.height);
 
         const actionBoxBbox = new SimpleBBox();
         actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;

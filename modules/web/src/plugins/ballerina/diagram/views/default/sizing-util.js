@@ -370,7 +370,8 @@ class SizingUtil {
         const functionBodyViewState = node.body.viewState;
         const cmp = viewState.components;
         const workers = node.workers;
-        const defaultWorkerHeight = functionBodyViewState.bBox.h + (this.config.lifeLine.head.height * 2);
+        const defaultWorkerHeight = functionBodyViewState.bBox.h + (this.config.lifeLine.head.height * 2)
+            + (this.config.statement.height * 2);
         let maxWorkerHeight = workers.length > 0 ? this.getWorkerMaxHeight(workers) : -1;
         maxWorkerHeight = Math.max(maxWorkerHeight, defaultWorkerHeight);
 
@@ -911,8 +912,9 @@ class SizingUtil {
     sizeWorkerNode(node) {
         const bBox = node.viewState.bBox;
         const workerBody = node.body;
-        bBox.h = workerBody.viewState.bBox.h + this.config.lifeLine.padding.top
-            + this.config.lifeLine.head.height + this.config.lifeLine.footer.height;
+        bBox.h = workerBody.viewState.bBox.h
+            + this.config.lifeLine.head.height + this.config.lifeLine.footer.height
+            + (this.config.statement.height * 2); // Top gap for client invoke line
         bBox.w = workerBody.viewState.bBox.w;
         // set the size of the lifeline.
         const cmp = node.viewState.components;

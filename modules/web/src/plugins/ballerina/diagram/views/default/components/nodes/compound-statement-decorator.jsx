@@ -18,12 +18,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
+import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
-import { blockStatement, statement, actionBox } from '../../../../../configs/designer-defaults.js';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
 import './compound-statement-decorator.css';
-import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import ActionBox from '../decorators/action-box';
 import ActiveArbiter from '../decorators/active-arbiter';
 import Breakpoint from '../decorators/breakpoint';
@@ -198,8 +197,9 @@ class CompoundStatementDecorator extends React.Component {
         const { bBox, title, dropTarget, expression, isBreakpoint, isDebugHit } = this.props;
         const model = this.props.model;
         const viewState = model.viewState;
-        const titleH = blockStatement.heading.height;
-        const titleW = this.props.titleWidth;
+        const titleH = this.context.designer.config.blockStatement.heading.height;
+        const titleW = (this.props.titleWidth) ? this.context.designer.config.blockStatement.heading.width :
+            this.props.titleWidth;
         const statementBBox = viewState.components['statement-box'];
         const displayExpression = viewState.components.expression;
 
@@ -215,7 +215,7 @@ class CompoundStatementDecorator extends React.Component {
 
         let expressionX = 0;
         if (expression) {
-            expressionX = p3X + statement.padding.left;
+            expressionX = p3X + this.context.designer.config.statement.padding.left;
         }
         let paramSeparatorX = 0;
         let parameterText = null;
@@ -321,7 +321,7 @@ class CompoundStatementDecorator extends React.Component {
                         className='parameter-separator'
                     />
                     <text
-                        x={paramSeparatorX + blockStatement.heading.paramPaddingX}
+                        x={paramSeparatorX + this.context.designer.config.blockStatement.heading.paramPaddingX}
                         y={titleY}
                         className='condition-text'
                     >
@@ -364,7 +364,7 @@ CompoundStatementDecorator.defaultProps = {
     draggable: null,
     children: null,
     undeletable: false,
-    titleWidth: blockStatement.heading.width,
+    titleWidth: undefined,
     editorOptions: null,
     parameterEditorOptions: null,
     utilities: null,

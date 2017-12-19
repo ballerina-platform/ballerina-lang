@@ -19,8 +19,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
-import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
-import { flowChartControlStatement, statement } from '../../../../../configs/designer-defaults.js';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
 import './compound-statement-decorator.css';
@@ -196,8 +194,8 @@ class IfStatementDecorator extends React.Component {
 
         const model = this.props.model;
         const viewState = model.viewState;
-        const titleH = flowChartControlStatement.heading.height;
-        const titleW = flowChartControlStatement.heading.width;
+        const titleH = this.context.designer.config.flowChartControlStatement.heading.height;
+        const titleW = this.context.designer.config.flowChartControlStatement.heading.width;
         const statementBBox = viewState.components['statement-box'];
         const displayExpression = viewState.components.expression;
 
@@ -256,9 +254,10 @@ class IfStatementDecorator extends React.Component {
         const p11Y = p1Y + (titleH / 2);
 
         const p12X = p8X;
-        const p12Y = p8Y + (titleH / 2) + statement.gutter.h;
+        const p12Y = p8Y + (titleH / 2) + this.context.designer.config.statement.gutter.h;
 
-        this.conditionBox = new SimpleBBox(p1X, (p2Y - (statement.height / 2)), bBox.w, statement.height);
+        this.conditionBox = new SimpleBBox(p1X, (p2Y - (this.context.designer.config.statement.height / 2)),
+            bBox.w, this.context.designer.config.statement.height);
 
         const actionBoxBbox = new SimpleBBox();
         actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;

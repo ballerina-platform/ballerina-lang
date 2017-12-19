@@ -52,6 +52,8 @@ class Client extends React.Component {
         line.y1 = bBox.y;
         line.y2 = bBox.y + bBox.h;
 
+        const invokeLineY = topBox.y + topBox.h + this.context.designer.config.statement.height;
+
         return (<g
             className='client-line-group'
         >
@@ -96,9 +98,9 @@ class Client extends React.Component {
             >{this.props.title}</text>
             <line
                 x1={line.x1}
-                y1={topBox.y + topBox.h + 15}
+                y1={invokeLineY}
                 x2={bBox.arrowLine}
-                y2={topBox.y + topBox.h + 15}
+                y2={invokeLineY}
                 stroke='black'
                 strokeWidth='1'
             />
@@ -108,7 +110,6 @@ class Client extends React.Component {
                 dominantBaseline='central'
                 className='client-line-text genericT'
             >{bBox.text}</text>
-            {/* <circle cx={line.x1} cy={topBox.y + topBox.h + 15} r='6' stroke='black' strokeWidth='1' fill='white' /> */}
         </g>);
     }
 }
@@ -123,6 +124,7 @@ Client.defaultProps = {
 
 Client.contextTypes = {
     model: PropTypes.instanceOf(Object),
+    designer: PropTypes.instanceOf(Object),
 };
 
 export default Client;
