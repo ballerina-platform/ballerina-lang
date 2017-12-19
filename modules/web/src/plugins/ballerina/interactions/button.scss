@@ -1,0 +1,66 @@
+.button-area{
+   background-color: none;
+   position:absolute;
+}
+
+.button{
+  display: none;
+}
+
+.button-area:hover .button, .button-show-always{
+   z-index:50;
+   color: #f1772a;
+   display: block;
+   left:2px;
+   top:2px;
+   -webkit-animation: appear-button 0.2s ease-out;
+   -moz-animation: appear-down 0.2s ease-out;
+   font-size:12px;
+   cursor: pointer;
+}
+
+@-webkit-keyframes appear-button {
+      0% { opacity: 0;  font-size:5px }
+    100% { opacity: 1; font-size:12px}
+}
+@-moz-keyframes appear-button {
+      0% { opacity: 0; font-size:5px}
+    100% { opacity: 1; font-size:12px }
+}
+
+
+nav {
+  position:absolute;
+  width: 120px;
+  -webkit-clip-path: circle(24px at 30px 24px);
+  clip-path: circle(12px at 13px 13px);
+  -webkit-transition: -webkit-clip-path 0.5, clip-path 0.1;
+  transition: -webkit-clip-path 0.5, clip-path 0.1;
+}
+
+nav:hover {
+  background: #eeeeee;
+  -webkit-transition-timing-function: ease-out;
+  transition-timing-function: ease-out;
+  -webkit-transition-duration: 0.5s;
+  transition-duration: 0.5s;
+  -webkit-clip-path: circle(390px at 225px 24px);
+  clip-path: circle(390px at 150px 24px);
+}
+
+a {
+  opacity: 1;
+  display: block;
+  line-height: 30px;
+  padding: 0 24px;
+  color: inherit;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+a:hover { background: #ffe082; }
+
+a:active { background: #ffca28; }
