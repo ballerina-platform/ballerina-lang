@@ -54,14 +54,9 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
 
-    private static final String BALLERINA_USER_AGENT;
+    private static final String CACHE_BALLERINA_VERSION;
     static {
-        String version = System.getProperty(BALLERINA_VERSION);
-        if (version != null) {
-            BALLERINA_USER_AGENT = "ballerina/" + version;
-        } else {
-            BALLERINA_USER_AGENT = "ballerina";
-        }
+        CACHE_BALLERINA_VERSION = System.getProperty(BALLERINA_VERSION);
     }
 
     protected HTTPCarbonMessage createCarbonMsg(Context context) {
@@ -135,9 +130,15 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     }
 
     private void setOutboundUserAgent(HttpHeaders headers) {
-        // Set User-Agent header
+        String userAgent;
+        if (CACHE_BALLERINA_VERSION != null) {
+            userAgent = "ballerina/" + CACHE_BALLERINA_VERSION;
+        } else {
+            userAgent = "ballerina";
+        }
+
         if (!headers.contains(Constants.USER_AGENT_HEADER)) { // If User-Agent is not already set from program
-            headers.set(Constants.USER_AGENT_HEADER, BALLERINA_USER_AGENT);
+            headers.set(Constants.USER_AGENT_HEADER, userAgent);
         }
     }
 
@@ -252,18 +253,10 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         @Override
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-            if (httpCarbonMessage.getMessagingException() == null) {
-                BStruct response = createStruct(this.context, Constants.RESPONSE);
-                HttpUtil.setHeaderValueStructType(createStruct(this.context, Constants.HEADER_VALUE_STRUCT));
-                HttpUtil.populateInboundResponse(response, httpCarbonMessage);
-                ballerinaFuture.notifyReply(response);
-            } else {
-                //TODO should we throw or should we create error struct and pass? or do we need this at all?
-                BallerinaConnectorException ex = new BallerinaConnectorException(httpCarbonMessage
-                        .getMessagingException().getMessage(), httpCarbonMessage.getMessagingException());
-                logger.error("non-blocking action invocation validation failed. ", ex);
-                ballerinaFuture.notifyFailure(ex);
-            }
+            BStruct response = createStruct(this.context, Constants.RESPONSE);
+            HttpUtil.setHeaderValueStructType(createStruct(this.context, Constants.HEADER_VALUE_STRUCT));
+            HttpUtil.populateInboundResponse(response, httpCarbonMessage);
+            ballerinaFuture.notifyReply(response);
         }
 
         @Override
