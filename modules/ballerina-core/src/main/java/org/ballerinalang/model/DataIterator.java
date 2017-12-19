@@ -45,6 +45,8 @@ public interface DataIterator {
 
     String getBlob(String columnName);
 
+    Object[] getStruct(String columnName);
+
     Object[] getArray(String columnName);
 
     BStruct generateNext();

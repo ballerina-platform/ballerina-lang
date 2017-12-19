@@ -837,6 +837,8 @@ public class SQLDatasourceUtils {
         case Types.VARBINARY:
         case Types.LONGVARBINARY:
             return TypeKind.BLOB;
+        case Types.STRUCT:
+            return TypeKind.STRUCT;
         default:
             return TypeKind.NONE;
         }

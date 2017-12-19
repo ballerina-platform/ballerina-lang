@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BJSON.JSONDataSource;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  * {@link org.ballerinalang.model.values.BJSON.JSONDataSource} implementation for DataTable.
@@ -93,8 +94,8 @@ public class DataTableJSONDataSource implements JSONDataSource {
                 case JSON:
                     objNode.set(name, JsonParser.parse(df.getString(name)));
                     break;
-                case MAP:
-                    /* not supported */
+                case STRUCT:
+                   objNode.set(name, getStructData(df.getStruct(name)));
                     break;
                 case XML:
                     /* not supported */
@@ -107,6 +108,30 @@ public class DataTableJSONDataSource implements JSONDataSource {
             return objNode;
         }
 
+    }
+
+    private static JsonNode getStructData(Object[] data) {
+        JsonNode jsonData = new JsonNode(Type.ARRAY);
+        if (data != null) {
+            for (Object value : data) {
+                if (value instanceof String) {
+                    jsonData.add((String) value);
+                } else if (value instanceof Boolean) {
+                    jsonData.add((Boolean) value);
+                } else if (value instanceof Long) {
+                    jsonData.add((long) value);
+                } else if (value instanceof Double) {
+                    jsonData.add((double) value);
+                } else if (value instanceof Integer) {
+                    jsonData.add((int) value);
+                } else if (value instanceof Float) {
+                    jsonData.add((float) value);
+                } else if (value instanceof BigDecimal) {
+                    jsonData.add(((BigDecimal) value).doubleValue());
+                }
+            }
+        }
+        return jsonData;
     }
 
     private static JsonNode getDataArray(BDataTable df, String columnName) {

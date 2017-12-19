@@ -76,7 +76,12 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
                     break;
                 case ARRAY:
                     isArray = true;
-                    processArray(xmlStreamWriter, col);
+                    Object[] array = dataTable.getArray(col.getName());
+                    processArray(xmlStreamWriter, array);
+                    break;
+                case STRUCT:
+                    isArray = true;
+                    processArray(xmlStreamWriter, dataTable.getStruct(col.getName()));
                     break;
                 default:
                     value = dataTable.getString(col.getName());
@@ -99,8 +104,7 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
         xmlStreamWriter.flush();
     }
 
-    private void processArray(XMLStreamWriter xmlStreamWriter, ColumnDefinition col) throws XMLStreamException {
-        Object[] array = dataTable.getArray(col.getName());
+    private void processArray(XMLStreamWriter xmlStreamWriter, Object[] array) throws XMLStreamException {
         if (array != null) {
             for (Object value  : array) {
                 xmlStreamWriter.writeStartElement(ARRAY_ELEMENT_NAME);
