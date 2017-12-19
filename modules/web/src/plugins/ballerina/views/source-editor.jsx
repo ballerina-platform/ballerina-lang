@@ -28,6 +28,7 @@ import ReconnectingWebSocket from 'reconnecting-websocket';
 import debuggerHoc from 'src/plugins/debugger/views/DebuggerHoc';
 import File from 'core/workspace/model/file';
 import { PLUGIN_ID as BAL_PLUGIN_ID } from 'plugins/ballerina/constants';
+import { EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
 import { CONTENT_MODIFIED } from 'plugins/ballerina/constants/events';
 import { GO_TO_POSITION } from 'plugins/ballerina/constants/commands';
 import MonacoEditor from 'react-monaco-editor';
@@ -55,6 +56,7 @@ class SourceEditor extends React.Component {
         this.onFileContentChanged = this.onFileContentChanged.bind(this);
         this.lastUpdatedTimestamp = props.file.lastUpdated;
         this.editorDidMount = this.editorDidMount.bind(this);
+        this.onWorkspaceFileClose = this.onWorkspaceFileClose.bind(this);
     }
 
     /**
@@ -107,6 +109,26 @@ class SourceEditor extends React.Component {
     }
 
     /**
+     * @inheritdoc
+     */
+    componentWillUnmount() {
+        this.props.commandProxy.off(WORKSPACE_EVENTS.FILE_CLOSED, this.onWorkspaceFileClose);
+    }
+
+     /**
+     * On File Close in workspce
+     */
+    onWorkspaceFileClose({ file }) {
+        if (this.monaco) {
+            const uri = this.monaco.Uri.parse(file.toURI());
+            const modelForFile = this.monaco.editor.getModel(uri);
+            if (modelForFile) {
+                modelForFile.dispose();
+            }
+        }
+    }
+
+    /**
      * Event handler when the content of the file object is changed.
      * @param {Object} evt The event object.
      * @memberof SourceEditor
@@ -140,7 +162,7 @@ class SourceEditor extends React.Component {
             modelForFile = monaco.editor.createModel(this.props.file.content, BAL_LANGUAGE, uri);
         }
         editorInstance.setModel(modelForFile);
-
+        this.props.commandProxy.on(WORKSPACE_EVENTS.FILE_CLOSED, this.onWorkspaceFileClose);
         const services = createMonacoServices(editorInstance);
         const createLSConnection = this.props.ballerinaPlugin.createLangServerConnection();
         createLSConnection
@@ -277,6 +299,7 @@ SourceEditor.propTypes = {
         on: PropTypes.func.isRequired,
         dispatch: PropTypes.func.isRequired,
         getCommands: PropTypes.func.isRequired,
+        off: PropTypes.func.isRequired,
     }).isRequired,
     ballerinaPlugin: PropTypes.objectOf(Object).isRequired,
     parseFailed: PropTypes.bool.isRequired,
