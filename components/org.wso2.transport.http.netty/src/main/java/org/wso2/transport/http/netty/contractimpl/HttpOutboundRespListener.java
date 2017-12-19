@@ -45,7 +45,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private HandlerExecutor handlerExecutor;
     private HTTPCarbonMessage inboundRequestMsg;
     private boolean isChunked;
-    private boolean isHeadersWritten = false;
+    private boolean isHeaderWritten = false;
     private int contentLength = 0;
     private List<HttpContent> contentList = new ArrayList<>();
 
@@ -70,7 +70,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
             outboundResponseMsg.getHttpContentAsync().setMessageListener(httpContent ->
                     this.sourceContext.channel().eventLoop().execute(() -> {
                 if (Util.isLastHttpContent(httpContent)) {
-                    if (!isHeadersWritten) {
+                    if (!isHeaderWritten) {
                         if (isChunked) {
                             Util.setupChunkedRequest(outboundResponseMsg);
                         } else {
@@ -107,7 +107,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                     contentLength = 0;
                 } else {
                     if (isChunked) {
-                        if (!isHeadersWritten) {
+                        if (!isHeaderWritten) {
                             Util.setupChunkedRequest(outboundResponseMsg);
                             writeOutboundResponseHeaders(outboundResponseMsg, keepAlive);
                         }
@@ -141,7 +141,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     private void writeOutboundResponseHeaders(HTTPCarbonMessage httpOutboundRequest, boolean keepAlive) {
         HttpResponse response = Util.createHttpResponse(httpOutboundRequest, keepAlive);
-        isHeadersWritten = true;
+        isHeaderWritten = true;
         sourceContext.write(response);
     }
 }

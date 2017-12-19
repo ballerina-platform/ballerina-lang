@@ -254,17 +254,17 @@ public class TestUtil {
     }
 
     public static HTTPCarbonMessage createHttpsPostReq(int serverPort, String payload, String path) {
-        HTTPCarbonMessage msg = new HTTPCarbonMessage(
+        HTTPCarbonMessage httpPostRequest = new HTTPCarbonMessage(
                 new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, path));
-        msg.setProperty(Constants.PORT, serverPort);
-        msg.setProperty(Constants.PROTOCOL, Constants.HTTPS_SCHEME);
-        msg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-        msg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_POST_METHOD);
+        httpPostRequest.setProperty(Constants.PORT, serverPort);
+        httpPostRequest.setProperty(Constants.PROTOCOL, Constants.HTTPS_SCHEME);
+        httpPostRequest.setProperty(Constants.HOST, TestUtil.TEST_HOST);
+        httpPostRequest.setProperty(Constants.HTTP_METHOD, Constants.HTTP_POST_METHOD);
 
         ByteBuffer byteBuffer = ByteBuffer.wrap(payload.getBytes(Charset.forName("UTF-8")));
-        msg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
+        httpPostRequest.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
 
-        return msg;
+        return httpPostRequest;
     }
 }
 
