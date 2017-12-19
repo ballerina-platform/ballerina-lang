@@ -572,4 +572,12 @@ public class TypeOfOperatorTest {
         Assert.assertSame(returns[5].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[5]).booleanValue(), true);
     }
+
+    @Test(description = "Test type of struct array")
+    public void testTypeOfStructArray() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeOfStructArray");
+        Assert.assertEquals(returns[0].stringValue(), "Person[]");
+        Assert.assertEquals(returns[1].stringValue(), "Person[]");
+        Assert.assertEquals(returns[2].stringValue(), "Person[][]");
+    }
 }

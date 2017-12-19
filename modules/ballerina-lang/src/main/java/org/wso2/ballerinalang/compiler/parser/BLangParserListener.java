@@ -781,7 +781,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.builtInReferenceTypeName() != null || ctx.valueTypeName() != null) {
             return;
         }
-        if (ctx.builtInTypeName() != null) {
+        if (ctx.typeName() != null) {
             // This is an array Type.
             this.pkgBuilder.addArrayType(getCurrentPos(ctx), getWS(ctx), (ctx.getChildCount() - 1) / 2);
             return;

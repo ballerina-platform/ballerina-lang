@@ -458,3 +458,8 @@ function testCheckTypeOfJson() (json, json[], string, int, float, boolean){
     
     return j, ja, s, a, f, b;
 }
+
+function testTypeOfStructArray() (type, type, type) {
+    Person[] p = [{}, {}];
+    return typeof p, typeof Person[], typeof Person[][];
+}
