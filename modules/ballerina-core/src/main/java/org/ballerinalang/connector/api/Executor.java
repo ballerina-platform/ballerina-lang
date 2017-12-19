@@ -43,7 +43,7 @@ public class Executor {
      * @param values    required for the resource.
      * @return future object to listen to events if any.
      */
-    public static BServerConnectorFuture execute(Resource resource, Map<String, Object> properties, BValue... values) {
+    public static ConnectorFuture execute(Resource resource, Map<String, Object> properties, BValue... values) {
         BServerConnectorFuture connectorFuture = new BServerConnectorFuture();
         ResourceExecutor.execute(resource, connectorFuture, properties, values);
         return connectorFuture;
