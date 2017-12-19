@@ -14,6 +14,7 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +26,10 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
 import javax.activation.MimeTypeParseException;
 
+import static org.ballerinalang.net.mime.util.Constants.BALLERINA_BINARY_DATA;
+import static org.ballerinalang.net.mime.util.Constants.BALLERINA_JSON_DATA;
+import static org.ballerinalang.net.mime.util.Constants.BALLERINA_TEXT_DATA;
+import static org.ballerinalang.net.mime.util.Constants.BALLERINA_XML_DATA;
 import static org.ballerinalang.net.mime.util.Constants.BYTE_DATA_INDEX;
 import static org.ballerinalang.net.mime.util.Constants.FALSE;
 import static org.ballerinalang.net.mime.util.Constants.IS_IN_MEMORY_INDEX;
@@ -36,29 +41,32 @@ import static org.ballerinalang.net.mime.util.Constants.PRIMARY_TYPE_INDEX;
 import static org.ballerinalang.net.mime.util.Constants.SIZE_INDEX;
 import static org.ballerinalang.net.mime.util.Constants.SUBTYPE_INDEX;
 import static org.ballerinalang.net.mime.util.Constants.SUFFIX_INDEX;
+import static org.ballerinalang.net.mime.util.Constants.TEMP_FILE_EXTENSION;
 import static org.ballerinalang.net.mime.util.Constants.TEMP_FILE_PATH_INDEX;
 import static org.ballerinalang.net.mime.util.Constants.TEXT_DATA_INDEX;
 import static org.ballerinalang.net.mime.util.Constants.TRUE;
 import static org.ballerinalang.net.mime.util.Constants.XML_DATA_INDEX;
 
 /**
- * Entity related operations and mime utility functions have been included here.
+ * Entity related operations and mime utility functions are included here.
  */
 public class MimeUtil {
 
     /**
-     * Read the string payload from inputstream and set it into request or response's entity struct.
+     * Read the string payload from input stream and set it into request or response's entity struct. If the content
+     * length exceeds the BYTE_LIMIT, data will be written on to a temporary file. Otherwise data will be kept in
+     * memory.
      *
-     * @param context
-     * @param entityStruct
-     * @param inputStream
-     * @param contentLength
+     * @param context       Ballerina Context
+     * @param entityStruct  Represent 'Entity' struct
+     * @param inputStream   Represent input stream coming from the request/response
+     * @param contentLength Content length of the request
      */
     public static void readAndSetStringPayload(Context context, BStruct entityStruct, InputStream inputStream,
             long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
-            writeToTemporaryFile(inputStream);
-            createBallerinaFileHandler(context, entityStruct);
+            String temporaryFilePath = writeToTemporaryFile(inputStream, BALLERINA_TEXT_DATA);
+            createBallerinaFileHandler(context, entityStruct, temporaryFilePath);
             entityStruct.setBooleanField(IS_IN_MEMORY_INDEX, FALSE);
         } else {
             String payload = StringUtils.getStringFromInputStream(inputStream);
@@ -67,11 +75,21 @@ public class MimeUtil {
         }
     }
 
+    /**
+     * Read the json payload from input stream and set it into request or response's entity struct. If the content
+     * length exceeds the BYTE_LIMIT, data will be written on to a temporary file. Otherwise data will be kept in
+     * memory.
+     *
+     * @param context       Ballerina Context
+     * @param entityStruct  Represent 'Entity' struct
+     * @param inputStream   Represent input stream coming from the request/response
+     * @param contentLength Content length of the request
+     */
     public static void readAndSetJsonPayload(Context context, BStruct entityStruct, InputStream inputStream,
             long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
-            writeToTemporaryFile(inputStream);
-            createBallerinaFileHandler(context, entityStruct);
+            String temporaryFilePath = writeToTemporaryFile(inputStream, BALLERINA_JSON_DATA);
+            createBallerinaFileHandler(context, entityStruct, temporaryFilePath);
             entityStruct.setBooleanField(IS_IN_MEMORY_INDEX, FALSE);
         } else {
             BJSON payload = new BJSON(inputStream);
@@ -80,11 +98,21 @@ public class MimeUtil {
         }
     }
 
+    /**
+     * Read the xml payload from input stream and set it into request or response's entity struct. If the content
+     * length exceeds the BYTE_LIMIT, data will be written on to a temporary file. Otherwise data will be kept in
+     * memory.
+     *
+     * @param context       Ballerina Context
+     * @param entityStruct  Represent 'Entity' struct
+     * @param inputStream   Represent input stream coming from the request/response
+     * @param contentLength Content length of the request
+     */
     public static void readAndSetXmlPayload(Context context, BStruct entityStruct, InputStream inputStream,
             long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
-            writeToTemporaryFile(inputStream);
-            createBallerinaFileHandler(context, entityStruct);
+            String temporaryFilePath = writeToTemporaryFile(inputStream, BALLERINA_XML_DATA);
+            createBallerinaFileHandler(context, entityStruct, temporaryFilePath);
             entityStruct.setBooleanField(IS_IN_MEMORY_INDEX, FALSE);
         } else {
             BXML payload = XMLUtils.parse(inputStream);
@@ -93,11 +121,21 @@ public class MimeUtil {
         }
     }
 
+    /**
+     * Read the binary payload from input stream and set it into request or response's entity struct. If the content
+     * length exceeds the BYTE_LIMIT, data will be written on to a temporary file. Otherwise data will be kept in
+     * memory.
+     *
+     * @param context       Ballerina Context
+     * @param entityStruct  Represent 'Entity' struct
+     * @param inputStream   Represent input stream coming from the request/response
+     * @param contentLength Content length of the request
+     */
     public static void readAndSetBinaryPayload(Context context, BStruct entityStruct, InputStream inputStream,
             long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
-            writeToTemporaryFile(inputStream);
-            createBallerinaFileHandler(context, entityStruct);
+            String temporaryFilePath = writeToTemporaryFile(inputStream, BALLERINA_BINARY_DATA);
+            createBallerinaFileHandler(context, entityStruct, temporaryFilePath);
             entityStruct.setBooleanField(IS_IN_MEMORY_INDEX, FALSE);
         } else {
             BBlob payload;
@@ -111,6 +149,12 @@ public class MimeUtil {
         }
     }
 
+    /**
+     * Check whether the 'Entity' body is present in text form.
+     *
+     * @param entity Represent 'Entity' struct
+     * @return a boolean denoting the availability of text payload
+     */
     public static boolean isTextBodyPresent(BStruct entity) {
         String textPayload = entity.getStringField(TEXT_DATA_INDEX);
         BStruct overFlowData = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
@@ -120,8 +164,14 @@ public class MimeUtil {
         return false;
     }
 
+    /**
+     * Check whether the 'Entity' body is present in json form.
+     *
+     * @param entity Represent 'Entity' struct
+     * @return a boolean denoting the availability of json payload
+     */
     public static boolean isJsonBodyPresent(BStruct entity) {
-        String jsonPayload = entity.getStringField(JSON_DATA_INDEX);
+        BJSON jsonPayload = (BJSON) entity.getRefField(JSON_DATA_INDEX);
         BStruct overFlowData = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
         if (jsonPayload != null || overFlowData != null) {
             return true;
@@ -129,8 +179,14 @@ public class MimeUtil {
         return false;
     }
 
+    /**
+     * Check whether the 'Entity' body is present in xml form.
+     *
+     * @param entity Represent 'Entity' struct
+     * @return a boolean denoting the availability of xml payload
+     */
     public static boolean isXmlBodyPresent(BStruct entity) {
-        String xmlPayload = entity.getStringField(XML_DATA_INDEX);
+        BXML xmlPayload = (BXML) entity.getRefField(XML_DATA_INDEX);
         BStruct overFlowData = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
         if (xmlPayload != null || overFlowData != null) {
             return true;
@@ -138,8 +194,14 @@ public class MimeUtil {
         return false;
     }
 
+    /**
+     * Check whether the 'Entity' body is present in binary form.
+     *
+     * @param entity Represent 'Entity' struct
+     * @return a boolean denoting the availability of binary payload
+     */
     public static boolean isBinaryBodyPresent(BStruct entity) {
-        String binaryPayload = entity.getStringField(BYTE_DATA_INDEX);
+        byte[] binaryPayload = entity.getBlobField(BYTE_DATA_INDEX);
         BStruct overFlowData = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
         if (binaryPayload != null || overFlowData != null) {
             return true;
@@ -150,8 +212,8 @@ public class MimeUtil {
     /**
      * Extract the text payload from entity.
      *
-     * @param entity
-     * @return
+     * @param entity Represent 'Entity' struct
+     * @return string containing text payload
      */
     public static String getTextPayload(BStruct entity) {
         String textData = entity.getStringField(TEXT_DATA_INDEX);
@@ -164,6 +226,12 @@ public class MimeUtil {
         }
     }
 
+    /**
+     * Extract the json payload from entity.
+     *
+     * @param entity Represent 'Entity' struct
+     * @return json content in BJSON form
+     */
     public static BJSON getJsonPayload(BStruct entity) {
         BJSON jsonData = (BJSON) entity.getRefField(JSON_DATA_INDEX);
         if (jsonData != null) {
@@ -175,6 +243,12 @@ public class MimeUtil {
         }
     }
 
+    /**
+     * Extract the xml payload from entity.
+     *
+     * @param entity Represent 'Entity' struct
+     * @return xml content in BXML form
+     */
     public static BXML getXmlPayload(BStruct entity) {
         BXML xmlData = (BXML) entity.getRefField(XML_DATA_INDEX);
         if (xmlData != null) {
@@ -186,10 +260,16 @@ public class MimeUtil {
         }
     }
 
+    /**
+     * Extract the binary payload from entity.
+     *
+     * @param entity Represent 'Entity' struct
+     * @return entity body as a byte array
+     */
     public static byte[] getBinaryPayload(BStruct entity) {
-        BBlob byteData = (BBlob) entity.getRefField(BYTE_DATA_INDEX);
+        byte[] byteData = entity.getBlobField(BYTE_DATA_INDEX);
         if (byteData != null) {
-            return byteData.blobValue();
+            return byteData;
         } else {
             BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
             String filePath = fileHandler.getStringField(0);
@@ -197,6 +277,13 @@ public class MimeUtil {
         }
     }
 
+    /**
+     * Construct 'MediaType' struct with the given Content-Type and set it into the given 'Entity'.
+     *
+     * @param mediaType    Represent 'MediaType' struct
+     * @param entityStruct Represent 'Entity' struct
+     * @param contentType  Content-Type value in string
+     */
     public static void setContentType(BStruct mediaType, BStruct entityStruct, String contentType) {
         BStruct mimeType = parseMediaType(mediaType, contentType);
         if (contentType == null) {
@@ -206,56 +293,75 @@ public class MimeUtil {
         entityStruct.setRefField(MEDIA_TYPE_INDEX, mimeType);
     }
 
-    public static String getBaseType(String contentType) {
+    /**
+     * Parse 'MediaType' struct with the given Content-Type.
+     *
+     * @param mediaType   Represent 'MediaType' struct
+     * @param contentType Content-Type value in string
+     * @return 'MediaType' struct populated with values
+     */
+    public static BStruct parseMediaType(BStruct mediaType, String contentType) {
         try {
             MimeType mimeType = new MimeType(contentType);
-            return mimeType.getBaseType();
+            mediaType.setStringField(PRIMARY_TYPE_INDEX, mimeType.getPrimaryType());
+            mediaType.setStringField(SUBTYPE_INDEX, mimeType.getSubType());
+            if (mimeType.getSubType() != null && mimeType.getSubType().contains(Constants.SUFFIX_ATTACHMENT)) {
+                mediaType.setStringField(SUFFIX_INDEX, mimeType.getSubType()
+                        .substring(mimeType.getSubType().lastIndexOf(Constants.SUFFIX_ATTACHMENT) + 1));
+            }
+            MimeTypeParameterList parameterList = mimeType.getParameters();
+            Enumeration keys = parameterList.getNames();
+            BMap<String, BValue> parameterMap = new BMap<>();
+
+            while (keys.hasMoreElements()) {
+                String key = (String) keys.nextElement();
+                String value = parameterList.get(key);
+                parameterMap.put(key, new BString(value));
+            }
+            mediaType.setRefField(PARAMETER_MAP_INDEX, parameterMap);
         } catch (MimeTypeParseException e) {
             throw new BallerinaException("Error while parsing Content-Type value: " + e.getMessage());
         }
-    }
-
-    public static BStruct parseMediaType(BStruct mediaType, String contentType) {
-        MimeType mimeType;
-        try {
-            mimeType = new MimeType(contentType);
-        } catch (MimeTypeParseException e) {
-            throw new BallerinaException("Error while parsing Content-Type value: " + e.getMessage());
-        }
-        mediaType.setStringField(PRIMARY_TYPE_INDEX, mimeType.getPrimaryType());
-        mediaType.setStringField(SUBTYPE_INDEX, mimeType.getSubType());
-        if (mimeType.getSubType() != null && mimeType.getSubType().contains(Constants.SUFFIX_ATTACHMENT)) {
-            mediaType.setStringField(SUFFIX_INDEX, mimeType.getSubType()
-                    .substring(mimeType.getSubType().lastIndexOf(Constants.SUFFIX_ATTACHMENT) + 1));
-        }
-        MimeTypeParameterList parameterList = mimeType.getParameters();
-        Enumeration keys = parameterList.getNames();
-        BMap<String, BValue> parameterMap = new BMap<>();
-
-        while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
-            String value = parameterList.get(key);
-            parameterMap.put(key, new BString(value));
-        }
-        mediaType.setRefField(PARAMETER_MAP_INDEX, parameterMap);
         return mediaType;
     }
 
+    /**
+     * Populate given 'Entity' with it's body size.
+     *
+     * @param entityStruct Represent 'Entity'
+     * @param length       Size of the entity body
+     */
     public static void setContentLength(BStruct entityStruct, int length) {
         entityStruct.setIntField(SIZE_INDEX, length);
     }
 
-    private static BStruct createBallerinaFileHandler(Context context, BStruct entityStruct) {
+    /**
+     * Create a ballerina file struct and set it into the given 'Entity'.
+     *
+     * @param context           Represent ballerina context
+     * @param entityStruct      Represent 'Entity'
+     * @param temporaryFilePath Temporary file path
+     * @return Entity struct populated with file handler
+     */
+    private static BStruct createBallerinaFileHandler(Context context, BStruct entityStruct, String temporaryFilePath) {
         BStruct fileStruct = ConnectorUtils
                 .createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_FILE, Constants.FILE);
-        fileStruct.setStringField(TEMP_FILE_PATH_INDEX, "/home/rukshani/BallerinaWork/multipart/MIME/temp.tmp");
+        fileStruct.setStringField(TEMP_FILE_PATH_INDEX, temporaryFilePath);
         entityStruct.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
         return entityStruct;
     }
 
-    private static void writeToTemporaryFile(InputStream inputStream) {
+    /**
+     * Given an input stream, create a temporary file and write the content on to it.
+     *
+     * @param inputStream Input stream coming from the request/response.
+     * @param fileName    Temporary file name
+     * @return Absolute path of the created temporary file.
+     */
+    private static String writeToTemporaryFile(InputStream inputStream, String fileName) {
         try {
-            OutputStream os = new FileOutputStream("/home/rukshani/BallerinaWork/multipart/MIME/temp.tmp");
+            File tempFile = File.createTempFile(fileName, TEMP_FILE_EXTENSION);
+            OutputStream os = new FileOutputStream(tempFile.getAbsolutePath());
             byte[] buffer = new byte[1024];
             int bytesRead;
             //read from inputstream to buffer
@@ -266,11 +372,18 @@ public class MimeUtil {
             //flush OutputStream to write any buffered data to file
             os.flush();
             os.close();
+            return tempFile.getAbsolutePath();
         } catch (IOException e) {
             throw new BallerinaException("Error while writing the payload info into a temp file: " + e.getMessage());
         }
     }
 
+    /**
+     * Read bytes from a given file.
+     *
+     * @param fileName a string representing the file
+     * @return bytes read from the given file
+     */
     private static byte[] readFromFile(String fileName) {
         try {
             return Files.readAllBytes(Paths.get(fileName));
@@ -279,6 +392,13 @@ public class MimeUtil {
         }
     }
 
+    /**
+     * Given an input stream, get a byte array.
+     *
+     * @param input Represent an input stream
+     * @return a byte array
+     * @throws IOException
+     */
     private static byte[] toByteArray(InputStream input) throws IOException {
         byte[] buffer = new byte[4096];
         int n1;

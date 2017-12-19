@@ -24,6 +24,8 @@ public struct Request {
 @Return { value:"Entity of the request" }
 public native function <Request req> getEntity (boolean isEntityBodyRequired) (mime:Entity);
 
+public native function <Request res> setEntity (mime:Entity entity);
+
 @Description { value:"Gets the request URL from the request"}
 @Param { value:"req: The request message" }
 @Return { value:"The request URL value" }

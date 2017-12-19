@@ -3,7 +3,7 @@ package ballerina.net.mime;
 import ballerina.file;
 import ballerina.io;
 
-@Description {value:"Describes the nature of the data in the body of a MIME entity"}
+@Description {value:"Describes the nature of the data in the body of a MIME entity."}
 @Field {value:"primaryType: Declares the general type of data"}
 @Field {value:"subType: A specific format of the primary type data"}
 @Field {value:"suffix: Identify the semantics of a specific media type"}
@@ -15,7 +15,7 @@ public struct MediaType {
     map parameters;
 }
 
-@Description {value:"Represents a header value"}
+@Description {value:"Represents a header value."}
 @Field {value:"value: The value of header"}
 @Field {value:"param: The param map of header"}
 public struct HeaderValue {
@@ -24,11 +24,11 @@ public struct HeaderValue {
 }
 
 @Description {value:"Represent the headers and body of a message. This can be used to represent both the entity of a top
-level message and an entity(body part) inside of a multipart entity"}
+level message and an entity(body part) inside of a multipart entity."}
 @Field {value:"contentType: Describes the data contained in the body of the entity"}
 @Field {value:"contentId: Helps one body of an entity to make a reference to another"}
 @Field {value:"headers: Denote general, request/response and entity related headers. Keys of the header map
-should represent the header name and value will be the 'Header' struct"}
+should represent the header name and value will be the 'HeaderValue' struct"}
 @Field {value:"isInMemory: A boolean to represent whether the body of the entity is in memory or in a temporary file"}
 @Field {value:"textData: Contents of the body in string form if the content is of text type"}
 @Field {value:"jsonData: Contents of the body in json form if the content is of json type"}
@@ -60,7 +60,7 @@ public struct Entity {
     string name;
 }
 
-@Description {value:"Indicates how the body part should be presented"}
+@Description {value:"Indicates how the body part should be presented."}
 @Field {value:"INLINE: Is intended to be displayed automatically upon display of the message"}
 @Field {value:"ATTACHMENT: Indicate that the body part is separate from the main body of the top level message"}
 @Field {value:"FORM_DATA: When the media type is multipart/form-data, content disposition will be 'form-data'"}
@@ -164,14 +164,23 @@ public function getBlob (Entity entity) (blob) {
     }
 }
 
+@Description {value:"Given the Content-Type in string, get the MediaType struct populated with it."}
+@Param {value:"contentType: Content-Type in string"}
+@Return {value:"return MediaType struct"}
 public native function getMediaType (string contentType) (MediaType);
 
+@Description {value:"Get “primaryType/subtype+suffix” combination in string format."}
+@Param {value:"mediaType: MediaType struct"}
+@Return {value:"return base type from MediaType struct"}
 public function <MediaType mediaType> toString () (string) {
     return mediaType.primaryType + "/" + mediaType.subType;
 }
 
+@Description {value:"Convert the media type to a string suitable for use as the value of a corresponding HTTP header."}
+@Param {value:"mediaType: MediaType struct"}
+@Return {value:"return the Content-Type with parameters as a string"}
 public function <MediaType mediaType> toStringWithParameters () (string) {
-    string contentType = "Content-Type: " + mediaType.toString() + "; ";
+    string contentType = mediaType.toString() + "; ";
     map parameters = mediaType.parameters;
     string[] arrKeys = mediaType.parameters.keys();
     int size = lengthof arrKeys;
@@ -189,21 +198,52 @@ public function <MediaType mediaType> toStringWithParameters () (string) {
     return contentType;
 }
 
+@Description {value:"Represent MIME specific base64 encoder. This follows RFC 2045 for encoding operation."}
 public struct MimeBase64Encoder {
 }
 
+@Description {value:"Represent MIME specific base64 decoder. This follows RFC 2045 for decoding operation."}
 public struct MimeBase64Decoder {
 }
 
+@Description {value:"Represent quoated-printable encoder."}
 public struct QuotedPrintableEncoder {
 }
 
+@Description {value:"Represent quoated-printable decoder."}
 public struct QuotedPrintableDecoder {
 }
 
+@Description {value:"Encode byte array using MIME Base64 encoding scheme."}
+@Param {value:"encoder: Represent MIME specific base64 encoder"}
+@Param {value:"content: the byte array to encode"}
+@Return {value:"return resulting encoded bytes"}
 public native function <MimeBase64Encoder encoder> encode (blob content) (blob);
+
+@Description {value:"Encode a given string using MIME Base64 encoding scheme. First the given string will be
+converted to a byte array with the given charset encoding. If the charset given is null default 'UTF-8' will be used.
+ Then that byte array will be encoded using MIME Base64 encoding scheme and a new string will be constructed with the
+  given charset."}
+@Param {value:"encoder: Represent MIME specific base64 encoder"}
+@Param {value:"content: string to encode"}
+@Param {value:"charset: charset used in the given string and the resulting string"}
+@Return {value:"return resulting encoded string"}
 public native function <MimeBase64Encoder encoder> encodeString (string content, string charset) (string);
+
+@Description {value:"Decode byte array using MIME Base64 encoding scheme."}
+@Param {value:"encoder: Represent MIME specific base64 decoder"}
+@Param {value:"content: the byte array to decode"}
+@Return {value:"return resulting decoded bytes"}
 public native function <MimeBase64Decoder decoder> decode (blob content) (blob);
+
+@Description {value:"Decode a given string using MIME Base64 decoding scheme. First the given string will be
+converted to a byte array with the given charset encoding. If the charset given is null default 'UTF-8' will be used.
+ Then that byte array will be decoded using MIME Base64 decoding scheme and a new string will be constructed with the
+  given charset."}
+@Param {value:"encoder: Represent MIME specific base64 decoder"}
+@Param {value:"content: string to decode"}
+@Param {value:"charset: charset used in the given string and the resulting string"}
+@Return {value:"return resulting decoded string"}
 public native function <MimeBase64Decoder decoder> decodeString (string content, string charset) (string);
 
 public native function <QuotedPrintableEncoder encoder> encode (blob content) (blob);

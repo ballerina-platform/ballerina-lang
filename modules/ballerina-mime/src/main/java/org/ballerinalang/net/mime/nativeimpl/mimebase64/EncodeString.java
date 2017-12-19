@@ -12,11 +12,13 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 @BallerinaFunction(packageName = "ballerina.net.mime",
                    functionName = "encodeString",
-                   receiver = @Receiver(type = TypeKind.STRUCT, structType = "MimeBase64Encoder",
+                   receiver = @Receiver(type = TypeKind.STRUCT,
+                                        structType = "MimeBase64Encoder",
                                         structPackage = "ballerina.net.mime"),
                    args = {
                            @Argument(name = "content",
@@ -31,12 +33,18 @@ public class EncodeString extends AbstractNativeFunction {
         String content = this.getStringArgument(context, 0);
         String charset = this.getStringArgument(context, 1);
         byte[] mimeBytes;
+        String mimeEncodedString;
         try {
-            mimeBytes = content.getBytes(charset);
+            if (charset != null) {
+                mimeBytes = content.getBytes(charset);
+                mimeEncodedString = new String(Base64.getMimeEncoder().encode(mimeBytes), charset);
+            } else {
+                mimeBytes = content.getBytes(StandardCharsets.UTF_8);
+                mimeEncodedString = new String(Base64.getMimeEncoder().encode(mimeBytes), StandardCharsets.UTF_8);
+            }
         } catch (UnsupportedEncodingException e) {
-            throw new BallerinaException("Error occured while encoding mime string: " + e.getMessage());
+            throw new BallerinaException("Error occured while converting given string to bytes: " + e.getMessage());
         }
-        String mimeEncodedString = Base64.getMimeEncoder().encodeToString(mimeBytes);
         return getBValues(new BString(mimeEncodedString));
     }
 }

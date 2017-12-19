@@ -2,18 +2,12 @@ package org.ballerinalang.net.mime.nativeimpl.qprintable;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 
 @BallerinaFunction(packageName = "ballerina.net.mime",
                    functionName = "encode",
@@ -29,8 +23,8 @@ import java.io.OutputStream;
 public class Encode extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-      /*  byte[] originalContent = this.getBlobArgument(context, 0);
-        ByteArrayOutputStream baos = null;
+        /*byte[] originalContent = this.getBlobArgument(context, 0);
+        ByteArrayOutputStream baos;
         try {
             baos = new ByteArrayOutputStream();
             OutputStream encodedOut = MimeUtility.encode(baos, "quoted-printable");
@@ -43,6 +37,6 @@ public class Encode extends AbstractNativeFunction {
                     "IOException occured while encoding byte array with quoted-printable: " + e.getMessage());
         }
         return getBValues(new BBlob(baos.toByteArray()));*/
-      return null;
+        return null;
     }
 }

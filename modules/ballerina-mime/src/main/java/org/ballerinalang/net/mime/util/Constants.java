@@ -74,4 +74,10 @@ public class Constants {
     public static final int PARAMETER_MAP_INDEX = 0;
 
     public static final int BYTE_LIMIT = 2097152; //2MB
+
+    public static final String TEMP_FILE_EXTENSION = ".tmp";
+    public static final String BALLERINA_TEXT_DATA = "ballerinaTextPayload";
+    public static final String BALLERINA_JSON_DATA = "ballerinaJsonPayload";
+    public static final String BALLERINA_XML_DATA = "ballerinaXmlPayload";
+    public static final String BALLERINA_BINARY_DATA = "ballerinaBinaryPayload";
 }

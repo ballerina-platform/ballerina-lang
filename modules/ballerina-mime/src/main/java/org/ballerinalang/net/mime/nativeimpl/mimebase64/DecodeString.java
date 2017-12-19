@@ -12,11 +12,13 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 @BallerinaFunction(packageName = "ballerina.net.mime",
                    functionName = "decodeString",
-                   receiver = @Receiver(type = TypeKind.STRUCT, structType = "MimeBase64Decoder",
+                   receiver = @Receiver(type = TypeKind.STRUCT,
+                                        structType = "MimeBase64Decoder",
                                         structPackage = "ballerina.net.mime"),
                    args = {
                            @Argument(name = "content",
@@ -30,10 +32,16 @@ public class DecodeString extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         String encodedContent = this.getStringArgument(context, 0);
         String charset = this.getStringArgument(context, 1);
-        byte[] decodedBytes = Base64.getMimeDecoder().decode(encodedContent);
+        byte[] decodedBytes;
         String decodedContent = "";
         try {
-            decodedContent = new String(decodedBytes, charset);
+            if (charset != null) {
+                decodedBytes = Base64.getMimeDecoder().decode(encodedContent.getBytes(charset));
+                decodedContent = new String(decodedBytes, charset);
+            } else {
+                decodedBytes = Base64.getMimeDecoder().decode(encodedContent.getBytes(StandardCharsets.UTF_8));
+                decodedContent = new String(decodedBytes, StandardCharsets.UTF_8);
+            }
         } catch (UnsupportedEncodingException e) {
             throw new BallerinaException("Error occured while decoding mime string: " + e.getMessage());
         }
