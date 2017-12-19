@@ -18,17 +18,12 @@
 package org.ballerinalang.composer.service.workspace.langserver;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonParser;
-import org.ballerinalang.composer.service.workspace.composerapi.ComposerApi;
-import org.ballerinalang.composer.service.workspace.composerapi.ComposerApiImpl;
-import org.ballerinalang.composer.service.workspace.composerapi.utils.RequestHandler;
+import com.google.gson.GsonBuilder;
+import org.ballerinalang.composer.service.workspace.langserver.ws.WSMessageConsumer;
+import org.ballerinalang.composer.service.workspace.langserver.ws.WSMessageProducer;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
-import org.eclipse.lsp4j.jsonrpc.Endpoint;
-import org.eclipse.lsp4j.jsonrpc.Launcher;
-import org.eclipse.lsp4j.jsonrpc.json.JsonRpcMethod;
-import org.eclipse.lsp4j.jsonrpc.messages.RequestMessage;
-import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
-import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
+import org.eclipse.lsp4j.jsonrpc.*;
+import org.eclipse.lsp4j.jsonrpc.json.*;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.LanguageClient;
@@ -37,11 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.Consumer;
 import javax.websocket.CloseReason;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -64,6 +57,9 @@ public class ThinLangServer {
     BallerinaLanguageServer server = new BallerinaLanguageServer();
     Endpoint endpoint = ServiceEndpoints.toEndpoint(server);
     private Gson gson = new Gson();
+    List<TextMessageListener> textMessageListeners = new ArrayList<>();
+    List<SocketCloseListener> socketCloseListeners = new ArrayList<>();
+    Launcher<LanguageClient> launcher;
 
     public ThinLangServer() throws IOException {
         inputStream.connect(pipedOutputStream);
@@ -72,93 +68,30 @@ public class ThinLangServer {
     @OnOpen
     public void onOpen (Session session) {
         sessions.add(session);
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Launcher<LanguageClient> l = LSPLauncher.createServerLauncher(server, inputStream,
-                            session.getBasicRemote().getSendStream());
-                    LanguageClient client = l.getRemoteProxy();
-                    ((LanguageClientAware) server).connect(client);
-                    Future<?> startListening = l.startListening();
-                    startListening.get();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        r.run();
-
+        if (launcher != null) {
+            return;
+        }
+        Launcher<LanguageClient> launcher = this.launchRPCServer(server, LanguageClient.class);
+        LanguageClient client = launcher.getRemoteProxy();
+        ((LanguageClientAware) server).connect(client);
+        Future<?> startListening = launcher.startListening();
+        try {
+            startListening.get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 
     @OnMessage
     public void onTextMessage(String request, Session session){
-//        String json = request.split("Content-Length:\\s[\\d]*\\s\\n")[1];
-//        RequestMessage jsonrpcRequest = gson.fromJson(json, RequestMessage.class);
-//        ResponseMessage jsonrpcResponse = null;
-//        ResponseError responseError = null;
-//        String responseStr = null;
-//        JsonRpcMethod delegateMethod = ServiceEndpoints.getSupportedMethods(BallerinaLanguageServer.class)
-//                .get(jsonrpcRequest.getMethod());
-//        if (delegateMethod != null) {
-//            // Cast parameters to the type requested by the delegate method
-//            Class paramCls = (Class) delegateMethod.getParameterTypes()[0];
-//            CompletableFuture completableFutureResp = endpoint.request(jsonrpcRequest.getMethod(),
-//                    new Gson().fromJson(new Gson().toJson((jsonrpcRequest.getParams())), paramCls));
-//            jsonrpcResponse = handleResult(jsonrpcRequest, completableFutureResp);
-//        } else {
-//            jsonrpcResponse = new ResponseMessage();
-//            jsonrpcResponse.setId(jsonrpcRequest.getId());
-//            responseError = handleError(-32601, "Method not found");
-//            jsonrpcResponse.setError(responseError);
-//        }
-//        String jsonTxt = gson.toJson(jsonrpcResponse);
-//        responseStr = "Content-Length: " + jsonTxt.length() + " \n\n" + jsonTxt;
-//        session.getBasicRemote().sendText(responseStr);
-        Runnable r = new Runnable() {
+        textMessageListeners.stream().forEachOrdered(new Consumer<TextMessageListener>() {
             @Override
-            public void run() {
-                byte[] bytes = request.getBytes();
-                try {
-                    int available = inputStream.available();
-                    if (bytes.length > available) {
-                        int currentPos = 0;
-                        int remainLength = bytes.length;
-                        int amountToWrite = available;
-                        while (true) {
-                            if (remainLength < amountToWrite) {
-                                amountToWrite = remainLength;
-                            }
-                            pipedOutputStream.write(bytes, currentPos, amountToWrite);
-                            pipedOutputStream.flush();
-                            remainLength = remainLength - amountToWrite;
-                            currentPos = currentPos + amountToWrite;
-                            if (remainLength <= 0) {
-                                break;
-                            }
-                            while (inputStream.available() < 100) {
-                                Thread.sleep(100);
-                            }
-                            amountToWrite = inputStream.available();
-                        }
-                    } else {
-                        pipedOutputStream.write(bytes, 0, bytes.length);
-                        pipedOutputStream.flush();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
+            public void accept(TextMessageListener textMessageListener) {
+                textMessageListener.onTextMessage(request, session);
             }
-        };
-        r.run();
-
+        });
     }
 
     @OnMessage
@@ -169,11 +102,12 @@ public class ThinLangServer {
 
     @OnClose
     public void onClose(CloseReason closeReason, Session session) {
-        LOGGER.info("Connection is closed with status code : " + closeReason.getCloseCode().getCode()
-                + " On reason " + closeReason.getReasonPhrase());
-        sessions.remove(session);
-        String msg = " left the chat";
-        sendMessageToAll(msg);
+        socketCloseListeners.stream().forEachOrdered(new Consumer<SocketCloseListener>() {
+            @Override
+            public void accept(SocketCloseListener socketCloseListener) {
+                socketCloseListener.onSocketClose(closeReason, session);
+            }
+        });
     }
 
     @OnError
@@ -181,52 +115,39 @@ public class ThinLangServer {
         LOGGER.error("Error found in method : " + throwable.toString());
     }
 
-    /**
-     * Handle the result/response from the endpoint.
-     *
-     * @param jsonrpcRequest        JSON RPC Request object
-     * @param completableFutureResp Result of the request sent
-     * @return JSON RPC Response object
-     */
-    public ResponseMessage handleResult(RequestMessage jsonrpcRequest, CompletableFuture completableFutureResp) {
-        ResponseMessage jsonrpcResponse = new ResponseMessage();
-        ResponseError responseError = null;
-        // Check if response object is null or not
-        if (completableFutureResp != null) {
-            try {
-                jsonrpcResponse.setResult(completableFutureResp.get());
-                jsonrpcResponse.setJsonrpc(jsonrpcRequest.getJsonrpc());
-                jsonrpcResponse.setId(jsonrpcRequest.getId());
-            } catch (InterruptedException e) {
-                responseError = handleError(-32002, "Attempted to retrieve the result of a task/s " +
-                        "that was aborted by throwing an exception");
-                jsonrpcResponse.setError(responseError);
-            } catch (ExecutionException e) {
-                responseError = handleError(-32001, "Current thread was interrupted");
-                jsonrpcResponse.setError(responseError);
-            }
+    protected <T> Launcher<T> launchRPCServer(Object localService, Class<T> remoteInterface) {
+
+        Consumer<GsonBuilder> configureGson = (gsonBuilder) -> {
+        };
+        Map<String, JsonRpcMethod> supportedMethods = new LinkedHashMap();
+        supportedMethods.putAll(ServiceEndpoints.getSupportedMethods(remoteInterface));
+        if (localService instanceof JsonRpcMethodProvider) {
+            JsonRpcMethodProvider rpcMethodProvider = (JsonRpcMethodProvider)localService;
+            supportedMethods.putAll(rpcMethodProvider.supportedMethods());
         } else {
-            responseError = handleError(-32003, "Response received from the endpoint is null");
-            jsonrpcResponse.setError(responseError);
+            supportedMethods.putAll(ServiceEndpoints.getSupportedMethods(localService.getClass()));
         }
-        return jsonrpcResponse;
+
+        MessageJsonHandler jsonHandler = new MessageJsonHandler(supportedMethods, configureGson);
+        MessageConsumer outGoingMessageStream = new WSMessageConsumer(this, jsonHandler);
+        RemoteEndpoint serverEndpoint = new RemoteEndpoint(outGoingMessageStream, ServiceEndpoints.toEndpoint(localService));
+        jsonHandler.setMethodProvider(serverEndpoint);
+        final MessageConsumer messageConsumer = serverEndpoint;
+        final MessageProducer reader = new WSMessageProducer(this, jsonHandler);
+        final T remoteProxy = ServiceEndpoints.toServiceObject(serverEndpoint, remoteInterface);
+        return new Launcher<T>() {
+            public Future<?> startListening() {
+                return ConcurrentMessageProcessor.startProcessing(reader, messageConsumer,
+                        Executors.newCachedThreadPool());
+            }
+
+            public T getRemoteProxy() {
+                return remoteProxy;
+            }
+        };
     }
 
-    /**
-     * Handles the JSON RPC Error object.
-     *
-     * @param code    error code
-     * @param message error message
-     * @return JSON RPC Error object to be attached to the Response object
-     */
-    public ResponseError handleError(int code, String message) {
-        ResponseError responseError = new ResponseError();
-        responseError.setCode(code);
-        responseError.setMessage(message);
-        return responseError;
-    }
-
-    private void sendMessageToAll(String message) {
+    public void sendMessageToAll(String message) {
         sessions.forEach(
                 session -> {
                     try {
@@ -236,5 +157,25 @@ public class ThinLangServer {
                     }
                 }
         );
+    }
+
+    public void addTextMessageListener(TextMessageListener listener) {
+        this.textMessageListeners.add(listener);
+    }
+
+    public void addSocketCloseListner(SocketCloseListener listener) {
+        this.socketCloseListeners.add(listener);
+    }
+
+    public List<Session> getSessions() {
+        return sessions;
+    }
+
+    public interface TextMessageListener {
+        void onTextMessage(String message, Session session);
+    }
+
+    public interface SocketCloseListener {
+        void onSocketClose(CloseReason closeReason, Session session);
     }
 }
