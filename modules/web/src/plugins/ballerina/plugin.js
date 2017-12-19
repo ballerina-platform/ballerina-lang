@@ -49,7 +49,7 @@ class BallerinaPlugin extends Plugin {
     constructor() {
         super();
         this.langServerConnection = undefined;
-        this.getLangServerConnection = this.getLangServerConnection.bind(this);
+        this.createLangServerConnection = this.createLangServerConnection.bind(this);
     }
 
     /**
@@ -58,7 +58,7 @@ class BallerinaPlugin extends Plugin {
     init(config) {
         super.init(config);
         return {
-            getLangServerConnection: this.getLangServerConnection,
+            createLangServerConnection: this.createLangServerConnection,
         };
     }
 
@@ -70,10 +70,29 @@ class BallerinaPlugin extends Plugin {
     }
 
     /**
-     * Get connection to langserver
+     * Create a connection to langserver
      */
-    getLangServerConnection() {
-        return this.langServerConnection;
+    createLangServerConnection() {
+        return new Promise((resolve, reject) => {
+            const socketOptions = {
+                maxReconnectionDelay: 10000,
+                minReconnectionDelay: 1000,
+                reconnectionDelayGrowFactor: 1.3,
+                connectionTimeout: 10000,
+                maxRetries: Infinity,
+                debug: false,
+            };
+            // create the web socket
+            const url = 'ws://localhost:8289/blangserve2'; // FIXME: Get URL via config api
+            const webSocket = new ReconnectingWebSocket(url, undefined, socketOptions);
+            // listen when the web socket is opened
+            listen({
+                webSocket,
+                onConnection: (connection) => {
+                    resolve(connection);
+                },
+            });
+        });
     }
 
     /**
@@ -81,24 +100,6 @@ class BallerinaPlugin extends Plugin {
      */
     activate(appContext) {
         super.activate(appContext);
-        const socketOptions = {
-            maxReconnectionDelay: 10000,
-            minReconnectionDelay: 1000,
-            reconnectionDelayGrowFactor: 1.3,
-            connectionTimeout: 10000,
-            maxRetries: Infinity,
-            debug: false,
-        };
-        // create the web socket
-        const url = 'ws://localhost:8289/blangserve2'; // FIXME: Get URL via config api
-        const webSocket = new ReconnectingWebSocket(url, undefined, socketOptions);
-        // listen when the web socket is opened
-        listen({
-            webSocket,
-            onConnection: (connection) => {
-                this.langServerConnection = connection;
-            },
-        });
     }
 
     /**

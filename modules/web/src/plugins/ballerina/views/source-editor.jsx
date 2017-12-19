@@ -142,29 +142,32 @@ class SourceEditor extends React.Component {
         editorInstance.setModel(modelForFile);
 
         const services = createMonacoServices(editorInstance);
-        const connection = this.props.ballerinaPlugin.getLangServerConnection();
-        // create and start the language client
-        const languageClient = new BaseLanguageClient({
-            name: 'Ballerina Language Client',
-            clientOptions: {
-                // use a language id as a document selector
-                documentSelector: [BAL_LANGUAGE],
-                // disable the default error handler
-                errorHandler: {
-                    error: () => ErrorAction.Continue,
-                    closed: () => CloseAction.DoNotRestart,
-                },
-            },
-            services,
-            // create a language client connection from the JSON RPC connection on demand
-            connectionProvider: {
-                get: (errorHandler, closeHandler) => {
-                    return Promise.resolve(createConnection(connection, errorHandler, closeHandler));
-                },
-            },
-        });
-        const disposable = languageClient.start();
-        connection.onClose(() => disposable.dispose());
+        const createLSConnection = this.props.ballerinaPlugin.createLangServerConnection();
+        createLSConnection
+            .then((connection) => {
+                // create and start the language client
+                const languageClient = new BaseLanguageClient({
+                    name: 'Ballerina Language Client',
+                    clientOptions: {
+                        // use a language id as a document selector
+                        documentSelector: [BAL_LANGUAGE],
+                        // disable the default error handler
+                        errorHandler: {
+                            error: () => ErrorAction.Continue,
+                            closed: () => CloseAction.DoNotRestart,
+                        },
+                    },
+                    services,
+                    // create a language client connection from the JSON RPC connection on demand
+                    connectionProvider: {
+                        get: (errorHandler, closeHandler) => {
+                            return Promise.resolve(createConnection(connection, errorHandler, closeHandler));
+                        },
+                    },
+                });
+                const disposable = languageClient.start();
+                connection.onClose(() => disposable.dispose());
+            });
     }
 
     /**
