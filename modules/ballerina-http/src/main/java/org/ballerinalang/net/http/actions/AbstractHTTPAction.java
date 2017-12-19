@@ -55,10 +55,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
 
     private static final String BALLERINA_USER_AGENT;
-
-    /* Application level timeout */
-    private static final long SENDER_TIMEOUT = 180000; // TODO: Make this configurable with endpoint timeout impl
-
     static {
         String version = System.getProperty(BALLERINA_VERSION);
         if (version != null) {
@@ -68,52 +64,100 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
     }
 
-    protected void prepareRequest(BConnector connector, String path, HTTPCarbonMessage cMsg, BStruct requestStruct) {
+    protected HTTPCarbonMessage createCarbonMsg(Context context) {
+
+        // Extract Argument values
+        BConnector bConnector = (BConnector) getRefArgument(context, 0);
+        String path = getStringArgument(context, 0);
+        BStruct requestStruct  = ((BStruct) getRefArgument(context, 1));
+        //TODO check below line
+        HTTPCarbonMessage requestMsg = HttpUtil
+                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
+
+        prepareRequest(bConnector, path, requestMsg, requestStruct);
+
+        return requestMsg;
+    }
+
+    protected void prepareRequest(BConnector connector, String path, HTTPCarbonMessage outboundRequest,
+            BStruct requestStruct) {
 
         validateParams(connector);
-        HttpUtil.populateOutboundRequest(requestStruct, cMsg);
-        String uri = null;
+        HttpUtil.populateOutboundRequest(requestStruct, outboundRequest);
+
         try {
-            uri = connector.getStringField(0) + path;
-
+            String uri = connector.getStringField(0) + path;
             URL url = new URL(uri);
+
+            int port = getOutboundReqPort(url);
             String host = url.getHost();
-            int port = 80;
-            if (url.getPort() != -1) {
-                port = url.getPort();
-            } else if (url.getProtocol().equalsIgnoreCase(Constants.PROTOCOL_HTTPS)) {
-                port = 443;
-            }
 
-            cMsg.setProperty(org.wso2.transport.http.netty.common.Constants.HOST, host);
-            cMsg.setProperty(Constants.PORT, port);
-            String toPath = url.getPath();
-            String query = url.getQuery();
-            if (query != null) {
-                toPath = toPath + "?" + query;
-            }
-            cMsg.setProperty(Constants.TO, toPath);
+            setOutboundReqProperties(outboundRequest, url, port, host);
+            setOutboundReqHeaders(outboundRequest, port, host);
 
-            cMsg.setProperty(Constants.PROTOCOL, url.getProtocol());
-            setHostHeader(cMsg, host, port);
-
-            HttpHeaders headers = cMsg.getHeaders();
-
-            // Set User-Agent header
-            if (!headers.contains(Constants.USER_AGENT_HEADER)) { // If User-Agent is not already set from program
-                cMsg.setHeader(Constants.USER_AGENT_HEADER, BALLERINA_USER_AGENT);
-            }
-
-            // Remove existing Connection header
-            if (headers.contains(Constants.CONNECTION_HEADER)) {
-                cMsg.removeHeader(Constants.CONNECTION_HEADER);
-            }
         } catch (MalformedURLException e) {
             throw new BallerinaException("Malformed url specified. " + e.getMessage());
         } catch (Throwable t) {
             throw new BallerinaException("Failed to prepare request. " + t.getMessage());
         }
+    }
 
+    private void setOutboundReqHeaders(HTTPCarbonMessage outboundRequest, int port, String host) {
+        HttpHeaders headers = outboundRequest.getHeaders();
+        setHostHeader(host, port, headers);
+        setOutboundUserAgent(headers);
+        removeConnectionHeader(headers);
+    }
+
+    private void setOutboundReqProperties(HTTPCarbonMessage outboundRequest, URL url, int port, String host) {
+        outboundRequest.setProperty(org.wso2.transport.http.netty.common.Constants.HOST, host);
+        outboundRequest.setProperty(Constants.PORT, port);
+
+        String outboundReqPath = getOutboundReqPath(url);
+        outboundRequest.setProperty(Constants.TO, outboundReqPath);
+
+        outboundRequest.setProperty(Constants.PROTOCOL, url.getProtocol());
+    }
+
+    private void setHostHeader(String host, int port, HttpHeaders headers) {
+        if (port == 80 || port == 443) {
+            headers.set(org.wso2.transport.http.netty.common.Constants.HOST, host);
+        } else {
+            headers.set(org.wso2.transport.http.netty.common.Constants.HOST, host + ":" + port);
+        }
+    }
+
+    private void removeConnectionHeader(HttpHeaders headers) {
+        // Remove existing Connection header
+        if (headers.contains(Constants.CONNECTION_HEADER)) {
+            headers.remove(Constants.CONNECTION_HEADER);
+        }
+    }
+
+    private void setOutboundUserAgent(HttpHeaders headers) {
+        // Set User-Agent header
+        if (!headers.contains(Constants.USER_AGENT_HEADER)) { // If User-Agent is not already set from program
+            headers.set(Constants.USER_AGENT_HEADER, BALLERINA_USER_AGENT);
+        }
+    }
+
+    private String getOutboundReqPath(URL url) {
+        String toPath = url.getPath();
+        String query = url.getQuery();
+        if (query != null) {
+            toPath = toPath + "?" + query;
+        }
+        return toPath;
+    }
+
+    private int getOutboundReqPort(URL url) {
+        int port = 80;
+        if (url.getPort() != -1) {
+            port = url.getPort();
+        } else if (url.getProtocol().equalsIgnoreCase(Constants.PROTOCOL_HTTPS)) {
+            port = 443;
+        }
+        return port;
     }
 
     private boolean validateParams(BConnector connector) {
@@ -143,7 +187,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         return ballerinaFuture;
     }
 
-    protected void executeNonBlocking(Context context, HTTPCarbonMessage httpRequestMsg,
+    private void executeNonBlocking(Context context, HTTPCarbonMessage httpRequestMsg,
                                     HTTPClientConnectorListener httpClientConnectorLister) {
         try {
             BConnector bConnector = (BConnector) getRefArgument(context, 0);
@@ -253,27 +297,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
             BStructType structType = structInfo.getType();
             return new BStruct(structType);
-        }
-    }
-
-    protected HTTPCarbonMessage createCarbonMsg(Context context) {
-
-        // Extract Argument values
-        BConnector bConnector = (BConnector) getRefArgument(context, 0);
-        String path = HttpUtil.sanitizeUri(getStringArgument(context, 0));
-        BStruct requestStruct  = ((BStruct) getRefArgument(context, 1));
-        //TODO check below line
-        HTTPCarbonMessage requestMsg = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
-        prepareRequest(bConnector, path, requestMsg, requestStruct);
-        return requestMsg;
-    }
-
-    protected void setHostHeader(HTTPCarbonMessage cMsg, String host, int port) {
-        if (port == 80 || port == 443) {
-            cMsg.getHeaders().set(org.wso2.transport.http.netty.common.Constants.HOST, host);
-        } else {
-            cMsg.getHeaders().set(org.wso2.transport.http.netty.common.Constants.HOST, host + ":" + port);
         }
     }
 }
