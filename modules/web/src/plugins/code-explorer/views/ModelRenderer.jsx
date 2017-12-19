@@ -17,6 +17,8 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
+import TreeView from 'react-treeview';
 import TreeUtil from 'plugins/ballerina/model/tree-util';
 
 /**
@@ -28,29 +30,43 @@ class ModelRenderer extends React.Component {
     }
     renderService(node) {
         return (
-            <li key={node.name.value}>
-                <span onClick={() => this.goToNode(node)}><i className='fw fw-service' /> {node.name.value} </span>
-                <ul>
+            <div className='node' key={node.name.value}>
+                <TreeView
+                    key={node.name.value}
+                    nodeLabel={
+                        <span>
+                            <span onClick={() => this.goToNode(node)}><i className='fw fw-service' />
+                                {node.name.value}
+                            </span>
+                        </span>
+                    }
+                >
                     {
                         node.resources.map((resource, i) => {
                             return this.renderResource(resource);
                         })
                     }
-                </ul>
-            </li>
+                </TreeView>
+            </div>
         );
     }
     renderResource(node) {
         return (
-            <li key={node.name.value} onClick={() => this.goToNode(node)}>
+            <div className='node' key={node.name.value} onClick={() => this.goToNode(node)}>
                 <span><i className='fw fw-resource' /> {node.name.value} </span>
-            </li>
+            </div>
         );
     }
     renderFunction(node) {
-        return (<li key={node.name.value} onClick={() => this.goToNode(node)}><i className='fw fw-function' />
-            {node.name.value}
-        </li>);
+        return (
+            <div
+                className='node'
+                key={node.name.value}
+                onClick={() => this.goToNode(node)}
+            >
+                <i className='fw fw-function' />{node.name.value}
+            </div>
+        );
     }
 
     renderTransformer(node) {
@@ -58,15 +74,22 @@ class ModelRenderer extends React.Component {
         if (!transformerName) {
             transformerName = node.getSignature();
         }
-        return (<li key={transformerName} onClick={() => this.goToNode(node)}>
+        return (<div className='node' key={transformerName} onClick={() => this.goToNode(node)}>
             <i className='fw fw-transformer' /> {transformerName}
-        </li>);
+        </div>);
     }
 
     renderDefaultNode(node) {
-        return (<li key={node.name.value} onClick={() => this.goToNode(node)}><i className={`fw fw-${node.kind.toLowerCase()}`} />
-            {node.name.value}
-        </li>);
+        return (
+            <div
+                className='node'
+                key={node.name.value}
+                onClick={() => this.goToNode(node)}
+            >
+                <i className={`fw fw-${node.kind.toLowerCase()}`} />
+                {node.name.value}
+            </div>
+        );
     }
     renderTopLevelNode(node) {
         switch (node.kind) {
@@ -91,20 +114,29 @@ class ModelRenderer extends React.Component {
         }
         return (
             <div>
-                <ul >
-                    <li key='package'><i className='fw fw-package' /> {TreeUtil.getPackageNameString(model) || model.name}</li>
-                    <ul>
-                        {
-                            model.topLevelNodes.map((node, i) => {
-                                return this.renderTopLevelNode(node);
-                            })
-                        }
-                    </ul>
-                </ul>
+                <TreeView
+                    key='package'
+                    nodeLabel={
+                        <span>
+                            <i className='fw fw-package' />{TreeUtil.getPackageNameString(model) || model.name}
+                        </span>
+                    }
+                >
+                    {
+                        model.topLevelNodes.map((node, i) => {
+                            return this.renderTopLevelNode(node);
+                        })
+                    }
+                </TreeView>
             </div>
         );
     }
 }
+
+ModelRenderer.propTypes = {
+    goToNode: PropTypes.func,
+    model: PropTypes.objectOf(Object).isRequired,
+};
 
 ModelRenderer.defaultProps = {
     model: {},
