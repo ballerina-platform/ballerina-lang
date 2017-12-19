@@ -16,51 +16,35 @@
  * under the License.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import './button.scss';
 
 class Button extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            actionTriggered: false,
-        };
-        this.onAddButtonClick = this.onAddButtonClick.bind(this);
-        this.handleOutsideClick = this.handleOutsideClick.bind(this);
-    }
-
-    /**
-     * invoke on component will unmount.
-     * */
-    componentWillUnmount() {
-        document.removeEventListener('mouseup', this.handleOutsideClick, false);
-    }
-
-    /**
-     * add button handler
-     */
-    onAddButtonClick() {
-        this.setState({ actionTriggered: true });
-    }
-
-    /**
-     * Handles the outside click event of the drop down
-     * @param {Object} e - event object.
-     */
-    handleOutsideClick(e) {
-        alert('test');
-    }
-
     /**
      * draw add typed button
      * @return {object} button rendering object
      */
     drawAddButton() {
         const menuItems = ['If', 'While', 'Send', 'Receive'];
+        const width = this.props.width;
+        const height = this.props.height;
+        const x = this.props.x;
+        const y = this.props.y;
+        const buttonX = this.props.buttonX;
+        const buttonY = this.props.buttonY;
+        let buttonClass = 'button';
+        if (this.props.showAlways) {
+            buttonClass = 'button-show-always';
+        }
+
         return (
-            <div className='button-area'>
-                <nav>
+            <div
+                className='button-area'
+                style={{ height, width, left: x, top: y }}
+            >
+                <nav style={{ left: buttonX, top: buttonY }}>
                     <div>
-                        <span className='button fw-stack fw-lg' onClick={this.onAddButtonClick}>
+                        <span className={buttonClass + ' fw-stack fw-lg'} onClick={this.onAddButtonClick}>
                             <i className='fw fw-circle fw-stack-2x' />
                             <i className='fw fw-add fw-stack-1x fw-inverse' />
                         </span>
@@ -83,5 +67,21 @@ class Button extends React.Component {
         return this.drawAddButton();
     }
 }
+
+Button.propTypes = {
+    x: PropTypes.number.isRequired,
+    y: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+    buttonX: PropTypes.number,
+    buttonY: PropTypes.number,
+    showAlways: PropTypes.bool,
+};
+
+Button.defaultProps = {
+    buttonX: 20,
+    buttonY: 20,
+    showAlways: false,
+};
 
 export default Button;
