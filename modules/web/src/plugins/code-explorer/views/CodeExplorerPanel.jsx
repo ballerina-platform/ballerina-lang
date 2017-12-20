@@ -34,6 +34,19 @@ class CodeExplorerPanel extends React.Component {
         this.state = { ast: ast || {} };
         this.onActiveBalASTChange = this.onActiveBalASTChange.bind(this);
         this.onTabChange = this.onTabChange.bind(this);
+        this.props.codeExplorerPlugin.appContext.command.on('scroll-design-view',
+        ({ scrollTop, scrollLeft, scrollHeight, scrollWidth, clientHeight, clientWidth }) => {
+            this.setState({
+                scrollPosition: {
+                    scrollTop,
+                    scrollLeft,
+                    scrollHeight,
+                    scrollWidth,
+                    clientHeight,
+                    clientWidth,
+                },
+            });
+        });
     }
 
     onActiveBalASTChange({ ast }) {
@@ -73,6 +86,7 @@ class CodeExplorerPanel extends React.Component {
                 <ModelRenderer
                     model={ast}
                     goToNode={node => this.props.codeExplorerPlugin.appContext.command.dispatch('go-to-node', node)}
+                    scrollPosition={this.state.scrollPosition}
                 />
             </div>
         );

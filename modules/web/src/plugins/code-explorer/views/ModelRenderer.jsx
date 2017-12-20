@@ -25,16 +25,29 @@ import TreeUtil from 'plugins/ballerina/model/tree-util';
  * Model Renderer
  */
 class ModelRenderer extends React.Component {
+    constructor() {
+        super();
+        this.getNodeClassName = this.getNodeClassName.bind(this);
+    }
     goToNode(node) {
         this.props.goToNode(node);
     }
+    getNodeClassName(node) {
+        let className = 'node';
+        const { scrollTop, scrollHeight, clientHeight } = this.props.scrollPosition;
+        const { y, h } = node.viewState.bBox;
+        if (y - clientHeight/2 <= scrollTop && y + h - clientHeight/2 >= scrollTop) {
+            className = `${className} selected`;
+        }
+        return className;
+    }
     renderService(node) {
         return (
-            <div className='node' key={node.name.value}>
+            <div className={this.getNodeClassName(node)} key={node.name.value}>
                 <TreeView
                     key={node.name.value}
                     nodeLabel={
-                        <span>
+                        <span className={this.getNodeClassName(node)}>
                             <span onClick={() => this.goToNode(node)}><i className='fw fw-service' />
                                 {node.name.value}
                             </span>
@@ -52,7 +65,7 @@ class ModelRenderer extends React.Component {
     }
     renderResource(node) {
         return (
-            <div className='node' key={node.name.value} onClick={() => this.goToNode(node)}>
+            <div className={this.getNodeClassName(node)} key={node.name.value} onClick={() => this.goToNode(node)}>
                 <span><i className='fw fw-resource' /> {node.name.value} </span>
             </div>
         );
@@ -60,7 +73,7 @@ class ModelRenderer extends React.Component {
     renderFunction(node) {
         return (
             <div
-                className='node'
+                className={this.getNodeClassName(node)}
                 key={node.name.value}
                 onClick={() => this.goToNode(node)}
             >
@@ -74,7 +87,7 @@ class ModelRenderer extends React.Component {
         if (!transformerName) {
             transformerName = node.getSignature();
         }
-        return (<div className='node' key={transformerName} onClick={() => this.goToNode(node)}>
+        return (<div className={this.getNodeClassName(node)} key={transformerName} onClick={() => this.goToNode(node)}>
             <i className='fw fw-transformer' /> {transformerName}
         </div>);
     }
@@ -82,7 +95,7 @@ class ModelRenderer extends React.Component {
     renderDefaultNode(node) {
         return (
             <div
-                className='node'
+                className={this.getNodeClassName(node)}
                 key={node.name.value}
                 onClick={() => this.goToNode(node)}
             >
@@ -136,11 +149,13 @@ class ModelRenderer extends React.Component {
 ModelRenderer.propTypes = {
     goToNode: PropTypes.func,
     model: PropTypes.objectOf(Object).isRequired,
+    scrollPosition: PropTypes.objectOf(Object).isRequired,
 };
 
 ModelRenderer.defaultProps = {
     model: {},
     goToNode: () => {},
+    scrollPosition: {},
 };
 
 export default ModelRenderer;
