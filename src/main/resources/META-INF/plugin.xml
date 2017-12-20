@@ -31,7 +31,8 @@
 
     <module-components>
         <component>
-            <implementation-class>org.ballerinalang.plugins.idea.project.BallerinaModuleLibrariesInitializer</implementation-class>
+            <implementation-class>org.ballerinalang.plugins.idea.project.BallerinaModuleLibrariesInitializer
+            </implementation-class>
         </component>
     </module-components>
 
@@ -57,7 +58,8 @@
                    implementationClass="org.ballerinalang.plugins.idea.codeInsight.daemon.impl.BallerinaAnnotator"/>
 
         <!--exit points highlighting-->
-        <highlightUsagesHandlerFactory implementation="org.ballerinalang.plugins.idea.codeInsight.highlighting.HighlightExitPointsHandlerFactory"/>
+        <highlightUsagesHandlerFactory
+                implementation="org.ballerinalang.plugins.idea.codeInsight.highlighting.HighlightExitPointsHandlerFactory"/>
 
         <!--string manipulator-->
         <lang.elementManipulator forClass="org.ballerinalang.plugins.idea.psi.QuotedLiteralString"
@@ -105,7 +107,8 @@
                                         implementationClass="org.ballerinalang.plugins.idea.marker.BallerinaRecursiveCallMarkerProvider"/>
 
         <!--spell checking-->
-        <spellchecker.support language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.spellchecker.BallerinaSpellcheckingStrategy"/>
+        <spellchecker.support language="Ballerina"
+                              implementationClass="org.ballerinalang.plugins.idea.spellchecker.BallerinaSpellcheckingStrategy"/>
 
         <!--find usage-->
         <lang.findUsagesProvider language="Ballerina"
@@ -141,52 +144,72 @@
         <sdkType implementation="org.ballerinalang.plugins.idea.sdk.BallerinaSdkType"/>
         <projectSdkSetupValidator id="BallerinaSdk"
                                   implementation="org.ballerinalang.plugins.idea.codeInsight.daemon.impl.BallerinaProjectSdkSetupValidator"/>
-        <library.presentationProvider implementation="org.ballerinalang.plugins.idea.sdk.BallerinaSdkLibraryPresentationProvider"/>
-        <applicationService serviceImplementation="org.ballerinalang.plugins.idea.sdk.BallerinaPathModificationTracker"/>
+        <library.presentationProvider
+                implementation="org.ballerinalang.plugins.idea.sdk.BallerinaSdkLibraryPresentationProvider"/>
+        <applicationService
+                serviceImplementation="org.ballerinalang.plugins.idea.sdk.BallerinaPathModificationTracker"/>
 
         <projectService serviceInterface="org.ballerinalang.plugins.idea.sdk.BallerinaSdkService"
                         serviceImplementation="org.ballerinalang.plugins.idea.sdk.BallerinaSmallIDEsSdkService"
                         overrides="false"/>
-        <editorNotificationProvider implementation="org.ballerinalang.plugins.idea.inspections.WrongSdkConfigurationNotificationProvider"/>
+        <editorNotificationProvider
+                implementation="org.ballerinalang.plugins.idea.inspections.WrongSdkConfigurationNotificationProvider"/>
 
         <!-- module -->
         <moduleType id="BALLERINA_MODULE" implementationClass="org.ballerinalang.plugins.idea.BallerinaModuleType"/>
-        <moduleConfigurationEditorProvider implementation="org.ballerinalang.plugins.idea.configuration.BallerinaModuleEditorsProvider" order="first"/>
+        <moduleConfigurationEditorProvider
+                implementation="org.ballerinalang.plugins.idea.configuration.BallerinaModuleEditorsProvider"
+                order="first"/>
         <editorNotificationProvider
                 implementation="org.ballerinalang.plugins.idea.inspections.WrongModuleTypeNotificationProvider"/>
 
         <!-- run application -->
         <programRunner id="ballerinaRunner" implementation="org.ballerinalang.plugins.idea.runconfig.BallerinaRunner"/>
 
-        <configurationType implementation="org.ballerinalang.plugins.idea.runconfig.application.BallerinaApplicationRunConfigurationType"/>
-        <runConfigurationProducer implementation="org.ballerinalang.plugins.idea.runconfig.application.BallerinaApplicationRunConfigurationProducer"/>
+        <configurationType
+                implementation="org.ballerinalang.plugins.idea.runconfig.application.BallerinaApplicationRunConfigurationType"/>
+        <runConfigurationProducer
+                implementation="org.ballerinalang.plugins.idea.runconfig.application.BallerinaApplicationRunConfigurationProducer"/>
 
-        <runLineMarkerContributor language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.runconfig.BallerinaRunLineMarkerProvider"/>
+        <runLineMarkerContributor language="Ballerina"
+                                  implementationClass="org.ballerinalang.plugins.idea.runconfig.BallerinaRunLineMarkerProvider"/>
         <console.folding implementation="org.ballerinalang.plugins.idea.runconfig.BallerinaConsoleFolding"/>
 
         <!--remote-->
-        <configurationType implementation="org.ballerinalang.plugins.idea.runconfig.remote.BallerinaRemoteRunConfigurationType"/>
-        <runConfigurationProducer implementation="org.ballerinalang.plugins.idea.runconfig.remote.BallerinaRemoteRunConfigurationProducer"/>
+        <configurationType
+                implementation="org.ballerinalang.plugins.idea.runconfig.remote.BallerinaRemoteRunConfigurationType"/>
+        <runConfigurationProducer
+                implementation="org.ballerinalang.plugins.idea.runconfig.remote.BallerinaRemoteRunConfigurationProducer"/>
 
         <!-- debugger -->
-        <programRunner id="ballerinaDebugger" implementation="org.ballerinalang.plugins.idea.runconfig.BallerinaDebugger"/>
-        <xdebugger.breakpointType implementation="org.ballerinalang.plugins.idea.debugger.breakpoint.BallerinaBreakPointType"/>
+        <programRunner id="ballerinaDebugger"
+                       implementation="org.ballerinalang.plugins.idea.runconfig.BallerinaDebugger"/>
+        <xdebugger.breakpointType
+                implementation="org.ballerinalang.plugins.idea.debugger.breakpoint.BallerinaBreakPointType"/>
 
         <!--project-->
-        <applicationService serviceImplementation="org.ballerinalang.plugins.idea.project.BallerinaApplicationLibrariesService"/>
-        <projectService serviceImplementation="org.ballerinalang.plugins.idea.project.BallerinaProjectLibrariesService"/>
-        <projectConfigurable id="Ballerina" groupId="language" provider="org.ballerinalang.plugins.idea.configuration.BallerinaConfigurableProvider"
+        <applicationService
+                serviceImplementation="org.ballerinalang.plugins.idea.project.BallerinaApplicationLibrariesService"/>
+        <projectService
+                serviceImplementation="org.ballerinalang.plugins.idea.project.BallerinaProjectLibrariesService"/>
+        <projectConfigurable id="Ballerina" groupId="language"
+                             provider="org.ballerinalang.plugins.idea.configuration.BallerinaConfigurableProvider"
                              dynamic="true"/>
         <projectExtension implementation="org.ballerinalang.plugins.idea.project.BallerinaProjectExtension"/>
-        <applicationService serviceImplementation="org.ballerinalang.plugins.idea.codeInsight.imports.BallerinaCodeInsightSettings"/>
-        <projectStructureDetector implementation="org.ballerinalang.plugins.idea.project.BallerinaProjectStructureDetector"/>
-        <directoryProjectGenerator implementation="org.ballerinalang.plugins.idea.BallerinaProjectGenerator"/> <!-- for small IDEs-->
+        <applicationService
+                serviceImplementation="org.ballerinalang.plugins.idea.codeInsight.imports.BallerinaCodeInsightSettings"/>
+        <projectStructureDetector
+                implementation="org.ballerinalang.plugins.idea.project.BallerinaProjectStructureDetector"/>
+        <directoryProjectGenerator
+                implementation="org.ballerinalang.plugins.idea.BallerinaProjectGenerator"/> <!-- for small IDEs-->
 
         <!--folding builder-->
-        <lang.foldingBuilder language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.editor.BallerinaFoldingBuilder"/>
+        <lang.foldingBuilder language="Ballerina"
+                             implementationClass="org.ballerinalang.plugins.idea.editor.BallerinaFoldingBuilder"/>
 
         <!--documentation-->
-        <lang.documentationProvider language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.documentation.BallerinaDocumentationProvider"/>
+        <lang.documentationProvider language="Ballerina"
+                                    implementationClass="org.ballerinalang.plugins.idea.documentation.BallerinaDocumentationProvider"/>
 
         <!--language injection-->
         <languageInjector implementation="org.ballerinalang.plugins.idea.psi.injector.XmlLanguageInjector"/>
@@ -195,7 +218,7 @@
         <!--inspections-->
         <localInspection language="Ballerina" displayName="Wrong package statement" groupPath="Ballerina"
                          groupName="Probable bugs" enabledByDefault="true" level="WARNING"
-                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.WrongPackageStatementInspection" />
+                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.WrongPackageStatementInspection"/>
 
         <localInspection language="Ballerina" displayName="Unused import inspection" groupPath="Ballerina"
                          groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"
@@ -224,7 +247,7 @@
         <localInspection language="Ballerina" displayName="Function invocation inspection" groupPath="Ballerina"
                          groupName="General" enabledByDefault="true" level="WARNING"
                          implementationClass="org.ballerinalang.plugins.idea.codeInspection.FunctionInvocationInspection"/>
-   </extensions>
+    </extensions>
 
     <actions>
         <!-- Add your actions here -->

@@ -14,16 +14,20 @@
   ~  limitations under the License.
   -->
 
-<idea-plugin version="2">
-  <extensions defaultExtensionNs="com.intellij">
-    <moduleType id="BALLERINA_MODULE" implementationClass="org.ballerinalang.plugins.idea.BallerinaModuleType"/>
-    <moduleConfigurationEditorProvider implementation="org.ballerinalang.plugins.idea.configuration.BallerinaModuleEditorsProvider" order="first"/>
-    <!--<editorNotificationProvider implementation="com.goide.inspections.WrongModuleTypeNotificationProvider"/>-->
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <moduleType id="BALLERINA_MODULE" implementationClass="org.ballerinalang.plugins.idea.BallerinaModuleType"/>
+        <moduleConfigurationEditorProvider
+                implementation="org.ballerinalang.plugins.idea.configuration.BallerinaModuleEditorsProvider"
+                order="first"/>
+        <editorNotificationProvider
+                implementation="org.ballerinalang.plugins.idea.inspections.WrongModuleTypeNotificationProvider"/>
 
-    <!--<projectStructureDetector implementation="com.goide.project.GoProjectStructureDetector"/>-->
+        <projectStructureDetector
+                implementation="org.ballerinalang.plugins.idea.project.BallerinaProjectStructureDetector"/>
 
-    <projectService serviceInterface="org.ballerinalang.plugins.idea.sdk.BallerinaSdkService"
-                    serviceImplementation="org.ballerinalang.plugins.idea.sdk.BallerinaIdeaSdkService"
-                    overrides="true"/>
-  </extensions>
+        <projectService serviceInterface="org.ballerinalang.plugins.idea.sdk.BallerinaSdkService"
+                        serviceImplementation="org.ballerinalang.plugins.idea.sdk.BallerinaIdeaSdkService"
+                        overrides="true"/>
+    </extensions>
 </idea-plugin>
