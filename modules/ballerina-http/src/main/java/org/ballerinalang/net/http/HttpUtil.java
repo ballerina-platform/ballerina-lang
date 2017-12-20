@@ -739,7 +739,7 @@ public class HttpUtil {
             return null;
         }
         HttpHeaders removedHeaders = new DefaultHttpHeaders();
-        if (!struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX).equals("")) {
+        if (!struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX).isEmpty()) {
             removedHeaders.add(Constants.USER_AGENT_HEADER, struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX));
         }
         return prepareHeaderMap(removedHeaders, headers);
@@ -752,7 +752,7 @@ public class HttpUtil {
             return null;
         }
         HttpHeaders removedHeaders = new DefaultHttpHeaders();
-        if (!struct.getStringField(Constants.RESPONSE_SERVER_INDEX).equals("")) {
+        if (!struct.getStringField(Constants.RESPONSE_SERVER_INDEX).isEmpty()) {
             removedHeaders.add(Constants.SERVER_HEADER, struct.getStringField(Constants.RESPONSE_SERVER_INDEX));
         }
         return prepareHeaderMap(removedHeaders, headers);
