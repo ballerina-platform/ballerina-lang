@@ -109,26 +109,26 @@ public struct Regex {
 
 @Description { value:"Finds all the strings matching the regular expression"}
 @Param { value:"mainString: The original string argument" }
-@Param { value:"reg: The Compiled Pattern/Regex" }
+@Param { value:"reg: Regular expression" }
 @Return { value: "The matching string array"}
 public native function <string mainString> findAllWithRegex (Regex reg) (string[]);
 
 @Description { value:"Returns a Boolean value indicating whether the string matches the regular expression"}
 @Param { value:"mainString: The original string argument" }
-@Param { value:"reg: The Compiled Pattern/Regex" }
+@Param { value:"reg: Regular expression" }
 @Return { value: "True if the string matches the regex; false otherwise"}
 public native function <string mainString>  matchesWithRegex (Regex reg) (boolean);
 
 @Description { value:"Replaces the mainString with the replacement of occurrences that matches the given regular expression" }
 @Param { value:"mainString: The original string argument" }
-@Param { value:"reg: The Compiled Pattern/Regex" }
+@Param { value:"reg: Regular expression" }
 @Param { value:"replaceWith: The replacement string" }
 @Return { value:"The derived string" }
 public native function <string mainString> replaceAllWithRegex (Regex reg, string replaceWith) (string);
 
-@Description { value:"Replaces the first instance of the regex with the replaceWith string and returns the result"}
+@Description { value:"Replaces the first instance of the regular expression matching area with the replaceWith string and returns the result"}
 @Param { value:"mainString: The original string argument" }
-@Param { value:"reg: The Compiled Pattern/Regex" }
+@Param { value:"reg: Regular expression" }
 @Param { value:"replaceWith: The replacement string" }
 @Return { value:"The derived string" }
 public native function <string mainString> replaceFirstWithRegex (Regex reg, string replaceWith) (string);
