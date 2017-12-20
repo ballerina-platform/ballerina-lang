@@ -54,7 +54,7 @@ public class ContentAwareMessageProcessorTestCase {
     private TransportsConfiguration configuration;
 
     private HttpServer httpServer;
-    private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.TEST_DEFAULT_INTERFACE_PORT));
+    private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
 
     @BeforeClass
     public void setUp() {
@@ -62,7 +62,7 @@ public class ContentAwareMessageProcessorTestCase {
                 .build("src/test/resources/simple-test-config/netty-transports.yml");
         serverConnectors = TestUtil.startConnectors(
                 configuration, new PassthroughMessageProcessorListener(configuration));
-        httpServer = TestUtil.startHTTPServer(TestUtil.TEST_HTTP_SERVER_PORT, new EchoServerInitializer());
+        httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new EchoServerInitializer());
     }
 
     @Test

@@ -64,7 +64,7 @@ public class ClientConnectorConnectionRefusedTestCase {
     @Test
     public void testHttpsGet() {
         try {
-            HTTPCarbonMessage httpsRequest = TestUtil.createHttpsPostReq(TestUtil.TEST_HTTPS_SERVER_PORT, "", "");
+            HTTPCarbonMessage httpsRequest = TestUtil.createHttpsPostReq(TestUtil.HTTPS_SERVER_PORT, "", "");
 
             CountDownLatch latch = new CountDownLatch(1);
             HTTPConnectorListener listener = new HTTPConnectorListener(latch);

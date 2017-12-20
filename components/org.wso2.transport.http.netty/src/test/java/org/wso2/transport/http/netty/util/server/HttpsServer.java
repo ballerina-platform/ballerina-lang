@@ -43,7 +43,7 @@ public class HttpsServer implements TestServer {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpsServer.class);
 
-    private int port = TestUtil.TEST_HTTPS_SERVER_PORT;
+    private int port = TestUtil.HTTPS_SERVER_PORT;
     private int bossGroupSize = Runtime.getRuntime().availableProcessors();
     private int workerGroupSize = Runtime.getRuntime().availableProcessors() * 2;
     private EventLoopGroup bossGroup;

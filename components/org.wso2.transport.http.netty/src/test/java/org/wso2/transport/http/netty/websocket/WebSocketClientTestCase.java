@@ -52,12 +52,12 @@ public class WebSocketClientTestCase {
 
     private HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
     private final String url = String.format("ws://%s:%d/%s", "localhost",
-                                             TestUtil.TEST_REMOTE_WS_SERVER_PORT, "websocket");
+                                             TestUtil.REMOTE_WS_SERVER_PORT, "websocket");
     private static final String PING = "ping";
     private final int latchWaitTimeInSeconds = 10;
     private WsClientConnectorConfig configuration = new WsClientConnectorConfig(url);
     private WebSocketClientConnector clientConnector;
-    private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(TestUtil.TEST_REMOTE_WS_SERVER_PORT,
+    private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(TestUtil.REMOTE_WS_SERVER_PORT,
                                                                            "xml, json");
 
     @BeforeClass
