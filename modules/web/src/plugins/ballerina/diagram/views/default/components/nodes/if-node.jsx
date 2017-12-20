@@ -198,20 +198,6 @@ class IfNode extends React.Component {
                     model={model}
                     body={model.body}
                 />
-                {/* {this.getAddBlockButton(isElseIfNode)} */}
-
-                {/* {elseComp && TreeUtil.isIf(elseComp) &&
-                <IfNode model={elseComp} />
-                }
-
-                {elseComp && TreeUtil.isBlock(elseComp) &&
-                <IfStatementDecorator
-                    dropTarget={model}
-                    bBox={elseComp.viewState.bBox}
-                    title={'else'}
-                    model={elseComp}
-                    body={elseComp}
-                /> */}
             </g>
         );
     }

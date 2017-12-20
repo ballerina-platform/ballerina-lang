@@ -1471,23 +1471,14 @@ class SizingUtil {
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
-        viewState.components['statement-box'].h = bodyHeight;// - components['block-header'].h;// + this.config.flowChartControlStatement.heading.height;
+        viewState.components['statement-box'].h = bodyHeight;
         viewState.components['statement-box'].w = bodyWidth;
         viewState.bBox.h = viewState.components['statement-box'].h
                             + viewState.components['drop-zone'].h
                             + this.config.flowChartControlStatement.gutter.h
                             + this.config.statement.gutter.h
                             + components['block-header'].h;
-        // viewState.bBox.h = viewState.components['statement-box'].h
-        //                     // + components['block-header'].h
-        //                      + (this.config.flowChartControlStatement.heading.height / 2)
-        //                      + this.config.flowChartControlStatement.padding.top
-        //                     // + this.config.flowChartControlStatement.gutter.h
-        //                     + viewState.components['drop-zone'].h;
-        //                     // + this.config.flowChartControlStatement.gutter.h;
-        //                     // + components['block-header'].h;
         viewState.bBox.w = bodyWidth;
-        // components.body.w = bodyWidth;
 
         components['block-header'].setOpaque(true);
 
@@ -1512,18 +1503,10 @@ class SizingUtil {
                 if (TreeUtil.isBlock(elseStmt) && elseStmt.statements.length === 0) {
                     break;
                 }
-                // elseStmt.viewState.bBox.h -= elseStmt.viewState.components['block-header'].h;
                 const elseHeight = (elseStmt.viewState.bBox.h)
                                 + this.config.flowChartControlStatement.heading.height
-                            // + viewState.components['drop-zone'].h
                              + this.config.statement.gutter.h;
-                            // + this.config.statement.gutter.h;
                 nodeHeight += elseHeight;
-                // - elseStmt.viewState.components['block-header'].h);
-                // this.config.flowChartControlStatement.heading.height
-                                    // - this.config.statement.gutter.h);
-                // elseStmt.viewState.bBox.w = bodyWidth;
-                // nodeWidth += elseStmt.viewState.bBox.w;
                 // If the current else statement is for an else if only, we proceed
                 if (elseStmt.parent !== node) {
                     // if it is a nested else
@@ -1538,8 +1521,6 @@ class SizingUtil {
                 }
             }
         }
-
-        // nodeHeight += this.config.flowChartControlStatement.gutter.h;
 
         node.viewState.bBox.h = nodeHeight;
         node.viewState.bBox.w = nodeWidth;

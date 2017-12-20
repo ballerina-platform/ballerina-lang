@@ -59,16 +59,6 @@ class ElseStatementDecorator extends React.Component {
                     this.myRoot = group;
                 }}
             >
-                {/* <DropZone
-                    x={p11X}
-                    y={p11Y}
-                    width={statementBBox.w}
-                    height={statementBBox.h}
-                    baseComponent='rect'
-                    dropTarget={this.props.body}
-                    enableDragBg
-                    enableCenterOverlayLine={!this.props.disableDropzoneMiddleLineOverlay}
-                /> */}
                 {body}
             </g>);
     }
