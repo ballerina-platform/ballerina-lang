@@ -42,19 +42,21 @@ class Button extends React.Component {
                 className='button-area'
                 style={{ height, width, left: x, top: y }}
             >
-                <nav style={{ left: buttonX, top: buttonY }}>
-                    <div>
-                        <span className={buttonClass + ' fw-stack fw-lg'} onClick={this.onAddButtonClick}>
-                            <i className='fw fw-circle fw-stack-2x' />
-                            <i className='fw fw-add fw-stack-1x fw-inverse' />
-                        </span>
+                <div className='interaction-menu-area' style={{ left: buttonX, top: buttonY }}>
+                    <div className='button-panel'>
+                      <span className={buttonClass + ' fw-stack fw-lg'} onClick={this.onAddButtonClick}>
+                          <i className='fw fw-circle fw-stack-2x' />
+                          <i className='fw fw-add fw-stack-1x fw-inverse' />
+                      </span>
                     </div>
-                    {
-                      menuItems.map((item) => {
-                          return (<a>{item}</a>);
-                      })
-                    }
-                </nav>
+                    <nav className='interaction-menu'>
+                        {
+                          menuItems.map((item) => {
+                              return (<a className='interaction-menu-item'>{item}</a>);
+                          })
+                        }
+                    </nav>
+                </div>
             </div>
         );
     }
