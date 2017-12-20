@@ -17,64 +17,42 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import './button.scss';
+import './interaction.scss';
 
+/**
+ * Interaction button component
+ */
 class Button extends React.Component {
-    /**
-     * draw add typed button
-     * @return {object} button rendering object
-     */
-    drawAddButton() {
-        const menuItems = ['If', 'While', 'Send', 'Receive'];
-        const width = this.props.width;
-        const height = this.props.height;
-        const x = this.props.x;
-        const y = this.props.y;
-        const buttonX = this.props.buttonX;
-        const buttonY = this.props.buttonY;
-        let buttonClass = 'button';
-        if (this.props.showAlways) {
-            buttonClass = 'button-show-always';
-        }
-
-        return (
-            <div
-                className='button-area'
-                style={{ height, width, left: x, top: y }}
-            >
-                <div className='interaction-menu-area' style={{ left: buttonX, top: buttonY }}>
-                    <div className='button-panel'>
-                      <span className={buttonClass + ' fw-stack fw-lg'} onClick={this.onAddButtonClick}>
-                          <i className='fw fw-circle fw-stack-2x' />
-                          <i className='fw fw-add fw-stack-1x fw-inverse' />
-                      </span>
-                    </div>
-                    <nav className='interaction-menu'>
-                        {
-                          menuItems.map((item) => {
-                              return (<a className='interaction-menu-item'>{item}</a>);
-                          })
-                        }
-                    </nav>
-                </div>
-            </div>
-        );
-    }
-
     /**
      * render hover area and button
      * @return {object} button rendering object
      */
     render() {
-        return this.drawAddButton();
+        const bBox = this.props.bBox;
+        const buttonX = this.props.buttonX;
+        const buttonY = this.props.buttonY;
+        return (
+            <div
+                className='button-area'
+                style={{ height: bBox.h, width: bBox.w, left: bBox.x, top: bBox.y }}
+            >
+                <div className='interaction-menu-area' style={{ left: buttonX, top: buttonY }}>
+                    <div className='button-panel'>
+                        <span className={(this.props.showAlways ? 'button-show-always' : 'button') + ' fw-stack fw-lg'}>
+                            <i className='fw fw-circle fw-stack-2x' />
+                            <i className='fw fw-add fw-stack-1x fw-inverse' />
+                        </span>
+                    </div>
+                    {this.props.children}
+                </div>
+            </div>
+        );
     }
 }
 
 Button.propTypes = {
-    x: PropTypes.number.isRequired,
-    y: PropTypes.number.isRequired,
-    width: PropTypes.number.isRequired,
-    height: PropTypes.number.isRequired,
+    children: PropTypes.isRequired,
+    bBox: PropTypes.valueOf(PropTypes.object).isRequired,
     buttonX: PropTypes.number,
     buttonY: PropTypes.number,
     showAlways: PropTypes.bool,
