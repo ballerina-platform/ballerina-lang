@@ -696,10 +696,10 @@ public class SQLDatasourceUtils {
 
     public static void setUserDefinedValue(Connection conn, PreparedStatement stmt, BValue value, int index,
             int direction, int sqlType) {
-        Object[] structData = getStructData(value);
+        try {
+        Object[] structData = getStructData(value, conn);
         Object[] dataArray = (Object[]) structData[0];
         String structuredSQLType = (String) structData[1];
-        try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (dataArray == null) {
                     stmt.setNull(index + 1, sqlType);
@@ -726,7 +726,7 @@ public class SQLDatasourceUtils {
         }
     }
 
-    private static Object[] getStructData(BValue value) {
+    private static Object[] getStructData(BValue value, Connection conn) throws SQLException {
         if (value == null || value.getType().getTag() != TypeTags.STRUCT_TAG) {
             return new Object[] { null, null };
         }
@@ -739,6 +739,7 @@ public class SQLDatasourceUtils {
         int stringFieldIndex = 0;
         int booleanFieldIndex = 0;
         int blobFieldIndex = 0;
+        int refFieldIndex = 0;
         for (int i = 0; i < fieldCount; ++i) {
             BStructType.StructField field = structFields[i];
             int typeTag = field.getFieldType().getTag();
@@ -762,6 +763,17 @@ public class SQLDatasourceUtils {
             case TypeTags.BLOB_TAG:
                 structData[i] = ((BStruct) value).getBlobField(blobFieldIndex);
                 ++blobFieldIndex;
+                break;
+            case TypeTags.STRUCT_TAG:
+                Object structValue = ((BStruct) value).getRefField(refFieldIndex);
+                if (structValue instanceof BStruct) {
+                    Object[] internalStructData = getStructData((BStruct) structValue, conn);
+                    Object[] dataArray = (Object[]) internalStructData[0];
+                    String internalStructType = (String) internalStructData[1];
+                    structValue = conn.createStruct(internalStructType, dataArray);
+                }
+                structData[i] = structValue;
+                ++refFieldIndex;
                 break;
             default:
                 throw new BallerinaException("unsupported data type for struct parameter: " + structuredSQLType);

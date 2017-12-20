@@ -102,45 +102,45 @@ public class SQLDataIterator implements DataIterator {
     }
 
     @Override
-    public String getString(String columnName) {
+    public String getString(int columnIndex) {
         try {
-            return rs.getString(columnName);
+            return rs.getString(columnIndex);
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
     }
 
     @Override
-    public long getInt(String columnName) {
+    public long getInt(int columnIndex) {
         try {
-            return rs.getLong(columnName);
+            return rs.getLong(columnIndex);
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
     }
 
     @Override
-    public double getFloat(String columnName) {
+    public double getFloat(int columnIndex) {
         try {
-            return rs.getDouble(columnName);
+            return rs.getDouble(columnIndex);
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
     }
 
     @Override
-    public boolean getBoolean(String columnName) {
+    public boolean getBoolean(int columnIndex) {
         try {
-            return rs.getBoolean(columnName);
+            return rs.getBoolean(columnIndex);
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
     }
 
     @Override
-    public String getBlob(String columnName) {
+    public String getBlob(int columnIndex) {
         try {
-            Blob bValue = rs.getBlob(columnName);
+            Blob bValue = rs.getBlob(columnIndex);
             return SQLDatasourceUtils.getString(bValue);
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
@@ -148,10 +148,10 @@ public class SQLDataIterator implements DataIterator {
     }
 
     @Override
-    public Object[] getStruct(String columnName) {
+    public Object[] getStruct(int columnIndex) {
         Object[] objArray = null;
         try {
-            Struct data = (Struct) rs.getObject(columnName);
+            Struct data = (Struct) rs.getObject(columnIndex);
             if (data != null) {
                 objArray = data.getAttributes();
             }
@@ -162,9 +162,9 @@ public class SQLDataIterator implements DataIterator {
     }
 
     @Override
-    public Object[] getArray(String columnName) {
+    public Object[] getArray(int columnIndex) {
         try {
-            return generateArrayDataResult(rs.getArray(columnName));
+            return generateArrayDataResult(rs.getArray(columnIndex));
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
@@ -336,6 +336,11 @@ public class SQLDataIterator implements DataIterator {
         return this.columnDefs;
     }
 
+    @Override
+    public BStructType getStructType() {
+        return this.bStructType;
+    }
+
     private BNewArray getDataArray(Array array) throws SQLException {
         Object[] dataArray = generateArrayDataResult(array);
         if (dataArray != null) {
@@ -404,6 +409,7 @@ public class SQLDataIterator implements DataIterator {
                 int doubleRegIndex = -1;
                 int stringRegIndex = -1;
                 int booleanRegIndex = -1;
+                int refRegIndex = -1;
                 int index = 0;
                 for (BStructType.StructField internalField : internalStructFields) {
                     int type = internalField.getFieldType().getTag();
@@ -428,6 +434,10 @@ public class SQLDataIterator implements DataIterator {
                         break;
                     case TypeTags.BOOLEAN_TAG:
                         struct.setBooleanField(++booleanRegIndex, (int) value);
+                        break;
+                    case TypeTags.STRUCT_TAG:
+                        struct.setRefField(++refRegIndex,
+                                createUserDefinedType((Struct) value, (BStructType) internalField.fieldType));
                         break;
                     default:
                         throw new BallerinaException("error in retrieving UDT data for unsupported type:" + type);
