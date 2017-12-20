@@ -2773,12 +2773,12 @@ public class BLangVM {
         StackFrame currentFrame = controlStack.currentFrame;
 
         // Extract the outgoing expressions
-        BValue[] arguments = new BValue[wrkrIntRefCPEntry.getbTypes().length];
+        BValue[] arguments = new BValue[wrkrIntRefCPEntry.getBTypes().length];
         copyArgValuesForWorkerInvoke(currentFrame, wrkrIntRefCPEntry.getArgRegs(),
-                wrkrIntRefCPEntry.getbTypes(), arguments);
+                wrkrIntRefCPEntry.getBTypes(), arguments);
 
         //populateArgumentValuesForWorker(expressions, arguments);
-        workerDataChannel.setTypes(wrkrIntRefCPEntry.getbTypes());
+        workerDataChannel.setTypes(wrkrIntRefCPEntry.getBTypes());
         workerDataChannel.putData(arguments);
     }
 
@@ -2893,7 +2893,7 @@ public class BLangVM {
         BValue[] passedInValues = (BValue[]) workerDataChannel.takeData();
         StackFrame currentFrame = controlStack.currentFrame;
         copyArgValuesForWorkerReply(currentFrame, wrkrIntCPEntry.getArgRegs(),
-                wrkrIntCPEntry.getbTypes(), passedInValues);
+                wrkrIntCPEntry.getBTypes(), passedInValues);
     }
 
     public static void copyArgValuesForWorkerInvoke(StackFrame callerSF, int[] argRegs, BType[] paramTypes,
