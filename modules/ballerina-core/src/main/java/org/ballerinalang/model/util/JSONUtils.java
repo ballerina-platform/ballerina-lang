@@ -785,8 +785,10 @@ public class JSONUtils {
                     }
                 }
                 return true;
-            default:
+            case TypeTags.JSON_TAG:
                 return true;
+            default:
+                return false;
         }
     }
 

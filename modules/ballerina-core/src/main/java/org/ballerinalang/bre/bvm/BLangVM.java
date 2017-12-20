@@ -28,7 +28,7 @@ import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
-import org.ballerinalang.model.types.BJSONConstraintType;
+import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -438,7 +438,7 @@ public class BLangVM {
                     if (entity.getType().getTag() == TypeTags.XML_TAG) {
                         sf.longRegs[j] = ((BXML) entity).length();
                         break;
-                    } else if (entity.getType().getTag() == TypeTags.JSON_TAG) {
+                    } else if (entity instanceof BJSON) {
                         if (JSONUtils.isJSONArray((BJSON) entity)) {
                             sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
                         } else {
@@ -733,7 +733,9 @@ public class BLangVM {
                     break;
                 case InstructionCodes.NEWJSON:
                     i = operands[0];
-                    sf.refRegs[i] = new BJSON("{}");
+                    cpIndex = operands[1];
+                    typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
+                    sf.refRegs[i] = new BJSON("{}", typeRefCPEntry.getType());
                     break;
                 case InstructionCodes.NEWDATATABLE:
                     i = operands[0];
@@ -2058,24 +2060,6 @@ public class BLangVM {
         }
     }
 
-    private boolean checkConstraintJSONEquivalency(BJSON json, BStructType targetType) {
-        BStructType.StructField[] tFields = targetType.getStructFields();
-        for (int i = 0; i < tFields.length; i++) {
-            if (JSONUtils.hasElement(json, tFields[i].getFieldName())) {
-                if (tFields[i].getFieldType() instanceof BStructType) {
-                    if (checkConstraintJSONEquivalency(JSONUtils.getElement(json, tFields[i].getFieldName()),
-                            (BStructType) tFields[i].getFieldType())) {
-                        continue;
-                    }
-                } else {
-                    continue;
-                }
-            }
-            return false;
-        }
-        return true;
-    }
-
     private void execTypeConversionOpcodes(StackFrame sf, int opcode, int[] operands) {
         int i;
         int j;
@@ -3252,14 +3236,6 @@ public class BLangVM {
         }
     }
 
-    private boolean checkConstraintJSONCast(BType targetType, BRefType value) {
-        if (checkConstraintJSONEquivalency((BJSON) value,
-                (BStructType) ((BJSONConstraintType) targetType).getConstraint())) {
-            return true;
-        }
-        return false;
-    }
-
     private boolean checkCast(BValue sourceValue, BType targetType) {
         BType sourceType = sourceValue.getType();
 
@@ -3276,14 +3252,9 @@ public class BLangVM {
             return true;
         }
 
-        if (targetType.getTag() == TypeTags.C_JSON_TAG &&
-                sourceValue.getType().getTag() == TypeTags.JSON_TAG) {
-            return checkConstraintJSONCast(targetType, (BRefType) sourceValue);
-        }
-
         // Check JSON casting
         if (getElementType(sourceType).getTag() == TypeTags.JSON_TAG) {
-            return JSONUtils.checkJSONCast(((BJSON) sourceValue).value(), targetType);
+            return checkJSONCast((BJSON) sourceValue, targetType);
         }
 
         // Array casting
@@ -3515,6 +3486,48 @@ public class BLangVM {
         // Reset the value in the case of an error;
         sf.intRegs[j] = 0;
         handleTypeCastError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.BOOLEAN_TNAME);
+    }
+
+    private boolean checkJSONCast(BJSON sourceValue, BType targetType) {
+        if (targetType.getTag() == TypeTags.JSON_TAG && sourceValue.getType().getTag() == TypeTags.JSON_TAG) {
+            return checkJSONEquivalency((BJSON) sourceValue, (BJSONType) targetType);
+        }
+
+        return JSONUtils.checkJSONCast(((BJSON) sourceValue).value(), targetType);
+    }
+
+    private boolean checkJSONEquivalency(BJSON json, BJSONType targetType) {
+        BStructType sourceConstrainedType = (BStructType) ((BJSONType) json.getType()).getConstrainedType();
+        BStructType targetConstrainedType = (BStructType) targetType.getConstrainedType();
+
+        // Casting to an unconstrained JSON
+        if (targetConstrainedType == null) {
+            // ideally we should't reach here. This is checked from typeChecker
+            return true;
+        }
+
+        // Casting from constrained JSON to constrained JSON
+        if (sourceConstrainedType != null) {
+            if (sourceConstrainedType.equals(targetConstrainedType)) {
+                return true;
+            }
+
+            return checkStructEquivalency(sourceConstrainedType, targetConstrainedType);
+        }
+
+        // Casting from unconstrained JSON to constrained JSON
+        BStructType.StructField[] tFields = targetConstrainedType.getStructFields();
+        for (int i = 0; i < tFields.length; i++) {
+            if (!JSONUtils.hasElement(json, tFields[i].getFieldName())) {
+                return false;
+            }
+
+            if (!checkCast(JSONUtils.getElement(json, tFields[i].getFieldName()), tFields[i].getFieldType())) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private void convertStructToMap(int[] operands, StackFrame sf) {
