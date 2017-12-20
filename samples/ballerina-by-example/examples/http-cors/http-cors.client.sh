@@ -1,16 +1,18 @@
-$ curl -v http://localhost:9090/session/sayHello
+# simple request
+$ curl -v "http://localhost:9090/crossOriginService/company" -H "Origin:http://www.bbc.com"
+
 < HTTP/1.1 200 OK
-< Content-Type: text/plain
-< Set-Cookie: BSESSIONID=D844B4AAC699........E4E249BE5F21; Path=/session;
-< Content-Length: 26
+< Content-Type: application/json
+< Access-Control-Allow-Origin: http://www.bbc.com
+< Access-Control-Allow-Credentials: true
+< Content-Length: 21
+{"type":"middleware"}
 
-Say hello to a new session
+# preflight request
+$ curl -v "http://localhost:9090/crossOriginService/lang" -X OPTIONS -H "Origin:http://www.m3.com" -H "Access-Control-Request-Method:POST"
 
-# Copy the BSESSIONID of session cookie in above response.
-# Now invoke doTask resource as follows.
-$ curl -v http://localhost:9090/session/doTask -H "Cookie: BSESSIONID=..(use given BSESSIONID).."
-Session sample
-
-# Finally invoke sayBye using same BSESSIONID.
-$ curl -v http://localhost:9090/session/sayBye -H "Cookie: BSESSIONID=..(use same BSESSIONID).."
-Session: ..(same BSESSIONID).. invalidated
+< HTTP/1.1 200 OK
+< Access-Control-Allow-Origin: http://www.m3.com
+< Access-Control-Allow-Methods: POST
+< Access-Control-Max-Age: 84900
+< Content-Length: 0

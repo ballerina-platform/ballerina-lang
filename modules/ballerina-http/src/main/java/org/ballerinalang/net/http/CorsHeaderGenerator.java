@@ -108,22 +108,26 @@ public class CorsHeaderGenerator {
         //6.2.3 - request must have access-control-request-method, must be single-valued
         List<String> requestMethods = getHeaderValues(Constants.AC_REQUEST_METHOD, cMsg);
         if (requestMethods == null || requestMethods.size() != 1) {
-            bLog.info(action + "not allowed request methods");
+            String error = requestMethods == null ? "Access-Control-Request-Method header is unavailable" :
+                    "multiple request methods";
+            bLog.info(action + error);
             return null;
         }
         String requestMethod = requestMethods.get(0);
         CorsHeaders resourceCors = getResourceCors(cMsg, requestMethod);
         if (resourceCors == null || !resourceCors.isAvailable()) {
-            bLog.info(action + "headers are not declared properly");
+            String error = resourceCors == null ? "method not allowed" :
+                    "cors headers not declared properly";
+            bLog.info(action + error);
             return null;
         }
         if (!isEffectiveMethod(requestMethod, resourceCors.getAllowMethods())) {
-            bLog.info(action + "not allowed method");
+            bLog.info(action + "method not allowed");
             return null;
         }
         //6.2.2 - request origin must be on the list or match with *.
         if (!isEffectiveOrigin(Arrays.asList(origin), resourceCors.getAllowOrigins())) {
-            bLog.info(action + "not allowed origin");
+            bLog.info(action + "origin not allowed");
             return null;
         }
         //6.2.4 - get list of request headers.
