@@ -1291,6 +1291,11 @@
     .panel-label {
         dominant-baseline: middle;
     }
+
+    .client-line-text {
+        text-anchor: middle;
+        dominant-baseline: central;
+    }
     
     .condition-text {
         text-anchor: middle;

@@ -37,9 +37,8 @@ class PositioningUtil {
         viewState.components.text.y = viewState.components['statement-box'].y +
             (viewState.components['statement-box'].h / 2);
 
-        //
         if (TreeUtil.statementIsInvocation(node)) {
-            // Set the view state property to manipulate at the statement decorator
+            // Set the view state property to manipulate at the action invocation decorator
             viewState.isActionInvocation = true;
             const arrowStartBBox = new SimpleBBox();
             const arrowEndBBox = new SimpleBBox();
@@ -54,8 +53,14 @@ class PositioningUtil {
             const endpoint = _.find(allVisibleEndpoints, (varDef) => {
                 return varDef.variable.name.value === variableRefName;
             });
+
+            // Move the x cordinates to centre align the action invocation statement
+            viewState.components['statement-box'].x -= (this.config.actionInvocationStatement.width / 2);
+            viewState.bBox.x -= (this.config.actionInvocationStatement.width / 2);
+
             arrowStartBBox.x = viewState.bBox.x + viewState.bBox.w;
-            arrowStartBBox.y = viewState.components['statement-box'].y + 10;
+            arrowStartBBox.y = viewState.components['statement-box'].y
+                                + this.config.actionInvocationStatement.textHeight;
 
             dropDown.x = arrowStartBBox.x;
             dropDown.y = viewState.components['statement-box'].y

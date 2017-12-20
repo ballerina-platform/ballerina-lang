@@ -27,6 +27,9 @@ import Breakpoint from './breakpoint';
 import ActiveArbiter from './active-arbiter';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
+import ArrowDecorator from './arrow-decorator';
+import StatementPropertyItemSelector from './../utils/statement-property-item-selector';
+import TreeUtil from '../../../../../model/tree-util';
 import splitVariableDefByLambda from '../../../../../model/lambda-util';
 import { getComponentForNodeArray } from '../../../../diagram-util';
 
@@ -34,7 +37,7 @@ import { getComponentForNodeArray } from '../../../../diagram-util';
  * Wraps other UI elements and provide box with a heading.
  * Enrich elements with a action box and expression editors.
  */
-class StatementDecorator extends React.Component {
+class ActionInvocationDecorator extends React.Component {
 
     /**
      * Calculate statement box.
@@ -60,7 +63,7 @@ class StatementDecorator extends React.Component {
 
         this.state = {
             active: 'hidden',
-            statementBox: StatementDecorator.calculateStatementBox(props),
+            statementBox: ActionInvocationDecorator.calculateStatementBox(props),
         };
     }
 
@@ -69,7 +72,7 @@ class StatementDecorator extends React.Component {
      * @param {object} props - Next props.
      */
     componentWillReceiveProps(props) {
-        this.setState({ statementBox: StatementDecorator.calculateStatementBox(props) });
+        this.setState({ statementBox: ActionInvocationDecorator.calculateStatementBox(props) });
     }
 
     /**
@@ -152,7 +155,6 @@ class StatementDecorator extends React.Component {
         const dropZone = viewState.components['drop-zone'];
         const text = viewState.components.text;
 
-        const textClassName = 'statement-text';
         const actionBoxBbox = new SimpleBBox();
 
         const { designer } = this.context;
@@ -165,6 +167,43 @@ class StatementDecorator extends React.Component {
         if (viewState.fullExpression !== expression) {
             const fullExp = _.trimEnd(this.props.viewState.fullExpression, ';');
             tooltip = (<title>{fullExp}</title>);
+        }
+
+        let dropDownItems;
+        const dropDownItemMeta = [];
+        let backwardArrowStart;
+        let backwardArrowEnd;
+        if (viewState.isActionInvocation) {
+            // TODO: Need to remove the unique by filter whne the lang server item resolver is implemented
+            dropDownItems = _.uniqBy(TreeUtil.getAllVisibleEndpoints(this.props.model.parent), (item) => {
+                return item.variable.name.value;
+            });
+            dropDownItems.forEach((item) => {
+                const meta = {
+                    text: _.get(item, 'variable.name.value'),
+                    callback: (newEp) => {
+                        TreeUtil.changeInvocationEndpoint(this.props.model, newEp);
+                        this.props.model.trigger('tree-modified', {
+                            origin: this.props.model,
+                            type: 'invocation-endpoint-change',
+                            title: 'Change Target Endpoint',
+                            data: {
+                                node: this.props.model,
+                            },
+                        });
+                    },
+                };
+                dropDownItemMeta.push(meta);
+            });
+            this.props.model.getSource();
+
+            if (viewState.components.invocation) {
+                backwardArrowStart = Object.assign({}, viewState.components.invocation.end);
+                backwardArrowStart.y = viewState.components['statement-box'].y
+                    + viewState.components['statement-box'].h - 10;
+                backwardArrowEnd = Object.assign({}, viewState.components.invocation.start);
+                backwardArrowEnd.y = backwardArrowStart.y;
+            }
         }
 
         const { lambdas } = splitVariableDefByLambda(this.props.model);
@@ -207,15 +246,25 @@ class StatementDecorator extends React.Component {
                     enableDragBg
                     enableCenterOverlayLine
                 />
-                <g className='statement-body'>
-                    {tooltip}
-                    <text
-                        x={text.x}
-                        y={text.y}
-                        className={textClassName}
+                <g>
+                    <rect
+                        x={statementBox.x}
+                        y={statementBox.y}
+                        width={statementBox.w}
+                        height={statementBox.h}
+                        className='action-invocation-statement-rect'
                         onClick={e => this.openEditor(e)}
                     >
-                        {_.trimEnd(expression, ';')}
+                        {tooltip}
+                    </rect>
+                    <text
+                        x={viewState.components.invocation.start.x
+                            + this.context.designer.config.statement.padding.left}
+                        y={viewState.components.invocation.start.y
+                            - (this.context.designer.config.actionInvocationStatement.textHeight / 2)}
+                        className='action-invocation-text'
+                    >
+                        {expression}
                     </text>
                 </g>
                 <ActionBox
@@ -226,6 +275,23 @@ class StatementDecorator extends React.Component {
                     onJumptoCodeLine={() => this.onJumpToCodeLine()}
                     onBreakpointClick={() => this.props.onBreakpointClick()}
                 />
+                <g>
+                    <ArrowDecorator
+                        start={viewState.components.invocation.start}
+                        end={viewState.components.invocation.end}
+                    />
+                    <ArrowDecorator
+                        start={backwardArrowStart}
+                        end={backwardArrowEnd}
+                        dashed
+                    />
+                </g>
+                <StatementPropertyItemSelector
+                    model={this.props.model}
+                    bBox={this.props.model.viewState.components.dropDown}
+                    itemsMeta={dropDownItemMeta}
+                    show={this.state.active}
+                />
                 {isBreakpoint && this.renderBreakpointIndicator()}
                 {this.props.children}
             </g>);
@@ -233,12 +299,12 @@ class StatementDecorator extends React.Component {
 
 }
 
-StatementDecorator.defaultProps = {
+ActionInvocationDecorator.defaultProps = {
     editorOptions: null,
     children: null,
 };
 
-StatementDecorator.propTypes = {
+ActionInvocationDecorator.propTypes = {
     viewState: PropTypes.shape({
         bBox: PropTypes.instanceOf(SimpleBBox),
         fullExpression: PropTypes.string,
@@ -258,7 +324,7 @@ StatementDecorator.propTypes = {
     isBreakpoint: PropTypes.bool.isRequired,
 };
 
-StatementDecorator.contextTypes = {
+ActionInvocationDecorator.contextTypes = {
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
@@ -268,4 +334,4 @@ StatementDecorator.contextTypes = {
 };
 
 
-export default breakpointHoc(StatementDecorator);
+export default breakpointHoc(ActionInvocationDecorator);

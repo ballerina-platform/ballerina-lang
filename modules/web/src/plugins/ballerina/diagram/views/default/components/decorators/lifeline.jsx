@@ -228,7 +228,7 @@ class LifeLine extends React.Component {
                 y={bBox.y + titleBoxH / 2}
                 alignmentBaseline='central'
                 dominantBaseline='central'
-                className='life-line-text genericT'
+                className='life-line-text'
                 onClick={e => this.openExpressionEditor(e)}
             >{identifier}</text>
             <text
@@ -237,7 +237,7 @@ class LifeLine extends React.Component {
                 textAnchor='middle'
                 alignmentBaseline='central'
                 dominantBaseline='central'
-                className='life-line-text genericT unhoverable'
+                className='life-line-text'
             >{identifier}</text>
             {this.props.onDelete &&
                 <ActionBox

@@ -19,16 +19,17 @@
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import LifeLineDecorator from './../decorators/lifeline.jsx';
+import LifeLine from '../decorators/lifeline';
 import PanelDecorator from './../decorators/panel-decorator';
+import Client from '../decorators/client';
 import { getComponentForNodeArray } from './../../../../diagram-util';
-import { lifeLine } from './../../designer-defaults';
 import ImageUtil from './../../../../image-util';
 import './service-definition.css';
 import TreeUtil from '../../../../../model/tree-util';
 import EndpointDecorator from '../decorators/endpoint-decorator';
 import StatementDropZone from '../../../../../drag-drop/DropZone';
 import AddActionNode from './add-action-node';
+import ActionNodeModel from '../../../../../model/tree/action-node';
 
 class ActionNode extends React.Component {
 
@@ -44,11 +45,6 @@ class ActionNode extends React.Component {
         };
         this.onMouseOut = this.onMouseOut.bind(this);
         this.onMouseOver = this.onMouseOver.bind(this);
-    }
-
-    canDropToPanelBody(dragSource) {
-        return TreeUtil.isEndpointTypeVariableDef(dragSource)
-            || TreeUtil.isWorker(dragSource);
     }
 
     /**
@@ -67,17 +63,16 @@ class ActionNode extends React.Component {
         }
     }
 
+    canDropToPanelBody(dragSource) {
+        return TreeUtil.isEndpointTypeVariableDef(dragSource)
+            || TreeUtil.isWorker(dragSource);
+    }
+
     render() {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getName().value;
-        const statementContainerBBox = this.props.model.body.viewState.bBox;
         const bodyBBox = this.props.model.body.viewState.bBox;
         const body = this.props.model.getBody();
-        const action_worker_bBox = {};
-        action_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width) / 2;
-        action_worker_bBox.y = statementContainerBBox.y - lifeLine.head.height;
-        action_worker_bBox.w = lifeLine.width;
-        action_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;
 
         const classes = {
             lineClass: 'default-worker-life-line',
@@ -118,6 +113,10 @@ class ActionNode extends React.Component {
                     argumentParams={argumentParameters}
                     returnParams={returnParameters}
                 >
+                    <Client
+                        title='Caller'
+                        bBox={this.props.model.viewState.components.client}
+                    />
                     <g>
                         { this.props.model.getWorkers().length === 0 &&
                             <g>
@@ -130,9 +129,9 @@ class ActionNode extends React.Component {
                                     dropTarget={body}
                                     enableDragBg
                                 />
-                                <LifeLineDecorator
+                                <LifeLine
                                     title='default'
-                                    bBox={action_worker_bBox}
+                                    bBox={this.props.model.viewState.components.defaultWorkerLine}
                                     classes={classes}
                                     icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
                                     iconColor='#025482'
@@ -181,6 +180,10 @@ class ActionNode extends React.Component {
 ActionNode.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
     mode: PropTypes.string,
+};
+
+ActionNode.propTypes = {
+    model: PropTypes.instanceOf(ActionNodeModel).isRequired,
 };
 
 export default ActionNode;
