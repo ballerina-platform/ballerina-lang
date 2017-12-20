@@ -23,14 +23,14 @@ class TryNode extends AbstractTryNode {
     /**
      * Set the children alias.
      * */
-    setChildrenAlias() {
+    setChildrenCompoundStatus() {
         if (this.finallyBody) {
-            this.finallyBody.viewState.alias = 'Finally';
+            this.finallyBody.viewState.compound = true;
         }
 
         if (this.catchBlocks.length > 0) {
             for (const catchBlock in this.catchBlocks) {
-                this.catchBlocks[catchBlock].body.viewState.alias = 'Catch';
+                this.catchBlocks[catchBlock].body.viewState.compound = true;
             }
         }
     }

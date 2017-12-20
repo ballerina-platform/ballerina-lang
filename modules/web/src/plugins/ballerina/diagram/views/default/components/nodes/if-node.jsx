@@ -167,7 +167,6 @@ class IfNode extends React.Component {
             text: model.getCondition().getSource(),
         };
         const isElseIfNode = TreeUtil.isIf(model.parent);
-        const elseComp = model.elseStatement;
         const title = isElseIfNode ? 'else if' : 'if';
         const dropZone = model.viewState.components['drop-zone'];
         const editorOptions = {
@@ -177,23 +176,19 @@ class IfNode extends React.Component {
         };
         return (
             <g>
-                {!isElseIfNode &&
-                <g>
-                    <DropZone
-                        model={this.props.model}
-                        x={dropZone.x}
-                        y={dropZone.y}
-                        width={dropZone.w}
-                        height={dropZone.h}
-                        baseComponent='rect'
-                        dropTarget={model.parent}
-                        dropBefore={model}
-                        renderUponDragStart
-                        enableDragBg
-                        enableCenterOverlayLine
-                    />
-                </g>
-                }
+                <DropZone
+                    model={this.props.model}
+                    x={dropZone.x}
+                    y={dropZone.y}
+                    width={dropZone.w}
+                    height={dropZone.h}
+                    baseComponent='rect'
+                    dropTarget={model.parent}
+                    dropBefore={model}
+                    renderUponDragStart
+                    enableDragBg
+                    enableCenterOverlayLine
+                />
                 <IfStatementDecorator
                     dropTarget={model}
                     bBox={bBox}
@@ -203,21 +198,6 @@ class IfNode extends React.Component {
                     model={model}
                     body={model.body}
                 />
-                {this.getAddBlockButton(isElseIfNode)}
-
-                {/* {elseComp && TreeUtil.isIf(elseComp) &&
-                <IfNode model={elseComp} />
-                }
-
-                {elseComp && TreeUtil.isBlock(elseComp) &&
-                <IfStatementDecorator
-                    dropTarget={model}
-                    bBox={elseComp.viewState.bBox}
-                    title={'else'}
-                    model={elseComp}
-                    body={elseComp}
-                /> */}
-                }
             </g>
         );
     }

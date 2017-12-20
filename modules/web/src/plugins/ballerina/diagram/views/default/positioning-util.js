@@ -1196,41 +1196,43 @@ class PositioningUtil {
         const bBox = viewState.bBox;
         const elseStatement = node.elseStatement;
 
-        this.positionCompoundStatementComponents(node);
+        this.positionFlowControlCompoundStatementComponents(node);
 
         node.body.viewState.bBox.x = node.viewState.components['statement-box'].x;
-        node.body.viewState.bBox.y = node.viewState.components['statement-box'].y
-            + node.viewState.components['block-header'].h;
+        node.viewState.components['statement-box'].y += node.viewState.components['block-header'].h;
+        node.body.viewState.bBox.y = node.viewState.components['statement-box'].y;
 
         // Set the position of the else statement
-        const elseX = bBox.x;
-        let elseY = viewState.components['statement-box'].y
-            + viewState.components['statement-box'].h;
+        const elseX = (bBox.x - this.config.flowChartControlStatement.padding.left)
+                    + node.viewState.components['statement-box'].w;
+        const elseY = viewState.components['statement-box'].y
+                     + viewState.components['statement-box'].h;
 
-        // Increase the node's components width. Mac width of all the else if nodes and the else node increased in this
-        // pass
-        const newWidth = node.viewState.bBox.w;
-        node.body.viewState.bBox.w = newWidth;
-        node.viewState.components['drop-zone'].w = newWidth;
-        node.viewState.components['statement-box'].w = newWidth;
-        node.viewState.components['block-header'].w = newWidth;
-
-        if (elseStatement && node.viewState.bBox.w > elseStatement.viewState.bBox.w) {
-            elseStatement.viewState.bBox.w = newWidth;
-            if (TreeUtil.isBlock(elseStatement)) {
-                elseStatement.viewState.components['drop-zone'].w = newWidth;
-                elseStatement.viewState.components['statement-box'].w = newWidth;
-                elseStatement.viewState.components['block-header'].w = newWidth;
-            }
-        }
-        if (elseStatement && TreeUtil.isBlock(elseStatement)) {
-            elseY += elseStatement.viewState.components['block-header'].h;
-        }
         if (elseStatement) {
             elseStatement.viewState.bBox.x = elseX;
             elseStatement.viewState.bBox.y = elseY;
-            this.positionCompoundStatementComponents(elseStatement);
+            this.positionFlowControlCompoundStatementComponents(elseStatement);
         }
+    }
+
+    /**
+     * Position components of a flow control statement.
+     * @node flow control parent node.
+     */
+    positionFlowControlCompoundStatementComponents(node) {
+        const viewState = node.viewState;
+        const x = viewState.bBox.x;
+        let y;
+
+        if (TreeUtil.isBlock(node)) {
+            y = viewState.bBox.y + viewState.components['block-header'].h;
+        } else {
+            y = viewState.bBox.y;
+        }
+        viewState.components['drop-zone'].x = x;
+        viewState.components['drop-zone'].y = y;
+        viewState.components['statement-box'].x = viewState.bBox.x;
+        viewState.components['statement-box'].y = y + viewState.components['drop-zone'].h;
     }
 
     /**

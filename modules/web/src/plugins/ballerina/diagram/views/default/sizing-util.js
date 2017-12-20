@@ -1287,7 +1287,7 @@ class SizingUtil {
         const viewState = node.viewState;
         const statements = node.getStatements();
         this.setContainerSize(statements, viewState, this.config.statement.width);
-        if (viewState.alias) {
+        if (viewState.compound) {
             this.sizeCompoundNode(node);
         }
     }
@@ -1465,17 +1465,20 @@ class SizingUtil {
         const bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
 
-        components['block-header'].h = this.config.flowChartControlStatement.heading.height
-                                        + this.config.statement.gutter.v;
+        components['block-header'].h = ((3 / 2) * this.config.flowChartControlStatement.heading.height)
+                                        + this.config.flowChartControlStatement.padding.top
+                                        + this.config.flowChartControlStatement.gutter.h;
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
-        viewState.components['statement-box'].h = bodyHeight + this.config.flowChartControlStatement.heading.height;
+        viewState.components['statement-box'].h = bodyHeight;
         viewState.components['statement-box'].w = bodyWidth;
-        viewState.bBox.h = this.config.statement.gutter.v + viewState.components['statement-box'].h
-                            + viewState.components['drop-zone'].h;
+        viewState.bBox.h = viewState.components['statement-box'].h
+                            + viewState.components['drop-zone'].h
+                            + this.config.flowChartControlStatement.gutter.h
+                            + this.config.statement.gutter.h
+                            + components['block-header'].h;
         viewState.bBox.w = bodyWidth;
-        components.body.w = bodyWidth;
 
         components['block-header'].setOpaque(true);
 
@@ -1490,30 +1493,37 @@ class SizingUtil {
         // end of if block sizing
 
         // If the parent of the if node is a block node, then it is only a if statement. Otherwise it is an else-if
-        let nodeHeight = node.viewState.bBox.h;
+        let nodeHeight = viewState.bBox.h;
+        let nodeWidth = node.viewState.bBox.w;
         let elseStmt = node.elseStatement;
         let proceed = true;
 
-        // If the else statement's width is greater than the node's width, we increase the node width
-        // Eventually the top most if node ends up with the max width. During the positioning, increase the width to the
-        // bottom most node
-        if (elseStmt && elseStmt.viewState.bBox.w > node.viewState.bBox.w) {
-            node.viewState.bBox.w = elseStmt.viewState.bBox.w;
-        }
         if (TreeUtil.isBlock(node.parent)) {
             while (elseStmt && proceed) {
-                nodeHeight += elseStmt.viewState.bBox.h;
+                if (TreeUtil.isBlock(elseStmt) && elseStmt.statements.length === 0) {
+                    break;
+                }
+                const elseHeight = (elseStmt.viewState.bBox.h)
+                                + this.config.flowChartControlStatement.heading.height
+                             + this.config.statement.gutter.h;
+                nodeHeight += elseHeight;
                 // If the current else statement is for an else if only, we proceed
+                if (elseStmt.parent !== node) {
+                    // if it is a nested else
+                    elseStmt.parent.viewState.bBox.h += elseHeight;
+                }
                 if (TreeUtil.isBlock(elseStmt)) {
                     proceed = false;
                 } else {
+                    // nested if construct
+                    nodeWidth += elseStmt.viewState.bBox.w;
                     elseStmt = elseStmt.elseStatement;
                 }
             }
         }
 
-        // Need to make the width of all the components (if, else, else if) equal
         node.viewState.bBox.h = nodeHeight;
+        node.viewState.bBox.w = nodeWidth;
     }
 
     /**
@@ -1691,15 +1701,18 @@ class SizingUtil {
         const bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
 
-        components['block-header'].h = this.config.flowChartControlStatement.heading.height
-                                        + this.config.statement.gutter.v;
+        components['block-header'].h = ((3 / 2) * this.config.flowChartControlStatement.heading.height)
+                                        + this.config.flowChartControlStatement.padding.top
+                                        + this.config.flowChartControlStatement.gutter.h;
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
         viewState.components['statement-box'].h = bodyHeight + this.config.flowChartControlStatement.heading.height;
         viewState.components['statement-box'].w = bodyWidth;
-        viewState.bBox.h = this.config.statement.gutter.v + viewState.components['statement-box'].h
-                            + viewState.components['drop-zone'].h;
+        viewState.bBox.h = viewState.components['statement-box'].h
+                            + viewState.components['drop-zone'].h
+                            + this.config.flowChartControlStatement.gutter.h // for the lower dashed line
+                            + this.config.statement.gutter.h;
         viewState.bBox.w = bodyWidth;
         components.body.w = bodyWidth;
 
