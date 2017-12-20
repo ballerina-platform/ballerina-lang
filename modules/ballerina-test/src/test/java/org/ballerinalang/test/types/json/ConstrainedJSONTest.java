@@ -188,7 +188,7 @@ public class ConstrainedJSONTest {
         Assert.assertNull(returns[3]);
     }
 
-    @Test(description = "Test Constaint JSON to Constaint JSON cast.")
+    @Test(description = "Test Constaint JSON to Constaint JSON safe cast.")
     public void testConstraintJSONToConstraintJsonCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToConstraintJsonCast");
         Assert.assertNotNull(returns[0]);
@@ -197,5 +197,22 @@ public class ConstrainedJSONTest {
         // This test case should be updated once the https://github.com/ballerinalang/ballerina/issues/4252
         Assert.assertEquals(returns[0].stringValue(),
                 "{\"name\":\"John Doe\",\"age\":30,\"address\":\"Colombo\",\"class\":\"5\"}");
+    }
+
+    @Test(description = "Test Constaint JSON to Constaint JSON unsafe cast postive scenario.")
+    public void testConstraintJSONToConstraintJsonUnsafePositiveCast() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToConstraintJsonUnsafePositiveCast");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"name\":\"John Doe\",\"age\":30,\"address\":\"Colombo\",\"class\":\"5\"}");
+        Assert.assertNull(returns[1]);
+    }
+
+    @Test(description = "Test Constaint JSON to Constaint JSON unsafe cast negative scenario.")
+    public void testConstraintJSONToConstraintJsonUnsafeNegativeCast() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToConstraintJsonUnsafeNegativeCast");
+        Assert.assertNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertEquals(((BStruct) returns[1]).getStringField(0), "'json<Employee>' cannot be cast to 'json<Student>'");
     }
 }

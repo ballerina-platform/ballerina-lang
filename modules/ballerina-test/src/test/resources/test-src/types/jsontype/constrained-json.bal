@@ -106,6 +106,18 @@ function testJSONToConstraintJsonUnsafeCastPositive() (json, json, json, TypeCas
 }
 
 function testConstraintJSONToConstraintJsonCast() (json) {
-    json<Person> j = (json<Person>)getStudent();
+    json<Person> j = (json<Person>) getStudent();
     return j;
+}
+
+function testConstraintJSONToConstraintJsonUnsafePositiveCast() (json, TypeCastError) {
+    json<Person> jp = (json<Person>) getStudent();
+    var js, e = (json<Student>) jp;
+    return js, e;
+}
+
+function testConstraintJSONToConstraintJsonUnsafeNegativeCast() (json, TypeCastError) {
+    json<Employee> je = {first_name:"John", last_name:"Doe", age:30, address:{phoneNumber:{number:"1234"}, street:"York St"}};
+    var js, e = (json<Student>) je;
+    return js, e;
 }

@@ -585,7 +585,7 @@ public class Types {
                 } else if (checkStructEquivalency(((BJSONType) s).constraint, t.constraint)) {
                     return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
                 }
-                return symTable.notFoundSymbol;
+                return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
             } else if (s.tag == TypeTags.ARRAY) {
                 return getExplicitArrayCastOperator(t, s, t, s);
             } else if (t.constraint.tag != TypeTags.NONE) {
