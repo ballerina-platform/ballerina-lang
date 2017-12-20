@@ -15,11 +15,6 @@
 
 package org.wso2.transport.http.netty.pkcs;
 
-import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.DefaultHttpRequest;
-import io.netty.handler.codec.http.DefaultLastHttpContent;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpVersion;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.common.Constants;
@@ -43,8 +38,6 @@ import org.wso2.transport.http.netty.util.TestUtil;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -76,7 +69,7 @@ public class PKCSTest {
         Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
         //set PKCS12 truststore to ballerina client.
         senderConfig.forEach(config -> {
-            if (config.getId().contains(TestUtil.HTTPS_SCHEME)) {
+            if (config.getId().contains(Constants.HTTPS_SCHEME)) {
                 config.setTrustStoreFile(TestUtil.getAbsolutePath(trustStoreFile));
                 config.setTrustStorePass(password);
                 config.setTlsStoreType(tlsStoreType);
@@ -108,14 +101,7 @@ public class PKCSTest {
     @Test
     public void testPKCS12() {
         try {
-            ByteBuffer byteBuffer = ByteBuffer.wrap(testValue.getBytes(Charset.forName("UTF-8")));
-            HTTPCarbonMessage msg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-                    HttpMethod.GET, ""));
-            msg.setProperty("PORT", serverPort);
-            msg.setProperty("PROTOCOL", scheme);
-            msg.setProperty("HOST", TestUtil.TEST_HOST);
-            msg.setProperty("HTTP_METHOD", Constants.HTTP_POST_METHOD);
-            msg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
+            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(serverPort, testValue, "");
 
             CountDownLatch latch = new CountDownLatch(1);
             HTTPConnectorListener listener = new HTTPConnectorListener(latch);

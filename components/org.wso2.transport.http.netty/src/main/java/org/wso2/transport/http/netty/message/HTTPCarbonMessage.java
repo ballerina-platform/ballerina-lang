@@ -359,14 +359,23 @@ public class HTTPCarbonMessage {
         return blockingEntityCollector;
     }
 
-    /**
-     * Peek the head of the queue
-     */
-    public HttpContent peek() {
-        return this.blockingEntityCollector.peek();
-    }
-
     public synchronized void removeHttpContentAsyncFuture() {
         this.messageFuture = null;
+    }
+
+    /**
+     * Gives the underling netty request message
+     * @return netty request message
+     */
+    public HttpRequest getNettyHttpRequest() {
+        return (HttpRequest) this.httpMessage;
+    }
+
+    /**
+     * Gives the underling netty response message
+     * @return netty response message
+     */
+    public HttpResponse getNettyHttpResponse() {
+        return (HttpResponse) this.httpMessage;
     }
 }

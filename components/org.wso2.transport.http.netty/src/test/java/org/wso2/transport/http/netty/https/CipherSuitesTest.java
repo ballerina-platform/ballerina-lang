@@ -41,8 +41,6 @@ import org.wso2.transport.http.netty.util.TestUtil;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -102,7 +100,7 @@ public class CipherSuitesTest {
                 .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
         Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
         senderConfig.forEach(config -> {
-            if (config.getId().contains(TestUtil.HTTPS_SCHEME)) {
+            if (config.getId().contains(Constants.HTTPS_SCHEME)) {
                 config.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
                 config.setTrustStoreFile(TestUtil.getAbsolutePath(config.getTrustStoreFile()));
                 config.setKeyStorePassword(TestUtil.KEY_STORE_PASSWORD);
@@ -118,7 +116,7 @@ public class CipherSuitesTest {
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         listenerConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
         listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
-        listenerConfiguration.setScheme(TestUtil.HTTPS_SCHEME);
+        listenerConfiguration.setScheme(Constants.HTTPS_SCHEME);
         listenerConfiguration.setParameters(serverParams);
 
         ServerConnector serverConnector = factory
@@ -138,8 +136,7 @@ public class CipherSuitesTest {
 
     public void testCiphersuites(boolean hasException, int serverPort) {
         try {
-            ByteBuffer byteBuffer = ByteBuffer.wrap(testValue.getBytes(Charset.forName("UTF-8")));
-            HTTPCarbonMessage msg = TestUtil.createHttpsRequest(serverPort, byteBuffer);
+            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(serverPort, testValue, "");
 
             CountDownLatch latch = new CountDownLatch(1);
             SSLConnectorListener listener = new SSLConnectorListener(latch);

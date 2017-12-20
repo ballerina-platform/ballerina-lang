@@ -27,19 +27,19 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
  */
 public class RequestDataHolder {
 
-    private String acceptEncodingHeader;
-    private String connectionHeader;
-    private String contentTypeHeader;
-    private String transferEncodingHeader;
-    private String contentLengthHeader;
+    private String acceptEncodingHeaderValue;
+    private String connectionHeaderValue;
+    private String contentTypeHeaderValue;
+    private String transferEncodingHeaderValue;
+    private String contentLengthHeaderValue;
     private String httpMethod;
 
     public RequestDataHolder(HTTPCarbonMessage requestMessage) {
-        acceptEncodingHeader = requestMessage.getHeader(Constants.ACCEPT_ENCODING);
-        connectionHeader = requestMessage.getHeader(Constants.HTTP_CONNECTION);
-        contentTypeHeader = requestMessage.getHeader(Constants.HTTP_CONTENT_TYPE);
-        transferEncodingHeader = requestMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING);
-        contentLengthHeader = requestMessage.getHeader(Constants.HTTP_CONTENT_LENGTH);
+        acceptEncodingHeaderValue = requestMessage.getHeader(Constants.ACCEPT_ENCODING);
+        connectionHeaderValue = requestMessage.getHeader(Constants.HTTP_CONNECTION);
+        contentTypeHeaderValue = requestMessage.getHeader(Constants.HTTP_CONTENT_TYPE);
+        transferEncodingHeaderValue = requestMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING);
+        contentLengthHeaderValue = requestMessage.getHeader(Constants.HTTP_CONTENT_LENGTH);
         httpMethod = (String) requestMessage.getProperty(Constants.HTTP_METHOD);
     }
 
@@ -48,8 +48,8 @@ public class RequestDataHolder {
      *
      * @return value of the Accept-Encoding header
      */
-    public String getAcceptEncodingHeader() {
-        return acceptEncodingHeader;
+    public String getAcceptEncodingHeaderValue() {
+        return acceptEncodingHeaderValue;
     }
 
     /**
@@ -57,8 +57,8 @@ public class RequestDataHolder {
      *
      * @return value of the Connection header
      */
-    public String getConnectionHeader() {
-        return connectionHeader;
+    public String getConnectionHeaderValue() {
+        return connectionHeaderValue;
     }
 
     /**
@@ -66,8 +66,8 @@ public class RequestDataHolder {
      *
      * @return value of the Content-Type header
      */
-    public String getContentTypeHeader() {
-        return contentTypeHeader;
+    public String getContentTypeHeaderValue() {
+        return contentTypeHeaderValue;
     }
 
     /**
@@ -75,8 +75,8 @@ public class RequestDataHolder {
      *
      * @return  value of the Transfer-Encoding header
      */
-    public String getTransferEncodingHeader() {
-        return transferEncodingHeader;
+    public String getTransferEncodingHeaderValue() {
+        return transferEncodingHeaderValue;
     }
 
     /**
@@ -84,8 +84,8 @@ public class RequestDataHolder {
      *
      * @return value of the Content-Length header
      */
-    public String getContentLengthHeader() {
-        return contentLengthHeader;
+    public String getContentLengthHeaderValue() {
+        return contentLengthHeaderValue;
     }
 
     /**

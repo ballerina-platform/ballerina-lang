@@ -18,9 +18,6 @@
 
 package org.wso2.transport.http.netty;
 
-import io.netty.handler.codec.http.DefaultHttpRequest;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpVersion;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.common.Constants;
@@ -67,17 +64,11 @@ public class ClientConnectorConnectionRefusedTestCase {
     @Test
     public void testHttpsGet() {
         try {
-            HTTPCarbonMessage msg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-                    HttpMethod.GET, ""));
-            msg.setProperty("PORT", TestUtil.TEST_HTTPS_SERVER_PORT);
-            msg.setProperty("PROTOCOL", "https");
-            msg.setProperty("HOST", "localhost");
-            msg.setProperty("HTTP_METHOD", "GET");
-            msg.setEndOfMsgAdded(true);
+            HTTPCarbonMessage httpsRequest = TestUtil.createHttpsPostReq(TestUtil.TEST_HTTPS_SERVER_PORT, "", "");
 
             CountDownLatch latch = new CountDownLatch(1);
             HTTPConnectorListener listener = new HTTPConnectorListener(latch);
-            HttpResponseFuture responseFuture = httpClientConnector.send(msg);
+            HttpResponseFuture responseFuture = httpClientConnector.send(httpsRequest);
             responseFuture.setHttpConnectorListener(listener);
 
             latch.await(6, TimeUnit.SECONDS);

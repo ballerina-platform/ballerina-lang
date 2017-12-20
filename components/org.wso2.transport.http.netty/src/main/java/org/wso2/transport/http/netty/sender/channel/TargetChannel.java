@@ -18,11 +18,11 @@ package org.wso2.transport.http.netty.sender.channel;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelPipeline;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.common.Util;
@@ -36,6 +36,8 @@ import org.wso2.transport.http.netty.sender.HTTPClientInitializer;
 import org.wso2.transport.http.netty.sender.TargetHandler;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -56,6 +58,9 @@ public class TargetChannel {
     private boolean isRequestWritten = false;
     private boolean chunkDisabled = false;
     private HandlerExecutor handlerExecutor;
+
+    private List<HttpContent> contentList = new ArrayList<>();
+    private int contentLength = 0;
 
     public TargetChannel(HTTPClientInitializer httpClientInitializer, ChannelFuture channelFuture) {
         this.httpClientInitializer = httpClientInitializer;
@@ -147,54 +152,76 @@ public class TargetChannel {
     }
 
     public void writeContent(HTTPCarbonMessage httpOutboundRequest) {
-        try {
-            if (handlerExecutor != null) {
-                handlerExecutor.executeAtTargetRequestReceiving(httpOutboundRequest);
-            }
+        if (handlerExecutor != null) {
+            handlerExecutor.executeAtTargetRequestReceiving(httpOutboundRequest);
+        }
 
-            httpOutboundRequest.getHttpContentAsync().setMessageListener(httpContent ->
-                    this.channel.eventLoop().execute(() -> {
-                if (Util.isLastHttpContent(httpContent)) {
-                    if (!this.isRequestWritten) {
-                        // this means we need to send an empty payload
-                        // depending on the http verb
-                        if (Util.isEntityBodyAllowed(httpOutboundRequest
-                                .getProperty(Constants.HTTP_METHOD).toString())) {
-                            Util.setupTransferEncodingForEmptyRequest(httpOutboundRequest, chunkDisabled);
-                        }
-                        writeOutboundRequestHeaders(httpOutboundRequest);
+        httpOutboundRequest.getHttpContentAsync().setMessageListener(httpContent ->
+                this.channel.eventLoop().execute(() -> {
+                    try {
+                        writeOutboundRequest(httpOutboundRequest, httpContent);
+                    } catch (Exception exception) {
+                        String errorMsg = "Failed to send the request : "
+                                + exception.getMessage().toLowerCase(Locale.ENGLISH);
+                        log.error(errorMsg, exception);
+                        this.targetHandler.getHttpResponseFuture().notifyHttpListener(exception);
                     }
+                }));
+    }
 
-                    this.getChannel().writeAndFlush(httpContent);
-                    httpOutboundRequest.removeHttpContentAsyncFuture();
-
-                    if (handlerExecutor != null) {
-                        handlerExecutor.executeAtTargetRequestSending(httpOutboundRequest);
+    private void writeOutboundRequest(HTTPCarbonMessage httpOutboundRequest, HttpContent httpContent) throws Exception {
+        if (Util.isLastHttpContent(httpContent)) {
+            if (!this.isRequestWritten) {
+                // this means we need to send an empty payload
+                // depending on the http verb
+                if (Util.isEntityBodyAllowed(getHttpMethod(httpOutboundRequest))) {
+                    if (chunkDisabled) {
+                        contentLength += httpContent.content().readableBytes();
+                        Util.setupContentLengthRequest(httpOutboundRequest, contentLength);
+                    } else {
+                        Util.setupChunkedRequest(httpOutboundRequest);
                     }
-                } else {
-                    if (!this.isRequestWritten) {
-                        Util.setupTransferEncodingForRequest(httpOutboundRequest, chunkDisabled);
-                        writeOutboundRequestHeaders(httpOutboundRequest);
-                    }
-                    this.getChannel().writeAndFlush(httpContent);
                 }
-            }));
-        } catch (Exception e) {
-            String msg;
-            if (e instanceof NullPointerException) {
-                msg = "Failed to send the request";
-            } else {
-                msg = "Failed to send the request : " + e.getMessage().toLowerCase(Locale.ENGLISH);
+                writeOutboundRequestHeaders(httpOutboundRequest);
             }
 
-            log.error(msg, e);
-            MessagingException messagingException = new MessagingException(msg, e, 101500);
-            httpOutboundRequest.setMessagingException(messagingException);
-            this.targetHandler.getHttpResponseFuture().notifyHttpListener(httpOutboundRequest);
+            if (chunkDisabled) {
+                for (HttpContent cachedHttpContent : contentList) {
+                    this.getChannel().writeAndFlush(cachedHttpContent);
+                }
+            }
+            this.getChannel().writeAndFlush(httpContent);
+
+            httpOutboundRequest.removeHttpContentAsyncFuture();
+            contentList.clear();
+            contentLength = 0;
+
+            if (handlerExecutor != null) {
+                handlerExecutor.executeAtTargetRequestSending(httpOutboundRequest);
+            }
+        } else {
+            if (chunkDisabled) {
+                this.contentList.add(httpContent);
+                contentLength += httpContent.content().readableBytes();
+            } else {
+                if (!this.isRequestWritten) {
+                    Util.setupChunkedRequest(httpOutboundRequest);
+                    writeOutboundRequestHeaders(httpOutboundRequest);
+                }
+                this.getChannel().writeAndFlush(httpContent);
+            }
         }
     }
 
-    public void writeOutboundRequestHeaders(HTTPCarbonMessage httpOutboundRequest) {
+    private String getHttpMethod(HTTPCarbonMessage httpOutboundRequest) throws Exception {
+        String httpMethod = (String) httpOutboundRequest.getProperty(Constants.HTTP_METHOD);
+        if (httpMethod == null) {
+            throw new Exception("Couldn't get the HTTP method from the outbound request");
+        }
+        return httpMethod;
+    }
+
+    private void writeOutboundRequestHeaders(HTTPCarbonMessage httpOutboundRequest) {
         HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
         this.setRequestWritten(true);
         this.getChannel().write(httpRequest);

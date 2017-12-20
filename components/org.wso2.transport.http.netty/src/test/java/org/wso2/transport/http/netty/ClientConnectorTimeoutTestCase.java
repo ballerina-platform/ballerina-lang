@@ -18,10 +18,7 @@
 
 package org.wso2.transport.http.netty;
 
-import io.netty.handler.codec.http.DefaultHttpRequest;
-import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
@@ -78,13 +75,7 @@ public class ClientConnectorTimeoutTestCase {
     @Test
     public void testHttpsGet() {
         try {
-            HTTPCarbonMessage msg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-                    HttpMethod.GET, ""));
-            msg.setProperty("PORT", TestUtil.TEST_HTTPS_SERVER_PORT);
-            msg.setProperty("PROTOCOL", "https");
-            msg.setProperty("HOST", "localhost");
-            msg.setProperty("HTTP_METHOD", "GET");
-            msg.setEndOfMsgAdded(true);
+            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.TEST_HTTPS_SERVER_PORT, "", "");
 
             CountDownLatch latch = new CountDownLatch(1);
             HTTPConnectorListener listener = new HTTPConnectorListener(latch);

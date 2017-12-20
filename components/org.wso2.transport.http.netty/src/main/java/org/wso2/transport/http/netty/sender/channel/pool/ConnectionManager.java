@@ -95,7 +95,7 @@ public class ConnectionManager {
         if (sourceHandler != null) {
             EventLoopGroup group;
             ChannelHandlerContext ctx = sourceHandler.getInboundChannelContext();
-            group = targetEventLoopGroup;
+            group = ctx.channel().eventLoop();
             Class cl = ctx.channel().getClass();
 
             if (poolManagementPolicy == PoolManagementPolicy.LOCK_DEFAULT_POOLING) {

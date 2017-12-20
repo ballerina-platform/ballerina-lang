@@ -22,6 +22,7 @@ package org.wso2.transport.http.netty.contractimpl;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
@@ -30,6 +31,9 @@ import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.listener.RequestDataHolder;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Get executed when the response is available.
@@ -40,6 +44,10 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private RequestDataHolder requestDataHolder;
     private HandlerExecutor handlerExecutor;
     private HTTPCarbonMessage inboundRequestMsg;
+    private boolean isChunked;
+    private boolean isHeaderWritten = false;
+    private int contentLength = 0;
+    private List<HttpContent> contentList = new ArrayList<>();
 
     public HttpOutboundRespListener(ChannelHandlerContext channelHandlerContext, HTTPCarbonMessage requestMsg) {
         this.sourceContext = channelHandlerContext;
@@ -49,21 +57,34 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     }
 
     @Override
-    public void onMessage(HTTPCarbonMessage httpResponseMessage) {
+    public void onMessage(HTTPCarbonMessage outboundResponseMsg) {
         sourceContext.channel().eventLoop().execute(() -> {
-            boolean keepAlive = isKeepAlive(httpResponseMessage);
 
             if (handlerExecutor != null) {
-                handlerExecutor.executeAtSourceResponseReceiving(httpResponseMessage);
+                handlerExecutor.executeAtSourceResponseReceiving(outboundResponseMsg);
             }
 
-            Util.setupTransferEncodingAndContentTypeForResponse(httpResponseMessage, requestDataHolder);
-            final HttpResponse response = Util.createHttpResponse(httpResponseMessage, keepAlive);
-            sourceContext.write(response);
+            boolean keepAlive = isKeepAlive(outboundResponseMsg);
+            isChunked = Util.isChunkedOutboundResponse(outboundResponseMsg, requestDataHolder);
 
-            httpResponseMessage.getHttpContentAsync().setMessageListener(httpContent ->
+            outboundResponseMsg.getHttpContentAsync().setMessageListener(httpContent ->
                     this.sourceContext.channel().eventLoop().execute(() -> {
                 if (Util.isLastHttpContent(httpContent)) {
+                    if (!isHeaderWritten) {
+                        if (isChunked) {
+                            Util.setupChunkedRequest(outboundResponseMsg);
+                        } else {
+                            contentLength += httpContent.content().readableBytes();
+                            Util.setupContentLengthRequest(outboundResponseMsg, contentLength);
+                        }
+                        writeOutboundResponseHeaders(outboundResponseMsg, keepAlive);
+                    }
+
+                    if (!isChunked) {
+                        for (HttpContent cachedHttpContent : contentList) {
+                            sourceContext.writeAndFlush(cachedHttpContent);
+                        }
+                    }
                     ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(httpContent);
                     HttpResponseStatusFuture outboundRespStatusFuture =
                             inboundRequestMsg.getHttpOutboundRespStatusFuture();
@@ -74,15 +95,27 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                             outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
                         }
                     });
+
                     if (!keepAlive) {
                         outboundChannelFuture.addListener(ChannelFutureListener.CLOSE);
                     }
                     if (handlerExecutor != null) {
-                        handlerExecutor.executeAtSourceResponseSending(httpResponseMessage);
+                        handlerExecutor.executeAtSourceResponseSending(outboundResponseMsg);
                     }
-                    httpResponseMessage.removeHttpContentAsyncFuture();
+                    outboundResponseMsg.removeHttpContentAsyncFuture();
+                    contentList.clear();
+                    contentLength = 0;
                 } else {
-                    sourceContext.writeAndFlush(httpContent);
+                    if (isChunked) {
+                        if (!isHeaderWritten) {
+                            Util.setupChunkedRequest(outboundResponseMsg);
+                            writeOutboundResponseHeaders(outboundResponseMsg, keepAlive);
+                        }
+                        sourceContext.writeAndFlush(httpContent);
+                    } else {
+                        this.contentList.add(httpContent);
+                        contentLength += httpContent.content().readableBytes();
+                    }
                 }
             }));
         });
@@ -91,7 +124,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     // Decides whether to close the connection after sending the response
     private boolean isKeepAlive(HTTPCarbonMessage responseMsg) {
         String responseConnectionHeader = responseMsg.getHeader(Constants.HTTP_CONNECTION);
-        String requestConnectionHeader = requestDataHolder.getConnectionHeader();
+        String requestConnectionHeader = requestDataHolder.getConnectionHeaderValue();
         if ((responseConnectionHeader != null &&
                 Constants.CONNECTION_CLOSE.equalsIgnoreCase(responseConnectionHeader))
                 || (requestConnectionHeader != null &&
@@ -104,5 +137,11 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     @Override
     public void onError(Throwable throwable) {
 
+    }
+
+    private void writeOutboundResponseHeaders(HTTPCarbonMessage httpOutboundRequest, boolean keepAlive) {
+        HttpResponse response = Util.createHttpResponse(httpOutboundRequest, keepAlive);
+        isHeaderWritten = true;
+        sourceContext.write(response);
     }
 }
