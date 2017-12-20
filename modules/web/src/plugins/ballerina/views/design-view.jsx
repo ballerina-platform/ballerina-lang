@@ -72,6 +72,17 @@ class DesignView extends React.Component {
         return !nextProps.panelResizeInProgress || nextState.isTransformActive;
     }
 
+    onScroll(e) {
+        this.props.commandProxy.dispatch('scroll-design-view', {
+            scrollLeft: e.scrollLeft,
+            scrollTop: e.scrollTop,
+            scrollHeight: e.scrollHeight,
+            scrollWidth: e.scrollWidth,
+            clientHeight: e.clientHeight,
+            clientWidth: e.clientWidth,
+        });
+    }
+
     setDiagramContainer(ref) {
         this.diagramContainer = ref;
     }
@@ -138,17 +149,6 @@ class DesignView extends React.Component {
 
     setMode(diagramMode) {
         this.setState({ mode: diagramMode });
-    }
-
-    onScroll(e) {
-        this.props.commandProxy.dispatch('scroll-design-view', {
-            scrollLeft: e.scrollLeft,
-            scrollTop: e.scrollTop,
-            scrollHeight: e.scrollHeight,
-            scrollWidth: e.scrollWidth,
-            clientHeight: e.clientHeight,
-            clientWidth: e.clientWidth,
-        });
     }
 
     render() {

@@ -17,6 +17,7 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import { EVENTS as BAL_PLUGIN_EVENTS } from 'plugins/ballerina/constants';
 import { EVENTS as EDITOR_EVENTS } from 'core/editor/constants';
 import Editor from 'core/editor/model/Editor';
@@ -49,21 +50,6 @@ class CodeExplorerPanel extends React.Component {
         });
     }
 
-    onActiveBalASTChange({ ast }) {
-        this.setState({
-            ast,
-        });
-        this.forceUpdate();
-    }
-
-    onTabChange({ editor }) {
-        const ast = editor && editor instanceof Editor ? editor.getProperty('ast') : {};
-        this.setState({
-            ast,
-        });
-        this.forceUpdate();
-    }
-
     componentDidMount() {
         const { command: { on } } = this.props.codeExplorerPlugin.appContext;
         on(BAL_PLUGIN_EVENTS.ACTIVE_BAL_AST_CHANGED, this.onActiveBalASTChange);
@@ -74,6 +60,21 @@ class CodeExplorerPanel extends React.Component {
         const { command: { off } } = this.props.codeExplorerPlugin.appContext;
         off(BAL_PLUGIN_EVENTS.ACTIVE_BAL_AST_CHANGED, this.onActiveBalASTChange);
         off(EDITOR_EVENTS.ACTIVE_TAB_CHANGE, this.onTabChange);
+    }
+
+    onTabChange({ editor }) {
+        const ast = editor && editor instanceof Editor ? editor.getProperty('ast') : {};
+        this.setState({
+            ast,
+        });
+        this.forceUpdate();
+    }
+
+    onActiveBalASTChange({ ast }) {
+        this.setState({
+            ast,
+        });
+        this.forceUpdate();
     }
 
     render() {
@@ -92,5 +93,9 @@ class CodeExplorerPanel extends React.Component {
         );
     }
 }
+
+CodeExplorerPanel.propTypes = {
+    codeExplorerPlugin: PropTypes.objectOf(Object).isRequired,
+};
 
 export default CodeExplorerPanel;

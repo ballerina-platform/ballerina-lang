@@ -29,17 +29,17 @@ class ModelRenderer extends React.Component {
         super();
         this.getNodeClassName = this.getNodeClassName.bind(this);
     }
-    goToNode(node) {
-        this.props.goToNode(node);
-    }
     getNodeClassName(node) {
         let className = 'node';
-        const { scrollTop, scrollHeight, clientHeight } = this.props.scrollPosition;
+        const { scrollTop, clientHeight } = this.props.scrollPosition;
         const { y, h } = node.viewState.bBox;
-        if (y - clientHeight/2 <= scrollTop && y + h - clientHeight/2 >= scrollTop) {
+        if (scrollTop >= y - (clientHeight / 2) && scrollTop <= (y + h) - (clientHeight / 2)) {
             className = `${className} selected`;
         }
         return className;
+    }
+    goToNode(node) {
+        this.props.goToNode(node);
     }
     renderService(node) {
         return (
