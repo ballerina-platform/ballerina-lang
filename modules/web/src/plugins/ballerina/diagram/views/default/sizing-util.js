@@ -1260,12 +1260,7 @@ class SizingUtil {
         const viewState = node.viewState;
         this.sizeStatement(node.getSource(true), viewState);
         this.adjustToLambdaSize(node, viewState);
-
-        if (TreeUtil.statementIsInvocation(node)) {
-            viewState.bBox.w = this.config.actionInvocationStatement.width;
-            viewState.components['statement-box'].w = this.config.actionInvocationStatement.width;
-            viewState.alias = 'ActionInvocationNode';
-        }
+        this.sizeActionInvocationStatement(node);
     }
 
     /**
@@ -1325,11 +1320,7 @@ class SizingUtil {
     sizeExpressionStatementNode(node) {
         const viewState = node.viewState;
         this.sizeStatement(node.getSource(true), viewState);
-        if (TreeUtil.statementIsInvocation(node)) {
-            viewState.bBox.w = this.config.actionInvocationStatement.width;
-            viewState.components['statement-box'].w = this.config.actionInvocationStatement.width;
-            viewState.alias = 'ActionInvocationNode';
-        }
+        this.sizeActionInvocationStatement(node);
     }
 
 
@@ -1673,8 +1664,17 @@ class SizingUtil {
             const endpointWdth = 90;
             viewState.endpointIdentifier = this.getTextWidth(node.getVariable().getName().value, 0, endpointWdth).text;
         }
+        this.sizeActionInvocationStatement(node);
+    }
 
+    /**
+     * Size statements containing action invocation statements
+     * @param {node} node node to size
+     */
+    sizeActionInvocationStatement(node) {
+        // This function gets called by statements containing action invocation expressions
         if (TreeUtil.statementIsInvocation(node)) {
+            const viewState = node.viewState;
             viewState.bBox.w = this.config.actionInvocationStatement.width;
             viewState.components['statement-box'].w = this.config.actionInvocationStatement.width;
             viewState.alias = 'ActionInvocationNode';
