@@ -388,8 +388,9 @@ public class JsonParser {
                     if (StateMachine.isWhitespace(ch)) {
                         state = this;
                         continue;
-                    } else if (ch == QUOTES) {
+                    } else if (ch == QUOTES || ch == SINGLE_QUOTES) {
                         state = STRING_ARRAY_ELEMENT_STATE;
+                        sm.currentQuoteChar = ch;
                     } else if (ch == '{') {
                         state = sm.initNewObject(); 
                     } else if (ch == '[') {
@@ -455,8 +456,9 @@ public class JsonParser {
                     if (StateMachine.isWhitespace(ch)) {
                         state = this;
                         continue;
-                    } else if (ch == QUOTES) {
+                    } else if (ch == QUOTES || ch == SINGLE_QUOTES) {
                         state = STRING_ARRAY_ELEMENT_STATE;
+                        sm.currentQuoteChar = ch;
                     } else if (ch == '{') {
                         state = sm.initNewObject(); 
                     } else if (ch == '[') {
@@ -627,7 +629,7 @@ public class JsonParser {
                 for (; i < count; i++) {
                     ch = buff[i];
                     sm.processLocation(ch);
-                    if (ch == QUOTES) {
+                    if (ch == sm.currentQuoteChar) {
                         sm.currentJsonNode.add(new JsonNode(sm.value()));
                         state = ARRAY_ELEMENT_END_STATE;
                     } else if (ch == REV_SOL) { 
