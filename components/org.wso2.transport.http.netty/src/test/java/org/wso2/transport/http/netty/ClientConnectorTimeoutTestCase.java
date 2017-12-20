@@ -59,7 +59,7 @@ public class ClientConnectorTimeoutTestCase {
 
     @BeforeClass
     public void setup() {
-        httpServer = TestUtil.startHTTPServer(TestUtil.TEST_HTTPS_SERVER_PORT, new DumbServerInitializer());
+        httpServer = TestUtil.startHTTPServer(TestUtil.HTTPS_SERVER_PORT, new DumbServerInitializer());
 
         TransportsConfiguration transportsConfiguration = TestUtil.getConfiguration(
                 "/simple-test-config" + File.separator + "netty-transports.yml");
@@ -75,7 +75,7 @@ public class ClientConnectorTimeoutTestCase {
     @Test
     public void testHttpsGet() {
         try {
-            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.TEST_HTTPS_SERVER_PORT, "", "");
+            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.HTTPS_SERVER_PORT, "", "");
 
             CountDownLatch latch = new CountDownLatch(1);
             HTTPConnectorListener listener = new HTTPConnectorListener(latch);

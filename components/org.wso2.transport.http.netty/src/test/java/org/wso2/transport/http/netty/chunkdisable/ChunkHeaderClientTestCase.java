@@ -73,7 +73,7 @@ public class ChunkHeaderClientTestCase {
     public void setup() {
         transportsConfiguration =
                 TestUtil.getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
-        httpServer = TestUtil.startHTTPServer(TestUtil.TEST_HTTP_SERVER_PORT,
+        httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT,
                 new ChunkBasedServerInitializer(testValue, "text/plain", 200));
     }
 
@@ -116,7 +116,7 @@ public class ChunkHeaderClientTestCase {
                 HTTPConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
 
         ByteBuffer byteBuffer = ByteBuffer.wrap(testValue.getBytes(Charset.forName("UTF-8")));
-        msg.setProperty("PORT", TestUtil.TEST_HTTP_SERVER_PORT);
+        msg.setProperty("PORT", TestUtil.HTTP_SERVER_PORT);
         msg.setProperty("PROTOCOL", "http");
         msg.setProperty("HOST", "localhost");
         msg.setProperty("HTTP_METHOD", "GET");

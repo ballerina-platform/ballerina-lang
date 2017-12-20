@@ -51,7 +51,7 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
         String remoteUrl = String.format("ws://%s:%d/%s", "localhost",
-                                         TestUtil.TEST_REMOTE_WS_SERVER_PORT, "websocket");
+                                         TestUtil.REMOTE_WS_SERVER_PORT, "websocket");
         WsClientConnectorConfig configuration = new WsClientConnectorConfig(remoteUrl);
         configuration.setTarget("myService");
         WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(configuration);

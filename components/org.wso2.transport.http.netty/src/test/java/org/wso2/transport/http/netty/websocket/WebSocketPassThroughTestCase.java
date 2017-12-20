@@ -52,7 +52,7 @@ public class WebSocketPassThroughTestCase {
     private final int latchCountDownInSecs = 10;
 
     private HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
-    private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(TestUtil.TEST_REMOTE_WS_SERVER_PORT);
+    private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(TestUtil.REMOTE_WS_SERVER_PORT);
 
     private ServerConnector serverConnector;
 
@@ -61,7 +61,7 @@ public class WebSocketPassThroughTestCase {
         remoteServer.run();
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost("localhost");
-        listenerConfiguration.setPort(TestUtil.TEST_DEFAULT_INTERFACE_PORT);
+        listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
         serverConnector = httpConnectorFactory.createServerConnector(ServerBootstrapConfiguration.getInstance(),
                                                                      listenerConfiguration);
         ServerConnectorFuture connectorFuture = serverConnector.start();

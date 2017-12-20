@@ -79,11 +79,11 @@ public class TestUtil {
 
     private static final Logger log = LoggerFactory.getLogger(TestUtil.class);
 
-    public static final int TEST_HTTP_SERVER_PORT = 9000;
-    public static final int TEST_HTTPS_SERVER_PORT = 9004;
-    public static final int TEST_DEFAULT_INTERFACE_PORT = 8490;
-    public static final int TEST_ALTER_INTERFACE_PORT = 8590;
-    public static final int TEST_REMOTE_WS_SERVER_PORT = 9010;
+    public static final int HTTP_SERVER_PORT = 9000;
+    public static final int HTTPS_SERVER_PORT = 9004;
+    public static final int SERVER_CONNECTOR_PORT = 8490;
+    public static final int ALTER_INTERFACE_PORT = 8590;
+    public static final int REMOTE_WS_SERVER_PORT = 9010;
     public static final long HTTP2_RESPONSE_TIME_OUT = 30;
     public static final String TEST_HOST = "localhost";
     public static final String KEY_STORE_FILE_PATH = "/simple-test-config/wso2carbon.jks";

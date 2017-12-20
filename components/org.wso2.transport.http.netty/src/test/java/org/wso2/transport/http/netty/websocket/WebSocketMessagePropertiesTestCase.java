@@ -54,7 +54,7 @@ public class WebSocketMessagePropertiesTestCase {
     public void setup() throws InterruptedException {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost("localhost");
-        listenerConfiguration.setPort(TestUtil.TEST_DEFAULT_INTERFACE_PORT);
+        listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
         serverConnector = httpConnectorFactory.createServerConnector(ServerBootstrapConfiguration.getInstance(),
                                                                      listenerConfiguration);
         ServerConnectorFuture connectorFuture = serverConnector.start();

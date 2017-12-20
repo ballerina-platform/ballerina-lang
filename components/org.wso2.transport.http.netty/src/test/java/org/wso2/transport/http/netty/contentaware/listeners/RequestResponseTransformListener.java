@@ -76,7 +76,7 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
                 requestValue = new String(byteBuff.array());
 
                 httpRequest.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-                httpRequest.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
+                httpRequest.setProperty(Constants.PORT, TestUtil.HTTP_SERVER_PORT);
 
                 if (responseValue != null) {
                     byte[] array = responseValue.getBytes("UTF-8");

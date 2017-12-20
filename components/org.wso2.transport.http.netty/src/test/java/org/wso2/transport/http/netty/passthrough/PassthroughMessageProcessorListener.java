@@ -49,32 +49,27 @@ public class PassthroughMessageProcessorListener implements HttpConnectorListene
 
     private static final Logger logger = LoggerFactory.getLogger(PassthroughMessageProcessorListener.class);
     private ExecutorService executor = Executors.newSingleThreadExecutor();
-    private TransportsConfiguration configuration;
+    private TransportsConfiguration transportsConfiguration;
     private HttpClientConnector clientConnector;
+    private HttpWsConnectorFactory httpWsConnectorFactory;
+    private Map<String, Object> transportProperties;
 
-    public PassthroughMessageProcessorListener(TransportsConfiguration configuration) {
-        this.configuration = configuration;
+    public PassthroughMessageProcessorListener(TransportsConfiguration transportsConfiguration) {
+        this.transportsConfiguration = transportsConfiguration;
+        this.transportProperties = getTransportProperties();
+        this.httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
     }
 
     @Override
     public void onMessage(HTTPCarbonMessage httpRequestMessage) {
         executor.execute(() -> {
             httpRequestMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-            httpRequestMessage.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
+            httpRequestMessage.setProperty(Constants.PORT, TestUtil.HTTP_SERVER_PORT);
             try {
-                Map<String, Object> transportProperties = new HashMap<>();
-                Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
-                if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
-                    transportProperties = transportPropertiesSet.stream().collect(
-                            Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
-
-                }
-
                 String scheme = (String) httpRequestMessage.getProperty(Constants.PROTOCOL);
-                SenderConfiguration senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(configuration,
-                                                                                                   scheme);
+                SenderConfiguration senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(
+                        transportsConfiguration, scheme);
 
-                HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
                 clientConnector =
                         httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
                 HttpResponseFuture future = clientConnector.send(httpRequestMessage);
@@ -99,6 +94,17 @@ public class PassthroughMessageProcessorListener implements HttpConnectorListene
                 logger.error("Error occurred during message processing: ", e);
             }
         });
+    }
+
+    private Map<String, Object> getTransportProperties() {
+        Map<String, Object> transportProperties = new HashMap<>();
+        Set<TransportProperty> transportPropertiesSet = transportsConfiguration.getTransportProperties();
+        if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
+            transportProperties = transportPropertiesSet.stream().collect(
+                    Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
+
+        }
+        return transportProperties;
     }
 
     @Override

@@ -75,7 +75,7 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
                 outputStream.flush();
                 outputStream.close();
                 newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-                newMsg.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
+                newMsg.setProperty(Constants.PORT, TestUtil.HTTP_SERVER_PORT);
 
                 Map<String, Object> transportProperties = new HashMap<>();
                 Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();

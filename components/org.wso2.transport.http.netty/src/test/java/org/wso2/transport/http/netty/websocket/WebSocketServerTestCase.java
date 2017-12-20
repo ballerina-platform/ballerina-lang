@@ -60,7 +60,7 @@ public class WebSocketServerTestCase {
     public void setup() throws InterruptedException {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost("localhost");
-        listenerConfiguration.setPort(TestUtil.TEST_DEFAULT_INTERFACE_PORT);
+        listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
         serverConnector = httpConnectorFactory.createServerConnector(ServerBootstrapConfiguration.getInstance(),
                 listenerConfiguration);
         ServerConnectorFuture connectorFuture = serverConnector.start();
@@ -167,7 +167,7 @@ public class WebSocketServerTestCase {
     public void testIdleTimeout() throws InterruptedException, ProtocolException, SSLException, URISyntaxException {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost("localhost");
-        listenerConfiguration.setPort(TestUtil.TEST_ALTER_INTERFACE_PORT);
+        listenerConfiguration.setPort(TestUtil.ALTER_INTERFACE_PORT);
         ServerConnector alterServerConnector = httpConnectorFactory.createServerConnector(
                 ServerBootstrapConfiguration.getInstance(),
                 listenerConfiguration);
@@ -175,7 +175,7 @@ public class WebSocketServerTestCase {
         WebSocketTestServerConnectorListener listener = new WebSocketTestServerConnectorListener();
         connectorFuture.setWSConnectorListener(listener);
         String url = System.getProperty("url", String.format("ws://%s:%d/%s",
-                                                             TestUtil.TEST_HOST, TestUtil.TEST_ALTER_INTERFACE_PORT,
+                                                             TestUtil.TEST_HOST, TestUtil.ALTER_INTERFACE_PORT,
                                                              "test"));
         CountDownLatch latch = new CountDownLatch(1);
         WebSocketTestClient primaryClient = new WebSocketTestClient(url, latch);

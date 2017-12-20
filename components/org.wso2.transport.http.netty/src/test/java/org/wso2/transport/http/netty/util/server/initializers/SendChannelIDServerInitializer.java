@@ -34,28 +34,24 @@ import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
-import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
  * An initializer class for HTTP Server
  */
-public class MockServerInitializer extends HTTPServerInitializer {
+public class SendChannelIDServerInitializer extends HTTPServerInitializer {
 
-    private static final Logger logger = LoggerFactory.getLogger(MockServerInitializer.class);
+    private static final Logger logger = LoggerFactory.getLogger(SendChannelIDServerInitializer.class);
 
-    private String stringContent;
-    private String contentType;
-    private int responseStatusCode = 200;
     private HttpRequest req;
+    private AtomicInteger requestCount = new AtomicInteger(0);
 
-    public MockServerInitializer(String stringContent, String contentType, int responseStatusCode) {
-        this.stringContent = stringContent;
-        this.contentType = contentType;
-        this.responseStatusCode = responseStatusCode;
+    public SendChannelIDServerInitializer() {
     }
 
     protected void addBusinessLogicHandler(Channel channel) {
@@ -66,31 +62,32 @@ public class MockServerInitializer extends HTTPServerInitializer {
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+            if (msg instanceof HttpRequest) {
+                req = (HttpRequest) msg;
+            } else if (msg instanceof LastHttpContent) {
+                boolean keepAlive = HttpUtil.isKeepAlive(req);
+                int responseStatusCode = 200;
 
-            if (stringContent != null) {
-                ByteBuf content = Unpooled.wrappedBuffer(stringContent.getBytes("UTF-8"));
-                if (msg instanceof HttpRequest) {
-                    req = (HttpRequest) msg;
-                } else if (msg instanceof LastHttpContent) {
-                    if (HttpUtil.is100ContinueExpected(req)) {
-                        ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, CONTINUE));
-                    }
-                    boolean keepAlive = HttpUtil.isKeepAlive(req);
-                    HttpResponseStatus httpResponseStatus = new HttpResponseStatus(responseStatusCode,
-                            HttpResponseStatus.valueOf(responseStatusCode).reasonPhrase());
-                    FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, httpResponseStatus, content);
-                    response.headers().set(CONTENT_TYPE, contentType);
-                    response.headers().set(CONTENT_LENGTH, content.readableBytes());
+                HttpResponseStatus httpResponseStatus = new HttpResponseStatus(responseStatusCode,
+                        HttpResponseStatus.valueOf(responseStatusCode).reasonPhrase());
+                ByteBuf content =  Unpooled.wrappedBuffer(ctx.channel().id().asLongText().getBytes());
+                FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, httpResponseStatus, content);
+                response.headers().set(CONTENT_TYPE, "plain/text");
+                response.headers().set(CONTENT_LENGTH, content.readableBytes());
 
-                    if (!keepAlive) {
-                        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-                        logger.debug("Writing response with data to client-connector");
-                        logger.debug("Closing the client-connector connection");
-                    } else {
-                        response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-                        ctx.writeAndFlush(response);
-                        logger.debug("Writing response with data to client-connector");
+                if (!keepAlive) {
+                    ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+                    logger.debug("Writing response with data to client-connector");
+                    logger.debug("Closing the client-connector connection");
+                } else {
+                    response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+                    if (requestCount.get() < 1) {
+                        // this need in order to simulate a delay
+                        Thread.sleep(5000);
                     }
+                    ctx.writeAndFlush(response);
+                    requestCount.incrementAndGet();
+                    logger.debug("Writing response with data to client-connector");
                 }
             }
         }

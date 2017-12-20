@@ -63,7 +63,7 @@ public class WebSocketTestClient {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketTestClient.class);
 
     private String url = System.getProperty("url", String.format("ws://%s:%d/%s",
-                                                  TestUtil.TEST_HOST, TestUtil.TEST_DEFAULT_INTERFACE_PORT, "test"));
+                                                  TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT, "test"));
     private final String subProtocol;
     private Map<String, String> customHeaders = new HashMap<>();
 

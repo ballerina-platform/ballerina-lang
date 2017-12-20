@@ -42,7 +42,7 @@ import java.net.URL;
 public class HttpToWsProtocolSwitchTestCase {
 
     private HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
-    private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.TEST_DEFAULT_INTERFACE_PORT));
+    private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
     private ServerConnector serverConnector;
 
     @BeforeClass
@@ -50,7 +50,7 @@ public class HttpToWsProtocolSwitchTestCase {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost("localhost");
-        listenerConfiguration.setPort(TestUtil.TEST_DEFAULT_INTERFACE_PORT);
+        listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
         serverConnector = httpConnectorFactory.createServerConnector(ServerBootstrapConfiguration.getInstance(),
                                                                      listenerConfiguration);
         ServerConnectorFuture connectorFuture = serverConnector.start();
