@@ -1677,6 +1677,8 @@ class SizingUtil {
             const viewState = node.viewState;
             viewState.bBox.w = this.config.actionInvocationStatement.width;
             viewState.components['statement-box'].w = this.config.actionInvocationStatement.width;
+            viewState.bBox.h = this.config.actionInvocationStatement.height;
+            viewState.components['statement-box'].h = this.config.actionInvocationStatement.height;
             viewState.alias = 'ActionInvocationNode';
         }
     }

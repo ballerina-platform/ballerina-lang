@@ -134,6 +134,8 @@ export const statement = {
 
 export const actionInvocationStatement = {
     width: 8,
+    height: (2 * statement.height),
+    textHeight: statement.height,
 };
 
 export const blockStatement = {

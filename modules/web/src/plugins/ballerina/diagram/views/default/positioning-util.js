@@ -59,7 +59,8 @@ class PositioningUtil {
             viewState.bBox.x -= (this.config.actionInvocationStatement.width / 2);
 
             arrowStartBBox.x = viewState.bBox.x + viewState.bBox.w;
-            arrowStartBBox.y = viewState.components['statement-box'].y + 10;
+            arrowStartBBox.y = viewState.components['statement-box'].y
+                                + this.config.actionInvocationStatement.textHeight;
 
             dropDown.x = arrowStartBBox.x;
             dropDown.y = viewState.components['statement-box'].y
