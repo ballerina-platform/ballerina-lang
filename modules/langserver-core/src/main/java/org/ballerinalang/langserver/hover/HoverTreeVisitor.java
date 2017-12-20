@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.hover;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.hover.constants.HoverConstants;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
@@ -29,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -41,8 +43,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -116,31 +121,45 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
         if (Symbols.isNative(funcSymbol)) {
             return;
         }
+
         previousNode = funcNode;
-        this.acceptNode(funcNode.body);
+
+        if (!funcNode.params.isEmpty()) {
+            funcNode.params.forEach(this::acceptNode);
+        }
+
+        if (!funcNode.retParams.isEmpty()) {
+            funcNode.retParams.forEach(this::acceptNode);
+        }
+
+        if (funcNode.body != null) {
+            this.acceptNode(funcNode.body);
+        }
 
         // Process workers
-        if (terminateVisitor && !funcNode.workers.isEmpty()) {
-            terminateVisitor = false;
-        }
-        funcNode.workers.forEach(e -> this.acceptNode(e));
-    }
-
-    public void visit(BLangStruct structNode) {
-        if (HoverUtil.isMatchingPosition(structNode.getPosition(), this.position)) {
-            this.context.put(HoverKeys.HOVERING_OVER_NODE_KEY, structNode);
-            this.context.put(HoverKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-            this.context.put(HoverKeys.NAME_OF_HOVER_NODE_KEY, structNode.name);
-            this.context.put(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY, structNode.symbol.pkgID);
-            this.context.put(HoverKeys.SYMBOL_KIND_OF_HOVER_NODE_KEY, structNode.symbol.kind);
-        } else {
-            structNode.fields.forEach(e -> this.acceptNode(e));
+        if (!funcNode.workers.isEmpty()) {
+            funcNode.workers.forEach(this::acceptNode);
         }
     }
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
-        // TODO: implement support for hover.
+        previousNode = userDefinedType;
+        userDefinedType.getPosition().eCol = userDefinedType.getPosition().sCol
+                + userDefinedType.typeName.value.length()
+                + (!userDefinedType.pkgAlias.value.isEmpty() ? (userDefinedType.pkgAlias.value + ":").length() : 0);
+        if (HoverUtil.isMatchingPosition(userDefinedType.getPosition(), this.position)) {
+            this.context.put(HoverKeys.HOVERING_OVER_NODE_KEY, userDefinedType);
+            this.context.put(HoverKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+            this.context.put(HoverKeys.NAME_OF_HOVER_NODE_KEY, userDefinedType.typeName);
+            this.context.put(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY, userDefinedType.type.tsymbol.pkgID);
+            this.context.put(HoverKeys.SYMBOL_KIND_OF_HOVER_NODE_KEY, userDefinedType.type.tsymbol.kind);
+            terminateVisitor = true;
+        }
+    }
+
+    @Override
+    public void visit(BLangEnum enumNode) {
     }
 
     @Override
@@ -150,8 +169,13 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangVariable varNode) {
+        previousNode = varNode;
         if (varNode.expr != null) {
             this.acceptNode(varNode.expr);
+        }
+
+        if (varNode.getTypeNode() != null && varNode.getTypeNode() instanceof BLangUserDefinedType) {
+            this.acceptNode(varNode.getTypeNode());
         }
     }
 
@@ -161,7 +185,44 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        // TODO: implement support for hover.
+        varRefExpr.getPosition().eCol = varRefExpr.getPosition().sCol
+                + varRefExpr.variableName.value.length()
+                + (!varRefExpr.pkgAlias.value.isEmpty() ? (varRefExpr.pkgAlias.value + ":").length() : 0);
+        if ((varRefExpr.type.tsymbol.kind.name().equals(HoverConstants.ENUM)
+                || varRefExpr.type.tsymbol.kind.name().equals(HoverConstants.STRUCT))
+                && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
+            this.context.put(HoverKeys.HOVERING_OVER_NODE_KEY, varRefExpr);
+            this.context.put(HoverKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+            varRefExpr.variableName.setValue(varRefExpr.type.tsymbol.name.getValue());
+            this.context.put(HoverKeys.NAME_OF_HOVER_NODE_KEY, varRefExpr.variableName);
+            this.context.put(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY, varRefExpr.type.tsymbol.pkgID);
+            this.context.put(HoverKeys.SYMBOL_KIND_OF_HOVER_NODE_KEY, varRefExpr.type.tsymbol.kind);
+            terminateVisitor = true;
+        }
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral recordLiteral) {
+    }
+
+    @Override
+    public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        previousNode = fieldAccessExpr;
+        if (fieldAccessExpr.expr != null) {
+            this.acceptNode(fieldAccessExpr.expr);
+        }
+    }
+
+    @Override
+    public void visit(BLangBinaryExpr binaryExpr) {
+        previousNode = binaryExpr;
+        if (binaryExpr.lhsExpr != null) {
+            acceptNode(binaryExpr.lhsExpr);
+        }
+
+        if (binaryExpr.rhsExpr != null) {
+            acceptNode(binaryExpr.rhsExpr);
+        }
     }
 
     // Statements
@@ -177,6 +238,7 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangVariableDef varDefNode) {
+        previousNode = varDefNode;
         if (varDefNode.getVariable() != null) {
             this.acceptNode(varDefNode.getVariable());
         }
@@ -184,6 +246,7 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
+        previousNode = assignNode;
         if (assignNode.expr != null && assignNode.getPosition().sLine <= this.position.getLine()
                 && assignNode.getPosition().eLine >= this.position.getLine()) {
             this.acceptNode(assignNode.expr);
@@ -192,15 +255,24 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
-        if (exprStmtNode.getPosition().sLine <= this.position.getLine()
-                && exprStmtNode.getPosition().eLine >= this.position.getLine()) {
+        previousNode = exprStmtNode;
+        if (HoverUtil.isMatchingPosition(exprStmtNode.pos, this.position)) {
             this.acceptNode(exprStmtNode.expr);
         }
     }
 
     @Override
     public void visit(BLangIf ifNode) {
-        // TODO: implement support for hover.
+        previousNode = ifNode;
+        if (ifNode.expr != null && HoverUtil.isMatchingPosition(ifNode.expr.pos, this.position)) {
+            acceptNode(ifNode.expr);
+        } else if (ifNode.body != null) {
+            acceptNode(ifNode.body);
+        }
+    }
+
+    public void visit(BLangStruct structNode) {
+
     }
 
     public void visit(BLangWhile whileNode) {
@@ -287,6 +359,9 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
         }
     }
 
+    /**
+     * Accept node to visit.
+     */
     private void acceptNode(BLangNode node) {
         if (this.terminateVisitor) {
             return;

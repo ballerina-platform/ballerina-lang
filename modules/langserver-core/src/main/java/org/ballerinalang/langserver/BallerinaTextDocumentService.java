@@ -19,8 +19,6 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
-import org.ballerinalang.langserver.hover.HoverKeys;
-import org.ballerinalang.langserver.hover.HoverTreeVisitor;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
@@ -133,25 +131,10 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<Hover> hover(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
             TextDocumentServiceContext hoverContext = new TextDocumentServiceContext();
-            HoverUtil hoverUtil = new HoverUtil();
             hoverContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
             hoverContext.put(DocumentServiceKeys.POSITION_KEY, position);
             BLangPackage currentBLangPackage = TextDocumentServiceUtil.getBLangPackage(hoverContext, documentManager);
-            HoverTreeVisitor hoverTreeVisitor = new HoverTreeVisitor(hoverContext);
-            currentBLangPackage.accept(hoverTreeVisitor);
-            Hover hover;
-            // If the cursor is on a node of the current package go inside, else check builtin and native packages.
-            if (hoverContext.get(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY) != null
-                    && hoverContext.get(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY).name.getValue()
-                    .equals(currentBLangPackage.symbol.getName().getValue())) {
-                hover = hoverUtil.getHoverInformation(currentBLangPackage, hoverContext);
-            } else {
-                BLangPackage packages = hoverUtil
-                        .getPackageByName(hoverContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY),
-                                hoverContext.get(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY).name);
-                hover = hoverUtil.getHoverInformation(packages, hoverContext);
-            }
-            return hover;
+            return HoverUtil.getHoverContent(hoverContext, currentBLangPackage);
         });
     }
 
