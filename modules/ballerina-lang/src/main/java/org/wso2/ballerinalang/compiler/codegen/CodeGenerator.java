@@ -2268,9 +2268,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.genNodeList(argExprs, this.env);
         int[] argRegs = this.extractsRegisters(argExprs);
         BType[] bTypes = this.extractTypes(argExprs);
-        WrkrInteractionArgsCPEntry workerInvokeCPEntry = new WrkrInteractionArgsCPEntry(argRegs, bTypes);
         UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(bTypes));
         int sigCPIndex = this.currentPkgInfo.addCPEntry(sigCPEntry);
+        WrkrInteractionArgsCPEntry workerInvokeCPEntry = new WrkrInteractionArgsCPEntry(argRegs, sigCPEntry);
         workerInvokeCPEntry.setTypesSignatureCPIndex(sigCPIndex);
         return this.currentPkgInfo.addCPEntry(workerInvokeCPEntry);
     }
@@ -2305,9 +2305,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             BType retType = retTypes[i];
             argRegs[i] = getNextIndex(retType.tag, this.regIndexes);
         }
-        WrkrInteractionArgsCPEntry wrkrRplyCPEntry = new WrkrInteractionArgsCPEntry(argRegs, retTypes);
         UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(retTypes));
         int sigCPIndex = currentPkgInfo.addCPEntry(sigCPEntry);
+        WrkrInteractionArgsCPEntry wrkrRplyCPEntry = new WrkrInteractionArgsCPEntry(argRegs, sigCPEntry);
         wrkrRplyCPEntry.setTypesSignatureCPIndex(sigCPIndex);
         return currentPkgInfo.addCPEntry(wrkrRplyCPEntry);
     }
