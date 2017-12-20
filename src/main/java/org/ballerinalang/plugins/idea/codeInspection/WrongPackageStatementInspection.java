@@ -62,7 +62,7 @@ public class WrongPackageStatementInspection extends LocalInspectionTool {
             return new ProblemDescriptor[0];
         }
         Module module = ModuleUtil.findModuleForFile(file.getVirtualFile(), file.getProject());
-        boolean isBallerinaModule = BallerinaSdkService.isBallerinaModule(module);
+        boolean isBallerinaModule = BallerinaSdkService.getInstance(file.getProject()).isBallerinaModule(module);
         if (!isBallerinaModule) {
             return new ProblemDescriptor[0];
         }
