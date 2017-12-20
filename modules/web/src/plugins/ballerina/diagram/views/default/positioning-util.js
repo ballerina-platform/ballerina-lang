@@ -1207,9 +1207,9 @@ class PositioningUtil {
                     + node.viewState.components['statement-box'].w;
         // node.viewState.components['statement-box'].x - (elseStatement.viewState.bBox.w / 2);
         const elseY = viewState.components['statement-box'].y// + node.viewState.components['block-header'].h;
-                     + viewState.components['statement-box'].h
-                     + this.config.statement.gutter.h
-                     - node.viewState.components['block-header'].h;
+                     + viewState.components['statement-box'].h;
+                    //  + this.config.statement.gutter.h;
+                    //  - node.viewState.components['block-header'].h;
 
         if (elseStatement) {
             elseStatement.viewState.bBox.x = elseX;

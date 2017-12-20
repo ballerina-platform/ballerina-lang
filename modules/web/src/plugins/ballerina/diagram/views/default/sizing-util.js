@@ -1471,7 +1471,7 @@ class SizingUtil {
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
-        viewState.components['statement-box'].h = bodyHeight + this.config.flowChartControlStatement.heading.height;
+        viewState.components['statement-box'].h = bodyHeight;// - components['block-header'].h;// + this.config.flowChartControlStatement.heading.height;
         viewState.components['statement-box'].w = bodyWidth;
         viewState.bBox.h = viewState.components['statement-box'].h
                             + viewState.components['drop-zone'].h
@@ -1486,7 +1486,7 @@ class SizingUtil {
         //                     // + this.config.flowChartControlStatement.gutter.h;
         //                     // + components['block-header'].h;
         viewState.bBox.w = bodyWidth;
-        components.body.w = bodyWidth;
+        // components.body.w = bodyWidth;
 
         components['block-header'].setOpaque(true);
 
@@ -1509,9 +1509,16 @@ class SizingUtil {
         if (TreeUtil.isBlock(node.parent)) {
             while (elseStmt && proceed) {
                 // elseStmt.viewState.bBox.h -= elseStmt.viewState.components['block-header'].h;
-                nodeHeight += (elseStmt.viewState.bBox.h);// - elseStmt.viewState.components['block-header'].h);// this.config.flowChartControlStatement.heading.height
+                const elseHeight = (elseStmt.viewState.bBox.h)
+                                + this.config.flowChartControlStatement.heading.height
+                            // + viewState.components['drop-zone'].h
+                             + this.config.statement.gutter.h;
+                            // + this.config.statement.gutter.h;
+                nodeHeight += elseHeight;
+                // - elseStmt.viewState.components['block-header'].h);
+                // this.config.flowChartControlStatement.heading.height
                                     // - this.config.statement.gutter.h);
-                elseStmt.viewState.bBox.w = bodyWidth;
+                // elseStmt.viewState.bBox.w = bodyWidth;
                 // nodeWidth += elseStmt.viewState.bBox.w;
                 // If the current else statement is for an else if only, we proceed
                 if (TreeUtil.isBlock(elseStmt)) {
