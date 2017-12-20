@@ -101,7 +101,7 @@ public class ConnectionPoolTestCase {
 
     private class ClientWorker implements Callable<String> {
 
-        String response;
+        private String response;
 
         @Override
         public String call() throws Exception {
