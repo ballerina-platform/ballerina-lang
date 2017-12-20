@@ -20,7 +20,7 @@ import log from 'log';
 import Plugin from 'core/plugin/plugin';
 import { listen } from 'vscode-ws-jsonrpc';
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import { parseFile, getPathSeperator } from 'api-client/api-client';
+import { parseFile, getPathSeperator, getServiceEndpoint } from 'api-client/api-client';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
 import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
 import { EVENTS as WORKSPACE_EVENTS, COMMANDS as WORKSPACE_CMDS } from 'core/workspace/constants';
@@ -83,7 +83,7 @@ class BallerinaPlugin extends Plugin {
                 debug: false,
             };
             // create the web socket
-            const url = 'ws://localhost:8289/blangserve2'; // FIXME: Get URL via config api
+            const url = getServiceEndpoint('wslangserver');
             const webSocket = new ReconnectingWebSocket(url, undefined, socketOptions);
             // listen when the web socket is opened
             listen({

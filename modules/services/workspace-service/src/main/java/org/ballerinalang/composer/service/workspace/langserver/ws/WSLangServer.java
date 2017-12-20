@@ -54,8 +54,10 @@ import javax.websocket.server.ServerEndpoint;
 /**
  * Lang Server exposed via WS.
  */
-@ServerEndpoint(value = "/blangserve2")
+@ServerEndpoint(value = WSLangServer.CONTEXT)
 public class WSLangServer {
+
+    public static final String CONTEXT = "/wslangserver";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WSLangServer.class);
 
