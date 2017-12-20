@@ -26,7 +26,7 @@ import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.consts.Snippet;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.filters.ConnectorInitExpressionItemFilter;
-import org.ballerinalang.langserver.completions.util.filters.PackageActionAndFunctionFilter;
+import org.ballerinalang.langserver.completions.util.filters.PackageActionFunctionAndTypesFilter;
 import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -45,7 +45,7 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
 
         HashMap<String, String> prioritiesMap = new HashMap<>();
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
+        PackageActionFunctionAndTypesFilter actionAndFunctionFilter = new PackageActionFunctionAndTypesFilter();
         ConnectorInitExpressionItemFilter connectorInitItemFilter = new ConnectorInitExpressionItemFilter();
 
         // Here we specifically need to check whether the statement is function invocation,

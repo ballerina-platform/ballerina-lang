@@ -43,7 +43,11 @@ public class ResourceDefinition extends CompletionTest {
                 {"connectorInitAssignment1.json", "resource"},
                 {"connectorInitAssignment2.json", "resource"},
                 {"connectorInitVarDef1.json", "resource"},
-                {"connectorInitVarDef2.json", "resource"}
+                {"connectorInitVarDef2.json", "resource"},
+                {"enumSuggestAssignment1.json", "resource"},
+                {"enumSuggestAssignment2.json", "resource"},
+                {"enumSuggestVarDef1.json", "resource"},
+                {"enumSuggestVarDef2.json", "resource"}
         };
     }
 }

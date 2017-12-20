@@ -42,7 +42,11 @@ public class FunctionDefinition extends CompletionTest {
                 {"connectorInitAssignment1.json", "function"},
                 {"connectorInitAssignment2.json", "function"},
                 {"connectorInitVarDef1.json", "function"},
-                {"connectorInitVarDef2.json", "function"}
+                {"connectorInitVarDef2.json", "function"},
+                {"enumSuggestAssignment1.json", "function"},
+                {"enumSuggestAssignment2.json", "function"},
+                {"enumSuggestVarDef1.json", "function"},
+                {"enumSuggestVarDef2.json", "function"}
         };
     }
 }

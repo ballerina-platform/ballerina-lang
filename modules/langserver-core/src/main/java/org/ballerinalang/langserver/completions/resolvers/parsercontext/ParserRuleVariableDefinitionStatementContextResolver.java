@@ -25,9 +25,11 @@ import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.filters.ConnectorInitExpressionItemFilter;
-import org.ballerinalang.langserver.completions.util.filters.PackageActionAndFunctionFilter;
+import org.ballerinalang.langserver.completions.util.filters.PackageActionFunctionAndTypesFilter;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
@@ -42,14 +44,14 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
     @SuppressWarnings("unchecked")
     public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
+        PackageActionFunctionAndTypesFilter actionFunctionTypeFilter = new PackageActionFunctionAndTypesFilter();
         ConnectorInitExpressionItemFilter connectorInitItemFilter = new ConnectorInitExpressionItemFilter();
 
         // Here we specifically need to check whether the statement is function invocation,
         // action invocation or worker invocation
         if (isActionOrFunctionInvocationStatement(completionContext)) {
             ArrayList<SymbolInfo> actionAndFunctions = new ArrayList<>();
-            actionAndFunctions.addAll(actionAndFunctionFilter.filterItems(completionContext));
+            actionAndFunctions.addAll(actionFunctionTypeFilter.filterItems(completionContext));
             this.populateCompletionItemList(actionAndFunctions, completionItems);
             return completionItems;
         } else {
@@ -69,8 +71,14 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
 
             List<SymbolInfo> filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
                     .stream()
-                    .filter(symbolInfo -> !((symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
-                                    && !(symbolInfo.getScopeEntry().symbol instanceof BPackageSymbol)))
+                    .filter(symbolInfo -> {
+                        BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+                        SymbolKind symbolKind = bSymbol.kind;
+                        
+                        // Here we return false if the BType is not either a package symbol or ENUM
+                        return !((bSymbol instanceof BTypeSymbol) && !(bSymbol instanceof BPackageSymbol
+                                || SymbolKind.ENUM.equals(symbolKind)));
+                    })
                     .collect(Collectors.toList());
             populateCompletionItemList(filteredList, completionItems);
             completionItems.add(createKeyword);
