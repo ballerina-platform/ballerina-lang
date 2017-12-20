@@ -349,9 +349,9 @@ class SizingUtil {
     sizeEnumeratorNode(node) {
         // For argument parameters and return types in the panel decorator
         const paramViewState = node.viewState;
-        paramViewState.w = this.getTextWidth(node.getSource(), 0).w + 15;
+        paramViewState.w = this.getTextWidth(node.getSource(true), 0).w + 15;
         paramViewState.h = this.config.enumIdentifierStatement.height;
-        paramViewState.components.expression = this.getTextWidth(node.getSource(), 0);
+        paramViewState.components.expression = this.getTextWidth(node.getSource(true), 0);
 
         // Creating component for delete icon.
         paramViewState.components.deleteIcon = {};
@@ -509,7 +509,7 @@ class SizingUtil {
         let width = 0;
         if (parameters.length > 0) {
             for (let i = 0; i < parameters.length; i++) {
-                width += this.getTextWidth(parameters[i].getSource(), 0).w + 21;
+                width += this.getTextWidth(parameters[i].getSource(true), 0).w + 21;
             }
         }
 
@@ -591,7 +591,7 @@ class SizingUtil {
             const globals = astRoot.filterTopLevelNodes({ kind: 'Variable' })
                 .concat(astRoot.filterTopLevelNodes({ kind: 'Xmlns' }));
             globals.forEach((global) => {
-                const text = this.getTextWidth(global.getSource(), 0, 292).text;
+                const text = this.getTextWidth(global.getSource(true), 0, 292).text;
                 global.viewState.globalText = text;
             });
             height += topGutter + topBarHeight + importInputHeight +
@@ -685,7 +685,7 @@ class SizingUtil {
      */
     sizeRetryNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
     }
 
 
@@ -819,7 +819,7 @@ class SizingUtil {
 
         // Set the globals to fit the globals container
         variables.forEach((global) => {
-            const text = this.getTextWidth(global.getSource(), 0, 295).text;
+            const text = this.getTextWidth(global.getSource(true), 0, 295).text;
             global.viewState.globalText = text;
         });
     }
@@ -895,7 +895,7 @@ class SizingUtil {
     sizeVariableNode(node) {
         // For argument parameters and return types in the panel decorator
         const paramViewState = node.viewState;
-        paramViewState.w = this.getTextWidth(node.getSource(), 0).w;
+        paramViewState.w = this.getTextWidth(node.getSource(true), 0).w;
         paramViewState.h = this.config.panelHeading.heading.height - 7;
 
             // Creating component for delete icon.
@@ -931,7 +931,7 @@ class SizingUtil {
      *
      */
     sizeXmlnsNode(node) {
-        this.sizeStatement(node.getSource(), node.viewState);
+        this.sizeStatement(node.getSource(true), node.viewState);
     }
 
     /**
@@ -951,13 +951,13 @@ class SizingUtil {
         const textWidth = this.getTextWidth(node.getSignature());
         viewState.titleWidth = textWidth.w;
 
-        const returnParams = _.join(node.getReturnParameters().map(ret => ret.getSource()), ',');
-        const typeText = `< ${node.getSourceParam().getSource()}, ${returnParams} >`;
+        const returnParams = _.join(node.getReturnParameters().map(ret => ret.getSource(true)), ',');
+        const typeText = `< ${node.getSourceParam().getSource(true)}, ${returnParams} >`;
         const typeTextDetails = this.getTextWidth(typeText, 0);
         viewState.typeText = typeTextDetails.text;
         viewState.typeTextWidth = typeTextDetails.w;
 
-        const params = _.join(node.getParameters().map(ret => ret.getSource()), ',');
+        const params = _.join(node.getParameters().map(ret => ret.getSource(true)), ',');
         const paramText = node.name.value ? `(${params})` : '';
         const paramTextDetails = this.getTextWidth(paramText, 0);
         viewState.paramText = paramTextDetails.text;
@@ -1245,7 +1245,7 @@ class SizingUtil {
      */
     sizeAbortNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
     }
 
 
@@ -1257,7 +1257,7 @@ class SizingUtil {
      */
     sizeAssignmentNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
         this.adjustToLambdaSize(node, viewState);
 
         if (TreeUtil.statementIsInvocation(node)) {
@@ -1274,7 +1274,7 @@ class SizingUtil {
      */
     sizeBindNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
     }
 
     /**
@@ -1299,7 +1299,7 @@ class SizingUtil {
      */
     sizeBreakNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
     }
 
     /**
@@ -1310,7 +1310,7 @@ class SizingUtil {
      */
     sizeNextNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
     }
 
 
@@ -1322,7 +1322,7 @@ class SizingUtil {
      */
     sizeExpressionStatementNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
     }
 
 
@@ -1353,7 +1353,7 @@ class SizingUtil {
             // Calculate join keyword, parameter expression, expression lengths;
             joinStmt.viewState.components.titleWidth = this.getTextWidth('join');
             joinStmt.viewState.components.expression = this.getTextWidth(node.getJoinConditionString());
-            joinStmt.viewState.components.parameter = this.getTextWidth(node.getJoinResultVar().getSource());
+            joinStmt.viewState.components.parameter = this.getTextWidth(node.getJoinResultVar().getSource(true));
 
             if (joinStmt.viewState.bBox.w > node.viewState.bBox.w) {
                 nodeWidth = joinStmt.viewState.bBox.w;
@@ -1362,9 +1362,9 @@ class SizingUtil {
 
         if (timeoutStmt) {
             // Calculate timeout expression, parameter expression, keyword lengths.
-            timeoutStmt.viewState.components.expression = this.getTextWidth(node.getTimeOutExpression().getSource());
+            timeoutStmt.viewState.components.expression = this.getTextWidth(node.getTimeOutExpression().getSource(true));
             timeoutStmt.viewState.components.titleWidth = this.getTextWidth('timeout');
-            timeoutStmt.viewState.components.parameter = this.getTextWidth(node.getTimeOutVariable().getSource());
+            timeoutStmt.viewState.components.parameter = this.getTextWidth(node.getTimeOutVariable().getSource(true));
             if (timeoutStmt.viewState.bBox.w > nodeWidth) {
                 nodeWidth = timeoutStmt.viewState.bBox.w;
             }
@@ -1487,7 +1487,7 @@ class SizingUtil {
         if (expression) {
             // see how much space we have to draw the condition
             const available = bodyWidth - this.config.flowChartControlStatement.heading.width - 10;
-            components.expression = this.getTextWidth(expression.getSource(), 0, available);
+            components.expression = this.getTextWidth(expression.getSource(true), 0, available);
         }
 
         // end of if block sizing
@@ -1543,7 +1543,7 @@ class SizingUtil {
      */
     sizeReturnNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
         this.adjustToLambdaSize(node, viewState);
     }
 
@@ -1567,7 +1567,7 @@ class SizingUtil {
      */
     sizeThrowNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
     }
 
 
@@ -1587,7 +1587,7 @@ class SizingUtil {
             if (node.condition) {
                 node.transactionBody.viewState.components.withKeywordWidth = this.getTextWidth('with');
                 node.transactionBody.viewState.components.retiresKeywordWidth = this.getTextWidth('retries');
-                node.viewState.components.expression = this.getTextWidth(node.condition.getSource());
+                node.viewState.components.expression = this.getTextWidth(node.condition.getSource(true));
             }
             node.viewState.components['statement-box'].h
                 += node.transactionBody.viewState.components['statement-box'].h;
@@ -1657,7 +1657,7 @@ class SizingUtil {
      */
     sizeVariableDefNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
         this.adjustToLambdaSize(node, viewState);
 
         // Truncate the endpoint name to fit the statement box
@@ -1723,7 +1723,7 @@ class SizingUtil {
         if (expression) {
             // see how much space we have to draw the condition
             const available = bodyWidth - this.config.flowChartControlStatement.heading.width - 10;
-            components.expression = this.getTextWidth(expression.getSource(), 0, available);
+            components.expression = this.getTextWidth(expression.getSource(true), 0, available);
         }
     }
 
@@ -1736,7 +1736,7 @@ class SizingUtil {
      */
     sizeWorkerReceiveNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
     }
 
 
@@ -1748,7 +1748,7 @@ class SizingUtil {
      */
     sizeWorkerSendNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
     }
 
 
@@ -1875,7 +1875,7 @@ class SizingUtil {
         if (expression) {
             // see how much space we have to draw the condition
             const available = bodyWidth - this.config.blockStatement.heading.width - 10;
-            components.expression = this.getTextWidth(expression.getSource(), 0, available);
+            components.expression = this.getTextWidth(expression.getSource(true), 0, available);
         }
     }
 
