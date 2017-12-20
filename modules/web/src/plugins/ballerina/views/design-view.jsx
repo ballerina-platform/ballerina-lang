@@ -50,7 +50,6 @@ class DesignView extends React.Component {
         });
         this.props.commandProxy.on('go-to-node', (node) => {
             this.scrollbars.scrollTop(node.viewState.bBox.y);
-            this.scrollbars.scrollLeft(node.viewState.bBox.x);
         });
     }
 
