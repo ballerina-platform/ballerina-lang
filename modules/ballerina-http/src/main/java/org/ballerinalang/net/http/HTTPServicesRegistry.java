@@ -236,21 +236,15 @@ public class HTTPServicesRegistry {
         }
 
         //validate connection parameter
-        ParamDetail connectionParamDetail = paramDetails.get(0);
-        if (connectionParamDetail.getVarType().getPackagePath() == null
-                || !connectionParamDetail.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)
-                || !connectionParamDetail.getVarType().getName().equals(Constants.CONNECTION)) {
+        if (isValidParam(paramDetails.get(0), Constants.CONNECTION)) {
             throw new BallerinaConnectorException("first parameter should be of type - "
                     + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.CONNECTION);
         }
 
         //Validate request parameter
-        ParamDetail reqParamDetail = paramDetails.get(1);
-        if (reqParamDetail.getVarType().getPackagePath() == null
-                || !reqParamDetail.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)
-                || !reqParamDetail.getVarType().getName().equals(Constants.REQUEST)) {
+        if (isValidParam(paramDetails.get(1), Constants.REQUEST)) {
             throw new BallerinaConnectorException("second parameter should be of type - "
-                                                          + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.REQUEST);
+                    + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.REQUEST);
         }
 
         //validate rest of the parameters
@@ -262,6 +256,11 @@ public class HTTPServicesRegistry {
         }
     }
 
+    private boolean isValidParam(ParamDetail paramDetail, String varTypeName) {
+        return paramDetail.getVarType().getPackagePath() == null
+                || !paramDetail.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)
+                || !paramDetail.getVarType().getName().equals(varTypeName);
+    }
 
     public String findTheMostSpecificBasePath(String requestURIPath, Map<String, HttpService> services) {
         for (Object key : sortedServiceURIs) {

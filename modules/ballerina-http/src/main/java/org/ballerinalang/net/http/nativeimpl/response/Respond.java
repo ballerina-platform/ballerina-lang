@@ -60,7 +60,6 @@ public class Respond extends AbstractNativeFunction {
         HttpUtil.checkFunctionValidity(connectionStruct, requestMessage);
         HTTPCarbonMessage responseMessage = HttpUtil
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
-
         AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.ANN_NAME_CONFIG);
 

@@ -1,6 +1,6 @@
 package ballerina.net.http;
 
-@Description { value:"Represents the HTTP connector connection"}
+@Description { value:"Represents the HTTP server connection"}
 @Field {value:"remoteHost: The server host name"}
 @Field {value:"port: The server port"}
 public struct Connection {
@@ -8,7 +8,7 @@ public struct Connection {
 	int port;
 }
 
-@Description { value:"Respond to the caller"}
+@Description { value:"Sends response to the caller"}
 @Param { value:"con: The server connector connection" }
 @Param { value:"res: A response message" }
 @Return { value:"Error occured during HTTP server connector respond" }
