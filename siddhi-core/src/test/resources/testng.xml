@@ -88,7 +88,7 @@
             <class name="org.wso2.siddhi.core.query.table.IndexTableTestCase"/>
             <class name="org.wso2.siddhi.core.query.table.InsertIntoTableTestCase"/>
             <class name="org.wso2.siddhi.core.query.table.JoinTableTestCase"/>
-            <class name="org.wso2.siddhi.core.query.table.LocgicalTableTestCase"/>
+            <class name="org.wso2.siddhi.core.query.table.LogicalTableTestCase"/>
             <class name="org.wso2.siddhi.core.query.table.PrimaryKeyTableTestCase"/>
             <class name="org.wso2.siddhi.core.query.table.UpdateFromTableTestCase"/>
             <class name="org.wso2.siddhi.core.query.table.UpdateOrInsertTableTestCase"/>
