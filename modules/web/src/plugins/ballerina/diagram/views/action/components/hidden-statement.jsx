@@ -49,8 +49,8 @@ class HiddenStatement extends React.Component {
         return (
             <g>
                 <g className='hidden-statement'>
-                    <rect x={bBox.x} y={y} width={bBox.w} height={h} rx='2' ry='2' />
-                    <text x={bBox.x + 3} y={y + 6} className='hidden-code' fontSize='35' >
+                    <rect x={bBox.x - (bBox.w / 2)} y={y} width={bBox.w} height={h} rx='2' ry='2' />
+                    <text x={bBox.x - (bBox.w / 2) + 3} y={y + 6} className='hidden-code' fontSize='35' >
                         ...
                     </text>
                 </g>

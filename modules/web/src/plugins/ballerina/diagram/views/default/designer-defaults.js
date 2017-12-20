@@ -112,9 +112,9 @@ export const actionBox = {
 
 export const statement = {
     width: 120,
-    height: 30,
+    height: 20,
     gutter: {
-        v: 25,
+        v: 0,
         h: 10,
     },
     padding: {
@@ -153,11 +153,14 @@ export const blockStatement = {
 export const flowChartControlStatement = {
     width: 180,
     heading: {
-        width: 80,
-        height: 80,
+        width: 90,
+        height: 60,
         paramPaddingX: 5,
         paramSeparatorOffsetX: 20,
         paramEndOffsetX: 6,
+    },
+    gutter: {
+        h: (2 * statement.gutter.h),
     },
     body: {
         padding: {
@@ -167,6 +170,11 @@ export const flowChartControlStatement = {
             left: 25,
         },
         height: 100,
+    },
+    padding: {
+        left: (15 * statement.padding.left),
+        top: (2 * statement.padding.top),
+        bottom: (2 * statement.padding.bottom),
     },
 };
 

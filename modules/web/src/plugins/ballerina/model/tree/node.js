@@ -59,9 +59,9 @@ class Node extends EventChannel {
     }
 
     /**
-     * If there are child nodes to be aliased, this should carry the implementation accordingly
+     * If there are child nodes which are compound statements, this should carry the implementation accordingly
      */
-    setChildrenAlias() {
+    setChildrenCompoundStatus() {
         // Will implement by the particular node
     }
 

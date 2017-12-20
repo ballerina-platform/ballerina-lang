@@ -96,6 +96,7 @@
     "brace": "^0.10.0",
     "classnames": "^2.2.5",
     "copy-to-clipboard": "^3.0.8",
+    "copy-webpack-plugin": "^4.2.3",
     "cross-env": "^3.2.3",
     "jquery": "^1.9.1",
     "js-yaml": "^3.7.0",
@@ -103,6 +104,8 @@
     "jsplumb": "2.3.5",
     "lodash": "^4.13.1",
     "log4javascript": "^1.4.15",
+    "monaco-editor": "^0.10.1",
+    "monaco-languageclient": "^0.2.0",
     "mousetrap": "^1.6.0",
     "prop-types": "^15.5.8",
     "rc-menu": "^5.0.10",
@@ -120,11 +123,14 @@
     "react-htmltree": "^0.8.1",
     "react-json-view": "^1.13.3",
     "react-linkify": "^0.2.1",
+    "react-monaco-editor": "^0.13.0",
     "react-split-pane": "^0.1.71",
     "react-transition-group": "^1.1.2",
     "react-treeview": "^0.4.7",
+    "reconnecting-websocket": "^3.2.2",
     "swagger-editor-dist": "^3.1.18",
     "uuid": "^3.1.0",
+    "vscode-ws-jsonrpc": "0.0.1-alpha.5",
     "webpack": "^2.2.1"
   }
 }

@@ -92,7 +92,7 @@ class TreeBuilder {
 
         json.parent = parent;
         Object.assign(node, json);
-        node.setChildrenAlias();
+        node.setChildrenCompoundStatus();
         return node;
     }
 

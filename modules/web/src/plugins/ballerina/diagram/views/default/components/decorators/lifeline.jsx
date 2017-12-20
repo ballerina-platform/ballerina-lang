@@ -248,7 +248,12 @@ class LifeLine extends React.Component {
                     isDefaultWorker={isDefaultWorker}
                 />
             }
-            <circle cx={centerX} cy={solidY1 + 30} r='4' className={lineClass + ' dot'} />
+            <circle
+                cx={centerX}
+                cy={bBox.y + titleBoxH + this.context.designer.config.statement.height}
+                r='4'
+                className={lineClass + ' dot'}
+            />
         </g>);
     }
 }
@@ -263,6 +268,7 @@ LifeLine.defaultProps = {
 
 LifeLine.contextTypes = {
     model: PropTypes.instanceOf(Object),
+    designer: PropTypes.instanceOf(Object),
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,

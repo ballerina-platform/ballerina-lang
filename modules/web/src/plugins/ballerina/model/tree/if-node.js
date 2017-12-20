@@ -22,10 +22,10 @@ class IfNode extends AbstractIfNode {
     /**
      * Set children alias.
      * */
-    setChildrenAlias() {
+    setChildrenCompoundStatus() {
         const elseStatement = this.elseStatement;
         if (elseStatement && elseStatement.kind === 'Block') {
-            elseStatement.viewState.alias = 'Else';
+            elseStatement.viewState.compound = true;
         }
     }
 }

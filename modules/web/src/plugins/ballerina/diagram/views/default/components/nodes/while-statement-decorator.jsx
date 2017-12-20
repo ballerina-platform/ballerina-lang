@@ -17,24 +17,17 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
-import { flowChartControlStatement, blockStatement, statement, actionBox } from '../../../../../configs/designer-defaults.js';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
 import './compound-statement-decorator.css';
-import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import ActionBox from '../decorators/action-box';
 import ActiveArbiter from '../decorators/active-arbiter';
 import Breakpoint from '../decorators/breakpoint';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import ArrowDecorator from '../decorators/arrow-decorator';
-
-const CLASS_MAP = {
-    hidden: 'hide-action',
-    visible: 'show-action',
-    fade: 'delayed-hide-action',
-};
 
 /**
  * Wraps other UI elements and provide box with a heading.
@@ -201,10 +194,12 @@ class WhileStatementDecorator extends React.Component {
 
         const model = this.props.model;
         const viewState = model.viewState;
-        const titleH = flowChartControlStatement.heading.height;
-        const titleW = flowChartControlStatement.heading.width;
+        const titleH = this.context.designer.config.flowChartControlStatement.heading.height;
+        const titleW = this.context.designer.config.flowChartControlStatement.heading.width;
         const statementBBox = viewState.components['statement-box'];
         const displayExpression = viewState.components.expression;
+        const gapLeft = this.context.designer.config.flowChartControlStatement.padding.left;
+        const gapTop = this.context.designer.config.flowChartControlStatement.padding.top;
 
 
         // Defining coordinates of the diagram
@@ -233,30 +228,31 @@ class WhileStatementDecorator extends React.Component {
         //            \ /
         //           (p9)
 
-        const p1X = statementBBox.x;
-        const p1Y = statementBBox.y;
+        const p1X = statementBBox.x - gapLeft;
+        const p1Y = statementBBox.y + gapTop;
 
-        const p2X = statementBBox.x + ((statementBBox.w / 2) - (titleW / 2));
-        const p2Y = statementBBox.y + (titleH / 2);
+        const p2X = statementBBox.x - (titleW / 2);
+        const p2Y = p1Y + (titleH / 2);
 
-        const p3X = p1X + (statementBBox.w / 2) + (titleW / 2);
+        const p3X = statementBBox.x + (titleW / 2);
         const p3Y = p2Y;
 
         const p4X = p1X + statementBBox.w;
         const p4Y = p2Y;
 
         const p5X = p4X;
-        const p5Y = p1Y + statementBBox.h + (statement.gutter.v);
+        const p5Y = p1Y + statementBBox.h + this.context.designer.config.flowChartControlStatement.gutter.h;
 
-        const p6X = p1X + (statementBBox.w / 2);
+        const p6X = statementBBox.x;
         const p6Y = p5Y;
 
         const p7X = p1X;
         const p7Y = p1Y + statementBBox.h;
 
-        const p8X = p1X + (statementBBox.w / 2);
+        const p8X = statementBBox.x;
         const p8Y = p2Y + (titleH / 2);
-        const p9X = p8X;
+
+        const p9X = statementBBox.x;
         const p9Y = p8Y - titleH;
 
         const p10X = p8X;
@@ -266,9 +262,10 @@ class WhileStatementDecorator extends React.Component {
         const p11Y = p1Y + (titleH / 2);
 
         const p12X = p8X;
-        const p12Y = p8Y + (titleH / 2) + statement.gutter.h;
+        const p12Y = p8Y + (titleH / 2) + this.context.designer.config.flowChartControlStatement.gutter.h;
 
-        this.conditionBox = new SimpleBBox(p1X, (p2Y - (statement.height / 2)), bBox.w, statement.height);
+        this.conditionBox = new SimpleBBox(p1X, (p2Y - (this.context.designer.config.statement.height / 2)),
+            bBox.w, this.context.designer.config.statement.height);
 
         const actionBoxBbox = new SimpleBBox();
         actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;

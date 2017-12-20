@@ -158,6 +158,9 @@ class SourceView extends React.Component {
                         file={this.props.file}
                         parseFailed={this.props.parseFailed}
                         onLintErrors={this.onSourceEditorLintErrors}
+                        width={this.props.width}
+                        height={this.props.height}
+                        ballerinaPlugin={this.context.ballerinaPlugin}
                     />
                     <div
                         className={classNames('bottom-right-controls-container',
@@ -228,11 +231,14 @@ SourceView.propTypes = {
     parseFailed: PropTypes.bool.isRequired,
     displayErrorList: PropTypes.bool.isRequired,
     panelResizeInProgress: PropTypes.bool.isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
 };
 
 SourceView.contextTypes = {
     isTabActive: PropTypes.func.isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
+    ballerinaPlugin: PropTypes.objectOf(Object).isRequired,
 };
 
 export default SourceView;

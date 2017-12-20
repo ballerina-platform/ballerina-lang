@@ -32,8 +32,6 @@ import StatementPropertyItemSelector from './../utils/statement-property-item-se
 import TreeUtil from '../../../../../model/tree-util';
 import splitVariableDefByLambda from '../../../../../model/lambda-util';
 import { getComponentForNodeArray } from '../../../../diagram-util';
-import { statement } from '../../../../../configs/designer-defaults.js';
-
 
 /**
  * Wraps other UI elements and provide box with a heading.
@@ -272,7 +270,8 @@ class StatementDecorator extends React.Component {
                                     {tooltip}
                                 </rect>
                                 <text
-                                    x={viewState.components.invocation.start.x + statement.padding.left}
+                                    x={viewState.components.invocation.start.x
+                                        + this.context.designer.config.statement.padding.left}
                                     y={statementBox.y}
                                     className='action-invocation-text'
                                 >
