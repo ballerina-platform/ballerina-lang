@@ -37,8 +37,8 @@
             <directory>dist</directory>
             <outputDirectory>resources/composer/web/public</outputDirectory>
             <excludes>
-                <exclude>dist/**/*.js.map</exclude>
-                <exclude>dist/**/*.css.map</exclude>
+                <exclude>**/*.js.map</exclude>
+                <exclude>**/*.css.map</exclude>
             </excludes>
         </fileSet>
     </fileSets>
