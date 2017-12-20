@@ -760,6 +760,8 @@ class BallerinaFileEditor extends React.Component {
                     commandProxy={this.props.commandProxy}
                     show={showSourceView}
                     panelResizeInProgress={this.props.panelResizeInProgress}
+                    width={this.props.width}
+                    height={this.props.height}
                 />
                 <div style={{ display: showSwaggerView ? 'block' : 'none' }}>
                     <SwaggerView

@@ -249,6 +249,12 @@ class File extends EventChannel {
         this._props[propertyName] = propertyValue;
     }
 
+    /**
+     * Gives the URI of file.
+     */
+    toURI() {
+        return `file://${this.fullPath}`;
+    }
 
 }
 

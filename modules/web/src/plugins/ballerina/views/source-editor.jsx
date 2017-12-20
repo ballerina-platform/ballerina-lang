@@ -15,154 +15,117 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import 'brace';
-import 'brace/ext/language_tools';
-import 'brace/ext/searchbox';
-import 'brace/theme/twilight';
 import React from 'react';
 import PropTypes from 'prop-types';
-import log from 'log';
 import _ from 'lodash';
+import { getServiceEndpoint } from 'api-client/api-client';
+import { listen } from 'vscode-ws-jsonrpc';
+import {
+    BaseLanguageClient, CloseAction, ErrorAction,
+    createMonacoServices, createConnection,
+} from 'monaco-languageclient';
+import ReconnectingWebSocket from 'reconnecting-websocket';
 import debuggerHoc from 'src/plugins/debugger/views/DebuggerHoc';
 import File from 'core/workspace/model/file';
+import { PLUGIN_ID as BAL_PLUGIN_ID } from 'plugins/ballerina/constants';
+import { EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
 import { CONTENT_MODIFIED } from 'plugins/ballerina/constants/events';
 import { GO_TO_POSITION } from 'plugins/ballerina/constants/commands';
-import { getLangServerClientInstance } from 'plugins/ballerina/langserver/lang-server-client-controller';
+import MonacoEditor from 'react-monaco-editor';
 import SourceViewCompleterFactory from './../../ballerina/utils/source-view-completer-factory';
 import { CHANGE_EVT_TYPES } from './constants';
+import Grammar from './../utils/monarch-grammar';
 
+const BAL_LANGUAGE = 'ballerina-lang';
 
-const ace = global.ace;
-const Range = ace.acequire('ace/range').Range;
-const AceUndoManager = ace.acequire('ace/undomanager').UndoManager;
-
-// require ballerina mode
-const langTools = ace.acequire('ace/ext/language_tools');
-
-const ballerinaMode = 'ace/mode/ballerina';
-// load ballerina mode
-ace.acequire(ballerinaMode);
-
-// require possible themes
-function requireAll(requireContext) {
-    return requireContext.keys().map(requireContext);
-}
-requireAll(require.context('brace', false, /theme-/));
-
-// ace look & feel configurations FIXME: Make this overridable from settings
-const aceTheme = 'ace/theme/twilight';
-const fontSize = '14px';
-const scrollMargin = 20;
-
-// override default undo manager of ace editor
-class NotifyingUndoManager extends AceUndoManager {
-    constructor(sourceView) {
-        super();
-        this.sourceView = sourceView;
-    }
-    execute(args) {
-        super.execute(args);
-        if (!this.sourceView.skipFileUpdate) {
-            const changeEvent = {
-                type: CHANGE_EVT_TYPES.SOURCE_MODIFIED,
-                title: 'Modify source',
-            };
-            this.sourceView.props.file
-                .setContent(this.sourceView.editor.session.getValue(), changeEvent);
-        }
-        this.sourceView.skipFileUpdate = false;
-    }
-}
-
+/**
+ * Source editor component which wraps monaco editor
+ */
 class SourceEditor extends React.Component {
 
+    /**
+     * @inheritDoc
+     */
     constructor(props) {
         super(props);
-        this.container = undefined;
-        this.editor = undefined;
+        this.monaco = undefined;
+        this.editorInstance = undefined;
         this.inSilentMode = false;
         this.sourceViewCompleterFactory = new SourceViewCompleterFactory();
         this.goToCursorPosition = this.goToCursorPosition.bind(this);
         this.onFileContentChanged = this.onFileContentChanged.bind(this);
         this.lastUpdatedTimestamp = props.file.lastUpdated;
+        this.editorDidMount = this.editorDidMount.bind(this);
+        this.onWorkspaceFileClose = this.onWorkspaceFileClose.bind(this);
     }
 
     /**
-     * lifecycle hook for component did mount
+     * @inheritDoc
      */
-    componentDidMount() {
-        if (!_.isNil(this.container)) {
-            // initialize ace editor
-            const editor = ace.edit(this.container);
-            editor.getSession().setMode(ballerinaMode);
-            editor.getSession().setUndoManager(new NotifyingUndoManager(this));
-            editor.getSession().setValue(this.props.file.content);
-            editor.setShowPrintMargin(false);
-            // Avoiding ace warning
-            editor.$blockScrolling = Infinity;
-            editor.setTheme(aceTheme);
-            editor.setFontSize(fontSize);
-            editor.setOptions({
-                enableBasicAutocompletion: true,
-            });
-            editor.setBehavioursEnabled(true);
-            // bind auto complete to key press
-            editor.commands.on('afterExec', (e) => {
-                if (e.command.name === 'insertstring' && /^[\w.@:]$/.test(e.args)) {
-                    setTimeout(() => {
-                        try {
-                            editor.execCommand('startAutocomplete');
-                        } finally {
-                            // nothing
-                        }
-                    }, 10);
-                }
-            });
-            editor.renderer.setScrollMargin(scrollMargin, scrollMargin);
-            this.editor = editor;
-            // bind app keyboard shortcuts to ace editor
-            this.props.commandProxy.getCommands().forEach((command) => {
-                this.bindCommand(command);
-            });
-             // register handler for go to position command
-            this.props.commandProxy.on(GO_TO_POSITION, this.handleGoToPosition, this);
-            // listen to changes done to file content
-            // by other means (eg: design-view changes or redo/undo actions)
-            // and update ace content accordingly
-            this.props.file.on(CONTENT_MODIFIED, this.onFileContentChanged);
+    componentWillReceiveProps(nextProps) {
+        // if (!nextProps.parseFailed) {
+        //     getLangServerClientInstance()
+        //         .then((langserverClient) => {
+        //             // Set source view completer
+        //             const sourceViewCompleterFactory = this.sourceViewCompleterFactory;
+        //             const fileData = {
+        //                 fileName: nextProps.file.name,
+        //                 filePath: nextProps.file.path,
+        //                 fullPath: nextProps.file.fullPath,
+        //                 packageName: nextProps.file.packageName,
+        //             };
+        //             const completer = sourceViewCompleterFactory.getSourceViewCompleter(langserverClient, fileData);
+        //             langTools.setCompleters(completer);
+        //         })
+        //         .catch(error => log.error(error));
+        // }
 
-            editor.on('guttermousedown', (e) => {
-                const target = e.domEvent.target;
-                if (target.className.indexOf('ace_gutter-cell') === -1) {
-                    return;
-                }
-                if (!editor.isFocused()) {
-                    return;
-                }
+        // const { debugHit, sourceViewBreakpoints } = nextProps;
+        // if (this.debugPointMarker) {
+        //     this.editor.getSession().removeMarker(this.debugPointMarker);
+        // }
+        // if (debugHit > 0) {
+        //     this.debugPointMarker = this.editor.getSession().addMarker(
+        //         new Range(debugHit, 0, debugHit, 2000), 'debug-point-hit', 'line', true);
+        // }
 
-                const row = e.getDocumentPosition().row;
-                const breakpoints = e.editor.session.getBreakpoints(row, 0);
-                if (!breakpoints[row]) {
-                    this.props.addBreakpoint(row + 1);
-                    e.editor.session.setBreakpoint(row);
-                } else {
-                    this.props.removeBreakpoint(row + 1);
-                    e.editor.session.clearBreakpoint(row);
+        if (this.props.file.id !== nextProps.file.id) {
+            if (this.monaco && this.editorInstance) {
+                const uri = this.monaco.Uri.parse(nextProps.file.toURI());
+                let modelForFile = this.monaco.editor.getModel(uri);
+                const currentModel = this.editorInstance.getModel();
+                if (!modelForFile) {
+                    modelForFile = this.monaco.editor.createModel(nextProps.file.content, BAL_LANGUAGE, uri);
                 }
-            });
-            // on editor annotation change
-            // check whether the new set of annoations contain
-            // lint errors from background worker
-            // this is to re-use ace's in-built worker validations
-            // to update design-view btn with #of syntax errors
-            editor.getSession().on('changeAnnotation', () => {
-                const annotations = editor.getSession().getAnnotations();
-                const errors = annotations.filter((annotation) => {
-                    // ignore semantic errors & other annotations
-                    return annotation.type === 'error' && annotation.category === 'SYNTAX';
-                });
-                this.props.onLintErrors(errors);
-            });
+                if (currentModel && modelForFile && currentModel.uri !== modelForFile.uri) {
+                    this.editorInstance.setModel(modelForFile);
+                }
+            }
+            // Removing the file content changed event of the previous file.
+            this.props.file.off(CONTENT_MODIFIED, this.onFileContentChanged);
+            // Adding the file content changed event to the new file.
+            nextProps.file.on(CONTENT_MODIFIED, this.onFileContentChanged);
+        }
+        // this.editor.getSession().setBreakpoints(sourceViewBreakpoints);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    componentWillUnmount() {
+        this.props.commandProxy.off(WORKSPACE_EVENTS.FILE_CLOSED, this.onWorkspaceFileClose);
+    }
+
+     /**
+     * On File Close in workspce
+     */
+    onWorkspaceFileClose({ file }) {
+        if (this.monaco) {
+            const uri = this.monaco.Uri.parse(file.toURI());
+            const modelForFile = this.monaco.editor.getModel(uri);
+            if (modelForFile) {
+                modelForFile.dispose();
+            }
         }
     }
 
@@ -173,10 +136,61 @@ class SourceEditor extends React.Component {
      */
     onFileContentChanged(evt) {
         if (evt.originEvt.type !== CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
-            // no need to update the file again, hence
-            // the second arg to skip update event
-            this.replaceContent(evt.newContent, true);
+            if (this.monaco && this.editorInstance && evt.file) {
+                const uri = this.monaco.Uri.parse(evt.file.toURI());
+                const modelForFile = this.monaco.editor.getModel(uri);
+                if (modelForFile) {
+                    modelForFile.setValue(evt.file.content);
+                }
+            }
         }
+    }
+
+    /**
+     * Life-cycle hook for editor did mount
+     *
+     * @param {IEditor} editorInstance Current editor instance
+     * @param {Object} monaco Monaco API
+     */
+    editorDidMount(editorInstance, monaco) {
+        this.monaco = monaco;
+        this.editorInstance = editorInstance;
+        monaco.languages.register({ id: BAL_LANGUAGE });
+        monaco.languages.setMonarchTokensProvider(BAL_LANGUAGE, Grammar);
+        const uri = monaco.Uri.parse(this.props.file.toURI());
+        let modelForFile = monaco.editor.getModel(uri);
+        if (!modelForFile) {
+            modelForFile = monaco.editor.createModel(this.props.file.content, BAL_LANGUAGE, uri);
+        }
+        editorInstance.setModel(modelForFile);
+        this.props.commandProxy.on(WORKSPACE_EVENTS.FILE_CLOSED, this.onWorkspaceFileClose);
+        const services = createMonacoServices(editorInstance);
+        const createLSConnection = this.props.ballerinaPlugin.createLangServerConnection();
+        createLSConnection
+            .then((connection) => {
+                // create and start the language client
+                const languageClient = new BaseLanguageClient({
+                    name: 'Ballerina Language Client',
+                    clientOptions: {
+                        // use a language id as a document selector
+                        documentSelector: [BAL_LANGUAGE],
+                        // disable the default error handler
+                        errorHandler: {
+                            error: () => ErrorAction.Continue,
+                            closed: () => CloseAction.DoNotRestart,
+                        },
+                    },
+                    services,
+                    // create a language client connection from the JSON RPC connection on demand
+                    connectionProvider: {
+                        get: (errorHandler, closeHandler) => {
+                            return Promise.resolve(createConnection(connection, errorHandler, closeHandler));
+                        },
+                    },
+                });
+                const disposable = languageClient.start();
+                connection.onClose(() => disposable.dispose());
+            });
     }
 
     /**
@@ -214,18 +228,7 @@ class SourceEditor extends React.Component {
         if (skipFileUpdate) {
             this.skipFileUpdate = true;
         }
-        const session = this.editor.getSession();
-        const contentRange = new Range(0, 0, session.getLength(),
-                        session.getRowLength(session.getLength()));
-        session.replace(contentRange, newContent);
-        this.lastUpdatedTimestamp = this.props.file.lastUpdated;
-    }
-
-    shouldComponentUpdate() {
-        // update ace editor - https://github.com/ajaxorg/ace/issues/1245
-        this.editor.resize(true);
-        // keep this component unaffected from react re-render
-        return false;
+        this.monaco.editor.getModels()[1].setValue(newContent);
     }
 
     /**
@@ -255,53 +258,39 @@ class SourceEditor extends React.Component {
         }
     }
 
-    render() {
-        return (
-            <div className='text-editor bal-source-editor' ref={(ref) => { this.container = ref; }} />
-        );
-    }
-
     /**
-     * lifecycle hook for component will receive props
+     * @inheritDoc
      */
-    componentWillReceiveProps(nextProps) {
-        if (!nextProps.parseFailed) {
-            getLangServerClientInstance()
-                .then((langserverClient) => {
-                    // Set source view completer
-                    const sourceViewCompleterFactory = this.sourceViewCompleterFactory;
-                    const fileData = {
-                        fileName: nextProps.file.name,
-                        filePath: nextProps.file.path,
-                        fullPath: nextProps.file.fullPath,
-                        packageName: nextProps.file.packageName,
-                    };
-                    const completer = sourceViewCompleterFactory.getSourceViewCompleter(langserverClient, fileData);
-                    langTools.setCompleters(completer);
-                })
-                .catch(error => log.error(error));
-        }
-
-        const { debugHit, sourceViewBreakpoints } = nextProps;
-        if (this.debugPointMarker) {
-            this.editor.getSession().removeMarker(this.debugPointMarker);
-        }
-        if (debugHit > 0) {
-            this.debugPointMarker = this.editor.getSession().addMarker(
-                new Range(debugHit, 0, debugHit, 2000), 'debug-point-hit', 'line', true);
-        }
-
-        if (this.props.file.id !== nextProps.file.id) {
-            // Removing the file content changed event of the previous file.
-            this.props.file.off(CONTENT_MODIFIED, this.onFileContentChanged);
-            // Adding the file content changed event to the new file.
-            nextProps.file.on(CONTENT_MODIFIED, this.onFileContentChanged);
-            this.replaceContent(nextProps.file.content, true);
-        } else if (this.editor.session.getValue() !== nextProps.file.content) {
-            this.replaceContent(nextProps.file.content, true);
-        }
-
-        this.editor.getSession().setBreakpoints(sourceViewBreakpoints);
+    render() {
+        const { width, height } = this.props;
+        return (
+            <div className='text-editor bal-source-editor'>
+                <MonacoEditor
+                    language='ballerinalang'
+                    theme='vs-dark'
+                    value={this.props.file.content}
+                    editorDidMount={this.editorDidMount}
+                    onChange={(newValue) => {
+                        const changeEvent = {
+                            type: CHANGE_EVT_TYPES.SOURCE_MODIFIED,
+                            title: 'Modify source',
+                        };
+                        this.props.file
+                            .setContent(newValue, changeEvent);
+                    }}
+                    options={{
+                        autoIndent: true,
+                        fontSize: 14,
+                        contextmenu: false,
+                        renderIndentGuides: true,
+                        autoClosingBrackets: true,
+                        automaticLayout: true,
+                    }}
+                    width={width}
+                    height={height}
+                />
+            </div>
+        );
     }
 }
 
@@ -311,13 +300,17 @@ SourceEditor.propTypes = {
         on: PropTypes.func.isRequired,
         dispatch: PropTypes.func.isRequired,
         getCommands: PropTypes.func.isRequired,
+        off: PropTypes.func.isRequired,
     }).isRequired,
+    ballerinaPlugin: PropTypes.objectOf(Object).isRequired,
     parseFailed: PropTypes.bool.isRequired,
     onLintErrors: PropTypes.func,
     sourceViewBreakpoints: PropTypes.arrayOf(Number).isRequired,
     addBreakpoint: PropTypes.func.isRequired,
     removeBreakpoint: PropTypes.func.isRequired,
     debugHit: PropTypes.number,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
 };
 
 SourceEditor.defaultProps = {
