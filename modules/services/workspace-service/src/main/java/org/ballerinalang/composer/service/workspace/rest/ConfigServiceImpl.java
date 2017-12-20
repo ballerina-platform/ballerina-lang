@@ -16,11 +16,10 @@
 
 package org.ballerinalang.composer.service.workspace.rest;
 
-
 import com.google.gson.JsonObject;
-import org.apache.commons.lang3.SystemUtils;
 import org.ballerinalang.composer.service.workspace.Constants;
 import org.ballerinalang.composer.service.workspace.PluginConstants;
+import org.ballerinalang.composer.service.workspace.langserver.ws.WSLangServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.msf4j.Request;
@@ -135,6 +134,9 @@ public class ConfigServiceImpl {
         JsonObject langserver = new JsonObject();
         langserver.addProperty("endpoint", langserverPath + "/blangserver");
 
+        JsonObject wsLangserver = new JsonObject();
+        wsLangserver.addProperty("endpoint", "ws://" + host + ":" + apiPort + WSLangServer.CONTEXT);
+
         JsonObject programNativeTypes = new JsonObject();
         programNativeTypes.addProperty("endpoint", apiPath + "/service/program/native/types");
 
@@ -162,6 +164,7 @@ public class ConfigServiceImpl {
         services.add("launcher", launcher);
         services.add("debugger", debugger);
         services.add("langserver", langserver);
+        services.add("wslangserver", wsLangserver);
         services.add("programNativeTypes", programNativeTypes);
         services.add("programPackages", programPackages);
         services.add("typeLattice", typeLattice);
@@ -272,15 +275,14 @@ public class ConfigServiceImpl {
             balHome = System.getenv(Constants.SYS_BAL_COMPOSER_HOME);
         }
         if (null != balHome) {
+            // get real path for sym links and long path for windows short paths
             // On windows, the path comes as a short path with some pieces are replaced
             // by ~ char. Using this path from client side causes issues with some derived
             // paths for further actions
-            if (SystemUtils.IS_OS_WINDOWS) {
-                try {
-                    balHome = Paths.get(balHome).toRealPath().toString();
-                } catch (IOException e) {
-                    log.error("Error while resolving long path from short path", e);
-                }
+            try {
+                balHome = Paths.get(balHome).toRealPath().toString();
+            } catch (IOException e) {
+                log.error("Error while resolving real path from short path", e);
             }
             welcomeTabPluginConfig.addProperty("balHome", balHome);
         }

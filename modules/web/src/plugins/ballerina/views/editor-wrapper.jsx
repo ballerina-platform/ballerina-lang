@@ -39,6 +39,15 @@ class Editor extends React.Component {
         this.onFileContentModified = this.onFileContentModified.bind(this);
     }
 
+     /**
+     * @inheritdoc
+     */
+    getChildContext() {
+        return {
+            ballerinaPlugin: this.props.ballerinaPlugin,
+        };
+    }
+
     /**
      * @inheritdoc
      */
@@ -102,6 +111,10 @@ Editor.propTypes = {
     onUndoableOperation: PropTypes.func.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
+};
+
+Editor.childContextTypes = {
+    ballerinaPlugin: PropTypes.objectOf(Object).isRequired,
 };
 
 Editor.defaultProps = {
