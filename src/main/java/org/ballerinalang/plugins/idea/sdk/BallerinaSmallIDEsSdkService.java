@@ -27,10 +27,12 @@ import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
 import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.util.ObjectUtils;
+import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.ballerinalang.plugins.idea.configuration.BallerinaSdkConfigurable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -104,12 +106,8 @@ public class BallerinaSmallIDEsSdkService extends BallerinaSdkService {
     }
 
     public static boolean isBallerinaSdkLibRoot(@NotNull VirtualFile root) {
-
-        return false;
-        //        return root.isInLocalFileSystem() &&
-        //                root.isDirectory() &&
-        //                (VfsUtilCore.findRelativeFile(GoConstants.GO_VERSION_FILE_PATH, root) != null ||
-        //                        VfsUtilCore.findRelativeFile(GoConstants.GO_VERSION_NEW_FILE_PATH, root) != null
-        //                );
+        return root.isInLocalFileSystem() && root.isDirectory()
+                && VfsUtilCore.findRelativeFile(BallerinaConstants.BALLERINA_VERSION_FILE_PATH, root.getParent()) !=
+                null;
     }
 }

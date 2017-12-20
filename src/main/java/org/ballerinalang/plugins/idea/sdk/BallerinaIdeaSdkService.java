@@ -21,6 +21,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ComponentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
+import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootAdapter;
@@ -52,7 +53,7 @@ public class BallerinaIdeaSdkService extends BallerinaSdkService {
     public String getSdkHomePath(@Nullable Module module) {
         ComponentManager holder = ObjectUtils.notNull(module, myProject);
         return CachedValuesManager.getManager(myProject).getCachedValue(holder, () -> {
-            Sdk sdk = getGoSdk(module);
+            Sdk sdk = getBallerinaSdk(module);
             return CachedValueProvider.Result.create(sdk != null ? sdk.getHomePath() : null, this);
         });
     }
@@ -67,7 +68,7 @@ public class BallerinaIdeaSdkService extends BallerinaSdkService {
 
         ComponentManager holder = ObjectUtils.notNull(module, myProject);
         return CachedValuesManager.getManager(myProject).getCachedValue(holder, () -> {
-            Sdk sdk = getGoSdk(module);
+            Sdk sdk = getBallerinaSdk(module);
             return CachedValueProvider.Result.create(sdk != null ? sdk.getVersionString() : null, this);
         });
     }
@@ -89,7 +90,12 @@ public class BallerinaIdeaSdkService extends BallerinaSdkService {
         return super.isBallerinaModule(module) && ModuleUtil.getModuleType(module) == BallerinaModuleType.getInstance();
     }
 
-    private Sdk getGoSdk(@Nullable Module module) {
+    @Nullable
+    public Configurable createSdkConfigurable() {
+        return null;
+    }
+    
+    private Sdk getBallerinaSdk(@Nullable Module module) {
         if (module != null) {
             Sdk sdk = ModuleRootManager.getInstance(module).getSdk();
             if (sdk != null && sdk.getSdkType() instanceof BallerinaSdkType) {

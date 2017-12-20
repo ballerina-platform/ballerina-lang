@@ -39,12 +39,6 @@ public class BallerinaProjectGenerator implements DirectoryProjectGenerator {
 
     @Nullable
     @Override
-    public Object showGenerationSettings(VirtualFile baseDir) throws ProcessCanceledException {
-        return null;
-    }
-
-    @Nullable
-    @Override
     public Icon getLogo() {
         return BallerinaIcons.ICON;
     }

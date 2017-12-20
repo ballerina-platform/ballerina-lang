@@ -42,13 +42,13 @@ public class BallerinaEnvironmentUtil {
         return path != null ? path : PathMacros.getInstance().getValue(BallerinaConstants.BALLERINA_REPOSITORY);
     }
 
-    @NotNull
-    public static String getFullBinaryFileName(@NotNull String filename, String type) {
-        if ("main".equals(type)) {
-            return filename + ".bmz";
-        } else if ("service".equals(type)) {
-            return filename + ".bsz";
-        }
-        return filename;
-    }
+//    @NotNull
+//    public static String getFullBinaryFileName(@NotNull String filename, String type) {
+//        if ("main".equals(type)) {
+//            return filename + ".bmz";
+//        } else if ("service".equals(type)) {
+//            return filename + ".bsz";
+//        }
+//        return filename;
+//    }
 }

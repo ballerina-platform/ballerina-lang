@@ -189,14 +189,14 @@ public class BallerinaSdkUtil {
         return "";
     }
 
-    public static String getBallerinaExecutablePath(Project project, Module module) {
-        String sdkHome = getSdkHome(project, module);
-        if (!sdkHome.isEmpty()) {
-            String execPath = sdkHome + File.separator + BALLERINA_EXEC_PATH;
-            return SystemInfo.isWindows ? execPath + ".bat" : execPath;
-        }
-        return "";
-    }
+//    public static String getBallerinaExecutablePath(Project project, Module module) {
+//        String sdkHome = getSdkHome(project, module);
+//        if (!sdkHome.isEmpty()) {
+//            String execPath = sdkHome + File.separator + BALLERINA_EXEC_PATH;
+//            return SystemInfo.isWindows ? execPath + ".bat" : execPath;
+//        }
+//        return "";
+//    }
 
     @NotNull
     public static Collection<VirtualFile> getBallerinaPathsRootsFromEnvironment() {

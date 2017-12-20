@@ -28,7 +28,7 @@ import java.util.List;
 
 import javax.swing.*;
 
-public class BallerinaSdkLibraryPresentationProvider  extends LibraryPresentationProvider<DummyLibraryProperties> {
+public class BallerinaSdkLibraryPresentationProvider extends LibraryPresentationProvider<DummyLibraryProperties> {
 
     private static final LibraryKind KIND = LibraryKind.create("Ballerina");
 
@@ -45,6 +45,11 @@ public class BallerinaSdkLibraryPresentationProvider  extends LibraryPresentatio
     @Override
     @Nullable
     public DummyLibraryProperties detect(@NotNull List<VirtualFile> classesRoots) {
+        for (VirtualFile root : classesRoots) {
+            if (BallerinaSmallIDEsSdkService.isBallerinaSdkLibRoot(root)) {
+                return DummyLibraryProperties.INSTANCE;
+            }
+        }
         return null;
     }
 }

@@ -27,7 +27,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
-import com.intellij.psi.util.FileTypeUtils;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
@@ -63,9 +62,6 @@ public class UnresolvedReferenceInspection extends LocalInspectionTool {
             return new ProblemDescriptor[0];
         }
         if (!(file instanceof BallerinaFile)) {
-            return new ProblemDescriptor[0];
-        }
-        if (FileTypeUtils.isInServerPageFile(file)) {
             return new ProblemDescriptor[0];
         }
 

@@ -62,7 +62,6 @@ public class BallerinaSdkType extends SdkType {
     public String suggestHomePath() {
         VirtualFile suggestSdkDirectory = BallerinaSdkUtil.suggestSdkDirectory();
         return suggestSdkDirectory != null ? suggestSdkDirectory.getPath() : null;
-        //        return null;
     }
 
     @Override

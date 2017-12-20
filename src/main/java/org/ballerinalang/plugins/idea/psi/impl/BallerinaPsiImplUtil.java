@@ -28,6 +28,7 @@ import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiComment;
@@ -107,6 +108,7 @@ import org.ballerinalang.plugins.idea.psi.scopes.ParameterContainer;
 import org.ballerinalang.plugins.idea.psi.scopes.RestrictedScope;
 import org.ballerinalang.plugins.idea.psi.scopes.TopLevelDefinition;
 import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
+import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.ballerinalang.plugins.idea.util.BallerinaStringLiteralEscaper;
 import org.jetbrains.annotations.NotNull;
@@ -268,6 +270,19 @@ public class BallerinaPsiImplUtil {
                 }
             }
         }
+
+        String sdkHomePath = BallerinaSdkService.getInstance(project).getSdkHomePath(null);
+        if (sdkHomePath == null) {
+            return results;
+        }
+        VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByPath(sdkHomePath + "/src");
+        if (virtualFile == null) {
+            return results;
+        }
+        VirtualFile match = getMatchingDirectory(virtualFile, packages);
+        if (match != null) {
+            results.add(PsiManager.getInstance(project).findDirectory(match));
+        }
         return results;
     }
 
@@ -393,6 +408,20 @@ public class BallerinaPsiImplUtil {
                     results.add(PsiManager.getInstance(project).findDirectory(file));
                 }
             }
+        }
+
+        String sdkHomePath = BallerinaSdkService.getInstance(project).getSdkHomePath(null);
+        if (sdkHomePath == null) {
+            return results.toArray(new PsiDirectory[results.size()]);
+        }
+        VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByPath(sdkHomePath + "/src");
+        if (virtualFile == null) {
+            return results.toArray(new PsiDirectory[results.size()]);
+        }
+
+        List<VirtualFile> matches = suggestDirectory(virtualFile, packages);
+        for (VirtualFile file : matches) {
+            results.add(PsiManager.getInstance(project).findDirectory(file));
         }
         return results.toArray(new PsiDirectory[results.size()]);
     }
@@ -1841,11 +1870,23 @@ public class BallerinaPsiImplUtil {
                                             @NotNull String path) {
         // First we check the sources of module SDK.
         VirtualFile file = findFileInModuleSDK(element, path);
-        if (file == null) {
-            // Then we check the sources of project SDK.
-            file = findFileInProjectSDK(project, path);
+        if (file != null) {
+            return file;
         }
-        return file;
+        // Then we check the sources of project SDK.
+        file = findFileInProjectSDK(project, path);
+        if (file != null) {
+            return file;
+        }
+        String sdkHomePath = BallerinaSdkService.getInstance(project).getSdkHomePath(null);
+        if (sdkHomePath == null) {
+            return null;
+        }
+        VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByPath(sdkHomePath);
+        if (virtualFile == null) {
+            return null;
+        }
+        return VfsUtilCore.findRelativeFile("src/" + path, virtualFile);
     }
 
     /**

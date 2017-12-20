@@ -30,7 +30,6 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
-import com.intellij.psi.util.FileTypeUtils;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
@@ -64,9 +63,6 @@ public class WrongPackageStatementInspection extends LocalInspectionTool {
         Module module = ModuleUtil.findModuleForFile(file.getVirtualFile(), file.getProject());
         boolean isBallerinaModule = BallerinaSdkService.getInstance(file.getProject()).isBallerinaModule(module);
         if (!isBallerinaModule) {
-            return new ProblemDescriptor[0];
-        }
-        if (FileTypeUtils.isInServerPageFile(file)) {
             return new ProblemDescriptor[0];
         }
         BallerinaFile ballerinaFile = (BallerinaFile) file;

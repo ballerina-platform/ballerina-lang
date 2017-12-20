@@ -62,23 +62,24 @@ public abstract class BallerinaSdkService extends SimpleModificationTracker {
 
     @NotNull
     public static String libraryRootToSdkPath(@NotNull VirtualFile root) {
-        return VfsUtilCore.urlToPath(StringUtil.trimEnd(StringUtil.trimEnd(StringUtil.trimEnd(root.getUrl(), "src/pkg"), "src"), "/"));
+        return VfsUtilCore.urlToPath(StringUtil.trimEnd(StringUtil.trimEnd(StringUtil.trimEnd(root.getUrl(),
+                "src/pkg"), "src"), "/"));
     }
 
     @Nullable
     public String getSdkVersion(@Nullable Module module) {
-//        ComponentManager holder = ObjectUtils.notNull(module, myProject);
-//        return CachedValuesManager.getManager(myProject).getCachedValue(holder, () -> {
-//            Sdk sdk = getBallerinaSdk(module);
-//            return CachedValueProvider.Result.create(sdk != null ? sdk.getVersionString() : null, this);
-//        });
+        //        ComponentManager holder = ObjectUtils.notNull(module, myProject);
+        //        return CachedValuesManager.getManager(myProject).getCachedValue(holder, () -> {
+        //            Sdk sdk = getBallerinaSdk(module);
+        //            return CachedValueProvider.Result.create(sdk != null ? sdk.getVersionString() : null, this);
+        //        });
         return ourTestSdkVersion;
     }
 
     public abstract void chooseAndSetSdk(@Nullable Module module);
 
     /**
-     * Use this method in order to check whether the method is appropriate for providing Go-specific code insight
+     * Use this method in order to check whether the method is appropriate for providing Ballerina-specific code insight
      */
     @Contract("null -> false")
     public boolean isBallerinaModule(@Nullable Module module) {
@@ -123,26 +124,26 @@ public abstract class BallerinaSdkService extends SimpleModificationTracker {
         return null;
     }
 
-//    @Contract("null -> false")
-//    public static boolean isBallerinaModule(@Nullable Module module) {
-//        return module != null && ModuleUtil.getModuleType(module) == BallerinaModuleType.getInstance();
-//    }
+    //    @Contract("null -> false")
+    //    public static boolean isBallerinaModule(@Nullable Module module) {
+    //        return module != null && ModuleUtil.getModuleType(module) == BallerinaModuleType.getInstance();
+    //    }
 
-//    public String getSdkHomePath(@Nullable Module module) {
-//        Sdk sdk = getBallerinaSdk(module);
-//        return sdk != null ? sdk.getHomePath() : null;
-//    }
-//
-//    private Sdk getBallerinaSdk(@Nullable Module module) {
-//        if (module != null) {
-//            Sdk sdk = ModuleRootManager.getInstance(module).getSdk();
-//            if (sdk != null && sdk.getSdkType() instanceof BallerinaSdkType) {
-//                return sdk;
-//            }
-//        }
-//        Sdk sdk = ProjectRootManager.getInstance(myProject).getProjectSdk();
-//        return sdk != null && sdk.getSdkType() instanceof BallerinaSdkType ? sdk : null;
-//    }
+    //    public String getSdkHomePath(@Nullable Module module) {
+    //        Sdk sdk = getBallerinaSdk(module);
+    //        return sdk != null ? sdk.getHomePath() : null;
+    //    }
+    //
+    //    private Sdk getBallerinaSdk(@Nullable Module module) {
+    //        if (module != null) {
+    //            Sdk sdk = ModuleRootManager.getInstance(module).getSdk();
+    //            if (sdk != null && sdk.getSdkType() instanceof BallerinaSdkType) {
+    //                return sdk;
+    //            }
+    //        }
+    //        Sdk sdk = ProjectRootManager.getInstance(myProject).getProjectSdk();
+    //        return sdk != null && sdk.getSdkType() instanceof BallerinaSdkType ? sdk : null;
+    //    }
 
     @TestOnly
     public static void setTestingSdkVersion(@Nullable String version, @NotNull Disposable disposable) {
