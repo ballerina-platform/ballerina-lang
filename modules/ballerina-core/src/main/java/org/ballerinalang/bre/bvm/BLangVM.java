@@ -2278,8 +2278,17 @@ public class BLangVM {
             case InstructionCodes.S2JSONX:
                 i = operands[0];
                 j = operands[1];
+                k = operands[2];
                 str = sf.stringRegs[i];
-                sf.refRegs[j] = str == null ? null : new BJSON(str);
+
+                try {
+                    sf.refRegs[j] = str == null ? null : new BJSON(str);
+                    sf.refRegs[k] = null;
+                } catch (BallerinaException e) {
+                    sf.refRegs[j] = null;
+                    handleTypeConversionError(sf, k, e.getMessage(), TypeConstants.STRING_TNAME,
+                            TypeConstants.JSON_TNAME);
+                }
                 break;
             case InstructionCodes.XML2S:
                 i = operands[0];

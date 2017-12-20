@@ -8,9 +8,9 @@ function toString (json msg) (string) {
     return msg.toString();
 }
 
-function testParse (string jsonStr) (json) {
-    var j,_ = <json> jsonStr;
-    return j;
+function testParse (string jsonStr) (json, TypeConversionError) {
+    var j, e = <json> jsonStr;
+    return j, e;
 }
 
 function testGetKeys () (string[], string[], string[], string[]) {
@@ -55,4 +55,10 @@ function testToXMLWithXMLSequence (json msg) (string) {
 function testToXMLWithOptions (json msg) (xml, TypeConversionError) {
     jsonOptions options = {attributePrefix:"#", arrayEntryTag:"wrapper"};
     return msg.toXML(options);
+}
+
+function testStringToJSONConversion() (json, TypeConversionError) {
+    string s = "{\"foo\": \"bar\"}";
+    var j, e = <json> s;
+    return j, e;
 }
