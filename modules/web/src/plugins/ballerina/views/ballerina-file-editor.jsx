@@ -107,7 +107,7 @@ class BallerinaFileEditor extends React.Component {
                         // update environment object with updated current package info
                         this.updateEnvironment(this.environment, state.packageInfo);
                         this.syncASTs(currentAST, newAST);
-                        
+
                         // remove new AST from new state to be set
                         delete state.model;
                         this.skipLoadingOverlay = false;
@@ -759,6 +759,8 @@ class BallerinaFileEditor extends React.Component {
                     commandProxy={this.props.commandProxy}
                     show={showSourceView}
                     panelResizeInProgress={this.props.panelResizeInProgress}
+                    width={this.props.width}
+                    height={this.props.height}
                 />
                 <div style={{ display: showSwaggerView ? 'block' : 'none' }}>
                     <SwaggerView

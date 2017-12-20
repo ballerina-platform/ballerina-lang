@@ -18,7 +18,9 @@
 import _ from 'lodash';
 import log from 'log';
 import Plugin from 'core/plugin/plugin';
-import { parseFile, getPathSeperator } from 'api-client/api-client';
+import { listen } from 'vscode-ws-jsonrpc';
+import ReconnectingWebSocket from 'reconnecting-websocket';
+import { parseFile, getPathSeperator, getServiceEndpoint } from 'api-client/api-client';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
 import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
 import { EVENTS as WORKSPACE_EVENTS, COMMANDS as WORKSPACE_CMDS } from 'core/workspace/constants';
@@ -41,12 +43,63 @@ import FragmentUtils from './utils/fragment-utils';
  */
 class BallerinaPlugin extends Plugin {
 
+    /**
+     * @inheritdoc
+     */
+    constructor() {
+        super();
+        this.langServerConnection = undefined;
+        this.createLangServerConnection = this.createLangServerConnection.bind(this);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    init(config) {
+        super.init(config);
+        return {
+            createLangServerConnection: this.createLangServerConnection,
+        };
+    }
 
     /**
      * @inheritdoc
      */
     getID() {
         return PLUGIN_ID;
+    }
+
+    /**
+     * Create a connection to langserver
+     */
+    createLangServerConnection() {
+        return new Promise((resolve, reject) => {
+            const socketOptions = {
+                maxReconnectionDelay: 10000,
+                minReconnectionDelay: 1000,
+                reconnectionDelayGrowFactor: 1.3,
+                connectionTimeout: 10000,
+                maxRetries: Infinity,
+                debug: false,
+            };
+            // create the web socket
+            const url = getServiceEndpoint('wslangserver');
+            const webSocket = new ReconnectingWebSocket(url, undefined, socketOptions);
+            // listen when the web socket is opened
+            listen({
+                webSocket,
+                onConnection: (connection) => {
+                    resolve(connection);
+                },
+            });
+        });
+    }
+
+    /**
+     * @inheritdoc
+     */
+    activate(appContext) {
+        super.activate(appContext);
     }
 
     /**
@@ -69,6 +122,7 @@ class BallerinaPlugin extends Plugin {
                         component: SourceEditor,
                         customPropsProvider: () => {
                             return {
+                                ballerinaPlugin: this,
                                 parseFailed: false,
                             };
                         },

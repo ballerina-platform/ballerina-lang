@@ -25,6 +25,7 @@ import com.google.inject.Injector;
 import org.ballerinalang.composer.service.workspace.Constants;
 import org.ballerinalang.composer.service.workspace.fileserver.FileContentProvider;
 import org.ballerinalang.composer.service.workspace.langserver.LangServerManager;
+import org.ballerinalang.composer.service.workspace.langserver.ws.WSLangServer;
 import org.ballerinalang.composer.service.workspace.launcher.LaunchManager;
 import org.ballerinalang.composer.service.workspace.launcher.util.LaunchUtils;
 import org.ballerinalang.composer.service.workspace.logging.ComposerLogManagerUtils;
@@ -201,7 +202,7 @@ public class WorkspaceServiceRunner {
             FileContentProvider fileContentProvider = new FileContentProvider();
             fileContentProvider.setContextRoot(contextRoot);
         
-            new MicroservicesRunner(apiPort)
+            MicroservicesRunner microservicesRunner = new MicroservicesRunner(apiPort)
                     .addExceptionMapper(new SemanticExceptionMapper())
                     .addExceptionMapper(new ParseCancellationExceptionMapper())
                     .addExceptionMapper(new FileNotFoundExceptionMapper())
@@ -212,8 +213,8 @@ public class WorkspaceServiceRunner {
                     .deploy(new TypeLatticeService())
                     .deploy(new TryItService())
                     .deploy(fileContentProvider)
-                    .start();
-        
+                    .deployWebSocketEndpoint(new WSLangServer());
+            microservicesRunner.start();
             FileServer fileServer = new FileServer();
         
             ConfigServiceImpl configService = new ConfigServiceImpl();
