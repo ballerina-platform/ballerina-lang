@@ -1476,7 +1476,8 @@ class SizingUtil {
         viewState.bBox.h = viewState.components['statement-box'].h
                             + viewState.components['drop-zone'].h
                             + this.config.flowChartControlStatement.gutter.h
-                            + this.config.statement.gutter.h;
+                            + this.config.statement.gutter.h
+                            + components['block-header'].h;
         // viewState.bBox.h = viewState.components['statement-box'].h
         //                     // + components['block-header'].h
         //                      + (this.config.flowChartControlStatement.heading.height / 2)
@@ -1502,12 +1503,15 @@ class SizingUtil {
 
         // If the parent of the if node is a block node, then it is only a if statement. Otherwise it is an else-if
         let nodeHeight = viewState.bBox.h;
-        // let nodeWidth = node.viewState.bBox.w;
+        let nodeWidth = node.viewState.bBox.w;
         let elseStmt = node.elseStatement;
         let proceed = true;
 
         if (TreeUtil.isBlock(node.parent)) {
             while (elseStmt && proceed) {
+                if (TreeUtil.isBlock(elseStmt) && elseStmt.statements.length === 0) {
+                    break;
+                }
                 // elseStmt.viewState.bBox.h -= elseStmt.viewState.components['block-header'].h;
                 const elseHeight = (elseStmt.viewState.bBox.h)
                                 + this.config.flowChartControlStatement.heading.height
@@ -1521,9 +1525,15 @@ class SizingUtil {
                 // elseStmt.viewState.bBox.w = bodyWidth;
                 // nodeWidth += elseStmt.viewState.bBox.w;
                 // If the current else statement is for an else if only, we proceed
+                if (elseStmt.parent !== node) {
+                    // if it is a nested else
+                    elseStmt.parent.viewState.bBox.h += elseHeight;
+                }
                 if (TreeUtil.isBlock(elseStmt)) {
                     proceed = false;
                 } else {
+                    // nested if construct
+                    nodeWidth += elseStmt.viewState.bBox.w;
                     elseStmt = elseStmt.elseStatement;
                 }
             }
@@ -1532,7 +1542,7 @@ class SizingUtil {
         // nodeHeight += this.config.flowChartControlStatement.gutter.h;
 
         node.viewState.bBox.h = nodeHeight;
-        // node.viewState.bBox.w = nodeWidth;
+        node.viewState.bBox.w = nodeWidth;
     }
 
     /**
