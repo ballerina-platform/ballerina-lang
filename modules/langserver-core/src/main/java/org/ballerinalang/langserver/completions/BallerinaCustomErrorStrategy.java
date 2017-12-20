@@ -130,6 +130,11 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
         setContextIfConnectorInit(context, e);
     }
 
+    /**
+     * Check the context and identify if the particular context is a child of a connector init and set the exception.
+     * @param context   current parser rule context
+     * @param e         exception to set
+     */
     private void setContextIfConnectorInit(ParserRuleContext context, InputMismatchException e) {
         ParserRuleContext connectorInitContext = context.getParent().getParent().getParent();
         if (context instanceof BallerinaParser.NameReferenceContext
