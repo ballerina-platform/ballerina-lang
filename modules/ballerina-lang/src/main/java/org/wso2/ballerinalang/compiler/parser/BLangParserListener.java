@@ -1516,25 +1516,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterCommentStatement(BallerinaParser.CommentStatementContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitCommentStatement(BallerinaParser.CommentStatementContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addCommentStmt(getCurrentPos(ctx), getWS(ctx), ctx.LINE_COMMENT().getText());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void enterXmlAttribVariableReference(BallerinaParser.XmlAttribVariableReferenceContext ctx) {
     }
 
@@ -1650,19 +1631,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addTransactionBlock(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) {
+    public void exitTransactionClause(BallerinaParser.TransactionClauseContext ctx) {
+        this.pkgBuilder.addTransactionBlock(getCurrentPos(ctx));
     }
 
     /**
@@ -1693,54 +1663,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startAbortedBlock();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAbortedBlock(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterCommittedClause(BallerinaParser.CommittedClauseContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startCommittedBlock();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitCommittedClause(BallerinaParser.CommittedClauseContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addCommittedBlock(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void enterAbortStatement(BallerinaParser.AbortStatementContext ctx) {
     }
 
@@ -1760,19 +1682,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterRetryStatement(BallerinaParser.RetryStatementContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitRetryStatement(BallerinaParser.RetryStatementContext ctx) {
+    public void exitRetriesStatement(BallerinaParser.RetriesStatementContext ctx) {
         if (ctx.exception != null) {
             return;
         }
-
-        this.pkgBuilder.addRetrytmt(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.addRetryCountExpression();
     }
 
     /**
@@ -1792,7 +1706,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String namespaceUri = ctx.QuotedStringLiteral().getText();
         namespaceUri = namespaceUri.substring(1, namespaceUri.length() - 1);
         namespaceUri = StringEscapeUtils.unescapeJava(namespaceUri);
-        String prefix = (ctx.Identifier() != null) ? ctx.Identifier().getText() : "";
+        String prefix = (ctx.Identifier() != null) ? ctx.Identifier().getText() : null;
 
         this.pkgBuilder.addXMLNSDeclaration(getCurrentPos(ctx), getWS(ctx), namespaceUri, prefix, isTopLevel);
     }

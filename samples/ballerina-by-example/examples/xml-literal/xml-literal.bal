@@ -12,7 +12,7 @@ function main (string[] args) {
     xmlns "http://ballerina.com/";
     xmlns "http://ballerina.com/aa" as ns0;
 
-    // Create an XML element. Previously defined namespaces will get added to the element. Can apply the defined prefixes to elements and attributes inside the element. 
+    // Create an XML element. Previously defined namespaces will get added to the element. The defined prefixes can be applied to elements and attributes inside the element. 
     xml x2 = xml `<book ns0:status="available">
                     <ns0:name>Sherlock Holmes</ns0:name>
                     <author>Sir Arthur Conan Doyle</author>
@@ -20,14 +20,14 @@ function main (string[] args) {
                   </book>`;
     println(x2);
 
-    // XML interpolated with expressions, using '{{}}' notation. Expression can be a previously defined variable, arithmetic expressions or even a function call. These expressions get evaluated during runtime.
+    // XML interpolated with expressions using the '{{}}' notation. The expression can be a previously defined variable, arithmetic expressions, or even a function call. These expressions get evaluated during runtime.
     string rootTag = "{http://ballerina.com/aa}newBook";
     string title = "(Sir)";
 
     xml x3 = xml `<{{rootTag}}>
                     <name>Sherlock Holmes</name>
                     <author>{{title}} Arthur Conan Doyle</author>
-                    <!--Price: $ {{ 40 / 5 + 4 }}-->
+                    <!--Price: ${{ 40 / 5 + 4 }}-->
                   </{{rootTag}}>`;
     println(x3);
 }

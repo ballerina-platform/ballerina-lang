@@ -22,6 +22,7 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,13 +33,15 @@ import java.util.Map;
 public class BService extends AbstractServiceResource implements Service {
     private String name;
     private String packagePath;
+    private String protocolPackage;
 
     //key - resourceName, value - resource
     private Map<String, Resource> resourceMap = new HashMap<>();
 
-    public BService(String name, String packagePath) {
+    public BService(String name, String packagePath, String protocolPackage) {
         this.name = name;
         this.packagePath = packagePath;
+        this.protocolPackage = protocolPackage;
     }
 
     public void addResource(String name, Resource resource) {
@@ -56,7 +59,12 @@ public class BService extends AbstractServiceResource implements Service {
     }
 
     @Override
-    public Annotation getAnnotation(String pkgPath, String name) {
+    public String getProtocolPackage() {
+        return protocolPackage;
+    }
+
+    @Override
+    public List<Annotation> getAnnotationList(String pkgPath, String name) {
         String key = pkgPath + ":" + name;
         return annotationMap.get(key);
     }

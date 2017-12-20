@@ -219,6 +219,8 @@ public class SQLDatasource implements BValue {
             }
             dataSourceConfigMap.put(Constants.URL, new BString(jdbcurl));
         }
+        dataSourceConfigMap.put(Constants.USER, new BString(username));
+        dataSourceConfigMap.put(Constants.PASSWORD, new BString(password));
         return dataSourceConfigMap;
     }
 
@@ -254,9 +256,9 @@ public class SQLDatasource implements BValue {
             }
             jdbcUrl.append("jdbc:sybase:Tds:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
             break;
-        case Constants.DBTypes.POSTGRE:
+        case Constants.DBTypes.POSTGRES:
             if (port <= 0) {
-                port = Constants.DefaultPort.POSTGRE;
+                port = Constants.DefaultPort.POSTGRES;
             }
             jdbcUrl.append("jdbc:postgresql://").append(hostOrPath).append(":").append(port).append("/").append(dbName);
             break;
@@ -326,8 +328,8 @@ public class SQLDatasource implements BValue {
         case Constants.DBTypes.SYBASE:
             xaDataSource = Constants.XADataSources.SYBASE_XA_DATASOURCE;
             break;
-        case Constants.DBTypes.POSTGRE:
-            xaDataSource = Constants.XADataSources.POSTGRE_XA_DATASOURCE;
+        case Constants.DBTypes.POSTGRES:
+            xaDataSource = Constants.XADataSources.POSTGRES_XA_DATASOURCE;
             break;
         case Constants.DBTypes.IBMDB2:
             xaDataSource = Constants.XADataSources.IBMDB2_XA_DATASOURCE;

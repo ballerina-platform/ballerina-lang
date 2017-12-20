@@ -35,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 /**
@@ -68,13 +67,11 @@ public class GetSession extends AbstractNativeFunction {
 
             if (cookieHeader != null) {
                 try {
-                    String sessionId = Arrays.stream(cookieHeader.split(";"))
-                                        .filter(cookie -> cookie.startsWith(Constants.SESSION_ID))
-                                        .findFirst().get().substring(Constants.SESSION_ID.length());
+                    String sessionId = HttpUtil.getSessionID(cookieHeader);
                     //return value from cached session
                     if (session != null && (sessionId.equals(session.getId()))) {
                         session = session.setAccessed();
-                        return new BValue[]{CreateSessionIfAbsent.createSessionStruct(context, session)};
+                        return new BValue[]{HttpUtil.createSessionStruct(context, session)};
                     }
                     session = SessionManager.getInstance().getHTTPSession(sessionId);
                 } catch (NoSuchElementException e) {
@@ -100,7 +97,7 @@ public class GetSession extends AbstractNativeFunction {
             }
             httpCarbonMessage.setProperty(Constants.HTTP_SESSION, session);
             httpCarbonMessage.removeHeader(Constants.COOKIE_HEADER);
-            return new BValue[]{CreateSessionIfAbsent.createSessionStruct(context, session)};
+            return new BValue[]{HttpUtil.createSessionStruct(context, session)};
         } catch (IllegalStateException e) {
             throw new BallerinaException(e.getMessage(), e);
         }

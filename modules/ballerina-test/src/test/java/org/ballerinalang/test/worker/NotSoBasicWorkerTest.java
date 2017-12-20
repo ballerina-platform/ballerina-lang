@@ -157,6 +157,20 @@ public class NotSoBasicWorkerTest {
     }
 
     @Test
+    public void forkJoinWithStructTest() {
+        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithStruct", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertEquals(vals[0].stringValue(), "[join-block] sW1: w1[join-block] fW2: 10.344");
+    }
+
+    @Test
+    public void forkJoinWithSameWorkerContent() {
+        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSameWorkerContent", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertEquals(vals[0].stringValue(), "W1: data1, W2: data2");
+    }
+
+//    @Test
     public void testForkJoinWorkersWithNonBlockingConnector() {
         CompileResult result = BCompileUtil.compile("test-src/workers/fork-join-blocking.bal");
         Context ctx = new Context(result.getProgFile());

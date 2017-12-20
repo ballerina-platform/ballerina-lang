@@ -89,8 +89,7 @@ public class HTTPResourceDispatcher {
         }
         CorsHeaderGenerator.process(cMsg, response, false);
         response.setProperty(Constants.HTTP_STATUS_CODE, 200);
-        response.setAlreadyRead(true);
         response.setEndOfMsgAdded(true);
-        HttpUtil.handleResponse(cMsg, response);
+        HttpUtil.sendOutboundResponse(cMsg, response);
     }
 }

@@ -210,8 +210,8 @@ public class Main {
         @Parameter(names = "--debug", hidden = true)
         private String debugPort;
 
-        @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
-        private String ballerinaDebugPort;
+        @Parameter(names = "--java.debug", hidden = true, description = "remote java debugging port")
+        private String javaDebugPort;
 
         @DynamicParameter(names = "-B", description = "collects dynamic parameters")
         private Map<String, String> configRuntimeParams = new HashMap<>();
@@ -230,8 +230,8 @@ public class Main {
             ConfigRegistry.getInstance().initRegistry(configRuntimeParams);
 
             // Enable remote debugging
-            if (null != ballerinaDebugPort) {
-                System.setProperty(SYSTEM_PROP_BAL_DEBUG, ballerinaDebugPort);
+            if (null != debugPort) {
+                System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
             }
 
             Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
@@ -304,8 +304,8 @@ public class Main {
         @Parameter(description = "Command name")
         private List<String> helpCommands;
 
-        @Parameter(names = "--debug", hidden = true)
-        private String debugPort;
+        @Parameter(names = "--java.debug", hidden = true)
+        private String javaDebugPort;
 
         private JCommander parentCmdParser;
 
@@ -362,8 +362,8 @@ public class Main {
         @Parameter(description = "Command name")
         private List<String> versionCommands;
 
-        @Parameter(names = "--debug", hidden = true)
-        private String debugPort;
+        @Parameter(names = "--java.debug", hidden = true)
+        private String javaDebugPort;
 
         @Parameter(names = {"--help", "-h"}, hidden = true)
         private boolean helpFlag;
@@ -426,8 +426,11 @@ public class Main {
         @Parameter(names = {"--help", "-h"}, description = "for more information")
         private boolean helpFlag;
 
-        @Parameter(names = "--debug", hidden = true)
+        @Parameter(names = "--debug <port>", description = "start Ballerina in remote debugging mode")
         private String debugPort;
+
+        @Parameter(names = "--java.debug", hidden = true)
+        private String javaDebugPort;
 
         private JCommander parentCmdParser;
 

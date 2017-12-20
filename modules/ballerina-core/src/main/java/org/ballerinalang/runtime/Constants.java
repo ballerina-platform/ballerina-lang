@@ -33,5 +33,5 @@ public class Constants {
     public static final String BALLERINA_VERSION = "ballerina.version";
 
     // Name of the system property to hold the debug port
-    public static final String SYSTEM_PROP_BAL_DEBUG = "ballerina.debug";
+    public static final String SYSTEM_PROP_BAL_DEBUG = "debug";
 }

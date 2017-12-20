@@ -15,13 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.ballerinalang.model.util;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.apache.axiom.om.DeferredParsingException;
 import org.apache.axiom.om.OMAbstractFactory;
@@ -40,6 +34,7 @@ import org.apache.axiom.om.impl.dom.TextImpl;
 import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.ballerinalang.model.DataTableOMDataSource;
+import org.ballerinalang.model.util.JsonNode.Type;
 import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -49,7 +44,6 @@ import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -67,13 +61,11 @@ import javax.xml.stream.XMLStreamException;
  */
 public class XMLUtils {
     
-    private static final String XML_ROOT = "root";
     private static final String XML_NAMESPACE_PREFIX = "xmlns:";
     private static final String XML_VALUE_TAG = "#text";
     private static final String XML_DCLR_START = "<?xml";
 
     private static final OMFactory OM_FACTORY = OMAbstractFactory.getOMFactory();
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     /**
      * Create a XML item from string literal.
@@ -81,6 +73,7 @@ public class XMLUtils {
      * @param xmlStr String representation of the XML
      * @return XML sequence
      */
+    @SuppressWarnings("unchecked")
     public static BXML<?> parse(String xmlStr) {
         try {
 
@@ -90,8 +83,7 @@ public class XMLUtils {
 
             // If this is an XML document, parse it and return an element type XML.
             if (xmlStr.trim().startsWith(XML_DCLR_START)) {
-                OMElement omElement = AXIOMUtil.stringToOM(xmlStr);
-                return new BXMLItem(omElement);
+                return new BXMLItem(xmlStr);
             }
 
             // Here we add a dummy enclosing tag, and send to AXIOM to parse the XML.
@@ -130,6 +122,7 @@ public class XMLUtils {
      * @param xmlStream XML imput stream
      * @return  XML Sequence
      */
+    @SuppressWarnings("unchecked")
     public static BXML<?> parse(InputStream xmlStream) {
         BRefValueArray elementsSeq = new BRefValueArray();
         OMDocument doc;
@@ -189,6 +182,7 @@ public class XMLUtils {
      * @param isInTransaction   Within a transaction or not
      * @return converted {@link BXML}
      */
+    @SuppressWarnings("rawtypes")
     public static BXML datatableToXML(BDataTable dataTable, boolean isInTransaction) {
         OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
         omSourcedElement.init(new DataTableOMDataSource(dataTable, null, null, isInTransaction));
@@ -204,24 +198,34 @@ public class XMLUtils {
      * @return BXML Element type BXML
      */
     public static BXML<?> createXMLElement(BXMLQName startTagName, BXMLQName endTagName, String defaultNsUri) {
-        if (!startTagName.getLocalName().equals(endTagName.getLocalName())
-                || !startTagName.getUri().equals(endTagName.getUri())
-                || !startTagName.getPrefix().equals(endTagName.getPrefix())) {
+        if (!StringUtils.isEqual(startTagName.getLocalName(), endTagName.getLocalName()) ||
+                !StringUtils.isEqual(startTagName.getUri(), endTagName.getUri()) ||
+                !StringUtils.isEqual(startTagName.getPrefix(), endTagName.getPrefix())) {
             throw new BallerinaException(
                     "start and end tag names mismatch: '" + startTagName + "' and '" + endTagName + "'");
         }
 
+        // Validate whether the tag names are XML supported qualified names, according to the XML recommendation.
+        XMLValidationUtils.validateXMLQName(startTagName);
+
         String nsUri = startTagName.getUri();
         OMElement omElement;
-        if (nsUri.isEmpty() || nsUri.equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI)) {
-            omElement = OM_FACTORY.createOMElement(startTagName.getLocalName(), XMLConstants.NULL_NS_URI,
-                    startTagName.getPrefix());
+        if (defaultNsUri == null) {
+            defaultNsUri = XMLConstants.NULL_NS_URI;
+        }
+
+        String prefix = startTagName.getPrefix() == null ? XMLConstants.DEFAULT_NS_PREFIX : startTagName.getPrefix();
+
+        if (nsUri == null) {
+            omElement = OM_FACTORY.createOMElement(startTagName.getLocalName(), defaultNsUri, prefix);
+        } else if (nsUri.isEmpty()) {
+            omElement = OM_FACTORY.createOMElement(startTagName.getLocalName(), nsUri, prefix);
         } else if (nsUri.equals(defaultNsUri)) {
-            omElement = OM_FACTORY.createOMElement(startTagName.getLocalName(), defaultNsUri, startTagName.getPrefix());
+            omElement = OM_FACTORY.createOMElement(startTagName.getLocalName(), defaultNsUri, prefix);
         } else {
-            QName qname = new QName(nsUri, startTagName.getLocalName(), startTagName.getPrefix());
+            QName qname = getQName(startTagName.getLocalName(), nsUri, prefix);
             omElement = OM_FACTORY.createOMElement(qname);
-            if (!defaultNsUri.equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI)) {
+            if (!defaultNsUri.isEmpty()) {
                 omElement.declareDefaultNamespace(defaultNsUri);
             }
         }
@@ -275,6 +279,7 @@ public class XMLUtils {
      * @param preserveNamespaces preserve the namespaces when converting
      * @return BJSON JSON representation of the given xml object
      */
+    @SuppressWarnings("rawtypes")
     public static BJSON convertToJSON(BXML xml, String attributePrefix, boolean preserveNamespaces) {
         JsonNode jsonNode = null;
         if (xml instanceof BXMLItem) {
@@ -284,13 +289,9 @@ public class XMLUtils {
             if (OMNode.ELEMENT_NODE == omNode.getType()) {
                 jsonNode = traverseXMLElement((OMElement) omNode, attributePrefix, preserveNamespaces);
             } else if (OMNode.TEXT_NODE == omNode.getType()) {
-                try {
-                    jsonNode = OBJECT_MAPPER.readTree("\"" + ((OMText) omNode).getText() + "\"");
-                } catch (IOException e) {
-                    throw new BallerinaException("error in converting string node to json");
-                }
+                jsonNode = JsonParser.parse("\"" + ((OMText) omNode).getText() + "\"");
             } else {
-                jsonNode = OBJECT_MAPPER.createObjectNode();
+                jsonNode = new JsonNode(Type.OBJECT);
             }
         } else {
             //Process xml sequence
@@ -309,14 +310,15 @@ public class XMLUtils {
      * @param preserveNamespaces preserve the namespaces when converting
      * @return ObjectNode Json object node corresponding to the given xml element
      */
-    private static ObjectNode traverseXMLElement(OMElement omElement, String attributePrefix,
+    @SuppressWarnings("rawtypes")
+    private static JsonNode traverseXMLElement(OMElement omElement, String attributePrefix,
             boolean preserveNamespaces) {
-        ObjectNode rootNode = OBJECT_MAPPER.createObjectNode();
+        JsonNode rootNode = new JsonNode(Type.OBJECT);
         LinkedHashMap<String, String> attributeMap = collectAttributesAndNamespaces(omElement, preserveNamespaces);
         Iterator iterator = omElement.getChildElements();
         String keyValue = getElementKey(omElement, preserveNamespaces);
         if (iterator.hasNext()) {
-            ObjectNode currentRoot = OBJECT_MAPPER.createObjectNode();
+            JsonNode currentRoot = new JsonNode(Type.OBJECT);
             ArrayList<OMElement> childArray = new ArrayList<>();
             LinkedHashMap<String, ArrayList<JsonNode>> rootMap = new LinkedHashMap<>();
             while (iterator.hasNext()) {
@@ -330,13 +332,13 @@ public class XMLUtils {
                     String childKeyValue = getElementKey(omChildElement, preserveNamespaces);
                     if (iteratorChild.hasNext()) {
                         //The child element itself has more child elements
-                        ObjectNode nodeIntermediate = traverseXMLElement(omChildElement, attributePrefix,
+                        JsonNode nodeIntermediate = traverseXMLElement(omChildElement, attributePrefix,
                                 preserveNamespaces);
                         addToRootMap(rootMap, childKeyValue, nodeIntermediate.get(childKeyValue));
                     } else {
                         //The child element is a single element with no child elements
                         if (childAttributeMap.size() > 0) {
-                            ObjectNode attrObject = processAttributeAndNamespaces(null, childAttributeMap,
+                            JsonNode attrObject = processAttributeAndNamespaces(null, childAttributeMap,
                                     attributePrefix, omChildElement.getText());
                             addToRootMap(rootMap, childKeyValue, attrObject);
                         } else {
@@ -357,11 +359,11 @@ public class XMLUtils {
             //Process the single element
             if (attributeMap.size() > 0) {
                 //Element has attributes or namespaces
-                ObjectNode attrObject = processAttributeAndNamespaces(null, attributeMap, attributePrefix,
+                JsonNode attrObject = processAttributeAndNamespaces(null, attributeMap, attributePrefix,
                         omElement.getText());
                 rootNode.set(keyValue, attrObject);
             } else {
-                rootNode.put(keyValue, omElement.getText());
+                rootNode.set(keyValue, omElement.getText());
             }
         }
         return rootNode;
@@ -396,11 +398,11 @@ public class XMLUtils {
             textArrayNode = processTextArray(textArray);
         }
         if (childArray.size() > 0) {
-            jsonNode = OBJECT_MAPPER.createObjectNode();
-            processChildelements((ObjectNode) jsonNode, childArray, attributePrefix, preserveNamespaces);
+            jsonNode = new JsonNode(Type.OBJECT);
+            processChildelements(jsonNode, childArray, attributePrefix, preserveNamespaces);
             if (textArrayNode != null) {
                 //When text nodes and elements are mixed, they will set into an array
-                ((ArrayNode) textArrayNode).add(jsonNode);
+                textArrayNode.add(jsonNode);
             }
         }
         if (textArrayNode != null) {
@@ -417,7 +419,7 @@ public class XMLUtils {
      * @param attributePrefix Prefix to use in attributes
      * @param preserveNamespaces preserve the namespaces when converting
      */
-    private static void processChildelements(ObjectNode root, ArrayList<OMElement> childArray, String attributePrefix,
+    private static void processChildelements(JsonNode root, ArrayList<OMElement> childArray, String attributePrefix,
             boolean preserveNamespaces) {
         LinkedHashMap<String, ArrayList<OMElement>> rootMap = new LinkedHashMap<>();
         //Check child elements and group them from the key. XML sequences contain multiple child elements with same key
@@ -437,11 +439,11 @@ public class XMLUtils {
                         JsonNode node = traverseXMLElement(element, attributePrefix, preserveNamespaces);
                         root.set(nodeKey, node.get(nodeKey));
                     } else {
-                        root.put(nodeKey, elementList.get(0).getText());
+                        root.set(nodeKey, elementList.get(0).getText());
                     }
                 } else {
                     //Child elements with similar keys are put into an array
-                    ArrayNode arrayNode = OBJECT_MAPPER.createArrayNode();
+                    JsonNode arrayNode = new JsonNode(Type.ARRAY);
                     for (OMElement element : elementList) {
                         arrayNode.add(element.getText());
                     }
@@ -457,7 +459,7 @@ public class XMLUtils {
      * @param root JSON root object to which child nodes are added
      * @param rootMap List of child JSON nodes
      */
-    private static void processRootNodes(ObjectNode root, LinkedHashMap<String, ArrayList<JsonNode>> rootMap) {
+    private static void processRootNodes(JsonNode root, LinkedHashMap<String, ArrayList<JsonNode>> rootMap) {
         for (Map.Entry<String, ArrayList<JsonNode>> entry : rootMap.entrySet()) {
             String key = entry.getKey();
             ArrayList<JsonNode> elementList = entry.getValue();
@@ -466,7 +468,7 @@ public class XMLUtils {
                 root.set(key, elementList.get(0));
             } else {
                 //When there are multiple nodes with the same key they are set into an array
-                ArrayNode arrayNode = OBJECT_MAPPER.createArrayNode();
+                JsonNode arrayNode = new JsonNode(Type.ARRAY);
                 for (JsonNode node : elementList) {
                     arrayNode.add(node);
                 }
@@ -481,6 +483,7 @@ public class XMLUtils {
      *
      * @param element XML element to extract attributes and namespaces
      */
+    @SuppressWarnings("rawtypes")
     private static LinkedHashMap<String, String> collectAttributesAndNamespaces(OMElement element,
             boolean preserveNamespaces) {
         //Extract namespaces from the element
@@ -518,22 +521,22 @@ public class XMLUtils {
      * @param singleElementValue Whether the given root is a single element
      * @return ObjectNode Json object node corresponding to the given attributes and namespaces
      */
-    private static ObjectNode processAttributeAndNamespaces(ObjectNode rootNode,
+    private static JsonNode processAttributeAndNamespaces(JsonNode rootNode,
             LinkedHashMap<String, String> attributeMap, String attributePrefix, String singleElementValue) {
         boolean singleElement = false;
         if (rootNode == null) {
-            rootNode = OBJECT_MAPPER.createObjectNode();
+            rootNode = new JsonNode(Type.OBJECT);
             singleElement = true;
         }
         //All the attributes and namesapces are set as key value pairs with given prefix
         for (Map.Entry<String, String> entry : attributeMap.entrySet()) {
             String key = attributePrefix + entry.getKey();
             String value = entry.getValue();
-            rootNode.put(key, value);
+            rootNode.set(key, value);
         }
         //If the single element has attributes or namespaces the text value is added with a dummy tag
         if (singleElement && !singleElementValue.isEmpty()) {
-            rootNode.put(XML_VALUE_TAG, singleElementValue);
+            rootNode.set(XML_VALUE_TAG, singleElementValue);
         }
         return rootNode;
     }
@@ -544,9 +547,9 @@ public class XMLUtils {
      * @param childArray List of XML text elements
      * @return ArrayNode Json array node corresponding to the given text elements
      */
-    private static ArrayNode processTextArray(ArrayList<OMText> childArray) {
+    private static JsonNode processTextArray(ArrayList<OMText> childArray) {
         //Create array based on xml text elements
-        ArrayNode arrayNode = OBJECT_MAPPER.createArrayNode();
+        JsonNode arrayNode = new JsonNode(Type.ARRAY);
         for (OMText element : childArray) {
             arrayNode.add(element.getText());
         }
@@ -583,5 +586,15 @@ public class XMLUtils {
     private static void addToRootMap(LinkedHashMap<String, ArrayList<JsonNode>> rootMap, String key, JsonNode node) {
         rootMap.putIfAbsent(key, new ArrayList<>());
         rootMap.get(key).add(node);
+    }
+
+    private static QName getQName(String localName, String namespaceUri, String prefix) {
+        QName qname;
+        if (prefix != null) {
+            qname = new QName(namespaceUri, localName, prefix);
+        } else {
+            qname = new QName(namespaceUri, localName);
+        }
+        return qname;
     }
 }

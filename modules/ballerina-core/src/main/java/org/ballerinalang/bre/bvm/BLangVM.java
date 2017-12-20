@@ -17,13 +17,9 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
-import org.ballerinalang.bre.nonblocking.debugger.FrameInfo;
-import org.ballerinalang.bre.nonblocking.debugger.VariableInfo;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.impl.BClientConnectorFutureListener;
@@ -39,6 +35,8 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
+import org.ballerinalang.model.util.JsonNode;
+import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
@@ -67,6 +65,7 @@ import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ConnectorInfo;
@@ -101,9 +100,14 @@ import org.ballerinalang.util.codegen.cpentries.TransformerRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
-import org.ballerinalang.util.debugger.DebugInfoHolder;
+import org.ballerinalang.util.debugger.DebugCommand;
+import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.VMDebugManager;
+import org.ballerinalang.util.debugger.info.BreakPointInfo;
+import org.ballerinalang.util.debugger.info.FrameInfo;
+import org.ballerinalang.util.debugger.info.VariableInfo;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.slf4j.Logger;
@@ -123,6 +127,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+
+import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
  * This class executes Ballerina instruction codes.
@@ -205,12 +211,12 @@ public class BLangVM {
 
     public void execWorker(Context context, int startIP) {
         context.setStartIP(startIP);
-        if (VMDebugManager.getInstance().isDebugSessionActive()) {
-            VMDebugManager debugManager = VMDebugManager.getInstance();
-            context.setAndInitDebugInfoHolder(new DebugInfoHolder());
-            context.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
-            context.setDebugEnabled(true);
-            debugManager.setDebuggerContext(context);
+        VMDebugManager debugManager = programFile.getDebugManager();
+        if (debugManager.isDebugEnabled() && debugManager.isDebugSessionActive()) {
+            DebugContext debugContext = new DebugContext();
+            debugContext.setCurrentCommand(DebugCommand.RESUME);
+            context.setDebugContext(debugContext);
+            debugManager.addDebugContext(debugContext);
         }
         run(context);
     }
@@ -233,7 +239,7 @@ public class BLangVM {
         WorkerDataChannelInfo workerDataChannel;
         ForkJoinCPEntry forkJoinCPEntry;
 
-        boolean isDebugging = context.isDebugEnabled();
+        boolean isDebugging = programFile.getDebugManager().isDebugEnabled();
 
         StackFrame currentSF, callersSF;
         int callersRetRegIndex;
@@ -324,6 +330,9 @@ public class BLangVM {
                 case InstructionCodes.RCONST_NULL:
                     i = operands[0];
                     sf.refRegs[i] = null;
+                    break;
+                case InstructionCodes.REG_CP:
+                    copyRegistryValue(sf, operands[0], operands[1], operands[2]);
                     break;
 
                 case InstructionCodes.ILOAD:
@@ -475,6 +484,8 @@ public class BLangVM {
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.GOTO:
                 case InstructionCodes.HALT:
+                case InstructionCodes.SEQ_NULL:
+                case InstructionCodes.SNE_NULL:
                     execCmpAndBranchOpcodes(sf, opcode, operands);
                     break;
 
@@ -623,6 +634,7 @@ public class BLangVM {
                 case InstructionCodes.JSON2F:
                 case InstructionCodes.JSON2S:
                 case InstructionCodes.JSON2B:
+                case InstructionCodes.NULL2S:
                     execTypeCastOpcodes(sf, opcode, operands);
                     break;
 
@@ -872,7 +884,24 @@ public class BLangVM {
                     sf.intRegs[j] = 0;
                 }
                 break;
-
+            case InstructionCodes.SEQ_NULL:
+                i = operands[0];
+                j = operands[1];
+                if (sf.stringRegs[i] == null) {
+                    sf.intRegs[j] = 1;
+                } else {
+                    sf.intRegs[j] = 0;
+                }
+                break;
+            case InstructionCodes.SNE_NULL:
+                i = operands[0];
+                j = operands[1];
+                if (sf.stringRegs[i] != null) {
+                    sf.intRegs[j] = 1;
+                } else {
+                    sf.intRegs[j] = 0;
+                }
+                break;
             case InstructionCodes.BR_TRUE:
                 i = operands[0];
                 j = operands[1];
@@ -1652,7 +1681,7 @@ public class BLangVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = sf.stringRegs[i].equals(sf.stringRegs[j]) ? 1 : 0;
+                sf.intRegs[k] = StringUtils.isEqual(sf.stringRegs[i], sf.stringRegs[j]) ? 1 : 0;
                 break;
             case InstructionCodes.BEQ:
                 i = operands[0];
@@ -1692,7 +1721,7 @@ public class BLangVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = !(sf.stringRegs[i].equals(sf.stringRegs[j])) ? 1 : 0;
+                sf.intRegs[k] = !StringUtils.isEqual(sf.stringRegs[i], sf.stringRegs[j]) ? 1 : 0;
                 break;
             case InstructionCodes.BNE:
                 i = operands[0];
@@ -1797,7 +1826,7 @@ public class BLangVM {
                     sf.stringRegs[k] = qNameStr.substring(1, parenEndIndex);
                 } else {
                     sf.stringRegs[j] = qNameStr;
-                    sf.stringRegs[k] = "";
+                    sf.stringRegs[k] = STRING_NULL_VALUE;
                 }
 
                 break;
@@ -1917,13 +1946,13 @@ public class BLangVM {
 
                 bRefType = sf.refRegs[i];
                 if (bRefType == null) {
-                    sf.stringRegs[j] = "";
+                    sf.stringRegs[j] = STRING_NULL_VALUE;
                     handleTypeCastError(sf, k, BTypes.typeNull, BTypes.typeString);
                 } else if (bRefType.getType() == BTypes.typeString) {
                     sf.refRegs[k] = null;
                     sf.stringRegs[j] = bRefType.stringValue();
                 } else {
-                    sf.stringRegs[j] = "";
+                    sf.stringRegs[j] = STRING_NULL_VALUE;
                     handleTypeCastError(sf, k, bRefType.getType(), BTypes.typeString);
                 }
                 break;
@@ -2020,6 +2049,10 @@ public class BLangVM {
             case InstructionCodes.JSON2B:
                 castJSONToBoolean(operands, sf);
                 break;
+            case InstructionCodes.NULL2S:
+                j = operands[1];
+                sf.stringRegs[j] = null;
+                break;
             default:
                 throw new UnsupportedOperationException();
         }
@@ -2048,6 +2081,7 @@ public class BLangVM {
         int j;
         int k;
         BRefType bRefType;
+        String str;
 
         switch (opcode) {
             case InstructionCodes.I2F:
@@ -2095,8 +2129,15 @@ public class BLangVM {
                 j = operands[1];
                 k = operands[2];
 
+                str = sf.stringRegs[i];
+                if (str == null) {
+                    sf.longRegs[j] = 0;
+                    handleTypeConversionError(sf, k, null, TypeConstants.INT_TNAME);
+                    break;
+                }
+
                 try {
-                    sf.longRegs[j] = Long.parseLong(sf.stringRegs[i]);
+                    sf.longRegs[j] = Long.parseLong(str);
                     sf.refRegs[k] = null;
                 } catch (NumberFormatException e) {
                     sf.longRegs[j] = 0;
@@ -2108,8 +2149,15 @@ public class BLangVM {
                 j = operands[1];
                 k = operands[2];
 
+                str = sf.stringRegs[i];
+                if (str == null) {
+                    sf.doubleRegs[j] = 0;
+                    handleTypeConversionError(sf, k, null, TypeConstants.FLOAT_TNAME);
+                    break;
+                }
+
                 try {
-                    sf.doubleRegs[j] = Double.parseDouble(sf.stringRegs[i]);
+                    sf.doubleRegs[j] = Double.parseDouble(str);
                     sf.refRegs[k] = null;
                 } catch (NumberFormatException e) {
                     sf.doubleRegs[j] = 0;
@@ -2121,12 +2169,13 @@ public class BLangVM {
                 j = operands[1];
                 k = operands[2];
                 sf.intRegs[j] = Boolean.parseBoolean(sf.stringRegs[i]) ? 1 : 0;
+                sf.refRegs[k] = null;
                 break;
             case InstructionCodes.S2JSON:
                 i = operands[0];
                 j = operands[1];
-                String jsonStr = StringEscapeUtils.escapeJson(sf.stringRegs[i]);
-                sf.refRegs[j] = new BJSON("\"" + jsonStr + "\"");
+                str = StringEscapeUtils.escapeJson(sf.stringRegs[i]);
+                sf.refRegs[j] = str == null ? null : new BJSON("\"" + str + "\"");
                 break;
             case InstructionCodes.B2I:
                 i = operands[0];
@@ -2209,8 +2258,16 @@ public class BLangVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
+
+                str = sf.stringRegs[i];
+                if (str == null) {
+                    sf.refRegs[j] = null;
+                    sf.refRegs[k] = null;
+                    break;
+                }
+
                 try {
-                    sf.refRegs[j] = XMLUtils.parse(sf.stringRegs[i]);
+                    sf.refRegs[j] = XMLUtils.parse(str);
                     sf.refRegs[k] = null;
                 } catch (BallerinaException e) {
                     sf.refRegs[j] = null;
@@ -2221,7 +2278,17 @@ public class BLangVM {
             case InstructionCodes.S2JSONX:
                 i = operands[0];
                 j = operands[1];
-                sf.refRegs[j] = new BJSON(sf.stringRegs[i]);
+                k = operands[2];
+                str = sf.stringRegs[i];
+
+                try {
+                    sf.refRegs[j] = str == null ? null : new BJSON(str);
+                    sf.refRegs[k] = null;
+                } catch (BallerinaException e) {
+                    sf.refRegs[j] = null;
+                    handleTypeConversionError(sf, k, e.getMessage(), TypeConstants.STRING_TNAME,
+                            TypeConstants.JSON_TNAME);
+                }
                 break;
             case InstructionCodes.XML2S:
                 i = operands[0];
@@ -2230,6 +2297,28 @@ public class BLangVM {
                 break;
             default:
                 throw new UnsupportedOperationException();
+        }
+    }
+
+    private void copyRegistryValue(StackFrame sf, int typeTag, int source, int target) {
+        switch (typeTag) {
+            case TypeTags.INT_TAG:
+                sf.longRegs[target] = sf.longRegs[source];
+                break;
+            case TypeTags.FLOAT_TAG:
+                sf.doubleRegs[target] = sf.doubleRegs[source];
+                break;
+            case TypeTags.STRING_TAG:
+                sf.stringRegs[target] = sf.stringRegs[source];
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                sf.intRegs[target] = sf.intRegs[source];
+                break;
+            case TypeTags.BLOB_TAG:
+                sf.byteRegs[target] = sf.byteRegs[source];
+                break;
+            default:
+                sf.refRegs[target] = sf.refRegs[source];
         }
     }
 
@@ -2307,45 +2396,63 @@ public class BLangVM {
      *
      * @param cp Current instruction point.
      */
-    public void debugging(int cp) {
-        DebugInfoHolder holder = context.getDebugInfoHolder();
-        LineNumberInfo currentExecLine = holder.getLineNumber(controlStack.currentFrame.packageInfo.getPkgPath(), cp);
-        if (currentExecLine.equals(holder.getLastLine()) || debugPointCheck(currentExecLine, holder)) {
+    private void debugging(int cp) {
+        VMDebugManager debugManager = programFile.getDebugManager();
+        try {
+            debugManager.acquireDebugLock();
+            processDebugging(cp, debugManager);
+        } finally {
+            debugManager.releaseDebugLock();
+        }
+    }
+
+    /**
+     * Method which process debug related operations.
+     *
+     * @param cp            Current cp.
+     * @param debugManager  Debug manager object.
+     */
+    private void processDebugging(int cp, VMDebugManager debugManager) {
+        DebugContext debugContext = context.getDebugContext();
+        LineNumberInfo currentExecLine = debugManager
+                .getLineNumber(controlStack.currentFrame.packageInfo.getPkgPath(), cp);
+        if (currentExecLine.equals(debugContext.getLastLine())
+                || debugPointCheck(currentExecLine, debugManager, debugContext)) {
             return;
         }
 
-        switch (holder.getCurrentCommand()) {
+        switch (debugContext.getCurrentCommand()) {
             case RESUME:
-                holder.setLastLine(null);
+                debugContext.setLastLine(null);
                 break;
             case STEP_IN:
-                debugHit(currentExecLine, holder);
+                debugHit(currentExecLine, debugManager, debugContext);
                 break;
             case STEP_OVER:
-                if (controlStack.currentFrame == holder.getSF()) {
-                    debugHit(currentExecLine, holder);
+                if (controlStack.currentFrame == debugContext.getSF()) {
+                    debugHit(currentExecLine, debugManager, debugContext);
                     return;
                 }
-                if (holder.getLastLine().checkIpRangeForInstructionCode(code, InstructionCodes.RET)
-                        && controlStack.currentFrame == holder.getSF().prevStackFrame) {
-                    debugHit(currentExecLine, holder);
+                if (debugContext.getLastLine().checkIpRangeForInstructionCode(code, InstructionCodes.RET)
+                        && controlStack.currentFrame == debugContext.getSF().prevStackFrame) {
+                    debugHit(currentExecLine, debugManager, debugContext);
                     return;
                 }
-                holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_OVER_INTMDT);
+                debugContext.setCurrentCommand(DebugCommand.STEP_OVER_INTMDT);
                 break;
             case STEP_OVER_INTMDT:
-                if (controlStack.currentFrame != holder.getSF()) {
+                if (controlStack.currentFrame != debugContext.getSF()) {
                     return;
                 }
-                debugHit(currentExecLine, holder);
+                debugHit(currentExecLine, debugManager, debugContext);
                 break;
             case STEP_OUT:
-                holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_OUT_INTMDT);
-                holder.setSF(holder.getSF().prevStackFrame);
-                interMediateDebugCheck(currentExecLine, holder);
+                debugContext.setCurrentCommand(DebugCommand.STEP_OUT_INTMDT);
+                debugContext.setSF(debugContext.getSF().prevStackFrame);
+                interMediateDebugCheck(currentExecLine, debugManager, debugContext);
                 break;
             case STEP_OUT_INTMDT:
-                interMediateDebugCheck(currentExecLine, holder);
+                interMediateDebugCheck(currentExecLine, debugManager, debugContext);
                 break;
         }
     }
@@ -2353,29 +2460,33 @@ public class BLangVM {
     /**
      * Inter mediate debug check to avoid switch case falling through.
      *
-     * @param currentExecLine Current execution line.
-     * @param holder          Debug info holder.
+     * @param currentExecLine   Current execution line.
+     * @param debugManager      Debug manager object.
+     * @param debugContext      Current debug context.
      */
-    private void interMediateDebugCheck(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
-        if (controlStack.currentFrame != holder.getSF()) {
+    private void interMediateDebugCheck(LineNumberInfo currentExecLine, VMDebugManager debugManager,
+                                        DebugContext debugContext) {
+        if (controlStack.currentFrame != debugContext.getSF()) {
             return;
         }
-        debugHit(currentExecLine, holder);
+        debugHit(currentExecLine, debugManager, debugContext);
     }
 
     /**
      * Helper method to check whether given point is a debug point or not.
      * If it's a debug point, then notify the debugger.
      *
-     * @param currentExecLine Current execution line.
-     * @param holder          Debug info holder.
+     * @param currentExecLine   Current execution line.
+     * @param debugManager      Debug manager object.
+     * @param debugContext      Current debug context.
      * @return Boolean true if it's a debug point, false otherwise.
      */
-    private boolean debugPointCheck(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
+    private boolean debugPointCheck(LineNumberInfo currentExecLine, VMDebugManager debugManager,
+                                    DebugContext debugContext) {
         if (!currentExecLine.isDebugPoint()) {
             return false;
         }
-        debugHit(currentExecLine, holder);
+        debugHit(currentExecLine, debugManager, debugContext);
         return true;
     }
 
@@ -2383,29 +2494,39 @@ public class BLangVM {
      * Helper method to set required details when a debug point hits.
      * And also to notify the debugger.
      *
-     * @param currentExecLine Current execution line.
-     * @param holder          Debug info holder.
+     * @param currentExecLine   Current execution line.
+     * @param debugManager      Debug manager object.
+     * @param debugContext      Current debug context.
      */
-    private void debugHit(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
-        holder.setLastLine(currentExecLine);
-        holder.setSF(controlStack.currentFrame);
-        holder.getDebugSessionObserver().notifyHalt(getBreakPointInfo(currentExecLine));
-        holder.waitTillDebuggeeResponds();
+    private void debugHit(LineNumberInfo currentExecLine, VMDebugManager debugManager,
+                          DebugContext debugContext) {
+        debugContext.setLastLine(currentExecLine);
+        debugContext.setSF(controlStack.currentFrame);
+        debugManager.notifyDebugHit(getBreakPointInfo(currentExecLine, debugManager, debugContext));
+        debugManager.waitTillDebuggeeResponds();
     }
 
-    public BreakPointInfo getBreakPointInfo(LineNumberInfo current) {
-        NodeLocation location = new NodeLocation(current.getPackageInfo().getPkgPath(),
-                current.getFileName(), current.getLineNumber());
+    /**
+     * Helper method to get breakpoint information.
+     *
+     * @param currentExecLine   Current execution line.
+     * @param debugManager      Debug manager object.
+     * @param debugContext      Current debug context.
+     * @return
+     */
+    private BreakPointInfo getBreakPointInfo(LineNumberInfo currentExecLine, VMDebugManager debugManager,
+                                             DebugContext debugContext) {
+        NodeLocation location = new NodeLocation(currentExecLine.getPackageInfo().getPkgPath(),
+                currentExecLine.getFileName(), currentExecLine.getLineNumber());
         BreakPointInfo breakPointInfo = new BreakPointInfo(location);
-        breakPointInfo.setThreadId(context.getThreadId());
+        breakPointInfo.setThreadId(debugContext.getThreadId());
 
-        int callingIp = current.getIp();
+        int callingIp = currentExecLine.getIp();
         StackFrame frame = controlStack.currentFrame;
         while (frame != null) {
             String pck = frame.packageInfo.getPkgPath();
             String functionName = frame.callableUnitInfo.getName();
-            LineNumberInfo callingLine = context.getDebugInfoHolder()
-                    .getLineNumber(frame.packageInfo.getPkgPath(), callingIp);
+            LineNumberInfo callingLine = debugManager.getLineNumber(frame.packageInfo.getPkgPath(), callingIp);
             FrameInfo frameInfo = new FrameInfo(pck, functionName, callingLine.getFileName(),
                     callingLine.getLineNumber());
             LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) frame.callableUnitInfo
@@ -2555,16 +2676,21 @@ public class BLangVM {
     private void endTransaction(int status) {
         BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
         if (ballerinaTransactionManager != null) {
-            if (status == 0) { //Transaction success
-                ballerinaTransactionManager.commitTransactionBlock();
-            } else if (status == -1) { //Transaction failed
-                ballerinaTransactionManager.setTransactionError(true);
-                ballerinaTransactionManager.rollbackTransactionBlock();
-            } else { //status = 1 Transaction end
-                ballerinaTransactionManager.endTransactionBlock();
-                if (ballerinaTransactionManager.isOuterTransaction()) {
-                    context.setBallerinaTransactionManager(null);
+            try {
+                if (status == TransactionStatus.SUCCESS.value()) {
+                    ballerinaTransactionManager.commitTransactionBlock();
+                } else if (status == TransactionStatus.FAILED.value()) {
+                    ballerinaTransactionManager.rollbackTransactionBlock();
+                } else { //status = 1 Transaction end
+                    ballerinaTransactionManager.endTransactionBlock();
+                    if (ballerinaTransactionManager.isOuterTransaction()) {
+                        context.setBallerinaTransactionManager(null);
+                    }
                 }
+            } catch (Throwable e) {
+                context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
+                handleError();
+                return;
             }
         }
     }
@@ -2575,7 +2701,10 @@ public class BLangVM {
         if (retryCountAvailable == 1) {
             retryCount = (int) controlStack.currentFrame.getLongRegs()[0];
             if (retryCount < 0) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_RETRY_COUNT);
+                context.setError(BLangVMErrors.createError(this.context, ip,
+                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
+                handleError();
+                return;
             }
         }
         BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
@@ -2584,6 +2713,7 @@ public class BLangVM {
             context.setBallerinaTransactionManager(ballerinaTransactionManager);
         }
         ballerinaTransactionManager.beginTransactionBlock(transactionId, retryCount);
+
     }
 
     private void retryTransaction(int transactionId, int startOfAbortIP) {
@@ -2643,12 +2773,12 @@ public class BLangVM {
         StackFrame currentFrame = controlStack.currentFrame;
 
         // Extract the outgoing expressions
-        BValue[] arguments = new BValue[wrkrIntRefCPEntry.getbTypes().length];
+        BValue[] arguments = new BValue[wrkrIntRefCPEntry.getBTypes().length];
         copyArgValuesForWorkerInvoke(currentFrame, wrkrIntRefCPEntry.getArgRegs(),
-                wrkrIntRefCPEntry.getbTypes(), arguments);
+                wrkrIntRefCPEntry.getBTypes(), arguments);
 
         //populateArgumentValuesForWorker(expressions, arguments);
-        workerDataChannel.setTypes(wrkrIntRefCPEntry.getbTypes());
+        workerDataChannel.setTypes(wrkrIntRefCPEntry.getBTypes());
         workerDataChannel.putData(arguments);
     }
 
@@ -2763,7 +2893,7 @@ public class BLangVM {
         BValue[] passedInValues = (BValue[]) workerDataChannel.takeData();
         StackFrame currentFrame = controlStack.currentFrame;
         copyArgValuesForWorkerReply(currentFrame, wrkrIntCPEntry.getArgRegs(),
-                wrkrIntCPEntry.getbTypes(), passedInValues);
+                wrkrIntCPEntry.getBTypes(), passedInValues);
     }
 
     public static void copyArgValuesForWorkerInvoke(StackFrame callerSF, int[] argRegs, BType[] paramTypes,
@@ -2988,6 +3118,10 @@ public class BLangVM {
         AbstractNativeFunction nativeFunction = functionInfo.getNativeFunction();
         try {
             nativeFunction.executeNative(context);
+        } catch (BLangNullReferenceException e) {
+            context.setError(BLangVMErrors.createNullRefError(context, ip));
+            handleError();
+            return;
         } catch (Throwable e) {
             context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
             handleError();
@@ -3093,7 +3227,7 @@ public class BLangVM {
                     break;
                 case TypeTags.STRING_TAG:
                     if (returnValues[i] == null) {
-                        callerSF.stringRegs[callersRetRegIndex] = "";
+                        callerSF.stringRegs[callersRetRegIndex] = STRING_NULL_VALUE;
                         break;
                     }
                     callerSF.stringRegs[callersRetRegIndex] = returnValues[i].stringValue();
@@ -3275,7 +3409,7 @@ public class BLangVM {
             return;
         }
 
-        if (jsonNode.isInt() || jsonNode.isLong()) {
+        if (jsonNode.isLong()) {
             sf.longRegs[j] = jsonNode.longValue();
             sf.refRegs[k] = null;
             return;
@@ -3307,7 +3441,7 @@ public class BLangVM {
             return;
         }
 
-        if (jsonNode.isFloat() || jsonNode.isDouble()) {
+        if (jsonNode.isDouble()) {
             sf.doubleRegs[j] = jsonNode.doubleValue();
             sf.refRegs[k] = null;
             return;
@@ -3340,13 +3474,13 @@ public class BLangVM {
             return;
         }
 
-        if (jsonNode.isTextual()) {
-            sf.stringRegs[j] = jsonNode.textValue();
+        if (jsonNode.isString()) {
+            sf.stringRegs[j] = jsonNode.stringValue();
             sf.refRegs[k] = null;
             return;
         }
 
-        sf.stringRegs[j] = "";
+        sf.stringRegs[j] = STRING_NULL_VALUE;
         handleTypeCastError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.STRING_TNAME);
     }
 

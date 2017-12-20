@@ -24,14 +24,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Date;
-import java.util.TimeZone;
-
-import static org.ballerinalang.nativeimpl.builtin.timelib.AbstractTimeFunction.STRUCT_TYPE_TIME;
-import static org.ballerinalang.nativeimpl.builtin.timelib.AbstractTimeFunction.STRUCT_TYPE_TIMEZONE;
-import static org.ballerinalang.nativeimpl.builtin.timelib.AbstractTimeFunction.TIME_PACKAGE;
 import static org.ballerinalang.nativeimpl.file.utils.Constants.ACCESS_DENIED_ERROR;
 import static org.ballerinalang.nativeimpl.file.utils.Constants.FILE_PACKAGE;
 import static org.ballerinalang.nativeimpl.file.utils.Constants.FILE_STRUCT;
@@ -60,28 +52,5 @@ public class FileUtils {
         PackageInfo filePkg = context.getProgramFile().getPackageInfo(FILE_PACKAGE);
         StructInfo ioErrInfo = filePkg.getStructInfo(IO_ERROR);
         return BLangVMStructs.createBStruct(ioErrInfo, msg);
-    }
-
-    public static BStruct createTimeStruct(Context context, ZonedDateTime time, long millis) {
-        BStruct timezone = createTimeZone(context, time.getZone());
-        return BLangVMStructs.createBStruct(getTimeStructInfo(context), millis, timezone);
-    }
-
-    private static BStruct createTimeZone(Context context, ZoneId zoneId) {
-        String zoneIdName = zoneId.toString();
-        TimeZone tz = TimeZone.getTimeZone(zoneId);
-        int offsetInMills = tz.getOffset(new Date().getTime());
-        int offset = offsetInMills / 1000;
-        return BLangVMStructs.createBStruct(getTimeZoneStructInfo(context), zoneIdName, offset);
-    }
-
-    private static StructInfo getTimeStructInfo(Context context) {
-        PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(TIME_PACKAGE);
-        return timePackageInfo.getStructInfo(STRUCT_TYPE_TIME);
-    }
-
-    private static StructInfo getTimeZoneStructInfo(Context context) {
-        PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(TIME_PACKAGE);
-        return timePackageInfo.getStructInfo(STRUCT_TYPE_TIMEZONE);
     }
 }

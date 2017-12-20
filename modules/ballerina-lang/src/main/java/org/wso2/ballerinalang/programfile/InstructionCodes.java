@@ -163,6 +163,9 @@ public interface InstructionCodes {
     int FPLOAD = 126;
     int TCALL = 127;
 
+    int SEQ_NULL = 128;
+    int SNE_NULL = 129;
+
     // Type Conversion related instructions
     int I2F = 130;
     int I2S = 131;
@@ -219,7 +222,7 @@ public interface InstructionCodes {
 
     int ANY2TYPE = 182;
     int S2JSONX = 183;
-
+    int NULL2S = 184;
 
     // Transactions
     int TR_BEGIN = 188;
@@ -247,7 +250,7 @@ public interface InstructionCodes {
     int NEWJSON = 213;
     int NEWDATATABLE = 215;
 
-    int REP = 230;
+    int REG_CP = 230;
     int IRET = 231;
     int FRET = 232;
     int SRET = 233;

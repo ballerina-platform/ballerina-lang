@@ -29,13 +29,15 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
-import org.ballerinalang.util.debugger.DebugInfoHolder;
+import org.ballerinalang.util.debugger.DebugCommand;
+import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -60,40 +62,8 @@ public class ResourceExecutor {
      */
     public static void execute(Resource resource, BServerConnectorFuture connectorFuture,
                                Map<String, Object> properties, BValue... bValues) {
-// engage Service interceptors.
-//        if (BLangRuntimeRegistry.getInstance().isInterceptionEnabled(protocol)) {
-//            org.ballerinalang.runtime.model.ServerConnector serverConnector =
-// BLangRuntimeRegistry.getInstance().getServerConnector(protocol);
-//            resourceCallback = new ServiceInterceptorCallback(callback, protocol);
-//            List<ServiceInterceptor> serviceInterceptorList = serverConnector.getServiceInterceptorList();
-//            BMessage message = new BMessage(cMsg);
-//            // Invoke request interceptor serviceInterceptorList.
-//            for (ServiceInterceptor interceptor : serviceInterceptorList) {
-//                if (interceptor.getRequestFunction() == null) {
-//                    continue;
-//                }
-//                ServiceInterceptor.Result result = BLangVMInterceptors.invokeResourceInterceptor(interceptor,
-//                        interceptor.getRequestFunction(), message);
-//                if (result.getMessageIntercepted() == null) {
-//                    // Can't Intercept null message further. Let it handle at server connector level.
-//                    breLog.error("error in service interception, return message null in " +
-//                            (".".equals(interceptor.getPackageInfo().getPkgPath()) ? "" :
-//                                    interceptor.getPackageInfo().getPkgPath() + ":") +
-//                            ServiceInterceptor.REQUEST_INTERCEPTOR_NAME);
-//                    callback.done(null);
-//                    return;
-//                }
-//                message = result.getMessageIntercepted();
-//                if (!result.isInvokeNext()) {
-//                    callback.done(message.value());
-//                    return;
-//                }
-//                resourceMessage = message.value();
-//            }
-//        }
-
         if (resource == null) {
-            //todo
+            connectorFuture.notifyFailure(new BallerinaException("trying to execute a null resource"));
         }
         ResourceInfo resourceInfo = ((BResource) resource).getResourceInfo();
         ServiceInfo serviceInfo = resourceInfo.getServiceInfo();
@@ -141,7 +111,7 @@ public class ResourceExecutor {
                 // Set default values
                 if (value == null || "".equals(value)) {
                     if (btype == BTypes.typeString) {
-                        stringLocalVars[stringParamCount++] = "";
+                        stringLocalVars[stringParamCount++] = BLangConstants.STRING_NULL_VALUE;
                     }
                     continue;
                 }
@@ -163,8 +133,8 @@ public class ResourceExecutor {
                 } else if (value instanceof BStruct) {
                     refLocalVars[refParamCount++] = (BRefType) value;
                 } else {
-                    //TODO Can't throw, need to handle with future
-                    throw new BallerinaException("Unsupported parameter type for parameter " + value);
+                    connectorFuture.notifyFailure(new BallerinaException("unsupported " +
+                            "parameter type for parameter " + value));
                 }
             }
         }
@@ -186,12 +156,12 @@ public class ResourceExecutor {
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
         context.setAsResourceContext();
         context.startTrackWorker();
-        if (VMDebugManager.getInstance().isDebugEnabled() && VMDebugManager.getInstance().isDebugSessionActive()) {
-            VMDebugManager debugManager = VMDebugManager.getInstance();
-            context.setAndInitDebugInfoHolder(new DebugInfoHolder());
-            context.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
-            context.setDebugEnabled(true);
-            debugManager.setDebuggerContext(context);
+        VMDebugManager debugManager = programFile.getDebugManager();
+        if (debugManager.isDebugEnabled()) {
+            DebugContext debugContext = new DebugContext();
+            debugContext.setCurrentCommand(DebugCommand.RESUME);
+            context.setDebugContext(debugContext);
+            debugManager.addDebugContext(debugContext);
         }
         bLangVM.run(context);
     }

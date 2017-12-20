@@ -86,10 +86,12 @@ This section of the tutorial explains the way a sample custom client connector i
 1. Prepare the base64 encoded key value to be sent in authorization header to the back end. The Ballerina built-in base64encoder is used for this purpose and the logic in this scenario is written in another function that resides in the same package as the connector.
     ```Ballerina
     package org.wso2.ballerina.connectors.github;
-    import ballerina.security;
+ 
+    import ballerina.util;
+ 
     function getBase64EncodedKey (string value1,string value2) (string encodedString) {
 	    string toEncode = value1 + ":" + value2;
-	    encodedString = <string>security:base64encode(toEncode);
+	    encodedString = <string>util:base64encode(toEncode);
 	    return;
     }
     ```

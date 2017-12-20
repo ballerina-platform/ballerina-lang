@@ -6,7 +6,7 @@ function main (string[] args) {
     float f = 20.0;
     println(f);
 
-    //The zero value of a string is "".
+    //The zero value of a string is null.
     string s;
     println(s);
 

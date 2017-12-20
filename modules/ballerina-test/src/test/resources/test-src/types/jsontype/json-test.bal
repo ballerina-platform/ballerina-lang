@@ -8,9 +8,9 @@ function toString (json msg) (string) {
     return msg.toString();
 }
 
-function testParse (string jsonStr) (json) {
-    var j,_ = <json> jsonStr;
-    return j;
+function testParse (string jsonStr) (json, TypeConversionError) {
+    var j, e = <json> jsonStr;
+    return j, e;
 }
 
 function testGetKeys () (string[], string[], string[], string[]) {
@@ -21,18 +21,18 @@ function testGetKeys () (string[], string[], string[], string[]) {
     return j1.getKeys(), j2.getKeys(), j3.getKeys(), j4.getKeys();
 }
 
-function testToXML (json msg) (xml) {
+function testToXML (json msg) (xml, TypeConversionError) {
     jsonOptions options = {};
     return msg.toXML(options);
 }
 
-function testToXMLStringValue () (xml) {
+function testToXMLStringValue () (xml, TypeConversionError) {
     jsonOptions options = {};
     json j = "value";
     return j.toXML(options);
 }
 
-function testToXMLBooleanValue () (xml) {
+function testToXMLBooleanValue () (xml, TypeConversionError) {
     jsonOptions options = {};
     json j = true;
     return j.toXML(options);
@@ -40,19 +40,25 @@ function testToXMLBooleanValue () (xml) {
 
 function testToXMLString (json msg) (string) {
     jsonOptions options = {};
-    xml xmlData = msg.toXML(options);
+    var xmlData, _ = msg.toXML(options);
     string s = <string> xmlData;
     return s;
 }
 
 function testToXMLWithXMLSequence (json msg) (string) {
     jsonOptions options = {};
-    xml xmlSequence = msg.toXML(options);
+    var xmlSequence, _ = msg.toXML(options);
     string s = <string> xmlSequence;
     return s;
 }
 
-function testToXMLWithOptions (json msg) (xml) {
+function testToXMLWithOptions (json msg) (xml, TypeConversionError) {
     jsonOptions options = {attributePrefix:"#", arrayEntryTag:"wrapper"};
     return msg.toXML(options);
+}
+
+function testStringToJSONConversion() (json, TypeConversionError) {
+    string s = "{\"foo\": \"bar\"}";
+    var j, e = <json> s;
+    return j, e;
 }

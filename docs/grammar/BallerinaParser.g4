@@ -244,11 +244,9 @@ statement
     |   throwStatement
     |   returnStatement
     |   workerInteractionStatement
-    |   commentStatement
     |   expressionStmt
     |   transactionStatement
     |   abortStatement
-    |   retryStatement
     |   namespaceDeclarationStatement
     ;
 
@@ -391,10 +389,6 @@ workerReply
     :   expressionList LARROW Identifier SEMICOLON
     ;
 
-commentStatement
-    :   LINE_COMMENT
-    ;
-
 variableReference
     :   nameReference                                                           # simpleVariableReference
     |   functionInvocation                                                      # functionInvocationReference
@@ -433,31 +427,30 @@ expressionStmt
     ;
 
 transactionStatement
-    :   TRANSACTION LEFT_BRACE statement* RIGHT_BRACE transactionHandlers
+    :   transactionClause failedClause?
     ;
 
-transactionHandlers
-    : failedClause? abortedClause? committedClause?
-    | failedClause? committedClause? abortedClause?
+transactionClause
+    : TRANSACTION (WITH transactionPropertyInitStatementList)? LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
+transactionPropertyInitStatement
+    : retriesStatement
+    ;
+
+transactionPropertyInitStatementList
+    : transactionPropertyInitStatement (COMMA transactionPropertyInitStatement)*
     ;
 
 failedClause
     :   FAILED LEFT_BRACE statement* RIGHT_BRACE
     ;
-abortedClause
-    :   ABORTED LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
-committedClause
-    :   COMMITTED LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
 abortStatement
     :   ABORT SEMICOLON
     ;
 
-retryStatement
-    :   RETRY expression SEMICOLON
+retriesStatement
+    :   RETRIES LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
     ;
 
 namespaceDeclarationStatement
@@ -481,7 +474,6 @@ expression
     |   connectorInit                                                       # connectorInitExpression
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
-    |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   TYPEOF builtInTypeName                                              # typeAccessExpression
     |   (ADD | SUB | NOT | LENGTHOF | TYPEOF) expression                    # unaryExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression
@@ -492,6 +484,7 @@ expression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
+    |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     ;
 
 //reusable productions

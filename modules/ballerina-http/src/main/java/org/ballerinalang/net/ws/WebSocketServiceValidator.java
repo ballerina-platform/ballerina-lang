@@ -23,6 +23,8 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.model.types.BStringType;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.List;
@@ -33,46 +35,55 @@ import java.util.List;
 public class WebSocketServiceValidator {
 
     public static boolean validateClientService(WebSocketService wsService) {
-        if (wsService.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_CONFIGURATION) != null) {
+        if (HttpUtil.getServiceConfigAnnotation(wsService, Constants.PROTOCOL_PACKAGE_WS) != null) {
             throw new BallerinaException(
                     String.format("Cannot define %s:%s annotation for WebSocket client service",
-                                  Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_CONFIGURATION));
+                                  Constants.PROTOCOL_PACKAGE_WS, Constants.ANNOTATION_CONFIGURATION));
         }
-        return validateResources(wsService.getResources());
+        return validateResources(wsService.getName(), wsService.getResources(), true);
     }
 
     public static boolean validateServiceEndpoint(WebSocketService wsService) {
-        if (wsService.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME,
-                                    Constants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE) != null) {
+        if (wsService.getAnnotationList(Constants.PROTOCOL_PACKAGE_WS,
+                                        Constants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE) != null) {
             throw new BallerinaException(
                     String.format("Cannot define %s:%s annotation for WebSocket client service",
-                                  Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE));
+                                  Constants.PROTOCOL_PACKAGE_WS, Constants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE));
         }
         validateConfigAnnotation(wsService);
-        return validateResources(wsService.getResources());
+        return validateResources(wsService.getName(), wsService.getResources(), false);
     }
 
-    private static boolean validateResources(Resource[] resources) {
+    private static boolean validateResources(String serviceName, Resource[] resources, boolean isClientService) {
         for (Resource resource : resources) {
             String resourceName = resource.getName();
-            if (resourceName.equals(Constants.RESOURCE_NAME_ON_HANDSHAKE)) {
-                validateOnHandshakeResource(resource);
-            } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_OPEN)) {
-                validateOnOpenResource(resource);
-            } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_TEXT_MESSAGE)) {
-                validateOnTextMessageResource(resource);
-            } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_BINARY_MESSAGE)) {
-                validateOnBinaryMessageResource(resource);
-            } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_PING)) {
-                validateOnPingResource(resource);
-            } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_PONG)) {
-                validateOnPongResource(resource);
-            } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_IDLE_TIMEOUT)) {
-                validateOnIdleTimeoutResource(resource);
-            } else if (resourceName.equals(Constants.RESOURCE_NAME_ON_CLOSE)) {
-                validateOnCloseResource(resource);
-            } else {
-                throw new BallerinaException(String.format("Invalid resource name %s", resourceName));
+            switch (resourceName) {
+                case Constants.RESOURCE_NAME_ON_HANDSHAKE:
+                    validateOnHandshakeResource(serviceName, resource, isClientService);
+                    break;
+                case Constants.RESOURCE_NAME_ON_OPEN:
+                    validateOnOpenResource(serviceName, resource, isClientService);
+                    break;
+                case Constants.RESOURCE_NAME_ON_TEXT_MESSAGE:
+                    validateOnTextMessageResource(serviceName, resource, isClientService);
+                    break;
+                case Constants.RESOURCE_NAME_ON_BINARY_MESSAGE:
+                    validateOnBinaryMessageResource(serviceName, resource, isClientService);
+                    break;
+                case Constants.RESOURCE_NAME_ON_PING:
+                    validateOnPingResource(serviceName, resource, isClientService);
+                    break;
+                case Constants.RESOURCE_NAME_ON_PONG:
+                    validateOnPongResource(serviceName, resource, isClientService);
+                    break;
+                case Constants.RESOURCE_NAME_ON_IDLE_TIMEOUT:
+                    validateOnIdleTimeoutResource(serviceName, resource, isClientService);
+                    break;
+                case Constants.RESOURCE_NAME_ON_CLOSE:
+                    validateOnCloseResource(serviceName, resource, isClientService);
+                    break;
+                default:
+                    throw new BallerinaException(String.format("Invalid resource name %s", resourceName));
             }
         }
         return true;
@@ -80,7 +91,7 @@ public class WebSocketServiceValidator {
 
     private static void validateConfigAnnotation(WebSocketService wsService) {
         Annotation configAnnotation =
-                wsService.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_CONFIGURATION);
+                HttpUtil.getServiceConfigAnnotation(wsService, Constants.PROTOCOL_PACKAGE_WS);
         if (configAnnotation == null) {
             return;
         }
@@ -101,84 +112,101 @@ public class WebSocketServiceValidator {
      * @return true if the given service is a client service.
      */
     public static boolean isWebSocketClientService(WebSocketService service) {
-        Annotation annotation = service.getAnnotation(
-                Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE);
-        return !(annotation == null);
+        List<Annotation> annotationList = service.getAnnotationList(
+                Constants.PROTOCOL_PACKAGE_WS, Constants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE);
+        return !(annotationList == null);
     }
 
-    private static void validateOnHandshakeResource(Resource resource) {
+    private static void validateOnHandshakeResource(String serviceName, Resource resource, boolean isClientService) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
-        validateParamDetailsSize(paramDetails, 1, resource.getName());
-        validateStructType(resource.getName(), paramDetails.get(0), Constants.WEBSOCKET_PACKAGE_NAME,
+        validateParamDetailsSize(paramDetails, 1, serviceName, resource.getName(), isClientService);
+        validateStructType(resource.getName(), paramDetails.get(0), Constants.PROTOCOL_PACKAGE_WS,
                            Constants.STRUCT_WEBSOCKET_HANDSHAKE_CONNECTION);
     }
 
-    private static void validateOnOpenResource(Resource resource) {
+    private static void validateOnOpenResource(String serviceName, Resource resource, boolean isClientService) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
-        validateParamDetailsSize(paramDetails, 1, resource.getName());
-        validateStructType(resource.getName(), paramDetails.get(0), Constants.WEBSOCKET_PACKAGE_NAME,
+        validateParamDetailsSize(paramDetails, 1, serviceName, resource.getName(), isClientService);
+        validateStructType(resource.getName(), paramDetails.get(0), Constants.PROTOCOL_PACKAGE_WS,
                            Constants.STRUCT_WEBSOCKET_CONNECTION);
     }
 
-    private static void validateOnTextMessageResource(Resource resource) {
+    private static void validateOnTextMessageResource(String serviceName, Resource resource, boolean isClientService) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
-        validateParamDetailsSize(paramDetails, 2, resource.getName());
-        validateStructType(resource.getName(), paramDetails.get(0), Constants.WEBSOCKET_PACKAGE_NAME,
+        validateParamDetailsSize(paramDetails, 2, serviceName, resource.getName(), isClientService);
+        validateStructType(resource.getName(), paramDetails.get(0), Constants.PROTOCOL_PACKAGE_WS,
                            Constants.STRUCT_WEBSOCKET_CONNECTION);
-        validateStructType(resource.getName(), paramDetails.get(1), Constants.WEBSOCKET_PACKAGE_NAME,
+        validateStructType(resource.getName(), paramDetails.get(1), Constants.PROTOCOL_PACKAGE_WS,
                            Constants.STRUCT_WEBSOCKET_TEXT_FRAME);
     }
 
-    private static void validateOnBinaryMessageResource(Resource resource) {
+    private static void validateOnBinaryMessageResource(String serviceName, Resource resource,
+                                                        boolean isClientService) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
-        validateParamDetailsSize(paramDetails, 2, resource.getName());
-        validateStructType(resource.getName(), paramDetails.get(0), Constants.WEBSOCKET_PACKAGE_NAME,
+        validateParamDetailsSize(paramDetails, 2, serviceName, resource.getName(), isClientService);
+        validateStructType(resource.getName(), paramDetails.get(0), Constants.PROTOCOL_PACKAGE_WS,
                            Constants.STRUCT_WEBSOCKET_CONNECTION);
-        validateStructType(resource.getName(), paramDetails.get(1), Constants.WEBSOCKET_PACKAGE_NAME,
+        validateStructType(resource.getName(), paramDetails.get(1), Constants.PROTOCOL_PACKAGE_WS,
                            Constants.STRUCT_WEBSOCKET_BINARY_FRAME);
 
     }
 
-    private static void validateOnPingResource(Resource resource) {
+    private static void validateOnPingResource(String serviceName, Resource resource, boolean isClientService) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
-        validateParamDetailsSize(paramDetails, 2, resource.getName());
-        validateStructType(resource.getName(), paramDetails.get(0), Constants.WEBSOCKET_PACKAGE_NAME,
+        validateParamDetailsSize(paramDetails, 2, serviceName, resource.getName(), isClientService);
+        validateStructType(resource.getName(), paramDetails.get(0), Constants.PROTOCOL_PACKAGE_WS,
                            Constants.STRUCT_WEBSOCKET_CONNECTION);
-        validateStructType(resource.getName(), paramDetails.get(1), Constants.WEBSOCKET_PACKAGE_NAME,
+        validateStructType(resource.getName(), paramDetails.get(1), Constants.PROTOCOL_PACKAGE_WS,
                            Constants.STRUCT_WEBSOCKET_PING_FRAME);
 
     }
 
-    private static void validateOnPongResource(Resource resource) {
+    private static void validateOnPongResource(String serviceName, Resource resource, boolean isClientService) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
-        validateParamDetailsSize(paramDetails, 2, resource.getName());
-        validateStructType(resource.getName(), paramDetails.get(0), Constants.WEBSOCKET_PACKAGE_NAME,
+        validateParamDetailsSize(paramDetails, 2, serviceName, resource.getName(), isClientService);
+        validateStructType(resource.getName(), paramDetails.get(0), Constants.PROTOCOL_PACKAGE_WS,
                            Constants.STRUCT_WEBSOCKET_CONNECTION);
-        validateStructType(resource.getName(), paramDetails.get(1), Constants.WEBSOCKET_PACKAGE_NAME,
+        validateStructType(resource.getName(), paramDetails.get(1), Constants.PROTOCOL_PACKAGE_WS,
                            Constants.STRUCT_WEBSOCKET_PONG_FRAME);
 
     }
 
-    private static void validateOnIdleTimeoutResource(Resource resource) {
+    private static void validateOnIdleTimeoutResource(String serviceName, Resource resource, boolean isClientService) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
-        validateParamDetailsSize(paramDetails, 1, resource.getName());
-        validateStructType(resource.getName(), paramDetails.get(0), Constants.WEBSOCKET_PACKAGE_NAME,
+        validateParamDetailsSize(paramDetails, 1, serviceName, resource.getName(), isClientService);
+        validateStructType(resource.getName(), paramDetails.get(0), Constants.PROTOCOL_PACKAGE_WS,
                            Constants.STRUCT_WEBSOCKET_CONNECTION);
     }
 
-    private static void validateOnCloseResource(Resource resource) {
+    private static void validateOnCloseResource(String serviceName, Resource resource, boolean isClientService) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
-        validateParamDetailsSize(paramDetails, 2, resource.getName());
-        validateStructType(resource.getName(), paramDetails.get(0), Constants.WEBSOCKET_PACKAGE_NAME,
+        validateParamDetailsSize(paramDetails, 2, serviceName, resource.getName(), isClientService);
+        validateStructType(resource.getName(), paramDetails.get(0), Constants.PROTOCOL_PACKAGE_WS,
                            Constants.STRUCT_WEBSOCKET_CONNECTION);
-        validateStructType(resource.getName(), paramDetails.get(1), Constants.WEBSOCKET_PACKAGE_NAME,
+        validateStructType(resource.getName(), paramDetails.get(1), Constants.PROTOCOL_PACKAGE_WS,
                            Constants.STRUCT_WEBSOCKET_CLOSE_FRAME);
     }
 
-    private static void validateParamDetailsSize(List<ParamDetail> paramDetails,
-                                                 int expectedSize, String resourceName) {
-        if (paramDetails == null || paramDetails.size() < expectedSize || paramDetails.size() > expectedSize) {
-            throw new BallerinaException(String.format("Invalid resource signature for %s", resourceName));
+    private static void validateParamDetailsSize(List<ParamDetail> paramDetails, int expectedSize, String serviceName,
+                                                 String resourceName, boolean isClientService) {
+        if (paramDetails == null || paramDetails.size() < expectedSize) {
+            throw new BallerinaException(String.format("Invalid resource signature for %s in service %s",
+                                                       resourceName, serviceName));
+        }
+
+        if (paramDetails.size() > expectedSize) {
+            if (isClientService) {
+                throw new BallerinaConnectorException(
+                        String.format("%s cannot have additional parameters since service %s is a client service",
+                                      resourceName, serviceName));
+            }
+            for (int i = expectedSize; i < paramDetails.size(); i++) {
+                if (!(paramDetails.get(i).getVarType() instanceof BStringType)) {
+                    throw new BallerinaConnectorException(
+                            String.format("Additional parameters of resource %s in service %s should be strings",
+                                          resourceName, serviceName));
+                }
+            }
         }
     }
 

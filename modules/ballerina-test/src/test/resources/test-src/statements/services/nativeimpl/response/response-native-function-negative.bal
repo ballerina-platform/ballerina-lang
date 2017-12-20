@@ -5,21 +5,17 @@ function testAddHeader (http:Response res, string key, string value) (http:Respo
     return res;
 }
 
-function testClone (http:Response res) (http:Response) {
-    http:Response newres = res.clone();
-    return newres;
-}
-
 function testGetContentLength (http:Response res) (int) {
     int length = res.getContentLength();
     return length;
 }
 
-function testGetHeader (http:Response res, string key) (string, boolean) {
-    string contentType;
-    boolean headerExists;
-    contentType, headerExists = res.getHeader(key);
-    return contentType, headerExists;
+function testGetHeader (http:Response res, string key) (string) {
+    var contentType = res.getHeader(key);
+    if (contentType == null) {
+        return null;
+    }
+    return contentType.value;
 }
 
 function testGetJsonPayload (http:Response res) (json) {
@@ -54,11 +50,6 @@ function testRemoveHeader (http:Response res, string key) (http:Response) {
 
 function testRemoveAllHeaders (http:Response res) (http:Response) {
     res.removeAllHeaders();
-    return res;
-}
-
-function testSetContentLength (http:Response res, int contentLength) (http:Response) {
-    res.setContentLength(contentLength);
     return res;
 }
 

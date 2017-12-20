@@ -82,12 +82,12 @@ public class Execute extends AbstractHTTPAction {
         // Extract Argument values
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String httpVerb = getStringArgument(context, 0);
-        String path = getStringArgument(context, 1);
+        String path = HttpUtil.sanitizeUri(getStringArgument(context, 1));
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
         //TODO check below line
         HTTPCarbonMessage defaultCarbonMsg = HttpUtil.createHttpCarbonMessage(true);
         HTTPCarbonMessage cMsg = HttpUtil.getCarbonMsg(requestStruct, defaultCarbonMsg);
-        prepareRequest(bConnector, path, cMsg);
+        prepareRequest(bConnector, path, cMsg, requestStruct);
 
         // If the verb is not specified, use the verb in incoming message
         if (httpVerb == null || "".equals(httpVerb)) {

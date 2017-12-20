@@ -48,12 +48,13 @@ public class Send extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BStruct responseStruct = (BStruct) getRefArgument(context, 0);
-        HttpUtil.checkFunctionValidity(responseStruct);
-        HTTPCarbonMessage responseMessage = HttpUtil
-                .getCarbonMsg(responseStruct, HttpUtil.createHttpCarbonMessage(false));
-        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) responseStruct
+        BStruct outboundResponseStruct = (BStruct) getRefArgument(context, 0);
+        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) outboundResponseStruct
                 .getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
+        HttpUtil.checkFunctionValidity(outboundResponseStruct, requestMessage);
+
+        HTTPCarbonMessage responseMessage = HttpUtil
+                .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
 
         AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.ANN_NAME_CONFIG);
@@ -71,7 +72,11 @@ public class Send extends AbstractNativeFunction {
             // default behaviour: keepAlive = true
             responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
         }
+        if (outboundResponseStruct.getRefField(Constants.RESPONSE_HEADERS_INDEX) != null) {
+            HttpUtil.setHeadersToTransportMessage(responseMessage, outboundResponseStruct);
+        }
 
-        return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage);
+        return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage,
+                outboundResponseStruct);
     }
 }

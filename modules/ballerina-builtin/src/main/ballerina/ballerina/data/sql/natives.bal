@@ -61,7 +61,7 @@ public struct ConnectionProperties {
 @Field { value:"SQLSERVER: SQL Server DB with connection url in the format of jdbc:sqlserver://[HOST]:[PORT];databaseName=[database]"}
 @Field { value:"ORACLE: Oracle DB with connection url in the format of  jdbc:oracle:thin:[username/password]@[HOST]:[PORT]/[database]"}
 @Field { value:"SYBASE: Sybase DB with connection url in the format of  jdbc:sybase:Tds:[HOST]:[PORT]/[database]"}
-@Field { value:"POSTGRE: Postgre DB with connection url in the format of  jdbc:postgresql://[HOST]:[PORT]/[database]"}
+@Field { value:"POSTGRES: PostgreSQL DB with connection url in the format of  jdbc:postgresql://[HOST]:[PORT]/[database]"}
 @Field { value:"IBMDB2: IBMDB2 DB with connection url in the format of  jdbc:db2://[HOST]:[PORT]/[database]"}
 @Field { value:"HSQLDB_SERVER: HSQL Server with connection url in the format of jdbc:hsqldb:hsql://[HOST]:[PORT]/[database]"}
 @Field { value:"HSQLDB_FILE: HSQL Server with connection url in the format of jdbc:hsqldb:file:[path]/[database]"}
@@ -75,7 +75,7 @@ public enum DB {
 	SQLSERVER,
 	ORACLE,
 	SYBASE,
-	POSTGRE,
+	POSTGRES,
 	IBMDB2,
 	HSQLDB_SERVER,
 	HSQLDB_FILE,
@@ -87,6 +87,34 @@ public enum DB {
 }
 
 @Description { value:"The SQL Datatype of the parameter"}
+@Field { value:"VARCHAR: Small, variable-length character string"}
+@Field { value:"CHAR: Small, fixed-length character string"}
+@Field { value:"LONGVARCHAR: Large, variable-length character string"}
+@Field { value:"NCHAR: Small, fixed-length character string with unicode support"}
+@Field { value:"LONGNVARCHAR: Large, variable-length character string with unicode support"}
+@Field { value:"BIT: Single bit value that can be zero or one, or null"}
+@Field { value:"BOOLEAN: Boolean value either True or false"}
+@Field { value:"TINYINT: 8-bit integer value which may be unsigned or signed"}
+@Field { value:"SMALLINT: 16-bit signed integer value which may be unsigned or signed"}
+@Field { value:"INTEGER: 32-bit signed integer value which may be unsigned or signed"}
+@Field { value:"BIGINT: 64-bit signed integer value which may be unsigned or signed"}
+@Field { value:"NUMERIC: Fixed-precision and scaled decimal values"}
+@Field { value:"DECIMAL: Fixed-precision and scaled decimal values"}
+@Field { value:"REAL: Single precision floating point number"}
+@Field { value:"FLOAT: Double precision floating point number"}
+@Field { value:"DOUBLE: Double precision floating point number"}
+@Field { value:"BINARY: Small, fixed-length binary value"}
+@Field { value:"BLOB: Binary Large Object"}
+@Field { value:"LONGVARBINARY: Large, variable-length binary value"}
+@Field { value:"VARBINARY: Small, variable-length binary value"}
+@Field { value:"CLOB: Character Large Object"}
+@Field { value:"NCLOB: Character large objects in multibyte national character set"}
+@Field { value:"DATE: Date consisting of day, month, and year"}
+@Field { value:"TIME: Time consisting of hours, minutes, and seconds"}
+@Field { value:"DATETIME: Both DATE and TIME with additional a nanosecond field"}
+@Field { value:"TIMESTAMP: Both DATE and TIME with additional a nanosecond field"}
+@Field { value:"ARRAY: Composite data value that consists of zero or more elements of a specified data type"}
+@Field { value:"STRUCT: User defined structured type, consists of one or more attributes"}
 public enum Type {
 	VARCHAR,
 	CHAR,
@@ -145,13 +173,13 @@ public connector ClientConnector (DB dbType, string hostOrPath, int port, string
 	@Param { value:"query: SQL query to execute" }
 	@Param { value:"parameters: Parameter array used with the SQL query" }
 	@Return { value:"Result set for the given query" }
-	native action call (string query, Parameter[] parameters) (datatable);
+	native action call (string query, Parameter[] parameters, type structType) (datatable);
 
 	@Description { value:"The select action implementation for SQL connector to select data from tables."}
 	@Param { value:"query: SQL query to execute" }
 	@Param { value:"parameters: Parameter array used with the SQL query" }
 	@Return { value:"Result set for the given query" }
-	native action select (string query, Parameter[] parameters) (datatable);
+	native action select (string query, Parameter[] parameters, type structType) (datatable);
 
 	@Description { value:"The close action implementation for SQL connector to shutdown the connection pool."}
 	native action close ();

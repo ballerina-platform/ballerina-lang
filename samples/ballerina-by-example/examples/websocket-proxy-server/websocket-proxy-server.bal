@@ -12,10 +12,10 @@ service<ws> SimpleProxyServer {
 
     @Description {value:"Create a client connection to remote server from ballerina when new client connects to this service endpoint."}
     resource onHandshake(ws:HandshakeConnection con) {
-        endpoint<ws:WsClient> c {
+        endpoint<ws:WsClient> wsEndpoint {
             create ws:WsClient(remoteUrl, remoteServerCallbackService);
         }
-        var clientConn, err = c.connect({parentConnectionID:con.connectionID});
+        var clientConn, err = wsEndpoint.connect({parentConnectionID:con.connectionID});
         if (err != null) {
             println(err.msg);
             con.cancelHandshake(1001, "Cannot connect to remote server");

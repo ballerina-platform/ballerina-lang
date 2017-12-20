@@ -96,6 +96,15 @@ service<http> echo {
         res.setJsonPayload(responseJson);
         _ = res.send();
     }
+
+    @http:resourceConfig {
+        methods:["PATCH"],
+        path:"/modify"
+    }
+    resource modify11 (http:Request req, http:Response res) {
+        res.setStatusCode(204);
+        _ = res.send();
+    }
 }
 
 function getConstPath() (string) {

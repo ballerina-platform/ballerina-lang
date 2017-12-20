@@ -271,8 +271,9 @@ public class VarDeclaredAssignmentStmtTest {
     public void testAnyToStringWithErrors() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToStringWithErrors", new BValue[]{});
 
-        // check whether string is empty
-        Assert.assertEquals(returns[0].stringValue(), "");
+        // check whether string is null
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertNull(returns[0].stringValue());
 
         // check the error
         Assert.assertTrue(returns[1] instanceof BStruct);
@@ -285,8 +286,9 @@ public class VarDeclaredAssignmentStmtTest {
     public void testAnyNullToStringWithErrors() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToStringWithErrors", new BValue[]{});
 
-        // check whether string is empty
-        Assert.assertEquals(returns[0].stringValue(), "");
+        // check whether string is null
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertNull(returns[0].stringValue());
 
         // check the error
         Assert.assertTrue(returns[1] instanceof BStruct);
