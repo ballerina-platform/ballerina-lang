@@ -31,6 +31,8 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const extractThemes = new ExtractTextPlugin({ filename: './[name].css', allChunks: true });
 const extractCSSBundle = new ExtractTextPlugin({ filename: './bundle-[name].css', allChunks: true });
+
+const isProductionBuild = process.env.NODE_ENV === 'production';
 let exportConfig = {};
 const config = [{
     target: 'web',
@@ -76,7 +78,7 @@ const config = [{
                 use: [{
                     loader: 'css-loader',
                     options: {
-                        sourceMap: true,
+                        sourceMap: !isProductionBuild,
                     },
                 }],
             }),
@@ -209,12 +211,12 @@ const config = [{
                     use: [{
                         loader: 'css-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: !isProductionBuild,
                         },
                     }, {
                         loader: 'sass-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: !isProductionBuild,
                         },
                     }],
                 }),
@@ -239,15 +241,15 @@ if (process.env.NODE_ENV === 'production') {
 
     // Add UglifyJsPlugin only when we build for production.
     // uglyfying slows down webpack build so we avoid in when in development
-    config[0].plugins.push(new UglifyJsPlugin({
-        sourceMap: true,
-        parallel: true,
-        uglifyOptions: {
-            mangle: {
-                keep_fnames: true,
-            },
-        }
-    }));
+   config[0].plugins.push(new UglifyJsPlugin({
+       sourceMap: !isProductionBuild,
+       parallel: true,
+       uglifyOptions: {
+           mangle: {
+               keep_fnames: true,
+           },
+       }
+   }));
 } else {
     config[0].plugins.push(new webpack.DefinePlugin({
         PRODUCTION: JSON.stringify(false),
