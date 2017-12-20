@@ -87,8 +87,11 @@ import static org.ballerinalang.net.http.Constants.MESSAGE_OUTPUT_STREAM;
 import static org.ballerinalang.net.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.net.mime.util.Constants.HEADER_VALUE_STRUCT;
 import static org.ballerinalang.net.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
+import static org.ballerinalang.net.mime.util.Constants.MEDIA_TYPE_INDEX;
 import static org.ballerinalang.net.mime.util.Constants.MESSAGE_ENTITY;
+import static org.ballerinalang.net.mime.util.Constants.PRIMARY_TYPE_INDEX;
 import static org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.net.mime.util.Constants.SUBTYPE_INDEX;
 
 /**
  * Utility class providing utility methods.
@@ -384,10 +387,14 @@ public class HttpUtil {
         return abstractNativeFunction.getBValues(entity);
     }
 
-    private static String getContentType (BStruct entity) {
-        BStruct mediaType = (BStruct) entity.getRefField(0);
-        String baseType  = mediaType.getStringField(0) + "/" + mediaType.getStringField(1);
-        return baseType;
+    private static String getContentType(BStruct entity) {
+        if (entity.getRefField(MEDIA_TYPE_INDEX) != null) {
+            BStruct mediaType = (BStruct) entity.getRefField(MEDIA_TYPE_INDEX);
+            String baseType =
+                    mediaType.getStringField(PRIMARY_TYPE_INDEX) + "/" + mediaType.getStringField(SUBTYPE_INDEX);
+            return baseType;
+        }
+        return null;
     }
 
     public static BValue[] getBinaryPayload(Context context,
@@ -803,12 +810,15 @@ public class HttpUtil {
         setHeadersToTransportMessage(reqMsg, message, entity);
     }
 
-    public static void populateOutboundResponse(BStruct response, HTTPCarbonMessage resMsg,
+    public static void populateOutboundResponse(BStruct response, BStruct entity, HTTPCarbonMessage resMsg,
             HTTPCarbonMessage
             reqMsg) {
         response.addNativeData(Constants.TRANSPORT_MESSAGE, resMsg);
         response.addNativeData(Constants.INBOUND_REQUEST_MESSAGE, reqMsg);
         response.addNativeData(Constants.OUTBOUND_RESPONSE, true);
+        entity.setRefField(ENTITY_HEADERS_INDEX, new BMap<>());
+        response.addNativeData(MESSAGE_ENTITY, entity);
+        response.addNativeData(IS_ENTITY_BODY_PRESENT, false);
     }
 
     private static BMap<String, BValue> prepareHeaderMap(HttpHeaders headers, BMap<String, BValue> headerMap) {

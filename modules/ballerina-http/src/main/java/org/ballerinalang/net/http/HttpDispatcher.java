@@ -140,7 +140,11 @@ public class HttpDispatcher {
                 .createStruct(httpResource.getBalResource(), Constants.PROTOCOL_PACKAGE_HTTP, Constants.RESPONSE);
         HttpUtil.setHeaderValueStructType(
                 ConnectorUtils.createStruct(httpResource.getBalResource(), PROTOCOL_PACKAGE_MIME, HEADER_VALUE_STRUCT));
-        BStruct entity = ConnectorUtils.createStruct(httpResource.getBalResource(),
+        BStruct entityForRequest = ConnectorUtils.createStruct(httpResource.getBalResource(),
+                org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
+                org.ballerinalang.net.mime.util.Constants.ENTITY);
+
+        BStruct entityForResponse = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
                 org.ballerinalang.net.mime.util.Constants.ENTITY);
 
@@ -148,8 +152,8 @@ public class HttpDispatcher {
                 org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
                 org.ballerinalang.net.mime.util.Constants.MEDIA_TYPE);
 
-        HttpUtil.populateInboundRequest(request, entity, mediaType, httpCarbonMessage);
-        HttpUtil.populateOutboundResponse(response, HttpUtil.createHttpCarbonMessage(false),
+        HttpUtil.populateInboundRequest(request, entityForRequest, mediaType, httpCarbonMessage);
+        HttpUtil.populateOutboundResponse(response, entityForResponse, HttpUtil.createHttpCarbonMessage(false),
                 httpCarbonMessage);
 
         List<ParamDetail> paramDetails = httpResource.getParamDetails();
