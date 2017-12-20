@@ -102,6 +102,12 @@ export const lifeLine = {
     },
 };
 
+export const clientLine = {
+    head: {
+        length: 40,
+    },
+};
+
 export const actionBox = {
     width: 66,
     height: 21,
