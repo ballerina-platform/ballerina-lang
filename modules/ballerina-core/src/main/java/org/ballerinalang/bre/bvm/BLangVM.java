@@ -438,7 +438,7 @@ public class BLangVM {
                     if (entity.getType().getTag() == TypeTags.XML_TAG) {
                         sf.longRegs[j] = ((BXML) entity).length();
                         break;
-                    } else if (entity.getType().getTag() == TypeTags.JSON_TAG) {
+                    } else if (entity instanceof BJSON) {
                         if (JSONUtils.isJSONArray((BJSON) entity)) {
                             sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
                         } else {
@@ -733,7 +733,9 @@ public class BLangVM {
                     break;
                 case InstructionCodes.NEWJSON:
                     i = operands[0];
-                    sf.refRegs[i] = new BJSON("{}");
+                    cpIndex = operands[1];
+                    typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
+                    sf.refRegs[i] = new BJSON("{}", typeRefCPEntry.getType());
                     break;
                 case InstructionCodes.NEWDATATABLE:
                     i = operands[0];

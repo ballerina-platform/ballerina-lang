@@ -188,9 +188,14 @@ public class ConstrainedJSONTest {
         Assert.assertNull(returns[3]);
     }
 
-    @Test(description = "Test Constaint JSON to Constaint JSON Assignment.")
-    public void testConstraintJSONToConstraintJsonAssignment() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToConstraintJsonAssignment");
+    @Test(description = "Test Constaint JSON to Constaint JSON cast.")
+    public void testConstraintJSONToConstraintJsonCast() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToConstraintJsonCast");
         Assert.assertNotNull(returns[0]);
+
+        // TODO: in the resulting json, "class" field should not be visible. 
+        // This test case should be updated once the https://github.com/ballerinalang/ballerina/issues/4252
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"name\":\"John Doe\",\"age\":30,\"address\":\"Colombo\",\"class\":\"5\"}");
     }
 }

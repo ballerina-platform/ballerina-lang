@@ -621,9 +621,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             etype = ((BArrayType) arrayLiteral.type).eType;
         }
 
-        int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, arrayLiteral.type.getDesc());
-        TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
-        int typeCPindex = currentPkgInfo.addCPEntry(typeRefCPEntry);
+        int typeCPindex = getTypeCPIndex(arrayLiteral);
 
         // Emit create array instruction
         int opcode = getOpcode(etype.tag, InstructionCodes.INEWARRAY);
@@ -679,7 +677,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangJSONLiteral jsonLiteral) {
         int jsonVarRegIndex = ++regIndexes.tRef;
         jsonLiteral.regIndex = jsonVarRegIndex;
-        emit(InstructionCodes.NEWJSON, jsonVarRegIndex);
+        int typeCPindex = getTypeCPIndex(jsonLiteral);
+        emit(InstructionCodes.NEWJSON, jsonVarRegIndex, typeCPindex);
 
         for (BLangRecordKeyValue keyValue : jsonLiteral.keyValuePairs) {
             BLangExpression keyExpr = keyValue.key.expr;
@@ -1243,7 +1242,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int exprIndex;
 
         if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
-            if (unaryExpr.expr.type.tag == TypeTags.ANY) {
+            if (unaryExpr.expr.type.tag == TypeTags.ANY || unaryExpr.expr.type.tag == TypeTags.JSON) {
                 exprIndex = ++regIndexes.tRef;
                 opcode = unaryExpr.opSymbol.opcode;
                 emit(opcode, unaryExpr.expr.regIndex, exprIndex);
@@ -2940,5 +2939,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         return startTagNameRegIndex;
+    }
+    
+    private int getTypeCPIndex(BLangExpression expr) {
+        int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, expr.type.getDesc());
+        TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
+        return currentPkgInfo.addCPEntry(typeRefCPEntry);
     }
 }

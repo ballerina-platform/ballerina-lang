@@ -105,7 +105,7 @@ function testJSONToConstraintJsonUnsafeCastPositive() (json, json, json, TypeCas
     return j.name, j.age, j.address, e;
 }
 
-function testConstraintJSONToConstraintJsonAssignment() (json) {
+function testConstraintJSONToConstraintJsonCast() (json) {
     json<Person> j = (json<Person>)getStudent();
     return j;
 }
