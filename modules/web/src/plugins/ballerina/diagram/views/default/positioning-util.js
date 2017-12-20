@@ -1199,21 +1199,17 @@ class PositioningUtil {
         this.positionFlowControlCompoundStatementComponents(node);
 
         node.body.viewState.bBox.x = node.viewState.components['statement-box'].x;
-        node.body.viewState.bBox.y = node.viewState.components['statement-box'].y
-            + node.viewState.components['block-header'].h;
-
-        // Increase the node's components width. Mac width of all the else if nodes and the else node increased in this
-        // pass
-        // const newWidth = node.viewState.bBox.w;
-        // node.body.viewState.bBox.w = newWidth;
-        // node.viewState.components['drop-zone'].w = newWidth;
-        // node.viewState.components['statement-box'].w = newWidth;
-        // node.viewState.components['block-header'].w = newWidth;
+        node.viewState.components['statement-box'].y += node.viewState.components['block-header'].h;
+        node.body.viewState.bBox.y = node.viewState.components['statement-box'].y;
 
         // Set the position of the else statement
-        const elseX = bBox.x + (bBox.w / 2);
+        const elseX = (bBox.x - this.config.flowChartControlStatement.padding.left)
+                    + node.viewState.components['statement-box'].w;
         // node.viewState.components['statement-box'].x - (elseStatement.viewState.bBox.w / 2);
-        const elseY = viewState.components['statement-box'].y + viewState.components['statement-box'].h;
+        const elseY = viewState.components['statement-box'].y// + node.viewState.components['block-header'].h;
+                     + viewState.components['statement-box'].h
+                     + this.config.statement.gutter.h
+                     - node.viewState.components['block-header'].h;
 
         if (elseStatement) {
             elseStatement.viewState.bBox.x = elseX;
