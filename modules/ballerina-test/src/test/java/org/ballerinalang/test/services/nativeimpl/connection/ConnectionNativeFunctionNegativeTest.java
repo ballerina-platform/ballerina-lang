@@ -57,20 +57,9 @@ public class ConnectionNativeFunctionNegativeTest {
                 .contains("argument 1 is null"));
     }
 
-    @Test(description = "test declaration of two response method. Error is shown in the console")
-    public void testRedeclarationOfTwoResponseMethods() {
-        String path = "/hello/11";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(StringUtils
-                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), "wso2");
-    }
-
     @Test(description = "Test invalid connection struct")
     public void testInvalidConnectionStruct() {
-        String path = "/hello/12";
+        String path = "/hello/11";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
         Assert.assertTrue(StringUtils
