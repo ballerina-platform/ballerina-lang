@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
+import org.ballerinalang.langserver.completions.util.filters.ConnectorInitExpressionItemFilter;
 import org.ballerinalang.langserver.completions.util.filters.PackageActionAndFunctionFilter;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -40,17 +41,25 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
     @Override
     @SuppressWarnings("unchecked")
     public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
+        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
+        ConnectorInitExpressionItemFilter connectorInitItemFilter = new ConnectorInitExpressionItemFilter();
 
         // Here we specifically need to check whether the statement is function invocation,
         // action invocation or worker invocation
         if (isActionOrFunctionInvocationStatement(completionContext)) {
-            PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
             ArrayList<SymbolInfo> actionAndFunctions = new ArrayList<>();
             actionAndFunctions.addAll(actionAndFunctionFilter.filterItems(completionContext));
-            ArrayList<CompletionItem> completionItems = new ArrayList<>();
             this.populateCompletionItemList(actionAndFunctions, completionItems);
             return completionItems;
         } else {
+            // Fill completions if user is writing a connector init
+            List<SymbolInfo> filteredConnectorInitSuggestions = connectorInitItemFilter.filterItems(completionContext);
+            if (!filteredConnectorInitSuggestions.isEmpty()) {
+                populateCompletionItemList(filteredConnectorInitSuggestions, completionItems);
+                return completionItems;
+            }
+
             // Add the create keyword
             CompletionItem createKeyword = new CompletionItem();
             createKeyword.setInsertText("create ");
@@ -58,7 +67,6 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
             createKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
             createKeyword.setSortText(Priority.PRIORITY7.name());
 
-            ArrayList<CompletionItem> completionItems = new ArrayList<>();
             List<SymbolInfo> filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
                     .stream()
                     .filter(symbolInfo -> !((symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)

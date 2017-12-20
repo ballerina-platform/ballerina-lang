@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Provides the statement templates.
  */
-public class StatementTemplateFilter implements SymbolFilter {
+public class StatementTemplateFilter extends SymbolFilter {
     @Override
     public List filterItems(TextDocumentServiceContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
