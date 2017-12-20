@@ -1,23 +1,41 @@
+/*
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.composer.service.workspace.langserver.ws;
 
-import org.ballerinalang.composer.service.workspace.langserver.ThinLangServer;
 import org.eclipse.lsp4j.jsonrpc.MessageConsumer;
 import org.eclipse.lsp4j.jsonrpc.json.MessageJsonHandler;
 import org.eclipse.lsp4j.jsonrpc.messages.Message;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * WS Based message consumer for language JSON RPC Server.
+ */
 public class WSMessageConsumer implements MessageConsumer {
 
-    String encoding = StandardCharsets.UTF_8.name();
-    Object outputLock = new Object();
+    private final String encoding = StandardCharsets.UTF_8.name();
+    private final Object outputLock = new Object();
     private final MessageJsonHandler jsonHandler;
-    private final ThinLangServer thinLangServer;
+    private final WSLangServer wsLangServer;
 
-    public WSMessageConsumer(ThinLangServer thinLangServer, MessageJsonHandler jsonHandler) {
+    public WSMessageConsumer(WSLangServer wsLangServer, MessageJsonHandler jsonHandler) {
         this.jsonHandler = jsonHandler;
-        this.thinLangServer = thinLangServer;
+        this.wsLangServer = wsLangServer;
     }
 
     @Override
@@ -28,8 +46,8 @@ public class WSMessageConsumer implements MessageConsumer {
         String content = this.jsonHandler.serialize(message);
         String header = this.getHeader(content.length());
         Object var7 = this.outputLock;
-        synchronized(this.outputLock) {
-            this.thinLangServer.sendMessageToAll(header + content);
+        synchronized (this.outputLock) {
+            this.wsLangServer.sendMessageToAll(header + content);
         }
     }
 

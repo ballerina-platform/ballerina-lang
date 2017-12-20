@@ -16,9 +16,7 @@
 
 package org.ballerinalang.composer.service.workspace.rest;
 
-
 import com.google.gson.JsonObject;
-import org.apache.commons.lang3.SystemUtils;
 import org.ballerinalang.composer.service.workspace.Constants;
 import org.ballerinalang.composer.service.workspace.PluginConstants;
 import org.slf4j.Logger;
