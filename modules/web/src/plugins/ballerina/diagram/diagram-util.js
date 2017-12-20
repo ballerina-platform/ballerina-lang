@@ -92,11 +92,7 @@ function getComponentForNodeArray(nodeArray, mode = 'default') {
         if (child.viewState && child.viewState.hidden) {
             return undefined;
         }
-
-        let compName = child.constructor.name;
-        if (child.viewState.alias !== undefined) {
-            compName = child.viewState.alias;
-        }
+        const compName = child.viewState.alias || child.constructor.name;
 
         if (components[mode][compName]) {
             return React.createElement(components[mode][compName], {
@@ -113,6 +109,7 @@ function getComponentForNodeArray(nodeArray, mode = 'default') {
                 key: child.getID(),
             }, null);
         }
+        return undefined;
     });
 }
 

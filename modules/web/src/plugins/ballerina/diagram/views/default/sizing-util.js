@@ -1057,6 +1057,7 @@ class SizingUtil {
      *
      */
     sizeInvocationNode(node) {
+        // Invocation nodes are sized in sizeExpressionStatementNode
         // Not implemented.
     }
 
@@ -1263,6 +1264,7 @@ class SizingUtil {
         if (TreeUtil.statementIsInvocation(node)) {
             viewState.bBox.w = this.config.actionInvocationStatement.width;
             viewState.components['statement-box'].w = this.config.actionInvocationStatement.width;
+            viewState.alias = 'ActionInvocationNode';
         }
     }
 
@@ -1323,6 +1325,11 @@ class SizingUtil {
     sizeExpressionStatementNode(node) {
         const viewState = node.viewState;
         this.sizeStatement(node.getSource(true), viewState);
+        if (TreeUtil.statementIsInvocation(node)) {
+            viewState.bBox.w = this.config.actionInvocationStatement.width;
+            viewState.components['statement-box'].w = this.config.actionInvocationStatement.width;
+            viewState.alias = 'ActionInvocationNode';
+        }
     }
 
 
@@ -1362,7 +1369,8 @@ class SizingUtil {
 
         if (timeoutStmt) {
             // Calculate timeout expression, parameter expression, keyword lengths.
-            timeoutStmt.viewState.components.expression = this.getTextWidth(node.getTimeOutExpression().getSource(true));
+            timeoutStmt.viewState.components.expression =
+                            this.getTextWidth(node.getTimeOutExpression().getSource(true));
             timeoutStmt.viewState.components.titleWidth = this.getTextWidth('timeout');
             timeoutStmt.viewState.components.parameter = this.getTextWidth(node.getTimeOutVariable().getSource(true));
             if (timeoutStmt.viewState.bBox.w > nodeWidth) {
@@ -1669,6 +1677,7 @@ class SizingUtil {
         if (TreeUtil.statementIsInvocation(node)) {
             viewState.bBox.w = this.config.actionInvocationStatement.width;
             viewState.components['statement-box'].w = this.config.actionInvocationStatement.width;
+            viewState.alias = 'ActionInvocationNode';
         }
     }
 
