@@ -47,11 +47,6 @@ class ActionNode extends React.Component {
         this.onMouseOver = this.onMouseOver.bind(this);
     }
 
-    canDropToPanelBody(dragSource) {
-        return TreeUtil.isEndpointTypeVariableDef(dragSource)
-            || TreeUtil.isWorker(dragSource);
-    }
-
     /**
      * Handles the mouse over event of the add action button
      */
@@ -66,6 +61,11 @@ class ActionNode extends React.Component {
         if (_.isEmpty(this.props.model.viewState.overlayContainer)) {
             this.setState({ style: 'hideResourceGroup' });
         }
+    }
+
+    canDropToPanelBody(dragSource) {
+        return TreeUtil.isEndpointTypeVariableDef(dragSource)
+            || TreeUtil.isWorker(dragSource);
     }
 
     render() {
