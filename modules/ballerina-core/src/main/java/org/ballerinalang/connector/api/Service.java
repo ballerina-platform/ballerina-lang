@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.connector.api;
 
+import java.util.List;
+
 /**
  * {@code Service} This API provides the functionality to access Service level details in the
  * respective server connector.
@@ -47,13 +49,13 @@ public interface Service {
     String getProtocolPackage();
 
     /**
-     * This method will return annotation for the given package path and annotation name.
+     * This method will return the list of annotations for the given package path and annotation name.
      *
      * @param pkgPath of the annotation.
      * @param name  of the annotation.
-     * @return matching annotation.
+     * @return matching annotations list.
      */
-    Annotation getAnnotation(String pkgPath, String name);
+    List<Annotation> getAnnotationList(String pkgPath, String name);
 
     /**
      * This method will return Resources associated with the service as a array.

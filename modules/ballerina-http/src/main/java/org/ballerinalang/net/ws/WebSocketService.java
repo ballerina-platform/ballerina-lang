@@ -26,7 +26,9 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.http.HttpUtil;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -47,7 +49,7 @@ public class WebSocketService implements Service {
         }
 
         Annotation configAnnotation =
-                service.getAnnotation(Constants.PROTOCOL_PACKAGE_WS, Constants.ANNOTATION_CONFIGURATION);
+                HttpUtil.getServiceConfigAnnotation(service, Constants.PROTOCOL_PACKAGE_WS);
         negotiableSubProtocols = findNegotiableSubProtocols(configAnnotation);
         idleTimeoutInSeconds = findIdleTimeoutInSeconds(configAnnotation);
     }
@@ -68,8 +70,8 @@ public class WebSocketService implements Service {
     }
 
     @Override
-    public Annotation getAnnotation(String pkgPath, String name) {
-        return service.getAnnotation(pkgPath, name);
+    public List<Annotation> getAnnotationList(String pkgPath, String name) {
+        return service.getAnnotationList(pkgPath, name);
     }
 
     @Override
