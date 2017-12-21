@@ -438,7 +438,7 @@ public class BLangVM {
                     if (entity.getType().getTag() == TypeTags.XML_TAG) {
                         sf.longRegs[j] = ((BXML) entity).length();
                         break;
-                    } else if (entity.getType().getTag() == TypeTags.JSON_TAG) {
+                    } else if (entity instanceof BJSON) {
                         if (JSONUtils.isJSONArray((BJSON) entity)) {
                             sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
                         } else {
@@ -2278,8 +2278,17 @@ public class BLangVM {
             case InstructionCodes.S2JSONX:
                 i = operands[0];
                 j = operands[1];
+                k = operands[2];
                 str = sf.stringRegs[i];
-                sf.refRegs[j] = str == null ? null : new BJSON(str);
+
+                try {
+                    sf.refRegs[j] = str == null ? null : new BJSON(str);
+                    sf.refRegs[k] = null;
+                } catch (BallerinaException e) {
+                    sf.refRegs[j] = null;
+                    handleTypeConversionError(sf, k, e.getMessage(), TypeConstants.STRING_TNAME,
+                            TypeConstants.JSON_TNAME);
+                }
                 break;
             case InstructionCodes.XML2S:
                 i = operands[0];
@@ -2764,12 +2773,12 @@ public class BLangVM {
         StackFrame currentFrame = controlStack.currentFrame;
 
         // Extract the outgoing expressions
-        BValue[] arguments = new BValue[wrkrIntRefCPEntry.getbTypes().length];
+        BValue[] arguments = new BValue[wrkrIntRefCPEntry.getBTypes().length];
         copyArgValuesForWorkerInvoke(currentFrame, wrkrIntRefCPEntry.getArgRegs(),
-                wrkrIntRefCPEntry.getbTypes(), arguments);
+                wrkrIntRefCPEntry.getBTypes(), arguments);
 
         //populateArgumentValuesForWorker(expressions, arguments);
-        workerDataChannel.setTypes(wrkrIntRefCPEntry.getbTypes());
+        workerDataChannel.setTypes(wrkrIntRefCPEntry.getBTypes());
         workerDataChannel.putData(arguments);
     }
 
@@ -2884,7 +2893,7 @@ public class BLangVM {
         BValue[] passedInValues = (BValue[]) workerDataChannel.takeData();
         StackFrame currentFrame = controlStack.currentFrame;
         copyArgValuesForWorkerReply(currentFrame, wrkrIntCPEntry.getArgRegs(),
-                wrkrIntCPEntry.getbTypes(), passedInValues);
+                wrkrIntCPEntry.getBTypes(), passedInValues);
     }
 
     public static void copyArgValuesForWorkerInvoke(StackFrame callerSF, int[] argRegs, BType[] paramTypes,

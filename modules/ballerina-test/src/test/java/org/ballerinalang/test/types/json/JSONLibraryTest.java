@@ -20,6 +20,7 @@ package org.ballerinalang.test.types.json;
 import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -475,4 +476,18 @@ public class JSONLibraryTest {
         Assert.assertEquals(node.toString().length(), 7606);
     }
 
+    @Test
+    public void testSingleQuoteInArrayElements() throws IOException {
+        String json = "{'fruits':['apple', 'orange', \"grapes\"]}";
+        JsonNode node = JsonParser.parse(json);
+        Assert.assertEquals(node.toString(), "{\"fruits\":[\"apple\",\"orange\",\"grapes\"]}");
+    }
+
+    @Test(expectedExceptions = { BallerinaException.class },
+            expectedExceptionsMessageRegExp = "expected , or ] at line: 1 column: 32")
+    public void testMismatchQuotes() throws IOException {
+        String json = "{'fruits':[\"apple', 'orange', \"grapes\"]}";
+        JsonNode node = JsonParser.parse(json);
+        Assert.assertEquals(node.toString(), "{\"fruits\":[\"apple\",\"orange\",\"grapes\"]}");
+    }
 }

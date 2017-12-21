@@ -22,6 +22,7 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -63,7 +64,7 @@ public class BService extends AbstractServiceResource implements Service {
     }
 
     @Override
-    public Annotation getAnnotation(String pkgPath, String name) {
+    public List<Annotation> getAnnotationList(String pkgPath, String name) {
         String key = pkgPath + ":" + name;
         return annotationMap.get(key);
     }

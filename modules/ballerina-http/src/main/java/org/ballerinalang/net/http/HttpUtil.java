@@ -32,6 +32,8 @@ import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeTags;
@@ -1033,5 +1035,36 @@ public class HttpUtil {
 
     private static boolean is100ContinueRequest(HTTPCarbonMessage httpMsg) {
         return Constants.HEADER_VAL_100_CONTINUE.equalsIgnoreCase(httpMsg.getHeader(Constants.EXPECT_HEADER));
+    }
+
+    public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
+        List<Annotation> annotationList = service.getAnnotationList(pkgPath, Constants.ANN_NAME_CONFIG);
+
+        if (annotationList == null) {
+            return null;
+        }
+
+        if (annotationList.size() > 1) {
+            throw new BallerinaException(
+                    "multiple service configuration annotations found in service: " + service.getName());
+        }
+
+        return annotationList.isEmpty() ? null : annotationList.get(0);
+    }
+
+    public static Annotation getResourceConfigAnnotation(Resource resource, String pkgPath) {
+        List<Annotation> annotationList = resource.getAnnotationList(pkgPath, Constants.ANN_NAME_RESOURCE_CONFIG);
+
+        if (annotationList == null) {
+            return null;
+        }
+
+        if (annotationList.size() > 1) {
+            throw new BallerinaException(
+                    "multiple resource configuration annotations found in resource: " +
+                            resource.getServiceName() + "." + resource.getName());
+        }
+
+        return annotationList.isEmpty() ? null : annotationList.get(0);
     }
 }
