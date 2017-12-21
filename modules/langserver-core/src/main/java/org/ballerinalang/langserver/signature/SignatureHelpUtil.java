@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,13 +15,13 @@
  */
 package org.ballerinalang.langserver.signature;
 
+import org.ballerinalang.langserver.BLangPackageContext;
 import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 
 import java.util.ArrayList;
@@ -44,8 +44,8 @@ public class SignatureHelpUtil {
     /**
      * Get the name of the callable item. This ideally should be a ballerina function.
      *
-     * @param position          Position of the signature help triggered
-     * @param fileContent       File content to search callable item name
+     * @param position    Position of the signature help triggered
+     * @param fileContent File content to search callable item name
      * @return {@link String}   Callable Item name
      */
     public static String getCallableItemName(Position position, String fileContent) {
@@ -79,11 +79,11 @@ public class SignatureHelpUtil {
     /**
      * Get the functionSignatureHelp instance.
      *
-     * @param functionName              name of the function
-     * @param context                   Signature help package context
+     * @param functionName name of the function
+     * @param context      Signature help package context
      * @return {@link SignatureHelp}    Signature help for the completion
      */
-    public static SignatureHelp getFunctionSignatureHelp(String functionName, BLangPackageWrapper context) {
+    public static SignatureHelp getFunctionSignatureHelp(String functionName, BLangPackageContext context) {
         // Get the functions List
         List<BLangFunction> functions = context.getItems(BLangFunction.class);
 
@@ -108,7 +108,8 @@ public class SignatureHelpUtil {
 
     /**
      * Get the signature information for the given Ballerina function.
-     * @param bLangFunction                     Ballerina Function
+     *
+     * @param bLangFunction Ballerina Function
      * @return {@link SignatureInformation}     Signature information for the function
      */
     private static SignatureInformation getSignatureInformation(BLangFunction bLangFunction) {
@@ -135,7 +136,8 @@ public class SignatureHelpUtil {
 
     /**
      * Get the list of Parameter information data models for the given ballerina function.
-     * @param bLangFunction     Ballerina Function
+     *
+     * @param bLangFunction Ballerina Function
      * @return {@link List}     List of parameter info data models
      */
     private static List<ParameterInfoModel> getParamInfoList(BLangFunction bLangFunction) {
@@ -154,8 +156,9 @@ public class SignatureHelpUtil {
     /**
      * Get the parameter description for the given parameter name from the annotation attachments.
      * Need to filter out the Param annotations only.
-     * @param attachments       List of Annotation attachments
-     * @param paramName         Parameter name
+     *
+     * @param attachments List of Annotation attachments
+     * @param paramName   Parameter name
      * @return {@link String}   Parameter description
      */
     private static String getParameterDescription(List<BLangAnnotationAttachment> attachments, String paramName) {
@@ -175,8 +178,9 @@ public class SignatureHelpUtil {
 
     /**
      * Filter the value attribute from the particular annotation attachment's attributes.
-     * @param attributes        Attributes of the annotation attachment related to the parameter name
-     * @param paramName         Parameter name
+     *
+     * @param attributes Attributes of the annotation attachment related to the parameter name
+     * @param paramName  Parameter name
      * @return {@link String}   Description of the parameter attribute
      */
     private static String filterParameterAttribute(List<BLangAnnotAttachmentAttribute> attributes, String paramName) {
@@ -237,32 +241,6 @@ public class SignatureHelpUtil {
         @Override
         public String toString() {
             return this.paramType + " " + this.paramValue;
-        }
-    }
-
-    /**
-     * Package context to keep the builtin and the current package.
-     */
-    public static class BLangPackageWrapper {
-
-        BLangPackage builtin;
-
-        BLangPackage current;
-
-        public BLangPackageWrapper(BLangPackage builtin, BLangPackage current) {
-            this.builtin = builtin;
-            this.current = current;
-        }
-
-        @SuppressWarnings("unchecked")
-        <T> List<T> getItems(Class type) {
-            if (type.equals(BLangFunction.class)) {
-                List<BLangFunction> functions = new ArrayList<>();
-                functions.addAll((builtin.getFunctions()));
-                functions.addAll(current.getFunctions());
-                return (List<T>) functions;
-            }
-            return null;
         }
     }
 }
