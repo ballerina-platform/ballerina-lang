@@ -395,20 +395,25 @@ class SizingUtil {
         // calculate the annotation height.
         // cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 35);
 
-        cmp.client.w = 60;
+        // calculate client line
+        cmp.client.w = this.config.clientLine.width;
         cmp.client.h = maxWorkerHeight;
         cmp.client.arrowLine = (cmp.client.w / 2);
-        cmp.client.text = '';
-        _.forEach(node.parameters, (param) => {
-            cmp.client.text += ' ' + param.name.value + ' ,';
-        });
-        cmp.client.text = cmp.client.text.slice(0, -1);
+        const paramText = node.parameters.map((param) => {
+            return param.name.value;
+        }).join(', ');
+        const paramTextWidth = this.getTextWidth(paramText, 0,
+            (this.config.clientLine.width + this.config.lifeLine.gutter.h));
+        cmp.client.text = paramTextWidth.text;
+        cmp.client.fullText = paramText;
+
         // calculate default worker
         cmp.defaultWorker.w = workers.length > 0 ? 0 : node.body.viewState.bBox.w;
         cmp.defaultWorker.h = maxWorkerHeight;
         // We add the default worker line as a seperate component.
         cmp.defaultWorkerLine.w = workers.length > 0 ? 0 : this.config.lifeLine.width;
         cmp.defaultWorkerLine.h = cmp.defaultWorker.h;
+
         // set the max worker height to other workers.
         workers.forEach((worker) => {
             worker.viewState.bBox.h = maxWorkerHeight;
@@ -1249,6 +1254,7 @@ class SizingUtil {
         this.sizeStatement(node.getSource(true), viewState);
         this.adjustToLambdaSize(node, viewState);
         this.sizeActionInvocationStatement(node);
+        this.sizeClientResponderStatement(node);
     }
 
     /**
@@ -1309,6 +1315,7 @@ class SizingUtil {
         const viewState = node.viewState;
         this.sizeStatement(node.getSource(true), viewState);
         this.sizeActionInvocationStatement(node);
+        this.sizeClientResponderStatement(node);
     }
 
 
@@ -1532,6 +1539,7 @@ class SizingUtil {
         const viewState = node.viewState;
         this.sizeStatement(node.getSource(true), viewState);
         this.adjustToLambdaSize(node, viewState);
+        this.sizeClientResponderStatement(node);
     }
 
 
@@ -1653,6 +1661,7 @@ class SizingUtil {
             viewState.endpointIdentifier = this.getTextWidth(node.getVariable().getName().value, 0, endpointWdth).text;
         }
         this.sizeActionInvocationStatement(node);
+        this.sizeClientResponderStatement(node);
     }
 
     /**
@@ -1668,6 +1677,46 @@ class SizingUtil {
             viewState.bBox.h = this.config.actionInvocationStatement.height;
             viewState.components['statement-box'].h = this.config.actionInvocationStatement.height;
             viewState.alias = 'ActionInvocationNode';
+        }
+    }
+
+    /**
+     * Size statements containing client responding actions
+     * @param {node} node node to size
+     */
+    sizeClientResponderStatement(node) {
+        // This function gets called by statements that perform client responding
+        if (TreeUtil.statementIsClientResponder(node)) {
+            const viewState = node.viewState;
+            viewState.bBox.w = this.config.actionInvocationStatement.width;
+            viewState.components['statement-box'].w = this.config.actionInvocationStatement.width;
+            viewState.alias = 'ClientResponderNode';
+            if (TreeUtil.isReturn(node)) {
+                const paramText = node.expressions.map((exp) => {
+                    return exp.getSource(true);
+                }).join(', ');
+                const displayText = this.getTextWidth(paramText, 0,
+                    (this.config.clientLine.width + this.config.lifeLine.gutter.h));
+                viewState.displayText = displayText.text;
+            }
+            if (TreeUtil.isAssignment(node)) {
+                const exp = node.getExpression();
+                const argExpSource = exp.getArgumentExpressions().map((arg) => {
+                    return arg.getSource();
+                }).join(', ');
+                const displayText = this.getTextWidth(argExpSource, 0,
+                    (this.config.clientLine.width + this.config.lifeLine.gutter.h));
+                viewState.displayText = displayText.text;
+            }
+            if (TreeUtil.isVariableDef(node)) {
+                const exp = node.variable.getInitialExpression();
+                const argExpSource = exp.getArgumentExpressions().map((arg) => {
+                    return arg.getSource();
+                }).join(', ');
+                const displayText = this.getTextWidth(argExpSource, 0,
+                    (this.config.clientLine.width + this.config.lifeLine.gutter.h));
+                viewState.displayText = displayText.text;
+            }
         }
     }
 

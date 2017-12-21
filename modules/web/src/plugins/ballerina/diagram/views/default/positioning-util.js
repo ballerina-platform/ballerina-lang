@@ -80,6 +80,30 @@ class PositioningUtil {
                 }
             }
         }
+        if (TreeUtil.statementIsClientResponder(node)) {
+            // Set the view state property to manipulate at the action invocation decorator
+            viewState.isClientResponder = true;
+            const arrowStartBBox = new SimpleBBox();
+            const arrowEndBBox = new SimpleBBox();
+
+            const parentConstructNode = TreeUtil.getClientInvokableParentNode(node);
+
+            arrowStartBBox.x = viewState.components['statement-box'].x;
+            arrowStartBBox.y = viewState.components['statement-box'].y
+                                + this.config.actionInvocationStatement.textHeight;
+
+            if (parentConstructNode) {
+                viewState.components.invocation = {
+                    start: undefined,
+                    end: undefined,
+                };
+                viewState.components.invocation.start = arrowStartBBox;
+                arrowEndBBox.x = parentConstructNode.viewState.components.client.x
+                                + (this.config.clientLine.head.length / 2);
+                arrowEndBBox.y = arrowStartBBox.y;
+                viewState.components.invocation.end = arrowEndBBox;
+            }
+        }
 
         if (node.viewState.lambdas) {
             let y = node.viewState.bBox.y + node.viewState.components['statement-box'].h - 9;
@@ -402,7 +426,7 @@ class PositioningUtil {
         body.viewState.bBox.x = cmp.client.x + cmp.client.w + this.config.panel.body.padding.left
             + (cmp.defaultWorkerLine.w / 2);
         body.viewState.bBox.y = cmp.defaultWorker.y + this.config.lifeLine.head.height
-        + this.config.statement.height;
+            + this.config.statement.height;
 
         // ========== Header Positioning ==========
         let publicPrivateFlagoffset = 0;

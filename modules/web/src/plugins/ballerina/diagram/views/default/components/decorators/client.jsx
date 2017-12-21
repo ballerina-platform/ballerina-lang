@@ -19,7 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { lifeLine, clientLine } from './../../designer-defaults';
+import ArrowDecorator from '../decorators/arrow-decorator';
 
 class Client extends React.Component {
 
@@ -28,9 +28,9 @@ class Client extends React.Component {
         const topBox = Object.assign({}, bBox);
         const bottomBox = Object.assign({}, bBox);
 
-        const hLength = clientLine.head.length;
-        bottomBox.h = lifeLine.head.height;
-        topBox.h = lifeLine.head.height;
+        const hLength = this.context.designer.config.clientLine.head.length;
+        bottomBox.h = this.context.designer.config.lifeLine.head.height;
+        topBox.h = this.context.designer.config.lifeLine.head.height;
 
         bottomBox.y = bBox.y + bBox.h - bottomBox.h;
 
@@ -116,19 +116,20 @@ class Client extends React.Component {
                     </text>
                 </g>
             }
-            <line
-                x1={line.x1}
-                y1={invokeLineY}
-                x2={bBox.arrowLine}
-                y2={invokeLineY}
-                stroke='black'
-                strokeWidth='1'
+            <g>
+                <text
+                    x={line.x1 + this.context.designer.config.statement.gutter.h}
+                    y={topBox.y + topBox.h + (this.context.designer.config.statement.height / 2)}
+                    className='action-invocation-text'
+                >{bBox.text}</text>
+                <title> {bBox.fullText} </title>
+            </g>
+            <ArrowDecorator
+                start={{ x: line.x1, y: invokeLineY }}
+                end={{ x: bBox.arrowLine, y: invokeLineY }}
+                arrowHeadPosition={{ x: (line.x1 + this.context.designer.config.clientLine.arrowGap) }}
+                classNameArrow='client-invocation-arrow'
             />
-            <text
-                x={line.x1 + this.context.designer.config.statement.gutter.h}
-                y={topBox.y + topBox.h + (this.context.designer.config.statement.height / 2)}
-                dominantBaseline='central'
-            >{bBox.text}</text>
         </g>);
     }
 }
