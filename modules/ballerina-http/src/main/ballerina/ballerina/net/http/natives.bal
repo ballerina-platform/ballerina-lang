@@ -336,7 +336,7 @@ struct Proxy {
 @Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
 @Field {value:"enableChunking: Enable/disable chunking"}
 @Field {value:"keepAlive: Keep the connection or close it (default value: true)"}
-@Field {value:"httpVersion: The version of HTTP"}
+@Field {value:"httpVersion: The version of HTTP outbound request"}
 @Field {value:"followRedirects: Redirect related options"}
 @Field {value:"ssl: SSL/TLS related options"}
 @Field {value:"retryConfig: Retry related options"}
