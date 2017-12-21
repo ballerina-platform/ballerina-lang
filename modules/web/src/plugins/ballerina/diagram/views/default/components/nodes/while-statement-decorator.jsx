@@ -353,13 +353,13 @@ class WhileStatementDecorator extends React.Component {
                 <g>
                     <rect
                         x={p2X}
-                        y={statementBBox.y}
+                        y={p9Y}
                         width={titleW}
                         height={titleH}
                         onClick={this.openExpressionEditor}
                         className='invisible-rect'
                     />
-                    {expression && <title> {this.props.editorOptions.model.getSource(true)} </title>}
+                    {expression && <title> {expression.text} </title>}
                 </g>
                 { isBreakpoint && this.renderBreakpointIndicator() }
                 {this.props.children}
@@ -381,10 +381,10 @@ WhileStatementDecorator.defaultProps = {
     draggable: null,
     children: null,
     undeletable: false,
+    editorOptions: null,
     parameterEditorOptions: null,
     utilities: null,
     parameterBbox: null,
-    expression: null,
     disableButtons: {
         debug: false,
         delete: false,
@@ -400,16 +400,14 @@ WhileStatementDecorator.propTypes = {
     children: PropTypes.arrayOf(React.PropTypes.node),
     bBox: PropTypes.instanceOf(SimpleBBox).isRequired,
     dropTarget: PropTypes.instanceOf(Node).isRequired,
-    expression: PropTypes.shape({
-        text: PropTypes.string,
-    }),
+    expression: PropTypes.string.isRequired,
     editorOptions: PropTypes.shape({
         propertyType: PropTypes.string,
         key: PropTypes.string,
         model: PropTypes.instanceOf(Node),
         getterMethod: PropTypes.func,
         setterMethod: PropTypes.func,
-    }).isRequired,
+    }),
     parameterEditorOptions: PropTypes.shape({
         propertyType: PropTypes.string,
         key: PropTypes.string,

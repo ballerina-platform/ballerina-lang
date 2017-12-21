@@ -264,8 +264,8 @@ class IfStatementDecorator extends React.Component {
         const actionBoxBbox = new SimpleBBox();
         actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;
         actionBoxBbox.h = designer.config.actionBox.height;
-        actionBoxBbox.x = bBox.x + ((bBox.w - actionBoxBbox.w) / 2);
-        actionBoxBbox.y = statementBBox.y + titleH + designer.config.actionBox.padding.top;
+        actionBoxBbox.x = p8X - (actionBoxBbox.w / 2);
+        actionBoxBbox.y = p8Y;
 
         let statementRectClass = 'statement-title-rect';
         if (isDebugHit) {
@@ -333,7 +333,7 @@ class IfStatementDecorator extends React.Component {
                 <g>
                     <rect
                         x={p2X}
-                        y={statementBBox.y}
+                        y={p9Y}
                         width={titleW}
                         height={titleH}
                         onClick={this.openExpressionEditor}
@@ -372,7 +372,6 @@ IfStatementDecorator.defaultProps = {
     parameterEditorOptions: null,
     utilities: null,
     parameterBbox: null,
-    expression: null,
     disableButtons: {
         debug: false,
         delete: false,
@@ -390,7 +389,7 @@ IfStatementDecorator.propTypes = {
     dropTarget: PropTypes.instanceOf(Node).isRequired,
     expression: PropTypes.shape({
         text: PropTypes.string,
-    }),
+    }).isRequired,
     editorOptions: PropTypes.shape({
         propertyType: PropTypes.string,
         key: PropTypes.string,
