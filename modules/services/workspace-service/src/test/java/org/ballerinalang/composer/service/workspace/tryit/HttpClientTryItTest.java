@@ -18,6 +18,9 @@
 
 package org.ballerinalang.composer.service.workspace.tryit;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
@@ -109,11 +112,25 @@ public class HttpClientTryItTest {
         httpTryItClient.disableTimeDurationCalculation();
         String receivedResponse = httpTryItClient.execute();
     
-        Assert.assertTrue(parser.parse(receivedResponse).equals(parser.parse(responseContent)),
+        Assert.assertTrue(generateComparableJsonElement(parser.parse(receivedResponse))
+                        .equals(generateComparableJsonElement(parser.parse(responseContent))),
                 "Invalid response received." +
                 "\nRequested: " + parser.parse(requestContent).toString() +
                 "\nExpected: " + parser.parse(responseContent).toString() +
-                "\nActual: " + parser.parse(receivedResponse).toString());
+                "\nActual: " + generateComparableJsonElement(parser.parse(receivedResponse)).toString());
+    }
+
+    /**
+     * Get the comparable json element by removing the response header section
+     * @param element               JsonElement
+     * @return  {@link JsonElement} filtered JsonElement
+     */
+    private JsonElement generateComparableJsonElement(JsonElement element) {
+        Gson gson = new Gson();
+        JsonObject jsonObject = element.getAsJsonObject();
+        jsonObject.remove("responseHeaders");
+        
+        return gson.fromJson(jsonObject.toString(), JsonElement.class);
     }
     
     /**
