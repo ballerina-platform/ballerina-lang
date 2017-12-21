@@ -28,16 +28,12 @@ import ActiveArbiter from './active-arbiter';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
 import ArrowDecorator from './arrow-decorator';
-import StatementPropertyItemSelector from './../utils/statement-property-item-selector';
-import TreeUtil from '../../../../../model/tree-util';
-import splitVariableDefByLambda from '../../../../../model/lambda-util';
-import { getComponentForNodeArray } from '../../../../diagram-util';
 
 /**
  * Wraps other UI elements and provide box with a heading.
  * Enrich elements with a action box and expression editors.
  */
-class ActionInvocationDecorator extends React.Component {
+class ClientResponderDecorator extends React.Component {
 
     /**
      * Calculate statement box.
@@ -63,7 +59,7 @@ class ActionInvocationDecorator extends React.Component {
 
         this.state = {
             active: 'hidden',
-            statementBox: ActionInvocationDecorator.calculateStatementBox(props),
+            statementBox: ClientResponderDecorator.calculateStatementBox(props),
         };
     }
 
@@ -72,7 +68,7 @@ class ActionInvocationDecorator extends React.Component {
      * @param {object} props - Next props.
      */
     componentWillReceiveProps(props) {
-        this.setState({ statementBox: ActionInvocationDecorator.calculateStatementBox(props) });
+        this.setState({ statementBox: ClientResponderDecorator.calculateStatementBox(props) });
     }
 
     /**
@@ -169,33 +165,9 @@ class ActionInvocationDecorator extends React.Component {
             tooltip = (<title>{fullExp}</title>);
         }
 
-        let dropDownItems;
-        const dropDownItemMeta = [];
         let backwardArrowStart;
         let backwardArrowEnd;
-        if (viewState.isActionInvocation) {
-            // TODO: Need to remove the unique by filter whne the lang server item resolver is implemented
-            dropDownItems = _.uniqBy(TreeUtil.getAllVisibleEndpoints(this.props.model.parent), (item) => {
-                return item.variable.name.value;
-            });
-            dropDownItems.forEach((item) => {
-                const meta = {
-                    text: _.get(item, 'variable.name.value'),
-                    callback: (newEp) => {
-                        TreeUtil.changeInvocationEndpoint(this.props.model, newEp);
-                        this.props.model.trigger('tree-modified', {
-                            origin: this.props.model,
-                            type: 'invocation-endpoint-change',
-                            title: 'Change Target Endpoint',
-                            data: {
-                                node: this.props.model,
-                            },
-                        });
-                    },
-                };
-                dropDownItemMeta.push(meta);
-            });
-
+        if (viewState.isClientResponder) {
             if (viewState.components.invocation) {
                 backwardArrowStart = Object.assign({}, viewState.components.invocation.end);
                 backwardArrowStart.y = viewState.components['statement-box'].y
@@ -203,16 +175,6 @@ class ActionInvocationDecorator extends React.Component {
                 backwardArrowEnd = Object.assign({}, viewState.components.invocation.start);
                 backwardArrowEnd.y = backwardArrowStart.y;
             }
-        }
-
-        const { lambdas } = splitVariableDefByLambda(this.props.model);
-        const bBox = viewState.bBox;
-        const hiderTop = viewState.components['statement-box'].y + viewState.components['statement-box'].h + 1;
-        let children = [];
-        let hiderBottom = hiderTop;
-        if (lambdas.length) {
-            children = getComponentForNodeArray(lambdas);
-            hiderBottom = lambdas[lambdas.length - 1].viewState.bBox.getBottom();
         }
 
         return (
@@ -224,14 +186,6 @@ class ActionInvocationDecorator extends React.Component {
                     this.myRoot = group;
                 }}
             >
-                <line
-                    x1={bBox.getCenterX()}
-                    y1={hiderTop}
-                    x2={bBox.getCenterX()}
-                    y2={hiderBottom}
-                    className='life-line-hider'
-                />
-                { children }
                 <DropZone
                     model={this.props.model}
                     x={dropZone.x}
@@ -246,7 +200,13 @@ class ActionInvocationDecorator extends React.Component {
                     enableCenterOverlayLine
                 />
                 <g>
-                    <rect
+                    <circle
+                        cx={statementBox.x}
+                        cy={statementBox.y + this.context.designer.config.actionInvocationStatement.textHeight}
+                        r='4'
+                        className={'worker-life-line dot'}
+                    />
+                    {/* <rect
                         x={statementBox.x}
                         y={statementBox.y}
                         width={statementBox.w}
@@ -255,8 +215,8 @@ class ActionInvocationDecorator extends React.Component {
                         onClick={e => this.openEditor(e)}
                     >
                         {tooltip}
-                    </rect>
-                    <text
+                    </rect> */}
+                    {/* <text
                         x={viewState.components.invocation.start.x
                             + this.context.designer.config.statement.padding.left}
                         y={viewState.components.invocation.start.y
@@ -264,7 +224,7 @@ class ActionInvocationDecorator extends React.Component {
                         className='action-invocation-text'
                     >
                         {expression}
-                    </text>
+                    </text> */}
                 </g>
                 <ActionBox
                     bBox={actionBoxBbox}
@@ -278,19 +238,11 @@ class ActionInvocationDecorator extends React.Component {
                     <ArrowDecorator
                         start={viewState.components.invocation.start}
                         end={viewState.components.invocation.end}
-                    />
-                    <ArrowDecorator
-                        start={backwardArrowStart}
-                        end={backwardArrowEnd}
-                        dashed
+                        arrowHeadPosition={{
+                            x: (viewState.components.invocation.end.x
+                                + this.context.designer.config.clientLine.arrowGap) }}
                     />
                 </g>
-                <StatementPropertyItemSelector
-                    model={this.props.model}
-                    bBox={this.props.model.viewState.components.dropDown}
-                    itemsMeta={dropDownItemMeta}
-                    show={this.state.active}
-                />
                 {isBreakpoint && this.renderBreakpointIndicator()}
                 {this.props.children}
             </g>);
@@ -298,12 +250,12 @@ class ActionInvocationDecorator extends React.Component {
 
 }
 
-ActionInvocationDecorator.defaultProps = {
+ClientResponderDecorator.defaultProps = {
     editorOptions: null,
     children: null,
 };
 
-ActionInvocationDecorator.propTypes = {
+ClientResponderDecorator.propTypes = {
     viewState: PropTypes.shape({
         bBox: PropTypes.instanceOf(SimpleBBox),
         fullExpression: PropTypes.string,
@@ -323,7 +275,7 @@ ActionInvocationDecorator.propTypes = {
     isBreakpoint: PropTypes.bool.isRequired,
 };
 
-ActionInvocationDecorator.contextTypes = {
+ClientResponderDecorator.contextTypes = {
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
@@ -333,4 +285,4 @@ ActionInvocationDecorator.contextTypes = {
 };
 
 
-export default breakpointHoc(ActionInvocationDecorator);
+export default breakpointHoc(ClientResponderDecorator);
