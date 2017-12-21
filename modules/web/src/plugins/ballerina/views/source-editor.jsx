@@ -35,6 +35,7 @@ import MonacoEditor from 'react-monaco-editor';
 import SourceViewCompleterFactory from './../../ballerina/utils/source-view-completer-factory';
 import { CHANGE_EVT_TYPES } from './constants';
 import Grammar from './../utils/monarch-grammar';
+import { getMonacoKeyBinding } from '../utils/monaco-key-utils';
 
 const BAL_LANGUAGE = 'ballerina-lang';
 
@@ -191,6 +192,7 @@ class SourceEditor extends React.Component {
                 const disposable = languageClient.start();
                 connection.onClose(() => disposable.dispose());
             });
+        this.bindCommands();
     }
 
     /**
@@ -232,30 +234,19 @@ class SourceEditor extends React.Component {
     }
 
     /**
-     * Binds a shortcut to ace editor so that it will trigger the command on source view upon key press.
-     * All the commands registered app's command manager will be bound to source view upon render.
-     *
-     * @param command {Object}
-     * @param command.id {String} Id of the command to dispatch
-     * @param command.shortcuts {Object}
-     * @param command.shortcuts.mac {Object}
-     * @param command.shortcuts.mac.key {String} key combination for mac platform eg. 'Command+N'
-     * @param command.shortcuts.other {Object}
-     * @param command.shortcuts.other.key {String} key combination for other platforms eg. 'Ctrl+N'
+     * Binds available commands to monaco editor
      */
-    bindCommand(command) {
-        const { id, argTypes, shortcut } = command;
-        const { dispatch } = this.props.commandProxy;
-        if (shortcut) {
-            const shortcutKey = _.replace(shortcut.derived.key, '+', '-');
-            this.editor.commands.addCommand({
-                name: id,
-                bindKey: { win: shortcutKey, mac: shortcutKey },
-                exec() {
-                    dispatch(id, argTypes);
-                },
-            });
-        }
+    bindCommands() {
+        const commands = this.props.commandProxy.getCommands();
+        commands.forEach((command) => {
+            if (command.shortcut) {
+                const shortcut = command.shortcut.derived.key;
+                const monacoKeyBinding = getMonacoKeyBinding(shortcut);
+                this.editorInstance.addCommand(monacoKeyBinding, () => {
+                    this.props.commandProxy.dispatch(command.id, {});
+                });
+            }
+        });
     }
 
     /**
