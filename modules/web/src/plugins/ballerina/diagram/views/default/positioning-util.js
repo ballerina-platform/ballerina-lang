@@ -402,7 +402,7 @@ class PositioningUtil {
         body.viewState.bBox.x = cmp.client.x + cmp.client.w + this.config.panel.body.padding.left
             + (cmp.defaultWorkerLine.w / 2);
         body.viewState.bBox.y = cmp.defaultWorker.y + this.config.lifeLine.head.height
-        + this.config.statement.height;
+            + this.config.statement.height;
 
         // ========== Header Positioning ==========
         let publicPrivateFlagoffset = 0;

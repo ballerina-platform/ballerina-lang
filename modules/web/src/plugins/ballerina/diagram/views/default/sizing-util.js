@@ -395,20 +395,25 @@ class SizingUtil {
         // calculate the annotation height.
         // cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 35);
 
-        cmp.client.w = 60;
+        // calculate client line
+        cmp.client.w = this.config.clientLine.width;
         cmp.client.h = maxWorkerHeight;
         cmp.client.arrowLine = (cmp.client.w / 2);
-        cmp.client.text = '';
-        _.forEach(node.parameters, (param) => {
-            cmp.client.text += ' ' + param.name.value + ' ,';
-        });
-        cmp.client.text = cmp.client.text.slice(0, -1);
+        const paramText = node.parameters.map((param) => {
+            return param.name.value;
+        }).join(', ');
+        const paramTextWidth = this.getTextWidth(paramText, 0,
+            (this.config.clientLine.width + this.config.lifeLine.gutter.h));
+        cmp.client.text = paramTextWidth.text;
+        cmp.client.fullText = paramText;
+
         // calculate default worker
         cmp.defaultWorker.w = workers.length > 0 ? 0 : node.body.viewState.bBox.w;
         cmp.defaultWorker.h = maxWorkerHeight;
         // We add the default worker line as a seperate component.
         cmp.defaultWorkerLine.w = workers.length > 0 ? 0 : this.config.lifeLine.width;
         cmp.defaultWorkerLine.h = cmp.defaultWorker.h;
+
         // set the max worker height to other workers.
         workers.forEach((worker) => {
             worker.viewState.bBox.h = maxWorkerHeight;

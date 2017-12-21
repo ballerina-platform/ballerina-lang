@@ -50,7 +50,8 @@ class Arrow extends React.Component {
      * @memberof Arrow
      */
     render() {
-        const { start, end, dashed, arrowSize, description, classNameArrow, classNameArrowHead } = this.props;
+        const { start, end, dashed, arrowSize, description, classNameArrow,
+            classNameArrowHead, arrowHeadPosition } = this.props;
         const descriptionX = (start.x + end.x) / 2;
         const descriptionY = start.y - 3;
 
@@ -58,6 +59,10 @@ class Arrow extends React.Component {
         if (dashed) {
             className = classNameArrow + ' action-dash-line';
         }
+
+        const arrowHeadX = arrowHeadPosition.x || end.x;
+        const arrowHeadY = arrowHeadPosition.y || end.y;
+
         return (
             <g >
                 <text
@@ -75,7 +80,7 @@ class Arrow extends React.Component {
                 />
                 <polygon
                     points={`-${arrowSize},-${arrowSize} 0,0 -${arrowSize},${arrowSize}`}
-                    transform={`translate(${end.x}, ${end.y})
+                    transform={`translate(${arrowHeadX}, ${arrowHeadY})
                                 rotate(${this.getArrowAngle(start, end)}, 0, 0)`}
                     className={classNameArrowHead}
                 />
@@ -88,26 +93,32 @@ Arrow.propTypes = {
     start: PropTypes.shape({
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
-    }),
+    }).isRequired,
     end: PropTypes.shape({
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
-    }),
+    }).isRequired,
     dashed: PropTypes.bool,
     arrowSize: PropTypes.number,
     description: PropTypes.string,
     classNameArrow: PropTypes.string,
     classNameArrowHead: PropTypes.string,
+    arrowHeadPosition: PropTypes.shape({
+        x: PropTypes.number,
+        y: PropTypes.number,
+    }),
 };
 
 Arrow.defaultProps = {
-    start: undefined,
-    end: undefined,
     dashed: false,
     arrowSize: 5,
     description: '',
     classNameArrow: 'action-arrow',
     classNameArrowHead: 'action-arrow-head',
+    arrowHeadPosition: {
+        x: undefined,
+        y: undefined,
+    },
 };
 
 export default Arrow;
