@@ -127,7 +127,7 @@ class Client extends React.Component {
             <ArrowDecorator
                 start={{ x: line.x1, y: invokeLineY }}
                 end={{ x: bBox.arrowLine, y: invokeLineY }}
-                arrowHeadPosition={{ x: (line.x1 + (bBox.w)) }}
+                arrowHeadPosition={{ x: (line.x1 + this.context.designer.config.clientLine.arrowGap) }}
                 classNameArrow='client-invocation-arrow'
             />
         </g>);

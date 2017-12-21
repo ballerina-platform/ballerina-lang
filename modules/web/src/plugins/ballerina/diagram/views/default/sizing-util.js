@@ -1266,6 +1266,7 @@ class SizingUtil {
         this.sizeStatement(node.getSource(true), viewState);
         this.adjustToLambdaSize(node, viewState);
         this.sizeActionInvocationStatement(node);
+        this.sizeClientResponderStatement(node);
     }
 
     /**
@@ -1326,6 +1327,7 @@ class SizingUtil {
         const viewState = node.viewState;
         this.sizeStatement(node.getSource(true), viewState);
         this.sizeActionInvocationStatement(node);
+        this.sizeClientResponderStatement(node);
     }
 
 
@@ -1549,6 +1551,7 @@ class SizingUtil {
         const viewState = node.viewState;
         this.sizeStatement(node.getSource(true), viewState);
         this.adjustToLambdaSize(node, viewState);
+        this.sizeClientResponderStatement(node);
     }
 
 
@@ -1670,6 +1673,7 @@ class SizingUtil {
             viewState.endpointIdentifier = this.getTextWidth(node.getVariable().getName().value, 0, endpointWdth).text;
         }
         this.sizeActionInvocationStatement(node);
+        this.sizeClientResponderStatement(node);
     }
 
     /**
@@ -1685,6 +1689,22 @@ class SizingUtil {
             viewState.bBox.h = this.config.actionInvocationStatement.height;
             viewState.components['statement-box'].h = this.config.actionInvocationStatement.height;
             viewState.alias = 'ActionInvocationNode';
+        }
+    }
+
+    /**
+     * Size statements containing client responding actions
+     * @param {node} node node to size
+     */
+    sizeClientResponderStatement(node) {
+        // This function gets called by statements that perform client responding
+        if (TreeUtil.statementIsClientResponder(node)) {
+            const viewState = node.viewState;
+            viewState.bBox.w = this.config.actionInvocationStatement.width;
+            viewState.components['statement-box'].w = this.config.actionInvocationStatement.width;
+            // viewState.bBox.h = this.config.statement.height;
+            // viewState.components['statement-box'].h = this.config.statement.height;
+            viewState.alias = 'ClientResponderNode';
         }
     }
 

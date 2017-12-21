@@ -107,6 +107,7 @@ export const clientLine = {
         length: 45,
     },
     width: 80,
+    arrowGap: 50,
 };
 
 export const actionBox = {
