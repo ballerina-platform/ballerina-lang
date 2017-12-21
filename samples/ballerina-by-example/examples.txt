@@ -57,6 +57,7 @@ Header Based Routing
 Produces/Consumes
 HTTP Sessions
 HTTP Client Connector
+HTTP Trace Logs
 HTTPS Server Connector
 HTTPS Server/Client Connectors
 HTTP to WebSocket Upgrade
