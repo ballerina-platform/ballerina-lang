@@ -172,7 +172,7 @@ public class ProgramFileReader {
             case CP_ENTRY_UTF8:
                 short length = dataInStream.readShort();
                 String strValue = null;
-                
+
                 // If the length of the bytes is -1, that means no UTF value has been written.
                 // i.e: string value represented by the UTF should be null.
                 // Therefore we read the UTF value only if the length >= 0.
@@ -302,16 +302,15 @@ public class ProgramFileReader {
                 return forkJoinCPEntry;
             case CP_ENTRY_WRKR_INTERACTION:
                 int typesSignatureCPIndex = dataInStream.readInt();
-                UTF8CPEntry typesSignatureCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typesSignatureCPIndex);
-                // When it comes to here, constantPool is always package info
-                BType[] bTypes = getParamTypes(typesSignatureCPEntry.getValue(), (PackageInfo) constantPool);
+                utf8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(typesSignatureCPIndex);
                 int workerInvokeArgLength = dataInStream.readByte();
                 int[] workerInvokeArgRegs = new int[workerInvokeArgLength];
                 for (int i = 0; i < workerInvokeArgLength; i++) {
                     workerInvokeArgRegs[i] = dataInStream.readInt();
                 }
                 WrkrInteractionArgsCPEntry wrkrInvokeCPEntry
-                        = new WrkrInteractionArgsCPEntry(workerInvokeArgRegs, bTypes);
+                        = new WrkrInteractionArgsCPEntry(workerInvokeArgRegs, utf8CPEntry);
+                unresolvedCPEntries.add(wrkrInvokeCPEntry);
                 return wrkrInvokeCPEntry;
             case CP_ENTRY_WRKR_DATA_CHNL_REF:
                 int uniqueNameCPIndex = dataInStream.readInt();
@@ -384,7 +383,7 @@ public class ProgramFileReader {
         // TODO Read annotation info entries
 
         // Resolve unresolved CP entries.
-        resolveCPEntries();
+        resolveCPEntries(packageInfo);
 
         resolveConnectorMethodTables(packageInfo);
 
@@ -1589,7 +1588,7 @@ public class ProgramFileReader {
         }
     }
 
-    private void resolveCPEntries() {
+    private void resolveCPEntries(PackageInfo currentPackageInfo) {
         for (ConstantPoolEntry cpEntry : unresolvedCPEntries) {
             PackageInfo packageInfo;
             StructureRefCPEntry structureRefCPEntry;
@@ -1620,8 +1619,15 @@ public class ProgramFileReader {
                             packageInfo.getTransformerInfo(transformerRefCPEntry.getTransformerName());
                     transformerRefCPEntry.setTransformerInfo(transformerInfo);
                     break;
-            default:
-                break;
+                case CP_ENTRY_WRKR_INTERACTION:
+                    WrkrInteractionArgsCPEntry wrkrInteractionArgsCPEntry = (WrkrInteractionArgsCPEntry) cpEntry;
+                    // When it comes to here, constantPool is always current package info
+                    BType[] bTypes = getParamTypes(wrkrInteractionArgsCPEntry.getTypesSignatureCPEntry().getValue(),
+                            currentPackageInfo);
+                    wrkrInteractionArgsCPEntry.setBTypes(bTypes);
+                    break;
+                default:
+                    break;
             }
         }
     }
