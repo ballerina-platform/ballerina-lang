@@ -4,9 +4,6 @@
 	<title>Ballerina API Documentation</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-	<link rel="stylesheet" href="docerina-theme/css/main.css" />
-	<!--[if lte IE 9]><link rel="stylesheet" href="docerina-theme/css/ie9.css" /><![endif]-->
-	<!--[if lte IE 8]><link rel="stylesheet" href="docerina-theme/css/ie8.css" /><![endif]-->
 </head>
 <body>
 	<!-- Wrapper -->
@@ -22,11 +19,11 @@
 				</header>
 
 				<!-- Banner -->
-				<section id="banner">
+				<section>
 					<div class="content">
 						    <h2>Ballerina Packages</h2>
                             <ul>
-                                {{#each this}}<li><a href="{{refinePackagePath this}}.html">{{refinePackagePath this}}</a></li>{{/each}}
+                                {{#each this}}<li><a href="{{this}}.html">{{this}}</a></li>{{/each}}
                             </ul>
 						<p></p>
 					</div>
@@ -34,12 +31,5 @@
 			</div>
 		</div>
 	</div>
-
-	<!-- Scripts -->
-	<script src="docerina-theme/js/jquery.min.js"></script>
-	<script src="docerina-theme/js/skel.min.js"></script>
-	<script src="docerina-theme/js/util.js"></script>
-	<!--[if lte IE 8]><script src="docerina-theme/js/ie/respond.min.js"></script><![endif]-->
-	<script src="docerina-theme/js/main.js"></script>
 </body>
 </html>

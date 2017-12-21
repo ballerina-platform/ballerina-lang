@@ -29,10 +29,6 @@ import java.util.Map;
 public class BallerinaDocDataHolder {
 
     private static final BallerinaDocDataHolder instance = new BallerinaDocDataHolder();
-
-    public static BallerinaDocDataHolder getInstance() {
-        return instance;
-    }
     /**
      * Key - package name.
      * Value - {@link BLangPackage}.
@@ -41,6 +37,10 @@ public class BallerinaDocDataHolder {
 
     protected BallerinaDocDataHolder() {
         packageMap = new HashMap<String, BLangPackage>();
+    }
+
+    public static BallerinaDocDataHolder getInstance() {
+        return instance;
     }
 
     public Map<String, BLangPackage> getPackageMap() {
