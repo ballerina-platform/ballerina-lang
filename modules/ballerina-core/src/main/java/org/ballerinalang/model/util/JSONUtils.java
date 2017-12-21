@@ -758,39 +758,6 @@ public class JSONUtils {
     }
 
     /**
-     * Check the compatibility of casting a JSON to a target type.
-     * 
-     * @param json json to cast
-     * @param targetType Target type
-     * @return Runtime compatibility for casting
-     */
-    public static boolean checkJSONCast(JsonNode json, BType targetType) {
-        switch (targetType.getTag()) {
-            case TypeTags.STRING_TAG:
-                return json.isString();
-            case TypeTags.INT_TAG:
-                return json.isLong();
-            case TypeTags.FLOAT_TAG:
-                return json.isDouble();
-            case TypeTags.ARRAY_TAG:
-                if (!json.isArray()) {
-                    return false;
-                }
-                boolean castable;
-                BArrayType arrayType = (BArrayType) targetType;
-                for (int i = 0; i < json.size(); i++) {
-                    castable = checkJSONCast(json.get(i), arrayType.getElementType());
-                    if (!castable) {
-                        return false;
-                    }
-                }
-                return true;
-            default:
-                return true;
-        }
-    }
-
-    /**
      * Returns the keys of a JSON as a {@link BStringArray}.
      * 
      * @param json {@link BJSON} to get the keys

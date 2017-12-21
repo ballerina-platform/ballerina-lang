@@ -18,6 +18,9 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BJSONType;
+import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructType.StructField;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.JsonGenerator;
@@ -32,6 +35,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.StringJoiner;
 
 /**
  * {@code BJSON} represents a JSON value in Ballerina.
@@ -45,11 +49,8 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     // The streaming JSON data source object
     private JSONDataSource datasource;
 
-    // GSON json object model associated with this JSONType object
+    // json object model associated with this JSONType object
     private JsonNode value;
-
-    // Schema of this JSONType object model
-    private JsonNode schema;
 
     // Output stream to write message out to the socket
     private OutputStream outputStream;
@@ -68,9 +69,11 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
      * Initialize a {@link BJSON} from a JSON string.
      *
      * @param jsonString A JSON string
+     * @param type of the JSON
      */
-    public BJSON(String jsonString) {
-        this(jsonString, null);
+    public BJSON(String jsonString, BType type) {
+        this(jsonString);
+        this.type = type;
     }
 
     /**
@@ -87,9 +90,8 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
      * JSON will not be validated against the given schema.
      *
      * @param jsonString JSON String
-     * @param schema     Schema of the provided JSON, as a string
      */
-    public BJSON(String jsonString, String schema) {
+    public BJSON(String jsonString) {
         if (jsonString == null) {
             this.value = new JsonNode(Type.NULL);
             type = BTypes.typeNull;
@@ -99,9 +101,6 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
         try {
             this.value = JsonParser.parse(jsonString);
             setType();
-            if (schema != null) {
-                this.schema = JsonParser.parse(schema);
-            }
         } catch (Throwable t) {
             handleJsonException(t);
         } 
@@ -125,9 +124,6 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     public BJSON(InputStream in, String schema) {
         try {
             this.value = JsonParser.parse(in);
-            if (schema != null) {
-                this.schema = JsonParser.parse(schema);
-            }
         } catch (Throwable t) {
             handleJsonException("failed to create json: ", t);
         }
@@ -147,24 +143,6 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
      */
     public void setValue(JsonNode value) {
         this.value = value;
-    }
-
-    /**
-     * Get the schema associated with this {@link BJSON} object.
-     *
-     * @return Schema associated with this {@link BJSON} object
-     */
-    public JsonNode getSchema() {
-        return this.schema;
-    }
-
-    /**
-     * Set the schema associated with this {@link BJSON} object.
-     *
-     * @param schema Schema associated with this {@link BJSON} object.
-     */
-    public void setSchema(JsonNode schema) {
-        this.schema = schema;
     }
 
     @Override
@@ -215,9 +193,23 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
         JsonNode node = this.value();
         if (node.isValueNode()) {
             return this.value().asText();
-        } else {
+        } else if (!node.isObject()) {
             return node.toString();
         }
+
+        BStructType constrainedType = (BStructType) ((BJSONType) this.type).getConstrainedType();
+        if (constrainedType == null) {
+            return node.toString();
+        }
+
+        // If constrained JSON, print the only the fields in the constrained type.
+        StringJoiner sj = new StringJoiner(",", "{", "}");
+        for (StructField field : constrainedType.getStructFields()) {
+            String key = field.fieldName;
+            String stringValue = this.value().get(key).toString();
+            sj.add("\"" + key + "\":" + stringValue);
+        }
+        return sj.toString();
     }
 
     @Override
@@ -226,7 +218,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     }
 
     public void setType(BType type) {
-        this.type = type;
+        this.type = (BJSONType) type;
     }
 
     @Override
