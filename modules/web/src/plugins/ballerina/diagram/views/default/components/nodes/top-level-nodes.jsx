@@ -343,44 +343,6 @@ class TopLevelNodes extends React.Component {
 
                         <title>View Package Name</title> </image>
                 </g>
-                {
-                    importsExpanded ?
-                        <ImportDeclarationExpanded
-                            bBox={expandedImportsBbox}
-                            imports={imports}
-                            packageSuggestions={packageSuggestions}
-                            onCollapse={this.handleImportsBadgeClick}
-                            onAddImport={this.handleAddImport}
-                            onDeleteImport={this.handleDeleteImport}
-                        /> :
-                        <ImportDeclaration
-                            bBox={importsBbox}
-                            noOfImports={imports.length}
-                            onClick={this.handleImportsBadgeClick}
-                            viewState={importDecViewState}
-                        />
-                }
-                {
-                    globalsExpanded ?
-                        <GlobalExpanded
-                            bBox={expandedGlobalsBbox}
-                            globals={globals}
-                            model={this.props.model}
-                            onCollapse={this.handleGlobalsBadgeClick}
-                            title={'Globals'}
-                            addText={'+ Add Global (i.e. const int i = 0)'}
-                            onAddNewValue={this.handleAddGlobal}
-                            newValuePlaceholder={''}
-                            onDeleteClick={this.handleDeleteGlobal}
-                            getValue={TopLevelNodes.getDisplayValue}
-                        /> :
-                        <GlobalDefinitions
-                            bBox={globalsBbox}
-                            numberOfItems={globals.length}
-                            title={'Globals'}
-                            onExpand={this.handleGlobalsBadgeClick}
-                        />
-                }
             </g>
         );
     }

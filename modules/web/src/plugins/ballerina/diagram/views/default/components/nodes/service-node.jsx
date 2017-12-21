@@ -197,27 +197,6 @@ class ServiceNode extends React.Component {
                         resources={resources}
                         addResource={this.state.addResource}
                     />
-                    {
-                            viewState.variablesExpanded ?
-                                <GlobalExpanded
-                                    bBox={viewState.components.initFunction}
-                                    globals={variables}
-                                    onCollapse={this.handleVarialblesBadgeClick}
-                                    title='Variables'
-                                    addText={'+ Add Variable'}
-                                    model={this.props.model}
-                                    onAddNewValue={this.handleAddVariable}
-                                    newValuePlaceholder={''}
-                                    onDeleteClick={this.handleDeleteVariable}
-                                    getValue={g => (g.getSource())}
-                                /> :
-                                <GlobalDefinitions
-                                    bBox={viewState.components.initFunction}
-                                    numberOfItems={variables.length}
-                                    title={'Variables'}
-                                    onExpand={this.handleVarialblesBadgeClick}
-                                />
-                        }
                     {blockNode}
                     {connectors}
                 </PanelDecorator>
