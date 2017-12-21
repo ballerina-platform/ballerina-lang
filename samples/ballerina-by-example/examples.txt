@@ -60,6 +60,7 @@ HTTP Client Connector
 HTTPS Server Connector
 HTTPS Server/Client Connectors
 HTTP to WebSocket Upgrade
+HTTP CORS
 Log API
 Function Pointers
 Lambda
