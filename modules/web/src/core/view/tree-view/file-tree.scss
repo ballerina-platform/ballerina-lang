@@ -5,7 +5,6 @@
 }
 
 .file-tree {
-    margin-bottom: 10px;
     .tree-node {
         color: #c7c7c7;
         cursor: pointer;
@@ -27,12 +26,16 @@
             }
             &.active, &.active:hover  {
                 .tree-node-highlight-row {
-                    background: #232323;
+                    background: #444;
                 }
             }
             &:hover {
                 .tree-node-highlight-row {
-                    background: #2E2E2E;
+                    background: #444;
+                }
+                .tree-node-label, &.tree-node-arrow, &.tree-node-icon{
+                    color: #f1f1f1 !important;
+                    font-weight: 400;
                 }
             }
             .tree-node-highlight-row {
@@ -94,7 +97,6 @@
                 margin-right: 5px;
             }
             .tree-node-label {
-
             }
         }
         .tree-node-children {

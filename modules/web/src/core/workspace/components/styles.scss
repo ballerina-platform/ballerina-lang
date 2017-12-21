@@ -48,10 +48,11 @@
             }
         }
         &:hover {
-            background: #2E2E2E
+            background: #444;
         }
         &.active {
-            background: #232323;
+            background: #444;
+            color: #fff !important;
             .root-actions {
                 .action {
                     opacity: 0.6;
@@ -59,6 +60,10 @@
                         opacity: 1;
                     }
                 }
+            }
+            & span{
+                font-weight: 400;
+                color: #fff !important;
             }
         }
     }
