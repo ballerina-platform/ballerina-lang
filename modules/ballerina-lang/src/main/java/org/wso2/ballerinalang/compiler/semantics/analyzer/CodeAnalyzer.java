@@ -214,7 +214,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 this.resetStatementReturns();
             }
             if (invokableReturns && !workerReturns) {
-                this.dlog.error(invNode.pos, DiagnosticCode.ATLEAST_ONE_WORKER_MUST_RETURN);
+                this.dlog.error(invNode.pos, DiagnosticCode.ATLEAST_ONE_WORKER_MUST_RETURN,
+                        invNode.getKind().toString().toLowerCase());
             }
         }
         this.finalizeCurrentWorkerActionSystem();
