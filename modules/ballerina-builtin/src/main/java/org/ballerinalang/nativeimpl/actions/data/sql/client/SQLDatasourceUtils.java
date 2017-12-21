@@ -697,9 +697,9 @@ public class SQLDatasourceUtils {
     public static void setUserDefinedValue(Connection conn, PreparedStatement stmt, BValue value, int index,
             int direction, int sqlType) {
         try {
-        Object[] structData = getStructData(value, conn);
-        Object[] dataArray = (Object[]) structData[0];
-        String structuredSQLType = (String) structData[1];
+            Object[] structData = getStructData(value, conn);
+            Object[] dataArray = (Object[]) structData[0];
+            String structuredSQLType = (String) structData[1];
             if (Constants.QueryParamDirection.IN == direction) {
                 if (dataArray == null) {
                     stmt.setNull(index + 1, sqlType);
@@ -714,8 +714,7 @@ public class SQLDatasourceUtils {
                     Struct struct = conn.createStruct(structuredSQLType, dataArray);
                     stmt.setObject(index + 1, struct);
                 }
-                ((CallableStatement) stmt)
-                        .registerOutParameter(index + 1, sqlType, structuredSQLType);
+                ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType, structuredSQLType);
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType, structuredSQLType);
             } else {
