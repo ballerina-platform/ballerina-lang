@@ -369,6 +369,9 @@ public class HttpConnectionManager {
 
         boolean isKeepAlive = options.getBooleanField(Constants.IS_KEEP_ALIVE_INDEX) == 1;
         senderConfiguration.setKeepAlive(isKeepAlive);
+        String httpVersion = options.getStringField(Constants.HTTP_VERSION_STRUCT_INDEX);
+        senderConfiguration.setKeepAlive(isKeepAlive);
+
     }
 
     private String makeFirstLetterLowerCase(String str) {
