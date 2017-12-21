@@ -1,0 +1,3 @@
+//Example depicts the method of changing ballerina http client connector chunking option. By default http client sends Transfer encoding chunked requests. But user can disable chunking using connector Options.
+
+

@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.JsonGenerator;
@@ -60,6 +61,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
      */
     public BJSON(JsonNode json) {
         this.value = json;
+        setType();
     }
 
     /**
@@ -90,11 +92,13 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     public BJSON(String jsonString, String schema) {
         if (jsonString == null) {
             this.value = new JsonNode(Type.NULL);
+            type = BTypes.typeNull;
             return;
         }
 
         try {
             this.value = JsonParser.parse(jsonString);
+            setType();
             if (schema != null) {
                 this.schema = JsonParser.parse(schema);
             }
@@ -284,5 +288,30 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     @Override
     public BValue copy() {
         return new BJSON(this.stringValue());
+    }
+    
+    private void setType() {
+        switch (this.value.getType()) {
+            case ARRAY:
+                this.type = new BArrayType(BTypes.typeJSON);
+                break;
+            case BOOLEAN:
+                this.type =  BTypes.typeBoolean;
+                break;
+            case DOUBLE:
+                this.type =  BTypes.typeFloat;
+                break;
+            case LONG:
+                this.type =  BTypes.typeInt;
+                break;
+            case NULL:
+                this.type =  BTypes.typeNull;
+                break;
+            case STRING:
+                this.type =  BTypes.typeString;
+                break;
+            default:
+                this.type = BTypes.typeJSON;
+        }
     }
 }

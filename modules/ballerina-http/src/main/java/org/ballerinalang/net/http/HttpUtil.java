@@ -718,11 +718,11 @@ public class HttpUtil {
     /**
      * Set headers of request/response struct to the transport message.
      *
-     * @param cMsg transport Http carbon message.
+     * @param outboundRequest transport Http carbon message.
      * @param struct req/resp struct.
      */
-    public static void setHeadersToTransportMessage(HTTPCarbonMessage cMsg, BStruct struct) {
-        cMsg.getHeaders().clear();
+    public static void setHeadersToTransportMessage(HTTPCarbonMessage outboundRequest, BStruct struct) {
+        outboundRequest.getHeaders().clear();
         BMap<String, BValue> headers = struct.getType().getName().equals(Constants.REQUEST) ?
                 getRequestStructHeaders(struct) : getResponseStructHeaders(struct);
         if (headers == null) {
@@ -731,7 +731,7 @@ public class HttpUtil {
         Set<String> keys = headers.keySet();
         for (String key : keys) {
             String headerValue = buildHeaderValue(headers, key);
-            cMsg.setHeader(key, headerValue);
+            outboundRequest.setHeader(key, headerValue);
         }
     }
 
