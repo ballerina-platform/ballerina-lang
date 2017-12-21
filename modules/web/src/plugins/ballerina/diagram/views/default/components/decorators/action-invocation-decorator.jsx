@@ -199,7 +199,7 @@ class ActionInvocationDecorator extends React.Component {
             if (viewState.components.invocation) {
                 backwardArrowStart = Object.assign({}, viewState.components.invocation.end);
                 backwardArrowStart.y = viewState.components['statement-box'].y
-                    + viewState.components['statement-box'].h - 10;
+                                + viewState.components['statement-box'].h;
                 backwardArrowEnd = Object.assign({}, viewState.components.invocation.start);
                 backwardArrowEnd.y = backwardArrowStart.y;
             }
@@ -248,16 +248,16 @@ class ActionInvocationDecorator extends React.Component {
                 <g>
                     <rect
                         x={statementBox.x}
-                        y={statementBox.y}
+                        y={statementBox.y + (statementBox.h / 2)}
                         width={statementBox.w}
-                        height={statementBox.h}
+                        height={statementBox.h / 2}
                         className='action-invocation-statement-rect'
                         onClick={e => this.openEditor(e)}
                     >
                         {tooltip}
                     </rect>
                     <text
-                        x={viewState.components.invocation.start.x
+                        x={statementBox.x + (statementBox.w / 2)
                             + this.context.designer.config.statement.gutter.h}
                         y={viewState.components.invocation.start.y
                             - (this.context.designer.config.actionInvocationStatement.textHeight / 2)}
