@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 /**
  * Filter the actions and the functions in a package.
  */
-public class PackageActionAndFunctionFilter extends SymbolFilter {
+public class PackageActionFunctionAndTypesFilter extends SymbolFilter {
 
     private static final String CREATE_KEYWORD = "create";
 
@@ -50,9 +50,9 @@ public class PackageActionAndFunctionFilter extends SymbolFilter {
 
         if (DOT_SYMBOL_KEY.equals(delimiter)) {
             // If the delimiter is "." then we are filtering the bound functions for the structs
-            returnSymbolsInfoList.addAll(this.getBoundActionAndFunctions(completionContext, delimiterIndex));
+            returnSymbolsInfoList.addAll(this.getBoundActionFunctionAndTypes(completionContext, delimiterIndex));
         } else if (PKG_DELIMITER_KEYWORD.equals(delimiter)) {
-            // We are filtering the package functions
+            // We are filtering the package functions, actions and the types
             ArrayList<SymbolInfo> filteredList = this.getActionsFunctionsAndTypes(completionContext, delimiterIndex);
 
             // If this is a connector init
