@@ -438,7 +438,7 @@ public class BLangVM {
                     if (entity.getType().getTag() == TypeTags.XML_TAG) {
                         sf.longRegs[j] = ((BXML) entity).length();
                         break;
-                    } else if (entity.getType().getTag() == TypeTags.JSON_TAG) {
+                    } else if (entity instanceof BJSON) {
                         if (JSONUtils.isJSONArray((BJSON) entity)) {
                             sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
                         } else {
