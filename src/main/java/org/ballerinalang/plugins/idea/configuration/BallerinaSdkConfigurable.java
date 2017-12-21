@@ -58,9 +58,15 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 
 public class BallerinaSdkConfigurable implements SearchableConfigurable, Configurable.NoScroll {
@@ -251,7 +257,7 @@ public class BallerinaSdkConfigurable implements SearchableConfigurable, Configu
     private class MyBrowseFolderListener extends ComponentWithBrowseButton.BrowseFolderActionListener<JTextField> {
         public MyBrowseFolderListener(@NotNull FileChooserDescriptor descriptor) {
             super("Select Ballerina SDK Path", "", mySdkPathField, myProject, descriptor,
-                    TextComponentAccessor                    .TEXT_FIELD_WHOLE_TEXT);
+                    TextComponentAccessor.TEXT_FIELD_WHOLE_TEXT);
         }
 
         @Nullable

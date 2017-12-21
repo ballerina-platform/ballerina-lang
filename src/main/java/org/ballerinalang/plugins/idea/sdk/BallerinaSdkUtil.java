@@ -59,6 +59,10 @@ public class BallerinaSdkUtil {
     private static final Key<String> VERSION_DATA_KEY = Key.create("BALLERINA_VERSION_KEY");
     private static final String BALLERINA_EXEC_PATH = "bin" + File.separator + "ballerina";
 
+    private BallerinaSdkUtil() {
+
+    }
+
     @Nullable
     public static VirtualFile suggestSdkDirectory() {
         if (SystemInfo.isWindows) {
@@ -131,7 +135,6 @@ public class BallerinaSdkUtil {
         return null;
     }
 
-
     @NotNull
     public static String adjustSdkPath(@NotNull String path) {
         return path;
@@ -160,11 +163,12 @@ public class BallerinaSdkUtil {
         return file != null && file.isDirectory() ? file : null;
     }
 
-    public static LinkedHashSet<VirtualFile> getSourcesPathsToLookup(@NotNull Project project, @Nullable Module module) {
+    public static LinkedHashSet<VirtualFile> getSourcesPathsToLookup(@NotNull Project project, @Nullable Module
+            module) {
         LinkedHashSet<VirtualFile> sdkAndGoPath = newLinkedHashSet();
         ContainerUtil.addIfNotNull(sdkAndGoPath, getSdkSrcDir(project, module));
         // Todo  - add Ballerina Path
-//        ContainerUtil.addAllNotNull(sdkAndGoPath, getBallerinaPathSources(project, module));
+        //        ContainerUtil.addAllNotNull(sdkAndGoPath, getBallerinaPathSources(project, module));
         return sdkAndGoPath;
     }
 
@@ -188,15 +192,6 @@ public class BallerinaSdkUtil {
         }
         return "";
     }
-
-//    public static String getBallerinaExecutablePath(Project project, Module module) {
-//        String sdkHome = getSdkHome(project, module);
-//        if (!sdkHome.isEmpty()) {
-//            String execPath = sdkHome + File.separator + BALLERINA_EXEC_PATH;
-//            return SystemInfo.isWindows ? execPath + ".bat" : execPath;
-//        }
-//        return "";
-//    }
 
     @NotNull
     public static Collection<VirtualFile> getBallerinaPathsRootsFromEnvironment() {
