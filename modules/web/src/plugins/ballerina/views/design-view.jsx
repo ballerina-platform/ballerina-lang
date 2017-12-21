@@ -38,6 +38,7 @@ class DesignView extends React.Component {
         this.overlayContainer = undefined;
         this.diagramContainer = undefined;
         this.toolPaletteContainer = undefined;
+        this.onScroll = this.onScroll.bind(this);
         this.setOverlayContainer = this.setOverlayContainer.bind(this);
         this.getOverlayContainer = this.getOverlayContainer.bind(this);
         this.setDiagramContainer = this.setDiagramContainer.bind(this);
@@ -49,7 +50,6 @@ class DesignView extends React.Component {
         });
         this.props.commandProxy.on('go-to-node', (node) => {
             this.scrollbars.scrollTop(node.viewState.bBox.y);
-            this.scrollbars.scrollLeft(node.viewState.bBox.x);
         });
     }
 
@@ -69,6 +69,17 @@ class DesignView extends React.Component {
         // Always re render when transform is active
         // Otherwise don't rerender for panel resizings
         return !nextProps.panelResizeInProgress || nextState.isTransformActive;
+    }
+
+    onScroll(e) {
+        this.props.commandProxy.dispatch('scroll-design-view', {
+            scrollLeft: e.scrollLeft,
+            scrollTop: e.scrollTop,
+            scrollHeight: e.scrollHeight,
+            scrollWidth: e.scrollWidth,
+            clientHeight: e.clientHeight,
+            clientWidth: e.clientWidth,
+        });
     }
 
     setDiagramContainer(ref) {
@@ -162,6 +173,7 @@ class DesignView extends React.Component {
                             marginLeft: TOOL_PALETTE_WIDTH,
                         }}
                         ref={(scrollbars) => { this.scrollbars = scrollbars; }}
+                        onScrollFrame={this.onScroll}
                     >
                         <div className='canvas-container'>
                             <div className='canvas-top-controls-container' />
