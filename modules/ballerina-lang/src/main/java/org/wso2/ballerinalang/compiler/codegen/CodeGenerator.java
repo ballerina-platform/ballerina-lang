@@ -2466,12 +2466,13 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
         Instruction gotoEndOfTransactionBlock = InstructionFactory.get(InstructionCodes.GOTO, -1);
-        abortInstructions.push(gotoEndOfTransactionBlock);
+        Instruction gotoEndOfFailedTransactionBlock = InstructionFactory.get(InstructionCodes.GOTO, -1);
+        abortInstructions.push(gotoEndOfFailedTransactionBlock);
 
         //start transaction
         this.emit(InstructionFactory.get(InstructionCodes.TR_BEGIN, transactionIndex, retryCountAvailable));
         int startIP = nextIP();
-        Instruction gotoInstruction = InstructionFactory.get(InstructionCodes.GOTO, startIP);
+        Instruction gotoStartTransactionBlock = InstructionFactory.get(InstructionCodes.GOTO, startIP);
 
         //retry transaction;
         Instruction retryInstruction = InstructionFactory.get(InstructionCodes.TR_RETRY, transactionIndex, -1);
@@ -2485,7 +2486,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.SUCCESS.value()));
 
         abortInstructions.pop();
-        emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.FAILED.value()));
 
         emit(gotoEndOfTransactionBlock);
 
@@ -2496,15 +2496,18 @@ public class CodeGenerator extends BLangNodeVisitor {
             this.genNode(transactionNode.failedBody, this.env);
 
         }
-        emit(gotoInstruction);
+        emit(gotoStartTransactionBlock);
         int ifIP = nextIP();
         retryInstruction.setOperand(1, ifIP);
 
         emit(InstructionFactory.get(InstructionCodes.THROW, -1));
-        gotoEndOfTransactionBlock.setOperand(0, nextIP());
-
         ErrorTableEntry errorTableEntry = new ErrorTableEntry(startIP, endIP, errorTargetIP, 0, -1);
         errorTable.addErrorTableEntry(errorTableEntry);
+
+        gotoEndOfFailedTransactionBlock.setOperand(0, nextIP());
+        emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.FAILED.value()));
+
+        gotoEndOfTransactionBlock.setOperand(0, nextIP());
         emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.END.value()));
     }
 
