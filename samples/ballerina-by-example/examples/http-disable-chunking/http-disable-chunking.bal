@@ -27,7 +27,7 @@ service<http> echo {
     }
     resource echoResource (http:Request req, http:Response res) {
         string value;
-        //Sets respond according to the request headers.
+        //Set response according to the request headers.
         if (req.getHeader("Content-Length") != null) {
             value = "Lenght-" + req.getHeader("Content-Length").value;
         } else {
