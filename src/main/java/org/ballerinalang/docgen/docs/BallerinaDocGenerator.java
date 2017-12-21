@@ -73,8 +73,8 @@ public class BallerinaDocGenerator {
      * -     *
      * -     * @param output path to the output directory where the API documentation will be written to.
      * -     * @param packageFilter comma separated list of package names to be filtered from the documentation.
-     * -     * @param sources either the path to the directories where Ballerina source files reside or a path to a Ballerina
-     * -     *            file which does not belong to a package.
+     * -     * @param sources either the path to the directories where Ballerina source files reside or a path to a
+     * -     *            Ballerina file which does not belong to a package.
      * -
      */
     public static void generateApiDocsWithFilter(String output, String packageFilter, String... sources) {
@@ -86,8 +86,8 @@ public class BallerinaDocGenerator {
      *
      * @param output        path to the output directory where the API documentation will be written to.
      * @param packageFilter comma separated list of package names to be filtered from the documentation.
-     * @param sources       either the path to the directories where Ballerina source files reside or a path to a Ballerina
-     *                      file which does not belong to a package.
+     * @param sources       either the path to the directories where Ballerina source files reside or a path to a
+     *                      Ballerina file which does not belong to a package.
      */
     public static void generateNativeApiDocs(String output, String packageFilter, String... sources) {
         generateApiDocs(output, packageFilter, true, sources);
