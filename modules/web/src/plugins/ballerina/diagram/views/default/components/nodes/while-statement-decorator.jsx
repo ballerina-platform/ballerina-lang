@@ -268,8 +268,8 @@ class WhileStatementDecorator extends React.Component {
         const actionBoxBbox = new SimpleBBox();
         actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;
         actionBoxBbox.h = designer.config.actionBox.height;
-        actionBoxBbox.x = bBox.x + ((bBox.w - actionBoxBbox.w) / 2);
-        actionBoxBbox.y = statementBBox.y + titleH + designer.config.actionBox.padding.top;
+        actionBoxBbox.x = p8X - (actionBoxBbox.w / 2);
+        actionBoxBbox.y = p8Y;
 
         let statementRectClass = 'statement-title-rect';
         if (isDebugHit) {
