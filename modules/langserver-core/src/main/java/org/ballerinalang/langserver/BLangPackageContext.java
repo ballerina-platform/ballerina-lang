@@ -31,27 +31,19 @@ import java.util.Map;
  * Package context to keep the builtin and the current package.
  */
 public class BLangPackageContext {
-    private BLangPackage builtin;
-
-    private BLangPackage current;
 
     private Map<String, BLangPackage> packageMap = new HashMap<>();
 
-    public BLangPackageContext(BLangPackage builtin, BLangPackage current) {
-        this.builtin = builtin;
-        this.current = current;
-        this.packageMap.put(getPackageName(((BLangPackageDeclaration) builtin.getPackageDeclaration()).pkgNameComps)
-                , builtin);
-        this.packageMap.put(getPackageName(((BLangPackageDeclaration) current.getPackageDeclaration()).pkgNameComps)
-                , current);
+    public BLangPackageContext() {
+        BLangPackage builtInPackage = BallerinaPackageLoader.getBuiltinPackage();
+        this.addPackage(builtInPackage);
     }
 
     @SuppressWarnings("unchecked")
     public <T> List<T> getItems(Class type) {
         if (type.equals(BLangFunction.class)) {
             List<BLangFunction> functions = new ArrayList<>();
-            functions.addAll((builtin.getFunctions()));
-            functions.addAll(current.getFunctions());
+            packageMap.forEach((pkgName, bLangPackage) ->functions.addAll(bLangPackage.getFunctions()));
             return (List<T>) functions;
         }
         return null;
@@ -69,7 +61,7 @@ public class BLangPackageContext {
             return packageMap.get(name.getValue());
         } else {
             BLangPackage bLangPackage =
-                    BallerinaPackageLoader.getPackageByName(compilerContext, name);
+                    BallerinaPackageLoader.getPackageByName(compilerContext, name.getValue());
             addPackage(bLangPackage);
             return bLangPackage;
         }
@@ -108,7 +100,7 @@ public class BLangPackageContext {
      *
      * @param bLangPackage ballerina package to be added.
      */
-    private void addPackage(BLangPackage bLangPackage) {
+    public void addPackage(BLangPackage bLangPackage) {
         this.packageMap
                 .put(getPackageName(((BLangPackageDeclaration) bLangPackage.getPackageDeclaration()).pkgNameComps)
                         , bLangPackage);

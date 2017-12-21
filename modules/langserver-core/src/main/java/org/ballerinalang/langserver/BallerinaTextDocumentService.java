@@ -90,13 +90,13 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     private final WorkspaceDocumentManager documentManager;
     private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaTextDocumentService.class);
     private Map<String, List<Diagnostic>> lastDiagnosticMap;
-    private BLangPackage builtinPkg;
+    private BLangPackageContext bLangPackageContext;
 
     public BallerinaTextDocumentService(BallerinaLanguageServer ballerinaLanguageServer) {
         this.ballerinaLanguageServer = ballerinaLanguageServer;
         this.documentManager = new WorkspaceDocumentManagerImpl();
         this.lastDiagnosticMap = new HashMap<>();
-        builtinPkg = BallerinaPackageLoader.getBuiltinPackage();
+        this.bLangPackageContext = new BLangPackageContext();
     }
 
     @Override
@@ -142,9 +142,8 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 BLangPackage currentBLangPackage =
                         TextDocumentServiceUtil.getBLangPackage(hoverContext, documentManager);
-                BLangPackageContext pkgContext =
-                        new BLangPackageContext(builtinPkg, currentBLangPackage);
-                hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage, pkgContext);
+                bLangPackageContext.addPackage(currentBLangPackage);
+                hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage, bLangPackageContext);
             } catch (Exception e) {
                 hover = new Hover();
                 List<Either<String, MarkedString>> contents = new ArrayList<>();
@@ -160,14 +159,13 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFuture.supplyAsync(() -> {
             String uri = position.getTextDocument().getUri();
             String fileContent = this.documentManager.getFileContent(Paths.get(URI.create(uri)));
-            String callableItemName = SignatureHelpUtil.getCallableItemName(position.getPosition(), fileContent);
             TextDocumentServiceContext signatureContext = new TextDocumentServiceContext();
+            SignatureHelpUtil.captureCallableItemInfo(position.getPosition(), fileContent, signatureContext);
             signatureContext.put(DocumentServiceKeys.POSITION_KEY, position);
             signatureContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
             BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(signatureContext, documentManager);
-            BLangPackageContext pkgContext =
-                    new BLangPackageContext(builtinPkg, bLangPackage);
-            return SignatureHelpUtil.getFunctionSignatureHelp(callableItemName, pkgContext);
+            bLangPackageContext.addPackage(bLangPackage);
+            return SignatureHelpUtil.getFunctionSignatureHelp(signatureContext, bLangPackageContext);
         });
     }
 

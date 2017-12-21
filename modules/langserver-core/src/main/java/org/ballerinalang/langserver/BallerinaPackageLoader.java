@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver;
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.model.Name;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
@@ -44,10 +43,10 @@ public class BallerinaPackageLoader {
         options.put(SOURCE_ROOT, "");
         options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
         options.put(PRESERVE_WHITESPACE, "false");
-
-        BLangPackage builtInCorePkg = getPackageByName(context, Names.BUILTIN_CORE_PACKAGE);
+        
+        BLangPackage builtInCorePkg = getPackageByName(context, Names.BUILTIN_CORE_PACKAGE.getValue());
         // Load built-in packages.
-        BLangPackage builtInPkg = getPackageByName(context, Names.BUILTIN_PACKAGE);
+        BLangPackage builtInPkg = getPackageByName(context, Names.BUILTIN_PACKAGE.getValue());
         builtInCorePkg.getStructs().forEach(s -> {
             builtInPkg.getStructs().add(s);
             builtInPkg.topLevelNodes.add(s);
@@ -59,13 +58,13 @@ public class BallerinaPackageLoader {
     /**
      * Get the packages by name.
      *
-     * @param context compiler context.
-     * @param name    name of the package.
+     * @param name                  name of the package
+     * @return {@link BLangPackage} blang package
      */
-    public static BLangPackage getPackageByName(CompilerContext context, Name name) {
+    public static BLangPackage getPackageByName(CompilerContext context, String name) {
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
-        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadEntryPackage(name.getValue())));
+        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadEntryPackage(name)));
     }
 }
