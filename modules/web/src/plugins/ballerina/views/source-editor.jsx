@@ -165,8 +165,8 @@ class SourceEditor extends React.Component {
         editorInstance.setModel(modelForFile);
         this.props.commandProxy.on(WORKSPACE_EVENTS.FILE_CLOSED, this.onWorkspaceFileClose);
         const services = createMonacoServices(editorInstance);
-        const createLSConnection = this.props.ballerinaPlugin.createLangServerConnection();
-        createLSConnection
+        const getLangServerConnection = this.props.ballerinaPlugin.getLangServerConnection();
+        getLangServerConnection
             .then((connection) => {
                 // create and start the language client
                 const languageClient = new BaseLanguageClient({

@@ -38,6 +38,7 @@ import ToolPaletteView from './tool-palette/tool-palette-view';
 import { isInCorrectPath, getCorrectPackageForPath, getCorrectPathForPackage } from './utils/program-dir-utils';
 import TreeBuilder from './model/tree-builder';
 import FragmentUtils from './utils/fragment-utils';
+import { setTimeout } from 'timers';
 
 /**
  * Plugin for Ballerina Lang
@@ -50,7 +51,7 @@ class BallerinaPlugin extends Plugin {
     constructor() {
         super();
         this.langServerConnection = undefined;
-        this.createLangServerConnection = this.createLangServerConnection.bind(this);
+        this.getLangServerConnection = this.getLangServerConnection.bind(this);
     }
 
     /**
@@ -59,7 +60,7 @@ class BallerinaPlugin extends Plugin {
     init(config) {
         super.init(config);
         return {
-            createLangServerConnection: this.createLangServerConnection,
+            getLangServerConnection: this.getLangServerConnection,
         };
     }
 
@@ -73,26 +74,16 @@ class BallerinaPlugin extends Plugin {
     /**
      * Create a connection to langserver
      */
-    createLangServerConnection() {
+    getLangServerConnection() {
         return new Promise((resolve, reject) => {
-            const socketOptions = {
-                maxReconnectionDelay: 10000,
-                minReconnectionDelay: 1000,
-                reconnectionDelayGrowFactor: 1.3,
-                connectionTimeout: 10000,
-                maxRetries: Infinity,
-                debug: false,
-            };
-            // create the web socket
-            const url = getServiceEndpoint('wslangserver');
-            const webSocket = new ReconnectingWebSocket(url, undefined, socketOptions);
-            // listen when the web socket is opened
-            listen({
-                webSocket,
-                onConnection: (connection) => {
-                    resolve(connection);
-                },
-            });
+            if (this.langServerConnection) {
+                resolve(this.langServerConnection);
+            } else {
+                // Wait some time till the connection is available
+                setTimeout(() => {
+                    resolve(this.langServerConnection);
+                }, 1000);
+            }
         });
     }
 
@@ -101,6 +92,24 @@ class BallerinaPlugin extends Plugin {
      */
     activate(appContext) {
         super.activate(appContext);
+        const socketOptions = {
+            maxReconnectionDelay: 10000,
+            minReconnectionDelay: 1000,
+            reconnectionDelayGrowFactor: 1.3,
+            connectionTimeout: 10000,
+            maxRetries: Infinity,
+            debug: false,
+        };
+        // create the web socket
+        const url = getServiceEndpoint('wslangserver');
+        const webSocket = new ReconnectingWebSocket(url, undefined, socketOptions);
+        // listen when the web socket is opened
+        listen({
+            webSocket,
+            onConnection: (connection) => {
+                this.langServerConnection = connection;
+            },
+        });
     }
 
     /**

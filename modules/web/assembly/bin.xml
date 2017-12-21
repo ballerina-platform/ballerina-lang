@@ -34,14 +34,11 @@
             </includes>
         </fileSet>
         <fileSet>
-            <directory>.</directory>
+            <directory>dist</directory>
             <outputDirectory>resources/composer/web/public</outputDirectory>
-            <includes>
-                <include>dist/**</include>
-            </includes>
             <excludes>
-                <exclude>dist/**/*.js.map</exclude>
-                <exclude>dist/**/*.css.map</exclude>
+                <exclude>**/*.js.map</exclude>
+                <exclude>**/*.css.map</exclude>
             </excludes>
         </fileSet>
     </fileSets>
