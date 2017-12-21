@@ -69,26 +69,26 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     private boolean httpTraceLogEnabled;
     private int maxRedirectCount;
     private Integer currentRedirectCount;
-    private boolean chunkDisabled;
+    private boolean chunkEnabled;
     private HTTPCarbonMessage targetRespMsg;
     private ChannelHandlerContext originalChannelContext;
     private boolean isIdleHandlerOfTargetChannelRemoved = false;
 
     public RedirectHandler(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount
-            , boolean chunkDisabled) {
+            , boolean chunkEnabled) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.maxRedirectCount = maxRedirectCount;
-        this.chunkDisabled = chunkDisabled;
+        this.chunkEnabled = chunkEnabled;
     }
 
     public RedirectHandler(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount
-            , boolean chunkDisabled, ChannelHandlerContext originalChannelContext
+            , boolean chunkEnabled, ChannelHandlerContext originalChannelContext
             , boolean isIdleHandlerOfTargetChannelRemoved) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.maxRedirectCount = maxRedirectCount;
-        this.chunkDisabled = chunkDisabled;
+        this.chunkEnabled = chunkEnabled;
         this.originalChannelContext = originalChannelContext;
         this.isIdleHandlerOfTargetChannelRemoved = isIdleHandlerOfTargetChannelRemoved;
     }
@@ -665,7 +665,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 new InetSocketAddress(redirectUrl.getHost(), redirectUrl.getPort() != -1 ?
                         redirectUrl.getPort() :
                         getDefaultPort(redirectUrl.getProtocol()))).handler(
-                new RedirectChannelInitializer(sslEngine, httpTraceLogEnabled, maxRedirectCount, chunkDisabled
+                new RedirectChannelInitializer(sslEngine, httpTraceLogEnabled, maxRedirectCount, chunkEnabled
                         , originalChannelContext, isIdleHandlerOfTargetChannelRemoved));
         clientBootstrap.option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
         ChannelFuture channelFuture = clientBootstrap.connect();

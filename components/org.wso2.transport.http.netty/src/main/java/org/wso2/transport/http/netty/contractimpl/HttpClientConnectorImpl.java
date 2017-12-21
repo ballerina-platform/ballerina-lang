@@ -49,7 +49,8 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     private SSLConfig sslConfig;
     private int socketIdleTimeout;
     private boolean followRedirect;
-    private boolean chunkDisabled;
+    private String httpVersion;
+    private boolean chunkEnabled;
     private boolean keepAlive;
 
     public HttpClientConnectorImpl(ConnectionManager connectionManager, SenderConfiguration senderConfiguration) {
@@ -86,7 +87,8 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                         targetChannel.configTargetHandler(httpOutboundRequest, httpResponseFuture);
                         targetChannel.setEndPointTimeout(socketIdleTimeout, followRedirect);
                         targetChannel.setCorrelationIdForLogging();
-                        targetChannel.setChunkDisabled(chunkDisabled);
+                        targetChannel.setHttpVersion(httpVersion);
+                        targetChannel.setChunkEnabled(chunkEnabled);
                         if (followRedirect) {
                             setChannelAttributes(channelFuture.channel(), httpOutboundRequest, httpResponseFuture,
                                                  targetChannel);
@@ -190,7 +192,8 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     }
 
     private void initTargetChannelProperties(SenderConfiguration senderConfiguration) {
-        this.chunkDisabled = senderConfiguration.isChunkDisabled();
+        this.httpVersion = senderConfiguration.getHttpVersion();
+        this.chunkEnabled = senderConfiguration.isChunkEnabled();
         this.followRedirect = senderConfiguration.isFollowRedirect();
         this.socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(Constants.ENDPOINT_TIMEOUT);
         this.sslConfig = senderConfiguration.getSslConfig();

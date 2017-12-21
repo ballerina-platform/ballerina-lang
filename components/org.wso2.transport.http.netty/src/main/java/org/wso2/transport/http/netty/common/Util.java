@@ -43,9 +43,6 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
  */
 public class Util {
 
-    private static final String DEFAULT_HTTP_METHOD_POST = "POST";
-    private static final String DEFAULT_VERSION_HTTP_1_1 = "HTTP/1.1";
-
     private static String getStringValue(HTTPCarbonMessage msg, String key, String defaultValue) {
         String value = (String) msg.getProperty(key);
         if (value == null) {
@@ -119,7 +116,7 @@ public class Util {
         if (null != outboundRequestMsg.getProperty(Constants.HTTP_VERSION)) {
             httpVersion = new HttpVersion((String) outboundRequestMsg.getProperty(Constants.HTTP_VERSION), true);
         } else {
-            httpVersion = new HttpVersion(DEFAULT_VERSION_HTTP_1_1, true);
+            httpVersion = new HttpVersion(Constants.DEFAULT_VERSION_HTTP_1_1, true);
         }
         return httpVersion;
     }
@@ -129,7 +126,7 @@ public class Util {
         if (null != outboundRequestMsg.getProperty(Constants.HTTP_METHOD)) {
             httpMethod = new HttpMethod((String) outboundRequestMsg.getProperty(Constants.HTTP_METHOD));
         } else {
-            httpMethod = new HttpMethod(DEFAULT_HTTP_METHOD_POST);
+            httpMethod = new HttpMethod(Constants.HTTP_POST_METHOD);
         }
         return httpMethod;
     }
@@ -139,13 +136,13 @@ public class Util {
      *
      * @param httpOutboundRequest HTTPCarbonMessage
      */
-    public static void setupChunkedOrContentLengthForReq(HTTPCarbonMessage httpOutboundRequest, boolean chunkDisabled) {
-        if (chunkDisabled) {
-            httpOutboundRequest.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
-            setContentLength(httpOutboundRequest);
-        } else {
+    public static void setupChunkedOrContentLengthForReq(HTTPCarbonMessage httpOutboundRequest, boolean chunkEnabled) {
+        if (chunkEnabled) {
             httpOutboundRequest.removeHeader(Constants.HTTP_CONTENT_LENGTH);
             setTransferEncodingHeader(httpOutboundRequest);
+        } else {
+            httpOutboundRequest.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
+            setContentLength(httpOutboundRequest);
         }
     }
 
@@ -177,6 +174,17 @@ public class Util {
     public static boolean isEntityBodyAllowed(String method) {
         return method.equals(Constants.HTTP_POST_METHOD) || method.equals(Constants.HTTP_PUT_METHOD)
                 || method.equals(Constants.HTTP_PATCH_METHOD);
+    }
+
+    /**
+     * Returns the status of chunking compatibility with http version.
+     *
+     * @param httpVersion http version string.
+     * @return  boolean value of status.
+     */
+    public static boolean isVersionCompatibleForChunking(String httpVersion) {
+        String version = new HttpVersion(httpVersion, true).text();
+        return version.equals(Constants.DEFAULT_VERSION_HTTP_1_1) || version.equals(Constants.HTTP_VERSION_2_0);
     }
 
     /**

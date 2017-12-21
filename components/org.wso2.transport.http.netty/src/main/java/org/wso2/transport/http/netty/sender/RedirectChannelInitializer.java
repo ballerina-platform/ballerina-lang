@@ -39,17 +39,17 @@ public class RedirectChannelInitializer extends ChannelInitializer<SocketChannel
     private SSLEngine sslEngine; //Add SSL support to channel
     private boolean httpTraceLogEnabled; //Will be used, if enabled, to log events
     private int maxRedirectCount;
-    private boolean chunkDisabled;
+    private boolean chunkEnabled;
     private ChannelHandlerContext originalChannelContext;
     private boolean isIdleHandlerOfTargetChannelRemoved;
 
     public RedirectChannelInitializer(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount
-            , boolean chunkDisabled, ChannelHandlerContext originalChannelContext
+            , boolean chunkEnabled, ChannelHandlerContext originalChannelContext
             , boolean isIdleHandlerOfTargetChannelRemoved) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.maxRedirectCount = maxRedirectCount;
-        this.chunkDisabled = chunkDisabled;
+        this.chunkEnabled = chunkEnabled;
         this.originalChannelContext = originalChannelContext;
         this.isIdleHandlerOfTargetChannelRemoved = isIdleHandlerOfTargetChannelRemoved;
     }
@@ -72,7 +72,7 @@ public class RedirectChannelInitializer extends ChannelInitializer<SocketChannel
                                   new HTTPTraceLoggingHandler("tracelog.http.upstream"));
         }
         RedirectHandler redirectHandler = new RedirectHandler(sslEngine, httpTraceLogEnabled, maxRedirectCount
-                , chunkDisabled, originalChannelContext, isIdleHandlerOfTargetChannelRemoved);
+                , chunkEnabled, originalChannelContext, isIdleHandlerOfTargetChannelRemoved);
         ch.pipeline().addLast(Constants.REDIRECT_HANDLER, redirectHandler);
     }
 

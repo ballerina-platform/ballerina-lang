@@ -56,7 +56,8 @@ public class TargetChannel {
     private ChannelFuture channelFuture;
     private ConnectionManager connectionManager;
     private boolean isRequestWritten = false;
-    private boolean chunkDisabled = false;
+    private String httpVersion;
+    private boolean chunkEnabled = true;
     private HandlerExecutor handlerExecutor;
 
     private List<HttpContent> contentList = new ArrayList<>();
@@ -113,8 +114,12 @@ public class TargetChannel {
         this.isRequestWritten = isRequestWritten;
     }
 
-    public void setChunkDisabled(boolean chunkDisabled) {
-        this.chunkDisabled = chunkDisabled;
+    public void setHttpVersion(String httpVersion) {
+        this.httpVersion = httpVersion;
+    }
+
+    public void setChunkEnabled(boolean chunkEnabled) {
+        this.chunkEnabled = chunkEnabled;
     }
 
     public void configTargetHandler(HTTPCarbonMessage httpCarbonMessage, HttpResponseFuture httpResponseFuture) {
@@ -175,17 +180,17 @@ public class TargetChannel {
                 // this means we need to send an empty payload
                 // depending on the http verb
                 if (Util.isEntityBodyAllowed(getHttpMethod(httpOutboundRequest))) {
-                    if (chunkDisabled) {
+                    if (chunkEnabled && Util.isVersionCompatibleForChunking(httpVersion)) {
+                        Util.setupChunkedRequest(httpOutboundRequest);
+                    } else {
                         contentLength += httpContent.content().readableBytes();
                         Util.setupContentLengthRequest(httpOutboundRequest, contentLength);
-                    } else {
-                        Util.setupChunkedRequest(httpOutboundRequest);
                     }
                 }
                 writeOutboundRequestHeaders(httpOutboundRequest);
             }
 
-            if (chunkDisabled) {
+            if (!chunkEnabled) {
                 for (HttpContent cachedHttpContent : contentList) {
                     this.getChannel().writeAndFlush(cachedHttpContent);
                 }
@@ -200,15 +205,15 @@ public class TargetChannel {
                 handlerExecutor.executeAtTargetRequestSending(httpOutboundRequest);
             }
         } else {
-            if (chunkDisabled) {
-                this.contentList.add(httpContent);
-                contentLength += httpContent.content().readableBytes();
-            } else {
+            if (chunkEnabled  && Util.isVersionCompatibleForChunking(httpVersion)) {
                 if (!this.isRequestWritten) {
                     Util.setupChunkedRequest(httpOutboundRequest);
                     writeOutboundRequestHeaders(httpOutboundRequest);
                 }
                 this.getChannel().writeAndFlush(httpContent);
+            } else {
+                this.contentList.add(httpContent);
+                contentLength += httpContent.content().readableBytes();
             }
         }
     }
@@ -222,8 +227,13 @@ public class TargetChannel {
     }
 
     private void writeOutboundRequestHeaders(HTTPCarbonMessage httpOutboundRequest) {
+        this.setHttpVersionProperty(httpOutboundRequest);
         HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
         this.setRequestWritten(true);
         this.getChannel().write(httpRequest);
+    }
+
+    private void setHttpVersionProperty(HTTPCarbonMessage httpOutboundRequest) {
+        httpOutboundRequest.setProperty(Constants.HTTP_VERSION, httpVersion);
     }
 }
