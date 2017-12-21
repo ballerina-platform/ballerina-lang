@@ -48,17 +48,11 @@ class ClientResponderNode extends React.Component {
      * */
     render() {
         const model = this.props.model;
-        const expression = model.viewState.expression;
-
-        // if (model.viewState.isClientResponder) {
-        //     expression = model.getExpression().getInvocationSignature();
-        // }
 
         return (
             <ClientResponderDecorator
                 model={model}
                 viewState={model.viewState}
-                expression={expression}
                 editorOptions={this.editorOptions}
             />);
     }

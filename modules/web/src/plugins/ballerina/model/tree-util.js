@@ -255,9 +255,6 @@ class TreeUtil extends AbstractTreeUtil {
         if (this.isReturn(node)) {
             return true;
         }
-        if (this.isReply(node)) {
-            return true;
-        }
         return false;
     }
 

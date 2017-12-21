@@ -146,7 +146,7 @@ class ClientResponderDecorator extends React.Component {
      * @returns {XML} rendered component.
      */
     render() {
-        const { viewState, expression, isBreakpoint } = this.props;
+        const { viewState, isBreakpoint } = this.props;
         const statementBox = viewState.components['statement-box'];
         const dropZone = viewState.components['drop-zone'];
         const text = viewState.components.text;
@@ -159,11 +159,7 @@ class ClientResponderDecorator extends React.Component {
         actionBoxBbox.x = statementBox.x + ((statementBox.w - actionBoxBbox.w) / 2);
         actionBoxBbox.y = statementBox.y + statementBox.h + designer.config.actionBox.padding.top;
 
-        let tooltip = null;
-        if (viewState.fullExpression !== expression) {
-            const fullExp = _.trimEnd(this.props.viewState.fullExpression, ';');
-            tooltip = (<title>{fullExp}</title>);
-        }
+        const fullExp = _.trimEnd(this.props.viewState.fullExpression, ';').trim();
 
         let backwardArrowStart;
         let backwardArrowEnd;
@@ -206,25 +202,16 @@ class ClientResponderDecorator extends React.Component {
                         r='4'
                         className={'worker-life-line dot'}
                     />
-                    {/* <rect
-                        x={statementBox.x}
-                        y={statementBox.y}
-                        width={statementBox.w}
-                        height={statementBox.h}
-                        className='action-invocation-statement-rect'
-                        onClick={e => this.openEditor(e)}
-                    >
-                        {tooltip}
-                    </rect> */}
-                    {/* <text
-                        x={viewState.components.invocation.start.x
-                            + this.context.designer.config.statement.padding.left}
-                        y={viewState.components.invocation.start.y
+                    <text
+                        x={viewState.components.invocation.end.x
+                            + this.context.designer.config.statement.gutter.h}
+                        y={viewState.components.invocation.end.y
                             - (this.context.designer.config.actionInvocationStatement.textHeight / 2)}
                         className='action-invocation-text'
                     >
-                        {expression}
-                    </text> */}
+                        {viewState.displayText}
+                        <title>{fullExp}</title>
+                    </text>
                 </g>
                 <ActionBox
                     bBox={actionBoxBbox}
@@ -238,9 +225,10 @@ class ClientResponderDecorator extends React.Component {
                     <ArrowDecorator
                         start={viewState.components.invocation.start}
                         end={viewState.components.invocation.end}
+                        // -5 is reduced roughly for arrow head height
                         arrowHeadPosition={{
                             x: (viewState.components.invocation.end.x
-                                + this.context.designer.config.clientLine.arrowGap) }}
+                                + this.context.designer.config.clientLine.arrowGap - 5) }}
                     />
                 </g>
                 {isBreakpoint && this.renderBreakpointIndicator()}
@@ -263,7 +251,6 @@ ClientResponderDecorator.propTypes = {
     }).isRequired,
     children: PropTypes.node,
     model: PropTypes.instanceOf(Node).isRequired,
-    expression: PropTypes.string.isRequired,
     editorOptions: PropTypes.shape({
         propertyType: PropTypes.string,
         key: PropTypes.string,
