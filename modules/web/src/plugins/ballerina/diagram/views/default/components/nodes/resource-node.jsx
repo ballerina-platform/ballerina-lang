@@ -22,15 +22,14 @@ import PropTypes from 'prop-types';
 import StatementDropZone from '../../../../../drag-drop/DropZone';
 import LifeLineDecorator from './../decorators/lifeline.jsx';
 import PanelDecorator from './../decorators/panel-decorator';
-import ResourceTransportLink from './resource-transport-link';
 import { getComponentForNodeArray } from './../../../../diagram-util';
-import { lifeLine } from './../../designer-defaults';
 import ImageUtil from './../../../../image-util';
 import './service-definition.css';
 import AddResourceDefinition from './add-resource-definition';
 import TreeUtil from '../../../../../model/tree-util';
 import EndpointDecorator from '../decorators/endpoint-decorator';
 import Client from '../decorators/client';
+import ResourceNodeModel from '../../../../../model/tree/resource-node';
 
 class ResourceNode extends React.Component {
 
@@ -41,11 +40,6 @@ class ResourceNode extends React.Component {
         };
         this.onMouseOver = this.onMouseOver.bind(this);
         this.onMouseOut = this.onMouseOut.bind(this);
-    }
-
-    canDropToPanelBody(dragSource) {
-        return TreeUtil.isEndpointTypeVariableDef(dragSource)
-            || TreeUtil.isWorker(dragSource);
     }
 
     /**
@@ -62,6 +56,11 @@ class ResourceNode extends React.Component {
         if (_.isEmpty(this.props.model.viewState.overlayContainer)) {
             this.setState({ style: 'hideResourceGroup' });
         }
+    }
+
+    canDropToPanelBody(dragSource) {
+        return TreeUtil.isEndpointTypeVariableDef(dragSource)
+            || TreeUtil.isWorker(dragSource);
     }
 
     render() {
@@ -116,9 +115,9 @@ class ResourceNode extends React.Component {
             && resourceSiblings.length >= 1) {
             showAddResourceForOneResource = false;
         }
+
         return (
             <g>
-                {/* <ResourceTransportLink bBox={tLinkBox} /> */}
                 <PanelDecorator
                     icon='tool-icons/resource'
                     title={name}
@@ -130,7 +129,7 @@ class ResourceNode extends React.Component {
                     packageIdentifier={protocolPkgIdentifier}
                 >
                     <Client
-                        title='http'
+                        title={protocolPkgIdentifier + ' Client'}
                         bBox={this.props.model.viewState.components.client}
                     />
                     <g>
@@ -195,6 +194,10 @@ class ResourceNode extends React.Component {
             </g>);
     }
 }
+
+ResourceNode.propTypes = {
+    model: PropTypes.instanceOf(ResourceNodeModel).isRequired,
+};
 
 ResourceNode.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
