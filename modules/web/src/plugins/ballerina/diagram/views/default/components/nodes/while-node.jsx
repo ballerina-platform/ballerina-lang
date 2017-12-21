@@ -29,7 +29,9 @@ class WhileNode extends React.Component {
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const expression = model.viewState.components.expression;
+        const expression = {
+            text: model.getCondition().getSource(),
+        };
         const dropZone = model.viewState.components['drop-zone'];
         const editorOptions = {
             propertyType: 'text',
@@ -57,7 +59,6 @@ class WhileNode extends React.Component {
                     expression={expression}
                     editorOptions={editorOptions}
                     model={model}
-                    body={model.body}
                 />
             </g>
         );

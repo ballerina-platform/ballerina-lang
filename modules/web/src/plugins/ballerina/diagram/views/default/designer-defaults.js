@@ -104,7 +104,7 @@ export const lifeLine = {
 
 export const clientLine = {
     head: {
-        length: 40,
+        length: 45,
     },
 };
 

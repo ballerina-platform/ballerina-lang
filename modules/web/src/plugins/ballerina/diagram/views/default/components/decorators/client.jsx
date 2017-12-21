@@ -49,6 +49,8 @@ class Client extends React.Component {
 
         const invokeLineY = topBox.y + topBox.h + this.context.designer.config.statement.height;
 
+        const titleTextArray = this.props.title.split(' ');
+
         return (<g
             className='client-line-group'
         >
@@ -79,16 +81,41 @@ class Client extends React.Component {
                 className='client-line-header'
                 transform={`rotate(45 ${bottomHeaderCentreX} ${bottomHeaderCentreY})`}
             />
-            <text
-                x={topHeaderCentreX}
-                y={topHeaderCentreY}
-                className='client-line-text'
-            >{this.props.title}</text>
-            <text
-                x={bottomHeaderCentreX}
-                y={bottomHeaderCentreY}
-                className='client-line-text'
-            >{this.props.title}</text>
+            {(titleTextArray.length === 1) &&
+                <g>
+                    <text
+                        x={topHeaderCentreX}
+                        y={topHeaderCentreY}
+                        className='client-line-text'
+                    >{this.props.title}</text>
+                    <text
+                        x={bottomHeaderCentreX}
+                        y={bottomHeaderCentreY}
+                        className='client-line-text'
+                    >{this.props.title}
+                    </text>
+                </g>
+            }
+            {(titleTextArray.length > 1) &&
+                <g>
+                    <text
+                        x={topHeaderCentreX}
+                        y={topHeaderCentreY}
+                        className='client-line-text'
+                    >
+                        <tspan x={topHeaderCentreX} dy='-8' className='client-line-text'>{titleTextArray[0]}</tspan>
+                        <tspan x={topHeaderCentreX} dy='15' className='client-line-text'>{titleTextArray[1]}</tspan>
+                    </text>
+                    <text
+                        x={bottomHeaderCentreX}
+                        y={bottomHeaderCentreY}
+                        className='client-line-text'
+                    >
+                        <tspan x={bottomHeaderCentreX} dy='-8' className='client-line-text'>{titleTextArray[0]}</tspan>
+                        <tspan x={bottomHeaderCentreX} dy='15' className='client-line-text'>{titleTextArray[1]}</tspan>
+                    </text>
+                </g>
+            }
             <line
                 x1={line.x1}
                 y1={invokeLineY}

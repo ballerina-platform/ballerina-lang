@@ -17,13 +17,10 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import TreeUtil from 'plugins/ballerina/model/tree-util';
 import IfNodeModel from 'plugins/ballerina/model/tree/if-node';
 import DropZone from 'plugins/ballerina/drag-drop/DropZone';
 import DefaultNodeFactory from 'plugins/ballerina/model/default-node-factory';
-import FragmentUtils from 'plugins/ballerina/utils/fragment-utils';
-import TreeBuilder from 'plugins/ballerina/model/tree-builder';
 import IfStatementDecorator from './if-statement-decorator';
 import AddCompoundBlock from './add-compound-block';
 import './if-node.css';
@@ -196,7 +193,6 @@ class IfNode extends React.Component {
                     expression={expression}
                     editorOptions={editorOptions}
                     model={model}
-                    body={model.body}
                 />
             </g>
         );

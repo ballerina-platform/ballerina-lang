@@ -170,8 +170,6 @@ class WhileStatementDecorator extends React.Component {
         const pointX = bBox.getRight() - breakpointHalf;
         const { model: { viewState } } = this.props;
         const statementBBox = viewState.components['statement-box'];
-        const { designer } = this.context;
-        const headerHeight = viewState.components['block-header'].h;
         const pointY = statementBBox.y - breakpointHalf;
         return (
             <Breakpoint
@@ -270,8 +268,8 @@ class WhileStatementDecorator extends React.Component {
         const actionBoxBbox = new SimpleBBox();
         actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;
         actionBoxBbox.h = designer.config.actionBox.height;
-        actionBoxBbox.x = bBox.x + ((bBox.w - actionBoxBbox.w) / 2);
-        actionBoxBbox.y = statementBBox.y + titleH + designer.config.actionBox.padding.top;
+        actionBoxBbox.x = p8X - (actionBoxBbox.w / 2);
+        actionBoxBbox.y = p8Y;
 
         let statementRectClass = 'statement-title-rect';
         if (isDebugHit) {
@@ -348,14 +346,14 @@ class WhileStatementDecorator extends React.Component {
                     width={statementBBox.w}
                     height={statementBBox.h}
                     baseComponent='rect'
-                    dropTarget={this.props.body}
+                    dropTarget={this.props.model.body}
                     enableDragBg
                     enableCenterOverlayLine={!this.props.disableDropzoneMiddleLineOverlay}
                 />
                 <g>
                     <rect
                         x={p2X}
-                        y={statementBBox.y}
+                        y={p9Y}
                         width={titleW}
                         height={titleH}
                         onClick={this.openExpressionEditor}
@@ -387,28 +385,22 @@ WhileStatementDecorator.defaultProps = {
     parameterEditorOptions: null,
     utilities: null,
     parameterBbox: null,
-    expression: null,
     disableButtons: {
         debug: false,
         delete: false,
         jump: false,
     },
     disableDropzoneMiddleLineOverlay: false,
+    isDebugHit: false,
 };
 
 WhileStatementDecorator.propTypes = {
-    draggable: PropTypes.func,
     title: PropTypes.string.isRequired,
     model: PropTypes.instanceOf(Node).isRequired,
     children: PropTypes.arrayOf(React.PropTypes.node),
-    utilities: PropTypes.element,
     bBox: PropTypes.instanceOf(SimpleBBox).isRequired,
-    parameterBbox: PropTypes.instanceOf(SimpleBBox),
-    undeletable: PropTypes.bool,
     dropTarget: PropTypes.instanceOf(Node).isRequired,
-    expression: PropTypes.shape({
-        text: PropTypes.string,
-    }),
+    expression: PropTypes.string.isRequired,
     editorOptions: PropTypes.shape({
         propertyType: PropTypes.string,
         key: PropTypes.string,
@@ -432,6 +424,7 @@ WhileStatementDecorator.propTypes = {
         jump: PropTypes.bool.isRequired,
     }),
     disableDropzoneMiddleLineOverlay: PropTypes.bool,
+    isDebugHit: PropTypes.bool,
 };
 
 WhileStatementDecorator.contextTypes = {
