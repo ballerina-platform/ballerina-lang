@@ -40,8 +40,9 @@ Fork/Join
 Fork/Join Condition Some
 Fork/Join Variable Access
 SQL Connector
-Datatables
+Datatable
 Transactions
+Distributed Transactions
 Transformers
 Transform JSON
 Strings
