@@ -151,7 +151,7 @@ class LangServerClientController extends EventChannel {
             method: 'textDocument/didOpen',
             params: {
                 textDocument: {
-                    uri: 'file://' + options.uri,
+                    uri: options.file.toURI(),
                     text: options.text,
                 },
             },
@@ -174,7 +174,7 @@ class LangServerClientController extends EventChannel {
             method: 'textDocument/didChange',
             params: {
                 textDocument: {
-                    uri: 'file://' + options.uri,
+                    uri: options.file.toURI(),
                 },
                 contentChanges: [{
                     text: options.text,
@@ -199,7 +199,7 @@ class LangServerClientController extends EventChannel {
             method: 'textDocument/didSave',
             params: {
                 textDocument: {
-                    uri: 'file://' + options.uri,
+                    uri: options.file.toURI(),
                 },
                 text: options.text,
             },
@@ -222,7 +222,7 @@ class LangServerClientController extends EventChannel {
             method: 'textDocument/didClose',
             params: {
                 textDocument: {
-                    uri: 'file://' + options.uri,
+                    uri: options.file.toURI(),
                 },
             },
         };
@@ -248,11 +248,11 @@ class LangServerClientController extends EventChannel {
             params: {
                 text: options.textDocument,
                 position: options.position,
-                fileName: options.fileName,
+                fileName: options.file.name,
                 textDocument: {
-                    uri: 'file://' + options.fullPath,
+                    uri: options.file.toURI(),
                 },
-                uri: 'file://' + options.fullPath,
+                uri: options.file.toURI(),
                 packageName: options.packageName,
             },
         };

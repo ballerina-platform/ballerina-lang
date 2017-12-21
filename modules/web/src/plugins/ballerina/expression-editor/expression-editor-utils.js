@@ -121,13 +121,8 @@ class ExpressionEditor {
             .then((langserverClient) => {
                 // Set design view completer
                 const designViewCompleterFactory = this.designViewCompleterFactory;
-                const fileData = { fileName: this.file.name,
-                    filePath: this.file.path,
-                    packageName: this.file.packageName,
-                    content: this.file.content,
-                };
                 const completer = designViewCompleterFactory.getDesignViewCompleter(langserverClient,
-                    fileData, props.model);
+                    this.file, props.model);
                 langTools.setCompleters(completer);
             })
             .catch(error => log.error(error));

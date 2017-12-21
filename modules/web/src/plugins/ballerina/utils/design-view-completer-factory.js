@@ -24,11 +24,11 @@ class CompleterFactory {
     /**
      * Return the Design view completer
      * @param {object} langserverController - language server controller
-     * @param {object} fileData - object holding file information
+     * @param {object} file - file object
      * @param {ASTNode} node - Relevant ASTNode
      * @return {*[]} - array
      */
-    getDesignViewCompleter(langserverController, fileData, node) {
+    getDesignViewCompleter(langserverController, file, node) {
         return [{
             getCompletions: (editor, session, pos, prefix, callback) => {
                 if (!_.isNil(node.getPosition())) {
@@ -36,7 +36,7 @@ class CompleterFactory {
                         row: node.getPosition().startLine,
                         column: node.getContentStartCursorPosition() + editor.getValue().length,
                     };
-                    this.getCompletions(cursorPosition, fileData, langserverController, callback, node,
+                    this.getCompletions(cursorPosition, file, langserverController, callback, node,
                         editor.getValue());
                 }
             },
@@ -46,16 +46,16 @@ class CompleterFactory {
     /**
      * Get the completions
      * @param {object} cursorPosition - current cursor position
-     * @param {object} fileData - file data options
+     * @param {object} file - file object
      * @param {LangServerClientController} langserverController - language server client controller instance
      * @param {function} callback - callback function
      * @param {ASTNode} node - ast node
      * @param editorContent
      */
-    getCompletions(cursorPosition, fileData, langserverController, callback, node, editorContent) {
+    getCompletions(cursorPosition, file, langserverController, callback, node, editorContent) {
         const completions = [];
         const designViewCompleterUtils = new DesignViewCompleterUtils();
-        const content = designViewCompleterUtils.getCompletionContent(node, fileData.content, editorContent);
+        const content = designViewCompleterUtils.getCompletionContent(node, file.content, editorContent);
 
         const options = {
             textDocument: content,
@@ -63,9 +63,7 @@ class CompleterFactory {
                 line: cursorPosition.row,
                 character: cursorPosition.column,
             },
-            fileName: fileData.fileName,
-            filePath: fileData.filePath,
-            packageName: fileData.packageName,
+            file,
         };
         langserverController.getCompletions(options, (response) => {
             const sortedArr = _.orderBy(response.result, ['sortText'], ['desc']);
