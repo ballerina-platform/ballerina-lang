@@ -137,7 +137,11 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
         if (moduleFile == null) {
             return;
         }
-        configuration.setWorkingDirectory(moduleFile.getParent().getPath());
+        String workingDirectory = moduleFile.getParent().getPath();
+        if (workingDirectory.endsWith(".idea")) {
+            workingDirectory = workingDirectory.replace(".idea", "");
+        }
+        configuration.setWorkingDirectory(workingDirectory);
     }
 
     @NotNull
