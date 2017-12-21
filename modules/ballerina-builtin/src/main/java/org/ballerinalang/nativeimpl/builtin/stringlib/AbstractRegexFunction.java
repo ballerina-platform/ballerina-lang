@@ -20,10 +20,8 @@ package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * Abstract native function which serves as base class for writing Regex related native functions.
@@ -39,16 +37,11 @@ public abstract class AbstractRegexFunction extends AbstractNativeFunction {
      */
     protected Pattern validatePattern(BStruct regexStruct) {
         String regex = regexStruct.getStringField(0);
-        try {
-            Pattern pattern = (Pattern) regexStruct.getNativeData(REGEXConstants.COMPILED_REGEX);
-            if (pattern == null) {
-                pattern = Pattern.compile(regex);
-                regexStruct.addNativeData(REGEXConstants.COMPILED_REGEX, pattern);
-            }
-            return pattern;
-        } catch (PatternSyntaxException e) {
-            throw new BallerinaException("Failed to compile " + regex
-                    + " syntax error in regular-expression pattern: " + e.getMessage());
+        Pattern pattern = (Pattern) regexStruct.getNativeData(REGEXConstants.COMPILED_REGEX);
+        if (pattern == null) {
+            pattern = Pattern.compile(regex);
+            regexStruct.addNativeData(REGEXConstants.COMPILED_REGEX, pattern);
         }
+        return pattern;
     }
 }

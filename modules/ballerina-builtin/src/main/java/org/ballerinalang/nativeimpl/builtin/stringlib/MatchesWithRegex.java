@@ -19,6 +19,7 @@
 package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
@@ -29,6 +30,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Native function ballerina.model.strings:matchesWithRegex.
@@ -39,7 +41,7 @@ import java.util.regex.Pattern;
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "reg", type = TypeKind.STRUCT, structType = "Regex",
                         structPackage = "ballerina.builtin")},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class MatchesWithRegex extends AbstractRegexFunction {
@@ -48,11 +50,14 @@ public class MatchesWithRegex extends AbstractRegexFunction {
         String initialString = getStringArgument(context, 0);
 
         BStruct regexStruct = (BStruct) getRefArgument(context, 0);
+        try {
+            Pattern pattern = validatePattern(regexStruct);
 
-        Pattern pattern = validatePattern(regexStruct);
-
-        Matcher matcher = pattern.matcher(initialString);
-        BBoolean matches = new BBoolean(matcher.matches());
-        return getBValues(matches);
+            Matcher matcher = pattern.matcher(initialString);
+            BBoolean matches = new BBoolean(matcher.matches());
+            return getBValues(matches);
+        } catch (PatternSyntaxException e) {
+            return getBValues(BBoolean.FALSE, BLangVMErrors.createError(context, 0, e.getMessage()));
+        }
     }
 }

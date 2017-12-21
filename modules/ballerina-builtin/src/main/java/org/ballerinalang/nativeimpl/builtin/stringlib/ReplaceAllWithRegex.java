@@ -19,6 +19,7 @@
 package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -29,6 +30,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Native function ballerina.model.strings:replaceAllWithRegex.
@@ -40,7 +42,7 @@ import java.util.regex.Pattern;
                 @Argument(name = "reg", type = TypeKind.STRUCT, structType = "Regex",
                         structPackage = "ballerina.builtin"),
                 @Argument(name = "replaceWith", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class ReplaceAllWithRegex extends AbstractRegexFunction {
@@ -52,11 +54,14 @@ public class ReplaceAllWithRegex extends AbstractRegexFunction {
         String replaceWith = getStringArgument(context, 1);
 
         BStruct regexStruct = (BStruct) getRefArgument(context, 0);
+        try {
+            Pattern pattern = validatePattern(regexStruct);
 
-        Pattern pattern = validatePattern(regexStruct);
-
-        Matcher matcher = pattern.matcher(mainString);
-        String replacedString = matcher.replaceAll(replaceWith);
-        return getBValues(new BString(replacedString));
+            Matcher matcher = pattern.matcher(mainString);
+            String replacedString = matcher.replaceAll(replaceWith);
+            return getBValues(new BString(replacedString));
+        } catch (PatternSyntaxException e) {
+            return getBValues(new BString(""), BLangVMErrors.createError(context, 0, e.getMessage()));
+        }
     }
 }
