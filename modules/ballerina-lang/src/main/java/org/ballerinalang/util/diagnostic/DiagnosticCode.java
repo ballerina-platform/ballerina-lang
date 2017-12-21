@@ -55,7 +55,7 @@ public enum DiagnosticCode {
     WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH("worker.send.receive.parameter.count.mismatch"),
     INVALID_WORKER_INTERACTION("worker.invalid.worker.interaction"),
 
-    FUNCTION_MUST_RETURN("function.must.return"),
+    INVOKABLE_MUST_RETURN("invokable.must.return"),
     ATLEAST_ONE_WORKER_MUST_RETURN("atleast.one.worker.must.return"),
     FORK_JOIN_WORKER_CANNOT_RETURN("fork.join.worker.cannot.return"),
     FORK_JOIN_INVALID_WORKER_COUNT("fork.join.invalid.worker.count"),

@@ -96,3 +96,38 @@ function initEndointWithString(string val) {
         val;
     }
 }
+
+function assignEndpointToAnyVariable () {
+    endpoint<Foo> ep {
+
+    }
+    any ll = ep;
+}
+
+function returnEndpointAsAnyRetParam() (any) {
+    endpoint<Foo> ep {
+
+    }
+    return ep;
+}
+
+function passEndpointAsAnyParam() {
+    endpoint<Foo> ep {
+
+    }
+    endpointAsAnyParam(ep);
+}
+
+function endpointAsAnyParam(any pp) {
+
+}
+
+connector ConWithWrongActions() {
+    action get()(string) {
+        string value = "sample value";
+    }
+
+    action get1()(string value) {
+        value = "Foo-";
+    }
+}
