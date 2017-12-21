@@ -113,6 +113,15 @@ function getComponentForNodeArray(nodeArray, mode = 'default') {
     });
 }
 
+function getConfig(mode) {
+    switch (mode) {
+        case 'action':
+            return ActionConfig;
+        default:
+            return DefaultConfig;
+    }
+}
+
 function getSizingUtil(mode) {
     switch (mode) {
         case 'action':
@@ -187,6 +196,7 @@ export {
     getInvocationArrowPositionUtil,
     getOverlayComponent,
     getErrorCollectorUtil,
+    getConfig,
 };
 
 // WIP please do not remove.

@@ -18,6 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import CanvasDecorator from './views/default/components/decorators/canvas-decorator';
 import PositionVisitor from './visitors/position-visitor';
 import DimensionVisitor from './visitors/dimension-visitor';
@@ -34,6 +35,7 @@ import {
     getWorkerInvocationSyncUtil,
     getInvocationArrowPositionUtil,
     getOverlayComponent,
+    getConfig,
 //    getErrorCollectorUtil,
 } from './diagram-util';
 import ActiveArbiter from './views/default/components/decorators/active-arbiter';
@@ -158,9 +160,13 @@ class Diagram extends React.Component {
         } */
 
         const controllerVisitor = new ControllerVisitor();
-        controllerVisitor.setControllerUtil(new ControllerPositioningUtil());
+        const cu = new ControllerPositioningUtil();
+        cu.setConfig(getConfig(this.props.mode));
+        controllerVisitor.setControllerUtil(cu);
         this.props.model.accept(controllerVisitor);
-        const controllers = controllerVisitor.getComponents();
+        let controllers = controllerVisitor.getComponents();
+
+        controllers = _.merge(controllers, overlayComponents);
 
 
         const tln = (this.props.model.getTopLevelNodes()) ? this.props.model.getTopLevelNodes() : [];

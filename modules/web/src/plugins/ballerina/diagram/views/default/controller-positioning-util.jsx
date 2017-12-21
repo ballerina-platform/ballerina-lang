@@ -24,9 +24,13 @@ import Button from '../../../interactions/button';
 import Menu from '../../../interactions/menu';
 import Item from '../../../interactions/item';
 import TopLevelElements from '../../../tool-palette/item-provider/compilation-unit-tools';
+import WorkerTools from '../../../tool-palette/item-provider/worker-tools';
 
 class ControllerPositioningUtil {
 
+    setConfig(config) {
+        this.config = config;
+    }
 
     /**
      * Calculate position of Action node controllers.
@@ -90,12 +94,12 @@ class ControllerPositioningUtil {
      *
      */
     positionCompilationUnitNodeControllers(node) {
-        const x = (node.viewState.bBox.w / 2);
-        let y = _.last(node.topLevelNodes).viewState.bBox.h + _.last(node.topLevelNodes).viewState.bBox.y + 25;
+        const x = this.config.panel.wrapper.gutter.h + 320;
+        const y = this.config.panel.wrapper.gutter.v;
         const w = 50;
         const h = 50;
         if (node.isEmpty()) {
-            y = (node.viewState.bBox.h / 2);
+            // y = (node.viewState.bBox.h / 2);
         }
         const items = this.convertToAddItems(TopLevelElements, node);
         // Not implemented.
@@ -104,10 +108,10 @@ class ControllerPositioningUtil {
             buttonX={0}
             buttonY={0}
             showAlways
-        >
-            <Menu>
-                {items}
-            </Menu>
+            buttonRadius={12}
+        >                      <Menu>
+            {items}
+        </Menu>
         </Button>);
     }
 
@@ -321,7 +325,24 @@ class ControllerPositioningUtil {
      *
      */
     positionWorkerNodeControllers(node) {
+        const x = node.viewState.bBox.x + 48;
+        const y = node.viewState.bBox.y + node.body.viewState.bBox.h;
+        const w = 50;
+        const h = 50;
+
+        const items = this.convertToAddItems(WorkerTools, node.body);
         // Not implemented.
+        return (<Button
+            bBox={{ x, y, w, h }}
+            buttonX={0}
+            buttonY={0}
+            showAlways
+            buttonRadius={8}
+        >
+            <Menu>
+                {items}
+            </Menu>
+        </Button>);
     }
 
 

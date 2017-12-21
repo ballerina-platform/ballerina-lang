@@ -88,6 +88,11 @@
     padding-right: 5px;
 }
 
-.interaction-menu hr {
+.interaction-menu {
+    width: 200px;
+}
 
+.interaction-menu hr {
+    border-top: 1px solid #ccc;
+    margin: 0px 5px;
 }

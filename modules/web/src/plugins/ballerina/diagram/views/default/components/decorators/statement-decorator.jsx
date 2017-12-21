@@ -218,14 +218,14 @@ class StatementDecorator extends React.Component {
                         {_.trimEnd(expression, ';')}
                     </text>
                 </g>
-                <ActionBox
+                {/* <ActionBox
                     bBox={actionBoxBbox}
                     show={this.state.active}
                     isBreakpoint={isBreakpoint}
                     onDelete={() => this.onDelete()}
                     onJumptoCodeLine={() => this.onJumpToCodeLine()}
                     onBreakpointClick={() => this.props.onBreakpointClick()}
-                />
+                /> */}
                 {isBreakpoint && this.renderBreakpointIndicator()}
                 {this.props.children}
             </g>);
