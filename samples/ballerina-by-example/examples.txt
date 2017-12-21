@@ -59,6 +59,7 @@ HTTP Sessions
 HTTP Client Connector
 HTTPS Server Connector
 HTTPS Server/Client Connectors
+HTTP Disable Chunking
 HTTP to WebSocket Upgrade
 HTTP CORS
 Log API
