@@ -673,3 +673,34 @@ function testNullStringToOtherTypes() (int, TypeConversionError,
     
     return i, err1, f, err2, b, err3, j, err4, x, err5;
 }
+
+function structWithComplexMapToJson() (json, TypeConversionError) {
+    int a = 4;
+    float b = 2.5;
+    boolean c = true;
+    string d = "apple";
+    map e = {"foo":"bar"};
+    PersonA f = {};
+    int [] g = [1, 8, 7];
+    map m = {"a":a, "b":b, "c":c, "d":d, "e":e, "f":f, "g":g, "h":null};
+    
+    Info info = {foo : m};
+    var js, err = <json> info;
+    return js, err;
+}
+
+struct ComplexArrayStruct{
+    int[] a;
+    float[] b;
+    boolean[] c;
+    string[] d;
+    map[] e;
+    PersonA[] f;
+    json[] g;
+}
+
+function structWithComplexArraysToJson() (json, TypeConversionError) {
+    ComplexArrayStruct t = {"a":[4, 6, 9], "b":[4.6, 7.5], "c":[true, true, false], "d":["apple", "orange"], "e":[{}, {}], "f":[{}, {}], "g":[{"foo":"bar"}]};
+    var js, err = <json> t;
+    return js, err;
+}
