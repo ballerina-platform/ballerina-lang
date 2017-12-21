@@ -1,12 +1,12 @@
 /**
  * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,7 +43,7 @@ public class BLangPackageContext {
     public <T> List<T> getItems(Class type) {
         if (type.equals(BLangFunction.class)) {
             List<BLangFunction> functions = new ArrayList<>();
-            packageMap.forEach((pkgName, bLangPackage) ->functions.addAll(bLangPackage.getFunctions()));
+            packageMap.forEach((pkgName, bLangPackage) -> functions.addAll(bLangPackage.getFunctions()));
             return (List<T>) functions;
         }
         return null;
@@ -101,8 +101,13 @@ public class BLangPackageContext {
      * @param bLangPackage ballerina package to be added.
      */
     public void addPackage(BLangPackage bLangPackage) {
-        this.packageMap
-                .put(getPackageName(((BLangPackageDeclaration) bLangPackage.getPackageDeclaration()).pkgNameComps)
-                        , bLangPackage);
+        if (bLangPackage.getPackageDeclaration() == null) {
+            this.packageMap
+                    .put(".", bLangPackage);
+        } else {
+            this.packageMap
+                    .put(getPackageName(((BLangPackageDeclaration) bLangPackage.getPackageDeclaration()).pkgNameComps)
+                            , bLangPackage);
+        }
     }
 }
