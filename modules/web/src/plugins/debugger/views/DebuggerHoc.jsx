@@ -33,7 +33,6 @@ function debuggerHoc(WrappedComponent) {
             super();
             this.state = {
                 breakpoints: [],
-                sourceViewBreakpoints: [],
                 debugHit: null,
             };
         }
@@ -63,10 +62,8 @@ function debuggerHoc(WrappedComponent) {
         updateBreakpoints() {
             const fileName = this.getFileName();
             const breakpoints = DebugManager.getDebugPoints(fileName);
-            const sourceViewBreakpoints = breakpoints.map(breakpoint => breakpoint - 1);
             this.setState({
                 breakpoints,
-                sourceViewBreakpoints,
             });
         }
         /**
@@ -98,7 +95,7 @@ function debuggerHoc(WrappedComponent) {
 
             if (fileName === fileIdentifier && packagePath === position.packagePath) {
                 this.setState({
-                    debugHit: position.lineNumber - 1,
+                    debugHit: position.lineNumber,
                 });
             }
         }
@@ -140,12 +137,10 @@ function debuggerHoc(WrappedComponent) {
         render() {
             const fileName = this.getFileName();
             const breakpoints = DebugManager.getDebugPoints(fileName);
-            const sourceViewBreakpoints = breakpoints.map(breakpoint => breakpoint - 1);
 
             const newProps = {
                 breakpoints,
                 debugHit: this.state.debugHit,
-                sourceViewBreakpoints,
                 addBreakpoint: this.addBreakpoint.bind(this),
                 removeBreakpoint: this.removeBreakpoint.bind(this),
             };
