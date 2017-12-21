@@ -1902,65 +1902,8 @@ class SizingUtil {
      * @memberof SizingUtil
      */
     _getAnnotationHeight(node, defaultHeight = 0, annotationLineHeight = 18) {
-        let height = defaultHeight;
-        if (TreeUtil.isService(node) || TreeUtil.isResource(node) ||
-            TreeUtil.isFunction(node) || TreeUtil.isConnector(node) ||
-            TreeUtil.isAction(node) || TreeUtil.isAnnotation(node) ||
-            TreeUtil.isStruct(node)) {
-            for (const annotation of node.getAnnotationAttachments()) {
-                height += this._getAnnotationHeight(annotation) + 10;
-            }
-        } else if (!_.isNil(node) && TreeUtil.isAnnotationAttachment(node)) {
-            const annotationAttachment = node;
-
-            // Considering the start line of the annotation.
-            height += annotationLineHeight;
-            if (_.isNil(annotationAttachment.viewState.addingEmptyAttribute)) {
-                annotationAttachment.viewState.addingEmptyAttribute = false;
-            } else if (annotationAttachment.viewState.addingEmptyAttribute === true) {
-                height += annotationLineHeight;
-            }
-            if (!annotationAttachment.viewState.collapsed) {
-                if (annotationAttachment.getAttributes().length > 0) {
-                    annotationAttachment.getAttributes().forEach((annotationAttribute) => {
-                        height += this._getAnnotationHeight(annotationAttribute);
-                    });
-                }
-            }
-        } else if (!_.isNil(node) && TreeUtil.isAnnotationAttachmentAttribute(node)) {
-            const annotationAttachmentAttribute = node;
-            if (_.isNil(annotationAttachmentAttribute.viewState.addingEmptyAttribute)) {
-                annotationAttachmentAttribute.viewState.addingEmptyAttribute = false;
-            } else if (annotationAttachmentAttribute.viewState.addingEmptyAttribute === true) {
-                height += annotationLineHeight;
-            }
-            const annotationAttachmentAttributeValue = annotationAttachmentAttribute.getValue();
-            // If the annotation entry a simple native type value
-            if (annotationAttachmentAttributeValue.isValueLiteral()) {
-                height += annotationLineHeight;
-            } else if (annotationAttachmentAttributeValue.isValueAnnotationAttachment()) {
-                if (!annotationAttachmentAttribute.viewState.collapsed) {
-                    // If the annotation entry value an annotation
-                    height += this._getAnnotationHeight(annotationAttachmentAttributeValue.getValue());
-                } else {
-                    // When collapsed we have to consider attribute as a line.
-                    height += annotationLineHeight;
-                }
-            } else if (annotationAttachmentAttributeValue.isValueArray()) {
-                // If the annotation entry value an array
-                height += annotationLineHeight;
-                if (!annotationAttachmentAttribute.viewState.collapsed) {
-                    // Calculating the height for the array children.
-                    annotationAttachmentAttributeValue.getValueArray().forEach((childNode) => {
-                        height += this._getAnnotationHeight(childNode.getValue());
-                    });
-                }
-            }
-        } else if (!_.isNil(node) && TreeUtil.isLiteral(node)) {
-            height += annotationLineHeight;
-        }
-
-        return height;
+        // TODO: implement annotations for new design view
+        return 0;
     }
 
     /**
