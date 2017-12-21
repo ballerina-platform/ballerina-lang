@@ -80,15 +80,20 @@ public class Forward extends AbstractHTTPAction {
 
     protected HTTPCarbonMessage createCarbonMsg(Context context) {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
-        String path = HttpUtil.sanitizeUri(getStringArgument(context, 0));
+        String path = getStringArgument(context, 0);
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
+        
         if (requestStruct.getNativeData(Constants.INBOUND_REQUEST) == null) {
             throw new BallerinaException("invalid inbound request parameter");
         }
-        HTTPCarbonMessage cMsg = HttpUtil.getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
-        String httpVerb = (String) cMsg.getProperty(Constants.HTTP_METHOD);
-        prepareRequest(bConnector, path, cMsg, requestStruct);
-        cMsg.setProperty(Constants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
-        return cMsg;
+        
+        HTTPCarbonMessage outboundRequestMsg = HttpUtil
+                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
+        prepareRequest(bConnector, path, outboundRequestMsg, requestStruct);
+
+        String httpVerb = (String) outboundRequestMsg.getProperty(Constants.HTTP_METHOD);
+        outboundRequestMsg.setProperty(Constants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
+
+        return outboundRequestMsg;
     }
 }
