@@ -236,7 +236,7 @@ public class JSONUtils {
                 arrayNode.add(new BJSON(NULL).value());
             } else if (value.getType() == BTypes.typeMap) {
                 arrayNode.add(convertMapToJSON((BMap<String, BValue>) value).value());
-            } else if (value.getType() == BTypes.typeJSON) {
+            } else if (value instanceof BJSON) {
                 arrayNode.add(((BJSON) value).value());
             } else if (value instanceof BStruct) {
                 arrayNode.add(convertStructToJSON((BStruct) value).value());
@@ -293,7 +293,7 @@ public class JSONUtils {
                             jsonNode.set(key, new BJSON(NULL).value());
                         } else if (value.getType() == BTypes.typeMap) {
                             jsonNode.set(key, convertMapToJSON((BMap<String, BValue>) value).value());
-                        } else if (value.getType() == BTypes.typeJSON) {
+                        } else if (value instanceof BJSON) {
                             jsonNode.set(key, ((BJSON) value).value());
                         } else if (value instanceof BNewArray) {
                             jsonNode.set(key, convertArrayToJSON((BNewArray) value).value());
