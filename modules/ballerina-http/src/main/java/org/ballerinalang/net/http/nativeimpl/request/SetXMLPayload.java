@@ -40,6 +40,7 @@ public class SetXMLPayload extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return HttpUtil.setXMLPayload(context, this, true);
+       // return HttpUtil.setXMLPayload(context, this, true);
+        return null;
     }
 }

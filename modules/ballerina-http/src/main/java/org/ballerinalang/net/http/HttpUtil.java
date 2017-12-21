@@ -209,7 +209,7 @@ public class HttpUtil {
         return AbstractNativeFunction.VOID_RETURN;
     }
 
-    public static BValue[] setBinaryPayload(Context context, AbstractNativeFunction nativeFunction, boolean isRequest) {
+    /*public static BValue[] setBinaryPayload(Context context, AbstractNativeFunction nativeFunction, boolean isRequest) {
         BStruct httpMessageStruct = (BStruct) nativeFunction.getRefArgument(context, 0);
         HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(httpMessageStruct,
                 HttpUtil.createHttpCarbonMessage(isRequest));
@@ -287,7 +287,7 @@ public class HttpUtil {
 
         return AbstractNativeFunction.VOID_RETURN;
     }
-
+*/
     /**
      * Set the given entity to request or response message.
      *
@@ -386,6 +386,14 @@ public class HttpUtil {
             OutputStream messageOutputStream = httpMessageDataStreamer.getOutputStream();
             HttpUtil.addMessageOutputStream(httpMessageStruct, messageOutputStream);
         }
+        if (entity == null) {
+            entity = ConnectorUtils.createAndGetStruct(context,
+                    org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
+                    org.ballerinalang.net.mime.util.Constants.ENTITY);
+            entity.setRefField(ENTITY_HEADERS_INDEX, new BMap<>());
+            httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
+            httpMessageStruct.addNativeData(IS_ENTITY_BODY_PRESENT, false);
+        }
         return abstractNativeFunction.getBValues(entity);
     }
 
@@ -399,7 +407,7 @@ public class HttpUtil {
         return null;
     }
 
-    public static BValue[] getBinaryPayload(Context context,
+   /* public static BValue[] getBinaryPayload(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BlobDataSource result;
         try {
@@ -519,11 +527,11 @@ public class HttpUtil {
         }
         // Setting output value.
         return abstractNativeFunction.getBValues(result);
-    }
+    }*/
 
-    public static void addMessageDataSource(BStruct struct, MessageDataSource messageDataSource) {
+   /* public static void addMessageDataSource(BStruct struct, MessageDataSource messageDataSource) {
         struct.addNativeData(MESSAGE_DATA_SOURCE, messageDataSource);
-    }
+    }*/
 
     public static void addMessageOutputStream(BStruct struct, OutputStream messageOutputStream) {
         struct.addNativeData(MESSAGE_OUTPUT_STREAM, messageOutputStream);

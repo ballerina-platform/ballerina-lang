@@ -43,6 +43,7 @@ public class SetStringPayload extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return HttpUtil.setStringPayload(context, this, false);
+       // return HttpUtil.setStringPayload(context, this, false);
+        return null;
     }
 }

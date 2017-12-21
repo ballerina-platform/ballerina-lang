@@ -34,11 +34,6 @@ public native function <Request res> setEntity (mime:Entity entity);
 @Return { value:"The request URL value" }
 public native function <Request req> getRequestURL () (string);
 
-@Description { value:"Gets the Content-Length header from the request"}
-@Param { value:"req: A request message" }
-@Return { value:"length of the message" }
-public native function <Request req> getContentLength () (int);
-
 @Description { value:"Gets the HTTP method from the request"}
 @Param { value:"req: A request message" }
 @Return { value:"The HTTP request method associated with the request" }
@@ -54,57 +49,17 @@ public native function <Request req> getFormParams () (map);
 @Return { value:"The map of query params" }
 public native function <Request req> getQueryParams () (map);
 
-@Description { value:"Gets the request payload in JSON format"}
-@Param { value:"req: A request message" }
-@Return { value:"The JSON reresentation of the message payload" }
-public native function <Request req> getJsonPayload () (json);
-
-@Description { value:"Gets the request payload in XML format"}
-@Param { value:"req: The request message" }
-@Return { value:"The XML representation of the message payload" }
-public native function <Request req> getXmlPayload () (xml);
-
-@Description { value:"Gets the request payload in blob format"}
-@Param { value:"req: A request message" }
-@Return { value:"The blob representation of the message payload" }
-public native function <Request req> getBinaryPayload () (blob);
-
-@Description { value:"Sets a blob as the request payload"}
-@Param { value:"req: A request message" }
-@Param { value:"payload: The blob representation of the message payload" }
-public native function <Request req> setBinaryPayload (blob payload);
-
 @Description { value:"Sets a request property"}
 @Param { value:"req: A request message" }
 @Param { value:"propertyName: The name of the property" }
 @Param { value:"propertyValue: The value of the property" }
 public native function <Request req> setProperty (string propertyName, string propertyValue);
 
-@Description { value:"Sets a string as the request payload"}
-@Param { value:"req: A request message" }
-@Param { value:"payload: The payload to be set to the request as a string" }
-public native function <Request req> setStringPayload (string payload);
-
-@Description { value:"Gets the request payload as a string"}
-@Param { value:"req: A request message" }
-@Return { value:"The string representation of the message payload" }
-public native function <Request req> getStringPayload () (string);
-
-@Description { value:"Sets a JSON as the request payload"}
-@Param { value:"req: A request message" }
-@Param { value:"payload: The JSON payload to be " }
-public native function <Request req> setJsonPayload (json payload);
-
 @Description { value:"Retrieves the named property from the request"}
 @Param { value:"req: A request message" }
 @Param { value:"propertyName: The name of the property" }
 @Return { value:"The property value" }
 public native function <Request req> getProperty (string propertyName) (string);
-
-@Description { value:"Sets an XML as the payload"}
-@Param { value:"req: A request message" }
-@Param { value:"payload: The XML payload object" }
-public native function <Request req> setXmlPayload (xml payload);
 
 @Description { value:"Represents an HTTP response message"}
 @Field {value:"statusCode: The response status code"}
@@ -131,11 +86,6 @@ public native function <Response res> setEntity (mime:Entity entity);
 @Return { value:"HTTP status code of the response" }
 public native function <Response res> getStatusCode () (int);
 
-@Description { value:"Gets the length of the response payload, as given in the Content-Length header of the response"}
-@Param { value:"res: The response message" }
-@Return { value:"Length of the response payload" }
-public native function <Response res> getContentLength () (int);
-
 @Description { value:"Sets the HTTP status code of the response"}
 @Param { value:"res: The response message" }
 @Param { value:"statusCode: HTTP status code" }
@@ -146,63 +96,17 @@ public native function <Response res> setStatusCode (int statusCode);
 @Param { value:"reasonPhrase: Reason phrase value" }
 public native function <Response res> setReasonPhrase (string reasonPhrase);
 
-@Description { value:"Gets the response payload in JSON format"}
-@Param { value:"res: The response message" }
-@Return { value:"The JSON reresentation of the message payload" }
-public native function <Response res> getJsonPayload () (json);
-
-@Description { value:"Gets the response payload in XML format"}
-@Param { value:"res: The response message" }
-@Return { value:"The XML representation of the message payload" }
-public native function <Response res> getXmlPayload () (xml);
-
-@Description { value:"Gets the response payload in blob format"}
-@Param { value:"res: The response message" }
-@Return { value:"The blob representation of the message payload" }
-public native function <Response res> getBinaryPayload () (blob);
-
-@Description { value:"Sets a blob as the response payload"}
-@Param { value:"res: The response message" }
-@Param { value:"payload: The blob representation of the message payload" }
-public native function <Response res> setBinaryPayload (blob payload);
-
 @Description { value:"Sets a response property"}
 @Param { value:"res: The response message" }
 @Param { value:"propertyName: The name of the property" }
 @Param { value:"propertyValue: The value of the property" }
 public native function <Response res> setProperty (string propertyName, string propertyValue);
 
-public function <Response res> setStringPayload(string payload) {
-    mime:Entity entity = {};
-    entity.textData = payload;
-    mime:MediaType mediaType = {};
-    mediaType.primaryType = "text";
-    mediaType.subType = "plain";
-    entity.contentType = mediaType;
-    entity.overflowData = {path:"/tmp/copy.txt"};
-    res.setEntity(entity);
-}
-
-@Description { value:"Gets the response payload as a string"}
-@Param { value:"res: The response message" }
-@Return { value:"The string representation of the message payload" }
-public native function <Response res> getStringPayload () (string);
-
-@Description { value:"Sets a JSON as the response payload"}
-@Param { value:"req: The response message" }
-@Param { value:"payload: The JSON payload object" }
-public native function <Response res> setJsonPayload (json payload);
-
 @Description { value:"Retrieve a response property"}
 @Param { value:"res: The response message" }
 @Param { value:"propertyName: The name of the property" }
 @Return { value:"The property value" }
 public native function <Response res> getProperty (string propertyName) (string);
-
-@Description { value:"Sets an XML as the response payload"}
-@Param { value:"res: The response message" }
-@Param { value:"payload: The XML payload object" }
-public native function <Response res> setXmlPayload (xml payload);
 
 @Description { value:"Sends outbound response to the caller."}
 @Param { value:"res: The response message" }

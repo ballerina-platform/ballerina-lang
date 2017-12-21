@@ -43,6 +43,9 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import static org.ballerinalang.net.mime.util.Constants.HEADER_VALUE_STRUCT;
+import static org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+
 /**
  * Test cases for ballerina.net.http.response success native functions.
  */
@@ -50,8 +53,9 @@ public class ResponseNativeFunctionSuccessTest {
 
     private CompileResult result, serviceResult;
     private final String responseStruct = Constants.RESPONSE;
-    private final String headerStruct = Constants.HEADER_VALUE_STRUCT;
+    private final String headerStruct = HEADER_VALUE_STRUCT;
     private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
+    private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
     private String sourceFilePath = "test-src/statements/services/nativeimpl/response/response-native-function.bal";
 
     @BeforeClass
@@ -164,9 +168,10 @@ public class ResponseNativeFunctionSuccessTest {
         cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
         HttpUtil.addCarbonMsg(response, cMsg);
 
+        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, responseStruct);
         HttpUtil.setHeaderValueStructType(BCompileUtil.createAndGetStruct(result.getProgFile(),
-                protocolPackageHttp, headerStruct));
-        HttpUtil.populateInboundResponse(response, cMsg);
+                protocolPackageMime, headerStruct));
+        HttpUtil.populateInboundResponse(response, entity, cMsg);
 
         BValue[] inputArg = {response};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetContentLength", inputArg);
@@ -195,10 +200,10 @@ public class ResponseNativeFunctionSuccessTest {
         cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
         cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
         HttpUtil.addCarbonMsg(response, cMsg);
-
+        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, responseStruct);
         HttpUtil.setHeaderValueStructType(BCompileUtil.createAndGetStruct(result.getProgFile(),
-                protocolPackageHttp, headerStruct));
-        HttpUtil.populateInboundResponse(response, cMsg);
+                protocolPackageMime, headerStruct));
+        HttpUtil.populateInboundResponse(response, entity, cMsg);
 
         BString key = new BString(Constants.CONTENT_TYPE);
 
@@ -239,10 +244,10 @@ public class ResponseNativeFunctionSuccessTest {
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM + "," + Constants.TEXT_PLAIN + ";b=5");
         cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
-
+        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, responseStruct);
         HttpUtil.setHeaderValueStructType(BCompileUtil.createAndGetStruct(result.getProgFile(),
                 protocolPackageHttp, headerStruct));
-        HttpUtil.populateInboundResponse(response, cMsg);
+        HttpUtil.populateInboundResponse(response, entity, cMsg);
 
         BString key = new BString(Constants.CONTENT_TYPE);
         BValue[] inputArg = {response, key};
@@ -475,10 +480,10 @@ public class ResponseNativeFunctionSuccessTest {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("", Constants.HTTP_METHOD_GET);
         cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
         HttpUtil.addCarbonMsg(response, cMsg);
-
+        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, responseStruct);
         HttpUtil.setHeaderValueStructType(BCompileUtil.createAndGetStruct(result.getProgFile(),
-                protocolPackageHttp, headerStruct));
-        HttpUtil.populateInboundResponse(response, cMsg);
+                protocolPackageMime, headerStruct));
+        HttpUtil.populateInboundResponse(response, entity, cMsg);
 
         String range = "Range";
         String rangeValue = "bytes=500-999";

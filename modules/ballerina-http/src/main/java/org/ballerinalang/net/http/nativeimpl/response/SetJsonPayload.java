@@ -42,7 +42,7 @@ public class SetJsonPayload extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return HttpUtil
-                .setJsonPayload(context, this, false);
+       // return HttpUtil.setJsonPayload(context, this, false);
+        return null;
     }
 }

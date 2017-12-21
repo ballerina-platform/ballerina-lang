@@ -64,7 +64,7 @@ public class RequestNativeFunctionNegativeTest {
         } catch (Throwable e) {
             error = e.getMessage();
         }
-        Assert.assertTrue(error.contains("invalid content length"));
+        Assert.assertTrue(error.contains("no Content-Length header found"));
     }
 
     @Test

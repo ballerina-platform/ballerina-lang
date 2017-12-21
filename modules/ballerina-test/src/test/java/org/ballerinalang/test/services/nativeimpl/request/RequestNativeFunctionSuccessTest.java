@@ -45,6 +45,7 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import static org.ballerinalang.net.mime.util.Constants.HEADER_VALUE_STRUCT;
 
 /**
  * Test cases for ballerina.net.http.request success native functions.
@@ -53,7 +54,7 @@ public class RequestNativeFunctionSuccessTest {
 
     private CompileResult result, serviceResult;
     private final String requestStruct = Constants.REQUEST;
-    private final String headerStruct = Constants.HEADER_VALUE_STRUCT;
+    private final String headerStruct = HEADER_VALUE_STRUCT;
     private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
     private String sourceFilePath = "test-src/statements/services/nativeimpl/request/request-native-function.bal";
 
