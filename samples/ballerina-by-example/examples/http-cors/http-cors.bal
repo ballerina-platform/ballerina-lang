@@ -1,6 +1,6 @@
 import ballerina.net.http;
 
-@Description {value:"Service level CORS headers applies globally"}
+@Description {value:"Service level CORS headers applies globally for each resource"}
 @http:configuration {
     allowOrigins :["http://www.m3.com", "http://www.hello.com"],
     allowCredentials : false,
