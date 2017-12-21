@@ -108,17 +108,21 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             TextDocumentServiceContext completionContext = new TextDocumentServiceContext();
             completionContext.put(DocumentServiceKeys.POSITION_KEY, position);
             completionContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
-            BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext, documentManager);
-            // Visit the package to resolve the symbols
-            TreeVisitor treeVisitor = new TreeVisitor(completionContext);
-            bLangPackage.accept(treeVisitor);
-            BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
-            if (symbolEnvNode == null) {
-                completions = CompletionItemResolver.getResolverByClass(TopLevelResolver.class)
-                        .resolveItems(completionContext);
-            } else {
-                completions = CompletionItemResolver.getResolverByClass(symbolEnvNode.getClass())
-                        .resolveItems(completionContext);
+            try {
+                BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext, documentManager);
+                // Visit the package to resolve the symbols
+                TreeVisitor treeVisitor = new TreeVisitor(completionContext);
+                bLangPackage.accept(treeVisitor);
+                BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
+                if (symbolEnvNode == null) {
+                    completions = CompletionItemResolver.getResolverByClass(TopLevelResolver.class)
+                            .resolveItems(completionContext);
+                } else {
+                    completions = CompletionItemResolver.getResolverByClass(symbolEnvNode.getClass())
+                            .resolveItems(completionContext);
+                }
+            } catch (Exception e) {
+                completions = new ArrayList<>();
             }
             return Either.forLeft(completions);
         });
