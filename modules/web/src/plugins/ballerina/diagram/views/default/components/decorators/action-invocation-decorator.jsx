@@ -258,7 +258,7 @@ class ActionInvocationDecorator extends React.Component {
                     </rect>
                     <text
                         x={viewState.components.invocation.start.x
-                            + this.context.designer.config.statement.padding.left}
+                            + this.context.designer.config.statement.gutter.h}
                         y={viewState.components.invocation.start.y
                             - (this.context.designer.config.actionInvocationStatement.textHeight / 2)}
                         className='action-invocation-text'

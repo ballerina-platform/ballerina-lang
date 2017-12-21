@@ -1690,9 +1690,15 @@ class SizingUtil {
             const viewState = node.viewState;
             viewState.bBox.w = this.config.actionInvocationStatement.width;
             viewState.components['statement-box'].w = this.config.actionInvocationStatement.width;
-            // viewState.bBox.h = this.config.statement.height;
-            // viewState.components['statement-box'].h = this.config.statement.height;
             viewState.alias = 'ClientResponderNode';
+            if (TreeUtil.isReturn(node)) {
+                const paramText = node.expressions.map((exp) => {
+                    return exp.getSource(true);
+                }).join(', ');
+                const displayText = this.getTextWidth(paramText, 0,
+                    (this.config.clientLine.width + this.config.lifeLine.gutter.h));
+                viewState.displayText = displayText.text;
+            }
         }
     }
 
