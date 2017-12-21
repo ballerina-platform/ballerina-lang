@@ -302,7 +302,7 @@
     }
     
     .action-text{
-    text-anchor: start;
+        text-anchor: start;
         fill:#333333;
     }
     
@@ -316,6 +316,11 @@
     }
     .action-arrow{
         stroke: #9d9d9d;
+        fill: #000000;
+    }
+
+    .client-invocation-arrow{
+        stroke: #000000;
         fill: #000000;
     }
     
@@ -1305,6 +1310,7 @@
         fill: #000000;
     }
 
+    .client-invocation-text,
     .action-invocation-text {
         paint-order: stroke;
         text-anchor: start;
