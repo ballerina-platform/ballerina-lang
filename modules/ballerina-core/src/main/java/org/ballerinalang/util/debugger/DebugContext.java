@@ -26,7 +26,7 @@ import org.ballerinalang.util.codegen.LineNumberInfo;
  * @since 0.95.4
  */
 public class DebugContext {
-    private DebugCommand currentCommand;
+    private volatile DebugCommand currentCommand;
 
     private LineNumberInfo lastLine;
     private StackFrame sf;

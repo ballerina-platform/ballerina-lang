@@ -118,34 +118,27 @@ public class VMDebugManager {
         try {
             executionSem.acquire();
         } catch (InterruptedException e) {
+            e.printStackTrace();
             //Ignore
         }
     }
 
     /**
      * Method to acquire debug session.
-     *
-     * @param debugContext to set status.
      */
-    public void tryAcquireDebugSessionLock(DebugContext debugContext) {
-        if (debugContext.isSessionActive()) {
-            return;
-        }
+    public void tryAcquireDebugSessionLock() {
         try {
             debugSem.acquire();
-            debugContext.setSessionActive(true);
         } catch (InterruptedException e) {
+            e.printStackTrace();
             //ignore
         }
     }
 
     /**
      * Method to release the session and debug lock.
-     *
-     * @param debugContext  To remove session.
      */
-    public void releaseDebugSessionLock(DebugContext debugContext) {
-        debugContext.setSessionActive(false);
+    public void releaseDebugSessionLock() {
         debugSem.release();
     }
 
@@ -188,7 +181,7 @@ public class VMDebugManager {
 
         switch (command.getCommand()) {
             case DebugConstants.CMD_RESUME:
-                resume(command.getThreadId());
+                resume();
                 break;
             case DebugConstants.CMD_STEP_OVER:
                 stepOver(command.getThreadId());
@@ -229,12 +222,11 @@ public class VMDebugManager {
     }
 
     public void startDebug() {
-        clientHandler.updateAllDebugContexts(DebugCommand.RESUME);
-        executionSem.release();
+        resume();
     }
 
-    public void resume(String threadId) {
-        getDebugContext(threadId).setCurrentCommand(DebugCommand.RESUME);
+    public void resume() {
+        clientHandler.updateAllDebugContexts(DebugCommand.RESUME);
         executionSem.release();
     }
 

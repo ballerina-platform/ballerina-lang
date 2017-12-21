@@ -25,8 +25,8 @@ import org.ballerinalang.util.debugger.dto.MessageDTO;
 import org.ballerinalang.util.debugger.info.BreakPointInfo;
 import org.ballerinalang.util.debugger.util.DebugMsgUtil;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * {@code VMDebugSession} The Debug Session class will be used to hold context for each client.
@@ -42,7 +42,8 @@ public class VMDebugClientHandler implements DebugClientHandler {
     private Map<String, DebugContext> contextMap;
 
     public VMDebugClientHandler() {
-        this.contextMap = new HashMap<>();
+        //Using concurrent map because multiple threads may try to access this concurrently
+        this.contextMap = new ConcurrentHashMap<>();
     }
 
     @Override

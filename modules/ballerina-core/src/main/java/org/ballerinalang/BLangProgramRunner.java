@@ -141,9 +141,15 @@ public class BLangProgramRunner {
 
         BLangVM bLangVM = new BLangVM(programFile);
         bLangVM.run(bContext);
-        bContext.await();
         if (debugManager.isDebugEnabled()) {
+            if (bContext.getDebugContext().isSessionActive()) {
+                bContext.getDebugContext().setSessionActive(false);
+                debugManager.releaseDebugSessionLock();
+            }
+            bContext.await();
             debugManager.notifyExit();
+        } else {
+            bContext.await();
         }
         if (bContext.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());

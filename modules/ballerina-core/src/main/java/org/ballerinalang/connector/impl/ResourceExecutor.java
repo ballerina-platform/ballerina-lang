@@ -162,6 +162,12 @@ public class ResourceExecutor {
             debugContext.setCurrentCommand(DebugCommand.RESUME);
             context.setDebugContext(debugContext);
             debugManager.addDebugContext(debugContext);
+            bLangVM.run(context);
+            if (debugContext.isSessionActive()) {
+                debugContext.setSessionActive(false);
+                debugManager.releaseDebugSessionLock();
+            }
+            return;
         }
         bLangVM.run(context);
     }

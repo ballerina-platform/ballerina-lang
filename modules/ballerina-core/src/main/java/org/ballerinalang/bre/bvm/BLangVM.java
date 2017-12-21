@@ -217,6 +217,12 @@ public class BLangVM {
             debugContext.setCurrentCommand(DebugCommand.RESUME);
             context.setDebugContext(debugContext);
             debugManager.addDebugContext(debugContext);
+            run(context);
+            if (debugContext.isSessionActive()) {
+                debugContext.setSessionActive(false);
+                debugManager.releaseDebugSessionLock();
+            }
+            return;
         }
         run(context);
     }
@@ -2393,14 +2399,17 @@ public class BLangVM {
             return;
         }
         DebugContext debugContext = context.getDebugContext();
-        try {
-            debugManager.tryAcquireDebugSessionLock(debugContext);
-            processDebugging(cp, debugManager, debugContext);
-        } finally {
-            if (debugContext.getCurrentCommand() == DebugCommand.RESUME) {
-                debugManager.releaseDebugSessionLock(debugContext);
-            }
+
+        if (debugContext.getCurrentCommand() == DebugCommand.RESUME && debugContext.isSessionActive()) {
+            debugContext.setSessionActive(false);
+            debugManager.releaseDebugSessionLock();
         }
+        //Between this release lock and acquire lock, some other thread can acquire the session lock as well.
+        if (code[cp].getOpcode() != InstructionCodes.WRKREPLY && !debugContext.isSessionActive()) {
+            debugManager.tryAcquireDebugSessionLock();
+            debugContext.setSessionActive(true);
+        }
+        processDebugging(cp, debugManager, debugContext);
     }
 
     /**
