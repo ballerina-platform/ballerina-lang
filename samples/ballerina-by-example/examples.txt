@@ -59,6 +59,7 @@ Produces/Consumes
 HTTP Sessions
 HTTP Client Connector
 HTTP Trace Logs
+HTTP 100 Continue
 HTTPS Server Connector
 HTTPS Server/Client Connectors
 HTTP Disable Chunking
