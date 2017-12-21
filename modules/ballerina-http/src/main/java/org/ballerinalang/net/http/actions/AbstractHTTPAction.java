@@ -85,7 +85,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 port = 443;
             }
 
-            cMsg.setProperty(org.wso2.transport.http.netty.common.Constants.HOST, host);
+            cMsg.setProperty(Constants.HOST, host);
             cMsg.setProperty(Constants.PORT, port);
             String toPath = url.getPath();
             String query = url.getQuery();
@@ -144,7 +144,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     }
 
     protected void executeNonBlocking(Context context, HTTPCarbonMessage httpRequestMsg,
-                                    HTTPClientConnectorListener httpClientConnectorLister) {
+                                      HTTPClientConnectorListener httpClientConnectorLister) {
         try {
             BConnector bConnector = (BConnector) getRefArgument(context, 0);
             String scheme = (String) httpRequestMsg.getProperty(Constants.PROTOCOL);
@@ -261,7 +261,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         // Extract Argument values
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String path = HttpUtil.sanitizeUri(getStringArgument(context, 0));
-        BStruct requestStruct  = ((BStruct) getRefArgument(context, 1));
+        BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
         //TODO check below line
         HTTPCarbonMessage requestMsg = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));

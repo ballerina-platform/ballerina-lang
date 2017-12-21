@@ -72,9 +72,7 @@ public class Send extends AbstractNativeFunction {
             // default behaviour: keepAlive = true
             responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
         }
-        if (outboundResponseStruct.getRefField(Constants.RESPONSE_HEADERS_INDEX) != null) {
-            HttpUtil.setHeadersToTransportMessage(responseMessage, outboundResponseStruct);
-        }
+        HttpUtil.enrichOutboundMessage(responseMessage, outboundResponseStruct);
 
         return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage,
                 outboundResponseStruct);
