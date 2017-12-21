@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,7 +32,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 /**
  * Loads the Ballerina builtin core and builtin packages.
  */
-public class BuiltinPackageLoader {
+public class BallerinaPackageLoader {
 
     /**
      * Get the Builtin Package.
@@ -45,9 +45,9 @@ public class BuiltinPackageLoader {
         options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
         options.put(PRESERVE_WHITESPACE, "false");
 
-        BLangPackage builtInCorePkg = getBuiltInPackage(context, Names.BUILTIN_CORE_PACKAGE);
+        BLangPackage builtInCorePkg = getPackageByName(context, Names.BUILTIN_CORE_PACKAGE);
         // Load built-in packages.
-        BLangPackage builtInPkg = getBuiltInPackage(context, Names.BUILTIN_PACKAGE);
+        BLangPackage builtInPkg = getPackageByName(context, Names.BUILTIN_PACKAGE);
         builtInCorePkg.getStructs().forEach(s -> {
             builtInPkg.getStructs().add(s);
             builtInPkg.topLevelNodes.add(s);
@@ -56,7 +56,13 @@ public class BuiltinPackageLoader {
         return builtInPkg;
     }
 
-    private static BLangPackage getBuiltInPackage(CompilerContext context, Name name) {
+    /**
+     * Get the packages by name.
+     *
+     * @param context compiler context.
+     * @param name    name of the package.
+     */
+    public static BLangPackage getPackageByName(CompilerContext context, Name name) {
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);

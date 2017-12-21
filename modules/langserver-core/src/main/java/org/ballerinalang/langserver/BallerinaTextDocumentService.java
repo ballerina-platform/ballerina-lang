@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,6 +46,7 @@ import org.eclipse.lsp4j.DocumentRangeFormattingParams;
 import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
@@ -95,7 +96,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         this.ballerinaLanguageServer = ballerinaLanguageServer;
         this.documentManager = new WorkspaceDocumentManagerImpl();
         this.lastDiagnosticMap = new HashMap<>();
-        builtinPkg = BuiltinPackageLoader.getBuiltinPackage();
+        builtinPkg = BallerinaPackageLoader.getBuiltinPackage();
     }
 
     @Override
@@ -137,8 +138,20 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             TextDocumentServiceContext hoverContext = new TextDocumentServiceContext();
             hoverContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
             hoverContext.put(DocumentServiceKeys.POSITION_KEY, position);
-            BLangPackage currentBLangPackage = TextDocumentServiceUtil.getBLangPackage(hoverContext, documentManager);
-            return HoverUtil.getHoverContent(hoverContext, currentBLangPackage);
+            Hover hover;
+            try {
+                BLangPackage currentBLangPackage =
+                        TextDocumentServiceUtil.getBLangPackage(hoverContext, documentManager);
+                BLangPackageContext pkgContext =
+                        new BLangPackageContext(builtinPkg, currentBLangPackage);
+                hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage, pkgContext);
+            } catch (Exception e) {
+                hover = new Hover();
+                List<Either<String, MarkedString>> contents = new ArrayList<>();
+                contents.add(Either.forLeft(""));
+                hover.setContents(contents);
+            }
+            return hover;
         });
     }
 
@@ -152,8 +165,8 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             signatureContext.put(DocumentServiceKeys.POSITION_KEY, position);
             signatureContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
             BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(signatureContext, documentManager);
-            SignatureHelpUtil.BLangPackageWrapper pkgContext =
-                    new SignatureHelpUtil.BLangPackageWrapper(builtinPkg, bLangPackage);
+            BLangPackageContext pkgContext =
+                    new BLangPackageContext(builtinPkg, bLangPackage);
             return SignatureHelpUtil.getFunctionSignatureHelp(callableItemName, pkgContext);
         });
     }
