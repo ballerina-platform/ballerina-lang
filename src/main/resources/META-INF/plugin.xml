@@ -226,7 +226,7 @@
 
         <localInspection language="Ballerina" displayName="Unresolved reference inspection" groupPath="Ballerina"
                          groupName="General" enabledByDefault="true" level="ERROR"
-                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.UnresolvedReferenceInspection"/>
+                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.BallerinaUnresolvedReferenceInspection"/>
 
         <localInspection language="Ballerina" displayName="Unused variable inspection" groupPath="Ballerina"
                          groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"
