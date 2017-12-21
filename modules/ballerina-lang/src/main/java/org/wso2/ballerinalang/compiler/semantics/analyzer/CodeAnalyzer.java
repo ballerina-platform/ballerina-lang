@@ -198,12 +198,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (Symbols.isNative(invNode.symbol)) {
             return;
         }
-        boolean functionReturns = invNode.retParams.size() > 0;
+        boolean invokableReturns = invNode.retParams.size() > 0;
         if (invNode.workers.isEmpty()) {
             invNode.body.accept(this);
             /* the function returns, but none of the statements surely returns */
-            if (functionReturns && !this.statementReturns) {
-                this.dlog.error(invNode.pos, DiagnosticCode.FUNCTION_MUST_RETURN);
+            if (invokableReturns && !this.statementReturns) {
+                this.dlog.error(invNode.pos, DiagnosticCode.INVOKABLE_MUST_RETURN,
+                        invNode.getKind().toString().toLowerCase());
             }
         } else {
             boolean workerReturns = false;
@@ -212,8 +213,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 workerReturns = workerReturns || this.statementReturns;
                 this.resetStatementReturns();
             }
-            if (functionReturns && !workerReturns) {
-                this.dlog.error(invNode.pos, DiagnosticCode.ATLEAST_ONE_WORKER_MUST_RETURN);
+            if (invokableReturns && !workerReturns) {
+                this.dlog.error(invNode.pos, DiagnosticCode.ATLEAST_ONE_WORKER_MUST_RETURN,
+                        invNode.getKind().toString().toLowerCase());
             }
         }
         this.finalizeCurrentWorkerActionSystem();
@@ -388,11 +390,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangConnector connectorNode) {
-        /* ignore */
+        connectorNode.actions.forEach(a -> a.accept(this));
     }
 
     public void visit(BLangAction actionNode) {
-        /* ignore */
+        this.visitInvocable(actionNode);
     }
 
     public void visit(BLangStruct structNode) {

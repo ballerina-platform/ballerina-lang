@@ -119,6 +119,21 @@ public class DatatableTest {
                         + "<element>Ballerina</element></STRING_ARRAY></result></results>");
     }
 
+    @Test(groups = "DatatableTest", description = "Check xml conversion with complex element.")
+    public void testToXmlComplexWithStructDef () {
+        BValue[] returns = BRunUtil.invoke(result, "testToXmlComplexWithStructDef");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<results><result><i>1</i><iA><element>1</element>"
+                + "<element>2</element><element>3</element></iA><l>9223372036854774807</l>"
+                + "<lA><element>100000000</element><element>200000000</element><element>300000000</element></lA>"
+                + "<f>123.34</f><fA><element>245.23</element><element>5559.49</element><element>8796.123</element></fA>"
+                + "<d>2.139095039E9</d><b>true</b><s>Hello</s>"
+                + "<dA><element>245.23</element><element>5559.49</element><element>8796.123</element></dA>"
+                + "<bA><element>true</element><element>false</element><element>true</element></bA>"
+                + "<sA><element>Hello</element><element>Ballerina</element></sA></result></results>");
+    }
+
     @Test(groups = "DatatableTest", description = "Check json conversion with complex element.")
     public void testToJsonComplex() {
         BValue[] returns = BRunUtil.invoke(result, "testToJsonComplex");
@@ -129,6 +144,17 @@ public class DatatableTest {
                 + "\"FLOAT_TYPE\":123.34,\"FLOAT_ARRAY\":[245.23,5559.49,8796.123],\"DOUBLE_TYPE\":2.139095039E9,"
                 + "\"BOOLEAN_TYPE\":true,\"STRING_TYPE\":\"Hello\",\"DOUBLE_ARRAY\":[245.23,5559.49,8796.123],"
                 + "\"BOOLEAN_ARRAY\":[true,false,true],\"STRING_ARRAY\":[\"Hello\",\"Ballerina\"]}]");
+    }
+
+    @Test(groups = "DatatableTest", description = "Check json conversion with complex element.")
+    public void testToJsonComplexWithStructDef() {
+        BValue[] returns = BRunUtil.invoke(result, "testToJsonComplexWithStructDef");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "[{\"i\":1,\"iA\":[1,2,3],\"l\":9223372036854774807,"
+                + "\"lA\":[100000000,200000000,300000000],\"f\":123.34,\"fA\":[245.23,5559.49,8796.123],"
+                + "\"d\":2.139095039E9,\"b\":true,\"s\":\"Hello\",\"dA\":[245.23,5559.49,8796.123],"
+                + "\"bA\":[true,false,true],\"sA\":[\"Hello\",\"Ballerina\"]}]");
     }
 
     @Test(groups = "DatatableTest",  description = "Check retrieving blob clob binary data.")

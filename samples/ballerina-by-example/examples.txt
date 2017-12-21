@@ -40,8 +40,9 @@ Fork/Join
 Fork/Join Condition Some
 Fork/Join Variable Access
 SQL Connector
-Datatables
+Datatable
 Transactions
+Distributed Transactions
 Transformers
 Transform JSON
 Strings
@@ -57,6 +58,8 @@ Header Based Routing
 Produces/Consumes
 HTTP Sessions
 HTTP Client Connector
+HTTP Trace Logs
+HTTP 100 Continue
 HTTPS Server Connector
 HTTPS Server/Client Connectors
 HTTP Disable Chunking

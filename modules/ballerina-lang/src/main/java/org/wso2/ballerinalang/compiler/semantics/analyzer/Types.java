@@ -199,8 +199,13 @@ public class Types {
             return true;
         }
 
-        if (source.tag == TypeTags.JSON && target.tag == TypeTags.JSON) {
-            return ((BJSONType) target).constraint.tag == TypeTags.NONE;
+        if (target.tag == TypeTags.JSON) {
+            if (source.tag == TypeTags.JSON) {
+                return ((BJSONType) target).constraint.tag == TypeTags.NONE;
+            }
+            if (source.tag == TypeTags.ARRAY) {
+                return isArrayTypesAssignable(source, target);
+            }
         }
 
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
@@ -216,6 +221,13 @@ public class Types {
 
         } else if (source.tag == TypeTags.ARRAY) {
             // Only the right-hand side is an array type
+
+            // if the target type is a json, then element type of the rhs array
+            // can be a string|int|float|boolean|json
+            if (target.tag == TypeTags.JSON) {
+                return isJSONAssignableType(source);
+            }
+
             // Then lhs type should 'any' type
             return target.tag == TypeTags.ANY;
 
@@ -265,7 +277,7 @@ public class Types {
         }
 
         // Now one or both types are not array types and they have to be equal
-        return target == source;
+        return isSameType(source, target);
     }
 
     public boolean checkStructEquivalency(BType actualType, BType expType) {
@@ -522,6 +534,11 @@ public class Types {
 
         return false;
     }
+    
+    private boolean isJSONAssignableType(BType type) {
+        int typeTag = getElementType(type).tag; 
+        return typeTag <= TypeTags.BOOLEAN || typeTag == TypeTags.JSON;
+    }
 
     private boolean checkStructFieldToJSONConvertibility(BType structType, BType fieldType) {
         // If the struct field type is the struct
@@ -575,8 +592,17 @@ public class Types {
         @Override
         public BSymbol visit(BJSONType t, BType s) {
             // Handle constrained JSON
-            if (isSameType(s, t) || (s.tag == TypeTags.JSON && t.constraint.tag == TypeTags.NONE)) {
+            if (isSameType(s, t)) {
                 return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
+            } else if (s.tag == TypeTags.JSON) {
+                if (t.constraint.tag == TypeTags.NONE) {
+                    return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
+                } else if (((BJSONType) s).constraint.tag == TypeTags.NONE) {
+                    return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
+                } else if (checkStructEquivalency(((BJSONType) s).constraint, t.constraint)) {
+                    return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
+                }
+                return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
             } else if (s.tag == TypeTags.ARRAY) {
                 return getExplicitArrayCastOperator(t, s, t, s);
             } else if (t.constraint.tag != TypeTags.NONE) {
