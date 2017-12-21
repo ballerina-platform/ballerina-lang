@@ -57,7 +57,6 @@ class WhileNode extends React.Component {
                     expression={expression}
                     editorOptions={editorOptions}
                     model={model}
-                    body={model.body}
                 />
             </g>
         );

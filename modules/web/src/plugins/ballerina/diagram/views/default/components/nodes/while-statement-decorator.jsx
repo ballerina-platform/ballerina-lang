@@ -170,8 +170,6 @@ class WhileStatementDecorator extends React.Component {
         const pointX = bBox.getRight() - breakpointHalf;
         const { model: { viewState } } = this.props;
         const statementBBox = viewState.components['statement-box'];
-        const { designer } = this.context;
-        const headerHeight = viewState.components['block-header'].h;
         const pointY = statementBBox.y - breakpointHalf;
         return (
             <Breakpoint
@@ -348,7 +346,7 @@ class WhileStatementDecorator extends React.Component {
                     width={statementBBox.w}
                     height={statementBBox.h}
                     baseComponent='rect'
-                    dropTarget={this.props.body}
+                    dropTarget={this.props.model.body}
                     enableDragBg
                     enableCenterOverlayLine={!this.props.disableDropzoneMiddleLineOverlay}
                 />
@@ -361,7 +359,7 @@ class WhileStatementDecorator extends React.Component {
                         onClick={this.openExpressionEditor}
                         className='invisible-rect'
                     />
-                    {expression && <title> {expression.text} </title>}
+                    {expression && <title> {this.props.editorOptions.model.getSource(true)} </title>}
                 </g>
                 { isBreakpoint && this.renderBreakpointIndicator() }
                 {this.props.children}
@@ -383,7 +381,6 @@ WhileStatementDecorator.defaultProps = {
     draggable: null,
     children: null,
     undeletable: false,
-    editorOptions: null,
     parameterEditorOptions: null,
     utilities: null,
     parameterBbox: null,
@@ -394,17 +391,14 @@ WhileStatementDecorator.defaultProps = {
         jump: false,
     },
     disableDropzoneMiddleLineOverlay: false,
+    isDebugHit: false,
 };
 
 WhileStatementDecorator.propTypes = {
-    draggable: PropTypes.func,
     title: PropTypes.string.isRequired,
     model: PropTypes.instanceOf(Node).isRequired,
     children: PropTypes.arrayOf(React.PropTypes.node),
-    utilities: PropTypes.element,
     bBox: PropTypes.instanceOf(SimpleBBox).isRequired,
-    parameterBbox: PropTypes.instanceOf(SimpleBBox),
-    undeletable: PropTypes.bool,
     dropTarget: PropTypes.instanceOf(Node).isRequired,
     expression: PropTypes.shape({
         text: PropTypes.string,
@@ -415,7 +409,7 @@ WhileStatementDecorator.propTypes = {
         model: PropTypes.instanceOf(Node),
         getterMethod: PropTypes.func,
         setterMethod: PropTypes.func,
-    }),
+    }).isRequired,
     parameterEditorOptions: PropTypes.shape({
         propertyType: PropTypes.string,
         key: PropTypes.string,
@@ -432,6 +426,7 @@ WhileStatementDecorator.propTypes = {
         jump: PropTypes.bool.isRequired,
     }),
     disableDropzoneMiddleLineOverlay: PropTypes.bool,
+    isDebugHit: PropTypes.bool,
 };
 
 WhileStatementDecorator.contextTypes = {
