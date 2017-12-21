@@ -29,16 +29,23 @@ class Button extends React.Component {
      */
     render() {
         const bBox = this.props.bBox;
-        const buttonX = this.props.buttonX;
-        const buttonY = this.props.buttonY;
+        const btnX = this.props.buttonX;
+        const btnY = this.props.buttonY;
+        const btnRadius = this.props.buttonRadius;
         return (
             <div
                 className='button-area'
                 style={{ height: bBox.h, width: bBox.w, left: bBox.x, top: bBox.y }}
             >
-                <div className='interaction-menu-area' style={{ left: buttonX, top: buttonY }}>
-                    <div className='button-panel'>
-                        <span className={(this.props.showAlways ? 'button-show-always' : 'button') + ' fw-stack fw-lg'}>
+                <div
+                    className='interaction-menu-area'
+                    style={{ left: btnX, top: btnY, '--button-size': (btnRadius + 2 + (btnRadius / 4)) + 'px' }}
+                >
+                    <div style={{ fontSize: btnRadius }} className='button-panel'>
+                        <span
+
+                            className={(this.props.showAlways ? 'button-show-always' : 'button') + ' fw-stack fw-lg'}
+                        >
                             <i className='fw fw-circle fw-stack-2x' />
                             <i className='fw fw-add fw-stack-1x fw-inverse' />
                         </span>
@@ -55,12 +62,14 @@ Button.propTypes = {
     bBox: PropTypes.valueOf(PropTypes.object).isRequired,
     buttonX: PropTypes.number,
     buttonY: PropTypes.number,
+    buttonRadius: PropTypes.number,
     showAlways: PropTypes.bool,
 };
 
 Button.defaultProps = {
     buttonX: 20,
     buttonY: 20,
+    buttonRadius: 10,
     showAlways: false,
 };
 

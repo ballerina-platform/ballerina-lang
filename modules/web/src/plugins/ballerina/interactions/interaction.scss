@@ -5,9 +5,8 @@
 
 .interaction-menu-area {
     position:absolute;
-    width: 150px;
-    -webkit-clip-path: circle(24px at 30px 24px);
-    clip-path: circle(12px at 13px 13px);
+    -webkit-clip-path: circle(var(--button-size) at var(--button-size) var(--button-size));
+    clip-path: circle(var(--button-size) at var(--button-size) var(--button-size));
     -webkit-transition: -webkit-clip-path 0.5, clip-path 0.1;
     transition: -webkit-clip-path 0.5, clip-path 0.1;
 }
@@ -30,17 +29,16 @@
     top:2px;
     -webkit-animation: appear-button 0.2s ease-out;
     -moz-animation: appear-down 0.2s ease-out;
-    font-size:12px;
     cursor: pointer;
 }
 
 @-webkit-keyframes appear-button {
-      0% { opacity: 0;  font-size:5px }
-    100% { opacity: 1; font-size:12px}
+      0% { opacity: 0;  font-size:0% }
+    100% { opacity: 1; font-size:100%}
 }
 @-moz-keyframes appear-button {
-      0% { opacity: 0; font-size:5px}
-    100% { opacity: 1; font-size:12px }
+      0% { opacity: 0; font-size:0%}
+    100% { opacity: 1; font-size:100% }
 }
 
 .interaction-menu-area:hover {
