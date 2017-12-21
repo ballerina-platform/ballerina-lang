@@ -255,6 +255,24 @@ class TreeUtil extends AbstractTreeUtil {
         if (this.isReturn(node)) {
             return true;
         }
+        // TODO improve this logic to handle new respond client invocation
+        if (this.isAssignment(node) && this.isInvocation(node.getExpression())) {
+            const exp = node.getExpression();
+            if ((exp.invocationType === 'FUNCTION')
+                && ((exp.name.value === 'forward') || (exp.name.value === 'send'))) {
+                return true;
+            }
+            return false;
+        }
+        if (this.isVariableDef(node) && node.variable.getInitialExpression()
+                && this.isInvocation(node.variable.getInitialExpression())) {
+            const exp = node.variable.getInitialExpression();
+            if ((exp.invocationType === 'FUNCTION')
+                && ((exp.name.value === 'forward') || (exp.name.value === 'send'))) {
+                return true;
+            }
+            return false;
+        }
         return false;
     }
 
