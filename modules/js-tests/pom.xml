@@ -75,7 +75,7 @@
                             <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
                             <stripVersion>true</stripVersion>
                             <includes>
-                                */resources/composer/web/public/dist/vendor.js,*/resources/composer/web/public/dist/testable.js,*/resources/composer/web/public/dist/tree.js
+                                */resources/composer/web/public/vendor.js,*/resources/composer/web/public/testable.js,*/resources/composer/web/public/tree.js
                             </includes>
                         </configuration>
                     </execution>
