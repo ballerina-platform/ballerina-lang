@@ -26,9 +26,7 @@ import WorkerInvocationSyncVisitor from './visitors/worker-invocation-sync-visit
 import InvocationArrowPositionVisitor from './visitors/worker-invocation-arrow-position-sync-visitor';
 // import ArrowConflictResolver from '../visitors/arrow-conflict-resolver';
 import Clean from './visitors/clean';
-import AnnotationRenderingVisitor from '../visitors/annotation-rendering-visitor';
 import OverlayComponentsRenderingVisitor from '../visitors/overlay-comp-rendering-visitor';
-import ErrorCollectorVisitor from '../visitors/error-collector-visitor';
 import {
     getComponentForNodeArray,
     getSizingUtil,
@@ -41,6 +39,8 @@ import {
 import ActiveArbiter from './views/default/components/decorators/active-arbiter';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import TopLevelNodes from './views/default/components/nodes/top-level-nodes';
+import ControllerPositioningUtil from './views/default/controller-positioning-util';
+import ControllerVisitor from './visitors/controller-visitor';
 
 const padding = 5;
 
@@ -134,12 +134,12 @@ class Diagram extends React.Component {
          */
 
         // 3.1 lets filter out annotations so we can overlay html on top of svg.
-        const annotationRenderer = new AnnotationRenderingVisitor();
+        /* const annotationRenderer = new AnnotationRenderingVisitor();
         // this.props.model.accept(annotationRenderer); TODOX Disable annotations.
         let annotations = [];
         if (annotationRenderer.getAnnotations()) {
             annotations = getComponentForNodeArray(annotationRenderer.getAnnotations(), this.props.mode);
-        }
+        } */
 
         // Filter out the overlay components so we can overlay html on top of svg.
         const overlayCompRender = new OverlayComponentsRenderingVisitor();
@@ -150,12 +150,18 @@ class Diagram extends React.Component {
         }
 
         // Filter out the errors collected so we can show them near the specific components
-        const errorCollector = new ErrorCollectorVisitor();
+        /* const errorCollector = new ErrorCollectorVisitor();
         this.props.model.accept(errorCollector);
         let errorList = [];
         if (errorCollector.getErrors()) {
             errorList = getOverlayComponent(errorCollector.getErrors(), this.props.mode);
-        }
+        } */
+
+        const controllerVisitor = new ControllerVisitor();
+        controllerVisitor.setControllerUtil(new ControllerPositioningUtil());
+        this.props.model.accept(controllerVisitor);
+        const controllers = controllerVisitor.getComponents();
+
 
         const tln = (this.props.model.getTopLevelNodes()) ? this.props.model.getTopLevelNodes() : [];
         const children = getComponentForNodeArray(tln, this.props.mode);
@@ -165,9 +171,7 @@ class Diagram extends React.Component {
         return (<CanvasDecorator
             dropTarget={this.props.model}
             bBox={viewState.bBox}
-            overlayComponents={overlayComponents}
-            annotations={annotations}
-            errorList={errorList}
+            overlayComponents={controllers}
         >
             { children }
             <TopLevelNodes model={this.props.model} />

@@ -200,7 +200,7 @@ export const canvas = {
     padding: {
         top: 50,
         right: 50,
-        bottom: 50,
+        bottom: 100,
         left: 50,
     },
 };

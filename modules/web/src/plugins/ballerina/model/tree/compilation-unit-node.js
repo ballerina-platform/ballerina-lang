@@ -149,6 +149,27 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
         this.addTopLevelNodes(node);
     }
 
+    /**
+     * Returns true if the compilation unit does not have a toplevel node.
+     *
+     * @param {Node} node Node instance to be dropped
+     */
+    isEmpty() {
+        let empty = true;
+        for (let i = 0; i < this.topLevelNodes.length; i++) {
+            if (TreeUtils.isService(this.topLevelNodes[i]) ||
+                TreeUtils.isFunction(this.topLevelNodes[i]) ||
+                TreeUtils.isConnectorDeclaration(this.topLevelNodes[i]) ||
+                TreeUtils.isEnum(this.topLevelNodes[i]) ||
+                TreeUtils.isStruct(this.topLevelNodes[i]) ||
+                TreeUtils.isTransformer(this.topLevelNodes[i])
+                ) {
+                empty = false;
+                break;
+            }
+        }
+        return empty;
+    }
 }
 
 export default CompilationUnitNode;

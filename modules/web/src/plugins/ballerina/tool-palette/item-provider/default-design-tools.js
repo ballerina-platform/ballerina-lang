@@ -127,6 +127,8 @@ const tools = [
     },
 ];
 
+export const TopLevelElements = tools;
+
 export default {
     name: 'Constructs',
     id: 'constructs-tool-group',

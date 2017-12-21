@@ -17,7 +17,13 @@
  */
 
 import _ from 'lodash';
+import React from 'react';
+import PropTypes from 'prop-types';
 import SimpleBBox from './../../../model/view/simple-bounding-box';
+import Button from '../../../interactions/button';
+import Menu from '../../../interactions/menu';
+import Item from '../../../interactions/item';
+import TopLevelElements from '../../../tool-palette/item-provider/compilation-unit-tools';
 
 class ControllerPositioningUtil {
 
@@ -29,7 +35,7 @@ class ControllerPositioningUtil {
      *
      */
     positionActionNodeControllers(node) {
-        // Not implemented.
+        return this.positionFunctionNodeControllers(node);
     }
 
 
@@ -84,9 +90,51 @@ class ControllerPositioningUtil {
      *
      */
     positionCompilationUnitNodeControllers(node) {
+        const x = (node.viewState.bBox.w / 2);
+        let y = _.last(node.topLevelNodes).viewState.bBox.h + _.last(node.topLevelNodes).viewState.bBox.y + 25;
+        const w = 50;
+        const h = 50;
+        if (node.isEmpty()) {
+            y = (node.viewState.bBox.h / 2);
+        }
+        const items = this.convertToAddItems(TopLevelElements, node);
         // Not implemented.
+        return (<Button
+            bBox={{ x, y, w, h }}
+            buttonX={0}
+            buttonY={0}
+            showAlways
+        >
+            <Menu>
+                {items}
+            </Menu>
+        </Button>);
     }
 
+    convertToAddItems(tools, node, index) {
+        return tools.map((element) => {
+            const data = {
+                node,
+                item: element,
+            };
+
+            if (element.seperator) {
+                return <hr />;
+            }
+
+            return (
+                <Item
+                    label={element.name}
+                    icon={`fw fw-${element.icon}`}
+                    callback={(menuItem) => {
+                        const newNode = menuItem.item.nodeFactoryMethod();
+                        menuItem.node.acceptDrop(newNode);
+                    }}
+                    data={data}
+                />
+            );
+        });
+    }
 
     /**
      * Calculate position of Connector node controllers.
@@ -128,7 +176,30 @@ class ControllerPositioningUtil {
      *
      */
     positionFunctionNodeControllers(node) {
-        // Not implemented.
+        /* console.log(node);
+        const x = node.viewState.bBox.x;
+        const y = node.viewState.bBox.y;
+        return (<Button
+            bBox={{ x: x + 25, y: y + 25, h: 50, w: 50 }}
+            buttonX={0}
+            buttonY={0}
+            showAlways
+        >
+            <Menu>
+                <Item
+                    label='Connector'
+                    icon='fw fw-dgm-if-else'
+                    callback={(data) => { alert(data.name); }}
+                    data={{ name: 'if condition' }}
+                />
+                <Item
+                    label='Worker'
+                    icon='fw fw-dgm-while'
+                    callback={(data) => { alert(data.name); }}
+                    data={{ name: 'while condition' }}
+                />
+            </Menu>
+        </Button>); */
     }
 
 
@@ -195,6 +266,7 @@ class ControllerPositioningUtil {
      */
     positionResourceNodeControllers(node) {
         // Not implemented.
+        return this.positionFunctionNodeControllers(node);
     }
 
 
