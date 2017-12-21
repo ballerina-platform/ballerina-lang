@@ -745,17 +745,7 @@ class SizingUtil {
         });
         // add side padding to the service.
         width += (this.config.innerPanel.wrapper.gutter.h * 2);
-        // calculate the initFunction for service.
-        if (viewState.variablesExpanded) {
-            const topGutter = 10;
-            const topBarHeight = 25;
-            const importInputHeight = 40;
-            const globals = variables;
-            cmp.initFunction.h = topGutter + topBarHeight + importInputHeight +
-                (globals.length * this.config.packageDefinition.importDeclaration.itemHeight);
-        } else {
-            cmp.initFunction.h = this.config.variablesPane.headerHeight;
-        }
+
         // add the init function height to body.
         height += cmp.initFunction.h;
         // if there are no children set the default height.
@@ -793,9 +783,7 @@ class SizingUtil {
 
         viewState.bBox.w = width;
 
-        viewState.bBox.h = cmp.annotation.h + cmp.body.h + cmp.heading.h + connectorHeight +
-            (viewState.variablesExpanded ? (variables.length *
-                this.config.packageDefinition.importDeclaration.itemHeight) + 35 : 0);
+        viewState.bBox.h = cmp.annotation.h + cmp.body.h + cmp.heading.h + connectorHeight;
 
         if (TreeUtil.isConnector(node)) {
             cmp.argParameterHolder = {};
