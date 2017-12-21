@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.signature;
 
 import org.ballerinalang.langserver.BLangPackageContext;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelp;
@@ -42,13 +43,14 @@ public class SignatureHelpUtil {
     private static final List<String> TERMINAL_CHARACTERS = Arrays.asList(OPEN_BRACKET, COMMA, ".");
 
     /**
-     * Get the name of the callable item. This ideally should be a ballerina function.
+     * Capture the callable item information such as name, package of the item, delimiter (. or :), and etc.
      *
-     * @param position    Position of the signature help triggered
-     * @param fileContent File content to search callable item name
-     * @return {@link String}   Callable Item name
+     * @param position          Position of the signature help triggered
+     * @param fileContent       File content to search callable item name
+     * @param serviceContext    Text Document service context instance for the signature help operation
      */
-    public static String getCallableItemName(Position position, String fileContent) {
+    public static void captureCallableItemInfo(Position position, String fileContent,
+                                                 TextDocumentServiceContext serviceContext) {
         int lineNumber = position.getLine();
         int character = position.getCharacter();
         // Here add offset of 2 since the indexing is zero based
@@ -60,7 +62,7 @@ public class SignatureHelpUtil {
 
         while (true) {
             if (backTrackPosition < 0) {
-                return "";
+                break;
             }
             String currentToken = Character.toString(line.charAt(backTrackPosition));
             if (CLOSE_BRACKET.equals(currentToken)) {
@@ -69,7 +71,7 @@ public class SignatureHelpUtil {
                 if (!closeBracketStack.isEmpty()) {
                     closeBracketStack.pop();
                 } else {
-                    return getFunctionName(line, backTrackPosition - 1);
+                    setItemInfo(line, backTrackPosition - 1, serviceContext);
                 }
             }
             backTrackPosition--;
@@ -79,18 +81,21 @@ public class SignatureHelpUtil {
     /**
      * Get the functionSignatureHelp instance.
      *
-     * @param functionName name of the function
-     * @param context      Signature help package context
+     * @param context                   Signature help context
+     * @param bLangPackageContext       BLangPackageContext
      * @return {@link SignatureHelp}    Signature help for the completion
      */
-    public static SignatureHelp getFunctionSignatureHelp(String functionName, BLangPackageContext context) {
+    public static SignatureHelp getFunctionSignatureHelp(TextDocumentServiceContext context,
+                                                         BLangPackageContext bLangPackageContext) {
+        
+        String callableItemName = context.get(SignatureKeys.CALLABLE_ITEM_NAME);
         // Get the functions List
-        List<BLangFunction> functions = context.getItems(BLangFunction.class);
+        List<BLangFunction> functions = bLangPackageContext.getItems(BLangFunction.class);
 
         List<SignatureInformation> signatureInformationList = functions
                 .stream()
                 .map(bLangFunction -> {
-                    if (bLangFunction.getName().getValue().equals(functionName)) {
+                    if (bLangFunction.getName().getValue().equals(callableItemName)) {
                         return getSignatureInformation(bLangFunction);
                     }
                     return null;
@@ -197,22 +202,43 @@ public class SignatureHelpUtil {
                 .filter(Objects::nonNull).findFirst().orElse(null);
     }
 
-    private static String getFunctionName(String line, int startPosition) {
+    private static void setItemInfo(String line, int startPosition, TextDocumentServiceContext signatureContext) {
         int counter = startPosition;
         String callableItemName = "";
+        String delimiter = "";
         while (true) {
             if (counter < 0) {
-                return callableItemName;
+                break;
             }
             char c = line.charAt(counter);
             if (!(Character.isLetterOrDigit(c)
                     || "_".equals(Character.toString(c))) || TERMINAL_CHARACTERS.contains(Character.toString(c))) {
                 callableItemName = line.substring(counter + 1, startPosition + 1);
+                delimiter = String.valueOf(line.charAt(counter));
                 break;
             }
             counter--;
         }
-        return callableItemName;
+        signatureContext.put(SignatureKeys.CALLABLE_ITEM_NAME, callableItemName);
+        signatureContext.put(SignatureKeys.ITEM_DELIMITER, delimiter);
+    }
+    
+    public static void captureIdentifierAgainst(String line, int startPosition,
+                                                 TextDocumentServiceContext signatureContext) {
+        int counter = startPosition;
+        String identifier = "";
+        while (true) {
+            if (counter < 0) {
+                break;
+            }
+            char c = line.charAt(counter);
+            if (TERMINAL_CHARACTERS.contains(Character.toString(c))) {
+                identifier = line.substring(counter + 1, startPosition + 1);
+                break;
+            }
+            counter--;
+        }
+        signatureContext.put(SignatureKeys.IDENTIFIER_AGAINST, identifier);
     }
 
     /**
