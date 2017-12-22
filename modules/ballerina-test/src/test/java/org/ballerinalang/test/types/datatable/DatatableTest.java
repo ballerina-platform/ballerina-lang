@@ -97,7 +97,20 @@ public class DatatableTest {
         BValue[] returns = BRunUtil.invoke(result, "testToXmlMultipleConsume");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<results/>");
+        Assert.assertEquals(returns[0].stringValue(), "<results><result><INT_TYPE>1</INT_TYPE>"
+                + "<LONG_TYPE>9223372036854774807</LONG_TYPE><FLOAT_TYPE>123.34</FLOAT_TYPE>"
+                + "<DOUBLE_TYPE>2.139095039E9</DOUBLE_TYPE><BOOLEAN_TYPE>true</BOOLEAN_TYPE>"
+                + "<STRING_TYPE>Hello</STRING_TYPE></result></results>");
+    }
+
+    @Test(groups = "DatatableTest", description = "Check xml streaming when result set consumed once.")
+    public void testToJsonMultipleConsume() {
+        BValue[] returns = BRunUtil.invoke(result, "testToJsonMultipleConsume");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "[{\"INT_TYPE\":1,\"LONG_TYPE\":9223372036854774807,"
+                + "\"FLOAT_TYPE\":123.34,\"DOUBLE_TYPE\":2.139095039E9,\"BOOLEAN_TYPE\":true,"
+                + "\"STRING_TYPE\":\"Hello\"}]");
     }
 
     @Test(groups = "DatatableTest", description = "Check xml conversion with complex element.")
