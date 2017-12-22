@@ -168,4 +168,18 @@ public class VMDebuggerTest {
 
         VMDebuggerUtil.startDebug("test-src/debugger/test-worker.bal", breakPoints, expRes);
     }
+
+    @Test(description = "Testing debug paths in package init")
+    public void testDebuggingPackageInit() {
+        BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
+                "test-package-init.bal", 1, 7);
+
+        WorkerResults mainWorker = new WorkerResults(VMDebuggerUtil.createWorkerBreakPoints(".",
+                "test-package-init.bal", 1, 3, 12, 13, 14, 18, 12, 13, 14, 18, 12, 20, 7),
+                STEP_OVER, STEP_IN, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER,
+                STEP_OVER, STEP_OVER, RESUME, RESUME);
+        ExpectedResults expRes = new ExpectedResults(mainWorker, false);
+
+        VMDebuggerUtil.startDebug("test-src/debugger/test-package-init.bal", breakPoints, expRes);
+    }
 }
