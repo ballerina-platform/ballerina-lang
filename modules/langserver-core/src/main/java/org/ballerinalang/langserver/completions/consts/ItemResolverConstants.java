@@ -48,6 +48,7 @@ public class ItemResolverConstants {
     public static final String BIND = "bind";
     public static final String ENDPOINT = "endpoint";
     public static final String CONTINUE = "continue";
+    public static final String NEXT = "next";
     public static final String BREAK = "break";
     public static final String THROW = "throw";
     public static final String TRIGGER_WORKER = "->";
@@ -63,6 +64,7 @@ public class ItemResolverConstants {
     public static final String ANNOTATION = "annotation";
     public static final String XMLNS = "xmlns";
     public static final String RESOURCE = "resource";
+    public static final String ENUM = "enum";
 
     // End of Basic Constructs
 

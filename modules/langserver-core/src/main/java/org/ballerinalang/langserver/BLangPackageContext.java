@@ -35,8 +35,8 @@ public class BLangPackageContext {
     private Map<String, BLangPackage> packageMap = new HashMap<>();
 
     public BLangPackageContext() {
-        BLangPackage builtInPackage = BallerinaPackageLoader.getBuiltinPackage();
-        this.addPackage(builtInPackage);
+        List<BLangPackage> builtInPackages = BallerinaPackageLoader.getBuiltinPackages();
+        builtInPackages.forEach(this::addPackage);
     }
 
     @SuppressWarnings("unchecked")
@@ -109,5 +109,14 @@ public class BLangPackageContext {
                     .put(getPackageName(((BLangPackageDeclaration) bLangPackage.getPackageDeclaration()).pkgNameComps)
                             , bLangPackage);
         }
+    }
+
+    /**
+     * Check whether the package exist in the current package context.
+     * @param packageName       package name
+     * @return {@link Boolean}  package exist or not
+     */
+    public boolean containsPackage(String packageName) {
+        return this.packageMap.containsKey(packageName);
     }
 }

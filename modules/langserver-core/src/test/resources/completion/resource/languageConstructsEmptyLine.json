@@ -51,7 +51,7 @@
       "detail": "statement",
       "documentation": null,
       "sortText": 6,
-      "insertText": "transaction {\n\t${1}\n} failed {\n\t${2}\n} aborted {\n\t${3}\n} committed {\n\t${4}\n}",
+      "insertText": "transaction with retries(${1}) {\n\t${2}\n} failed {\n\t${3}\n}",
       "data": null
     }, {
       "label": "try",
