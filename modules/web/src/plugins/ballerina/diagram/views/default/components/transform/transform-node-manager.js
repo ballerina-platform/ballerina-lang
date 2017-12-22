@@ -452,6 +452,15 @@ class TransformNodeManager {
         return { exp: mapExp, isTemp: false };
     }
 
+
+    /**
+     * Add given operator default statement to transformer
+     * @param {[type]} child [description]
+     */
+    addDefaultOperator(funcArg) {
+        this._transformStmt.getBody().addStatements(funcArg.callback(funcArg.args));
+    }
+
     /**
      * Add a new variable in transform scope or outer scope
      * @param {target|source} type type of the variable

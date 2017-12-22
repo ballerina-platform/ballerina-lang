@@ -35,6 +35,7 @@ import DropZone from '../../../../../drag-drop/DropZone';
 import Button from '../../../../../interactions/button';
 import Menu from '../../../../../interactions/menu';
 import Item from '../../../../../interactions/item';
+import { binaryOpTools, unaryOpTools, ternaryOpTools } from '../../../../../tool-palette/item-provider/operator-tools';
 import './transform-expanded.css';
 
 /**
@@ -1347,19 +1348,62 @@ class TransformExpanded extends React.Component {
                                         bBox={{ x: 0, y: 0, h: 0, w: 300 }}
                                         showAlways
                                     >
-                                        <Menu>
+                                        <Menu maxHeight={200}>
                                             <Item
                                                 label='Function'
                                                 icon='fw fw-function'
                                                 callback={(data) => { }}
                                                 data={{ name: 'function item' }}
                                             />
-                                            <Item
-                                                label='Operator'
-                                                icon='fw fw-operator'
-                                                callback={(data) => { }}
-                                                data={{ name: 'operator item' }}
-                                            />
+                                            <hr />
+                                            <p className='add-menu-text'>Unary Operators</p>
+                                            {
+                                                unaryOpTools.map((operator) => {
+                                                    return (<Item
+                                                        label={operator.title}
+                                                        icon={'fw fw-' + operator.icon}
+                                                        callback={() => {
+                                                            this.transformNodeManager.addDefaultOperator(
+                                                                { callback: operator.nodeFactoryMethod,
+                                                                    args: operator.factoryArgs });
+                                                        }}
+                                                    />);
+                                                })
+                                            }
+                                            <hr />
+                                            <p className='add-menu-text'>Binary Operators</p>
+                                            {
+                                                binaryOpTools.map((operator) => {
+                                                    if (!operator.seperator) {
+                                                        return (<Item
+                                                            label={operator.title}
+                                                            icon={'fw fw-' + operator.icon}
+                                                            callback={() => {
+                                                                this.transformNodeManager.addDefaultOperator(
+                                                                    { callback: operator.nodeFactoryMethod,
+                                                                        args: operator.factoryArgs });
+                                                            }}
+                                                        />);
+                                                    } else {
+                                                        return (<hr />);
+                                                    }
+                                                })
+                                            }
+                                            <hr />
+                                            <p className='add-menu-text'>Ternary Operators</p>
+                                            {
+                                                ternaryOpTools.map((operator) => {
+                                                    return (<Item
+                                                        label={operator.title}
+                                                        icon={'fw fw-' + operator.icon}
+                                                        callback={() => {
+                                                            this.transformNodeManager.addDefaultOperator(
+                                                                { callback: operator.nodeFactoryMethod,
+                                                                    args: operator.factoryArgs });
+                                                        }}
+                                                    />);
+                                                })
+                                            }
                                         </Menu>
                                     </Button>
                                     <div className='right-content'>
