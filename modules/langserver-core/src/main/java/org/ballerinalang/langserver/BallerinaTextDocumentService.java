@@ -197,20 +197,16 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
         symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
 
-        try {
-            BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(symbolsContext, documentManager);
+        BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(symbolsContext, documentManager);
 
-            Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
-                    .filter(cUnit -> (uri.endsWith(cUnit.getName())))
-                    .findFirst();
+        Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
+                .filter(cUnit -> (uri.endsWith(cUnit.getName())))
+                .findFirst();
 
-            documentCUnit.ifPresent(cUnit -> {
-                SymbolFindingVisitor visitor = new SymbolFindingVisitor(symbolsContext);
-                cUnit.accept(visitor);
-            });
-        } catch (Exception e) {
-            // Do nothing
-        }
+        documentCUnit.ifPresent(cUnit -> {
+            SymbolFindingVisitor visitor = new SymbolFindingVisitor(symbolsContext);
+            cUnit.accept(visitor);
+        });
 
         return CompletableFuture.supplyAsync(() -> symbols);
     }
