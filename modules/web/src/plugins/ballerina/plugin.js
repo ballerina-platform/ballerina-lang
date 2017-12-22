@@ -287,7 +287,7 @@ class BallerinaPlugin extends Plugin {
                         getLangServerClientInstance()
                             .then((langServerClient) => {
                                 langServerClient.documentDidOpenNotification({
-                                    uri: file.fullPath,
+                                    file,
                                     text: file.content,
                                 });
                             });
@@ -315,7 +315,7 @@ class BallerinaPlugin extends Plugin {
                         getLangServerClientInstance()
                             .then((langServerClient) => {
                                 langServerClient.documentDidChangeNotification({
-                                    uri: file.fullPath,
+                                    file,
                                     text: file.content,
                                 });
                             });
@@ -327,7 +327,7 @@ class BallerinaPlugin extends Plugin {
                         getLangServerClientInstance()
                             .then((langServerClient) => {
                                 langServerClient.documentDidSaveNotification({
-                                    uri: file.fullPath,
+                                    file,
                                     text: file.content,
                                 });
                             });
@@ -339,7 +339,7 @@ class BallerinaPlugin extends Plugin {
                         getLangServerClientInstance()
                             .then((langServerClient) => {
                                 langServerClient.documentDidCloseNotification({
-                                    uri: file.fullPath,
+                                    file,
                                 });
                             });
                     },

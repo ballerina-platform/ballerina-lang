@@ -53,3 +53,12 @@ export function getClientOS() {
 export function isClientOnMacOS() {
     return getClientOS() === MAC_OS;
 }
+
+/**
+ * Indicates whether the client is on Windows
+ *
+ * @returns {boolean} Indicates whether the client is on windows
+ */
+export function isClientOnWindows() {
+    return getClientOS() === WINDOWS;
+}

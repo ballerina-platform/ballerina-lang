@@ -20,6 +20,7 @@ import _ from 'lodash';
 import uuid from 'uuid/v4';
 import EventChannel from 'event_channel';
 import { getPathSeperator } from 'api-client/api-client';
+import { isClientOnWindows } from 'core/utils/client-info';
 import { EVENTS } from './../constants';
 
 /**
@@ -33,7 +34,9 @@ class File extends EventChannel {
      */
     constructor({ id, fullPath, path, name, extension, content, isPersisted, lastPersisted, isDirty, properties }) {
         super();
-        this._id = id || `${getPathSeperator()}temp${getPathSeperator()}${uuid()}${getPathSeperator()}untitled.bal`;
+        // FIXME: Get a valid temp dir from backend to fix this properly for both cloud & desktop
+        const tempRootDir = isClientOnWindows() ? 'c:\\' : '/';
+        this._id = id || `${tempRootDir}temp${getPathSeperator()}${uuid()}${getPathSeperator()}untitled.bal`;
         this._fullPath = fullPath || this._id;
         this._path = path || 'temp';
         this._name = name || 'untitled';
@@ -253,7 +256,11 @@ class File extends EventChannel {
      * Gives the URI of file.
      */
     toURI() {
-        return `file://${this.fullPath}`;
+        const pathSep = getPathSeperator();
+        const path = !this.fullPath.startsWith(pathSep)
+            ? pathSep + this.fullPath
+            : this.fullPath;
+        return `file://${path.replace(/\\/g, '/')}`;
     }
 
 }
