@@ -24,6 +24,9 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
@@ -37,22 +40,15 @@ public class BallerinaPackageLoader {
      * Get the Builtin Package.
      * @return {@link BLangPackage} Builtin BLang package
      */
-    public static BLangPackage getBuiltinPackage() {
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, "");
-        options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
-        options.put(PRESERVE_WHITESPACE, "false");
-        
+    public static List<BLangPackage> getBuiltinPackages() {
+        List<BLangPackage> builtins = new ArrayList<>();
+        CompilerContext context = prepareCompilerContext();
         BLangPackage builtInCorePkg = getPackageByName(context, Names.BUILTIN_CORE_PACKAGE.getValue());
-        // Load built-in packages.
         BLangPackage builtInPkg = getPackageByName(context, Names.BUILTIN_PACKAGE.getValue());
-        builtInCorePkg.getStructs().forEach(s -> {
-            builtInPkg.getStructs().add(s);
-            builtInPkg.topLevelNodes.add(s);
-        });
-
-        return builtInPkg;
+        builtins.add(builtInCorePkg);
+        builtins.add(builtInPkg);
+ 
+        return builtins;
     }
 
     /**
@@ -66,5 +62,15 @@ public class BallerinaPackageLoader {
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
         return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadEntryPackage(name)));
+    }
+    
+    public static CompilerContext prepareCompilerContext() {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(SOURCE_ROOT, "");
+        options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+        
+        return context;
     }
 }
