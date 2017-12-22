@@ -207,6 +207,11 @@ public class BallerinaPsiImplUtil {
 
         // Get all matching packages in the current module.
         VirtualFile[] contentRoots = ModuleRootManager.getInstance(module).getSourceRoots();
+        // Content roots can be empty in some small IDEs. In such cases, use project root directory as a content root.
+        if (contentRoots.length == 0) {
+            VirtualFile baseDir = module.getProject().getBaseDir();
+            contentRoots = new VirtualFile[]{baseDir};
+        }
         results.addAll(getMatchingPackagesFromContentRoots(contentRoots, packages, project));
 
         // Get all matching packages in the dependency modules.
