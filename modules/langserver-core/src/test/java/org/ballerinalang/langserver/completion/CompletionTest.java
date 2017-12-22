@@ -87,7 +87,7 @@ public abstract class CompletionTest {
     @AfterMethod
     public void tearDown(ITestResult result) {
         if (result.getStatus() == ITestResult.FAILURE) {
-            LOGGER.error("Test Fail ed for: [" + result.getParameters()[1] + result.getParameters()[0] + "]");
+            LOGGER.error("Test Failed for: [" + result.getParameters()[1] + "/" + result.getParameters()[0] + "]");
         }
     }
 

@@ -89,6 +89,7 @@ public class TopLevelResolver extends AbstractItemResolver {
         addStaticItem(completionItems, ItemResolverConstants.PACKAGE, ItemResolverConstants.PACKAGE + " ");
         addStaticItem(completionItems, ItemResolverConstants.CONST, ItemResolverConstants.CONST + " ");
         addStaticItem(completionItems, ItemResolverConstants.FUNCTION, Snippet.FUNCTION.toString());
+        addStaticItem(completionItems, ItemResolverConstants.ENUM, Snippet.ENUM.toString());
         addStaticItem(completionItems, ItemResolverConstants.SERVICE, Snippet.SERVICE.toString());
         addStaticItem(completionItems, ItemResolverConstants.TRANSFORMER, Snippet.TRANSFORMER.toString());
         addStaticItem(completionItems, ItemResolverConstants.CONNECTOR, Snippet.CONNECTOR_DEFINITION.toString());
