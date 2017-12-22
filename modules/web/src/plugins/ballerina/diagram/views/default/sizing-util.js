@@ -1497,9 +1497,7 @@ class SizingUtil {
                 if (TreeUtil.isBlock(elseStmt) && elseStmt.statements.length === 0) {
                     break;
                 }
-                const elseHeight = (elseStmt.viewState.bBox.h)
-                                + this.config.flowChartControlStatement.heading.height
-                             + this.config.statement.gutter.h;
+                const elseHeight = elseStmt.viewState.bBox.h;
                 nodeHeight += elseHeight;
                 // If the current else statement is for an else if only, we proceed
                 if (elseStmt.parent !== node) {
