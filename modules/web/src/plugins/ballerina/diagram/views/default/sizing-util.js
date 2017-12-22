@@ -1445,7 +1445,8 @@ class SizingUtil {
         const nodeBodyViewState = node.body.viewState;
 
         // flow chart while width and height is different to normal block node width and height
-        nodeBodyViewState.bBox.w = this.config.flowChartControlStatement.width;
+        nodeBodyViewState.bBox.w = (nodeBodyViewState.bBox.w < this.config.flowChartControlStatement.width) ?
+                                    this.config.flowChartControlStatement.width : nodeBodyViewState.bBox.w;
         nodeBodyViewState.bBox.h += this.config.statement.gutter.v;
 
         components.body = new SimpleBBox();
@@ -1497,9 +1498,7 @@ class SizingUtil {
                 if (TreeUtil.isBlock(elseStmt) && elseStmt.statements.length === 0) {
                     break;
                 }
-                const elseHeight = (elseStmt.viewState.bBox.h)
-                                + this.config.flowChartControlStatement.heading.height
-                             + this.config.statement.gutter.h;
+                const elseHeight = elseStmt.viewState.bBox.h;
                 nodeHeight += elseHeight;
                 // If the current else statement is for an else if only, we proceed
                 if (elseStmt.parent !== node) {
@@ -1735,7 +1734,8 @@ class SizingUtil {
         const nodeBodyViewState = node.body.viewState;
 
         // flow chart while width and height is different to normal block node width and height
-        nodeBodyViewState.bBox.w = this.config.flowChartControlStatement.width;
+        nodeBodyViewState.bBox.w = (nodeBodyViewState.bBox.w < this.config.flowChartControlStatement.width) ?
+                                    this.config.flowChartControlStatement.width : nodeBodyViewState.bBox.w;
         nodeBodyViewState.bBox.h += this.config.statement.gutter.v;
 
         components.body = new SimpleBBox();
@@ -1755,7 +1755,7 @@ class SizingUtil {
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
-        viewState.components['statement-box'].h = bodyHeight; // + this.config.flowChartControlStatement.heading.height;
+        viewState.components['statement-box'].h = bodyHeight;
         viewState.components['statement-box'].w = bodyWidth;
         viewState.bBox.h = viewState.components['statement-box'].h
                             + viewState.components['drop-zone'].h
@@ -1912,7 +1912,8 @@ class SizingUtil {
         viewState.components['drop-zone'].w = bodyWidth;
         viewState.components['statement-box'].h = bodyHeight + this.config.blockStatement.heading.height;
         viewState.components['statement-box'].w = bodyWidth;
-        viewState.bBox.h = viewState.components['statement-box'].h + viewState.components['drop-zone'].h;
+        viewState.bBox.h = viewState.components['statement-box'].h + viewState.components['drop-zone'].h
+                            + this.config.statement.gutter.h;
         viewState.bBox.w = bodyWidth;
         components.body.w = bodyWidth;
 

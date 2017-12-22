@@ -97,7 +97,7 @@ class LifeLine extends React.Component {
     }
     render() {
         const bBox = this.props.bBox;
-        const iconSize = 16;
+        const iconSize = 18;
         const lineClass = `${this.props.classes.lineClass} unhoverable`;
         const polygonClassTop = this.props.classes.polygonClass;
         const polygonClassBottom = `${this.props.classes.polygonClass} unhoverable`;
@@ -173,7 +173,7 @@ class LifeLine extends React.Component {
             <g onClick={this.handleConnectorProps}>
                 <image
                     x={centerX - (iconSize / 2)}
-                    y={bBox.y - 20}
+                    y={bBox.y - 25}
                     width={iconSize}
                     height={iconSize}
                     xlinkHref={this.props.icon}
@@ -192,6 +192,7 @@ class LifeLine extends React.Component {
                 y={solidY1 - 10}
                 textAnchor='middle'
                 dominantBaseline='central'
+                fontWeight='400'
                 fill={this.props.iconColor}
                 onClick={e => this.openExpressionEditor(e)}
             >{identifier}</text>
@@ -200,6 +201,7 @@ class LifeLine extends React.Component {
                 y={solidY2 + 10}
                 textAnchor='middle'
                 dominantBaseline='central'
+                fontWeight='400'
                 fill={this.props.iconColor}
             >{identifier}</text>
             {this.props.onDelete &&
