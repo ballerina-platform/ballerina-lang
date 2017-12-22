@@ -148,7 +148,7 @@ class ResourceNode extends React.Component {
                                     title='default'
                                     bBox={this.props.model.viewState.components.defaultWorkerLine}
                                     classes={classes}
-                                    icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
+                                    icon={ImageUtil.getSVGIconString('tool-icons/worker')}
                                     iconColor='#025482'
                                 />
                                 {blockNode}

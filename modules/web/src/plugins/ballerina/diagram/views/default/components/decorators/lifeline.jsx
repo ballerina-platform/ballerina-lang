@@ -22,7 +22,6 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import SimpleBBox from './../../../../../model/view/simple-bounding-box';
-import { lifeLine } from './../../designer-defaults';
 import * as DesignerDefaults from './../../designer-defaults';
 import TreeUtils from './../../../../../model/tree-util';
 import OverlayComponentsRenderingUtil from './../utils/overlay-component-rendering-util';
@@ -37,7 +36,7 @@ class LifeLine extends React.Component {
         this.setActionVisibilityTrue = this.setActionVisibility.bind(this, true);
 
         const bBox = this.props.bBox;
-        this.topBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, lifeLine.head.height);
+        this.topBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, DesignerDefaults.lifeLine.head.height);
         this.state = { active: 'hidden' };
         this.handleConnectorProps = this.handleConnectorProps.bind(this);
     }
@@ -98,18 +97,18 @@ class LifeLine extends React.Component {
     }
     render() {
         const bBox = this.props.bBox;
-        const iconSize = 13;
+        const iconSize = 16;
         const lineClass = `${this.props.classes.lineClass} unhoverable`;
         const polygonClassTop = this.props.classes.polygonClass;
         const polygonClassBottom = `${this.props.classes.polygonClass} unhoverable`;
         const centerX = bBox.x + (bBox.w / 2);
         const startSolidLineFrom = this.props.startSolidLineFrom;
-        const titleBoxH = lifeLine.head.height;
+        const titleBoxH = DesignerDefaults.lifeLine.head.height;
         const y2 = bBox.h + bBox.y;
         const dashedY1 = !_.isNil(startSolidLineFrom) ? bBox.y + (titleBoxH / 2) : -1;
         const dashedY2 = !_.isNil(startSolidLineFrom) ? startSolidLineFrom : -1;
         const solidY1 = !_.isNil(startSolidLineFrom) ? startSolidLineFrom : bBox.y + (titleBoxH / 2);
-        const solidY2 = y2 - (titleBoxH / 2);
+        const solidY2 = y2;// - (titleBoxH / 2);
         this.topBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, titleBoxH);
 
         // Check if its the default worker
@@ -163,81 +162,45 @@ class LifeLine extends React.Component {
                 y2={solidY2}
                 className={lineClass}
             />
-            <rect
-                x={bBox.x}
-                y={bBox.y}
-                width={bBox.w}
-                height={titleBoxH}
-                rx='0'
-                ry='0'
-                className={polygonClassTop}
-                onClick={e => this.openExpressionEditor(e)}
+            <line
+                x1={bBox.x}
+                y1={solidY1}
+                x2={bBox.x + bBox.w}
+                y2={solidY1}
+                className={lineClass}
             />
-
             {this.props.icon &&
             <g onClick={this.handleConnectorProps}>
-                <rect
-                    x={bBox.x}
-                    y={bBox.y}
-                    width={DesignerDefaults.iconForTool.width}
-                    height={DesignerDefaults.iconForTool.height}
-                    rx='0'
-                    ry='0'
-                    fill={iconColor}
-                />
                 <image
-                    x={imageX}
-                    y={imageYTop}
+                    x={centerX - (iconSize / 2)}
+                    y={bBox.y - 20}
                     width={iconSize}
                     height={iconSize}
                     xlinkHref={this.props.icon}
                 />
             </g>
             }
-            <rect
-                x={bBox.x}
-                y={y2 - titleBoxH}
-                width={bBox.w}
-                height={titleBoxH}
-                rx='0'
-                ry='0'
-                className={polygonClassBottom}
+            <line
+                x1={bBox.x}
+                y1={y2}
+                x2={bBox.x + bBox.w}
+                y2={y2}
+                className={lineClass}
             />
-            {this.props.icon &&
-            <g>
-                <rect
-                    x={bBox.x}
-                    y={y2 - titleBoxH}
-                    width={DesignerDefaults.iconForTool.width}
-                    height={DesignerDefaults.iconForTool.height}
-                    rx='0'
-                    ry='0'
-                    fill={this.props.iconColor}
-                />
-                <image
-                    x={imageX}
-                    y={imageYBottom}
-                    width={iconSize}
-                    height={iconSize}
-                    xlinkHref={this.props.icon}
-                />
-            </g>
-            }
             <text
-                x={modifiedCenterValueForTop}
-                y={bBox.y + titleBoxH / 2}
-                alignmentBaseline='central'
+                x={centerX}
+                y={solidY1 - 10}
+                textAnchor='middle'
                 dominantBaseline='central'
-                className='life-line-text'
+                fill={this.props.iconColor}
                 onClick={e => this.openExpressionEditor(e)}
             >{identifier}</text>
             <text
-                x={modifiedCenterValueForTop}
-                y={y2 - titleBoxH / 2}
+                x={centerX}
+                y={solidY2 + 10}
                 textAnchor='middle'
-                alignmentBaseline='central'
                 dominantBaseline='central'
-                className='life-line-text'
+                fill={this.props.iconColor}
             >{identifier}</text>
             {this.props.onDelete &&
                 <ActionBox
