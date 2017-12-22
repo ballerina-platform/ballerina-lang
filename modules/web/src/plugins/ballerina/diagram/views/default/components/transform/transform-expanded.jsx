@@ -32,6 +32,9 @@ import FunctionInv from './function';
 import Operator from './operator';
 import TreeUtil from '../../../../../model/tree-util';
 import DropZone from '../../../../../drag-drop/DropZone';
+import Button from '../../../../../interactions/button';
+import Menu from '../../../../../interactions/menu';
+import Item from '../../../../../interactions/item';
 import './transform-expanded.css';
 
 /**
@@ -1340,6 +1343,25 @@ class TransformExpanded extends React.Component {
                                             })
                                         }
                                     </DropZone>
+                                    <Button
+                                        bBox={{ x: 0, y: 0, h: 0, w: 300 }}
+                                        showAlways
+                                    >
+                                        <Menu>
+                                            <Item
+                                                label='Function'
+                                                icon='fw fw-function'
+                                                callback={(data) => { }}
+                                                data={{ name: 'function item' }}
+                                            />
+                                            <Item
+                                                label='Operator'
+                                                icon='fw fw-operator'
+                                                callback={(data) => { }}
+                                                data={{ name: 'operator item' }}
+                                            />
+                                        </Menu>
+                                    </Button>
                                     <div className='right-content'>
                                         <div className='rightType'>
                                             <Tree
