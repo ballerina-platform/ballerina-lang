@@ -58,6 +58,7 @@ class SourceEditor extends React.Component {
         this.lastUpdatedTimestamp = props.file.lastUpdated;
         this.editorDidMount = this.editorDidMount.bind(this);
         this.onWorkspaceFileClose = this.onWorkspaceFileClose.bind(this);
+        this.handleGoToPosition = this.handleGoToPosition.bind(this);
     }
 
     /**
@@ -115,6 +116,7 @@ class SourceEditor extends React.Component {
      */
     componentWillUnmount() {
         this.props.commandProxy.off(WORKSPACE_EVENTS.FILE_CLOSED, this.onWorkspaceFileClose);
+        this.props.commandProxy.off(GO_TO_POSITION, this.handleGoToPosition);
     }
 
      /**
@@ -165,6 +167,7 @@ class SourceEditor extends React.Component {
         }
         editorInstance.setModel(modelForFile);
         this.props.commandProxy.on(WORKSPACE_EVENTS.FILE_CLOSED, this.onWorkspaceFileClose);
+        this.props.commandProxy.on(GO_TO_POSITION, this.handleGoToPosition);
         const services = createMonacoServices(editorInstance);
         const getLangServerConnection = this.props.ballerinaPlugin.getLangServerConnection();
         getLangServerConnection
@@ -205,7 +208,7 @@ class SourceEditor extends React.Component {
      */
     handleGoToPosition(args) {
         if (this.props.file.id === args.file.id) {
-            this.goToCursorPosition(args.row, args.column);
+            this.goToCursorPosition(args.row + 1, args.column + 1);
         }
     }
 
@@ -213,12 +216,15 @@ class SourceEditor extends React.Component {
      * Set cursor of the source editor to a
      * specific position.
      *
-     * @param {number} row Line Number
-     * @param {number} column Offset
+     * @param {number} lineNumber Line Number (1 based)
+     * @param {number} column Offset (1 based)
      */
-    goToCursorPosition(row, column) {
-        this.editor.focus();
-        this.editor.gotoLine(row + 1, column);
+    goToCursorPosition(lineNumber, column) {
+        this.editorInstance.focus();
+        this.editorInstance.setPosition({
+            lineNumber,
+            column,
+        });
     }
 
     /**
