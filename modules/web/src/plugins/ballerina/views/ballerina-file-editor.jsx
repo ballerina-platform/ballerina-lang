@@ -126,6 +126,7 @@ class BallerinaFileEditor extends React.Component {
             }
         });
         this.environment = new PackageScopedEnvironment();
+        this.props.editorModel.setProperty('balEnvironment', this.environment);
 
         this.hideSwaggerAceEditor = false;
 
@@ -703,7 +704,7 @@ class BallerinaFileEditor extends React.Component {
         return (
             <div
                 id={`bal-file-editor-${this.props.file.id}`}
-                className='bal-file-editor grid-background '
+                className='bal-file-editor'
             >
                 <CSSTransitionGroup
                     transitionName='loading-overlay'

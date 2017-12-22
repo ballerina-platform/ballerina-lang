@@ -58,7 +58,7 @@ class ServiceTransportLine extends React.Component {
                 {(this.props.addResource && showAddResourceBtnForWS && showAddResourceForOneResource
                 && this.props.resources.length && !this.props.model.viewState.collapsed) &&
                 <g id='resourceProtocolLine'>
-                    <line
+                    {/* <line
                         x1={bBox.x + 30}
                         y1={bBox.y2 - 70}
                         x2={bBox.x + 30}
@@ -66,12 +66,12 @@ class ServiceTransportLine extends React.Component {
                         strokeWidth='3'
                         strokeDasharray='1,1'
                         className='protocol-line new-node'
-                    />
+                    /> */}
                     <AddResourceDefinition
                         model={this.props.model}
                     />
                 </g> }
-                {this.props.resources.length && <line
+                {/* this.props.resources.length && <line
                     x1={bBox.x + 30}
                     y1={bBox.y + 50}
                     x2={bBox.x + 30}
@@ -79,13 +79,13 @@ class ServiceTransportLine extends React.Component {
                     stroke='black'
                     strokeWidth='3'
                     className='protocol-line'
-                />}
+                /> */}
                 {!this.props.resources.length &&
                 <g>
                     <AddResourceDefinition
                         model={this.props.model}
                     />
-                    <line
+                    {/* <line
                         x1={bBox.x + 30}
                         y1={bBox.y + 50}
                         x2={bBox.x + 30}
@@ -93,9 +93,9 @@ class ServiceTransportLine extends React.Component {
                         stroke='black'
                         strokeWidth='3'
                         className='protocol-line'
-                    />
+                    /> */}
                 </g> }
-                <line
+                {/* <line
                     x1={bBox.x + 30}
                     y1={bBox.y + 52}
                     x2={bBox.x + 60}
@@ -112,7 +112,7 @@ class ServiceTransportLine extends React.Component {
                     stroke='black'
                     strokeWidth='3'
                     className='protocol-line'
-                />
+                /> */}
             </g>
         );
     }

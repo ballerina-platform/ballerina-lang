@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,18 +16,25 @@
  * under the License.
  */
 
-export const statement = {
-    width: 300,
-    height: 20,
-    gutter: {
-        v: 20,
-        h: 0,
-    },
-    padding: {
-        top: 2,
-        right: 5,
-        bottom: 2,
-        left: 5,
-    },
-    maxWidth: 300,
-};
+import _ from 'lodash';
+import SimpleBBox from './../../../model/view/simple-bounding-box';
+
+class ControllerPositioningUtil {
+
+{{#each this}}
+
+    /**
+     * Calculate position of {{kind}} node controllers.
+     *
+     * @param {object} node
+     * 
+     */
+    position{{ kind }}NodeControllers(node) {
+        // Not implemented.
+    }
+
+{{/each}}
+
+}
+
+export default ControllerPositioningUtil;

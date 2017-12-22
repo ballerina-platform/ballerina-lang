@@ -40,7 +40,7 @@ class Arrow extends React.Component {
         const deltaY = end.y - start.y;
         const rad = Math.atan2(deltaY, deltaX);
         const deg = rad * (180 / Math.PI);
-        return deg - this.props.backward ? 180 : 0;
+        return deg;
     }
 
     /**
@@ -50,14 +50,19 @@ class Arrow extends React.Component {
      * @memberof Arrow
      */
     render() {
-        const { start, end, dashed, arrowSize, description } = this.props;
+        const { start, end, dashed, arrowSize, description, classNameArrow,
+            classNameArrowHead, arrowHeadPosition } = this.props;
         const descriptionX = (start.x + end.x) / 2;
         const descriptionY = start.y - 3;
 
-        let className = 'action-arrow';
+        let className = classNameArrow;
         if (dashed) {
-            className = 'action-arrow action-dash-line';
+            className = classNameArrow + ' action-dash-line';
         }
+
+        const arrowHeadX = arrowHeadPosition.x || end.x;
+        const arrowHeadY = arrowHeadPosition.y || end.y;
+
         return (
             <g >
                 <text
@@ -75,9 +80,9 @@ class Arrow extends React.Component {
                 />
                 <polygon
                     points={`-${arrowSize},-${arrowSize} 0,0 -${arrowSize},${arrowSize}`}
-                    transform={`translate(${end.x}, ${end.y})
-                                rotate(${this.getArrowAngle(start, start)}, 0, 0)`}
-                    className='action-arrow-head'
+                    transform={`translate(${arrowHeadX}, ${arrowHeadY})
+                                rotate(${this.getArrowAngle(start, end)}, 0, 0)`}
+                    className={classNameArrowHead}
                 />
             </g>);
     }
@@ -88,24 +93,32 @@ Arrow.propTypes = {
     start: PropTypes.shape({
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
-    }),
+    }).isRequired,
     end: PropTypes.shape({
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
-    }),
+    }).isRequired,
     dashed: PropTypes.bool,
     arrowSize: PropTypes.number,
     description: PropTypes.string,
-    backward: PropTypes.bool,
+    classNameArrow: PropTypes.string,
+    classNameArrowHead: PropTypes.string,
+    arrowHeadPosition: PropTypes.shape({
+        x: PropTypes.number,
+        y: PropTypes.number,
+    }),
 };
 
 Arrow.defaultProps = {
-    start: undefined,
-    end: undefined,
     dashed: false,
     arrowSize: 5,
     description: '',
-    backward: false,
+    classNameArrow: 'action-arrow',
+    classNameArrowHead: 'action-arrow-head',
+    arrowHeadPosition: {
+        x: undefined,
+        y: undefined,
+    },
 };
 
 export default Arrow;

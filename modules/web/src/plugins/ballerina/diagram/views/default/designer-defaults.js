@@ -86,6 +86,9 @@ export const lifeLine = {
     head: {
         height: 30,
     },
+    padding: {
+        top: 0,
+    },
     footer: {
         height: 30,
     },
@@ -99,6 +102,14 @@ export const lifeLine = {
     },
 };
 
+export const clientLine = {
+    head: {
+        length: 45,
+    },
+    width: 80,
+    arrowGap: 50,
+};
+
 export const actionBox = {
     width: 66,
     height: 21,
@@ -109,9 +120,9 @@ export const actionBox = {
 
 export const statement = {
     width: 120,
-    height: 30,
+    height: 20,
     gutter: {
-        v: 25,
+        v: 0,
         h: 10,
     },
     padding: {
@@ -121,6 +132,12 @@ export const statement = {
         left: 5,
     },
     maxWidth: 300,
+};
+
+export const actionInvocationStatement = {
+    width: 8,
+    height: (2 * statement.height),
+    textHeight: statement.height,
 };
 
 export const blockStatement = {
@@ -143,6 +160,34 @@ export const blockStatement = {
     },
 };
 
+export const flowChartControlStatement = {
+    width: 180,
+    heading: {
+        width: 90,
+        height: 60,
+        paramPaddingX: 5,
+        paramSeparatorOffsetX: 20,
+        paramEndOffsetX: 6,
+    },
+    gutter: {
+        h: (2 * statement.gutter.h),
+    },
+    body: {
+        padding: {
+            top: 25,
+            right: 25,
+            bottom: 25,
+            left: 25,
+        },
+        height: 100,
+    },
+    padding: {
+        left: (15 * statement.padding.left),
+        top: (2 * statement.padding.top),
+        bottom: (2 * statement.padding.bottom),
+    },
+};
+
 export const fork = {
     padding: {
         top: statement.gutter.v,
@@ -157,7 +202,7 @@ export const canvas = {
     padding: {
         top: 50,
         right: 50,
-        bottom: 50,
+        bottom: 100,
         left: 50,
     },
 };
@@ -177,7 +222,7 @@ export const statementContainer = {
 
 export const blockNode = {
     width: 120,
-    height: 115,
+    height: 80,
     padding: {
         top: 0,
         right: 20,

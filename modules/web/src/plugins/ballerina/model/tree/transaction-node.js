@@ -26,18 +26,18 @@ class TransactionNode extends AbstractTransactionNode {
     /**
      * Set alias to recognize the children.
      * */
-    setChildrenAlias() {
+    setChildrenCompoundStatus() {
         if (this.abortedBody) {
-            this.abortedBody.viewState.alias = 'Aborted';
+            this.abortedBody.viewState.compound = true;
         }
         if (this.committedBody) {
-            this.committedBody.viewState.alias = 'Committed';
+            this.committedBody.viewState.compound = true;
         }
         if (this.failedBody) {
-            this.failedBody.viewState.alias = 'Failed';
+            this.failedBody.viewState.compound = true;
         }
         if (this.transactionBody) {
-            this.transactionBody.viewState.alias = 'Transaction';
+            this.transactionBody.viewState.compound = true;
         }
     }
 }

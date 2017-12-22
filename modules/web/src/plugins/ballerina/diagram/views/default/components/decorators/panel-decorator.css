@@ -19,7 +19,7 @@
 .panel-body-rect {
     fill: none;
     fill-opacity: 0;
-    stroke-width: 2px;
+    stroke-width: 1px;
     shape-rendering: crispEdges;
     stroke: #d8d8d8;
 }

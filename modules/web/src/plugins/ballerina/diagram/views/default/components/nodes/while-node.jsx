@@ -1,3 +1,4 @@
+
 /**
  * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -20,7 +21,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import WhileNodeModel from 'plugins/ballerina/model/tree/while-node';
 import DropZone from 'plugins/ballerina/drag-drop/DropZone';
-import CompoundStatementDecorator from './compound-statement-decorator';
+import WhileStatementDecorator from './while-statement-decorator';
 import './try-node.css';
 
 class WhileNode extends React.Component {
@@ -28,7 +29,9 @@ class WhileNode extends React.Component {
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const expression = model.viewState.components.expression;
+        const expression = {
+            text: model.getCondition().getSource(),
+        };
         const dropZone = model.viewState.components['drop-zone'];
         const editorOptions = {
             propertyType: 'text',
@@ -49,14 +52,13 @@ class WhileNode extends React.Component {
                     enableDragBg
                     enableCenterOverlayLine
                 />
-                <CompoundStatementDecorator
+                <WhileStatementDecorator
                     dropTarget={model}
                     bBox={bBox}
                     title={'while'}
                     expression={expression}
                     editorOptions={editorOptions}
                     model={model}
-                    body={model.body}
                 />
             </g>
         );
@@ -65,12 +67,6 @@ class WhileNode extends React.Component {
 
 WhileNode.propTypes = {
     model: PropTypes.instanceOf(WhileNodeModel).isRequired,
-    bBox: PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired,
-    }),
 };
 
 WhileNode.contextTypes = {

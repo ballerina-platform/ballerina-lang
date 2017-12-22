@@ -22,14 +22,14 @@ import PropTypes from 'prop-types';
 import StatementDropZone from '../../../../../drag-drop/DropZone';
 import LifeLineDecorator from './../decorators/lifeline.jsx';
 import PanelDecorator from './../decorators/panel-decorator';
-import ResourceTransportLink from './resource-transport-link';
 import { getComponentForNodeArray } from './../../../../diagram-util';
-import { lifeLine } from './../../designer-defaults';
 import ImageUtil from './../../../../image-util';
 import './service-definition.css';
 import AddResourceDefinition from './add-resource-definition';
 import TreeUtil from '../../../../../model/tree-util';
 import EndpointDecorator from '../decorators/endpoint-decorator';
+import Client from '../decorators/client';
+import ResourceNodeModel from '../../../../../model/tree/resource-node';
 
 class ResourceNode extends React.Component {
 
@@ -40,11 +40,6 @@ class ResourceNode extends React.Component {
         };
         this.onMouseOver = this.onMouseOver.bind(this);
         this.onMouseOut = this.onMouseOut.bind(this);
-    }
-
-    canDropToPanelBody(dragSource) {
-        return TreeUtil.isEndpointTypeVariableDef(dragSource)
-            || TreeUtil.isWorker(dragSource);
     }
 
     /**
@@ -63,18 +58,17 @@ class ResourceNode extends React.Component {
         }
     }
 
+    canDropToPanelBody(dragSource) {
+        return TreeUtil.isEndpointTypeVariableDef(dragSource)
+            || TreeUtil.isWorker(dragSource);
+    }
+
     render() {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getName().value;
         const parentNode = this.props.model.parent;
         const body = this.props.model.getBody();
         const bodyBBox = this.props.model.body.viewState.bBox;
-        // lets calculate function worker lifeline bounding box.
-        const resource_worker_bBox = {};
-        resource_worker_bBox.x = bodyBBox.x + (bodyBBox.w - lifeLine.width) / 2;
-        resource_worker_bBox.y = bodyBBox.y - lifeLine.head.height;
-        resource_worker_bBox.w = lifeLine.width;
-        resource_worker_bBox.h = bodyBBox.h + lifeLine.head.height * 2;
 
         const classes = {
             lineClass: 'default-worker-life-line',
@@ -121,9 +115,9 @@ class ResourceNode extends React.Component {
             && resourceSiblings.length >= 1) {
             showAddResourceForOneResource = false;
         }
+
         return (
             <g>
-                <ResourceTransportLink bBox={tLinkBox} />
                 <PanelDecorator
                     icon='tool-icons/resource'
                     title={name}
@@ -134,6 +128,10 @@ class ResourceNode extends React.Component {
                     argumentParams={argumentParameters}
                     packageIdentifier={protocolPkgIdentifier}
                 >
+                    <Client
+                        title={protocolPkgIdentifier + ' Client'}
+                        bBox={this.props.model.viewState.components.client}
+                    />
                     <g>
                         { this.props.model.getWorkers().length === 0 &&
                             <g>
@@ -148,9 +146,9 @@ class ResourceNode extends React.Component {
                                 />
                                 <LifeLineDecorator
                                     title='default'
-                                    bBox={resource_worker_bBox}
+                                    bBox={this.props.model.viewState.components.defaultWorkerLine}
                                     classes={classes}
-                                    icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
+                                    icon={ImageUtil.getSVGIconString('tool-icons/worker')}
                                     iconColor='#025482'
                                 />
                                 {blockNode}
@@ -196,6 +194,10 @@ class ResourceNode extends React.Component {
             </g>);
     }
 }
+
+ResourceNode.propTypes = {
+    model: PropTypes.instanceOf(ResourceNodeModel).isRequired,
+};
 
 ResourceNode.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,

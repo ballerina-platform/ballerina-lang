@@ -33,14 +33,12 @@ class PositioningUtil {
         viewState.components['drop-zone'].y = viewState.bBox.y;
         viewState.components['statement-box'].x = viewState.bBox.x;
         viewState.components['statement-box'].y = viewState.bBox.y + viewState.components['drop-zone'].h;
-        viewState.components.text.x = viewState.components['statement-box'].x +
-            (viewState.components['statement-box'].w / 2);
+        viewState.components.text.x = viewState.components['statement-box'].x + this.config.statement.gutter.h;
         viewState.components.text.y = viewState.components['statement-box'].y +
             (viewState.components['statement-box'].h / 2);
 
-        //
         if (TreeUtil.statementIsInvocation(node)) {
-            // Set the view state property to manipulate at the statement decorator
+            // Set the view state property to manipulate at the action invocation decorator
             viewState.isActionInvocation = true;
             const arrowStartBBox = new SimpleBBox();
             const arrowEndBBox = new SimpleBBox();
@@ -55,8 +53,14 @@ class PositioningUtil {
             const endpoint = _.find(allVisibleEndpoints, (varDef) => {
                 return varDef.variable.name.value === variableRefName;
             });
+
+            // Move the x cordinates to centre align the action invocation statement
+            viewState.components['statement-box'].x -= (this.config.actionInvocationStatement.width / 2);
+            viewState.bBox.x -= (this.config.actionInvocationStatement.width / 2);
+
             arrowStartBBox.x = viewState.bBox.x + viewState.bBox.w;
-            arrowStartBBox.y = viewState.components['statement-box'].y + 10;
+            arrowStartBBox.y = viewState.components['statement-box'].y
+                                + this.config.actionInvocationStatement.textHeight;
 
             dropDown.x = arrowStartBBox.x;
             dropDown.y = viewState.components['statement-box'].y
@@ -74,6 +78,30 @@ class PositioningUtil {
                 if (endpoint.viewState.showOverlayContainer) {
                     OverlayComponentsRenderingUtil.showConnectorPropertyWindow(endpoint);
                 }
+            }
+        }
+        if (TreeUtil.statementIsClientResponder(node)) {
+            // Set the view state property to manipulate at the action invocation decorator
+            viewState.isClientResponder = true;
+            const arrowStartBBox = new SimpleBBox();
+            const arrowEndBBox = new SimpleBBox();
+
+            const parentConstructNode = TreeUtil.getClientInvokableParentNode(node);
+
+            arrowStartBBox.x = viewState.components['statement-box'].x;
+            arrowStartBBox.y = viewState.components['statement-box'].y
+                                + this.config.actionInvocationStatement.textHeight;
+
+            if (parentConstructNode) {
+                viewState.components.invocation = {
+                    start: undefined,
+                    end: undefined,
+                };
+                viewState.components.invocation.start = arrowStartBBox;
+                arrowEndBBox.x = parentConstructNode.viewState.components.client.x
+                                + (this.config.clientLine.head.length / 2);
+                arrowEndBBox.y = arrowStartBBox.y;
+                viewState.components.invocation.end = arrowEndBBox;
             }
         }
 
@@ -381,19 +409,24 @@ class PositioningUtil {
         // position the function body.
         funcBodyViewState.bBox.x = viewState.bBox.x + this.config.panel.body.padding.left;
         funcBodyViewState.bBox.y = viewState.bBox.y + cmp.annotation.h + cmp.heading.h +
-                                                                                    this.config.panel.body.padding.top
-            + this.config.lifeLine.head.height;
+            this.config.panel.body.padding.top + this.config.lifeLine.head.height;
+
+        cmp.client.x = viewState.bBox.x + this.config.panel.body.padding.left;
+        cmp.client.y = viewState.bBox.y + cmp.annotation.h + cmp.heading.h + this.config.panel.body.padding.top;
+
         // position the default worker.
-        cmp.defaultWorker.x = viewState.bBox.x + this.config.panel.body.padding.left;
+        cmp.defaultWorker.x = cmp.client.x + cmp.client.w + this.config.lifeLine.gutter.h;
         cmp.defaultWorker.y = viewState.bBox.y + cmp.annotation.h + cmp.heading.h + this.config.panel.body.padding.top;
         // position default worker line.
-        cmp.defaultWorkerLine.x = cmp.defaultWorker.x + ((cmp.defaultWorker.w - cmp.defaultWorkerLine.w) / 2);
+        cmp.defaultWorkerLine.x = cmp.defaultWorker.x;
         cmp.defaultWorkerLine.y = cmp.defaultWorker.y;
 
         // position the children
         const body = node.getBody();
-        body.viewState.bBox.x = viewState.bBox.x + this.config.panel.body.padding.left;
-        body.viewState.bBox.y = cmp.defaultWorker.y + this.config.lifeLine.head.height;
+        body.viewState.bBox.x = cmp.client.x + cmp.client.w + this.config.panel.body.padding.left
+            + (cmp.defaultWorkerLine.w / 2);
+        body.viewState.bBox.y = cmp.defaultWorker.y + this.config.lifeLine.head.height
+            + this.config.statement.height;
 
         // ========== Header Positioning ==========
         let publicPrivateFlagoffset = 0;
@@ -456,6 +489,8 @@ class PositioningUtil {
                         cmp.defaultWorker.x + cmp.defaultWorker.w + this.config.lifeLine.gutter.h;
 
         let maxLifeLineHeight = cmp.defaultWorker.h;
+        // Set the client invocation arrow end x coordinates.
+        cmp.client.arrowLine = cmp.defaultWorkerLine.x + (cmp.defaultWorkerLine.w / 2);
         // Position Workers
         if (workers instanceof Array && !_.isEmpty(workers)) {
             const maxHeightWorker = _.maxBy(workers, (worker) => {
@@ -468,6 +503,8 @@ class PositioningUtil {
                 worker.viewState.bBox.y = cmp.defaultWorker.y;
                 xindex += worker.viewState.bBox.w + this.config.lifeLine.gutter.h;
                 worker.viewState.components.lifeLine.h = maxLifeLineHeight;
+                // increase the arrow length of the client invokation line.
+                cmp.client.arrowLine = worker.viewState.bBox.x + (this.config.lifeLine.width / 2);
             });
         }
 
@@ -729,12 +766,13 @@ class PositioningUtil {
      * @param {object} node Worker object
      */
     positionWorkerNode(node) {
-        node.body.viewState.bBox.x = node.viewState.bBox.x;
-        node.body.viewState.bBox.y = node.viewState.bBox.y + this.config.lifeLine.head.height;
-
         const cmp = node.viewState.components;
-        cmp.lifeLine.x = node.viewState.bBox.x + ((node.viewState.bBox.w - cmp.lifeLine.w) / 2);
+        cmp.lifeLine.x = node.viewState.bBox.x;
         cmp.lifeLine.y = node.viewState.bBox.y;
+
+        node.body.viewState.bBox.x = node.viewState.bBox.x + (cmp.lifeLine.w / 2);
+        node.body.viewState.bBox.y = node.viewState.bBox.y + this.config.lifeLine.head.height
+            + this.config.statement.height;
     }
 
 
@@ -1027,7 +1065,7 @@ class PositioningUtil {
         let height = 0;
         statements.forEach((element) => {
             if (!TreeUtil.isEndpointTypeVariableDef(element)) {
-                element.viewState.bBox.x = viewState.bBox.x + ((viewState.bBox.w - element.viewState.bBox.w) / 2);
+                element.viewState.bBox.x = viewState.bBox.x;
                 element.viewState.bBox.y = viewState.bBox.y + height;
                 height += element.viewState.bBox.h;
             }
@@ -1187,41 +1225,43 @@ class PositioningUtil {
         const bBox = viewState.bBox;
         const elseStatement = node.elseStatement;
 
-        this.positionCompoundStatementComponents(node);
+        this.positionFlowControlCompoundStatementComponents(node);
 
         node.body.viewState.bBox.x = node.viewState.components['statement-box'].x;
-        node.body.viewState.bBox.y = node.viewState.components['statement-box'].y
-            + node.viewState.components['block-header'].h;
+        node.viewState.components['statement-box'].y += node.viewState.components['block-header'].h;
+        node.body.viewState.bBox.y = node.viewState.components['statement-box'].y;
 
         // Set the position of the else statement
-        const elseX = bBox.x;
-        let elseY = viewState.components['statement-box'].y
-            + viewState.components['statement-box'].h;
+        const elseX = (bBox.x - this.config.flowChartControlStatement.padding.left)
+                    + node.viewState.components['statement-box'].w;
+        const elseY = viewState.components['statement-box'].y
+                     + viewState.components['statement-box'].h;
 
-        // Increase the node's components width. Mac width of all the else if nodes and the else node increased in this
-        // pass
-        const newWidth = node.viewState.bBox.w;
-        node.body.viewState.bBox.w = newWidth;
-        node.viewState.components['drop-zone'].w = newWidth;
-        node.viewState.components['statement-box'].w = newWidth;
-        node.viewState.components['block-header'].w = newWidth;
-
-        if (elseStatement && node.viewState.bBox.w > elseStatement.viewState.bBox.w) {
-            elseStatement.viewState.bBox.w = newWidth;
-            if (TreeUtil.isBlock(elseStatement)) {
-                elseStatement.viewState.components['drop-zone'].w = newWidth;
-                elseStatement.viewState.components['statement-box'].w = newWidth;
-                elseStatement.viewState.components['block-header'].w = newWidth;
-            }
-        }
-        if (elseStatement && TreeUtil.isBlock(elseStatement)) {
-            elseY += elseStatement.viewState.components['block-header'].h;
-        }
         if (elseStatement) {
             elseStatement.viewState.bBox.x = elseX;
             elseStatement.viewState.bBox.y = elseY;
-            this.positionCompoundStatementComponents(elseStatement);
+            this.positionFlowControlCompoundStatementComponents(elseStatement);
         }
+    }
+
+    /**
+     * Position components of a flow control statement.
+     * @node flow control parent node.
+     */
+    positionFlowControlCompoundStatementComponents(node) {
+        const viewState = node.viewState;
+        const x = viewState.bBox.x;
+        let y;
+
+        if (TreeUtil.isBlock(node)) {
+            y = viewState.bBox.y + viewState.components['block-header'].h;
+        } else {
+            y = viewState.bBox.y;
+        }
+        viewState.components['drop-zone'].x = x;
+        viewState.components['drop-zone'].y = y;
+        viewState.components['statement-box'].x = viewState.bBox.x;
+        viewState.components['statement-box'].y = y + viewState.components['drop-zone'].h;
     }
 
     /**
@@ -1448,7 +1488,7 @@ class PositioningUtil {
      * @param {object} node While object
      */
     positionWhileNode(node) {
-        this.positionCompoundStatementComponents(node);
+        this.positionFlowControlCompoundStatementComponents(node);
         // Position the while node
         node.body.viewState.bBox.x = node.viewState.bBox.x;
         node.body.viewState.bBox.y = node.viewState.components['statement-box'].y

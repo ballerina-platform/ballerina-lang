@@ -302,7 +302,7 @@ class DefaultNodeFactory {
 
         // Iterate through the params
         const parameters = [];
-        if (connector.getParams()) {
+        if (connector && connector.getParams()) {
             const connectorParams = connector.getParams().map((param) => {
                 let defaultValue = Environment.getDefaultValue(param.type);
                 if (defaultValue === undefined) {
@@ -323,15 +323,14 @@ class DefaultNodeFactory {
                 parameters.push(paramNode.getVariable().getInitialExpression());
             });
             node.getVariable().getInitialExpression().setExpressions(parameters);
+            node.getVariable().getTypeNode().getConstraint().getTypeName().setValue(connector.getName());
+            node.getVariable().getTypeNode().getConstraint().getPackageAlias().setValue(pkgStr);
+            node.getVariable().getInitialExpression().getConnectorType().getPackageAlias().setValue(pkgStr);
+            node.getVariable().getInitialExpression().getConnectorType().getTypeName().setValue(connector.getName());
+            node.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
         }
         const pkgStr = packageName !== 'Current Package' ? `${packageName}` : '';
-        node.getVariable().getTypeNode().getConstraint().getTypeName().setValue(connector.getName());
-        node.getVariable().getTypeNode().getConstraint().getPackageAlias().setValue(pkgStr);
-        node.getVariable().getInitialExpression().getConnectorType().getPackageAlias().setValue(pkgStr);
-        node.getVariable().getInitialExpression().getConnectorType().getTypeName().setValue(connector.getName());
-        node.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
         node.viewState.showOverlayContainer = true;
-        node.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
         return node;
     }
 
@@ -340,14 +339,14 @@ class DefaultNodeFactory {
         let stmtString = '';
         const { action, packageName, fullPackageName } = args;
 
-        if (action.getReturnParams().length > 0) {
+        if (action && action.getReturnParams().length > 0) {
             stmtString = 'var var1 = ';
         }
         stmtString += 'endpoint1.action1();';
 
         node = getNodeForFragment(FragmentUtils.createStatementFragment(stmtString));
 
-        if (action.getParameters().length > 0) {
+        if (action && action.getParameters().length > 0) {
             const parameters = action.getParameters().map((param) => {
                let defaultValue = Environment.getDefaultValue(param.type);
                if (defaultValue === undefined) {
@@ -359,20 +358,22 @@ class DefaultNodeFactory {
            node.getExpression().setArgumentExpressions(parameters);
         }
 
-        const varRefNames = action.getReturnParams().map((param, index) => {
-            return 'variable' + index + 1;
-        });
-
-        if (varRefNames.length > 0) {
+        if (action && action.getReturnParams().length > 0) {
+            const varRefNames = action.getReturnParams().map((param, index) => {
+                return 'variable' + index + 1;
+            });
             const varRefListString = `var ${varRefNames.join(', ')} = function1();`;
             const returnNode = getNodeForFragment(FragmentUtils.createStatementFragment(varRefListString));
             node.setVariables(returnNode.getVariables());
         }
 
-        node.getExpression().getName().setValue(action.getName());
-        node.getExpression().setFullPackageName(fullPackageName);
+        if (action) {
+            node.getExpression().getName().setValue(action.getName());
+            node.getExpression().setFullPackageName(fullPackageName);
+            node.getExpression().getPackageAlias().setValue(packageName);
+        }
+
         node.getExpression().invocationType = 'ACTION';
-        node.getExpression().getPackageAlias().setValue(packageName);
         return node;
     }
 

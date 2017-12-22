@@ -47,6 +47,8 @@ class Node extends EventChannel {
         this.viewState = {
             bBox: new SimpleBBox(),
             components: {},
+            properties: {},
+            alias: undefined,
             dimensionsSynced: false,
             hidden: false,
         };
@@ -57,9 +59,9 @@ class Node extends EventChannel {
     }
 
     /**
-     * If there are child nodes to be aliased, this should carry the implementation accordingly
+     * If there are child nodes which are compound statements, this should carry the implementation accordingly
      */
-    setChildrenAlias() {
+    setChildrenCompoundStatus() {
         // Will implement by the particular node
     }
 
@@ -95,19 +97,18 @@ class Node extends EventChannel {
             if (childName !== 'parent' && childName !== 'position' && childName !== 'ws') {
                 if (newTree === undefined || newTree[childName] === undefined) {
                     console.warn(`could not find ${childName} in newTree`, newTree);
-                    continue;
-                }
-
-                const child = this[childName];
-                const child2 = newTree[childName];
-                if (child instanceof Node && child.kind) {
-                    child.sync(visitor, child2);
-                } else if (child instanceof Array) {
-                    for (let i = 0; i < child.length; i++) {
-                        const childItem = child[i];
-                        const childItem2 = child2[i];
-                        if (childItem instanceof Node && childItem.kind) {
-                            childItem.sync(visitor, childItem2);
+                } else {
+                    const child = this[childName];
+                    const child2 = newTree[childName];
+                    if (child instanceof Node && child.kind) {
+                        child.sync(visitor, child2);
+                    } else if (child instanceof Array) {
+                        for (let i = 0; i < child.length; i++) {
+                            const childItem = child[i];
+                            const childItem2 = child2[i];
+                            if (childItem instanceof Node && childItem.kind) {
+                                childItem.sync(visitor, childItem2);
+                            }
                         }
                     }
                 }

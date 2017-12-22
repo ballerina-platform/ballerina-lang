@@ -19,20 +19,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
+import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import ActionBox from './action-box';
 import SimpleBBox from './../../../../../model/view/simple-bounding-box';
 import './statement-decorator.css';
-import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import Breakpoint from './breakpoint';
 import ActiveArbiter from './active-arbiter';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
-import ArrowDecorator from './arrow-decorator';
-import StatementPropertyItemSelector from './../utils/statement-property-item-selector';
-import TreeUtil from '../../../../../model/tree-util';
 import splitVariableDefByLambda from '../../../../../model/lambda-util';
 import { getComponentForNodeArray } from '../../../../diagram-util';
-
 
 /**
  * Wraps other UI elements and provide box with a heading.
@@ -120,7 +116,8 @@ class StatementDecorator extends React.Component {
         const ballerinaFileEditor = this.context.editor;
         if (options) {
             new ExpressionEditor(this.state.statementBox,
-                text => this.onUpdate(text), options, packageScope, ballerinaFileEditor).render(this.context.getOverlayContainer());
+                text => this.onUpdate(text), options, packageScope, ballerinaFileEditor)
+                        .render(this.context.getOverlayContainer());
         }
     }
 
@@ -150,7 +147,7 @@ class StatementDecorator extends React.Component {
      * @returns {XML} rendered component.
      */
     render() {
-        const { viewState, expression, isBreakpoint, isDebugHit } = this.props;
+        const { viewState, expression, isBreakpoint } = this.props;
         const statementBox = viewState.components['statement-box'];
         const dropZone = viewState.components['drop-zone'];
         const text = viewState.components.text;
@@ -161,53 +158,13 @@ class StatementDecorator extends React.Component {
         const { designer } = this.context;
         actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;
         actionBoxBbox.h = designer.config.actionBox.height;
-        actionBoxBbox.x = statementBox.x + (statementBox.w - actionBoxBbox.w) / 2;
+        actionBoxBbox.x = statementBox.x + ((statementBox.w - actionBoxBbox.w) / 2);
         actionBoxBbox.y = statementBox.y + statementBox.h + designer.config.actionBox.padding.top;
-        let statementRectClass = 'statement-rect';
-        if (isDebugHit) {
-            statementRectClass = `${statementRectClass} debug-hit`;
-        }
+
         let tooltip = null;
         if (viewState.fullExpression !== expression) {
             const fullExp = _.trimEnd(this.props.viewState.fullExpression, ';');
             tooltip = (<title>{fullExp}</title>);
-        }
-
-        let dropDownItems;
-        const dropDownItemMeta = [];
-        let backwardArrowStart;
-        let backwardArrowEnd;
-        if (viewState.isActionInvocation) {
-            // TODO: Need to remove the unique by filter whne the lang server item resolver is implemented
-            dropDownItems = _.uniqBy(TreeUtil.getAllVisibleEndpoints(this.props.model.parent), (item) => {
-                return item.variable.name.value;
-            });
-            dropDownItems.forEach((item) => {
-                const meta = {
-                    text: _.get(item, 'variable.name.value'),
-                    callback: (newEp) => {
-                        TreeUtil.changeInvocationEndpoint(this.props.model, newEp);
-                        this.props.model.trigger('tree-modified', {
-                            origin: this.props.model,
-                            type: 'invocation-endpoint-change',
-                            title: 'Change Target Endpoint',
-                            data: {
-                                node: this.props.model,
-                            },
-                        });
-                    },
-                };
-                dropDownItemMeta.push(meta);
-            });
-            this.props.model.getSource();
-
-            if (viewState.components.invocation) {
-                backwardArrowStart = Object.assign({}, viewState.components.invocation.end);
-                backwardArrowStart.y = viewState.components['statement-box'].y
-                    + viewState.components['statement-box'].h - 10;
-                backwardArrowEnd = Object.assign({}, viewState.components.invocation.start);
-                backwardArrowEnd.y = backwardArrowStart.y;
-            }
         }
 
         const { lambdas } = splitVariableDefByLambda(this.props.model);
@@ -238,6 +195,7 @@ class StatementDecorator extends React.Component {
                 />
                 { children }
                 <DropZone
+                    model={this.props.model}
                     x={dropZone.x}
                     y={dropZone.y}
                     width={dropZone.w}
@@ -249,55 +207,25 @@ class StatementDecorator extends React.Component {
                     enableDragBg
                     enableCenterOverlayLine
                 />
-                <rect
-                    x={statementBox.x}
-                    y={statementBox.y}
-                    width={statementBox.w}
-                    height={statementBox.h}
-                    className={statementRectClass}
-                    onClick={e => this.openEditor(e)}
-                >
+                <g className='statement-body' onClick={e => this.onJumpToCodeLine()}>
                     {tooltip}
-                </rect>
-                <g className='statement-body'>
-                    {tooltip}
-                    <text x={text.x} y={text.y} className={textClassName} onClick={e => this.openEditor(e)}>
+                    <text
+                        x={text.x}
+                        y={text.y}
+                        className={textClassName}
+                        onClick={e => this.onJumpToCodeLine()}
+                    >
                         {_.trimEnd(expression, ';')}
                     </text>
                 </g>
-                <ActionBox
+                {/* <ActionBox
                     bBox={actionBoxBbox}
                     show={this.state.active}
                     isBreakpoint={isBreakpoint}
                     onDelete={() => this.onDelete()}
                     onJumptoCodeLine={() => this.onJumpToCodeLine()}
                     onBreakpointClick={() => this.props.onBreakpointClick()}
-                />
-                {viewState.isActionInvocation && viewState.components.invocation &&
-                (
-                    <g>
-                        <ArrowDecorator
-                            start={viewState.components.invocation.start}
-                            end={viewState.components.invocation.end}
-                        />
-                        <ArrowDecorator
-                            start={backwardArrowStart}
-                            end={backwardArrowEnd}
-                            dashed
-                            backward
-                        />
-                    </g>
-                )
-
-                }
-                {viewState.isActionInvocation &&
-                <StatementPropertyItemSelector
-                    model={this.props.model}
-                    bBox={this.props.model.viewState.components.dropDown}
-                    itemsMeta={dropDownItemMeta}
-                    show={this.state.active}
-                />
-                }
+                /> */}
                 {isBreakpoint && this.renderBreakpointIndicator()}
                 {this.props.children}
             </g>);
@@ -328,7 +256,6 @@ StatementDecorator.propTypes = {
     }),
     onBreakpointClick: PropTypes.func.isRequired,
     isBreakpoint: PropTypes.bool.isRequired,
-    isDebugHit: PropTypes.bool.isRequired,
 };
 
 StatementDecorator.contextTypes = {

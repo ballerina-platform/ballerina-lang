@@ -302,7 +302,7 @@
     }
     
     .action-text{
-    text-anchor: start;
+        text-anchor: start;
         fill:#333333;
     }
     
@@ -316,6 +316,11 @@
     }
     .action-arrow{
         stroke: #9d9d9d;
+        fill: #000000;
+    }
+
+    .client-invocation-arrow{
+        stroke: #000000;
         fill: #000000;
     }
     
@@ -714,21 +719,43 @@
             fill-opacity: 0.2;
         }
     }
+
+    .client-life-line {
+        stroke: #000;
+        stroke-width: 1;
+        cursor: pointer;
+    }
+
+    .client-line-header{
+        fill:#FFF;
+        stroke-width: 1;
+        stroke: #000;
+    }
     
     .default-worker-life-line {
         stroke: $default-worker-lifeline-color;
-        stroke-width: 2;
+        stroke-width: 1;
         cursor: pointer;
     }
     .default-worker-life-line-polygon{
         fill: $default-worker-lifeline-color;
         stroke-width: 0;
     }
+
+    .default-worker-life-line.dot{
+        stroke-width: 1;
+        fill: $default-worker-lifeline-color;
+    }
     
     .worker-life-line {
         cursor: pointer;
         stroke: $worker-lifeline-color;
-        stroke-width: 2;
+        stroke-width: 1;
+    }
+
+    .worker-life-line.dot{
+        stroke-width: 1;
+        fill: $worker-lifeline-color;
     }
     
     .worker-life-line-polygon{
@@ -739,8 +766,14 @@
     .connector-life-line {
         cursor: pointer;
         stroke: $connector-lifeline-color;
-        stroke-width: 2;
+        stroke-width: 1;
     }
+
+    .connector-life-line.dot{
+        stroke-width: 0;
+        fill: none;
+    }
+
     .connector-life-line-polygon {
         fill: $connector-lifeline-color;
         stroke-width: 0;
@@ -897,6 +930,22 @@
     .action-arrow-head{
         stroke: $primary-line-bgcolor;
         fill: $primary-line-bgcolor;
+    }
+
+    .flowchart-action-arrow {
+        fill: $default-worker-lifeline-color;
+        stroke: $default-worker-lifeline-color;
+        stroke-width: 1;
+    }
+
+    .flowchart-action-arrow-head{
+        fill: $default-worker-lifeline-color;
+        stroke: $default-worker-lifeline-color;
+    }
+    .flowchart-dash-line{
+        stroke: #ffffff;
+        stroke-width: 2;
+        stroke-dasharray: 3,2;
     }
     
     .struct-content-operations-wrapper{
@@ -1203,6 +1252,11 @@
         stroke: #ff0202;
         stroke-width: 1;
     }
+
+    .action-invocation-statement-rect {
+        fill: $default-worker-lifeline-color;
+        stroke-width: 1;
+    }
     
     .background-empty-rect {
         fill: #ffffff;
@@ -1217,9 +1271,18 @@
         stroke: #ff0202;
         stroke-width: 1;
     }
+
+    .flowchart-background-empty-rect {
+        fill: #ffffff;
+        fill-opacity: 0;
+        stroke: $default-worker-lifeline-color;
+        stroke-width: 1;
+    }
     
+    .compound-condition-text,
+    .compound-title-text,
     .statement-text {
-        text-anchor: middle;
+        text-anchor: start;
         dominant-baseline: central;
         width: 120px;
         max-width: 250px;
@@ -1235,13 +1298,37 @@
     .panel-label {
         dominant-baseline: middle;
     }
+
+    .client-line-text {
+        text-anchor: middle;
+        dominant-baseline: central;
+    }
     
     .condition-text {
-        text-anchor: start;
+        text-anchor: middle;
         dominant-baseline: central;
         width: 120px;
         max-width: 250px;
-        fill: "black"
+        fill: #000000;
+    }
+
+    .client-invocation-text,
+    .action-invocation-text {
+        paint-order: stroke;
+        text-anchor: start;
+        dominant-baseline: central;
+        stroke:#ffffff;
+        stroke-width: 4;
+    }
+
+    .flowchart-text {
+        paint-order: stroke;
+        text-anchor: middle;
+        dominant-baseline: central;
+        stroke:#ffffff;
+        stroke-width: 4;
+        font-style: italic;
+        font-weight: bolder;
     }
     
     /*//////////////////////////////////////////////////*/
@@ -3982,6 +4069,7 @@
     
     .bal-file-editor {
         height: 100%;
+        background: #FFF;
     }
     
     

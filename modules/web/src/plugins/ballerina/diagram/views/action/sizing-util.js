@@ -16,8 +16,9 @@
  * under the License.
  */
 
-import _ from 'lodash';
+// import _ from 'lodash';
 import DefaultSizingUtil from '../default/sizing-util';
+import SimpleBBox from './../../../model/view/simple-bounding-box';
 import TreeUtil from './../../../model/tree-util';
 
 class SizingUtil extends DefaultSizingUtil {
@@ -31,77 +32,54 @@ class SizingUtil extends DefaultSizingUtil {
         }
     }
 
-    /**
-     * Calculate dimention
-     *  of Break nodes.
-     *
-     * @param {object} node
-     */
-    sizeBreakNode(node) {
-        super.sizeBreakNode(node);
-        this.hideStatement(node);
+    sizeBlockNode(node) {
+        // we will iterate the statements and hide nodes.
+        const statements = node.statements;
+        // loop the statements
+        let hiddenElement = false;
+        statements.forEach((element) => {
+            // filter out statements to show.
+            if (this.isVisibleInActionView(element)) {
+                hiddenElement = false;
+            // following check is to convert the first hidden element to a placeholder.
+            } else if (hiddenElement) {
+                // hide the rest of the statements.
+                this.hideElement(element);
+            } else {
+                this.convertToHiddenPlaceHolder(element);
+                hiddenElement = true;
+            }
+        }, this);
+        // size the body.
+        super.sizeBlockNode(node);
     }
 
-    /**
-     * Calculate dimention of Next nodes.
-     *
-     * @param {object} node
-     *
-     */
-    sizeNextNode(node) {
-        const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
-        this.hideStatement(node);
+    isVisibleInActionView(node) {
+        // Action invocation statements.
+        if (
+            TreeUtil.statementIsInvocation(node) ||
+            TreeUtil.isIf(node) ||
+            TreeUtil.isWhile(node) ||
+            TreeUtil.isEndpointTypeVariableDef(node)
+        ) {
+            return true;
+        }
+        // Block statements
+        // aditional nodes
+        return false;
     }
 
-    /**
-     * Calculate dimention of ExpressionStatement nodes.
-     *
-     * @param {object} node
-     *
-     */
-    sizeExpressionStatementNode(node) {
-        const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
-        this.hideStatement(node);
+    convertToHiddenPlaceHolder(node) {
+        node.viewState.alias = 'HiddenStatement';
+        node.viewState.bBox = new SimpleBBox();
+        node.viewState.bBox.w = 30;
+        node.viewState.bBox.h = 30;
     }
 
-    /**
-     * Calculate dimention of Return nodes.
-     *
-     * @param {object} node
-     *
-     */
-    sizeReturnNode(node) {
-        const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
-        this.hideStatement(node);
+    hideElement(node) {
+        node.viewState.hidden = true;
+        node.viewState.bBox = new SimpleBBox();
     }
-
-    /**
-     * Calculate dimention of Throw nodes.
-     *
-     * @param {object} node
-     *
-     */
-    sizeThrowNode(node) {
-        const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
-        this.hideStatement(node);
-    }
-
-    /**
-     * Calculate dimention of VariableDef nodes.
-     *
-     * @param {object} node
-     *
-     */
-    sizeVariableDefNode(node) {
-        const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
-        this.hideStatement(node);
-    }
-
 }
 
 export default SizingUtil;

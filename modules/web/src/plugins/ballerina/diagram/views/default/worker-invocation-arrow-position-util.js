@@ -49,13 +49,13 @@ class InvocationArrowPositionUtil {
                 if (receiverStatementBox.x < statementBox.x) {
                     backwardArrow = true;
                     arrowStart.x = statementBox.x;
-                    arrowEnd.x = receiverStatementBox.x + receiverStatementBox.w;
+                    arrowEnd.x = receiverStatementBox.x;
                 } else {
-                    arrowStart.x = statementBox.x + statementBox.w;
+                    arrowStart.x = statementBox.x;
                     arrowEnd.x = receiverStatementBox.x;
                 }
 
-                arrowStart.y = statementBox.y + (statementBox.h / 2);
+                arrowStart.y = statementBox.y + statementBox.h;
                 arrowEnd.y = arrowStart.y;
 
                 viewState.components['invocation-arrow'] = {

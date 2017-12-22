@@ -17,14 +17,11 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import TreeUtil from 'plugins/ballerina/model/tree-util';
 import IfNodeModel from 'plugins/ballerina/model/tree/if-node';
 import DropZone from 'plugins/ballerina/drag-drop/DropZone';
 import DefaultNodeFactory from 'plugins/ballerina/model/default-node-factory';
-import FragmentUtils from 'plugins/ballerina/utils/fragment-utils';
-import TreeBuilder from 'plugins/ballerina/model/tree-builder';
-import CompoundStatementDecorator from './compound-statement-decorator';
+import IfStatementDecorator from './if-statement-decorator';
 import AddCompoundBlock from './add-compound-block';
 import './if-node.css';
 
@@ -167,7 +164,6 @@ class IfNode extends React.Component {
             text: model.getCondition().getSource(),
         };
         const isElseIfNode = TreeUtil.isIf(model.parent);
-        const elseComp = model.elseStatement;
         const title = isElseIfNode ? 'else if' : 'if';
         const dropZone = model.viewState.components['drop-zone'];
         const editorOptions = {
@@ -177,46 +173,27 @@ class IfNode extends React.Component {
         };
         return (
             <g>
-                {!isElseIfNode &&
-                <g>
-                    <DropZone
-                        x={dropZone.x}
-                        y={dropZone.y}
-                        width={dropZone.w}
-                        height={dropZone.h}
-                        baseComponent='rect'
-                        dropTarget={model.parent}
-                        dropBefore={model}
-                        renderUponDragStart
-                        enableDragBg
-                        enableCenterOverlayLine
-                    />
-                </g>
-                }
-                <CompoundStatementDecorator
+                <DropZone
+                    model={this.props.model}
+                    x={dropZone.x}
+                    y={dropZone.y}
+                    width={dropZone.w}
+                    height={dropZone.h}
+                    baseComponent='rect'
+                    dropTarget={model.parent}
+                    dropBefore={model}
+                    renderUponDragStart
+                    enableDragBg
+                    enableCenterOverlayLine
+                />
+                <IfStatementDecorator
                     dropTarget={model}
                     bBox={bBox}
                     title={title}
                     expression={expression}
                     editorOptions={editorOptions}
                     model={model}
-                    body={model.body}
                 />
-                {this.getAddBlockButton(isElseIfNode)}
-
-                {elseComp && TreeUtil.isIf(elseComp) &&
-                <IfNode model={elseComp} />
-                }
-
-                {elseComp && TreeUtil.isBlock(elseComp) &&
-                <CompoundStatementDecorator
-                    dropTarget={model}
-                    bBox={elseComp.viewState.bBox}
-                    title={'else'}
-                    model={elseComp}
-                    body={elseComp}
-                />
-                }
             </g>
         );
     }

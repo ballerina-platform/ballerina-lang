@@ -17,6 +17,7 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import { EVENTS as BAL_PLUGIN_EVENTS } from 'plugins/ballerina/constants';
 import { EVENTS as EDITOR_EVENTS } from 'core/editor/constants';
 import Editor from 'core/editor/model/Editor';
@@ -34,21 +35,19 @@ class CodeExplorerPanel extends React.Component {
         this.state = { ast: ast || {} };
         this.onActiveBalASTChange = this.onActiveBalASTChange.bind(this);
         this.onTabChange = this.onTabChange.bind(this);
-    }
-
-    onActiveBalASTChange({ ast }) {
-        this.setState({
-            ast,
+        this.props.codeExplorerPlugin.appContext.command.on('scroll-design-view',
+        ({ scrollTop, scrollLeft, scrollHeight, scrollWidth, clientHeight, clientWidth }) => {
+            this.setState({
+                scrollPosition: {
+                    scrollTop,
+                    scrollLeft,
+                    scrollHeight,
+                    scrollWidth,
+                    clientHeight,
+                    clientWidth,
+                },
+            });
         });
-        this.forceUpdate();
-    }
-
-    onTabChange({ editor }) {
-        const ast = editor && editor instanceof Editor ? editor.getProperty('ast') : {};
-        this.setState({
-            ast,
-        });
-        this.forceUpdate();
     }
 
     componentDidMount() {
@@ -63,6 +62,21 @@ class CodeExplorerPanel extends React.Component {
         off(EDITOR_EVENTS.ACTIVE_TAB_CHANGE, this.onTabChange);
     }
 
+    onTabChange({ editor }) {
+        const ast = editor && editor instanceof Editor ? editor.getProperty('ast') : {};
+        this.setState({
+            ast,
+        });
+        this.forceUpdate();
+    }
+
+    onActiveBalASTChange({ ast }) {
+        this.setState({
+            ast,
+        });
+        this.forceUpdate();
+    }
+
     render() {
         const { ast } = this.state;
         if (ast && ast.parseFailed) {
@@ -73,10 +87,15 @@ class CodeExplorerPanel extends React.Component {
                 <ModelRenderer
                     model={ast}
                     goToNode={node => this.props.codeExplorerPlugin.appContext.command.dispatch('go-to-node', node)}
+                    scrollPosition={this.state.scrollPosition}
                 />
             </div>
         );
     }
 }
+
+CodeExplorerPanel.propTypes = {
+    codeExplorerPlugin: PropTypes.objectOf(Object).isRequired,
+};
 
 export default CodeExplorerPanel;

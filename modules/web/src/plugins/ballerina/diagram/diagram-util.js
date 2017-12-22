@@ -19,18 +19,14 @@
 import log from 'log';
 import React from 'react';
 import _ from 'lodash';
-import Hidden from './views/action/components/hidden';
 
 import * as DefaultConfig from './views/default/designer-defaults';
-import * as compactConfig from './views/compact/designer-defaults';
 import * as actionConfig from './views/action/designer-defaults';
 
 import DefaultSizingUtil from './views/default/sizing-util';
-import CompactSizingUtil from './views/compact/sizing-util';
 import ActionSizingUtil from './views/action/sizing-util';
 
 import DefaultPositioningUtil from './views/default/positioning-util';
-import CompactPositioningUtil from './views/compact/positioning-util';
 import ActionPositioningUtil from './views/action/positioning-util';
 
 
@@ -43,16 +39,13 @@ const components = {};
 
 // We need to refactor this big time for the time being implementing the functionality.
 // extend configs from default
-const CompactConfig = _.merge(_.cloneDeep(DefaultConfig), compactConfig);
 const ActionConfig = _.merge(_.cloneDeep(DefaultConfig), actionConfig);
 
 // initialize the utils.
 const defaultSizingUtil = new DefaultSizingUtil();
-const compactSizingUtil = new CompactSizingUtil();
 const actionSizingUtil = new ActionSizingUtil();
 
 const defaultPositioningUtil = new DefaultPositioningUtil();
-const compactPositioningUtil = new CompactPositioningUtil();
 const actionPositioningUtil = new ActionPositioningUtil();
 
 const defaultWorkerInvocationSyncUtil = new DefaultWorkerInvocationSyncUtil();
@@ -62,9 +55,6 @@ const defaultErrorCollectorUtil = new DefaultErrorCollectorUtil();
 // assign configs to utils.
 defaultPositioningUtil.config = DefaultConfig;
 defaultSizingUtil.config = DefaultConfig;
-
-compactPositioningUtil.config = CompactConfig;
-compactSizingUtil.config = CompactConfig;
 
 actionPositioningUtil.config = ActionConfig;
 actionSizingUtil.config = ActionConfig;
@@ -85,7 +75,7 @@ function getComponentForNodeArray(nodeArray, mode = 'default') {
     // lets load the view components diffrent modes.
     components.default = requireAll(require.context('./views/default/components/nodes', true, /\.jsx$/));
     components.action = requireAll(require.context('./views/action/components/', true, /\.jsx$/));
-    components.compact = requireAll(require.context('./views/compact/components/', true, /\.jsx$/));
+
 
     // make sure what is passed is an array.
     nodeArray = _.concat([], nodeArray);
@@ -100,13 +90,10 @@ function getComponentForNodeArray(nodeArray, mode = 'default') {
     }).map((child) => {
         // hide hidden elements
         if (child.viewState && child.viewState.hidden) {
-            return React.createElement(Hidden, {
-                model: child,
-                key: child.getID(),
-            });
+            return undefined;
         }
+        const compName = child.viewState.alias || child.constructor.name;
 
-        const compName = child.constructor.name;
         if (components[mode][compName]) {
             return React.createElement(components[mode][compName], {
                 model: child,
@@ -122,15 +109,23 @@ function getComponentForNodeArray(nodeArray, mode = 'default') {
                 key: child.getID(),
             }, null);
         }
+        return undefined;
     });
+}
+
+function getConfig(mode) {
+    switch (mode) {
+        case 'action':
+            return ActionConfig;
+        default:
+            return DefaultConfig;
+    }
 }
 
 function getSizingUtil(mode) {
     switch (mode) {
         case 'action':
             return actionSizingUtil;
-        case 'compact':
-            return compactSizingUtil;
         default:
             return defaultSizingUtil;
     }
@@ -140,8 +135,6 @@ function getPositioningUtil(mode) {
     switch (mode) {
         case 'action':
             return actionPositioningUtil;
-        case 'compact':
-            return compactPositioningUtil;
         default:
             return defaultPositioningUtil;
     }
@@ -177,32 +170,23 @@ function getOverlayComponent(nodeArray, mode = 'default') {
     }).map((child) => {
         // hide hidden elements
         const compName = child.kind;
+        let element;
         if (components[mode][compName]) {
-            return React.createElement(components[mode][compName], {
+            element = React.createElement(components[mode][compName], {
                 model: child,
                 key: child.props.key,
             }, null);
         } else if (components.default[compName]) {
-            return React.createElement(components.default[compName], {
+            element = React.createElement(components.default[compName], {
                 model: child,
                 key: child.props.key,
             }, null);
         }
+        return element;
     });
 }
 
-/**
- * Get the max height among the workers
- * @param {Array} workers - array of workers
- * @returns {number} maximum worker height
- */
-function getWorkerMaxHeight(workers) {
-    const workerNode = _.maxBy(workers, (worker) => {
-        return worker.body.viewState.bBox.h;
-    });
 
-    return workerNode.body.viewState.bBox.h + DefaultConfig.lifeLine.head.height + DefaultConfig.lifeLine.footer.height;
-}
 export {
     getComponentForNodeArray,
     requireAll,
@@ -211,6 +195,15 @@ export {
     getWorkerInvocationSyncUtil,
     getInvocationArrowPositionUtil,
     getOverlayComponent,
-    getWorkerMaxHeight,
     getErrorCollectorUtil,
+    getConfig,
 };
+
+// WIP please do not remove.
+export class DiagramUtil {
+
+    constructor(mode) {
+        this.mode = mode;
+    }
+
+}

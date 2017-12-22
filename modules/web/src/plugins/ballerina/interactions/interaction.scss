@@ -1,0 +1,126 @@
+.button-area{
+    background-color: none;
+    position:absolute;
+}
+
+.interaction-menu-area {
+    position:absolute;
+    -webkit-clip-path: circle(var(--button-size) at var(--button-size) var(--button-size));
+    clip-path: circle(var(--button-size) at var(--button-size) var(--button-size));
+    -webkit-transition: -webkit-clip-path 0.5, clip-path 0.1;
+    transition: -webkit-clip-path 0.5, clip-path 0.1;
+    width:224px;
+    overflow: hidden;
+}
+
+.button-panel {
+    display: block;
+    position: relative;
+    float:left;
+}
+
+.button{
+    display: none;
+}
+
+.button-area:hover .button, .button-show-always{
+    z-index:50;
+    display: block;
+    left:2px;
+    top:2px;
+    -webkit-animation: appear-button 0.2s ease-out;
+    -moz-animation: appear-down 0.2s ease-out;
+    cursor: pointer;
+}
+
+.button:hover, .button-show-always:hover .button-background{
+    opacity: 1 !important;
+}
+
+@-webkit-keyframes appear-button {
+    0% { opacity: 0;  font-size:0% }
+    100% { opacity: 1; font-size:100%}
+}
+@-moz-keyframes appear-button {
+    0% { opacity: 0; font-size:0%}
+    100% { opacity: 1; font-size:100% }
+}
+
+.interaction-menu-area:hover {
+    background: none;
+    -webkit-transition-timing-function: ease-out;
+    transition-timing-function: ease-out;
+    -webkit-transition-duration: 0.5s;
+    transition-duration: 0.5s;
+    -webkit-clip-path: circle(390px at 225px 24px);
+    clip-path: circle(390px at 150px 24px);
+}
+
+.interaction-menu-area:hover .interaction-menu {
+    opacity: 1;
+    display: block;
+    background: #eeeeee;
+    position: relative;
+    float:left;
+    top: -30px;
+    left: 17px;
+}
+
+.interaction-menu-area:hover .interaction-menu-item {
+    opacity: 1;
+    padding:0 24px;
+}
+
+.interaction-menu-item {
+    opacity: 0;
+    display: block;
+    line-height: 30px;
+    padding: 0 10px;
+    color: inherit;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: pointer;
+}
+
+.interaction-menu-item:hover {
+    background: #ffe082;
+}
+
+.interaction-menu-item:active {
+    background: #ffca28;
+}
+
+.button-icon {
+    padding-right: 5px;
+}
+
+.interaction-menu {
+    width: 224px;
+    padding: 5px 0;
+}
+
+.interaction-menu hr {
+    border-top: 1px solid #ccc;
+    margin: 0 5px;
+}
+
+.connector-select {
+    height: 200px;
+}
+
+.connector-select input{
+    width:190;
+    margin: 5px;
+}
+
+.connector-select ul li {
+    background: #eeeeee;
+}
+
+.connector-select ul li .pkg-name {
+    font-size: 0.8em;
+    font-weight: bold;
+    
+}

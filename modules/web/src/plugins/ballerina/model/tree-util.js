@@ -247,6 +247,36 @@ class TreeUtil extends AbstractTreeUtil {
     }
 
     /**
+     * Check whether the node is a client responding statement
+     * @param {object} node - variable def or assignment node object
+     * @returns {boolean} - whether the node is a client responding statement
+     */
+    statementIsClientResponder(node) {
+        if (this.isReturn(node)) {
+            return true;
+        }
+        // TODO improve this logic to handle new respond client invocation
+        if (this.isAssignment(node) && this.isInvocation(node.getExpression())) {
+            const exp = node.getExpression();
+            if ((exp.invocationType === 'FUNCTION')
+                && ((exp.name.value === 'forward') || (exp.name.value === 'send'))) {
+                return true;
+            }
+            return false;
+        }
+        if (this.isVariableDef(node) && node.variable.getInitialExpression()
+                && this.isInvocation(node.variable.getInitialExpression())) {
+            const exp = node.variable.getInitialExpression();
+            if ((exp.invocationType === 'FUNCTION')
+                && ((exp.name.value === 'forward') || (exp.name.value === 'send'))) {
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+    /**
      * Sync the new node's invocation type
      * @param {object} originalNode
      * @param newNode
@@ -552,6 +582,30 @@ class TreeUtil extends AbstractTreeUtil {
             && ((node.getParameters()[0].typeNode && node.getParameters()[0].typeNode.kind === 'ArrayType'
                 && node.getParameters()[0].typeNode.elementType.typeKind === 'string')
                 || node.getParameters()[0].type === 'string[]'));
+    }
+
+
+    /**
+     * Get client invokable parent construct of the given node.
+     * These include : function, action and resource
+     * @param {Node} node node
+     * @return {Node} parent client invocation node.
+     */
+    getClientInvokableParentNode(node) {
+        const parent = node.parent;
+        if (this.isAction(parent) || this.isFunction(parent) || this.isResource(parent)) {
+            return parent;
+        }
+        if (this.isCompilationUnit(node)) {
+            return undefined;
+        }
+        return this.getClientInvokableParentNode(node.parent);
+    }
+
+
+    isInitFunction(node) {
+        const regex = /\.\<init\>$/g;
+        return regex.test(node.name.value);
     }
 }
 

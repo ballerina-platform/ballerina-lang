@@ -19,7 +19,6 @@
 import _ from 'lodash';
 import SimpleBBox from './../../../model/view/simple-bounding-box';
 import TreeUtil from './../../../model/tree-util';
-import { getWorkerMaxHeight } from './../../diagram-util';
 import * as DesignerDefaults from './designer-defaults';
 import splitVariableDefByLambda from '../../../model/lambda-util';
 
@@ -350,9 +349,9 @@ class SizingUtil {
     sizeEnumeratorNode(node) {
         // For argument parameters and return types in the panel decorator
         const paramViewState = node.viewState;
-        paramViewState.w = this.getTextWidth(node.getSource(), 0).w + 15;
+        paramViewState.w = this.getTextWidth(node.getSource(true), 0).w + 15;
         paramViewState.h = this.config.enumIdentifierStatement.height;
-        paramViewState.components.expression = this.getTextWidth(node.getSource(), 0);
+        paramViewState.components.expression = this.getTextWidth(node.getSource(true), 0);
 
         // Creating component for delete icon.
         paramViewState.components.deleteIcon = {};
@@ -371,8 +370,9 @@ class SizingUtil {
         const functionBodyViewState = node.body.viewState;
         const cmp = viewState.components;
         const workers = node.workers;
-        const defaultWorkerHeight = functionBodyViewState.bBox.h + (this.config.lifeLine.head.height * 2);
-        let maxWorkerHeight = workers.length > 0 ? getWorkerMaxHeight(workers) : -1;
+        const defaultWorkerHeight = functionBodyViewState.bBox.h + (this.config.lifeLine.head.height * 2)
+            + (this.config.statement.height * 2);
+        let maxWorkerHeight = workers.length > 0 ? this.getWorkerMaxHeight(workers) : -1;
         maxWorkerHeight = Math.max(maxWorkerHeight, defaultWorkerHeight);
 
         /* Define the sub components */
@@ -386,13 +386,26 @@ class SizingUtil {
         cmp.argParameterHolder = {};
         cmp.returnParameterHolder = {};
         cmp.receiver = new SimpleBBox();
+        cmp.client = new SimpleBBox();
 
         // initialize the annotation status.
         if (_.isNil(viewState.showAnnotationContainer)) {
             viewState.showAnnotationContainer = true;
         }
         // calculate the annotation height.
-        cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 35);
+        // cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 35);
+
+        // calculate client line
+        cmp.client.w = this.config.clientLine.width;
+        cmp.client.h = maxWorkerHeight;
+        cmp.client.arrowLine = (cmp.client.w / 2);
+        const paramText = node.parameters.map((param) => {
+            return param.name.value;
+        }).join(', ');
+        const paramTextWidth = this.getTextWidth(paramText, 0,
+            (this.config.clientLine.width + this.config.lifeLine.gutter.h));
+        cmp.client.text = paramTextWidth.text;
+        cmp.client.fullText = paramText;
 
         // calculate default worker
         cmp.defaultWorker.w = workers.length > 0 ? 0 : node.body.viewState.bBox.w;
@@ -400,6 +413,7 @@ class SizingUtil {
         // We add the default worker line as a seperate component.
         cmp.defaultWorkerLine.w = workers.length > 0 ? 0 : this.config.lifeLine.width;
         cmp.defaultWorkerLine.h = cmp.defaultWorker.h;
+
         // set the max worker height to other workers.
         workers.forEach((worker) => {
             worker.viewState.bBox.h = maxWorkerHeight;
@@ -500,7 +514,7 @@ class SizingUtil {
         let width = 0;
         if (parameters.length > 0) {
             for (let i = 0; i < parameters.length; i++) {
-                width += this.getTextWidth(parameters[i].getSource(), 0).w + 21;
+                width += this.getTextWidth(parameters[i].getSource(true), 0).w + 21;
             }
         }
 
@@ -582,7 +596,7 @@ class SizingUtil {
             const globals = astRoot.filterTopLevelNodes({ kind: 'Variable' })
                 .concat(astRoot.filterTopLevelNodes({ kind: 'Xmlns' }));
             globals.forEach((global) => {
-                const text = this.getTextWidth(global.getSource(), 0, 292).text;
+                const text = this.getTextWidth(global.getSource(true), 0, 292).text;
                 global.viewState.globalText = text;
             });
             height += topGutter + topBarHeight + importInputHeight +
@@ -676,7 +690,7 @@ class SizingUtil {
      */
     sizeRetryNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
     }
 
 
@@ -736,17 +750,7 @@ class SizingUtil {
         });
         // add side padding to the service.
         width += (this.config.innerPanel.wrapper.gutter.h * 2);
-        // calculate the initFunction for service.
-        if (viewState.variablesExpanded) {
-            const topGutter = 10;
-            const topBarHeight = 25;
-            const importInputHeight = 40;
-            const globals = variables;
-            cmp.initFunction.h = topGutter + topBarHeight + importInputHeight +
-                (globals.length * this.config.packageDefinition.importDeclaration.itemHeight);
-        } else {
-            cmp.initFunction.h = this.config.variablesPane.headerHeight;
-        }
+
         // add the init function height to body.
         height += cmp.initFunction.h;
         // if there are no children set the default height.
@@ -784,9 +788,7 @@ class SizingUtil {
 
         viewState.bBox.w = width;
 
-        viewState.bBox.h = cmp.annotation.h + cmp.body.h + cmp.heading.h + connectorHeight +
-            (viewState.variablesExpanded ? (variables.length *
-                this.config.packageDefinition.importDeclaration.itemHeight) + 35 : 0);
+        viewState.bBox.h = cmp.annotation.h + cmp.body.h + cmp.heading.h + connectorHeight;
 
         if (TreeUtil.isConnector(node)) {
             cmp.argParameterHolder = {};
@@ -810,7 +812,7 @@ class SizingUtil {
 
         // Set the globals to fit the globals container
         variables.forEach((global) => {
-            const text = this.getTextWidth(global.getSource(), 0, 295).text;
+            const text = this.getTextWidth(global.getSource(true), 0, 295).text;
             global.viewState.globalText = text;
         });
     }
@@ -886,7 +888,7 @@ class SizingUtil {
     sizeVariableNode(node) {
         // For argument parameters and return types in the panel decorator
         const paramViewState = node.viewState;
-        paramViewState.w = this.getTextWidth(node.getSource(), 0).w;
+        paramViewState.w = this.getTextWidth(node.getSource(true), 0).w;
         paramViewState.h = this.config.panelHeading.heading.height - 7;
 
             // Creating component for delete icon.
@@ -903,7 +905,9 @@ class SizingUtil {
     sizeWorkerNode(node) {
         const bBox = node.viewState.bBox;
         const workerBody = node.body;
-        bBox.h = workerBody.viewState.bBox.h + this.config.lifeLine.head.height + this.config.lifeLine.footer.height;
+        bBox.h = workerBody.viewState.bBox.h
+            + this.config.lifeLine.head.height + this.config.lifeLine.footer.height
+            + (this.config.statement.height * 2); // Top gap for client invoke line
         bBox.w = workerBody.viewState.bBox.w;
         // set the size of the lifeline.
         const cmp = node.viewState.components;
@@ -920,7 +924,7 @@ class SizingUtil {
      *
      */
     sizeXmlnsNode(node) {
-        this.sizeStatement(node.getSource(), node.viewState);
+        this.sizeStatement(node.getSource(true), node.viewState);
     }
 
     /**
@@ -940,13 +944,13 @@ class SizingUtil {
         const textWidth = this.getTextWidth(node.getSignature());
         viewState.titleWidth = textWidth.w;
 
-        const returnParams = _.join(node.getReturnParameters().map(ret => ret.getSource()), ',');
-        const typeText = `< ${node.getSourceParam().getSource()}, ${returnParams} >`;
+        const returnParams = _.join(node.getReturnParameters().map(ret => ret.getSource(true)), ',');
+        const typeText = `< ${node.getSourceParam().getSource(true)}, ${returnParams} >`;
         const typeTextDetails = this.getTextWidth(typeText, 0);
         viewState.typeText = typeTextDetails.text;
         viewState.typeTextWidth = typeTextDetails.w;
 
-        const params = _.join(node.getParameters().map(ret => ret.getSource()), ',');
+        const params = _.join(node.getParameters().map(ret => ret.getSource(true)), ',');
         const paramText = node.name.value ? `(${params})` : '';
         const paramTextDetails = this.getTextWidth(paramText, 0);
         viewState.paramText = paramTextDetails.text;
@@ -1046,6 +1050,7 @@ class SizingUtil {
      *
      */
     sizeInvocationNode(node) {
+        // Invocation nodes are sized in sizeExpressionStatementNode
         // Not implemented.
     }
 
@@ -1234,7 +1239,7 @@ class SizingUtil {
      */
     sizeAbortNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
     }
 
 
@@ -1246,8 +1251,10 @@ class SizingUtil {
      */
     sizeAssignmentNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
         this.adjustToLambdaSize(node, viewState);
+        this.sizeActionInvocationStatement(node);
+        this.sizeClientResponderStatement(node);
     }
 
     /**
@@ -1258,7 +1265,7 @@ class SizingUtil {
      */
     sizeBindNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
     }
 
     /**
@@ -1271,7 +1278,7 @@ class SizingUtil {
         const viewState = node.viewState;
         const statements = node.getStatements();
         this.setContainerSize(statements, viewState, this.config.statement.width);
-        if (viewState.alias) {
+        if (viewState.compound) {
             this.sizeCompoundNode(node);
         }
     }
@@ -1283,7 +1290,7 @@ class SizingUtil {
      */
     sizeBreakNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
     }
 
     /**
@@ -1294,7 +1301,7 @@ class SizingUtil {
      */
     sizeNextNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
     }
 
 
@@ -1306,7 +1313,9 @@ class SizingUtil {
      */
     sizeExpressionStatementNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
+        this.sizeActionInvocationStatement(node);
+        this.sizeClientResponderStatement(node);
     }
 
 
@@ -1337,7 +1346,7 @@ class SizingUtil {
             // Calculate join keyword, parameter expression, expression lengths;
             joinStmt.viewState.components.titleWidth = this.getTextWidth('join');
             joinStmt.viewState.components.expression = this.getTextWidth(node.getJoinConditionString());
-            joinStmt.viewState.components.parameter = this.getTextWidth(node.getJoinResultVar().getSource());
+            joinStmt.viewState.components.parameter = this.getTextWidth(node.getJoinResultVar().getSource(true));
 
             if (joinStmt.viewState.bBox.w > node.viewState.bBox.w) {
                 nodeWidth = joinStmt.viewState.bBox.w;
@@ -1346,9 +1355,10 @@ class SizingUtil {
 
         if (timeoutStmt) {
             // Calculate timeout expression, parameter expression, keyword lengths.
-            timeoutStmt.viewState.components.expression = this.getTextWidth(node.getTimeOutExpression().getSource());
+            timeoutStmt.viewState.components.expression =
+                            this.getTextWidth(node.getTimeOutExpression().getSource(true));
             timeoutStmt.viewState.components.titleWidth = this.getTextWidth('timeout');
-            timeoutStmt.viewState.components.parameter = this.getTextWidth(node.getTimeOutVariable().getSource());
+            timeoutStmt.viewState.components.parameter = this.getTextWidth(node.getTimeOutVariable().getSource(true));
             if (timeoutStmt.viewState.bBox.w > nodeWidth) {
                 nodeWidth = timeoutStmt.viewState.bBox.w;
             }
@@ -1427,32 +1437,86 @@ class SizingUtil {
      * @param {object} node If Object
      */
     sizeIfNode(node) {
-        this.sizeCompoundNode(node, node.getCondition());
+        // if block sizing
+        const expression = node.getCondition();
+        const viewState = node.viewState;
+        const components = viewState.components;
+        const dropZoneHeight = TreeUtil.isBlock(node.parent) ? this.config.statement.gutter.v : 0;
+        const nodeBodyViewState = node.body.viewState;
+
+        // flow chart while width and height is different to normal block node width and height
+        nodeBodyViewState.bBox.w = (nodeBodyViewState.bBox.w < this.config.flowChartControlStatement.width) ?
+                                    this.config.flowChartControlStatement.width : nodeBodyViewState.bBox.w;
+        nodeBodyViewState.bBox.h += this.config.statement.gutter.v;
+
+        components.body = new SimpleBBox();
+
+        viewState.components['drop-zone'] = new SimpleBBox();
+        viewState.components['statement-box'] = new SimpleBBox();
+        // Set the block header as an opaque box to prevent conflicts with arrows.
+        components['block-header'] = new SimpleBBox();
+        viewState.components.text = new SimpleBBox();
+
+        const bodyWidth = nodeBodyViewState.bBox.w;
+        const bodyHeight = nodeBodyViewState.bBox.h;
+
+        components['block-header'].h = ((3 / 2) * this.config.flowChartControlStatement.heading.height)
+                                        + this.config.flowChartControlStatement.padding.top
+                                        + this.config.flowChartControlStatement.gutter.h;
+
+        viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
+        viewState.components['drop-zone'].w = bodyWidth;
+        viewState.components['statement-box'].h = bodyHeight;
+        viewState.components['statement-box'].w = bodyWidth;
+        viewState.bBox.h = viewState.components['statement-box'].h
+                            + viewState.components['drop-zone'].h
+                            + this.config.flowChartControlStatement.gutter.h
+                            + this.config.statement.gutter.h
+                            + components['block-header'].h;
+        viewState.bBox.w = bodyWidth;
+
+        components['block-header'].setOpaque(true);
+
+        // for compound statement like if , while we need to render condition expression
+        // we will calculate the width of the expression and adjust the block statement
+        if (expression) {
+            // see how much space we have to draw the condition
+            const available = bodyWidth - this.config.flowChartControlStatement.heading.width - 10;
+            components.expression = this.getTextWidth(expression.getSource(true), 0, available);
+        }
+
+        // end of if block sizing
+
         // If the parent of the if node is a block node, then it is only a if statement. Otherwise it is an else-if
-        let nodeHeight = node.viewState.bBox.h;
+        let nodeHeight = viewState.bBox.h;
+        let nodeWidth = node.viewState.bBox.w;
         let elseStmt = node.elseStatement;
         let proceed = true;
 
-        // If the else statement's width is greater than the node's width, we increase the node width
-        // Eventually the top most if node ends up with the max width. During the positioning, increase the width to the
-        // bottom most node
-        if (elseStmt && elseStmt.viewState.bBox.w > node.viewState.bBox.w) {
-            node.viewState.bBox.w = elseStmt.viewState.bBox.w;
-        }
         if (TreeUtil.isBlock(node.parent)) {
             while (elseStmt && proceed) {
-                nodeHeight += elseStmt.viewState.bBox.h;
+                if (TreeUtil.isBlock(elseStmt) && elseStmt.statements.length === 0) {
+                    break;
+                }
+                const elseHeight = elseStmt.viewState.bBox.h;
+                nodeHeight += elseHeight;
                 // If the current else statement is for an else if only, we proceed
+                if (elseStmt.parent !== node) {
+                    // if it is a nested else
+                    elseStmt.parent.viewState.bBox.h += elseHeight;
+                }
                 if (TreeUtil.isBlock(elseStmt)) {
                     proceed = false;
                 } else {
+                    // nested if construct
+                    nodeWidth += elseStmt.viewState.bBox.w;
                     elseStmt = elseStmt.elseStatement;
                 }
             }
         }
 
-        // Need to make the width of all the components (if, else, else if) equal
         node.viewState.bBox.h = nodeHeight;
+        node.viewState.bBox.w = nodeWidth;
     }
 
     /**
@@ -1472,8 +1536,9 @@ class SizingUtil {
      */
     sizeReturnNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
         this.adjustToLambdaSize(node, viewState);
+        this.sizeClientResponderStatement(node);
     }
 
 
@@ -1496,7 +1561,7 @@ class SizingUtil {
      */
     sizeThrowNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
     }
 
 
@@ -1516,7 +1581,7 @@ class SizingUtil {
             if (node.condition) {
                 node.transactionBody.viewState.components.withKeywordWidth = this.getTextWidth('with');
                 node.transactionBody.viewState.components.retiresKeywordWidth = this.getTextWidth('retries');
-                node.viewState.components.expression = this.getTextWidth(node.condition.getSource());
+                node.viewState.components.expression = this.getTextWidth(node.condition.getSource(true));
             }
             node.viewState.components['statement-box'].h
                 += node.transactionBody.viewState.components['statement-box'].h;
@@ -1586,13 +1651,71 @@ class SizingUtil {
      */
     sizeVariableDefNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
         this.adjustToLambdaSize(node, viewState);
 
         // Truncate the endpoint name to fit the statement box
         if (TreeUtil.isEndpointTypeVariableDef(node)) {
             const endpointWdth = 90;
             viewState.endpointIdentifier = this.getTextWidth(node.getVariable().getName().value, 0, endpointWdth).text;
+        }
+        this.sizeActionInvocationStatement(node);
+        this.sizeClientResponderStatement(node);
+    }
+
+    /**
+     * Size statements containing action invocation statements
+     * @param {node} node node to size
+     */
+    sizeActionInvocationStatement(node) {
+        // This function gets called by statements containing action invocation expressions
+        if (TreeUtil.statementIsInvocation(node)) {
+            const viewState = node.viewState;
+            viewState.bBox.w = this.config.actionInvocationStatement.width;
+            viewState.components['statement-box'].w = this.config.actionInvocationStatement.width;
+            viewState.bBox.h = this.config.actionInvocationStatement.height;
+            viewState.components['statement-box'].h = this.config.actionInvocationStatement.height;
+            viewState.alias = 'ActionInvocationNode';
+        }
+    }
+
+    /**
+     * Size statements containing client responding actions
+     * @param {node} node node to size
+     */
+    sizeClientResponderStatement(node) {
+        // This function gets called by statements that perform client responding
+        if (TreeUtil.statementIsClientResponder(node)) {
+            const viewState = node.viewState;
+            viewState.bBox.w = this.config.actionInvocationStatement.width;
+            viewState.components['statement-box'].w = this.config.actionInvocationStatement.width;
+            viewState.alias = 'ClientResponderNode';
+            if (TreeUtil.isReturn(node)) {
+                const paramText = node.expressions.map((exp) => {
+                    return exp.getSource(true);
+                }).join(', ');
+                const displayText = this.getTextWidth(paramText, 0,
+                    (this.config.clientLine.width + this.config.lifeLine.gutter.h));
+                viewState.displayText = displayText.text;
+            }
+            if (TreeUtil.isAssignment(node)) {
+                const exp = node.getExpression();
+                const argExpSource = exp.getArgumentExpressions().map((arg) => {
+                    return arg.getSource();
+                }).join(', ');
+                const displayText = this.getTextWidth(argExpSource, 0,
+                    (this.config.clientLine.width + this.config.lifeLine.gutter.h));
+                viewState.displayText = displayText.text;
+            }
+            if (TreeUtil.isVariableDef(node)) {
+                const exp = node.variable.getInitialExpression();
+                const argExpSource = exp.getArgumentExpressions().map((arg) => {
+                    return arg.getSource();
+                }).join(', ');
+                const displayText = this.getTextWidth(argExpSource, 0,
+                    (this.config.clientLine.width + this.config.lifeLine.gutter.h));
+                viewState.displayText = displayText.text;
+            }
         }
     }
 
@@ -1604,7 +1727,52 @@ class SizingUtil {
      *
      */
     sizeWhileNode(node) {
-        this.sizeCompoundNode(node, node.getCondition());
+        const expression = node.getCondition();
+        const viewState = node.viewState;
+        const components = viewState.components;
+        const dropZoneHeight = TreeUtil.isBlock(node.parent) ? this.config.statement.gutter.v : 0;
+        const nodeBodyViewState = node.body.viewState;
+
+        // flow chart while width and height is different to normal block node width and height
+        nodeBodyViewState.bBox.w = (nodeBodyViewState.bBox.w < this.config.flowChartControlStatement.width) ?
+                                    this.config.flowChartControlStatement.width : nodeBodyViewState.bBox.w;
+        nodeBodyViewState.bBox.h += this.config.statement.gutter.v;
+
+        components.body = new SimpleBBox();
+
+        viewState.components['drop-zone'] = new SimpleBBox();
+        viewState.components['statement-box'] = new SimpleBBox();
+        // Set the block header as an opaque box to prevent conflicts with arrows.
+        components['block-header'] = new SimpleBBox();
+        viewState.components.text = new SimpleBBox();
+
+        const bodyWidth = nodeBodyViewState.bBox.w;
+        const bodyHeight = nodeBodyViewState.bBox.h;
+
+        components['block-header'].h = ((3 / 2) * this.config.flowChartControlStatement.heading.height)
+                                        + this.config.flowChartControlStatement.padding.top
+                                        + this.config.flowChartControlStatement.gutter.h;
+
+        viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
+        viewState.components['drop-zone'].w = bodyWidth;
+        viewState.components['statement-box'].h = bodyHeight;
+        viewState.components['statement-box'].w = bodyWidth;
+        viewState.bBox.h = viewState.components['statement-box'].h
+                            + viewState.components['drop-zone'].h
+                            + this.config.flowChartControlStatement.gutter.h // for the lower dashed line
+                            + this.config.statement.gutter.h
+                            + viewState.components['block-header'].h;
+        viewState.bBox.w = bodyWidth;
+
+        components['block-header'].setOpaque(true);
+
+        // for compound statement like if , while we need to render condition expression
+        // we will calculate the width of the expression and adjust the block statement
+        if (expression) {
+            // see how much space we have to draw the condition
+            const available = bodyWidth - this.config.flowChartControlStatement.heading.width - 10;
+            components.expression = this.getTextWidth(expression.getSource(true), 0, available);
+        }
     }
 
 
@@ -1616,7 +1784,7 @@ class SizingUtil {
      */
     sizeWorkerReceiveNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
     }
 
 
@@ -1628,7 +1796,7 @@ class SizingUtil {
      */
     sizeWorkerSendNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(), viewState);
+        this.sizeStatement(node.getSource(true), viewState);
     }
 
 
@@ -1744,7 +1912,8 @@ class SizingUtil {
         viewState.components['drop-zone'].w = bodyWidth;
         viewState.components['statement-box'].h = bodyHeight + this.config.blockStatement.heading.height;
         viewState.components['statement-box'].w = bodyWidth;
-        viewState.bBox.h = viewState.components['statement-box'].h + viewState.components['drop-zone'].h;
+        viewState.bBox.h = viewState.components['statement-box'].h + viewState.components['drop-zone'].h
+                            + this.config.statement.gutter.h;
         viewState.bBox.w = bodyWidth;
         components.body.w = bodyWidth;
 
@@ -1755,7 +1924,7 @@ class SizingUtil {
         if (expression) {
             // see how much space we have to draw the condition
             const available = bodyWidth - this.config.blockStatement.heading.width - 10;
-            components.expression = this.getTextWidth(expression.getSource(), 0, available);
+            components.expression = this.getTextWidth(expression.getSource(true), 0, available);
         }
     }
 
@@ -1771,65 +1940,21 @@ class SizingUtil {
      * @memberof SizingUtil
      */
     _getAnnotationHeight(node, defaultHeight = 0, annotationLineHeight = 18) {
-        let height = defaultHeight;
-        if (TreeUtil.isService(node) || TreeUtil.isResource(node) ||
-            TreeUtil.isFunction(node) || TreeUtil.isConnector(node) ||
-            TreeUtil.isAction(node) || TreeUtil.isAnnotation(node) ||
-            TreeUtil.isStruct(node)) {
-            for (const annotation of node.getAnnotationAttachments()) {
-                height += this._getAnnotationHeight(annotation) + 10;
-            }
-        } else if (!_.isNil(node) && TreeUtil.isAnnotationAttachment(node)) {
-            const annotationAttachment = node;
+        // TODO: implement annotations for new design view
+        return 0;
+    }
 
-            // Considering the start line of the annotation.
-            height += annotationLineHeight;
-            if (_.isNil(annotationAttachment.viewState.addingEmptyAttribute)) {
-                annotationAttachment.viewState.addingEmptyAttribute = false;
-            } else if (annotationAttachment.viewState.addingEmptyAttribute === true) {
-                height += annotationLineHeight;
-            }
-            if (!annotationAttachment.viewState.collapsed) {
-                if (annotationAttachment.getAttributes().length > 0) {
-                    annotationAttachment.getAttributes().forEach((annotationAttribute) => {
-                        height += this._getAnnotationHeight(annotationAttribute);
-                    });
-                }
-            }
-        } else if (!_.isNil(node) && TreeUtil.isAnnotationAttachmentAttribute(node)) {
-            const annotationAttachmentAttribute = node;
-            if (_.isNil(annotationAttachmentAttribute.viewState.addingEmptyAttribute)) {
-                annotationAttachmentAttribute.viewState.addingEmptyAttribute = false;
-            } else if (annotationAttachmentAttribute.viewState.addingEmptyAttribute === true) {
-                height += annotationLineHeight;
-            }
-            const annotationAttachmentAttributeValue = annotationAttachmentAttribute.getValue();
-            // If the annotation entry a simple native type value
-            if (annotationAttachmentAttributeValue.isValueLiteral()) {
-                height += annotationLineHeight;
-            } else if (annotationAttachmentAttributeValue.isValueAnnotationAttachment()) {
-                if (!annotationAttachmentAttribute.viewState.collapsed) {
-                    // If the annotation entry value an annotation
-                    height += this._getAnnotationHeight(annotationAttachmentAttributeValue.getValue());
-                } else {
-                    // When collapsed we have to consider attribute as a line.
-                    height += annotationLineHeight;
-                }
-            } else if (annotationAttachmentAttributeValue.isValueArray()) {
-                // If the annotation entry value an array
-                height += annotationLineHeight;
-                if (!annotationAttachmentAttribute.viewState.collapsed) {
-                    // Calculating the height for the array children.
-                    annotationAttachmentAttributeValue.getValueArray().forEach((childNode) => {
-                        height += this._getAnnotationHeight(childNode.getValue());
-                    });
-                }
-            }
-        } else if (!_.isNil(node) && TreeUtil.isLiteral(node)) {
-            height += annotationLineHeight;
-        }
+    /**
+     * Get the max height among the workers
+     * @param {Array} workers - array of workers
+     * @returns {number} maximum worker height
+     */
+    getWorkerMaxHeight(workers) {
+        const workerNode = _.maxBy(workers, (worker) => {
+            return worker.viewState.bBox.h;
+        });
 
-        return height;
+        return workerNode.viewState.bBox.h;
     }
 }
 

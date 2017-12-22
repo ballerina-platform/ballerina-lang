@@ -30,10 +30,11 @@ import { CLASSES } from 'plugins/ballerina/views/constants';
 import Document from 'plugins/ballerina/docerina/document.jsx';
 import Editor from './views/editor-wrapper';
 import { PLUGIN_ID, EDITOR_ID, DOC_VIEW_ID, COMMANDS as COMMAND_IDS, TOOLS as TOOL_IDS,
-            DIALOGS as DIALOG_IDS, EVENTS } from './constants';
+            DIALOGS as DIALOG_IDS, EVENTS, VIEWS as VIEW_IDS } from './constants';
 import OpenProgramDirConfirmDialog from './dialogs/OpenProgramDirConfirmDialog';
 import FixPackageNameOrPathConfirmDialog from './dialogs/FixPackageNameOrPathConfirmDialog';
 import { getLangServerClientInstance } from './langserver/lang-server-client-controller';
+import ToolPaletteView from './tool-palette/tool-palette-view';
 import { isInCorrectPath, getCorrectPackageForPath, getCorrectPathForPackage } from './utils/program-dir-utils';
 import TreeBuilder from './model/tree-builder';
 import FragmentUtils from './utils/fragment-utils';
@@ -180,19 +181,6 @@ class BallerinaPlugin extends Plugin {
                     },
                     description: 'Action View',
                 },
-                {
-                    id: TOOL_IDS.COMPACT_VIEW,
-                    group: TOOL_IDS.GROUP,
-                    icon: 'compact-view',
-                    commandID: COMMAND_IDS.DIAGRAM_MODE_CHANGE,
-                    commandArgs: { mode: 'compact' },
-                    isActive: () => {
-                        const { editor } = this.appContext;
-                        const activeEditor = editor.getActiveEditor();
-                        return (activeEditor && activeEditor.file);
-                    },
-                    description: 'Compact View',
-                },
             ],
             [VIEWS]: [
                 {
@@ -229,15 +217,19 @@ class BallerinaPlugin extends Plugin {
                                             return move(file.fullPath, correctPath + file.name + '.' + file.extension)
                                                 .then((sucess) => {
                                                     if (sucess) {
-                                                        // if the old file was opened in an editor, close it and reopen a new tab
+                                                        // if the old file was opened in an editor,
+                                                        // close it and reopen a new tab
                                                         if (editor.isFileOpenedInEditor(file.fullPath)) {
                                                             const targetEditor = editor.getEditorByID(file.fullPath);
-                                                            const wasActive = editor.getActiveEditor().id === targetEditor.id;
+                                                            const wasActive =
+                                                                editor.getActiveEditor().id === targetEditor.id;
                                                             dispatch(WORKSPACE_CMDS.OPEN_FILE, {
-                                                                filePath: correctPath + file.name + '.' + file.extension,
+                                                                filePath: correctPath + file.name + '.' +
+                                                                    file.extension,
                                                                 activate: wasActive,
                                                             });
-                                                            editor.closeEditor(targetEditor, wasActive ? editor.getActiveEditor() : undefined);
+                                                            editor.closeEditor(targetEditor,
+                                                                wasActive ? editor.getActiveEditor() : undefined);
                                                         }
                                                         workspace.refreshPathInExplorer(correctPath);
                                                     }
@@ -259,8 +251,10 @@ class BallerinaPlugin extends Plugin {
                                     if (ast.filterTopLevelNodes({ kind: 'PackageDeclaration' }).length === 0) {
                                         ast.addTopLevelNodes(TreeBuilder.build(parsedJson), 0);
                                     } else {
-                                        // If a packageDeclaratioNode already exists then remove that node, and add a new one
-                                        const pkgDeclarationNode = ast.filterTopLevelNodes({ kind: 'PackageDeclaration' })[0];
+                                        // If a packageDeclaratioNode already exists then -
+                                        // remove that node, and add a new one
+                                        const pkgDeclarationNode =
+                                            ast.filterTopLevelNodes({ kind: 'PackageDeclaration' })[0];
                                         ast.removeTopLevelNodes(pkgDeclarationNode, true);
                                         ast.addTopLevelNodes(TreeBuilder.build(parsedJson), 0);
                                     }

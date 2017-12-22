@@ -19,15 +19,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
-import HTML5Backend from 'react-dnd-html5-backend';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { DragDropContext } from 'react-dnd';
 import BallerinaDiagram from 'plugins/ballerina/diagram/diagram';
 import TransformExpanded from 'plugins/ballerina/diagram/views/default/components/transform/transform-expanded';
 import TreeUtil from 'plugins/ballerina/model/tree-util.js';
 import DragLayer from './../drag-drop/drag-layer';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
-import ToolPaletteView from './../tool-palette/tool-palette-view';
 import { TOOL_PALETTE_WIDTH } from './constants';
 
 class DesignView extends React.Component {
@@ -41,6 +38,7 @@ class DesignView extends React.Component {
         this.overlayContainer = undefined;
         this.diagramContainer = undefined;
         this.toolPaletteContainer = undefined;
+        this.onScroll = this.onScroll.bind(this);
         this.setOverlayContainer = this.setOverlayContainer.bind(this);
         this.getOverlayContainer = this.getOverlayContainer.bind(this);
         this.setDiagramContainer = this.setDiagramContainer.bind(this);
@@ -52,7 +50,6 @@ class DesignView extends React.Component {
         });
         this.props.commandProxy.on('go-to-node', (node) => {
             this.scrollbars.scrollTop(node.viewState.bBox.y);
-            this.scrollbars.scrollLeft(node.viewState.bBox.x);
         });
     }
 
@@ -72,6 +69,17 @@ class DesignView extends React.Component {
         // Always re render when transform is active
         // Otherwise don't rerender for panel resizings
         return !nextProps.panelResizeInProgress || nextState.isTransformActive;
+    }
+
+    onScroll(e) {
+        this.props.commandProxy.dispatch('scroll-design-view', {
+            scrollLeft: e.scrollLeft,
+            scrollTop: e.scrollTop,
+            scrollHeight: e.scrollHeight,
+            scrollWidth: e.scrollWidth,
+            clientHeight: e.clientHeight,
+            clientWidth: e.clientWidth,
+        });
     }
 
     setDiagramContainer(ref) {
@@ -165,6 +173,7 @@ class DesignView extends React.Component {
                             marginLeft: TOOL_PALETTE_WIDTH,
                         }}
                         ref={(scrollbars) => { this.scrollbars = scrollbars; }}
+                        onScrollFrame={this.onScroll}
                     >
                         <div className='canvas-container'>
                             <div className='canvas-top-controls-container' />
@@ -191,15 +200,7 @@ class DesignView extends React.Component {
                         />
                     }
                 </div>
-                <div className='tool-palette-container' ref={this.setToolPaletteContainer}>
-                    <ToolPaletteView
-                        getContainer={this.getToolPaletteContainer}
-                        isTransformActive={isTransformActive}
-                        mode={this.state.mode}
-                        height={this.props.height}
-                        width={TOOL_PALETTE_WIDTH}
-                    />
-                </div>
+                <div className='tool-palette-container' ref={this.setToolPaletteContainer} />
                 <div className={cn('bottom-right-controls-container', { hide: this.context.isPreviewViewEnabled })}>
                     <div
                         className='view-source-btn btn-icon'
@@ -272,4 +273,4 @@ DesignView.childContextTypes = {
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
 };
 
-export default DragDropContext(HTML5Backend)(DesignView);
+export default DesignView;

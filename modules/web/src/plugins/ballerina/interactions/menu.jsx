@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,13 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import React from 'react';
+import PropTypes from 'prop-types';
 
-import _ from 'lodash';
-import DefaultPositioningUtil from '../default/positioning-util';
-
-class PositioningUtil extends DefaultPositioningUtil {
-
-
+/**
+ * Interaction menu component
+ */
+class Menu extends React.Component {
+    /**
+     * render hover area and button
+     * @return {object} button rendering object
+     */
+    render() {
+        return (
+            <nav className='interaction-menu'>
+                {this.props.children}
+            </nav>
+        );
+    }
 }
 
-export default PositioningUtil;
+Menu.propTypes = {
+    children: PropTypes.isRequired,
+};
+
+export default Menu;

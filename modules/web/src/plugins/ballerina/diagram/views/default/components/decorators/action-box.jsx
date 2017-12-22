@@ -62,7 +62,7 @@ class ActionBox extends React.Component {
      */
     render() {
         const bBox = this.props.bBox;
-        const numIcons = 3 - (this.props.onBreakpointClick ? 0 : 1) - (this.props.isDefaultWorker ? 1 : 0);
+        const numIcons = 2 - (this.props.isDefaultWorker ? 1 : 0);
         const iconSize = 14;
         const y = bBox.y + ((bBox.h - iconSize) / 2);
         const horizontalGap = (bBox.w - (iconSize * numIcons)) / (numIcons + 1);
@@ -98,15 +98,6 @@ class ActionBox extends React.Component {
                 y={y}
             >
                 <title>Delete</title> </image> }
-            {this.props.onBreakpointClick &&
-            <Breakpoint
-                x={bBox.x + iconSize + (horizontalGap * 2)}
-                y={y}
-                size={iconSize}
-                isBreakpoint={this.props.isBreakpoint}
-                onClick={this.props.onBreakpointClick}
-            />
-                    }
             <image
                 width={iconSize}
                 height={iconSize}
@@ -131,8 +122,6 @@ ActionBox.propTypes = {
         h: PropTypes.number.isRequired,
     }).isRequired,
     show: PropTypes.string,
-    isBreakpoint: PropTypes.bool,
-    onBreakpointClick: PropTypes.func,
     onDelete: PropTypes.func.isRequired,
     onJumptoCodeLine: PropTypes.func.isRequired,
     disableButtons: PropTypes.shape({
@@ -147,8 +136,6 @@ ActionBox.propTypes = {
 
 ActionBox.defaultProps = {
     show: false,
-    isBreakpoint: false,
-    onBreakpointClick: undefined,
     disableButtons: {
         debug: false,
         delete: false,
