@@ -117,7 +117,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
                     completions = CompletionItemResolver.getResolverByClass(symbolEnvNode.getClass())
                             .resolveItems(completionContext);
                 }
-            } catch (Exception e) {
+            } catch (Exception | AssertionError e) {
                 completions = new ArrayList<>();
             }
             return Either.forLeft(completions);
@@ -141,7 +141,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
                         TextDocumentServiceUtil.getBLangPackage(hoverContext, documentManager);
                 bLangPackageContext.addPackage(currentBLangPackage);
                 hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage, bLangPackageContext);
-            } catch (Exception e) {
+            } catch (Exception | AssertionError e) {
                 hover = new Hover();
                 List<Either<String, MarkedString>> contents = new ArrayList<>();
                 contents.add(Either.forLeft(""));
