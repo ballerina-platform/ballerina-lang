@@ -46,4 +46,7 @@ function main (string[] args) {
                    name:"mike"
                };
     string name = p.name;
+    if(p.name == "mike"){
+
+    }
 }
