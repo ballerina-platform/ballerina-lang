@@ -38,8 +38,8 @@ class Item extends React.Component {
 Item.propTypes = {
     icon: PropTypes.string,
     label: PropTypes.string.isRequired,
-    callback: PropTypes.valueOf(PropTypes.object),
-    data: PropTypes.valueOf(PropTypes.object),
+    callback: PropTypes.function,
+    data: PropTypes.object,
 };
 
 Item.defaultProps = {

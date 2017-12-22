@@ -378,9 +378,9 @@ class TransformRender {
 
         // Position Add button after functions and operators
         this.container.find('.button-area').css('left',
-            (this.container.find('.middle-content').position().left - 35
+            (this.container.find('.middle-content').position().left
             + ((this.container.find('.middle-content').width()) / 2)) + 'px');
-        this.container.find('.button-area').css('top', yFunctionPointer - 35 + 'px');
+        this.container.find('.button-area').css('top', yFunctionPointer + 'px');
 
         this.jsPlumbInstance.repaintEverything();
     }
