@@ -61,9 +61,9 @@ const tools = [
     },
     {
         id: 'connectorDefinition',
-        name: 'Connector Definition',
+        name: 'Connector',
         icon: 'connector',
-        title: 'Connector Definition',
+        title: 'Connector',
         nodeFactoryMethod: DefaultNodeFactory.createConnector,
         description: 'Participant in the integration and is used to interact with an external'
         + ' system or a service defined',
