@@ -139,25 +139,6 @@ class PanelDecorator extends React.Component {
 
         staticButtons.push(React.createElement(PanelDecoratorButton, deleteButtonProps, null));
 
-        // Creating show annotation button.
-        if (!TreeUtils.isTransformer(this.props.model)) {
-            const annotationButtonProps = {
-                bBox: {
-                    x: x - (width * (staticButtons.length + 1)),
-                    y,
-                    height,
-                    width,
-                },
-                icon: ImageUtil.getSVGIconString(this.props.model.viewState.showAnnotationContainer ?
-                    'annotation-clicked' : 'annotation'),
-                tooltip: this.props.model.viewState.showAnnotationContainer ? 'Hide Annotations' : 'Show Annotation',
-                onClick: () => this.toggleAnnotations(),
-                key: `${this.props.model.getID()}-show-annotation-button`,
-            };
-
-            staticButtons.push(React.createElement(PanelDecoratorButton, annotationButtonProps, null));
-        }
-
         if ((!TreeUtils.isMainFunction(this.props.model) && TreeUtils.isFunction(this.props.model)) ||
             TreeUtils.isStruct(this.props.model) || TreeUtils.isConnector(this.props.model) ||
             TreeUtils.isTransformer(this.props.model)) {

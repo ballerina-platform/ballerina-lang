@@ -175,8 +175,6 @@ class CompoundStatementDecorator extends React.Component {
         const pointX = bBox.getRight() - breakpointHalf;
         const { model: { viewState } } = this.props;
         const statementBBox = viewState.components['statement-box'];
-        const { designer } = this.context;
-        const headerHeight = viewState.components['block-header'].h;
         const pointY = statementBBox.y - breakpointHalf;
         return (
             <Breakpoint
@@ -194,24 +192,24 @@ class CompoundStatementDecorator extends React.Component {
      * @returns {XML} rendered component.
      */
     render() {
-        const { bBox, title, dropTarget, expression, isBreakpoint, isDebugHit } = this.props;
+        const { bBox, title, expression, isBreakpoint, isDebugHit } = this.props;
         const model = this.props.model;
         const viewState = model.viewState;
         const titleH = this.context.designer.config.blockStatement.heading.height;
-        const titleW = (this.props.titleWidth) ? this.context.designer.config.blockStatement.heading.width :
-            this.props.titleWidth;
+        const titleW = (this.props.titleWidth) ? this.props.titleWidth
+            : this.context.designer.config.blockStatement.heading.width;
         const statementBBox = viewState.components['statement-box'];
         const displayExpression = viewState.components.expression;
 
         const p1X = statementBBox.x;
-        const p1Y = statementBBox.y + titleH;
+        const p1Y = statementBBox.y;
         const p2X = statementBBox.x + titleW;
         const p2Y = statementBBox.y + titleH;
         const p3X = statementBBox.x + titleW + 10;
         const p3Y = statementBBox.y;
 
-        const titleX = statementBBox.x + (titleW / 2);
-        const titleY = statementBBox.y + (titleH / 2);
+        const titleX = p1X + this.context.designer.config.statement.padding.left;
+        const titleY = p1Y + (titleH / 2);
 
         let expressionX = 0;
         if (expression) {
@@ -230,7 +228,7 @@ class CompoundStatementDecorator extends React.Component {
         const headerHeight = viewState.components['block-header'].h;
         actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;
         actionBoxBbox.h = designer.config.actionBox.height;
-        actionBoxBbox.x = bBox.x + (bBox.w - actionBoxBbox.w) / 2;
+        actionBoxBbox.x = bBox.x + ((bBox.w - actionBoxBbox.w) / 2);
         actionBoxBbox.y = statementBBox.y + headerHeight + designer.config.actionBox.padding.top;
         const utilClassName = CLASS_MAP[this.state.active];
 
@@ -289,13 +287,13 @@ class CompoundStatementDecorator extends React.Component {
                     className={statementRectClass}
                     onClick={!parameterText && this.openExpressionEditor}
                 />
-                <text x={titleX} y={titleY} className='statement-text'>{title}</text>
+                <text x={titleX} y={titleY} className='compound-title-text'>{title}</text>
 
                 {expression &&
                     <text
                         x={expressionX}
                         y={titleY}
-                        className='condition-text'
+                        className='compound-condition-text'
                     >
                         {displayExpression.text}
                     </text>
@@ -323,7 +321,7 @@ class CompoundStatementDecorator extends React.Component {
                     <text
                         x={paramSeparatorX + this.context.designer.config.blockStatement.heading.paramPaddingX}
                         y={titleY}
-                        className='condition-text'
+                        className='compound-condition-text'
                     >
                         ( {parameterText} )
                     </text>
@@ -337,7 +335,7 @@ class CompoundStatementDecorator extends React.Component {
                     />
                 </g>}
 
-                <polyline points={`${p1X},${p1Y} ${p2X},${p2Y} ${p3X},${p3Y}`} className='statement-title-polyline' />
+                <polyline points={`${p2X},${p2Y} ${p3X},${p3Y}`} className='statement-title-polyline' />
 
                 {
                     <g className={utilClassName}>
@@ -376,17 +374,16 @@ CompoundStatementDecorator.defaultProps = {
         jump: false,
     },
     disableDropzoneMiddleLineOverlay: false,
+    isDebugHit: false,
 };
 
 CompoundStatementDecorator.propTypes = {
-    draggable: PropTypes.func,
     title: PropTypes.string.isRequired,
     model: PropTypes.instanceOf(Node).isRequired,
     children: PropTypes.arrayOf(React.PropTypes.node),
     utilities: PropTypes.element,
     bBox: PropTypes.instanceOf(SimpleBBox).isRequired,
     parameterBbox: PropTypes.instanceOf(SimpleBBox),
-    undeletable: PropTypes.bool,
     dropTarget: PropTypes.instanceOf(Node).isRequired,
     titleWidth: PropTypes.number,
     expression: PropTypes.shape({
@@ -415,6 +412,8 @@ CompoundStatementDecorator.propTypes = {
         jump: PropTypes.bool.isRequired,
     }),
     disableDropzoneMiddleLineOverlay: PropTypes.bool,
+    body: PropTypes.instanceOf(Node).isRequired,
+    isDebugHit: PropTypes.bool,
 };
 
 CompoundStatementDecorator.contextTypes = {

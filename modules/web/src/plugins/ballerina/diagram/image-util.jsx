@@ -73,32 +73,34 @@ class ImageUtils {
      * @returns {object} - server response data
      */
     static getConnectorIcon(connectorName) {
-        const requestJson = {
-            connectorName,
-            iconPath: 'testPath',
-        };
-        let data = {};
-        const epUrl = getServiceEndpoint('imageutil');
-        $.ajax({
-            type: 'POST',
-            context: this,
-            url: epUrl,
-            data: JSON.stringify(requestJson),
-            contentType: 'application/json; charset=utf-8',
-            async: false,
-            dataType: 'json',
-            success(response) {
-                if (response.status === 'success') {
-                    data = response.content;
-                } else {
-                    data = this.getSVGIconString('tool-icons/connector');
-                }
-            },
-            error() {
-                data = this.getSVGIconString('tool-icons/connector');
-            },
-        });
-        return data;
+        return this.getSVGIconString('tool-icons/endpoint');
+        // TODO: remove connector wise endpoint icon retrieval temporarily
+        // const requestJson = {
+        //     connectorName,
+        //     iconPath: 'testPath',
+        // };
+        // let data = {};
+        // const epUrl = getServiceEndpoint('imageutil');
+        // $.ajax({
+        //     type: 'POST',
+        //     context: this,
+        //     url: epUrl,
+        //     data: JSON.stringify(requestJson),
+        //     contentType: 'application/json; charset=utf-8',
+        //     async: false,
+        //     dataType: 'json',
+        //     success(response) {
+        //         if (response.status === 'success') {
+        //             data = response.content;
+        //         } else {
+        //             data = this.getSVGIconString('tool-icons/endpoint');
+        //         }
+        //     },
+        //     error() {
+        //         data = this.getSVGIconString('tool-icons/endpoint');
+        //     },
+        // });
+        // return data;
     }
 }
 

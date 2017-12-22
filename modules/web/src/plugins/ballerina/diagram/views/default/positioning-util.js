@@ -1488,7 +1488,7 @@ class PositioningUtil {
      * @param {object} node While object
      */
     positionWhileNode(node) {
-        this.positionCompoundStatementComponents(node);
+        this.positionFlowControlCompoundStatementComponents(node);
         // Position the while node
         node.body.viewState.bBox.x = node.viewState.bBox.x;
         node.body.viewState.bBox.y = node.viewState.components['statement-box'].y

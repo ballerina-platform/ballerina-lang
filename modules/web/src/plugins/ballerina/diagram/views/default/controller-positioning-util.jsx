@@ -97,7 +97,11 @@ class ControllerPositioningUtil {
      *
      */
     positionCompilationUnitNodeControllers(node) {
-        const x = this.config.panel.wrapper.gutter.h + 320;
+        const offsetX = node.getPackageDeclaration()
+                || node.viewState.packageDefExpanded
+                ? 320
+                : 40;
+        const x = this.config.panel.wrapper.gutter.h + offsetX;
         const y = this.config.panel.wrapper.gutter.v;
         const w = 50;
         const h = 50;
@@ -112,7 +116,7 @@ class ControllerPositioningUtil {
             buttonY={0}
             showAlways
             buttonRadius={12}
-        >                                <Menu>
+        >                                                    <Menu>
             {items}
         </Menu>
         </Button>);
@@ -183,7 +187,7 @@ class ControllerPositioningUtil {
      *
      */
     positionFunctionNodeControllers(node) {
-        const y = node.viewState.components.defaultWorker.y;
+        const y = node.viewState.components.defaultWorker.y - 20;
         let x = node.viewState.components.defaultWorker.x + node.viewState.components.defaultWorker.w +
             this.config.lifeLine.gutter.h;
         let workerButton = <span />;

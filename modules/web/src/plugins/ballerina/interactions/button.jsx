@@ -32,6 +32,9 @@ class Button extends React.Component {
         const btnX = this.props.buttonX;
         const btnY = this.props.buttonY;
         const btnRadius = this.props.buttonRadius;
+        const btnColor = this.props.buttonColor;
+        const btnIconColor = this.props.buttonIconColor;
+        const IconOpacity = this.props.hideIconBackground ? 0 : 1;
         return (
             <div
                 className='button-area'
@@ -43,11 +46,13 @@ class Button extends React.Component {
                 >
                     <div style={{ fontSize: btnRadius }} className='button-panel'>
                         <span
-
                             className={(this.props.showAlways ? 'button-show-always' : 'button') + ' fw-stack fw-lg'}
                         >
-                            <i className='fw fw-circle fw-stack-2x' />
-                            <i className='fw fw-add fw-stack-1x fw-inverse' />
+                            <i
+                                style={{ color: btnColor, opacity: IconOpacity }}
+                                className='fw button-background fw-circle fw-stack-2x'
+                            />
+                            <i style={{ color: btnIconColor }} className='fw fw-add fw-stack-1x' />
                         </span>
                     </div>
                     {this.props.children}
@@ -63,6 +68,9 @@ Button.propTypes = {
     buttonX: PropTypes.number,
     buttonY: PropTypes.number,
     buttonRadius: PropTypes.number,
+    buttonColor: PropTypes.string,
+    buttonIconColor: PropTypes.string,
+    hideIconBackground: PropTypes.bool,
     showAlways: PropTypes.bool,
 };
 
@@ -70,6 +78,9 @@ Button.defaultProps = {
     buttonX: 20,
     buttonY: 20,
     buttonRadius: 10,
+    buttonColor: '#f1772a',
+    buttonIconColor: '#ffffff',
+    hideIconBackground: false,
     showAlways: false,
 };
 

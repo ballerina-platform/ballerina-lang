@@ -25,13 +25,16 @@
 
 .button-area:hover .button, .button-show-always{
     z-index:50;
-    color: #f1772a;
     display: block;
     left:2px;
     top:2px;
     -webkit-animation: appear-button 0.2s ease-out;
     -moz-animation: appear-down 0.2s ease-out;
     cursor: pointer;
+}
+
+.button:hover, .button-show-always:hover .button-background{
+    opacity: 1 !important;
 }
 
 @-webkit-keyframes appear-button {
@@ -104,5 +107,20 @@
 }
 
 .connector-select {
-    height: 300px;
+    height: 200px;
+}
+
+.connector-select input{
+    width:190;
+    margin: 5px;
+}
+
+.connector-select ul li {
+    background: #eeeeee;
+}
+
+.connector-select ul li .pkg-name {
+    font-size: 0.8em;
+    font-weight: bold;
+    
 }
