@@ -23,13 +23,16 @@
 
 .button-area:hover .button, .button-show-always{
     z-index:50;
-    color: #f1772a;
     display: block;
     left:2px;
     top:2px;
     -webkit-animation: appear-button 0.2s ease-out;
     -moz-animation: appear-down 0.2s ease-out;
     cursor: pointer;
+}
+
+.button:hover, .button-show-always:hover .button-background{
+    opacity: 1 !important;
 }
 
 @-webkit-keyframes appear-button {
