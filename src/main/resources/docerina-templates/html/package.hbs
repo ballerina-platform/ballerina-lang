@@ -294,7 +294,7 @@
                                 <li><a href="#{{this.name}} ">{{#with this}}{{this.name}} ({{#each parameters}}{{typeText this}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/with}}</a>
                                     <ul>
                                         {{#each actions}}
-                                        <li><a href="#{{name}}{{../name}}">{{this.name}}({{#each parameters}}{{#if @first}}{{else}}{{typeText this}} {{name}}{{#unless @last}}, {{/unless}}{{/if}}{{/each}})</a></li>
+                                        <li><a href="#{{name}}{{../name}}">{{this.name}}({{#each parameters}}{{typeText this}} {{name}}{{#unless @last}}, {{/unless}}{{/each}})</a></li>
                                         {{/each}}
                                     </ul>
                                 </li>{{/isPublic}}{{/each}}
