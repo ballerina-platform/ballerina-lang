@@ -9,6 +9,8 @@
     clip-path: circle(var(--button-size) at var(--button-size) var(--button-size));
     -webkit-transition: -webkit-clip-path 0.5, clip-path 0.1;
     transition: -webkit-clip-path 0.5, clip-path 0.1;
+    width:224px;
+    overflow: hidden;
 }
 
 .button-panel {
@@ -33,11 +35,11 @@
 }
 
 @-webkit-keyframes appear-button {
-      0% { opacity: 0;  font-size:0% }
+    0% { opacity: 0;  font-size:0% }
     100% { opacity: 1; font-size:100%}
 }
 @-moz-keyframes appear-button {
-      0% { opacity: 0; font-size:0%}
+    0% { opacity: 0; font-size:0%}
     100% { opacity: 1; font-size:100% }
 }
 
@@ -57,10 +59,13 @@
     background: #eeeeee;
     position: relative;
     float:left;
+    top: -30px;
+    left: 17px;
 }
 
 .interaction-menu-area:hover .interaction-menu-item {
     opacity: 1;
+    padding:0 24px;
 }
 
 .interaction-menu-item {
@@ -89,12 +94,13 @@
 }
 
 .interaction-menu {
-    width: 200px;
+    width: 224px;
+    padding: 5px 0;
 }
 
 .interaction-menu hr {
     border-top: 1px solid #ccc;
-    margin: 0px 5px;
+    margin: 0 5px;
 }
 
 .connector-select {
