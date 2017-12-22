@@ -89,8 +89,9 @@ class DebuggerPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { COMMANDS, HANDLERS, VIEWS, DIALOGS, TOOLS } = CONTRIBUTIONS;
+        const { COMMANDS, HANDLERS, VIEWS, DIALOGS, TOOLS, MENUS } = CONTRIBUTIONS;
         return {
+            [MENUS]: getMenuDefinitions(this),
             [COMMANDS]: getCommandDefinitions(this),
             [HANDLERS]: getHandlerDefinitions(this),
             [VIEWS]: [
