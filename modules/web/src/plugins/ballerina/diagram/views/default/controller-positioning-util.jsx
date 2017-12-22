@@ -116,7 +116,7 @@ class ControllerPositioningUtil {
             buttonY={0}
             showAlways
             buttonRadius={12}
-        >                                          <Menu>
+        >                                                    <Menu>
             {items}
         </Menu>
         </Button>);

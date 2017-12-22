@@ -524,7 +524,7 @@ class ToolPaletteView extends React.Component {
         const model = activeEditor.getProperty('ast');
         const environment = activeEditor.getProperty('balEnvironment');
         if (!environment || !(environment instanceof PackageScopedEnvironment)) {
-            return (<div className='tool-palette-error'>Ooops! Something is wrong. Unabale to load Tool Pallete.</div>);
+            return (<div className='tool-palette-error'>Ooops! Something is wrong. Unable to load Tool Pallete.</div>);
         }
         // assigned the state to local variable.
         let state = this.state.tab;
