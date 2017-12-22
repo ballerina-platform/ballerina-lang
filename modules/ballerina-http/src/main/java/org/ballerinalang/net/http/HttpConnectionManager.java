@@ -359,7 +359,7 @@ public class HttpConnectionManager {
         senderConfiguration.setFollowRedirect(followRedirect == 1);
         senderConfiguration.setMaxRedirectCount(maxRedirectCount);
         int enableChunking = options.getBooleanField(Constants.ENABLE_CHUNKING_INDEX);
-        senderConfiguration.setChunkDisabled(enableChunking == 0);
+        senderConfiguration.setChunkEnabled(enableChunking == 1);
 
         long endpointTimeout = options.getIntField(Constants.ENDPOINT_TIMEOUT_STRUCT_INDEX);
         if (endpointTimeout < 0 || (int) endpointTimeout != endpointTimeout) {
@@ -369,6 +369,8 @@ public class HttpConnectionManager {
 
         boolean isKeepAlive = options.getBooleanField(Constants.IS_KEEP_ALIVE_INDEX) == 1;
         senderConfiguration.setKeepAlive(isKeepAlive);
+        String httpVersion = options.getStringField(Constants.HTTP_VERSION_STRUCT_INDEX);
+        senderConfiguration.setHttpVersion(httpVersion);
     }
 
     private String makeFirstLetterLowerCase(String str) {
