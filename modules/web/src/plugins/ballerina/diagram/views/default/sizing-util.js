@@ -1755,14 +1755,14 @@ class SizingUtil {
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
-        viewState.components['statement-box'].h = bodyHeight + this.config.flowChartControlStatement.heading.height;
+        viewState.components['statement-box'].h = bodyHeight; // + this.config.flowChartControlStatement.heading.height;
         viewState.components['statement-box'].w = bodyWidth;
         viewState.bBox.h = viewState.components['statement-box'].h
                             + viewState.components['drop-zone'].h
                             + this.config.flowChartControlStatement.gutter.h // for the lower dashed line
-                            + this.config.statement.gutter.h;
+                            + this.config.statement.gutter.h
+                            + viewState.components['block-header'].h;
         viewState.bBox.w = bodyWidth;
-        components.body.w = bodyWidth;
 
         components['block-header'].setOpaque(true);
 
