@@ -601,6 +601,12 @@ class TreeUtil extends AbstractTreeUtil {
         }
         return this.getClientInvokableParentNode(node.parent);
     }
+
+
+    isInitFunction(node) {
+        const regex = /\.\<init\>$/g;
+        return regex.test(node.name.value);
+    }
 }
 
 export default new TreeUtil();

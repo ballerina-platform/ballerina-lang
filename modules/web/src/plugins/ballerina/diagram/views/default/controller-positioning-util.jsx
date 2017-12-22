@@ -21,10 +21,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import SimpleBBox from './../../../model/view/simple-bounding-box';
 import Button from '../../../interactions/button';
+import LifelineButton from '../../../interactions/lifeline-button';
 import Menu from '../../../interactions/menu';
 import Item from '../../../interactions/item';
 import TopLevelElements from '../../../tool-palette/item-provider/compilation-unit-tools';
 import WorkerTools from '../../../tool-palette/item-provider/worker-tools';
+import LifelineTools from '../../../tool-palette/item-provider/lifeline-tools';
+import TreeUtil from './../../../model/tree-util';
 
 class ControllerPositioningUtil {
 
@@ -109,7 +112,7 @@ class ControllerPositioningUtil {
             buttonY={0}
             showAlways
             buttonRadius={12}
-        >                      <Menu>
+        >                                <Menu>
             {items}
         </Menu>
         </Button>);
@@ -180,30 +183,40 @@ class ControllerPositioningUtil {
      *
      */
     positionFunctionNodeControllers(node) {
-        /* console.log(node);
-        const x = node.viewState.bBox.x;
-        const y = node.viewState.bBox.y;
-        return (<Button
-            bBox={{ x: x + 25, y: y + 25, h: 50, w: 50 }}
-            buttonX={0}
-            buttonY={0}
-            showAlways
-        >
-            <Menu>
-                <Item
-                    label='Connector'
-                    icon='fw fw-dgm-if-else'
-                    callback={(data) => { alert(data.name); }}
-                    data={{ name: 'if condition' }}
-                />
-                <Item
-                    label='Worker'
-                    icon='fw fw-dgm-while'
-                    callback={(data) => { alert(data.name); }}
-                    data={{ name: 'while condition' }}
-                />
-            </Menu>
-        </Button>); */
+        console.log(node);
+        const y = node.viewState.components.defaultWorker.y;
+        let x = node.viewState.components.defaultWorker.x + node.viewState.components.defaultWorker.w +
+            this.config.lifeLine.gutter.h;
+        let workerButton = <span />;
+        if (node.workers.length > 0) {
+            x = node.workers[node.workers.length - 1].viewState.bBox.x + node.workers[node.workers.length - 1].viewState.bBox.w;
+        } else {
+            // add default worker plus.
+            workerButton = this.getWorkerButton(node.viewState.components.defaultWorker, node.body);
+        }
+
+        // Set the size of the connector declarations
+        const statements = node.body.statements;
+        if (statements instanceof Array) {
+            statements.forEach((statement) => {
+                if (TreeUtil.isEndpointTypeVariableDef(statement)) {
+                    x = statement.viewState.bBox.w + statement.viewState.bBox.x + this.config.lifeLine.gutter.h;
+                }
+            });
+        }
+
+        if (TreeUtil.isInitFunction(node)) {
+            return <span />;
+        }
+
+        const w = 50;
+        const h = 50;
+
+        const items = this.convertToAddItems(LifelineTools, node);
+
+        return [
+            <LifelineButton bBox={{ x, y, w, h }} model={node} items={items} />,
+            workerButton];
     }
 
 
@@ -325,12 +338,16 @@ class ControllerPositioningUtil {
      *
      */
     positionWorkerNodeControllers(node) {
-        const x = node.viewState.bBox.x + 48;
-        const y = node.viewState.bBox.y + node.body.viewState.bBox.h;
+        return this.getWorkerButton(node.viewState.bBox, node.body);
+    }
+
+    getWorkerButton(bBox, node) {
+        const x = bBox.x + 48;
+        const y = bBox.y + node.viewState.bBox.h;
         const w = 50;
         const h = 50;
 
-        const items = this.convertToAddItems(WorkerTools, node.body);
+        const items = this.convertToAddItems(WorkerTools, node);
         // Not implemented.
         return (<Button
             bBox={{ x, y, w, h }}
