@@ -202,14 +202,14 @@ class CompoundStatementDecorator extends React.Component {
         const displayExpression = viewState.components.expression;
 
         const p1X = statementBBox.x;
-        const p1Y = statementBBox.y + titleH;
+        const p1Y = statementBBox.y;
         const p2X = statementBBox.x + titleW;
         const p2Y = statementBBox.y + titleH;
         const p3X = statementBBox.x + titleW + 10;
         const p3Y = statementBBox.y;
 
-        const titleX = statementBBox.x + this.context.designer.config.statement.padding.left;
-        const titleY = statementBBox.y + (titleH / 2);
+        const titleX = p1X + this.context.designer.config.statement.padding.left;
+        const titleY = p1Y + (titleH / 2);
 
         let expressionX = 0;
         if (expression) {
@@ -378,14 +378,12 @@ CompoundStatementDecorator.defaultProps = {
 };
 
 CompoundStatementDecorator.propTypes = {
-    draggable: PropTypes.func,
     title: PropTypes.string.isRequired,
     model: PropTypes.instanceOf(Node).isRequired,
     children: PropTypes.arrayOf(React.PropTypes.node),
     utilities: PropTypes.element,
     bBox: PropTypes.instanceOf(SimpleBBox).isRequired,
     parameterBbox: PropTypes.instanceOf(SimpleBBox),
-    undeletable: PropTypes.bool,
     dropTarget: PropTypes.instanceOf(Node).isRequired,
     titleWidth: PropTypes.number,
     expression: PropTypes.shape({
