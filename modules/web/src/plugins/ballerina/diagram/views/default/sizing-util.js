@@ -1910,7 +1910,8 @@ class SizingUtil {
         viewState.components['drop-zone'].w = bodyWidth;
         viewState.components['statement-box'].h = bodyHeight + this.config.blockStatement.heading.height;
         viewState.components['statement-box'].w = bodyWidth;
-        viewState.bBox.h = viewState.components['statement-box'].h + viewState.components['drop-zone'].h;
+        viewState.bBox.h = viewState.components['statement-box'].h + viewState.components['drop-zone'].h
+                            + this.config.statement.gutter.h;
         viewState.bBox.w = bodyWidth;
         components.body.w = bodyWidth;
 
