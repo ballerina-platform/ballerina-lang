@@ -27,6 +27,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.BLangConstants;
@@ -131,6 +132,8 @@ public class ResourceExecutor {
                 } else if (btype == BTypes.typeInt) {
                     longLocalVars[longParamCount++] = ((BInteger) value).intValue();
                 } else if (value instanceof BStruct) {
+                    refLocalVars[refParamCount++] = (BRefType) value;
+                } else if (value instanceof BRefValueArray) {
                     refLocalVars[refParamCount++] = (BRefType) value;
                 } else {
                     connectorFuture.notifyFailure(new BallerinaException("unsupported " +

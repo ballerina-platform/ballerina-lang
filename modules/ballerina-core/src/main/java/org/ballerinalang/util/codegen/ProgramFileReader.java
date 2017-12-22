@@ -22,7 +22,7 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BFunctionType;
-import org.ballerinalang.model.types.BJSONConstraintType;
+import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -172,7 +172,7 @@ public class ProgramFileReader {
             case CP_ENTRY_UTF8:
                 short length = dataInStream.readShort();
                 String strValue = null;
-                
+
                 // If the length of the bytes is -1, that means no UTF value has been written.
                 // i.e: string value represented by the UTF should be null.
                 // Therefore we read the UTF value only if the length >= 0.
@@ -302,16 +302,15 @@ public class ProgramFileReader {
                 return forkJoinCPEntry;
             case CP_ENTRY_WRKR_INTERACTION:
                 int typesSignatureCPIndex = dataInStream.readInt();
-                UTF8CPEntry typesSignatureCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typesSignatureCPIndex);
-                // When it comes to here, constantPool is always package info
-                BType[] bTypes = getParamTypes(typesSignatureCPEntry.getValue(), (PackageInfo) constantPool);
+                utf8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(typesSignatureCPIndex);
                 int workerInvokeArgLength = dataInStream.readByte();
                 int[] workerInvokeArgRegs = new int[workerInvokeArgLength];
                 for (int i = 0; i < workerInvokeArgLength; i++) {
                     workerInvokeArgRegs[i] = dataInStream.readInt();
                 }
                 WrkrInteractionArgsCPEntry wrkrInvokeCPEntry
-                        = new WrkrInteractionArgsCPEntry(workerInvokeArgRegs, bTypes);
+                        = new WrkrInteractionArgsCPEntry(workerInvokeArgRegs, utf8CPEntry);
+                unresolvedCPEntries.add(wrkrInvokeCPEntry);
                 return wrkrInvokeCPEntry;
             case CP_ENTRY_WRKR_DATA_CHNL_REF:
                 int uniqueNameCPIndex = dataInStream.readInt();
@@ -384,7 +383,7 @@ public class ProgramFileReader {
         // TODO Read annotation info entries
 
         // Resolve unresolved CP entries.
-        resolveCPEntries();
+        resolveCPEntries(packageInfo);
 
         resolveConnectorMethodTables(packageInfo);
 
@@ -844,7 +843,7 @@ public class ProgramFileReader {
                 typeStack.push(BTypes.getTypeFromName(typeName));
                 return nameIndex + 1;
             case 'C':
-            case 'K':
+            case 'J':
             case 'T':
             case 'E':
                 char typeChar = chars[index];
@@ -874,8 +873,12 @@ public class ProgramFileReader {
 
                 if (typeChar == 'C') {
                     typeStack.push(packageInfoOfType.getConnectorInfo(name).getType());
-                } else if (typeChar == 'K') {
-                    typeStack.push(new BJSONConstraintType(packageInfoOfType.getStructInfo(name).getType()));
+                } else if (typeChar == 'J') {
+                    if (name.isEmpty()) {
+                        typeStack.push(BTypes.typeJSON);
+                    } else {
+                        typeStack.push(new BJSONType(packageInfoOfType.getStructInfo(name).getType()));
+                    }
                 } else if (typeChar == 'E') {
                     typeStack.push(packageInfoOfType.getEnumInfo(name).getType());
                 } else {
@@ -919,22 +922,23 @@ public class ProgramFileReader {
             case 'R':
                 return BTypes.getTypeFromName(desc.substring(1, desc.length() - 1));
             case 'C':
-            case 'K':
+            case 'J':
             case 'T':
             case 'E':
-                String pkgPath;
-                String name;
-                PackageInfo packageInfoOfType;
                 String typeName = desc.substring(1, desc.length() - 1);
                 String[] parts = typeName.split(":");
-                pkgPath = parts[0];
-                name = parts[1];
-                packageInfoOfType = programFile.getPackageInfo(pkgPath);
 
-                if (ch == 'C') {
+                if (ch == 'J' && parts.length == 1) {
+                    return BTypes.typeJSON;
+                }
+
+                String pkgPath = parts[0];
+                String name = parts[1];
+                PackageInfo packageInfoOfType = programFile.getPackageInfo(pkgPath);
+                if (ch == 'J') {
+                    return new BJSONType(packageInfoOfType.getStructInfo(name).getType());
+                } else if (ch == 'C') {
                     return packageInfoOfType.getConnectorInfo(name).getType();
-                } else if (ch == 'K') {
-                    return new BJSONConstraintType(packageInfoOfType.getStructInfo(name).getType());
                 } else if (ch == 'E') {
                     return packageInfoOfType.getEnumInfo(name).getType();
                 } else {
@@ -1367,7 +1371,6 @@ public class ProgramFileReader {
                 case InstructionCodes.THROW:
                 case InstructionCodes.ERRSTORE:
                 case InstructionCodes.TR_END:
-                case InstructionCodes.NEWJSON:
                 case InstructionCodes.NEWMAP:
                 case InstructionCodes.NEWDATATABLE:
                     i = codeStream.readInt();
@@ -1443,6 +1446,7 @@ public class ProgramFileReader {
                 case InstructionCodes.TCALL:
                 case InstructionCodes.SEQ_NULL:
                 case InstructionCodes.SNE_NULL:
+                case InstructionCodes.NEWJSON:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1589,7 +1593,7 @@ public class ProgramFileReader {
         }
     }
 
-    private void resolveCPEntries() {
+    private void resolveCPEntries(PackageInfo currentPackageInfo) {
         for (ConstantPoolEntry cpEntry : unresolvedCPEntries) {
             PackageInfo packageInfo;
             StructureRefCPEntry structureRefCPEntry;
@@ -1620,8 +1624,15 @@ public class ProgramFileReader {
                             packageInfo.getTransformerInfo(transformerRefCPEntry.getTransformerName());
                     transformerRefCPEntry.setTransformerInfo(transformerInfo);
                     break;
-            default:
-                break;
+                case CP_ENTRY_WRKR_INTERACTION:
+                    WrkrInteractionArgsCPEntry wrkrInteractionArgsCPEntry = (WrkrInteractionArgsCPEntry) cpEntry;
+                    // When it comes to here, constantPool is always current package info
+                    BType[] bTypes = getParamTypes(wrkrInteractionArgsCPEntry.getTypesSignatureCPEntry().getValue(),
+                            currentPackageInfo);
+                    wrkrInteractionArgsCPEntry.setBTypes(bTypes);
+                    break;
+                default:
+                    break;
             }
         }
     }
