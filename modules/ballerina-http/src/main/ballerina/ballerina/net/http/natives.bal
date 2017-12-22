@@ -15,6 +15,7 @@ public struct Request {
 	string method;
 	string httpVersion;
 	string userAgent;
+	string restUriPostFix;
 	map headers;
 }
 
