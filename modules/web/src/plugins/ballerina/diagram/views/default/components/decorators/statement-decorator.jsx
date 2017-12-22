@@ -207,13 +207,13 @@ class StatementDecorator extends React.Component {
                     enableDragBg
                     enableCenterOverlayLine
                 />
-                <g className='statement-body'>
+                <g className='statement-body' onClick={e => this.onJumpToCodeLine()}>
                     {tooltip}
                     <text
                         x={text.x}
                         y={text.y}
                         className={textClassName}
-                        onClick={e => this.openEditor(e)}
+                        onClick={e => this.onJumpToCodeLine()}
                     >
                         {_.trimEnd(expression, ';')}
                     </text>

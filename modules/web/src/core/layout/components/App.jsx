@@ -36,8 +36,8 @@ const leftPanelMaxSize = 700;
 const leftPanelClosedSize = 42;
 const bottomPanelDefaultSize = 300;
 const bottomPanelMaxSize = 700;
-const headerHeight = 24;
-const toolAreaHeight = 30;
+const headerHeight = 30;
+const toolAreaHeight = 0;
 const resizerSize = 1;
 /**
  * React component for App.
@@ -188,12 +188,6 @@ class App extends React.Component {
                     panelResizeInProgress={this.state.panelResizeInProgress}
                     width={this.state.documentWidth}
                     height={headerHeight}
-                />
-                <ToolArea
-                    views={this.getViewsForRegion(REGIONS.TOOL_AREA)}
-                    panelResizeInProgress={this.state.panelResizeInProgress}
-                    width={this.state.documentWidth}
-                    height={toolAreaHeight}
                 />
                 <SplitPane
                     ref={(ref) => { this.leftRightSplitPane = ref; }}

@@ -170,6 +170,14 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
         }
         return empty;
     }
+
+    /**
+     * Returns the package declaration node
+     */
+    getPackageDeclaration() {
+        const pkgDecNodes = this.filterTopLevelNodes({ kind: 'PackageDeclaration' });
+        return _.isEmpty(pkgDecNodes) ? undefined : pkgDecNodes[0];
+    }
 }
 
 export default CompilationUnitNode;

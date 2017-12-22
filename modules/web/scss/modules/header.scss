@@ -9,7 +9,7 @@
         color: $header-brand-color;
         padding: 0 10px;
         margin-right: 25px;
-        line-height: 24px;
+        line-height: $header-min-height;
         
         & a {
             color: $header-brand-color;

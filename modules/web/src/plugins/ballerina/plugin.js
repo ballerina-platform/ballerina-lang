@@ -196,22 +196,6 @@ class BallerinaPlugin extends Plugin {
                     },
                     displayOnLoad: false,
                 },
-                {
-                    id: VIEW_IDS.TOOL_PALLETE,
-                    component: ToolPaletteView,
-                    propsProvider: () => {
-                        return {
-                            ballerinaPlugin: this,
-                        };
-                    },
-                    region: REGIONS.LEFT_PANEL,
-                    // region specific options for left-panel views
-                    regionOptions: {
-                        activityBarIcon: 'grip',
-                        panelTitle: 'Tool Palette',
-                        panelActions: [],
-                    },
-                },
             ],
             [HANDLERS]: [
                 {

@@ -14,3 +14,7 @@
 .statement-item-selector {
     cursor: pointer;
 }
+
+.statement-body {
+    cursor: pointer;
+}

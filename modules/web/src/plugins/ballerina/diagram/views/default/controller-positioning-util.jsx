@@ -97,7 +97,11 @@ class ControllerPositioningUtil {
      *
      */
     positionCompilationUnitNodeControllers(node) {
-        const x = this.config.panel.wrapper.gutter.h + 320;
+        const offsetX = node.getPackageDeclaration()
+                || node.viewState.packageDefExpanded
+                ? 320
+                : 40;
+        const x = this.config.panel.wrapper.gutter.h + offsetX;
         const y = this.config.panel.wrapper.gutter.v;
         const w = 50;
         const h = 50;
