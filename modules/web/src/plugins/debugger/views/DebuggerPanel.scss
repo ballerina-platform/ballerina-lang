@@ -5,20 +5,20 @@
 .panel-content .btn-debug-activate{
     position: relative;
     float: left;
-    height: 40px;
+    height: 30px;
     text-align: left;
     background-color: #333;
     color: white;
     padding-left: 30px;
-    font-weight: 300;
 }
 
 .panel-content .btn-debug-activate:hover, 
 .panel-content .btn-debug-activate:active, 
 .panel-content .btn-debug-activate:focus {
-    background: #232323;
+    background: #444;
     transition: all 250ms ease 0s;
     color: #fff;
+    font-weight: 500;
 }
 
 .panel-content .col-xs-12 {
@@ -30,7 +30,6 @@
     position: relative;
     float: left;
     padding-left: 30px;
-    font-weight: 300;
 }
 
 
