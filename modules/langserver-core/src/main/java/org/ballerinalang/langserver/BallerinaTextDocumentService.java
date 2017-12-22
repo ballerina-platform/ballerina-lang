@@ -59,8 +59,6 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -88,7 +86,6 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
-    private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaTextDocumentService.class);
     private Map<String, List<Diagnostic>> lastDiagnosticMap;
     private BLangPackageContext bLangPackageContext;
 
@@ -163,9 +160,15 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             SignatureHelpUtil.captureCallableItemInfo(position.getPosition(), fileContent, signatureContext);
             signatureContext.put(DocumentServiceKeys.POSITION_KEY, position);
             signatureContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
-            BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(signatureContext, documentManager);
-            bLangPackageContext.addPackage(bLangPackage);
-            return SignatureHelpUtil.getFunctionSignatureHelp(signatureContext, bLangPackageContext);
+            SignatureHelp signatureHelp;
+            try {
+                BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(signatureContext, documentManager);
+                bLangPackageContext.addPackage(bLangPackage);
+                signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext, bLangPackageContext);
+            } catch (Exception e) {
+                signatureHelp = new SignatureHelp();
+            }
+            return signatureHelp;
         });
     }
 
@@ -302,7 +305,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     private void publishDiagnostics(List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics, Path path) {
-        Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<String, List<Diagnostic>>();
+        Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<>();
         balDiagnostics.forEach(diagnostic -> {
             Diagnostic d = new Diagnostic();
             d.setSeverity(DiagnosticSeverity.Error);
@@ -380,9 +383,9 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         try {
             path = Paths.get(new URL(uri).toURI());
         } catch (URISyntaxException | MalformedURLException e) {
-            LOGGER.error(e.getMessage());
-        } finally {
-            return path;
+            // Do Nothing
         }
+        
+        return path;
     }
 }
