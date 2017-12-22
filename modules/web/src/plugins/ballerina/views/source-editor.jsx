@@ -278,18 +278,6 @@ class SourceEditor extends React.Component {
     }
 
     /**
-     * Replace content of the editor while maintaining history
-     *
-     * @param {*} newContent content to insert
-     */
-    replaceContent(newContent, skipFileUpdate) {
-        if (skipFileUpdate) {
-            this.skipFileUpdate = true;
-        }
-        this.monaco.editor.getModels()[1].setValue(newContent);
-    }
-
-    /**
      * Binds available commands to monaco editor
      */
     bindCommands() {
