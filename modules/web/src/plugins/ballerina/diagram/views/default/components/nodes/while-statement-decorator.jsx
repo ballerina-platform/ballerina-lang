@@ -239,13 +239,13 @@ class WhileStatementDecorator extends React.Component {
         const p4Y = p2Y;
 
         const p5X = p4X;
-        const p5Y = p1Y + statementBBox.h + this.context.designer.config.flowChartControlStatement.gutter.h;
+        const p5Y = bBox.y + bBox.h;
 
         const p6X = statementBBox.x;
         const p6Y = p5Y;
 
         const p7X = p1X;
-        const p7Y = p1Y + statementBBox.h;
+        const p7Y = p5Y - this.context.designer.config.flowChartControlStatement.gutter.h;
 
         const p8X = statementBBox.x;
         const p8Y = p2Y + (titleH / 2);
