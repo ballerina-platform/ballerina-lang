@@ -183,7 +183,6 @@ class ControllerPositioningUtil {
      *
      */
     positionFunctionNodeControllers(node) {
-        console.log(node);
         const y = node.viewState.components.defaultWorker.y;
         let x = node.viewState.components.defaultWorker.x + node.viewState.components.defaultWorker.w +
             this.config.lifeLine.gutter.h;
