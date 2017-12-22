@@ -135,6 +135,7 @@ public class Util {
      * Prepare request message with Transfer-Encoding/Content-Length
      *
      * @param httpOutboundRequest HTTPCarbonMessage
+     * @param chunkEnabled Specifies whether chunking is enabled or disabled
      */
     public static void setupChunkedOrContentLengthForReq(HTTPCarbonMessage httpOutboundRequest, boolean chunkEnabled) {
         if (chunkEnabled) {

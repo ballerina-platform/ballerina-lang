@@ -19,7 +19,9 @@
 
 package org.wso2.transport.http.netty.contentaware.listeners;
 
-import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
@@ -44,10 +46,10 @@ public class EchoMessageListener implements HttpConnectorListener {
             try {
                 int length = httpRequest.getFullMessageLength();
                 HTTPCarbonMessage cMsg = httpRequest.cloneCarbonMessageWithData();
-                cMsg.setHeader(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-                cMsg.setHeader(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(length));
-                cMsg.setHeader(HttpHeaders.Names.CONTENT_TYPE, Constants.TEXT_PLAIN);
-                cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
+                cMsg.setHeader(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());
+                cMsg.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(length));
+                cMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), Constants.TEXT_PLAIN);
+                cMsg.setProperty(Constants.HTTP_STATUS_CODE, HttpResponseStatus.OK.code());
                 httpRequest.respond(cMsg);
             } catch (ServerConnectorException e) {
                 logger.error("Error occurred during message notification: " + e.getMessage());

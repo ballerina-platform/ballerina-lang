@@ -100,6 +100,7 @@ public interface EntityCollector {
 
     /**
      * Peek the head of the queue
+     * @return An HttpContent instance
      */
     HttpContent peek();
 }

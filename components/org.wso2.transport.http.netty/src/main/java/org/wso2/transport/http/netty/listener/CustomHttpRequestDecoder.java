@@ -59,8 +59,8 @@ public class CustomHttpRequestDecoder extends HttpRequestDecoder {
         for (Object o : out) {
             if (o instanceof DefaultHttpRequest) {
                 DefaultHttpRequest httpRequest = (DefaultHttpRequest) o;
-                if (httpRequest.getDecoderResult().isFailure() && httpRequest.getDecoderResult()
-                        .cause() instanceof TooLongFrameException) {
+                if (httpRequest.decoderResult().isFailure()
+                        && httpRequest.decoderResult().cause() instanceof TooLongFrameException) {
 
                     log.warn("Header size is larger than the valid limit");
 

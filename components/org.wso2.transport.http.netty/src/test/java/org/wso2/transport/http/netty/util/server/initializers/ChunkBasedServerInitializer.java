@@ -26,20 +26,18 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
 
-import static io.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
-import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_LENGTH;
-import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
-import static io.netty.handler.codec.http.HttpHeaders.Names.TRANSFER_ENCODING;
-import static io.netty.handler.codec.http.HttpHeaders.is100ContinueExpected;
-import static io.netty.handler.codec.http.HttpHeaders.isKeepAlive;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
+import static io.netty.handler.codec.http.HttpHeaderNames.TRANSFER_ENCODING;
 import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
@@ -76,27 +74,27 @@ public class ChunkBasedServerInitializer extends HTTPServerInitializer {
                 if (msg instanceof HttpRequest) {
                     req = (HttpRequest) msg;
                 } else if (msg instanceof LastHttpContent) {
-                    if (is100ContinueExpected(req)) {
+                    if (HttpUtil.is100ContinueExpected(req)) {
                         ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, CONTINUE));
                     }
-                    boolean keepAlive = isKeepAlive(req);
+                    boolean keepAlive = HttpUtil.isKeepAlive(req);
                     HttpResponseStatus httpResponseStatus = new HttpResponseStatus(responseStatusCode,
                             HttpResponseStatus.valueOf(responseStatusCode).reasonPhrase());
                     FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, httpResponseStatus, content);
                     response.headers().set(CONTENT_TYPE, contentType);
-                    length = req.headers().get(Constants.HTTP_CONTENT_LENGTH);
-                    encoding = req.headers().get(Constants.HTTP_TRANSFER_ENCODING);
+                    length = req.headers().get(CONTENT_LENGTH);
+                    encoding = req.headers().get(TRANSFER_ENCODING);
                     if (length != null) {
                         response.headers().set(CONTENT_LENGTH, content.readableBytes());
                     } else if (encoding != null) {
-                        response.headers().set(TRANSFER_ENCODING, Constants.CHUNKED);
+                        response.headers().set(TRANSFER_ENCODING, HttpHeaderValues.CHUNKED);
                     }
                     if (!keepAlive) {
                         ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
                         logger.debug("Writing response with data to client-connector");
                         logger.debug("Closing the client-connector connection");
                     } else {
-                        response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+                        response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
                         ctx.writeAndFlush(response);
                         logger.debug("Writing response with data to client-connector");
                     }

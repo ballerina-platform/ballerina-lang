@@ -136,6 +136,7 @@ public interface ServerConnectorFuture {
      *
      * @param serverConnectorId The ID of the server connected related to this port unbinding event
      * @param isHttps Specifies whether the server connector is using HTTPS.
+     * @throws ServerConnectorException Thrown if there is an error in unbinding the port.
      */
     void notifyPortUnbindingEvent(String serverConnectorId, boolean isHttps) throws ServerConnectorException;
 
