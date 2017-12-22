@@ -28,14 +28,19 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -43,28 +48,58 @@ import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -112,7 +147,7 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
-        throw new AssertionError();
+
     }
 
     public void visit(BLangFunction funcNode) {
@@ -230,6 +265,7 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockStmt blockNode) {
+        previousNode = blockNode;
         if (!blockNode.stmts.isEmpty()) {
             blockNode.stmts.forEach(this::acceptNode);
         }
@@ -279,7 +315,13 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangWhile whileNode) {
-        // TODO: implement support for hover.
+        previousNode = whileNode;
+        if (whileNode.expr != null) {
+            this.acceptNode(whileNode.expr);
+        }
+        if (whileNode.body != null) {
+            this.acceptNode(whileNode.body);
+        }
     }
 
     public void visit(BLangTransformer transformerNode) {
@@ -295,11 +337,29 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangService serviceNode) {
-        // TODO: implement support for hover.
+        previousNode = serviceNode;
+        if (!serviceNode.resources.isEmpty()) {
+            serviceNode.resources.forEach(this::acceptNode);
+        }
+
+        if (serviceNode.initFunction != null) {
+            this.acceptNode(serviceNode.initFunction);
+        }
     }
 
     public void visit(BLangResource resourceNode) {
-        // TODO: implement support for hover.
+        previousNode = resourceNode;
+        if (!resourceNode.params.isEmpty()) {
+            resourceNode.params.forEach(this::acceptNode);
+        }
+
+        if (!resourceNode.retParams.isEmpty()) {
+            resourceNode.retParams.forEach(this::acceptNode);
+        }
+
+        if (resourceNode.body != null) {
+            this.acceptNode(resourceNode.body);
+        }
     }
 
     @Override
@@ -344,15 +404,27 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReturn returnNode) {
-        // TODO: implement support for hover.
+        previousNode = returnNode;
+        if (!returnNode.exprs.isEmpty()) {
+            returnNode.exprs.forEach(this::acceptNode);
+        }
     }
 
     public void visit(BLangNext nextNode) {
-        // TODO: implement support for hover.
+        // Ignore.
     }
 
     public void visit(BLangInvocation invocationExpr) {
-        if (HoverUtil.isMatchingPosition(invocationExpr.getPosition(), this.position)) {
+        previousNode = invocationExpr;
+        if (invocationExpr.expr != null) {
+            this.acceptNode(invocationExpr.expr);
+        }
+
+        if (!invocationExpr.argExprs.isEmpty()) {
+            invocationExpr.argExprs.forEach(this::acceptNode);
+        }
+
+        if (!terminateVisitor && HoverUtil.isMatchingPosition(invocationExpr.getPosition(), this.position)) {
             this.context.put(HoverKeys.HOVERING_OVER_NODE_KEY, invocationExpr);
             this.context.put(HoverKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
             this.context.put(HoverKeys.NAME_OF_HOVER_NODE_KEY, invocationExpr.name);
@@ -362,8 +434,238 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
         }
     }
 
+    public void visit(BLangCompilationUnit compUnit) {
+
+    }
+
+    public void visit(BLangPackageDeclaration pkgDclNode) {
+
+    }
+
+    public void visit(BLangEnum.BLangEnumerator enumeratorNode) {
+
+    }
+
+    public void visit(BLangIdentifier identifierNode) {
+
+    }
+
+    public void visit(BLangAnnotAttribute annotationAttribute) {
+
+    }
+
+    public void visit(BLangAnnotationAttachment annAttachmentNode) {
+
+    }
+
+    public void visit(BLangAnnotAttachmentAttributeValue annotAttributeValue) {
+
+    }
+
+    public void visit(BLangAnnotAttachmentAttribute annotAttachmentAttribute) {
+
+    }
+
+    public void visit(BLangBind bindNode) {
+
+    }
+
+    public void visit(BLangBreak breakNode) {
+
+    }
+
+    public void visit(BLangReturn.BLangWorkerReturn returnNode) {
+
+    }
+
+    public void visit(BLangThrow throwNode) {
+
+    }
+
+    public void visit(BLangXMLNSStatement xmlnsStmtNode) {
+
+    }
+
+    public void visit(BLangArrayLiteral arrayLiteral) {
+
+    }
+
+    public void visit(BLangIndexBasedAccess indexAccessExpr) {
+
+    }
+
+    public void visit(BLangConnectorInit connectorInitExpr) {
+
+    }
+
+    public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
+
+    }
+
+    public void visit(BLangTernaryExpr ternaryExpr) {
+
+    }
+
+    public void visit(BLangUnaryExpr unaryExpr) {
+
+    }
+
+    public void visit(BLangTypeofExpr accessExpr) {
+
+    }
+
+    public void visit(BLangTypeCastExpr castExpr) {
+
+    }
+
+    public void visit(BLangTypeConversionExpr conversionExpr) {
+
+    }
+
+    public void visit(BLangXMLQName xmlQName) {
+
+    }
+
+    public void visit(BLangXMLAttribute xmlAttribute) {
+
+    }
+
+    public void visit(BLangXMLElementLiteral xmlElementLiteral) {
+
+    }
+
+    public void visit(BLangXMLTextLiteral xmlTextLiteral) {
+
+    }
+
+    public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
+
+    }
+
+    public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
+
+    }
+
+    public void visit(BLangXMLQuotedString xmlQuotedString) {
+
+    }
+
+    public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
+
+    }
+
+    public void visit(BLangLambdaFunction bLangLambdaFunction) {
+
+    }
+
+    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
+
+    }
+
+    public void visit(BLangValueType valueType) {
+
+    }
+
+    public void visit(BLangArrayType arrayType) {
+
+    }
+
+    public void visit(BLangBuiltInRefTypeNode builtInRefType) {
+
+    }
+
+    public void visit(BLangEndpointTypeNode endpointType) {
+
+    }
+
+    public void visit(BLangConstrainedType constrainedType) {
+
+    }
+
+    public void visit(BLangFunctionTypeNode functionTypeNode) {
+
+    }
+
+    public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
+
+    }
+
+    public void visit(BLangSimpleVarRef.BLangFieldVarRef fieldVarRef) {
+
+    }
+
+    public void visit(BLangSimpleVarRef.BLangPackageVarRef packageVarRef) {
+
+    }
+
+    public void visit(BLangSimpleVarRef.BLangFunctionVarRef functionVarRef) {
+
+    }
+
+    public void visit(BLangFieldBasedAccess.BLangStructFieldAccessExpr fieldAccessExpr) {
+
+    }
+
+    public void visit(BLangIndexBasedAccess.BLangMapAccessExpr mapKeyAccessExpr) {
+
+    }
+
+    public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr arrayIndexAccessExpr) {
+
+    }
+
+    public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr xmlIndexAccessExpr) {
+
+    }
+
+    public void visit(BLangRecordLiteral.BLangJSONLiteral jsonLiteral) {
+
+    }
+
+    public void visit(BLangRecordLiteral.BLangMapLiteral mapLiteral) {
+
+    }
+
+    public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
+
+    }
+
+    public void visit(BLangInvocation.BFunctionPointerInvocation bFunctionPointerInvocation) {
+
+    }
+
+    public void visit(BLangInvocation.BLangFunctionInvocation iExpr) {
+
+    }
+
+    public void visit(BLangInvocation.BLangTransformerInvocation iExpr) {
+
+    }
+
+    public void visit(BLangArrayLiteral.BLangJSONArrayLiteral jsonArrayLiteral) {
+
+    }
+
+    public void visit(BLangIndexBasedAccess.BLangJSONAccessExpr jsonAccessExpr) {
+
+    }
+
+    public void visit(BLangXMLNS.BLangLocalXMLNS xmlnsNode) {
+
+    }
+
+    public void visit(BLangXMLNS.BLangPackageXMLNS xmlnsNode) {
+
+    }
+
+    public void visit(BLangFieldBasedAccess.BLangEnumeratorAccessExpr enumeratorAccessExpr) {
+
+    }
+
     /**
      * Accept node to visit.
+     *
+     * @param node node to be accepted to visit.
      */
     private void acceptNode(BLangNode node) {
         if (this.terminateVisitor) {
