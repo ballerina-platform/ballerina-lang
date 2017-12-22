@@ -26,8 +26,8 @@ import org.ballerinalang.util.debugger.DebugException;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
 import org.ballerinalang.util.debugger.info.BreakPointInfo;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -37,17 +37,17 @@ import java.util.concurrent.Semaphore;
  */
 public class TestDebugClientHandler implements DebugClientHandler {
 
-        boolean isExit;
+        volatile boolean isExit;
         int hitCount = -1;
         NodeLocation haltPosition;
         private volatile Semaphore executionSem;
-        private String threadId;
+        private volatile String threadId;
 
         //key - threadid
         private Map<String, DebugContext> contextMap;
 
         TestDebugClientHandler() {
-            this.contextMap = new HashMap<>();
+            this.contextMap = new ConcurrentHashMap<>();
             this.executionSem = new Semaphore(0);
         }
 
@@ -66,7 +66,7 @@ public class TestDebugClientHandler implements DebugClientHandler {
         @Override
         public void addContext(DebugContext debugContext) {
             //for debugging tests, only single threaded execution supported
-            threadId = Thread.currentThread().getName() + ":" + Thread.currentThread().getId();
+            String threadId = Thread.currentThread().getName() + ":" + Thread.currentThread().getId();
             debugContext.setThreadId(threadId);
             //TODO check if that thread id already exist in the map
             this.contextMap.put(threadId, debugContext);
@@ -79,6 +79,7 @@ public class TestDebugClientHandler implements DebugClientHandler {
 
         @Override
         public void updateAllDebugContexts(DebugCommand debugCommand) {
+            contextMap.forEach((k, v) -> v.setCurrentCommand(debugCommand));
         }
 
         @Override
@@ -108,6 +109,7 @@ public class TestDebugClientHandler implements DebugClientHandler {
         public void notifyHalt(BreakPointInfo breakPointInfo) {
             hitCount++;
             haltPosition = breakPointInfo.getHaltLocation();
+            threadId = breakPointInfo.getThreadId();
             executionSem.release();
         }
 

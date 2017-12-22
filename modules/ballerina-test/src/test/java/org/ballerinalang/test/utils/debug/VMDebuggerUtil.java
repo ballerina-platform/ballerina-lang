@@ -26,6 +26,7 @@ import org.testng.Assert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Test Util class to test debug scenarios.
@@ -34,30 +35,79 @@ import java.util.Arrays;
  */
 public class VMDebuggerUtil {
 
-    public static void startDebug(String sourceFilePath, BreakPointDTO[] breakPoints, BreakPointDTO[] expectedPoints,
-                                  Step[] debugCommand) {
-        TestDebugClientHandler debugClientHandler = new TestDebugClientHandler();
+    public static void startDebug(String srcPath, BreakPointDTO[] bPoints, ExpectedResults expRes) {
+        TestDebugClientHandler clientHandler = new TestDebugClientHandler();
         TestDebugServer debugServer = new TestDebugServer();
-        VMDebugManager debugManager = setupProgram(sourceFilePath, debugClientHandler, debugServer, breakPoints);
+        VMDebugManager debugManager = setupProgram(srcPath, clientHandler, debugServer, bPoints);
 
         if (!debugServer.tryAcquireLock(1000)) {
             Assert.fail("VM doesn't start within 1000ms");
         }
 
-        debugManager.resume(debugClientHandler.getThreadId());
+        debugManager.startDebug();
 
-        for (int i = 0; i <= expectedPoints.length; i++) {
-            debugClientHandler.aquireSem();
-            if (i < expectedPoints.length) {
-                NodeLocation expected = new NodeLocation(expectedPoints[i].getFileName(),
-                        expectedPoints[i].getLineNumber());
-                Assert.assertEquals(debugClientHandler.haltPosition, expected,
-                        "Unexpected halt position for debug step " + (i + 1));
-                executeDebuggerCmd(debugManager, debugClientHandler, debugCommand[i]);
-            } else {
-                Assert.assertTrue(debugClientHandler.isExit, "Debugger didn't exit as expected.");
+        Step currentStep = Step.RESUME;
+        while (true) {
+            clientHandler.aquireSem();
+            if (clientHandler.isExit) {
+                Assert.assertTrue(expRes.checkDebugSuccess());
+                break;
+            }
+            checkDebugPointHit(expRes, clientHandler.haltPosition, currentStep);
+            currentStep = expRes.getCurrent().getNextStep();
+            executeDebuggerCmd(debugManager, clientHandler, currentStep);
+        }
+    }
+
+    private static void checkDebugPointHit(ExpectedResults expRes, NodeLocation halt, Step crntStep) {
+        NodeLocation expLocation = null;
+        if (!expRes.isMultiThreaded() || !Step.RESUME.equals(crntStep)) {
+            expLocation = expRes.getCurrent().getCurrentLocation();
+            expRes.getCurrent().incrementPointer();
+        } else {
+            expLocation = findDebugPoint(expRes, halt);
+        }
+        Assert.assertEquals(halt, expLocation, "Unexpected halt location expected location - "
+                + expLocation + ", actual location - " + halt);
+    }
+
+    private static NodeLocation findDebugPoint(ExpectedResults expRes, NodeLocation halt) {
+        NodeLocation expLocation = findDebugPointInWorkerRes(expRes.getCurrent());
+        if (halt.equals(expLocation)) {
+            expRes.getCurrent().incrementPointer();
+            return expLocation;
+        }
+        List<WorkerResults> workerResults = expRes.getWorkerResults();
+        for (WorkerResults workerRes : workerResults) {
+            if (workerRes == expRes.getCurrent()) {
+                continue;
+            }
+            expLocation = findDebugPointInWorkerRes(workerRes);
+            if (halt.equals(expLocation)) {
+                workerRes.incrementPointer();
+                expRes.setCurrent(workerRes);
+                return expLocation;
             }
         }
+        expRes.setCurrent(null);
+        return null;
+    }
+
+    private static NodeLocation findDebugPointInWorkerRes(WorkerResults workerRes) {
+        if (workerRes == null) {
+            return null;
+        }
+        return workerRes.getCurrentLocation();
+    }
+
+    public static BreakPointDTO[] createWorkerBreakPoints(String packagePath, String fileName, int... lineNos) {
+        BreakPointDTO[] breakPointDTOS = new BreakPointDTO[lineNos.length];
+        int i = 0;
+        for (int line : lineNos) {
+            breakPointDTOS[i] = new BreakPointDTO(packagePath, fileName, line);
+            i++;
+        }
+        return breakPointDTOS;
     }
 
     public static BreakPointDTO[] createBreakNodeLocations(String packagePath, String fileName, int... lineNos) {
@@ -83,7 +133,7 @@ public class VMDebuggerUtil {
                 debugManager.stepOut(debugClientHandler.getThreadId());
                 break;
             case RESUME:
-                debugManager.resume(debugClientHandler.getThreadId());
+                debugManager.resume();
                 break;
             default:
                 throw new IllegalStateException("Unknown Command");

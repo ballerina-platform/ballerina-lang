@@ -82,15 +82,13 @@ public class DebuggerExecutor implements Runnable {
         Context bContext = new Context(programFile);
 
         VMDebugManager debugManager = programFile.getDebugManager();
-        if (debugManager.isDebugEnabled()) {
-            DebugContext debugContext = new DebugContext();
-            bContext.setDebugContext(debugContext);
-            debugManager.init(programFile, clientHandler, debugServer);
-            debugManager.addDebugPoints(breakPoints);
-            debugManager.addDebugContext(debugContext);
-            debugServer.releaseLock();
-            debugManager.waitTillDebuggeeResponds();
-        }
+        DebugContext debugContext = new DebugContext();
+        bContext.setDebugContext(debugContext);
+        debugManager.init(programFile, clientHandler, debugServer);
+        debugManager.addDebugPoints(breakPoints);
+        debugManager.addDebugContext(debugContext);
+        debugServer.releaseLock();
+        debugManager.waitTillDebuggeeResponds();
 
         // Invoke package init function
         FunctionInfo mainFuncInfo = BLangProgramRunner.getMainFunction(mainPkgInfo);
@@ -118,6 +116,10 @@ public class DebuggerExecutor implements Runnable {
 
         BLangVM bLangVM = new BLangVM(programFile);
         bLangVM.run(bContext);
+        if (bContext.getDebugContext().isSessionActive()) {
+            bContext.getDebugContext().setSessionActive(false);
+            debugManager.releaseDebugSessionLock();
+        }
         bContext.await();
         debugManager.notifyExit();
     }

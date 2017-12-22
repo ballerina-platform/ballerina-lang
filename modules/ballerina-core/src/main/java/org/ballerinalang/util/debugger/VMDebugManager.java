@@ -118,7 +118,6 @@ public class VMDebugManager {
         try {
             executionSem.acquire();
         } catch (InterruptedException e) {
-            e.printStackTrace();
             //Ignore
         }
     }
@@ -130,7 +129,6 @@ public class VMDebugManager {
         try {
             debugSem.acquire();
         } catch (InterruptedException e) {
-            e.printStackTrace();
             //ignore
         }
     }
