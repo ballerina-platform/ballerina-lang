@@ -112,7 +112,7 @@ class ControllerPositioningUtil {
             buttonY={0}
             showAlways
             buttonRadius={12}
-        >                                <Menu>
+        >                                          <Menu>
             {items}
         </Menu>
         </Button>);
@@ -183,8 +183,7 @@ class ControllerPositioningUtil {
      *
      */
     positionFunctionNodeControllers(node) {
-        console.log(node);
-        const y = node.viewState.components.defaultWorker.y;
+        const y = node.viewState.components.defaultWorker.y - 20;
         let x = node.viewState.components.defaultWorker.x + node.viewState.components.defaultWorker.w +
             this.config.lifeLine.gutter.h;
         let workerButton = <span />;
