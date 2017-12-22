@@ -272,19 +272,63 @@ public class ResponseNativeFunctionNegativeTest {
                 .contains("failed to forward: empty response parameter"));
     }
 
-    @Test(description = "test declaration of two response method. Error is shown in the console", enabled = false)
+    @Test(description = "test declaration of two response method. Error is shown in the console")
     public void testRedeclarationOfTwoResponseMethods() {
         String path = "/hello/15";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), "wso2");
+        Assert.assertEquals(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), "wso2");
     }
 
-    @Test
-    public void testGetBinaryPayloadMethod() {
-        //TODO Test this with multipart support, not needed for now
+    @Test(description = "Test incorrect type of header value")
+    public void testSetHeaderToStructNegative1() {
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
+        HttpUtil.addCarbonMsg(response, cMsg);
+
+        BValue[] inputArg = {response};
+        String error = null;
+        try {
+            BRunUtil.invoke(result, "setHeaderToStruct1", inputArg);
+        } catch (Throwable e) {
+            error = e.getMessage();
+        }
+        Assert.assertTrue(error.contains("expect 'ballerina.net.http:HeaderValue[]' as header value type of : wso2"));
+    }
+
+    @Test(description = "Test incorrect type of header value and try to add headers")
+    public void testSetHeaderToStructNegative2() {
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
+        HttpUtil.addCarbonMsg(response, cMsg);
+
+        BValue[] inputArg = {response};
+        String error = null;
+        try {
+            BRunUtil.invoke(result, "setHeaderToStruct2", inputArg);
+        } catch (Throwable e) {
+            error = e.getMessage();
+        }
+        Assert.assertTrue(error.contains("expect 'ballerina.net.http:HeaderValue[]' as header value type of : wso2"));
+    }
+
+    @Test(description = "Test incorrect type of header value and try to get all header values")
+    public void testSetHeaderToStructNegative3() {
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
+        HttpUtil.addCarbonMsg(response, cMsg);
+
+        BValue[] inputArg = {response};
+        String error = null;
+        try {
+            BRunUtil.invoke(result, "setHeaderToStruct3", inputArg);
+        } catch (Throwable e) {
+            error = e.getMessage();
+        }
+        Assert.assertTrue(error.contains("expect 'ballerina.net.http:HeaderValue[]' as header value type of : wso2"));
     }
 
     @Test

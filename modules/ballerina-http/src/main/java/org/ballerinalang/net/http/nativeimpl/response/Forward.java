@@ -77,9 +77,7 @@ public class Forward extends AbstractNativeFunction {
             // default behaviour: keepAlive = true
             responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
         }
-        if (inboundResponseStruct.getRefField(Constants.RESPONSE_HEADERS_INDEX) != null) {
-            HttpUtil.setHeadersToTransportMessage(responseMessage, inboundResponseStruct);
-        }
+        HttpUtil.enrichOutboundMessage(responseMessage, inboundResponseStruct);
 
         return HttpUtil.prepareResponseAndSend(context, this, requestMessage,
                 responseMessage, inboundResponseStruct);

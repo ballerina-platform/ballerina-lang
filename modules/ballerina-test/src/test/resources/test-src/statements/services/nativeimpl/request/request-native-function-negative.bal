@@ -85,3 +85,24 @@ function testSetXmlPayload (http:Request req, xml value) (http:Request) {
     req.setXmlPayload(value);
     return req;
 }
+
+function setHeaderToStruct1 (http:Request req) (http:Request) {
+    req = {headers : {}};
+    req.headers["wso2"] = "ballerina";
+    var result = req.getHeader("wso2");
+    return req;
+}
+
+function setHeaderToStruct2 (http:Request req) (http:Request) {
+    req = {headers : {}};
+    req.headers["wso2"] = "ballerina";
+    req.addHeader("wso2", "middleware");
+    return req;
+}
+
+function setHeaderToStruct3 (http:Request req) (http:Request) {
+    req = {headers : {}};
+    req.headers["wso2"] = "ballerina";
+    var result = req.getHeaders("wso2");
+    return req;
+}

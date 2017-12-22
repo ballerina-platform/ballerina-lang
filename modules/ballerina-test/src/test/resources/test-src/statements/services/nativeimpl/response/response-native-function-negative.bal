@@ -78,6 +78,27 @@ function testSetXmlPayload (http:Response res, xml value) (http:Response) {
     return res;
 }
 
+function setHeaderToStruct1 (http:Response res) (http:Response) {
+    res = {headers : {}};
+    res.headers["wso2"] = "ballerina";
+    var result = res.getHeader("wso2");
+    return res;
+}
+
+function setHeaderToStruct2 (http:Response res) (http:Response) {
+    res = {headers : {}};
+    res.headers["wso2"] = "ballerina";
+    res.addHeader("wso2", "middleware");
+    return res;
+}
+
+function setHeaderToStruct3 (http:Response res) (http:Response) {
+    res = {headers : {}};
+    res.headers["wso2"] = "ballerina";
+    var result = res.getHeaders("wso2");
+    return res;
+}
+
 @http:configuration{basePath:"/hello"}
 service<http> helloServer {
 

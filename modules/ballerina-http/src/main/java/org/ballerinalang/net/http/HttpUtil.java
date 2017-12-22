@@ -86,6 +86,13 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.net.http.Constants.MESSAGE_DATA_SOURCE;
 import static org.ballerinalang.net.http.Constants.MESSAGE_OUTPUT_STREAM;
+import static org.ballerinalang.net.http.Constants.REQUEST_HOST_INDEX;
+import static org.ballerinalang.net.http.Constants.REQUEST_METHOD_INDEX;
+import static org.ballerinalang.net.http.Constants.REQUEST_PATH_INDEX;
+import static org.ballerinalang.net.http.Constants.REQUEST_PORT_INDEX;
+import static org.ballerinalang.net.http.Constants.REQUEST_VERSION_INDEX;
+import static org.ballerinalang.net.http.Constants.RESPONSE_REASON_PHRASE_INDEX;
+import static org.ballerinalang.net.http.Constants.RESPONSE_STATUS_CODE_INDEX;
 
 /**
  * Utility class providing utility methods.
@@ -644,7 +651,7 @@ public class HttpUtil {
 
     @SuppressWarnings("unchecked")
     public static void populateOutboundRequest(BStruct request, HTTPCarbonMessage reqMsg) {
-        setHeadersToTransportMessage(reqMsg, request);
+        enrichOutboundMessage(reqMsg, request);
     }
 
     public static void populateOutboundResponse(BStruct response, HTTPCarbonMessage resMsg, HTTPCarbonMessage reqMsg) {
@@ -719,56 +726,66 @@ public class HttpUtil {
     }
 
     /**
-     * Set headers of request/response struct to the transport message.
+     * Set headers and properties of request/response struct to the outbound transport message.
      *
      * @param outboundRequest transport Http carbon message.
+     * @param cMsg outbound Http carbon message.
      * @param struct req/resp struct.
      */
-    public static void setHeadersToTransportMessage(HTTPCarbonMessage outboundRequest, BStruct struct) {
-        outboundRequest.getHeaders().clear();
-        BMap<String, BValue> headers = struct.getType().getName().equals(Constants.REQUEST) ?
-                getRequestStructHeaders(struct) : getResponseStructHeaders(struct);
-        if (headers == null) {
+    public static void enrichOutboundMessage(HTTPCarbonMessage cMsg, BStruct struct) {
+        setHeadersToTransportMessage(cMsg, struct);
+        setPropertiesToTransportMessage(cMsg, struct);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void setHeadersToTransportMessage(HTTPCarbonMessage cMsg, BStruct struct) {
+        cMsg.getHeaders().clear();
+        int headersIndex = isRequestStruct(struct) ?
+                Constants.REQUEST_HEADERS_INDEX : Constants.REQUEST_HEADERS_INDEX;
+        BMap<String, BValue> headersMap = struct.getRefField(headersIndex) != null ?
+                (BMap) struct.getRefField(headersIndex) : new BMap<>();
+
+        HttpHeaders removedHeaders = new DefaultHttpHeaders();
+        if (isRequestStruct(struct)) {
+            AddRequestSpecialPropertiesToHeadersMap(struct, removedHeaders);
+        } else {
+            AddResponseSpecialPropertiesToHeadersMap(struct, removedHeaders);
+        }
+
+        prepareHeaderMap(removedHeaders, headersMap);
+        if (headersMap.isEmpty()) {
             return;
         }
-        Set<String> keys = headers.keySet();
+        Set<String> keys = headersMap.keySet();
         for (String key : keys) {
+            String headerValue = buildHeaderValue(headersMap, key);
+            cMsg.setHeader(key, headerValue);
             String headerValue = buildHeaderValue(headers, key);
             outboundRequest.setHeader(key, headerValue);
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private static BMap<String, BValue> getRequestStructHeaders(BStruct struct) {
-        BMap<String, BValue> headers = (BMap) struct.getRefField(Constants.REQUEST_HEADERS_INDEX);
-        if (headers == null) {
-            return null;
-        }
-        HttpHeaders removedHeaders = new DefaultHttpHeaders();
-        if (!struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX).equals("")) {
-            removedHeaders.add(Constants.USER_AGENT_HEADER, struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX));
-        }
-        return prepareHeaderMap(removedHeaders, headers);
+    private static boolean isRequestStruct(BStruct struct) {
+        return struct.getType().getName().equals(Constants.REQUEST);
     }
 
-    @SuppressWarnings("unchecked")
-    private static BMap<String, BValue> getResponseStructHeaders(BStruct struct) {
-        BMap<String, BValue> headers = (BMap) struct.getRefField(Constants.RESPONSE_HEADERS_INDEX);
-        if (headers == null) {
-            return null;
+    private static void AddRequestSpecialPropertiesToHeadersMap(BStruct struct, HttpHeaders removedHeaders) {
+        if (!struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX).isEmpty()) {
+            removedHeaders.add(Constants.USER_AGENT_HEADER, struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX));
         }
-        HttpHeaders removedHeaders = new DefaultHttpHeaders();
+    }
+
+    private static void AddResponseSpecialPropertiesToHeadersMap(BStruct struct, HttpHeaders removedHeaders) {
         if (struct.getNativeData(Constants.OUTBOUND_RESPONSE) == null
-                && !struct.getStringField(Constants.RESPONSE_SERVER_INDEX).equals("")) {
+                && !struct.getStringField(Constants.RESPONSE_SERVER_INDEX).isEmpty()) {
             removedHeaders.add(Constants.SERVER_HEADER, struct.getStringField(Constants.RESPONSE_SERVER_INDEX));
         }
-        return prepareHeaderMap(removedHeaders, headers);
     }
 
     private static String buildHeaderValue(BMap<String, BValue> headers, String key) {
         StringBuilder headerValue = new StringBuilder();
         if (headers.get(key).getType().getTag() != TypeTags.ARRAY_TAG) {
-            throw new BallerinaException("expects an array as header value for header : " + key);
+            throw new BallerinaException("expects HeaderValue struct array as header value for header : " + key);
         }
         BRefValueArray headerValues = (BRefValueArray) headers.get(key);
         for (int index = 0; index < headerValues.size(); index++) {
@@ -800,6 +817,19 @@ public class HttpUtil {
             headerValue.append(paramValue == null ? ";" + paramKey : ";" + paramKey + "=" + paramValue);
         }
         return headerValue;
+    }
+
+    private static void setPropertiesToTransportMessage(HTTPCarbonMessage cMsg, BStruct struct) {
+        if (isRequestStruct(struct)) {
+            cMsg.setProperty(Constants.HOST, struct.getStringField(REQUEST_HOST_INDEX));
+            cMsg.setProperty(Constants.LISTENER_PORT, struct.getIntField(REQUEST_PORT_INDEX));
+            cMsg.setProperty(Constants.REQUEST_URL, struct.getStringField(REQUEST_PATH_INDEX));
+            cMsg.setProperty(Constants.HTTP_METHOD, struct.getStringField(REQUEST_METHOD_INDEX));
+            cMsg.setProperty(Constants.HTTP_VERSION, struct.getStringField(REQUEST_VERSION_INDEX));
+        } else {
+            cMsg.setProperty(Constants.HTTP_STATUS_CODE, struct.getIntField(RESPONSE_STATUS_CODE_INDEX));
+//            cMsg.setProperty(Constants.HTTP_REASON_PHRASE, struct.getStringField(RESPONSE_REASON_PHRASE_INDEX));
+        }
     }
 
     private static void setHeaderToStruct(Context context, BStruct struct, String key, String value) {

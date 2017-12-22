@@ -50,6 +50,7 @@ public class Constants {
     public static final String SERVER_HEADER = "Server";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     public static final String PROTOCOL = "PROTOCOL";
+    public static final String HOST = "Host";
     public static final String PORT = "PORT";
     public static final String TO = "TO";
     public static final String LOCAL_ADDRESS = "LOCAL_ADDRESS";
