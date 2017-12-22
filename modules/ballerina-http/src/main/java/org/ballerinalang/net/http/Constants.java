@@ -27,6 +27,8 @@ public class Constants {
 
     public static final String BASE_PATH = "BASE_PATH";
     public static final String SUB_PATH = "SUB_PATH";
+    public static final String REST_URI_POSTFIX = "REST_URI_POSTFIX";
+    public static final String RESOURCE_ARGS = "RESOURCE_ARGS";
     public static final String QUERY_STR = "QUERY_STR";
     public static final String RAW_QUERY_STR = "RAW_QUERY_STR";
 
@@ -162,6 +164,7 @@ public class Constants {
     public static final int ENDPOINT_TIMEOUT_STRUCT_INDEX = 1;
     public static final int ENABLE_CHUNKING_INDEX = 0;
     public static final int IS_KEEP_ALIVE_INDEX = 1;
+    public static final int HTTP_VERSION_STRUCT_INDEX = 0;
     public static final int SSL_STRUCT_INDEX = 1;
     public static final int FOLLOW_REDIRECT_STRUCT_INDEX = 0;
     public static final int FOLLOW_REDIRECT_INDEX = 0;
@@ -180,6 +183,7 @@ public class Constants {
     public static final int REQUEST_METHOD_INDEX = 2;
     public static final int REQUEST_VERSION_INDEX = 3;
     public static final int REQUEST_USER_AGENT_INDEX = 4;
+    public static final int REQUEST_REST_URI_POSTFIX_INDEX = 5;
     public static final int REQUEST_PORT_INDEX = 0;
     public static final int REQUEST_HEADERS_INDEX = 0;
 

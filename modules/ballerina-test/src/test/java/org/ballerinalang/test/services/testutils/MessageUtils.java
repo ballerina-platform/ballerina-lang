@@ -29,6 +29,7 @@ import org.wso2.carbon.messaging.StatusCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 
 import java.net.InetSocketAddress;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -64,8 +65,10 @@ public class MessageUtils {
         // Set url
         carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.TO, path);
         carbonMessage.setProperty(Constants.HTTP_METHOD, method.trim().toUpperCase(Locale.getDefault()));
-        carbonMessage.setProperty(Constants.LOCAL_ADDRESS, new InetSocketAddress(Constants.HTTP_DEFAULT_HOST, 9090));
+        carbonMessage.setProperty(Constants.LOCAL_ADDRESS,
+                new InetSocketAddress(Constants.HTTP_DEFAULT_HOST, 9090));
         carbonMessage.setProperty(Constants.LISTENER_PORT, 9090);
+        carbonMessage.setProperty(Constants.RESOURCE_ARGS, new HashMap<String, String>());
         HttpHeaders httpHeaders = carbonMessage.getHeaders();
         if (headers != null) {
             for (Header header : headers) {

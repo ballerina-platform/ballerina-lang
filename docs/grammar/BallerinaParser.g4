@@ -159,7 +159,7 @@ builtInTypeName
      |   TYPE_TYPE
      |   valueTypeName
      |   builtInReferenceTypeName
-     |   builtInTypeName (LEFT_BRACKET RIGHT_BRACKET)+
+     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+
      ;
 
 referenceTypeName

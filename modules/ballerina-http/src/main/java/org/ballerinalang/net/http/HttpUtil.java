@@ -622,6 +622,9 @@ public class HttpUtil {
         request.setIntField(Constants.REQUEST_PORT_INDEX, (Integer) cMsg.getProperty(Constants.LISTENER_PORT));
         request.setStringField(Constants.REQUEST_METHOD_INDEX, (String) cMsg.getProperty(Constants.HTTP_METHOD));
         request.setStringField(Constants.REQUEST_VERSION_INDEX, (String) cMsg.getProperty(Constants.HTTP_VERSION));
+        Map<String, String> resourceArgValues = (Map<String, String>) cMsg.getProperty(Constants.RESOURCE_ARGS);
+        request.setStringField(Constants.REQUEST_REST_URI_POSTFIX_INDEX,
+                resourceArgValues.get(Constants.REST_URI_POSTFIX));
 
         if (cMsg.getHeader(Constants.USER_AGENT_HEADER) != null) {
             request.setStringField(Constants.REQUEST_USER_AGENT_INDEX, cMsg.getHeader(Constants.USER_AGENT_HEADER));
@@ -725,6 +728,7 @@ public class HttpUtil {
     /**
      * Set headers and properties of request/response struct to the outbound transport message.
      *
+     * @param outboundRequest transport Http carbon message.
      * @param cMsg outbound Http carbon message.
      * @param struct req/resp struct.
      */
@@ -756,6 +760,8 @@ public class HttpUtil {
         for (String key : keys) {
             String headerValue = buildHeaderValue(headersMap, key);
             cMsg.setHeader(key, headerValue);
+            String headerValue = buildHeaderValue(headers, key);
+            outboundRequest.setHeader(key, headerValue);
         }
     }
 

@@ -491,4 +491,34 @@ public class UriTemplateBestMatchTest {
         Assert.assertEquals(bJson.value().get("echo55").asText(), "default"
                 , "Resource dispatched to wrong template");
     }
+
+    @Test(description = "Test rest uri post fix. /echo66/a/b/c")
+    public void testRestUriPostFix() {
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo66/a/b/c", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+
+        Assert.assertEquals(bJson.value().get("echo66").asText(), "/b/c"
+                , "Wrong rest uri post fix value");
+
+        cMsg = MessageUtils.generateHTTPMessage("/echo66/a/c", "GET");
+        response = Services.invokeNew(application, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+
+        Assert.assertEquals(bJson.value().get("echo66").asText(), "/c"
+                , "Wrong rest uri post fix value");
+
+        cMsg = MessageUtils.generateHTTPMessage("/echo66/a", "GET");
+        response = Services.invokeNew(application, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+
+        Assert.assertEquals(bJson.value().get("echo66").asText(), "empty"
+                , "Wrong rest uri post fix value");
+    }
 }
