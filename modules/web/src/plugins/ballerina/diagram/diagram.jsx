@@ -161,6 +161,7 @@ class Diagram extends React.Component {
 
         const controllerVisitor = new ControllerVisitor();
         const cu = new ControllerPositioningUtil();
+        cu.setMode(this.props.mode);
         cu.setConfig(getConfig(this.props.mode));
         controllerVisitor.setControllerUtil(cu);
         this.props.model.accept(controllerVisitor);

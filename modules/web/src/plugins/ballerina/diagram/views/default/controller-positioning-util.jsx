@@ -19,6 +19,7 @@
 import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
+import { COMMANDS } from 'plugins/ballerina/constants';
 import SimpleBBox from './../../../model/view/simple-bounding-box';
 import Button from '../../../interactions/button';
 import LifelineButton from '../../../interactions/lifeline-button';
@@ -30,6 +31,10 @@ import LifelineTools from '../../../tool-palette/item-provider/lifeline-tools';
 import TreeUtil from './../../../model/tree-util';
 
 class ControllerPositioningUtil {
+
+    setMode(mode) {
+        this.mode = mode;
+    }
 
     setConfig(config) {
         this.config = config;
@@ -109,17 +114,41 @@ class ControllerPositioningUtil {
             // y = (node.viewState.bBox.h / 2);
         }
         const items = this.convertToAddItems(TopLevelElements, node);
-        // Not implemented.
-        return (<Button
-            bBox={{ x, y, w, h }}
-            buttonX={0}
-            buttonY={0}
-            showAlways
-            buttonRadius={12}
-        >                                                              <Menu>
-            {items}
-        </Menu>
-        </Button>);
+        const addBtn = (
+            <Button
+                bBox={{ x, y, w, h }}
+                buttonX={0}
+                buttonY={0}
+                showAlways
+                buttonRadius={12}
+            >
+                <Menu>
+                    {items}
+                </Menu>
+            </Button>
+        );
+
+        const modeBtn = (
+            <Button
+                bBox={{
+                    x: x + 50,
+                    y,
+                    w,
+                    h,
+                }}
+                icon={this.mode === 'default' ? 'default-view' : 'action-view'}
+                buttonX={0}
+                buttonY={0}
+                showAlways
+                hideIconBackground
+                buttonColor={'white'}
+                buttonIconColor={'black'}
+                buttonRadius={12}
+                command={COMMANDS.DIAGRAM_MODE_CHANGE}
+                commandArgs={{ mode: this.mode }}
+            />
+        );
+        return ([addBtn, modeBtn]);
     }
 
     convertToAddItems(tools, node, index) {
