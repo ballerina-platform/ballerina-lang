@@ -222,7 +222,7 @@ export const statementContainer = {
 
 export const blockNode = {
     width: 120,
-    height: 115,
+    height: 80,
     padding: {
         top: 0,
         right: 20,
