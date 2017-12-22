@@ -163,6 +163,7 @@ public class Constants {
     public static final int ENDPOINT_TIMEOUT_STRUCT_INDEX = 1;
     public static final int ENABLE_CHUNKING_INDEX = 0;
     public static final int IS_KEEP_ALIVE_INDEX = 1;
+    public static final int HTTP_VERSION_STRUCT_INDEX = 0;
     public static final int SSL_STRUCT_INDEX = 1;
     public static final int FOLLOW_REDIRECT_STRUCT_INDEX = 0;
     public static final int FOLLOW_REDIRECT_INDEX = 0;
