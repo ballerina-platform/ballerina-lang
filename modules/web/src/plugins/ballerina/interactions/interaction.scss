@@ -47,6 +47,7 @@
 }
 
 .interaction-menu-area:hover {
+    z-index:51;
     background: none;
     -webkit-transition-timing-function: ease-out;
     transition-timing-function: ease-out;
@@ -75,7 +76,8 @@
     opacity: 0;
     display: block;
     line-height: 30px;
-    padding: 0 10px;
+    padding-left: 15px;
+    padding-right: 15px;
     color: inherit;
     -webkit-user-select: none;
     -moz-user-select: none;

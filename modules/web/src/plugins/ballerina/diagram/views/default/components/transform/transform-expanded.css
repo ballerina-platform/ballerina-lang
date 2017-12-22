@@ -230,3 +230,15 @@
   background:white;
   padding: 2px;
 }
+.add-menu-text {
+  font-size: 12px;
+  padding-left: 5px;
+}
+.button-close-menu{
+    color: #f1772a;
+    top: 0;
+    z-index: 41;
+    cursor: pointer;
+    padding: 8px 15px;
+    background-color: #eeeeee;
+}
