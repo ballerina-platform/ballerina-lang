@@ -41,6 +41,7 @@ export const DIALOGS = {
 export const EVENTS = {
     ACTIVE_BAL_AST_CHANGED: 'active-bal-ast-changed',
     UPDATE_PACKAGE_DECLARATION: 'update-bal-file-package-declaration',
+    SCROLL_DESIGN_VIEW: 'scroll-design-view',
 };
 
 export const VIEWS = {

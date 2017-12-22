@@ -26,6 +26,7 @@ import TreeUtil from 'plugins/ballerina/model/tree-util.js';
 import DragLayer from './../drag-drop/drag-layer';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import { TOOL_PALETTE_WIDTH } from './constants';
+import { EVENTS } from '../constants';
 
 class DesignView extends React.Component {
 
@@ -72,7 +73,7 @@ class DesignView extends React.Component {
     }
 
     onScroll(e) {
-        this.props.commandProxy.dispatch('scroll-design-view', {
+        this.props.commandProxy.dispatch(EVENTS.SCROLL_DESIGN_VIEW, {
             scrollLeft: e.scrollLeft,
             scrollTop: e.scrollTop,
             scrollHeight: e.scrollHeight,

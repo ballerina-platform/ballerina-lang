@@ -35,31 +35,34 @@ class CodeExplorerPanel extends React.Component {
         this.state = { ast: ast || {} };
         this.onActiveBalASTChange = this.onActiveBalASTChange.bind(this);
         this.onTabChange = this.onTabChange.bind(this);
-        this.props.codeExplorerPlugin.appContext.command.on('scroll-design-view',
-        ({ scrollTop, scrollLeft, scrollHeight, scrollWidth, clientHeight, clientWidth }) => {
-            this.setState({
-                scrollPosition: {
-                    scrollTop,
-                    scrollLeft,
-                    scrollHeight,
-                    scrollWidth,
-                    clientHeight,
-                    clientWidth,
-                },
-            });
-        });
+        this.onScrollDesignView = this.onScrollDesignView.bind(this);
     }
 
     componentDidMount() {
         const { command: { on } } = this.props.codeExplorerPlugin.appContext;
         on(BAL_PLUGIN_EVENTS.ACTIVE_BAL_AST_CHANGED, this.onActiveBalASTChange);
         on(EDITOR_EVENTS.ACTIVE_TAB_CHANGE, this.onTabChange);
+        on(BAL_PLUGIN_EVENTS.SCROLL_DESIGN_VIEW, this.onScrollDesignView);
     }
 
     componentWillUnmount() {
         const { command: { off } } = this.props.codeExplorerPlugin.appContext;
         off(BAL_PLUGIN_EVENTS.ACTIVE_BAL_AST_CHANGED, this.onActiveBalASTChange);
         off(EDITOR_EVENTS.ACTIVE_TAB_CHANGE, this.onTabChange);
+        off(BAL_PLUGIN_EVENTS.SCROLL_DESIGN_VIEW, this.onScrollDesignView);
+    }
+
+    onScrollDesignView({ scrollTop, scrollLeft, scrollHeight, scrollWidth, clientHeight, clientWidth }) {
+        this.setState({
+            scrollPosition: {
+                scrollTop,
+                scrollLeft,
+                scrollHeight,
+                scrollWidth,
+                clientHeight,
+                clientWidth,
+            },
+        });
     }
 
     onTabChange({ editor }) {
