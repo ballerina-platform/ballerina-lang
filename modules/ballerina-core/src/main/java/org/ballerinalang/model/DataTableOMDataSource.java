@@ -58,9 +58,9 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
 
     @Override
     public void serialize(XMLStreamWriter xmlStreamWriter) throws XMLStreamException {
-        xmlStreamWriter.writeStartElement(this.rootWrapper);
+        xmlStreamWriter.writeStartElement("", this.rootWrapper, "");
         while (dataTable.hasNext(this.isInTransaction)) {
-            xmlStreamWriter.writeStartElement(this.rowWrapper);
+            xmlStreamWriter.writeStartElement("", this.rowWrapper, "");
             BStructType structType = dataTable.getStructType();
             BStructType.StructField[] structFields = null;
             if (structType != null) {
@@ -87,7 +87,7 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
     private void writeElement(XMLStreamWriter xmlStreamWriter, String name, TypeKind type, int index,
             BStructType.StructField[] structFields) throws XMLStreamException {
         boolean isArray = false;
-        xmlStreamWriter.writeStartElement(name);
+        xmlStreamWriter.writeStartElement("", name, "");
         String value = null;
         switch (type) {
         case BOOLEAN:
@@ -137,7 +137,7 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
     private void processArray(XMLStreamWriter xmlStreamWriter, Object[] array) throws XMLStreamException {
         if (array != null) {
             for (Object value  : array) {
-                xmlStreamWriter.writeStartElement(ARRAY_ELEMENT_NAME);
+                xmlStreamWriter.writeStartElement("", ARRAY_ELEMENT_NAME, "");
                 xmlStreamWriter.writeCharacters(String.valueOf(value));
                 xmlStreamWriter.writeEndElement();
             }
@@ -154,7 +154,7 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
                 BStructType.StructField[] interanlStructFields = ((BStructType) internaltType).getStructFields();
                 if (interanlStructFields != null) {
                     for (Object val : structData) {
-                        xmlStreamWriter.writeStartElement(interanlStructFields[i].fieldName);
+                        xmlStreamWriter.writeStartElement("", interanlStructFields[i].fieldName, "");
                         if (val instanceof Struct) {
                             processStruct(xmlStreamWriter, ((Struct) val).getAttributes(), interanlStructFields, i + 1);
                         } else {
@@ -177,6 +177,6 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
 
     @Override
     public boolean isDestructiveWrite() {
-        return false;
+        return true;
     }
 }
