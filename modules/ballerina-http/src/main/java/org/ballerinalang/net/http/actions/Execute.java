@@ -82,7 +82,7 @@ public class Execute extends AbstractHTTPAction {
         // Extract Argument values
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String httpVerb = getStringArgument(context, 0);
-        String path = HttpUtil.sanitizeUri(getStringArgument(context, 1));
+        String path = getStringArgument(context, 1);
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
         //TODO check below line
         HTTPCarbonMessage defaultCarbonMsg = HttpUtil.createHttpCarbonMessage(true);

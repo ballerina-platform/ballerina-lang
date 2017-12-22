@@ -39,6 +39,22 @@ function testTransactionStmt (int i) (string) {
     return a;
 }
 
+function testAbortStatement ()(string) {
+    string str = "BeforeTR ";
+    int i = 0;
+    transaction {
+        str = str + "WithinTR ";
+        if (i == 0) {
+            str = str + "BeforAbort ";
+            abort;
+        }
+        str = str + "AfterIf ";
+    }
+    str = str + "AfterTR ";
+    return str;
+}
+
+
 function testOptionalFailed (int i) (string) {
     string a = "start";
     try {

@@ -24,6 +24,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BStringType;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.List;
@@ -34,7 +35,7 @@ import java.util.List;
 public class WebSocketServiceValidator {
 
     public static boolean validateClientService(WebSocketService wsService) {
-        if (wsService.getAnnotation(Constants.PROTOCOL_PACKAGE_WS, Constants.ANNOTATION_CONFIGURATION) != null) {
+        if (HttpUtil.getServiceConfigAnnotation(wsService, Constants.PROTOCOL_PACKAGE_WS) != null) {
             throw new BallerinaException(
                     String.format("Cannot define %s:%s annotation for WebSocket client service",
                                   Constants.PROTOCOL_PACKAGE_WS, Constants.ANNOTATION_CONFIGURATION));
@@ -43,8 +44,8 @@ public class WebSocketServiceValidator {
     }
 
     public static boolean validateServiceEndpoint(WebSocketService wsService) {
-        if (wsService.getAnnotation(Constants.PROTOCOL_PACKAGE_WS,
-                                    Constants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE) != null) {
+        if (wsService.getAnnotationList(Constants.PROTOCOL_PACKAGE_WS,
+                                        Constants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE) != null) {
             throw new BallerinaException(
                     String.format("Cannot define %s:%s annotation for WebSocket client service",
                                   Constants.PROTOCOL_PACKAGE_WS, Constants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE));
@@ -90,7 +91,7 @@ public class WebSocketServiceValidator {
 
     private static void validateConfigAnnotation(WebSocketService wsService) {
         Annotation configAnnotation =
-                wsService.getAnnotation(Constants.PROTOCOL_PACKAGE_WS, Constants.ANNOTATION_CONFIGURATION);
+                HttpUtil.getServiceConfigAnnotation(wsService, Constants.PROTOCOL_PACKAGE_WS);
         if (configAnnotation == null) {
             return;
         }
@@ -111,9 +112,9 @@ public class WebSocketServiceValidator {
      * @return true if the given service is a client service.
      */
     public static boolean isWebSocketClientService(WebSocketService service) {
-        Annotation annotation = service.getAnnotation(
+        List<Annotation> annotationList = service.getAnnotationList(
                 Constants.PROTOCOL_PACKAGE_WS, Constants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE);
-        return !(annotation == null);
+        return !(annotationList == null);
     }
 
     private static void validateOnHandshakeResource(String serviceName, Resource resource, boolean isClientService) {

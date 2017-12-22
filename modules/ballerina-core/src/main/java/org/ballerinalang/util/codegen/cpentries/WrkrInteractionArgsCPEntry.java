@@ -20,7 +20,6 @@ package org.ballerinalang.util.codegen.cpentries;
 import org.ballerinalang.model.types.BType;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 /**
  * {@code WrkrInteractionArgsCPEntry} represents a Ballerina worker interaction arguments CP entry.
@@ -28,30 +27,30 @@ import java.util.Objects;
  * @since 0.90
  */
 public class WrkrInteractionArgsCPEntry implements ConstantPoolEntry {
-    private int typesSignatureCPIndex;
+    private UTF8CPEntry typesSignatureCPEntry;
     private BType[] bTypes;
     // Registers which contains worker incoming arguments
     private int[] argRegs;
 
-    public WrkrInteractionArgsCPEntry(int[] argRegs, BType[] btypes) {
+    public WrkrInteractionArgsCPEntry(int[] argRegs, UTF8CPEntry typesSignatureCPEntry) {
         this.argRegs = argRegs;
-        this.bTypes = btypes;
+        this.typesSignatureCPEntry = typesSignatureCPEntry;
     }
 
     public int[] getArgRegs() {
         return argRegs;
     }
 
-    public BType[] getbTypes() {
+    public BType[] getBTypes() {
         return bTypes;
     }
 
-    public int getTypesSignatureCPIndex() {
-        return typesSignatureCPIndex;
+    public void setBTypes(BType[] bTypes) {
+        this.bTypes = bTypes;
     }
 
-    public void setTypesSignatureCPIndex(int typesSignatureCPIndex) {
-        this.typesSignatureCPIndex = typesSignatureCPIndex;
+    public UTF8CPEntry getTypesSignatureCPEntry() {
+        return typesSignatureCPEntry;
     }
 
     public EntryType getEntryType() {
@@ -59,14 +58,25 @@ public class WrkrInteractionArgsCPEntry implements ConstantPoolEntry {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(bTypes, argRegs);
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof WrkrInteractionArgsCPEntry)) {
+            return false;
+        }
+        WrkrInteractionArgsCPEntry that = (WrkrInteractionArgsCPEntry) o;
+        if (typesSignatureCPEntry != null ? !typesSignatureCPEntry.equals(that.typesSignatureCPEntry) : that
+                .typesSignatureCPEntry != null) {
+            return false;
+        }
+        return Arrays.equals(argRegs, that.argRegs);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return obj instanceof WrkrInteractionArgsCPEntry
-                && Arrays.equals(argRegs, ((WrkrInteractionArgsCPEntry) obj).argRegs)
-                && Arrays.equals(bTypes, ((WrkrInteractionArgsCPEntry) obj).bTypes);
+    public int hashCode() {
+        int result = typesSignatureCPEntry != null ? typesSignatureCPEntry.hashCode() : 0;
+        result = 31 * result + Arrays.hashCode(argRegs);
+        return result;
     }
 }

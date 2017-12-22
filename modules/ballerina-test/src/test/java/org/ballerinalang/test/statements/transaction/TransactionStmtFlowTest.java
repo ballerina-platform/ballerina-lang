@@ -51,6 +51,15 @@ public class TransactionStmtFlowTest {
     }
 
     @Test
+    public void testAbortStatement() {
+        BValue[] returns = BRunUtil.invoke(programFile, "testAbortStatement");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "BeforeTR WithinTR BeforAbort AfterTR ");
+    }
+
+
+    @Test
     public void testTransactionStmt2() {
         BValue[] args = {new BInteger(0)};
         BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmt", args);
