@@ -163,7 +163,7 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
         if (isConnectionSecured) {
             protocol = Constants.WEBSOCKET_PROTOCOL_SECURED;
         }
-        String url =   protocol + "://" + req.headers().get("Host") + req.getUri();
+        String url =   protocol + "://" + req.headers().get("Host") + req.uri();
         return url;
     }
 

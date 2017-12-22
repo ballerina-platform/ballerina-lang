@@ -19,7 +19,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpRequest;
-import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.http.HttpResponse;
@@ -116,7 +116,7 @@ public class HTTPClientRedirectTestCase {
         embeddedChannel.pipeline().addLast(new RedirectHandler(null, false, 5, true));
         HttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.TEMPORARY_REDIRECT,
                 Unpooled.EMPTY_BUFFER);
-        response.headers().set(HttpHeaders.Names.LOCATION, FINAL_DESTINATION);
+        response.headers().set(HttpHeaderNames.LOCATION, FINAL_DESTINATION);
         embeddedChannel.attr(Constants.ORIGINAL_REQUEST)
                 .set(createHttpRequest(Constants.HTTP_GET_METHOD, FINAL_DESTINATION));
         embeddedChannel.writeInbound(response);
@@ -140,7 +140,7 @@ public class HTTPClientRedirectTestCase {
         embeddedChannel.pipeline().addLast(new RedirectHandler(null, false, 5, true, null, false));
         HttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.TEMPORARY_REDIRECT,
                 Unpooled.EMPTY_BUFFER);
-        response.headers().set(HttpHeaders.Names.LOCATION, FINAL_DESTINATION);
+        response.headers().set(HttpHeaderNames.LOCATION, FINAL_DESTINATION);
         embeddedChannel.attr(Constants.ORIGINAL_REQUEST)
                 .set(createHttpRequest(Constants.HTTP_GET_METHOD, FINAL_DESTINATION));
         embeddedChannel.attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(new HttpResponseFutureImpl());

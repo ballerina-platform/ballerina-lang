@@ -196,8 +196,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         HttpRequest httpRequest = (HttpRequest) httpMessage;
         sourceReqCmsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
         sourceReqCmsg.setProperty(Constants.SRC_HANDLER, this);
-        sourceReqCmsg.setProperty(Constants.HTTP_VERSION, httpRequest.getProtocolVersion().text());
-        sourceReqCmsg.setProperty(Constants.HTTP_METHOD, httpRequest.getMethod().name());
+        sourceReqCmsg.setProperty(Constants.HTTP_VERSION, httpRequest.protocolVersion().text());
+        sourceReqCmsg.setProperty(Constants.HTTP_METHOD, httpRequest.method().name());
 
         InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
         sourceReqCmsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT, localAddress.getPort());
@@ -211,8 +211,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         sourceReqCmsg.setProperty(Constants.IS_SECURED_CONNECTION, isSecuredConnection);
 
         sourceReqCmsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
-        sourceReqCmsg.setProperty(Constants.REQUEST_URL, httpRequest.getUri());
-        sourceReqCmsg.setProperty(Constants.TO, httpRequest.getUri());
+        sourceReqCmsg.setProperty(Constants.REQUEST_URL, httpRequest.uri());
+        sourceReqCmsg.setProperty(Constants.TO, httpRequest.uri());
         //Added protocol name as a string
 
         return sourceReqCmsg;

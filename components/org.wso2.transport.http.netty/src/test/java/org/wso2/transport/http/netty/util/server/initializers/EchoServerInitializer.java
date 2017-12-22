@@ -24,19 +24,18 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
-import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
-import static io.netty.handler.codec.http.HttpHeaders.Names.TRANSFER_ENCODING;
-import static io.netty.handler.codec.http.HttpHeaders.is100ContinueExpected;
-import static io.netty.handler.codec.http.HttpHeaders.isKeepAlive;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
+import static io.netty.handler.codec.http.HttpHeaderNames.TRANSFER_ENCODING;
 import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
@@ -60,14 +59,14 @@ public class EchoServerInitializer extends HTTPServerInitializer {
             if (msg instanceof HttpRequest) {
                 HttpRequest req = (HttpRequest) msg;
 
-                if (is100ContinueExpected(req)) {
+                if (HttpUtil.is100ContinueExpected(req)) {
                     ctx.write(new DefaultHttpResponse(HTTP_1_1, CONTINUE));
                 }
-                boolean keepAlive = isKeepAlive(req);
+                boolean keepAlive = HttpUtil.isKeepAlive(req);
                 HttpResponseStatus httpResponseStatus = new HttpResponseStatus(responseStatusCode,
                         HttpResponseStatus.valueOf(responseStatusCode).reasonPhrase());
 
-                HttpResponse response = new DefaultHttpResponse(req.getProtocolVersion(), httpResponseStatus);
+                HttpResponse response = new DefaultHttpResponse(req.protocolVersion(), httpResponseStatus);
                 String contentType = req.headers().get(CONTENT_TYPE);
                 if (contentType != null) {
                     response.headers().set(CONTENT_TYPE, contentType);
@@ -78,7 +77,7 @@ public class EchoServerInitializer extends HTTPServerInitializer {
                     ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
                     logger.debug("Writing response to client-connector");
                 } else {
-                    response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+                    response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
                     ctx.writeAndFlush(response);
                     logger.debug("Writing response to client-connector");
                 }

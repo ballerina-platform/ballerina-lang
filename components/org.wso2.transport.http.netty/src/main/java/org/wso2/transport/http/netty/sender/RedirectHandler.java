@@ -130,10 +130,9 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      *
      * @param ctx   Channel context
      * @param cause Exception occurred
-     * @throws Exception
      */
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         LOG.error("Exception occurred in RedirectHandler.", cause);
         if (ctx != null && ctx.channel().isActive()) {
             if (LOG.isDebugEnabled()) {
@@ -150,10 +149,9 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      *
      * @param ctx Channel context
      * @param evt Event
-     * @throws Exception
      */
     @Override
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent) evt;
             if (event.state() == IdleState.READER_IDLE || event.state() == IdleState.WRITER_IDLE) {
