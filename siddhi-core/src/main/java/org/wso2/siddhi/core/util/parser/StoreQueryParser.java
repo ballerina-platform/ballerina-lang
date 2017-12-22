@@ -134,7 +134,10 @@ public class StoreQueryParser {
         }
     }
 
-    private static StoreQueryRuntime constructStoreQueryRuntime(Window window, StoreQuery storeQuery, SiddhiAppContext siddhiAppContext, Map<String, Table> tableMap, String queryName, int metaPosition, Expression onCondition, MetaStreamEvent metaStreamEvent, List<VariableExpressionExecutor> variableExpressionExecutors) {
+    private static StoreQueryRuntime constructStoreQueryRuntime(Window window, StoreQuery storeQuery,
+        SiddhiAppContext siddhiAppContext, Map<String, Table> tableMap, String queryName, int metaPosition,
+        Expression onCondition, MetaStreamEvent metaStreamEvent,
+        List<VariableExpressionExecutor> variableExpressionExecutors) {
         metaStreamEvent.setEventType(EventType.WINDOW);
         initMetaStreamEvent(metaStreamEvent, window.getWindowDefinition());
         MatchingMetaInfoHolder metaStreamInfoHolder = generateMatchingMetaInfoHolder(metaStreamEvent,
@@ -163,7 +166,8 @@ public class StoreQueryParser {
                 aggregation.getAggregationDefinition());
         CompiledCondition compiledCondition = aggregation.compileExpression(onCondition, within, per,
                 metaStreamInfoHolder, variableExpressionExecutors, tableMap, queryName, siddhiAppContext);
-        metaStreamInfoHolder = aggregation.getAlteredMatchingMetaInfoHolder();
+        metaStreamInfoHolder = ((IncrementalAggregateCompileCondition) compiledCondition).
+                getAlteredMatchingMetaInfoHolder();
         FindStoreQueryRuntime findStoreQueryRuntime = new FindStoreQueryRuntime(aggregation, compiledCondition,
                 queryName, metaStreamEvent.getEventType());
         metaPosition = 1;
