@@ -10,15 +10,18 @@
     background-color: #333;
     color: white;
     padding-left: 30px;
+    font-weight: 300;
+}
+.btn-debug-activate:hover{
+    font-weight: 500;
 }
 
-.panel-content .btn-debug-activate:hover, 
+ .panel-content .btn-debug-activate:hover,
 .panel-content .btn-debug-activate:active, 
 .panel-content .btn-debug-activate:focus {
     background: #444;
     transition: all 250ms ease 0s;
     color: #fff;
-    font-weight: 500;
 }
 
 .panel-content .col-xs-12 {
