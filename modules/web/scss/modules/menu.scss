@@ -30,7 +30,7 @@
         border: none;
         box-shadow: none;
         border-radius: 0;
-        line-height: 24px;
+        line-height: $header-min-height;
         &.rc-menu-root {
             background: none;
         }
