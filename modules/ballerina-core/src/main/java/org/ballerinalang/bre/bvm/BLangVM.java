@@ -2524,13 +2524,17 @@ public class BLangVM {
         StackFrame frame = controlStack.currentFrame;
         while (frame != null) {
             String pck = frame.packageInfo.getPkgPath();
+            if (frame.callableUnitInfo == null) {
+                frame = frame.prevStackFrame;
+                continue;
+            }
             //TODO is this ok to show function name when it's a worker which is executing?
             String functionName = frame.callableUnitInfo.getName();
             LineNumberInfo callingLine = debugManager.getLineNumber(frame.packageInfo.getPkgPath(), callingIp);
             FrameInfo frameInfo = new FrameInfo(pck, functionName, callingLine.getFileName(),
                     callingLine.getLineNumber());
-            LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) frame.callableUnitInfo
-                    .getDefaultWorkerInfo().getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
+            LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) frame.workerInfo
+                    .getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
             if (localVarAttrInfo == null) {
                 frame = frame.prevStackFrame;
                 continue;

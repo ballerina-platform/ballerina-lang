@@ -128,7 +128,7 @@ public class BLangProgramRunner {
         WorkerInfo defaultWorkerInfo = mainFuncInfo.getDefaultWorkerInfo();
 
         // Execute workers
-        StackFrame callerSF = new StackFrame(mainFuncInfo, -1, new int[0]);
+        StackFrame callerSF = new StackFrame(mainPkgInfo, -1, new int[0]);
         callerSF.setRefRegs(new BRefType[1]);
         callerSF.getRefRegs()[0] = arrayArgs;
 
