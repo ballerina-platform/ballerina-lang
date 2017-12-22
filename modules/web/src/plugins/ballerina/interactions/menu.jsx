@@ -27,8 +27,13 @@ class Menu extends React.Component {
      * @return {object} button rendering object
      */
     render() {
+        const maxHeight = this.props.maxHeight;
+        let divStyle = {};
+        if (maxHeight > 0) {
+            divStyle = { maxHeight: this.props.maxHeight + 'px', 'overflow-y': 'scroll' };
+        }
         return (
-            <nav className='interaction-menu'>
+            <nav style={divStyle} className='interaction-menu'>
                 {this.props.children}
             </nav>
         );
@@ -37,6 +42,10 @@ class Menu extends React.Component {
 
 Menu.propTypes = {
     children: PropTypes.isRequired,
+    maxHeight: PropTypes.number,
 };
 
+Menu.defaultProps = {
+    maxHeight: 0,
+};
 export default Menu;
