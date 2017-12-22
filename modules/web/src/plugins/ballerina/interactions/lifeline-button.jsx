@@ -21,48 +21,27 @@ import Autosuggest from 'react-autosuggest';
 import Button from './button';
 import Menu from './menu';
 import Item from './item';
+import DefaultNodeFactory from '../model/default-node-factory';
 
-// Imagine you have a list of languages that you'd like to autosuggest.
-const languages = [
-    {
-        name: 'C',
-        year: 1972,
-    },
-    {
-        name: 'Elm',
-        year: 2012,
-    },
-];
+// When suggestion is clicked, Autosuggest needs to populate the input
+// based on the clicked suggestion. Teach Autosuggest how to calculate the
+// input value for every given suggestion.
+const getSuggestionValue = suggestion => suggestion.connector.getName();
 
-  // Teach Autosuggest how to calculate suggestions for any given input value.
-const getSuggestions = (value) => {
-      const inputValue = value.trim().toLowerCase();
-      const inputLength = inputValue.length;
-
-      return inputLength === 0 ? [] : languages.filter(lang =>
-      lang.name.toLowerCase().slice(0, inputLength) === inputValue,
-    );
-  };
-
-  // When suggestion is clicked, Autosuggest needs to populate the input
-  // based on the clicked suggestion. Teach Autosuggest how to calculate the
-  // input value for every given suggestion.
-const getSuggestionValue = suggestion => suggestion.name;
-
-    // Use your imagination to render suggestions.
+// Use your imagination to render suggestions.
 const renderSuggestion = suggestion => (
-        <div>
-            <div className='pkg-name'>{suggestion.pkg.getName()}</div>
-            {suggestion.connector.getName()}
-        </div>
-    );
+    <div>
+        <div className='pkg-name'>{suggestion.pkg.getName()}</div>
+        {suggestion.connector.getName()}
+    </div>
+);
 /**
  * Interaction lifeline button component
  */
 class LifelineButton extends React.Component {
 
-    constructor(props) {
-        super(props);
+    constructor() {
+        super();
         this.state = {
             listConnectors: false,
             value: '',
@@ -76,6 +55,9 @@ class LifelineButton extends React.Component {
 
         this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this);
         this.onSuggestionsClearRequested = this.onSuggestionsClearRequested.bind(this);
+        this.storeInputReference = this.storeInputReference.bind(this);
+        this.onChange = this.onChange.bind(this);
+        this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
     }
 
 
@@ -92,9 +74,7 @@ class LifelineButton extends React.Component {
         const environment = this.context.editor.environment;
         const packages = environment.getFilteredPackages([]);
         const suggestions = [];
-
         packages.forEach((pkg) => {
-            console.log(pkg);
             const pkgname = pkg.getName();
             const connectors = pkg.getConnectors();
             connectors.forEach((connector) => {
@@ -106,6 +86,8 @@ class LifelineButton extends React.Component {
                     suggestions.push({
                         pkg,
                         connector,
+                        packageName: pkg.getName(),
+                        fullPackageName: pkg.getName(),
                     });
                 }
             });
@@ -116,6 +98,21 @@ class LifelineButton extends React.Component {
         });
     }
 
+    componentDidMount() {
+        this.input.focus();
+    }
+
+    onChange(event, { newValue, method }) {
+        this.setState({
+            value: newValue,
+        });
+    }
+
+    storeInputReference(autosuggest) {
+        if (autosuggest !== null) {
+            this.input = autosuggest.input;
+        }
+    }
 
     showConnectors() {
         this.setState({ listConnectors: true });
@@ -123,6 +120,11 @@ class LifelineButton extends React.Component {
 
     hideConnectors() {
         this.setState({ listConnectors: false });
+    }
+
+    onSuggestionSelected(event, item) {
+        const node = DefaultNodeFactory.createEndpoint(item.suggestion);
+        this.props.model.acceptDrop(node);
     }
 
     /**
@@ -136,7 +138,6 @@ class LifelineButton extends React.Component {
             placeholder: 'Select Connector',
             value,
             onChange: this.onChange,
-            ref: (input) => { this.nameInput = input; },
         };
 
         return (
@@ -166,10 +167,12 @@ class LifelineButton extends React.Component {
                                 suggestions={suggestions}
                                 onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
                                 onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+                                onSuggestionSelected={this.onSuggestionSelected}
                                 getSuggestionValue={getSuggestionValue}
                                 renderSuggestion={renderSuggestion}
                                 alwaysRenderSuggestions
                                 inputProps={inputProps}
+                                ref={this.storeInputReference}
                             />
                         </div>
                     }
