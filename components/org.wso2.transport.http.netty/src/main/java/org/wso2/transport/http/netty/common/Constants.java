@@ -212,6 +212,7 @@ public final class Constants {
     public static final String MESSAGE_PROCESSOR_ID = "MESSAGE_PROCESSOR_ID";
 
     public static final String SRC_HANDLER = "SRC_HANDLER";
+    public static final String DEFAULT_VERSION_HTTP_1_1 = "HTTP/1.1";
 
     //Server Connection Related Parameters
     public static final String LOCAL_ADDRESS = "LOCAL_ADDRESS";
@@ -255,7 +256,7 @@ public final class Constants {
 
     // HTTP2 Related Parameters
     public static final String UPGRADE_RESPONSE_HEADER = "http-to-http2-upgrade";
-    public static final String HTTP2_VERSION = "HTTP/2.0";
+    public static final String HTTP_VERSION_2_0 = "HTTP/2.0";
     public static final String STREAM_ID = "STREAM_ID";
 //    public static final String SCHEME = "SCHEME";
     public static final String AUTHORITY = "AUTHORITY";

@@ -44,7 +44,7 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
     private boolean httpTraceLogEnabled;
     private boolean followRedirect;
     private int maxRedirectCount;
-    private boolean chunkDisabled;
+    private boolean chunkEnabled;
     private boolean isKeepAlive;
     private ProxyServerConfiguration proxyServerConfiguration;
 
@@ -53,7 +53,7 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
         this.httpTraceLogEnabled = senderConfiguration.isHttpTraceLogEnabled();
         this.followRedirect = senderConfiguration.isFollowRedirect();
         this.maxRedirectCount = senderConfiguration.getMaxRedirectCount(Constants.MAX_REDIRECT_COUNT);
-        this.chunkDisabled = senderConfiguration.isChunkDisabled();
+        this.chunkEnabled = senderConfiguration.isChunkEnabled();
         this.isKeepAlive = senderConfiguration.isKeepAlive();
         this.proxyServerConfiguration = senderConfiguration.getProxyServerConfiguration();
     }
@@ -78,7 +78,7 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
             log.debug("adding ssl handler");
             ch.pipeline().addLast("ssl", new SslHandler(this.sslEngine));
         }
-        ch.pipeline().addLast("compressor", new CustomHttpContentCompressor(chunkDisabled));
+        ch.pipeline().addLast("compressor", new CustomHttpContentCompressor(chunkEnabled));
         ch.pipeline().addLast("decoder", new HttpResponseDecoder());
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
         ch.pipeline().addLast("chunkWriter", new ChunkedWriteHandler());
@@ -91,7 +91,7 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
                 log.debug("Follow Redirect is enabled, so adding the redirect handler to the pipeline.");
             }
             RedirectHandler redirectHandler = new RedirectHandler(sslEngine, httpTraceLogEnabled, maxRedirectCount
-                    , chunkDisabled);
+                    , chunkEnabled);
             ch.pipeline().addLast(Constants.REDIRECT_HANDLER, redirectHandler);
         }
         handler = new TargetHandler();

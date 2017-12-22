@@ -18,6 +18,7 @@
  */
 package org.wso2.transport.http.netty.config;
 
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
@@ -75,7 +76,7 @@ public class SenderConfiguration {
     private boolean httpTraceLogEnabled;
 
     @XmlAttribute
-    private boolean chunkDisabled;
+    private boolean chunkEnabled;
 
     @XmlAttribute
     private String sslProtocol;
@@ -94,7 +95,7 @@ public class SenderConfiguration {
     private boolean isKeepAlive = true;
 
     private String tlsStoreType;
-
+    private String httpVersion = Constants.DEFAULT_VERSION_HTTP_1_1;
     private ProxyServerConfiguration proxyServerConfiguration;
 
     public SenderConfiguration() {
@@ -102,7 +103,6 @@ public class SenderConfiguration {
 
     public SenderConfiguration(String id) {
         this.id = id;
-
     }
 
     public void setSslProtocol(String sslProtocol) {
@@ -212,12 +212,12 @@ public class SenderConfiguration {
         this.httpTraceLogEnabled = httpTraceLogEnabled;
     }
 
-    public boolean isChunkDisabled() {
-        return chunkDisabled;
+    public boolean isChunkEnabled() {
+        return chunkEnabled;
     }
 
-    public void setChunkDisabled(boolean chunkDisabled) {
-        this.chunkDisabled = chunkDisabled;
+    public void setChunkEnabled(boolean chunkEnabled) {
+        this.chunkEnabled = chunkEnabled;
     }
 
     public boolean isFollowRedirect() {
@@ -253,5 +253,15 @@ public class SenderConfiguration {
 
     public ProxyServerConfiguration getProxyServerConfiguration() {
         return proxyServerConfiguration;
+    }
+
+    public String getHttpVersion() {
+        return httpVersion;
+    }
+
+    public void setHttpVersion(String httpVersion) {
+        if (!httpVersion.isEmpty()) {
+            this.httpVersion = httpVersion;
+        }
     }
 }

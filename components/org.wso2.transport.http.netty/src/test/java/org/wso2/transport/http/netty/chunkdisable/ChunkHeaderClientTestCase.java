@@ -82,7 +82,7 @@ public class ChunkHeaderClientTestCase {
         HTTPCarbonMessage msg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
                 HttpMethod.GET, ""));
         msg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(testValue.length()));
-        HTTPCarbonMessage response = getResponse(msg, true);
+        HTTPCarbonMessage response = getResponse(msg, false);
         String result = new BufferedReader(new InputStreamReader(new HttpMessageDataStreamer(response)
                 .getInputStream()))
                 .lines().collect(Collectors.joining("\n"));
@@ -96,7 +96,7 @@ public class ChunkHeaderClientTestCase {
     public void chunkEnabledTestCase() {
         HTTPCarbonMessage msg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
                 HttpMethod.GET, ""));
-        HTTPCarbonMessage response = getResponse(msg, false);
+        HTTPCarbonMessage response = getResponse(msg, true);
         String result = new BufferedReader(new InputStreamReader(new HttpMessageDataStreamer(response)
                 .getInputStream()))
                 .lines().collect(Collectors.joining("\n"));
@@ -107,11 +107,11 @@ public class ChunkHeaderClientTestCase {
     }
 
 
-    private HTTPCarbonMessage getResponse(HTTPCarbonMessage msg, Boolean isDisabled) {
+    private HTTPCarbonMessage getResponse(HTTPCarbonMessage msg, Boolean isEnabled) {
         HTTPCarbonMessage response = null;
         connectorFactory = new HttpWsConnectorFactoryImpl();
         senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
-        senderConfiguration.setChunkDisabled(isDisabled);
+        senderConfiguration.setChunkEnabled(isEnabled);
         httpClientConnector = connectorFactory.createHttpClientConnector(
                 HTTPConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
 
