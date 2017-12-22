@@ -212,7 +212,7 @@ public class BLangVM {
     public void execWorker(Context context, int startIP) {
         context.setStartIP(startIP);
         VMDebugManager debugManager = programFile.getDebugManager();
-        if (debugManager.isDebugEnabled() && debugManager.isDebugSessionActive()) {
+        if (debugManager.isDebugEnabled() && debugManager.isClientSessionActive()) {
             DebugContext debugContext = new DebugContext();
             debugContext.setCurrentCommand(DebugCommand.RESUME);
             context.setDebugContext(debugContext);
@@ -2388,7 +2388,7 @@ public class BLangVM {
      */
     private void debugging(int cp) {
         VMDebugManager debugManager = programFile.getDebugManager();
-        if (!debugManager.isDebugSessionActive()) {
+        if (!debugManager.isClientSessionActive()) {
             return;
         }
         DebugContext debugContext = context.getDebugContext();

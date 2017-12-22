@@ -284,7 +284,7 @@ public class VMDebugManager {
      *
      * @return true if active.
      */
-    public boolean isDebugSessionActive() {
+    public boolean isClientSessionActive() {
         return this.clientHandler.isChannelActive();
     }
 
@@ -309,7 +309,7 @@ public class VMDebugManager {
      * Notify client when the debugger is exiting.
      */
     public void notifyExit() {
-        if (!isDebugSessionActive()) {
+        if (!isClientSessionActive()) {
             return;
         }
         clientHandler.notifyExit();
