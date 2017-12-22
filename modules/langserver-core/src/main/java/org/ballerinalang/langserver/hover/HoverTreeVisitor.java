@@ -188,7 +188,8 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
         varRefExpr.getPosition().eCol = varRefExpr.getPosition().sCol
                 + varRefExpr.variableName.value.length()
                 + (!varRefExpr.pkgAlias.value.isEmpty() ? (varRefExpr.pkgAlias.value + ":").length() : 0);
-        if ((varRefExpr.type.tsymbol.kind.name().equals(HoverConstants.ENUM)
+        if (varRefExpr.type.tsymbol.kind != null
+                && (varRefExpr.type.tsymbol.kind.name().equals(HoverConstants.ENUM)
                 || varRefExpr.type.tsymbol.kind.name().equals(HoverConstants.STRUCT))
                 && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
             this.context.put(HoverKeys.HOVERING_OVER_NODE_KEY, varRefExpr);
@@ -229,10 +230,8 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockStmt blockNode) {
-        if (blockNode.stmts.isEmpty()) {
-
-        } else {
-            blockNode.stmts.forEach(stmt -> this.acceptNode(stmt));
+        if (!blockNode.stmts.isEmpty()) {
+            blockNode.stmts.forEach(this::acceptNode);
         }
     }
 
@@ -250,6 +249,10 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
         if (assignNode.expr != null && assignNode.getPosition().sLine <= this.position.getLine()
                 && assignNode.getPosition().eLine >= this.position.getLine()) {
             this.acceptNode(assignNode.expr);
+        }
+
+        if (!assignNode.varRefs.isEmpty()) {
+            assignNode.varRefs.forEach(this::acceptNode);
         }
     }
 

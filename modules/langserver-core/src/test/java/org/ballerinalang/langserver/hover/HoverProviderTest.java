@@ -32,9 +32,7 @@ public class HoverProviderTest {
             + File.separator + "hover";
     private static final String ROOT_DIR = Paths.get("").toAbsolutePath().toString() + File.separator;
     private static final String SAMPLES_COPY_DIR = ROOT_DIR + "samples" + File.separator + "hover";
-
     private String balPath = SAMPLES_COPY_DIR + File.separator + "test" + File.separator + "hover.bal";
-
 
     private BallerinaLanguageServer ballerinaLanguageServer;
     private Endpoint serviceEndpoint;
@@ -58,7 +56,8 @@ public class HoverProviderTest {
             throws URISyntaxException, InterruptedException, IOException {
         Assert.assertEquals(getHoverResponseMessageAsString(position),
                 getExpectedValue(expectedFile),
-                "Did not match the hover content for " + expectedFile);
+                "Did not match the hover content for " + expectedFile
+                        + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
     @Test(description = "Test Hover for current package's functions", dataProvider = "hoverCurrentPackageFuncPosition")
@@ -66,11 +65,21 @@ public class HoverProviderTest {
             throws InterruptedException, IOException {
         Assert.assertEquals(getHoverResponseMessageAsString(position),
                 getExpectedValue(expectedFile),
-                "Did not match the hover content for " + expectedFile);
+                "Did not match the hover content for " + expectedFile
+                        + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
     @Test(description = "Test Hover for current package's enums", dataProvider = "hoverCurrentPackageEnumPosition")
     public void hoverForCurrentPackageEnumTest(Position position, String expectedFile)
+            throws InterruptedException, IOException {
+        Assert.assertEquals(getHoverResponseMessageAsString(position),
+                getExpectedValue(expectedFile),
+                "Did not match the hover content for " + expectedFile
+                        + " and position line:" + position.getLine() + " character:" + position.getCharacter());
+    }
+
+    @Test(description = "Test Hover for current package's structs", dataProvider = "hoverCurrentPackageStructPosition")
+    public void hoverForCurrentPackageStructTest(Position position, String expectedFile)
             throws InterruptedException, IOException {
         Assert.assertEquals(getHoverResponseMessageAsString(position),
                 getExpectedValue(expectedFile),
@@ -89,17 +98,28 @@ public class HoverProviderTest {
     @DataProvider(name = "hoverCurrentPackageFuncPosition")
     public Object[][] getCurrentPackageFunctionPositions() {
         return new Object[][]{
-                {new Position(41, 15), "currentpkg-function1.json"}
+                {new Position(41, 15), "currentPkg-function1.json"}
         };
     }
 
     @DataProvider(name = "hoverCurrentPackageEnumPosition")
     public Object[][] getCurrentPackageEnumPositions() {
         return new Object[][]{
-                {new Position(29, 20), "currentpkg-enum.json"},
-                {new Position(30, 7), "currentpkg-enum.json"},
-                {new Position(30, 20), "currentpkg-enum.json"},
-                {new Position(31, 12), "currentpkg-enum.json"}
+                {new Position(29, 20), "currentPkg-enum.json"},
+                {new Position(30, 7), "currentPkg-enum.json"},
+                {new Position(30, 20), "currentPkg-enum.json"},
+                {new Position(31, 12), "currentPkg-enum.json"},
+                {new Position(32, 8), "currentPkg-enum.json"},
+                {new Position(32, 14), "currentPkg-enum.json"}
+        };
+    }
+
+    @DataProvider(name = "hoverCurrentPackageStructPosition")
+    public Object[][] getCurrentPackageStructPositions() {
+        return new Object[][]{
+                {new Position(42, 7), "currentPkg-struct.json"},
+                {new Position(47, 19), "currentPkg-struct.json"},
+                {new Position(48, 8), "currentPkg-struct.json"}
         };
     }
 
