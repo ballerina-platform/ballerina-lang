@@ -52,7 +52,7 @@ class Button extends React.Component {
                                 style={{ color: btnColor, opacity: IconOpacity }}
                                 className='fw button-background fw-circle fw-stack-2x'
                             />
-                            <i style={{ color: btnIconColor }} className='fw fw-add fw-stack-1x' />
+                            <i style={{ color: btnIconColor }} className={`fw fw-${this.props.icon} fw-stack-1x`} />
                         </span>
                     </div>
                     {this.props.children}
@@ -64,6 +64,7 @@ class Button extends React.Component {
 
 Button.propTypes = {
     children: PropTypes.isRequired,
+    icon: PropTypes.string,
     bBox: PropTypes.valueOf(PropTypes.object).isRequired,
     buttonX: PropTypes.number,
     buttonY: PropTypes.number,
@@ -75,6 +76,7 @@ Button.propTypes = {
 };
 
 Button.defaultProps = {
+    icon: 'add',
     buttonX: 20,
     buttonY: 20,
     buttonRadius: 10,
