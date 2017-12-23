@@ -57,6 +57,7 @@ public class ItemResolverConstants {
     public static final String RETRY = "retry";
 
     public static final String FUNCTION = "function";
+    public static final String MAIN_FUNCTION = "main function";
     public static final String SERVICE = "service";
     public static final String CONNECTOR = "connector";
     public static final String ACTION = "action";

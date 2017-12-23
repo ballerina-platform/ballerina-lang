@@ -25,7 +25,6 @@ import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.CodeActionParams;
@@ -61,7 +60,6 @@ import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -78,7 +76,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -166,14 +163,13 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             SignatureHelp signatureHelp;
             try {
                 BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(signatureContext, documentManager);
-                PackageLoader packageLoader = PackageLoader
-                        .getInstance(signatureContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
+                CompilerContext compilerContext = signatureContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
                 // TODO: Gracefully handle this package loading with a proper API
-                Set<PackageID> pkgIDs = packageLoader.listPackages(5);
-                pkgIDs.forEach(packageID -> {
-                    String packageName = packageID.getName().getValue();
-                    if (!bLangPackageContext.containsPackage(packageName)) {
-                        bLangPackageContext.addPackage(packageLoader.loadPackageNode(packageID));
+                
+                SignatureHelpUtil.getSystemPkgIDs().forEach(packageID -> {
+                    if (!bLangPackageContext.containsPackage(packageID)) {
+                        bLangPackageContext.addPackage(BallerinaPackageLoader
+                                .getPackageByName(compilerContext, packageID));
                     }
                 });
                 bLangPackageContext.addPackage(bLangPackage);

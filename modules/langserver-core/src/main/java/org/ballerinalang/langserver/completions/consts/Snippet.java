@@ -35,6 +35,7 @@ public enum Snippet {
     FORK("fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}"),
     IF("if (${1:true}) {\n\t${2}\n}"),
     ITERATE("iterate (${1}) {\n\t${2}\n}"),
+    MAIN_FUNCTION("function main (string[] args) {\n\t${1}\n}"),
     NAMESPACE_DECLARATION("xmlns \"${1}\" as ${2:ns};"),
     REPLY("reply ${1};"),
     RESOURCE("resource ${1:name} (http:Request req,http:Response res) {\n\t${2}\n}"),

@@ -242,6 +242,18 @@ public class SignatureHelpUtil {
     }
 
     /**
+     * Get the system package IDs.
+     * @return {@link List} list of ids
+     */
+    public static List<String> getSystemPkgIDs() {
+        return new ArrayList<>(Arrays.asList(new String[]{
+                "ballerina.config", "ballerina.math", "ballerina.user", "ballerina.util", "ballerina.util.arrays",
+                "ballerina.io", "ballerina.task", "ballerina.file", "ballerina.caching", "ballerina.runtime",
+                "ballerina.security.crypto", "ballerina.log", "ballerina.os", "ballerina.data.sql",
+                "ballerina.net.http", "ballerina.net.http.swagger", "ballerina.net.ws", "ballerina.net.uri"}));
+    }
+
+    /**
      * Parameter information model to hold the parameter information meta data.
      */
     private static class ParameterInfoModel {
