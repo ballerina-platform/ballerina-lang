@@ -116,7 +116,7 @@ class ControllerPositioningUtil {
             buttonY={0}
             showAlways
             buttonRadius={12}
-        >                                                    <Menu>
+        >                                                              <Menu>
             {items}
         </Menu>
         </Button>);
@@ -346,7 +346,7 @@ class ControllerPositioningUtil {
 
     getWorkerButton(bBox, node) {
         const x = bBox.x + 48;
-        const y = bBox.y + node.viewState.bBox.h;
+        const y = bBox.y + bBox.h - 40;
         const w = 50;
         const h = 50;
 

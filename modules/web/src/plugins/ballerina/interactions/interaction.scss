@@ -109,20 +109,33 @@
 }
 
 .connector-select {
-    height: 200px;
+    width:210px;
+    height: 300px; 
 }
 
 .connector-select input{
-    width:190;
+    width:170px;
     margin: 5px;
 }
 
 .connector-select ul li {
     background: #eeeeee;
+    padding: 5px 20px !important;
 }
 
 .connector-select ul li .pkg-name {
     font-size: 0.8em;
     font-weight: bold;
     
+}
+
+.react-autosuggest__suggestion--highlighted{
+    background: #ffe082 !important;
+    color: #6d550c !important;
+}
+
+.connector-select-close {
+    float:right;
+    margin: 10px 10px 0 0;
+    cursor: pointer;
 }

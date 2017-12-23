@@ -23,11 +23,6 @@ import Menu from './menu';
 import Item from './item';
 import DefaultNodeFactory from '../model/default-node-factory';
 
-// When suggestion is clicked, Autosuggest needs to populate the input
-// based on the clicked suggestion. Teach Autosuggest how to calculate the
-// input value for every given suggestion.
-const getSuggestionValue = suggestion => suggestion.connector.getName();
-
 // Use your imagination to render suggestions.
 const renderSuggestion = suggestion => (
     <div>
@@ -58,6 +53,11 @@ class LifelineButton extends React.Component {
         this.storeInputReference = this.storeInputReference.bind(this);
         this.onChange = this.onChange.bind(this);
         this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
+        this.getSuggestionValue = this.getSuggestionValue.bind(this);
+    }
+
+    getSuggestionValue(suggestion) {
+        return this.state.value;
     }
 
 
@@ -163,12 +163,18 @@ class LifelineButton extends React.Component {
                             className='connector-select'
                             // onMouseOut={this.hideConnectors}
                         >
+                            <div
+                                className='connector-select-close'
+                                onClick={this.hideConnectors}
+                            >
+                                <i className='fw fw-cancel' />
+                            </div>
                             <Autosuggest
                                 suggestions={suggestions}
                                 onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
                                 onSuggestionsClearRequested={this.onSuggestionsClearRequested}
                                 onSuggestionSelected={this.onSuggestionSelected}
-                                getSuggestionValue={getSuggestionValue}
+                                getSuggestionValue={this.getSuggestionValue}
                                 renderSuggestion={renderSuggestion}
                                 alwaysRenderSuggestions
                                 inputProps={inputProps}

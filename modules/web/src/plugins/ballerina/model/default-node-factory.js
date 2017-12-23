@@ -45,10 +45,10 @@ function getStaticDefaultNode(fragmentName) {
 function getPackageDefinition(fullPackageName) {
     let packageDef = null;
     for (const packageDefintion of Environment.getPackages()) {
-      if (packageDefintion.getName() === fullPackageName) {
-        packageDef = packageDefintion;
+        if (packageDefintion.getName() === fullPackageName) {
+            packageDef = packageDefintion;
+        }
     }
-  }
     return packageDef;
 }
 
@@ -241,9 +241,7 @@ class DefaultNodeFactory {
     }
 
     createWSResource(fragment) {
-        return getNodeForFragment(
-            FragmentUtils.createServiceResourceFragment(fragment),
-        );
+        return getNodeForFragment(FragmentUtils.createServiceResourceFragment(fragment));
     }
 
     createEnumerator(enumerator) {
@@ -302,6 +300,7 @@ class DefaultNodeFactory {
 
         // Iterate through the params
         const parameters = [];
+        const pkgStr = packageName !== 'Current Package' ? packageName.split(/[.]+/).pop() : '';
         if (connector && connector.getParams()) {
             const connectorParams = connector.getParams().map((param) => {
                 let defaultValue = Environment.getDefaultValue(param.type);
@@ -329,7 +328,6 @@ class DefaultNodeFactory {
             node.getVariable().getInitialExpression().getConnectorType().getTypeName().setValue(connector.getName());
             node.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
         }
-        const pkgStr = packageName !== 'Current Package' ? `${packageName}` : '';
         node.viewState.showOverlayContainer = true;
         return node;
     }
@@ -348,14 +346,14 @@ class DefaultNodeFactory {
 
         if (action && action.getParameters().length > 0) {
             const parameters = action.getParameters().map((param) => {
-               let defaultValue = Environment.getDefaultValue(param.type);
-               if (defaultValue === undefined) {
-                   defaultValue = '{}';
-               }
-               const paramNode = getNodeForFragment(FragmentUtils.createExpressionFragment(defaultValue));
-               return paramNode.getVariable().getInitialExpression();
-           });
-           node.getExpression().setArgumentExpressions(parameters);
+                let defaultValue = Environment.getDefaultValue(param.type);
+                if (defaultValue === undefined) {
+                    defaultValue = '{}';
+                }
+                const paramNode = getNodeForFragment(FragmentUtils.createExpressionFragment(defaultValue));
+                return paramNode.getVariable().getInitialExpression();
+            });
+            node.getExpression().setArgumentExpressions(parameters);
         }
 
         if (action && action.getReturnParams().length > 0) {
@@ -397,14 +395,14 @@ class DefaultNodeFactory {
 
         if (functionDef.getParameters().length > 0) {
             const parameters = functionDef.getParameters().map((param) => {
-               let defaultValue = Environment.getDefaultValue(param.type);
-               if (defaultValue === undefined) {
-                   defaultValue = '{}';
-               }
-               const paramNode = getNodeForFragment(FragmentUtils.createExpressionFragment(defaultValue));
-               return paramNode.getVariable().getInitialExpression();
-           });
-           node.getExpression().setArgumentExpressions(parameters);
+                let defaultValue = Environment.getDefaultValue(param.type);
+                if (defaultValue === undefined) {
+                    defaultValue = '{}';
+                }
+                const paramNode = getNodeForFragment(FragmentUtils.createExpressionFragment(defaultValue));
+                return paramNode.getVariable().getInitialExpression();
+            });
+            node.getExpression().setArgumentExpressions(parameters);
         }
 
         const varRefNames = functionDef.getReturnParams().map((param, index) => {
