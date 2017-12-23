@@ -71,7 +71,7 @@ public class HttpMessageDataStreamer {
             } else if (chunkFinished) {
                 httpContent = httpCarbonMessage.getHttpContent();
                 if (httpContent == null) {
-                    throw new IOException("No entity was added to the queue before the timeout value");
+                    throw new IOException("No entity was added to the queue before the timeout");
                 }
                 byteBuffer = httpContent.content().nioBuffer();
                 count = 0;
