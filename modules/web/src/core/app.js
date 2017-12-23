@@ -231,6 +231,7 @@ class Application {
             .loading('hide')
             .removeAttr('data-toggle')
             .removeAttr('data-loading-style');
+        $('.custom-splash').hide();
     }
 }
 
