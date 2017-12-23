@@ -169,7 +169,7 @@ class LifelineButton extends React.Component {
                                 className='connector-select-close'
                                 onClick={this.hideConnectors}
                             >
-                                <i className='fw fw-cancel' />
+                                <i className='fw fw-left' />
                             </div>
                             <Autosuggest
                                 suggestions={suggestions}
