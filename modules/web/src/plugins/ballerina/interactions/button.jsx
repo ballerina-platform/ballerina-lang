@@ -47,11 +47,8 @@ class Button extends React.Component {
                     <div style={{ fontSize: btnRadius }} className='button-panel'>
                         <span
                             className={(this.props.showAlways ? 'button-show-always' : 'button') + ' fw-stack fw-lg'}
-                            onClick={() => {
-                                if (this.props.command) {
-                                    this.context.command.dispatch(this.props.command, this.props.commandArgs);
-                                }
-                            }}
+                            onClick={this.props.onClick}
+                            title={this.props.tooltip}
                         >
                             <i
                                 style={{ color: btnColor, opacity: IconOpacity }}
@@ -78,8 +75,8 @@ Button.propTypes = {
     buttonIconColor: PropTypes.string,
     hideIconBackground: PropTypes.bool,
     showAlways: PropTypes.bool,
-    command: PropTypes.string,
-    commandArgs: PropTypes.objectOf(Object),
+    onClick: PropTypes.func,
+    tooltip: PropTypes.string,
 };
 
 Button.defaultProps = {
@@ -91,14 +88,8 @@ Button.defaultProps = {
     buttonIconColor: '#ffffff',
     hideIconBackground: false,
     showAlways: false,
-    command: undefined,
-    commandArgs: {},
-};
-
-Button.contextTypes = {
-    command: PropTypes.shape({
-        dispatch: PropTypes.func,
-    }).isRequired,
+    onClick: () => {},
+    tooltip: '',
 };
 
 export default Button;

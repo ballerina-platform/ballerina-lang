@@ -32,6 +32,10 @@ import TreeUtil from './../../../model/tree-util';
 
 class ControllerPositioningUtil {
 
+    setContext(context) {
+        this.context = context;
+    }
+
     setMode(mode) {
         this.mode = mode;
     }
@@ -131,7 +135,7 @@ class ControllerPositioningUtil {
         const modeBtn = (
             <Button
                 bBox={{
-                    x: x + 50,
+                    x: x + 40,
                     y,
                     w,
                     h,
@@ -141,11 +145,14 @@ class ControllerPositioningUtil {
                 buttonY={0}
                 showAlways
                 hideIconBackground
-                buttonColor={'white'}
+                buttonColor={'#eee'}
                 buttonIconColor={'black'}
                 buttonRadius={12}
-                command={COMMANDS.DIAGRAM_MODE_CHANGE}
-                commandArgs={{ mode: this.mode }}
+                onClick={() => {
+                    this.context.command.dispatch(COMMANDS.DIAGRAM_MODE_CHANGE,
+                        { mode: this.mode === 'default' ? 'action' : 'default' });
+                }}
+                tooltip={`switch to ${this.mode === 'default' ? 'action' : 'default'} mode`}
             />
         );
         return ([addBtn, modeBtn]);

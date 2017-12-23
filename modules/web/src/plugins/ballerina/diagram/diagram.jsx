@@ -161,6 +161,7 @@ class Diagram extends React.Component {
 
         const controllerVisitor = new ControllerVisitor();
         const cu = new ControllerPositioningUtil();
+        cu.setContext(this.context);
         cu.setMode(this.props.mode);
         cu.setConfig(getConfig(this.props.mode));
         controllerVisitor.setControllerUtil(cu);
@@ -194,6 +195,10 @@ Diagram.propTypes = {
 };
 
 Diagram.contextTypes = {
+    command: PropTypes.shape({
+        on: PropTypes.func,
+        dispatch: PropTypes.func,
+    }).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
     getDiagramContainer: PropTypes.instanceOf(Object).isRequired,
 };
