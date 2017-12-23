@@ -239,6 +239,13 @@
     top: 0;
     z-index: 41;
     cursor: pointer;
-    padding: 8px 15px;
+    padding-left: 15px;
+    padding-top:12px;
     background-color: #eeeeee;
+    float: left;
+}
+
+.connector-select .react-autosuggest__container {
+    width: 75%;
+    float: left;
 }
