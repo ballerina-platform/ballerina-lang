@@ -109,7 +109,6 @@ class LifelineButton extends React.Component {
     }
 
     storeInputReference(autosuggest) {
-        console.log(autosuggest);
         if (autosuggest !== null) {
             this.input = autosuggest.input;
         }
