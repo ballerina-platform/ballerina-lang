@@ -25,22 +25,36 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
+import org.wso2.transport.http.netty.contract.HttpClientConnector;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.passthrough.PassthroughMessageProcessorListener;
+import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.SendChannelIDServerInitializer;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
@@ -54,6 +68,7 @@ public class ConnectionPoolTestCase {
 
     private HttpServer httpServer;
     private List<ServerConnector> serverConnectors;
+    private HttpClientConnector httpClientConnector;
     private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
     private ExecutorService executor = Executors.newFixedThreadPool(2);
 
@@ -65,6 +80,11 @@ public class ConnectionPoolTestCase {
         httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new SendChannelIDServerInitializer());
         serverConnectors = TestUtil.startConnectors(transportsConfiguration,
                 new PassthroughMessageProcessorListener(transportsConfiguration));
+
+        HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
+        httpClientConnector = connectorFactory.createHttpClientConnector(
+                HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
+                HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME));
     }
 
     @Test
@@ -89,6 +109,43 @@ public class ConnectionPoolTestCase {
             requestThreeResponse = executor.submit(clientWorkerThree);
 
             assertEquals(requestOneResponse.get(), requestThreeResponse.get());
+        } catch (Exception e) {
+            TestUtil.handleException("IOException occurred while running testConnectionReuseForProxy", e);
+        }
+    }
+
+    @Test
+    public void testConnectionReuseForMain() {
+        try {
+            String result1;
+            String result2;
+
+            HTTPCarbonMessage httpsPostReq = TestUtil.
+                    createHttpsPostReq(TestUtil.HTTP_SERVER_PORT, "", "/");
+
+            CountDownLatch latch = new CountDownLatch(1);
+            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
+
+            HttpResponseFuture responseFuture = httpClientConnector.send(httpsPostReq);
+            responseFuture.setHttpConnectorListener(listener);
+            latch.await(5, TimeUnit.SECONDS);
+            HTTPCarbonMessage response = listener.getHttpResponseMessage();
+            assertNotNull(response);
+            String result = new BufferedReader(new InputStreamReader(new HttpMessageDataStreamer(response)
+                    .getInputStream()))
+                    .lines().collect(Collectors.joining("\n"));
+
+            responseFuture = httpClientConnector.send(httpsPostReq);
+            responseFuture.setHttpConnectorListener(listener);
+            latch.await(5, TimeUnit.SECONDS);
+            HTTPCarbonMessage response = listener.getHttpResponseMessage();
+            assertNotNull(response);
+            String result = new BufferedReader(new InputStreamReader(new HttpMessageDataStreamer(response)
+                    .getInputStream()))
+                    .lines().collect(Collectors.joining("\n"));
+
+
+
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running passthroughPostTest", e);
         }

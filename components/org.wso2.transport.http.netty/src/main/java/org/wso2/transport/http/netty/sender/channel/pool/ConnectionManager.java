@@ -151,6 +151,8 @@ public class ConnectionManager {
         if (targetChannel.getCorrelatedSource() != null) {
             Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
             releaseChannelToPool(targetChannel, objectPoolMap.get(targetChannel.getHttpRoute().toString()));
+        } else {
+            releaseChannelToPool(targetChannel, this.connGlobalPool.get(targetChannel.getHttpRoute().toString()));
         }
     }
 
