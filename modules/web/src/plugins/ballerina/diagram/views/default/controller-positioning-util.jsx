@@ -23,6 +23,7 @@ import { COMMANDS } from 'plugins/ballerina/constants';
 import SimpleBBox from './../../../model/view/simple-bounding-box';
 import Button from '../../../interactions/button';
 import LifelineButton from '../../../interactions/lifeline-button';
+import WorkerButton from '../../../interactions/worker-button';
 import Menu from '../../../interactions/menu';
 import Item from '../../../interactions/item';
 import TopLevelElements from '../../../tool-palette/item-provider/compilation-unit-tools';
@@ -388,17 +389,9 @@ class ControllerPositioningUtil {
 
         const items = this.convertToAddItems(WorkerTools, node);
         // Not implemented.
-        return (<Button
-            bBox={{ x, y, w, h }}
-            buttonX={0}
-            buttonY={0}
-            showAlways
-            buttonRadius={8}
-        >
-            <Menu>
-                {items}
-            </Menu>
-        </Button>);
+        return (
+            <WorkerButton bBox={{ x, y, w, h }} model={node} items={items} />
+        );
     }
 
 

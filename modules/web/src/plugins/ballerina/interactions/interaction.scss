@@ -111,6 +111,7 @@
 .connector-select {
     width:210px;
     height: 300px; 
+    overflow:hidden;
 }
 
 .connector-select input{
@@ -121,6 +122,7 @@
 .connector-select ul li {
     background: #eeeeee;
     padding: 5px 20px !important;
+    width: 210px;
 }
 
 .connector-select ul li .pkg-name {
