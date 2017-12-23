@@ -54,7 +54,7 @@ export function getCommandDefinitions() {
         {
             id: COMMANDS.TOGGLE_BOTTOM_PANEL,
             shortcut: {
-                default: 'ctrl+`',
+                default: 'ctrl+]',
             },
         },
         {

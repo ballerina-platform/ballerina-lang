@@ -19,6 +19,9 @@
 import { MENU_DEF_TYPES } from 'core/menu/constants';
 import { MENUS, COMMANDS, LABELS } from './constants';
 
+import LaunchManager from './LaunchManager';
+import DebugManager from './DebugManager';
+
 /**
  * Provides menu definitions of debugger plugin.
  *
@@ -30,7 +33,7 @@ export function getMenuDefinitions(debuggerInstance) {
         {
             id: MENUS.DEBUG_MENU,
             label: LABELS.DEBUG,
-            isActive: (appContext) => {
+            isActive: () => {
                 return true;
             },
             icon: '',
@@ -38,25 +41,29 @@ export function getMenuDefinitions(debuggerInstance) {
             type: MENU_DEF_TYPES.ROOT,
         },
         {
-            id: MENUS.DEBUG_START_MENU,
+            id: MENUS.RUN_START_MENU,
             parent: MENUS.DEBUG_MENU,
-            label: LABELS.DEBUG_START,
+            label: 'Run',
             isActive: (appContext) => {
-                return true;
+                const activeEditor = debuggerInstance.appContext.editor.getActiveEditor();
+                return activeEditor && activeEditor.definition &&
+                    activeEditor.definition.id === 'composer.editor.ballerina' && !LaunchManager.active;
             },
-            command: COMMANDS.START_DEBUG,
-            icon: 'bug',
+            command: COMMANDS.RUN,
+            icon: 'start',
             type: MENU_DEF_TYPES.ITEM,
         },
         {
-            id: MENUS.DEBUG_STOP_MENU,
+            id: MENUS.DEBUG_START_MENU,
             parent: MENUS.DEBUG_MENU,
-            label: LABELS.DEBUG_STOP,
+            label: 'Debug',
             isActive: (appContext) => {
-                return true;
+                const activeEditor = debuggerInstance.appContext.editor.getActiveEditor();
+                return activeEditor && activeEditor.definition &&
+                    activeEditor.definition.id === 'composer.editor.ballerina' && !DebugManager.active;
             },
-            command: COMMANDS.STOP_DEBUG,
-            icon: 'stop',
+            command: COMMANDS.RUN_WITH_DEBUG,
+            icon: 'bug',
             type: MENU_DEF_TYPES.ITEM,
         },
     ];

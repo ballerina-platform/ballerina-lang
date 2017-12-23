@@ -47,12 +47,14 @@ class Button extends React.Component {
                     <div style={{ fontSize: btnRadius }} className='button-panel'>
                         <span
                             className={(this.props.showAlways ? 'button-show-always' : 'button') + ' fw-stack fw-lg'}
+                            onClick={this.props.onClick}
+                            title={this.props.tooltip}
                         >
                             <i
                                 style={{ color: btnColor, opacity: IconOpacity }}
                                 className='fw button-background fw-circle fw-stack-2x'
                             />
-                            <i style={{ color: btnIconColor }} className='fw fw-add fw-stack-1x' />
+                            <i style={{ color: btnIconColor }} className={`fw fw-${this.props.icon} fw-stack-1x`} />
                         </span>
                     </div>
                     {this.props.children}
@@ -64,6 +66,7 @@ class Button extends React.Component {
 
 Button.propTypes = {
     children: PropTypes.isRequired,
+    icon: PropTypes.string,
     bBox: PropTypes.valueOf(PropTypes.object).isRequired,
     buttonX: PropTypes.number,
     buttonY: PropTypes.number,
@@ -72,9 +75,12 @@ Button.propTypes = {
     buttonIconColor: PropTypes.string,
     hideIconBackground: PropTypes.bool,
     showAlways: PropTypes.bool,
+    onClick: PropTypes.func,
+    tooltip: PropTypes.string,
 };
 
 Button.defaultProps = {
+    icon: 'add',
     buttonX: 20,
     buttonY: 20,
     buttonRadius: 10,
@@ -82,6 +88,8 @@ Button.defaultProps = {
     buttonIconColor: '#ffffff',
     hideIconBackground: false,
     showAlways: false,
+    onClick: () => {},
+    tooltip: '',
 };
 
 export default Button;

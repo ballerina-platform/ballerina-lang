@@ -37,8 +37,9 @@ export const VIEWS = {
 
 export const MENUS = {
     DEBUG_MENU: 'composer.menu.debugger.debug',
+    RUN_START_MENU: 'composer.menu.debugger.run.start',
     DEBUG_START_MENU: 'composer.menu.debugger.debug.start',
-    DEBUG_STOP_MENU: 'composer.menu.debugger.debug.stop',
+    STOP_MENU: 'composer.menu.debugger.stop',
 };
 
 export const LABELS = {

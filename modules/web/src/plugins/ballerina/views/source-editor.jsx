@@ -17,17 +17,12 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
-import { getServiceEndpoint } from 'api-client/api-client';
-import { listen } from 'vscode-ws-jsonrpc';
 import {
     BaseLanguageClient, CloseAction, ErrorAction,
     createMonacoServices, createConnection,
 } from 'monaco-languageclient';
-import ReconnectingWebSocket from 'reconnecting-websocket';
 import debuggerHoc from 'src/plugins/debugger/views/DebuggerHoc';
 import File from 'core/workspace/model/file';
-import { PLUGIN_ID as BAL_PLUGIN_ID } from 'plugins/ballerina/constants';
 import { EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
 import { CONTENT_MODIFIED } from 'plugins/ballerina/constants/events';
 import { GO_TO_POSITION } from 'plugins/ballerina/constants/commands';
@@ -275,18 +270,6 @@ class SourceEditor extends React.Component {
             lineNumber,
             column,
         });
-    }
-
-    /**
-     * Replace content of the editor while maintaining history
-     *
-     * @param {*} newContent content to insert
-     */
-    replaceContent(newContent, skipFileUpdate) {
-        if (skipFileUpdate) {
-            this.skipFileUpdate = true;
-        }
-        this.monaco.editor.getModels()[1].setValue(newContent);
     }
 
     /**
