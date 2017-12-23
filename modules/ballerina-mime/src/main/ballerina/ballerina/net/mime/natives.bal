@@ -248,7 +248,6 @@ public native function <MimeBase64Decoder decoder> decodeString (string content,
 
 public native function <QuotedPrintableEncoder encoder> encode (blob content) (blob);
 
-//TODO:Check for the content-transfer-encoding header and do the needful
 function readAll (io:ByteChannel channel) (blob) {
     blob bytes;
     int numberOfBytesRead;
@@ -285,4 +284,3 @@ public const string CHARSET = "charset";
 public const string DEFAULT_CHARSET = "UTF-8";
 
 public const string READ_PERMISSION = "r";
-

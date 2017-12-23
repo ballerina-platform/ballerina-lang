@@ -168,6 +168,9 @@ public function <Response response> setXmlPayload (xml payload) {
     response.setEntity(entity);
 }
 
+@Description { value:"Sets a string as the response payload"}
+@Param { value:"response: The response message" }
+@Param { value:"payload: The payload to be set to the response as a string" }
 public function <Response response> setStringPayload (string payload) {
     mime:Entity entity = {};
     entity.textData = payload;

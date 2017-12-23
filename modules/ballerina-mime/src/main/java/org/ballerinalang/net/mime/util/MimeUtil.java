@@ -138,13 +138,13 @@ public class MimeUtil {
             createBallerinaFileHandler(context, entityStruct, temporaryFilePath);
             entityStruct.setBooleanField(IS_IN_MEMORY_INDEX, FALSE);
         } else {
-            BBlob payload;
+            byte[] payload;
             try {
-                payload = new BBlob(toByteArray(inputStream));
+                payload =toByteArray(inputStream);
             } catch (IOException e) {
                 throw new BallerinaException("Error while converting inputstream to a byte array: " + e.getMessage());
             }
-            entityStruct.setRefField(BYTE_DATA_INDEX, payload);
+            entityStruct.setBlobField(BYTE_DATA_INDEX, payload);
             entityStruct.setBooleanField(IS_IN_MEMORY_INDEX, TRUE);
         }
     }
@@ -334,23 +334,25 @@ public class MimeUtil {
      */
     public static BStruct parseMediaType(BStruct mediaType, String contentType) {
         try {
-            MimeType mimeType = new MimeType(contentType);
-            mediaType.setStringField(PRIMARY_TYPE_INDEX, mimeType.getPrimaryType());
-            mediaType.setStringField(SUBTYPE_INDEX, mimeType.getSubType());
-            if (mimeType.getSubType() != null && mimeType.getSubType().contains(Constants.SUFFIX_ATTACHMENT)) {
-                mediaType.setStringField(SUFFIX_INDEX, mimeType.getSubType()
-                        .substring(mimeType.getSubType().lastIndexOf(Constants.SUFFIX_ATTACHMENT) + 1));
-            }
-            MimeTypeParameterList parameterList = mimeType.getParameters();
-            Enumeration keys = parameterList.getNames();
-            BMap<String, BValue> parameterMap = new BMap<>();
+            if (contentType != null) {
+                MimeType mimeType = new MimeType(contentType);
+                mediaType.setStringField(PRIMARY_TYPE_INDEX, mimeType.getPrimaryType());
+                mediaType.setStringField(SUBTYPE_INDEX, mimeType.getSubType());
+                if (mimeType.getSubType() != null && mimeType.getSubType().contains(Constants.SUFFIX_ATTACHMENT)) {
+                    mediaType.setStringField(SUFFIX_INDEX, mimeType.getSubType()
+                            .substring(mimeType.getSubType().lastIndexOf(Constants.SUFFIX_ATTACHMENT) + 1));
+                }
+                MimeTypeParameterList parameterList = mimeType.getParameters();
+                Enumeration keys = parameterList.getNames();
+                BMap<String, BValue> parameterMap = new BMap<>();
 
-            while (keys.hasMoreElements()) {
-                String key = (String) keys.nextElement();
-                String value = parameterList.get(key);
-                parameterMap.put(key, new BString(value));
+                while (keys.hasMoreElements()) {
+                    String key = (String) keys.nextElement();
+                    String value = parameterList.get(key);
+                    parameterMap.put(key, new BString(value));
+                }
+                mediaType.setRefField(PARAMETER_MAP_INDEX, parameterMap);
             }
-            mediaType.setRefField(PARAMETER_MAP_INDEX, parameterMap);
         } catch (MimeTypeParseException e) {
             throw new BallerinaException("Error while parsing Content-Type value: " + e.getMessage());
         }

@@ -400,9 +400,11 @@ public class HttpUtil {
     private static String getContentType(BStruct entity) {
         if (entity.getRefField(MEDIA_TYPE_INDEX) != null) {
             BStruct mediaType = (BStruct) entity.getRefField(MEDIA_TYPE_INDEX);
-            String baseType =
-                    mediaType.getStringField(PRIMARY_TYPE_INDEX) + "/" + mediaType.getStringField(SUBTYPE_INDEX);
-            return baseType;
+            if (mediaType != null) {
+                String baseType =
+                        mediaType.getStringField(PRIMARY_TYPE_INDEX) + "/" + mediaType.getStringField(SUBTYPE_INDEX);
+                return baseType;
+            }
         }
         return null;
     }
@@ -600,7 +602,8 @@ public class HttpUtil {
     public static BValue[] prepareResponseAndSend(Context context, AbstractNativeFunction abstractNativeFunction
             , HTTPCarbonMessage requestMessage, HTTPCarbonMessage responseMessage, BStruct httpMessageStruct) {
         addHTTPSessionAndCorsHeaders(requestMessage, responseMessage);
-
+        //TODO: is converting to a datasource really needed? can we directly write the output stream without loading
+        // it into memory
         MessageDataSource outboundMessageSource = readMessageDataSource(httpMessageStruct);
         HttpResponseStatusFuture outboundResponseStatusFuture = sendOutboundResponse(requestMessage, responseMessage);
 
@@ -803,11 +806,11 @@ public class HttpUtil {
 
     private static void populateEntity(BStruct entity, BStruct mediaType, HTTPCarbonMessage cMsg) {
         String contentType = cMsg.getHeader(org.ballerinalang.net.mime.util.Constants.CONTENT_TYPE);
-        MimeUtil.setContentType(mediaType, entity, contentType);
+            MimeUtil.setContentType(mediaType, entity, contentType);
         int contentLength = -1;
         String lengthStr = cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH);
         try {
-            contentLength = Integer.parseInt(lengthStr);
+            contentLength = lengthStr != null ? Integer.parseInt(lengthStr) : contentLength;
             MimeUtil.setContentLength(entity, contentLength);
         } catch (NumberFormatException e) {
             throw new BallerinaException("Invalid content length");
