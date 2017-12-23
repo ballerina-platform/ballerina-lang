@@ -366,9 +366,10 @@ class DefaultNodeFactory {
         }
 
         if (action) {
+            const pkgStr = packageName !== 'Current Package' ? packageName.split(/[.]+/).pop() : '';
             node.getExpression().getName().setValue(action.getName());
             node.getExpression().setFullPackageName(fullPackageName);
-            node.getExpression().getPackageAlias().setValue(packageName);
+            node.getExpression().getPackageAlias().setValue(pkgStr);
         }
 
         node.getExpression().invocationType = 'ACTION';
