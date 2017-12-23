@@ -26,7 +26,7 @@ import DefaultNodeFactory from '../model/default-node-factory';
 // Use your imagination to render suggestions.
 const renderSuggestion = suggestion => (
     <div>
-        {suggestion.packageName.split(/[.]+/).pop()}:{suggestion.connector.getName()}
+        {suggestion.packageName.split(/[.]+/).pop()}
             -&gt;
         <strong>{suggestion.action.getName()}</strong>
     </div>
