@@ -7,6 +7,16 @@ programming language with both textual and graphical syntaxes.
 
 for more info: http://ballerinalang.org/
 
+## Features
+
+- Language Server Support
+    - Completion support.
+    - Hover Provider Support.
+    - Signature Help Support.
+    - Document Symbol Support.
+    - Diagnostic Support.
+- Syntax highlighting.
+
 ## Installing
 
 Find the plugin in the visual studio [marketplace](https://marketplace.visualstudio.com/items?itemName=WSO2.Ballerina) and follow the instructions.

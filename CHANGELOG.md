@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.95.6 - 2017-12-24
+
+### Added
+- Language Server Support
+    - Enum and Struct support for hover provider.
+    - Improvements to completion support
+        - Enum completion support.
+        - "next" keyword support.
+        - New transaction syntax support.
+    - Signature help improvements to aware of ballerina system libraries.
+    
+### Fixed
+- Language Server Support
+    - System library resolving.
+    - Exception Handling.
+    - Completion and suggestions Improvements with packaging awareness([#59](https://github.com/ballerinalang/language-server/issues/59)).
+
 ## 0.95.5 - 2017-12-18
 ### Added
 - Language Server Support
