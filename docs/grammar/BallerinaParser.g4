@@ -235,7 +235,7 @@ statement
     |   assignmentStatement
     |   bindStatement
     |   ifElseStatement
-    |   iterateStatement
+    |   foreachStatement
     |   whileStatement
     |   nextStatement
     |   breakStatement
@@ -311,9 +311,12 @@ elseClause
     :   ELSE LEFT_BRACE statement*RIGHT_BRACE
     ;
 
-//todo replace with 'foreach'
-iterateStatement
-    :   ITERATE LEFT_PARENTHESIS typeName Identifier COLON expression RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
+foreachStatement
+    :   FOREACH LEFT_PARENTHESIS? variableReferenceList IN  (expression | intRangeExpression) RIGHT_PARENTHESIS? LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
+intRangeExpression
+    : (LEFT_BRACKET|LEFT_PARENTHESIS)? expression DOT DOT expression (RIGHT_BRACKET|RIGHT_PARENTHESIS)?
     ;
 
 whileStatement
