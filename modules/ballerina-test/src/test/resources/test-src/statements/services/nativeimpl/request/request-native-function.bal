@@ -229,7 +229,7 @@ service<http> helloServer {
         path:"/getHeaders"
     }
     resource getHeaders (http:Request req, http:Response res) {
-        var headers = req.getHeaders("Content-Type");
+        var headers = req.getHeaders("test-header");
         var headerValue, _ = (string)headers[1].value;
 
         map param = headers[1].param;
@@ -285,8 +285,8 @@ service<http> helloServer {
     }
     resource GetXmlPayload(http:Request req, http:Response res) {
         xml value = req.getXmlPayload();
-      //  string name = value.getTextValue();
-        res.setXmlPayload(value);
+        string name = value.getTextValue();
+        res.setStringPayload(name);
         _ = res.send();
     }
 
