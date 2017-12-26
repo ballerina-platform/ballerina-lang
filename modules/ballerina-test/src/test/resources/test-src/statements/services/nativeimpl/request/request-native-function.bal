@@ -70,7 +70,7 @@ function testSetHeader (http:Request req, string key, string value) (http:Reques
 
 function testSetHeaderStruct (http:Request req, string key, string value) (http:Request) {
     mime:HeaderValue[] headers = [{value:value, param:{b:"6", c:7}}, {value:value, param:{a:6}}];
-    req.getEntity().headers[key] = headers;
+    req.getEntity(false).headers[key] = headers;
     return req;
 }
 
@@ -144,9 +144,9 @@ service<http> helloServer {
     }
     resource addReqHeader (http:Request req, http:Response res) {
         mime:HeaderValue[] headers = [{value:"ballerina", param:{b:"6", c:7}}, {value:"transport", param:{a:6}}];
-        req.headers["wso2"] = headers;
+        req.getEntity(false).headers["wso2"] = headers;
 
-        var values  = req.getEntuty().headers["wso2"];
+        var values  = req.getEntity(false).headers["wso2"];
         var valueArr,_ = (mime:HeaderValue[]) values;
         string header = valueArr[0].value;
 
@@ -162,10 +162,10 @@ service<http> helloServer {
     }
     resource addReqHeaderFunc (http:Request req, http:Response res) {
         mime:HeaderValue[] headers = [{value:"ballerina", param:{b:"6", c:7}}, {value:"transport", param:{a:6}}];
-        req.getEntity().headers["wso2"] = headers;
+        req.getEntity(false).headers["wso2"] = headers;
         req.addHeader("wso2", "chamil");
 
-        var values  = req.headers["wso2"];
+        var values  = req.getEntity(false).headers["wso2"];
         var valueArr,_ = (mime:HeaderValue[]) values;
         int size =  lengthof valueArr;
         string header = valueArr[2].value;
@@ -179,9 +179,9 @@ service<http> helloServer {
     }
     resource addReqHeaderNoParam (http:Request req, http:Response res) {
         mime:HeaderValue[] headers = [{value:"ballerina", param:{}}, {value:"transport", param:{a:6}}];
-        req.getEntity().headers["wso2"] = headers;
+        req.getEntity(false).headers["wso2"] = headers;
 
-        var values  = req.headers["wso2"];
+        var values  = req.getEntity(false).headers["wso2"];
         var valueArr,_ = (mime:HeaderValue[]) values;
         string header = valueArr[0].value;
 
@@ -217,8 +217,8 @@ service<http> helloServer {
         path:"/getReqHeader"
     }
     resource getReqHeader (http:Request req, http:Response res) {
-        var values  = req.headers["Content-Type"];
-        var valueArr,_ = (http:HeaderValue[]) values;
+        var values  = req.getEntity(false).headers["Content-Type"];
+        var valueArr,_ = (mime:HeaderValue[]) values;
         string header = valueArr[0].value;
 
         res.setJsonPayload({value:header});
@@ -244,7 +244,7 @@ service<http> helloServer {
     }
     resource getReqHeadersStruct (http:Request req, http:Response res) {
         mime:HeaderValue[] headers = [{value:"ballerina"}, {value:"transport", param:{a:6}}];
-        req.getEntity().headers["wso2"] = headers;
+        req.getEntity(false).headers["wso2"] = headers;
 
         var headerValues = req.getHeaders("wso2");
         var headerValue, _ = (string)headerValues[1].value;
@@ -333,7 +333,7 @@ service<http> helloServer {
     }
     resource setHeaderStruct (http:Request req, http:Response res, string key, string value) {
         mime:HeaderValue[] headers = [{value:value, param:{b:"6", c:7}}, {value:value, param:{a:6}}];
-        req.getEntity().headers[key] = headers;
+        req.getEntity(false).headers[key] = headers;
         string result = req.getHeader(key).value;
         res.setJsonPayload({value:result});
         _ = res.send();

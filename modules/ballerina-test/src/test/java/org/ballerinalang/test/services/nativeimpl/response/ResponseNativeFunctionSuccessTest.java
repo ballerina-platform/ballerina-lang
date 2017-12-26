@@ -144,7 +144,7 @@ public class ResponseNativeFunctionSuccessTest {
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        HttpUtil.addMessageDataSource(response, dataSource);
+    //    HttpUtil.addMessageDataSource(response, dataSource);
 
         HttpUtil.addCarbonMsg(response, cMsg);
         BValue[] inputArg = {response};
@@ -162,7 +162,7 @@ public class ResponseNativeFunctionSuccessTest {
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        HttpUtil.addMessageDataSource(response, dataSource);
+    //    HttpUtil.addMessageDataSource(response, dataSource);
 
         cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(payload.length()));
         cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
@@ -277,7 +277,7 @@ public class ResponseNativeFunctionSuccessTest {
         String payload = "{'code':'123'}";
         BallerinaMessageDataSource dataSource = new BJSON(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        HttpUtil.addMessageDataSource(response, dataSource);
+     //   HttpUtil.addMessageDataSource(response, dataSource);
 
         cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
         HttpUtil.addCarbonMsg(response, cMsg);
@@ -337,7 +337,7 @@ public class ResponseNativeFunctionSuccessTest {
 
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        HttpUtil.addMessageDataSource(response, dataSource);
+    //    HttpUtil.addMessageDataSource(response, dataSource);
 
         HttpUtil.addCarbonMsg(response, cMsg);
         BValue[] inputArg = {response};
@@ -367,7 +367,7 @@ public class ResponseNativeFunctionSuccessTest {
         String payload = "<name>ballerina</name>";
         BallerinaMessageDataSource dataSource = new BXMLItem(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        HttpUtil.addMessageDataSource(response, dataSource);
+    //    HttpUtil.addMessageDataSource(response, dataSource);
 
         HttpUtil.addCarbonMsg(response, cMsg);
         BValue[] inputArg = {response};

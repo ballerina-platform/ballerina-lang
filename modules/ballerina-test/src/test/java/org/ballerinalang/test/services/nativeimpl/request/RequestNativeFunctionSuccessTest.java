@@ -39,18 +39,26 @@ import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+
+import static org.ballerinalang.net.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.net.mime.util.Constants.HEADER_VALUE_STRUCT;
+import static org.ballerinalang.net.mime.util.Constants.MESSAGE_ENTITY;
 
 /**
  * Test cases for ballerina.net.http.request success native functions.
  */
 public class RequestNativeFunctionSuccessTest {
+    private static final Logger LOG = LoggerFactory.getLogger(HttpUtil.class);
 
     private CompileResult result, serviceResult;
     private final String requestStruct = Constants.REQUEST;
@@ -80,8 +88,11 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        Assert.assertEquals(((BStruct) ((BRefValueArray) ((BMap) ((BStruct) returnVals[0]).getRefField(0))
-                .get(headerName)).get(0)).getStringField(0), headerValue);
+        BStruct entityStruct = (BStruct)((BStruct) returnVals[0]).getNativeData
+                (MESSAGE_ENTITY);
+        BMap map = (BMap) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
+        BRefValueArray array = (BRefValueArray) map.get(headerName);
+        Assert.assertEquals(((BStruct)array.get(0)).getStringField(0), headerValue);
     }
 
     @Test(description = "Test addHeader function within a service")
@@ -91,10 +102,17 @@ public class RequestNativeFunctionSuccessTest {
         String path = "/hello/addheader/" + key + "/" + value;
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get(key).asText(), value);
+        DataInputStream dataInputStream = new DataInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        try {
+            while (dataInputStream.available() > 0) { //Wait for the data to be available
+                String returnValue = dataInputStream.readUTF();
+                BJSON bJson = new BJSON(returnValue);
+                Assert.assertEquals(bJson.value().get(key).asText(), value);
+            }
+        } catch (IOException e) {
+            LOG.error("Error occurred while running 'testServiceAddHeader'", e.getMessage());
+        }
     }
 
     @Test(description = "Test req struct add Header function")
@@ -103,11 +121,18 @@ public class RequestNativeFunctionSuccessTest {
         String path = "/hello/addReqHeader";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("headerValue").asText(), value);
-        Assert.assertEquals(bJson.value().get("paramValue").asText(), String.valueOf(6));
+        DataInputStream dataInputStream = new DataInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        try {
+            while (dataInputStream.available() > 0) { //Wait for the data to be available
+                String returnValue = dataInputStream.readUTF();
+                BJSON bJson = new BJSON(returnValue);
+                Assert.assertEquals(bJson.value().get("headerValue").asText(), value);
+                Assert.assertEquals(bJson.value().get("paramValue").asText(), String.valueOf(6));
+            }
+        } catch (IOException e) {
+            LOG.error("Error occurred while running 'testStructAddHeader'", e.getMessage());
+        }
     }
 
     @Test(description = "Test req struct add Header function without params")
@@ -144,7 +169,7 @@ public class RequestNativeFunctionSuccessTest {
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        HttpUtil.addMessageDataSource(request, dataSource);
+      //  HttpUtil.addMessageDataSource(request, dataSource);
 
         HttpUtil.addCarbonMsg(request, cMsg);
         BValue[] inputArg = {request};
@@ -162,7 +187,7 @@ public class RequestNativeFunctionSuccessTest {
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        HttpUtil.addMessageDataSource(request, dataSource);
+     //   HttpUtil.addMessageDataSource(request, dataSource);
         cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(payload.length()));
         HttpUtil.addCarbonMsg(request, cMsg);
 
@@ -287,7 +312,7 @@ public class RequestNativeFunctionSuccessTest {
         String payload = "{'code':'123'}";
         BallerinaMessageDataSource dataSource = new BJSON(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        HttpUtil.addMessageDataSource(request, dataSource);
+      //  HttpUtil.addMessageDataSource(request, dataSource);
 
         cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
         HttpUtil.addCarbonMsg(request, cMsg);
@@ -349,7 +374,7 @@ public class RequestNativeFunctionSuccessTest {
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        HttpUtil.addMessageDataSource(request, dataSource);
+     //   HttpUtil.addMessageDataSource(request, dataSource);
 
         HttpUtil.addCarbonMsg(request, cMsg);
         BValue[] inputArg = {request};
@@ -380,7 +405,7 @@ public class RequestNativeFunctionSuccessTest {
         String payload = "<name>ballerina</name>";
         BallerinaMessageDataSource dataSource = new BXMLItem(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        HttpUtil.addMessageDataSource(request, dataSource);
+     //   HttpUtil.addMessageDataSource(request, dataSource);
 
         HttpUtil.addCarbonMsg(request, cMsg);
         BValue[] inputArg = {request};

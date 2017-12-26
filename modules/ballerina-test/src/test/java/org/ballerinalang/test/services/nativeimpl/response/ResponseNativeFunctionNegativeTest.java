@@ -110,7 +110,7 @@ public class ResponseNativeFunctionNegativeTest {
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        HttpUtil.addMessageDataSource(request, dataSource);
+      //  HttpUtil.addMessageDataSource(request, dataSource);
 
         HttpUtil.addCarbonMsg(request, cMsg);
 
@@ -159,7 +159,7 @@ public class ResponseNativeFunctionNegativeTest {
         String payload = "{\"code\":\"123\"}";
         BallerinaMessageDataSource dataSource = new BJSON(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        HttpUtil.addMessageDataSource(request, dataSource);
+     //   HttpUtil.addMessageDataSource(request, dataSource);
 
         HttpUtil.addCarbonMsg(request, cMsg);
 
