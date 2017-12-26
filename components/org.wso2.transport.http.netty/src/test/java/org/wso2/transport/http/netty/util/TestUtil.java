@@ -21,7 +21,6 @@ package org.wso2.transport.http.netty.util;
 import com.google.common.io.ByteStreams;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpMethod;
@@ -39,7 +38,6 @@ import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
-import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
@@ -105,8 +103,8 @@ public class TestUtil {
         }
 
         try {
-            HTTPTransportContextHolder.getInstance().getBossGroup().shutdownGracefully().sync();
-            HTTPTransportContextHolder.getInstance().getWorkerGroup().shutdownGracefully().sync();
+//            HTTPTransportContextHolder.getInstance().getBossGroup().shutdownGracefully().sync();
+//            HTTPTransportContextHolder.getInstance().getWorkerGroup().shutdownGracefully().sync();
             httpServer.shutdown();
         } catch (InterruptedException e) {
             log.error("Thread Interrupted while sleeping ", e);
@@ -122,8 +120,8 @@ public class TestUtil {
                 configuration.getTransportProperties());
         Set<ListenerConfiguration> listenerConfigurationSet = transportsConfiguration.getListenerConfigurations();
 
-        HTTPTransportContextHolder.getInstance().setWorkerGroup(new NioEventLoopGroup());
-        HTTPTransportContextHolder.getInstance().setBossGroup(new NioEventLoopGroup());
+//        HTTPTransportContextHolder.getInstance().setWorkerGroup(new NioEventLoopGroup());
+//        HTTPTransportContextHolder.getInstance().setBossGroup(new NioEventLoopGroup());
 
         connectors = new ArrayList<>();
         futures = new ArrayList<>();
