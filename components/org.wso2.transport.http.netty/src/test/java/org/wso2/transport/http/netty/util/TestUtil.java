@@ -103,8 +103,6 @@ public class TestUtil {
         }
 
         try {
-//            HTTPTransportContextHolder.getInstance().getBossGroup().shutdownGracefully().sync();
-//            HTTPTransportContextHolder.getInstance().getWorkerGroup().shutdownGracefully().sync();
             httpServer.shutdown();
         } catch (InterruptedException e) {
             log.error("Thread Interrupted while sleeping ", e);
@@ -119,9 +117,6 @@ public class TestUtil {
         ServerBootstrapConfiguration serverBootstrapConfiguration = getServerBootstrapConfiguration(
                 configuration.getTransportProperties());
         Set<ListenerConfiguration> listenerConfigurationSet = transportsConfiguration.getListenerConfigurations();
-
-//        HTTPTransportContextHolder.getInstance().setWorkerGroup(new NioEventLoopGroup());
-//        HTTPTransportContextHolder.getInstance().setBossGroup(new NioEventLoopGroup());
 
         connectors = new ArrayList<>();
         futures = new ArrayList<>();
