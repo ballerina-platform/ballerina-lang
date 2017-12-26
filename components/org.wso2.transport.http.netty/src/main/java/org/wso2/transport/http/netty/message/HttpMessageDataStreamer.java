@@ -70,6 +70,9 @@ public class HttpMessageDataStreamer {
                 return -1;
             } else if (chunkFinished) {
                 httpContent = httpCarbonMessage.getHttpContent();
+                if (httpContent == null) {
+                    throw new IOException("No entity was added to the queue before the timeout");
+                }
                 byteBuffer = httpContent.content().nioBuffer();
                 count = 0;
                 limit = byteBuffer.limit();
