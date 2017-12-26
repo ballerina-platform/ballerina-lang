@@ -33,6 +33,7 @@ import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.listener.ServerConnectorBootstrap;
 import org.wso2.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
+import org.wso2.transport.http.netty.sender.channel.pool.PoolConfiguration;
 
 import java.util.Map;
 
@@ -69,12 +70,12 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
     }
 
     @Override
-    public HttpClientConnector createHttpClientConnector(Map<String, Object> transportProperties,
-            SenderConfiguration senderConfiguration) {
-        ConnectionManager.init(transportProperties);
-        ConnectionManager connectionManager = ConnectionManager.getInstance();
-        BootstrapConfiguration.createBootStrapConfiguration(transportProperties);
-
+    public HttpClientConnector createHttpClientConnector(
+            Map<String, Object> transportProperties, SenderConfiguration senderConfiguration) {
+        PoolConfiguration poolConfiguration = new PoolConfiguration(transportProperties);
+        BootstrapConfiguration bootstrapConfig = new BootstrapConfiguration(transportProperties);
+        ConnectionManager connectionManager =
+                new ConnectionManager(poolConfiguration, transportProperties, bootstrapConfig);
         return new HttpClientConnectorImpl(connectionManager, senderConfiguration);
     }
 

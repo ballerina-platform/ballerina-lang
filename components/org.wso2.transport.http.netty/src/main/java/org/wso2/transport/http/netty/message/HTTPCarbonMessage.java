@@ -30,12 +30,11 @@ import io.netty.handler.codec.http.HttpResponse;
 import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.messaging.exceptions.MessagingException;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpResponseStatusFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
-import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
-import org.wso2.transport.http.netty.sender.channel.BootstrapConfiguration;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -59,18 +58,13 @@ public class HTTPCarbonMessage {
     private final HttpResponseStatusFuture httpOutboundRespStatusFuture = new HttpResponseStatusFuture();
 
     public HTTPCarbonMessage(HttpMessage httpMessage) {
-        int soTimeOut = 60;
-        BootstrapConfiguration clientBootstrapConfig = BootstrapConfiguration.getInstance();
-        if (clientBootstrapConfig != null) {
-            soTimeOut = clientBootstrapConfig.getSocketTimeout();
-        } else {
-            ServerBootstrapConfiguration serverBootstrapConfiguration = ServerBootstrapConfiguration.getInstance();
-            if (serverBootstrapConfiguration != null) {
-                soTimeOut = serverBootstrapConfiguration.getSoTimeOut();
-            }
-        }
         this.httpMessage = httpMessage;
-        setBlockingEntityCollector(new BlockingEntityCollector(soTimeOut));
+        setBlockingEntityCollector(new BlockingEntityCollector(Constants.ENDPOINT_TIMEOUT));
+    }
+
+    public HTTPCarbonMessage(HttpMessage httpMessage, int maxWaitTime) {
+        this.httpMessage = httpMessage;
+        setBlockingEntityCollector(new BlockingEntityCollector(maxWaitTime));
     }
 
     /**

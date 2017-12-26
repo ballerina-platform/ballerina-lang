@@ -48,10 +48,12 @@ public class SendChannelIDServerInitializer extends HTTPServerInitializer {
 
     private static final Logger logger = LoggerFactory.getLogger(SendChannelIDServerInitializer.class);
 
+    private int delay;
     private HttpRequest req;
     private AtomicInteger requestCount = new AtomicInteger(0);
 
-    public SendChannelIDServerInitializer() {
+    public SendChannelIDServerInitializer(int delay) {
+        this.delay = delay;
     }
 
     protected void addBusinessLogicHandler(Channel channel) {
@@ -83,7 +85,7 @@ public class SendChannelIDServerInitializer extends HTTPServerInitializer {
                     response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
                     if (requestCount.get() < 1) {
                         // this need in order to simulate a delay
-                        Thread.sleep(5000);
+                        Thread.sleep(delay);
                     }
                     ctx.writeAndFlush(response);
                     requestCount.incrementAndGet();

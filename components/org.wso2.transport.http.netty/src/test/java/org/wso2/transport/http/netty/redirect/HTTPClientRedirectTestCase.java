@@ -42,7 +42,10 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.sender.RedirectHandler;
+import org.wso2.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
+import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
+import org.wso2.transport.http.netty.sender.channel.pool.PoolConfiguration;
 import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
@@ -72,8 +75,9 @@ import static org.testng.AssertJUnit.assertNotNull;
 public class HTTPClientRedirectTestCase {
 
     private HttpClientConnector httpClientConnector;
-    HttpWsConnectorFactory connectorFactory;
-    TransportsConfiguration transportsConfiguration;
+    private HttpWsConnectorFactory connectorFactory;
+    private TransportsConfiguration transportsConfiguration;
+    private ConnectionManager connectionManager;
     public static final String FINAL_DESTINATION = "http://localhost:9092/destination";
     public static final int DESTINATION_PORT1 = 9091;
     public static final int DESTINATION_PORT2 = 9092;
@@ -96,6 +100,14 @@ public class HTTPClientRedirectTestCase {
         senderConfiguration.setFollowRedirect(true);
         senderConfiguration.setMaxRedirectCount(5);
 
+        Map<String, Object> transportProperties = HTTPConnectorUtil.getTransportProperties(transportsConfiguration);
+
+        PoolConfiguration poolConfiguration = new PoolConfiguration(transportProperties);
+        BootstrapConfiguration bootstrapConfig = new BootstrapConfiguration(transportProperties);
+        ConnectionManager connectionManager =
+                new ConnectionManager(poolConfiguration, transportProperties, bootstrapConfig);
+        this.connectionManager = connectionManager;
+
         httpClientConnector = connectorFactory
                 .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
                         senderConfiguration);
@@ -113,7 +125,8 @@ public class HTTPClientRedirectTestCase {
         EmbeddedChannel embeddedChannel = new EmbeddedChannel();
         embeddedChannel.pipeline().addLast(new HttpResponseDecoder());
         embeddedChannel.pipeline().addLast(new HttpRequestEncoder());
-        embeddedChannel.pipeline().addLast(new RedirectHandler(null, false, 5, true));
+        embeddedChannel.pipeline().addLast(new RedirectHandler(null, false,
+                5, true, this.connectionManager));
         HttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.TEMPORARY_REDIRECT,
                 Unpooled.EMPTY_BUFFER);
         response.headers().set(HttpHeaderNames.LOCATION, FINAL_DESTINATION);
@@ -137,7 +150,7 @@ public class HTTPClientRedirectTestCase {
         embeddedChannel.pipeline().addLast(new HttpRequestEncoder());
         embeddedChannel.pipeline()
                 .addLast(Constants.IDLE_STATE_HANDLER, new IdleStateHandler(50000, 50000, 0, TimeUnit.MILLISECONDS));
-        embeddedChannel.pipeline().addLast(new RedirectHandler(null, false, 5, true, null, false));
+        embeddedChannel.pipeline().addLast(new RedirectHandler(null, false, 5, true, null, false, connectionManager));
         HttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.TEMPORARY_REDIRECT,
                 Unpooled.EMPTY_BUFFER);
         response.headers().set(HttpHeaderNames.LOCATION, FINAL_DESTINATION);
@@ -159,7 +172,7 @@ public class HTTPClientRedirectTestCase {
     @Test
     public void unitTestFor303() {
         try {
-            RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, true);
+            RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, true, this.connectionManager);
             Method method = RedirectHandler.class
                     .getDeclaredMethod("getRedirectState", String.class, Integer.TYPE, HTTPCarbonMessage.class);
             method.setAccessible(true);
@@ -182,7 +195,7 @@ public class HTTPClientRedirectTestCase {
     @Test
     public void unitTestForOriginalMethod() {
         try {
-            RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, true);
+            RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, true, this.connectionManager);
             Method method = RedirectHandler.class
                     .getDeclaredMethod("getRedirectState", String.class, Integer.TYPE, HTTPCarbonMessage.class);
             method.setAccessible(true);
@@ -205,7 +218,7 @@ public class HTTPClientRedirectTestCase {
     @Test
     public void unitTestForAlwaysGet() {
         try {
-            RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, true);
+            RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, true, this.connectionManager);
             Method method = RedirectHandler.class
                     .getDeclaredMethod("getRedirectState", String.class, Integer.TYPE, HTTPCarbonMessage.class);
             method.setAccessible(true);
@@ -227,7 +240,7 @@ public class HTTPClientRedirectTestCase {
      */
     @Test
     public void unitTestToDetermineCrossDomainURLs() {
-        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, true);
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, true, this.connectionManager);
         try {
             Method method = RedirectHandler.class
                     .getDeclaredMethod("isCrossDomain", String.class, HTTPCarbonMessage.class);
@@ -252,7 +265,7 @@ public class HTTPClientRedirectTestCase {
      */
     @Test
     public void unitTestForSameDomain() {
-        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, true);
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, true, this.connectionManager);
         try {
             Method method = RedirectHandler.class
                     .getDeclaredMethod("isCrossDomain", String.class, HTTPCarbonMessage.class);
@@ -274,7 +287,7 @@ public class HTTPClientRedirectTestCase {
      */
     @Test
     public void relativePathStartsWithSlash() {
-        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, true);
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, true, this.connectionManager);
         try {
             Method method = RedirectHandler.class
                     .getDeclaredMethod("buildRedirectURL", String.class, String.class, String.class, String.class,
@@ -298,7 +311,7 @@ public class HTTPClientRedirectTestCase {
      */
     @Test
     public void relativePathEndsWithSlash() {
-        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, true);
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, true, this.connectionManager);
         try {
             Method method = RedirectHandler.class
                     .getDeclaredMethod("buildRedirectURL", String.class, String.class, String.class, String.class,
@@ -322,7 +335,7 @@ public class HTTPClientRedirectTestCase {
      */
     @Test
     public void justRelativePathName() {
-        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, true);
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, true, this.connectionManager);
         try {
             Method method = RedirectHandler.class
                     .getDeclaredMethod("buildRedirectURL", String.class, String.class, String.class, String.class,
@@ -346,7 +359,7 @@ public class HTTPClientRedirectTestCase {
      */
     @Test
     public void requestPathEndsWithSlash() {
-        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, true);
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, true, this.connectionManager);
         try {
             Method method = RedirectHandler.class
                     .getDeclaredMethod("buildRedirectURL", String.class, String.class, String.class, String.class,

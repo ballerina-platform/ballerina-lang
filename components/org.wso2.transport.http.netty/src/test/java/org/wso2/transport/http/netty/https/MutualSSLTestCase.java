@@ -31,7 +31,6 @@ import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
-import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
@@ -86,7 +85,7 @@ public class MutualSSLTestCase {
         listenerConfiguration.setScheme(Constants.HTTPS_SCHEME);
 
         ServerConnector connector = factory
-                .createServerConnector(ServerBootstrapConfiguration.getInstance(), listenerConfiguration);
+                .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
         ServerConnectorFuture future = connector.start();
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();

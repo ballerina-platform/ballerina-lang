@@ -40,16 +40,17 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 
 /**
  * Tests for connection pool implementation.
  */
-public class ConnectionPoolMainTestCase {
+public class ConnectionPoolEvictionTestCase {
 
     private HttpServer httpServer;
     private HttpClientConnector httpClientConnector;
@@ -59,40 +60,35 @@ public class ConnectionPoolMainTestCase {
         TransportsConfiguration transportsConfiguration = TestUtil.getConfiguration(
                 "/simple-test-config" + File.separator + "netty-transports.yml");
 
-        httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new SendChannelIDServerInitializer(5000));
+        Map<String, Object> transportProperties = HTTPConnectorUtil.getTransportProperties(transportsConfiguration);
+        transportProperties.put(Constants.MIN_EVICTION_IDLE_TIME, 2000);
+        transportProperties.put(Constants.TIME_BETWEEN_EVICTION_RUNS, 1000);
+
+        httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new SendChannelIDServerInitializer(0));
 
         HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
-        httpClientConnector = connectorFactory.createHttpClientConnector(
-                HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
+
+        httpClientConnector = connectorFactory.createHttpClientConnector(transportProperties,
                 HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME));
     }
 
     @Test
-    public void testConnectionReuseForMain() {
+    public void testConnectionEviction() {
         try {
-            CountDownLatch requestOneLatch = new CountDownLatch(1);
-            CountDownLatch requestTwoLatch = new CountDownLatch(1);
-            CountDownLatch requestThreeLatch = new CountDownLatch(1);
+            CountDownLatch requestLatchOne = new CountDownLatch(1);
+            CountDownLatch requestLatchTwo = new CountDownLatch(1);
 
             HTTPConnectorListener responseListener;
 
-            responseListener = sendRequestAsync(requestOneLatch);
+            responseListener = sendRequestAsync(requestLatchOne);
+            String responseOne = waitAndGetStringEntity(requestLatchOne, responseListener);
 
-            // While the first request is being processed by the back-end,
-            // we send the second request which forces the client connector to
-            // create a new connection.
-            Thread.sleep(2500);
-            sendRequestAsync(requestTwoLatch);
+            // wait till the eviction occurs
+            Thread.sleep(5000);
+            responseListener = sendRequestAsync(requestLatchTwo);
+            String responseTwo = waitAndGetStringEntity(requestLatchTwo, responseListener);
 
-            String responseOne = waitAndGetStringEntity(requestOneLatch, responseListener);
-
-            responseListener = sendRequestAsync(requestThreeLatch);
-            String responseThree = waitAndGetStringEntity(requestThreeLatch, responseListener);
-
-            assertEquals(responseOne, responseThree);
-
-            // Wait for response two to be completed before finishing the test
-            requestTwoLatch.await(10, TimeUnit.SECONDS);
+            assertFalse(responseOne.equals(responseTwo));
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running testConnectionReuseForMain", e);
         }

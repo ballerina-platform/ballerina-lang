@@ -40,7 +40,6 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.HttpsServer;
 import org.wso2.transport.http.netty.util.server.ServerThread;
@@ -96,10 +95,6 @@ public class TestUtil {
             throws ServerConnectorException {
         for (ServerConnector httpServerConnector : serverConnectors) {
             httpServerConnector.stop();
-        }
-
-        if (ConnectionManager.getInstance() != null) {
-            ConnectionManager.getInstance().getTargetChannelPool().clear();
         }
 
         try {
@@ -214,8 +209,7 @@ public class TestUtil {
                     Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
         }
         // Create Bootstrap Configuration from listener parameters
-        ServerBootstrapConfiguration.createBootStrapConfiguration(transportProperties);
-        return ServerBootstrapConfiguration.getInstance();
+        return new ServerBootstrapConfiguration(transportProperties);
     }
 
     public static TransportsConfiguration getConfiguration(String configFileLocation) {
@@ -258,6 +252,10 @@ public class TestUtil {
         httpPostRequest.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
 
         return httpPostRequest;
+    }
+
+    public static ServerBootstrapConfiguration getDefaultServerBootstrapConfig() {
+        return new ServerBootstrapConfiguration(new HashMap<>());
     }
 }
 
