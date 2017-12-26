@@ -285,8 +285,8 @@ service<http> helloServer {
     }
     resource GetXmlPayload(http:Request req, http:Response res) {
         xml value = req.getXmlPayload();
-        string name = value.getTextValue();
-        res.setStringPayload(name);
+      //  string name = value.getTextValue();
+        res.setXmlPayload(value);
         _ = res.send();
     }
 
