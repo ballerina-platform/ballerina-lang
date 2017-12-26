@@ -157,8 +157,8 @@ public class HttpDispatcher {
                 httpCarbonMessage);
 
         List<ParamDetail> paramDetails = httpResource.getParamDetails();
-        Map<String, String> resourceArgumentValues = (Map<String, String>) httpCarbonMessage
-                .getProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS);
+        Map<String, String> resourceArgumentValues =
+                (Map<String, String>) httpCarbonMessage.getProperty(Constants.RESOURCE_ARGS);
 
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = request;

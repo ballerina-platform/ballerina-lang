@@ -16,6 +16,8 @@ public struct Request {
 	string method;
 	string httpVersion;
 	string userAgent;
+	string restUriPostFix;
+	map headers;
 }
 
 @Description { value:"Get the entity from the request"}
@@ -257,6 +259,7 @@ struct Proxy {
 @Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
 @Field {value:"enableChunking: Enable/disable chunking"}
 @Field {value:"keepAlive: Keep the connection or close it (default value: true)"}
+@Field {value:"httpVersion: The version of HTTP outbound request"}
 @Field {value:"followRedirects: Redirect related options"}
 @Field {value:"ssl: SSL/TLS related options"}
 @Field {value:"retryConfig: Retry related options"}
@@ -266,6 +269,7 @@ public struct Options {
     int endpointTimeout = 60000;
     boolean enableChunking = true;
     boolean keepAlive = true;
+	string httpVersion;
     FollowRedirects followRedirects;
     SSL ssl;
     Retry retryConfig;

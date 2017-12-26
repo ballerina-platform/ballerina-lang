@@ -27,7 +27,7 @@ public class TypeDescriptor {
     public static final String SIG_BOOLEAN = "B";
     public static final String SIG_BLOB = "L";
     public static final String SIG_REFTYPE = "R";
-    public static final String SIG_CJSON = "K";
+    public static final String SIG_JSON = "J";
     public static final String SIG_CONNECTOR = "C";
     public static final String SIG_STRUCT = "T";
     public static final String SIG_ENUM = "E";

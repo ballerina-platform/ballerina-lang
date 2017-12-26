@@ -141,11 +141,18 @@ public class RequestNativeFunctionSuccessTest {
         String path = "/hello/addReqHeaderWithoutParam";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("headerValue").asText(), value);
-        Assert.assertEquals(bJson.value().get("paramValue").asText(), "param is null");
+        DataInputStream dataInputStream = new DataInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        try {
+            while (dataInputStream.available() > 0) { //Wait for the data to be available
+                String returnValue = dataInputStream.readUTF();
+                BJSON bJson = new BJSON(returnValue);
+                Assert.assertEquals(bJson.value().get("headerValue").asText(), value);
+                Assert.assertEquals(bJson.value().get("paramValue").asText(), "param is null");
+            }
+        } catch (IOException e) {
+            LOG.error("Error occurred while running 'testStructAddHeaderWithNoParam'", e.getMessage());
+        }
     }
 
     @Test(description = "Test req struct add Header function")
