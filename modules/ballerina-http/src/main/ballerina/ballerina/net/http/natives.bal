@@ -17,7 +17,6 @@ public struct Request {
 	string httpVersion;
 	string userAgent;
 	string restUriPostFix;
-	map headers;
 }
 
 @Description { value:"Get the entity from the request"}

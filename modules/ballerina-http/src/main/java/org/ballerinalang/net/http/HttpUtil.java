@@ -37,9 +37,6 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.util.StringUtils;
-import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
@@ -209,7 +206,8 @@ public class HttpUtil {
         return AbstractNativeFunction.VOID_RETURN;
     }
 
-    /*public static BValue[] setBinaryPayload(Context context, AbstractNativeFunction nativeFunction, boolean isRequest) {
+    /*public static BValue[] setBinaryPayload(Context context, AbstractNativeFunction nativeFunction, boolean isRequest)
+    {
         BStruct httpMessageStruct = (BStruct) nativeFunction.getRefArgument(context, 0);
         HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(httpMessageStruct,
                 HttpUtil.createHttpCarbonMessage(isRequest));
@@ -408,132 +406,6 @@ public class HttpUtil {
         }
         return null;
     }
-
-   /* public static BValue[] getBinaryPayload(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BlobDataSource result;
-        try {
-            BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-            HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-
-            if (httpMessageStruct.getNativeData(MESSAGE_DATA_SOURCE) != null) {
-                result = (BlobDataSource) httpMessageStruct.getNativeData(MESSAGE_DATA_SOURCE);
-            } else {
-                HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
-                OutputStream messageOutputStream = httpMessageDataStreamer.getOutputStream();
-                result = new BlobDataSource(MimeUtil.toByteArray(httpMessageDataStreamer.getInputStream()),
-                        messageOutputStream);
-                HttpUtil.addMessageDataSource(httpMessageStruct, result);
-                HttpUtil.addMessageOutputStream(httpMessageStruct, messageOutputStream);
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("String representation of the payload:" + result.getMessageAsString());
-            }
-        } catch (Throwable e) {
-            throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());
-        }
-        return abstractNativeFunction.getBValues(new BBlob(result.getValue()));
-    }
-
-    public static BValue[] getJsonPayload(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BJSON result = null;
-        try {
-            // Accessing First Parameter Value.
-            BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-            HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-
-            MessageDataSource payload = HttpUtil.getMessageDataSource(httpMessageStruct);
-            if (payload != null) {
-                if (payload instanceof BJSON) {
-                    result = (BJSON) payload;
-                } else {
-                    // else, build the JSON from the string representation of the payload.
-                    result = new BJSON(payload.getMessageAsString());
-                }
-            } else {
-                HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
-                result = new BJSON(httpMessageDataStreamer.getInputStream());
-                OutputStream messageOutputStream = httpMessageDataStreamer.getOutputStream();
-                result.setOutputStream(messageOutputStream);
-                addMessageDataSource(httpMessageStruct, result);
-                addMessageOutputStream(httpMessageStruct, messageOutputStream);
-            }
-        } catch (Throwable e) {
-            throw new BallerinaException("Error while retrieving json payload from message: " + e.getMessage());
-        }
-        // Setting output value.
-        return abstractNativeFunction.getBValues(result);
-    }
-
-    public static BValue[] getStringPayload(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BString result;
-        try {
-            BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-            MessageDataSource messageDataSource = HttpUtil.getMessageDataSource(httpMessageStruct);
-            if (messageDataSource != null) {
-                result = new BString(messageDataSource.getMessageAsString());
-            } else {
-                HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                        .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-                if (httpCarbonMessage.isEmpty() && httpCarbonMessage.isEndOfMsgAdded()) {
-                    return abstractNativeFunction.getBValues(new BString(""));
-                }
-                HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
-                String payload = StringUtils.getStringFromInputStream(httpMessageDataStreamer.getInputStream());
-                result = new BString(payload);
-
-                addMessageDataSource(httpMessageStruct,
-                        new StringDataSource(payload, httpMessageDataStreamer.getOutputStream()));
-                addMessageOutputStream(httpMessageStruct, httpMessageDataStreamer.getOutputStream());
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("Payload in String:" + result.stringValue());
-            }
-        } catch (Throwable e) {
-            throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());
-        }
-        return abstractNativeFunction.getBValues(result);
-    }
-
-    public static BValue[] getXMLPayload(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BXML result;
-        try {
-            BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-
-            MessageDataSource messageDataSource = HttpUtil.getMessageDataSource(httpMessageStruct);
-            if (messageDataSource != null) {
-                if (messageDataSource instanceof BXML) {
-                    // if the payload is already xml, return it as it is.
-                    result = (BXML) messageDataSource;
-                } else {
-                    // else, build the xml from the string representation of the payload.
-                    result = XMLUtils.parse(messageDataSource.getMessageAsString());
-                }
-            } else {
-                HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                        .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-                HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
-                result = XMLUtils.parse(httpMessageDataStreamer.getInputStream());
-                OutputStream outputStream = httpMessageDataStreamer.getOutputStream();
-                result.setOutputStream(outputStream);
-                addMessageDataSource(httpMessageStruct, result);
-                addMessageOutputStream(httpMessageStruct, outputStream);
-            }
-        } catch (Throwable e) {
-            throw new BallerinaException("Error while retrieving XML payload from message: " + e.getMessage());
-        }
-        // Setting output value.
-        return abstractNativeFunction.getBValues(result);
-    }*/
-
-   /* public static void addMessageDataSource(BStruct struct, MessageDataSource messageDataSource) {
-        struct.addNativeData(MESSAGE_DATA_SOURCE, messageDataSource);
-    }*/
 
     public static void addMessageOutputStream(BStruct struct, OutputStream messageOutputStream) {
         struct.addNativeData(MESSAGE_OUTPUT_STREAM, messageOutputStream);

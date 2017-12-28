@@ -4,7 +4,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -12,6 +11,8 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -19,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Enumeration;
@@ -51,6 +53,7 @@ import static org.ballerinalang.net.mime.util.Constants.XML_DATA_INDEX;
  * Entity related operations and mime utility functions are included here.
  */
 public class MimeUtil {
+    private static final Logger LOG = LoggerFactory.getLogger(MimeUtil.class);
 
     /**
      * Read the string payload from input stream and set it into request or response's entity struct. If the content
@@ -140,7 +143,7 @@ public class MimeUtil {
         } else {
             byte[] payload;
             try {
-                payload =toByteArray(inputStream);
+                payload = toByteArray(inputStream);
             } catch (IOException e) {
                 throw new BallerinaException("Error while converting inputstream to a byte array: " + e.getMessage());
             }
@@ -244,6 +247,7 @@ public class MimeUtil {
      * @return string containing text payload
      */
     public static String getTextPayload(BStruct entity) {
+        String returnValue = null;
         boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1 ? true : false;
         if (isInMemory) {
             String textData = entity.getStringField(TEXT_DATA_INDEX);
@@ -251,8 +255,13 @@ public class MimeUtil {
         } else {
             BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
             String filePath = fileHandler.getStringField(0);
-            return new String(readFromFile(filePath));
+            try {
+                returnValue = new String(readFromFile(filePath), "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                LOG.error("Error occured while extracting text payload from entity", e.getMessage());
+            }
         }
+        return returnValue;
     }
 
     /**
@@ -269,8 +278,13 @@ public class MimeUtil {
         } else {
             BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
             String filePath = fileHandler.getStringField(0);
-            return new BJSON(new String(readFromFile(filePath)));
+            try {
+                return new BJSON(new String(readFromFile(filePath), "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                LOG.error("Error occured while extracting json payload from entity", e.getMessage());
+            }
         }
+        return null;
     }
 
     /**
@@ -287,8 +301,13 @@ public class MimeUtil {
         } else {
             BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
             String filePath = fileHandler.getStringField(0);
-            return XMLUtils.parse(new String(readFromFile(filePath)));
+            try {
+                return XMLUtils.parse(new String(readFromFile(filePath), "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                LOG.error("Error occured while extracting xml payload from entity", e.getMessage());
+            }
         }
+        return null;
     }
 
     /**
@@ -393,34 +412,43 @@ public class MimeUtil {
      * @return Absolute path of the created temporary file.
      */
     private static String writeToTemporaryFile(InputStream inputStream, String fileName) {
+        OutputStream outputStream = null;
         try {
             File tempFile = File.createTempFile(fileName, TEMP_FILE_EXTENSION);
-            OutputStream os = new FileOutputStream(tempFile.getAbsolutePath());
+            outputStream = new FileOutputStream(tempFile.getAbsolutePath());
             byte[] buffer = new byte[1024];
             int bytesRead;
             //read from inputstream to buffer
             while ((bytesRead = inputStream.read(buffer)) != -1) {
-                os.write(buffer, 0, bytesRead);
+                outputStream.write(buffer, 0, bytesRead);
             }
             inputStream.close();
             //flush OutputStream to write any buffered data to file
-            os.flush();
-            os.close();
+            outputStream.flush();
+            outputStream.close();
             return tempFile.getAbsolutePath();
         } catch (IOException e) {
             throw new BallerinaException("Error while writing the payload info into a temp file: " + e.getMessage());
+        } finally {
+            try {
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            } catch (IOException e) {
+                LOG.error("Error occured while closing outputstream in writeToTemporaryFile", e.getMessage());
+            }
         }
     }
 
     /**
      * Read bytes from a given file.
      *
-     * @param fileName a string representing the file
+     * @param filePath a string representing the file
      * @return bytes read from the given file
      */
-    private static byte[] readFromFile(String fileName) {
+    private static byte[] readFromFile(String filePath) {
         try {
-            return Files.readAllBytes(Paths.get(fileName));
+            return Files.readAllBytes(Paths.get(filePath));
         } catch (IOException e) {
             throw new BallerinaException("Error while reading content from file handler: " + e.getMessage());
         }

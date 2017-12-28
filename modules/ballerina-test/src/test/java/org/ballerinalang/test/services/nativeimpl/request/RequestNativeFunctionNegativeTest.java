@@ -69,7 +69,7 @@ public class RequestNativeFunctionNegativeTest {
         BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
-        BValue[] inputArg = {request};
+        BValue[] inputArg = { request };
         String error = null;
         try {
             BRunUtil.invoke(result, "testGetContentLength", inputArg);
@@ -85,7 +85,7 @@ public class RequestNativeFunctionNegativeTest {
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
         BString key = new BString(Constants.CONTENT_TYPE);
-        BValue[] inputArg = {request, key};
+        BValue[] inputArg = { request, key };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
         Assert.assertNotNull(returnVals[0]);
         Assert.assertNull(((BString) returnVals[0]).value());
@@ -96,7 +96,7 @@ public class RequestNativeFunctionNegativeTest {
         BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
-        BValue[] inputArg = {request};
+        BValue[] inputArg = { request };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
         Assert.assertNull(returnVals[0]);
     }
@@ -111,7 +111,7 @@ public class RequestNativeFunctionNegativeTest {
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
 
         HttpUtil.addCarbonMsg(request, cMsg);
-        BValue[] inputArg = {request};
+        BValue[] inputArg = { request };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
         Assert.assertNull(returnVals[0]);
     }
@@ -122,7 +122,7 @@ public class RequestNativeFunctionNegativeTest {
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
         BString propertyName = new BString("wso2");
-        BValue[] inputArg = {request, propertyName};
+        BValue[] inputArg = { request, propertyName };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetProperty", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -134,7 +134,7 @@ public class RequestNativeFunctionNegativeTest {
         BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
-        BValue[] inputArg = {request};
+        BValue[] inputArg = { request };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -144,20 +144,20 @@ public class RequestNativeFunctionNegativeTest {
     @Test(description = "Test getStringPayload method with JSON payload")
     public void testGetStringPayloadMethodWithJsonPayload() {
         BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
-        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime , entityStruct);
-        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime , mediaTypeStruct);
+        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
 
         String payload = "{\"code\":\"123\"}";
         String contentType = APPLICATION_JSON;
         MimeUtil.setContentType(mediaType, entity, contentType);
-        entity.setRefField(JSON_DATA_INDEX,  new BJSON(payload));
+        entity.setRefField(JSON_DATA_INDEX, new BJSON(payload));
         entity.setBooleanField(IS_IN_MEMORY_INDEX, 1);
         request.addNativeData(MESSAGE_ENTITY, entity);
         request.addNativeData(IS_ENTITY_BODY_PRESENT, true);
 
         HttpUtil.addCarbonMsg(request, cMsg);
-        BValue[] inputArg = {request};
+        BValue[] inputArg = { request };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -182,7 +182,7 @@ public class RequestNativeFunctionNegativeTest {
         cMsg.setHeader(expect, "100-continue");
         HttpUtil.addCarbonMsg(request, cMsg);
         BString key = new BString("Range");
-        BValue[] inputArg = {request, key};
+        BValue[] inputArg = { request, key };
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -196,7 +196,7 @@ public class RequestNativeFunctionNegativeTest {
         BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
-        BValue[] inputArg = {request};
+        BValue[] inputArg = { request };
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveAllHeaders", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -210,7 +210,7 @@ public class RequestNativeFunctionNegativeTest {
         BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
-        BValue[] inputArg = {request};
+        BValue[] inputArg = { request };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetMethod", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -223,7 +223,7 @@ public class RequestNativeFunctionNegativeTest {
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
-        BValue[] inputArg = {request};
+        BValue[] inputArg = { request };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetRequestURL", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");

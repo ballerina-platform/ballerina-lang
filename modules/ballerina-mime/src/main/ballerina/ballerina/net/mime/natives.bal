@@ -246,8 +246,6 @@ converted to a byte array with the given charset encoding. If the charset given 
 @Return {value:"return resulting decoded string"}
 public native function <MimeBase64Decoder decoder> decodeString (string content, string charset) (string);
 
-public native function <QuotedPrintableEncoder encoder> encode (blob content) (blob);
-
 function readAll (io:ByteChannel channel) (blob) {
     blob bytes;
     int numberOfBytesRead;

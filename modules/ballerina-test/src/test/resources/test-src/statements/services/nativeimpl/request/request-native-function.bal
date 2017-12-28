@@ -217,7 +217,7 @@ service<http> helloServer {
         path:"/getReqHeader"
     }
     resource getReqHeader (http:Request req, http:Response res) {
-        var values  = req.getEntity(false).headers["Content-Type"];
+        var values  = req.getEntity(false).headers["test-header"];
         var valueArr,_ = (mime:HeaderValue[]) values;
         string header = valueArr[0].value;
 

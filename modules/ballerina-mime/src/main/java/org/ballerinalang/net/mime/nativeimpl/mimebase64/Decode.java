@@ -13,11 +13,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.Base64;
 
 /**
- * Mime Base64 Decoder
+ * Mime Base64 Decoder.
  */
 @BallerinaFunction(packageName = "ballerina.net.mime",
                    functionName = "decode",
-                   receiver = @Receiver(type = TypeKind.STRUCT, structType = "MimeBase64Decoder",
+                   receiver = @Receiver(type = TypeKind.STRUCT,
+                                        structType = "MimeBase64Decoder",
                                         structPackage = "ballerina.net.mime"),
                    args = {
                            @Argument(name = "content",

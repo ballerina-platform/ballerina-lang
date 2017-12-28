@@ -15,6 +15,9 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+/**
+ * Mime decoder to decode string values.
+ */
 @BallerinaFunction(packageName = "ballerina.net.mime",
                    functionName = "decodeString",
                    receiver = @Receiver(type = TypeKind.STRUCT,
