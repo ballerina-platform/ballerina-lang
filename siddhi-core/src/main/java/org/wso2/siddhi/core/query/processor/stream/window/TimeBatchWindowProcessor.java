@@ -61,21 +61,24 @@ import java.util.Map;
                         type = {DataType.INT, DataType.LONG, DataType.TIME}),
                 @Parameter(name = "start.time",
                         description = "This specifies an offset in milliseconds in order to start the " +
-                                "window at a time different to the standard time.",
-                        type = {DataType.INT})
+                                "window at a time different to the standard time. When this is not provided the " +
+                                "window calculation will begin from first event arrival.",
+                        type = {DataType.INT},
+                        optional = true,
+                        defaultValue = " ")
         },
         examples = {
                 @Example(
                         syntax = "define window cseEventWindow (symbol string, price float, volume int) " +
-                                "timeBatch(20) output all events;\n" +
+                                "timeBatch(20 sec) output all events;\n\n" +
                                 "@info(name = 'query0')\n" +
                                 "from cseEventStream\n" +
-                                "insert into cseEventWindow;\n" +
+                                "insert into cseEventWindow;\n\n" +
                                 "@info(name = 'query1')\n" +
                                 "from cseEventWindow\n" +
                                 "select symbol, sum(price) as price\n" +
                                 "insert all events into outputStream ;",
-                        description = "This will processing events arrived every 20 milliseconds" +
+                        description = "This will processing events arrived every 20 seconds" +
                                 " as a batch and out put all events."
                 )
         }
@@ -126,14 +129,14 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
                             .getValue();
                 } else {
                     throw new SiddhiAppValidationException("Time window's parameter attribute should be either " +
-                                                                       "int or long, but found " +
-                                                                       attributeExpressionExecutors[0].getReturnType());
+                            "int or long, but found " +
+                            attributeExpressionExecutors[0].getReturnType());
                 }
             } else {
                 throw new SiddhiAppValidationException("Time window should have constant parameter attribute but " +
-                                                                   "found a dynamic attribute " +
-                                                                   attributeExpressionExecutors[0].getClass().
-                                                                           getCanonicalName());
+                        "found a dynamic attribute " +
+                        attributeExpressionExecutors[0].getClass().
+                                getCanonicalName());
             }
         } else if (attributeExpressionExecutors.length == 2) {
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
@@ -146,14 +149,14 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
                             .getValue();
                 } else {
                     throw new SiddhiAppValidationException("Time window's parameter attribute should be either " +
-                                                                       "int or long, but found " +
-                                                                       attributeExpressionExecutors[0].getReturnType());
+                            "int or long, but found " +
+                            attributeExpressionExecutors[0].getReturnType());
                 }
             } else {
                 throw new SiddhiAppValidationException("Time window should have constant parameter attribute but " +
-                                                                   "found a dynamic attribute " +
-                                                                   attributeExpressionExecutors[0].getClass()
-                                                                           .getCanonicalName());
+                        "found a dynamic attribute " +
+                        attributeExpressionExecutors[0].getClass()
+                                .getCanonicalName());
             }
             // start time
             isStartTimeEnabled = true;
@@ -166,9 +169,9 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
             }
         } else {
             throw new SiddhiAppValidationException("Time window should only have one or two parameters. " +
-                                                               "(<int|long|time> windowTime), but found " +
-                                                               attributeExpressionExecutors.length + " input " +
-                                                               "attributes");
+                    "(<int|long|time> windowTime), but found " +
+                    attributeExpressionExecutors.length + " input " +
+                    "attributes");
         }
     }
 
@@ -298,14 +301,14 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
 
     @Override
     public CompiledCondition compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                               SiddhiAppContext siddhiAppContext,
-                                               List<VariableExpressionExecutor> variableExpressionExecutors,
-                                               Map<String, Table> tableMap, String queryName) {
+                                              SiddhiAppContext siddhiAppContext,
+                                              List<VariableExpressionExecutor> variableExpressionExecutors,
+                                              Map<String, Table> tableMap, String queryName) {
         if (expiredEventChunk == null) {
             expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
         }
         return OperatorParser.constructOperator(expiredEventChunk, condition, matchingMetaInfoHolder,
-                                                siddhiAppContext, variableExpressionExecutors, tableMap,
-                                                this.queryName);
+                siddhiAppContext, variableExpressionExecutors, tableMap,
+                this.queryName);
     }
 }
