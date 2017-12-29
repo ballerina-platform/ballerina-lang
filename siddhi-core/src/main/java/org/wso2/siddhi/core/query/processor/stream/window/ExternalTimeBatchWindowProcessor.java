@@ -69,19 +69,16 @@ import java.util.Map;
                         description = "User defined start time. This could either be a constant (of type int, " +
                                 "long or time) or an attribute of the corresponding stream (of type long). " +
                                 "If an attribute is provided, initial value of attribute would be considered as " +
-                                "startTime. When startTime is not given, initial value of timestamp " +
-                                "is used as the default.",
+                                "startTime.",
                         type = {DataType.INT, DataType.LONG, DataType.TIME},
                         optional = true,
-                        defaultValue = "0"),
+                        defaultValue = "Timestamp of first event"),
                 @Parameter(name = "timeout",
                         description = "Time to wait for arrival of new event, before flushing " +
-                                "and giving output for events belonging to a specific batch. If timeout is " +
-                                "not provided, system waits till an event from next batch arrives to " +
-                                "flush current batch.",
+                                "and giving output for events belonging to a specific batch.",
                         type = {DataType.INT, DataType.LONG, DataType.TIME},
                         optional = true,
-                        defaultValue = "0")
+                        defaultValue = "System waits till an event from next batch arrives to flush current batch")
         },
         examples = {
                 @Example(

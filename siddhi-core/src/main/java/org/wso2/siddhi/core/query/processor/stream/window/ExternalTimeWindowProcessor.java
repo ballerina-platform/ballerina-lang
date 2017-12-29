@@ -56,16 +56,21 @@ import java.util.Map;
                 "windowTime period from the external timestamp, and gets updated on every monotonically " +
                 "increasing timestamp.",
         parameters = {
+                @Parameter(name = "timestamp",
+                        description = "The time which the window determines as current time and will act upon. " +
+                                "The value of this parameter should be monotonically increasing.",
+                        type = {DataType.LONG}),
+
                 @Parameter(name = "window.time",
                         description = "The sliding time period for which the window should hold events.",
                         type = {DataType.INT, DataType.LONG, DataType.TIME}),
         },
         examples = @Example(
                 syntax = "define window cseEventWindow (symbol string, price float, volume int) " +
-                        "externalTime(eventTime, 20 sec) output expired events;\n" +
+                        "externalTime(eventTime, 20 sec) output expired events;\n\n" +
                         "@info(name = 'query0')\n" +
                         "from cseEventStream\n" +
-                        "insert into cseEventWindow;\n" +
+                        "insert into cseEventWindow;\n\n" +
                         "@info(name = 'query1')\n" +
                         "from cseEventWindow\n" +
                         "select symbol, sum(price) as price\n" +

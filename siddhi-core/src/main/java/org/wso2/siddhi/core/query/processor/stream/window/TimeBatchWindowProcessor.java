@@ -61,11 +61,10 @@ import java.util.Map;
                         type = {DataType.INT, DataType.LONG, DataType.TIME}),
                 @Parameter(name = "start.time",
                         description = "This specifies an offset in milliseconds in order to start the " +
-                                "window at a time different to the standard time. When this is not provided the " +
-                                "window calculation will begin from first event arrival.",
+                                "window at a time different to the standard time.",
                         type = {DataType.INT},
                         optional = true,
-                        defaultValue = " ")
+                        defaultValue = "Timestamp of first event")
         },
         examples = {
                 @Example(

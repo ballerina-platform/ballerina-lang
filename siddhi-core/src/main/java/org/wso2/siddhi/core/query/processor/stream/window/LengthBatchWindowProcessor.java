@@ -62,10 +62,10 @@ import java.util.Map;
         examples = {
                 @Example(
                         syntax = "define window cseEventWindow (symbol string, price float, volume int) " +
-                                "lengthBatch(10) output all events;\n" +
+                                "lengthBatch(10) output all events;\n\n" +
                                 "@info(name = 'query0')\n" +
                                 "from cseEventStream\n" +
-                                "insert into cseEventWindow;\n" +
+                                "insert into cseEventWindow;\n\n" +
                                 "@info(name = 'query1')\n" +
                                 "from cseEventWindow\n" +
                                 "select symbol, sum(price) as price\n" +
