@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.FunctionCallCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
@@ -145,19 +144,6 @@ public class ProgramFileWriter {
                     ActionRefCPEntry actionRefEntry = (ActionRefCPEntry) cpEntry;
                     dataOutStream.writeInt(actionRefEntry.getPackageCPIndex());
                     dataOutStream.writeInt(actionRefEntry.getNameCPIndex());
-                    break;
-                case CP_ENTRY_FUNCTION_CALL_ARGS:
-                    FunctionCallCPEntry funcCallEntry = (FunctionCallCPEntry) cpEntry;
-                    int[] argRegs = funcCallEntry.getArgRegs();
-                    dataOutStream.writeByte(argRegs.length);
-                    for (int argReg : argRegs) {
-                        dataOutStream.writeInt(argReg);
-                    }
-                    int[] retRegs = funcCallEntry.getRetRegs();
-                    dataOutStream.writeByte(retRegs.length);
-                    for (int retReg : retRegs) {
-                        dataOutStream.writeInt(retReg);
-                    }
                     break;
                 case CP_ENTRY_STRUCTURE_REF:
                     StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) cpEntry;

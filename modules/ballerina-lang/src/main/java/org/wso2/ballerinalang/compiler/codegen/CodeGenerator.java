@@ -175,7 +175,6 @@ import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.FunctionCallCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
@@ -1035,13 +1034,13 @@ public class CodeGenerator extends BLangNodeVisitor {
             int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
             FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
 
-            int funcCallCPIndex = getFunctionCallCPIndex(iExpr);
             int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
+            int[] operands = getFuncOperands(iExpr, funcRefCPIndex);
 
             if (Symbols.isNative(funcSymbol)) {
-                emit(InstructionCodes.NCALL, funcRefCPIndex, funcCallCPIndex);
+                emit(InstructionCodes.NCALL, operands);
             } else {
-                emit(InstructionCodes.CALL, funcRefCPIndex, funcCallCPIndex);
+                emit(InstructionCodes.CALL, operands);
             }
         }
     }
@@ -1053,9 +1052,9 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex, actionNameCPIndex);
         int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
-        int actionCallIndex = getFunctionCallCPIndex(aIExpr);
+        int[] operands = getFuncOperands(aIExpr, actionRefCPIndex);
 
-        emit(InstructionCodes.ACALL, actionRefCPIndex, actionCallIndex);
+        emit(InstructionCodes.ACALL, operands);
     }
 
     public void visit(BLangConnectorInit cIExpr) {
@@ -1087,14 +1086,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         int initFuncNameIndex = addUTF8CPEntry(currentPkgInfo, initFunc.name.value);
         FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, initFuncNameIndex);
         int initFuncRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
-        FunctionCallCPEntry initFuncCallCPEntry = new FunctionCallCPEntry(new int[]{connectorRegIndex}, new int[0]);
-        int initFuncCallIndex = currentPkgInfo.addCPEntry(initFuncCallCPEntry);
-        emit(InstructionCodes.CALL, initFuncRefCPIndex, initFuncCallIndex);
+        int[] operands = new int[]{initFuncRefCPIndex, 1, connectorRegIndex, 0};
+        emit(InstructionCodes.CALL, operands);
 
         int actionNameCPIndex = addUTF8CPEntry(currentPkgInfo, "<init>");
         ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex, actionNameCPIndex);
         int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
-        emit(InstructionCodes.ACALL, actionRefCPIndex, initFuncCallIndex);
+        operands = new int[]{actionRefCPIndex, 1, connectorRegIndex, 0};
+        emit(InstructionCodes.ACALL, operands);
     }
 
     public void visit(BLangFunctionInvocation iExpr) {
@@ -1103,13 +1102,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
         FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
 
-        int funcCallCPIndex = getFunctionCallCPIndex(iExpr);
         int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
+        int[] operands = getFuncOperands(iExpr, funcRefCPIndex);
 
         if (Symbols.isNative(funcSymbol)) {
-            emit(InstructionCodes.NCALL, funcRefCPIndex, funcCallCPIndex);
+            emit(InstructionCodes.NCALL, operands);
         } else {
-            emit(InstructionCodes.CALL, funcRefCPIndex, funcCallCPIndex);
+            emit(InstructionCodes.CALL, operands);
         }
     }
 
@@ -1119,16 +1118,17 @@ public class CodeGenerator extends BLangNodeVisitor {
         int transformerNameCPIndex = addUTF8CPEntry(currentPkgInfo, transformerSymbol.name.value);
         TransformerRefCPEntry transformerRefCPEntry = new TransformerRefCPEntry(pkgRefCPIndex, transformerNameCPIndex);
 
-        int transformerCallCPIndex = getFunctionCallCPIndex(iExpr);
         int transformerRefCPIndex = currentPkgInfo.addCPEntry(transformerRefCPEntry);
+        int[] operands = getFuncOperands(iExpr, transformerRefCPIndex);
 
-        emit(InstructionCodes.TCALL, transformerRefCPIndex, transformerCallCPIndex);
+        emit(InstructionCodes.TCALL, operands);
     }
 
     public void visit(BFunctionPointerInvocation iExpr) {
-        int funcCallCPIndex = getFunctionCallCPIndex(iExpr);
+        int[] operands = getFuncOperands(iExpr, -1);
         genNode(iExpr.expr, env);
-        emit(InstructionCodes.FPCALL, regIndexes.tRef, funcCallCPIndex);
+        operands[0] = regIndexes.tRef;
+        emit(InstructionCodes.FPCALL, operands);
     }
 
     public void visit(BLangTypeCastExpr castExpr) {
@@ -1274,11 +1274,12 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     // private methods
 
-    private void genNode(BLangNode node, SymbolEnv env) {
+    private <T extends BLangNode, U extends SymbolEnv> T genNode(T t, U u) {
         SymbolEnv prevEnv = this.env;
-        this.env = env;
-        node.accept(this);
+        this.env = u;
+        t.accept(this);
         this.env = prevEnv;
+        return t;
     }
 
     private void genPackage(BPackageSymbol pkgSymbol) {
@@ -1673,19 +1674,26 @@ public class CodeGenerator extends BLangNodeVisitor {
         attributeInfoPool.addAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE, varCountAttribInfo);
     }
 
-    private int getFunctionCallCPIndex(BLangInvocation iExpr) {
-        int[] argRegs = new int[iExpr.argExprs.size()];
-        for (int i = 0; i < iExpr.argExprs.size(); i++) {
-            BLangExpression argExpr = iExpr.argExprs.get(i);
-            genNode(argExpr, this.env);
-            argRegs[i] = argExpr.regIndex;
+    private int[] getFuncOperands(BLangInvocation iExpr, int funcRefCPIndex) {
+        // call funcRefCPIndex, nArgRegs, argRegs[nArgRegs], nRetRegs, retRegs[nRetRegs]
+        int i = 0;
+        int nArgRegs = iExpr.argExprs.size();
+        int nRetRegs = iExpr.types.size();
+        int[] operands = new int[nArgRegs + nRetRegs + 3];
+        operands[i++] = funcRefCPIndex;
+        operands[i++] = nArgRegs;
+        for (BLangExpression argExpr : iExpr.argExprs) {
+            operands[i++] = genNode(argExpr, this.env).regIndex;
         }
 
         // Calculate registers to store return values
-        int[] retRegs = new int[iExpr.types.size()];
-        for (int i = 0; i < iExpr.types.size(); i++) {
-            BType retType = iExpr.types.get(i);
-            retRegs[i] = getNextIndex(retType.tag, regIndexes);
+        operands[i++] = nRetRegs;
+        int[] retRegs = new int[nRetRegs];
+        for (int j = 0; j < nRetRegs; j++) {
+            BType retType = iExpr.types.get(j);
+            int retIndex = getNextIndex(retType.tag, regIndexes);
+            retRegs[j] = retIndex;
+            operands[i++] = retIndex;
         }
 
         iExpr.regIndexes = retRegs;
@@ -1693,8 +1701,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             iExpr.regIndex = retRegs[0];
         }
 
-        FunctionCallCPEntry funcCallCPEntry = new FunctionCallCPEntry(argRegs, retRegs);
-        return currentPkgInfo.addCPEntry(funcCallCPEntry);
+        return operands;
     }
 
     private void addVariableCountAttributeInfo(ConstantPool constantPool,

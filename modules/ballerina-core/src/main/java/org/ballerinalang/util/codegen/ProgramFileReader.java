@@ -256,20 +256,6 @@ public class ProgramFileReader {
                         cpIndex, actionName);
 
                 return actionRefCPEntry;
-            case CP_ENTRY_FUNCTION_CALL_ARGS:
-                int argLength = dataInStream.readByte();
-                int[] argRegs = new int[argLength];
-                for (int i = 0; i < argLength; i++) {
-                    argRegs[i] = dataInStream.readInt();
-                }
-
-                int retLength = dataInStream.readByte();
-                int[] retRegs = new int[retLength];
-                for (int i = 0; i < retLength; i++) {
-                    retRegs[i] = dataInStream.readInt();
-                }
-
-                return new FunctionCallCPEntry(argRegs, retRegs);
             case CP_ENTRY_STRUCTURE_REF:
                 pkgCPIndex = dataInStream.readInt();
                 packageRefCPEntry = (PackageRefCPEntry) constantPool.getCPEntry(pkgCPIndex);
@@ -1413,12 +1399,8 @@ public class ProgramFileReader {
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.TR_RETRY:
                 case InstructionCodes.TR_BEGIN:
-                case InstructionCodes.CALL:
                 case InstructionCodes.WRKINVOKE:
                 case InstructionCodes.WRKREPLY:
-                case InstructionCodes.NCALL:
-                case InstructionCodes.ACALL:
-                case InstructionCodes.FPCALL:
                 case InstructionCodes.FPLOAD:
                 case InstructionCodes.ARRAYLEN:
                 case InstructionCodes.INEWARRAY:
@@ -1443,7 +1425,6 @@ public class ProgramFileReader {
                 case InstructionCodes.LENGTHOF:
                 case InstructionCodes.TYPEOF:
                 case InstructionCodes.TYPELOAD:
-                case InstructionCodes.TCALL:
                 case InstructionCodes.SEQ_NULL:
                 case InstructionCodes.SNE_NULL:
                 case InstructionCodes.NEWJSON:
@@ -1585,6 +1566,30 @@ public class ProgramFileReader {
                     k = codeStream.readInt();
                     h = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k, h));
+                    break;
+
+                case InstructionCodes.CALL:
+                case InstructionCodes.NCALL:
+                case InstructionCodes.ACALL:
+                case InstructionCodes.TCALL:
+                case InstructionCodes.FPCALL:
+                    int funcRefCPIndex = codeStream.readInt();
+                    int nArgRegs = codeStream.readInt();
+                    int[] argRegs = new int[nArgRegs];
+                    for (int index = 0; index < nArgRegs; index++) {
+                        argRegs[index] = codeStream.readInt();
+                    }
+
+                    int nRetRegs = codeStream.readInt();
+                    int[] retRegs = new int[nRetRegs];
+                    for (int index = 0; index < nRetRegs; index++) {
+                        retRegs[index] = codeStream.readInt();
+                    }
+                    
+                    FunctionCallCPEntry funcCallCPEntry = new FunctionCallCPEntry(argRegs, retRegs);
+                    int funcCallCPIndex = packageInfo.addCPEntry(funcCallCPEntry);
+
+                    packageInfo.addInstruction(InstructionFactory.get(opcode, funcRefCPIndex, funcCallCPIndex));
                     break;
                 default:
                     throw new ProgramFileFormatException("unknown opcode " + opcode +
