@@ -170,7 +170,6 @@ public function <Request request> getFormParams () (map) {
                 }
             }
             i = i + 1;
-
         }
     }
     return parameters;

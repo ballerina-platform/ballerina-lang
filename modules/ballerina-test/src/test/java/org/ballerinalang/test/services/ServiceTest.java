@@ -88,7 +88,9 @@ public class ServiceTest {
 
     @Test
     public void testSetString() {
-        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST");
+        List<Header> headers = new ArrayList<Header>();
+        headers.add(new Header("Content-Type", TEXT_PLAIN));
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST", headers, null);
         requestMsg.waitAndReleaseAllEntities();
         requestMsg.addMessageBody(ByteBuffer.wrap("hello".getBytes()));
         requestMsg.setEndOfMsgAdded(true);
@@ -220,11 +222,10 @@ public class ServiceTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(responseMsg)
-                .getInputStream());
-        StringDataSource stringDataSource = new StringDataSource(responseMsgPayload);
-        Assert.assertNotNull(stringDataSource);
-        Assert.assertTrue(stringDataSource.getValue().contains("unsupported media type"));
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertNotNull(bJson);
+        Assert.assertNull(bJson.value().get("Name").stringValue());
+        Assert.assertNull(bJson.value().get("Team").stringValue());
     }
 
     @Test(description = "Test Http PATCH verb dispatching with a responseMsgPayload")
