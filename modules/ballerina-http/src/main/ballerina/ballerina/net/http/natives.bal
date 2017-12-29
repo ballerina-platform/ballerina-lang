@@ -40,11 +40,6 @@ public native function <Request req> getRequestURL () (string);
 @Return { value:"The HTTP request method associated with the request" }
 public native function <Request req> getMethod () (string);
 
-@Description { value:"Gets the form parameters from the HTTP request as a map"}
-@Param { value:"req: The request message" }
-@Return { value:"The map of form params" }
-public native function <Request req> getFormParams () (map);
-
 @Description { value:"Gets the query parameters from the HTTP request as a map"}
 @Param { value:"req: The request message" }
 @Return { value:"The map of query params" }

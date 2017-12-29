@@ -149,9 +149,36 @@ public function <Request request> getBinaryPayload () (blob) {
     return mime:getBlob(entity);
 }
 
-@Description { value:"Sets a JSON as the request payload"}
-@Param { value:"request: The request message" }
-@Param { value:"payload: The JSON payload to be " }
+@Description {value:"Gets the form parameters from the HTTP request as a map"}
+@Param {value:"req: The request message"}
+@Return {value:"The map of form params"}
+public function <Request request> getFormParams () (map) {
+    mime:Entity entity = request.getEntity(true);
+    string formData = mime:getText(entity);
+    map parameters = {};
+    if (formData != null) {
+        string[] entries = formData.split("&");
+        int i = 0;
+        while (i < lengthof entries) {
+            int index = entries[i].indexOf("=");
+            if (index != -1) {
+                string name = entries[i].subString(0, index).trim();
+                int size = entries[i].length();
+                string value = entries[i].subString(index + 1, size).trim();
+                if (value != "") {
+                    parameters[name] = value;
+                }
+            }
+            i = i + 1;
+
+        }
+    }
+    return parameters;
+}
+
+@Description {value:"Sets a JSON as the request payload"}
+@Param {value:"request: The request message"}
+@Param {value:"payload: The JSON payload to be "}
 public function <Request request> setJsonPayload (json payload) {
     mime:Entity entity = {};
     entity.jsonData = payload;
@@ -161,10 +188,10 @@ public function <Request request> setJsonPayload (json payload) {
     request.setEntity(entity);
 }
 
-@Description { value:"Sets an XML as the payload"}
-@Param { value:"request: The request message" }
-@Param { value:"payload: The XML payload object" }
-public function <Request request> setXmlPayload (xml payload){
+@Description {value:"Sets an XML as the payload"}
+@Param {value:"request: The request message"}
+@Param {value:"payload: The XML payload object"}
+public function <Request request> setXmlPayload (xml payload) {
     mime:Entity entity = {};
     entity.xmlData = payload;
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_XML);
@@ -173,10 +200,10 @@ public function <Request request> setXmlPayload (xml payload){
     request.setEntity(entity);
 }
 
-@Description { value:"Sets a string as the request payload"}
-@Param { value:"request: The request message" }
-@Param { value:"payload: The payload to be set to the request as a string" }
-public function <Request request> setStringPayload (string payload){
+@Description {value:"Sets a string as the request payload"}
+@Param {value:"request: The request message"}
+@Param {value:"payload: The payload to be set to the request as a string"}
+public function <Request request> setStringPayload (string payload) {
     mime:Entity entity = {};
     entity.textData = payload;
     mime:MediaType mediaType = mime:getMediaType(mime:TEXT_PLAIN);
@@ -185,9 +212,9 @@ public function <Request request> setStringPayload (string payload){
     request.setEntity(entity);
 }
 
-@Description { value:"Sets a blob as the request payload"}
-@Param { value:"request: The request message" }
-@Param { value:"payload: The blob representation of the message payload" }
+@Description {value:"Sets a blob as the request payload"}
+@Param {value:"request: The request message"}
+@Param {value:"payload: The blob representation of the message payload"}
 public function <Request request> setBinaryPayload (blob payload) {
     mime:Entity entity = {};
     entity.byteData = payload;
@@ -201,7 +228,7 @@ public function <Request request> setBinaryPayload (blob payload) {
 @Param {value:"request: The request message"}
 @Param {value:"content: File containing the actual content"}
 @Param {value:"contentType: Content-Type of the given data"}
-public function <Request request> setEntityBody(file:File content, string contentType) {
+public function <Request request> setEntityBody (file:File content, string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = request.getEntity(false);
     entity.contentType = mediaType;
