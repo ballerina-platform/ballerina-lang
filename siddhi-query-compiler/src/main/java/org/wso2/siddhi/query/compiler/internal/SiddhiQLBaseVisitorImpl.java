@@ -186,21 +186,25 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         if (source.isInnerStream) {
             throw newSiddhiParserException(ctx, " InnerStreams cannot be defined!");
         }
-        StreamDefinition streamDefinition = StreamDefinition.id(source.streamId);
-        List<SiddhiQLParser.Attribute_nameContext> attribute_names = ctx.attribute_name();
-        List<SiddhiQLParser.Attribute_typeContext> attribute_types = ctx.attribute_type();
-        for (int i = 0; i < attribute_names.size(); i++) {
-            SiddhiQLParser.Attribute_nameContext attributeNameContext = attribute_names.get(i);
-            SiddhiQLParser.Attribute_typeContext attributeTypeContext = attribute_types.get(i);
-            streamDefinition.attribute((String) visit(attributeNameContext), (Attribute.Type) visit
-                    (attributeTypeContext));
+        try {
+            StreamDefinition streamDefinition = StreamDefinition.id(source.streamId);
+            populateQueryContext(streamDefinition, ctx);
+            List<SiddhiQLParser.Attribute_nameContext> attribute_names = ctx.attribute_name();
+            List<SiddhiQLParser.Attribute_typeContext> attribute_types = ctx.attribute_type();
+            for (int i = 0; i < attribute_names.size(); i++) {
+                SiddhiQLParser.Attribute_nameContext attributeNameContext = attribute_names.get(i);
+                SiddhiQLParser.Attribute_typeContext attributeTypeContext = attribute_types.get(i);
+                streamDefinition.attribute((String) visit(attributeNameContext), (Attribute.Type) visit
+                        (attributeTypeContext));
 
+            }
+            for (SiddhiQLParser.AnnotationContext annotationContext : ctx.annotation()) {
+                streamDefinition.annotation((Annotation) visit(annotationContext));
+            }
+            return streamDefinition;
+        } catch (Throwable t) {
+            throw newSiddhiParserException(ctx, t.getMessage(), t);
         }
-        for (SiddhiQLParser.AnnotationContext annotationContext : ctx.annotation()) {
-            streamDefinition.annotation((Annotation) visit(annotationContext));
-        }
-        populateQueryContext(streamDefinition, ctx);
-        return streamDefinition;
     }
 
     @Override
@@ -2756,6 +2760,13 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
                 new int[]{context.getStart().getLine(), context.getStart().getCharPositionInLine()},
                 new int[]{context.getStop().getLine(), context.getStop().getCharPositionInLine()});
     }
+
+    public SiddhiParserException newSiddhiParserException(ParserRuleContext context, String message, Throwable t) {
+        return new SiddhiParserException("Syntax error in SiddhiQL, near '" + context.getText() + "', " + message + ".",
+                t, new int[]{context.getStart().getLine(), context.getStart().getCharPositionInLine()},
+                new int[]{context.getStop().getLine(), context.getStop().getCharPositionInLine()});
+    }
+
 
     @Override
     public TimePeriod.Duration visitAggregation_time_duration(
