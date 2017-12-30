@@ -46,7 +46,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import static org.ballerinalang.net.mime.util.Constants.HEADER_VALUE_STRUCT;
+import static org.ballerinalang.net.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.net.mime.util.Constants.MESSAGE_ENTITY;
+import static org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
 /**
@@ -209,7 +211,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     private void serializeDataSource(Context context) {
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
-        MessageDataSource messageDataSource = HttpUtil.getMessageDataSource(requestStruct);
+       // MessageDataSource messageDataSource = HttpUtil.getMessageDataSource(requestStruct);
+        MessageDataSource messageDataSource = HttpUtil.readMessageDataSource(requestStruct);
         if (messageDataSource != null) {
             messageDataSource.serializeData();
             HttpUtil.closeMessageOutputStream(requestStruct);
@@ -255,10 +258,11 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         @Override
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-            BStruct response = createStruct(this.context, Constants.RESPONSE);
-            BStruct entity = createStruct(this.context, Constants.ENTITY);
-            HttpUtil.setHeaderValueStructType(createStruct(this.context, HEADER_VALUE_STRUCT));
-            HttpUtil.populateInboundResponse(response, entity, httpCarbonMessage);
+            BStruct response = createStruct(this.context, Constants.RESPONSE, Constants.PROTOCOL_PACKAGE_HTTP);
+            BStruct entity = createStruct(this.context, Constants.ENTITY, PROTOCOL_PACKAGE_MIME);
+            BStruct mediaType = createStruct(this.context, MEDIA_TYPE, PROTOCOL_PACKAGE_MIME);
+            HttpUtil.setHeaderValueStructType(createStruct(this.context, HEADER_VALUE_STRUCT, PROTOCOL_PACKAGE_MIME));
+            HttpUtil.populateInboundResponse(response, entity, mediaType, httpCarbonMessage);
             ballerinaFuture.notifyReply(response);
         }
 
@@ -277,7 +281,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
 
         private void notifyError(Throwable throwable) {
-            BStruct httpConnectorError = createStruct(context, Constants.HTTP_CONNECTOR_ERROR);
+            BStruct httpConnectorError = createStruct(context, Constants.HTTP_CONNECTOR_ERROR,  Constants
+                    .PROTOCOL_PACKAGE_HTTP);
             httpConnectorError.setStringField(0, throwable.getMessage());
             if (throwable instanceof ClientConnectorException) {
                 ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
@@ -287,9 +292,9 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             ballerinaFuture.notifyReply(null, httpConnectorError);
         }
 
-        private BStruct createStruct(Context context, String structName) {
+        private BStruct createStruct(Context context, String structName, String protocolPackage) {
             PackageInfo httpPackageInfo = context.getProgramFile()
-                    .getPackageInfo(Constants.PROTOCOL_PACKAGE_HTTP);
+                    .getPackageInfo(protocolPackage);
             StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
             BStructType structType = structInfo.getType();
             return new BStruct(structType);

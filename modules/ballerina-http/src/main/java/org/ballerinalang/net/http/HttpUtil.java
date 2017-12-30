@@ -81,7 +81,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.net.http.Constants.MESSAGE_DATA_SOURCE;
 import static org.ballerinalang.net.http.Constants.MESSAGE_OUTPUT_STREAM;
 import static org.ballerinalang.net.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.net.mime.util.Constants.HEADER_VALUE_STRUCT;
@@ -332,9 +331,9 @@ public class HttpUtil {
         struct.addNativeData(MESSAGE_OUTPUT_STREAM, messageOutputStream);
     }
 
-    public static MessageDataSource getMessageDataSource(BStruct httpMsgStruct) {
+    /*public static MessageDataSource getMessageDataSource(BStruct httpMsgStruct) {
         return (MessageDataSource) httpMsgStruct.getNativeData(MESSAGE_DATA_SOURCE);
-    }
+    }*/
 
     public static void closeMessageOutputStream(BStruct httpMsgStruct) {
         OutputStream messageOutputStream = (OutputStream) httpMsgStruct.getNativeData(MESSAGE_OUTPUT_STREAM);
@@ -424,7 +423,7 @@ public class HttpUtil {
      * @param httpMessageStruct Represent request/response struct
      * @return Newly created 'MessageDataSource' from the entity body
      */
-    private static MessageDataSource readMessageDataSource(BStruct httpMessageStruct) {
+    public static MessageDataSource readMessageDataSource(BStruct httpMessageStruct) {
         boolean isEntityBodyAvailable = (Boolean) httpMessageStruct.getNativeData(IS_ENTITY_BODY_PRESENT);
 
         if (isEntityBodyAvailable) {
@@ -583,7 +582,7 @@ public class HttpUtil {
         request.addNativeData(IS_ENTITY_BODY_PRESENT, false);
     }
 
-    public static void populateInboundResponse(BStruct response, BStruct entity, HTTPCarbonMessage
+    public static void populateInboundResponse(BStruct response, BStruct entity, BStruct mediaType, HTTPCarbonMessage
             cMsg) {
         response.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
         int statusCode = (Integer) cMsg.getProperty(Constants.HTTP_STATUS_CODE);
@@ -595,6 +594,8 @@ public class HttpUtil {
             response.setStringField(Constants.RESPONSE_SERVER_INDEX, cMsg.getHeader(Constants.SERVER_HEADER));
             cMsg.removeHeader(Constants.SERVER_HEADER);
         }
+        String contentType = cMsg.getHeader(org.ballerinalang.net.mime.util.Constants.CONTENT_TYPE);
+        MimeUtil.setContentType(mediaType, entity, contentType);
         entity.setRefField(ENTITY_HEADERS_INDEX, prepareHeaderMap(cMsg.getHeaders(), new BMap<>()));
         response.addNativeData(MESSAGE_ENTITY, entity);
         response.addNativeData(IS_ENTITY_BODY_PRESENT, false);
