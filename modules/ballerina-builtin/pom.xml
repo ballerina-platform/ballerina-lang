@@ -87,6 +87,11 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-config</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.3.1</version>
+        </dependency>
     </dependencies>
     
     <build>

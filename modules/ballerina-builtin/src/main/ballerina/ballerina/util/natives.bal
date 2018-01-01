@@ -49,6 +49,6 @@ public native function getHmac (string baseString, string keyString, string algo
 
 @doc:Description { value:"Returns validity of the jwt "}
 @doc:Param { value:"jwToken: JW Token" }
-@doc:Param { value:"publicKey: public key " }
+@doc:Param { value:"key: public key " }
 @doc:Return { value:"boolean: validity" }
-native function getShaWithRsa (string jwToken, string publicKey) (boolean);
+native function verifyJwt (string jwToken, string key) (boolean);
