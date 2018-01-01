@@ -184,9 +184,10 @@ public class ResponseNativeFunctionSuccessTest {
         HttpUtil.addCarbonMsg(response, cMsg);
 
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
         HttpUtil.setHeaderValueStructType(
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, headerStruct));
-        HttpUtil.populateInboundResponse(response, entity, cMsg);
+        HttpUtil.populateInboundResponse(response, entity, mediaType, cMsg);
 
         BValue[] inputArg = { response };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetContentLength", inputArg);
@@ -216,9 +217,10 @@ public class ResponseNativeFunctionSuccessTest {
         cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
         HttpUtil.addCarbonMsg(response, cMsg);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
         HttpUtil.setHeaderValueStructType(
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, headerStruct));
-        HttpUtil.populateInboundResponse(response, entity, cMsg);
+        HttpUtil.populateInboundResponse(response, entity, mediaType, cMsg);
 
         BString key = new BString(Constants.CONTENT_TYPE);
 
@@ -260,9 +262,10 @@ public class ResponseNativeFunctionSuccessTest {
         cMsg.setHeader("test-header", Constants.APPLICATION_FORM + "," + Constants.TEXT_PLAIN + ";b=5");
         cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
         HttpUtil.setHeaderValueStructType(
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, headerStruct));
-        HttpUtil.populateInboundResponse(response, entity, cMsg);
+        HttpUtil.populateInboundResponse(response, entity, mediaType, cMsg);
 
         BString key = new BString("test-header");
         BValue[] inputArg = { response, key };
@@ -509,9 +512,10 @@ public class ResponseNativeFunctionSuccessTest {
         cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
         HttpUtil.addCarbonMsg(response, cMsg);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
         HttpUtil.setHeaderValueStructType(
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, headerStruct));
-        HttpUtil.populateInboundResponse(response, entity, cMsg);
+        HttpUtil.populateInboundResponse(response, entity, mediaType, cMsg);
 
         String range = "Range";
         String rangeValue = "bytes=500-999";
