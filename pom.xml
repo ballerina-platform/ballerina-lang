@@ -123,6 +123,7 @@
                         <findbugsXmlOutputDirectory>${project.build.directory}/findbugs
                         </findbugsXmlOutputDirectory>
                         <excludeFilterFile>${maven.findbugsplugin.version.exclude}</excludeFilterFile>
+                        <classFilesDirectory>${project.build.testOutputDirectory}</classFilesDirectory>
                         <!--Exclude generated sources-->
                     </configuration>
                     <version>${maven.findbugsplugin.version}</version>

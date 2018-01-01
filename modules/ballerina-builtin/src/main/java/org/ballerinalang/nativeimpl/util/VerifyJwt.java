@@ -16,10 +16,8 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.utils;
+package org.ballerinalang.nativeimpl.util;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.apache.commons.codec.binary.Base64;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -42,75 +40,86 @@ import java.security.SignatureException;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Native function ballerina.utils:getHash.
+ * Native function ballerina.util:verifyJwt.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.utils",
+        packageName = "ballerina.util",
         functionName = "verifyJwt",
         args = { @Argument(name = "jwToken", type = TypeKind.STRING),
                 @Argument(name = "key", type = TypeKind.STRING) },
         returnType = { @ReturnType(type = TypeKind.BOOLEAN) },
         isPublic = true)
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Returns a hash of a given string using the SHA-256 algorithm ") })
+        value = "Verify given JWT token according to the given key") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "jwToken",
-        value = "The string to be hashed") })
+        value = "JSON Web Token") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "key",
-        value = "The key string ") })
+        value = "if JWT encrypt with RSA algorithm this is the public key, if JWT hashed this is the secret key") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "boolean",
-        value = "The hashed string") })
+        value = "Returns JWT is valid or not") })
 public class VerifyJwt extends AbstractNativeFunction {
 
-    /**
-     * Hashes the string contents (assumed to be UTF-8) using the SHA-256 algorithm.
+     /**
+     * Verify JWT according to given key value.
      */
 
     @Override public BValue[] execute(Context context) {
         String jwToken = getStringArgument(context, 0);
         String key = getStringArgument(context, 1);
         String[] tokenValues;
-        byte[] keyByte;
+        byte[] keyBytes;
         String message;
         String header;
         String algorithm;
-        boolean returnValue = false;
-        JsonObject headerJson;
-        JsonParser jsonParser = new JsonParser();
+        boolean returnValue;
         try {
             tokenValues = jwToken.split("\\.");
             message = tokenValues[0] + "." + tokenValues[1];
             header = new String(Base64.decodeBase64(tokenValues[0]), "UTF-8");
-            headerJson = (JsonObject) jsonParser.parse(header);
-            algorithm = headerJson.get("alg").getAsString();
+            header = header.substring(1, header.length() - 1);
+            String[] headerValues = header.split(",");
+            int index = 0;
+            Pattern pattern = Pattern.compile(".*alg.*");
+            Matcher matcher;
+            for (int i = 0; i < headerValues.length; i++) {
+                matcher = pattern.matcher(headerValues[i]);
+                if (matcher.matches()) {
+                    index = i;
+                    break;
+                }
+            }
+            algorithm = headerValues[index].split(":")[1].replace('"', ' ').trim();
             if (algorithm.equals("RS256")) {
-                keyByte = Base64.decodeBase64(key);
+                keyBytes = Base64.decodeBase64(key);
                 KeyFactory kf = KeyFactory.getInstance("RSA");
-                RSAPublicKey rsaPublicKey = (RSAPublicKey) kf.generatePublic(new X509EncodedKeySpec(keyByte));
+                RSAPublicKey rsaPublicKey = (RSAPublicKey) kf.generatePublic(new X509EncodedKeySpec(keyBytes));
                 Signature sign = Signature.getInstance("SHA256withRSA");
                 sign.initVerify(rsaPublicKey);
                 sign.update(message.getBytes("UTF-8"));
                 returnValue = sign.verify(Base64.decodeBase64(tokenValues[2].getBytes("UTF-8")));
-            }
-            if (algorithm.equals("HS256")) {
+            } else if (algorithm.equals("HS256")) {
                 Mac mac = Mac.getInstance("HmacSHA256");
                 SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), "HmacSHA256");
                 mac.init(secretKeySpec);
                 String hash = Base64.encodeBase64String(mac.doFinal(message.getBytes()));
                 hash = hash.substring(0, hash.length() - 1);
                 returnValue = hash.equals(tokenValues[2]);
+            } else {
+                returnValue = false;
             }
         } catch (SignatureException | InvalidKeyException | InvalidKeySpecException  e) {
-            throw new BallerinaException("Error while calculating SHA256 with RSA for : " + e.getMessage(), context);
+            throw new BallerinaException("Error while verifying JWT : " + e.getMessage(), context);
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-            throw new BallerinaException("Error while calculating SHA256 with RSA for : " + e.getMessage(), context);
+            throw new BallerinaException("Error while verifying JWT : " + e.getMessage(), context);
         }
         return getBValues(new BBoolean(returnValue));
     }
-
 }

@@ -47,8 +47,8 @@ public native function getHmacFromBase64 (string baseString, string keyString, s
 @Return { value:"The hashed string" }
 public native function getHmac (string baseString, string keyString, string algorithm) (string);
 
-@doc:Description { value:"Returns validity of the jwt "}
-@doc:Param { value:"jwToken: JW Token" }
-@doc:Param { value:"key: public key " }
-@doc:Return { value:"boolean: validity" }
-native function verifyJwt (string jwToken, string key) (boolean);
+@Description { value:"Verify given JWT token according to the given key"}
+@Param { value:"jwToken: JSON Web Token" }
+@Param { value:"key: (if JWT encrypt with RSA algorithm this is the public key, if JWT hashed this is the secret key)" }
+@Return { value:"boolean: Returns JWT is valid or not" }
+public native function verifyJwt (string jwToken, string key) (boolean);
