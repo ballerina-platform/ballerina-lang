@@ -109,6 +109,18 @@ public class ResponseNativeFunctionNegativeTest {
         Assert.assertNull(returnVals[0]);
     }
 
+    @Test(description = "Test getEntity method on a response without a entity")
+    public void testGetEntityNegative() {
+        BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
+        HttpUtil.addCarbonMsg(request, cMsg);
+        BValue[] inputArg = { request };
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetEntity", inputArg);
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertNotNull(returnVals[0]);
+    }
+
     @Test(description = "Test method with string payload")
     public void testGetJsonPayloadWithStringPayload() {
         BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
