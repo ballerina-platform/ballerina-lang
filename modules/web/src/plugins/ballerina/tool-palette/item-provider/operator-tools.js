@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import TransformFactory from '../../model/transform-factory';
+import TransformFactory from '../../model/transformer-factory';
 
 const operatorStatementCreator = TransformFactory.createOperatorAssignmentStatement;
 

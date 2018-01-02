@@ -19,19 +19,19 @@
 import _ from 'lodash';
 import log from 'log';
 import TreeUtil from '../../../../../model/tree-util';
-import Mapper from './transform-node-mapper';
-import TransformFactory from '../../../../../model/transform-factory';
+import Mapper from './transformer-node-mapper';
+import TransformFactory from '../../../../../model/transformer-factory';
 
 /**
  * Transform node manager
  * @class TransformNodeManager
  */
-class TransformNodeManager {
+class TransformerNodeManager {
 
     /**
-     * Creates an instance of TransformNodeManager.
-     * @param {any} args args to construct TransformNodeManager
-     * @memberof TransformNodeManager
+     * Creates an instance of TransformerNodeManager.
+     * @param {any} args args to construct TransformerNodeManager
+     * @memberof TransformerNodeManager
      */
     constructor(args) {
         this._transformStmt = _.get(args, 'transformStmt');
@@ -43,7 +43,7 @@ class TransformNodeManager {
     /**
      * Set transform statement
      * @param {any} transformStmt transform statement
-     * @memberof TransformNodeManager
+     * @memberof TransformerNodeManager
      */
     setTransformStmt(transformStmt) {
         this._transformStmt = transformStmt;
@@ -80,7 +80,7 @@ class TransformNodeManager {
      * @param {any} source source type
      * @param {any} target target type
      * @returns {boolean} compatibility
-     * @memberof TransformNodeManager
+     * @memberof TransformerNodeManager
      */
     isConnectionValid(source, target) {
         if (this.getCompatibility(source, target)) {
@@ -93,7 +93,7 @@ class TransformNodeManager {
      * Get the vertex expression by name of the vertex
      * @param {any} name name
      * @returns {Expression} vertex expression
-     * @memberof TransformNodeManager
+     * @memberof TransformerNodeManager
      */
     getVertexExpression(name, type) {
         return TransformFactory.createVariableRefExpression(name, type);
@@ -112,7 +112,7 @@ class TransformNodeManager {
     /**
      * Creates the statement edge based on the connection drawn
      * @param {any} connection connection created
-     * @memberof TransformNodeManager
+     * @memberof TransformerNodeManager
      */
     createStatementEdge(connection) {
         const { source, target } = connection;
@@ -169,7 +169,7 @@ class TransformNodeManager {
     /**
      * Remove statement edge based on the removed connection
      * @param {any} connection connection removed
-     * @memberof TransformNodeManager
+     * @memberof TransformerNodeManager
      */
     removeStatementEdge(connection) {
         const { source, target } = connection;
@@ -202,7 +202,7 @@ class TransformNodeManager {
      * @param {any} expression expression
      * @param {any} parentNode parent node expression
      * @param {any} statement enclosing statement
-     * @memberof TransformNodeManager
+     * @memberof TransformerNodeManager
      */
     removeIntermediateNode(expression, parentNode, statement) {
         if (parentNode) {
@@ -228,7 +228,7 @@ class TransformNodeManager {
      * Get function vertices from the function invocation expression
      * @param {any} functionInvocationExpression function invocation expression
      * @returns {Object} function vertices
-     * @memberof TransformNodeManager
+     * @memberof TransformerNodeManager
      */
     getFunctionVertices(functionInvocationExpression) {
         let fullPackageName = functionInvocationExpression.getFullPackageName();
@@ -308,7 +308,7 @@ class TransformNodeManager {
      * Get operator input and output vertices
      * @param {any} operatorExpression operator expression
      * @returns vertices
-     * @memberof TransformNodeManager
+     * @memberof TransformerNodeManager
      */
     getOperatorVertices(operatorExpression) {
         const parameters = [];
@@ -368,7 +368,7 @@ class TransformNodeManager {
      * @param {string} packageIdentifier package alias or identifier
      * @param {string} structName struct name
      * @returns {Object} struct definition
-     * @memberof TransformNodeManager
+     * @memberof TransformerNodeManager
      */
     getStructDefinition(packageIdentifier, structName) {
         let pkg;
@@ -438,7 +438,7 @@ class TransformNodeManager {
      * corresponding expression that needs to be mapped is also found here.
      * @param {Expression} expression lhs or rhs expression
      * @returns {Expression} mapping expression
-     * @memberof TransformNodeManager
+     * @memberof TransformerNodeManager
      */
     getResolvedExpression(expression, statement) {
         const mapExp = this._mapper.getMappableExpression(expression);
@@ -465,7 +465,7 @@ class TransformNodeManager {
      * Add a new variable in transform scope or outer scope
      * @param {target|source} type type of the variable
      * @returns new variable identifier
-     * @memberof TransformNodeManager
+     * @memberof TransformerNodeManager
      */
     addNewVariable(type) {
         let variableName = 'tempVar';
@@ -549,4 +549,4 @@ class TransformNodeManager {
     }
  }
 
-export default TransformNodeManager;
+export default TransformerNodeManager;

@@ -21,7 +21,7 @@ import PropTypes from 'prop-types';
 import cn from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 import BallerinaDiagram from 'plugins/ballerina/diagram/diagram';
-import TransformExpanded from 'plugins/ballerina/diagram/views/default/components/transform/transform-expanded';
+import TransformerExpanded from 'plugins/ballerina/diagram/views/default/components/transformer/transformer-expanded';
 import TreeUtil from 'plugins/ballerina/model/tree-util.js';
 import DragLayer from './../drag-drop/drag-layer';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
@@ -192,7 +192,7 @@ class DesignView extends React.Component {
                         </div>
                     </Scrollbars>
                     {shouldShowTransform &&
-                        <TransformExpanded
+                        <TransformerExpanded
                             model={activeTransformModel}
                             panelResizeInProgress={this.props.panelResizeInProgress}
                             leftOffset={TOOL_PALETTE_WIDTH}

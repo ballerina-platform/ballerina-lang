@@ -20,9 +20,9 @@
 import _ from 'lodash';
 import $ from 'jquery';
 import jsPlumbLib from 'jsplumb';
-import './transform-statement.css';
+import './transformer-statement.css';
 /**
- * Renderer constructor for TransformRender
+ * Renderer constructor for TransformerRender
  * @param {function} onConnectionCallback call back function when connection made
  * @param {function} onDisconnectCallback call back function when connection removed
  * @param {object} typeConverterView Type Mapper View reference object
@@ -30,7 +30,7 @@ import './transform-statement.css';
  */
 const jsPlumb = jsPlumbLib.jsPlumb;
 
-class TransformRender {
+class TransformerRender {
     constructor(onConnectionCallback, onDisconnectCallback, container) {
         this.container = container;
         this.placeHolderName = 'transformOverlay-content';
@@ -302,7 +302,7 @@ class TransformRender {
      * @param {any} element element
      * @param {any} input input
      * @param {boolean} existingConnectionsAdded is connection added
-     * @memberof {object} TransformRender
+     * @memberof {object} TransformerRender
      */
     addSource(element, input, existingConnectionsAdded) {
         const jsPlumbInstance = existingConnectionsAdded ? this.jsPlumbInstanceNewConnections : this.jsPlumbInstance;
@@ -469,4 +469,4 @@ class TransformRender {
     }
 }
 
-export default TransformRender;
+export default TransformerRender;

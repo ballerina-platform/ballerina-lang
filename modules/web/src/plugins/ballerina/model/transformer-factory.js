@@ -24,9 +24,9 @@ import Environment from '../env/environment';
 
 /**
  * Transform factory class.
- * @class TransformFactory
+ * @class TransformerFactory
  */
-class TransformFactory {
+class TransformerFactory {
     /**
      * Create for expression for fields
      * @param {string} name expression name
@@ -79,7 +79,7 @@ class TransformFactory {
      * Create default expression based on argument type
      * @static
      * @param {any} type type
-     * @memberof TransformFactory
+     * @memberof TransformerFactory
      * @return {object} expression object
      */
     static createDefaultExpression(type) {
@@ -100,7 +100,7 @@ class TransformFactory {
      * @param {Expression} operator operator
      * @param {[string]} operandTypes operator types of the operator
      * @param {int} operandIndex index of the operand that needs the default expression
-     * @memberof TransformFactory
+     * @memberof TransformerFactory
      * @return {object} expression object
      */
     static createDefaultOperandExpression(operator, operandTypes, operandIndex) {
@@ -122,7 +122,7 @@ class TransformFactory {
             operandType = compatibility[0];
         }
 
-        return TransformFactory.createDefaultExpression(operandType);
+        return TransformerFactory.createDefaultExpression(operandType);
     }
 
     /**
@@ -144,7 +144,7 @@ class TransformFactory {
      * @param {any} expression expression
      * @param {any} targetType target type
      * @returns {Expression} type cast expression
-     * @memberof TransformFactory
+     * @memberof TransformerFactory
      */
     static createTypeCastExpr(expression, targetType) {
         const fragment = FragmentUtils.createExpressionFragment(`(${targetType})${expression.getSource()}`);
@@ -160,7 +160,7 @@ class TransformFactory {
      * @param {any} expression expression
      * @param {any} targetType target type
      * @returns {Expression} type conversion expression
-     * @memberof TransformFactory
+     * @memberof TransformerFactory
      */
     static createTypeConversionExpr(expression, targetType) {
         const fragment = FragmentUtils.createExpressionFragment(`<${targetType}>${expression.getSource()}`);
@@ -180,4 +180,4 @@ class TransformFactory {
     }
 }
 
-export default TransformFactory;
+export default TransformerFactory;

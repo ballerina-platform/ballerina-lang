@@ -16,13 +16,13 @@
  * under the License.
  */
 import React from 'react';
-import TransformStatementDecorator from './transform-statement-decorator';
+import TransformerStatementDecorator from './transform-statement-decorator';
 import PropTypes from 'prop-types';
 
 /**
  * Assignment statement decorator.
  * */
-class TransformStatement extends React.Component {
+class TransformerStatement extends React.Component {
 
     constructor(props) {
         super(props);
@@ -39,11 +39,11 @@ class TransformStatement extends React.Component {
         const hPos = model.viewState.bBox.h;
         const wPos = model.viewState.bBox.w;
 
-        return (<TransformStatementDecorator viewState={model.viewState} expression={expression} model={model} />);
+        return (<TransformerStatementDecorator viewState={model.viewState} expression={expression} model={model} />);
     }
 }
 
-TransformStatement.propTypes = {
+TransformerStatement.propTypes = {
     bBox: PropTypes.shape({
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
@@ -55,4 +55,4 @@ TransformStatement.propTypes = {
     }),
 };
 
-export default TransformStatement;
+export default TransformerStatement;
