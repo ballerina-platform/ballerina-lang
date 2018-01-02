@@ -35,7 +35,7 @@ import com.intellij.util.containers.ContainerUtil;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorInitExpressionNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorInitNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
@@ -188,8 +188,8 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         if (node != null) {
             return node;
         }
-        // If ActionInvocationNode is null, we check return the ConnectorInitExpressionNode in that case.
-        node = PsiTreeUtil.getParentOfType(element, ConnectorInitExpressionNode.class);
+        // If ActionInvocationNode is null, we check return the ConnectorInitNode in that case.
+        node = PsiTreeUtil.getParentOfType(element, InvocationNode.class);
         if (node != null) {
             return node;
         }
@@ -266,7 +266,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             }
             if (parent == null) {
                 // So if the parent is null, we consider the ActionInvocationNode as the parent node.
-                parent = PsiTreeUtil.getParentOfType(expressionListNode, ConnectorInitExpressionNode.class);
+                parent = PsiTreeUtil.getParentOfType(expressionListNode, ConnectorInitNode.class);
             }
             if (parent == null) {
                 // So if the parent is null, we consider the ExpressionListNode as the parent node.
@@ -285,10 +285,10 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             ActionInvocationNode actionInvocationNode = (ActionInvocationNode) element;
             currentElement = actionInvocationNode;
             parentElement = actionInvocationNode;
-        } else if (element instanceof ConnectorInitExpressionNode) {
-            ConnectorInitExpressionNode connectorInitExpressionNode = (ConnectorInitExpressionNode) element;
-            currentElement = connectorInitExpressionNode;
-            parentElement = connectorInitExpressionNode;
+        } else if (element instanceof ConnectorInitNode) {
+            ConnectorInitNode connectorInitNode = (ConnectorInitNode) element;
+            currentElement = connectorInitNode;
+            parentElement = connectorInitNode;
         } else if (element instanceof ExpressionNode) {
             ExpressionNode expressionNode = (ExpressionNode) element;
             currentElement = expressionNode;
@@ -309,6 +309,10 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             IdentifierPSINode identifier = (IdentifierPSINode) element;
             currentElement = identifier;
             parentElement = identifier;
+        } else if (element instanceof InvocationNode) {
+            InvocationNode invocationNode = (InvocationNode) element;
+            currentElement = invocationNode;
+            parentElement = invocationNode;
         }
 
         PsiElement namedIdentifierDefNode = getNameIdentifierDefinitionNode(parentElement);
@@ -360,7 +364,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
 
             if (parent == null) {
                 // So if the parent is null, we consider the ActionInvocationNode as the parent node.
-                parent = PsiTreeUtil.getParentOfType(expressionListNode, ConnectorInitExpressionNode.class);
+                parent = PsiTreeUtil.getParentOfType(expressionListNode, ConnectorInitNode.class);
             }
 
             if (parent == null) {
@@ -385,9 +389,9 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         } else if (element instanceof ActionInvocationNode) {
             ActionInvocationNode actionInvocationNode = (ActionInvocationNode) element;
             list = getItemsToShow(actionInvocationNode, actionInvocationNode);
-        } else if (element instanceof ConnectorInitExpressionNode) {
-            ConnectorInitExpressionNode connectorInitExpressionNode = (ConnectorInitExpressionNode) element;
-            list = getItemsToShow(connectorInitExpressionNode, connectorInitExpressionNode);
+        } else if (element instanceof ConnectorInitNode) {
+            ConnectorInitNode connectorInitNode = (ConnectorInitNode) element;
+            list = getItemsToShow(connectorInitNode, connectorInitNode);
         } else if (element instanceof ExpressionNode) {
             ExpressionNode expressionNode = (ExpressionNode) element;
             list = getItemsToShow(expressionNode, expressionNode);
@@ -403,6 +407,9 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         } else if (element instanceof IdentifierPSINode) {
             IdentifierPSINode identifier = (IdentifierPSINode) element;
             list = getItemsToShow(identifier, identifier);
+        } else if (element instanceof InvocationNode) {
+            InvocationNode invocationNode = (InvocationNode) element;
+            list = getItemsToShow(invocationNode, invocationNode);
         }
         return list;
     }
@@ -453,7 +460,6 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                 }
             }
         }
-
         return list;
     }
 
@@ -465,10 +471,12 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, FunctionReferenceNode.class);
         } else if (parent instanceof NameReferenceNode || parent instanceof FunctionReferenceNode
                 || parent instanceof ConnectorReferenceNode || parent instanceof ActionInvocationNode
-                || parent instanceof IdentifierPSINode||parent instanceof InvocationNode) {
+                || parent instanceof IdentifierPSINode) {
             namedIdentifierDefNode = parent;
-        } else if (parent instanceof ConnectorInitExpressionNode) {
+        } else if (parent instanceof ConnectorInitNode) {
             namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, ConnectorReferenceNode.class);
+        } else if (parent instanceof InvocationNode) {
+            namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, IdentifierPSINode.class);
         }
         return namedIdentifierDefNode;
     }
@@ -483,8 +491,11 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             // Get the identifier of this node.
             nameIdentifier = ((IdentifierDefSubtree) namedIdentifierDefNode).getNameIdentifier();
         }
-         if (namedIdentifierDefNode instanceof InvocationNode) {
-             nameIdentifier = PsiTreeUtil.getChildOfType(namedIdentifierDefNode, IdentifierPSINode.class);
+        if (namedIdentifierDefNode instanceof InvocationNode) {
+            nameIdentifier = PsiTreeUtil.getChildOfType(namedIdentifierDefNode, IdentifierPSINode.class);
+        }
+        if (namedIdentifierDefNode instanceof IdentifierPSINode) {
+            nameIdentifier = namedIdentifierDefNode;
         }
         return nameIdentifier;
     }
@@ -726,7 +737,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             return params;
         }
         // Get parameter nodes.
-        Collection<ParameterNode> parameterNodes = PsiTreeUtil.findChildrenOfType(node, ParameterNode.class);
+        Collection<ParameterNode> parameterNodes = PsiTreeUtil.getChildrenOfTypeAsList(node, ParameterNode.class);
         for (ParameterNode parameterNode : parameterNodes) {
             params.add(parameterNode.getText());
         }

@@ -3,22 +3,24 @@ package ${PACKAGE_NAME};
 #end
 
 import ballerina.net.http;
-import ballerina.lang.messages;
-import ballerina.lang.system;
 
 connector MyClient (string url) {
 
-    http:ClientConnector clientConnector = create http:ClientConnector(url);
+    endpoint<http:HttpClient> clientConnectorEP {
+        create http:HttpClient(url, {});
+    }
 
-    action connect (string path) (message) {
-        message request = {};
-        message response = clientConnector.get(path, request);
+    action connect (string path) (http:Response) {
+        http:Response response;
+        response, _ = clientConnectorEP.get(path, {});
         return response;
     }
 }
 
-public function main (string[] args) {
-    MyClient myClient = create MyClient("http://example.com");
-    message response = myClient.connect("");
-    system:println(messages:getStringPayload(response));
+function main (string[] args) {
+    endpoint<MyClient> myClientEP{
+        create MyClient("http://example.com");
+    }
+    http:Response response = myClientEP.connect("");
+    println(response.getStringPayload());
 }

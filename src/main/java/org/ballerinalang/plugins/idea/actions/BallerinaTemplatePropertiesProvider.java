@@ -33,7 +33,7 @@ public class BallerinaTemplatePropertiesProvider implements DefaultTemplatePrope
     @Override
     public void fillProperties(PsiDirectory directory, Properties props) {
         Module module = ModuleUtil.findModuleForPsiElement(directory);
-        boolean isBallerinaModule = BallerinaSdkService.isBallerinaModule(module);
+        boolean isBallerinaModule = BallerinaSdkService.getInstance(directory.getProject()).isBallerinaModule(module);
         if (isBallerinaModule) {
             String packageForDirectory = BallerinaUtil.suggestPackageNameForDirectory(directory);
             props.setProperty(BALLERINA_PACKAGE_NAME, packageForDirectory);

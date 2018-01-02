@@ -106,6 +106,8 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
                 return "Enum";
             case RULE_enumField:
                 return "Enum Field";
+            case RULE_endpointDeclaration:
+                return "Endpoint";
         }
         return "";
     }

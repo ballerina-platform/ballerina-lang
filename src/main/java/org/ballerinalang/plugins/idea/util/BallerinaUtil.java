@@ -23,9 +23,11 @@ import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiManager;
+import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -137,8 +139,16 @@ public class BallerinaUtil {
                 return root;
             }
 
-            // If the package name cannot be constructed, return empty string
-            return "";
+            String sdkHomePath = BallerinaSdkService.getInstance(project).getSdkHomePath(null);
+            if (sdkHomePath == null) {
+                return "";
+            }
+            VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByPath(sdkHomePath + "/src");
+            if (virtualFile == null) {
+                return "";
+            }
+
+            return getImportPath(currentDirectory, virtualFile);
         }
         // If the directory is null, return empty string
         return "";

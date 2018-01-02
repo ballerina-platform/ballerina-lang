@@ -36,11 +36,12 @@ import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
+import org.ballerinalang.plugins.idea.psi.FailedClauseNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
-import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
+import org.ballerinalang.plugins.idea.psi.RecordKeyValueNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
@@ -140,12 +141,9 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
         }
 
         if (parent instanceof PsiErrorElement) {
-
             PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
-
-            PsiElement definitionNode = PsiTreeUtil.getParentOfType(element,
-                    FunctionDefinitionNode.class, ServiceDefinitionNode.class, ConnectorDefinitionNode.class,
-                    ResourceDefinitionNode.class);
+            PsiElement definitionNode = PsiTreeUtil.getParentOfType(element, FunctionDefinitionNode.class,
+                    ServiceDefinitionNode.class, ConnectorDefinitionNode.class, ResourceDefinitionNode.class);
             if (definitionNode != null) {
 
                 if (prevVisibleSibling != null && "=".equals(prevVisibleSibling.getText())) {
@@ -201,10 +199,10 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
 
         if (parent instanceof NameReferenceNode) {
 
-            MapStructKeyValueNode mapStructKeyValueNode = PsiTreeUtil.getParentOfType(parent,
-                    MapStructKeyValueNode.class);
+            RecordKeyValueNode recordKeyValueNode = PsiTreeUtil.getParentOfType(parent,
+                    RecordKeyValueNode.class);
 
-            if (mapStructKeyValueNode == null) {
+            if (recordKeyValueNode == null) {
                 PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
                 if (prevVisibleSibling != null && "{".equals(prevVisibleSibling.getText())) {
                     FunctionDefinitionNode functionDefinitionNode = PsiTreeUtil.getParentOfType(element,

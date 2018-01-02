@@ -46,10 +46,10 @@ definition
     |   connectorDefinition
     |   structDefinition
     |   enumDefinition
-    |   typeMapperDefinition
     |   constantDefinition
     |   annotationDefinition
     |   globalVariableDefinition
+    |   transformerDefinition
     ;
 
 serviceDefinition
@@ -61,7 +61,7 @@ sourceNotation
     ;
 
 serviceBody
-    :  connectorDeclarationStmt* variableDefinitionStatement* resourceDefinition*
+    :  endpointDeclaration* variableDefinitionStatement* resourceDefinition*
     ;
 
 resourceDefinition
@@ -69,8 +69,8 @@ resourceDefinition
     ;
 
 callableUnitBody
-    :  connectorDeclarationStmt* statement*
-    |  connectorDeclarationStmt* workerDeclaration+
+    :  endpointDeclaration* statement*
+    |  endpointDeclaration* workerDeclaration+
     ;
 
 functionDefinition
@@ -87,7 +87,7 @@ connectorDefinition
     ;
 
 connectorBody
-    :  connectorDeclarationStmt* variableDefinitionStatement* (annotationAttachment* actionDefinition)*
+    :  endpointDeclaration* variableDefinitionStatement* (annotationAttachment* actionDefinition)*
     ;
 
 actionDefinition
@@ -123,30 +123,26 @@ globalVariableDefinition
     :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
     ;
 
+transformerDefinition
+    :   (PUBLIC)? TRANSFORMER LT parameterList GT (Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS)? LEFT_BRACE callableUnitBody RIGHT_BRACE
+    ;
+
 attachmentPoint
      : SERVICE (LT Identifier? GT)?         # serviceAttachPoint
      | RESOURCE                             # resourceAttachPoint
      | CONNECTOR                            # connectorAttachPoint
      | ACTION                               # actionAttachPoint
      | FUNCTION                             # functionAttachPoint
-     | TYPEMAPPER                           # typemapperAttachPoint
      | STRUCT                               # structAttachPoint
+     | ENUM                                 # enumAttachPoint
      | CONST                                # constAttachPoint
      | PARAMETER                            # parameterAttachPoint
      | ANNOTATION                           # annotationAttachPoint
+     | TRANSFORMER                          # transformerAttachPoint
      ;
 
 annotationBody
     :   fieldDefinition*
-    ;
-
-typeMapperDefinition
-    :   NATIVE TYPEMAPPER Identifier LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS SEMICOLON
-    |   TYPEMAPPER Identifier LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS LEFT_BRACE typeMapperBody RIGHT_BRACE
-    ;
-
-typeMapperBody
-    :   statement*
     ;
 
 constantDefinition
@@ -158,7 +154,7 @@ workerDeclaration
     ;
 
 workerBody
-    :   connectorDeclarationStmt* statement*
+    :   statement*
     ;
 
 typeName
@@ -169,9 +165,22 @@ typeName
     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+
     ;
 
+builtInTypeName
+     :   TYPE_ANY
+     |   TYPE_TYPE
+     |   valueTypeName
+     |   builtInReferenceTypeName
+     |   builtInTypeName (LEFT_BRACKET RIGHT_BRACKET)+
+     ;
+
 referenceTypeName
     :   builtInReferenceTypeName
     |   nameReference
+    |   anonStructTypeName
+    ;
+
+anonStructTypeName
+    : STRUCT LEFT_BRACE structBody RIGHT_BRACE
     ;
 
 valueTypeName
@@ -231,6 +240,7 @@ xmlLocalName
 statement
     :   variableDefinitionStatement
     |   assignmentStatement
+    |   bindStatement
     |   ifElseStatement
     |   iterateStatement
     |   whileStatement
@@ -243,53 +253,29 @@ statement
     |   (triggerWorker | workerReply)
     |   commentStatement
     |   expressionStmt
-    |   transformStatement
     |   transactionStatement
     |   abortStatement
-    |   retryStatement
     |   namespaceDeclarationStatement
     ;
 
-transformStatement
-    :   TRANSFORM LEFT_BRACE transformStatementBody RIGHT_BRACE
-    ;
-
-transformStatementBody
-    :   (expressionAssignmentStatement
-    |   expressionVariableDefinitionStatement
-    |   transformStatement
-    |   commentStatement)*
-    ;
-
-expressionAssignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
-    ;
-
-expressionVariableDefinitionStatement
-    :   typeName Identifier ASSIGN expression SEMICOLON
-    ;
-
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN  expression)? SEMICOLON
+    :   typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
-connectorDeclarationStmt
-    : nameReference Identifier (ASSIGN connectorInitExpression )? SEMICOLON
+recordLiteral
+    :   LEFT_BRACE (recordKeyValue (COMMA recordKeyValue)*)? RIGHT_BRACE
     ;
 
-mapStructLiteral
-    :   LEFT_BRACE (mapStructKeyValue (COMMA mapStructKeyValue)*)? RIGHT_BRACE
+recordKeyValue
+    :   recordKey COLON recordValue
     ;
 
-mapStructKeyValue
-    :   mapStructKey COLON mapStructValue
+recordKey
+    :   Identifier
+    |   simpleLiteral
     ;
 
-mapStructKey
-    :   expression
-    ;
-
-mapStructValue
+recordValue
     :   expression
     ;
 
@@ -297,21 +283,24 @@ arrayLiteral
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
     ;
 
-connectorInitExpression
-    :   CREATE connectorReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS (WITH filterInitExpressionList)?
+connectorInit
+    :   CREATE connectorReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
-filterInitExpression
-    : connectorReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+endpointDeclaration
+    :   ENDPOINT (LT connectorReference GT) Identifier LEFT_BRACE endpointBody RIGHT_BRACE
     ;
 
-filterInitExpressionList
-    : filterInitExpression (COMMA filterInitExpression)*
+endpointBody
+    :   ((variableReference | connectorInit) SEMICOLON)?
     ;
 
 assignmentStatement
     :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
-    |   variableReferenceList ASSIGN connectorInitExpression SEMICOLON
+    ;
+
+bindStatement
+    :   BIND expression WITH nameReference SEMICOLON
     ;
 
 variableReferenceList
@@ -449,31 +438,26 @@ expressionStmt
     ;
 
 transactionStatement
-    :   TRANSACTION LEFT_BRACE codeBlockBody transactionHandlers? RIGHT_BRACE
+    :   TRANSACTION (WITH transactionPropertyInitStatementList)? LEFT_BRACE codeBlockBody failedClause? RIGHT_BRACE
     ;
 
-transactionHandlers
-    :   failedClause abortedClause committedClause
+transactionPropertyInitStatement
+    : retriesStatement
+    ;
+
+transactionPropertyInitStatementList
+    : transactionPropertyInitStatement (COMMA transactionPropertyInitStatement)*
     ;
 
 failedClause
     :   RIGHT_BRACE FAILED LEFT_BRACE codeBlockBody
     ;
-
-abortedClause
-    :   RIGHT_BRACE ABORTED LEFT_BRACE codeBlockBody
-    ;
-
-committedClause
-    :   RIGHT_BRACE COMMITTED LEFT_BRACE codeBlockBody
-    ;
-
 abortStatement
     :   ABORT SEMICOLON
     ;
 
-retryStatement
-    :   RETRY expression SEMICOLON
+retriesStatement
+    :   RETRIES LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
     ;
 
 namespaceDeclarationStatement
@@ -487,16 +471,18 @@ namespaceDeclaration
 expression
     :   simpleLiteral                                                       # simpleLiteralExpression
     |   arrayLiteral                                                        # arrayLiteralExpression
-    |   mapStructLiteral                                                    # mapStructLiteralExpression
+    |   recordLiteral                                                       # recordLiteralExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   valueTypeName DOT Identifier                                        # valueTypeTypeExpression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
     |   variableReference                                                   # variableReferenceExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
+    |   connectorInit                                                       # connectorInitExpression
     |   typeCast                                                            # typeCastingExpression
     |   typeConversion                                                      # typeConversionExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
+    |   TYPEOF builtInTypeName                                              # typeAccessExpression
     |   (ADD | SUB | NOT | LENGTHOF | TYPEOF) simpleExpression              # unaryExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression
     |   expression POW expression                                           # binaryPowExpression
@@ -506,6 +492,7 @@ expression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
+    |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     ;
 
 simpleExpression
@@ -517,7 +504,7 @@ typeCast
     ;
 
 typeConversion
-    :   LT typeName GT simpleExpression
+    :   LT typeName (COMMA transformerInvocation)? GT expression
     ;
 
 //reusable productions
@@ -544,6 +531,14 @@ structReference
 
 workerReference
     :   Identifier
+    ;
+
+transformerInvocation
+    : transformerReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    ;
+
+transformerReference
+    :   (packageName COLON)? Identifier
     ;
 
 codeBlockBody

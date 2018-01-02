@@ -18,7 +18,6 @@ package org.ballerinalang.plugins.idea.debugger;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.ColoredTextContainer;
@@ -31,15 +30,15 @@ import com.intellij.xdebugger.frame.XStackFrame;
 import com.intellij.xdebugger.frame.XValueChildrenList;
 import org.ballerinalang.plugins.idea.debugger.dto.Frame;
 import org.ballerinalang.plugins.idea.debugger.dto.Variable;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 
 public class BallerinaStackFrame extends XStackFrame {
 
@@ -70,8 +69,38 @@ public class BallerinaStackFrame extends XStackFrame {
 
     @Nullable
     private VirtualFile findFile() {
-        String absolutePath = myFrame.getFileName();
-        return LocalFileSystem.getInstance().findFileByPath(absolutePath);
+        String fileName = myFrame.getFileName();
+        // First try to find the matching file locally.
+        VirtualFile file = LocalFileSystem.getInstance().findFileByPath(fileName);
+        if (file != null) {
+            return file;
+        }
+        // If the file is not available locally, we use package path and file path to find the matching file in the
+        // project.
+        String packageName = myFrame.getPackageName();
+        Project project = myProcess.getSession().getProject();
+        String projectBasePath = project.getBaseDir().getPath();
+        // if the package path is ".", full path of the file will be sent as the file name.
+        if (".".equals(packageName) && fileName.contains("/")) {
+            String filePath = constructFilePath(projectBasePath, "", fileName.substring(fileName.lastIndexOf("/")));
+            return LocalFileSystem.getInstance().findFileByPath(filePath);
+        } else {
+            String filePath = constructFilePath(projectBasePath, packageName, fileName);
+            VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByPath(filePath);
+            if (virtualFile != null) {
+                return virtualFile;
+            }
+            String path = Paths.get(packageName.replaceAll("\\.", "/"), fileName).toString();
+            return BallerinaPsiImplUtil.findFileInProjectSDK(project, path);
+        }
+    }
+
+    private String constructFilePath(@NotNull String projectBasePath, @NotNull String packagePath,
+                                     @NotNull String fileName) {
+        StringBuilder stringBuilder = new StringBuilder(projectBasePath).append("/");
+        stringBuilder = stringBuilder.append(packagePath.replaceAll("\\.", "/")).append("/");
+        stringBuilder = stringBuilder.append(fileName);
+        return stringBuilder.toString();
     }
 
     /**
@@ -115,18 +144,15 @@ public class BallerinaStackFrame extends XStackFrame {
         // Iterate through each scope in the map.
         scopeMap.forEach((scopeName, variableList) -> {
             // Create a new XValueChildrenList to hold the XValues.
-            XValueChildrenList xValueChildrenList = new XValueChildrenList(variableList.size());
+            XValueChildrenList xValueChildrenList = new XValueChildrenList();
             // Create a new variable to represent the scope.
             Variable scopeVariable = new Variable();
             // Set the variable name.
             scopeVariable.setName(scopeName);
             // Set the children.
             scopeVariable.setChildren(variableList);
-            // Create a new XValue.
-            BallerinaXValue ballerinaXValue = new BallerinaXValue(myProcess, myFrame.getFrameName(), scopeVariable,
-                    AllIcons.Debugger.Value);
-            // Add the XValue to the list.
-            xValueChildrenList.add(scopeName, ballerinaXValue);
+            // Add the variables to the children list using a ValueGroup.
+            xValueChildrenList.addBottomGroup(new BallerinaXValueGroup(myProcess, myFrame, scopeName, scopeVariable));
             // Add the list to the node as children.
             node.addChildren(xValueChildrenList, true);
         });

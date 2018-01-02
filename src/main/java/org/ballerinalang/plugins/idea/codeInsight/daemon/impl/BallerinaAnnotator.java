@@ -49,7 +49,7 @@ import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.ballerinalang.plugins.idea.psi.XmlAttribNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
-import org.ballerinalang.plugins.idea.psi.references.StructKeyReference;
+import org.ballerinalang.plugins.idea.psi.references.RecordKeyReference;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -65,8 +65,6 @@ public class BallerinaAnnotator implements Annotator {
             "|(u[0-f]{0,3}[^0-f]))))|(\\\\(?!.))";
     private static final Pattern INVALID_ESCAPE_CHAR_PATTERN = Pattern.compile(INVALID_ESCAPE_CHARACTERS);
 
-    private static final String QUERY_PARAMETERS = "\\w+=(\\{([^&]+)})";
-    private static final Pattern QUERY_PARAMETERS_PATTERN = Pattern.compile(QUERY_PARAMETERS);
     private static final String PATH_PARAMETERS = "(?<!=)(\\{(\\w+?)})";
     private static final Pattern PATH_PARAMETERS_PATTERN = Pattern.compile(PATH_PARAMETERS);
 
@@ -147,38 +145,6 @@ public class BallerinaAnnotator implements Annotator {
             boolean canHighlightParameters = canHighlightParameters(element);
             if (canHighlightParameters && annotationAttributeNode != null) {
                 // Annotate query parameters in annotation attachments.
-                matcher = QUERY_PARAMETERS_PATTERN.matcher(text);
-                // Get the start offset of the element.
-                startOffset = ((LeafPsiElement) element).getStartOffset();
-                // Iterate through each match.
-                while (matcher.find()) {
-                    // Get the matching value without the enclosing {}.
-                    String value = matcher.group(2);
-                    if (value == null) {
-                        continue;
-                    }
-                    // Calculate the start and end offsets and create the range. We need to add 2 to include the
-                    // {} ignored.
-                    TextRange range = new TextRange(startOffset + matcher.start(1),
-                            startOffset + matcher.start(1) + value.length() + 2);
-                    // Check whether a matching resource parameter is available.
-                    boolean isMatchAvailable = isMatchingParamAvailable(annotationAttributeNode, value,
-                            "QueryParam");
-                    // Create the annotation.
-                    if (isMatchAvailable) {
-                        Annotation annotation = holder.createInfoAnnotation(range,
-                                "Query parameter '" + value + "'");
-                        annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.TEMPLATE_LANGUAGE_COLOR);
-                    } else {
-                        Annotation annotation = holder.createErrorAnnotation(range,
-                                "Query parameter '" + value + "' not found in the resource signature");
-                        annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.INVALID_STRING_ESCAPE);
-                    }
-                }
-            }
-
-            if (canHighlightParameters && annotationAttributeNode != null) {
-                // Annotate query parameters in annotation attachments.
                 matcher = PATH_PARAMETERS_PATTERN.matcher(text);
                 // Get the start offset of the element.
                 startOffset = ((LeafPsiElement) element).getStartOffset();
@@ -210,7 +176,7 @@ public class BallerinaAnnotator implements Annotator {
             }
         } else if (element instanceof IdentifierPSINode) {
             PsiReference reference = element.getReference();
-            if (reference == null || reference instanceof StructKeyReference) {
+            if (reference == null || reference instanceof RecordKeyReference) {
                 return;
             }
             PsiElement resolvedElement = reference.resolve();

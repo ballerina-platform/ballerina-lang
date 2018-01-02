@@ -47,13 +47,13 @@ public class AdjustPackageNameFix extends LocalQuickFixAndIntentionActionOnPsiEl
     @Override
     @NotNull
     public String getFamilyName() {
-        return QuickFixBundle.message("adjust.package.family");
+        return "Adjust Package Name";
     }
 
     @NotNull
     @Override
     public String getText() {
-        return QuickFixBundle.message("adjust.package.text", myName);
+        return "Set package name to '" + myName + "'";
     }
 
     @Override

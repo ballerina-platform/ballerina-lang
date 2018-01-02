@@ -32,14 +32,12 @@ IntelliJ Platfom.
 
 | Plugin Version | Platform Version |
 | --- | --- |
-| 0.8.0 - 0.8.2 | IntelliJ IDEA 2016.3 - 2016.* |
-| 0.8.3+ | IntelliJ IDEA 2016.3+ |
+| 0.8.0 - 0.8.2 | IntelliJ IDEA 2016.3+ (Does not support IntelliJ IDEA 2017+)|
+| 0.8.3+ | IntelliJ IDEA 2016.3+ (Supports IntelliJ IDEA 2017+)|
 
 ## Getting started
 
 Please refer the [Getting Started](getting-started) section.
-
-**Note:** Please note that all of the `transaction`, `failed`, `committed`, `aborted` clauses are mandatory for the **transaction statement** due to a limitation in the grammar.
 
 ## How to contribute
 Pull requests are highly encouraged and we recommend you to create a GitHub issue to discuss the issue or feature that you are contributing to.

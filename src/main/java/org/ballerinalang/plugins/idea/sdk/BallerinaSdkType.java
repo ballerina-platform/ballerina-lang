@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public class BallerinaSdkType extends SdkType {
 
@@ -62,7 +62,6 @@ public class BallerinaSdkType extends SdkType {
     public String suggestHomePath() {
         VirtualFile suggestSdkDirectory = BallerinaSdkUtil.suggestSdkDirectory();
         return suggestSdkDirectory != null ? suggestSdkDirectory.getPath() : null;
-        //        return null;
     }
 
     @Override

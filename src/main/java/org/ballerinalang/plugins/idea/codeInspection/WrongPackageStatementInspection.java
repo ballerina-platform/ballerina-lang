@@ -16,7 +16,6 @@
 
 package org.ballerinalang.plugins.idea.codeInspection;
 
-import com.intellij.codeInsight.daemon.JavaErrorMessages;
 import com.intellij.codeInspection.InspectionManager;
 import com.intellij.codeInspection.LocalInspectionTool;
 import com.intellij.codeInspection.LocalQuickFix;
@@ -30,7 +29,6 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
-import com.intellij.psi.util.FileTypeUtils;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
@@ -62,11 +60,8 @@ public class WrongPackageStatementInspection extends LocalInspectionTool {
             return new ProblemDescriptor[0];
         }
         Module module = ModuleUtil.findModuleForFile(file.getVirtualFile(), file.getProject());
-        boolean isBallerinaModule = BallerinaSdkService.isBallerinaModule(module);
+        boolean isBallerinaModule = BallerinaSdkService.getInstance(file.getProject()).isBallerinaModule(module);
         if (!isBallerinaModule) {
-            return new ProblemDescriptor[0];
-        }
-        if (FileTypeUtils.isInServerPageFile(file)) {
             return new ProblemDescriptor[0];
         }
         BallerinaFile ballerinaFile = (BallerinaFile) file;
@@ -91,7 +86,7 @@ public class WrongPackageStatementInspection extends LocalInspectionTool {
                 return new ProblemDescriptor[0];
             }
             if (!Comparing.strEqual(packageName, "", true) && packageDeclarationNode == null) {
-                String description = JavaErrorMessages.message("missing.package.statement", packageName);
+                String description = "Missing package statement: '" + packageName + "'";
                 ProblemDescriptor problemDescriptor = manager.createProblemDescriptor(nameIdentifier, description,
                         new AdjustPackageNameFix(nameIdentifier, packageName),
                         ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly);
@@ -157,8 +152,8 @@ public class WrongPackageStatementInspection extends LocalInspectionTool {
                                                       String packageName, List<LocalQuickFix> availableFixes,
                                                       FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode,
                                                       PackageNameNode lastElement) {
-        String description = JavaErrorMessages.message("package.name.file.path.mismatch", lastElement.getText(),
-                packageName);
+        String description = "Package name '" + lastElement.getText() + "' does not correspond to the file path '" +
+                packageName + "'";
         LocalQuickFix[] fixes = availableFixes.toArray(new LocalQuickFix[availableFixes.size()]);
         ProblemDescriptor descriptor = manager.createProblemDescriptor(fullyQualifiedPackageNameNode, description,
                 isOnTheFly, fixes, ProblemHighlightType.GENERIC_ERROR_OR_WARNING);

@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 
 public class BallerinaRemoteConfiguration extends BallerinaRunConfigurationWithMain<BallerinaRemoteRunningState> {
 
-    private static final String IP_REGEX = "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$";
+    private static final String IP_REGEX = "^(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|localhost)$";
     private static final Pattern IP_PATTERN = Pattern.compile(IP_REGEX);
 
     private static final String PORT_REGEX = "^\\d{1,5}$";

@@ -25,203 +25,9 @@ import java.util.List;
 
 public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
-    private static final List<String> FILE_LEVEL_KEYWORDS = Arrays.asList("public", "package", "import", "const",
-            "service", "function", "connector", "struct", "typemapper", "annotation", "enum");
-    private static final List<String> DATA_TYPES = Arrays.asList("boolean", "int", "float", "string", "blob");
-    private static final List<String> REFERENCE_TYPES = Arrays.asList("message", "map", "xml", "json", "datatable");
-    private static final List<String> XMLNS_TYPE = Collections.singletonList("xmlns");
-    private static final List<String> OTHER_TYPES = Arrays.asList("any", "type", "var");
-    private static final List<String> COMMON_KEYWORDS = Arrays.asList("if", "else", "fork", "join", "timeout",
-            "worker", "transform", "transaction", "failed", "aborted", "committed", "abort", "try", "catch", "finally",
-            "iterate", "while", "next", "break", "throw");
-    private static final List<String> VALUE_KEYWORDS = Arrays.asList("true", "false", "null");
-    private static final List<String> FUNCTION_LEVEL_KEYWORDS = Collections.singletonList("return");
-
     private static final String UTILS_PACKAGE_NAME = "org/test/utils.bal";
     private static final String SAMPLE_UTIL_FUNCTIONS = "package org.test; public function getA(){} public function " +
             "getB(){}";
-
-    @Override
-    protected String getTestDataPath() {
-        return getTestDataPath("completion");
-    }
-
-    /**
-     * Test file level lookups.
-     */
-    public void testEmptyFile() {
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        doTest("<caret>", expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
-
-    public void testEmptyFilePackageKeyword() {
-        doTest("p<caret>", "public", "import", "package", "typemapper", "map", "type");
-    }
-
-    public void testEmptyFileImportKeyword() {
-        doTest("i<caret>", "public", "annotation", "function", "import", "service", "int", "string");
-    }
-
-    public void testEmptyFileWithSpaceBeforeCaret() {
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        doTest("\n<caret>", expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
-
-    public void testEmptyFileWithSpaceBeforeCaretPackageKeyword() {
-        doTest("\np<caret>", "public", "import", "package", "typemapper", "map", "type");
-    }
-
-    public void testEmptyFileWithSpaceBeforeCaretImportKeyword() {
-        doTest("\ni<caret>", "public", "annotation", "function", "import", "service", "int", "string");
-    }
-
-    public void testEmptyFileWithSpaceAfterCaret() {
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        doTest("<caret>\n", expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
-
-    public void testEmptyFileWithSpaceAfterCaretPackageKeyword() {
-        doTest("p<caret>\n", "public", "import", "package", "typemapper", "map", "type");
-    }
-
-    public void testEmptyFileWithSpaceAfterCaretImportKeyword() {
-        doTest("i<caret>\n", "public", "annotation", "function", "import", "service", "int", "string");
-    }
-
-    public void testEmptyFileWithSpaces() {
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        doTest("\n<caret>\n", expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
-
-    public void testEmptyFileWithSpacesPackageKeyword() {
-        doTest("\np<caret>\n", "public", "import", "package", "typemapper", "map", "type");
-    }
-
-    public void testEmptyFileWithSpacesImportKeyword() {
-        doTest("\ni<caret>\n", "public", "annotation", "function", "import", "service", "int", "string");
-    }
-
-    public void testImportAfterPackage() {
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.add("public");
-        expectedLookups.add("import");
-        expectedLookups.add("const");
-        expectedLookups.add("service");
-        expectedLookups.add("function");
-        expectedLookups.add("connector");
-        expectedLookups.add("struct");
-        expectedLookups.add("typemapper");
-        expectedLookups.add("annotation");
-        expectedLookups.add("enum");
-        doTest("package test; \n<caret>\n", expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
-
-    public void testImportAfterPackagePartialIdentifier() {
-        doTest("package test; \ni<caret>\n", "public", "annotation", "function", "import", "service", "int", "string");
-    }
-
-    public void testImportAfterPackageBeforeFunction() {
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.add("public");
-        expectedLookups.add("import");
-        expectedLookups.add("const");
-        expectedLookups.add("service");
-        expectedLookups.add("function");
-        expectedLookups.add("connector");
-        expectedLookups.add("struct");
-        expectedLookups.add("typemapper");
-        expectedLookups.add("annotation");
-        expectedLookups.add("enum");
-        doTest("package test; \n<caret>\nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
-
-    public void testImportAfterPackageBeforeFunctionPartialIdentifier() {
-        doTest("package test; \ni<caret>\nfunction A(){}", "public", "annotation", "function", "import", "service",
-                "int", "string");
-    }
-
-    public void testPackageBeforeImport() {
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        doTest("<caret>\nimport test; \nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
-
-    public void testPackageBeforeImportPartialIdentifier() {
-        doTest("p<caret>\nimport test; \nfunction A(){}", "public", "import", "package", "typemapper", "map", "type");
-    }
-
-    public void testImportBeforeImport() {
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        doTest("<caret>\nimport test; \nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
-
-    public void testImportBeforeImportPartialIdentifier() {
-        doTest("i<caret>\nimport test; \nfunction A(){}", "public", "annotation", "function", "import", "service",
-                "int", "string");
-    }
-
-    public void testImportAfterImport() {
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.add("public");
-        expectedLookups.add("import");
-        expectedLookups.add("const");
-        expectedLookups.add("service");
-        expectedLookups.add("function");
-        expectedLookups.add("connector");
-        expectedLookups.add("struct");
-        expectedLookups.add("typemapper");
-        expectedLookups.add("annotation");
-        expectedLookups.add("enum");
-        expectedLookups.add("test");
-        myFixture.addFileToProject("test/file.bal", "string s = \"\";");
-        doTest("import test; \n<caret> \nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
-
-    public void testImportAfterImportPartialIdentifier() {
-        doTest("import test; \ni<caret> \nfunction A(){}", "public", "annotation", "function", "import", "service",
-                "int", "string");
-    }
 
     /**
      * Test package declaration level lookups.
@@ -270,86 +76,6 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     /**
-     * Test constant declaration level lookups.
-     */
-    public void testConstTypes() {
-        doTest("const <caret>", DATA_TYPES.toArray(new String[DATA_TYPES.size()]));
-    }
-
-    public void testConstIdentifier() {
-        doTest("const boolean <caret>");
-    }
-
-    public void testConstValues() {
-        doTest("const string NAME = <caret>", "true", "false", "null");
-    }
-
-    public void testConstantAnnotation() {
-        doCheckResult("test.bal", "@<caret> const string S=\"\";", null, '@');
-    }
-
-    public void testConstantAnnotationWithImports() {
-        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
-        doCheckResult("test.bal", "import org.test; <caret> const string S=\"\";", null, '@', "test");
-    }
-
-    public void testConstantAnnotationWithImportsNoAnnotationDefinitions() {
-        myFixture.addFileToProject("org/test/file.bal", "function test(){}");
-        doCheckResult("test.bal", "import org.test; @test<caret> const string S=\"\";", null, ':');
-    }
-
-    public void testConstantAnnotationWithImportsWithNoMatchingAnnotationDefinitions() {
-        myFixture.addFileToProject("org/test/file.bal", "public annotation TEST attach service {}");
-        doCheckResult("test.bal", "import org.test; @test:<caret> const string S=\"\";", null, null);
-    }
-
-    public void testConstantAnnotationWithImportsWithMatchingAnnotationDefinitions() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; public annotation TEST attach const {} " +
-                "annotation TEST2 attach resource {}");
-        doCheckResult("test.bal", "import org.test; @test:<caret> const string S=\"\";", null, null, "TEST");
-    }
-
-    public void testConstantAnnotationWithImportsWithMatchingAnnotationDefinitionsAutoCompletion() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; public annotation TEST attach const {}");
-        doCheckResult("test.bal", "import org.test; @test:T<caret> const string S=\"\";",
-                "import org.test; @test:TEST {} const string S=\"\";", null);
-    }
-
-    public void testConstantAnnotationInCurrentPackageSameFile() {
-        doCheckResult("test.bal", "annotation TEST attach const {} <caret> const string S=\"\";", null, '@',
-                "TEST");
-    }
-
-    public void testConstantAnnotationInCurrentPackageSameFileAutoComplete() {
-        doCheckResult("test.bal", "annotation TEST attach const {} @T<caret> const string S=\"\";",
-                "annotation TEST attach const {} @TEST {} const string S=\"\";", null);
-    }
-
-    public void testConstantAnnotationInCurrentPackageDifferentFile() {
-        myFixture.addFileToProject("file.bal", "annotation TEST attach const {}");
-        doCheckResult("test.bal", "<caret> const string S=\"\";", null, '@', "TEST");
-    }
-
-    public void testConstantAnnotationInCurrentPackageDifferentFileAutoComplete() {
-        myFixture.addFileToProject("file.bal", "annotation TEST attach function {}");
-        doCheckResult("test.bal", "@T<caret> function A(){}", "@TEST {} function A(){}", null);
-    }
-
-    public void testConstantAnnotationInCurrentPackageDifferentFileHasMoreDefinitionsAfter() {
-        myFixture.addFileToProject("file.bal", "annotation TEST attach const {}");
-        doCheckResult("test.bal", "<caret> const string S=\"\"; service R{}", null, '@', "TEST");
-    }
-
-    public void testConstantAnnotationInCurrentPackageSameFileHasMoreDefinitionsAfter() {
-        doCheckResult("test.bal", "annotation TEST attach const {} <caret> const string S=\"\"; service R{}", null, '@',
-                "TEST");
-    }
-
-    public void testConstantTypesBeforeGlobalVarDef() {
-        doTest("const <caret>\n string test =\"\";", DATA_TYPES.toArray(new String[DATA_TYPES.size()]));
-    }
-
-    /**
      * Test annotation level lookups.
      */
     public void testAnnotationIdentifier() {
@@ -361,13 +87,13 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testAnnotationAttachmentPoints() {
-        doTest("annotation A attach <caret>", "service", "connector", "action", "function", "typemapper", "struct",
-                "const", "parameter", "annotation", "resource");
+        doTest("annotation A attach <caret>", "service", "connector", "action", "function", "struct", "const",
+                "parameter", "annotation", "resource");
     }
 
     public void testMultipleAnnotationAttachmentPoints() {
-        doTest("annotation A attach service, <caret>", "service", "connector", "action", "function", "typemapper",
-                "struct", "const", "parameter", "annotation", "resource");
+        doTest("annotation A attach service, <caret>", "service", "connector", "action", "function", "struct",
+                "const", "parameter", "annotation", "resource");
     }
 
     /**
@@ -405,82 +131,6 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testAnnotationFieldValuesFromDifferentPackage() {
         myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach function { string key; string value;}");
         doTest("import org.test; @test:TEST{key:<caret>} function A(){}", "true", "false", "null");
-    }
-
-    /**
-     * Test global variables.
-     */
-    public void testGlobalVariableIdentifier() {
-        doTest("string <caret>");
-    }
-
-    public void testGlobalVariableFunctionValue() {
-        doCheckResult("test.bal", "string test = g<caret> function getValue()(string){return \"\";}",
-                "string test = getValue() function getValue()(string){return \"\";}", null);
-    }
-
-    public void testGlobalVariablePackageValue() {
-        myFixture.addFileToProject("org/test/file.bal", "function getValue()(string){return \"\";}");
-        doTest("import org.test; string s = <caret> ", "test", "true", "false", "null");
-    }
-
-    public void testGlobalVariablePackageValueCompletion() {
-        myFixture.addFileToProject("org/test/file.bal", "function getValue()(string){return \"\";}");
-        doCheckResult("test.bal", "import org.test; string s = te<caret> ", "import org.test; string s = test: ",
-                null);
-    }
-
-    public void testGlobalVariablePackageValueDifferentPackage() {
-        myFixture.addFileToProject("org/test/file.bal", "public function getValue()(string){return \"\";}");
-        doTest("import org.test; string s = test:<caret> ", "getValue");
-    }
-
-    public void testGlobalVariablePackageValueCompletionDifferentPackage() {
-        myFixture.addFileToProject("org/test/file.bal", "public function getValue()(string){return \"\";}");
-        doCheckResult("test.bal", "import org.test; string s = test:g<caret> ",
-                "import org.test; string s = test:getValue() ", null);
-    }
-
-    public void testGlobalVariablePackageValueDifferentFile() {
-        myFixture.addFileToProject("file.bal", "function getValue()(string){return \"\";}");
-        doTest("string s = <caret> ", "getValue", "true", "false", "null");
-    }
-
-    public void testGlobalVariablePackageValueDifferentFileCompletion() {
-        myFixture.addFileToProject("file.bal", "function getValue()(string){return \"\";}");
-        doCheckResult("test.bal", "string s = g<caret>", "string s = getValue()", null);
-    }
-
-    public void testGlobalVariableInSamePackageSameFile() {
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.addAll(COMMON_KEYWORDS);
-        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
-        expectedLookups.add("S");
-        expectedLookups.add("F");
-        doTest("string S=\"\"; function F(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
-
-    public void testGlobalVariableInSamePackageDifferentFile() {
-        myFixture.addFileToProject("file.bal", "string S=\"\";");
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.addAll(COMMON_KEYWORDS);
-        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
-        expectedLookups.add("S");
-        expectedLookups.add("F");
-        doTest("function F(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
-
-    public void testGlobalVariableInDifferentPackage() {
-        myFixture.addFileToProject("org/test/file.bal", "string S=\"\";");
-        doTest("import org.test; function F(){ test:<caret> }", "S");
     }
 
     /**
@@ -616,14 +266,13 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("finally");
         expectedLookups.add("iterate");
         expectedLookups.add("while");
-        expectedLookups.add("committed");
         expectedLookups.add("failed");
         doTest("function test () { i<caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testFunctionBodyWithFunctionLevelKeywords() {
-        doTest("function test () { r<caret> }", "return", "string", "fork", "worker", "transform", "transaction",
-                "abort", "aborted", "try", "break", "iterate", "throw", "var");
+        doTest("function test () { r<caret> }", "return", "string", "fork", "worker", "transaction",
+                "abort", "try", "break", "iterate", "throw", "var");
     }
 
     public void testInvokingFunctionInDifferentFile1() {
@@ -658,8 +307,11 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.add("test");
         expectedLookups.add("main");
+        expectedLookups.add("args");
+        expectedLookups.add("return");
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ <caret> \ntest:getA(); }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
@@ -906,7 +558,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testConnectorCreation() {
         myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
-        doTest("import org.test; function A(){ test:TestConnector c = create <caret> }", "test", "A");
+        doTest("import org.test; function A(){ test:TestConnector c = create <caret> }", "test");
     }
 
     public void testConnectorCreationPackageAutoCompletion() {
@@ -1031,7 +683,6 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("string");
         expectedLookups.add("test");
         expectedLookups.add("transaction");
-        expectedLookups.add("transform");
         expectedLookups.addAll(XMLNS_TYPE);
         doTest("function test(){ if(a==a){}\n s<caret> \nint a; }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
@@ -1043,120 +694,6 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testStrings() {
         doTest("function test() { int a; system:println(\"<caret>\") }");
     }
-
-    /**
-     * Test function parameter level lookups.
-     */
-    public void testFunctionParamIdentifier() {
-        doTest("function test(string <caret>)");
-    }
-
-    public void testFunctionParamWithoutImports() {
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        doTest("function test(<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
-
-    public void testFunctionParamWithImports() {
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.add("test");
-        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
-        doTest("import org.test; function B(<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
-
-    public void testFunctionParamWithoutImportsAutoCompletion() {
-        doCheckResult("test.bal", "function test(st<caret>)", "function test(string )", null);
-    }
-
-    public void testFunctionParamWithImportsAutoCompletion() {
-        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
-        doCheckResult("test.bal", "import org.test; function B(te<caret>)",
-                "import org.test; function B(test:)", null);
-    }
-
-    public void testCaretAfterFunctionParamWithoutImports() {
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        doTest("function test(string s,<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
-
-    public void testCaretBeforeFunctionParamWithoutImports() {
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        doTest("function test(<caret>string s)", expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
-
-    public void testCaretAfterFunctionParamWithImports() {
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.add("test");
-        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
-        doTest("import org.test; function test(string s,<caret>)",
-                expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
-
-    public void testCaretBeforeFunctionParamWithImports() {
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.add("test");
-        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
-        doTest("import org.test; function test(<caret>string s)",
-                expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
-
-    public void testParamAnnotationsPackage() {
-        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach parameter {}");
-        doTest("import org.test; function A(@<caret>)", "test");
-    }
-
-    public void testParamAnnotationsPackageAutoCompletion() {
-        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach parameter {}");
-        doCheckResult("test.bal", "import org.test; function A(@te<caret>)",
-                "import org.test; function A(@test:)", null);
-    }
-
-    public void testParamAnnotationsFromAPackage() {
-        myFixture.addFileToProject("org/test/file.bal", "public annotation TEST attach parameter {}");
-        doTest("import org.test; function A(@test:<caret>)", "TEST");
-    }
-
-    public void testParamAnnotationsFromAPackageAutoCompletion() {
-        myFixture.addFileToProject("org/test/file.bal", "public annotation TEST attach parameter {}");
-        doCheckResult("test.bal", "import org.test; function A(@test:T<caret>)",
-                "import org.test; function A(@test:TEST {})", null);
-    }
-
-    public void testPackageInvocationInParameter() {
-        myFixture.addFileToProject("org/test/file.bal", "public struct test {}");
-        doTest("import org.test; function A(test:<caret>)", "test");
-    }
-
-    public void testPackageInvocationInParameterAutoCompletion() {
-        myFixture.addFileToProject("org/test/file.bal", "public struct test {}");
-        doCheckResult("test.bal", "import org.test; function A(test:t<caret>)",
-                "import org.test; function A(test:test )", null);
-    }
-
-    // todo - query param annotations
 
     /**
      * Test service level lookups.
@@ -1520,7 +1057,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testConnectorBodyVariableInitializationPackageInvocationAutoCompletion() {
         myFixture.addFileToProject("org/test/file.bal", "package org.test; public connector TEST () {}");
         doCheckResult("test.bal", "import org.test; connector C(){ test:TEST t = create test:T<caret> }",
-                "import org.test; connector C(){ test:TEST t = create test:TEST() }", null);
+                "import org.test; connector C(){ test:TEST t = create test:TEST }", null);
     }
 
     /**
@@ -1691,169 +1228,6 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     /**
-     * Test typemapper level lookups.
-     */
-    public void testTypeMapperIdentifier() {
-        doTest("typemapper <caret>");
-    }
-
-    public void testTypeMapperAnnotation() {
-        doCheckResult("test.bal", "@<caret> typemapper T(int)(string) {}", null, '@');
-    }
-
-    public void testTypeMapperAnnotationWithImports() {
-        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
-        doCheckResult("test.bal", "import org.test; <caret>typemapper T(int)(string) {}", null, '@', "test");
-    }
-
-    public void testTypeMapperAnnotationWithImportsNoAnnotationDefinitions() {
-        myFixture.addFileToProject("org/test/file.bal", "function test(){}");
-        doCheckResult("test.bal", "import org.test; @test<caret> typemapper T(int)(string) {}", null, ':');
-    }
-
-    public void testTypeMapperAnnotationWithImportsWithNoMatchingAnnotationDefinitions() {
-        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach test {}");
-        doCheckResult("test.bal", "import org.test; @test:<caret> typemapper T(int)(string) {}", null, null);
-    }
-
-    public void testTypeMapperAnnotationWithImportsWithMatchingAnnotationDefinitions() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; public annotation TEST attach typemapper " +
-                "{} " +
-                "annotation TEST2 attach resource {}");
-        doCheckResult("test.bal", "import org.test; @test:<caret> typemapper T(int)(string) {}", null, null, "TEST");
-    }
-
-    public void testTypeMapperAnnotationWithImportsWithMatchingAnnotationDefinitionsAutoCompletion() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; public annotation TEST attach typemapper " +
-                "{}");
-        doCheckResult("test.bal", "import org.test; @test:T<caret> typemapper T(int)(string) {}",
-                "import org.test; @test:TEST {} typemapper T(int)(string) {}", null);
-    }
-
-    public void testTypeMapperAnnotationInCurrentPackageSameFile() {
-        doCheckResult("test.bal", "annotation TEST attach typemapper {} <caret> typemapper T(int)(string) {}", null,
-                '@', "TEST");
-    }
-
-    public void testTypeMapperAnnotationInCurrentPackageSameFileAutoComplete() {
-        doCheckResult("test.bal", "annotation TEST attach typemapper {} @T<caret> typemapper T(int)(string) {}",
-                "annotation TEST attach typemapper {} @TEST {} typemapper T(int)(string) {}", null);
-    }
-
-    public void testTypeMapperAnnotationInCurrentPackageDifferentFile() {
-        myFixture.addFileToProject("file.bal", "annotation TEST attach typemapper {}");
-        doCheckResult("test.bal", "<caret> typemapper T(int)(string) {}", null, '@', "TEST");
-    }
-
-    public void testTypeMapperAnnotationInCurrentPackageDifferentFileAutoComplete() {
-        myFixture.addFileToProject("file.bal", "annotation TEST attach typemapper {}");
-        doCheckResult("test.bal", "@T<caret> typemapper T(int)(string) {}", "@TEST {} typemapper T(int)(string) {}",
-                null);
-    }
-
-    public void testTypeMapperAnnotationInCurrentPackageDifferentFileHasMoreDefinitionsAfter() {
-        myFixture.addFileToProject("file.bal", "annotation TEST attach typemapper {}");
-        doCheckResult("test.bal", "<caret> typemapper T(int)(string) {} service R{}", null, '@', "TEST");
-    }
-
-    public void testTypeMapperAnnotationInCurrentPackageSameFileHasMoreDefinitionsAfter() {
-        doCheckResult("test.bal", "annotation TEST attach typemapper {} <caret> typemapper T(int)(string) {} " +
-                "service R{}", null, '@', "TEST");
-    }
-
-    /**
-     * Hidden templates.
-     */
-    public void testPackageKeyword() {
-        doCheckResult("test.bal", "package<caret>", "package ", null);
-    }
-
-    public void testImportKeyword() {
-        doCheckResult("test.bal", "import<caret>", "import ", null);
-    }
-
-    public void testIfKeyword() {
-        doCheckResult("test.bal", "function test(){ if<caret> }", "function test(){ if () {\n    \n} }", null);
-    }
-
-    public void testElseKeyword() {
-        doCheckResult("test.bal", "function test(){ else<caret> }", "function test(){ else {\n    \n} }", null);
-    }
-
-    public void testForkKeyword() {
-        doCheckResult("test.bal", "function test(){ fork<caret> }", "function test(){ fork {\n    \n} }", null);
-    }
-
-    public void testJoinKeyword() {
-        doCheckResult("test.bal", "function test(){ join<caret> }", "function test(){ join () () {\n    \n}" +
-                " }", null);
-    }
-
-    public void testTimeoutKeyword() {
-        doCheckResult("test.bal", "function test(){ timeout<caret> }", "function test(){ timeout () () " +
-                "{\n    \n} }", null);
-    }
-
-    public void testWorkerKeyword() {
-        doCheckResult("test.bal", "function test(){ worker<caret> }", "function test(){ worker  {\n    \n} }",
-                null);
-    }
-
-    public void testTransformKeyword() {
-        doCheckResult("test.bal", "function test(){ transform<caret> }", "function test(){ transform {\n    \n} }",
-                null);
-    }
-
-    public void testTransactionKeyword() {
-        doCheckResult("test.bal", "function test(){ transaction<caret> }", "function test(){ transaction {\n    \n} " +
-                "}", null);
-    }
-
-    public void testAbortedKeyword() {
-        doCheckResult("test.bal", "function test(){ aborted<caret> }", "function test(){ aborted {\n    \n} }", null);
-    }
-
-    public void testCommittedKeyword() {
-        doCheckResult("test.bal", "function test(){ committed<caret> }", "function test(){ committed {\n    \n} }",
-                null);
-    }
-
-    public void testTryKeyword() {
-        doCheckResult("test.bal", "function test(){ try<caret> }", "function test(){ try {\n    \n} }", null);
-    }
-
-    public void testCatchKeyword() {
-        doCheckResult("test.bal", "function test(){ catch<caret> }", "function test(){ catch () {\n    \n} }",
-                null);
-    }
-
-    public void testFinallyKeyword() {
-        doCheckResult("test.bal", "function test(){ finally<caret> }", "function test(){ finally {\n    \n} }", null);
-    }
-
-    public void testIterateKeyword() {
-        doCheckResult("test.bal", "function test(){ iterate<caret> }", "function test(){ iterate ( : ) {\n    \n} }",
-                null);
-    }
-
-    public void testWhileKeyword() {
-        doCheckResult("test.bal", "function test(){ while<caret> }", "function test(){ while () {\n    \n} }",
-                null);
-    }
-
-    public void testContinueKeyword() {
-        doCheckResult("test.bal", "function test(){ next<caret> }", "function test(){ next; }", null);
-    }
-
-    public void testBreakKeyword() {
-        doCheckResult("test.bal", "function test(){ break<caret> }", "function test(){ break; }", null);
-    }
-
-    public void testThrowKeyword() {
-        doCheckResult("test.bal", "function test(){ throw<caret> }", "function test(){ throw ; }", null);
-    }
-
-    /**
      * Keywords in statements.
      */
     public void testKeywordAfterStatement() {
@@ -1893,6 +1267,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.add("test");
+        expectedLookups.add("return");
         doTest("function test(){ <caret> int a; }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 

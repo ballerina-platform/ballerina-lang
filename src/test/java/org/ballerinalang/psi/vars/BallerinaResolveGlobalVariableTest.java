@@ -22,7 +22,7 @@ import java.io.IOException;
 
 public class BallerinaResolveGlobalVariableTest extends BallerinaResolveTestBase {
 
-    private String globalVariable = "int /*def*/a;";
+    private String globalVariable = "public int /*def*/a;";
 
     @Override
     protected String getTestDataPath() {

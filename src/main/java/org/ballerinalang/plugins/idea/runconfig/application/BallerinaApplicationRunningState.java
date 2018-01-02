@@ -25,6 +25,7 @@ import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.module.Module;
 import org.ballerinalang.plugins.idea.runconfig.BallerinaRunningState;
 import org.ballerinalang.plugins.idea.runconfig.RunConfigurationKind;
+import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.ballerinalang.plugins.idea.util.BallerinaExecutor;
 import org.ballerinalang.plugins.idea.util.BallerinaHistoryProcessListener;
 import org.jetbrains.annotations.NotNull;
@@ -64,6 +65,8 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             parameters = myConfiguration.getFilePath();
         }
         BallerinaExecutor ballerinaExecutor = executor.withParameters("run")
+                .withBallerinaPath(BallerinaSdkService.getInstance(getConfiguration().getProject())
+                        .getSdkHomePath(null))
                 .withParameterString(myConfiguration.getBallerinaToolParams()).withParameters(parameters);
         if (kind == RunConfigurationKind.SERVICE) {
             ballerinaExecutor.withParameters("-s");
@@ -71,7 +74,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
 
         // If debugging mode is running, we need to add the debugging flag.
         if (isDebug()) {
-            ballerinaExecutor.withParameters("--ballerina.debug", String.valueOf(myDebugPort));
+            ballerinaExecutor.withParameters("--debug", String.valueOf(myDebugPort));
         }
         return ballerinaExecutor;
     }

@@ -1,5 +1,5 @@
-import ballerina.lang.system;
+import ballerina.runtime;
 
 function main (string[] args) {
-    system:log(1,<caret>)
+    runtime:setProperty("hello", <caret>)
 }

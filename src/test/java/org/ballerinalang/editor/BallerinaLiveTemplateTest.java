@@ -65,23 +65,24 @@ public class BallerinaLiveTemplateTest extends BallerinaCodeInsightFixtureTestCa
     public void testResource() {
         myFixture.configureByText("test.bal", "service<http> test {\n    <caret>\n}");
         myFixture.type("res\t");
-        myFixture.checkResult("service<http> test {\n    \n    resource  (message m) {\n        \n    }\n}");
+        myFixture.checkResult("service<http> test {\n    \n    resource  (http:Request req, http:Response res) {\n        \n    }\n}");
     }
 
     public void testResourceAfterResource() {
-        myFixture.configureByText("test.bal", "service<http> test {\n    resource test (message m) {\n        \n    " +
-                "}\n    <caret>\n}");
+        myFixture.configureByText("test.bal", "service<http> test {\n    resource test (http:Request req, " +
+                "http:Response res) {\n        \n    }\n    <caret>\n}");
         myFixture.type("res\t");
-        myFixture.checkResult("service<http> test {\n    resource test (message m) {\n        \n    }\n    \n    " +
-                "resource  (message m) {\n        \n    }\n}");
+        myFixture.checkResult("service<http> test {\n    resource test (http:Request req, http:Response res) {\n     " +
+                "   \n    }\n    \n    resource  (http:Request req, http:Response res) {\n        \n    }\n}");
     }
 
     public void testResourceBeforeResource() {
-        myFixture.configureByText("test.bal", "service<http> test {\n\n    <caret>\n    \n    resource test (message " +
-                "m) {\n\n    }\n}");
+        myFixture.configureByText("test.bal", "service<http> test {\n\n    <caret>\n    \n    resource test " +
+                "(http:Request req, http:Response res) {\n\n    }\n}");
         myFixture.type("res\t");
-        myFixture.checkResult("service<http> test {\n\n    \n    resource  (message m) {\n        \n    }\n    \n" +
-                "    resource test (message m) {\n\n    }\n}");
+        myFixture.checkResult("service<http> test {\n\n    \n    resource  (http:Request req, http:Response res) {\n " +
+                "       \n    }\n    \n" +
+                "    resource test (http:Request req, http:Response res) {\n\n    }\n}");
     }
 
     public void testConnectorInEmptyFile() {
@@ -170,7 +171,8 @@ public class BallerinaLiveTemplateTest extends BallerinaCodeInsightFixtureTestCa
         myFixture.configureByText("test.bal", "function test () {\n    TestConnector t = create TestConnector();\n " +
                 "   <caret>\n}");
         myFixture.type("wor\t");
-        myFixture.checkResult("function test () {\n    TestConnector t = create TestConnector();\n    worker  {\n        \n    }\n}");
+        myFixture.checkResult("function test () {\n    TestConnector t = create TestConnector();\n    worker  {\n    " +
+                "    \n    }\n}");
     }
 
     public void testForkJoinInFunction() {
@@ -207,5 +209,11 @@ public class BallerinaLiveTemplateTest extends BallerinaCodeInsightFixtureTestCa
         myFixture.type("fojo\t");
         myFixture.checkResult("function test () {\n    fork {\n        \n    } join () () {\n        \n    }\n    " +
                 "int a = 10;\n}");
+    }
+
+    public void testTransformer() {
+        myFixture.configureByText("test.bal", "<caret>");
+        myFixture.type("tra\t");
+        myFixture.checkResult("transformer <, > () {\n    \n}");
     }
 }

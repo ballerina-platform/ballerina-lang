@@ -96,16 +96,12 @@ public class BallerinaBlock extends AbstractBlock {
                     if (parentElementType == FORK_JOIN_STATEMENT) {
                         indent = Indent.getSpaceIndent(4);
                     }
-                } else if (childElementType == TRANSFORM_STATEMENT_BODY) {
-                    if (parentElementType == TRANSFORM_STATEMENT) {
-                        indent = Indent.getSpaceIndent(4);
-                    }
                 } else if (childElementType == WORKER_BODY) {
                     if (parentElementType == WORKER_DECLARATION) {
                         indent = Indent.getSpaceIndent(4);
                     }
-                } else if (childElementType == MAP_STRUCT_KEY_VALUE) {
-                    if (parentElementType == MAP_STRUCT_LITERAL) {
+                } else if (childElementType == RECORD_KEY_VALUE) {
+                    if (parentElementType == RECORD_LITERAL) {
                         indent = Indent.getSpaceIndent(4);
                     }
                 } else if (childElementType == CODE_BLOCK_BODY || childElementType == ENUM_FIELD_LIST) {
@@ -146,7 +142,7 @@ public class BallerinaBlock extends AbstractBlock {
     private static boolean isInsideADefinitionElement(@NotNull final IElementType childElementType) {
         if (childElementType == FUNCTION_BODY || childElementType == CONNECTOR_BODY
                 || childElementType == SERVICE_BODY || childElementType == STRUCT_BODY
-                || childElementType == ANNOTATION_BODY) {
+                || childElementType == ANNOTATION_BODY || childElementType == ENDPOINT_BODY) {
             return true;
         }
         return false;
@@ -155,15 +151,13 @@ public class BallerinaBlock extends AbstractBlock {
     private static boolean isACodeBlock(@NotNull final IElementType parentElementType) {
         if (parentElementType == IF_ELSE_STATEMENT || parentElementType == ITERATE_STATEMENT
                 || parentElementType == WHILE_STATEMENT || parentElementType == WORKER_DECLARATION
-                || parentElementType == TYPE_MAPPER_BODY || parentElementType == FORK_JOIN_STATEMENT
-                || parentElementType == TRANSACTION_STATEMENT || parentElementType == TRANSFORM_STATEMENT
+                || parentElementType == FORK_JOIN_STATEMENT || parentElementType == TRANSACTION_STATEMENT
                 || parentElementType == IF_CLAUSE || parentElementType == ELSE_IF_CLAUSE
                 || parentElementType == ELSE_CLAUSE || parentElementType == TRY_CATCH_STATEMENT
                 || parentElementType == CATCH_CLAUSE || parentElementType == CATCH_CLAUSES
                 || parentElementType == FINALLY_CLAUSE || parentElementType == JOIN_CLAUSE
                 || parentElementType == TIMEOUT_CLAUSE || parentElementType == TRANSACTION_STATEMENT
-                || parentElementType == FAILED_CLAUSE || parentElementType == ABORTED_CLAUSE
-                || parentElementType == COMMITTED_CLAUSE) {
+                || parentElementType == FAILED_CLAUSE) {
             return true;
         }
         return false;
