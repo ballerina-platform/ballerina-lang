@@ -8,7 +8,7 @@ service<http> Bankinfo {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource product (http:Connection con, http:Request req) {
+    resource product (http:Connection conn, http:Request req) {
         json jsonRequest = req.getJsonPayload();
         string branchCode;
         branchCode, _ = (string)jsonRequest.BranchInfo.BranchCode;
@@ -21,6 +21,6 @@ service<http> Bankinfo {
 
         http:Response res = {};
         res.setJsonPayload(payload);
-        _ = con.respond(res);
+        _ = conn.respond(res);
     }
 }

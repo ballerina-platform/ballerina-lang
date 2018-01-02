@@ -8,9 +8,9 @@ service<http> helloWorldServiceConfig {
         methods:["GET"],
         path:"/"
     }
-    resource sayHello (http:Connection con, http:Request req) {
+    resource sayHello (http:Connection conn, http:Request req) {
         http:Response res = {};
         res.setStringPayload("Hello World !!!");
-        _ = con.respond(res);
+        _ = conn.respond(res);
     }
 }

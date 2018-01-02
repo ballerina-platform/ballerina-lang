@@ -13,19 +13,19 @@ service<http> echo {
         methods:["GET"],
         path:"/message"
     }
-    resource echo (http:Connection con, http:Request req) {
+    resource echo (http:Connection conn, http:Request req) {
         http:Response res = {};
-        _ = con.respond(res);
+        _ = conn.respond(res);
     }
     
     @http:resourceConfig {
         methods:["GET"],
         path:"/message_worker"
     }
-    resource echo_worker (http:Connection con, http:Request req) {
+    resource echo_worker (http:Connection conn, http:Request req) {
         worker w1 {
             http:Response res = {};
-            _ = con.respond(res);
+            _ = conn.respond(res);
         }
         worker w2 {
             int x = 0;
@@ -37,63 +37,63 @@ service<http> echo {
         methods:["POST"],
         path:"/setString"
     }
-    resource setString (http:Connection con, http:Request req) {
+    resource setString (http:Connection conn, http:Request req) {
         http:Response res = {};
         serviceLevelStr = req.getStringPayload();
         //res.setStringPayload(res, serviceLevelStr);
-        _ = con.respond(res);
+        _ = conn.respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/getString"
     }
-    resource getString (http:Connection con, http:Request req) {
+    resource getString (http:Connection conn, http:Request req) {
         http:Response res = {};
         res.setStringPayload(serviceLevelStr);
-        _ = con.respond(res);
+        _ = conn.respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET"]
     }
-    resource removeHeaders (http:Connection con, http:Request req) {
+    resource removeHeaders (http:Connection conn, http:Request req) {
         http:Response res = {};
         req.removeAllHeaders();
-        _ = con.respond(res);
+        _ = conn.respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/getServiceLevelString"
     }
-    resource getServiceLevelString (http:Connection con, http:Request req) {
+    resource getServiceLevelString (http:Connection conn, http:Request req) {
         http:Response res = {};
         res.setStringPayload(serviceLevelStringVar);
-        _ = con.respond(res);
+        _ = conn.respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:constPath
     }
-    resource constValueAsAttributeValue (http:Connection con, http:Request req) {
+    resource connstValueAsAttributeValue (http:Connection conn, http:Request req) {
         http:Response res = {};
         res.setStringPayload("constant path test");
-        _ = con.respond(res);
+        _ = conn.respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/testEmptyResourceBody"
     }
-    resource testEmptyResourceBody (http:Connection con, http:Request req) {
+    resource testEmptyResourceBody (http:Connection conn, http:Request req) {
     }
 
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource getFormParams (http:Connection con, http:Request req) {
+    resource getFormParams (http:Connection conn, http:Request req) {
         map params = req.getFormParams();
         string name;
         name,_ = (string)params.firstName;
@@ -103,17 +103,17 @@ service<http> echo {
 
         http:Response res = {};
         res.setJsonPayload(responseJson);
-        _ = con.respond(res);
+        _ = conn.respond(res);
     }
 
     @http:resourceConfig {
         methods:["PATCH"],
         path:"/modify"
     }
-    resource modify11 (http:Connection con, http:Request req) {
+    resource modify11 (http:Connection conn, http:Request req) {
         http:Response res = {};
         res.setStatusCode(204);
-        _ = con.respond(res);
+        _ = conn.respond(res);
     }
 }
 

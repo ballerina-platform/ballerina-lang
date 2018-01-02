@@ -7,7 +7,7 @@ service<http> sample {
         path:"/path/{foo}"
     }
     @Description {value:"PathParam and QueryParam extract values from the request URI."}
-    resource params (http:Connection con, http:Request req, string foo) {
+    resource params (http:Connection conn, http:Request req, string foo) {
         // Get QueryParam.
         map params = req.getQueryParams();
         var bar, _ = (string)params.bar;
@@ -17,6 +17,6 @@ service<http> sample {
         // A util method to set the json payload to the response message.
         res.setJsonPayload(responseJson);
         // Send a response to the client.
-        _ = con.respond(res);
+        _ = conn.respond(res);
     }
 }

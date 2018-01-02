@@ -15,12 +15,12 @@ service<http> httpService {
         path:"/world",
         methods:["POST","GET","PUT","My"]
     }
-    resource testResource(http:Connection con, http:Request req) {
+    resource testResource(http:Connection conn, http:Request req) {
         http:Response resp = {};
         string payload = req.getStringPayload();
         println(payload);
         resp.setStringPayload("I received");
-        _ = con.respond(resp);
+        _ = conn.respond(resp);
     }
 }
 

@@ -9,20 +9,20 @@ public struct Connection {
 }
 
 @Description { value:"Sends response to the caller"}
-@Param { value:"con: The server connector connection" }
+@Param { value:"conn: The server connector connection" }
 @Param { value:"res: A response message" }
 @Return { value:"Error occured during HTTP server connector respond" }
-public native function <Connection con> respond (Response res) (HttpConnectorError);
+public native function <Connection conn> respond (Response res) (HttpConnectorError);
 
 @Description { value:"Gets the Session struct for a valid session cookie from the connection. Otherwise creates a new Session struct." }
-@Param { value:"con: The server connector connection" }
+@Param { value:"conn: The server connector connection" }
 @Return { value:"HTTP Session struct" }
-public native function <Connection con> createSessionIfAbsent () (Session);
+public native function <Connection conn> createSessionIfAbsent () (Session);
 
 @Description { value:"Gets the Session struct from the connection if it is present" }
-@Param { value:"con: The server connector connection" }
+@Param { value:"conn: The server connector connection" }
 @Return { value:"The HTTP Session struct assoicated with the request" }
-public native function <Connection con> getSession () (Session);
+public native function <Connection conn> getSession () (Session);
 
 @Description { value:"Represents an HTTP request message"}
 @Field {value:"path: Resource path of request URI"}

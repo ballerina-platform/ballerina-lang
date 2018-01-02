@@ -6,7 +6,7 @@ service<http> passthrough {
     @http:resourceConfig {
         path:"/"
     }
-    resource passthrough (http:Connection con, http:Request req) {
+    resource passthrough (http:Connection conn, http:Request req) {
         endpoint<http:HttpClient> endPoint {
             create http:HttpClient("http://localhost:9090/echo", {});
         }
@@ -21,9 +21,9 @@ service<http> passthrough {
         if (err != null) {
             res.setStatusCode(500);
             res.setStringPayload(err.msg);
-            _ = con.respond(res);
+            _ = conn.respond(res);
         } else {
-            _ = con.respond(clientResponse);
+            _ = conn.respond(clientResponse);
         }
     }
 }
@@ -35,9 +35,9 @@ service<http> echo {
         methods:["POST", "PUT", "GET"],
         path:"/"
     }
-    resource echoResource (http:Connection con, http:Request req) {
+    resource echoResource (http:Connection conn, http:Request req) {
         http:Response res = {};
         res.setStringPayload("Resource is invoked");
-        _ = con.respond(res);
+        _ = conn.respond(res);
     }
 }

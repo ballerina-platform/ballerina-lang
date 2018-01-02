@@ -6,17 +6,17 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/10"
     }
-    resource echo1 (http:Connection con, http:Request req) {
+    resource echo1 (http:Connection conn, http:Request req) {
         http:Response resp = {};
-        _ = con.respond(null);
+        _ = conn.respond(null);
     }
 
     @http:resourceConfig {
         path:"/11"
     }
-    resource echo3 (http:Connection con, http:Request req) {
+    resource echo3 (http:Connection conn, http:Request req) {
         http:Response resp = {};
-        http:Connection conn = {};
-        _ = conn.respond(resp);
+        http:Connection connn = {};
+        _ = connn.respond(resp);
     }
 }

@@ -8,7 +8,7 @@ service<http> Banklocator {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource product (http:Connection con, http:Request req) {
+    resource product (http:Connection conn, http:Request req) {
         json jsonRequest = req.getJsonPayload();
         string zipCode;
         zipCode, _ = (string)jsonRequest.BranchLocator.ZipCode;
@@ -21,6 +21,6 @@ service<http> Banklocator {
 
         http:Response res = {};
         res.setJsonPayload(payload);
-        _ = con.respond(res);
+        _ = conn.respond(res);
     }
 }

@@ -7,10 +7,10 @@ service<http> echo {
         methods:["POST"],
         path:"/"
     }
-    resource echo (http:Connection con, http:Request req) {
+    resource echo (http:Connection conn, http:Request req) {
         http:Response resp = {};
         string payload = req.getStringPayload();
         resp.setStringPayload(payload);
-        _ = con.respond(resp);
+        _ = conn.respond(resp);
     }
 }

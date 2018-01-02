@@ -8,7 +8,7 @@ service<http> headerBasedRouting {
         methods:["GET"],
         path:"/route"
     }
-    resource hbrResource (http:Connection con, http:Request req) {
+    resource hbrResource (http:Connection conn, http:Request req) {
         endpoint<http:HttpClient> locationEP {
             create http:HttpClient("http://www.mocky.io", {});
         }
@@ -34,9 +34,9 @@ service<http> headerBasedRouting {
         if (err != null) {
             res.setStatusCode(500);
             res.setStringPayload(err.msg);
-            _ = con.respond(res);
+            _ = conn.respond(res);
         } else {
-            _ = con.respond(clientResponse);
+            _ = conn.respond(clientResponse);
         }
     }
 }
