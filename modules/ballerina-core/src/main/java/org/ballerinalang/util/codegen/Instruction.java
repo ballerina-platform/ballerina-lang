@@ -98,9 +98,9 @@ public class Instruction {
     }
 
     /**
-     * {@code InstructionACALL} represents the ACALL instruction in Ballerina bytecode.
+     * {@code InstructionTCALL} represents the TCALL instruction in Ballerina bytecode.
      * <p>
-     * The ACALL instruction performs an action invocation in BVM.
+     * The TCALL instruction performs an transformer invocation in BVM.
      *
      * @since 0.95.6
      */
