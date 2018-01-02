@@ -25,13 +25,15 @@ import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.consts.Snippet;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
-import org.ballerinalang.langserver.completions.util.filters.PackageActionAndFunctionFilter;
+import org.ballerinalang.langserver.completions.util.filters.ConnectorInitExpressionItemFilter;
+import org.ballerinalang.langserver.completions.util.filters.PackageActionFunctionAndTypesFilter;
 import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Parser rule based statement context resolver.
@@ -43,11 +45,12 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
 
         HashMap<String, String> prioritiesMap = new HashMap<>();
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        PackageActionFunctionAndTypesFilter actionAndFunctionFilter = new PackageActionFunctionAndTypesFilter();
+        ConnectorInitExpressionItemFilter connectorInitItemFilter = new ConnectorInitExpressionItemFilter();
 
         // Here we specifically need to check whether the statement is function invocation,
         // action invocation or worker invocation
         if (isActionOrFunctionInvocationStatement(completionContext)) {
-            PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
 
             // Get the action and function list
             ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
@@ -63,6 +66,13 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
 
             return completionItems;
         } else {
+            // Fill completions if user is writing a connector init
+            List<SymbolInfo> filteredConnectorInitSuggestions = connectorInitItemFilter.filterItems(completionContext);
+            if (!filteredConnectorInitSuggestions.isEmpty()) {
+                populateCompletionItemList(filteredConnectorInitSuggestions, completionItems);
+                return completionItems;
+            }
+
             populateCompletionItemList(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY), completionItems);
             StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
             // Add the statement templates

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,13 +15,14 @@
  */
 package org.ballerinalang.langserver.signature;
 
+import org.ballerinalang.langserver.BLangPackageContext;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 
 import java.util.ArrayList;
@@ -42,13 +43,14 @@ public class SignatureHelpUtil {
     private static final List<String> TERMINAL_CHARACTERS = Arrays.asList(OPEN_BRACKET, COMMA, ".");
 
     /**
-     * Get the name of the callable item. This ideally should be a ballerina function.
+     * Capture the callable item information such as name, package of the item, delimiter (. or :), and etc.
      *
      * @param position          Position of the signature help triggered
      * @param fileContent       File content to search callable item name
-     * @return {@link String}   Callable Item name
+     * @param serviceContext    Text Document service context instance for the signature help operation
      */
-    public static String getCallableItemName(Position position, String fileContent) {
+    public static void captureCallableItemInfo(Position position, String fileContent,
+                                                 TextDocumentServiceContext serviceContext) {
         int lineNumber = position.getLine();
         int character = position.getCharacter();
         // Here add offset of 2 since the indexing is zero based
@@ -60,7 +62,7 @@ public class SignatureHelpUtil {
 
         while (true) {
             if (backTrackPosition < 0) {
-                return "";
+                break;
             }
             String currentToken = Character.toString(line.charAt(backTrackPosition));
             if (CLOSE_BRACKET.equals(currentToken)) {
@@ -69,7 +71,7 @@ public class SignatureHelpUtil {
                 if (!closeBracketStack.isEmpty()) {
                     closeBracketStack.pop();
                 } else {
-                    return getFunctionName(line, backTrackPosition - 1);
+                    setItemInfo(line, backTrackPosition - 1, serviceContext);
                 }
             }
             backTrackPosition--;
@@ -79,18 +81,21 @@ public class SignatureHelpUtil {
     /**
      * Get the functionSignatureHelp instance.
      *
-     * @param functionName              name of the function
-     * @param context                   Signature help package context
+     * @param context                   Signature help context
+     * @param bLangPackageContext       BLangPackageContext
      * @return {@link SignatureHelp}    Signature help for the completion
      */
-    public static SignatureHelp getFunctionSignatureHelp(String functionName, BLangPackageWrapper context) {
+    public static SignatureHelp getFunctionSignatureHelp(TextDocumentServiceContext context,
+                                                         BLangPackageContext bLangPackageContext) {
+        
+        String callableItemName = context.get(SignatureKeys.CALLABLE_ITEM_NAME);
         // Get the functions List
-        List<BLangFunction> functions = context.getItems(BLangFunction.class);
+        List<BLangFunction> functions = bLangPackageContext.getItems(BLangFunction.class);
 
         List<SignatureInformation> signatureInformationList = functions
                 .stream()
                 .map(bLangFunction -> {
-                    if (bLangFunction.getName().getValue().equals(functionName)) {
+                    if (bLangFunction.getName().getValue().equals(callableItemName)) {
                         return getSignatureInformation(bLangFunction);
                     }
                     return null;
@@ -108,7 +113,8 @@ public class SignatureHelpUtil {
 
     /**
      * Get the signature information for the given Ballerina function.
-     * @param bLangFunction                     Ballerina Function
+     *
+     * @param bLangFunction Ballerina Function
      * @return {@link SignatureInformation}     Signature information for the function
      */
     private static SignatureInformation getSignatureInformation(BLangFunction bLangFunction) {
@@ -135,7 +141,8 @@ public class SignatureHelpUtil {
 
     /**
      * Get the list of Parameter information data models for the given ballerina function.
-     * @param bLangFunction     Ballerina Function
+     *
+     * @param bLangFunction Ballerina Function
      * @return {@link List}     List of parameter info data models
      */
     private static List<ParameterInfoModel> getParamInfoList(BLangFunction bLangFunction) {
@@ -154,8 +161,9 @@ public class SignatureHelpUtil {
     /**
      * Get the parameter description for the given parameter name from the annotation attachments.
      * Need to filter out the Param annotations only.
-     * @param attachments       List of Annotation attachments
-     * @param paramName         Parameter name
+     *
+     * @param attachments List of Annotation attachments
+     * @param paramName   Parameter name
      * @return {@link String}   Parameter description
      */
     private static String getParameterDescription(List<BLangAnnotationAttachment> attachments, String paramName) {
@@ -175,8 +183,9 @@ public class SignatureHelpUtil {
 
     /**
      * Filter the value attribute from the particular annotation attachment's attributes.
-     * @param attributes        Attributes of the annotation attachment related to the parameter name
-     * @param paramName         Parameter name
+     *
+     * @param attributes Attributes of the annotation attachment related to the parameter name
+     * @param paramName  Parameter name
      * @return {@link String}   Description of the parameter attribute
      */
     private static String filterParameterAttribute(List<BLangAnnotAttachmentAttribute> attributes, String paramName) {
@@ -193,22 +202,55 @@ public class SignatureHelpUtil {
                 .filter(Objects::nonNull).findFirst().orElse(null);
     }
 
-    private static String getFunctionName(String line, int startPosition) {
+    private static void setItemInfo(String line, int startPosition, TextDocumentServiceContext signatureContext) {
         int counter = startPosition;
         String callableItemName = "";
+        String delimiter = "";
         while (true) {
             if (counter < 0) {
-                return callableItemName;
+                break;
             }
             char c = line.charAt(counter);
             if (!(Character.isLetterOrDigit(c)
                     || "_".equals(Character.toString(c))) || TERMINAL_CHARACTERS.contains(Character.toString(c))) {
                 callableItemName = line.substring(counter + 1, startPosition + 1);
+                delimiter = String.valueOf(line.charAt(counter));
                 break;
             }
             counter--;
         }
-        return callableItemName;
+        signatureContext.put(SignatureKeys.CALLABLE_ITEM_NAME, callableItemName);
+        signatureContext.put(SignatureKeys.ITEM_DELIMITER, delimiter);
+    }
+    
+    public static void captureIdentifierAgainst(String line, int startPosition,
+                                                 TextDocumentServiceContext signatureContext) {
+        int counter = startPosition;
+        String identifier = "";
+        while (true) {
+            if (counter < 0) {
+                break;
+            }
+            char c = line.charAt(counter);
+            if (TERMINAL_CHARACTERS.contains(Character.toString(c))) {
+                identifier = line.substring(counter + 1, startPosition + 1);
+                break;
+            }
+            counter--;
+        }
+        signatureContext.put(SignatureKeys.IDENTIFIER_AGAINST, identifier);
+    }
+
+    /**
+     * Get the system package IDs.
+     * @return {@link List} list of ids
+     */
+    public static List<String> getSystemPkgIDs() {
+        return new ArrayList<>(Arrays.asList(new String[]{
+                "ballerina.config", "ballerina.math", "ballerina.user", "ballerina.util", "ballerina.util.arrays",
+                "ballerina.io", "ballerina.task", "ballerina.file", "ballerina.caching", "ballerina.runtime",
+                "ballerina.security.crypto", "ballerina.log", "ballerina.os", "ballerina.data.sql",
+                "ballerina.net.http", "ballerina.net.http.swagger", "ballerina.net.ws", "ballerina.net.uri"}));
     }
 
     /**
@@ -237,32 +279,6 @@ public class SignatureHelpUtil {
         @Override
         public String toString() {
             return this.paramType + " " + this.paramValue;
-        }
-    }
-
-    /**
-     * Package context to keep the builtin and the current package.
-     */
-    public static class BLangPackageWrapper {
-
-        BLangPackage builtin;
-
-        BLangPackage current;
-
-        public BLangPackageWrapper(BLangPackage builtin, BLangPackage current) {
-            this.builtin = builtin;
-            this.current = current;
-        }
-
-        @SuppressWarnings("unchecked")
-        <T> List<T> getItems(Class type) {
-            if (type.equals(BLangFunction.class)) {
-                List<BLangFunction> functions = new ArrayList<>();
-                functions.addAll((builtin.getFunctions()));
-                functions.addAll(current.getFunctions());
-                return (List<T>) functions;
-            }
-            return null;
         }
     }
 }

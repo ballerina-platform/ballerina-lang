@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,8 +19,6 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
-import org.ballerinalang.langserver.hover.HoverKeys;
-import org.ballerinalang.langserver.hover.HoverTreeVisitor;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
@@ -48,6 +46,7 @@ import org.eclipse.lsp4j.DocumentRangeFormattingParams;
 import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
@@ -60,8 +59,6 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -89,15 +86,14 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
-    private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaTextDocumentService.class);
     private Map<String, List<Diagnostic>> lastDiagnosticMap;
-    private BLangPackage builtinPkg;
+    private BLangPackageContext bLangPackageContext;
 
     public BallerinaTextDocumentService(BallerinaLanguageServer ballerinaLanguageServer) {
         this.ballerinaLanguageServer = ballerinaLanguageServer;
         this.documentManager = new WorkspaceDocumentManagerImpl();
         this.lastDiagnosticMap = new HashMap<>();
-        builtinPkg = BuiltinPackageLoader.getBuiltinPackage();
+        this.bLangPackageContext = new BLangPackageContext();
     }
 
     @Override
@@ -108,17 +104,21 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             TextDocumentServiceContext completionContext = new TextDocumentServiceContext();
             completionContext.put(DocumentServiceKeys.POSITION_KEY, position);
             completionContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
-            BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext, documentManager);
-            // Visit the package to resolve the symbols
-            TreeVisitor treeVisitor = new TreeVisitor(completionContext);
-            bLangPackage.accept(treeVisitor);
-            BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
-            if (symbolEnvNode == null) {
-                completions = CompletionItemResolver.getResolverByClass(TopLevelResolver.class)
-                        .resolveItems(completionContext);
-            } else {
-                completions = CompletionItemResolver.getResolverByClass(symbolEnvNode.getClass())
-                        .resolveItems(completionContext);
+            try {
+                BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext, documentManager);
+                // Visit the package to resolve the symbols
+                TreeVisitor treeVisitor = new TreeVisitor(completionContext);
+                bLangPackage.accept(treeVisitor);
+                BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
+                if (symbolEnvNode == null) {
+                    completions = CompletionItemResolver.getResolverByClass(TopLevelResolver.class)
+                            .resolveItems(completionContext);
+                } else {
+                    completions = CompletionItemResolver.getResolverByClass(symbolEnvNode.getClass())
+                            .resolveItems(completionContext);
+                }
+            } catch (Exception | AssertionError e) {
+                completions = new ArrayList<>();
             }
             return Either.forLeft(completions);
         });
@@ -133,23 +133,19 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<Hover> hover(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
             TextDocumentServiceContext hoverContext = new TextDocumentServiceContext();
-            HoverUtil hoverUtil = new HoverUtil();
             hoverContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
             hoverContext.put(DocumentServiceKeys.POSITION_KEY, position);
-            BLangPackage currentBLangPackage = TextDocumentServiceUtil.getBLangPackage(hoverContext, documentManager);
-            HoverTreeVisitor hoverTreeVisitor = new HoverTreeVisitor(hoverContext);
-            currentBLangPackage.accept(hoverTreeVisitor);
             Hover hover;
-            // If the cursor is on a node of the current package go inside, else check builtin and native packages.
-            if (hoverContext.get(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY) != null
-                    && hoverContext.get(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY).name.getValue()
-                    .equals(currentBLangPackage.symbol.getName().getValue())) {
-                hover = hoverUtil.getHoverInformation(currentBLangPackage, hoverContext);
-            } else {
-                BLangPackage packages = hoverUtil
-                        .getPackageByName(hoverContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY),
-                                hoverContext.get(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY).name);
-                hover = hoverUtil.getHoverInformation(packages, hoverContext);
+            try {
+                BLangPackage currentBLangPackage =
+                        TextDocumentServiceUtil.getBLangPackage(hoverContext, documentManager);
+                bLangPackageContext.addPackage(currentBLangPackage);
+                hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage, bLangPackageContext);
+            } catch (Exception | AssertionError e) {
+                hover = new Hover();
+                List<Either<String, MarkedString>> contents = new ArrayList<>();
+                contents.add(Either.forLeft(""));
+                hover.setContents(contents);
             }
             return hover;
         });
@@ -160,14 +156,28 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFuture.supplyAsync(() -> {
             String uri = position.getTextDocument().getUri();
             String fileContent = this.documentManager.getFileContent(Paths.get(URI.create(uri)));
-            String callableItemName = SignatureHelpUtil.getCallableItemName(position.getPosition(), fileContent);
             TextDocumentServiceContext signatureContext = new TextDocumentServiceContext();
+            SignatureHelpUtil.captureCallableItemInfo(position.getPosition(), fileContent, signatureContext);
             signatureContext.put(DocumentServiceKeys.POSITION_KEY, position);
             signatureContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
-            BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(signatureContext, documentManager);
-            SignatureHelpUtil.BLangPackageWrapper pkgContext =
-                    new SignatureHelpUtil.BLangPackageWrapper(builtinPkg, bLangPackage);
-            return SignatureHelpUtil.getFunctionSignatureHelp(callableItemName, pkgContext);
+            SignatureHelp signatureHelp;
+            try {
+                BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(signatureContext, documentManager);
+                CompilerContext compilerContext = signatureContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+                // TODO: Gracefully handle this package loading with a proper API
+                
+                SignatureHelpUtil.getSystemPkgIDs().forEach(packageID -> {
+                    if (!bLangPackageContext.containsPackage(packageID)) {
+                        bLangPackageContext.addPackage(BallerinaPackageLoader
+                                .getPackageByName(compilerContext, packageID));
+                    }
+                });
+                bLangPackageContext.addPackage(bLangPackage);
+                signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext, bLangPackageContext);
+            } catch (Exception e) {
+                signatureHelp = new SignatureHelp();
+            }
+            return signatureHelp;
         });
     }
 
@@ -304,7 +314,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     private void publishDiagnostics(List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics, Path path) {
-        Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<String, List<Diagnostic>>();
+        Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<>();
         balDiagnostics.forEach(diagnostic -> {
             Diagnostic d = new Diagnostic();
             d.setSeverity(DiagnosticSeverity.Error);
@@ -382,9 +392,9 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         try {
             path = Paths.get(new URL(uri).toURI());
         } catch (URISyntaxException | MalformedURLException e) {
-            LOGGER.error(e.getMessage());
-        } finally {
-            return path;
+            // Do Nothing
         }
+        
+        return path;
     }
 }

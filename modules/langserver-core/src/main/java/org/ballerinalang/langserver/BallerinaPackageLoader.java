@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver;
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.model.Name;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
@@ -25,6 +24,9 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
@@ -32,34 +34,43 @@ import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 /**
  * Loads the Ballerina builtin core and builtin packages.
  */
-public class BuiltinPackageLoader {
+public class BallerinaPackageLoader {
 
     /**
      * Get the Builtin Package.
      * @return {@link BLangPackage} Builtin BLang package
      */
-    public static BLangPackage getBuiltinPackage() {
+    public static List<BLangPackage> getBuiltinPackages() {
+        List<BLangPackage> builtins = new ArrayList<>();
+        CompilerContext context = prepareCompilerContext();
+        BLangPackage builtInCorePkg = getPackageByName(context, Names.BUILTIN_CORE_PACKAGE.getValue());
+        BLangPackage builtInPkg = getPackageByName(context, Names.BUILTIN_PACKAGE.getValue());
+        builtins.add(builtInCorePkg);
+        builtins.add(builtInPkg);
+ 
+        return builtins;
+    }
+
+    /**
+     * Get the packages by name.
+     *
+     * @param name                  name of the package
+     * @return {@link BLangPackage} blang package
+     */
+    public static BLangPackage getPackageByName(CompilerContext context, String name) {
+        PackageLoader pkgLoader = PackageLoader.getInstance(context);
+        SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
+        CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
+        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadEntryPackage(name)));
+    }
+    
+    public static CompilerContext prepareCompilerContext() {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(SOURCE_ROOT, "");
         options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
         options.put(PRESERVE_WHITESPACE, "false");
-
-        BLangPackage builtInCorePkg = getBuiltInPackage(context, Names.BUILTIN_CORE_PACKAGE);
-        // Load built-in packages.
-        BLangPackage builtInPkg = getBuiltInPackage(context, Names.BUILTIN_PACKAGE);
-        builtInCorePkg.getStructs().forEach(s -> {
-            builtInPkg.getStructs().add(s);
-            builtInPkg.topLevelNodes.add(s);
-        });
-
-        return builtInPkg;
-    }
-
-    private static BLangPackage getBuiltInPackage(CompilerContext context, Name name) {
-        PackageLoader pkgLoader = PackageLoader.getInstance(context);
-        SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
-        CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
-        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadEntryPackage(name.getValue())));
+        
+        return context;
     }
 }

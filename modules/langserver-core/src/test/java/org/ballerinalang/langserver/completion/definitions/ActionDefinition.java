@@ -39,7 +39,14 @@ public class ActionDefinition extends CompletionTest {
                 {"allVisibleSymbolsNonEmptyLine.json", "action"},
                 {"allVisibleSymbolsEmptyLine.json", "action"},
                 {"languageConstructsEmptyLine.json", "action"},
-                {"languageConstructsNonEmptyLine.json", "action"}
+                {"connectorInitAssignment1.json", "action"},
+                {"connectorInitAssignment2.json", "action"},
+                {"connectorInitVarDef1.json", "action"},
+                {"connectorInitVarDef2.json", "action"},
+                {"enumSuggestAssignment1.json", "action"},
+                {"enumSuggestAssignment2.json", "action"},
+                {"enumSuggestVarDef1.json", "action"},
+                {"enumSuggestVarDef2.json", "action"}
         };
     }
 }

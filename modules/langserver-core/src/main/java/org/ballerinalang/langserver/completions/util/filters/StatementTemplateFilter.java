@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Provides the statement templates.
  */
-public class StatementTemplateFilter implements SymbolFilter {
+public class StatementTemplateFilter extends SymbolFilter {
     @Override
     public List filterItems(TextDocumentServiceContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
@@ -118,13 +118,13 @@ public class StatementTemplateFilter implements SymbolFilter {
         workerReplyItem.setSortText(Priority.PRIORITY6.name());
         completionItems.add(workerReplyItem);
 
-        // Populate Continue Statement template
-        CompletionItem continueItem = new CompletionItem();
-        continueItem.setLabel(ItemResolverConstants.CONTINUE);
-        continueItem.setInsertText(Snippet.CONTINUE.toString());
-        continueItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        continueItem.setSortText(Priority.PRIORITY6.name());
-        completionItems.add(continueItem);
+        // Populate Next Statement template
+        CompletionItem nextItem = new CompletionItem();
+        nextItem.setLabel(ItemResolverConstants.NEXT);
+        nextItem.setInsertText(Snippet.NEXT.toString());
+        nextItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+        nextItem.setSortText(Priority.PRIORITY6.name());
+        completionItems.add(nextItem);
 
         // Populate Break Statement template
         CompletionItem breakItem = new CompletionItem();
@@ -157,13 +157,6 @@ public class StatementTemplateFilter implements SymbolFilter {
         abortItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         abortItem.setSortText(Priority.PRIORITY6.name());
         completionItems.add(abortItem);
-
-        CompletionItem retryItem = new CompletionItem();
-        retryItem.setLabel(ItemResolverConstants.RETRY);
-        retryItem.setInsertText(Snippet.RETRY.toString());
-        retryItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        retryItem.setSortText(Priority.PRIORITY6.name());
-        completionItems.add(retryItem);
 
         completionItems.sort(Comparator.comparing(CompletionItem::getLabel));
 
