@@ -58,10 +58,12 @@ class WelcomeTab extends React.Component {
                         ext: 'bal',
                     });
                 } else {
-                    this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FOLDER, {
-                        folderPath: ballerinaHome + sampleFolder,
-                    });
-                    this.props.commandManager.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, { id: WORKSPACE_VIEWS.EXPLORER });
+                    if (sample.openFolder) {
+                        this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FOLDER, {
+                            folderPath: ballerinaHome + sampleFolder,
+                        });
+                        this.props.commandManager.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, { id: WORKSPACE_VIEWS.EXPLORER });
+                    }
                     this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FILE, {
                         filePath: ballerinaHome + sampleFile,
                         ext: 'bal',
