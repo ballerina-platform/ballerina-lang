@@ -34,12 +34,15 @@ import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.TransportProperty;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.config.YAMLTransportConfigurationBuilder;
+import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.HttpsServer;
 import org.wso2.transport.http.netty.util.server.ServerThread;
@@ -47,6 +50,7 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 import org.yaml.snakeyaml.introspector.BeanAccess;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -256,6 +260,27 @@ public class TestUtil {
 
     public static ServerBootstrapConfiguration getDefaultServerBootstrapConfig() {
         return new ServerBootstrapConfiguration(new HashMap<>());
+    }
+
+    public static String waitAndGetStringEntity(CountDownLatch latch, HTTPConnectorListener responseListener)
+            throws InterruptedException {
+        String response;
+        latch.await(10, TimeUnit.SECONDS);
+        HTTPCarbonMessage httpResponse = responseListener.getHttpResponseMessage();
+        response = new BufferedReader(new InputStreamReader(new HttpMessageDataStreamer(httpResponse)
+                .getInputStream()))
+                .lines().collect(Collectors.joining("\n"));
+        return response;
+    }
+
+    public static HTTPConnectorListener sendRequestAsync(CountDownLatch latch,
+            HttpClientConnector httpClientConnector) {
+        HTTPCarbonMessage httpsPostReq = TestUtil.
+                createHttpsPostReq(TestUtil.HTTP_SERVER_PORT, "hello", "/");
+        HTTPConnectorListener requestListener = new HTTPConnectorListener(latch);
+        HttpResponseFuture responseFuture = httpClientConnector.send(httpsPostReq);
+        responseFuture.setHttpConnectorListener(requestListener);
+        return requestListener;
     }
 }
 

@@ -25,24 +25,18 @@ import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
-import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.SendChannelIDServerInitializer;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static org.testng.Assert.assertEquals;
 
@@ -76,18 +70,18 @@ public class ConnectionPoolMainTestCase {
 
             HTTPConnectorListener responseListener;
 
-            responseListener = sendRequestAsync(requestOneLatch);
+            responseListener = TestUtil.sendRequestAsync(requestOneLatch, httpClientConnector);
 
             // While the first request is being processed by the back-end,
             // we send the second request which forces the client connector to
             // create a new connection.
             Thread.sleep(2500);
-            sendRequestAsync(requestTwoLatch);
+            TestUtil.sendRequestAsync(requestTwoLatch, httpClientConnector);
 
-            String responseOne = waitAndGetStringEntity(requestOneLatch, responseListener);
+            String responseOne = TestUtil.waitAndGetStringEntity(requestOneLatch, responseListener);
 
-            responseListener = sendRequestAsync(requestThreeLatch);
-            String responseThree = waitAndGetStringEntity(requestThreeLatch, responseListener);
+            responseListener = TestUtil.sendRequestAsync(requestThreeLatch, httpClientConnector);
+            String responseThree = TestUtil.waitAndGetStringEntity(requestThreeLatch, responseListener);
 
             assertEquals(responseOne, responseThree);
 
@@ -96,26 +90,6 @@ public class ConnectionPoolMainTestCase {
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running testConnectionReuseForMain", e);
         }
-    }
-
-    private String waitAndGetStringEntity(CountDownLatch latch, HTTPConnectorListener responseListener)
-            throws InterruptedException {
-        String response;
-        latch.await(10, TimeUnit.SECONDS);
-        HTTPCarbonMessage httpResponse = responseListener.getHttpResponseMessage();
-        response = new BufferedReader(new InputStreamReader(new HttpMessageDataStreamer(httpResponse)
-                .getInputStream()))
-                .lines().collect(Collectors.joining("\n"));
-        return response;
-    }
-
-    private HTTPConnectorListener sendRequestAsync(CountDownLatch latch) {
-        HTTPCarbonMessage httpsPostReq = TestUtil.
-                createHttpsPostReq(TestUtil.HTTP_SERVER_PORT, "hello", "/");
-        HTTPConnectorListener requestListener = new HTTPConnectorListener(latch);
-        HttpResponseFuture responseFuture = httpClientConnector.send(httpsPostReq);
-        responseFuture.setHttpConnectorListener(requestListener);
-        return requestListener;
     }
 
     @AfterClass

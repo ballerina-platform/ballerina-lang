@@ -41,7 +41,7 @@ public class TestNGListener extends TestListenerAdapter {
             for (String wordOfName: testClassWords) {
                 testClassNameFull = testClassNameFull + wordOfName + " ";
             }
-            printStream.println("Start Running " + testClassNameFull.trim() + "..................");
+            printStream.println("Start Running " + testClassNameFull.trim() + " ...");
         }
     }
 
@@ -70,6 +70,4 @@ public class TestNGListener extends TestListenerAdapter {
         LoggerFactory.getLogger(tr.getTestClass().getRealClass()).error(
                 "Test failed: " + testCase + "-> " + e.getMessage());
     }
-
-
 }
