@@ -1,43 +1,6 @@
 body.loading > .loading-animation {
     width: 200px;
 }
-
-.holiday-greeting {
-    display: none;
-    z-index:10000001;
-    position:absolute;
-    top:0;
-    left:calc(50% - 420px);
-    width:841px;
-    height:838px;
-}
-
-.new-year-greeting {
-    display: none;
-    z-index:10000001;
-    position:absolute;
-    top:0;
-    left:calc(50% - 420px);
-    width:841px;
-    height:838px;
-}
-
-.loading-animation {
-    z-index:10000002;
-}
-
-.loading .loading-animation.offset-new-year {
-    top: 500px;
-}
-
-.loading .loading-animation.offset-holiday {
-    top: 450px;
-}
-
-.loading-bg {
-    z-index:10000000;
-}
-
 body.loading > .loading-animation > .blob {
     width: 2rem;
     height: 2rem;
