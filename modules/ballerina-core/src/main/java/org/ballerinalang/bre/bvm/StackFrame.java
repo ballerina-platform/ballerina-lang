@@ -194,6 +194,18 @@ public class StackFrame {
         return refRegs;
     }
 
+    public int getRetAddrs() {
+        return retAddrs;
+    }
+
+    public PackageInfo getPackageInfo() {
+        return packageInfo;
+    }
+
+    public WorkerInfo getWorkerInfo() {
+        return workerInfo;
+    }
+
     public void setLongLocalVars(long[] longLocalVars) {
         this.longLocalVars = longLocalVars;
     }

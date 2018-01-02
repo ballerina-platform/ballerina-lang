@@ -19,7 +19,6 @@ package org.ballerinalang.test.utils.debug;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.testng.Assert;
@@ -59,8 +58,8 @@ public class VMDebuggerUtil {
         }
     }
 
-    private static void checkDebugPointHit(ExpectedResults expRes, NodeLocation halt, Step crntStep) {
-        NodeLocation expLocation = null;
+    private static void checkDebugPointHit(ExpectedResults expRes, BreakPointDTO halt, Step crntStep) {
+        BreakPointDTO expLocation = null;
         if (!expRes.isMultiThreaded() || !Step.RESUME.equals(crntStep)) {
             expLocation = expRes.getCurrent().getCurrentLocation();
             expRes.getCurrent().incrementPointer();
@@ -71,8 +70,8 @@ public class VMDebuggerUtil {
                 + expLocation + ", actual location - " + halt);
     }
 
-    private static NodeLocation findDebugPoint(ExpectedResults expRes, NodeLocation halt) {
-        NodeLocation expLocation = findDebugPointInWorkerRes(expRes.getCurrent());
+    private static BreakPointDTO findDebugPoint(ExpectedResults expRes, BreakPointDTO halt) {
+        BreakPointDTO expLocation = findDebugPointInWorkerRes(expRes.getCurrent());
         if (halt.equals(expLocation)) {
             expRes.getCurrent().incrementPointer();
             return expLocation;
@@ -93,7 +92,7 @@ public class VMDebuggerUtil {
         return null;
     }
 
-    private static NodeLocation findDebugPointInWorkerRes(WorkerResults workerRes) {
+    private static BreakPointDTO findDebugPointInWorkerRes(WorkerResults workerRes) {
         if (workerRes == null) {
             return null;
         }

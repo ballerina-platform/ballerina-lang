@@ -18,13 +18,12 @@
 package org.ballerinalang.test.utils.debug;
 
 import io.netty.channel.Channel;
-import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.util.debugger.DebugClientHandler;
 import org.ballerinalang.util.debugger.DebugCommand;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.DebugException;
+import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
-import org.ballerinalang.util.debugger.info.BreakPointInfo;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,7 +38,7 @@ public class TestDebugClientHandler implements DebugClientHandler {
 
         volatile boolean isExit;
         int hitCount = -1;
-        NodeLocation haltPosition;
+        BreakPointDTO haltPosition;
         private volatile Semaphore executionSem;
         private volatile String threadId;
 
@@ -106,10 +105,10 @@ public class TestDebugClientHandler implements DebugClientHandler {
         }
 
         @Override
-        public void notifyHalt(BreakPointInfo breakPointInfo) {
+        public void notifyHalt(MessageDTO message) {
             hitCount++;
-            haltPosition = breakPointInfo.getHaltLocation();
-            threadId = breakPointInfo.getThreadId();
+            haltPosition = message.getLocation();
+            threadId = message.getThreadId();
             executionSem.release();
         }
 

@@ -22,7 +22,6 @@ package org.ballerinalang.util.debugger;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
-import org.ballerinalang.util.debugger.info.BreakPointInfo;
 import org.ballerinalang.util.debugger.util.DebugMsgUtil;
 
 import java.util.Map;
@@ -85,28 +84,18 @@ public class VMDebugClientHandler implements DebugClientHandler {
 
     @Override
     public void notifyComplete() {
-        MessageDTO message = new MessageDTO();
-        message.setCode(DebugConstants.CODE_COMPLETE);
-        message.setMessage(DebugConstants.MSG_COMPLETE);
+        MessageDTO message = new MessageDTO(DebugConstants.CODE_COMPLETE, DebugConstants.MSG_COMPLETE);
         pushMessageToClient(message);
     }
 
     @Override
     public void notifyExit() {
-        MessageDTO message = new MessageDTO();
-        message.setCode(DebugConstants.CODE_EXIT);
-        message.setMessage(DebugConstants.MSG_EXIT);
+        MessageDTO message = new MessageDTO(DebugConstants.CODE_EXIT, DebugConstants.MSG_EXIT);
         pushMessageToClient(message);
     }
 
     @Override
-    public void notifyHalt(BreakPointInfo breakPointInfo) {
-        MessageDTO message = new MessageDTO();
-        message.setCode(DebugConstants.CODE_HIT);
-        message.setMessage(DebugConstants.MSG_HIT);
-        message.setThreadId(breakPointInfo.getThreadId());
-        message.setLocation(breakPointInfo.getHaltLocation());
-        message.setFrames(breakPointInfo.getCurrentFrames());
+    public void notifyHalt(MessageDTO message) {
         pushMessageToClient(message);
     }
 

@@ -19,7 +19,6 @@ package org.ballerinalang.util.debugger;
 
 import io.netty.channel.Channel;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
-import org.ballerinalang.util.debugger.info.BreakPointInfo;
 
 /**
  * Represents a debug client handler which is used to communicate with the debug client.
@@ -83,9 +82,9 @@ public interface DebugClientHandler {
     /**
      * Called when executor hits a break point.
      *
-     * @param breakPointInfo Break point information.
+     * @param message to send to the client.
      */
-    void notifyHalt(BreakPointInfo breakPointInfo);
+    void notifyHalt(MessageDTO message);
 
     /**
      * Send a custom message to the client.

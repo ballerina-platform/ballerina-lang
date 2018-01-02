@@ -20,13 +20,23 @@ package org.ballerinalang.util.debugger;
 
 import io.netty.channel.Channel;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.StackFrame;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.attributes.AttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.debugger.dto.CommandDTO;
+import org.ballerinalang.util.debugger.dto.FrameDTO;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
-import org.ballerinalang.util.debugger.info.BreakPointInfo;
+import org.ballerinalang.util.debugger.dto.VariableDTO;
 import org.ballerinalang.util.debugger.util.DebugMsgUtil;
 
 import java.util.List;
@@ -159,9 +169,7 @@ public class VMDebugManager {
         try {
             processCommand(json);
         } catch (Exception e) {
-            MessageDTO message = new MessageDTO();
-            message.setCode(DebugConstants.CODE_INVALID);
-            message.setMessage(e.getMessage());
+            MessageDTO message = new MessageDTO(DebugConstants.CODE_INVALID, e.getMessage());
             clientHandler.sendCustomMsg(message);
             //in case exception occurs, debug will resume and session disconnected
             stopDebugging();
@@ -291,12 +299,14 @@ public class VMDebugManager {
     /**
      * Send a message to the debug client when a breakpoint is hit.
      *
-     * @param breakPointInfo info of the current break point
+     * @param frame             Current stack frame.
+     * @param currentExecLine   Current execution line.
+     * @param threadId          Current thread id.
      */
-    public void notifyDebugHit(BreakPointInfo breakPointInfo) {
-        clientHandler.notifyHalt(breakPointInfo);
+    public void notifyDebugHit(StackFrame frame, LineNumberInfo currentExecLine, String threadId) {
+        MessageDTO message = generateDebugHitMessage(frame, currentExecLine, threadId);
+        clientHandler.notifyHalt(message);
     }
-
 
     /**
      * Notify client when debugger has finish execution.
@@ -321,9 +331,70 @@ public class VMDebugManager {
      * @param messageText message to send to the client
      */
     public void sendAcknowledge(String messageText) {
-        MessageDTO message = new MessageDTO();
-        message.setCode(DebugConstants.CODE_ACK);
-        message.setMessage(messageText);
+        MessageDTO message = new MessageDTO(DebugConstants.CODE_ACK, messageText);
         clientHandler.sendCustomMsg(message);
+    }
+
+    /**
+     * Generate debug hit message.
+     *
+     * @param frame             Current stack frame.
+     * @param currentExecLine   Current execution line.
+     * @param threadId          Current thread id.
+     * @return  message         To be sent.
+     */
+    private MessageDTO generateDebugHitMessage(StackFrame frame, LineNumberInfo currentExecLine, String threadId) {
+        MessageDTO message = new MessageDTO(DebugConstants.CODE_HIT, DebugConstants.MSG_HIT);
+        message.setThreadId(threadId);
+
+        BreakPointDTO breakPointDTO = new BreakPointDTO(currentExecLine.getPackageInfo().getPkgPath(),
+                currentExecLine.getFileName(), currentExecLine.getLineNumber());
+        message.setLocation(breakPointDTO);
+
+        int callingIp = currentExecLine.getIp();
+        while (frame != null) {
+            String pck = frame.getPackageInfo().getPkgPath();
+            if (frame.getCallableUnitInfo() == null) {
+                frame = frame.prevStackFrame;
+                continue;
+            }
+            //TODO is this ok to show function name when it's a worker which is executing?
+            String functionName = frame.getCallableUnitInfo().getName();
+            LineNumberInfo callingLine = getLineNumber(frame.getPackageInfo().getPkgPath(), callingIp);
+            FrameDTO frameDTO = new FrameDTO(pck, functionName, callingLine.getFileName(),
+                    callingLine.getLineNumber());
+            message.addFrame(frameDTO);
+            LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) frame.getWorkerInfo()
+                    .getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
+            if (localVarAttrInfo == null) {
+                frame = frame.prevStackFrame;
+                continue;
+            }
+            final StackFrame fcp = frame;
+            localVarAttrInfo.getLocalVariables().forEach(localVarInfo -> {
+                VariableDTO variableDTO = new VariableDTO(localVarInfo.getVariableName(), "Local");
+                if (BTypes.typeInt.equals(localVarInfo.getVariableType())) {
+                    variableDTO.setBValue(new BInteger(fcp.getLongLocalVars()[localVarInfo.getVariableIndex()]));
+                } else if (BTypes.typeFloat.equals(localVarInfo.getVariableType())) {
+                    variableDTO.setBValue(new BFloat(fcp.getDoubleLocalVars()[localVarInfo.getVariableIndex()]));
+                } else if (BTypes.typeString.equals(localVarInfo.getVariableType())) {
+                    variableDTO.setBValue(new BString(fcp.getStringLocalVars()[localVarInfo.getVariableIndex()]));
+                } else if (BTypes.typeBoolean.equals(localVarInfo.getVariableType())) {
+                    variableDTO.setBValue(new BBoolean(fcp.getIntLocalVars()[localVarInfo
+                            .getVariableIndex()] == 1 ? true : false));
+                } else if (BTypes.typeBlob.equals(localVarInfo.getVariableType())) {
+                    variableDTO.setBValue(new BBlob(fcp.getByteLocalVars()[localVarInfo.getVariableIndex()]));
+                } else {
+                    variableDTO.setBValue(fcp.getRefLocalVars()[localVarInfo.getVariableIndex()]);
+                }
+                frameDTO.addVariable(variableDTO);
+            });
+            callingIp = frame.getRetAddrs() - 1;
+            if (callingIp < 0) {
+                callingIp = 0;
+            }
+            frame = frame.prevStackFrame;
+        }
+        return message;
     }
 }

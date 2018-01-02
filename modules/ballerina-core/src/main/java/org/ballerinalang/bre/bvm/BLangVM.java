@@ -24,7 +24,6 @@ import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.impl.BClientConnectorFutureListener;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
-import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
@@ -86,7 +85,6 @@ import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
-import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
@@ -103,9 +101,6 @@ import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
 import org.ballerinalang.util.debugger.DebugCommand;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.VMDebugManager;
-import org.ballerinalang.util.debugger.info.BreakPointInfo;
-import org.ballerinalang.util.debugger.info.FrameInfo;
-import org.ballerinalang.util.debugger.info.VariableInfo;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -2501,71 +2496,8 @@ public class BLangVM {
                           DebugContext debugContext) {
         debugContext.setLastLine(currentExecLine);
         debugContext.setSF(controlStack.currentFrame);
-        debugManager.notifyDebugHit(getBreakPointInfo(currentExecLine, debugManager, debugContext));
+        debugManager.notifyDebugHit(controlStack.currentFrame, currentExecLine, debugContext.getThreadId());
         debugManager.waitTillDebuggeeResponds();
-    }
-
-    /**
-     * Helper method to get breakpoint information.
-     *
-     * @param currentExecLine   Current execution line.
-     * @param debugManager      Debug manager object.
-     * @param debugContext      Current debug context.
-     * @return
-     */
-    private BreakPointInfo getBreakPointInfo(LineNumberInfo currentExecLine, VMDebugManager debugManager,
-                                             DebugContext debugContext) {
-        NodeLocation location = new NodeLocation(currentExecLine.getPackageInfo().getPkgPath(),
-                currentExecLine.getFileName(), currentExecLine.getLineNumber());
-        BreakPointInfo breakPointInfo = new BreakPointInfo(location);
-        breakPointInfo.setThreadId(debugContext.getThreadId());
-
-        int callingIp = currentExecLine.getIp();
-        StackFrame frame = controlStack.currentFrame;
-        while (frame != null) {
-            String pck = frame.packageInfo.getPkgPath();
-            if (frame.callableUnitInfo == null) {
-                frame = frame.prevStackFrame;
-                continue;
-            }
-            //TODO is this ok to show function name when it's a worker which is executing?
-            String functionName = frame.callableUnitInfo.getName();
-            LineNumberInfo callingLine = debugManager.getLineNumber(frame.packageInfo.getPkgPath(), callingIp);
-            FrameInfo frameInfo = new FrameInfo(pck, functionName, callingLine.getFileName(),
-                    callingLine.getLineNumber());
-            LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) frame.workerInfo
-                    .getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
-            if (localVarAttrInfo == null) {
-                frame = frame.prevStackFrame;
-                continue;
-            }
-            final StackFrame fcp = frame;
-            localVarAttrInfo.getLocalVariables().forEach(localVarInfo -> {
-                VariableInfo variableInfo = new VariableInfo(localVarInfo.getVariableName(), "Local");
-                if (BTypes.typeInt.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BInteger(fcp.longLocalVars[localVarInfo.getVariableIndex()]));
-                } else if (BTypes.typeFloat.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BFloat(fcp.doubleLocalVars[localVarInfo.getVariableIndex()]));
-                } else if (BTypes.typeString.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BString(fcp.stringLocalVars[localVarInfo.getVariableIndex()]));
-                } else if (BTypes.typeBoolean.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BBoolean(fcp.intLocalVars[localVarInfo
-                            .getVariableIndex()] == 1 ? true : false));
-                } else if (BTypes.typeBlob.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BBlob(fcp.byteLocalVars[localVarInfo.getVariableIndex()]));
-                } else {
-                    variableInfo.setBValue(fcp.refLocalVars[localVarInfo.getVariableIndex()]);
-                }
-                frameInfo.addVariableInfo(variableInfo);
-            });
-            callingIp = frame.retAddrs - 1;
-            if (callingIp < 0) {
-                callingIp = 0;
-            }
-            breakPointInfo.addFrameInfo(frameInfo);
-            frame = frame.prevStackFrame;
-        }
-        return breakPointInfo;
     }
 
     private void handleAnyToRefTypeCast(StackFrame sf, int[] operands, BType targetType) {

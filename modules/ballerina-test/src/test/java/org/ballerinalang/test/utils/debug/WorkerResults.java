@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.test.utils.debug;
 
-import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 
 /**
@@ -42,13 +41,11 @@ public class WorkerResults {
         return pointer == expBreakPoints.length;
     }
 
-    public NodeLocation getCurrentLocation() {
+    public BreakPointDTO getCurrentLocation() {
         if (expBreakPoints.length <= pointer) {
             return null;
         }
-        BreakPointDTO expPoint = expBreakPoints[pointer];
-        NodeLocation expLocation = new NodeLocation(expPoint.getFileName(), expPoint.getLineNumber());
-        return expLocation;
+        return expBreakPoints[pointer];
     }
 
     public Step getNextStep() {
