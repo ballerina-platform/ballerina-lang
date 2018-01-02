@@ -384,7 +384,7 @@ IfStatementDecorator.defaultProps = {
 IfStatementDecorator.propTypes = {
     title: PropTypes.string.isRequired,
     model: PropTypes.instanceOf(Node).isRequired,
-    children: PropTypes.arrayOf(React.PropTypes.node),
+    children: PropTypes.arrayOf(PropTypes.node),
     bBox: PropTypes.instanceOf(SimpleBBox).isRequired,
     dropTarget: PropTypes.instanceOf(Node).isRequired,
     expression: PropTypes.shape({

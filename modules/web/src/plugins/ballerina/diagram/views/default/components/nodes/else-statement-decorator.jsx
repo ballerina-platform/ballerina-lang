@@ -85,7 +85,7 @@ ElseStatementDecorator.propTypes = {
     draggable: PropTypes.func,
     title: PropTypes.string.isRequired,
     model: PropTypes.instanceOf(Node).isRequired,
-    children: PropTypes.arrayOf(React.PropTypes.node),
+    children: PropTypes.arrayOf(PropTypes.node),
     utilities: PropTypes.element,
     bBox: PropTypes.instanceOf(SimpleBBox).isRequired,
     parameterBbox: PropTypes.instanceOf(SimpleBBox),

@@ -380,7 +380,7 @@ CompoundStatementDecorator.defaultProps = {
 CompoundStatementDecorator.propTypes = {
     title: PropTypes.string.isRequired,
     model: PropTypes.instanceOf(Node).isRequired,
-    children: PropTypes.arrayOf(React.PropTypes.node),
+    children: PropTypes.arrayOf(PropTypes.node),
     utilities: PropTypes.element,
     bBox: PropTypes.instanceOf(SimpleBBox).isRequired,
     parameterBbox: PropTypes.instanceOf(SimpleBBox),
