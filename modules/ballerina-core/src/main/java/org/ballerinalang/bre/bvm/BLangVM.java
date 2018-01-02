@@ -73,6 +73,9 @@ import org.ballerinalang.util.codegen.ErrorTableEntry;
 import org.ballerinalang.util.codegen.ForkjoinInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
+import org.ballerinalang.util.codegen.Instruction.InstructionACALL;
+import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
+import org.ballerinalang.util.codegen.Instruction.InstructionTCALL;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.Mnemonics;
@@ -80,7 +83,6 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructInfo;
-import org.ballerinalang.util.codegen.TransformerInfo;
 import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
@@ -96,7 +98,6 @@ import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
-import org.ballerinalang.util.codegen.cpentries.TransformerRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
@@ -238,6 +239,7 @@ public class BLangVM {
         WrkrInteractionArgsCPEntry wrkrIntRefCPEntry;
         WorkerDataChannelInfo workerDataChannel;
         ForkJoinCPEntry forkJoinCPEntry;
+        InstructionCALL callIns;
 
         boolean isDebugging = programFile.getDebugManager().isDebugEnabled();
 
@@ -495,13 +497,20 @@ public class BLangVM {
                     retryTransaction(i, j);
                     break;
                 case InstructionCodes.CALL:
-                    cpIndex = operands[0];
-                    funcRefCPEntry = (FunctionRefCPEntry) constPool[cpIndex];
-                    functionInfo = funcRefCPEntry.getFunctionInfo();
-
-                    cpIndex = operands[1];
-                    funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeCallableUnit(functionInfo, funcCallCPEntry);
+                    callIns = (InstructionCALL) instruction;
+                    invokeCallableUnit(callIns.functionInfo, callIns.argRegs, callIns.retRegs);
+                    break;
+                case InstructionCodes.NCALL:
+                    callIns = (InstructionCALL) instruction;
+                    invokeNativeFunction(callIns.functionInfo, callIns.argRegs, callIns.retRegs);
+                    break;
+                case InstructionCodes.ACALL:
+                    InstructionACALL acallIns = (InstructionACALL) instruction;
+                    invokeAction(acallIns.actionName, acallIns.argRegs, acallIns.retRegs);
+                    break;
+                case InstructionCodes.TCALL:
+                    InstructionTCALL tcallIns = (InstructionTCALL) instruction;
+                    invokeCallableUnit(tcallIns.transformerInfo, tcallIns.argRegs, tcallIns.retRegs);
                     break;
                 case InstructionCodes.TR_BEGIN:
                     i = operands[0];
@@ -542,23 +551,6 @@ public class BLangVM {
                 case InstructionCodes.WRKRETURN:
                     handleWorkerReturn();
                     break;
-                case InstructionCodes.NCALL:
-                    cpIndex = operands[0];
-                    funcRefCPEntry = (FunctionRefCPEntry) constPool[cpIndex];
-                    functionInfo = funcRefCPEntry.getFunctionInfo();
-
-                    cpIndex = operands[1];
-                    funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeNativeFunction(functionInfo, funcCallCPEntry);
-                    break;
-                case InstructionCodes.ACALL:
-                    cpIndex = operands[0];
-                    actionRefCPEntry = (ActionRefCPEntry) constPool[cpIndex];
-
-                    cpIndex = operands[1];
-                    funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeAction(actionRefCPEntry.getActionName(), funcCallCPEntry);
-                    break;
                 case InstructionCodes.THROW:
                     i = operands[0];
                     if (i >= 0) {
@@ -590,9 +582,9 @@ public class BLangVM {
                     funcRefCPEntry = ((BFunctionPointer) sf.refRegs[i]).value();
                     functionInfo = funcRefCPEntry.getFunctionInfo();
                     if (functionInfo.isNative()) {
-                        invokeNativeFunction(functionInfo, funcCallCPEntry);
+                        invokeNativeFunction(functionInfo, funcCallCPEntry.getArgRegs(), funcCallCPEntry.getRetRegs());
                     } else {
-                        invokeCallableUnit(functionInfo, funcCallCPEntry);
+                        invokeCallableUnit(functionInfo, funcCallCPEntry.getArgRegs(), funcCallCPEntry.getRetRegs());
                     }
                     break;
                 case InstructionCodes.FPLOAD:
@@ -600,14 +592,6 @@ public class BLangVM {
                     j = operands[1];
                     funcRefCPEntry = (FunctionRefCPEntry) constPool[i];
                     sf.refRegs[j] = new BFunctionPointer(funcRefCPEntry);
-                    break;
-                case InstructionCodes.TCALL:
-                    cpIndex = operands[0];
-                    TransformerInfo transformerInfo = ((TransformerRefCPEntry) constPool[cpIndex]).getTransformerInfo();
-
-                    cpIndex = operands[1];
-                    funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeCallableUnit(transformerInfo, funcCallCPEntry);
                     break;
 
                 case InstructionCodes.I2ANY:
@@ -2712,13 +2696,12 @@ public class BLangVM {
         ballerinaTransactionManager.incrementCurrentRetryCount(transactionId);
     }
 
-    public void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
-        int[] argRegs = funcCallCPEntry.getArgRegs();
+    public void invokeCallableUnit(CallableUnitInfo callableUnitInfo, int[] argRegs, int[] retRegs) {
         BType[] paramTypes = callableUnitInfo.getParamTypes();
         StackFrame callerSF = controlStack.currentFrame;
 
         WorkerInfo defaultWorkerInfo = callableUnitInfo.getDefaultWorkerInfo();
-        StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
+        StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, retRegs);
         controlStack.pushFrame(calleeSF);
 
         // Copy arg values from the current StackFrame to the new StackFrame
@@ -2731,24 +2714,23 @@ public class BLangVM {
 
     }
 
-    public void invokeAction(String actionName, FunctionCallCPEntry funcCallCPEntry) {
-        int[] argRegs = funcCallCPEntry.getArgRegs();
+    public void invokeAction(String actionName, int[] argRegs, int[] retRegs) {
         StackFrame callerSF = controlStack.currentFrame;
-
         if (callerSF.refRegs[argRegs[0]] == null) {
             context.setError(BLangVMErrors.createNullRefError(this.context, ip));
             handleError();
             return;
         }
+
         BConnectorType actualCon = (BConnectorType) ((BConnector) callerSF.refRegs[argRegs[0]]).getConnectorType();
         //TODO find a way to change this to method table
         ActionInfo newActionInfo = programFile.getPackageInfo(actualCon.getPackagePath())
                 .getConnectorInfo(actualCon.getName()).getActionInfo(actionName);
 
         if (newActionInfo.isNative()) {
-            invokeNativeAction(newActionInfo, funcCallCPEntry);
+            invokeNativeAction(newActionInfo, argRegs, retRegs);
         } else {
-            invokeCallableUnit(newActionInfo, funcCallCPEntry);
+            invokeCallableUnit(newActionInfo, argRegs, retRegs);
         }
     }
 
@@ -3085,7 +3067,7 @@ public class BLangVM {
         return sb.toString();
     }
 
-    private void invokeNativeFunction(FunctionInfo functionInfo, FunctionCallCPEntry funcCallCPEntry) {
+    private void invokeNativeFunction(FunctionInfo functionInfo, int[] argRegs, int[] retRegs) {
         StackFrame callerSF = controlStack.currentFrame;
 
         // TODO : Remove once we handle this properly for return values
@@ -3093,8 +3075,7 @@ public class BLangVM {
         BValue[] returnValues = new BValue[retTypes.length];
 
         StackFrame caleeSF = new StackFrame(functionInfo, functionInfo.getDefaultWorkerInfo(), ip, null, returnValues);
-        copyArgValues(callerSF, caleeSF, funcCallCPEntry.getArgRegs(),
-                functionInfo.getParamTypes());
+        copyArgValues(callerSF, caleeSF, argRegs, functionInfo.getParamTypes());
 
         controlStack.pushFrame(caleeSF);
 
@@ -3113,10 +3094,10 @@ public class BLangVM {
         }
         // Copy return values to the callers stack
         controlStack.popFrame();
-        handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
+        handleReturnFromNativeCallableUnit(callerSF, retRegs, returnValues, retTypes);
     }
 
-    private void invokeNativeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
+    private void invokeNativeAction(ActionInfo actionInfo, int[] argRegs, int[] retRegs) {
         StackFrame callerSF = controlStack.currentFrame;
 
         WorkerInfo defaultWorkerInfo = actionInfo.getDefaultWorkerInfo();
@@ -3131,9 +3112,7 @@ public class BLangVM {
         BValue[] returnValues = new BValue[retTypes.length];
 
         StackFrame caleeSF = new StackFrame(actionInfo, defaultWorkerInfo, ip, null, returnValues);
-        copyArgValues(callerSF, caleeSF, funcCallCPEntry.getArgRegs(),
-                actionInfo.getParamTypes());
-
+        copyArgValues(callerSF, caleeSF, argRegs, actionInfo.getParamTypes());
 
         controlStack.pushFrame(caleeSF);
 
@@ -3149,7 +3128,6 @@ public class BLangVM {
                     caleeSF.packageInfo = actionInfo.getPackageInfo();
                 }
                 context.programFile = programFile;
-                context.funcCallCPEntry = funcCallCPEntry;
                 context.actionInfo = actionInfo;
 
                 ConnectorFuture future = nativeAction.execute(context);
@@ -3159,7 +3137,6 @@ public class BLangVM {
                 future.setConnectorFutureListener(listener);
 
                 ip = -1;
-                return;
             } else {
                 ConnectorFuture future = nativeAction.execute(context);
                 if (future == null) {
@@ -3179,13 +3156,12 @@ public class BLangVM {
                 }
                 // Copy return values to the callers stack
                 controlStack.popFrame();
-                handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
+                handleReturnFromNativeCallableUnit(callerSF, retRegs, returnValues, retTypes);
 
             }
         } catch (Throwable e) {
             context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
             handleError();
-            return;
         }
     }
 

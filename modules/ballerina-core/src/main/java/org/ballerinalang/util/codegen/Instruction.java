@@ -20,7 +20,7 @@ package org.ballerinalang.util.codegen;
 import java.util.Arrays;
 
 /**
- * {@code Instruction} represents an bytecode instruction in Ballerina.
+ * {@code Instruction} represents a bytecode instruction in Ballerina.
  *
  * @since 0.87
  */
@@ -52,5 +52,70 @@ public class Instruction {
                 "opcode=" + opcode +
                 ", operands=" + Arrays.toString(operands) +
                 '}';
+    }
+
+    /**
+     * {@code InstructionCALL} represents the CALL instruction in Ballerina bytecode.
+     * <p>
+     * The CALL instruction performs a function invocation in BVM.
+     *
+     * @since 0.95.6
+     */
+    public static class InstructionCALL extends Instruction {
+
+        public FunctionInfo functionInfo;
+        public int[] argRegs;
+        public int[] retRegs;
+
+        InstructionCALL(int opcode, FunctionInfo functionInfo,
+                        int[] argRegs, int[] retRegs) {
+            super(opcode);
+            this.functionInfo = functionInfo;
+            this.argRegs = argRegs;
+            this.retRegs = retRegs;
+        }
+    }
+
+    /**
+     * {@code InstructionACALL} represents the ACALL instruction in Ballerina bytecode.
+     * <p>
+     * The ACALL instruction performs an action invocation in BVM.
+     *
+     * @since 0.95.6
+     */
+    public static class InstructionACALL extends Instruction {
+
+        public String actionName;
+        public int[] argRegs;
+        public int[] retRegs;
+
+        InstructionACALL(int opcode, String actionName, int[] argRegs, int[] retRegs) {
+            super(opcode);
+            this.actionName = actionName;
+            this.argRegs = argRegs;
+            this.retRegs = retRegs;
+        }
+    }
+
+    /**
+     * {@code InstructionACALL} represents the ACALL instruction in Ballerina bytecode.
+     * <p>
+     * The ACALL instruction performs an action invocation in BVM.
+     *
+     * @since 0.95.6
+     */
+    public static class InstructionTCALL extends Instruction {
+
+        public TransformerInfo transformerInfo;
+        public int[] argRegs;
+        public int[] retRegs;
+
+        InstructionTCALL(int opcode, TransformerInfo transformerInfo,
+                        int[] argRegs, int[] retRegs) {
+            super(opcode);
+            this.transformerInfo = transformerInfo;
+            this.argRegs = argRegs;
+            this.retRegs = retRegs;
+        }
     }
 }
