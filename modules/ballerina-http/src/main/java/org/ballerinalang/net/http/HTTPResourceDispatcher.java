@@ -35,26 +35,27 @@ public class HTTPResourceDispatcher {
 
     private static final Logger log = LoggerFactory.getLogger(HTTPResourceDispatcher.class);
 
-    public static HttpResource findResource(HttpService service, HTTPCarbonMessage cMsg)
+    public static HttpResource findResource(HttpService service, HTTPCarbonMessage inboundRequest)
             throws BallerinaConnectorException {
 
-        String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
-        String subPath = (String) cMsg.getProperty(Constants.SUB_PATH);
+        String method = (String) inboundRequest.getProperty(Constants.HTTP_METHOD);
+        String subPath = (String) inboundRequest.getProperty(Constants.SUB_PATH);
         subPath = sanitizeSubPath(subPath);
         Map<String, String> resourceArgumentValues = new HashMap<>();
         try {
-            HttpResource resource = service.getUriTemplate().matches(subPath, resourceArgumentValues, cMsg);
+            HttpResource resource = service.getUriTemplate().matches(subPath, resourceArgumentValues, inboundRequest);
             if (resource != null) {
-                cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
-                cMsg.setProperty(Constants.RESOURCES_CORS, resource.getCorsHeaders());
+                inboundRequest.setProperty(Constants.RESOURCE_ARGS, resourceArgumentValues);
+                inboundRequest.setProperty(Constants.RESOURCES_CORS, resource.getCorsHeaders());
                 return resource;
             } else {
                 if (method.equals(Constants.HTTP_METHOD_OPTIONS)) {
-                    handleOptionsRequest(cMsg, service);
+                    handleOptionsRequest(inboundRequest, service);
                 } else {
-                    cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
+                    inboundRequest.setProperty(Constants.HTTP_STATUS_CODE, 404);
                     throw new BallerinaConnectorException("no matching resource found for path : "
-                            + cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO) + " , method : " + method);
+                            + inboundRequest.getProperty(org.wso2.carbon.messaging.Constants.TO)
+                            + " , method : " + method);
                 }
                 return null;
             }
