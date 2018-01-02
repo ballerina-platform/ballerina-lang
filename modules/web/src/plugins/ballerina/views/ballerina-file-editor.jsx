@@ -41,7 +41,6 @@ import SyncBreakpointsVisitor from './../visitors/sync-breakpoints';
 import TreeUtils from './../model/tree-util';
 import TreeBuilder from './../model/tree-builder';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
-import './../utils/react-try-catch-batching-strategy';
 import FragmentUtils from '../utils/fragment-utils';
 import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
 import { DOC_VIEW_ID } from 'plugins/ballerina/constants';
