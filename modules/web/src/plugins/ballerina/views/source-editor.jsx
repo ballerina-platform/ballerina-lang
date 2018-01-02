@@ -265,11 +265,13 @@ class SourceEditor extends React.Component {
      * @param {number} column Offset (1 based)
      */
     goToCursorPosition(lineNumber, column) {
-        this.editorInstance.focus();
-        this.editorInstance.setPosition({
+        const position = {
             lineNumber,
             column,
-        });
+        };
+        this.editorInstance.focus();
+        this.editorInstance.setPosition(position);
+        this.editorInstance.revealPositionInCenter(position);
     }
 
     /**
