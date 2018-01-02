@@ -146,7 +146,7 @@ public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionAct
                                @NotNull PsiElement endElement) {
         // We only perform this action on Ballerina modules since this might cause issues in other modules.
         Module module = ModuleUtil.findModuleForFile(file.getVirtualFile(), file.getProject());
-        boolean isBallerinaModule = BallerinaSdkService.isBallerinaModule(module);
+        boolean isBallerinaModule = BallerinaSdkService.getInstance(project).isBallerinaModule(module);
         if (!isBallerinaModule) {
             return false;
         }

@@ -40,11 +40,14 @@ sourceSets {
 
 apply plugin: 'org.jetbrains.intellij'
 intellij {
-    //For a full list of IntelliJ IDEA releases, please see https://www.jetbrains.com/intellij-repository/releases.
+    // For a full list of IntelliJ IDEA releases, please see https://www.jetbrains.com/intellij-repository/releases.
     version 'IC-2016.3'
     pluginName 'Ballerina-IntelliJ-Plugin'
     updateSinceUntilBuild false
-    plugins 'coverage' //Bundled plugin dependencies
+    // plugins 'coverage' //Bundled plugin dependencies
+    // Uncomment this line to test the plugin using small IDEs. Add -Dorg.gradle.project.localIdePath="IDE_HOME_PATH"
+    // VM option in run config.
+    // alternativeIdePath localIdePath
 }
 
 apply plugin: 'antlr'

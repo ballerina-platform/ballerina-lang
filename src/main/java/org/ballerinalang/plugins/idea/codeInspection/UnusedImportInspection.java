@@ -25,7 +25,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.util.FileTypeUtils;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
@@ -53,9 +52,6 @@ public class UnusedImportInspection extends LocalInspectionTool {
             return new ProblemDescriptor[0];
         }
         if (!(file instanceof BallerinaFile)) {
-            return new ProblemDescriptor[0];
-        }
-        if (FileTypeUtils.isInServerPageFile(file)) {
             return new ProblemDescriptor[0];
         }
 
