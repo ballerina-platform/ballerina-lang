@@ -79,9 +79,13 @@ public function getText (Entity entity) (string) {
     } else {
         file:File overFlowData = entity.overflowData;
         if (overFlowData != null) {
-            var encoding, castErr = (string)entity.contentType.parameters.CHARSET;
-            if (castErr != null) {
-                encoding = DEFAULT_CHARSET;
+            var encoding = DEFAULT_CHARSET;
+            TypeCastError castErr;
+            if (entity.contentType != null) {
+                encoding, castErr = (string)entity.contentType.parameters.CHARSET;
+                if (castErr != null) {
+                    encoding = DEFAULT_CHARSET;
+                }
             }
             io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
             io:CharacterChannel characterChannel = channel.toCharacterChannel(encoding);
@@ -101,12 +105,16 @@ public function getJson (Entity entity) (json) {
     } else {
         file:File overFlowData = entity.overflowData;
         if (overFlowData != null) {
+            var encoding = DEFAULT_CHARSET;
+            TypeCastError castErr;
+            if (entity.contentType != null) {
+                encoding, castErr = (string)entity.contentType.parameters.CHARSET;
+                if (castErr != null) {
+                    encoding = DEFAULT_CHARSET;
+                }
+            }
             io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
             blob bytes = readAll(channel);
-            var encoding, castErr = (string)entity.contentType.parameters.CHARSET;
-            if (castErr != null) {
-                encoding = DEFAULT_CHARSET;
-            }
             string content = bytes.toString(encoding);
             TypeConversionError err;
             var jsonContent, err = <json>content;
@@ -128,12 +136,16 @@ public function getXml (Entity entity) (xml) {
     } else {
         file:File overFlowData = entity.overflowData;
         if (overFlowData != null) {
+            var encoding = DEFAULT_CHARSET;
+            TypeCastError castErr;
+            if (entity.contentType != null) {
+                encoding, castErr = (string)entity.contentType.parameters.CHARSET;
+                if (castErr != null) {
+                    encoding = DEFAULT_CHARSET;
+                }
+            }
             io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
             blob bytes = readAll(channel);
-            var encoding, castErr = (string)entity.contentType.parameters.CHARSET;
-            if (castErr != null) {
-                encoding = DEFAULT_CHARSET;
-            }
             string content = bytes.toString(encoding);
             TypeConversionError err;
             var xmlContent, err = <xml>content;
