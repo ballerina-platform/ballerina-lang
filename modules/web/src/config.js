@@ -77,6 +77,7 @@ export default {
                 {
                     name: 'Passthrough Service',
                     isFile: false,
+                    openFolder: false,
                     folder: '/samples/passthroughService/passthroughservice',
                     path: '/samples/passthroughService/passthroughservice/samples/nyseStockQuoteService.bal',
                     image: 'preview_passthroughService',
@@ -84,6 +85,7 @@ export default {
                 {
                     name: 'Transformer',
                     isFile: false,
+                    openFolder: true,
                     folder: '/samples/transformer',
                     path: '/samples/transformer/StructTransformer.bal',
                     image: 'preview_transformStmt',
@@ -91,6 +93,7 @@ export default {
                 {
                     name: 'Service Chaining',
                     isFile: false,
+                    openFolder: false,
                     folder: '/samples/serviceChaining/',
                     path: '/samples/serviceChaining/servicechaining/samples/ATMLocatorService.bal',
                     image: 'preview_servicechaining',
@@ -98,6 +101,7 @@ export default {
                 {
                     name: 'RESTful Service',
                     isFile: false,
+                    openFolder: false,
                     folder: '/samples/restfulService/restfulservice',
                     path: '/samples/restfulService/restfulservice/samples/productsService.bal',
                     image: 'preview_restfulService',
@@ -105,6 +109,7 @@ export default {
                 {
                     name: 'Routing Services',
                     isFile: false,
+                    openFolder: false,
                     folder: '/samples/routingServices',
                     path: '/samples/routingServices/routingServices/samples/contentBasedRoutingService.bal',
                     image: 'preview_routingServices',
@@ -112,6 +117,7 @@ export default {
                 {
                     name: 'WebSocket',
                     isFile: false,
+                    openFolder: true,
                     folder: '/samples/websocket',
                     path: '/samples/websocket/echoserver/server/EchoServer.bal',
                     image: 'preview_websocket',
