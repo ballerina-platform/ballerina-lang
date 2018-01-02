@@ -1,6 +1,7 @@
 import ballerina.net.http;
 
 import ballerina.net.mime;
+import ballerina.file;
 
 function testAddHeader (http:Request req, string key, string value) (http:Request) {
     req.addHeader(key, value);
@@ -96,6 +97,11 @@ function testSetXmlPayload (http:Request req, xml value) (http:Request) {
 
 function testSetBinaryPayload(http:Request req, blob value) (http:Request) {
     req.setBinaryPayload(value);
+    return req;
+}
+
+function testSetEntityBody(http:Request req, file:File content, string contentType) (http:Request) {
+    req.setEntityBody(content, contentType);
     return req;
 }
 

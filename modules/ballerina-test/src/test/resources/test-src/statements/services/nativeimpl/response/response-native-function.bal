@@ -1,6 +1,7 @@
 import ballerina.net.http;
 
 import ballerina.net.mime;
+import ballerina.file;
 
 function testAddHeader (http:Response res, string key, string value) (http:Response) {
     res.addHeader(key, value);
@@ -86,6 +87,11 @@ function testSetStringPayload (http:Response res, string value) (http:Response) 
 
 function testSetXmlPayload (http:Response res, xml value) (http:Response) {
     res.setXmlPayload(value);
+    return res;
+}
+
+function testSetEntityBody(http:Response res, file:File content, string contentType) (http:Response) {
+    res.setEntityBody(content, contentType);
     return res;
 }
 

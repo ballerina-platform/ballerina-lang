@@ -71,7 +71,7 @@ public class Constants {
     public static final int SUFFIX_INDEX = 2;
     public static final int PARAMETER_MAP_INDEX = 0;
 
-    public static final int BYTE_LIMIT = 1; //2MB 2097152
+    public static final int BYTE_LIMIT = 2097152; //2MB
 
     public static final String TEMP_FILE_EXTENSION = ".tmp";
     public static final String BALLERINA_TEXT_DATA = "ballerinaTextPayload";
