@@ -20,7 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import PanelDecorator from '../decorators/panel-decorator';
 import TransformerNodeModel from '../../../../../model/tree/transformer-node';
-import TransformerNodeDetails from '../transform/transformer-node-details';
+import TransformerNodeDetails from '../transformer/transformer-node-details';
 import ImageUtil from '../../../../image-util';
 import PanelDecoratorButton from '../decorators/panel-decorator-button';
 

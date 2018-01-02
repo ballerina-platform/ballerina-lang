@@ -23,9 +23,9 @@ import $ from 'jquery';
 import { Scrollbars } from 'react-custom-scrollbars';
 import log from 'log';
 import { CHANGE_EVT_TYPES } from 'plugins/ballerina/views/constants';
-import TransformRender from './transform-render';
-import TransformNodeManager from './transform-node-manager';
-import SuggestionsDropdown from './transform-endpoints-dropdown';
+import TransformRender from './transformer-render';
+import TransformNodeManager from './transformer-node-manager';
+import SuggestionsDropdown from './transformer-endpoints-dropdown';
 import TransformerNode from '../../../../../model/tree/abstract-tree/transformer-node';
 import Tree from './tree';
 import FunctionInv from './function';
@@ -35,20 +35,20 @@ import DropZone from '../../../../../drag-drop/DropZone';
 import Button from '../../../../../interactions/transform-button';
 import Item from '../../../../../interactions/item';
 import { binaryOpTools, unaryOpTools, ternaryOpTools } from '../../../../../tool-palette/item-provider/operator-tools';
-import './transform-expanded.css';
+import './transformer-expanded.css';
 
 /**
  * React component for transform expanded view
- * @class TransformExpanded
+ * @class TransformerExpanded
  * @extends {React.Component}
  */
-class TransformExpanded extends React.Component {
+class TransformerExpanded extends React.Component {
 
     /**
      * Transform extended component constructor
      * @param {any} props props for the component
      * @param {any} context context for the component
-     * @memberof TransformExpanded
+     * @memberof TransformerExpanded
      */
     constructor(props, context) {
         super(props, context);
@@ -220,7 +220,7 @@ class TransformExpanded extends React.Component {
      * @param {Expression} nodeExpression intermediate node expression
      * @param {Statement} statement enclosing statement
      * @param {boolean} isTemp is a temporary expression
-     * @memberof TransformExpanded
+     * @memberof TransformerExpanded
      */
     drawIntermediateNode(argumentExpressions, nodeExpression, statement, nodeExpIsTemp = false) {
         const viewId = this.props.model.getID();
@@ -392,7 +392,7 @@ class TransformExpanded extends React.Component {
      * @param {any} parentNodeDefinition parent node definition
      * @param {any} parentParameterIndex parameter index of the parent node
      * @param {any} statement enclosed statement
-     * @memberof TransformExpanded
+     * @memberof TransformerExpanded
      */
     drawInnerIntermediateNode(parentNodeExpression, nodeExpression, parentNodeDefinition,
                                       parentParameterIndex, statement, nodeExpIsTemp = false) {
@@ -902,7 +902,7 @@ class TransformExpanded extends React.Component {
     /**
      * Add source to transform statement
      * @param {any} source source
-     * @memberof TransformExpanded
+     * @memberof TransformerExpanded
      */
     addSource(source) {
         const vertex = this.state.vertices.filter((val) => { return val === source; })[0];
@@ -915,7 +915,7 @@ class TransformExpanded extends React.Component {
     /**
      * Add target to transform statement
      * @param {any} target target
-     * @memberof TransformExpanded
+     * @memberof TransformerExpanded
      */
     addTarget(target) {
         const vertex = this.state.vertices.filter((val) => { return val === target; })[0];
@@ -951,7 +951,7 @@ class TransformExpanded extends React.Component {
     /**
      * TODO: Remove this after revisiting
      * Load vertices of the transform graph.
-     * @memberof TransformExpanded
+     * @memberof TransformerExpanded
      */
     loadVertices(callback) {
         this.context.environment.getTypes().forEach((type) => {
@@ -966,7 +966,7 @@ class TransformExpanded extends React.Component {
      * Converts the property types to a given type
      * @param {[Property]} properties properties
      * @param {string} type type to convert to
-     * @memberof TransformExpanded
+     * @memberof TransformerExpanded
      */
     convertFieldType(properties, type) {
         if (properties) {
@@ -1013,7 +1013,7 @@ class TransformExpanded extends React.Component {
      * @param {any} [intermediateNodes=[]] if it is nested intermediate nodes
      * @param {any} parentNode parent node
      * @returns intermediate nodes
-     * @memberof TransformExpanded
+     * @memberof TransformerExpanded
      */
     getIntermediateNodes(nodeExpression, statement, intermediateNodes = [], parentNode) {
         if (TreeUtil.isInvocation(nodeExpression)) {
@@ -1425,7 +1425,7 @@ class TransformExpanded extends React.Component {
     }
 }
 
-TransformExpanded.propTypes = {
+TransformerExpanded.propTypes = {
     model: PropTypes.instanceOf(TransformerNode).isRequired,
     panelResizeInProgress: PropTypes.bool.isRequired,
     leftOffset: PropTypes.number.isRequired,
@@ -1433,7 +1433,7 @@ TransformExpanded.propTypes = {
     height: PropTypes.number.isRequired,
 };
 
-TransformExpanded.contextTypes = {
+TransformerExpanded.contextTypes = {
     designView: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
     alert: PropTypes.shape({
@@ -1445,4 +1445,4 @@ TransformExpanded.contextTypes = {
     }).isRequired,
 };
 
-export default TransformExpanded;
+export default TransformerExpanded;
