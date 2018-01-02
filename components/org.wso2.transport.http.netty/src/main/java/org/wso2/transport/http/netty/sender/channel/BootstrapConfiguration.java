@@ -29,13 +29,10 @@ public class BootstrapConfiguration {
 
     private static final Logger logger = LoggerFactory.getLogger(BootstrapConfiguration.class);
 
-    private static BootstrapConfiguration bootstrapConfig;
-
     private boolean tcpNoDelay, keepAlive, socketReuse;
-
     private int connectTimeOut, receiveBufferSize, sendBufferSize, socketTimeout;
 
-    private BootstrapConfiguration(Map<String, Object> properties) {
+    public BootstrapConfiguration(Map<String, Object> properties) {
 
         connectTimeOut = Util.getIntProperty(
                 properties, Constants.CLIENT_BOOTSTRAP_CONNECT_TIME_OUT, 15000);
@@ -93,14 +90,4 @@ public class BootstrapConfiguration {
     public int getSocketTimeout() {
         return socketTimeout;
     }
-
-    public static BootstrapConfiguration getInstance() {
-        return bootstrapConfig;
-    }
-
-    public static void createBootStrapConfiguration(Map<String, Object> transportProperties) {
-        bootstrapConfig = new BootstrapConfiguration(transportProperties);
-
-    }
-
 }

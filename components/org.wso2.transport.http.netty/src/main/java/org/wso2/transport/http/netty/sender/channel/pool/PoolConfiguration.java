@@ -56,7 +56,7 @@ public class PoolConfiguration {
 
     private long setMaxWait = 60000L;
 
-    private PoolConfiguration(Map<String, Object> transportProperties) {
+    public PoolConfiguration(Map<String, Object> transportProperties) {
 
         numberOfPools = Util.getIntProperty(transportProperties, Constants.NUMBER_OF_POOLS, 0);
 
@@ -71,6 +71,9 @@ public class PoolConfiguration {
 
         minEvictableIdleTime = Util.getIntProperty(
                 transportProperties, Constants.MIN_EVICTION_IDLE_TIME, 5 * 60 * 1000);
+
+        timeBetweenEvictionRuns = Util.getIntProperty(
+                transportProperties, Constants.TIME_BETWEEN_EVICTION_RUNS, 30 * 1000);
 
         executorServiceThreads = Util.getIntProperty(
                 transportProperties, Constants.NO_THREADS_IN_EXECUTOR_SERVICE, 20);
@@ -87,7 +90,7 @@ public class PoolConfiguration {
         logger.debug(Constants.MAX_IDLE_CONNECTIONS_PER_POOL + ":" + maxIdlePerPool);
         logger.debug(Constants.MIN_EVICTION_IDLE_TIME + ":" + minEvictableIdleTime);
         logger.debug(Constants.NO_THREADS_IN_EXECUTOR_SERVICE + ":" + executorServiceThreads);
-        logger.debug("Time between Evictions Runs" + ":" + timeBetweenEvictionRuns);
+        logger.debug(Constants.TIME_BETWEEN_EVICTION_RUNS + ":" + timeBetweenEvictionRuns);
         logger.debug("Pool exhausted action" + ":" + exhaustedAction);
         logger.debug("Event group executor threads : " + eventGroupExecutorThreads);
     }
@@ -95,10 +98,6 @@ public class PoolConfiguration {
     public static PoolConfiguration getInstance() {
         return poolConfiguration;
 
-    }
-
-    public static void createPoolConfiguration(Map<String, Object> transportProperties) {
-        poolConfiguration = new PoolConfiguration(transportProperties);
     }
 
     public int getMaxActivePerPool() {

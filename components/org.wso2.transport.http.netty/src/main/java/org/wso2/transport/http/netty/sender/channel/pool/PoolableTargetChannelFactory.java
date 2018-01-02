@@ -44,23 +44,29 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     private Class eventLoopClass;
     private HttpRoute httpRoute;
     private SenderConfiguration senderConfiguration;
+    private BootstrapConfiguration bootstrapConfiguration;
+    private ConnectionManager connectionManager;
 
     public PoolableTargetChannelFactory(EventLoopGroup eventLoopGroup, Class eventLoopClass, HttpRoute httpRoute,
-                                        SenderConfiguration senderConfiguration) {
+                                        SenderConfiguration senderConfiguration,
+                                        BootstrapConfiguration bootstrapConfiguration,
+                                        ConnectionManager connectionManager) {
         this.eventLoopGroup = eventLoopGroup;
         this.eventLoopClass = eventLoopClass;
         this.httpRoute = httpRoute;
         this.senderConfiguration = senderConfiguration;
+        this.bootstrapConfiguration = bootstrapConfiguration;
+        this.connectionManager = connectionManager;
     }
 
 
     @Override
     public Object makeObject() throws Exception {
         Bootstrap clientBootstrap = instantiateAndConfigBootStrap(eventLoopGroup,
-                eventLoopClass, BootstrapConfiguration.getInstance());
+                eventLoopClass, bootstrapConfiguration);
         SSLEngine clientSslEngine = instantiateAndConfigSSL(senderConfiguration.getSslConfig());
         HTTPClientInitializer httpClientInitializer = instantiateAndConfigClientInitializer(senderConfiguration,
-                clientBootstrap, clientSslEngine);
+                clientBootstrap, clientSslEngine, connectionManager);
         clientBootstrap.handler(httpClientInitializer);
         ChannelFuture channelFuture = clientBootstrap
                 .connect(new InetSocketAddress(httpRoute.getHost(), httpRoute.getPort()));
@@ -130,8 +136,10 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
 
     private HTTPClientInitializer instantiateAndConfigClientInitializer(SenderConfiguration senderConfiguration,
                                                                         Bootstrap clientBootstrap,
-                                                                        SSLEngine sslEngine) {
-        HTTPClientInitializer httpClientInitializer = new HTTPClientInitializer(senderConfiguration, sslEngine);
+                                                                        SSLEngine sslEngine,
+                                                                        ConnectionManager connectionManager) {
+        HTTPClientInitializer httpClientInitializer =
+                new HTTPClientInitializer(senderConfiguration, sslEngine, connectionManager);
         if (log.isDebugEnabled()) {
             log.debug("Created new TCP client bootstrap connecting to {}:{} with options: {}", httpRoute.getHost(),
                     httpRoute.getPort(), clientBootstrap);

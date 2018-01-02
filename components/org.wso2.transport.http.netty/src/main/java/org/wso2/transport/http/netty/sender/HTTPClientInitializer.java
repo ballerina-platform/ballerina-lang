@@ -29,6 +29,7 @@ import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.listener.CustomHttpContentCompressor;
 import org.wso2.transport.http.netty.listener.HTTPTraceLoggingHandler;
+import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import javax.net.ssl.SSLEngine;
 
@@ -47,8 +48,10 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
     private boolean chunkEnabled;
     private boolean isKeepAlive;
     private ProxyServerConfiguration proxyServerConfiguration;
+    private ConnectionManager connectionManager;
 
-    public HTTPClientInitializer(SenderConfiguration senderConfiguration, SSLEngine sslEngine) {
+    public HTTPClientInitializer(SenderConfiguration senderConfiguration, SSLEngine sslEngine,
+            ConnectionManager connectionManager) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = senderConfiguration.isHttpTraceLogEnabled();
         this.followRedirect = senderConfiguration.isFollowRedirect();
@@ -56,6 +59,7 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
         this.chunkEnabled = senderConfiguration.isChunkEnabled();
         this.isKeepAlive = senderConfiguration.isKeepAlive();
         this.proxyServerConfiguration = senderConfiguration.getProxyServerConfiguration();
+        this.connectionManager = connectionManager;
     }
 
     @Override
@@ -91,7 +95,7 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
                 log.debug("Follow Redirect is enabled, so adding the redirect handler to the pipeline.");
             }
             RedirectHandler redirectHandler = new RedirectHandler(sslEngine, httpTraceLogEnabled, maxRedirectCount
-                    , chunkEnabled);
+                    , chunkEnabled, connectionManager);
             ch.pipeline().addLast(Constants.REDIRECT_HANDLER, redirectHandler);
         }
         handler = new TargetHandler();

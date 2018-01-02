@@ -73,8 +73,7 @@ public class HTTPConnectorUtil {
                     Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
         }
         // Create Bootstrap Configuration from listener parameters
-        ServerBootstrapConfiguration.createBootStrapConfiguration(transportProperties);
-        return ServerBootstrapConfiguration.getInstance();
+        return new ServerBootstrapConfiguration(transportProperties);
     }
 
     /**

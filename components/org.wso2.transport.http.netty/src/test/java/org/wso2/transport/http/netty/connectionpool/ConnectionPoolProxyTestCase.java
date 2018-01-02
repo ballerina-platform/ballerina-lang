@@ -48,9 +48,9 @@ import static org.testng.AssertJUnit.assertNotNull;
 /**
  * Tests for connection pool implementation.
  */
-public class ConnectionPoolTestCase {
+public class ConnectionPoolProxyTestCase {
 
-    private static Logger logger = LoggerFactory.getLogger(ConnectionPoolTestCase.class);
+    private static Logger logger = LoggerFactory.getLogger(ConnectionPoolProxyTestCase.class);
 
     private HttpServer httpServer;
     private List<ServerConnector> serverConnectors;
@@ -62,7 +62,8 @@ public class ConnectionPoolTestCase {
         TransportsConfiguration transportsConfiguration = TestUtil.getConfiguration(
                 "/simple-test-config" + File.separator + "netty-transports.yml");
 
-        httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new SendChannelIDServerInitializer());
+        httpServer = TestUtil
+                .startHTTPServer(TestUtil.HTTP_SERVER_PORT, new SendChannelIDServerInitializer(5000));
         serverConnectors = TestUtil.startConnectors(transportsConfiguration,
                 new PassthroughMessageProcessorListener(transportsConfiguration));
     }
@@ -79,7 +80,7 @@ public class ConnectionPoolTestCase {
 
             requestOneResponse = executor.submit(clientWorkerOne);
 
-            // While the fist request is being processed by the back-end,
+            // While the first request is being processed by the back-end,
             // we send the second request which forces the client connector to
             // create a new connection.
             Thread.sleep(2500);
@@ -90,7 +91,7 @@ public class ConnectionPoolTestCase {
 
             assertEquals(requestOneResponse.get(), requestThreeResponse.get());
         } catch (Exception e) {
-            TestUtil.handleException("IOException occurred while running passthroughPostTest", e);
+            TestUtil.handleException("IOException occurred while running testConnectionReuseForProxy", e);
         }
     }
 

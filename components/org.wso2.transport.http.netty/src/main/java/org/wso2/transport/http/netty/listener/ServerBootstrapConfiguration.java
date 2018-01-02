@@ -18,7 +18,6 @@ package org.wso2.transport.http.netty.listener;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -26,14 +25,10 @@ import java.util.Map;
  */
 public class ServerBootstrapConfiguration {
 
-    private static final Map<String, Object> properties = new HashMap<>();
-    private static ServerBootstrapConfiguration bootstrapConfig = new ServerBootstrapConfiguration(properties);
-
     private boolean tcpNoDelay, keepAlive, socketReuse;
-
     private int connectTimeOut, receiveBufferSize, sendBufferSize, soBackLog, socketTimeOut;
 
-    private ServerBootstrapConfiguration(Map<String, Object> properties) {
+    public ServerBootstrapConfiguration(Map<String, Object> properties) {
 
         connectTimeOut = Util.getIntProperty(
                 properties, Constants.SERVER_BOOTSTRAP_CONNECT_TIME_OUT, 15000);
@@ -56,7 +51,6 @@ public class ServerBootstrapConfiguration {
         soBackLog = Util.getIntProperty(properties, Constants.SERVER_BOOTSTRAP_SO_BACKLOG, 100);
 
         socketTimeOut = Util.getIntProperty(properties, Constants.SERVER_BOOTSTRAP_SO_TIMEOUT, 15);
-
     }
 
     public boolean isTcpNoDelay() {
@@ -87,22 +81,7 @@ public class ServerBootstrapConfiguration {
         return soBackLog;
     }
 
-    public static ServerBootstrapConfiguration getInstance() {
-        return bootstrapConfig;
-    }
-
     public int getSoTimeOut() {
         return socketTimeOut;
     }
-
-    /**
-     * configTargetHandler transport level properties such as socket timeouts, tcp no delay
-     *
-     * @param properties to create new bootstrap configuration.
-     */
-    public static void createBootStrapConfiguration(Map<String, Object> properties) {
-        bootstrapConfig = new ServerBootstrapConfiguration(properties);
-
-    }
-
 }

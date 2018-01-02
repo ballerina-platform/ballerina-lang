@@ -39,7 +39,9 @@
             <class name="org.wso2.transport.http.netty.ClientConnectorTimeoutTestCase" />
             <class name="org.wso2.transport.http.netty.ClientConnectorConnectionRefusedTestCase" />
             <class name="org.wso2.transport.http.netty.chunkdisable.ChunkHeaderClientTestCase" />
-            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolProxyTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMainTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolEvictionTestCase" />
             <!--<class name="org.wso2.carbon.transport.http.netty.http2.HTTP2RequestResponseTestCase" />-->
             <class name="org.wso2.transport.http.netty.encoding.ContentEncodingTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.WebSocketServerTestCase"/>
