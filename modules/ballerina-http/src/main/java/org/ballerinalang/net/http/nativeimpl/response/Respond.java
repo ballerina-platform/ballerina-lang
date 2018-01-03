@@ -26,44 +26,43 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
- * Native function to send client service response directly to the caller.
+ * Native function to respond back the caller.
  *
+ * @since 0.95.6
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
-        functionName = "forward",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Response",
+        functionName = "respond",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
                              structPackage = "ballerina.net.http"),
         args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
                 structPackage = "ballerina.net.http")},
+        returnType = @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
+                                 structPackage = "ballerina.net.http"),
         isPublic = true
 )
-public class Forward extends AbstractNativeFunction {
+public class Respond extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BStruct outboundResponseStruct = (BStruct) getRefArgument(context, 0);
-        BStruct inboundResponseStruct = (BStruct) getRefArgument(context, 1);
-        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) outboundResponseStruct
-                .getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
-        HttpUtil.checkFunctionValidity(outboundResponseStruct, requestMessage);
-        if (inboundResponseStruct.getNativeData(Constants.TRANSPORT_MESSAGE) == null) {
-            throw new BallerinaException("Failed to forward: empty response parameter");
-        }
+        BStruct connectionStruct = (BStruct) getRefArgument(context, 0);
+        BStruct outboundResponseStruct = (BStruct) getRefArgument(context, 1);
+        HTTPCarbonMessage requestMessage = HttpUtil.getCarbonMsg(connectionStruct, null);
 
+        HttpUtil.checkFunctionValidity(connectionStruct, requestMessage);
         HTTPCarbonMessage responseMessage = HttpUtil
-                .getCarbonMsg(inboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
-
+                .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
         AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.ANN_NAME_CONFIG);
+
         if (configAnn != null) {
             AnnAttributeValue keepAliveAttrVal = configAnn.getAttributeValue(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE);
 
@@ -77,11 +76,11 @@ public class Forward extends AbstractNativeFunction {
             // default behaviour: keepAlive = true
             responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
         }
-        if (inboundResponseStruct.getRefField(Constants.RESPONSE_HEADERS_INDEX) != null) {
-            HttpUtil.setHeadersToTransportMessage(responseMessage, inboundResponseStruct);
+        if (outboundResponseStruct.getRefField(Constants.RESPONSE_HEADERS_INDEX) != null) {
+            HttpUtil.setHeadersToTransportMessage(responseMessage, outboundResponseStruct);
         }
 
-        return HttpUtil.prepareResponseAndSend(context, this, requestMessage,
-                responseMessage, inboundResponseStruct);
+        return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage,
+                outboundResponseStruct);
     }
 }

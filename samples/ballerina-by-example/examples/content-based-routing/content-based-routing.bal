@@ -7,7 +7,7 @@ service<http> contentBasedRouting {
         methods:["POST"],
         path:"/route"
     }
-    resource cbrResource (http:Request req, http:Response res) {
+    resource cbrResource (http:Connection conn, http:Request req) {
         endpoint<http:HttpClient> locationEP {
             create http:HttpClient("http://www.mocky.io", {});
         }
@@ -24,13 +24,14 @@ service<http> contentBasedRouting {
         } else {
             clientResponse, err = locationEP.post("/v2/594e026c1100004011d6d39c", {});
         }
-        //Native function "forward" sends back the clientResponse to the caller.
+        //Native function "respond" sends back the clientResponse to the caller.
+        http:Response res = {};
         if (err != null) {
             res.setStatusCode(500);
             res.setStringPayload(err.msg);
-            _ = res.send();
+            _ = conn.respond(res);
         } else {
-            _ = res.forward(clientResponse);
+            _ = conn.respond(clientResponse);
         }
     }
 }

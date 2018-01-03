@@ -10,8 +10,9 @@ service<http> helloWorldResourceConfig {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource sayHello (http:Request request, http:Response response) {
-        response.setStringPayload("Hello World !!!");
-        _ = response.send();
+    resource sayHello (http:Connection conn, http:Request req) {
+        http:Response res = {};
+        res.setStringPayload("Hello World !!!");
+        _ = conn.respond(res);
     }
 }

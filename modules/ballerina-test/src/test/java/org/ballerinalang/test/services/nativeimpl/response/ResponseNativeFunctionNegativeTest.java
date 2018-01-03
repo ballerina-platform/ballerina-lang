@@ -20,9 +20,7 @@ package org.ballerinalang.test.services.nativeimpl.response;
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -31,9 +29,6 @@ import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
-import org.ballerinalang.test.services.testutils.HTTPTestRequest;
-import org.ballerinalang.test.services.testutils.MessageUtils;
-import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -45,7 +40,7 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
  */
 public class ResponseNativeFunctionNegativeTest {
 
-    private CompileResult result, resultNegative, serviceResult;
+    private CompileResult result, resultNegative;
     private final String responseStruct = Constants.RESPONSE;
     private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
     private String filePath = "test-src/statements/services/nativeimpl/response/response-native-function-negative.bal";
@@ -55,7 +50,6 @@ public class ResponseNativeFunctionNegativeTest {
     public void setup() {
         result = BCompileUtil.compile(filePath);
         resultNegative = BCompileUtil.compile(filePathNeg);
-        serviceResult = BServiceUtil.setupProgramFile(this, filePath);
     }
 
     @Test(description = "Test when the content length header is not set")
@@ -218,68 +212,6 @@ public class ResponseNativeFunctionNegativeTest {
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
         Assert.assertNull(response.getHeader("Expect"));
-    }
-
-    @Test
-    public void testSend() {
-        String path = "/hello/11";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
-        Assert.assertTrue(StringUtils
-                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
-                .contains("illegal function invocation"));
-    }
-
-    @Test
-    public void testForward() {
-        String path = "/hello/12";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
-        Assert.assertTrue(StringUtils
-                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
-                .contains("illegal function invocation"));
-    }
-
-    @Test
-    public void testForwardWithNullParameter() {
-        String path = "/hello/13";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
-        Assert.assertTrue(StringUtils
-                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
-                .contains("argument 1 is null"));
-    }
-
-    @Test
-    public void testForwardWithEmptyResponse() {
-        String path = "/hello/14";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
-        Assert.assertTrue(StringUtils
-                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
-                .contains("failed to forward: empty response parameter"));
-    }
-
-    @Test(description = "test declaration of two response method. Error is shown in the console", enabled = false)
-    public void testRedeclarationOfTwoResponseMethods() {
-        String path = "/hello/15";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), "wso2");
     }
 
     @Test

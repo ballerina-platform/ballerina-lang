@@ -585,16 +585,4 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertEquals(xmlValue.getTextValue().stringValue(), "Ballerina"
                 , "Payload is not set properly");
     }
-
-    @Test
-    public void testForwardMethod() {
-        String path = "/hello/14";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(StringUtils
-                        .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), "hello"
-                , "Payload is not set properly");
-    }
 }

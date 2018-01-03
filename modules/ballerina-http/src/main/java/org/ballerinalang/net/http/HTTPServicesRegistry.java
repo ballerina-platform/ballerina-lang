@@ -235,28 +235,16 @@ public class HTTPServicesRegistry {
             throw new BallerinaConnectorException("resource signature parameter count should be more than two");
         }
 
-        //Validate request parameter
-        ParamDetail reqParamDetail = paramDetails.get(0);
-        if (reqParamDetail == null) {
-            throw new BallerinaConnectorException("request parameter cannot be null");
-        }
-        if (reqParamDetail.getVarType().getPackagePath() == null
-                || !reqParamDetail.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)
-                || !reqParamDetail.getVarType().getName().equals(Constants.REQUEST)) {
-            throw new BallerinaConnectorException("request parameter should be of type - "
-                                                          + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.REQUEST);
+        //validate connection parameter
+        if (isValidParam(paramDetails.get(0), Constants.CONNECTION)) {
+            throw new BallerinaConnectorException("first parameter should be of type - "
+                    + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.CONNECTION);
         }
 
-        //validate response parameter
-        ParamDetail respParamDetail = paramDetails.get(1);
-        if (respParamDetail == null) {
-            throw new BallerinaConnectorException("response parameter cannot be null");
-        }
-        if (respParamDetail.getVarType().getPackagePath() == null
-                || !respParamDetail.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)
-                || !respParamDetail.getVarType().getName().equals(Constants.RESPONSE)) {
-            throw new BallerinaConnectorException("response parameter should be of type - "
-                                                          + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.REQUEST);
+        //Validate request parameter
+        if (isValidParam(paramDetails.get(1), Constants.REQUEST)) {
+            throw new BallerinaConnectorException("second parameter should be of type - "
+                    + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.REQUEST);
         }
 
         //validate rest of the parameters
@@ -268,6 +256,11 @@ public class HTTPServicesRegistry {
         }
     }
 
+    private boolean isValidParam(ParamDetail paramDetail, String varTypeName) {
+        return paramDetail.getVarType().getPackagePath() == null
+                || !paramDetail.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)
+                || !paramDetail.getVarType().getName().equals(varTypeName);
+    }
 
     public String findTheMostSpecificBasePath(String requestURIPath, Map<String, HttpService> services) {
         for (Object key : sortedServiceURIs) {
