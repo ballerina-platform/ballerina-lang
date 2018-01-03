@@ -22,6 +22,7 @@ import TreeView from 'react-treeview';
 import ReactJson from 'react-json-view';
 import JSON5 from 'json5';
 import 'react-treeview/react-treeview.css';
+import HtmlTree from 'react-htmltree';
 import './frames.scss';
 /**
  *
@@ -93,7 +94,7 @@ class Frames extends React.Component {
                         return (
                             <TreeView key={j} nodeLabel={label} defaultCollapsed>
                                 <div className='node'>Value:</div>
-                                <pre>{variable.value}</pre>
+                                <HtmlTree source={variable.value.substr(1)} theme='firefox-devtools.dark' />
                             </TreeView>
                         );
                     } else {
