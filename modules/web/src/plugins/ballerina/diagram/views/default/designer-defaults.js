@@ -163,8 +163,8 @@ export const blockStatement = {
 export const flowChartControlStatement = {
     width: 180,
     heading: {
-        width: 90,
-        height: 60,
+        width: (statement.width * (3 / 4)),
+        height: (3 * statement.height),
         paramPaddingX: 5,
         paramSeparatorOffsetX: 20,
         paramEndOffsetX: 6,
@@ -182,9 +182,9 @@ export const flowChartControlStatement = {
         height: 100,
     },
     padding: {
-        left: (15 * statement.padding.left),
-        top: (2 * statement.padding.top),
-        bottom: (2 * statement.padding.bottom),
+        left: (12 * statement.padding.left),
+        top: (statement.height / 2),
+        bottom: (statement.height / 2),
     },
 };
 
@@ -222,7 +222,7 @@ export const statementContainer = {
 
 export const blockNode = {
     width: 120,
-    height: 80,
+    height: 40,
     padding: {
         top: 0,
         right: 20,
