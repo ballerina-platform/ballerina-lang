@@ -19,6 +19,8 @@
 
 import React from "react";
 import chai, {expect} from 'chai';
+import Enzyme from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
 import {render, shallow} from 'enzyme';
 import chaiJestSnapshot from "chai-jest-snapshot";
 import toJson from 'enzyme-to-json';
@@ -32,6 +34,8 @@ import VariableDefinitionStatement from './../../js/ballerina/diagram/views/defa
 import ReturnStatement from '../../js/ballerina/diagram/views/default/components/return-statement';
 import BreakStatement from '../../js/ballerina/diagram/views/default/components/break-statement';
 import IfElseStatement from '../../js/ballerina/diagram/views/default/components/if-else-statement';
+
+Enzyme.configure({ adapter: new Adapter() });
 
 chai.use(chaiJestSnapshot);
 
