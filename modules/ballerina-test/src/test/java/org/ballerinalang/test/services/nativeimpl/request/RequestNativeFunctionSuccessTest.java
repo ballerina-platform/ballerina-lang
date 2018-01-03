@@ -34,9 +34,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.runtime.message.BlobDataSource;
-import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -74,11 +72,13 @@ import static org.ballerinalang.mime.util.Constants.IS_IN_MEMORY_INDEX;
 import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
+import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.OVERFLOW_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_FILE;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.TEXT_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
+import static org.ballerinalang.mime.util.Constants.UTF_8;
 import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
 
 /**
@@ -173,16 +173,20 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(bJson.value().get("size").asText(), String.valueOf(3));
     }
 
-    //TODO Test this with multipart support, not needed for now
-    @Test(enabled = false)
+    @Test(description = "Test getBinaryPayload method of the request")
     public void testGetBinaryPayloadMethod() {
         BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
+        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
 
         String payload = "ballerina";
-        BallerinaMessageDataSource dataSource = new StringDataSource(payload);
-        dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        //  HttpUtil.addMessageDataSource(request, dataSource);
+        String contentType = OCTET_STREAM;
+        MimeUtil.setContentType(mediaType, entity, contentType);
+        entity.setBlobField(BYTE_DATA_INDEX, payload.getBytes());
+        entity.setBooleanField(IS_IN_MEMORY_INDEX, 1);
+        request.addNativeData(MESSAGE_ENTITY, entity);
+        request.addNativeData(IS_ENTITY_BODY_PRESENT, true);
 
         HttpUtil.addCarbonMsg(request, cMsg);
         BValue[] inputArg = { request };
@@ -803,7 +807,7 @@ public class RequestNativeFunctionSuccessTest {
             BStruct returnFileStruct = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
 
             String returnJsonValue = new String (Files.readAllBytes(Paths.get(returnFileStruct.getStringField(0))),
-                    "UTF-8");
+                    UTF_8);
             BJSON bJson = new BJSON(returnJsonValue);
             Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
         } catch (IOException e) {
@@ -823,13 +827,13 @@ public class RequestNativeFunctionSuccessTest {
         final char[] buffer = new char[bufferSize];
         final StringBuilder out = new StringBuilder();
         try {
-            reader = new InputStreamReader(new HttpMessageDataStreamer(response).getInputStream(), "UTF-8");
+            reader = new InputStreamReader(new HttpMessageDataStreamer(response).getInputStream(), UTF_8);
             while (true) {
-                int rsz = reader.read(buffer, 0, buffer.length);
-                if (rsz < 0) {
+                int size = reader.read(buffer, 0, buffer.length);
+                if (size < 0) {
                     break;
                 }
-                out.append(buffer, 0, rsz);
+                out.append(buffer, 0, size);
             }
         } catch (UnsupportedEncodingException e) {
             LOG.error("Error occured while reading the response value in getReturnValue", e.getMessage());
