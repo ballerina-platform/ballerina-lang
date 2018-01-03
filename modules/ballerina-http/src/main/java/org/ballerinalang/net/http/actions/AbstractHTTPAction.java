@@ -27,7 +27,6 @@ import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.net.http.Constants;
-import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.RetryConfig;
 import org.ballerinalang.runtime.message.MessageDataSource;
@@ -191,9 +190,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                                     HTTPClientConnectorListener httpClientConnectorLister) {
         try {
             BConnector bConnector = (BConnector) getRefArgument(context, 0);
-            String scheme = (String) httpRequestMsg.getProperty(Constants.PROTOCOL);
             HttpClientConnector clientConnector =
-                    HttpConnectionManager.getInstance().getHTTPHttpClientConnector(scheme, bConnector);
+                    (HttpClientConnector) bConnector.getnativeData(Constants.CONNECTOR_NAME);
             HttpResponseFuture future = clientConnector.send(httpRequestMsg);
             future.setHttpConnectorListener(httpClientConnectorLister);
             serializeDataSource(context);
