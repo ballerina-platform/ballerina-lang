@@ -1,18 +1,18 @@
 import ballerina.net.mime;
 
-function testGetTextInFile(mime:Entity entity) (string) {
+function testGetTextFromFile(mime:Entity entity) (string) {
     return mime:getText(entity);
 }
 
-function testGetJsonInFile(mime:Entity entity) (json) {
+function testGetJsonFromFile(mime:Entity entity) (json) {
     return mime:getJson(entity);
 }
 
-function testGetXmlInFile(mime:Entity entity) (xml) {
+function testGetXmlFromFile(mime:Entity entity) (xml) {
     return mime:getXml(entity);
 }
 
-function testGetBlobInFile(mime:Entity entity) (blob) {
+function testGetBlobFromFile(mime:Entity entity) (blob) {
     return mime:getBlob(entity);
 }
 

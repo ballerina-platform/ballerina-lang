@@ -82,6 +82,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.net.http.Constants.MESSAGE_OUTPUT_STREAM;
+import static org.ballerinalang.net.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.net.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.net.mime.util.Constants.HEADER_VALUE_STRUCT;
 import static org.ballerinalang.net.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
@@ -246,7 +247,7 @@ public class HttpUtil {
             baseType = org.ballerinalang.net.mime.util.Constants.OCTET_STREAM;
             isBodyAvailable = MimeUtil.isBinaryBodyPresent(entity);
         }
-        HttpUtil.setHeaderToStruct(context, entity, Constants.CONTENT_TYPE, baseType);
+        HttpUtil.setHeaderToStruct(context, entity, CONTENT_TYPE, baseType);
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
         if (isBodyAvailable) {
             httpMessageStruct.addNativeData(IS_ENTITY_BODY_PRESENT, true);
@@ -594,7 +595,7 @@ public class HttpUtil {
             response.setStringField(Constants.RESPONSE_SERVER_INDEX, cMsg.getHeader(Constants.SERVER_HEADER));
             cMsg.removeHeader(Constants.SERVER_HEADER);
         }
-        String contentType = cMsg.getHeader(org.ballerinalang.net.mime.util.Constants.CONTENT_TYPE);
+        String contentType = cMsg.getHeader(CONTENT_TYPE);
         MimeUtil.setContentType(mediaType, entity, contentType);
         entity.setRefField(ENTITY_HEADERS_INDEX, prepareHeaderMap(cMsg.getHeaders(), new BMap<>()));
         response.addNativeData(MESSAGE_ENTITY, entity);
@@ -602,7 +603,7 @@ public class HttpUtil {
     }
 
     private static void populateEntity(BStruct entity, BStruct mediaType, HTTPCarbonMessage cMsg) {
-        String contentType = cMsg.getHeader(org.ballerinalang.net.mime.util.Constants.CONTENT_TYPE);
+        String contentType = cMsg.getHeader(CONTENT_TYPE);
             MimeUtil.setContentType(mediaType, entity, contentType);
         int contentLength = -1;
         String lengthStr = cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH);

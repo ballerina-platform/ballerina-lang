@@ -38,6 +38,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.net.mime.util.Constants.APPLICATION_FORM;
+import static org.ballerinalang.net.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.net.mime.util.Constants.TEXT_PLAIN;
 
 /**
@@ -177,7 +179,7 @@ public class ServiceTest {
         String path = "/echo/getFormParams";
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage(path, "POST", "firstName=WSO2&team=BalDance");
-        requestMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
+        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_FORM);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
@@ -193,7 +195,7 @@ public class ServiceTest {
         String path = "/echo/getFormParams";
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
-        requestMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
+        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_FORM);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
@@ -205,7 +207,7 @@ public class ServiceTest {
     public void testGetFormParamsEmptyresponseMsgPayload() {
         String path = "/echo/getFormParams";
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", "");
-        requestMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
+        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_FORM);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());

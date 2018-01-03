@@ -53,8 +53,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import static org.ballerinalang.net.mime.util.Constants.APPLICATION_FORM;
 import static org.ballerinalang.net.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.net.mime.util.Constants.APPLICATION_XML;
+import static org.ballerinalang.net.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.net.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.net.mime.util.Constants.FILE;
 import static org.ballerinalang.net.mime.util.Constants.HEADER_VALUE_STRUCT;
@@ -228,7 +230,7 @@ public class ResponseNativeFunctionSuccessTest {
     public void testGetHeader() {
         BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
-        cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
+        cMsg.setHeader(CONTENT_TYPE, APPLICATION_FORM);
         cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
         HttpUtil.addCarbonMsg(response, cMsg);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
@@ -237,18 +239,18 @@ public class ResponseNativeFunctionSuccessTest {
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, headerStruct));
         HttpUtil.populateInboundResponse(response, entity, mediaType, cMsg);
 
-        BString key = new BString(Constants.CONTENT_TYPE);
+        BString key = new BString(CONTENT_TYPE);
 
         BValue[] inputArg = { response, key };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(returnVals[0].stringValue(), Constants.APPLICATION_FORM);
+        Assert.assertEquals(returnVals[0].stringValue(), APPLICATION_FORM);
     }
 
     @Test(description = "Test GetHeader function within a service")
     public void testServiceGetHeader() {
-        String header = Constants.CONTENT_TYPE;
+        String header = CONTENT_TYPE;
         String value = "x-www-form-urlencoded";
         String path = "/hello/getHeader/" + header + "/" + value;
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
@@ -274,7 +276,7 @@ public class ResponseNativeFunctionSuccessTest {
     public void testGetHeaders() {
         BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
-        cMsg.setHeader("test-header", Constants.APPLICATION_FORM + "," + Constants.TEXT_PLAIN + ";b=5");
+        cMsg.setHeader("test-header", APPLICATION_FORM + "," + TEXT_PLAIN + ";b=5");
         cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
@@ -287,7 +289,7 @@ public class ResponseNativeFunctionSuccessTest {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeaders", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(returnVals[0].stringValue(), Constants.TEXT_PLAIN);
+        Assert.assertEquals(returnVals[0].stringValue(), TEXT_PLAIN);
     }
 
     @Test(description = "Test GetHeaders function within a service")
@@ -309,9 +311,9 @@ public class ResponseNativeFunctionSuccessTest {
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String payload = "{'code':'123'}";
-        cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        cMsg.setHeader(CONTENT_TYPE, APPLICATION_JSON);
         HttpUtil.addCarbonMsg(response, cMsg);
-        MimeUtil.setContentType(mediaType, entity, Constants.APPLICATION_JSON);
+        MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
         entity.setRefField(JSON_DATA_INDEX, new BJSON(payload));
         entity.setBooleanField(IS_IN_MEMORY_INDEX, 1);
         response.addNativeData(MESSAGE_ENTITY, entity);
@@ -449,7 +451,7 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test(description = "Test RemoveHeader function within a service")
     public void testServiceRemoveHeader() {
-        String key = Constants.CONTENT_TYPE;
+        String key = CONTENT_TYPE;
         String value = "x-www-form-urlencoded";
         String path = "/hello/RemoveHeader/" + key + "/" + value;
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);

@@ -213,34 +213,4 @@ public class Constants {
     public static final String HEADER_VAL_CONNECTION_KEEP_ALIVE = "Keep-Alive";
     public static final String EXPECT_HEADER = "Expect";
     public static final String HEADER_VAL_100_CONTINUE = "100-continue";
-    /**
-     * Content type HTTP header.
-     */
-    public static final String CONTENT_TYPE = "Content-Type";
-
-    /**
-     * HTTP content-type application/json.
-     */
-    public static final String APPLICATION_JSON = "application/json";
-
-    /**
-     * HTTP content-type application/xml.
-     */
-    public static final String APPLICATION_XML = "application/xml";
-
-    /**
-     * HTTP content-type text/plain.
-     */
-    public static final String TEXT_PLAIN = "text/plain";
-
-    /**
-     * HTTP content-type application/octet-stream.
-     */
-    public static final String OCTET_STREAM = "application/octet-stream";
-
-    /**
-     * HTTP content-type application/x-www-form-urlencoded.
-     */
-    public static final String APPLICATION_FORM = "application/x-www-form-urlencoded";
-
 }

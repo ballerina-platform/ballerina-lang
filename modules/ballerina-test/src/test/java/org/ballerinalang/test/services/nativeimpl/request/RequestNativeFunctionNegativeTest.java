@@ -37,6 +37,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import static org.ballerinalang.net.mime.util.Constants.APPLICATION_JSON;
+import static org.ballerinalang.net.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.net.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
 import static org.ballerinalang.net.mime.util.Constants.IS_IN_MEMORY_INDEX;
 import static org.ballerinalang.net.mime.util.Constants.JSON_DATA_INDEX;
@@ -84,7 +85,7 @@ public class RequestNativeFunctionNegativeTest {
         BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
-        BString key = new BString(Constants.CONTENT_TYPE);
+        BString key = new BString(CONTENT_TYPE);
         BValue[] inputArg = { request, key };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
         Assert.assertNotNull(returnVals[0]);
