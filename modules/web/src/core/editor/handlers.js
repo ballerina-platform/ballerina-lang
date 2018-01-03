@@ -48,7 +48,7 @@ export function getHandlerDefinitions(editorPlugin) {
                 if (activeEditor && !_.isNil(activeEditor.undoManager) && activeEditor.undoManager.hasUndo()) {
                     activeEditor.undoManager.undo();
                 }
-                editorPlugin.dispatchToolBarUpdate();
+                editorPlugin.dispatchActionTriggerUpdate();
             },
         },
         {
@@ -59,7 +59,7 @@ export function getHandlerDefinitions(editorPlugin) {
                 if (activeEditor && !_.isNil(activeEditor.undoManager) && activeEditor.undoManager.hasRedo()) {
                     activeEditor.undoManager.redo();
                 }
-                editorPlugin.dispatchToolBarUpdate();
+                editorPlugin.dispatchActionTriggerUpdate();
             },
         },
         {

@@ -108,7 +108,7 @@ class SourceEditor extends React.Component {
             }
         }
 
-        if (this.props.file.id !== nextProps.file.id) {
+        if (this.props.file.toURI() !== nextProps.file.toURI()) {
             if (this.monaco && this.editorInstance) {
                 const uri = this.monaco.Uri.parse(nextProps.file.toURI());
                 let modelForFile = this.monaco.editor.getModel(uri);
