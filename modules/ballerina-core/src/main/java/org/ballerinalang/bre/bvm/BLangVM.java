@@ -2697,6 +2697,7 @@ public class BLangVM {
             context.setBallerinaTransactionManager(ballerinaTransactionManager);
         }
         ballerinaTransactionManager.beginTransactionBlock(transactionId, retryCount);
+        ballerinaTransactionManager.setTransactionId(transactionId);
 
     }
 

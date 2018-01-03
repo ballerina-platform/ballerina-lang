@@ -20,6 +20,7 @@ package org.ballerinalang.net.http.actions;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.Coordinator;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.types.BStructType;
@@ -183,6 +184,9 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             httpRequestMsg.setProperty(Constants.SRC_HANDLER,
                     context.getProperty(Constants.SRC_HANDLER));
         }
+        if (context.isInTransaction()) {
+            addInterceptingHeaders(context, httpRequestMsg);
+        }
         executeNonBlocking(context, httpRequestMsg, httpClientConnectorLister);
         return ballerinaFuture;
     }
@@ -227,6 +231,25 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         long retryCount = retryConfig.getIntField(Constants.RETRY_COUNT_INDEX);
         long interval = retryConfig.getIntField(Constants.RETRY_INTERVAL_INDEX);
         return new RetryConfig(retryCount, interval);
+    }
+
+    private void addInterceptingHeaders(Context context, HTTPCarbonMessage httpRequestMsg) {
+        Coordinator coordinator;
+        if (isCoordinatorExist(context)) {
+            coordinator = (Coordinator) context.getProperty(Constants.COORDINATOR);
+        } else {
+            coordinator = new Coordinator();
+            context.setProperty(Constants.COORDINATOR, new Coordinator());
+        }
+        httpRequestMsg.setHeader(Constants.X_XID_HEADER,
+                String.valueOf(context.getBallerinaTransactionManager().getTransactionId()));
+        httpRequestMsg.setHeader(Constants.X_REGISTER_AT_URL_HEADER, "url");
+
+
+    }
+
+    private boolean isCoordinatorExist(Context context) {
+        return context.getProperty(Constants.COORDINATOR) != null;
     }
 
     @Override

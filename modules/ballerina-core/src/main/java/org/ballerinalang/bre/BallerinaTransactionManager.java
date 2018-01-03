@@ -39,6 +39,7 @@ public class BallerinaTransactionManager {
     private int transactionLevel; //level of the nested transaction
     private Map<Integer, Integer> allowedTransactionRetryCounts;
     private Map<Integer, Integer> currentTransactionRetryCounts;
+    private int transactionId;
 
     public BallerinaTransactionManager() {
         this.transactionContextStore = new HashMap<>();
@@ -210,5 +211,13 @@ public class BallerinaTransactionManager {
             v.done();
         });
         transactionContextStore.clear();
+    }
+
+    public void setTransactionId(int transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public int getTransactionId() {
+        return transactionId;
     }
 }
