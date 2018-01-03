@@ -56,6 +56,7 @@ import java.nio.file.Paths;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
+import static org.ballerinalang.mime.util.Constants.BYTE_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.FILE;
@@ -65,11 +66,13 @@ import static org.ballerinalang.mime.util.Constants.IS_IN_MEMORY_INDEX;
 import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
+import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.OVERFLOW_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_FILE;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.TEXT_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
+import static org.ballerinalang.mime.util.Constants.UTF_8;
 import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
 
 /**
@@ -168,16 +171,20 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertEquals(bJson.value().get("size").asText(), String.valueOf(3));
     }
 
-    //TODO Test this with multipart support, not needed for now
-    @Test(enabled = false)
+    @Test
     public void testGetBinaryPayloadMethod() {
         BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
-        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
+        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
 
         String payload = "ballerina";
-        BallerinaMessageDataSource dataSource = new StringDataSource(payload);
-        dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        //    HttpUtil.addMessageDataSource(response, dataSource);
+        String contentType = OCTET_STREAM;
+        MimeUtil.setContentType(mediaType, entity, contentType);
+        entity.setBlobField(BYTE_DATA_INDEX, payload.getBytes());
+        entity.setBooleanField(IS_IN_MEMORY_INDEX, 1);
+        response.addNativeData(MESSAGE_ENTITY, entity);
+        response.addNativeData(IS_ENTITY_BODY_PRESENT, true);
 
         HttpUtil.addCarbonMsg(response, cMsg);
         BValue[] inputArg = { response };
@@ -678,7 +685,7 @@ public class ResponseNativeFunctionSuccessTest {
             BStruct returnFileStruct = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
 
             String returnJsonValue = new String (Files.readAllBytes(Paths.get(returnFileStruct.getStringField(0))),
-                    "UTF-8");
+                    UTF_8);
             BJSON bJson = new BJSON(returnJsonValue);
             Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
         } catch (IOException e) {
