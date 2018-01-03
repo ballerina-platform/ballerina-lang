@@ -177,7 +177,7 @@ public function <Request request> getFormParams () (map) {
 
 @Description {value:"Sets a JSON as the request payload"}
 @Param {value:"request: The request message"}
-@Param {value:"payload: The JSON payload to be "}
+@Param {value:"payload: The JSON payload to be set to the request"}
 public function <Request request> setJsonPayload (json payload) {
     mime:Entity entity = {};
     entity.jsonData = payload;

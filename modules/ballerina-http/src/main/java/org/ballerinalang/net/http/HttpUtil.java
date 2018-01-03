@@ -38,7 +38,6 @@ import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
@@ -346,18 +345,6 @@ public class HttpUtil {
         }
     }
 
-    public static BValue[] getContentLength(Context context, AbstractNativeFunction abstractNativeFunction) {
-        int contentLength = -1;
-        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-        String lengthStr = HttpUtil.getHeaderFromStruct(requestStruct, Constants.HTTP_CONTENT_LENGTH);
-        try {
-            contentLength = Integer.parseInt(lengthStr);
-        } catch (NumberFormatException e) {
-            throw new BallerinaException("Invalid content length");
-        }
-        return abstractNativeFunction.getBValues(new BInteger(contentLength));
-    }
-
     public static BMap<String, BValue> getParamMap(String payload) throws UnsupportedEncodingException {
         BMap<String, BValue> params = new BMap<>();
         String[] entries = payload.split("&");
@@ -394,8 +381,6 @@ public class HttpUtil {
     public static BValue[] prepareResponseAndSend(Context context, AbstractNativeFunction abstractNativeFunction
             , HTTPCarbonMessage requestMessage, HTTPCarbonMessage responseMessage, BStruct httpMessageStruct) {
         addHTTPSessionAndCorsHeaders(requestMessage, responseMessage);
-        //TODO: is converting to a datasource really needed? can we directly write the output stream without loading
-        // it into memory
         MessageDataSource outboundMessageSource = readMessageDataSource(httpMessageStruct);
         HttpResponseStatusFuture outboundResponseStatusFuture = sendOutboundResponse(requestMessage, responseMessage);
 
@@ -403,7 +388,6 @@ public class HttpUtil {
             outboundMessageSource.serializeData();
             HttpUtil.closeMessageOutputStream(httpMessageStruct);
         }
-
         try {
             outboundResponseStatusFuture = outboundResponseStatusFuture.sync();
         } catch (InterruptedException e) {
