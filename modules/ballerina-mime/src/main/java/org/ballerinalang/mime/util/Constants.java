@@ -71,7 +71,15 @@ public class Constants {
     public static final int SUFFIX_INDEX = 2;
     public static final int PARAMETER_MAP_INDEX = 0;
 
+    //Native function indexes
+    public static final int BLOB_INDEX = 0;
+    public static final int STRING_INDEX = 0;
+    public static final int CHARSET_INDEX = 1;
+
+    public static final int FILE_PATH_INDEX = 0;
+
     public static final int BYTE_LIMIT = 2097152; //2MB
+    public static final String UTF_8 = "UTF-8";
 
     public static final String TEMP_FILE_EXTENSION = ".tmp";
     public static final String BALLERINA_TEXT_DATA = "ballerinaTextPayload";

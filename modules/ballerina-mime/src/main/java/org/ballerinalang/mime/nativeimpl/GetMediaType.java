@@ -12,6 +12,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.mime.util.Constants.STRING_INDEX;
+
 /**
  * Construct MediaType struct from Content-Type string.
  */
@@ -27,7 +29,7 @@ public class GetMediaType extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String contentType = this.getStringArgument(context, 0);
+        String contentType = this.getStringArgument(context, STRING_INDEX);
         BStruct mediaType = ConnectorUtils
                 .createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_MIME,
                         Constants.MEDIA_TYPE);

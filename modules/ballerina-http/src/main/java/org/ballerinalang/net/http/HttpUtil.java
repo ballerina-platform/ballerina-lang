@@ -90,6 +90,9 @@ import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.SUBTYPE_INDEX;
+import static org.ballerinalang.net.http.Constants.ENTITY_BODY_REQUIRED_INDEX;
+import static org.ballerinalang.net.http.Constants.ENTITY_INDEX;
+import static org.ballerinalang.net.http.Constants.HTTP_MESSAGE_INDEX;
 import static org.ballerinalang.net.http.Constants.MESSAGE_OUTPUT_STREAM;
 
 /**
@@ -216,14 +219,14 @@ public class HttpUtil {
      */
     public static BValue[] setEntity(Context context, AbstractNativeFunction abstractNativeFunction,
             boolean isRequest) {
-        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, HTTP_MESSAGE_INDEX);
 
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         httpCarbonMessage.waitAndReleaseAllEntities();
 
         OutputStream messageOutputStream = new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream();
-        BStruct entity = (BStruct) abstractNativeFunction.getRefArgument(context, 1);
+        BStruct entity = (BStruct) abstractNativeFunction.getRefArgument(context, ENTITY_INDEX);
         String baseType = getContentType(entity);
         boolean isBodyAvailable;
 
@@ -266,9 +269,9 @@ public class HttpUtil {
      */
     public static BValue[] getEntity(Context context, AbstractNativeFunction abstractNativeFunction,
             boolean isRequest) {
-        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, HTTP_MESSAGE_INDEX);
         BStruct entity = (BStruct) httpMessageStruct.getNativeData(MESSAGE_ENTITY);
-        boolean isEntityBodyRequired = abstractNativeFunction.getBooleanArgument(context, 0);
+        boolean isEntityBodyRequired = abstractNativeFunction.getBooleanArgument(context, ENTITY_BODY_REQUIRED_INDEX);
 
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
@@ -331,10 +334,6 @@ public class HttpUtil {
     public static void addMessageOutputStream(BStruct struct, OutputStream messageOutputStream) {
         struct.addNativeData(MESSAGE_OUTPUT_STREAM, messageOutputStream);
     }
-
-    /*public static MessageDataSource getMessageDataSource(BStruct httpMsgStruct) {
-        return (MessageDataSource) httpMsgStruct.getNativeData(MESSAGE_DATA_SOURCE);
-    }*/
 
     public static void closeMessageOutputStream(BStruct httpMsgStruct) {
         OutputStream messageOutputStream = (OutputStream) httpMsgStruct.getNativeData(MESSAGE_OUTPUT_STREAM);

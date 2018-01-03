@@ -116,11 +116,7 @@ public function getJson (Entity entity) (json) {
             io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
             blob bytes = readAll(channel);
             string content = bytes.toString(encoding);
-            TypeConversionError err;
-            var jsonContent, err = <json>content;
-            //if (err != null) {
-            //    throw e;
-            //}
+            var jsonContent, _ = <json>content;
             return jsonContent;
         }
         return null;
@@ -147,11 +143,7 @@ public function getXml (Entity entity) (xml) {
             io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
             blob bytes = readAll(channel);
             string content = bytes.toString(encoding);
-            TypeConversionError err;
-            var xmlContent, err = <xml>content;
-            //  if (err != null) {
-            //      throw e;
-            //  }
+            var xmlContent, _ = <xml>content;
             return xmlContent;
         }
         return null;

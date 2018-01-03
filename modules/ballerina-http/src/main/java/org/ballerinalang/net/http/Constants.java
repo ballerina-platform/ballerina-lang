@@ -149,7 +149,6 @@ public class Constants {
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
-    public static final String MESSAGE_DATA_SOURCE = "message_dataSource";
     public static final String MESSAGE_OUTPUT_STREAM = "message_output_stream";
     public static final String INBOUND_REQUEST_MESSAGE = "inbound_request_msg";
     public static final String INBOUND_REQUEST = "inbound_request";
@@ -175,6 +174,10 @@ public class Constants {
     public static final int SSL_ENABLED_PROTOCOLS_INDEX = 4;
     public static final int CIPHERS_INDEX = 5;
     public static final int SSL_PROTOCOL_INDEX = 6;
+
+    public static final int HTTP_MESSAGE_INDEX = 0;
+    public static final int ENTITY_INDEX = 1;
+    public static final int ENTITY_BODY_REQUIRED_INDEX = 0;
 
     //Request struct indexes
     public static final int REQUEST_HOST_INDEX = 0;

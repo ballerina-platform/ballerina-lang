@@ -15,6 +15,9 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+import static org.ballerinalang.mime.util.Constants.CHARSET_INDEX;
+import static org.ballerinalang.mime.util.Constants.STRING_INDEX;
+
 /**
  * Mime base64 encoder to encode string values.
  */
@@ -33,8 +36,8 @@ import java.util.Base64;
 public class EncodeString extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        String content = this.getStringArgument(context, 0);
-        String charset = this.getStringArgument(context, 1);
+        String content = this.getStringArgument(context, STRING_INDEX);
+        String charset = this.getStringArgument(context, CHARSET_INDEX);
         byte[] mimeBytes;
         String mimeEncodedString;
         try {

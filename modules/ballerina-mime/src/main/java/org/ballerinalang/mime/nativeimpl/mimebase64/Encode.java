@@ -12,6 +12,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Base64;
 
+import static org.ballerinalang.mime.util.Constants.BLOB_INDEX;
+
 /**
  * Mime base64 encoder.
  */
@@ -30,7 +32,7 @@ public class Encode extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        byte[] originalContent = this.getBlobArgument(context, 0);
+        byte[] originalContent = this.getBlobArgument(context, BLOB_INDEX);
         Base64.Encoder encoder = Base64.getMimeEncoder();
         byte[] encoded = encoder.encode(originalContent);
         return getBValues(new BBlob(encoded));

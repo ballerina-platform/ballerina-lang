@@ -34,6 +34,7 @@ import static org.ballerinalang.mime.util.Constants.BALLERINA_TEXT_DATA;
 import static org.ballerinalang.mime.util.Constants.BALLERINA_XML_DATA;
 import static org.ballerinalang.mime.util.Constants.BYTE_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.FALSE;
+import static org.ballerinalang.mime.util.Constants.FILE_PATH_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_IN_MEMORY_INDEX;
 import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
@@ -47,6 +48,7 @@ import static org.ballerinalang.mime.util.Constants.TEMP_FILE_EXTENSION;
 import static org.ballerinalang.mime.util.Constants.TEMP_FILE_PATH_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEXT_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.TRUE;
+import static org.ballerinalang.mime.util.Constants.UTF_8;
 import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
 
 /**
@@ -254,9 +256,9 @@ public class MimeUtil {
             return textData;
         } else {
             BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-            String filePath = fileHandler.getStringField(0);
+            String filePath = fileHandler.getStringField(FILE_PATH_INDEX);
             try {
-                returnValue = new String(readFromFile(filePath), "UTF-8");
+                returnValue = new String(readFromFile(filePath), UTF_8);
             } catch (UnsupportedEncodingException e) {
                 LOG.error("Error occured while extracting text payload from entity", e.getMessage());
             }
@@ -277,9 +279,9 @@ public class MimeUtil {
             return jsonData;
         } else {
             BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-            String filePath = fileHandler.getStringField(0);
+            String filePath = fileHandler.getStringField(FILE_PATH_INDEX);
             try {
-                return new BJSON(new String(readFromFile(filePath), "UTF-8"));
+                return new BJSON(new String(readFromFile(filePath), UTF_8));
             } catch (UnsupportedEncodingException e) {
                 LOG.error("Error occured while extracting json payload from entity", e.getMessage());
             }
@@ -300,9 +302,9 @@ public class MimeUtil {
             return xmlData;
         } else {
             BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-            String filePath = fileHandler.getStringField(0);
+            String filePath = fileHandler.getStringField(FILE_PATH_INDEX);
             try {
-                return XMLUtils.parse(new String(readFromFile(filePath), "UTF-8"));
+                return XMLUtils.parse(new String(readFromFile(filePath), UTF_8));
             } catch (UnsupportedEncodingException e) {
                 LOG.error("Error occured while extracting xml payload from entity", e.getMessage());
             }
@@ -323,7 +325,7 @@ public class MimeUtil {
             return byteData;
         } else {
             BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-            String filePath = fileHandler.getStringField(0);
+            String filePath = fileHandler.getStringField(FILE_PATH_INDEX);
             return readFromFile(filePath);
         }
     }
