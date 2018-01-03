@@ -258,6 +258,7 @@ class EditorTabs extends View {
                                 this.setPreviewPanelState(isEnabled);
                             }
                             }
+                            isUsedAsPreviewComponent
                         />
                         <div
                             className='bottom-right-controls-container split-view-controls-container'
