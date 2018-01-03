@@ -836,10 +836,10 @@ public class AggregationTestCase {
         Thread.sleep(2000);
 
         LocalDate currentDate = LocalDate.now();
-        int year = currentDate.getYear();
-        Integer month = currentDate.getMonth().getValue();
-        if (month.toString().length() == 1) {
-            month = Integer.parseInt("0".concat(month.toString()));
+        String year = String.valueOf(currentDate.getYear());
+        String month = String.valueOf(currentDate.getMonth().getValue());
+        if (month.length() == 1) {
+            month = "0".concat(month);
         }
 
         Event[] events = siddhiAppRuntime.query("from stockAggregation " +
@@ -2460,10 +2460,10 @@ public class AggregationTestCase {
         siddhiAppRuntime.start();
 
         LocalDate currentDate = LocalDate.now();
-        int year = currentDate.getYear();
-        Integer month = currentDate.getMonth().getValue();
-        if (month.toString().length() == 1) {
-            month = Integer.parseInt("0".concat(month.toString()));
+        String year = String.valueOf(currentDate.getYear());
+        String month = String.valueOf(currentDate.getMonth().getValue());
+        if (month.length() == 1) {
+            month = "0".concat(month);
         }
 
         Event[] events = siddhiAppRuntime.query("from stockAggregation " +
