@@ -99,7 +99,7 @@ public class DebugInfoHolder {
         return packageInfoMap.get(packagePath).getLineNumberInfo(ip);
     }
 
-    class DebuggerPkgInfo {
+    static class DebuggerPkgInfo {
         //key - ip, value - ipRange
         Map<Integer, IpRange> ipRangeMap = new HashMap<>();
         //key - ipRange, value linenumber info
@@ -154,13 +154,28 @@ public class DebugInfoHolder {
 
     }
 
-    class IpRange {
-        int fromIp;
-        int toIp;
+    static class IpRange {
+        private int fromIp;
+        private int toIp;
         public IpRange(int fromIp, int toIp) {
             this.fromIp = fromIp;
             this.toIp = toIp;
         }
 
+        public boolean equals(Object obj) {
+            if (!(obj instanceof IpRange)) {
+                return false;
+            }
+
+            IpRange other = (IpRange) obj;
+            return (this.fromIp == other.fromIp && this.toIp == other.toIp);
+        }
+
+        public int hashCode() {
+            int hash = 17;
+            hash = hash * 31 + fromIp;
+            hash = hash * 31 + toIp;
+            return hash;
+        }
     }
 }

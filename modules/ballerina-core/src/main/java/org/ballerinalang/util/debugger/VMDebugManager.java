@@ -102,13 +102,9 @@ public class VMDebugManager {
         if (this.debugInfoHolder != null) {
             return;
         }
-        synchronized (this) {
-            if (this.debugInfoHolder != null) {
-                return;
-            }
-            this.debugInfoHolder = new DebugInfoHolder();
-            this.debugInfoHolder.init(programFile);
-        }
+
+        this.debugInfoHolder = new DebugInfoHolder();
+        this.debugInfoHolder.init(programFile);
     }
 
     /**

@@ -2448,6 +2448,10 @@ public class BLangVM {
             case STEP_OUT_INTMDT:
                 interMediateDebugCheck(currentExecLine, debugManager, debugContext);
                 break;
+            default:
+                logger.warn("invalid debug command, exiting from debugging");
+                debugManager.notifyExit();
+                debugManager.stopDebugging();
         }
     }
 

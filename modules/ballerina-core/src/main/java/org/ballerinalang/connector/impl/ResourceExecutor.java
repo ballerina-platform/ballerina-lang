@@ -42,6 +42,7 @@ import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -65,6 +66,7 @@ public class ResourceExecutor {
                                Map<String, Object> properties, BValue... bValues) {
         if (resource == null) {
             connectorFuture.notifyFailure(new BallerinaException("trying to execute a null resource"));
+            return;
         }
         ResourceInfo resourceInfo = ((BResource) resource).getResourceInfo();
         ServiceInfo serviceInfo = resourceInfo.getServiceInfo();
@@ -92,6 +94,8 @@ public class ResourceExecutor {
         context.setStartIP(codeAttribInfo.getCodeAddrs());
 
         String[] stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
+        // Setting the zero values for strings
+        Arrays.fill(stringLocalVars, BLangConstants.STRING_NULL_VALUE);
         int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         long[] longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
         double[] doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
@@ -110,10 +114,7 @@ public class ResourceExecutor {
                 BValue value = bValues[i];
 
                 // Set default values
-                if (value == null || "".equals(value)) {
-                    if (btype == BTypes.typeString) {
-                        stringLocalVars[stringParamCount++] = BLangConstants.STRING_NULL_VALUE;
-                    }
+                if (value == null) {
                     continue;
                 }
 
@@ -128,7 +129,7 @@ public class ResourceExecutor {
                         throw new BallerinaException("Unsupported parameter type for parameter " + value);
                     }
                 } else if (btype == BTypes.typeFloat) {
-                    doubleLocalVars[doubleParamCount++] = new Double(((BFloat) value).floatValue());
+                    doubleLocalVars[doubleParamCount++] = ((BFloat) value).floatValue();
                 } else if (btype == BTypes.typeInt) {
                     longLocalVars[longParamCount++] = ((BInteger) value).intValue();
                 } else if (value instanceof BStruct) {
