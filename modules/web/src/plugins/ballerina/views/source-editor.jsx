@@ -60,23 +60,6 @@ class SourceEditor extends React.Component {
      * @inheritDoc
      */
     componentWillReceiveProps(nextProps) {
-        // if (!nextProps.parseFailed) {
-        //     getLangServerClientInstance()
-        //         .then((langserverClient) => {
-        //             // Set source view completer
-        //             const sourceViewCompleterFactory = this.sourceViewCompleterFactory;
-        //             const fileData = {
-        //                 fileName: nextProps.file.name,
-        //                 filePath: nextProps.file.path,
-        //                 fullPath: nextProps.file.fullPath,
-        //                 packageName: nextProps.file.packageName,
-        //             };
-        //             const completer = sourceViewCompleterFactory.getSourceViewCompleter(langserverClient, fileData);
-        //             langTools.setCompleters(completer);
-        //         })
-        //         .catch(error => log.error(error));
-        // }
-
         const { debugHit, breakpoints } = nextProps;
         if (this.monaco && this.editorInstance) {
             const breakpointDecorations = [];
