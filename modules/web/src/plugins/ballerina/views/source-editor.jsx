@@ -60,23 +60,6 @@ class SourceEditor extends React.Component {
      * @inheritDoc
      */
     componentWillReceiveProps(nextProps) {
-        // if (!nextProps.parseFailed) {
-        //     getLangServerClientInstance()
-        //         .then((langserverClient) => {
-        //             // Set source view completer
-        //             const sourceViewCompleterFactory = this.sourceViewCompleterFactory;
-        //             const fileData = {
-        //                 fileName: nextProps.file.name,
-        //                 filePath: nextProps.file.path,
-        //                 fullPath: nextProps.file.fullPath,
-        //                 packageName: nextProps.file.packageName,
-        //             };
-        //             const completer = sourceViewCompleterFactory.getSourceViewCompleter(langserverClient, fileData);
-        //             langTools.setCompleters(completer);
-        //         })
-        //         .catch(error => log.error(error));
-        // }
-
         const { debugHit, breakpoints } = nextProps;
         if (this.monaco && this.editorInstance) {
             const breakpointDecorations = [];
@@ -250,9 +233,12 @@ class SourceEditor extends React.Component {
      * @param {File} args.file File
      * @param {number} args.row Line number
      * @param {number} args.column Offset
+     * @param {boolean} args.isPreviewViewEnabled indicates whether the privew is on
      */
     handleGoToPosition(args) {
-        if (this.props.file.id === args.file.id) {
+        if (this.props.file.toURI() === args.file.toURI()
+            && ((this.props.isUsedAsPreviewComponent && args.isPreviewViewEnabled)
+                || !args.isPreviewViewEnabled)) {
             this.goToCursorPosition(args.row + 1, args.column + 1);
         }
     }
@@ -344,11 +330,13 @@ SourceEditor.propTypes = {
     debugHit: PropTypes.number,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
+    isUsedAsPreviewComponent: PropTypes.bool,
 };
 
 SourceEditor.defaultProps = {
     debugHit: null,
     onLintErrors: () => {},
+    isUsedAsPreviewComponent: false,
 };
 
 export default debuggerHoc(SourceEditor);
