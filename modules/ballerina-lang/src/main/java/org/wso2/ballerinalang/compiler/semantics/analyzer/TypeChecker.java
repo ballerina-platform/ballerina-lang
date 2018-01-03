@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -786,6 +787,13 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
         stringTemplateLiteral.concatExpr = getStringTemplateConcatExpr(stringTemplateLiteral.exprs);
         resultTypes = Lists.of(types.checkType(stringTemplateLiteral, symTable.stringType, expTypes.get(0)));
+    }
+
+    @Override
+    public void visit(BLangIntRangeExpression intRangeExpression) {
+        checkExpr(intRangeExpression.startExpr, env, Lists.of(symTable.intType));
+        checkExpr(intRangeExpression.endExpr, env, Lists.of(symTable.intType));
+        resultTypes = Lists.of(new BArrayType(symTable.intType));
     }
 
     // Private methods

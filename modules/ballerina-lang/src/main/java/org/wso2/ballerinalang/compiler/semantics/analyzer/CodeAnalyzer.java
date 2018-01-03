@@ -81,6 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
@@ -336,6 +337,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             ifStmt.elseStmt.accept(this);
             this.statementReturns = ifStmtReturns && this.statementReturns;
         }
+    }
+
+    @Override
+    public void visit(BLangForeach foreach) {
+        this.checkStatementExecutionValidity(foreach);
+        foreach.body.stmts.forEach(e -> e.accept(this));
     }
 
     @Override
