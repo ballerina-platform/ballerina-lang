@@ -22,7 +22,8 @@
     "lintfile": "eslint",
     "precommit": "lint-staged",
     "gen-source-gen": "cross-env NODE_PATH=src babel-node ./source-gen/gen-source-gen.js",
-    "gen-default-nodes": "cross-env NODE_PATH=src babel-node ./tools/gen-default-nodes/gen-default-nodes"
+    "gen-default-nodes": "cross-env NODE_PATH=src babel-node ./tools/gen-default-nodes/gen-default-nodes",
+    "check": "npm outdated -depth 0"
   },
   "lint-staged": {
     "linters": {
@@ -120,6 +121,7 @@
     "react-dnd": "^2.5.3",
     "react-dnd-html5-backend": "^2.5.3",
     "react-dom": "^16.2.0",
+    "react-htmltree": "github:pahans/react-htmltree#upgrade-to-react-16",
     "react-json-view": "^1.13.3",
     "react-linkify": "^0.2.1",
     "react-monaco-editor": "^0.13.0",
