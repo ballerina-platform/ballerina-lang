@@ -1444,7 +1444,7 @@ class SizingUtil {
         const dropZoneHeight = TreeUtil.isBlock(node.parent) ? this.config.statement.gutter.v : 0;
         const nodeBodyViewState = node.body.viewState;
 
-        // flow chart while width and height is different to normal block node width and height
+        // flow chart if width and height is different to normal block node width and height
         nodeBodyViewState.bBox.w = (nodeBodyViewState.bBox.w < this.config.flowChartControlStatement.width) ?
                                     this.config.flowChartControlStatement.width : nodeBodyViewState.bBox.w;
         nodeBodyViewState.bBox.h += this.config.statement.gutter.v;
@@ -1470,7 +1470,6 @@ class SizingUtil {
         viewState.components['statement-box'].w = bodyWidth;
         viewState.bBox.h = viewState.components['statement-box'].h
                             + viewState.components['drop-zone'].h
-                            + this.config.flowChartControlStatement.gutter.h
                             + this.config.statement.gutter.h
                             + components['block-header'].h;
         viewState.bBox.w = bodyWidth;
@@ -1498,7 +1497,10 @@ class SizingUtil {
                 if (TreeUtil.isBlock(elseStmt) && elseStmt.statements.length === 0) {
                     break;
                 }
-                const elseHeight = elseStmt.viewState.bBox.h;
+                const elseHeight = elseStmt.viewState.bBox.h
+                                - this.config.blockStatement.heading.height
+                                - this.config.flowChartControlStatement.gutter.h
+                                + this.config.statement.gutter.h;
                 nodeHeight += elseHeight;
                 // If the current else statement is for an else if only, we proceed
                 if (elseStmt.parent !== node) {
