@@ -1,4 +1,4 @@
-package org.ballerinalang.net.mime.util;
+package org.ballerinalang.mime.util;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorUtils;
@@ -28,26 +28,26 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
 import javax.activation.MimeTypeParseException;
 
-import static org.ballerinalang.net.mime.util.Constants.BALLERINA_BINARY_DATA;
-import static org.ballerinalang.net.mime.util.Constants.BALLERINA_JSON_DATA;
-import static org.ballerinalang.net.mime.util.Constants.BALLERINA_TEXT_DATA;
-import static org.ballerinalang.net.mime.util.Constants.BALLERINA_XML_DATA;
-import static org.ballerinalang.net.mime.util.Constants.BYTE_DATA_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.FALSE;
-import static org.ballerinalang.net.mime.util.Constants.IS_IN_MEMORY_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.JSON_DATA_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.MEDIA_TYPE_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.OVERFLOW_DATA_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.PARAMETER_MAP_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.PRIMARY_TYPE_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.SIZE_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.SUBTYPE_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.SUFFIX_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.TEMP_FILE_EXTENSION;
-import static org.ballerinalang.net.mime.util.Constants.TEMP_FILE_PATH_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.TEXT_DATA_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.TRUE;
-import static org.ballerinalang.net.mime.util.Constants.XML_DATA_INDEX;
+import static org.ballerinalang.mime.util.Constants.BALLERINA_BINARY_DATA;
+import static org.ballerinalang.mime.util.Constants.BALLERINA_JSON_DATA;
+import static org.ballerinalang.mime.util.Constants.BALLERINA_TEXT_DATA;
+import static org.ballerinalang.mime.util.Constants.BALLERINA_XML_DATA;
+import static org.ballerinalang.mime.util.Constants.BYTE_DATA_INDEX;
+import static org.ballerinalang.mime.util.Constants.FALSE;
+import static org.ballerinalang.mime.util.Constants.IS_IN_MEMORY_INDEX;
+import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
+import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
+import static org.ballerinalang.mime.util.Constants.OVERFLOW_DATA_INDEX;
+import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
+import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
+import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
+import static org.ballerinalang.mime.util.Constants.SUBTYPE_INDEX;
+import static org.ballerinalang.mime.util.Constants.SUFFIX_INDEX;
+import static org.ballerinalang.mime.util.Constants.TEMP_FILE_EXTENSION;
+import static org.ballerinalang.mime.util.Constants.TEMP_FILE_PATH_INDEX;
+import static org.ballerinalang.mime.util.Constants.TEXT_DATA_INDEX;
+import static org.ballerinalang.mime.util.Constants.TRUE;
+import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
 
 /**
  * Entity related operations and mime utility functions are included here.

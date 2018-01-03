@@ -34,6 +34,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeTags;
@@ -48,7 +49,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.http.session.Session;
-import org.ballerinalang.net.mime.util.MimeUtil;
 import org.ballerinalang.runtime.message.BlobDataSource;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
@@ -81,16 +81,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
+import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
+import static org.ballerinalang.mime.util.Constants.HEADER_VALUE_STRUCT;
+import static org.ballerinalang.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
+import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
+import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
+import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
+import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.Constants.SUBTYPE_INDEX;
 import static org.ballerinalang.net.http.Constants.MESSAGE_OUTPUT_STREAM;
-import static org.ballerinalang.net.mime.util.Constants.CONTENT_TYPE;
-import static org.ballerinalang.net.mime.util.Constants.ENTITY_HEADERS_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.HEADER_VALUE_STRUCT;
-import static org.ballerinalang.net.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
-import static org.ballerinalang.net.mime.util.Constants.MEDIA_TYPE_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.MESSAGE_ENTITY;
-import static org.ballerinalang.net.mime.util.Constants.PRIMARY_TYPE_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.net.mime.util.Constants.SUBTYPE_INDEX;
 
 /**
  * Utility class providing utility methods.
@@ -229,22 +229,22 @@ public class HttpUtil {
 
         if (baseType != null) {
             switch (baseType) {
-                case org.ballerinalang.net.mime.util.Constants.TEXT_PLAIN:
+                case org.ballerinalang.mime.util.Constants.TEXT_PLAIN:
                     isBodyAvailable = MimeUtil.isTextBodyPresent(entity);
                     break;
-                case org.ballerinalang.net.mime.util.Constants.APPLICATION_JSON:
+                case org.ballerinalang.mime.util.Constants.APPLICATION_JSON:
                     isBodyAvailable = MimeUtil.isJsonBodyPresent(entity);
                     break;
-                case org.ballerinalang.net.mime.util.Constants.APPLICATION_XML:
+                case org.ballerinalang.mime.util.Constants.APPLICATION_XML:
                     isBodyAvailable = MimeUtil.isXmlBodyPresent(entity);
                     break;
                 default:
-                    baseType = org.ballerinalang.net.mime.util.Constants.OCTET_STREAM;
+                    baseType = org.ballerinalang.mime.util.Constants.OCTET_STREAM;
                     isBodyAvailable = MimeUtil.isBinaryBodyPresent(entity);
                     break;
             }
         } else {
-            baseType = org.ballerinalang.net.mime.util.Constants.OCTET_STREAM;
+            baseType = org.ballerinalang.mime.util.Constants.OCTET_STREAM;
             isBodyAvailable = MimeUtil.isBinaryBodyPresent(entity);
         }
         HttpUtil.setHeaderToStruct(context, entity, CONTENT_TYPE, baseType);
@@ -283,14 +283,14 @@ public class HttpUtil {
             long contentLength = entity.getIntField(0);
             if (baseType != null) {
                 switch (baseType) {
-                    case org.ballerinalang.net.mime.util.Constants.TEXT_PLAIN:
-                    case org.ballerinalang.net.mime.util.Constants.APPLICATION_FORM:
+                    case org.ballerinalang.mime.util.Constants.TEXT_PLAIN:
+                    case org.ballerinalang.mime.util.Constants.APPLICATION_FORM:
                         MimeUtil.readAndSetStringPayload(context, entity, inputStream, contentLength);
                         break;
-                    case org.ballerinalang.net.mime.util.Constants.APPLICATION_JSON:
+                    case org.ballerinalang.mime.util.Constants.APPLICATION_JSON:
                         MimeUtil.readAndSetJsonPayload(context, entity, inputStream, contentLength);
                         break;
-                    case org.ballerinalang.net.mime.util.Constants.APPLICATION_XML:
+                    case org.ballerinalang.mime.util.Constants.APPLICATION_XML:
                         MimeUtil.readAndSetXmlPayload(context, entity, inputStream, contentLength);
                         break;
                     default:
@@ -307,8 +307,8 @@ public class HttpUtil {
         }
         if (entity == null) {
             entity = ConnectorUtils.createAndGetStruct(context,
-                    org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
-                    org.ballerinalang.net.mime.util.Constants.ENTITY);
+                    org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
+                    org.ballerinalang.mime.util.Constants.ENTITY);
             entity.setRefField(ENTITY_HEADERS_INDEX, new BMap<>());
             httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
             httpMessageStruct.addNativeData(IS_ENTITY_BODY_PRESENT, false);
@@ -433,16 +433,16 @@ public class HttpUtil {
             String baseType = getContentType(entity);
             if (baseType != null) {
                 switch (baseType) {
-                    case org.ballerinalang.net.mime.util.Constants.TEXT_PLAIN:
+                    case org.ballerinalang.mime.util.Constants.TEXT_PLAIN:
                         String textPayload = MimeUtil.getTextPayload(entity);
                         return new StringDataSource(textPayload, messageOutputStream);
 
-                    case org.ballerinalang.net.mime.util.Constants.APPLICATION_JSON:
+                    case org.ballerinalang.mime.util.Constants.APPLICATION_JSON:
                         BJSON jsonPayload = MimeUtil.getJsonPayload(entity);
                         jsonPayload.setOutputStream(messageOutputStream);
                         return jsonPayload;
 
-                    case org.ballerinalang.net.mime.util.Constants.APPLICATION_XML:
+                    case org.ballerinalang.mime.util.Constants.APPLICATION_XML:
                         BXML xmlPayload = MimeUtil.getXmlPayload(entity);
                         xmlPayload.setOutputStream(messageOutputStream);
                         return xmlPayload;

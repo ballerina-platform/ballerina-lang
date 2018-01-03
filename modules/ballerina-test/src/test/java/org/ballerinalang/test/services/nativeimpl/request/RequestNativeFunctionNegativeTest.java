@@ -21,13 +21,13 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.mime.util.MimeUtil;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.testng.Assert;
@@ -36,14 +36,14 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
-import static org.ballerinalang.net.mime.util.Constants.APPLICATION_JSON;
-import static org.ballerinalang.net.mime.util.Constants.CONTENT_TYPE;
-import static org.ballerinalang.net.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
-import static org.ballerinalang.net.mime.util.Constants.IS_IN_MEMORY_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.JSON_DATA_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.MEDIA_TYPE;
-import static org.ballerinalang.net.mime.util.Constants.MESSAGE_ENTITY;
-import static org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
+import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
+import static org.ballerinalang.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
+import static org.ballerinalang.mime.util.Constants.IS_IN_MEMORY_INDEX;
+import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
+import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
+import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
+import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 
 /**
  * Test cases for ballerina.net.http.request negative native functions.

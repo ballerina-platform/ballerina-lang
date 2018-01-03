@@ -39,15 +39,15 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import static org.ballerinalang.net.mime.util.Constants.FILE;
-import static org.ballerinalang.net.mime.util.Constants.MEDIA_TYPE;
-import static org.ballerinalang.net.mime.util.Constants.OVERFLOW_DATA_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.PARAMETER_MAP_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.PRIMARY_TYPE_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_FILE;
-import static org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.net.mime.util.Constants.SUBTYPE_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.SUFFIX_INDEX;
+import static org.ballerinalang.mime.util.Constants.FILE;
+import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
+import static org.ballerinalang.mime.util.Constants.OVERFLOW_DATA_INDEX;
+import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
+import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
+import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_FILE;
+import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.Constants.SUBTYPE_INDEX;
+import static org.ballerinalang.mime.util.Constants.SUFFIX_INDEX;
 
 /**
  * Unit tests for MIME package utilities.
@@ -219,7 +219,7 @@ public class MimeTest {
 
     @Test(description = "Test 'testMimeBase64EncodeString' function in ballerina.net.mime package")
     public void testMimeBase64EncodeString() {
-        BValue[] args = { new BString("Ballerina") , new BString("utf-8") };
+        BValue[] args = { new BString("Ballerina"), new BString("utf-8") };
         BValue[] returns = BRunUtil.invoke(compileResult, "testMimeBase64EncodeString", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "QmFsbGVyaW5h");
@@ -236,7 +236,7 @@ public class MimeTest {
 
     @Test(description = "Test 'testMimeBase64DecodeString' function in ballerina.net.mime package")
     public void testMimeBase64DecodeString() {
-        BValue[] args = { new BString("QmFsbGVyaW5h") , new BString("utf-8") };
+        BValue[] args = { new BString("QmFsbGVyaW5h"), new BString("utf-8") };
         BValue[] returns = BRunUtil.invoke(compileResult, "testMimeBase64DecodeString", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina");

@@ -1,6 +1,6 @@
 package ballerina.net.http;
 
-import ballerina.net.mime;
+import ballerina.mime;
 
 function getHeaderValueArray (any headerValues, string headerName)(mime:HeaderValue[]) {
     var valueArray, err = (mime:HeaderValue[]) headerValues;

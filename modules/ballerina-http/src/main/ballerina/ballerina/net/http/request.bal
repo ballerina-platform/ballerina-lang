@@ -1,6 +1,6 @@
 package ballerina.net.http;
 
-import ballerina.net.mime;
+import ballerina.mime;
 import ballerina.file;
 
 const string HEADER_VAL_100_CONTINUE = "100-continue";

@@ -1,6 +1,6 @@
 package ballerina.net.http;
 
-import ballerina.net.mime;
+import ballerina.mime;
 import ballerina.file;
 
 @Description {value:"Gets the named HTTP header from the response"}

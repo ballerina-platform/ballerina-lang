@@ -45,10 +45,10 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import static org.ballerinalang.net.mime.util.Constants.HEADER_VALUE_STRUCT;
-import static org.ballerinalang.net.mime.util.Constants.MEDIA_TYPE;
-import static org.ballerinalang.net.mime.util.Constants.MESSAGE_ENTITY;
-import static org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.Constants.HEADER_VALUE_STRUCT;
+import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
+import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
+import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
 /**

@@ -1,4 +1,4 @@
-package org.ballerinalang.net.mime.nativeimpl.mimebase64;
+package org.ballerinalang.mime.nativeimpl.mimebase64;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -16,13 +16,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 /**
- * Mime decoder to decode string values.
+ * Mime base64 encoder to encode string values.
  */
-@BallerinaFunction(packageName = "ballerina.net.mime",
-                   functionName = "decodeString",
+@BallerinaFunction(packageName = "ballerina.mime",
+                   functionName = "encodeString",
                    receiver = @Receiver(type = TypeKind.STRUCT,
-                                        structType = "MimeBase64Decoder",
-                                        structPackage = "ballerina.net.mime"),
+                                        structType = "MimeBase64Encoder",
+                                        structPackage = "ballerina.mime"),
                    args = {
                            @Argument(name = "content",
                                      type = TypeKind.STRING), @Argument(name = "charset",
@@ -30,24 +30,24 @@ import java.util.Base64;
                    },
                    returnType = { @ReturnType(type = TypeKind.STRING) },
                    isPublic = true)
-public class DecodeString extends AbstractNativeFunction {
+public class EncodeString extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        String encodedContent = this.getStringArgument(context, 0);
+        String content = this.getStringArgument(context, 0);
         String charset = this.getStringArgument(context, 1);
-        byte[] decodedBytes;
-        String decodedContent = "";
+        byte[] mimeBytes;
+        String mimeEncodedString;
         try {
             if (charset != null) {
-                decodedBytes = Base64.getMimeDecoder().decode(encodedContent.getBytes(charset));
-                decodedContent = new String(decodedBytes, charset);
+                mimeBytes = content.getBytes(charset);
+                mimeEncodedString = new String(Base64.getMimeEncoder().encode(mimeBytes), charset);
             } else {
-                decodedBytes = Base64.getMimeDecoder().decode(encodedContent.getBytes(StandardCharsets.UTF_8));
-                decodedContent = new String(decodedBytes, StandardCharsets.UTF_8);
+                mimeBytes = content.getBytes(StandardCharsets.UTF_8);
+                mimeEncodedString = new String(Base64.getMimeEncoder().encode(mimeBytes), StandardCharsets.UTF_8);
             }
         } catch (UnsupportedEncodingException e) {
-            throw new BallerinaException("Error occured while decoding mime string: " + e.getMessage());
+            throw new BallerinaException("Error occured while converting given string to bytes: " + e.getMessage());
         }
-        return getBValues(new BString(decodedContent));
+        return getBValues(new BString(mimeEncodedString));
     }
 }

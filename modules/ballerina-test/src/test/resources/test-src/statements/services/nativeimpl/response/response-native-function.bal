@@ -1,6 +1,6 @@
 import ballerina.net.http;
 
-import ballerina.net.mime;
+import ballerina.mime;
 import ballerina.file;
 
 function testAddHeader (http:Response res, string key, string value) (http:Response) {

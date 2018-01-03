@@ -38,9 +38,9 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.net.mime.util.Constants.APPLICATION_FORM;
-import static org.ballerinalang.net.mime.util.Constants.CONTENT_TYPE;
-import static org.ballerinalang.net.mime.util.Constants.TEXT_PLAIN;
+import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
+import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
+import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 
 /**
  * Service/Resource dispatchers test class.

@@ -33,8 +33,8 @@ import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import static org.ballerinalang.net.mime.util.Constants.ENTITY_HEADERS_INDEX;
-import static org.ballerinalang.net.mime.util.Constants.MESSAGE_ENTITY;
+import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
+import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 
 /**
  * Native function to send client service response directly to the caller.

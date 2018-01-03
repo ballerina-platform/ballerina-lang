@@ -1,4 +1,4 @@
-import ballerina.net.mime;
+import ballerina.mime;
 
 function testGetTextFromFile(mime:Entity entity) (string) {
     return mime:getText(entity);

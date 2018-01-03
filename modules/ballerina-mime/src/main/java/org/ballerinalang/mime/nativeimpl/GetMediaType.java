@@ -1,7 +1,9 @@
-package org.ballerinalang.net.mime.nativeimpl;
+package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.mime.util.Constants;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -9,12 +11,11 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.mime.util.MimeUtil;
 
 /**
  * Construct MediaType struct from Content-Type string.
  */
-@BallerinaFunction(packageName = "ballerina.net.mime",
+@BallerinaFunction(packageName = "ballerina.mime",
                    functionName = "getMediaType",
                    args = {
                            @Argument(name = "contentType",
@@ -28,8 +29,8 @@ public class GetMediaType extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         String contentType = this.getStringArgument(context, 0);
         BStruct mediaType = ConnectorUtils
-                .createAndGetStruct(context, org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
-                        org.ballerinalang.net.mime.util.Constants.MEDIA_TYPE);
+                .createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_MIME,
+                        Constants.MEDIA_TYPE);
         mediaType = MimeUtil.parseMediaType(mediaType, contentType);
         return this.getBValues(mediaType);
     }

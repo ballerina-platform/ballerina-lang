@@ -1,4 +1,4 @@
-package org.ballerinalang.net.mime.nativeimpl.mimebase64;
+package org.ballerinalang.mime.nativeimpl.mimebase64;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -15,11 +15,11 @@ import java.util.Base64;
 /**
  * Mime base64 encoder.
  */
-@BallerinaFunction(packageName = "ballerina.net.mime",
+@BallerinaFunction(packageName = "ballerina.mime",
                    functionName = "encode",
                    receiver = @Receiver(type = TypeKind.STRUCT,
                                         structType = "MimeBase64Encoder",
-                                        structPackage = "ballerina.net.mime"),
+                                        structPackage = "ballerina.mime"),
                    args = {
                            @Argument(name = "content",
                                      type = TypeKind.BLOB)

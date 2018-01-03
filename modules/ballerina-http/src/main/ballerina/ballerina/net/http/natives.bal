@@ -1,6 +1,6 @@
 package ballerina.net.http;
 
-import ballerina.net.mime;
+import ballerina.mime;
 
 @Description { value:"Represents an HTTP request message"}
 @Field {value:"host: The server host name"}

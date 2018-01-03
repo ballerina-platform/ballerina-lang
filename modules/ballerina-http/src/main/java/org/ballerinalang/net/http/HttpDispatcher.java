@@ -32,8 +32,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.net.mime.util.Constants.HEADER_VALUE_STRUCT;
-import static org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.Constants.HEADER_VALUE_STRUCT;
+import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 
 /**
  * {@code HttpDispatcher} is responsible for dispatching incoming http requests to the correct resource.
@@ -141,16 +141,16 @@ public class HttpDispatcher {
         HttpUtil.setHeaderValueStructType(
                 ConnectorUtils.createStruct(httpResource.getBalResource(), PROTOCOL_PACKAGE_MIME, HEADER_VALUE_STRUCT));
         BStruct entityForRequest = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
-                org.ballerinalang.net.mime.util.Constants.ENTITY);
+                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
+                org.ballerinalang.mime.util.Constants.ENTITY);
 
         BStruct entityForResponse = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
-                org.ballerinalang.net.mime.util.Constants.ENTITY);
+                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
+                org.ballerinalang.mime.util.Constants.ENTITY);
 
         BStruct mediaType = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                org.ballerinalang.net.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
-                org.ballerinalang.net.mime.util.Constants.MEDIA_TYPE);
+                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
+                org.ballerinalang.mime.util.Constants.MEDIA_TYPE);
 
         HttpUtil.populateInboundRequest(request, entityForRequest, mediaType, httpCarbonMessage);
         HttpUtil.populateOutboundResponse(response, entityForResponse, HttpUtil.createHttpCarbonMessage(false),

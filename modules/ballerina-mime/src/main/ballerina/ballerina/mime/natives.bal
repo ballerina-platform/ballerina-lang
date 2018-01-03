@@ -1,4 +1,4 @@
-package ballerina.net.mime;
+package ballerina.mime;
 
 import ballerina.file;
 import ballerina.io;

@@ -34,10 +34,10 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 import static org.ballerinalang.net.http.Constants.COOKIE_HEADER;
 import static org.ballerinalang.net.http.Constants.RESPONSE_COOKIE_HEADER;
 import static org.ballerinalang.net.http.Constants.SESSION_ID;
-import static org.ballerinalang.net.mime.util.Constants.TEXT_PLAIN;
 
 /**
  * HTTP session Essential Methods Test Class.
