@@ -351,21 +351,23 @@ service<http> echo66 {
     @http:resourceConfig {
         path:"/a/*"
     }
-    resource echo1 (http:Request req, http:Response res) {
+    resource echo1 (http:Connection conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo66": req.restUriPostFix};
         res.setJsonPayload(responseJson);
-        _ = res.send();
+        _ = conn.respond(res);
     }
 
     @http:resourceConfig {
         path:"/a"
     }
-    resource echo2 (http:Request req, http:Response res) {
+    resource echo2 (http:Connection conn, http:Request req) {
+        http:Response res = {};
         if (req.restUriPostFix == null) {
             req.restUriPostFix = "empty";
         }
         json responseJson = {"echo66": req.restUriPostFix};
         res.setJsonPayload(responseJson);
-        _ = res.send();
+        _ = conn.respond(res);
     }
 }
