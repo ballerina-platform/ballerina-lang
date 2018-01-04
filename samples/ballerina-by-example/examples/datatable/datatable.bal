@@ -37,6 +37,11 @@ function main (string[] args) {
                 "|" + rs.birthdate + "|" + rs.birthtime + "|" + rs.updated);
     }
 
+    //The datatable to json/xml conversion is resulted in streamed data. With the data
+    //streaming functionality, when a service client makes a request, the result is
+    //streamed to the service client rather than building the full result in the server
+    //and returning it. This allows virtually unlimited payload sizes in the result, and
+    //the response is instantaneous to the client. <br>
     //Convert a datatable to JSON.
     dt = testDB.select("SELECT id,name FROM EMPLOYEE", null, null);
     var jsonRes, _ = <json>dt;

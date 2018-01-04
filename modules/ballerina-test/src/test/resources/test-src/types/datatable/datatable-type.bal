@@ -95,6 +95,21 @@ struct ResultComplexTypes {
     blob BINARY_TYPE;
 }
 
+struct TestTypeData {
+    int i;
+    int[] iA;
+    int l;
+    int[] lA;
+    float f;
+    float[] fA;
+    float d;
+    boolean b;
+    string s;
+    float[] dA;
+    boolean[] bA;
+    string[] sA;
+}
+
 function testToJson () (json) {
     endpoint<sql:ClientConnector> testDB {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
@@ -151,6 +166,25 @@ function testToXmlMultipleConsume () (xml) {
     return null;
 }
 
+function testToJsonMultipleConsume () (json) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+
+    try {
+        datatable dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
+        boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
+        json result;
+        result, _ = <json>dt;
+        println(result);
+        return result;
+    } finally {
+        testDB.close();
+    }
+    return null;
+}
+
 
 function toXmlComplex () (xml) {
     endpoint<sql:ClientConnector> testDB {
@@ -171,6 +205,26 @@ function toXmlComplex () (xml) {
     return null;
 }
 
+function testToXmlComplexWithStructDef () (xml) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+
+    try {
+        datatable dt = testDB.select("SELECT int_type, int_array, long_type, long_array, float_type,
+                    float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
+                    from MixTypes where row_id =1", null, typeof TestTypeData);
+        xml result;
+        result, _ = <xml>dt;
+        return result;
+    } finally {
+        testDB.close();
+    }
+    return null;
+}
+
+
 function testToJsonComplex () (json) {
     endpoint<sql:ClientConnector> testDB {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
@@ -181,6 +235,26 @@ function testToJsonComplex () (json) {
         datatable dt = testDB.select("SELECT int_type, int_array, long_type, long_array, float_type,
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                     from MixTypes where row_id =1", null, null);
+        json result;
+        result, _ = <json>dt;
+        return result;
+    } finally {
+        testDB.close();
+    }
+    return null;
+}
+
+
+function testToJsonComplexWithStructDef () (json) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+
+    try {
+        datatable dt = testDB.select("SELECT int_type, int_array, long_type, long_array, float_type,
+                    float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
+                    from MixTypes where row_id =1", null, typeof TestTypeData);
         json result;
         result, _ = <json>dt;
         return result;

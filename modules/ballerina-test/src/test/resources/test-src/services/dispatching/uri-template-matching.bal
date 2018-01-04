@@ -345,3 +345,27 @@ service<http> echo55 {
         _ = conn.respond(res);
     }
 }
+
+@http:configuration {basePath:"/echo66"}
+service<http> echo66 {
+    @http:resourceConfig {
+        path:"/a/*"
+    }
+    resource echo1 (http:Request req, http:Response res) {
+        json responseJson = {"echo66": req.restUriPostFix};
+        res.setJsonPayload(responseJson);
+        _ = res.send();
+    }
+
+    @http:resourceConfig {
+        path:"/a"
+    }
+    resource echo2 (http:Request req, http:Response res) {
+        if (req.restUriPostFix == null) {
+            req.restUriPostFix = "empty";
+        }
+        json responseJson = {"echo66": req.restUriPostFix};
+        res.setJsonPayload(responseJson);
+        _ = res.send();
+    }
+}

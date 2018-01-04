@@ -442,7 +442,7 @@ public class BJSONValueTest {
 
         Assert.assertTrue(returns[1] instanceof BStruct);
         String errorMsg = ((BStruct) returns[1]).getStringField(0);
-        Assert.assertEquals(errorMsg, "'json' cannot be cast to 'json[][][]'");
+        Assert.assertEquals(errorMsg, "'json[]' cannot be cast to 'json[][][]'");
     }
 
     @Test
