@@ -1233,7 +1233,8 @@ class PositioningUtil {
 
         // Set the position of the else statement
         const elseX = (bBox.x - this.config.flowChartControlStatement.padding.left)
-                    + node.viewState.components['statement-box'].w;
+                    + node.viewState.components['statement-box'].w
+                    + this.config.flowChartControlStatement.padding.left;
         const elseY = viewState.components['statement-box'].y
                      + viewState.components['statement-box'].h;
 

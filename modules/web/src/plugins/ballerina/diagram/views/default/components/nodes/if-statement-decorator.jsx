@@ -237,7 +237,7 @@ class IfStatementDecorator extends React.Component {
         const p3X = bBox.x + (titleW / 2);
         const p3Y = p2Y;
 
-        const p4X = p1X + statementBBox.w;
+        const p4X = p1X + gapLeft + statementBBox.w;
         const p4Y = p2Y;
 
         const p5X = p4X;
