@@ -21,8 +21,8 @@ import PropTypes from 'prop-types';
 import TreeView from 'react-treeview';
 import ReactJson from 'react-json-view';
 import JSON5 from 'json5';
-import HTMLTree from 'react-htmltree';
 import 'react-treeview/react-treeview.css';
+import HtmlTree from 'react-htmltree';
 import './frames.scss';
 /**
  *
@@ -62,11 +62,11 @@ class Frames extends React.Component {
             <div key={i}>
                 {frame.variables.map((variable, j) => {
                     const { type = '', name, value } = variable;
-                    const label = <span className="node"><strong>{name}</strong>{` (${type})`}</span>;
+                    const label = <span className='node'><strong>{name}</strong>{` (${type})`}</span>;
                     if (type.toLowerCase().includes('json') || type.toLowerCase().includes('struct') || type.toLowerCase().includes('map')) {
                         return (
                             <TreeView key={j} nodeLabel={label} defaultCollapsed>
-                                <div className="node">Value:</div>
+                                <div className='node'>Value:</div>
                                 <ReactJson
                                     src={this.getObject(variable.value)}
                                     theme='eighties'
@@ -79,7 +79,7 @@ class Frames extends React.Component {
                     } else if (type.toLowerCase().includes('array')) {
                         return (
                             <TreeView key={j} nodeLabel={label} defaultCollapsed>
-                                <div className="node">Value:</div>
+                                <div className='node'>Value:</div>
                                 <ReactJson
                                     src={this.getArray(variable.value)}
                                     theme='eighties'
@@ -93,15 +93,15 @@ class Frames extends React.Component {
                     } else if (type.toLowerCase().includes('xml')) {
                         return (
                             <TreeView key={j} nodeLabel={label} defaultCollapsed>
-                                <div className="node">Value:</div>
-                                <HTMLTree source={variable.value} theme="firefox-devtools.dark" />
+                                <div className='node'>Value:</div>
+                                <HtmlTree source={variable.value.substr(1)} theme='firefox-devtools.dark' />
                             </TreeView>
                         );
                     } else {
-                        const varLabel = <span className="node"><strong>{name}</strong>{` (${type})`}</span>;
+                        const varLabel = <span className='node'><strong>{name}</strong>{` (${type})`}</span>;
                         return (
                             <TreeView key={j} nodeLabel={varLabel} defaultCollapsed>
-                                <div className="node">Value: {value}</div>
+                                <div className='node'>Value: {value}</div>
                             </TreeView>
                         );
                     }
@@ -116,33 +116,33 @@ class Frames extends React.Component {
     render() {
         const { message: { frames = [] } } = this.props;
         return (
-            <div className="debugger-frames-wrapper">
+            <div className='debugger-frames-wrapper'>
                 {
                     frames.length ?
-                        <div className="debug-panel-header debug-frame-header">
-                            <div><a className="tool-group-header-title">Frames</a></div>
+                        <div className='debug-panel-header debug-frame-header'>
+                            <div><a className='tool-group-header-title'>Frames</a></div>
                         </div> : ''
                 }
-                <div className="debugger-frames-container">
+                <div className='debugger-frames-container'>
                     {frames.map((frame, i) => {
                         return (
-                            <div className="" key={frame.frameName}>
-                                <div className="frame-title">
+                            <div className='' key={frame.frameName}>
+                                <div className='frame-title'>
                                     <h4>
-                
-                                            {`${frame.frameName}`}
-                                            <div className="debug-frame-pkg-name">
-                                                <i className="fw fw-package"></i>{`${frame.packageName}`}
-                                            </div>
+
+                                        {`${frame.frameName}`}
+                                        <div className='debug-frame-pkg-name'>
+                                            <i className='fw fw-package' />{`${frame.packageName}`}
+                                        </div>
 
                                     </h4>
                                 </div>
-                                <div className="clearfix"> </div>
+                                <div className='clearfix' />
                                 <div
                                     id={`#debugger-frame-${frame.frameName}`}
-                                    className=""
+                                    className=''
                                 >
-                                    <div className="">
+                                    <div className=''>
                                         {this.renderFrame(frame, i)}
                                     </div>
                                 </div>

@@ -16,6 +16,7 @@
  * under the License.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 import './properties-form.css';
 
@@ -132,9 +133,9 @@ class Pagination extends React.Component {
 }
 
 Pagination.propTypes = {
-    items: React.PropTypes.array.isRequired,
-    onChangePage: React.PropTypes.func.isRequired,
-    initialPage: React.PropTypes.number,
+    items: PropTypes.array.isRequired,
+    onChangePage: PropTypes.func.isRequired,
+    initialPage: PropTypes.number,
 };
 Pagination.defaultProps = {
     initialPage: 1,

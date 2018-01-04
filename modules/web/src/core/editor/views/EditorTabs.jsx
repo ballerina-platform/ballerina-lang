@@ -30,6 +30,7 @@ import { VIEWS, HISTORY } from './../constants';
 import Editor from './../model/Editor';
 import CustomEditor from './../model/CustomEditor';
 import EditorTabTitle from './EditorTabTitle';
+import ErrorBoundary from './ErrorBoundary';
 
 const tabTitleHeight = 21;
 
@@ -163,16 +164,18 @@ class EditorTabs extends View {
                     data-extra='tabpane'
                     key={file.fullPath}
                 >
-                    <definition.component
-                        editorModel={editor}
-                        isActive={() => { return this.isTabActive(file.fullPath); }}
-                        file={file}
-                        commandProxy={this.props.editorPlugin.appContext.command}
-                        {...customPropsProvider()}
-                        isPreviewViewEnabled={this.state.previewPanelEnabled}
-                        {...dimensions}
-                        panelResizeInProgress={this.props.panelResizeInProgress || this.state.panelResizeInProgress}
-                    />
+                    <ErrorBoundary>
+                        <definition.component
+                            editorModel={editor}
+                            isActive={() => { return this.isTabActive(file.fullPath); }}
+                            file={file}
+                            commandProxy={this.props.editorPlugin.appContext.command}
+                            {...customPropsProvider()}
+                            isPreviewViewEnabled={this.state.previewPanelEnabled}
+                            {...dimensions}
+                            panelResizeInProgress={this.props.panelResizeInProgress || this.state.panelResizeInProgress}
+                        />
+                    </ErrorBoundary>
                 </TabPane>
             );
         } else if (editor instanceof CustomEditor) {
@@ -210,15 +213,17 @@ class EditorTabs extends View {
                     data-extra='tabpane'
                     key={id}
                 >
-                    <Scrollbars
-                        style={customTabDimensions}
-                        autoHide // Hide delay in ms
-                        autoHideTimeout={1000}
-                    >
-                        <editor.component
-                            {...finalProps}
-                        />
-                    </Scrollbars>
+                    <ErrorBoundary>
+                        <Scrollbars
+                            style={customTabDimensions}
+                            autoHide // Hide delay in ms
+                            autoHideTimeout={1000}
+                        >
+                                <editor.component
+                                    {...finalProps}
+                                />
+                        </Scrollbars>
+                    </ErrorBoundary>
                 </TabPane>
             );
         } else {
