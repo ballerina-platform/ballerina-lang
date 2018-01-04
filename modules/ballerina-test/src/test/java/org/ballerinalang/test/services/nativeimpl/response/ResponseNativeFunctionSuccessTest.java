@@ -46,20 +46,12 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
 import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.Constants.BYTE_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
-import static org.ballerinalang.mime.util.Constants.FILE;
 import static org.ballerinalang.mime.util.Constants.HEADER_VALUE_STRUCT;
 import static org.ballerinalang.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
 import static org.ballerinalang.mime.util.Constants.IS_IN_MEMORY_INDEX;
@@ -67,12 +59,10 @@ import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
-import static org.ballerinalang.mime.util.Constants.OVERFLOW_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_FILE;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.TEXT_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
-import static org.ballerinalang.mime.util.Constants.UTF_8;
 import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
 
 /**
@@ -647,49 +637,5 @@ public class ResponseNativeFunctionSuccessTest {
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
         BXMLItem xmlValue = (BXMLItem) entity.getRefField(XML_DATA_INDEX);
         Assert.assertEquals(xmlValue.getTextValue().stringValue(), "Ballerina", "Payload is not set properly");
-    }
-
-    @Test
-    public void testForwardMethod() {
-        String path = "/hello/14";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(
-                StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), "hello",
-                "Payload is not set properly");
-    }
-
-    @Test (description = "Test setEntityBody() function")
-    public void testSetEntityBody() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
-        HTTPCarbonMessage requestMsg = HttpUtil.createHttpCarbonMessage(true);
-        HttpUtil.addCarbonMsg(response, requestMsg);
-
-        try {
-            File file = File.createTempFile("testresponse", ".json");
-            file.deleteOnExit();
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-            bufferedWriter.write("{'name':'wso2'}");
-            bufferedWriter.close();
-
-            BStruct fileStruct = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageFile, FILE);
-            fileStruct.setStringField(0, file.getAbsolutePath());
-            BValue[] inputArg = { response, fileStruct, new BString(APPLICATION_JSON) };
-            BValue[] returnVals = BRunUtil.invoke(result, "testSetEntityBody", inputArg);
-            Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                    "Invalid Return Values.");
-            Assert.assertTrue(returnVals[0] instanceof BStruct);
-            BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-            BStruct returnFileStruct = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-
-            String returnJsonValue = new String (Files.readAllBytes(Paths.get(returnFileStruct.getStringField(0))),
-                    UTF_8);
-            BJSON bJson = new BJSON(returnJsonValue);
-            Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
-        } catch (IOException e) {
-            LOG.error("Error occured while creating a temporary file in testSetEntityBody", e.getMessage());
-        }
     }
 }

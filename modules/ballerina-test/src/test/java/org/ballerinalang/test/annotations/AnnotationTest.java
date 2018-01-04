@@ -297,7 +297,7 @@ public class AnnotationTest {
                 .compile(this, "test-src", "lang/annotations/invalid-resource-annotation.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BAssertUtil.validateError(resultNegative, 0,
-                "incompatible types: expected 'string', found 'int'", 12, 28);
+                "incompatible types: expected 'string', found 'int'", 13, 28);
     }
 
     @Test(description = "Test an invalid connector annotation")

@@ -85,15 +85,6 @@ public function <Response res> removeAllHeaders () {
     entity.headers = {};
 }
 
-@Description {value:"Sends a 100-continue response to the client."}
-@Param {value:"res: A response struct"}
-@Return {value:"Returns an HttpConnectorError if there was any issue in sending the response."}
-public function <Response res> send100Continue () (HttpConnectorError) {
-    res.setStatusCode(100);
-    HttpConnectorError err = res.send();
-    return err;
-}
-
 @Description {value:"Gets the Content-Length header from the response"}
 @Param {value:"response: The response message"}
 @Return {value:"length of the message"}

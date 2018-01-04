@@ -543,19 +543,24 @@ public class HttpUtil {
         headerValueStructType = struct.getType();
     }
 
+    public static void populateConnection(BStruct request,
+            HTTPCarbonMessage cMsg) {
+        request.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
+        request.setStringField(Constants.CONNECTION_HOST_INDEX,
+                ((InetSocketAddress) cMsg.getProperty(Constants.LOCAL_ADDRESS)).getHostName());
+        request.setIntField(Constants.CONNECTION_PORT_INDEX, (Integer) cMsg.getProperty(Constants.LISTENER_PORT));
+    }
+
     public static void populateInboundRequest(BStruct request, BStruct entity, BStruct mediaType,
             HTTPCarbonMessage cMsg) {
         request.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
         request.addNativeData(Constants.INBOUND_REQUEST, true);
         request.setStringField(Constants.REQUEST_PATH_INDEX, (String) cMsg.getProperty(Constants.REQUEST_URL));
-        request.setStringField(Constants.REQUEST_HOST_INDEX,
-                ((InetSocketAddress) cMsg.getProperty(Constants.LOCAL_ADDRESS)).getHostName());
-        request.setIntField(Constants.REQUEST_PORT_INDEX, (Integer) cMsg.getProperty(Constants.LISTENER_PORT));
         request.setStringField(Constants.REQUEST_METHOD_INDEX, (String) cMsg.getProperty(Constants.HTTP_METHOD));
         request.setStringField(Constants.REQUEST_VERSION_INDEX, (String) cMsg.getProperty(Constants.HTTP_VERSION));
         Map<String, String> resourceArgValues = (Map<String, String>) cMsg.getProperty(Constants.RESOURCE_ARGS);
         request.setStringField(Constants.REQUEST_REST_URI_POSTFIX_INDEX,
-                resourceArgValues.get(Constants.REST_URI_POSTFIX));
+                                resourceArgValues.get(Constants.REST_URI_POSTFIX));
 
         if (cMsg.getHeader(Constants.USER_AGENT_HEADER) != null) {
             request.setStringField(Constants.REQUEST_USER_AGENT_INDEX, cMsg.getHeader(Constants.USER_AGENT_HEADER));
@@ -602,17 +607,6 @@ public class HttpUtil {
     @SuppressWarnings("unchecked")
     public static void populateOutboundRequest(BStruct message, BStruct entity, HTTPCarbonMessage reqMsg) {
         setHeadersToTransportMessage(reqMsg, message, entity);
-    }
-
-    public static void populateOutboundResponse(BStruct response, BStruct entity, HTTPCarbonMessage resMsg,
-            HTTPCarbonMessage
-            reqMsg) {
-        response.addNativeData(Constants.TRANSPORT_MESSAGE, resMsg);
-        response.addNativeData(Constants.INBOUND_REQUEST_MESSAGE, reqMsg);
-        response.addNativeData(Constants.OUTBOUND_RESPONSE, true);
-        entity.setRefField(ENTITY_HEADERS_INDEX, new BMap<>());
-        response.addNativeData(MESSAGE_ENTITY, entity);
-        response.addNativeData(IS_ENTITY_BODY_PRESENT, false);
     }
 
     private static BMap<String, BValue> prepareHeaderMap(HttpHeaders headers, BMap<String, BValue> headerMap) {
@@ -708,7 +702,7 @@ public class HttpUtil {
     @SuppressWarnings("unchecked")
     private static HttpHeaders getRequestStructHeaders(BStruct struct) {
         HttpHeaders removedHeaders = new DefaultHttpHeaders();
-        if (!struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX).equals("")) {
+        if (!struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX).isEmpty()) {
             removedHeaders.add(Constants.USER_AGENT_HEADER, struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX));
         }
         return removedHeaders;
@@ -717,8 +711,7 @@ public class HttpUtil {
     @SuppressWarnings("unchecked")
     private static HttpHeaders getResponseStructHeaders(BStruct struct) {
         HttpHeaders removedHeaders = new DefaultHttpHeaders();
-        if (struct.getNativeData(Constants.OUTBOUND_RESPONSE) == null
-                && !struct.getStringField(Constants.RESPONSE_SERVER_INDEX).equals("")) {
+        if (!struct.getStringField(Constants.RESPONSE_SERVER_INDEX).isEmpty()) {
             removedHeaders.add(Constants.SERVER_HEADER, struct.getStringField(Constants.RESPONSE_SERVER_INDEX));
         }
         return removedHeaders;
@@ -767,14 +760,6 @@ public class HttpUtil {
         BMap<String, BValue> headerMap = struct.getRefField(ENTITY_HEADERS_INDEX) != null ?
                 (BMap) struct.getRefField(ENTITY_HEADERS_INDEX) : new BMap<>();
         struct.setRefField(ENTITY_HEADERS_INDEX, prepareHeaderMap(new DefaultHttpHeaders().add(key, value), headerMap));
-    }
-
-    @SuppressWarnings("unchecked")
-    private static String getHeaderFromStruct(BStruct struct, String key) {
-        int headersIndex = struct.getType().getName().equals(Constants.REQUEST) ? Constants.REQUEST_HEADERS_INDEX :
-                Constants.RESPONSE_HEADERS_INDEX;
-        return struct.getRefField(headersIndex) != null ?
-                buildHeaderValue((BMap) struct.getRefField(headersIndex), key) : null;
     }
 
     /**
@@ -972,29 +957,29 @@ public class HttpUtil {
         return "/".concat(uri);
     }
 
-    public static void checkFunctionValidity(BStruct bStruct, HTTPCarbonMessage httpMsg) {
-        methodInvocationCheck(bStruct, httpMsg);
-        outboundResponseStructCheck(bStruct);
+    public static void checkFunctionValidity(BStruct bStruct, HTTPCarbonMessage reqMsg) {
+        serverConnectionStructCheck(reqMsg);
+        methodInvocationCheck(bStruct, reqMsg);
     }
 
-    public static void methodInvocationCheck(BStruct bStruct, HTTPCarbonMessage httpMsg) {
-        if (bStruct.getNativeData(METHOD_ACCESSED) != null || httpMsg == null) {
+    private static void methodInvocationCheck(BStruct bStruct, HTTPCarbonMessage reqMsg) {
+        if (bStruct.getNativeData(METHOD_ACCESSED) != null || reqMsg == null) {
             throw new IllegalStateException("illegal function invocation");
         }
 
-        if (!is100ContinueRequest(httpMsg)) {
+        if (!is100ContinueRequest(reqMsg)) {
             bStruct.addNativeData(METHOD_ACCESSED, true);
         }
     }
 
-    public static void outboundResponseStructCheck(BStruct bStruct) {
-        if (bStruct.getNativeData(Constants.OUTBOUND_RESPONSE) == null) {
-            throw new BallerinaException("operation not allowed");
+    private static void serverConnectionStructCheck(HTTPCarbonMessage reqMsg) {
+        if (reqMsg == null) {
+            throw new BallerinaException("operation not allowed:invalid Connection variable");
         }
     }
 
-    private static boolean is100ContinueRequest(HTTPCarbonMessage httpMsg) {
-        return Constants.HEADER_VAL_100_CONTINUE.equalsIgnoreCase(httpMsg.getHeader(Constants.EXPECT_HEADER));
+    private static boolean is100ContinueRequest(HTTPCarbonMessage reqMsg) {
+        return Constants.HEADER_VAL_100_CONTINUE.equalsIgnoreCase(reqMsg.getHeader(Constants.EXPECT_HEADER));
     }
 
     public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {

@@ -8,7 +8,7 @@ service<http> headerBasedRouting {
         methods:["GET"],
         path:"/route"
     }
-    resource hbrResource (http:Request req, http:Response res) {
+    resource hbrResource (http:Connection conn, http:Request req) {
         endpoint<http:HttpClient> locationEP {
             create http:HttpClient("http://www.mocky.io", {});
         }
@@ -29,13 +29,14 @@ service<http> headerBasedRouting {
             clientResponse, err = weatherEP.get("/data/2.5/weather?lat=35&lon=139&appid=b1b1", newRequest);
         }
 
-        //Native function "forward" sends back the clientResponse to the caller if no any error is found.
+        //Native function "respond" sends back the clientResponse to the caller if no any error is found.
+        http:Response res = {};
         if (err != null) {
             res.setStatusCode(500);
             res.setStringPayload(err.msg);
-            _ = res.send();
+            _ = conn.respond(res);
         } else {
-            _ = res.forward(clientResponse);
+            _ = conn.respond(clientResponse);
         }
     }
 }
