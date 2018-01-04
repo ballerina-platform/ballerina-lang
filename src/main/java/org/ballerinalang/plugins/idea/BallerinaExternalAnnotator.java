@@ -41,6 +41,8 @@ import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -63,6 +65,8 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
     private static Method method;
     private static URLClassLoader urlClassLoader;
     private static Editor editor;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaExternalAnnotator.class);
 
     /**
      * Called first.
@@ -101,12 +105,8 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
                         this.getClass().getClassLoader());
                 Class classToLoad = Class.forName("org.ballerinalang.launcher.BTester", true, urlClassLoader);
                 method = classToLoad.getMethod("getDiagnostics", ClassLoader.class, String.class, String.class);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+            } catch (MalformedURLException | NoSuchMethodException | ClassNotFoundException e) {
+                LOGGER.debug(e.getMessage(), e);
             }
         }
         return new Data(editor, file, packageNameNode);
@@ -142,10 +142,8 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
 
             try {
                 return (List<Diagnostic>) method.invoke(null, urlClassLoader, sourceRoot, fileName);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                LOGGER.debug(e.getMessage(), e);
             }
         }
         return new LinkedList<>();
