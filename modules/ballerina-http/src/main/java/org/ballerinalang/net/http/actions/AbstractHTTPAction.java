@@ -185,7 +185,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     context.getProperty(Constants.SRC_HANDLER));
         }
         if (context.isInTransaction()) {
-            addInterceptingHeaders(context, httpRequestMsg);
+            registerWithCoordinator(context, httpRequestMsg);
         }
         executeNonBlocking(context, httpRequestMsg, httpClientConnectorLister);
         return ballerinaFuture;
@@ -233,16 +233,18 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         return new RetryConfig(retryCount, interval);
     }
 
-    private void addInterceptingHeaders(Context context, HTTPCarbonMessage httpRequestMsg) {
+    private void registerWithCoordinator(Context context, HTTPCarbonMessage httpRequestMsg) {
         Coordinator coordinator;
+        int transactionId = context.getBallerinaTransactionManager().getTransactionId();
         if (isCoordinatorExist(context)) {
             coordinator = (Coordinator) context.getProperty(Constants.COORDINATOR);
         } else {
             coordinator = new Coordinator();
-            context.setProperty(Constants.COORDINATOR, new Coordinator());
+            context.setProperty(Constants.COORDINATOR, coordinator);
         }
+        coordinator.setInitiator(transactionId);
         httpRequestMsg.setHeader(Constants.X_XID_HEADER,
-                String.valueOf(context.getBallerinaTransactionManager().getTransactionId()));
+                String.valueOf(transactionId));
         httpRequestMsg.setHeader(Constants.X_REGISTER_AT_URL_HEADER, "url");
 
 

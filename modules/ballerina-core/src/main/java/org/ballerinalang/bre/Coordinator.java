@@ -19,6 +19,7 @@
 package org.ballerinalang.bre;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,15 +27,30 @@ import java.util.Map;
  */
 public class Coordinator {
 
-    Map<int, >
+    Map transactions = new HashMap<Integer, List<Participant>>();
+
+    public MicroTransactionContext createContext(String coordinationType) {
+        return new MicroTransactionContext("3ef1", coordinationType, 1.0, "localhost:9090");
+    }
 
     public void register(int transactionId, int participantId, String registerAtURL) {
 
-        if (isRegisteredParticipant(participantId)) {
+        if (isRegisteredParticipant(participantId, (List) transactions.get(transactionId))) {
 
+        } else {
+            if (transactions.keySet().contains(transactionId)) {
+                List<Participant> participants = (List) transactions.get(transactionId);
+                participants.add(new Participant(participantId, "http", false));
+            }
         }
 
+    }
 
+    private boolean isRegisteredParticipant(int participantId, List participants) {
+        return participants.contains(participantId);
+    }
+
+    public void setInitiator(int transactionId) {
 
     }
 }
