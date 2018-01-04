@@ -27,7 +27,6 @@ import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
@@ -58,6 +57,7 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
     // NOTE: can't use instance vars as only 1 instance
 
     private static Method method;
+    private static URLClassLoader urlClassLoader;
 
     /**
      * Called first.
@@ -87,17 +87,47 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
                     }
                 }
 
-                URLClassLoader urlClassLoader = new URLClassLoader(filesToLoad.toArray(new URL[filesToLoad.size()]),
+                urlClassLoader = new URLClassLoader(filesToLoad.toArray(new URL[filesToLoad.size()]),
                         this.getClass().getClassLoader());
 
-                Class classToLoad = Class.forName("org.ballerinalang.launcher.BTester", true, urlClassLoader);
-                method = classToLoad.getMethod("getDiagnostics", String.class, String.class);
+                //                Thread.currentThread().setContextClassLoader(urlClassLoader);
+                //
+                //                Class systemPackageRepositoryProvider = Class.forName("org.ballerinalang.builtin" +
+                //                        ".StandardSystemPackageRepositoryProvider", true, urlClassLoader);
+                //
+                //
+                //                Object instance = systemPackageRepositoryProvider.newInstance();
+                //                method = systemPackageRepositoryProvider.getMethod("loadRepository");
+                //
+                //                Object invoke = method.invoke(instance);
+                //
+                //                Class systemPackageRepositoryProvider2 = Class.forName("org.ballerinalang.spi" +
+                //                        ".SystemPackageRepositoryProvider", true, urlClassLoader);
+                //
+                //                ServiceLoader loader = ServiceLoader.load(systemPackageRepositoryProvider2);
+                //                loader.forEach(e -> {
+                //                    System.out.println(e.getClass());
+                //                });
+
+                Class classToLoad = Class.forName("org.ballerinalang.launcher.BTester", true,
+                        urlClassLoader);
+
+                method = classToLoad.getMethod("getDiagnostics", ClassLoader.class, String.class, String.class);
+
+                System.out.println("x");
+                //                method = classToLoad.getMethod("getDiagnostics", String.class, String.class);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
+                //            } catch (InstantiationException e) {
+                //                e.printStackTrace();
+                //            } catch (IllegalAccessException e) {
+                //                e.printStackTrace();
+                //            } catch (InvocationTargetException e) {
+                //                e.printStackTrace();
             }
         }
         return new Data(editor, file);
@@ -118,22 +148,22 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
         if (method != null) {
             try {
                 VirtualFile virtualFile = data.psiFile.getVirtualFile();
-                List<Diagnostic> diagnostics = (List<Diagnostic>) method.invoke(null, virtualFile.getParent().getPath(),
-                        virtualFile.getName());
+                List<Diagnostic> diagnostics = (List<Diagnostic>) method.invoke(null, urlClassLoader,
+                        virtualFile.getParent().getPath(), virtualFile.getName());
                 Editor editor = data.editor;
                 if (editor == null) {
                     return issues;
                 }
-                ApplicationManager.getApplication().runWriteAction(
-                        () -> PsiDocumentManager.getInstance(data.psiFile.getProject())
-                                .commitDocument(editor.getDocument())
-                );
+                //                ApplicationManager.getApplication().runWriteAction(
+                //                        () -> PsiDocumentManager.getInstance(data.psiFile.getProject())
+                //                                .commitDocument(editor.getDocument())
+                //                );
                 for (Diagnostic diagnostic : diagnostics) {
 
                     ApplicationManager.getApplication().runReadAction(() -> {
                         Diagnostic.DiagnosticPosition position = diagnostic.getPosition();
                         LogicalPosition startPosition = new LogicalPosition(position
-                                .getStartLine() - 1, position.startColumn());
+                                .getStartLine() - 1, position.getStartColumn());
 
                         int startOffset = editor.logicalPositionToOffset(startPosition);
                         PsiElement elementAtOffset = data.psiFile.findElementAt(startOffset);
@@ -142,8 +172,8 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
                         }
                         TextRange textRange;
                         if (elementAtOffset == null) {
-                            int endColumn = position.startColumn() == position.endColumn() ?
-                                    position.endColumn() + 1 : position.endColumn();
+                            int endColumn = position.getStartColumn() == position.getEndColumn() ?
+                                    position.getEndColumn() + 1 : position.getEndColumn();
 
                             LogicalPosition endPosition = new LogicalPosition(position.getEndLine() - 1, endColumn);
                             int endOffset = editor.logicalPositionToOffset(endPosition);

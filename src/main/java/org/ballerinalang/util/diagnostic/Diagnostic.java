@@ -55,9 +55,9 @@ public interface Diagnostic {
 
         int getEndLine();
 
-        int startColumn();
+        int getStartColumn();
 
-        int endColumn();
+        int getEndColumn();
     }
 
     Kind getKind();
