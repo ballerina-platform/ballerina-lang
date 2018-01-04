@@ -131,7 +131,7 @@ export const statement = {
         bottom: 5,
         left: 5,
     },
-    maxWidth: 300,
+    maxWidth: 200,
 };
 
 export const actionInvocationStatement = {
