@@ -1479,9 +1479,8 @@ class SizingUtil {
         // for compound statement like if , while we need to render condition expression
         // we will calculate the width of the expression and adjust the block statement
         if (expression) {
-            // see how much space we have to draw the condition
-            const available = bodyWidth - this.config.flowChartControlStatement.heading.width - 10;
-            components.expression = this.getTextWidth(expression.getSource(true), 0, available);
+            components.expression = this.getTextWidth(expression.getSource(true), 0,
+                                        this.config.flowChartControlStatement.heading.width);
         }
 
         // end of if block sizing
@@ -1771,9 +1770,8 @@ class SizingUtil {
         // for compound statement like if , while we need to render condition expression
         // we will calculate the width of the expression and adjust the block statement
         if (expression) {
-            // see how much space we have to draw the condition
-            const available = bodyWidth - this.config.flowChartControlStatement.heading.width - 10;
-            components.expression = this.getTextWidth(expression.getSource(true), 0, available);
+            components.expression = this.getTextWidth(expression.getSource(true), 0,
+                                        this.config.flowChartControlStatement.heading.width);
         }
     }
 
