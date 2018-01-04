@@ -37,6 +37,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.PathUtil;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
+import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -58,8 +59,7 @@ import java.util.List;
  */
 public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExternalAnnotator.Data, List<Diagnostic>> {
 
-    // NOTE: can't use instance vars as only 1 instance
-
+    // NOTE: can't use instance vars as only 1 instance.
     private static Method method;
     private static URLClassLoader urlClassLoader;
     private static Editor editor;
@@ -70,9 +70,9 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
     @Override
     @Nullable
     public Data collectInformation(@NotNull PsiFile file, @NotNull Editor editor, boolean hasErrors) {
-
         BallerinaExternalAnnotator.editor = editor;
         VirtualFile virtualFile = file.getVirtualFile();
+
         String packageNameNode = getPackageName(file);
         if (method == null) {
             Module module = ModuleUtilCore.findModuleForFile(virtualFile, file.getProject());
@@ -80,10 +80,13 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
                 return null;
             }
             Sdk moduleSdk = ModuleRootManager.getInstance(module).getSdk();
-            if (moduleSdk == null) {
-                return null;
+            String sdkHome;
+            if (moduleSdk != null) {
+                sdkHome = moduleSdk.getHomePath();
+            } else {
+                sdkHome = BallerinaSdkService.getInstance(file.getProject()).getSdkHomePath(null);
             }
-            String sdkHome = moduleSdk.getHomePath();
+
             try {
                 List<URL> filesToLoad = new LinkedList<>();
                 File[] files = new File(sdkHome + "/bre/lib").listFiles();
@@ -133,10 +136,8 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
                 VirtualFile virtualFile = data.psiFile.getVirtualFile();
                 fileName = virtualFile.getName();
             }
-            if (module != null) {
-                if (FileUtil.exists(module.getModuleFilePath())) {
-                    sourceRoot = StringUtil.trimEnd(PathUtil.getParentPath(module.getModuleFilePath()), ".idea");
-                }
+            if (module != null && FileUtil.exists(module.getModuleFilePath())) {
+                sourceRoot = StringUtil.trimEnd(PathUtil.getParentPath(module.getModuleFilePath()), ".idea");
             }
 
             try {
@@ -173,23 +174,33 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
         String fileName = file.getVirtualFile().getName();
 
         for (Diagnostic diagnostic : diagnostics) {
+            // Validate the package name.
             if (packageName != null && !diagnostic.getSource().getPackageName().equals(packageName)) {
                 continue;
             }
+            // Validate the file name since diagnostics are sent for all files in the package.
             if (!fileName.equals(diagnostic.getSource().getCompilationUnitName())) {
                 continue;
             }
 
             Diagnostic.DiagnosticPosition position = diagnostic.getPosition();
-            if (position.getStartLine() <= 0) {
+            // If the start line or start column is less than 0, it will throw an exception.
+            if (position.getStartLine() <= 0 || position.getStartColumn() <= 0) {
                 continue;
             }
-            LogicalPosition startPosition = new LogicalPosition(position.getStartLine() - 1, position.getStartColumn());
+
+            // Get the logical start postion. This is used to get the offset.
+            LogicalPosition startPosition = new LogicalPosition(position.getStartLine() - 1,
+                    position.getStartColumn() - 1);
             int startOffset = editor.logicalPositionToOffset(startPosition);
+            // Get the element at the offset.
             PsiElement elementAtOffset = file.findElementAt(startOffset);
+            // If the element at the offset is a whitespace, highlight the next element.
             if (elementAtOffset instanceof PsiWhiteSpace) {
                 elementAtOffset = PsiTreeUtil.nextVisibleLeaf(elementAtOffset);
             }
+
+            // Get the text range to be highlighted.
             TextRange textRange;
             if (elementAtOffset == null) {
                 int endColumn = position.getStartColumn() == position.getEndColumn() ?
@@ -204,6 +215,8 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
                 int endOffset = elementAtOffset.getTextOffset() + elementAtOffset.getTextLength();
                 textRange = new TextRange(elementAtOffset.getTextOffset(), endOffset);
             }
+
+            // Highlight the range according to the diagnostic kind.
             if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
                 holder.createErrorAnnotation(textRange, diagnostic.getMessage());
             } else if (diagnostic.getKind() == Diagnostic.Kind.WARNING) {
@@ -220,8 +233,7 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
         PsiFile psiFile;
         String packageNameNode;
 
-        public Data(@NotNull Editor editor, @NotNull PsiFile psiFile,
-                    @Nullable String packageNameNode) {
+        public Data(@NotNull Editor editor, @NotNull PsiFile psiFile, @Nullable String packageNameNode) {
             this.editor = editor;
             this.psiFile = psiFile;
             this.packageNameNode = packageNameNode;
