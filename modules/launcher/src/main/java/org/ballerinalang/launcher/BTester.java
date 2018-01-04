@@ -16,10 +16,14 @@
 
 package org.ballerinalang.launcher;
 
+import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.Mnemonics;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFileReader;
+import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -30,6 +34,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
@@ -70,7 +77,7 @@ public class BTester {
             org.ballerinalang.util.codegen.ProgramFile executableProgram = getExecutableProgram(programFile);
 //            traceCode(executableProgram.getEntryPackage());
             BLangFunctions.invokeNew(executableProgram, executableProgram.getEntryPkgName(),
-                                                           "main", new BValue[1]);
+                                     "main", new BValue[1]);
         }
     }
 
@@ -125,5 +132,40 @@ public class BTester {
             } catch (IOException ignore) {
             }
         }
+    }
+
+    /**
+     * Used by IntelliJ IDEA plugin to provide semantic analyzing capabilities.
+     *
+     * @param classLoader a {@link ClassLoader} to be set as thread context class loader. This is used by {@link
+     *                    java.util.ServiceLoader}. Otherwise semantic analyzing capability providing wont work since it
+     *                    cant find core package.
+     * @param sourceRoot  source root of a project
+     * @param fileName    either the file name (if in project root) or the package name
+     * @return list of diagnostics
+     */
+    public static List<Diagnostic> getDiagnostics(ClassLoader classLoader, String sourceRoot, String fileName) {
+        Thread.currentThread().setContextClassLoader(classLoader);
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(SOURCE_ROOT, sourceRoot);
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+
+        CompileResult comResult = new CompileResult();
+
+        // catch errors
+        DiagnosticListener listener = comResult::addDiagnostic;
+        context.put(DiagnosticListener.class, listener);
+
+        // compile
+        Compiler compiler = Compiler.getInstance(context);
+        compiler.compile(fileName);
+        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
+        if (programFile != null) {
+            comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
+        }
+        Diagnostic[] diagnostics = comResult.getDiagnostics();
+        return Arrays.stream(diagnostics).collect(Collectors.toList());
     }
 }
