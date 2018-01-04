@@ -21,16 +21,22 @@ import com.intellij.lang.annotation.ExternalAnnotator;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.LogicalPosition;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.util.PathUtil;
+import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
+import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,7 +47,6 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -51,13 +56,13 @@ import java.util.List;
  * analysis can be expensive, we don't want it in the GUI event loop. Jetbrains
  * provides this external annotator mechanism to run these analyzers out of band.
  */
-public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExternalAnnotator.Data,
-        List<BallerinaExternalAnnotator.Issue>> {
+public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExternalAnnotator.Data, List<Diagnostic>> {
 
     // NOTE: can't use instance vars as only 1 instance
 
     private static Method method;
     private static URLClassLoader urlClassLoader;
+    private static Editor editor;
 
     /**
      * Called first.
@@ -65,7 +70,10 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
     @Override
     @Nullable
     public Data collectInformation(@NotNull PsiFile file, @NotNull Editor editor, boolean hasErrors) {
+
+        BallerinaExternalAnnotator.editor = editor;
         VirtualFile virtualFile = file.getVirtualFile();
+        String packageNameNode = getPackageName(file);
         if (method == null) {
             Module module = ModuleUtilCore.findModuleForFile(virtualFile, file.getProject());
             if (module == null) {
@@ -86,51 +94,19 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
                         }
                     }
                 }
-
                 urlClassLoader = new URLClassLoader(filesToLoad.toArray(new URL[filesToLoad.size()]),
                         this.getClass().getClassLoader());
-
-                //                Thread.currentThread().setContextClassLoader(urlClassLoader);
-                //
-                //                Class systemPackageRepositoryProvider = Class.forName("org.ballerinalang.builtin" +
-                //                        ".StandardSystemPackageRepositoryProvider", true, urlClassLoader);
-                //
-                //
-                //                Object instance = systemPackageRepositoryProvider.newInstance();
-                //                method = systemPackageRepositoryProvider.getMethod("loadRepository");
-                //
-                //                Object invoke = method.invoke(instance);
-                //
-                //                Class systemPackageRepositoryProvider2 = Class.forName("org.ballerinalang.spi" +
-                //                        ".SystemPackageRepositoryProvider", true, urlClassLoader);
-                //
-                //                ServiceLoader loader = ServiceLoader.load(systemPackageRepositoryProvider2);
-                //                loader.forEach(e -> {
-                //                    System.out.println(e.getClass());
-                //                });
-
-                Class classToLoad = Class.forName("org.ballerinalang.launcher.BTester", true,
-                        urlClassLoader);
-
+                Class classToLoad = Class.forName("org.ballerinalang.launcher.BTester", true, urlClassLoader);
                 method = classToLoad.getMethod("getDiagnostics", ClassLoader.class, String.class, String.class);
-
-                System.out.println("x");
-                //                method = classToLoad.getMethod("getDiagnostics", String.class, String.class);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
-                //            } catch (InstantiationException e) {
-                //                e.printStackTrace();
-                //            } catch (IllegalAccessException e) {
-                //                e.printStackTrace();
-                //            } catch (InvocationTargetException e) {
-                //                e.printStackTrace();
             }
         }
-        return new Data(editor, file);
+        return new Data(editor, file, packageNameNode);
     }
 
     /**
@@ -143,71 +119,97 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
      */
     @Nullable
     @Override
-    public List<Issue> doAnnotate(final Data data) {
-        List<Issue> issues = new ArrayList<>();
+    public List<Diagnostic> doAnnotate(final Data data) {
         if (method != null) {
-            try {
+            ApplicationManager.getApplication().invokeAndWait(() -> {
+                FileDocumentManager.getInstance().saveAllDocuments();
+            });
+
+            Module module = ModuleUtilCore.findModuleForPsiElement(data.psiFile);
+            String sourceRoot = data.psiFile.getProject().getBasePath();
+
+            String fileName = data.packageNameNode;
+            if (fileName == null) {
                 VirtualFile virtualFile = data.psiFile.getVirtualFile();
-                List<Diagnostic> diagnostics = (List<Diagnostic>) method.invoke(null, urlClassLoader,
-                        virtualFile.getParent().getPath(), virtualFile.getName());
-                Editor editor = data.editor;
-                if (editor == null) {
-                    return issues;
+                fileName = virtualFile.getName();
+            }
+            if (module != null) {
+                if (FileUtil.exists(module.getModuleFilePath())) {
+                    sourceRoot = StringUtil.trimEnd(PathUtil.getParentPath(module.getModuleFilePath()), ".idea");
                 }
-                //                ApplicationManager.getApplication().runWriteAction(
-                //                        () -> PsiDocumentManager.getInstance(data.psiFile.getProject())
-                //                                .commitDocument(editor.getDocument())
-                //                );
-                for (Diagnostic diagnostic : diagnostics) {
+            }
 
-                    ApplicationManager.getApplication().runReadAction(() -> {
-                        Diagnostic.DiagnosticPosition position = diagnostic.getPosition();
-                        LogicalPosition startPosition = new LogicalPosition(position
-                                .getStartLine() - 1, position.getStartColumn());
-
-                        int startOffset = editor.logicalPositionToOffset(startPosition);
-                        PsiElement elementAtOffset = data.psiFile.findElementAt(startOffset);
-                        if (elementAtOffset instanceof PsiWhiteSpace) {
-                            elementAtOffset = PsiTreeUtil.nextVisibleLeaf(elementAtOffset);
-                        }
-                        TextRange textRange;
-                        if (elementAtOffset == null) {
-                            int endColumn = position.getStartColumn() == position.getEndColumn() ?
-                                    position.getEndColumn() + 1 : position.getEndColumn();
-
-                            LogicalPosition endPosition = new LogicalPosition(position.getEndLine() - 1, endColumn);
-                            int endOffset = editor.logicalPositionToOffset(endPosition);
-                            textRange = new TextRange(startOffset, endOffset);
-                        } else {
-                            int endOffset = elementAtOffset.getTextOffset() + elementAtOffset.getTextLength();
-                            textRange = new TextRange(elementAtOffset.getTextOffset(), endOffset);
-                        }
-                        Issue issue = new Issue(diagnostic, textRange);
-                        issues.add(issue);
-                    });
-                }
+            try {
+                return (List<Diagnostic>) method.invoke(null, urlClassLoader, sourceRoot, fileName);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             } catch (InvocationTargetException e) {
                 e.printStackTrace();
             }
         }
-        return issues;
+        return new LinkedList<>();
+    }
+
+    private String getPackageName(PsiFile file) {
+        PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(file,
+                PackageDeclarationNode.class);
+        if (packageDeclarationNode == null) {
+            return null;
+        }
+        FullyQualifiedPackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(packageDeclarationNode,
+                FullyQualifiedPackageNameNode.class);
+        if (packageNameNode == null) {
+            return null;
+        }
+        return packageNameNode.getText();
     }
 
     /**
      * Called 3rd to actually annotate the editor window.
      */
     @Override
-    public void apply(@NotNull PsiFile file, List<Issue> issues, @NotNull AnnotationHolder holder) {
-        for (Issue issue : issues) {
-            TextRange range = issue.textRange;
-            if (issue.diagnostic.getKind() == Diagnostic.Kind.ERROR) {
-                holder.createErrorAnnotation(range, issue.diagnostic.getMessage());
-            } else if (issue.diagnostic.getKind() == Diagnostic.Kind.WARNING) {
-                holder.createWarningAnnotation(range, issue.diagnostic.getMessage());
-            } else if (issue.diagnostic.getKind() == Diagnostic.Kind.NOTE) {
-                holder.createInfoAnnotation(range, issue.diagnostic.getMessage());
+    public void apply(@NotNull PsiFile file, List<Diagnostic> diagnostics, @NotNull AnnotationHolder holder) {
+        String packageName = getPackageName(file);
+        String fileName = file.getVirtualFile().getName();
+
+        for (Diagnostic diagnostic : diagnostics) {
+            if (packageName != null && !diagnostic.getSource().getPackageName().equals(packageName)) {
+                continue;
+            }
+            if (!fileName.equals(diagnostic.getSource().getCompilationUnitName())) {
+                continue;
+            }
+
+            Diagnostic.DiagnosticPosition position = diagnostic.getPosition();
+            if (position.getStartLine() <= 0) {
+                continue;
+            }
+            LogicalPosition startPosition = new LogicalPosition(position.getStartLine() - 1, position.getStartColumn());
+            int startOffset = editor.logicalPositionToOffset(startPosition);
+            PsiElement elementAtOffset = file.findElementAt(startOffset);
+            if (elementAtOffset instanceof PsiWhiteSpace) {
+                elementAtOffset = PsiTreeUtil.nextVisibleLeaf(elementAtOffset);
+            }
+            TextRange textRange;
+            if (elementAtOffset == null) {
+                int endColumn = position.getStartColumn() == position.getEndColumn() ?
+                        position.getEndColumn() + 1 : position.getEndColumn();
+                if (position.getEndLine() <= 0) {
+                    continue;
+                }
+                LogicalPosition endPosition = new LogicalPosition(position.getEndLine() - 1, endColumn);
+                int endOffset = editor.logicalPositionToOffset(endPosition);
+                textRange = new TextRange(startOffset, endOffset);
+            } else {
+                int endOffset = elementAtOffset.getTextOffset() + elementAtOffset.getTextLength();
+                textRange = new TextRange(elementAtOffset.getTextOffset(), endOffset);
+            }
+            if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
+                holder.createErrorAnnotation(textRange, diagnostic.getMessage());
+            } else if (diagnostic.getKind() == Diagnostic.Kind.WARNING) {
+                holder.createWarningAnnotation(textRange, diagnostic.getMessage());
+            } else if (diagnostic.getKind() == Diagnostic.Kind.NOTE) {
+                holder.createInfoAnnotation(textRange, diagnostic.getMessage());
             }
         }
     }
@@ -216,21 +218,13 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
 
         Editor editor;
         PsiFile psiFile;
+        String packageNameNode;
 
-        public Data(@NotNull Editor editor, @NotNull PsiFile psiFile) {
+        public Data(@NotNull Editor editor, @NotNull PsiFile psiFile,
+                    @Nullable String packageNameNode) {
             this.editor = editor;
             this.psiFile = psiFile;
-        }
-    }
-
-    public static class Issue {
-
-        Diagnostic diagnostic;
-        TextRange textRange;
-
-        public Issue(@NotNull Diagnostic diagnostic, @NotNull TextRange textRange) {
-            this.diagnostic = diagnostic;
-            this.textRange = textRange;
+            this.packageNameNode = packageNameNode;
         }
     }
 }
