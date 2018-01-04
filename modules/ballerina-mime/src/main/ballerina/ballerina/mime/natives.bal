@@ -250,6 +250,9 @@ converted to a byte array with the given charset encoding. If the charset given 
 @Return {value:"return resulting decoded string"}
 public native function <MimeBase64Decoder decoder> decodeString (string content, string charset) (string);
 
+@Description {value:"Utility function used internally to get the bytes from a given channel."}
+@Param {value:"channel: A ByteChannel"}
+@Return {value:"return a byte array"}
 function readAll (io:ByteChannel channel) (blob) {
     blob bytes;
     int numberOfBytesRead;
