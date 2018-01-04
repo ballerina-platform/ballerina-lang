@@ -130,7 +130,23 @@ public class SnapshotService {
         List<Snapshotable> snapshotableList;
         try {
             threadBarrier.lock();
+            List<Snapshotable> partitionSnapshotables = snapshotableMap.get("partition");
+            try {
+                if (partitionSnapshotables != null) {
+                    for (Snapshotable snapshotable : partitionSnapshotables) {
+                        snapshotable.restoreState(snapshots.get(snapshotable.getElementId()));
+                    }
+                }
+            } catch (Throwable t) {
+                throw new CannotRestoreSiddhiAppStateException("Restoring of Siddhi app " + siddhiAppContext.
+                        getName() + " not completed properly because content of Siddhi app has changed since " +
+                        "last state persistence. Clean persistence store for a fresh deployment.", t);
+            }
+
             for (Map.Entry<String, List<Snapshotable>> entry : snapshotableMap.entrySet()) {
+                if (entry.getKey().equals("partition")) {
+                    continue;
+                }
                 snapshotableList = entry.getValue();
                 try {
                     for (Snapshotable snapshotable : snapshotableList) {
@@ -146,5 +162,4 @@ public class SnapshotService {
             threadBarrier.unlock();
         }
     }
-
 }
