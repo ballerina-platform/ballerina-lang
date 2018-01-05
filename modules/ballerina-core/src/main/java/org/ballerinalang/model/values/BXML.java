@@ -276,6 +276,9 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
     public BallerinaMessageDataSource clone() {
         return copy();
     }
+
+    public void build() {
+    };
     
     /**
      * {@inheritDoc}

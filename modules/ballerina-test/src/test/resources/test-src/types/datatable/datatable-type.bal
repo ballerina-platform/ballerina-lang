@@ -166,6 +166,29 @@ function testToXmlMultipleConsume () (xml) {
     return null;
 }
 
+function testToXmlWithAdd () (xml) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:2});
+    }
+
+    try {
+        datatable dt1 = testDB.select("SELECT int_type from DataTable WHERE row_id = 1", null, null);
+        var result1, _ = <xml>dt1;
+
+        datatable dt2 = testDB.select("SELECT int_type from DataTable WHERE row_id = 1", null, null);
+        var result2, _ = <xml>dt2;
+
+        xml result = result1 + result2;
+
+        datatable dt3 = testDB.select("SELECT int_type from DataTable WHERE row_id = 1", null, null);
+        return result;
+    } finally {
+        testDB.close();
+    }
+    return null;
+}
+
 function testToJsonMultipleConsume () (json) {
     endpoint<sql:ClientConnector> testDB {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",

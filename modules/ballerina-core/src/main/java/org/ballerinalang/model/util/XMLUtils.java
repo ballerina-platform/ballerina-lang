@@ -159,6 +159,7 @@ public class XMLUtils {
                 concatSeq.add(j++, seq.get(i));
             }
         } else {
+            firstSeq.build();
             concatSeq.add(j++, firstSeq);
         }
 
@@ -169,6 +170,7 @@ public class XMLUtils {
                 concatSeq.add(j++, seq.get(i));
             }
         } else {
+            secondSeq.build();
             concatSeq.add(j++, secondSeq);
         }
 

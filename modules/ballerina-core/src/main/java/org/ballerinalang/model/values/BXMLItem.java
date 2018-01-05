@@ -716,6 +716,11 @@ public final class BXMLItem extends BXML<OMNode> {
         return this.omNode == null ? 0 : 1;
     }
 
+    @Override
+    public void build() {
+        this.omNode.build();
+    }
+
     /**
      * {@inheritDoc}
      */
