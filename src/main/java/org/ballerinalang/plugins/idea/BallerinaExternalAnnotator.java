@@ -30,6 +30,7 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
@@ -124,23 +125,30 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
     @Override
     public List<Diagnostic> doAnnotate(final Data data) {
         if (method != null) {
+            // We need to save all documents before getting diagnostics. Otherwise diagnostic will be incorrect.
             ApplicationManager.getApplication().invokeAndWait(() -> {
                 FileDocumentManager.getInstance().saveAllDocuments();
             });
 
+            // Get the current module.
             Module module = ModuleUtilCore.findModuleForPsiElement(data.psiFile);
+            // Set the default value of source root as the project base path.
             String sourceRoot = data.psiFile.getProject().getBasePath();
 
+            // Get the file name (if the file is in project root) or the package name.
             String fileName = data.packageNameNode;
             if (fileName == null) {
                 VirtualFile virtualFile = data.psiFile.getVirtualFile();
                 fileName = virtualFile.getName();
             }
+
+            // If we are currently in a module, we need to set the module root as the source root.
             if (module != null && FileUtil.exists(module.getModuleFilePath())) {
                 sourceRoot = StringUtil.trimEnd(PathUtil.getParentPath(module.getModuleFilePath()), ".idea");
             }
 
             try {
+                // Get the list of diagnostics.
                 return (List<Diagnostic>) method.invoke(null, urlClassLoader, sourceRoot, fileName);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 LOGGER.debug(e.getMessage(), e);
@@ -149,9 +157,20 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
         return new LinkedList<>();
     }
 
+    /**
+     * Return the package name correspond to the provided file. This method will also consider the directory structure
+     * as well. If the directory structure is different than the declared package in the file, relative directory
+     * structure will be converted to package name and will be returned. Following 2 scenarios need to be considered.
+     * <p>
+     * Scenario 1 - Incorrect package declared in file. Correct directory structure.
+     * Scenario 2 - Package declared in files in project root.
+     *
+     * @param file a psi file
+     * @return package name correspond to the provided file
+     */
     private String getPackageName(PsiFile file) {
-        PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(file,
-                PackageDeclarationNode.class);
+        // Get the package name specified in the file.
+        PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(file, PackageDeclarationNode.class);
         if (packageDeclarationNode == null) {
             return null;
         }
@@ -160,7 +179,41 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
         if (packageNameNode == null) {
             return null;
         }
-        return packageNameNode.getText();
+        String packageNameInFile = packageNameNode.getText();
+
+        // Get the parent directory.
+        PsiDirectory psiDirectory = file.getParent();
+        if (psiDirectory == null) {
+            return packageNameInFile;
+        }
+
+        // Package declaration might have an incorrect package declaration. So need to validate against directory name.
+        if (packageNameInFile.endsWith(psiDirectory.getName())) {
+            return packageNameInFile;
+        }
+
+        // Get the current module.
+        Module module = ModuleUtilCore.findModuleForPsiElement(file);
+        // Calculate the source root. This is used to get the relative directory path.
+        String sourceRoot = file.getProject().getBasePath();
+        if (module != null && FileUtil.exists(module.getModuleFilePath())) {
+            sourceRoot = StringUtil.trimEnd(PathUtil.getParentPath(module.getModuleFilePath()), ".idea");
+        }
+
+        // Get the package according to the directory structure.
+        String directoryPath = psiDirectory.getVirtualFile().getPath();
+        if (sourceRoot == null) {
+            return packageNameInFile;
+        }
+        String packageName = directoryPath.replace(sourceRoot, "").replaceAll("[/\\\\]", "\\.");
+
+        // If the package name is empty, that means the file is in the project root.
+        if (packageName.isEmpty()) {
+            return null;
+        }
+
+        // Otherwise return the calculated package path.
+        return packageName;
     }
 
     /**
