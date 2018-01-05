@@ -1239,7 +1239,6 @@ class PositioningUtil {
         if (elseStatement) {
             elseStatement.viewState.bBox.x = elseX;
             elseStatement.viewState.bBox.y = elseY;
-            this.positionFlowControlCompoundStatementComponents(elseStatement);
         }
     }
 
