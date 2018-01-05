@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Locale;
 
 /**
- * TesterinaContext entity class
+ * TesterinaContext entity class.
  */
 public class TesterinaContext {
 
@@ -68,7 +68,7 @@ public class TesterinaContext {
     }
 
     /**
-     * Get the list of 'test/beforeTest' functions, parsed from the *.bal file
+     * Get the list of 'test/beforeTest' functions, parsed from the *.bal file.
      *
      * @param programFile {@link ProgramFile}.
      */

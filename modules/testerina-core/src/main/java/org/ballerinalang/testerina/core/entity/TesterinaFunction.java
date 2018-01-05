@@ -25,7 +25,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
 /**
- * TesterinaFunction entity class
+ * TesterinaFunction entity class.
  */
 public class TesterinaFunction {
 
@@ -42,7 +42,7 @@ public class TesterinaFunction {
     public static final String INIT_SUFFIX = ".<INIT>";
 
     /**
-     * Prefixes for the test function names
+     * Prefixes for the test function names.
      */
     public enum Type {
         TEST(PREFIX_TEST), BEFORE_TEST(PREFIX_BEFORETEST), AFTER_TEST(PREFIX_AFTERTEST);

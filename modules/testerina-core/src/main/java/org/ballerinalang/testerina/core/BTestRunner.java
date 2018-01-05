@@ -40,7 +40,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
- * BTestRunner entity class
+ * BTestRunner entity class.
  */
 public class BTestRunner {
 
