@@ -1460,8 +1460,9 @@ class SizingUtil {
         const bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
 
-        components['block-header'].h = ((3 / 2) * this.config.flowChartControlStatement.heading.height)
-                                        + this.config.flowChartControlStatement.padding.top;
+        components['block-header'].h = this.config.flowChartControlStatement.heading.height
+                                        + this.config.flowChartControlStatement.padding.top
+                                        + this.config.flowChartControlStatement.heading.flowPathHeight;
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
@@ -1727,8 +1728,9 @@ class SizingUtil {
         const bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
 
-        components['block-header'].h = ((3 / 2) * this.config.flowChartControlStatement.heading.height)
-                                        + this.config.flowChartControlStatement.padding.top;
+        components['block-header'].h = this.config.flowChartControlStatement.heading.height
+                                        + this.config.flowChartControlStatement.padding.top
+                                        + this.config.flowChartControlStatement.heading.flowPathHeight;
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;

@@ -1321,12 +1321,14 @@
         stroke-width: 4;
     }
 
-    .flowchart-text {
-        paint-order: stroke;
-        text-anchor: middle;
-        dominant-baseline: central;
-        stroke:#ffffff;
-        stroke-width: 4;
+    .flowchart-false-text {
+        text-anchor: start;
+        font-style: italic;
+        font-weight: bolder;
+    }
+
+    .flowchart-true-text {
+        text-anchor: end;
         font-style: italic;
         font-weight: bolder;
     }

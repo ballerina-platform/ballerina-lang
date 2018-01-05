@@ -167,6 +167,7 @@ export const flowChartControlStatement = {
         paramPaddingX: 5,
         paramSeparatorOffsetX: 20,
         paramEndOffsetX: 6,
+        flowPathHeight: statement.height,
     },
     gutter: {
         h: (2 * statement.gutter.h),
