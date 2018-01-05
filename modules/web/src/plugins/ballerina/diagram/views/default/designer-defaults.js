@@ -161,7 +161,6 @@ export const blockStatement = {
 };
 
 export const flowChartControlStatement = {
-    width: 180,
     heading: {
         width: (statement.width * (3 / 4)),
         height: (3 * statement.height),
@@ -221,7 +220,7 @@ export const statementContainer = {
 };
 
 export const blockNode = {
-    width: 120,
+    width: 80,
     height: 40,
     padding: {
         top: 0,
