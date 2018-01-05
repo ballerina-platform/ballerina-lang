@@ -66,7 +66,7 @@ public class VariableDTO {
             value = "null";
             return;
         }
-        type = bValue.getClass().getSimpleName();
+        type = bValue.getType().toString();
         value = getStringValue(bValue);
     }
 

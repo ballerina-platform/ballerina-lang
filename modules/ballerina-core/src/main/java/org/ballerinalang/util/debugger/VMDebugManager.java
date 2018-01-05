@@ -21,7 +21,7 @@ package org.ballerinalang.util.debugger;
 import io.netty.channel.Channel;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.StackFrame;
-import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
@@ -366,22 +366,28 @@ public class VMDebugManager {
                 frame = frame.prevStackFrame;
                 continue;
             }
-            final StackFrame fcp = frame;
-            localVarAttrInfo.getLocalVariables().forEach(localVarInfo -> {
-                VariableDTO variableDTO = new VariableDTO(localVarInfo.getVariableName(), "Local");
-                if (BTypes.typeInt.equals(localVarInfo.getVariableType())) {
-                    variableDTO.setBValue(new BInteger(fcp.getLongLocalVars()[localVarInfo.getVariableIndex()]));
-                } else if (BTypes.typeFloat.equals(localVarInfo.getVariableType())) {
-                    variableDTO.setBValue(new BFloat(fcp.getDoubleLocalVars()[localVarInfo.getVariableIndex()]));
-                } else if (BTypes.typeString.equals(localVarInfo.getVariableType())) {
-                    variableDTO.setBValue(new BString(fcp.getStringLocalVars()[localVarInfo.getVariableIndex()]));
-                } else if (BTypes.typeBoolean.equals(localVarInfo.getVariableType())) {
-                    variableDTO.setBValue(new BBoolean(fcp.getIntLocalVars()[localVarInfo
-                            .getVariableIndex()] == 1 ? true : false));
-                } else if (BTypes.typeBlob.equals(localVarInfo.getVariableType())) {
-                    variableDTO.setBValue(new BBlob(fcp.getByteLocalVars()[localVarInfo.getVariableIndex()]));
-                } else {
-                    variableDTO.setBValue(fcp.getRefLocalVars()[localVarInfo.getVariableIndex()]);
+            StackFrame fcp = frame;
+            localVarAttrInfo.getLocalVariables().forEach(l -> {
+                VariableDTO variableDTO = new VariableDTO(l.getVariableName(), "Local");
+                switch (l.getVariableType().getTag()) {
+                    case TypeTags.INT_TAG:
+                        variableDTO.setBValue(new BInteger(fcp.getLongLocalVars()[l.getVariableIndex()]));
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        variableDTO.setBValue(new BFloat(fcp.getDoubleLocalVars()[l.getVariableIndex()]));
+                        break;
+                    case TypeTags.STRING_TAG:
+                        variableDTO.setBValue(new BString(fcp.getStringLocalVars()[l.getVariableIndex()]));
+                        break;
+                    case TypeTags.BOOLEAN_TAG:
+                        variableDTO.setBValue(new BBoolean(fcp.getIntLocalVars()[l.getVariableIndex()] == 1));
+                        break;
+                    case TypeTags.BLOB_TAG:
+                        variableDTO.setBValue(new BBlob(fcp.getByteLocalVars()[l.getVariableIndex()]));
+                        break;
+                    default:
+                        variableDTO.setBValue(fcp.getRefLocalVars()[l.getVariableIndex()]);
+                        break;
                 }
                 frameDTO.addVariable(variableDTO);
             });
