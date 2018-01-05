@@ -57,7 +57,15 @@ class Button extends React.Component {
                             <i style={{ color: btnIconColor }} className={`fw fw-${this.props.icon} fw-stack-1x`} />
                         </span>
                     </div>
-                    {this.props.children}
+                    <div style={{
+                        left: btnRadius + 2 + (btnRadius / 4),
+                        top: (-3 * btnRadius) + (btnRadius / 2),
+                        display: 'block',
+                        position: 'relative',
+                        float: 'left' }}
+                    >
+                        {this.props.children}
+                    </div>
                 </div>
             </div>
         );
