@@ -35,7 +35,7 @@ class Button extends React.Component {
         const btnColor = this.props.buttonColor;
         const btnIconColor = this.props.buttonIconColor;
         const IconOpacity = this.props.hideIconBackground ? 0 : 1;
-        const leftPadding = btnRadius + 2 + (btnRadius / 4);
+        const buttonArea = btnRadius + 2 + (btnRadius / 4);
         const topPadding = (-3 * btnRadius) + (btnRadius / 2);
         return (
             <div
@@ -44,7 +44,7 @@ class Button extends React.Component {
             >
                 <div
                     className='interaction-menu-area'
-                    style={{ left: btnX, top: btnY, '--button-size': leftPadding + 'px' }}
+                    style={{ left: btnX, top: btnY, '--button-size': buttonArea + 'px' }}
                 >
                     <div style={{ fontSize: btnRadius }} className='button-panel'>
                         <span
@@ -60,7 +60,7 @@ class Button extends React.Component {
                         </span>
                     </div>
                     <div style={{
-                        left: leftPadding,
+                        left: buttonArea,
                         top: topPadding,
                         display: 'block',
                         position: 'relative',
