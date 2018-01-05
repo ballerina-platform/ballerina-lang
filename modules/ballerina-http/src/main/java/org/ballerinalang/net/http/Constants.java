@@ -167,7 +167,7 @@ public class Constants {
     public static final int SSL_STRUCT_INDEX = 1;
     public static final int FOLLOW_REDIRECT_STRUCT_INDEX = 0;
     public static final int FOLLOW_REDIRECT_INDEX = 0;
-    public static final int MAX_REDIRECT_COUNT = 0;
+    public static final int MAX_REDIRECT_COUNT_INDEX = 0;
     public static final int TRUST_STORE_FILE_INDEX = 0;
     public static final int TRUST_STORE_PASSWORD_INDEX = 1;
     public static final int KEY_STORE_FILE_INDEX = 2;

@@ -62,6 +62,10 @@ import java.util.Map;
         })
 public class Init extends AbstractHTTPAction {
 
+    private static final int TRUE = 1;
+    private static final int FALSE = 0;
+    private static final int DEFAULT_MAX_REDIRECT_COUNT = 5;
+
     private HttpWsConnectorFactory httpConnectorFactory = new HttpWsConnectorFactoryImpl();
 
     @Override
@@ -112,12 +116,12 @@ public class Init extends AbstractHTTPAction {
     private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, BStruct options) {
         //TODO Define default values until we get Anonymous struct (issues #3635)
         ProxyServerConfiguration proxyServerConfiguration;
-        int followRedirect = 0;
-        int maxRedirectCount = 5;
+        int followRedirect = FALSE;
+        int maxRedirectCount = DEFAULT_MAX_REDIRECT_COUNT;
         if (options.getRefField(Constants.FOLLOW_REDIRECT_STRUCT_INDEX) != null) {
             BStruct followRedirects = (BStruct) options.getRefField(Constants.FOLLOW_REDIRECT_STRUCT_INDEX);
             followRedirect = followRedirects.getBooleanField(Constants.FOLLOW_REDIRECT_INDEX);
-            maxRedirectCount = (int) followRedirects.getIntField(Constants.MAX_REDIRECT_COUNT);
+            maxRedirectCount = (int) followRedirects.getIntField(Constants.MAX_REDIRECT_COUNT_INDEX);
         }
         if (options.getRefField(Constants.SSL_STRUCT_INDEX) != null) {
             BStruct ssl = (BStruct) options.getRefField(Constants.SSL_STRUCT_INDEX);
@@ -167,7 +171,7 @@ public class Init extends AbstractHTTPAction {
             try {
                 proxyServerConfiguration = new ProxyServerConfiguration(proxyHost, proxyPort);
             } catch (UnknownHostException e) {
-                throw new BallerinaConnectorException("Failed to resolve host" + proxyHost, e);
+                throw new BallerinaConnectorException("Failed to resolve host: " + proxyHost, e);
             }
             if (!proxyUserName.isEmpty()) {
                 proxyServerConfiguration.setProxyUsername(proxyUserName);
@@ -178,10 +182,10 @@ public class Init extends AbstractHTTPAction {
             senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
         }
 
-        senderConfiguration.setFollowRedirect(followRedirect == 1);
+        senderConfiguration.setFollowRedirect(followRedirect == TRUE);
         senderConfiguration.setMaxRedirectCount(maxRedirectCount);
         int enableChunking = options.getBooleanField(Constants.ENABLE_CHUNKING_INDEX);
-        senderConfiguration.setChunkEnabled(enableChunking == 1);
+        senderConfiguration.setChunkEnabled(enableChunking == TRUE);
 
         long endpointTimeout = options.getIntField(Constants.ENDPOINT_TIMEOUT_STRUCT_INDEX);
         if (endpointTimeout < 0 || !isInteger(endpointTimeout)) {
@@ -189,7 +193,7 @@ public class Init extends AbstractHTTPAction {
         }
         senderConfiguration.setSocketIdleTimeout((int) endpointTimeout);
 
-        boolean isKeepAlive = options.getBooleanField(Constants.IS_KEEP_ALIVE_INDEX) == 1;
+        boolean isKeepAlive = options.getBooleanField(Constants.IS_KEEP_ALIVE_INDEX) == TRUE;
         senderConfiguration.setKeepAlive(isKeepAlive);
         String httpVersion = options.getStringField(Constants.HTTP_VERSION_STRUCT_INDEX);
         senderConfiguration.setHttpVersion(httpVersion);

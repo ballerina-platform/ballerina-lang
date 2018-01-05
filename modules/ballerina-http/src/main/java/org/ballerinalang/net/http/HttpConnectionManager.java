@@ -55,7 +55,6 @@ public class HttpConnectionManager {
 
     private static HttpConnectionManager instance = new HttpConnectionManager();
     private Map<String, ServerConnector> startupDelayedHTTPServerConnectors = new HashMap<>();
-    private Map<String, ServerConnector> startedHTTPServerConnectors = new HashMap<>();
     private Map<String, HttpServerConnectorContext> serverConnectorPool = new HashMap<>();
     private ServerBootstrapConfiguration serverBootstrapConfiguration;
     private TransportsConfiguration trpConfig;
@@ -146,7 +145,6 @@ public class HttpConnectionManager {
             ServerConnectorFuture connectorFuture = serverConnector.start();
             setConnectorListeners(connectorFuture, serverConnector.getConnectorID(), startupSyncer,
                                   httpServerConnector);
-            startedHTTPServerConnectors.put(serverConnector.getConnectorID(), serverConnector);
         }
         try {
             // Wait for all the connectors to start
