@@ -1485,42 +1485,15 @@ class SizingUtil {
 
         // end of if block sizing
 
-        // If the parent of the if node is a block node, then it is only a if statement. Otherwise it is an else-if
         let nodeHeight = viewState.bBox.h;
         let nodeWidth = node.viewState.bBox.w;
-        let elseStmt = node.elseStatement;
-        let proceed = true;
 
-        if (TreeUtil.isBlock(node.parent)) {
-            while (elseStmt && proceed) {
-                if (TreeUtil.isBlock(elseStmt) && elseStmt.statements.length === 0) {
-                    break;
-                }
-
-                let elseHeight;
-                if (TreeUtil.isBlock(elseStmt)) {
-                    elseHeight = elseStmt.viewState.bBox.h
-                                - this.config.blockStatement.heading.height
-                                - this.config.flowChartControlStatement.gutter.h
-                                + this.config.statement.gutter.h;
-                } else {
-                    elseHeight = elseStmt.viewState.bBox.h;
-                }
-
-                nodeHeight += elseHeight;
-                // If the current else statement is for an else if only, we proceed
-                if (elseStmt.parent !== node) {
-                    // if it is a nested else
-                    elseStmt.parent.viewState.bBox.h += elseHeight;
-                }
-                if (TreeUtil.isBlock(elseStmt)) {
-                    proceed = false;
-                }
-                nodeWidth += elseStmt.viewState.bBox.w;
-                elseStmt = elseStmt.elseStatement;
-            }
+        const elseStmt = node.elseStatement;
+        if (elseStmt && (!(TreeUtil.isBlock(elseStmt) && elseStmt.statements.length === 0))) {
+            const elseHeight = elseStmt.viewState.bBox.h;
+            nodeHeight += elseHeight;
+            nodeWidth += elseStmt.viewState.bBox.w;
         }
-
         node.viewState.bBox.h = nodeHeight;
         node.viewState.bBox.w = nodeWidth;
     }
