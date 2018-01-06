@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -118,6 +119,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
@@ -194,7 +196,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BLOB_OFFSET;
@@ -2437,6 +2438,32 @@ public class CodeGenerator extends BLangNodeVisitor {
         endJumpInstr.setOperand(0, this.nextIP());
     }
 
+    public void visit(BLangForeach foreach) {
+        // Calculate temporary registries/Local variables for iteration.
+        int itrIDVar = ++lvIndexes.tString;
+        int itrCollectionVar = ++lvIndexes.tRef;
+        int cursorReg = ++regIndexes.tRef;
+        int conditionReg = ++regIndexes.tBoolean;
+        // Create new Iterator for given collection, and store iterator ID.
+        this.genNode(foreach.collection, env);
+        this.emit(InstructionCodes.RSTORE, foreach.collection.regIndex, itrCollectionVar);
+        this.emit(InstructionCodes.ITR_NEW, itrCollectionVar, itrIDVar);
+        // Start of the foreach.
+        Instruction gotoStartOfLoop = InstructionFactory.get(InstructionCodes.GOTO, this.nextIP());
+        // Checks given iterator has next value, load result and next cursor value in to given registries.
+        this.emit(InstructionCodes.ITR_HAS_NEXT, itrCollectionVar, itrIDVar, conditionReg, cursorReg);
+        Instruction gotoEndOfInstr = InstructionFactory.get(InstructionCodes.BR_FALSE, conditionReg, -1);
+        this.emit(gotoEndOfInstr);
+        // assign variables.
+        this.generateForeachVarAssignment(foreach.varRefs, foreach.collection, itrIDVar, itrCollectionVar, cursorReg);
+        // generate foreach body.
+        this.genNode(foreach.body, env);
+        // move to next iteration.
+        this.emit(gotoStartOfLoop);
+        // end of the iteration.
+        gotoEndOfInstr.setOperand(1, this.nextIP());
+    }
+
     public void visit(BLangWhile whileNode) {
         Instruction gotoTopJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, this.nextIP());
         this.genNode(whileNode.expr, this.env);
@@ -2783,6 +2810,75 @@ public class CodeGenerator extends BLangNodeVisitor {
 
 
     // private helper methods of visitors.
+
+    private void generateForeachVarAssignment(List<BLangExpression> vars, BLangExpression col, int itrID, int itrVar,
+                                              int cursorReg) {
+        vars.stream()
+                .filter(v -> v.type.tag != TypeTags.NONE)   // Ignoring ignored ("_") variables.
+                .forEach(v -> { // Create Local varaiable in
+                    BLangVariableReference varRef = (BLangVariableReference) v;
+                    varRef.symbol.varIndex = getNextIndex(v.type.tag, lvIndexes);
+                    LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varRef.symbol);
+                    localVarAttrInfo.localVars.add(localVarInfo);
+                });
+        BLangVariableReference indexVarRef, valueVarRef;
+        int valueReg = ++regIndexes.tRef;
+        int typeTag;
+        boolean stringBasedCursor = false;
+        switch (col.type.tag) {
+            case TypeTags.ARRAY:
+                typeTag = ((BArrayType) col.type).eType.tag;
+                if (typeTag == TypeTags.JSON) {
+                    stringBasedCursor = true;
+                }
+                break;
+            case TypeTags.MAP:
+                typeTag = ((BMapType) col.type).constraint.tag;
+                stringBasedCursor = true;
+                break;
+            case TypeTags.JSON:
+                stringBasedCursor = true;
+                typeTag = col.type.tag;  // Both JSON and XML elements' type tag will be them self.
+                break;
+            case TypeTags.XML:
+                typeTag = col.type.tag;  // Both JSON and XML elements' type tag will be them self.
+                break;
+            default:
+                return;
+        }
+        // Currently any foreach collection can have either one or two variables.
+        indexVarRef = (BLangVariableReference) (vars.size() == 2 ? vars.get(0) : null);
+        valueVarRef = (BLangVariableReference) (vars.size() == 2 ? vars.get(1) : vars.get(0));
+        if (indexVarRef != null) {  // Unbox index variable.
+            int errReg = ++regIndexes.tRef;
+            if (stringBasedCursor) {
+                int stringReg = ++regIndexes.tString;
+                int lvIndex = ++lvIndexes.tString;
+                indexVarRef.symbol.varIndex = lvIndex;
+                emit(InstructionCodes.ANY2S, cursorReg, stringReg, errReg);
+                emit(InstructionCodes.SSTORE, stringReg, lvIndex);
+            } else {
+                int intReg = ++regIndexes.tInt;
+                int lvIndex = ++lvIndexes.tInt;
+                indexVarRef.symbol.varIndex = lvIndex;
+                emit(InstructionCodes.ANY2I, cursorReg, intReg, errReg);
+                emit(InstructionCodes.ISTORE, intReg, lvIndex);
+            }
+        }
+        // load current value
+        emit(InstructionCodes.ITR_NEXT, itrVar, itrID, valueReg);
+        if (typeTag < TypeTags.TYPE) {  // Unbox value for values types.
+            int errReg = ++regIndexes.tRef;
+            OpcodeAndIndex regOI = getOpcodeAndIndex(typeTag, InstructionCodes.ANY2I, regIndexes);
+            emit(regOI.opcode, valueReg, regOI.index, errReg);
+            valueReg = regOI.index; // New Value location.
+        }
+        // assign loaded value to variable.
+        OpcodeAndIndex varOI = getOpcodeAndIndex(typeTag, InstructionCodes.ISTORE, lvIndexes);
+        valueVarRef.symbol.varIndex = varOI.index;
+        emit(varOI.opcode, valueReg, varOI.index);
+    }
+
 
     private void visitFunctionPointerLoad(BLangExpression fpExpr, BInvokableSymbol funcSymbol) {
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, funcSymbol.pkgID);
