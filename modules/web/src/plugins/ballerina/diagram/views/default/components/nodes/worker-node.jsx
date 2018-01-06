@@ -18,7 +18,6 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import ActiveArbiter from '../decorators/active-arbiter';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import LifeLine from '../decorators/lifeline';
@@ -48,21 +47,6 @@ class WorkerNode extends React.Component {
      * @returns {void}
      */
     onDelete() {
-        const parent = this.props.model.parent;
-        const parentWorkerCount = parent.workers.length;
-        const parentDefaultWorker = _.find(parent.workers, (worker) => {
-            return worker.name.value === 'default';
-        });
-
-        // We need to determine the exact number of workers.
-        // If the number of workers are two and there exist a worker with the name default
-        // We transfer the statements in the default worker to the parent's body.
-        if (parentWorkerCount === 2 && parentDefaultWorker) {
-            const statements = parentDefaultWorker.body.statements;
-            parentDefaultWorker.remove();
-            parent.body.setStatements(statements, true);
-        }
-
         this.props.model.remove();
     }
 
@@ -90,7 +74,6 @@ class WorkerNode extends React.Component {
      * */
     render() {
         const model = this.props.model;
-        const expression = model.viewState.expression;
         const blockNode = getComponentForNodeArray(model.body, this.context.mode);
         const title = model.name.value;
         const classes = {
