@@ -1430,6 +1430,7 @@ public class ProgramFileReader {
                 case InstructionCodes.JSONNEWARRAY:
                 case InstructionCodes.NEWSTRUCT:
                 case InstructionCodes.NEWCONNECTOR:
+                case InstructionCodes.ITR_NEW:
                 case InstructionCodes.IRET:
                 case InstructionCodes.FRET:
                 case InstructionCodes.SRET:
@@ -1555,6 +1556,7 @@ public class ProgramFileReader {
                 case InstructionCodes.T2JSON:
                 case InstructionCodes.XML2JSON:
                 case InstructionCodes.JSON2XML:
+                case InstructionCodes.ITR_NEXT:
                 case InstructionCodes.XMLATTRS2MAP:
                 case InstructionCodes.XMLATTRLOAD:
                 case InstructionCodes.XMLATTRSTORE:
@@ -1578,6 +1580,7 @@ public class ProgramFileReader {
                 case InstructionCodes.CHECKCAST:
                 case InstructionCodes.MAP2T:
                 case InstructionCodes.JSON2T:
+                case InstructionCodes.ITR_HAS_NEXT:
                 case InstructionCodes.NEWQNAME:
                 case InstructionCodes.NEWXMLELEMENT:
                     i = codeStream.readInt();

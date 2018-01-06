@@ -42,6 +42,7 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BCollection;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BFloat;
@@ -49,6 +50,7 @@ import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BIterator;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
@@ -804,6 +806,11 @@ public class BLangVM {
                 case InstructionCodes.XMLSTORE:
                 case InstructionCodes.XMLLOAD:
                     execXMLOpcodes(sf, opcode, operands);
+                    break;
+                case InstructionCodes.ITR_NEW:
+                case InstructionCodes.ITR_NEXT:
+                case InstructionCodes.ITR_HAS_NEXT:
+                    execIteratorOperation(sf, opcode, operands);
                     break;
                 default:
                     throw new UnsupportedOperationException();
@@ -2281,6 +2288,46 @@ public class BLangVM {
                 break;
             default:
                 throw new UnsupportedOperationException();
+        }
+    }
+
+    private void execIteratorOperation(StackFrame sf, int opcode, int[] operands) {
+        BCollection collection = (BCollection) sf.refLocalVars[operands[0]];
+        if (collection == null) {
+            handleNullRefError();
+            return;
+        }
+        int j = operands[1];
+        int k, l;
+        String iteratorID;
+        BIterator iterator;
+        switch (opcode) {
+            case InstructionCodes.ITR_NEW:
+                sf.stringLocalVars[j] = collection.newIterator();
+                break;
+            case InstructionCodes.ITR_HAS_NEXT:
+                k = operands[2];
+                l = operands[3];
+                iteratorID = sf.stringLocalVars[j];
+                iterator = collection.getIterator(iteratorID);
+                if (iterator == null) {     // This is an unlikely event.
+                    sf.intRegs[k] = 0;
+                    sf.refRegs[l] = null;
+                    return;
+                }
+                sf.intRegs[k] = iterator.hasNext() ? 1 : 0;
+                sf.refRegs[l] = (BRefType) iterator.getCursor();
+                break;
+            case InstructionCodes.ITR_NEXT:
+                k = operands[2];
+                iteratorID = sf.stringLocalVars[j];
+                iterator = collection.getIterator(iteratorID);
+                if (iterator == null) {     // This is an unlikely event.
+                    sf.refRegs[k] = null;
+                    return;
+                }
+                sf.refRegs[k] = (BRefType) iterator.getNext();
+                break;
         }
     }
 
