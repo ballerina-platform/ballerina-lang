@@ -19,7 +19,7 @@ package org.ballerinalang.connector.impl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
-import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.bre.bvm.ControlStack;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BType;
@@ -81,21 +81,21 @@ public class ResourceExecutor {
             properties.forEach((k, v) -> context.setProperty(k, v));
         }
 
-        ControlStackNew controlStackNew = context.getControlStackNew();
+        ControlStack controlStack = context.getControlStack();
 
         // Now create callee's stack-frame
         WorkerInfo defaultWorkerInfo = resourceInfo.getDefaultWorkerInfo();
         StackFrame calleeSF = new StackFrame(resourceInfo, defaultWorkerInfo, -1, new int[0]);
-        controlStackNew.pushFrame(calleeSF);
+        controlStack.pushFrame(calleeSF);
 
         CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
         context.setStartIP(codeAttribInfo.getCodeAddrs());
 
-        String[] stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
-        int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
-        long[] longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
-        double[] doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
-        BRefType[] refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
+        String[] stringReg = new String[codeAttribInfo.getMaxStringRegs()];
+        int[] intRegs = new int[codeAttribInfo.getMaxIntRegs()];
+        long[] longRegs = new long[codeAttribInfo.getMaxLongRegs()];
+        double[] doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
+        BRefType[] refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
 
         int stringParamCount = 0;
         int intParamCount = 0;
@@ -112,29 +112,29 @@ public class ResourceExecutor {
                 // Set default values
                 if (value == null || "".equals(value)) {
                     if (btype == BTypes.typeString) {
-                        stringLocalVars[stringParamCount++] = BLangConstants.STRING_NULL_VALUE;
+                        stringReg[stringParamCount++] = BLangConstants.STRING_NULL_VALUE;
                     }
                     continue;
                 }
 
                 if (btype == BTypes.typeString) {
-                    stringLocalVars[stringParamCount++] = value.stringValue();
+                    stringReg[stringParamCount++] = value.stringValue();
                 } else if (btype == BTypes.typeBoolean) {
                     if ("true".equalsIgnoreCase(value.stringValue())) {
-                        intLocalVars[intParamCount++] = 1;
+                        intRegs[intParamCount++] = 1;
                     } else if ("false".equalsIgnoreCase(value.stringValue())) {
-                        intLocalVars[intParamCount++] = 0;
+                        intRegs[intParamCount++] = 0;
                     } else {
                         throw new BallerinaException("Unsupported parameter type for parameter " + value);
                     }
                 } else if (btype == BTypes.typeFloat) {
-                    doubleLocalVars[doubleParamCount++] = new Double(((BFloat) value).floatValue());
+                    doubleRegs[doubleParamCount++] = new Double(((BFloat) value).floatValue());
                 } else if (btype == BTypes.typeInt) {
-                    longLocalVars[longParamCount++] = ((BInteger) value).intValue();
+                    longRegs[longParamCount++] = ((BInteger) value).intValue();
                 } else if (value instanceof BStruct) {
-                    refLocalVars[refParamCount++] = (BRefType) value;
+                    refRegs[refParamCount++] = (BRefType) value;
                 } else if (value instanceof BRefValueArray) {
-                    refLocalVars[refParamCount++] = (BRefType) value;
+                    refRegs[refParamCount++] = (BRefType) value;
                 } else {
                     connectorFuture.notifyFailure(new BallerinaException("unsupported " +
                             "parameter type for parameter " + value));
@@ -143,18 +143,18 @@ public class ResourceExecutor {
         }
 
         // It is given that first parameter of the resource is carbon message.
-        calleeSF.setLongLocalVars(longLocalVars);
-        calleeSF.setDoubleLocalVars(doubleLocalVars);
-        calleeSF.setStringLocalVars(stringLocalVars);
-        calleeSF.setIntLocalVars(intLocalVars);
-        calleeSF.setRefLocalVars(refLocalVars);
+        calleeSF.setLongRegs(longRegs);
+        calleeSF.setDoubleRegs(doubleRegs);
+        calleeSF.setStringRegs(stringReg);
+        calleeSF.setIntRegs(intRegs);
+        calleeSF.setRefRegs(refRegs);
 
         // Execute workers
         // Pass the incoming message variable into the worker invocations
         // Fix #2623
         StackFrame callerSF = new StackFrame(resourceInfo, defaultWorkerInfo, -1, new int[0]);
         callerSF.setRefRegs(new BRefType[1]);
-        callerSF.getRefRegs()[0] = refLocalVars[0];
+        callerSF.getRefRegs()[0] = refRegs[0];
 
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
         context.setAsResourceContext();

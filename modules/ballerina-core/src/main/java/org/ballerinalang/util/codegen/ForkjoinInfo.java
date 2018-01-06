@@ -32,9 +32,6 @@ public class ForkjoinInfo {
     // Registers which contains worker incoming arguments
     private int[] argRegs;
 
-    // Registers to which return  values to be copied
-    private int[] retRegs;
-
     protected Map<String, WorkerInfo> workerInfoMap = new HashMap<>();
 
     private boolean isTimeoutAvailable;
@@ -47,33 +44,8 @@ public class ForkjoinInfo {
     private int[] joinWrkrNameIndexes;
     private String[] joinWorkerNames;
 
-    private int timeoutIp;
-
-    private int timeoutMemOffset;
-
-    private int joinIp;
-
-    private int joinMemOffset;
-
-    public ForkjoinInfo(int[] argRegs, int[] retRegs) {
+    public ForkjoinInfo(int[] argRegs) {
         this.argRegs = argRegs;
-        this.retRegs = retRegs;
-    }
-
-    public int getTimeoutMemOffset() {
-        return timeoutMemOffset;
-    }
-
-    public void setTimeoutMemOffset(int timeoutMemOffset) {
-        this.timeoutMemOffset = timeoutMemOffset;
-    }
-
-    public int getJoinMemOffset() {
-        return joinMemOffset;
-    }
-
-    public void setJoinMemOffset(int joinMemOffset) {
-        this.joinMemOffset = joinMemOffset;
     }
 
     public int getIndex() {
@@ -94,10 +66,6 @@ public class ForkjoinInfo {
 
     public int[] getArgRegs() {
         return argRegs;
-    }
-
-    public int[] getRetRegs() {
-        return retRegs;
     }
 
     public Map<String, WorkerInfo> getWorkerInfoMap() {
@@ -148,22 +116,6 @@ public class ForkjoinInfo {
         this.joinWorkerNames = joinWorkerNames;
     }
 
-    public int getTimeoutIp() {
-        return timeoutIp;
-    }
-
-    public void setTimeoutIp(int timeoutIp) {
-        this.timeoutIp = timeoutIp;
-    }
-
-    public int getJoinIp() {
-        return joinIp;
-    }
-
-    public void setJoinIp(int joinIp) {
-        this.joinIp = joinIp;
-    }
-
     public int getWorkerCount() {
         return workerCount;
     }
@@ -179,5 +131,4 @@ public class ForkjoinInfo {
     public void addWorkerInfo(String workerName, WorkerInfo workerInfo) {
         workerInfoMap.put(workerName, workerInfo);
     }
-
 }
