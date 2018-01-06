@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
+package org.wso2.siddhi.core.aggregation;
 
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -24,9 +24,6 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.query.selector.GroupByKeyGenerator;
-import org.wso2.siddhi.core.query.selector.attribute.processor.executor.GroupByAggregationAttributeExecutor;
-import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.IncrementalTimeConverterUtil;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 
@@ -85,19 +82,27 @@ public class IncrementalDataAggregator {
                         baseIncrementalValueGroupByStoreList) {
                     for (Map.Entry<String, BaseIncrementalValueStore> entry : aBaseIncrementalValueGroupByStoreList
                             .entrySet()) {
-                        processInMemoryAggregates(entry.getValue().createStreamEvent(), entry.getValue().getTimestamp(),
-                                entry.getKey());
+                        BaseIncrementalValueStore aBaseIncrementalValueStore = entry.getValue();
+                        if (aBaseIncrementalValueStore.isProcessed()) {
+                            processInMemoryAggregates(aBaseIncrementalValueStore.createStreamEvent(),
+                                    aBaseIncrementalValueStore.getTimestamp(), entry.getKey());
+                        }
                     }
                 }
             } else if (baseIncrementalValueStoreMap != null) {
                 for (Map.Entry<String, BaseIncrementalValueStore> entry : baseIncrementalValueStoreMap.entrySet()) {
-                    processInMemoryAggregates(entry.getValue().createStreamEvent(), entry.getValue().getTimestamp(),
-                            entry.getKey());
+                    BaseIncrementalValueStore aBaseIncrementalValueStore = entry.getValue();
+                    if (aBaseIncrementalValueStore.isProcessed()) {
+                        processInMemoryAggregates(aBaseIncrementalValueStore.createStreamEvent(),
+                                aBaseIncrementalValueStore.getTimestamp(), entry.getKey());
+                    }
                 }
             } else if (baseIncrementalValueStoreList != null) {
-                for (BaseIncrementalValueStore aBaseIncrementalValueStoreList : baseIncrementalValueStoreList) {
-                    processInMemoryAggregates(aBaseIncrementalValueStoreList.createStreamEvent(),
-                            aBaseIncrementalValueStoreList.getTimestamp(), null);
+                for (BaseIncrementalValueStore aBaseIncrementalValueStore : baseIncrementalValueStoreList) {
+                    if (aBaseIncrementalValueStore.isProcessed()) {
+                        processInMemoryAggregates(aBaseIncrementalValueStore.createStreamEvent(),
+                                aBaseIncrementalValueStore.getTimestamp(), null);
+                    }
                 }
             } else if (baseIncrementalValueStore.isProcessed()) {
                 processInMemoryAggregates(baseIncrementalValueStore.createStreamEvent(),
@@ -109,21 +114,6 @@ public class IncrementalDataAggregator {
             }
         }
 
-        return createEventChunkFromAggregatedData();
-    }
-
-    public ComplexEventChunk<StreamEvent> aggregateTableData(Map<TimePeriod.Duration, Table> aggregationTables,
-                                                             GroupByKeyGenerator groupByKeyGenerator) {
-        for (TimePeriod.Duration duration : incrementalDurations) {
-            // TODO: 8/18/17 implement logic to create stream events out of table data. These stream events must be
-            // processed using processTableAggregates method.
-
-            // processTableAggregates(streamEvent, groupByKeyGenerator);
-
-            if (duration == aggregateForDuration) {
-                break;
-            }
-        }
         return createEventChunkFromAggregatedData();
     }
 
@@ -143,42 +133,6 @@ public class IncrementalDataAggregator {
                         .computeIfAbsent(groupByKey,
                                 k -> baseIncrementalValueStore.cloneStore(k, startTimeOfAggregates));
                 process(streamEvent, aBaseIncrementalValueStore);
-            } else {
-                BaseIncrementalValueStore aBaseIncrementalValueStore = baseIncrementalValueStoreMap
-                        .get(startTimeOfAggregates);
-                if (aBaseIncrementalValueStore == null) {
-                    aBaseIncrementalValueStore = baseIncrementalValueStore.cloneStore(null, startTimeOfAggregates);
-                    baseIncrementalValueStoreMap.put(startTimeOfAggregates, aBaseIncrementalValueStore);
-                }
-                process(streamEvent, aBaseIncrementalValueStore);
-            }
-        }
-    }
-
-    private void processTableAggregates(StreamEvent streamEvent, GroupByKeyGenerator groupByKeyGenerator) {
-        long timestamp = (long) timestampExecutor.execute(streamEvent);
-        String timeZone = timeZoneExecutor.execute(streamEvent).toString();
-        long startTimeOfAggregates = IncrementalTimeConverterUtil.getStartTimeOfAggregates(timestamp,
-                aggregateForDuration, timeZone);
-        synchronized (this) {
-            if (groupByKeyGenerator != null) {
-                try {
-                    String groupByKey = groupByKeyGenerator.constructEventKey(streamEvent);
-                    GroupByAggregationAttributeExecutor.getKeyThreadLocal().set(groupByKey);
-                    Map<String, BaseIncrementalValueStore> aBaseIncrementalValueStoreGroupBy =
-                            baseIncrementalValueGroupByStoreMap.get(startTimeOfAggregates);
-                    if (aBaseIncrementalValueStoreGroupBy == null) {
-                        aBaseIncrementalValueStoreGroupBy = new HashMap<>();
-                        baseIncrementalValueGroupByStoreMap.put(startTimeOfAggregates,
-                                aBaseIncrementalValueStoreGroupBy);
-                    }
-                    BaseIncrementalValueStore aBaseIncrementalValueStore = aBaseIncrementalValueStoreGroupBy
-                            .computeIfAbsent(groupByKey,
-                                    k -> baseIncrementalValueStore.cloneStore(k, startTimeOfAggregates));
-                    process(streamEvent, aBaseIncrementalValueStore);
-                } finally {
-                    GroupByAggregationAttributeExecutor.getKeyThreadLocal().remove();
-                }
             } else {
                 BaseIncrementalValueStore aBaseIncrementalValueStore = baseIncrementalValueStoreMap
                         .get(startTimeOfAggregates);

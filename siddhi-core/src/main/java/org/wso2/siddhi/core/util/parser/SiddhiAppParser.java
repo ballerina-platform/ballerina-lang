@@ -255,6 +255,7 @@ public class SiddhiAppParser {
                             (Partition) executionElement, siddhiAppContext,
                             siddhiAppRuntimeBuilder.getStreamDefinitionMap(), queryIndex);
                     siddhiAppRuntimeBuilder.addPartition(partitionRuntime);
+                    siddhiAppContext.getSnapshotService().addSnapshotable("partition", partitionRuntime);
                     queryIndex += ((Partition) executionElement).getQueryList().size();
                 } catch (Throwable t) {
                     ExceptionUtil.populateQueryContext(t, (Partition) executionElement, siddhiAppContext);

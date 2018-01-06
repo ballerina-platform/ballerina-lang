@@ -16,9 +16,8 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
+package org.wso2.siddhi.core.aggregation;
 
-import org.wso2.siddhi.core.aggregation.AggregationRuntime;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
@@ -107,6 +106,8 @@ public class RecreateInMemoryData {
             events = storeQueryRuntime.execute();
 
             if (events != null) {
+                long referenceToNextLatestEvent = (Long) events[events.length - 1].getData(0);
+                String timeZoneOfNextLatestEvent = events[events.length - 1].getData(1).toString();
                 if (latestEventTimestamp != null) {
                     List<Event> eventsNewerThanLatestEventOfRecreateForDuration = new ArrayList<>();
                     for (Event event : events) {
@@ -123,7 +124,7 @@ public class RecreateInMemoryData {
                             new Event[eventsNewerThanLatestEventOfRecreateForDuration.size()]);
                 }
 
-                latestEventTimestamp = (Long) events[events.length - 1].getData(0);
+                latestEventTimestamp = referenceToNextLatestEvent;
 
                 ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<>(false);
                 for (Event event : events) {
@@ -137,7 +138,7 @@ public class RecreateInMemoryData {
                     TimePeriod.Duration rootDuration = incrementalDurations.get(0);
                     IncrementalExecutor rootIncrementalExecutor = incrementalExecutorMap.get(rootDuration);
                     long emitTimeOfLatestEventInTable = IncrementalTimeConverterUtil.getNextEmitTime(
-                            latestEventTimestamp, rootDuration, events[events.length - 1].getData(1).toString());
+                            latestEventTimestamp, rootDuration, timeZoneOfNextLatestEvent);
 
                     rootIncrementalExecutor.setValuesForInMemoryRecreateFromTable(true, emitTimeOfLatestEventInTable);
 

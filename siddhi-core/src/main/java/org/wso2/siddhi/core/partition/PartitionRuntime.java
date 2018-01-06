@@ -314,7 +314,8 @@ public class PartitionRuntime implements Snapshotable {
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("PartitionKeys", partitionInstanceRuntimeMap.keySet());
+        List<String> partitionKeys = new ArrayList<>(partitionInstanceRuntimeMap.keySet());
+        state.put("PartitionKeys", partitionKeys);
         return state;
     }
 

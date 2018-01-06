@@ -18,6 +18,8 @@
 
 package org.wso2.siddhi.core.util.collection.operator;
 
+import org.wso2.siddhi.core.aggregation.IncrementalDataAggregator;
+import org.wso2.siddhi.core.aggregation.IncrementalExecutor;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -27,11 +29,11 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalDataAggregator;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
+import org.wso2.siddhi.query.api.definition.AggregationDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.HashMap;
@@ -49,6 +51,9 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
     private MetaStreamEvent tableMetaStreamEvent;
     private MetaStreamEvent aggregateMetaStreamEvent;
     private ComplexEventPopulater complexEventPopulater;
+    private MatchingMetaInfoHolder alteredMatchingMetaInfoHolder;
+    private ExpressionExecutor perExpressionExecutor;
+    private ExpressionExecutor startTimeEndTimeExpressionExecutor;
 
     private final StreamEventPool streamEventPoolForTableMeta;
     private final StreamEventCloner tableEventCloner;
@@ -60,7 +65,8 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
             Map<TimePeriod.Duration, CompiledCondition> withinTableCompiledConditions,
             CompiledCondition inMemoryStoreCompileCondition, CompiledCondition onCompiledCondition,
             MetaStreamEvent tableMetaStreamEvent, MetaStreamEvent aggregateMetaSteamEvent,
-            List<Attribute> additionalAttributes) {
+            List<Attribute> additionalAttributes, MatchingMetaInfoHolder alteredMatchingMetaInfoHolder,
+            ExpressionExecutor perExpressionExecutor, ExpressionExecutor startTimeEndTimeExpressionExecutor) {
         this.withinTableCompiledConditions = withinTableCompiledConditions;
         this.inMemoryStoreCompileCondition = inMemoryStoreCompileCondition;
         this.onCompiledCondition = onCompiledCondition;
@@ -73,6 +79,9 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
         this.streamEventPoolForAggregateMeta = new StreamEventPool(aggregateMetaSteamEvent, 10);
         this.aggregateEventCloner = new StreamEventCloner(aggregateMetaSteamEvent, streamEventPoolForAggregateMeta);
         this.additionalAttributes = additionalAttributes;
+        this.alteredMatchingMetaInfoHolder = alteredMatchingMetaInfoHolder;
+        this.perExpressionExecutor = perExpressionExecutor;
+        this.startTimeEndTimeExpressionExecutor = startTimeEndTimeExpressionExecutor;
     }
 
     @Override
@@ -84,17 +93,35 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
         return new IncrementalAggregateCompileCondition(copyOfWithinTableCompiledConditions,
                 inMemoryStoreCompileCondition.cloneCompilation(key),
                 onCompiledCondition.cloneCompilation(key), tableMetaStreamEvent, aggregateMetaStreamEvent,
-                additionalAttributes);
+                additionalAttributes, alteredMatchingMetaInfoHolder, perExpressionExecutor,
+                startTimeEndTimeExpressionExecutor);
     }
 
-    public StreamEvent find(StateEvent matchingEvent, TimePeriod.Duration perValue,
+    public StreamEvent find(StateEvent matchingEvent, AggregationDefinition aggregationDefinition,
                             Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
-                            List<TimePeriod.Duration> incrementalDurations, Table tableForPerDuration,
+                            Map<TimePeriod.Duration, Table> aggregationTables,
+                            List<TimePeriod.Duration> incrementalDurations,
                             List<ExpressionExecutor> baseExecutors, ExpressionExecutor timestampExecutor,
-                            List<ExpressionExecutor> outputExpressionExecutors, Long[] startTimeEndTime,
+                            List<ExpressionExecutor> outputExpressionExecutors,
                             SiddhiAppContext siddhiAppContext) {
 
         ComplexEventChunk<StreamEvent> complexEventChunkToHoldWithinMatches = new ComplexEventChunk<>(true);
+
+        // Retrieve per value
+        String perValueAsString = perExpressionExecutor.execute(matchingEvent).toString();
+        TimePeriod.Duration perValue = TimePeriod.Duration.valueOf(perValueAsString.toUpperCase());
+        if (!incrementalExecutorMap.keySet().contains(perValue)) {
+            throw new SiddhiAppRuntimeException("The aggregate values for " + perValue.toString()
+                    + " granularity cannot be provided since aggregation definition " +
+                    aggregationDefinition.getId() + " does not contain " + perValue.toString() + " duration");
+        }
+
+        Table tableForPerDuration = aggregationTables.get(perValue);
+
+        Long[] startTimeEndTime = (Long[]) startTimeEndTimeExpressionExecutor.execute(matchingEvent);
+        if (startTimeEndTime == null) {
+            throw new SiddhiAppRuntimeException("Start and end times for within duration cannot be retrieved");
+        }
 
         complexEventPopulater.populateComplexEvent(matchingEvent.getStreamEvent(0), startTimeEndTime);
 
@@ -220,5 +247,9 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
 
     public List<Attribute> getAdditionalAttributes() {
         return this.additionalAttributes;
+    }
+
+    public MatchingMetaInfoHolder getAlteredMatchingMetaInfoHolder() {
+        return this.alteredMatchingMetaInfoHolder;
     }
 }
