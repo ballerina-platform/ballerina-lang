@@ -87,4 +87,9 @@ public class BStringArray extends BNewArray {
         }
         return sj.toString();
     }
+
+    @Override
+    public BValue getBValue(long index) {
+        return new BString(get(index));
+    }
 }

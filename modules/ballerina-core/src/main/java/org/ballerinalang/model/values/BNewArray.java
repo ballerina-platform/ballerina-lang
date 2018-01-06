@@ -22,6 +22,9 @@ import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 import java.lang.reflect.Array;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * {@code BArray} represents an arrays in Ballerina.
@@ -29,7 +32,7 @@ import java.lang.reflect.Array;
  * @since 0.87
  */
 // TODO Change this class name
-public abstract class BNewArray implements BRefType {
+public abstract class BNewArray implements BRefType, BCollection {
 
     /**
      * The maximum size of arrays to allocate.
@@ -40,6 +43,8 @@ public abstract class BNewArray implements BRefType {
     protected static final int DEFAULT_ARRAY_SIZE = 100;
 
     protected int size = 0;
+
+    private Map<String, BIterator> iteratorMap = new HashMap<>();
 
     public abstract void grow(int newLength);
 
@@ -114,5 +119,57 @@ public abstract class BNewArray implements BRefType {
 
     public long size() {
         return size;
+    }
+
+    public abstract BValue getBValue(long index);
+
+    @Override
+    public String newIterator() {
+        BArrayIterator iterator = new BArrayIterator(this);
+        iteratorMap.put(iterator.id, iterator);
+        return iterator.id;
+    }
+
+    @Override
+    public BIterator getIterator(String id) {
+        return iteratorMap.get(id);
+    }
+
+    /**
+     * Array Iterator implementation.
+     *
+     * @since 0.96.0
+     */
+    public class BArrayIterator implements BIterator {
+        BNewArray collection;
+        final String id;
+        int cursor = 0;
+        long length;
+
+        BArrayIterator(BNewArray value) {
+            id = UUID.randomUUID().toString();
+            this.collection = value;
+            this.length = value.size();
+        }
+
+        @Override
+        public String getID() {
+            return id;
+        }
+
+        @Override
+        public BValue getNext() {
+            return collection.getBValue(cursor++);
+        }
+
+        @Override
+        public BValue getCursor() {
+            return new BInteger(cursor);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return cursor < length;
+        }
     }
 }

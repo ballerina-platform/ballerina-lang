@@ -77,4 +77,9 @@ public class BIntArray extends BNewArray {
         }
         return sj.toString();
     }
+
+    @Override
+    public BValue getBValue(long index) {
+        return new BInteger(get(index));
+    }
 }
