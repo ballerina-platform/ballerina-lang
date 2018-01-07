@@ -235,7 +235,7 @@ class WhileStatementDecorator extends React.Component {
         const p3X = bBox.x + (titleW / 2);
         const p3Y = p2Y;
 
-        const p4X = p1X + bBox.w;
+        const p4X = p1X + gapLeft + bBox.w;
         const p4Y = p2Y;
 
         const p5X = p4X;
@@ -260,7 +260,7 @@ class WhileStatementDecorator extends React.Component {
         const p11Y = p1Y + (titleH / 2);
 
         const p12X = p8X;
-        const p12Y = p8Y + (titleH / 2) + this.context.designer.config.flowChartControlStatement.gutter.h;
+        const p12Y = p8Y + this.context.designer.config.flowChartControlStatement.heading.flowPathHeight;
 
         this.conditionBox = new SimpleBBox(p1X, (p2Y - (this.context.designer.config.statement.height / 2)),
             bBox.w, this.context.designer.config.statement.height);
@@ -304,12 +304,6 @@ class WhileStatementDecorator extends React.Component {
                     points={`${p2X},${p2Y} ${p8X},${p8Y} ${p3X},${p3Y} ${p9X}, ${p9Y} ${p2X},${p2Y}`}
                     className={statementRectClass}
                 />
-                {(this.props.model.body.statements.length > 0) && <ArrowDecorator
-                    start={{ x: p8X, y: p8Y }}
-                    end={{ x: p12X, y: p12Y }}
-                    classNameArrow='flowchart-action-arrow'
-                    classNameArrowHead='flowchart-action-arrow-head'
-                />}
                 <line
                     x1={p10X}
                     y1={p10Y}
@@ -327,16 +321,16 @@ class WhileStatementDecorator extends React.Component {
                     </text>
                 }
                 <text
-                    x={p8X}
+                    x={p12X - 4}
                     y={(p8Y + p12Y) / 2}
-                    className='flowchart-text'
+                    className='flowchart-true-text'
                 >
                     true
                 </text>
                 <text
-                    x={(p3X + p4X) / 2}
-                    y={p3Y}
-                    className='flowchart-text'
+                    x={p3X + 4}
+                    y={p3Y - 4}
+                    className='flowchart-false-text'
                 >
                     false
                 </text>

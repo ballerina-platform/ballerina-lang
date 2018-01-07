@@ -1444,7 +1444,7 @@ class SizingUtil {
         const dropZoneHeight = TreeUtil.isBlock(node.parent) ? this.config.statement.gutter.v : 0;
         const nodeBodyViewState = node.body.viewState;
 
-        // flow chart while width and height is different to normal block node width and height
+        // flow chart if width and height is different to normal block node width and height
         nodeBodyViewState.bBox.w = (nodeBodyViewState.bBox.w < this.config.flowChartControlStatement.width) ?
                                     this.config.flowChartControlStatement.width : nodeBodyViewState.bBox.w;
         nodeBodyViewState.bBox.h += this.config.statement.gutter.v;
@@ -1460,9 +1460,9 @@ class SizingUtil {
         const bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
 
-        components['block-header'].h = ((3 / 2) * this.config.flowChartControlStatement.heading.height)
+        components['block-header'].h = this.config.flowChartControlStatement.heading.height
                                         + this.config.flowChartControlStatement.padding.top
-                                        + this.config.flowChartControlStatement.gutter.h;
+                                        + this.config.flowChartControlStatement.heading.flowPathHeight;
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
@@ -1470,7 +1470,6 @@ class SizingUtil {
         viewState.components['statement-box'].w = bodyWidth;
         viewState.bBox.h = viewState.components['statement-box'].h
                             + viewState.components['drop-zone'].h
-                            + this.config.flowChartControlStatement.gutter.h
                             + this.config.statement.gutter.h
                             + components['block-header'].h;
         viewState.bBox.w = bodyWidth;
@@ -1480,41 +1479,21 @@ class SizingUtil {
         // for compound statement like if , while we need to render condition expression
         // we will calculate the width of the expression and adjust the block statement
         if (expression) {
-            // see how much space we have to draw the condition
-            const available = bodyWidth - this.config.flowChartControlStatement.heading.width - 10;
-            components.expression = this.getTextWidth(expression.getSource(true), 0, available);
+            components.expression = this.getTextWidth(expression.getSource(true), 0,
+                                        this.config.flowChartControlStatement.heading.width - 5);
         }
 
         // end of if block sizing
 
-        // If the parent of the if node is a block node, then it is only a if statement. Otherwise it is an else-if
         let nodeHeight = viewState.bBox.h;
         let nodeWidth = node.viewState.bBox.w;
-        let elseStmt = node.elseStatement;
-        let proceed = true;
 
-        if (TreeUtil.isBlock(node.parent)) {
-            while (elseStmt && proceed) {
-                if (TreeUtil.isBlock(elseStmt) && elseStmt.statements.length === 0) {
-                    break;
-                }
-                const elseHeight = elseStmt.viewState.bBox.h;
-                nodeHeight += elseHeight;
-                // If the current else statement is for an else if only, we proceed
-                if (elseStmt.parent !== node) {
-                    // if it is a nested else
-                    elseStmt.parent.viewState.bBox.h += elseHeight;
-                }
-                if (TreeUtil.isBlock(elseStmt)) {
-                    proceed = false;
-                } else {
-                    // nested if construct
-                    nodeWidth += elseStmt.viewState.bBox.w;
-                    elseStmt = elseStmt.elseStatement;
-                }
-            }
+        const elseStmt = node.elseStatement;
+        if (elseStmt && (!(TreeUtil.isBlock(elseStmt) && elseStmt.statements.length === 0))) {
+            const elseHeight = elseStmt.viewState.bBox.h;
+            nodeHeight += elseHeight;
+            nodeWidth += elseStmt.viewState.bBox.w;
         }
-
         node.viewState.bBox.h = nodeHeight;
         node.viewState.bBox.w = nodeWidth;
     }
@@ -1749,9 +1728,9 @@ class SizingUtil {
         const bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
 
-        components['block-header'].h = ((3 / 2) * this.config.flowChartControlStatement.heading.height)
+        components['block-header'].h = this.config.flowChartControlStatement.heading.height
                                         + this.config.flowChartControlStatement.padding.top
-                                        + this.config.flowChartControlStatement.gutter.h;
+                                        + this.config.flowChartControlStatement.heading.flowPathHeight;
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
@@ -1769,9 +1748,8 @@ class SizingUtil {
         // for compound statement like if , while we need to render condition expression
         // we will calculate the width of the expression and adjust the block statement
         if (expression) {
-            // see how much space we have to draw the condition
-            const available = bodyWidth - this.config.flowChartControlStatement.heading.width - 10;
-            components.expression = this.getTextWidth(expression.getSource(true), 0, available);
+            components.expression = this.getTextWidth(expression.getSource(true), 0,
+                                        this.config.flowChartControlStatement.heading.width - 5);
         }
     }
 
