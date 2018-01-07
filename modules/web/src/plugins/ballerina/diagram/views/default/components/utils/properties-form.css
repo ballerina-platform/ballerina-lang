@@ -147,6 +147,7 @@
     position: absolute;
     width: 40%;
     box-shadow:  0 3px 10px rgba(0, 0, 0, 0.42);
+    z-index: 60;
 }
 
 #property-modal .formHeader{
