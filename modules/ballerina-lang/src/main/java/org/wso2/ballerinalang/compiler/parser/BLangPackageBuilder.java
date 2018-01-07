@@ -294,8 +294,25 @@ public class BLangPackageBuilder {
         addType(refType);
     }
 
+    public void addConstraintMapType(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
+        Set<Whitespace> refTypeWS = removeNthFromLast(ws, 2);
+
+        BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
+        refType.typeKind = TreeUtils.stringToTypeKind(typeName);
+        refType.pos = pos;
+        refType.addWS(refTypeWS);
+
+        BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
+        constrainedType.type = refType;
+        constrainedType.constraint = (BLangType) this.typeNodeStack.pop();
+        constrainedType.pos = pos;
+        constrainedType.addWS(ws);
+
+        addType(constrainedType);
+    }
+
     public void addConstraintType(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
-        // TODO : Fix map<int> format.
+
         BLangNameReference nameReference = nameReferenceStack.pop();
         BLangUserDefinedType constraintType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         constraintType.pos = pos;

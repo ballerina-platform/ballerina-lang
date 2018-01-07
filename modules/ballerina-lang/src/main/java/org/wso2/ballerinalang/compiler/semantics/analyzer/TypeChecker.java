@@ -1100,8 +1100,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return symTable.errType;
         }
 
-        // TODO constrained map
-        return symTable.anyType;
+        return ((BMapType) recordType).constraint;
     }
 
     private BType checkRecLiteralKeyExpr(BLangExpression keyExpr, RecordKind recKind) {

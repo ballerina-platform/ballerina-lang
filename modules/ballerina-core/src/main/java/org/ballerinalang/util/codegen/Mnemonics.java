@@ -97,8 +97,19 @@ public class Mnemonics {
         mnemonics[InstructionCodes.LFIELDSTORE] = "lfieldstore";
         mnemonics[InstructionCodes.RFIELDSTORE] = "rfieldstore";
 
-        mnemonics[InstructionCodes.MAPLOAD] = "mapload";
-        mnemonics[InstructionCodes.MAPSTORE] = "mapstore";
+        mnemonics[InstructionCodes.IMAPLOAD] = "imapload";
+        mnemonics[InstructionCodes.FMAPLOAD] = "fmapload";
+        mnemonics[InstructionCodes.SMAPLOAD] = "smapload";
+        mnemonics[InstructionCodes.BMAPLOAD] = "bmapload";
+        mnemonics[InstructionCodes.LMAPLOAD] = "lmapload";
+        mnemonics[InstructionCodes.RMAPLOAD] = "rmapload";
+        mnemonics[InstructionCodes.IMAPSTORE] = "imapstore";
+        mnemonics[InstructionCodes.FMAPSTORE] = "fmapstore";
+        mnemonics[InstructionCodes.SMAPSTORE] = "smapstore";
+        mnemonics[InstructionCodes.BMAPSTORE] = "bmapstore";
+        mnemonics[InstructionCodes.LMAPSTORE] = "lmapstore";
+        mnemonics[InstructionCodes.RMAPSTORE] = "rmapstore";
+
         mnemonics[InstructionCodes.JSONLOAD] = "jsonload";
         mnemonics[InstructionCodes.JSONSTORE] = "jsonstore";
 

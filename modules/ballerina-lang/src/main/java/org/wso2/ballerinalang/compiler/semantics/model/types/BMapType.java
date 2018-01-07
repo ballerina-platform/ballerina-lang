@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.ConstrainedType;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
  * @since 0.94
@@ -40,5 +41,14 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType {
     @Override
     public <R> R accept(BTypeVisitor<R> visitor, BType type) {
         return visitor.visit(this, type);
+    }
+
+    @Override
+    public String toString() {
+        if (constraint.tag == TypeTags.ANY) {
+            return super.toString();
+        }
+
+        return super.toString() + "<" + constraint + ">";
     }
 }

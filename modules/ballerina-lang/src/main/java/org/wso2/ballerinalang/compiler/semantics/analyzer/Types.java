@@ -208,6 +208,12 @@ public class Types {
             }
         }
 
+        if (target.tag == TypeTags.MAP) {
+            if (source.tag == TypeTags.MAP) {
+                return ((BMapType) target).constraint.tag == TypeTags.ANY;
+            }
+        }
+
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target);
     }
@@ -759,7 +765,13 @@ public class Types {
 
         @Override
         public Boolean visit(BMapType t, BType s) {
-            return t == s;
+            if (s.tag != TypeTags.MAP) {
+                return false;
+            }
+            // At this point both source and target types are of map types. Inorder to be equal in type as whole
+            // constraints should be in equal type.
+            BMapType sType = ((BMapType) s);
+            return isSameType(sType.constraint, t.constraint);
         }
 
         @Override

@@ -1479,8 +1479,18 @@ public class ProgramFileReader {
                 case InstructionCodes.BFIELDSTORE:
                 case InstructionCodes.LFIELDSTORE:
                 case InstructionCodes.RFIELDSTORE:
-                case InstructionCodes.MAPLOAD:
-                case InstructionCodes.MAPSTORE:
+                case InstructionCodes.IMAPLOAD:
+                case InstructionCodes.FMAPLOAD:
+                case InstructionCodes.SMAPLOAD:
+                case InstructionCodes.BMAPLOAD:
+                case InstructionCodes.LMAPLOAD:
+                case InstructionCodes.RMAPLOAD:
+                case InstructionCodes.IMAPSTORE:
+                case InstructionCodes.FMAPSTORE:
+                case InstructionCodes.SMAPSTORE:
+                case InstructionCodes.BMAPSTORE:
+                case InstructionCodes.LMAPSTORE:
+                case InstructionCodes.RMAPSTORE:
                 case InstructionCodes.JSONLOAD:
                 case InstructionCodes.JSONSTORE:
                 case InstructionCodes.ENUMERATORLOAD:

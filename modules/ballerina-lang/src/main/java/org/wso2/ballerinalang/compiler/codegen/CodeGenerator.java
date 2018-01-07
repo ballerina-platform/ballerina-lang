@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -705,7 +706,10 @@ public class CodeGenerator extends BLangNodeVisitor {
             BLangExpression valueExpr = keyValue.valueExpr;
             genNode(valueExpr, this.env);
 
-            emit(InstructionCodes.MAPSTORE, mapVarRegIndex, keyExpr.regIndex, valueExpr.regIndex);
+            BMapType mapType = (BMapType) mapLiteral.type;
+
+            int opcode = getOpcode(mapType.constraint.tag, InstructionCodes.IMAPSTORE);
+            emit(opcode, mapVarRegIndex, keyExpr.regIndex, valueExpr.regIndex);
         }
     }
 
@@ -837,12 +841,18 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         genNode(mapKeyAccessExpr.indexExpr, this.env);
         int keyRegIndex = mapKeyAccessExpr.indexExpr.regIndex;
-
+        int opcode;
+        BMapType mapType = (BMapType) mapKeyAccessExpr.expr.type;
         if (variableStore) {
-            emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, rhsExprRegIndex);
+            opcode = getOpcode(mapType.constraint.tag, InstructionCodes.IMAPSTORE);
+            emit(opcode, varRefRegIndex, keyRegIndex, rhsExprRegIndex);
         } else {
-            int mapValueRegIndex = ++regIndexes.tRef;
-            emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, mapValueRegIndex);
+            OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(mapType.constraint.tag,
+                    InstructionCodes.IMAPLOAD, regIndexes);
+            opcode = opcodeAndIndex.opcode;
+            int mapValueRegIndex = opcodeAndIndex.index;
+
+            emit(opcode, varRefRegIndex, keyRegIndex, mapValueRegIndex);
             mapKeyAccessExpr.regIndex = mapValueRegIndex;
         }
 
