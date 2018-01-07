@@ -45,9 +45,9 @@ public class ConstrainedMapTest {
     @Test(description = "Map constrained with type negative semantic validations.")
     public void testConstrainedMapNegative() {
         Assert.assertEquals(negativeResult.getErrorCount(), 3);
-        BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'map<int>', found 'map'", 4, 12);
-        BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'int', found 'string'", 8, 44);
-        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'string', found 'int'", 14, 23);
+        BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'map<int>', found 'map'", 3, 12);
+        BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'int', found 'string'", 7, 44);
+        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'string', found 'int'", 13, 23);
     }
 
 
