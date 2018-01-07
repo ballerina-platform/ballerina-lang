@@ -16,11 +16,8 @@
  * under the License.
  */
 
-import _ from 'lodash';
 import React from 'react';
-import PropTypes from 'prop-types';
 import { COMMANDS } from 'plugins/ballerina/constants';
-import SimpleBBox from './../../../model/view/simple-bounding-box';
 import Button from '../../../interactions/button';
 import LifelineButton from '../../../interactions/lifeline-button';
 import WorkerButton from '../../../interactions/worker-button';
@@ -52,7 +49,10 @@ class ControllerPositioningUtil {
      *
      */
     positionActionNodeControllers(node) {
-        return this.positionFunctionNodeControllers(node);
+        if (node.id !== node.parent.initAction.id) {
+            return this.positionFunctionNodeControllers(node);
+        }
+        return undefined;
     }
 
 
@@ -229,7 +229,8 @@ class ControllerPositioningUtil {
             this.config.lifeLine.gutter.h;
         let workerButton = <span />;
         if (node.workers.length > 0) {
-            x = node.workers[node.workers.length - 1].viewState.bBox.x + node.workers[node.workers.length - 1].viewState.bBox.w;
+            x = node.workers[node.workers.length - 1].viewState.bBox.x +
+                node.workers[node.workers.length - 1].viewState.bBox.w;
         } else {
             // add default worker plus.
             workerButton = this.getWorkerButton(node.viewState.components.defaultWorker, node.body);
