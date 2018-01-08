@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.RequestSizeValidationConfiguration;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
@@ -146,6 +147,10 @@ public class ServerConnectorBootstrap {
 
     public void addHeaderAndEntitySizeValidation(RequestSizeValidationConfiguration requestSizeValidationConfig) {
         httpServerChannelInitializer.setRequestSizeValidationConfig(requestSizeValidationConfig);
+    }
+
+    public void addChunkingBehaviour(ChunkConfig chunkConfig) {
+        httpServerChannelInitializer.setChunkingConfig(chunkConfig);
     }
 
     class HTTPServerConnector implements ServerConnector {

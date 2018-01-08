@@ -55,6 +55,8 @@ public class ListenerConfiguration {
     @XmlAttribute(required = true)
     private int port = 8080;
 
+    private ChunkConfig chunkingConfig = ChunkConfig.AUTO;
+
     @XmlAttribute
     private boolean bindOnStartup = false;
 
@@ -291,5 +293,13 @@ public class ListenerConfiguration {
 
     public void setKeepAlive(boolean keepAlive) {
         this.keepAlive = keepAlive;
+    }
+
+    public ChunkConfig getChunkConfig() {
+        return chunkingConfig;
+    }
+
+    public void setChunkConfig(ChunkConfig chunkConfig) {
+        this.chunkingConfig = chunkConfig;
     }
 }

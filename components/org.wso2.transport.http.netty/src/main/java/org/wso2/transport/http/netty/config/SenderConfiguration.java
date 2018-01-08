@@ -75,8 +75,7 @@ public class SenderConfiguration {
     @XmlAttribute
     private boolean httpTraceLogEnabled;
 
-    @XmlAttribute
-    private boolean chunkEnabled;
+    private ChunkConfig chunkingConfig = ChunkConfig.AUTO;
 
     @XmlAttribute
     private String sslProtocol;
@@ -212,12 +211,12 @@ public class SenderConfiguration {
         this.httpTraceLogEnabled = httpTraceLogEnabled;
     }
 
-    public boolean isChunkEnabled() {
-        return chunkEnabled;
+    public ChunkConfig getChunkingConfig() {
+        return chunkingConfig;
     }
 
-    public void setChunkEnabled(boolean chunkEnabled) {
-        this.chunkEnabled = chunkEnabled;
+    public void setChunkingConfig(ChunkConfig chunkingConfig) {
+        this.chunkingConfig = chunkingConfig;
     }
 
     public boolean isFollowRedirect() {

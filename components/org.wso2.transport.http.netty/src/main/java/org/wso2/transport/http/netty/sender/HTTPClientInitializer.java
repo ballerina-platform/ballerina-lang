@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
+import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.listener.CustomHttpContentCompressor;
 import org.wso2.transport.http.netty.listener.HTTPTraceLoggingHandler;
@@ -41,11 +42,11 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
     private static final Logger log = LoggerFactory.getLogger(HTTPClientInitializer.class);
 
     private SSLEngine sslEngine;
-    private TargetHandler handler;
+    private TargetHandler targetHandler;
     private boolean httpTraceLogEnabled;
     private boolean followRedirect;
     private int maxRedirectCount;
-    private boolean chunkEnabled;
+    private ChunkConfig chunkConfig;
     private boolean isKeepAlive;
     private ProxyServerConfiguration proxyServerConfiguration;
     private ConnectionManager connectionManager;
@@ -56,7 +57,7 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
         this.httpTraceLogEnabled = senderConfiguration.isHttpTraceLogEnabled();
         this.followRedirect = senderConfiguration.isFollowRedirect();
         this.maxRedirectCount = senderConfiguration.getMaxRedirectCount(Constants.MAX_REDIRECT_COUNT);
-        this.chunkEnabled = senderConfiguration.isChunkEnabled();
+        this.chunkConfig = senderConfiguration.getChunkingConfig();
         this.isKeepAlive = senderConfiguration.isKeepAlive();
         this.proxyServerConfiguration = senderConfiguration.getProxyServerConfiguration();
         this.connectionManager = connectionManager;
@@ -82,7 +83,7 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
             log.debug("adding ssl handler");
             ch.pipeline().addLast("ssl", new SslHandler(this.sslEngine));
         }
-        ch.pipeline().addLast("compressor", new CustomHttpContentCompressor(chunkEnabled));
+        ch.pipeline().addLast("compressor", new CustomHttpContentCompressor());
         ch.pipeline().addLast("decoder", new HttpResponseDecoder());
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
         ch.pipeline().addLast("chunkWriter", new ChunkedWriteHandler());
@@ -95,16 +96,16 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
                 log.debug("Follow Redirect is enabled, so adding the redirect handler to the pipeline.");
             }
             RedirectHandler redirectHandler = new RedirectHandler(sslEngine, httpTraceLogEnabled, maxRedirectCount
-                    , chunkEnabled, connectionManager);
+                    , connectionManager);
             ch.pipeline().addLast(Constants.REDIRECT_HANDLER, redirectHandler);
         }
-        handler = new TargetHandler();
-        handler.setKeepAlive(isKeepAlive);
-        ch.pipeline().addLast(Constants.TARGET_HANDLER, handler);
+        targetHandler = new TargetHandler();
+        targetHandler.setKeepAlive(isKeepAlive);
+        ch.pipeline().addLast(Constants.TARGET_HANDLER, targetHandler);
     }
 
     public TargetHandler getTargetHandler() {
-        return handler;
+        return targetHandler;
     }
 
     public boolean isKeepAlive() {

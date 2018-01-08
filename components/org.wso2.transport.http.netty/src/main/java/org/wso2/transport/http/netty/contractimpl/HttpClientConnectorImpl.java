@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
@@ -50,7 +51,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     private int socketIdleTimeout;
     private boolean followRedirect;
     private String httpVersion;
-    private boolean chunkEnabled;
+    private ChunkConfig chunkConfig;
     private boolean keepAlive;
 
     public HttpClientConnectorImpl(ConnectionManager connectionManager, SenderConfiguration senderConfiguration) {
@@ -88,7 +89,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                         targetChannel.setEndPointTimeout(socketIdleTimeout, followRedirect);
                         targetChannel.setCorrelationIdForLogging();
                         targetChannel.setHttpVersion(httpVersion);
-                        targetChannel.setChunkEnabled(chunkEnabled);
+                        targetChannel.setChunkConfig(chunkConfig);
                         if (followRedirect) {
                             setChannelAttributes(channelFuture.channel(), httpOutboundRequest, httpResponseFuture,
                                                  targetChannel);
@@ -193,7 +194,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
 
     private void initTargetChannelProperties(SenderConfiguration senderConfiguration) {
         this.httpVersion = senderConfiguration.getHttpVersion();
-        this.chunkEnabled = senderConfiguration.isChunkEnabled();
+        this.chunkConfig = senderConfiguration.getChunkingConfig();
         this.followRedirect = senderConfiguration.isFollowRedirect();
         this.socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(Constants.ENDPOINT_TIMEOUT);
         this.sslConfig = senderConfiguration.getSslConfig();

@@ -19,7 +19,6 @@
 package org.wso2.transport.http.netty.util.server.initializers;
 
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.DefaultHttpResponse;
@@ -32,6 +31,10 @@ import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.Constants;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
@@ -52,7 +55,12 @@ public class EchoServerInitializer extends HTTPServerInitializer {
 
     private class EchoServerHandler extends ChannelInboundHandlerAdapter {
 
+        private HttpResponse httpResponse;
         private int responseStatusCode = 200;
+        private boolean chunked = true;
+        private int contentLength = 0;
+        private boolean keepAlive = false;
+        private BlockingQueue<HttpContent> content = new LinkedBlockingQueue<>();
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -62,34 +70,93 @@ public class EchoServerInitializer extends HTTPServerInitializer {
                 if (HttpUtil.is100ContinueExpected(req)) {
                     ctx.write(new DefaultHttpResponse(HTTP_1_1, CONTINUE));
                 }
-                boolean keepAlive = HttpUtil.isKeepAlive(req);
-                HttpResponseStatus httpResponseStatus = new HttpResponseStatus(responseStatusCode,
-                        HttpResponseStatus.valueOf(responseStatusCode).reasonPhrase());
 
-                HttpResponse response = new DefaultHttpResponse(req.protocolVersion(), httpResponseStatus);
-                String contentType = req.headers().get(CONTENT_TYPE);
-                if (contentType != null) {
-                    response.headers().set(CONTENT_TYPE, contentType);
-                }
-                response.headers().set(TRANSFER_ENCODING, "chunked");
+                createHttpResponse(req);
+                setContentType(req);
+                checkAndSetEncodingHeader(req);
+                setConnectionKeepAliveHeader(req);
+                keepAlive = HttpUtil.isKeepAlive(req);
 
-                if (!keepAlive) {
-                    ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-                    logger.debug("Writing response to client-connector");
-                } else {
-                    response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-                    ctx.writeAndFlush(response);
-                    logger.debug("Writing response to client-connector");
+                if (chunked) {
+                    ctx.writeAndFlush(httpResponse);
                 }
             } else if (msg instanceof HttpContent) {
                 if (msg instanceof LastHttpContent) {
-                    ctx.writeAndFlush(msg);
-                    ctx.close();
-                    logger.debug("Closing the client-connector connection");
+                    HttpContent lastHttpContent = (HttpContent) msg;
+
+                    if (chunked) {
+                        ctx.writeAndFlush(msg);
+                    } else {
+                        writeHeadersAndEntity(ctx, lastHttpContent);
+                    }
+
+                    if (!keepAlive) {
+                        ctx.close();
+                        logger.debug("Closing the client connection");
+                    }
+                    resetState();
                 } else {
-                    ctx.writeAndFlush(msg);
-                    logger.debug("Writing data to client-connector");
+                    if (chunked) {
+                        ctx.writeAndFlush(msg);
+                        logger.debug("Writing content to client connection");
+                    } else {
+                        collectContent((HttpContent) msg);
+                        logger.debug("Collecting content from client connection");
+                    }
                 }
+            }
+        }
+
+        private void resetState() {
+            contentLength = 0;
+            content.clear();
+            keepAlive = false;
+            chunked = true;
+        }
+
+        private void writeHeadersAndEntity(ChannelHandlerContext ctx, HttpContent lastHttpContent) {
+            contentLength += lastHttpContent.content().readableBytes();
+            httpResponse.headers().set(Constants.HTTP_CONTENT_LENGTH, contentLength);
+            ctx.write(httpResponse);
+
+            while (!content.isEmpty()) {
+                ctx.writeAndFlush(content.poll());
+            }
+            ctx.writeAndFlush(lastHttpContent);
+        }
+
+        private void collectContent(HttpContent msg) {
+            HttpContent httpContent = msg;
+            contentLength += httpContent.content().readableBytes();
+            content.add(msg);
+        }
+
+        private void checkAndSetEncodingHeader(HttpRequest req) {
+            if (req.headers().get(Constants.HTTP_CONTENT_LENGTH) != null) {
+                chunked = false;
+            } else {
+                httpResponse.headers().set(TRANSFER_ENCODING, "chunked");
+            }
+        }
+
+        private void setContentType(HttpRequest req) {
+            String contentType = req.headers().get(CONTENT_TYPE);
+            if (contentType != null) {
+                httpResponse.headers().set(CONTENT_TYPE, contentType);
+            }
+        }
+
+        private void createHttpResponse(HttpRequest req) {
+            HttpResponseStatus httpResponseStatus = new HttpResponseStatus(responseStatusCode,
+                    HttpResponseStatus.valueOf(responseStatusCode).reasonPhrase());
+            httpResponse = new DefaultHttpResponse(req.protocolVersion(), httpResponseStatus);
+        }
+
+        private void setConnectionKeepAliveHeader(HttpRequest req) {
+            boolean keepAlive = HttpUtil.isKeepAlive(req);
+            if (keepAlive) {
+                httpResponse.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+                logger.debug("Setting connection keep-alive header");
             }
         }
     }

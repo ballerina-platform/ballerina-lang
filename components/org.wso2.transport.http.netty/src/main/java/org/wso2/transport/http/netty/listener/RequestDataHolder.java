@@ -33,6 +33,7 @@ public class RequestDataHolder {
     private String transferEncodingHeaderValue;
     private String contentLengthHeaderValue;
     private String httpMethod;
+    private String httpVersion;
 
     public RequestDataHolder(HTTPCarbonMessage requestMessage) {
         acceptEncodingHeaderValue = requestMessage.getHeader(Constants.ACCEPT_ENCODING);
@@ -41,10 +42,11 @@ public class RequestDataHolder {
         transferEncodingHeaderValue = requestMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING);
         contentLengthHeaderValue = requestMessage.getHeader(Constants.HTTP_CONTENT_LENGTH);
         httpMethod = (String) requestMessage.getProperty(Constants.HTTP_METHOD);
+        httpVersion = (String) requestMessage.getProperty(Constants.HTTP_VERSION);
     }
 
     /**
-     * Get the value of the Accept-Encoding header
+     * Get the value of the Accept-Encoding header.
      *
      * @return value of the Accept-Encoding header
      */
@@ -53,7 +55,7 @@ public class RequestDataHolder {
     }
 
     /**
-     * Get the value of the Connection header
+     * Get the value of the Connection header.
      *
      * @return value of the Connection header
      */
@@ -62,7 +64,7 @@ public class RequestDataHolder {
     }
 
     /**
-     * Get the value of the Content-Type header
+     * Get the value of the Content-Type header.
      *
      * @return value of the Content-Type header
      */
@@ -71,7 +73,7 @@ public class RequestDataHolder {
     }
 
     /**
-     * Get the value of the Transfer-Encoding header
+     * Get the value of the Transfer-Encoding header.
      *
      * @return  value of the Transfer-Encoding header
      */
@@ -80,7 +82,7 @@ public class RequestDataHolder {
     }
 
     /**
-     * Get the value of the Content-Length header
+     * Get the value of the Content-Length header.
      *
      * @return value of the Content-Length header
      */
@@ -89,11 +91,20 @@ public class RequestDataHolder {
     }
 
     /**
-     * Get the http method
+     * Get the http method.
      *
      * @return http method
      */
     public String getHttpMethod() {
         return httpMethod;
+    }
+
+    /**
+     * Get the http version.
+     *
+     * @return http version
+     */
+    public String getHttpVersion() {
+        return httpVersion;
     }
 }

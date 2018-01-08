@@ -14,20 +14,14 @@ import java.util.List;
 public class CustomHttpContentCompressor extends HttpContentCompressor {
 
     private HttpMethod method;
-    private boolean chunkEnabled = true;
 
     public CustomHttpContentCompressor() {
         super();
     }
 
-    public CustomHttpContentCompressor(boolean chunkEnabled) {
-        super();
-        this.chunkEnabled = chunkEnabled;
-    }
-
     @Override
     protected Result beginEncode(HttpResponse headers, String acceptEncoding) throws Exception {
-        if (!chunkEnabled) {
+        if (headers.headers().get("Content-Length") != null) {
             return null;
         }
         String allowHeader = headers.headers().get("Allow");

@@ -69,28 +69,25 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     private boolean httpTraceLogEnabled;
     private int maxRedirectCount;
     private Integer currentRedirectCount;
-    private boolean chunkEnabled;
     private HTTPCarbonMessage targetRespMsg;
     private ChannelHandlerContext originalChannelContext;
     private boolean isIdleHandlerOfTargetChannelRemoved = false;
     private ConnectionManager connectionManager;
 
-    public RedirectHandler(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount
-            , boolean chunkEnabled, ConnectionManager connectionManager) {
+    public RedirectHandler(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount,
+            ConnectionManager connectionManager) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.maxRedirectCount = maxRedirectCount;
-        this.chunkEnabled = chunkEnabled;
         this.connectionManager = connectionManager;
     }
 
-    public RedirectHandler(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount
-            , boolean chunkEnabled, ChannelHandlerContext originalChannelContext
-            , boolean isIdleHandlerOfTargetChannelRemoved, ConnectionManager connectionManager) {
+    public RedirectHandler(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount,
+            ChannelHandlerContext originalChannelContext, boolean isIdleHandlerOfTargetChannelRemoved,
+            ConnectionManager connectionManager) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.maxRedirectCount = maxRedirectCount;
-        this.chunkEnabled = chunkEnabled;
         this.originalChannelContext = originalChannelContext;
         this.isIdleHandlerOfTargetChannelRemoved = isIdleHandlerOfTargetChannelRemoved;
         this.connectionManager = connectionManager;
@@ -666,8 +663,8 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 new InetSocketAddress(redirectUrl.getHost(), redirectUrl.getPort() != -1 ?
                         redirectUrl.getPort() :
                         getDefaultPort(redirectUrl.getProtocol()))).handler(
-                new RedirectChannelInitializer(sslEngine, httpTraceLogEnabled, maxRedirectCount, chunkEnabled
-                        , originalChannelContext, isIdleHandlerOfTargetChannelRemoved, connectionManager));
+                new RedirectChannelInitializer(sslEngine, httpTraceLogEnabled, maxRedirectCount, originalChannelContext,
+                        isIdleHandlerOfTargetChannelRemoved, connectionManager));
         clientBootstrap.option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
         ChannelFuture channelFuture = clientBootstrap.connect();
         registerListener(channelHandlerContext, channelFuture, httpCarbonRequest, httpRequest);
