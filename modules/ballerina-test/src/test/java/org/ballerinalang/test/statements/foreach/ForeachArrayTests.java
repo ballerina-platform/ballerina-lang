@@ -33,7 +33,7 @@ import java.util.Arrays;
  *
  * @since 0.96.0
  */
-public class ForeachArrayTestCases {
+public class ForeachArrayTests {
 
     private CompileResult program;
 

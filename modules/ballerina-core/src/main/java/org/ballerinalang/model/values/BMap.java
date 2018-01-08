@@ -25,11 +25,13 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -40,7 +42,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @param <V> Value
  * @since 0.8.0
  */
-public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implements BRefType {
+public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implements BRefType, BCollection {
 
 
     @SuppressWarnings("unchecked")
@@ -48,6 +50,8 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final Lock readLock = lock.readLock();
     private final Lock writeLock = lock.writeLock();
+
+    private Map<String, BIterator> iteratorMap = new HashMap<>();
 
     public BMap() {
         map =  new LinkedHashMap<>();
@@ -201,5 +205,64 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
         this.outputStream = outputStream;
     }
 
+    @Override
+    public String newIterator() {
+        BMapIterator iterator = new BMapIterator(this);
+        iteratorMap.put(iterator.id, iterator);
+        return iterator.id;
+    }
+
+    @Override
+    public BIterator getIterator(String id) {
+        return iteratorMap.get(id);
+    }
+
+    /**
+     * Implementation of Ballerina Map Iterator.
+     *
+     * @since 0.96.0
+     */
+    class BMapIterator implements BIterator {
+
+        final String id;
+        BMap collection;
+        Iterator iterator;
+        BString currentCursor;
+        boolean isCursorRead;
+
+        public BMapIterator(BMap value) {
+            id = UUID.randomUUID().toString();
+            collection = value;
+            iterator = collection.keySet().iterator();
+        }
+
+        @Override
+        public String getID() {
+            return id;
+        }
+
+        @Override
+        public BValue getNext() {
+            BValue value = collection.get(currentCursor.stringValue());
+            isCursorRead = false;
+            currentCursor = null;
+            return value;
+        }
+
+        @Override
+        public BValue getCursor() {
+            if (isCursorRead) {
+                return currentCursor;
+            }
+            isCursorRead = true;
+            currentCursor = iterator.hasNext() ? new BString((String) iterator.next()) : null;
+            return currentCursor;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return isCursorRead || iterator.hasNext();
+        }
+    }
 }
 
