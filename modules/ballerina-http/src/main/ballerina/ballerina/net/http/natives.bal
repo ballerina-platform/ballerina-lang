@@ -2,6 +2,7 @@ package ballerina.net.http;
 
 import ballerina.mime;
 
+@Description {value:"Represent 'Content-Legth' header name"}
 public const string CONTENT_LENGTH = "Content-Length";
 
 @Description { value:"Represents the HTTP server connector connection"}

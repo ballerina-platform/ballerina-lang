@@ -291,5 +291,3 @@ public const string DEFAULT_CHARSET = "UTF-8";
 
 @Description {value:"Permission to be used with opening a byte channel for overflow data"}
 const string READ_PERMISSION = "r";
-
-

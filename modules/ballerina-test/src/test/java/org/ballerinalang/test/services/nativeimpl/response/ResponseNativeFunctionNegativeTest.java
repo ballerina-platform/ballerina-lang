@@ -70,9 +70,8 @@ public class ResponseNativeFunctionNegativeTest {
         BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
-
         BValue[] inputArg = { request };
-            BValue[] returnVals = BRunUtil.invoke(result, "testGetContentLength", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetContentLength", inputArg);
         Assert.assertEquals(Integer.parseInt(returnVals[0].stringValue()), -1);
     }
 
