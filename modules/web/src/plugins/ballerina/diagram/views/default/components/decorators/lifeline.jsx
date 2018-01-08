@@ -27,6 +27,7 @@ import TreeUtils from './../../../../../model/tree-util';
 import OverlayComponentsRenderingUtil from './../utils/overlay-component-rendering-util';
 import ActionBox from './action-box';
 import ActiveArbiter from './active-arbiter';
+import ArrowDecorator from '../decorators/arrow-decorator';
 
 class LifeLine extends React.Component {
 
@@ -101,7 +102,6 @@ class LifeLine extends React.Component {
         const lineClass = `${this.props.classes.lineClass} unhoverable`;
         const polygonClassTop = this.props.classes.polygonClass;
         const polygonClassBottom = `${this.props.classes.polygonClass} unhoverable`;
-        const centerX = bBox.x + (bBox.w / 2);
         const startSolidLineFrom = this.props.startSolidLineFrom;
         const titleBoxH = DesignerDefaults.lifeLine.head.height;
         const y2 = bBox.h + bBox.y;
@@ -123,7 +123,7 @@ class LifeLine extends React.Component {
         if (this.props.tooltip) {
             tooltip = this.props.tooltip;
         }
-        let modifiedCenterValueForTop = centerX;
+        let modifiedCenterValueForTop = startX;
         const imageX = bBox.x + (DesignerDefaults.iconForTool.width / 4);
         const imageYTop = bBox.y + (DesignerDefaults.iconForTool.height / 4);
         const imageYBottom = y2 - titleBoxH + (DesignerDefaults.iconForTool.height / 4);
@@ -139,6 +139,9 @@ class LifeLine extends React.Component {
                 iconColor = '#6f7b96';
             }
         }
+
+        const startX = bBox.x + (bBox.w / 2);
+        const startY = bBox.y + titleBoxH + this.context.designer.config.statement.height;
         return (<g
             className='life-line-group'
             onMouseOut={this.setActionVisibilityFalse}
@@ -148,17 +151,17 @@ class LifeLine extends React.Component {
             <title> {tooltip} </title>
 
             {!_.isNil(startSolidLineFrom) && <line
-                x1={centerX}
+                x1={startX}
                 y1={dashedY1}
-                x2={centerX}
+                x2={startX}
                 y2={dashedY2}
                 className={lineClass}
                 strokeDasharray='5, 5'
             />}
             <line
-                x1={centerX}
+                x1={startX}
                 y1={solidY1}
-                x2={centerX}
+                x2={startX}
                 y2={solidY2}
                 className={lineClass}
             />
@@ -172,7 +175,7 @@ class LifeLine extends React.Component {
             {this.props.icon &&
             <g onClick={this.handleConnectorProps}>
                 <image
-                    x={centerX - (iconSize / 2)}
+                    x={startX - (iconSize / 2)}
                     y={bBox.y - 25}
                     width={iconSize}
                     height={iconSize}
@@ -188,7 +191,7 @@ class LifeLine extends React.Component {
                 className={lineClass}
             />
             <text
-                x={centerX}
+                x={startX}
                 y={solidY1 - 10}
                 textAnchor='middle'
                 dominantBaseline='central'
@@ -197,7 +200,7 @@ class LifeLine extends React.Component {
                 onClick={e => this.openExpressionEditor(e)}
             >{identifier}</text>
             <text
-                x={centerX}
+                x={startX}
                 y={solidY2 + 10}
                 textAnchor='middle'
                 dominantBaseline='central'
@@ -213,12 +216,21 @@ class LifeLine extends React.Component {
                     isDefaultWorker={isDefaultWorker}
                 />
             }
-            <circle
-                cx={centerX}
-                cy={bBox.y + titleBoxH + this.context.designer.config.statement.height}
-                r='4'
-                className={lineClass + ' dot'}
-            />
+            {TreeUtils.isWorker(this.props.model) &&
+                <g>
+                    <circle
+                        cx={startX}
+                        cy={startY}
+                        r='4'
+                        className={lineClass + ' dot'}
+                    />
+                    <ArrowDecorator
+                        start={{ x: startX - 4, y: startY }}
+                        end={{ x: startX - 4, y: startY }}
+                        classNameArrow={lineClass + 'client-invocation-arrow'}
+                    />
+                </g>
+            }
         </g>);
     }
 }
