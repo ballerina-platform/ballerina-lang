@@ -29,6 +29,8 @@ import org.ballerinalang.net.http.HttpUtil;
 
 /**
  * Set the entity of the response.
+ *
+ * @since 0.96
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",

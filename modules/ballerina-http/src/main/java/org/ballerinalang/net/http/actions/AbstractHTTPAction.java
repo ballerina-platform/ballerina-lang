@@ -47,7 +47,6 @@ import java.net.URL;
 
 import static org.ballerinalang.mime.util.Constants.HEADER_VALUE_STRUCT;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
@@ -82,8 +81,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         validateParams(connector);
 
-        BStruct entity = (BStruct) requestStruct.getNativeData(MESSAGE_ENTITY);
-        HttpUtil.populateOutboundRequest(requestStruct, entity, outboundRequest);
+        HttpUtil.populateOutboundRequest(requestStruct, outboundRequest);
         try {
             String uri = connector.getStringField(0) + path;
             URL url = new URL(uri);

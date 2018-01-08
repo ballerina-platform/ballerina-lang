@@ -71,13 +71,8 @@ public class RequestNativeFunctionNegativeTest {
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
         BValue[] inputArg = { request };
-        String error = null;
-        try {
-            BRunUtil.invoke(result, "testGetContentLength", inputArg);
-        } catch (Throwable e) {
-            error = e.getMessage();
-        }
-        Assert.assertTrue(error.contains("no Content-Length header found"));
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetContentLength", inputArg);
+        Assert.assertEquals(Integer.parseInt(returnVals[0].stringValue()), -1);
     }
 
     @Test
@@ -162,8 +157,7 @@ public class RequestNativeFunctionNegativeTest {
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
 
         String payload = "{\"code\":\"123\"}";
-        String contentType = APPLICATION_JSON;
-        MimeUtil.setContentType(mediaType, entity, contentType);
+        MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
         entity.setRefField(JSON_DATA_INDEX, new BJSON(payload));
         entity.setBooleanField(IS_IN_MEMORY_INDEX, 1);
         request.addNativeData(MESSAGE_ENTITY, entity);

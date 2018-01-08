@@ -2,6 +2,8 @@ package ballerina.net.http;
 
 import ballerina.mime;
 
+public const string CONTENT_LENGTH = "Content-Length";
+
 @Description { value:"Represents the HTTP server connector connection"}
 @Field {value:"remoteHost: The server host name"}
 @Field {value:"port: The server port"}
@@ -31,7 +33,6 @@ public native function <Connection conn> getSession () (Session);
 @Field {value:"method: HTTP request method"}
 @Field {value:"httpVersion: The version of HTTP"}
 @Field {value:"userAgent: User-Agent request header"}
-@Field {value:"headers: Request headers"}
 public struct Request {
 	string path;
 	string method;
@@ -86,7 +87,6 @@ public struct Response {
     int statusCode;
     string reasonPhrase;
     string server;
-    map headers;
 }
 
 @Description { value:"Get the entity from the response"}

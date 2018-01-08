@@ -286,6 +286,10 @@ public const string TYPE = "type";
 @Description {value:"Key name for 'charset' parameter in MediaType. Indicate the character set of the body text"}
 public const string CHARSET = "charset";
 
+@Description {value:"Default charset to be used with mime encoding and decoding"}
 public const string DEFAULT_CHARSET = "UTF-8";
 
-public const string READ_PERMISSION = "r";
+@Description {value:"Permission to be used with opening a byte channel for overflow data"}
+const string READ_PERMISSION = "r";
+
+

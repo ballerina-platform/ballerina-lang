@@ -103,18 +103,16 @@ public function <Request req> expects100Continue () (boolean) {
 @Param {value:"req: A request message"}
 @Return {value:"length of the message"}
 public function <Request request> getContentLength () (int) {
-    if (request.getHeader("Content-Length") != null) {
-        string strContentLength = request.getHeader("Content-Length").value;
+    if (request.getHeader(CONTENT_LENGTH) != null) {
+        string strContentLength = request.getHeader(CONTENT_LENGTH).value;
         var contentLength, conversionErr = <int>strContentLength;
         if (conversionErr != null) {
+            contentLength = -1;
             throw conversionErr;
         }
         return contentLength;
-    } else {
-        error err = {msg:"No Content-Length header found!"};
-        throw err;
     }
-    return 0;
+    return -1;
 }
 
 @Description {value:"Gets the request payload in JSON format"}

@@ -34,16 +34,15 @@ import static org.ballerinalang.mime.util.Constants.BLOB_INDEX;
 
 /**
  * Mime Base64 Decoder.
+ *
+ * @since 0.96
  */
 @BallerinaFunction(packageName = "ballerina.mime",
                    functionName = "decode",
                    receiver = @Receiver(type = TypeKind.STRUCT,
                                         structType = "MimeBase64Decoder",
                                         structPackage = "ballerina.mime"),
-                   args = {
-                           @Argument(name = "content",
-                                     type = TypeKind.BLOB)
-                   },
+                   args = { @Argument(name = "content", type = TypeKind.BLOB) },
                    returnType = { @ReturnType(type = TypeKind.BLOB) },
                    isPublic = true)
 public class Decode extends AbstractNativeFunction {

@@ -53,7 +53,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -181,8 +180,7 @@ public class RequestNativeFunctionSuccessTest {
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
 
         String payload = "ballerina";
-        String contentType = OCTET_STREAM;
-        MimeUtil.setContentType(mediaType, entity, contentType);
+        MimeUtil.setContentType(mediaType, entity, OCTET_STREAM);
         entity.setBlobField(BYTE_DATA_INDEX, payload.getBytes());
         entity.setBooleanField(IS_IN_MEMORY_INDEX, 1);
         request.addNativeData(MESSAGE_ENTITY, entity);
@@ -397,8 +395,7 @@ public class RequestNativeFunctionSuccessTest {
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
 
         String payload = "ballerina";
-        String contentType = TEXT_PLAIN;
-        MimeUtil.setContentType(mediaType, entity, contentType);
+        MimeUtil.setContentType(mediaType, entity, TEXT_PLAIN);
         entity.setStringField(TEXT_DATA_INDEX, payload);
         entity.setBooleanField(IS_IN_MEMORY_INDEX, 1);
         request.addNativeData(MESSAGE_ENTITY, entity);
@@ -432,8 +429,7 @@ public class RequestNativeFunctionSuccessTest {
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
 
         String payload = "<name>ballerina</name>";
-        String contentType = APPLICATION_XML;
-        MimeUtil.setContentType(mediaType, entity, contentType);
+        MimeUtil.setContentType(mediaType, entity, APPLICATION_XML);
         entity.setRefField(XML_DATA_INDEX, new BXMLItem(payload));
         entity.setBooleanField(IS_IN_MEMORY_INDEX, 1);
         request.addNativeData(MESSAGE_ENTITY, entity);
@@ -835,8 +831,6 @@ public class RequestNativeFunctionSuccessTest {
                 }
                 out.append(buffer, 0, size);
             }
-        } catch (UnsupportedEncodingException e) {
-            LOG.error("Error occured while reading the response value in getReturnValue", e.getMessage());
         } catch (IOException e) {
             LOG.error("Error occured while reading the response value in getReturnValue", e.getMessage());
         }

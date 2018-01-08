@@ -38,17 +38,16 @@ import static org.ballerinalang.mime.util.Constants.STRING_INDEX;
 
 /**
  * Mime base64 encoder to encode string values.
+ *
+ * @since 0.96
  */
 @BallerinaFunction(packageName = "ballerina.mime",
                    functionName = "encodeString",
                    receiver = @Receiver(type = TypeKind.STRUCT,
                                         structType = "MimeBase64Encoder",
                                         structPackage = "ballerina.mime"),
-                   args = {
-                           @Argument(name = "content",
-                                     type = TypeKind.STRING), @Argument(name = "charset",
-                                                                        type = TypeKind.STRING)
-                   },
+                   args = { @Argument(name = "content", type = TypeKind.STRING), @Argument(name = "charset",
+                                                                        type = TypeKind.STRING) },
                    returnType = { @ReturnType(type = TypeKind.STRING) },
                    isPublic = true)
 public class EncodeString extends AbstractNativeFunction {

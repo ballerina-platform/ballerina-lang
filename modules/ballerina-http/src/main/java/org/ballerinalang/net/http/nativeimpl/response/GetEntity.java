@@ -27,6 +27,8 @@ import org.ballerinalang.net.http.HttpUtil;
 
 /**
  * Get the 'Entity' of the response.
+ *
+ * @since 0.96
  */
 @BallerinaFunction(packageName = "ballerina.net.http",
                    functionName = "getEntity",

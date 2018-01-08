@@ -89,18 +89,16 @@ public function <Response res> removeAllHeaders () {
 @Param {value:"response: The response message"}
 @Return {value:"length of the message"}
 public function <Response response> getContentLength () (int) {
-    if (response.getHeader("Content-Length") != null) {
-        string strContentLength = response.getHeader("Content-Length").value;
+    if (response.getHeader(CONTENT_LENGTH) != null) {
+        string strContentLength = response.getHeader(CONTENT_LENGTH).value;
         var contentLength, conversionErr = <int>strContentLength;
         if (conversionErr != null) {
+            contentLength = -1;
             throw conversionErr;
         }
         return contentLength;
-    } else {
-        error err = {msg:"No Content-Length header found!"};
-        throw err;
     }
-    return 0;
+    return -1;
 }
 
 @Description {value:"Gets the response payload in JSON format"}

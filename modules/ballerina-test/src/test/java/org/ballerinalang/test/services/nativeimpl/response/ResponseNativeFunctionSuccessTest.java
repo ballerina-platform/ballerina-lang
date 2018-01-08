@@ -247,9 +247,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test(description = "Test GetHeader function within a service")
     public void testServiceGetHeader() {
-        String header = CONTENT_TYPE;
         String value = "x-www-form-urlencoded";
-        String path = "/hello/getHeader/" + header + "/" + value;
+        String path = "/hello/getHeader/" + CONTENT_TYPE + "/" + value;
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 

@@ -71,6 +71,8 @@ import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
 
 /**
  * Entity related operations and mime utility functions are included here.
+ *
+ * @since 0.96
  */
 public class MimeUtil {
     private static final Logger LOG = LoggerFactory.getLogger(MimeUtil.class);
@@ -179,7 +181,7 @@ public class MimeUtil {
      * @return a boolean denoting the availability of text payload
      */
     public static boolean isTextBodyPresent(BStruct entity) {
-        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1 ? true : false;
+        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1;
         if (isInMemory) {
             String textPayload = entity.getStringField(TEXT_DATA_INDEX);
             if (textPayload != null) {
@@ -201,7 +203,7 @@ public class MimeUtil {
      * @return a boolean denoting the availability of json payload
      */
     public static boolean isJsonBodyPresent(BStruct entity) {
-        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1 ? true : false;
+        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1;
         if (isInMemory) {
             BJSON jsonPayload = (BJSON) entity.getRefField(JSON_DATA_INDEX);
             if (jsonPayload != null) {
@@ -223,7 +225,7 @@ public class MimeUtil {
      * @return a boolean denoting the availability of xml payload
      */
     public static boolean isXmlBodyPresent(BStruct entity) {
-        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1 ? true : false;
+        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1;
         if (isInMemory) {
             BXML xmlPayload = (BXML) entity.getRefField(XML_DATA_INDEX);
             if (xmlPayload != null) {
@@ -245,7 +247,7 @@ public class MimeUtil {
      * @return a boolean denoting the availability of binary payload
      */
     public static boolean isBinaryBodyPresent(BStruct entity) {
-        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1 ? true : false;
+        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1;
         if (isInMemory) {
             byte[] binaryPayload = entity.getBlobField(BYTE_DATA_INDEX);
             if (binaryPayload != null) {
@@ -268,10 +270,9 @@ public class MimeUtil {
      */
     public static String getTextPayload(BStruct entity) {
         String returnValue = null;
-        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1 ? true : false;
+        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1;
         if (isInMemory) {
-            String textData = entity.getStringField(TEXT_DATA_INDEX);
-            return textData;
+            return entity.getStringField(TEXT_DATA_INDEX);
         } else {
             BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
             String filePath = fileHandler.getStringField(FILE_PATH_INDEX);
@@ -291,10 +292,9 @@ public class MimeUtil {
      * @return json content in BJSON form
      */
     public static BJSON getJsonPayload(BStruct entity) {
-        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1 ? true : false;
+        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1;
         if (isInMemory) {
-            BJSON jsonData = (BJSON) entity.getRefField(JSON_DATA_INDEX);
-            return jsonData;
+            return (BJSON) entity.getRefField(JSON_DATA_INDEX);
         } else {
             BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
             String filePath = fileHandler.getStringField(FILE_PATH_INDEX);
@@ -314,10 +314,9 @@ public class MimeUtil {
      * @return xml content in BXML form
      */
     public static BXML getXmlPayload(BStruct entity) {
-        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1 ? true : false;
+        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1;
         if (isInMemory) {
-            BXML xmlData = (BXML) entity.getRefField(XML_DATA_INDEX);
-            return xmlData;
+            return  (BXML) entity.getRefField(XML_DATA_INDEX);
         } else {
             BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
             String filePath = fileHandler.getStringField(FILE_PATH_INDEX);
@@ -337,10 +336,9 @@ public class MimeUtil {
      * @return entity body as a byte array
      */
     public static byte[] getBinaryPayload(BStruct entity) {
-        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1 ? true : false;
+        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1;
         if (isInMemory) {
-            byte[] byteData = entity.getBlobField(BYTE_DATA_INDEX);
-            return byteData;
+            return entity.getBlobField(BYTE_DATA_INDEX);
         } else {
             BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
             String filePath = fileHandler.getStringField(FILE_PATH_INDEX);

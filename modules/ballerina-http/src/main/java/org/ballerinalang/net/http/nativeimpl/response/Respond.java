@@ -92,7 +92,7 @@ public class Respond extends AbstractNativeFunction {
             outboundResponseStruct.addNativeData(IS_ENTITY_BODY_PRESENT, false);
         }
         if (entity.getRefField(ENTITY_HEADERS_INDEX) != null) {
-            HttpUtil.setHeadersToTransportMessage(responseMessage, outboundResponseStruct, entity);
+            HttpUtil.setHeadersToTransportMessage(responseMessage, outboundResponseStruct);
         }
 
         return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage,

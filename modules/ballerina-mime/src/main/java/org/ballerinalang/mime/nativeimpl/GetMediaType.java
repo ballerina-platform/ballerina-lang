@@ -34,13 +34,13 @@ import static org.ballerinalang.mime.util.Constants.STRING_INDEX;
 
 /**
  * Construct MediaType struct from Content-Type string.
+ *
+ * @since 0.96
  */
 @BallerinaFunction(packageName = "ballerina.mime",
                    functionName = "getMediaType",
-                   args = {
-                           @Argument(name = "contentType",
-                                     type = TypeKind.STRING)
-                   },
+                   args = { @Argument(name = "contentType",
+                                     type = TypeKind.STRING) },
                    returnType = { @ReturnType(type = TypeKind.STRUCT) },
                    isPublic = true)
 public class GetMediaType extends AbstractNativeFunction {

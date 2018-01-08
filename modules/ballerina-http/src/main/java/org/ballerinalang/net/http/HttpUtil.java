@@ -322,9 +322,7 @@ public class HttpUtil {
         if (entity.getRefField(MEDIA_TYPE_INDEX) != null) {
             BStruct mediaType = (BStruct) entity.getRefField(MEDIA_TYPE_INDEX);
             if (mediaType != null) {
-                String baseType =
-                        mediaType.getStringField(PRIMARY_TYPE_INDEX) + "/" + mediaType.getStringField(SUBTYPE_INDEX);
-                return baseType;
+                return mediaType.getStringField(PRIMARY_TYPE_INDEX) + "/" + mediaType.getStringField(SUBTYPE_INDEX);
             }
         }
         return null;
@@ -419,17 +417,20 @@ public class HttpUtil {
                     case org.ballerinalang.mime.util.Constants.TEXT_PLAIN:
                         String textPayload = MimeUtil.getTextPayload(entity);
                         return new StringDataSource(textPayload, messageOutputStream);
-
                     case org.ballerinalang.mime.util.Constants.APPLICATION_JSON:
                         BJSON jsonPayload = MimeUtil.getJsonPayload(entity);
-                        jsonPayload.setOutputStream(messageOutputStream);
-                        return jsonPayload;
-
+                        if (jsonPayload != null) {
+                            jsonPayload.setOutputStream(messageOutputStream);
+                            return jsonPayload;
+                        }
+                        break;
                     case org.ballerinalang.mime.util.Constants.APPLICATION_XML:
                         BXML xmlPayload = MimeUtil.getXmlPayload(entity);
-                        xmlPayload.setOutputStream(messageOutputStream);
-                        return xmlPayload;
-
+                        if (xmlPayload != null) {
+                            xmlPayload.setOutputStream(messageOutputStream);
+                            return xmlPayload;
+                        }
+                        break;
                     default:
                         byte[] binaryPayload = MimeUtil.getBinaryPayload(entity);
                         return new BlobDataSource(binaryPayload, messageOutputStream);
@@ -543,8 +544,7 @@ public class HttpUtil {
         headerValueStructType = struct.getType();
     }
 
-    public static void populateConnection(BStruct request,
-            HTTPCarbonMessage cMsg) {
+    public static void populateConnection(BStruct request, HTTPCarbonMessage cMsg) {
         request.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
         request.setStringField(Constants.CONNECTION_HOST_INDEX,
                 ((InetSocketAddress) cMsg.getProperty(Constants.LOCAL_ADDRESS)).getHostName());
@@ -571,6 +571,14 @@ public class HttpUtil {
         request.addNativeData(IS_ENTITY_BODY_PRESENT, false);
     }
 
+    /**
+     * Populate inbound response with headers and entity.
+     *
+     * @param response  Ballerina struct to represent response
+     * @param entity    Entity of the response
+     * @param mediaType Content type of the response
+     * @param cMsg      Represent carbon message.
+     */
     public static void populateInboundResponse(BStruct response, BStruct entity, BStruct mediaType, HTTPCarbonMessage
             cMsg) {
         response.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
@@ -583,13 +591,18 @@ public class HttpUtil {
             response.setStringField(Constants.RESPONSE_SERVER_INDEX, cMsg.getHeader(Constants.SERVER_HEADER));
             cMsg.removeHeader(Constants.SERVER_HEADER);
         }
-        String contentType = cMsg.getHeader(CONTENT_TYPE);
-        MimeUtil.setContentType(mediaType, entity, contentType);
-        entity.setRefField(ENTITY_HEADERS_INDEX, prepareHeaderMap(cMsg.getHeaders(), new BMap<>()));
+        populateEntity(entity, mediaType, cMsg);
         response.addNativeData(MESSAGE_ENTITY, entity);
         response.addNativeData(IS_ENTITY_BODY_PRESENT, false);
     }
 
+    /**
+     * Populate entity with headers, content-type and content-length.
+     *
+     * @param entity    Represent an entity struct
+     * @param mediaType mediaType struct that needs to be set to the entity
+     * @param cMsg      Represent a carbon message
+     */
     private static void populateEntity(BStruct entity, BStruct mediaType, HTTPCarbonMessage cMsg) {
         String contentType = cMsg.getHeader(CONTENT_TYPE);
             MimeUtil.setContentType(mediaType, entity, contentType);
@@ -605,8 +618,8 @@ public class HttpUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public static void populateOutboundRequest(BStruct message, BStruct entity, HTTPCarbonMessage reqMsg) {
-        setHeadersToTransportMessage(reqMsg, message, entity);
+    public static void populateOutboundRequest(BStruct message, HTTPCarbonMessage reqMsg) {
+        setHeadersToTransportMessage(reqMsg, message);
     }
 
     private static BMap<String, BValue> prepareHeaderMap(HttpHeaders headers, BMap<String, BValue> headerMap) {
@@ -673,8 +686,8 @@ public class HttpUtil {
         return paramMap;
     }
 
-    public static void setHeadersToTransportMessage(HTTPCarbonMessage outboundRequest, BStruct messageStruct, BStruct
-            entityStruct) {
+    public static void setHeadersToTransportMessage(HTTPCarbonMessage outboundRequest, BStruct messageStruct) {
+        BStruct entityStruct = (BStruct) messageStruct.getNativeData(MESSAGE_ENTITY);
         outboundRequest.getHeaders().clear();
         HttpHeaders removedHeaders = messageStruct.getType().getName().equals(Constants.REQUEST) ?
                 getRequestStructHeaders(messageStruct) : getResponseStructHeaders(messageStruct);
