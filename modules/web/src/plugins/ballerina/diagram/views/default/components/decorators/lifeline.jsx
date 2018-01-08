@@ -216,20 +216,12 @@ class LifeLine extends React.Component {
                     isDefaultWorker={isDefaultWorker}
                 />
             }
-            {TreeUtils.isWorker(this.props.model) &&
-                <g>
-                    <circle
-                        cx={startX}
-                        cy={startY}
-                        r='4'
-                        className={lineClass + ' dot'}
-                    />
-                    <ArrowDecorator
-                        start={{ x: startX - 4, y: startY }}
-                        end={{ x: startX - 4, y: startY }}
-                        classNameArrow={lineClass + 'client-invocation-arrow'}
-                    />
-                </g>
+            {!TreeUtils.isEndpointTypeVariableDef(this.props.model) &&
+                <ArrowDecorator
+                    start={{ x: startX, y: startY }}
+                    end={{ x: startX, y: startY }}
+                    classNameArrow={lineClass + 'client-invocation-arrow'}
+                />
             }
         </g>);
     }
