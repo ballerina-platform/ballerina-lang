@@ -18,7 +18,6 @@
 import _ from 'lodash';
 import FragmentUtils from '../utils/fragment-utils';
 import TreeBuilder from './tree-builder';
-import TreeUtils from './tree-util';
 import Environment from '../env/environment';
 import DefaultNodes from './default-nodes';
 import ConnectorHelper from './../env/helpers/connector-helper';
@@ -61,35 +60,30 @@ class DefaultNodeFactory {
 
     createHTTPServiceDef() {
         const node = getStaticDefaultNode('createHTTPServiceDef');
-        node.viewState.shouldShowConnectorPropertyWindow = true;
         node.setFullPackageName('ballerina.net.http');
         return node;
     }
 
     createWSServiceDef() {
         const node = getStaticDefaultNode('createWSServiceDef');
-        node.viewState.shouldShowConnectorPropertyWindow = true;
         node.setFullPackageName('ballerina.net.ws');
         return node;
     }
 
     createJMSServiceDef() {
         const node = getStaticDefaultNode('createJMSServiceDef');
-        node.viewState.shouldShowConnectorPropertyWindow = true;
         node.setFullPackageName('ballerina.net.jms');
         return node;
     }
 
     createFSServiceDef() {
         const node = getStaticDefaultNode('createFSServiceDef');
-        node.viewState.shouldShowConnectorPropertyWindow = true;
         node.setFullPackageName('ballerina.net.fs');
         return node;
     }
 
     createFTPServiceDef() {
         const node = getStaticDefaultNode('createFTPServiceDef');
-        node.viewState.shouldShowConnectorPropertyWindow = true;
         node.setFullPackageName('ballerina.net.ftp');
         return node;
     }
@@ -153,11 +147,6 @@ class DefaultNodeFactory {
 
     createAssignmentStmt() {
         const node = getStaticDefaultNode('createAssignmentStmt');
-        // Check if the node is a ConnectorDeclaration
-        if (TreeUtils.isEndpointTypeVariableDef(node)) {
-            node.viewState.showOverlayContainer = true;
-            return node;
-        }
         return node;
     }
 
@@ -167,11 +156,6 @@ class DefaultNodeFactory {
 
     createVarDefStmt() {
         const node = getStaticDefaultNode('createVarDefStmt');
-        // Check if the node is a ConnectorDeclaration
-        if (TreeUtils.isEndpointTypeVariableDef(node)) {
-            node.viewState.showOverlayContainer = true;
-            return node;
-        }
         return node;
     }
 
@@ -253,13 +237,14 @@ class DefaultNodeFactory {
     }
 
     createConnectorDeclaration(args) {
-        const node = getNodeForFragment(FragmentUtils.createStatementFragment('http:HttpClient endpoint1 = create http:HttpClient("",{});'));
+        const node = getNodeForFragment(
+            FragmentUtils.createStatementFragment('http:HttpClient endpoint1 = create http:HttpClient("",{});'));
         const { connector, packageName, fullPackageName } = args;
 
         // Iterate through the params
         const parameters = [];
         if (connector.getParams()) {
-            const connectorParams = connector.getParams().map((param) => {
+            connector.getParams().forEach((param) => {
                 let defaultValue = Environment.getDefaultValue(param.type);
                 if (defaultValue === undefined) {
                     // Check if its a struct or enum
@@ -283,10 +268,11 @@ class DefaultNodeFactory {
         const pkgStr = packageName !== 'Current Package' ? `${packageName}` : '';
         node.getVariable().getTypeNode().getTypeName().setValue(connector.getName());
         node.getVariable().getTypeNode().getPackageAlias().setValue(pkgStr);
-        node.getVariable().getInitialExpression().getConnectorType().getPackageAlias().setValue(pkgStr);
-        node.getVariable().getInitialExpression().getConnectorType().getTypeName().setValue(connector.getName());
+        node.getVariable().getInitialExpression().getConnectorType().getPackageAlias()
+            .setValue(pkgStr);
+        node.getVariable().getInitialExpression().getConnectorType().getTypeName()
+            .setValue(connector.getName());
         node.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
-        node.viewState.showOverlayContainer = true;
         return node;
     }
 
@@ -302,7 +288,7 @@ class DefaultNodeFactory {
         const parameters = [];
         const pkgStr = packageName !== 'Current Package' ? packageName.split(/[.]+/).pop() : '';
         if (connector && connector.getParams()) {
-            const connectorParams = connector.getParams().map((param) => {
+            connector.getParams().forEach((param) => {
                 let defaultValue = Environment.getDefaultValue(param.type);
                 if (defaultValue === undefined) {
                 // Check if its a struct or enum
@@ -322,18 +308,20 @@ class DefaultNodeFactory {
                 parameters.push(paramNode.getVariable().getInitialExpression());
             });
             node.getVariable().getInitialExpression().setExpressions(parameters);
-            node.getVariable().getTypeNode().getConstraint().getTypeName().setValue(connector.getName());
-            node.getVariable().getTypeNode().getConstraint().getPackageAlias().setValue(pkgStr);
-            node.getVariable().getInitialExpression().getConnectorType().getPackageAlias().setValue(pkgStr);
-            node.getVariable().getInitialExpression().getConnectorType().getTypeName().setValue(connector.getName());
+            node.getVariable().getTypeNode().getConstraint().getTypeName()
+                .setValue(connector.getName());
+            node.getVariable().getTypeNode().getConstraint().getPackageAlias()
+                .setValue(pkgStr);
+            node.getVariable().getInitialExpression().getConnectorType().getPackageAlias()
+                .setValue(pkgStr);
+            node.getVariable().getInitialExpression().getConnectorType().getTypeName()
+                .setValue(connector.getName());
             node.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
         }
-        node.viewState.showOverlayContainer = true;
         return node;
     }
 
     createConnectorActionInvocationAssignmentStatement(args) {
-        let node;
         let stmtString = '';
         const { action, packageName, fullPackageName } = args;
 
@@ -342,7 +330,7 @@ class DefaultNodeFactory {
         }
         stmtString += 'endpoint1.action1();';
 
-        node = getNodeForFragment(FragmentUtils.createStatementFragment(stmtString));
+        const node = getNodeForFragment(FragmentUtils.createStatementFragment(stmtString));
 
         if (action && action.getParameters().length > 0) {
             const parameters = action.getParameters().map((param) => {
@@ -377,7 +365,6 @@ class DefaultNodeFactory {
     }
 
     createFunctionInvocationStatement(args) {
-        let node;
         let stmtString = '';
 
         const { functionDef, packageName, fullPackageName } = args;
@@ -392,7 +379,7 @@ class DefaultNodeFactory {
             stmtString += 'function1();';
         }
 
-        node = getNodeForFragment(FragmentUtils.createStatementFragment(stmtString));
+        const node = getNodeForFragment(FragmentUtils.createStatementFragment(stmtString));
 
         if (functionDef.getParameters().length > 0) {
             const parameters = functionDef.getParameters().map((param) => {
