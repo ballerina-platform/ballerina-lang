@@ -21,8 +21,6 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import PanelDecorator from './../decorators/panel-decorator';
 import { getComponentForNodeArray } from './../../../../diagram-util';
-import GlobalExpanded from './globals-expanded';
-import GlobalDefinitions from './global-definitions';
 import TreeUtil from '../../../../../model/tree-util';
 import EndpointDecorator from '../decorators/endpoint-decorator';
 import FragmentUtils from './../../../../../utils/fragment-utils';
@@ -60,6 +58,22 @@ class ConnectorNode extends React.Component {
      */
     onSwaggerButtonClicked() {
         this.context.editor.showSwaggerViewForService(this.props.model);
+    }
+
+    /**
+     * Handles the mouse enter event on the connector node
+     */
+    onMouseEnter() {
+        this.setState({ addAction: true });
+    }
+
+    /**
+     * Handles the mouse leave event on the connector node
+     */
+    onMouseLeave() {
+        if (_.isEmpty(this.props.model.viewState.overlayContainer)) {
+            this.setState({ addAction: false });
+        }
     }
 
     /**
@@ -112,22 +126,6 @@ class ConnectorNode extends React.Component {
         this.props.model.viewState.variablesExpanded = !this.props.model.viewState.variablesExpanded;
         this.context.editor.update();
     }
-
-    /**
-     * Handles the mouse enter event on the connector node
-     */
-    onMouseEnter() {
-        this.setState({ addAction: true });
-    }
-
-    /**
-     * Handles the mouse leave event on the connector node
-     */
-    onMouseLeave() {
-        if (_.isEmpty(this.props.model.viewState.overlayContainer)) {
-            this.setState({ addAction: false });
-        }
-    }
     /**
      * Renders the view for a connector definition.
      *
@@ -136,7 +134,6 @@ class ConnectorNode extends React.Component {
      */
     render() {
         const model = this.props.model;
-        const viewState = model.viewState;
         const bBox = model.viewState.bBox;
         const variables = model.getVariableDefs();
         const argumentParameters = model.getParameters();
@@ -174,27 +171,6 @@ class ConnectorNode extends React.Component {
                     {this.state.addAction &&
                     <AddActionNode model={model} />
                     }
-                    {
-                        viewState.variablesExpanded ?
-                            <GlobalExpanded
-                                bBox={viewState.components.initFunction}
-                                globals={variables}
-                                onCollapse={this.handleVarialblesBadgeClick}
-                                title='Variables'
-                                addText={'+ Add Variable'}
-                                model={this.props.model}
-                                onAddNewValue={this.handleAddVariable}
-                                newValuePlaceholder={''}
-                                onDeleteClick={this.handleDeleteVariable}
-                                getValue={g => (g.getSource())}
-                            /> :
-                            <GlobalDefinitions
-                                bBox={viewState.components.initFunction}
-                                numberOfItems={variables.length}
-                                title={'Variables'}
-                                onExpand={this.handleVarialblesBadgeClick}
-                            />
-                        }
                     {blockNode}
                     {connectors}
                 </PanelDecorator>

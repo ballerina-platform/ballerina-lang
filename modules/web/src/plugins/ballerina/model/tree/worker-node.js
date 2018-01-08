@@ -16,10 +16,32 @@
  * under the License.
  */
 
+import _ from 'lodash';
 import AbstractWorkerNode from './abstract-tree/worker-node';
 
 class WorkerNode extends AbstractWorkerNode {
 
+    remove() {
+        const parent = this.parent;
+        const parentWorkerCount = parent.workers.length;
+        const parentDefaultWorker = _.find(parent.workers, (worker) => {
+            return worker.name.value === 'default';
+        });
+
+        // We need to determine the exact number of workers.
+        // If the number of workers are two and there exist a worker with the name default
+        // We transfer the statements in the default worker to the parent's body.
+        if (parentWorkerCount === 2 &&
+            parentDefaultWorker &&
+            this.name.value !== 'default') {
+            const statements = parent.body.getStatements().concat(parentDefaultWorker.body.statements);
+            parent.body.setStatements(statements, true);
+            parentDefaultWorker.remove();
+            super.remove();
+        } else {
+            super.remove();
+        }
+    }
 }
 
 export default WorkerNode;
