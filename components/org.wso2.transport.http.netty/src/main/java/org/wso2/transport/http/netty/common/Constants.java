@@ -213,6 +213,7 @@ public final class Constants {
     public static final String MESSAGE_PROCESSOR_ID = "MESSAGE_PROCESSOR_ID";
 
     public static final String SRC_HANDLER = "SRC_HANDLER";
+    public static final String POOLED_BYTE_BUFFER_FACTORY = "POOLED_BYTE_BUFFER_FACTORY";
     public static final String DEFAULT_VERSION_HTTP_1_1 = "HTTP/1.1";
 
     //Server Connection Related Parameters

@@ -29,6 +29,7 @@ import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
+import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.RequestSizeValidationConfiguration;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
@@ -45,6 +46,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
     private int socketIdleTimeout;
     private boolean httpTraceLogEnabled;
+    private ChunkConfig chunkConfig;
     private String interfaceId;
     private SSLConfig sslConfig;
     private ServerConnectorFuture serverConnectorFuture;
@@ -105,7 +107,8 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
         try {
             pipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
-                             new SourceHandler(this.serverConnectorFuture, this.interfaceId));
+                             new SourceHandler(this.serverConnectorFuture, this.interfaceId,
+                                     this.chunkConfig));
         } catch (Exception e) {
             log.error("Cannot Create SourceHandler ", e);
         }
@@ -142,5 +145,13 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
     public void setRequestSizeValidationConfig(RequestSizeValidationConfiguration requestSizeValidationConfig) {
         this.requestSizeValidationConfig = requestSizeValidationConfig;
+    }
+
+    public ChunkConfig getChunkingConfig() {
+        return this.chunkConfig;
+    }
+
+    public void setChunkingConfig(ChunkConfig chunkConfig) {
+        this.chunkConfig = chunkConfig;
     }
 }

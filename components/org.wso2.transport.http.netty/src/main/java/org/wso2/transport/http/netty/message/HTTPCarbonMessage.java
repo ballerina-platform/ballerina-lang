@@ -27,9 +27,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.messaging.MessageUtil;
-import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
@@ -51,8 +49,6 @@ public class HTTPCarbonMessage {
     private EntityCollector blockingEntityCollector;
     private Map<String, Object> properties = new HashMap<>();
 
-    private MessagingException messagingException = null;
-    private MessageDataSource messageDataSource;
     private MessageFuture messageFuture;
     private final ServerConnectorFuture httpOutboundRespFuture = new HttpWsServerConnectorFuture();
     private final HttpResponseStatusFuture httpOutboundRespStatusFuture = new HttpResponseStatusFuture();
@@ -211,32 +207,6 @@ public class HTTPCarbonMessage {
         properties.remove(key);
     }
 
-    public MessageDataSource getMessageDataSource() {
-        return messageDataSource;
-    }
-
-    public void setMessageDataSource(MessageDataSource messageDataSource) {
-        this.messageDataSource = messageDataSource;
-    }
-
-    /**
-     * Get CarbonMessageException.
-     *
-     * @return CarbonMessageException instance related to faulty HTTPCarbonMessage.
-     */
-    public MessagingException getMessagingException() {
-        return messagingException;
-    }
-
-    /**
-     * Set CarbonMessageException.
-     *
-     * @param messagingException exception related to faulty HTTPCarbonMessage.
-     */
-    public void setMessagingException(MessagingException messagingException) {
-        this.messagingException = messagingException;
-    }
-
     private void setBlockingEntityCollector(BlockingEntityCollector blockingEntityCollector) {
         this.blockingEntityCollector = blockingEntityCollector;
     }
@@ -344,11 +314,6 @@ public class HTTPCarbonMessage {
         blockingEntityCollector.waitAndReleaseAllEntities();
     }
 
-    @Override
-    protected void finalize() {
-        release();
-    }
-
     public EntityCollector getBlockingEntityCollector() {
         return blockingEntityCollector;
     }
@@ -358,7 +323,7 @@ public class HTTPCarbonMessage {
     }
 
     /**
-     * Gives the underling netty request message
+     * Gives the underling netty request message.
      * @return netty request message
      */
     public HttpRequest getNettyHttpRequest() {
@@ -366,7 +331,7 @@ public class HTTPCarbonMessage {
     }
 
     /**
-     * Gives the underling netty response message
+     * Gives the underling netty response message.
      * @return netty response message
      */
     public HttpResponse getNettyHttpResponse() {

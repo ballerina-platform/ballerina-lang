@@ -21,6 +21,7 @@ package org.wso2.transport.http.netty.listener;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
@@ -39,13 +40,14 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
-import org.wso2.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketBinaryMessageImpl;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketCloseMessageImpl;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketControlMessageImpl;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketTextMessageImpl;
 import org.wso2.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
+import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.websocket.WebSocketSessionImpl;
 
 import java.net.InetSocketAddress;
@@ -56,7 +58,7 @@ import java.util.Map;
  * This class handles all kinds of WebSocketFrames
  * after connection is upgraded from HTTP to WebSocket.
  */
-public class WebSocketSourceHandler extends SourceHandler {
+public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketSourceHandler.class);
     private final String target;
@@ -67,6 +69,7 @@ public class WebSocketSourceHandler extends SourceHandler {
     private final Map<String, String> headers;
     private final String interfaceId;
     private String subProtocol = null;
+    private HandlerExecutor handlerExecutor;
 
     /**
      * @param connectorFuture {@link ServerConnectorFuture} to notify messages to application.
@@ -76,13 +79,10 @@ public class WebSocketSourceHandler extends SourceHandler {
      * @param headers Headers obtained from HTTP WebSocket upgrade request.
      * @param ctx {@link ChannelHandlerContext} of WebSocket connection.
      * @param interfaceId given ID for the socket interface.
-     * @throws Exception if any error occurred during construction of {@link WebSocketSourceHandler}.
      */
     public WebSocketSourceHandler(ServerConnectorFuture connectorFuture, boolean isSecured,
                                   WebSocketSessionImpl channelSession, HttpRequest httpRequest,
-                                  Map<String, String> headers, ChannelHandlerContext ctx, String interfaceId)
-            throws Exception {
-        super(new HttpWsServerConnectorFuture(), interfaceId);
+                                  Map<String, String> headers, ChannelHandlerContext ctx, String interfaceId) {
         this.connectorFuture = connectorFuture;
         this.isSecured = isSecured;
         this.channelSession = channelSession;
@@ -90,6 +90,20 @@ public class WebSocketSourceHandler extends SourceHandler {
         this.interfaceId = interfaceId;
         this.target = httpRequest.uri();
         this.headers = headers;
+    }
+
+    @Override
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+        super.handlerAdded(ctx);
+    }
+
+    @Override
+    public void channelActive(final ChannelHandlerContext ctx) throws Exception {
+        // Start the server connection Timer
+        this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
+        if (this.handlerExecutor != null) {
+            this.handlerExecutor.executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
+        }
     }
 
     /**
@@ -121,6 +135,13 @@ public class WebSocketSourceHandler extends SourceHandler {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        // Stop the connector timer
+        ctx.close();
+        if (handlerExecutor != null) {
+            handlerExecutor.executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
+            handlerExecutor = null;
+        }
+
         if (channelSession.isOpen()) {
             channelSession.setIsOpen(false);
             int statusCode = 1001; // Client is going away.

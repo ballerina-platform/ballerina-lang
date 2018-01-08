@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.common.Util;
+import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
@@ -57,7 +58,7 @@ public class TargetChannel {
     private ConnectionManager connectionManager;
     private boolean isRequestWritten = false;
     private String httpVersion;
-    private boolean chunkEnabled = true;
+    private ChunkConfig chunkConfig;
     private HandlerExecutor handlerExecutor;
 
     private List<HttpContent> contentList = new ArrayList<>();
@@ -118,8 +119,8 @@ public class TargetChannel {
         this.httpVersion = httpVersion;
     }
 
-    public void setChunkEnabled(boolean chunkEnabled) {
-        this.chunkEnabled = chunkEnabled;
+    public void setChunkConfig(ChunkConfig chunkConfig) {
+        this.chunkConfig = chunkConfig;
     }
 
     public void configTargetHandler(HTTPCarbonMessage httpCarbonMessage, HttpResponseFuture httpResponseFuture) {
@@ -180,7 +181,7 @@ public class TargetChannel {
                 // this means we need to send an empty payload
                 // depending on the http verb
                 if (Util.isEntityBodyAllowed(getHttpMethod(httpOutboundRequest))) {
-                    if (chunkEnabled && Util.isVersionCompatibleForChunking(httpVersion)) {
+                    if (chunkConfig == ChunkConfig.ALWAYS && Util.isVersionCompatibleForChunking(httpVersion)) {
                         Util.setupChunkedRequest(httpOutboundRequest);
                     } else {
                         contentLength += httpContent.content().readableBytes();
@@ -190,7 +191,7 @@ public class TargetChannel {
                 writeOutboundRequestHeaders(httpOutboundRequest);
             }
 
-            if (!chunkEnabled) {
+            if (chunkConfig == ChunkConfig.NEVER) {
                 for (HttpContent cachedHttpContent : contentList) {
                     this.getChannel().writeAndFlush(cachedHttpContent);
                 }
@@ -205,7 +206,8 @@ public class TargetChannel {
                 handlerExecutor.executeAtTargetRequestSending(httpOutboundRequest);
             }
         } else {
-            if (chunkEnabled  && Util.isVersionCompatibleForChunking(httpVersion)) {
+            if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO)
+                    && Util.isVersionCompatibleForChunking(httpVersion)) {
                 if (!this.isRequestWritten) {
                     Util.setupChunkedRequest(httpOutboundRequest);
                     writeOutboundRequestHeaders(httpOutboundRequest);

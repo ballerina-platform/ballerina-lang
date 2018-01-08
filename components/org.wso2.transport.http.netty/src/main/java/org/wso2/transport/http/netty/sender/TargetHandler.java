@@ -32,15 +32,12 @@ import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
+import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 /**
- * A class responsible for handling responses coming from BE.
- *
- * Timer tasks in IdleStateHandler (parent of ReadTimeoutHandler) is not working properly with overridden methods which
- * causes timeout issues when TargetHandler is re-used from the ConnectionManager.
- *
+ * A class responsible for handling responses coming from BE. *
  */
 public class TargetHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOG = LoggerFactory.getLogger(TargetHandler.class);
@@ -69,7 +66,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         if (targetChannel.isRequestWritten()) {
             if (msg instanceof HttpResponse) {
                 targetRespMsg = setUpCarbonMessage(ctx, msg);
-                // TODO: Revisit all of these after the refactor
                 if (handlerExecutor != null) {
                     handlerExecutor.executeAtTargetResponseReceiving(targetRespMsg);
                 }
@@ -113,6 +109,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     private HTTPCarbonMessage setUpCarbonMessage(ChannelHandlerContext ctx, Object msg) {
         targetRespMsg = new HttpCarbonResponse((HttpResponse) msg);
+        targetRespMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
 
         targetRespMsg.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
                 org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
@@ -123,7 +120,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         //copy shared worker pool
         targetRespMsg.setProperty(Constants.EXECUTOR_WORKER_POOL, incomingMsg
                 .getProperty(Constants.EXECUTOR_WORKER_POOL));
-        //TODO copy mandatory properties from previous message if needed
 
         if (handlerExecutor != null) {
             handlerExecutor.executeAtTargetResponseReceiving(targetRespMsg);
@@ -145,30 +141,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
             handlerExecutor.executeAtTargetConnectionTermination(Integer.toString(ctx.hashCode()));
             handlerExecutor = null;
         }
-    }
-
-    public void setHttpResponseFuture(HttpResponseFuture httpResponseFuture) {
-        this.httpResponseFuture = httpResponseFuture;
-    }
-
-    public void setConnectionManager(ConnectionManager connectionManager) {
-        this.connectionManager = connectionManager;
-    }
-
-    public void setIncomingMsg(HTTPCarbonMessage incomingMsg) {
-        this.incomingMsg = incomingMsg;
-    }
-
-    public void setTargetChannel(TargetChannel targetChannel) {
-        this.targetChannel = targetChannel;
-    }
-
-    public void setKeepAlive(boolean keepAlive) {
-        isKeepAlive = keepAlive;
-    }
-
-    public HttpResponseFuture getHttpResponseFuture() {
-        return httpResponseFuture;
     }
 
     @Override
@@ -206,5 +178,29 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         if (ctx.channel().isActive()) {
             ctx.close();
         }
+    }
+
+    public void setHttpResponseFuture(HttpResponseFuture httpResponseFuture) {
+        this.httpResponseFuture = httpResponseFuture;
+    }
+
+    public void setConnectionManager(ConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
+    }
+
+    public void setIncomingMsg(HTTPCarbonMessage incomingMsg) {
+        this.incomingMsg = incomingMsg;
+    }
+
+    public void setTargetChannel(TargetChannel targetChannel) {
+        this.targetChannel = targetChannel;
+    }
+
+    public void setKeepAlive(boolean keepAlive) {
+        isKeepAlive = keepAlive;
+    }
+
+    public HttpResponseFuture getHttpResponseFuture() {
+        return httpResponseFuture;
     }
 }

@@ -35,12 +35,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
+import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
+import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
@@ -58,11 +60,15 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private Map<String, GenericObjectPool> targetChannelPool;
     private ServerConnectorFuture serverConnectorFuture;
     private String interfaceId;
+    private ChunkConfig chunkConfig;
     private HandlerExecutor handlerExecutor;
 
-    public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId) throws Exception {
+    public SourceHandler(ServerConnectorFuture serverConnectorFuture,
+            String interfaceId, ChunkConfig chunkConfig) throws Exception {
+
         this.serverConnectorFuture = serverConnectorFuture;
         this.interfaceId = interfaceId;
+        this.chunkConfig = chunkConfig;
         this.targetChannelPool = new ConcurrentHashMap<>();
     }
 
@@ -87,17 +93,16 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
         if (msg instanceof FullHttpMessage) {
             FullHttpMessage fullHttpMessage = (FullHttpMessage) msg;
-            sourceReqCmsg = setupCarbonMessage(fullHttpMessage);
+            sourceReqCmsg = setupCarbonMessage(fullHttpMessage, ctx);
             notifyRequestListener(sourceReqCmsg, ctx);
             ByteBuf content = ((FullHttpMessage) msg).content();
             sourceReqCmsg.addHttpContent(new DefaultLastHttpContent(content));
             if (handlerExecutor != null) {
                 handlerExecutor.executeAtSourceRequestSending(sourceReqCmsg);
             }
-
         } else if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
-            sourceReqCmsg = setupCarbonMessage(httpRequest);
+            sourceReqCmsg = setupCarbonMessage(httpRequest, ctx);
             notifyRequestListener(sourceReqCmsg, ctx);
         } else {
             if (sourceReqCmsg != null) {
@@ -139,7 +144,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             if (serverConnectorFuture != null) {
                 try {
                     ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
-                    outboundRespFuture.setHttpConnectorListener(new HttpOutboundRespListener(ctx, httpRequestMsg));
+                    outboundRespFuture
+                            .setHttpConnectorListener(new HttpOutboundRespListener(ctx, httpRequestMsg, chunkConfig));
                     this.serverConnectorFuture.notifyHttpListener(httpRequestMsg);
                 } catch (Exception e) {
                     log.error("Error while notifying listeners", e);
@@ -185,13 +191,15 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         serverConnectorFuture.notifyErrorListener(cause);
     }
 
-    private HTTPCarbonMessage setupCarbonMessage(HttpMessage httpMessage) throws URISyntaxException {
+    private HTTPCarbonMessage setupCarbonMessage(HttpMessage httpMessage, ChannelHandlerContext ctx)
+            throws URISyntaxException {
 
         if (handlerExecutor != null) {
             handlerExecutor.executeAtSourceRequestReceiving(sourceReqCmsg);
         }
 
         sourceReqCmsg = new HttpCarbonRequest((HttpRequest) httpMessage);
+        sourceReqCmsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
 
         HttpRequest httpRequest = (HttpRequest) httpMessage;
         sourceReqCmsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);

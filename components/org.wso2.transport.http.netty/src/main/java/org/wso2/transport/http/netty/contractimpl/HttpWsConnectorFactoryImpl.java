@@ -65,6 +65,7 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
         serverConnectorBootstrap.addHttpTraceLogHandler(listenerConfig.isHttpTraceLogEnabled());
         serverConnectorBootstrap.addThreadPools(bossGroup, workerGroup);
         serverConnectorBootstrap.addHeaderAndEntitySizeValidation(listenerConfig.getRequestSizeValidationConfig());
+        serverConnectorBootstrap.addChunkingBehaviour(listenerConfig.getChunkConfig());
 
         return serverConnectorBootstrap.getServerConnector(listenerConfig.getHost(), listenerConfig.getPort());
     }
