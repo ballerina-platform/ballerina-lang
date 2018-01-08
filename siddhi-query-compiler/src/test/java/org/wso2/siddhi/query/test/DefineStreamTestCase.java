@@ -23,7 +23,6 @@ import org.testng.annotations.Test;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
@@ -67,7 +66,7 @@ public class DefineStreamTestCase {
         AssertJUnit.assertEquals(api, streamDefinition);
     }
 
-    @Test(expectedExceptions = DuplicateAttributeException.class)
+    @Test(expectedExceptions = SiddhiParserException.class)
     public void testCreatingStreamWithDuplicateAttribute() {
         StreamDefinition streamDefinition = SiddhiCompiler.parseStreamDefinition("define stream StockStream ( symbol " +
                 "string, symbol int, volume float );");
