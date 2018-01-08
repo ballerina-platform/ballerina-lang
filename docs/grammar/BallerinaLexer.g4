@@ -112,6 +112,7 @@ RARROW      : '->' ;
 LARROW      : '<-' ;
 AT          : '@' ;
 BACKTICK    : '`' ;
+RANGE       : '..' ;
 
 // §3.10.1 Integer Literals
 IntegerLiteral

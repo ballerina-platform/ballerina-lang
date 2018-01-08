@@ -5,7 +5,6 @@ options {
     tokenVocab = BallerinaLexer;
 }
 
-//todo comment statment
 //todo revisit blockStatement
 
 // starting point for parsing a bal file
@@ -316,7 +315,7 @@ foreachStatement
     ;
 
 intRangeExpression
-    : (LEFT_BRACKET|LEFT_PARENTHESIS)? expression DOT DOT expression (RIGHT_BRACKET|RIGHT_PARENTHESIS)?
+    : (LEFT_BRACKET|LEFT_PARENTHESIS)? expression RANGE expression (RIGHT_BRACKET|RIGHT_PARENTHESIS)?
     ;
 
 whileStatement
