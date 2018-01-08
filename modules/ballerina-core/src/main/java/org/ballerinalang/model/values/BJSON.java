@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BStructType.StructField;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.util.JsonNode.Type;
@@ -35,14 +36,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.StringJoiner;
+import java.util.UUID;
 
 /**
  * {@code BJSON} represents a JSON value in Ballerina.
  *
  * @since 0.8.0
  */
-public final class BJSON extends BallerinaMessageDataSource implements BRefType<JsonNode> {
+public final class BJSON extends BallerinaMessageDataSource implements BRefType<JsonNode>, BCollection {
 
     private BType type = BTypes.typeJSON;
 
@@ -54,6 +59,8 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
 
     // Output stream to write message out to the socket
     private OutputStream outputStream;
+
+    private Map<String, BIterator> iteratorMap = new HashMap<>();
 
     /**
      * Initialize a {@link BJSON} from a {@link JsonNode} object.
@@ -260,6 +267,70 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
             handleJsonException("failed to clone the json message: ", t);
         }
         return clonedMessage;
+    }
+
+    @Override
+    public String newIterator() {
+        BJSONIterator iterator = new BJSONIterator(this);
+        iteratorMap.put(iterator.id, iterator);
+        return iterator.id;
+    }
+
+    @Override
+    public BIterator getIterator(String id) {
+        return iteratorMap.get(id);
+    }
+
+    /**
+     * @since 0.96.0
+     */
+    class BJSONIterator implements BIterator {
+
+        final String id;
+        BJSON collection;
+        boolean isJSONArray;
+        // Fields for JSON Object iteration.
+        Iterator iterator;
+        // Fields for JSON Array iteration.
+        int size;
+        int cursor = 0;
+
+        public BJSONIterator(BJSON value) {
+            id = UUID.randomUUID().toString();
+            collection = value;
+            if (collection.type.getTag() == TypeTags.ARRAY_TAG || collection.value().isArray()) {
+                isJSONArray = true;     // This is a JSON Array. Index will be a int.
+                size = collection.value().size();
+            } else {
+                iterator = collection.value().fieldNames(); // This is a JSON Object or other type.
+            }
+        }
+
+        @Override
+        public String getID() {
+            return id;
+        }
+
+        @Override
+        public BValue getNext() {
+            if (isJSONArray) {
+                return new BJSON(collection.value.get(cursor++));
+            }
+            return new BJSON(collection.value.get((String) iterator.next()));
+        }
+
+        @Override
+        public BValue getCursor() {
+            if (isJSONArray) {
+                return new BInteger(cursor);
+            }
+            return null;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return isJSONArray ? cursor < size : iterator.hasNext();
+        }
     }
 
     /**

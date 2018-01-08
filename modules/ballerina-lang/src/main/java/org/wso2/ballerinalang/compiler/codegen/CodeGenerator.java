@@ -2828,16 +2828,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         switch (col.type.tag) {
             case TypeTags.ARRAY:
                 typeTag = ((BArrayType) col.type).eType.tag;
-                if (typeTag == TypeTags.JSON) {
-                    stringBasedCursor = true;
-                }
                 break;
             case TypeTags.MAP:
                 typeTag = ((BMapType) col.type).constraint.tag;
                 stringBasedCursor = true;
                 break;
             case TypeTags.JSON:
-                stringBasedCursor = true;
                 typeTag = col.type.tag;  // Both JSON and XML elements' type tag will be them self.
                 break;
             case TypeTags.XML:

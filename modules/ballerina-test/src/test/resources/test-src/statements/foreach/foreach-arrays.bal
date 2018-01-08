@@ -27,7 +27,7 @@ function concatBoolean(int index, boolean value){
     output = output + index + ":" + value + " ";
 }
 
-function concatJSON(string index, json value){
+function concatJSON(int index, json value){
     output = output + index + ":" + value.toString() + " ";
 }
 
@@ -135,7 +135,7 @@ function testJSONArrayWithArityOne()(string){
     json[] jdata = [{ name : "bob", age : 10}, { name : "tom", age : 16}];
     output = "";
     foreach v in jdata {
-        concatJSON("0", v);
+        concatJSON(0, v);
     }
     return output;
 }

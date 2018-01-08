@@ -350,9 +350,6 @@ public class Types {
                 if (variableSize == 1) {
                     return Lists.of(bArrayType.eType);
                 } else if (variableSize == 2) {
-                    if (bArrayType.eType.tag == TypeTags.JSON) {
-                        return Lists.of(symTable.stringType, bArrayType.eType);
-                    }
                     return Lists.of(symTable.intType, bArrayType.eType);
                 } else {
                     maxSupportedTypes = 2;
@@ -373,11 +370,9 @@ public class Types {
             case TypeTags.JSON:
                 if (variableSize == 1) {
                     return Lists.of(symTable.jsonType);
-                } else if (variableSize == 2) {
-                    return Lists.of(symTable.stringType, symTable.jsonType);
                 } else {
-                    maxSupportedTypes = 2;
-                    errorTypes = Lists.of(symTable.stringType, symTable.jsonType);
+                    maxSupportedTypes = 1;
+                    errorTypes = Lists.of(symTable.jsonType);
                 }
                 break;
             case TypeTags.XML:
