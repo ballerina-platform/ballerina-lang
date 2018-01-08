@@ -103,6 +103,8 @@ Arrow.propTypes = {
     description: PropTypes.string,
     classNameArrow: PropTypes.string,
     classNameArrowHead: PropTypes.string,
+    // This was introduced to place the arrow head in a specific point of the arrow decorator
+    // Was used for client responding and worker init arrows. No longer required.
     arrowHeadPosition: PropTypes.shape({
         x: PropTypes.number,
         y: PropTypes.number,
