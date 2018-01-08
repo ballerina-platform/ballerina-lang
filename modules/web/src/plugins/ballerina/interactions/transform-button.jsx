@@ -104,6 +104,13 @@ class TransformButton extends React.Component {
         });
     }
 
+
+    onSuggestionSelected(event, item) {
+        const node = DefaultNodeFactory.createFunctionInvocationStatement(item.suggestion);
+        this.props.model.addStatements(node);
+        this.hideConnectors();
+    }
+
     storeInputReference(autosuggest) {
         if (autosuggest !== null) {
             this.input = autosuggest.input;
@@ -116,12 +123,6 @@ class TransformButton extends React.Component {
 
     hideConnectors() {
         this.setState({ listConnectors: false, value: '' });
-    }
-
-    onSuggestionSelected(event, item) {
-        const node = DefaultNodeFactory.createFunctionInvocationStatement(item.suggestion);
-        this.props.model.addStatements(node);
-        this.hideConnectors();
     }
 
     /**
