@@ -82,11 +82,6 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
         configuration.setModule(myModulesComboBox.getComponent().getSelectedModule());
         configuration.setParams(myParamsField.getComponent().getText());
         configuration.setWorkingDirectory(myWorkingDirectoryField.getComponent().getText());
-        if (runKind == RunConfigurationKind.SERVICE) {
-            myParamsField.setVisible(false);
-        } else {
-            myParamsField.setVisible(true);
-        }
     }
 
     @NotNull
@@ -135,15 +130,5 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
         for (RunConfigurationKind kind : RunConfigurationKind.values()) {
             myRunKindComboBox.getComponent().addItem(kind);
         }
-        myRunKindComboBox.getComponent().addActionListener(e -> onRunKindChanged());
-    }
-
-    private void onRunKindChanged() {
-        RunConfigurationKind selectedKind = (RunConfigurationKind) myRunKindComboBox.getComponent().getSelectedItem();
-        if (selectedKind == null) {
-            selectedKind = RunConfigurationKind.MAIN;
-        }
-        boolean isMainSelected = selectedKind == RunConfigurationKind.MAIN;
-        myParamsField.setVisible(isMainSelected);
     }
 }
