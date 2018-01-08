@@ -171,8 +171,8 @@ class ActionInvocationDecorator extends React.Component {
 
         let dropDownItems;
         const dropDownItemMeta = [];
-        let backwardArrowStart;
-        let backwardArrowEnd;
+        const backwardArrowStart = {};
+        const backwardArrowEnd = {};
         if (viewState.isActionInvocation) {
             // TODO: Need to remove the unique by filter whne the lang server item resolver is implemented
             dropDownItems = _.uniqBy(TreeUtil.getAllVisibleEndpoints(this.props.model.parent), (item) => {
@@ -197,10 +197,10 @@ class ActionInvocationDecorator extends React.Component {
             });
 
             if (viewState.components.invocation) {
-                backwardArrowStart = Object.assign({}, viewState.components.invocation.end);
+                backwardArrowStart.x = viewState.components.invocation.end.x;
                 backwardArrowStart.y = viewState.components['statement-box'].y
                                 + viewState.components['statement-box'].h;
-                backwardArrowEnd = Object.assign({}, viewState.components.invocation.start);
+                backwardArrowEnd.x = statementBox.x + (designer.config.actionInvocationStatement.width / 2);
                 backwardArrowEnd.y = backwardArrowStart.y;
             }
         }
@@ -245,27 +245,26 @@ class ActionInvocationDecorator extends React.Component {
                     enableDragBg
                     enableCenterOverlayLine
                 />
-                <g>
-                    <rect
-                        x={statementBox.x}
-                        y={statementBox.y + (statementBox.h / 2)}
-                        width={statementBox.w}
-                        height={statementBox.h / 2}
-                        className='action-invocation-statement-rect'
-                        onClick={e => this.openEditor(e)}
-                    >
-                        {tooltip}
-                    </rect>
-                    <text
-                        x={statementBox.x + (statementBox.w / 2)
-                            + this.context.designer.config.statement.gutter.h}
-                        y={viewState.components.invocation.start.y
-                            - (this.context.designer.config.actionInvocationStatement.textHeight / 2)}
-                        className='action-invocation-text'
-                    >
-                        {expression}
-                    </text>
-                </g>
+                <text
+                    x={statementBox.x
+                        + (designer.config.actionInvocationStatement.width / 2)
+                        + designer.config.statement.gutter.h}
+                    y={viewState.components.invocation.start.y
+                        - (designer.config.actionInvocationStatement.textHeight / 2)}
+                    className='action-invocation-text'
+                    onClick={e => this.openEditor(e)}
+                >
+                    {expression}
+                </text>
+                <rect
+                    x={viewState.components.invocation.end.x}
+                    y={viewState.components.invocation.end.y}
+                    width={designer.config.actionInvocationStatement.width}
+                    height={statementBox.h / 2}
+                    className='action-invocation-statement-rect'
+                >
+                    {tooltip}
+                </rect>
                 <ActionBox
                     bBox={actionBoxBbox}
                     show={this.state.active}

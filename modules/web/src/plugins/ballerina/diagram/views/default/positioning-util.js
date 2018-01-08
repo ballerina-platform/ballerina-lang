@@ -56,9 +56,8 @@ class PositioningUtil {
 
             // Move the x cordinates to centre align the action invocation statement
             viewState.components['statement-box'].x -= (this.config.actionInvocationStatement.width / 2);
-            viewState.bBox.x -= (this.config.actionInvocationStatement.width / 2);
 
-            arrowStartBBox.x = viewState.bBox.x + viewState.bBox.w;
+            arrowStartBBox.x = viewState.bBox.x;
             arrowStartBBox.y = viewState.components['statement-box'].y
                                 + this.config.actionInvocationStatement.textHeight;
 
@@ -72,7 +71,9 @@ class PositioningUtil {
                     end: undefined,
                 };
                 viewState.components.invocation.start = arrowStartBBox;
-                arrowEndBBox.x = endpoint.viewState.bBox.x + (endpoint.viewState.bBox.w / 2);
+                arrowEndBBox.x = endpoint.viewState.bBox.x
+                                + (endpoint.viewState.bBox.w / 2)
+                                - (this.config.actionInvocationStatement.width / 2);
                 arrowEndBBox.y = arrowStartBBox.y;
                 viewState.components.invocation.end = arrowEndBBox;
                 if (endpoint.viewState.showOverlayContainer) {
