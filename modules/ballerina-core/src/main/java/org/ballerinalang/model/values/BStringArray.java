@@ -52,6 +52,7 @@ public class BStringArray extends BNewArray {
         return values[(int) index];
     }
 
+    @Deprecated
     public int length() {
         final int nullArrayValue = -1;
         //There could be a possibility where a null array is being initialized
