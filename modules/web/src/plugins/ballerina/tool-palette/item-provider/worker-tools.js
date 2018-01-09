@@ -34,7 +34,7 @@ const tools = [
         title: 'While',
         nodeFactoryMethod: DefaultNodeFactory.createWhile,
         description: 'Provide a way to execute a series of statements as long as a boolean expression is met',
-    }, /*
+    },
     {
         id: 'try-catch',
         name: 'Try-Catch',
@@ -43,7 +43,7 @@ const tools = [
         nodeFactoryMethod: DefaultNodeFactory.createTry,
         description: 'Handle the exception by the block after the catch,'
         + ' if any exception occurs while executing the first block of statements',
-    }, */
+    },
     {
         id: 'WorkerInvocation',
         name: 'Send',
@@ -59,7 +59,7 @@ const tools = [
         title: 'Worker Receive',
         nodeFactoryMethod: DefaultNodeFactory.createWorkerReceive,
         description: 'Provide a way to receive the reply from a worker',
-    }, /*
+    },
     {
         id: 'Transaction',
         name: 'Transaction',
@@ -68,7 +68,7 @@ const tools = [
         nodeFactoryMethod: DefaultNodeFactory.createTransaction,
         description: 'Series of data manipulation statements that must either'
         + ' fully complete or fully fail, leaving the system in a consistent state',
-    },
+    }, /*
     {
         id: 'Fork',
         name: 'Fork',

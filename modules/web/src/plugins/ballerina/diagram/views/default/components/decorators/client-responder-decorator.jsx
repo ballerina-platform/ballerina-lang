@@ -225,10 +225,6 @@ class ClientResponderDecorator extends React.Component {
                     <ArrowDecorator
                         start={viewState.components.invocation.start}
                         end={viewState.components.invocation.end}
-                        // -5 is reduced roughly for arrow head height
-                        arrowHeadPosition={{
-                            x: (viewState.components.invocation.end.x
-                                + this.context.designer.config.clientLine.arrowGap - 5) }}
                     />
                 </g>
                 {isBreakpoint && this.renderBreakpointIndicator()}

@@ -16,7 +16,6 @@
  * under the License.
  */
 
-import _ from 'lodash';
 import DefaultPositioningUtil from '../default/positioning-util';
 import TreeUtil from './../../../model/tree-util';
 
@@ -60,7 +59,7 @@ class PositioningUtil extends DefaultPositioningUtil {
      *
      */
     positionReturnNode(node) {
-        // do nothing
+        super.positionReturnNode(node);
     }
 
     /**

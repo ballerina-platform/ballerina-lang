@@ -19,7 +19,6 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import ArrowDecorator from '../decorators/arrow-decorator';
 
 class Client extends React.Component {
 
@@ -124,11 +123,12 @@ class Client extends React.Component {
                 >{bBox.text}</text>
                 <title> {bBox.fullText} </title>
             </g>
-            <ArrowDecorator
-                start={{ x: line.x1, y: invokeLineY }}
-                end={{ x: bBox.arrowLine, y: invokeLineY }}
-                arrowHeadPosition={{ x: (line.x1 + this.context.designer.config.clientLine.arrowGap) }}
-                classNameArrow='client-invocation-arrow'
+            <line
+                x1={line.x1}
+                y1={invokeLineY}
+                x2={bBox.arrowLine}
+                y2={invokeLineY}
+                className='client-invocation-arrow'
             />
         </g>);
     }
