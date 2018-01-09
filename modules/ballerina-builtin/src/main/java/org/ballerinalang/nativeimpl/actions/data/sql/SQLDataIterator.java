@@ -67,6 +67,7 @@ public class SQLDataIterator implements DataIterator {
     private BStructType bStructType;
     private StructInfo timeStructInfo;
     private StructInfo zoneStructInfo;
+    private boolean cursorMoved;
 
     public SQLDataIterator(Connection conn, Statement stmt, ResultSet rs, Calendar utcCalendar,
             List<ColumnDefinition> columnDefs, BStructType structType, StructInfo timeStructInfo,
@@ -95,7 +96,9 @@ public class SQLDataIterator implements DataIterator {
             return false;
         }
         try {
-            return rs.next();
+            boolean hasNext = rs.next();
+            cursorMoved = true;
+            return hasNext;
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
@@ -193,6 +196,12 @@ public class SQLDataIterator implements DataIterator {
         int index = 0;
         String columnName = null;
         try {
+            if (!cursorMoved) {
+                boolean hasNext = next();
+                if (!hasNext) {
+                    throw new BallerinaException("resultSet is positioned after last row");
+                }
+            }
             for (ColumnDefinition columnDef : columnDefs) {
                 if (columnDef instanceof SQLColumnDefinition) {
                     SQLColumnDefinition def = (SQLColumnDefinition) columnDef;
@@ -328,6 +337,7 @@ public class SQLDataIterator implements DataIterator {
                     "error in retrieving next value for column: " + columnName + ": at index:" + index + ":" + e
                             .getMessage());
         }
+        cursorMoved = false;
         return bStruct;
     }
 

@@ -696,10 +696,42 @@ function testMutltipleRows () (int i1, int i2) {
         } else {
             rs2, _ = (ResultPrimitiveInt)dt.getNext();
         }
-        i = i +1;
+        i = i + 1;
     }
     testDB.close();
     return rs1.INT_TYPE, rs2.INT_TYPE;
+}
+
+function testMutltipleRowsWithoutLoop () (int i1, int i2, int i3, int i4) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+
+    datatable dt = testDB.select("SELECT int_type from DataTableRep order by int_type desc", null,
+                                 typeof ResultPrimitiveInt);
+    while (dt.hasNext()) {
+        var rs, _ = (ResultPrimitiveInt)dt.getNext();
+        i1 = rs.INT_TYPE;
+    }
+
+    dt = testDB.select("SELECT int_type from DataTableRep order by int_type desc", null, typeof ResultPrimitiveInt);
+    if (dt.hasNext()) {
+        var rs, _ = (ResultPrimitiveInt)dt.getNext();
+        i2 = rs.INT_TYPE;
+    }
+    dt.close();
+
+    dt = testDB.select("SELECT int_type from DataTableRep order by int_type desc", null, typeof ResultPrimitiveInt);
+    var rs1, _ = (ResultPrimitiveInt)dt.getNext();
+    i3 = rs1.INT_TYPE;
+
+    var rs2, _ = (ResultPrimitiveInt)dt.getNext();
+    i4 = rs2.INT_TYPE;
+    dt.close();
+
+    testDB.close();
+    return i1, i2, i3, i4;
 }
 
 function testGetFloatTypes () (float f, float d, float num, float dec) {

@@ -435,6 +435,15 @@ public class DatatableTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
     }
 
+    @Test(groups = "DatatableTest", description = "Check select data with multiple rows accessing without getNext.")
+    public void testMutltipleRowsWithoutLoop() {
+        BValue[] returns = BRunUtil.invoke(result, "testMutltipleRowsWithoutLoop");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 200);
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 100);
+    }
+
     @Test(groups = "DatatableTest", description = "Check get float and double types.")
     public void testGetFloatTypes() {
         BValue[] returns = BRunUtil.invoke(result, "testGetFloatTypes");
