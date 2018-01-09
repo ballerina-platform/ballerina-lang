@@ -16,7 +16,6 @@
  * under the License.
  */
 
-// import _ from 'lodash';
 import DefaultSizingUtil from '../default/sizing-util';
 import SimpleBBox from './../../../model/view/simple-bounding-box';
 import TreeUtil from './../../../model/tree-util';
@@ -60,7 +59,8 @@ class SizingUtil extends DefaultSizingUtil {
             TreeUtil.statementIsInvocation(node) ||
             TreeUtil.isIf(node) ||
             TreeUtil.isWhile(node) ||
-            TreeUtil.isEndpointTypeVariableDef(node)
+            TreeUtil.isEndpointTypeVariableDef(node) ||
+            TreeUtil.statementIsClientResponder(node)
         ) {
             return true;
         }
