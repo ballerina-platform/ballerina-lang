@@ -241,7 +241,6 @@ public class HttpUtil {
                     isBodyAvailable = MimeUtil.isXmlBodyPresent(entity);
                     break;
                 default:
-                    baseType = org.ballerinalang.mime.util.Constants.OCTET_STREAM;
                     isBodyAvailable = MimeUtil.isBinaryBodyPresent(entity);
                     break;
             }
