@@ -909,6 +909,9 @@ class SizingUtil {
             + this.config.lifeLine.head.height + this.config.lifeLine.footer.height
             + (this.config.statement.height * 2); // Top gap for client invoke line
         bBox.w = workerBody.viewState.bBox.w;
+        if (workerBody.viewState.components['left-margin']) {
+            bBox.w += workerBody.viewState.components['left-margin'].w;
+        }
         // set the size of the lifeline.
         const cmp = node.viewState.components;
         cmp.lifeLine = new SimpleBBox();
@@ -1278,6 +1281,12 @@ class SizingUtil {
         const viewState = node.viewState;
         const statements = node.getStatements();
         this.setContainerSize(statements, viewState, this.config.statement.width);
+        const leftMargin = this.calcLeftMargin(statements);
+        if (leftMargin > 0) {
+            viewState.components['left-margin'] = {
+                w: leftMargin,
+            };
+        }
         if (viewState.compound) {
             this.sizeCompoundNode(node);
         }
@@ -1741,6 +1750,14 @@ class SizingUtil {
                             + viewState.components['block-header'].h;
         viewState.bBox.w = bodyWidth;
 
+        // calculate left margin from the lifeline centre
+        let leftMargin = this.calcLeftMargin(node.body.statements);
+        leftMargin = (leftMargin === 0) ? this.config.flowChartControlStatement.gap.left
+                                        : (leftMargin + this.config.flowChartControlStatement.padding.left);
+        viewState.components['left-margin'] = {
+            w: leftMargin,
+        };
+
         components['block-header'].setOpaque(true);
 
         // for compound statement like if , while we need to render condition expression
@@ -1751,6 +1768,22 @@ class SizingUtil {
         }
     }
 
+    /**
+     * Calculate left margin total for the given nodes.
+     * The nodes should be immediate children of a block node. Nested calculations are handled by each of
+     * the childrens in their respective calculations.
+     * At the moment, left margin is only needed by while node.
+     * @param {*} nodes nodes to calculate left margin from
+     */
+    calcLeftMargin(nodes) {
+        let leftMargin = 0;
+        nodes.forEach((node) => {
+            if (node.viewState.components['left-margin']) {
+                leftMargin += node.viewState.components['left-margin'].w;
+            }
+        });
+        return leftMargin;
+    }
 
     /**
      * Calculate dimention of WorkerReceive nodes.

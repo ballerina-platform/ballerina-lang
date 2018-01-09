@@ -196,7 +196,7 @@ class WhileStatementDecorator extends React.Component {
         const titleW = this.context.designer.config.flowChartControlStatement.heading.width;
         const statementBBox = viewState.components['statement-box'];
         const displayExpression = viewState.components.expression;
-        const gapLeft = this.context.designer.config.flowChartControlStatement.padding.left;
+        const gapLeft = viewState.components['left-margin'].w;
         const gapTop = this.context.designer.config.flowChartControlStatement.padding.top;
 
 
