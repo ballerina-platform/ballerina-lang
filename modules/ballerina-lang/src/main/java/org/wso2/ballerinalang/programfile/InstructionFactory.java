@@ -27,13 +27,7 @@ import org.wso2.ballerinalang.programfile.Instruction.Operand;
 public class InstructionFactory {
 
     public static Instruction get(int opcode) {
-        // TODO Implement subtypes of certain instructions. etc for call, ret bytecodes
         return new Instruction(opcode);
-    }
-
-    public static Instruction get(int opcode, int... operands) {
-        // TODO Implement subtypes of certain instructions. etc for call, ret bytecodes
-        return new Instruction(opcode, operands);
     }
 
     public static Instruction get(int opcode, Operand... operands) {

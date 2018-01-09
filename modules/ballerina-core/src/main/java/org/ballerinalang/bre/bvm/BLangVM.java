@@ -2238,7 +2238,7 @@ public class BLangVM {
             case InstructionCodes.XML2S:
                 i = operands[0];
                 j = operands[1];
-                sf.stringRegs[j] = sf.refRegs[j].stringValue();
+                sf.stringRegs[j] = sf.refRegs[i].stringValue();
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -2640,11 +2640,11 @@ public class BLangVM {
         }
     }
 
-    private void beginTransaction(int transactionId, int retryCountAvailable) {
+    private void beginTransaction(int transactionId, int retryCountRegIndex) {
         //Transaction is attempted three times by default to improve resiliency
         int retryCount = 3;
-        if (retryCountAvailable == 1) {
-            retryCount = (int) controlStack.currentFrame.getLongRegs()[0];
+        if (retryCountRegIndex != -1) {
+            retryCount = (int) controlStack.currentFrame.getLongRegs()[retryCountRegIndex];
             if (retryCount < 0) {
                 context.setError(BLangVMErrors.createError(this.context, ip,
                         BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
@@ -2966,6 +2966,8 @@ public class BLangVM {
     }
 
     private void handleReturn() {
+
+        // TODO Cache stack frames -  improvement
         StackFrame currentSF = controlStack.popFrame();
         if (controlStack.currentFrame != null) {
             StackFrame callersSF = controlStack.currentFrame;

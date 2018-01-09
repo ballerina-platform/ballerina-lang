@@ -1700,7 +1700,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (iExpr.getRegIndexes() != null) {
             iExprRegIndexes = iExpr.getRegIndexes();
         } else if (iExpr.regIndex != null) {
-            iExprRegIndexes = new RegIndex[]{iExpr.regIndex};
+            iExprRegIndexes = new RegIndex[nRetRegs];
+            iExprRegIndexes[0] = iExpr.regIndex;
         } else {
             iExprRegIndexes = new RegIndex[nRetRegs];
         }
@@ -2169,17 +2170,12 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     /* generate code for timeout block */
-    private void processTimeoutBlock(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo, SymbolEnv forkJoinEnv,
-                                     RegIndex timeoutRegIndex, RegIndex timeoutVarRegIndex, Operand timeoutBlockAddr) {
+    private void processTimeoutBlock(BLangForkJoin forkJoin, SymbolEnv forkJoinEnv,
+                                     RegIndex timeoutVarRegIndex, Operand timeoutBlockAddr) {
         /* emit a GOTO instruction to jump out of the timeout block */
         Operand gotoAddr = getOperand(-1);
         this.emit(InstructionCodes.GOTO, gotoAddr);
         timeoutBlockAddr.value = nextIP();
-        if (forkJoin.timeoutExpression != null) {
-            forkjoinInfo.setTimeoutAvailable(true);
-            this.genNode(forkJoin.timeoutExpression, forkJoinEnv);
-            timeoutRegIndex.value = forkJoin.timeoutExpression.regIndex.value;
-        }
 
         if (forkJoin.timeoutVariable != null) {
             visitForkJoinParameterDefs(forkJoin.timeoutVariable, forkJoinEnv);
@@ -2207,9 +2203,15 @@ public class CodeGenerator extends BLangNodeVisitor {
         Operand forkJoinCPIndex = getOperand(this.currentPkgInfo.addCPEntry(forkJoinCPEntry));
         forkjoinInfo.setIndexCPIndex(forkJoinCPIndex.value);
 
-        // FORKJOIN forkJoinCPIndex timeoutRegIndex joinVarRegIndex joinBlockAddr timeoutVarRegIndex timeoutBlockAddr
         RegIndex timeoutRegIndex = new RegIndex(-1, TypeTags.INT);
         addToRegIndexList(timeoutRegIndex);
+        if (forkJoin.timeoutExpression != null) {
+            forkjoinInfo.setTimeoutAvailable(true);
+            this.genNode(forkJoin.timeoutExpression, forkJoinEnv);
+            timeoutRegIndex.value = forkJoin.timeoutExpression.regIndex.value;
+        }
+
+        // FORKJOIN forkJoinCPIndex timeoutRegIndex joinVarRegIndex joinBlockAddr timeoutVarRegIndex timeoutBlockAddr
         RegIndex joinVarRegIndex = new RegIndex(-1, TypeTags.MAP);
         Operand joinBlockAddr = getOperand(-1);
         RegIndex timeoutVarRegIndex = new RegIndex(-1, TypeTags.MAP);
@@ -2233,8 +2235,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         forkjoinInfo.setJoinWorkerNames(joinWrkrNames);
         forkjoinInfo.setWorkerCount(forkJoin.joinedWorkerCount);
         this.processJoinBlock(forkJoin, forkjoinInfo, forkJoinEnv, joinVarRegIndex, joinBlockAddr);
-        this.processTimeoutBlock(forkJoin, forkjoinInfo, forkJoinEnv,
-                timeoutRegIndex, timeoutVarRegIndex, timeoutBlockAddr);
+        this.processTimeoutBlock(forkJoin, forkJoinEnv, timeoutVarRegIndex, timeoutBlockAddr);
     }
 
     private void visitForkJoinParameterDefs(BLangVariable parameterDef, SymbolEnv forkJoinEnv) {
@@ -2300,12 +2301,18 @@ public class CodeGenerator extends BLangNodeVisitor {
         BType[] bTypes = new BType[nLHSExprs];
         for (int i = 0; i < nLHSExprs; i++) {
             BLangExpression lExpr = lhsExprs.get(i);
-            this.varAssignment = true;
-            this.genNode(lhsExprs.get(i), this.env);
-            this.varAssignment = false;
+            if (lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && lExpr instanceof BLangLocalVarRef) {
+                lExpr.regIndex = ((BLangLocalVarRef) lExpr).symbol.varIndex;
+                regIndexes[i] = lExpr.regIndex;
+            } else {
+                lExpr.regIndex = getRegIndex(lExpr.type.tag);
+                lExpr.regIndex.isLHSIndex = true;
+                regIndexes[i] = lExpr.regIndex;
+            }
+
             bTypes[i] = lExpr.type;
-            regIndexes[i] = calcAndGetExprRegIndex(lExpr);
         }
+
         UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(bTypes));
         Operand sigCPIndex = getOperand(currentPkgInfo.addCPEntry(sigCPEntry));
 
@@ -2316,6 +2323,18 @@ public class CodeGenerator extends BLangNodeVisitor {
         wrkReceiveArgRegs[2] = getOperand(nLHSExprs);
         System.arraycopy(regIndexes, 0, wrkReceiveArgRegs, 3, regIndexes.length);
         emit(InstructionCodes.WRKRECEIVE, wrkReceiveArgRegs);
+
+        for (BLangExpression lExpr : lhsExprs) {
+            if (lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                    lExpr instanceof BLangLocalVarRef) {
+                continue;
+            }
+
+            this.varAssignment = true;
+            this.genNode(lExpr, this.env);
+            this.varAssignment = false;
+        }
+
     }
 
     public void visit(BLangConnector connectorNode) {
@@ -2501,57 +2520,58 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangTransaction transactionNode) {
         ++transactionIndex;
-        int retryCountAvailable = 0;
+        Operand retryCountRegIndex = new RegIndex(-1, TypeTags.INT);
         if (transactionNode.retryCount != null) {
             this.genNode(transactionNode.retryCount, this.env);
-            retryCountAvailable = 1;
+            retryCountRegIndex = transactionNode.retryCount.regIndex;
         }
 
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
-        Instruction gotoEndOfTransactionBlock = InstructionFactory.get(InstructionCodes.GOTO, -1);
-        Instruction gotoEndOfFailedTransactionBlock = InstructionFactory.get(InstructionCodes.GOTO, -1);
-        abortInstructions.push(gotoEndOfFailedTransactionBlock);
+        Operand failedTransBlockEndAddr = getOperand(-1);
+        Instruction gotoFailedTransBlockEnd = InstructionFactory.get(InstructionCodes.GOTO, failedTransBlockEndAddr);
+        abortInstructions.push(gotoFailedTransBlockEnd);
 
         //start transaction
-        this.emit(InstructionFactory.get(InstructionCodes.TR_BEGIN, transactionIndex, retryCountAvailable));
-        int startIP = nextIP();
-        Instruction gotoStartTransactionBlock = InstructionFactory.get(InstructionCodes.GOTO, startIP);
+        this.emit(InstructionCodes.TR_BEGIN, getOperand(transactionIndex), retryCountRegIndex);
+        Operand transBlockStartAddr = getOperand(nextIP());
 
         //retry transaction;
-        Instruction retryInstruction = InstructionFactory.get(InstructionCodes.TR_RETRY, transactionIndex, -1);
-        this.emit(retryInstruction);
+        Operand retryInsAddr = getOperand(-1);
+        this.emit(InstructionCodes.TR_RETRY, getOperand(transactionIndex), retryInsAddr);
 
         //process transaction statements
         this.genNode(transactionNode.transactionBody, this.env);
 
         //end the transaction
-        int endIP = nextIP();
-        this.emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.SUCCESS.value()));
+        int transBlockEndAddr = nextIP();
+        this.emit(InstructionCodes.TR_END, getOperand(TransactionStatus.SUCCESS.value()));
 
         abortInstructions.pop();
 
-        emit(gotoEndOfTransactionBlock);
+        Operand transStmtEndAddr = getOperand(-1);
+        emit(InstructionCodes.GOTO, transStmtEndAddr);
 
         // CodeGen for error handling.
         int errorTargetIP = nextIP();
-        emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.FAILED.value()));
+        emit(InstructionCodes.TR_END, getOperand(TransactionStatus.FAILED.value()));
         if (transactionNode.failedBody != null) {
             this.genNode(transactionNode.failedBody, this.env);
 
         }
-        emit(gotoStartTransactionBlock);
+        emit(InstructionCodes.GOTO, transBlockStartAddr);
         int ifIP = nextIP();
-        retryInstruction.setOperand(1, ifIP);
+        retryInsAddr.value = ifIP;
 
-        emit(InstructionFactory.get(InstructionCodes.THROW, -1));
-        ErrorTableEntry errorTableEntry = new ErrorTableEntry(startIP, endIP, errorTargetIP, 0, -1);
+        emit(InstructionCodes.THROW, getOperand(-1));
+        ErrorTableEntry errorTableEntry = new ErrorTableEntry(transBlockStartAddr.value,
+                transBlockEndAddr, errorTargetIP, 0, -1);
         errorTable.addErrorTableEntry(errorTableEntry);
 
-        gotoEndOfFailedTransactionBlock.setOperand(0, nextIP());
-        emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.FAILED.value()));
+        failedTransBlockEndAddr.value = nextIP();
+        emit(InstructionCodes.TR_END, getOperand(TransactionStatus.FAILED.value()));
 
-        gotoEndOfTransactionBlock.setOperand(0, nextIP());
-        emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.END.value()));
+        transStmtEndAddr.value = nextIP();
+        emit(InstructionCodes.TR_END, getOperand(TransactionStatus.END.value()));
     }
 
     public void visit(BLangAbort abortNode) {
@@ -2593,17 +2613,18 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangXMLQName xmlQName) {
         // If the QName is use outside of XML, treat it as string.
         if (!xmlQName.isUsedInXML) {
+            xmlQName.regIndex = calcAndGetExprRegIndex(xmlQName);
             String qName = xmlQName.namespaceURI == null ? xmlQName.localname.value
                     : ("{" + xmlQName.namespaceURI + "}" + xmlQName.localname);
-            xmlQName.regIndex = createStringLiteral(qName, env);
+            xmlQName.regIndex = createStringLiteral(qName, xmlQName.regIndex, env);
             return;
         }
 
         // Else, treat it as QName
         RegIndex nsURIIndex = getNamespaceURIIndex(xmlQName.nsSymbol, env);
-        RegIndex localnameIndex = createStringLiteral(xmlQName.localname.value, env);
-        RegIndex prefixIndex = createStringLiteral(xmlQName.prefix.value, env);
-        xmlQName.regIndex = calcAndGetExprRegIndex(xmlQName);
+        RegIndex localnameIndex = createStringLiteral(xmlQName.localname.value, null, env);
+        RegIndex prefixIndex = createStringLiteral(xmlQName.prefix.value, null, env);
+        xmlQName.regIndex = calcAndGetExprRegIndex(xmlQName.regIndex, TypeTags.XML);
         emit(InstructionCodes.NEWQNAME, localnameIndex, nsURIIndex, prefixIndex, xmlQName.regIndex);
     }
 
@@ -2685,7 +2706,11 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
-        xmlTextLiteral.regIndex = calcAndGetExprRegIndex(xmlTextLiteral);
+        if (xmlTextLiteral.type == null) {
+            xmlTextLiteral.regIndex = calcAndGetExprRegIndex(xmlTextLiteral.regIndex, TypeTags.XML);
+        } else {
+            xmlTextLiteral.regIndex = calcAndGetExprRegIndex(xmlTextLiteral);
+        }
         genNode(xmlTextLiteral.concatExpr, env);
         emit(InstructionCodes.NEWXMLTEXT, xmlTextLiteral.regIndex, xmlTextLiteral.concatExpr.regIndex);
     }
@@ -2708,8 +2733,9 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLQuotedString xmlQuotedString) {
-        xmlQuotedString.concatExpr.regIndex = createLHSRegIndex(xmlQuotedString.regIndex);
+        xmlQuotedString.concatExpr.regIndex = calcAndGetExprRegIndex(xmlQuotedString);
         genNode(xmlQuotedString.concatExpr, env);
+        xmlQuotedString.regIndex = xmlQuotedString.concatExpr.regIndex;
     }
 
     @Override
@@ -2864,11 +2890,11 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private RegIndex getNamespaceURIIndex(BXMLNSSymbol namespaceSymbol, SymbolEnv env) {
         if (namespaceSymbol == null && env.node.getKind() == NodeKind.XML_ATTRIBUTE) {
-            return createStringLiteral(XMLConstants.NULL_NS_URI, env);
+            return createStringLiteral(XMLConstants.NULL_NS_URI, null, env);
         }
 
         if (namespaceSymbol == null) {
-            return createStringLiteral(null, env);
+            return createStringLiteral(null, null, env);
         }
 
         // If the namespace is defined within a callable unit, get the URI index in the local var registry.
@@ -2916,7 +2942,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             // Below section creates instructions to be executed, if the above condition succeeds (then body)
 
             // create the prefix literal
-            RegIndex prefixIndex = createStringLiteral(prefix, env);
+            RegIndex prefixIndex = createStringLiteral(prefix, null, env);
 
             // create a qname
             emit(InstructionCodes.NEWQNAME, localNameRegIndex, uriRegIndex, prefixIndex, targetQNameRegIndex);
@@ -2938,22 +2964,24 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private void createQNameWithoutPrefix(RegIndex localNameRegIndex, RegIndex uriRegIndex,
                                           RegIndex targetQNameRegIndex) {
-        RegIndex prefixIndex = createStringLiteral(null, env);
+        RegIndex prefixIndex = createStringLiteral(null, null, env);
         emit(InstructionCodes.NEWQNAME, localNameRegIndex, uriRegIndex, prefixIndex, targetQNameRegIndex);
     }
 
     /**
      * Creates a string literal expression, generate the code and returns the registry index.
      *
-     * @param value String value to generate the string literal
-     * @param env   Environment
+     * @param value    String value to generate the string literal
+     * @param regIndex String literal expression's reg index
+     * @param env      Environment
      * @return String registry index of the generated string
      */
-    private RegIndex createStringLiteral(String value, SymbolEnv env) {
+    private RegIndex createStringLiteral(String value, RegIndex regIndex, SymbolEnv env) {
         BLangLiteral prefixLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         prefixLiteral.value = value;
         prefixLiteral.typeTag = TypeTags.STRING;
         prefixLiteral.type = symTable.stringType;
+        prefixLiteral.regIndex = regIndex;
         genNode(prefixLiteral, env);
         return prefixLiteral.regIndex;
     }

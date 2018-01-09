@@ -105,7 +105,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.IADD] = "iadd";
         mnemonics[InstructionCodes.FADD] = "fadd";
         mnemonics[InstructionCodes.SADD] = "sadd";
-        mnemonics[InstructionCodes.XMLADD] = "radd";
+        mnemonics[InstructionCodes.XMLADD] = "xmladd";
         
         mnemonics[InstructionCodes.ISUB] = "isub";
         mnemonics[InstructionCodes.FSUB] = "fsub";
@@ -185,6 +185,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.JSON2S] = "json2s";
         mnemonics[InstructionCodes.JSON2B] = "json2b";
         mnemonics[InstructionCodes.LENGTHOF] = "lengthof";
+        mnemonics[InstructionCodes.NULL2S] = "null2s";
 
         mnemonics[InstructionCodes.TYPEOF] = "typeof";
         mnemonics[InstructionCodes.TYPELOAD] = "typeload";
