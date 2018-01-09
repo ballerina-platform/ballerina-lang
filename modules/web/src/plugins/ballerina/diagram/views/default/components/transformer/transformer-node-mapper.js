@@ -940,6 +940,7 @@ class TransformerNodeMapper {
         if (TreeUtil.isInvocation(expression)) {
             expression.getArgumentExpressions().forEach((child, index) => {
                 if (child.getSource().trim() === expStr) {
+                    // TODO: get type here
                     expression.replaceArgumentExpressionsByIndex(index,
                         TransformerFactory.createDefaultExpression(), true);
                 } else {
