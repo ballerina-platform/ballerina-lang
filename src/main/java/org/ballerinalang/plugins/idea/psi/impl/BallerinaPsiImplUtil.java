@@ -1218,7 +1218,7 @@ public class BallerinaPsiImplUtil {
         for (VariableReferenceNode variableReferenceNode : variableReferenceNodes) {
 
             IdentifierPSINode identifier = PsiTreeUtil.findChildOfType(variableReferenceNode, IdentifierPSINode.class);
-            if (identifier != null) {
+            if (identifier != null && !"_".equals(identifier.getText())) {
                 results.add(identifier);
             }
         }
