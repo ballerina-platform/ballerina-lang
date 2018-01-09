@@ -30,6 +30,9 @@ import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.NativeUnitLoader;
+import org.ballerinalang.util.codegen.Instruction.InstructionACALL;
+import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
+import org.ballerinalang.util.codegen.Instruction.InstructionTCALL;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
@@ -256,20 +259,6 @@ public class ProgramFileReader {
                         cpIndex, actionName);
 
                 return actionRefCPEntry;
-            case CP_ENTRY_FUNCTION_CALL_ARGS:
-                int argLength = dataInStream.readByte();
-                int[] argRegs = new int[argLength];
-                for (int i = 0; i < argLength; i++) {
-                    argRegs[i] = dataInStream.readInt();
-                }
-
-                int retLength = dataInStream.readByte();
-                int[] retRegs = new int[retLength];
-                for (int i = 0; i < retLength; i++) {
-                    retRegs[i] = dataInStream.readInt();
-                }
-
-                return new FunctionCallCPEntry(argRegs, retRegs);
             case CP_ENTRY_STRUCTURE_REF:
                 pkgCPIndex = dataInStream.readInt();
                 packageRefCPEntry = (PackageRefCPEntry) constantPool.getCPEntry(pkgCPIndex);
@@ -1342,6 +1331,11 @@ public class ProgramFileReader {
         DataInputStream codeStream = new DataInputStream(new ByteArrayInputStream(code));
         while (codeStream.available() > 0) {
             int i, j, k, h;
+            int funcRefCPIndex;
+            FunctionRefCPEntry funcRefCPEntry;
+            int[] argRegs;
+            int[] retRegs;
+
             int opcode = codeStream.readUnsignedByte();
             switch (opcode) {
                 case InstructionCodes.HALT:
@@ -1413,12 +1407,8 @@ public class ProgramFileReader {
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.TR_RETRY:
                 case InstructionCodes.TR_BEGIN:
-                case InstructionCodes.CALL:
                 case InstructionCodes.WRKINVOKE:
                 case InstructionCodes.WRKREPLY:
-                case InstructionCodes.NCALL:
-                case InstructionCodes.ACALL:
-                case InstructionCodes.FPCALL:
                 case InstructionCodes.FPLOAD:
                 case InstructionCodes.ARRAYLEN:
                 case InstructionCodes.INEWARRAY:
@@ -1443,7 +1433,6 @@ public class ProgramFileReader {
                 case InstructionCodes.LENGTHOF:
                 case InstructionCodes.TYPEOF:
                 case InstructionCodes.TYPELOAD:
-                case InstructionCodes.TCALL:
                 case InstructionCodes.SEQ_NULL:
                 case InstructionCodes.SNE_NULL:
                 case InstructionCodes.NEWJSON:
@@ -1586,6 +1575,34 @@ public class ProgramFileReader {
                     h = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k, h));
                     break;
+
+                case InstructionCodes.CALL:
+                case InstructionCodes.NCALL:
+                    funcRefCPEntry = (FunctionRefCPEntry) packageInfo.getCPEntry(codeStream.readInt());
+                    packageInfo.addInstruction(new InstructionCALL(opcode, funcRefCPEntry.getFunctionInfo(),
+                            getFuncArgRegs(codeStream), getFuncArgRegs(codeStream)));
+                    break;
+                case InstructionCodes.ACALL:
+                    ActionRefCPEntry actionRefCPEntry = (ActionRefCPEntry) packageInfo.getCPEntry(codeStream.readInt());
+                    packageInfo.addInstruction(new InstructionACALL(opcode, actionRefCPEntry.getActionName(),
+                            getFuncArgRegs(codeStream), getFuncArgRegs(codeStream)));
+                    break;
+                case InstructionCodes.FPCALL:
+                    funcRefCPIndex = codeStream.readInt();
+                    argRegs = getFuncArgRegs(codeStream);
+                    retRegs = getFuncArgRegs(codeStream);
+
+                    FunctionCallCPEntry funcCallCPEntry = new FunctionCallCPEntry(argRegs, retRegs);
+                    int funcCallCPIndex = packageInfo.addCPEntry(funcCallCPEntry);
+
+                    packageInfo.addInstruction(InstructionFactory.get(opcode, funcRefCPIndex, funcCallCPIndex));
+                    break;
+                case InstructionCodes.TCALL:
+                    TransformerRefCPEntry transformerRefCPEntry =
+                            (TransformerRefCPEntry) packageInfo.getCPEntry(codeStream.readInt());
+                    packageInfo.addInstruction(new InstructionTCALL(opcode, transformerRefCPEntry.getTransformerInfo(),
+                            getFuncArgRegs(codeStream), getFuncArgRegs(codeStream)));
+                    break;
                 default:
                     throw new ProgramFileFormatException("unknown opcode " + opcode +
                             " in package " + packageInfo.getPkgPath());
@@ -1727,5 +1744,14 @@ public class ProgramFileReader {
                 throw new ProgramFileFormatException("unknown default value type " + typeDesc);
         }
         return defaultValue;
+    }
+
+    private int[] getFuncArgRegs(DataInputStream codeStream) throws IOException {
+        int nArgRegs = codeStream.readInt();
+        int[] argRegs = new int[nArgRegs];
+        for (int index = 0; index < nArgRegs; index++) {
+            argRegs[index] = codeStream.readInt();
+        }
+        return argRegs;
     }
 }
