@@ -2284,7 +2284,7 @@ public class BLangVM {
             case InstructionCodes.XML2S:
                 i = operands[0];
                 j = operands[1];
-                sf.stringRegs[j] = sf.refRegs[j].stringValue();
+                sf.stringRegs[j] = sf.refRegs[i].stringValue();
                 break;
             default:
                 throw new UnsupportedOperationException();

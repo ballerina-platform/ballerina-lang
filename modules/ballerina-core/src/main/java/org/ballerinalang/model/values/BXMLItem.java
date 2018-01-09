@@ -40,9 +40,12 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -65,6 +68,7 @@ public final class BXMLItem extends BXML<OMNode> {
 
     private OMNode omNode;
     private XMLNodeType nodeType;
+    private Map<String, BIterator> iteratorMap = new HashMap<>();
     
     /**
      * Create an empty XMLValue.
@@ -743,5 +747,54 @@ public final class BXMLItem extends BXML<OMNode> {
             qname = new QName(namespaceUri, localName);
         }
         return qname;
+    }
+
+    @Override
+    public String newIterator() {
+        BXMLItemIterator iterator = new BXMLItemIterator(this);
+        iteratorMap.put(iterator.id, iterator);
+        return iterator.id;
+    }
+
+    @Override
+    public BIterator getIterator(String id) {
+        return iteratorMap.get(id);
+    }
+
+    /**
+     * XML item iterator implementation.
+     *
+     * @sine 0.96.0
+     */
+    class BXMLItemIterator implements BIterator {
+
+        final String id;
+        BXMLItem value;
+        int cursor = 0;
+
+        public BXMLItemIterator(BXMLItem bxmlItem) {
+            id = UUID.randomUUID().toString();
+            value = bxmlItem;
+        }
+
+        @Override
+        public String getID() {
+            return id;
+        }
+
+        @Override
+        public BValue getNext() {
+            return cursor++ == 0 ? value : null;
+        }
+
+        @Override
+        public BValue getCursor() {
+            return new BInteger(cursor);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return cursor == 0;
+        }
     }
 }

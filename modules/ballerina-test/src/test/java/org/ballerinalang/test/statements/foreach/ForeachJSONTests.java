@@ -27,7 +27,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * TestCases for foreach with Arrays.
+ * TestCases for foreach with JSON type.
  *
  * @since 0.96.0
  */

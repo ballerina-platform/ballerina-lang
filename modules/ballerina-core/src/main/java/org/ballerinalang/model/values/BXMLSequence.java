@@ -26,8 +26,11 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import javax.xml.namespace.QName;
 
@@ -41,6 +44,7 @@ import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 public final class BXMLSequence extends BXML<BRefValueArray> {
 
     private BRefValueArray sequence;
+    private Map<String, BIterator> iteratorMap = new HashMap<>();
     
     /**
      * Create an empty xml sequence.
@@ -428,5 +432,49 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         }
         
         ((BXMLItem) sequence.get(0)).removeAttribute(qname);
+    }
+
+    @Override
+    public String newIterator() {
+        BXMLSequenceIterator iterator = new BXMLSequenceIterator(this);
+        iteratorMap.put(iterator.id, iterator);
+        return iterator.id;
+    }
+
+    @Override
+    public BIterator getIterator(String id) {
+        return iteratorMap.get(id);
+    }
+
+    private class BXMLSequenceIterator implements BIterator {
+
+        final String id;
+        BXMLSequence value;
+        int cursor = 0;
+
+        public BXMLSequenceIterator(BXMLSequence bxmlSequence) {
+            id = UUID.randomUUID().toString();
+            value = bxmlSequence;
+        }
+
+        @Override
+        public String getID() {
+            return id;
+        }
+
+        @Override
+        public BValue getNext() {
+            return value.sequence.get(cursor++);
+        }
+
+        @Override
+        public BValue getCursor() {
+            return new BInteger(cursor);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return cursor < value.sequence.size();
+        }
     }
 }
