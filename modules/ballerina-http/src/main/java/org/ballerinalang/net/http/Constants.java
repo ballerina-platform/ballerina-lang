@@ -58,6 +58,8 @@ public class Constants {
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
     public static final String TLS_STORE_TYPE = "tlsStoreType";
     public static final String PKCS_STORE_TYPE = "PKCS12";
+    public static final String CHUNKED = "chunked";
+    public static final String CHUNKING_AUTO = "auto";
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
 
@@ -93,6 +95,8 @@ public class Constants {
     public static final String ANN_CONFIG_ATTR_CIPHERS = "ciphers";
     public static final String ANN_CONFIG_ATTR_SSL_PROTOCOL = "sslProtocol";
     public static final String ANN_CONFIG_ATTR_WEBSOCKET = "webSocket";
+    public static final String ANN_CONFIG_ATTR_TRANSFER_ENCODING = "transferEncoding";
+    public static final String ANN_CONFIG_ATTR_CHUNKING = "chunking";
     public static final String ANN_WEBSOCKET_ATTR_UPGRADE_PATH = "upgradePath";
     public static final String ANN_WEBSOCKET_ATTR_SERVICE_NAME = "serviceName";
     public static final String ANNOTATION_METHOD_GET = HTTP_METHOD_GET;
@@ -161,9 +165,10 @@ public class Constants {
     public static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final int OPTIONS_STRUCT_INDEX = 0;
     public static final int ENDPOINT_TIMEOUT_STRUCT_INDEX = 1;
-    public static final int ENABLE_CHUNKING_INDEX = 0;
-    public static final int IS_KEEP_ALIVE_INDEX = 1;
-    public static final int HTTP_VERSION_STRUCT_INDEX = 0;
+    public static final int TRANSFER_ENCODING = 0;
+    public static final int ENABLE_CHUNKING_INDEX = 1;
+    public static final int IS_KEEP_ALIVE_INDEX = 0;
+    public static final int HTTP_VERSION_STRUCT_INDEX = 2;
     public static final int SSL_STRUCT_INDEX = 1;
     public static final int FOLLOW_REDIRECT_STRUCT_INDEX = 0;
     public static final int FOLLOW_REDIRECT_INDEX = 0;
