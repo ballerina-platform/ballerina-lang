@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.transport.http.netty.connectionpool;
 
 import org.slf4j.Logger;
@@ -33,19 +51,20 @@ public class ConnectionPoolMaxConnTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(ConnectionPoolMaxConnTestCase.class);
 
+    private static final int MAX_ACTIVE_CONNECTIONS = 7;
+
     private HttpServer httpServer;
     private HttpClientConnector httpClientConnector;
 
     @BeforeClass
     public void setup() {
-        TransportsConfiguration transportsConfiguration = TestUtil.getConfiguration(
-                "/simple-test-config" + File.separator + "netty-transports.yml");
-
         httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new SendChannelIDServerInitializer(1000));
 
         HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
+        TransportsConfiguration transportsConfiguration = TestUtil.getConfiguration(
+                "/simple-test-config" + File.separator + "netty-transports.yml");
         Map<String, Object> transportProperties = HTTPConnectorUtil.getTransportProperties(transportsConfiguration);
-        transportProperties.put(Constants.MAX_ACTIVE_CONNECTIONS_PER_POOL, 5);
+        transportProperties.put(Constants.MAX_ACTIVE_CONNECTIONS_PER_POOL, MAX_ACTIVE_CONNECTIONS);
 
         httpClientConnector = connectorFactory.createHttpClientConnector(
                 transportProperties,
@@ -60,17 +79,21 @@ public class ConnectionPoolMaxConnTestCase {
             CountDownLatch[] countDownLatches = getLatchesArray(noOfRequests);
             HTTPConnectorListener[] responseListeners = new HTTPConnectorListener[noOfRequests];
 
+            // Send multiple requests asynchronously to force the creation of multiple connections
             for (int i = 0; i < countDownLatches.length; i++) {
                 responseListeners[i] = TestUtil.sendRequestAsync(countDownLatches[i], httpClientConnector);
             }
 
+            // Gather the unique responses (channel IDs) for all the requests sent
             for (int i = 0; i < responseListeners.length; i++) {
                 String response = TestUtil.waitAndGetStringEntity(countDownLatches[i], responseListeners[i]);
                 channelIDs.add(response);
                 log.info("Response #" + (i + 1) + " received: " + response);
             }
 
-            assertTrue(channelIDs.size() <= 10);
+            // The number of unique responses (channel IDs) should be equal or less than the max no. of active
+            // connections configured
+            assertTrue(channelIDs.size() <= MAX_ACTIVE_CONNECTIONS);
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running testMaxActiveConnectionsPerPool", e);
         }
