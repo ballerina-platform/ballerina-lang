@@ -56,7 +56,7 @@ public class CountIncrementalAttributeAggregator extends IncrementalAttributeAgg
         // However, since count is summed internally (in avg incremental calculation),
         // ensure that either double or long is used here (since return value of sum is long or
         // double. Long is chosen here)
-        count = new Attribute("_COUNT", Attribute.Type.LONG);
+        count = new Attribute("AGG_COUNT", Attribute.Type.LONG);
         countInitialValue = Expression.value(1L);
 
         this.baseAttributes = new Attribute[]{count};

@@ -213,8 +213,8 @@ public class AggregationTestCase {
                 "from inputStream as i join stockAggregation as s " +
                 "within i.startTime, i.endTime " +
                 "per i.perValue " +
-                "select _TIMESTAMP, s.symbol, avgPrice, totalPrice as sumPrice, lastTradeValue  " +
-                "order by _TIMESTAMP " +
+                "select AGG_TIMESTAMP, s.symbol, avgPrice, totalPrice as sumPrice, lastTradeValue  " +
+                "order by AGG_TIMESTAMP " +
                 "insert all events into outputStream; ";
 
 
@@ -439,7 +439,7 @@ public class AggregationTestCase {
                 "on i.symbol == s.symbol " +
                 "within \"2017-06-01 09:35:00 +05:30\", \"2017-06-01 10:37:57 +05:30\" " +
                 "per \"minutes\" " +
-                "select s.symbol, avgPrice, totalPrice as sumPrice, lastTradeValue, _TIMESTAMP  " +
+                "select s.symbol, avgPrice, totalPrice as sumPrice, lastTradeValue, AGG_TIMESTAMP  " +
                 "insert all events into outputStream; ";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
@@ -551,8 +551,8 @@ public class AggregationTestCase {
                 "from inputStream as i join stockAggregation as s " +
                 "within 1496200000000L, 1596434876000L " +
                 "per \"days\" " +
-                "select _TIMESTAMP, s.avgPrice, totalPrice, lastTradeValue, count " +
-                "order by _TIMESTAMP " +
+                "select AGG_TIMESTAMP, s.avgPrice, totalPrice, lastTradeValue, count " +
+                "order by AGG_TIMESTAMP " +
                 "insert all events into outputStream; ";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
@@ -684,8 +684,8 @@ public class AggregationTestCase {
                 "from inputStream as i join stockAggregation as s " +
                 "within \"2017-06-** **:**:**\" " +
                 "per \"seconds\" " +
-                "select _TIMESTAMP, s.symbol, lastTradeValue, totalPrice " +
-                "order by _TIMESTAMP " +
+                "select AGG_TIMESTAMP, s.symbol, lastTradeValue, totalPrice " +
+                "order by AGG_TIMESTAMP " +
                 "insert all events into outputStream; ";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
@@ -889,8 +889,8 @@ public class AggregationTestCase {
                 "from inputStream as i join stockAggregation as s " +
                 "within \"2017-06-01 04:05:50\", \"2017-06-01 04:06:57\" " +
                 "per \"seconds\" " +
-                "select _TIMESTAMP, totalPrice, avgPrice, lastTradeValue, s.symbol, maxPrice, minPrice " +
-                "order by _TIMESTAMP " +
+                "select AGG_TIMESTAMP, totalPrice, avgPrice, lastTradeValue, s.symbol, maxPrice, minPrice " +
+                "order by AGG_TIMESTAMP " +
                 "insert into tempStream; " +
 
                 "@info(name = 'query1') " +
@@ -1088,8 +1088,8 @@ public class AggregationTestCase {
                         "from inputStream as i join stockAggregation as s " +
                         "within \"2017-01-01 00:00:00\", \"2021-01-01 00:00:00\" " +
                         "per \"months\" " +
-                        "select _TIMESTAMP, s.symbol, avgPrice, totalPrice " +
-                        "order by _TIMESTAMP " +
+                        "select AGG_TIMESTAMP, s.symbol, avgPrice, totalPrice " +
+                        "order by AGG_TIMESTAMP " +
                         "insert all events into outputStream; ";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
@@ -1228,8 +1228,8 @@ public class AggregationTestCase {
                         "from inputStream as i join stockAggregation as s " +
                         "within \"2017-01-01 00:00:00\", \"2021-01-01 00:00:00\" " +
                         "per \"years\" " +
-                        "select _TIMESTAMP, s.symbol, avgPrice, totalPrice " +
-                        "order by _TIMESTAMP " +
+                        "select AGG_TIMESTAMP, s.symbol, avgPrice, totalPrice " +
+                        "order by AGG_TIMESTAMP " +
                         "insert all events into outputStream; ";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
@@ -1595,7 +1595,7 @@ public class AggregationTestCase {
                 "within \"2017-06-** **:**:**\" " +
                 "per \"seconds\" " +
                 "select * " +
-                "order by _TIMESTAMP ;");
+                "order by AGG_TIMESTAMP ;");
         EventPrinter.print(events);
         AssertJUnit.assertEquals(3, events.length);
         for (int i = 0; i < events.length; i++) {
@@ -1878,7 +1878,7 @@ public class AggregationTestCase {
                 "within \"2017-**-** **:**:**\" " +
                 "per \"seconds\" " +
                 "select * " +
-                "order by _TIMESTAMP ;");
+                "order by AGG_TIMESTAMP ;");
         EventPrinter.print(events);
         AssertJUnit.assertEquals(4, events.length);
         for (int i = 0; i < events.length; i++) {
@@ -1946,7 +1946,7 @@ public class AggregationTestCase {
                 "within \"2017-12-18 **:**:**\" " +
                 "per \"seconds\" " +
                 "select * " +
-                "order by _TIMESTAMP ;");
+                "order by AGG_TIMESTAMP ;");
         EventPrinter.print(events);
         AssertJUnit.assertEquals(1, events.length);
         for (int i = 0; i < events.length; i++) {
@@ -2002,7 +2002,7 @@ public class AggregationTestCase {
                 "within \"2017-12-18 06:**:**\" " +
                 "per \"seconds\" " +
                 "select * " +
-                "order by _TIMESTAMP ;");
+                "order by AGG_TIMESTAMP ;");
         EventPrinter.print(events);
         AssertJUnit.assertEquals(1, events.length);
         for (int i = 0; i < events.length; i++) {
@@ -2058,7 +2058,7 @@ public class AggregationTestCase {
                 "within \"2017-12-18 06:21:**\" " +
                 "per \"seconds\" " +
                 "select * " +
-                "order by _TIMESTAMP ;");
+                "order by AGG_TIMESTAMP ;");
         EventPrinter.print(events);
         AssertJUnit.assertEquals(1, events.length);
         for (int i = 0; i < events.length; i++) {
@@ -2114,7 +2114,7 @@ public class AggregationTestCase {
                 "within \"2017-12-18 11:51:27 +05:30\" " +
                 "per \"seconds\" " +
                 "select * " +
-                "order by _TIMESTAMP ;");
+                "order by AGG_TIMESTAMP ;");
         EventPrinter.print(events);
         AssertJUnit.assertEquals(1, events.length);
         for (int i = 0; i < events.length; i++) {
@@ -2329,8 +2329,8 @@ public class AggregationTestCase {
                 "from inputStream join stockAggregation " +
                 "within \"2017-06-01 04:05:49\", \"2017-06-01 05:07:57\" " +
                 "per \"seconds\" " +
-                "select _TIMESTAMP, avgPrice, totalPrice as sumPrice, lastTradeValue  " +
-                "order by _TIMESTAMP " +
+                "select AGG_TIMESTAMP, avgPrice, totalPrice as sumPrice, lastTradeValue  " +
+                "order by AGG_TIMESTAMP " +
                 "insert all events into outputStream; ";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);

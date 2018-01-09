@@ -245,8 +245,8 @@ public class AggregationRuntime implements MemoryCalculable {
         Expression start = Expression.variable(additionalAttributes.get(0).getName());
         Expression end = Expression.variable(additionalAttributes.get(1).getName());
         Expression compareWithStartTime = Compare.compare(start, Compare.Operator.LESS_THAN_EQUAL,
-                Expression.variable("_TIMESTAMP"));
-        Expression compareWithEndTime = Compare.compare(Expression.variable("_TIMESTAMP"),
+                Expression.variable("AGG_TIMESTAMP"));
+        Expression compareWithEndTime = Compare.compare(Expression.variable("AGG_TIMESTAMP"),
                 Compare.Operator.LESS_THAN, end);
         withinExpression = Expression.and(compareWithStartTime, compareWithEndTime);
 

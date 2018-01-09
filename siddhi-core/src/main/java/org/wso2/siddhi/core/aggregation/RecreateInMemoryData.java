@@ -81,7 +81,7 @@ public class RecreateInMemoryData {
         Table tableForMaxDuration = aggregationTables.get(incrementalDurations.get(incrementalDurations.size() - 1));
         StoreQuery storeQuery = StoreQuery.query()
                 .from(InputStore.store(tableForMaxDuration.getTableDefinition().getId()))
-                .select(Selector.selector().orderBy(Expression.variable("_TIMESTAMP")));
+                .select(Selector.selector().orderBy(Expression.variable("AGG_TIMESTAMP")));
         StoreQueryRuntime storeQueryRuntime = StoreQueryParser.parse(storeQuery, siddhiAppContext, tableMap, windowMap,
                 aggregationMap);
 
@@ -100,7 +100,7 @@ public class RecreateInMemoryData {
             Table recreateFromTable = aggregationTables.get(incrementalDurations.get(i - 1));
 
             storeQuery = StoreQuery.query().from(InputStore.store(recreateFromTable.getTableDefinition().getId()))
-                    .select(Selector.selector().orderBy(Expression.variable("_TIMESTAMP")));
+                    .select(Selector.selector().orderBy(Expression.variable("AGG_TIMESTAMP")));
             storeQueryRuntime = StoreQueryParser.parse(storeQuery, siddhiAppContext, tableMap, windowMap,
                     aggregationMap);
             events = storeQueryRuntime.execute();

@@ -66,7 +66,7 @@ public class MaxIncrementalAttributeAggregator extends IncrementalAttributeAggre
 
         if (attributeType.equals(Attribute.Type.INT) || attributeType.equals(Attribute.Type.LONG) ||
                 attributeType.equals(Attribute.Type.DOUBLE) || attributeType.equals(Attribute.Type.FLOAT)) {
-            this.baseAttributes = new Attribute[]{new Attribute("_MAX_".concat(attributeName), attributeType)};
+            this.baseAttributes = new Attribute[]{new Attribute("AGG_MAX_".concat(attributeName), attributeType)};
             this.baseAttributesInitialValues = new Expression[]{Expression.variable(attributeName)};
             this.returnType = attributeType;
 

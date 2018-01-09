@@ -68,12 +68,12 @@ public class SumIncrementalAttributeAggregator extends IncrementalAttributeAggre
         }
 
         if (attributeType.equals(Attribute.Type.FLOAT) || attributeType.equals(Attribute.Type.DOUBLE)) {
-            sum = new Attribute("_SUM_".concat(attributeName), Attribute.Type.DOUBLE);
+            sum = new Attribute("AGG_SUM_".concat(attributeName), Attribute.Type.DOUBLE);
             sumInitialValue = Expression.function("convert", Expression.variable(attributeName),
                     Expression.value("double"));
             returnType = Attribute.Type.DOUBLE;
         } else if (attributeType.equals(Attribute.Type.INT) || attributeType.equals(Attribute.Type.LONG)) {
-            sum = new Attribute("_SUM_".concat(attributeName), Attribute.Type.LONG);
+            sum = new Attribute("AGG_SUM_".concat(attributeName), Attribute.Type.LONG);
             sumInitialValue = Expression.function("convert", Expression.variable(attributeName),
                     Expression.value("long"));
             returnType = Attribute.Type.LONG;
