@@ -21,6 +21,7 @@ import { COMMANDS } from 'plugins/ballerina/constants';
 import Button from '../../../interactions/button';
 import LifelineButton from '../../../interactions/lifeline-button';
 import WorkerButton from '../../../interactions/worker-button';
+import Area from '../../../interactions/area';
 import Menu from '../../../interactions/menu';
 import Item from '../../../interactions/item';
 import TopLevelElements from '../../../tool-palette/item-provider/compilation-unit-tools';
@@ -120,41 +121,38 @@ class ControllerPositioningUtil {
         }
         const items = this.convertToAddItems(TopLevelElements, node);
         const addBtn = (
-            <Button
-                bBox={{ x, y, w, h }}
-                buttonX={0}
-                buttonY={0}
-                showAlways
-                buttonRadius={12}
-            >
-                <Menu>
-                    {items}
-                </Menu>
-            </Button>
+            <Area bBox={{ x, y, w, h }}>
+                <Button
+                    buttonX={0}
+                    buttonY={0}
+                    showAlways
+                    buttonRadius={12}
+                >
+                    <Menu>
+                        {items}
+                    </Menu>
+                </Button>
+            </Area>
         );
 
         const modeBtn = (
-            <Button
-                bBox={{
-                    x: x + 40,
-                    y,
-                    w,
-                    h,
-                }}
-                icon={this.mode === 'default' ? 'default-view' : 'action-view'}
-                buttonX={0}
-                buttonY={0}
-                showAlways
-                hideIconBackground
-                buttonColor={'#eee'}
-                buttonIconColor={'black'}
-                buttonRadius={12}
-                onClick={() => {
-                    this.context.command.dispatch(COMMANDS.DIAGRAM_MODE_CHANGE,
-                        { mode: this.mode === 'default' ? 'action' : 'default' });
-                }}
-                tooltip={`switch to ${this.mode === 'default' ? 'action' : 'default'} mode`}
-            />
+            <Area bBox={{ x: x + 40, y, w, h }}>
+                <Button
+                    icon={this.mode === 'default' ? 'default-view' : 'action-view'}
+                    buttonX={0}
+                    buttonY={0}
+                    showAlways
+                    hideIconBackground
+                    buttonColor={'#eee'}
+                    buttonIconColor={'black'}
+                    buttonRadius={12}
+                    onClick={() => {
+                        this.context.command.dispatch(COMMANDS.DIAGRAM_MODE_CHANGE,
+                            { mode: this.mode === 'default' ? 'action' : 'default' });
+                    }}
+                    tooltip={`switch to ${this.mode === 'default' ? 'action' : 'default'} mode`}
+                />
+            </Area>
         );
         return ([addBtn, modeBtn]);
     }

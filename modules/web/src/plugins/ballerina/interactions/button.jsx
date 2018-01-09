@@ -24,11 +24,10 @@ import './interaction.scss';
  */
 class Button extends React.Component {
     /**
-     * render hover area and button
+     * render hover button
      * @return {object} button rendering object
      */
     render() {
-        const bBox = this.props.bBox;
         const btnX = this.props.buttonX;
         const btnY = this.props.buttonY;
         const btnRadius = this.props.buttonRadius;
@@ -39,35 +38,30 @@ class Button extends React.Component {
         const topPadding = (-3 * btnRadius) + (btnRadius / 2);
         return (
             <div
-                className='button-area'
-                style={{ height: bBox.h, width: bBox.w, left: bBox.x, top: bBox.y }}
+                className='interaction-menu-area'
+                style={{ left: btnX, top: btnY, '--button-size': buttonArea + 'px' }}
             >
-                <div
-                    className='interaction-menu-area'
-                    style={{ left: btnX, top: btnY, '--button-size': buttonArea + 'px' }}
-                >
-                    <div style={{ fontSize: btnRadius }} className='button-panel'>
-                        <span
-                            className={(this.props.showAlways ? 'button-show-always' : 'button') + ' fw-stack fw-lg'}
-                            onClick={this.props.onClick}
-                            title={this.props.tooltip}
-                        >
-                            <i
-                                style={{ color: btnColor, opacity: IconOpacity }}
-                                className='fw button-background fw-circle fw-stack-2x'
-                            />
-                            <i style={{ color: btnIconColor }} className={`fw fw-${this.props.icon} fw-stack-1x`} />
-                        </span>
-                    </div>
-                    <div style={{
-                        left: buttonArea,
-                        top: topPadding,
-                        display: 'block',
-                        position: 'relative',
-                        float: 'left' }}
+                <div style={{ fontSize: btnRadius }} className='button-panel'>
+                    <span
+                        className={(this.props.showAlways ? 'button-show-always' : 'button') + ' fw-stack fw-lg'}
+                        onClick={this.props.onClick}
+                        title={this.props.tooltip}
                     >
-                        {this.props.children}
-                    </div>
+                        <i
+                            style={{ color: btnColor, opacity: IconOpacity }}
+                            className='fw button-background fw-circle fw-stack-2x'
+                        />
+                        <i style={{ color: btnIconColor }} className={`fw fw-${this.props.icon} fw-stack-1x`} />
+                    </span>
+                </div>
+                <div style={{
+                    left: buttonArea,
+                    top: topPadding,
+                    display: 'block',
+                    position: 'relative',
+                    float: 'left' }}
+                >
+                    {this.props.children}
                 </div>
             </div>
         );
@@ -77,7 +71,6 @@ class Button extends React.Component {
 Button.propTypes = {
     children: PropTypes.isRequired,
     icon: PropTypes.string,
-    bBox: PropTypes.valueOf(PropTypes.object).isRequired,
     buttonX: PropTypes.number,
     buttonY: PropTypes.number,
     buttonRadius: PropTypes.number,
