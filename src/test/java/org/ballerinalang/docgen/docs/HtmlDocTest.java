@@ -26,6 +26,7 @@ import org.ballerinalang.docgen.model.ConnectorDoc;
 import org.ballerinalang.docgen.model.EnumDoc;
 import org.ballerinalang.docgen.model.FunctionDoc;
 import org.ballerinalang.docgen.model.GlobalVariableDoc;
+import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.StructDoc;
 import org.testng.Assert;
@@ -47,10 +48,10 @@ public class HtmlDocTest {
 
     @Test(description = "Multiple packages should be shown even when one page is generated")
     public void testMultiPackage() throws Exception {
-        List<String> packages = new ArrayList<>();
-        packages.add("a.b.c");
-        packages.add("x.y");
-        packages.add("x.y.z");
+        List<PackageName> packages = new ArrayList<>();
+        packages.add(new PackageName("a.b.c", ""));
+        packages.add(new PackageName("x.y", ""));
+        packages.add(new PackageName("x.y.z", ""));
 
         BLangPackage bLangPackage = createPackage("package x.y;");
         Page page = Generator.generatePage(bLangPackage, packages);
@@ -269,8 +270,7 @@ public class HtmlDocTest {
      * @return BLangPackage
      */
     private BLangPackage createPackage(String source) {
-        BLangPackage pkg = WorkspaceUtils.getBallerinaFileForContent("untitled.bal", source);
-        return pkg;
+        return WorkspaceUtils.getBallerinaFileForContent("untitled.bal", source);
     }
 
     /**
@@ -279,8 +279,8 @@ public class HtmlDocTest {
      * @return page generated
      */
     private Page generatePage(BLangPackage balPackage) {
-        List<String> packages = new ArrayList<>();
-        packages.add((balPackage.symbol).pkgID.name.value);
+        List<PackageName> packages = new ArrayList<>();
+        packages.add(new PackageName((balPackage.symbol).pkgID.name.value, ""));
         return Generator.generatePage(balPackage, packages);
     }
 }

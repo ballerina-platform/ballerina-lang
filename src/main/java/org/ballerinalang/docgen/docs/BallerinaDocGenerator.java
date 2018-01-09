@@ -23,6 +23,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.Writer;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
+import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.model.Name;
 import org.slf4j.Logger;
@@ -151,7 +152,9 @@ public class BallerinaDocGenerator {
                 List<String> packageNames = new ArrayList<>(docsMap.keySet());
                 // Sort the package names
                 Collections.sort(packageNames);
-
+    
+                List<PackageName> packageNameList = PackageName.convertList(packageNames);
+    
                 //Generate pages for the packages
                 String packageTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TEMPLATE_NAME_KEY,
                         "page");
@@ -173,7 +176,7 @@ public class BallerinaDocGenerator {
                                         Comparator.comparing(
                                                 a -> a.getName().getValue())));
                     }
-                    Page page = Generator.generatePage(bLangPackage, packageNames);
+                    Page page = Generator.generatePage(bLangPackage, packageNameList);
                     String filePath = output + File.separator + refinePackagePath(bLangPackage) + HTML;
                     Writer.writeHtmlDocument(page, packageTemplateName, filePath);
                 }
@@ -181,7 +184,7 @@ public class BallerinaDocGenerator {
                 String indexTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TEMPLATE_NAME_KEY,
                         "index");
                 String indexFilePath = output + File.separator + "index" + HTML;
-                Writer.writeHtmlDocument(packageNames, indexTemplateName, indexFilePath);
+                Writer.writeHtmlDocument(packageNameList, indexTemplateName, indexFilePath);
                 if (BallerinaDocUtils.isDebugEnabled()) {
                     out.println("Copying HTML theme...");
                 }

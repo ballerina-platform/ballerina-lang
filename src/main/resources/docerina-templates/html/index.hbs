@@ -1,9 +1,17 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="en">
 <head>
-	<title>Ballerina API Documentation</title>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<!-- Required meta tags -->
+    	<meta charset="utf-8">
+    	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    	<!-- Bootstrap CSS -->
+    	<link rel="stylesheet" href="docerina-theme/libs/bootstrap-3.0.0/dist/css/bootstrap.min.css">
+
+    	<!-- custom CSS -->
+    	<link rel="stylesheet" href="docerina-theme/css/main.scss">
+
+    	<title>Ballerina API Documentation</title>
 </head>
 <body>
 	<!-- Wrapper -->
@@ -23,7 +31,13 @@
 					<div class="content">
 						    <h2>Ballerina Packages</h2>
                             <ul>
-                                {{#each this}}<li><a href="{{this}}.html">{{this}}</a></li>{{/each}}
+                                {{#each this}}
+                                <li>
+                                    <a href="{{prefix}}{{suffix}}.html">
+                                        {{prefix}}<span class="bold">{{suffix}}</span>
+                                    </a>
+                                </li>
+                                {{/each}}
                             </ul>
 						<p></p>
 					</div>

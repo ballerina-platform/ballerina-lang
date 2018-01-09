@@ -26,6 +26,7 @@ import org.ballerinalang.docgen.model.EnumDoc;
 import org.ballerinalang.docgen.model.FunctionDoc;
 import org.ballerinalang.docgen.model.GlobalVariableDoc;
 import org.ballerinalang.docgen.model.Link;
+import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.StructDoc;
 import org.ballerinalang.docgen.model.Variable;
@@ -65,7 +66,7 @@ public class Generator {
      * @param packages list of available packages
      * @return
      */
-    public static Page generatePage(BLangPackage balPackage, List<String> packages) {
+    public static Page generatePage(BLangPackage balPackage, List<PackageName> packages) {
         ArrayList<Documentable> documentables = new ArrayList<>();
         // Check for structs in the package
         if (balPackage.getStructs().size() > 0) {
@@ -113,8 +114,8 @@ public class Generator {
 
         //Create the links to select which page or package is active
         List<Link> links = new ArrayList<>();
-        for (String pkg : packages) {
-            if (pkg.equals(packageName)) {
+        for (PackageName pkg : packages) {
+            if (pkg.getName().equals(packageName)) {
                 links.add(new Link(pkg, true));
             } else {
                 links.add(new Link(pkg, false));
