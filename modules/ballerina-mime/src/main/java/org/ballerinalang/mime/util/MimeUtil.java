@@ -165,7 +165,7 @@ public class MimeUtil {
         } else {
             byte[] payload;
             try {
-                payload = toByteArray(inputStream);
+                payload = getByteArray(inputStream);
             } catch (IOException e) {
                 throw new BallerinaException("Error while converting inputstream to a byte array: " + e.getMessage());
             }
@@ -479,15 +479,13 @@ public class MimeUtil {
      * @return a byte array
      * @throws IOException
      */
-    public static byte[] toByteArray(InputStream input) throws IOException {
-        byte[] buffer = new byte[4096];
-        int n1;
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        for (; -1 != (n1 = input.read(buffer)); ) {
-            output.write(buffer, 0, n1);
+    private static byte[] getByteArray(InputStream input) throws IOException {
+        try (ByteArrayOutputStream output = new ByteArrayOutputStream();) {
+            byte[] buffer = new byte[4096];
+            for (int len; (len = input.read(buffer)) != -1; ) {
+                output.write(buffer, 0, len);
+            }
+            return output.toByteArray();
         }
-        byte[] bytes = output.toByteArray();
-        output.close();
-        return bytes;
     }
 }

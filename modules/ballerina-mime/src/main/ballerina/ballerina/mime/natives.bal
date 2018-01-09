@@ -79,14 +79,7 @@ public function getText (Entity entity) (string) {
     } else {
         file:File overFlowData = entity.overflowData;
         if (overFlowData != null) {
-            var encoding = DEFAULT_CHARSET;
-            TypeCastError castErr;
-            if (entity.contentType != null) {
-                encoding, castErr = (string)entity.contentType.parameters.CHARSET;
-                if (castErr != null) {
-                    encoding = DEFAULT_CHARSET;
-                }
-            }
+            string encoding = getEncoding(entity.contentType);
             io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
             io:CharacterChannel characterChannel = channel.toCharacterChannel(encoding);
             string characters = characterChannel.readAllCharacters();
@@ -105,14 +98,7 @@ public function getJson (Entity entity) (json) {
     } else {
         file:File overFlowData = entity.overflowData;
         if (overFlowData != null) {
-            var encoding = DEFAULT_CHARSET;
-            TypeCastError castErr;
-            if (entity.contentType != null) {
-                encoding, castErr = (string)entity.contentType.parameters.CHARSET;
-                if (castErr != null) {
-                    encoding = DEFAULT_CHARSET;
-                }
-            }
+            string encoding = getEncoding(entity.contentType);
             io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
             blob bytes = readAll(channel);
             string content = bytes.toString(encoding);
@@ -132,14 +118,7 @@ public function getXml (Entity entity) (xml) {
     } else {
         file:File overFlowData = entity.overflowData;
         if (overFlowData != null) {
-            var encoding = DEFAULT_CHARSET;
-            TypeCastError castErr;
-            if (entity.contentType != null) {
-                encoding, castErr = (string)entity.contentType.parameters.CHARSET;
-                if (castErr != null) {
-                    encoding = DEFAULT_CHARSET;
-                }
-            }
+            string encoding = getEncoding(entity.contentType);
             io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
             blob bytes = readAll(channel);
             string content = bytes.toString(encoding);
@@ -255,20 +234,52 @@ public native function <MimeBase64Decoder decoder> decodeString (string content,
 @Return {value:"return a byte array"}
 function readAll (io:ByteChannel channel) (blob) {
     blob bytes;
-    int numberOfBytesRead;
-    bytes, numberOfBytesRead = channel.readAllBytes();
+    bytes, _ = channel.readAllBytes();
     return bytes;
 }
 
+@Description {value:"Get the encoding value from a given MediaType."}
+@Param {value:"contentType: A MediaType struct"}
+@Return {value:"return encoding value"}
+function getEncoding(MediaType contentType) (string){
+    var encoding = DEFAULT_CHARSET;
+    TypeCastError castErr;
+    if (contentType != null) {
+        encoding, castErr = (string)contentType.parameters.CHARSET;
+        if (castErr != null) {
+            encoding = DEFAULT_CHARSET;
+        }
+    }
+    return encoding;
+}
+@Description {value:"Represent 'application/x-www-form-urlencoded' media type value"}
 public const string APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
+
+@Description {value:"Represent 'application/json' media type value"}
 public const string APPLICATION_JSON = "application/json";
+
+@Description {value:"Represent 'application/octet-stream' media type value"}
 public const string APPLICATION_OCTET_STREAM = "application/octet-stream";
+
+@Description {value:"Represent 'application/svg+xml' media type value"}
 public const string APPLICATION_SVG_XML = "application/svg+xml";
+
+@Description {value:"Represent 'application/xhtml+xml' media type value"}
 public const string APPLICATION_XHTML_XML = "application/xhtml+xml";
+
+@Description {value:"Represent 'application/xml' media type value"}
 public const string APPLICATION_XML = "application/xml";
+
+@Description {value:"Represent 'multipart/form-data' media type value"}
 public const string MULTIPART_FORM_DATA = "multipart/form-data";
+
+@Description {value:"Represent 'text/html' media type value"}
 public const string TEXT_HTML = "text/html";
+
+@Description {value:"Represent 'text/plain' media type value"}
 public const string TEXT_PLAIN = "text/plain";
+
+@Description {value:"Represent 'text/xml' media type value"}
 public const string TEXT_XML = "text/xml";
 
 
