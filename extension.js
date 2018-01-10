@@ -5,17 +5,28 @@ const path = require('path');
 exports.activate = function(context) {
 	// The server is implemented in java
 	let serverModule = context.asAbsolutePath(path.join('server-build', 'langserver.jar'));
-    
+	const main = 'org.ballerinalang.langserver.launchers.stdio.Main';
+
+	const config = workspace.getConfiguration('ballerina');
+
+	// in windows class path seperated by ';'
+	const sep = process.platform === 'win32' ? ';' : ':';
+	
+	if (config.sdk) {
+		// sdk path is set in configurations
+		serverModule = context.asAbsolutePath(path.join('server-build', 'langserver-no-bal-deps.jar'));
+		serverModule += (sep + path.join(config.sdk, 'bre', 'lib', '*'));
+	}
+	const args = ['-cp', serverModule, main];
 	// If the extension is launched in debug mode then the debug server options are used
 	// Otherwise the run options are used
 	let serverOptions = {
-		run: { command: 'java', args: ['-jar', serverModule] },
+		run: { command: 'java', args },
 		debug: {
 			command: 'java', 
 			args: [
-				'-jar',
 				'-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y',
-				serverModule,
+				...args,
 			],
 		},
 	}

@@ -57,9 +57,20 @@
                                     <artifactId>${langserver.launcher.id}</artifactId>
                                     <version>${langserver.launcher.version}</version>
                                     <type>jar</type>
+                                    <classifier>jar-with-dependencies</classifier>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${basedir}/server-build/</outputDirectory>
                                     <destFileName>langserver.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.ballerinalang</groupId>
+                                    <artifactId>${langserver.launcher.id}</artifactId>
+                                    <version>${langserver.launcher.version}</version>
+                                    <type>jar</type>
+                                    <classifier>jar-with-non-ballerina-dependencies</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${basedir}/server-build/</outputDirectory>
+                                    <destFileName>langserver-no-bal-deps.jar</destFileName>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -70,6 +81,6 @@
     </build>
     <properties>
         <langserver.launcher.id>language-server-stdio-launcher</langserver.launcher.id>
-        <langserver.launcher.version>0.95.6</langserver.launcher.version>
+        <langserver.launcher.version>0.95.1-SNAPSHOT</langserver.launcher.version>
     </properties>
 </project>

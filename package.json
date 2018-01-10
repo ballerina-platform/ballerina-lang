@@ -34,7 +34,18 @@
                 "scopeName": "source.ballerina",
                 "path": "./syntaxes/ballerina.tmLanguage"
             }
-        ]
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "Ballerina configuration",
+            "properties": {
+                "ballerina.sdk": {
+                    "type": ["string", "null"],
+                    "default": null,
+                    "description": "Specifies the path to the ballerina sdk"
+                }
+            }
+        }
     },
     "main": "./extension.js",
     "scripts": {
