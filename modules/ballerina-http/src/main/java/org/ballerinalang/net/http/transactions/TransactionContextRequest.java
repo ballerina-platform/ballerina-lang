@@ -16,32 +16,17 @@
  * under the License.
  */
 
-package org.ballerinalang.bre;
+package org.ballerinalang.net.http.transactions;
 
 /**
- * {@code Participant} represents a service in the flow.
+ * {@code TransactionContextRequest} represents the request of create-context.
  */
-public class Participant {
+public class TransactionContextRequest {
+    private final String participantId;
+    private final String coordinationType;
 
-    private final int participantId;
-    private final String participantProtocols;
-    private final boolean isInitiator;
-
-    public Participant(int participantId, String participantProtocols, boolean isInitiator) {
+    public TransactionContextRequest(String participantId, String coordinationType) {
         this.participantId = participantId;
-        this.participantProtocols = participantProtocols;
-        this.isInitiator = isInitiator;
-    }
-
-    public int getParticipantId() {
-        return participantId;
-    }
-
-    public String getParticipantProtocols() {
-        return participantProtocols;
-    }
-
-    public boolean isInitiator() {
-        return isInitiator;
+        this.coordinationType = coordinationType;
     }
 }
