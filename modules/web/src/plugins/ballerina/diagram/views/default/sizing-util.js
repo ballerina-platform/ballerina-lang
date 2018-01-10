@@ -1479,7 +1479,6 @@ class SizingUtil {
         viewState.components['statement-box'].w = bodyWidth;
         viewState.bBox.h = viewState.components['statement-box'].h
                             + viewState.components['drop-zone'].h
-                            + this.config.statement.gutter.h
                             + components['block-header'].h;
         viewState.bBox.w = bodyWidth;
 
@@ -1505,6 +1504,18 @@ class SizingUtil {
         }
         node.viewState.bBox.h = nodeHeight;
         node.viewState.bBox.w = nodeWidth;
+
+        // if the statement right before if statement end is one with
+        // a separator, arrow must not be drawn to it. It should only be a line.
+        // e.g. :
+        // if (true) {
+        //     while (true) {
+        //     }
+        // }
+        if ((node.body.statements.length > 0 && TreeUtil.isWhile(_.last(node.body.statements)))
+                && (!elseStmt || (TreeUtil.isBlock(elseStmt) && elseStmt.statements.length === 0))) {
+            node.viewState.isLastPathLine = true;
+        }
     }
 
     /**

@@ -287,12 +287,28 @@ class IfStatementDecorator extends React.Component {
                     points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y}`}
                     className='flowchart-background-empty-rect'
                 />
-                <ArrowDecorator
-                    start={{ x: p5X, y: p5Y }}
-                    end={{ x: p6X, y: p6Y }}
-                    classNameArrow='flowchart-action-arrow'
-                    classNameArrowHead='flowchart-action-arrow-head'
-                />
+                {(() => {
+                    if (viewState.isLastPathLine) {
+                        return (
+                            <line
+                                x1={p5X}
+                                y1={p5Y}
+                                x2={p6X}
+                                y2={p6Y}
+                                className='flowchart-background-empty-rect'
+                            />
+                        );
+                    } else {
+                        return (
+                            <ArrowDecorator
+                                start={{ x: p5X, y: p5Y }}
+                                end={{ x: p6X, y: p6Y }}
+                                classNameArrow='flowchart-action-arrow'
+                                classNameArrowHead='flowchart-action-arrow-head'
+                            />
+                        );
+                    }
+                })()}
                 <polyline
                     points={`${p2X},${p2Y} ${p8X},${p8Y} ${p3X},${p3Y} ${p9X}, ${p9Y} ${p2X},${p2Y}`}
                     className={statementRectClass}
