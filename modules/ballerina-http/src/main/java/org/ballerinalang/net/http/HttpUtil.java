@@ -607,25 +607,41 @@ public class HttpUtil {
         headerValueStructType = struct.getType();
     }
 
-    public static void populateInboundRequest(BStruct request, HTTPCarbonMessage cMsg) {
-        request.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
-        request.addNativeData(Constants.INBOUND_REQUEST, true);
-        request.setStringField(Constants.REQUEST_PATH_INDEX, (String) cMsg.getProperty(Constants.REQUEST_URL));
-        request.setStringField(Constants.REQUEST_HOST_INDEX,
-                ((InetSocketAddress) cMsg.getProperty(Constants.LOCAL_ADDRESS)).getHostName());
-        request.setIntField(Constants.REQUEST_PORT_INDEX, (Integer) cMsg.getProperty(Constants.LISTENER_PORT));
-        request.setStringField(Constants.REQUEST_METHOD_INDEX, (String) cMsg.getProperty(Constants.HTTP_METHOD));
-        request.setStringField(Constants.REQUEST_VERSION_INDEX, (String) cMsg.getProperty(Constants.HTTP_VERSION));
-        Map<String, String> resourceArgValues = (Map<String, String>) cMsg.getProperty(Constants.RESOURCE_ARGS);
-        request.setStringField(Constants.REQUEST_REST_URI_POSTFIX_INDEX,
-                resourceArgValues.get(Constants.REST_URI_POSTFIX));
+    public static void populateInboundRequest(BStruct inboundRequestStruct, HTTPCarbonMessage inboundRequestMsg) {
+        inboundRequestStruct.addNativeData(Constants.TRANSPORT_MESSAGE, inboundRequestMsg);
+        inboundRequestStruct.addNativeData(Constants.INBOUND_REQUEST, true);
 
-        if (cMsg.getHeader(Constants.USER_AGENT_HEADER) != null) {
-            request.setStringField(Constants.REQUEST_USER_AGENT_INDEX, cMsg.getHeader(Constants.USER_AGENT_HEADER));
-            cMsg.removeHeader(Constants.USER_AGENT_HEADER);
+        enrichWithInboundRequestInfo(inboundRequestStruct, inboundRequestMsg);
+        enrichWithInboundRequestHeaders(inboundRequestStruct, inboundRequestMsg);
+    }
+
+    private static void enrichWithInboundRequestHeaders(BStruct inboundRequestStruct,
+            HTTPCarbonMessage inboundRequestMsg) {
+        if (inboundRequestMsg.getHeader(Constants.USER_AGENT_HEADER) != null) {
+            inboundRequestStruct.setStringField(Constants.REQUEST_USER_AGENT_INDEX,
+                    inboundRequestMsg.getHeader(Constants.USER_AGENT_HEADER));
+            inboundRequestMsg.removeHeader(Constants.USER_AGENT_HEADER);
         }
-        request.setRefField(Constants.REQUEST_HEADERS_INDEX,
-                prepareHeaderMap(cMsg.getHeaders(), new BMap<>()));
+        inboundRequestStruct.setRefField(Constants.REQUEST_HEADERS_INDEX,
+                prepareHeaderMap(inboundRequestMsg.getHeaders(), new BMap<>()));
+    }
+
+    private static void enrichWithInboundRequestInfo(BStruct inboundRequestStruct,
+            HTTPCarbonMessage inboundRequestMsg) {
+        inboundRequestStruct.setStringField(Constants.REQUEST_PATH_INDEX,
+                (String) inboundRequestMsg.getProperty(Constants.REQUEST_URL));
+        inboundRequestStruct.setStringField(Constants.REQUEST_HOST_INDEX,
+                ((InetSocketAddress) inboundRequestMsg.getProperty(Constants.LOCAL_ADDRESS)).getHostName());
+        inboundRequestStruct.setIntField(Constants.REQUEST_PORT_INDEX,
+                (Integer) inboundRequestMsg.getProperty(Constants.LISTENER_PORT));
+        inboundRequestStruct.setStringField(Constants.REQUEST_METHOD_INDEX,
+                (String) inboundRequestMsg.getProperty(Constants.HTTP_METHOD));
+        inboundRequestStruct.setStringField(Constants.REQUEST_VERSION_INDEX,
+                (String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION));
+        Map<String, String> resourceArgValues =
+                (Map<String, String>) inboundRequestMsg.getProperty(Constants.RESOURCE_ARGS);
+        inboundRequestStruct.setStringField(Constants.REQUEST_REST_URI_POSTFIX_INDEX,
+                resourceArgValues.get(Constants.REST_URI_POSTFIX));
     }
 
     public static void populateInboundResponse(BStruct response, HTTPCarbonMessage cMsg) {
@@ -830,13 +846,18 @@ public class HttpUtil {
     public static Set<ListenerConfiguration> getDefaultOrDynamicListenerConfig(Annotation annotationInfo) {
 
         if (annotationInfo == null) {
-            return null;
+            return HttpConnectionManager.getInstance().getDefaultListenerConfiugrationSet();
         }
+
         //key - listenerId, value - listener config property map
         Set<ListenerConfiguration> listenerConfSet = new HashSet<>();
 
         extractBasicConfig(annotationInfo, listenerConfSet);
         extractHttpsConfig(annotationInfo, listenerConfSet);
+
+        if (listenerConfSet.isEmpty()) {
+            listenerConfSet = HttpConnectionManager.getInstance().getDefaultListenerConfiugrationSet();
+        }
 
         return listenerConfSet;
     }
@@ -901,7 +922,7 @@ public class HttpUtil {
         } else if ("never".equalsIgnoreCase(chunking)) {
             chunkConfig = ChunkConfig.NEVER;
         } else {
-            throw new BallerinaConnectorException("Invalid configuration found for Transfer-Encoding " + chunking);
+            throw new BallerinaConnectorException("Invalid configuration found for Transfer-Encoding : " + chunking);
         }
         return chunkConfig;
     }
@@ -938,6 +959,7 @@ public class HttpUtil {
             } else {
                 listenerConfiguration.setHost(Constants.HTTP_DEFAULT_HOST);
             }
+
             if (keyStoreFileAttrVal == null || keyStoreFileAttrVal.getStringValue() == null) {
                 //TODO get from language pack, and add location
                 throw new BallerinaConnectorException("Keystore location must be provided for secure connection");
@@ -989,6 +1011,10 @@ public class HttpUtil {
                 serverParams.add(serverCiphers);
             }
 
+            if (!serverParams.isEmpty()) {
+                listenerConfiguration.setParameters(serverParams);
+            }
+
             if (sslProtocolAttrVal != null) {
                 listenerConfiguration.setSslProtocol(sslProtocolAttrVal.getStringValue());
             }
@@ -1011,13 +1037,6 @@ public class HttpUtil {
             httpCarbonMessage.setEndOfMsgAdded(true);
         }
         return httpCarbonMessage;
-    }
-
-    public static String sanitizeUri(String uri) {
-        if (uri.startsWith("/")) {
-            return uri;
-        }
-        return "/".concat(uri);
     }
 
     public static void checkFunctionValidity(BStruct bStruct, HTTPCarbonMessage httpMsg) {
