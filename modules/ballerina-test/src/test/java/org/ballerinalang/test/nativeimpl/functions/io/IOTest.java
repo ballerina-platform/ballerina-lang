@@ -188,22 +188,22 @@ public class IOTest {
         BValue[] returns = BRunUtil.invoke(recordsInputOutputProgramFile, "readRecord");
         records = (BStringArray) returns[0];
 
-        Assert.assertEquals(records.length(), expectedRecordLength);
+        Assert.assertEquals(records.size(), expectedRecordLength);
 
         returns = BRunUtil.invoke(recordsInputOutputProgramFile, "readRecord");
         records = (BStringArray) returns[0];
 
-        Assert.assertEquals(records.length(), expectedRecordLength);
+        Assert.assertEquals(records.size(), expectedRecordLength);
 
         returns = BRunUtil.invoke(recordsInputOutputProgramFile, "readRecord");
         records = (BStringArray) returns[0];
 
-        Assert.assertEquals(records.length(), expectedRecordLength);
+        Assert.assertEquals(records.size(), expectedRecordLength);
 
         returns = BRunUtil.invoke(recordsInputOutputProgramFile, "readRecord");
         records = (BStringArray) returns[0];
 
-        Assert.assertEquals(records.length(), 0);
+        Assert.assertEquals(records.size(), 0);
 
         BRunUtil.invoke(recordsInputOutputProgramFile, "close");
     }
