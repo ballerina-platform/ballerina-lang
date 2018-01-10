@@ -359,7 +359,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             BLangEnumerator enumerator = enumNode.enumerators.get(i);
             BVarSymbol enumeratorSymbol = new BVarSymbol(Flags.PUBLIC,
                     names.fromIdNode(enumerator.name), enumSymbol.pkgID, enumType, enumSymbol);
-            enumeratorSymbol.varIndex = i;
             enumerator.symbol = enumeratorSymbol;
 
             if (symResolver.checkForUniqueSymbol(enumerator.pos, enumEnv, enumeratorSymbol, enumeratorSymbol.tag)) {

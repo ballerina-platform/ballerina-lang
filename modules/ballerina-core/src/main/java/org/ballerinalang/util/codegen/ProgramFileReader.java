@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.connector.api.AbstractNativeAction;
@@ -30,6 +30,11 @@ import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.NativeUnitLoader;
+import org.ballerinalang.util.codegen.Instruction.InstructionACALL;
+import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
+import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
+import org.ballerinalang.util.codegen.Instruction.InstructionTCALL;
+import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
@@ -55,7 +60,6 @@ import org.ballerinalang.util.codegen.cpentries.TransformerRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
-import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ProgramFileFormatException;
 
@@ -256,20 +260,6 @@ public class ProgramFileReader {
                         cpIndex, actionName);
 
                 return actionRefCPEntry;
-            case CP_ENTRY_FUNCTION_CALL_ARGS:
-                int argLength = dataInStream.readByte();
-                int[] argRegs = new int[argLength];
-                for (int i = 0; i < argLength; i++) {
-                    argRegs[i] = dataInStream.readInt();
-                }
-
-                int retLength = dataInStream.readByte();
-                int[] retRegs = new int[retLength];
-                for (int i = 0; i < retLength; i++) {
-                    retRegs[i] = dataInStream.readInt();
-                }
-
-                return new FunctionCallCPEntry(argRegs, retRegs);
             case CP_ENTRY_STRUCTURE_REF:
                 pkgCPIndex = dataInStream.readInt();
                 packageRefCPEntry = (PackageRefCPEntry) constantPool.getCPEntry(pkgCPIndex);
@@ -300,18 +290,6 @@ public class ProgramFileReader {
                 int forkJoinCPIndex = dataInStream.readInt();
                 ForkJoinCPEntry forkJoinCPEntry = new ForkJoinCPEntry(forkJoinCPIndex);
                 return forkJoinCPEntry;
-            case CP_ENTRY_WRKR_INTERACTION:
-                int typesSignatureCPIndex = dataInStream.readInt();
-                utf8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(typesSignatureCPIndex);
-                int workerInvokeArgLength = dataInStream.readByte();
-                int[] workerInvokeArgRegs = new int[workerInvokeArgLength];
-                for (int i = 0; i < workerInvokeArgLength; i++) {
-                    workerInvokeArgRegs[i] = dataInStream.readInt();
-                }
-                WrkrInteractionArgsCPEntry wrkrInvokeCPEntry
-                        = new WrkrInteractionArgsCPEntry(workerInvokeArgRegs, utf8CPEntry);
-                unresolvedCPEntries.add(wrkrInvokeCPEntry);
-                return wrkrInvokeCPEntry;
             case CP_ENTRY_WRKR_DATA_CHNL_REF:
                 int uniqueNameCPIndex = dataInStream.readInt();
                 UTF8CPEntry wrkrDtChnlTypesSigCPEntry = (UTF8CPEntry) constantPool
@@ -383,7 +361,7 @@ public class ProgramFileReader {
         // TODO Read annotation info entries
 
         // Resolve unresolved CP entries.
-        resolveCPEntries(packageInfo);
+        resolveCPEntries();
 
         resolveConnectorMethodTables(packageInfo);
 
@@ -499,14 +477,14 @@ public class ProgramFileReader {
                     BType bType = getBTypeFromDescriptor(typeSig);
                     typeRefCPEntry.setType(bType);
                     break;
-            default:
-                break;
+                default:
+                    break;
             }
         }
     }
 
     private void readConnectorActionInfoEntries(DataInputStream dataInStream,
-                                          PackageInfo packageInfo) throws IOException {
+                                                PackageInfo packageInfo) throws IOException {
         for (ConnectorInfo connectorInfo : packageInfo.getConnectorInfoEntries()) {
             // Read action info entries
             int actionCount = dataInStream.readShort();
@@ -547,7 +525,7 @@ public class ProgramFileReader {
                     if (nativeActionObj == null && !actionInfo.name.equals("<init>")) {
                         throw new BLangRuntimeException("native action not available " +
                                 actionInfo.getPkgPath() + ":" + actionInfo
-                                .getConnectorInfo().getName() + "." +  actionName);
+                                .getConnectorInfo().getName() + "." + actionName);
                     }
                     actionInfo.setNativeAction(nativeActionObj);
                 }
@@ -1016,15 +994,8 @@ public class ProgramFileReader {
             argRegs[i] = dataInStream.readInt();
         }
 
-        int retRegLength = dataInStream.readShort();
-        int[] retRegs = new int[retRegLength];
-        for (int i = 0; i < retRegLength; i++) {
-            retRegs[i] = dataInStream.readInt();
-        }
-
         ForkJoinCPEntry forkJoinCPEntry = (ForkJoinCPEntry) packageInfo.getCPEntry(indexCPIndex);
-
-        ForkjoinInfo forkjoinInfo = new ForkjoinInfo(argRegs, retRegs);
+        ForkjoinInfo forkjoinInfo = new ForkjoinInfo(argRegs);
         forkjoinInfo.setIndex(forkJoinCPEntry.getForkJoinCPIndex());
         forkjoinInfo.setIndexCPIndex(indexCPIndex);
 
@@ -1057,21 +1028,7 @@ public class ProgramFileReader {
         }
         forkjoinInfo.setJoinWrkrNameIndexes(joinWrkrCPIndexes);
         forkjoinInfo.setJoinWorkerNames(joinWrkrNames);
-
-        int timeoutIp = dataInStream.readInt();
-        forkjoinInfo.setTimeoutIp(timeoutIp);
-
-        int timeoutMemOffset = dataInStream.readInt();
-        forkjoinInfo.setTimeoutMemOffset(timeoutMemOffset);
-
-        int joinIp = dataInStream.readInt();
-        forkjoinInfo.setJoinIp(joinIp);
-
-        int joinMemOffset = dataInStream.readInt();
-        forkjoinInfo.setJoinMemOffset(joinMemOffset);
-
         forkJoinCPEntry.setForkjoinInfo(forkjoinInfo);
-
         return forkjoinInfo;
     }
 
@@ -1214,7 +1171,7 @@ public class ProgramFileReader {
     }
 
     private ParamAnnAttachmentInfo getParamAttachmentInfo(DataInputStream dataInStream,
-                                                ConstantPool constantPool) throws IOException {
+                                                          ConstantPool constantPool) throws IOException {
         int paramIndex = dataInStream.readInt();
         ParamAnnAttachmentInfo prmAnnAttchmntInfo = new ParamAnnAttachmentInfo(paramIndex);
 
@@ -1342,6 +1299,11 @@ public class ProgramFileReader {
         DataInputStream codeStream = new DataInputStream(new ByteArrayInputStream(code));
         while (codeStream.available() > 0) {
             int i, j, k, h;
+            int funcRefCPIndex;
+            FunctionRefCPEntry funcRefCPEntry;
+            int[] argRegs;
+            int[] retRegs;
+
             int opcode = codeStream.readUnsignedByte();
             switch (opcode) {
                 case InstructionCodes.HALT:
@@ -1367,7 +1329,6 @@ public class ProgramFileReader {
                 case InstructionCodes.BCONST_1:
                 case InstructionCodes.RCONST_NULL:
                 case InstructionCodes.GOTO:
-                case InstructionCodes.FORKJOIN:
                 case InstructionCodes.THROW:
                 case InstructionCodes.ERRSTORE:
                 case InstructionCodes.TR_END:
@@ -1380,12 +1341,12 @@ public class ProgramFileReader {
                 case InstructionCodes.ICONST:
                 case InstructionCodes.FCONST:
                 case InstructionCodes.SCONST:
-                case InstructionCodes.ILOAD:
-                case InstructionCodes.FLOAD:
-                case InstructionCodes.SLOAD:
-                case InstructionCodes.BLOAD:
-                case InstructionCodes.LLOAD:
-                case InstructionCodes.RLOAD:
+                case InstructionCodes.IMOVE:
+                case InstructionCodes.FMOVE:
+                case InstructionCodes.SMOVE:
+                case InstructionCodes.BMOVE:
+                case InstructionCodes.LMOVE:
+                case InstructionCodes.RMOVE:
                 case InstructionCodes.IGLOAD:
                 case InstructionCodes.FGLOAD:
                 case InstructionCodes.SGLOAD:
@@ -1413,12 +1374,6 @@ public class ProgramFileReader {
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.TR_RETRY:
                 case InstructionCodes.TR_BEGIN:
-                case InstructionCodes.CALL:
-                case InstructionCodes.WRKINVOKE:
-                case InstructionCodes.WRKREPLY:
-                case InstructionCodes.NCALL:
-                case InstructionCodes.ACALL:
-                case InstructionCodes.FPCALL:
                 case InstructionCodes.FPLOAD:
                 case InstructionCodes.ARRAYLEN:
                 case InstructionCodes.INEWARRAY:
@@ -1443,7 +1398,6 @@ public class ProgramFileReader {
                 case InstructionCodes.LENGTHOF:
                 case InstructionCodes.TYPEOF:
                 case InstructionCodes.TYPELOAD:
-                case InstructionCodes.TCALL:
                 case InstructionCodes.SEQ_NULL:
                 case InstructionCodes.SNE_NULL:
                 case InstructionCodes.NEWJSON:
@@ -1596,6 +1550,62 @@ public class ProgramFileReader {
                     h = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k, h));
                     break;
+
+                case InstructionCodes.CALL:
+                case InstructionCodes.NCALL:
+                    funcRefCPIndex = codeStream.readInt();
+                    funcRefCPEntry = (FunctionRefCPEntry) packageInfo.getCPEntry(funcRefCPIndex);
+                    packageInfo.addInstruction(new InstructionCALL(opcode, funcRefCPIndex,
+                            funcRefCPEntry.getFunctionInfo(), getArgRegs(codeStream), getArgRegs(codeStream)));
+                    break;
+                case InstructionCodes.ACALL:
+                    int actionRefCPIndex = codeStream.readInt();
+                    ActionRefCPEntry actionRefCPEntry = (ActionRefCPEntry) packageInfo.getCPEntry(actionRefCPIndex);
+                    packageInfo.addInstruction(new InstructionACALL(opcode, actionRefCPIndex,
+                            actionRefCPEntry.getActionName(), getArgRegs(codeStream), getArgRegs(codeStream)));
+                    break;
+                case InstructionCodes.FPCALL:
+                    funcRefCPIndex = codeStream.readInt();
+                    argRegs = getArgRegs(codeStream);
+                    retRegs = getArgRegs(codeStream);
+
+                    FunctionCallCPEntry funcCallCPEntry = new FunctionCallCPEntry(argRegs, retRegs);
+                    int funcCallCPIndex = packageInfo.addCPEntry(funcCallCPEntry);
+
+                    packageInfo.addInstruction(InstructionFactory.get(opcode, funcRefCPIndex, funcCallCPIndex));
+                    break;
+                case InstructionCodes.TCALL:
+                    int transformCPIndex = codeStream.readInt();
+                    TransformerRefCPEntry transformerRefCPEntry =
+                            (TransformerRefCPEntry) packageInfo.getCPEntry(transformCPIndex);
+                    packageInfo.addInstruction(new InstructionTCALL(opcode, transformCPIndex,
+                            transformerRefCPEntry.getTransformerInfo(),
+                            getArgRegs(codeStream), getArgRegs(codeStream)));
+                    break;
+                case InstructionCodes.WRKSEND:
+                case InstructionCodes.WRKRECEIVE:
+                    int channelRefCPIndex = codeStream.readInt();
+                    WorkerDataChannelRefCPEntry channelRefCPEntry = (WorkerDataChannelRefCPEntry)
+                            packageInfo.getCPEntry(channelRefCPIndex);
+                    int sigCPIndex = codeStream.readInt();
+                    UTF8CPEntry sigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(sigCPIndex);
+                    BType[] bTypes = getParamTypes(sigCPEntry.getValue(), packageInfo);
+                    packageInfo.addInstruction(new InstructionWRKSendReceive(opcode, channelRefCPIndex,
+                            channelRefCPEntry.getWorkerDataChannelInfo(), sigCPIndex, bTypes, getArgRegs(codeStream)));
+                    break;
+                case InstructionCodes.FORKJOIN:
+                    int forkJoinIndexCPIndex = codeStream.readInt();
+                    ForkJoinCPEntry forkJoinIndexCPEntry =
+                            (ForkJoinCPEntry) packageInfo.getCPEntry(forkJoinIndexCPIndex);
+                    int timeoutRegIndex = codeStream.readInt();
+                    int joinVarRegIndex = codeStream.readInt();
+                    int joinBlockAddr = codeStream.readInt();
+                    int timeoutVarRegIndex = codeStream.readInt();
+                    int timeoutBlockAddr = codeStream.readInt();
+                    packageInfo.addInstruction(new InstructionFORKJOIN(opcode, forkJoinIndexCPIndex,
+                            forkJoinIndexCPEntry, timeoutRegIndex, joinVarRegIndex, joinBlockAddr,
+                            timeoutVarRegIndex, timeoutBlockAddr));
+                    break;
                 default:
                     throw new ProgramFileFormatException("unknown opcode " + opcode +
                             " in package " + packageInfo.getPkgPath());
@@ -1603,7 +1613,7 @@ public class ProgramFileReader {
         }
     }
 
-    private void resolveCPEntries(PackageInfo currentPackageInfo) {
+    private void resolveCPEntries() {
         for (ConstantPoolEntry cpEntry : unresolvedCPEntries) {
             PackageInfo packageInfo;
             StructureRefCPEntry structureRefCPEntry;
@@ -1633,13 +1643,6 @@ public class ProgramFileReader {
                     TransformerInfo transformerInfo =
                             packageInfo.getTransformerInfo(transformerRefCPEntry.getTransformerName());
                     transformerRefCPEntry.setTransformerInfo(transformerInfo);
-                    break;
-                case CP_ENTRY_WRKR_INTERACTION:
-                    WrkrInteractionArgsCPEntry wrkrInteractionArgsCPEntry = (WrkrInteractionArgsCPEntry) cpEntry;
-                    // When it comes to here, constantPool is always current package info
-                    BType[] bTypes = getParamTypes(wrkrInteractionArgsCPEntry.getTypesSignatureCPEntry().getValue(),
-                            currentPackageInfo);
-                    wrkrInteractionArgsCPEntry.setBTypes(bTypes);
                     break;
                 default:
                     break;
@@ -1737,5 +1740,14 @@ public class ProgramFileReader {
                 throw new ProgramFileFormatException("unknown default value type " + typeDesc);
         }
         return defaultValue;
+    }
+
+    private int[] getArgRegs(DataInputStream codeStream) throws IOException {
+        int nArgRegs = codeStream.readInt();
+        int[] argRegs = new int[nArgRegs];
+        for (int index = 0; index < nArgRegs; index++) {
+            argRegs[index] = codeStream.readInt();
+        }
+        return argRegs;
     }
 }

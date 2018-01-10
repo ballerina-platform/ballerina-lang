@@ -44,12 +44,12 @@ public interface InstructionCodes {
     int BCONST_1 = 18;
     int RCONST_NULL = 19;
 
-    int ILOAD = 21;
-    int FLOAD = 22;
-    int SLOAD = 23;
-    int BLOAD = 24;
-    int LLOAD = 25;
-    int RLOAD = 26;
+    int IMOVE = 21;
+    int FMOVE = 22;
+    int SMOVE = 23;
+    int BMOVE = 24;
+    int LMOVE = 25;
+    int RMOVE = 26;
     int IALOAD = 27;
     int FALOAD = 28;
     int SALOAD = 29;
@@ -226,8 +226,8 @@ public interface InstructionCodes {
     int TR_BEGIN = 188;
     int TR_END = 189;
 
-    int WRKINVOKE = 190;
-    int WRKREPLY = 191;
+    int WRKSEND = 190;
+    int WRKRECEIVE = 191;
     int FORKJOIN = 192;
     int WRKSTART = 193;
     int WRKRETURN = 194;

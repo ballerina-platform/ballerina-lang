@@ -86,7 +86,7 @@ public class ConnectWithDefault extends AbstractNativeWsAction {
             @Override
             public void onSuccess(Session session) {
                 BStruct wsConnection = createWsConnectionStruct(wsService, session, null);
-                context.getControlStackNew().currentFrame.returnValues[0] = wsConnection;
+                context.getControlStack().currentFrame.returnValues[0] = wsConnection;
                 WsOpenConnectionInfo connectionInfo =
                         new WsOpenConnectionInfo(wsService, wsConnection, new HashMap<>());
                 clientConnectorListener.setConnectionInfo(connectionInfo);
@@ -96,7 +96,7 @@ public class ConnectWithDefault extends AbstractNativeWsAction {
             @Override
             public void onError(Throwable t) {
                 BStruct wsError = createWsErrorStruct(context, t);
-                context.getControlStackNew().currentFrame.returnValues[1] = wsError;
+                context.getControlStack().currentFrame.returnValues[1] = wsError;
                 connectorFuture.notifySuccess();
             }
         });

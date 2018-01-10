@@ -97,7 +97,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     @Override
     public BValue getRefArgument(Context context, int index) {
         if (index > -1) {
-            return context.getControlStackNew().getCurrentFrame().getRefLocalVars()[index];
+            return context.getControlStack().getCurrentFrame().getRefRegs()[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
@@ -114,7 +114,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             stmt = getPreparedStatement(conn, datasource, processedQuery);
             createProcessedStatement(conn, stmt, parameters);
             rs = stmt.executeQuery();
-            context.getControlStackNew().getCurrentFrame().returnValues[0] = constructDataTable(context, rs, stmt, conn,
+            context.getControlStack().getCurrentFrame().returnValues[0] = constructDataTable(context, rs, stmt, conn,
                     structType);
         } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
@@ -133,7 +133,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             createProcessedStatement(conn, stmt, parameters);
             int count = stmt.executeUpdate();
             BInteger updatedCount = new BInteger(count);
-            context.getControlStackNew().getCurrentFrame().returnValues[0] = updatedCount;
+            context.getControlStack().getCurrentFrame().returnValues[0] = updatedCount;
         } catch (SQLException e) {
             throw new BallerinaException("execute update failed: " + e.getMessage(), e);
         } finally {
@@ -166,13 +166,13 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             createProcessedStatement(conn, stmt, parameters);
             int count = stmt.executeUpdate();
             BInteger updatedCount = new BInteger(count);
-            context.getControlStackNew().getCurrentFrame().returnValues[0] = updatedCount;
+            context.getControlStack().getCurrentFrame().returnValues[0] = updatedCount;
             rs = stmt.getGeneratedKeys();
             /*The result set contains the auto generated keys. There can be multiple auto generated columns
             in a table.*/
             if (rs.next()) {
                 BStringArray generatedKeys = getGeneratedKeys(rs);
-                context.getControlStackNew().getCurrentFrame().returnValues[1] = generatedKeys;
+                context.getControlStack().getCurrentFrame().returnValues[1] = generatedKeys;
             }
         } catch (SQLException e) {
             throw new BallerinaException("execute update with generated keys failed: " + e.getMessage(), e);
@@ -194,7 +194,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             rs = executeStoredProc(stmt);
             setOutParameters(stmt, parameters);
             if (rs != null) {
-                context.getControlStackNew().getCurrentFrame().returnValues[0] = constructDataTable(context, rs, stmt,
+                context.getControlStack().getCurrentFrame().returnValues[0] = constructDataTable(context, rs, stmt,
                         conn, structType);
             } else {
                 SQLDatasourceUtils.cleanupConnection(null, stmt, conn, isInTransaction);
@@ -248,7 +248,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 countArray.add(i, updatedCount[i]);
             }
         }
-        context.getControlStackNew().getCurrentFrame().returnValues[0] = countArray;
+        context.getControlStack().getCurrentFrame().returnValues[0] = countArray;
     }
 
     protected BStructType getStructType(Context context) {

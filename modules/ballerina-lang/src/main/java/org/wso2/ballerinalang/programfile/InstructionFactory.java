@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerinalang.programfile;
 
+import org.wso2.ballerinalang.programfile.Instruction.Operand;
+
 /**
  * This class creates specific instructions for the given opcode/bytecode.
  *
@@ -24,8 +26,11 @@ package org.wso2.ballerinalang.programfile;
  */
 public class InstructionFactory {
 
-    public static Instruction get(int opcode, int... operands) {
-        // TODO Implement subtypes of certain instructions. etc for call, ret bytecodes
+    public static Instruction get(int opcode) {
+        return new Instruction(opcode);
+    }
+
+    public static Instruction get(int opcode, Operand... operands) {
         return new Instruction(opcode, operands);
     }
 }
