@@ -182,7 +182,7 @@ export const flowChartControlStatement = {
         height: 100,
     },
     padding: {
-        left: statement.padding.left,
+        left: (2 * statement.gutter.h),
         top: (statement.height / 2),
         bottom: (statement.height / 2),
     },
