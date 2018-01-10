@@ -1745,8 +1745,7 @@ class SizingUtil {
         viewState.components['statement-box'].w = bodyWidth;
         viewState.bBox.h = viewState.components['statement-box'].h
                             + viewState.components['drop-zone'].h
-                            + this.config.flowChartControlStatement.gutter.h // for the lower dashed line
-                            + this.config.statement.gutter.h
+                            + this.config.flowChartControlStatement.gutter.h // for the lower separator line
                             + viewState.components['block-header'].h;
         viewState.bBox.w = bodyWidth;
 

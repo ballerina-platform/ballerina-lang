@@ -942,10 +942,9 @@
         fill: $default-worker-lifeline-color;
         stroke: $default-worker-lifeline-color;
     }
-    .flowchart-dash-line{
-        stroke: #ffffff;
+    .flowchart-separator-line{
+        stroke: #fff;
         stroke-width: 2;
-        stroke-dasharray: 3,2;
     }
     
     .struct-content-operations-wrapper{

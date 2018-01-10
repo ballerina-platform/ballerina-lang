@@ -291,7 +291,7 @@ class WhileStatementDecorator extends React.Component {
                     className='flowchart-background-empty-rect'
                 />
                 <ArrowDecorator
-                    start={{ x: p11X, y: p11Y }}
+                    start={{ x: p11X - 0.5, y: p11Y }}
                     end={{ x: p2X, y: p2Y }}
                     classNameArrow='flowchart-action-arrow'
                     classNameArrowHead='flowchart-action-arrow-head'
@@ -306,10 +306,10 @@ class WhileStatementDecorator extends React.Component {
                 />
                 <line
                     x1={p10X}
-                    y1={p10Y}
+                    y1={p10Y + 0.5}
                     x2={p6X}
-                    y2={p6Y}
-                    className='flowchart-dash-line'
+                    y2={p6Y - 0.5}
+                    className='flowchart-separator-line'
                 />
                 {expression &&
                     <text
