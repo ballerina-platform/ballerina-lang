@@ -13,3 +13,8 @@ function testConstrainedMapIndexBasedAssignNegative() (map<string>) {
     testMap["name"] = 24;
     return testMap;
 }
+
+function testConstrainedMapAssignDifferentConstraintsNegative() (map<int>) {
+    map<string> testMap = {};
+    return testMap;
+}
