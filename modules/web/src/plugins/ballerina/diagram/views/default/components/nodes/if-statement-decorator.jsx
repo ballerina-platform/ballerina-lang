@@ -258,8 +258,8 @@ class IfStatementDecorator extends React.Component {
         const p12X = p8X;
         const p12Y = p8Y + this.context.designer.config.flowChartControlStatement.heading.flowPathHeight;
 
-        this.conditionBox = new SimpleBBox(p1X, (p2Y - (this.context.designer.config.statement.height / 2)),
-            bBox.w, this.context.designer.config.statement.height);
+        this.conditionBox = new SimpleBBox(p2X, (p2Y - (this.context.designer.config.statement.height / 2)),
+            statementBBox.w, this.context.designer.config.statement.height);
 
         const actionBoxBbox = new SimpleBBox();
         actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;
