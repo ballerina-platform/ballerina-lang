@@ -28,6 +28,7 @@ import ActiveArbiter from '../decorators/active-arbiter';
 import Breakpoint from '../decorators/breakpoint';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import ElseStatementDecorator from './else-statement-decorator';
+import ArrowDecorator from '../decorators/arrow-decorator';
 
 /**
  * Wraps other UI elements and provide box with a heading.
@@ -257,8 +258,8 @@ class IfStatementDecorator extends React.Component {
         const p12X = p8X;
         const p12Y = p8Y + this.context.designer.config.flowChartControlStatement.heading.flowPathHeight;
 
-        this.conditionBox = new SimpleBBox(p1X, (p2Y - (this.context.designer.config.statement.height / 2)),
-            bBox.w, this.context.designer.config.statement.height);
+        this.conditionBox = new SimpleBBox(p2X, (p2Y - (this.context.designer.config.statement.height / 2)),
+            statementBBox.w, this.context.designer.config.statement.height);
 
         const actionBoxBbox = new SimpleBBox();
         actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;
@@ -283,9 +284,31 @@ class IfStatementDecorator extends React.Component {
                 }}
             >
                 <polyline
-                    points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y} ${p6X}, ${p6Y}`}
+                    points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y}`}
                     className='flowchart-background-empty-rect'
                 />
+                {(() => {
+                    if (viewState.isLastPathLine) {
+                        return (
+                            <line
+                                x1={p5X}
+                                y1={p5Y}
+                                x2={p6X}
+                                y2={p6Y}
+                                className='flowchart-background-empty-rect'
+                            />
+                        );
+                    } else {
+                        return (
+                            <ArrowDecorator
+                                start={{ x: p5X, y: p5Y }}
+                                end={{ x: p6X, y: p6Y }}
+                                classNameArrow='flowchart-action-arrow'
+                                classNameArrowHead='flowchart-action-arrow-head'
+                            />
+                        );
+                    }
+                })()}
                 <polyline
                     points={`${p2X},${p2Y} ${p8X},${p8Y} ${p3X},${p3Y} ${p9X}, ${p9Y} ${p2X},${p2Y}`}
                     className={statementRectClass}

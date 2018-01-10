@@ -196,12 +196,6 @@ class ClientResponderDecorator extends React.Component {
                     enableCenterOverlayLine
                 />
                 <g>
-                    <circle
-                        cx={statementBox.x}
-                        cy={statementBox.y + this.context.designer.config.actionInvocationStatement.textHeight}
-                        r='4'
-                        className={'worker-life-line dot'}
-                    />
                     <text
                         x={viewState.components.invocation.end.x
                             + this.context.designer.config.statement.gutter.h}

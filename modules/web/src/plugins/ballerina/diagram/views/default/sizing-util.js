@@ -1479,11 +1479,20 @@ class SizingUtil {
         viewState.components['statement-box'].w = bodyWidth;
         viewState.bBox.h = viewState.components['statement-box'].h
                             + viewState.components['drop-zone'].h
-                            + this.config.statement.gutter.h
                             + components['block-header'].h;
         viewState.bBox.w = bodyWidth;
 
         components['block-header'].setOpaque(true);
+
+        // calculate left margin from the lifeline centre
+        let leftMargin = this.calcLeftMargin(node.body.statements);
+        leftMargin = (leftMargin === 0) ? this.config.flowChartControlStatement.gap.left
+                                        // since there is no left expansion for if,
+                                        // we take the left margin as it is
+                                        : leftMargin;
+        viewState.components['left-margin'] = {
+            w: leftMargin,
+        };
 
         // for compound statement like if , while we need to render condition expression
         // we will calculate the width of the expression and adjust the block statement
@@ -1505,6 +1514,18 @@ class SizingUtil {
         }
         node.viewState.bBox.h = nodeHeight;
         node.viewState.bBox.w = nodeWidth;
+
+        // if the statement right before if statement end is one with
+        // a separator, arrow must not be drawn to it. It should only be a line.
+        // e.g. :
+        // if (true) {
+        //     while (true) {
+        //     }
+        // }
+        if ((node.body.statements.length > 0 && TreeUtil.isWhile(_.last(node.body.statements)))
+                && (!elseStmt || (TreeUtil.isBlock(elseStmt) && elseStmt.statements.length === 0))) {
+            node.viewState.isLastPathLine = true;
+        }
     }
 
     /**
@@ -1745,14 +1766,15 @@ class SizingUtil {
         viewState.components['statement-box'].w = bodyWidth;
         viewState.bBox.h = viewState.components['statement-box'].h
                             + viewState.components['drop-zone'].h
-                            + this.config.flowChartControlStatement.gutter.h // for the lower dashed line
-                            + this.config.statement.gutter.h
+                            + this.config.flowChartControlStatement.gutter.h // for the lower separator line
                             + viewState.components['block-header'].h;
         viewState.bBox.w = bodyWidth;
 
         // calculate left margin from the lifeline centre
         let leftMargin = this.calcLeftMargin(node.body.statements);
         leftMargin = (leftMargin === 0) ? this.config.flowChartControlStatement.gap.left
+                                        // since there is a left expansion for while when nested,
+                                        // add a left padding
                                         : (leftMargin + this.config.flowChartControlStatement.padding.left);
         viewState.components['left-margin'] = {
             w: leftMargin,
@@ -1779,7 +1801,9 @@ class SizingUtil {
         let leftMargin = 0;
         nodes.forEach((node) => {
             if (node.viewState.components['left-margin']) {
-                leftMargin += node.viewState.components['left-margin'].w;
+                if (node.viewState.components['left-margin'].w > leftMargin) {
+                    leftMargin = node.viewState.components['left-margin'].w;
+                }
             }
         });
         return leftMargin;

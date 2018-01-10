@@ -942,10 +942,9 @@
         fill: $default-worker-lifeline-color;
         stroke: $default-worker-lifeline-color;
     }
-    .flowchart-dash-line{
-        stroke: #ffffff;
+    .flowchart-separator-line{
+        stroke: #fff;
         stroke-width: 2;
-        stroke-dasharray: 3,2;
     }
     
     .struct-content-operations-wrapper{
@@ -1331,6 +1330,13 @@
         text-anchor: end;
         font-style: italic;
         font-weight: bolder;
+    }
+
+    .flowchart-title-text {
+        text-anchor: middle;
+        dominant-baseline: text-after-edge;
+        font-style: italic;
+        font-weight: 500;
     }
     
     /*//////////////////////////////////////////////////*/

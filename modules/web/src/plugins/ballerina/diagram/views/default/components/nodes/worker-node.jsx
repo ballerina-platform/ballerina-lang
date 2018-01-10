@@ -98,7 +98,7 @@ class WorkerNode extends React.Component {
                     editorOptions={editorOptions}
                     classes={classes}
                     icon={ImageUtil.getSVGIconString('tool-icons/worker')}
-                    iconColor='#0380c6'
+                    iconColor='#0070af'
                     onDelete={this.onDelete}
                 />
                 {blockNode}
