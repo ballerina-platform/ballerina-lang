@@ -49,6 +49,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BIntArray;
+import org.ballerinalang.model.values.BIntRange;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BIterator;
 import org.ballerinalang.model.values.BJSON;
@@ -701,6 +702,9 @@ public class BLangVM {
                 case InstructionCodes.NEWDATATABLE:
                     i = operands[0];
                     sf.refRegs[i] = new BDataTable(null);
+                    break;
+                case InstructionCodes.NEW_INT_RANGE:
+                    createNewIntRange(operands, sf);
                     break;
                 case InstructionCodes.IRET:
                     i = operands[0];
@@ -2608,6 +2612,12 @@ public class BLangVM {
         }
 
         sf.refRegs[errorRegIndex] = errorVal;
+    }
+
+    private void createNewIntRange(int[] operands, StackFrame sf) {
+        long startValue = sf.longRegs[operands[0]];
+        long endValue = sf.longRegs[operands[1]];
+        sf.refRegs[operands[2]] = new BIntRange(startValue, endValue);
     }
 
     private void createNewConnector(int[] operands, StackFrame sf) {

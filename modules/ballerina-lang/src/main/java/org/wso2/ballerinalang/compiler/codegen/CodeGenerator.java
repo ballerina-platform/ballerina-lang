@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
@@ -2877,6 +2878,27 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(exprStmtNode.expr, this.env);
     }
 
+    @Override
+    public void visit(BLangIntRangeExpression rangeExpr) {
+        BLangExpression startExpr = rangeExpr.startExpr;
+        BLangExpression endExpr = rangeExpr.endExpr;
+
+        genNode(startExpr, env);
+        genNode(endExpr, env);
+        rangeExpr.regIndex = calcAndGetExprRegIndex(rangeExpr);
+
+        if (!rangeExpr.includeStart || !rangeExpr.includeEnd) {
+            RegIndex const1RegIndex = getRegIndex(TypeTags.INT);
+            emit(InstructionCodes.ICONST_1, const1RegIndex);
+            if (!rangeExpr.includeStart) {
+                emit(InstructionCodes.IADD, startExpr.regIndex, const1RegIndex, startExpr.regIndex);
+            }
+            if (!rangeExpr.includeEnd) {
+                emit(InstructionCodes.ISUB, endExpr.regIndex, const1RegIndex, endExpr.regIndex);
+            }
+        }
+        emit(InstructionCodes.NEW_INT_RANGE, startExpr.regIndex, endExpr.regIndex, rangeExpr.regIndex);
+    }
 
     // private helper methods of visitors.
 

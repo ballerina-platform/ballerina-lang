@@ -1523,6 +1523,7 @@ public class ProgramFileReader {
                 case InstructionCodes.XML2S:
                 case InstructionCodes.S2JSONX:
                 case InstructionCodes.NULL2S:
+                case InstructionCodes.NEW_INT_RANGE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

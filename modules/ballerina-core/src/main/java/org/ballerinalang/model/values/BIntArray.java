@@ -29,7 +29,7 @@ import java.util.StringJoiner;
  */
 public class BIntArray extends BNewArray {
 
-    private static BType arrayType = new BArrayType(BTypes.typeInt);
+    static BType arrayType = new BArrayType(BTypes.typeInt);
 
     private long[] values;
 
