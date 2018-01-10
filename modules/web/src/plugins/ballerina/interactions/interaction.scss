@@ -23,13 +23,21 @@
     display: none;
 }
 
-.button-area:hover .button, .button-show-always{
+.button-area:hover .button {
     z-index:50;
     display: block;
     left:2px;
     top:2px;
     -webkit-animation: appear-button 0.2s ease-out;
     -moz-animation: appear-down 0.2s ease-out;
+    cursor: pointer;
+}
+
+.button-show-always{
+    z-index:50;
+    display: block;
+    left:2px;
+    top:2px;
     cursor: pointer;
 }
 

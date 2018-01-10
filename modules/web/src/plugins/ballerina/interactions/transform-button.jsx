@@ -18,6 +18,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
+import Area from './area';
 import Button from './button';
 import Menu from './menu';
 import Item from './item';
@@ -104,6 +105,13 @@ class TransformButton extends React.Component {
         });
     }
 
+
+    onSuggestionSelected(event, item) {
+        const node = DefaultNodeFactory.createFunctionInvocationStatement(item.suggestion);
+        this.props.model.addStatements(node);
+        this.hideConnectors();
+    }
+
     storeInputReference(autosuggest) {
         if (autosuggest !== null) {
             this.input = autosuggest.input;
@@ -116,12 +124,6 @@ class TransformButton extends React.Component {
 
     hideConnectors() {
         this.setState({ listConnectors: false, value: '' });
-    }
-
-    onSuggestionSelected(event, item) {
-        const node = DefaultNodeFactory.createFunctionInvocationStatement(item.suggestion);
-        this.props.model.addStatements(node);
-        this.hideConnectors();
     }
 
     /**
@@ -138,43 +140,44 @@ class TransformButton extends React.Component {
         };
 
         return (
-            <Button
-                bBox={this.props.bBox}
-                buttonX={0}
-                buttonY={0}
-                showAlways
-            >
-                <Menu maxHeight={300}>
-                    { !this.state.listConnectors &&
-                    <div>
-                        <Item
-                            label='Function'
-                            icon='fw fw-function'
-                            callback={this.showConnectors}
-                        />
-                        {this.props.children}
-                    </div>
-                    }
-                    { this.state.listConnectors &&
-                        <div
-                            className='connector-select'
-                        >
-                            <i className='fw fw-left icon button-close-menu' onClick={this.hideConnectors} />
-                            <Autosuggest
-                                suggestions={suggestions}
-                                onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-                                onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-                                onSuggestionSelected={this.onSuggestionSelected}
-                                getSuggestionValue={getSuggestionValue}
-                                renderSuggestion={renderSuggestion}
-                                alwaysRenderSuggestions
-                                inputProps={inputProps}
-                                ref={this.storeInputReference}
+            <Area bBox={this.props.bBox}>
+                <Button
+                    buttonX={0}
+                    buttonY={0}
+                    showAlways
+                >
+                    <Menu maxHeight={300}>
+                        { !this.state.listConnectors &&
+                        <div>
+                            <Item
+                                label='Function'
+                                icon='fw fw-function'
+                                callback={this.showConnectors}
                             />
+                            {this.props.children}
                         </div>
-                    }
-                </Menu>
-            </Button>
+                        }
+                        { this.state.listConnectors &&
+                            <div
+                                className='connector-select'
+                            >
+                                <i className='fw fw-left icon button-close-menu' onClick={this.hideConnectors} />
+                                <Autosuggest
+                                    suggestions={suggestions}
+                                    onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+                                    onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+                                    onSuggestionSelected={this.onSuggestionSelected}
+                                    getSuggestionValue={getSuggestionValue}
+                                    renderSuggestion={renderSuggestion}
+                                    alwaysRenderSuggestions
+                                    inputProps={inputProps}
+                                    ref={this.storeInputReference}
+                                />
+                            </div>
+                        }
+                    </Menu>
+                </Button>
+            </Area>
         );
     }
 }

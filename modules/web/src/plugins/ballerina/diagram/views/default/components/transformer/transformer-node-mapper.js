@@ -775,7 +775,7 @@ class TransformerNodeMapper {
      */
     removeFunctionToFunctionMapping(source, target) {
         const assignmentStmt = this.getParentStatement(target.funcInv);
-        const newAssignIndex = this._transformStmt.body.getIndexOfStatements(assignmentStmt);
+        let newAssignIndex = this._transformStmt.body.getIndexOfStatements(assignmentStmt);
 
         if (target.endpointKind === 'receiver') {
             const parentStatement = this.getParentStatement(target.funcInv);
@@ -783,7 +783,7 @@ class TransformerNodeMapper {
             const valueNode = TransformerFactory.createDefaultExpression(target.type);
             const varDef = TransformerFactory.createVariableDef(tempReceiverName, target.type, valueNode.getValue());
             const varRef = TransformerFactory.createVariableRefExpression(tempReceiverName, target.type);
-            const newAssignIndex = this._transformStmt.body.getIndexOfStatements(parentStatement);
+            newAssignIndex = this._transformStmt.body.getIndexOfStatements(parentStatement);
             this._transformStmt.body.addStatements(varDef, newAssignIndex, true);
             target.funcInv.setExpression(varRef);
         } else {
@@ -941,7 +941,8 @@ class TransformerNodeMapper {
             expression.getArgumentExpressions().forEach((child, index) => {
                 if (child.getSource().trim() === expStr) {
                     // TODO: get type here
-                    expression.replaceArgumentExpressionsByIndex(index, TransformerFactory.createDefaultExpression(), true);
+                    expression.replaceArgumentExpressionsByIndex(index,
+                        TransformerFactory.createDefaultExpression(), true);
                 } else {
                     this.removeInputNestedExpressions(child, expStr);
                 }
