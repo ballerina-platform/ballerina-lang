@@ -20,12 +20,17 @@ package org.ballerinalang.net.http.actions;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.Coordinator;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpConnectionManager;
@@ -35,6 +40,7 @@ import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.program.BLangFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
@@ -234,24 +240,51 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     }
 
     private void registerWithCoordinator(Context context, HTTPCarbonMessage httpRequestMsg) {
-        Coordinator coordinator;
-        int transactionId = context.getBallerinaTransactionManager().getTransactionId();
-        if (isCoordinatorExist(context)) {
-            coordinator = (Coordinator) context.getProperty(Constants.COORDINATOR);
+        CompileResult txnManager;
+        BValue[] txnContext;
+        if (!isCoordinatorExist(context)) {
+            txnManager = BCompileUtil
+                    .compileInternalPackage("ballerina/net/http/", "transactions.coordinator");
+            LauncherUtils.runInternalServices(txnManager.getProgFile(), context);
+            context.setProperty(Constants.TXN_MANAGER, txnManager);
         } else {
-            coordinator = new Coordinator();
-            context.setProperty(Constants.COORDINATOR, coordinator);
+            txnManager = (CompileResult) context.getProperty(Constants.TXN_MANAGER);
         }
-        coordinator.setInitiator(transactionId);
-        httpRequestMsg.setHeader(Constants.X_XID_HEADER,
-                String.valueOf(transactionId));
-        httpRequestMsg.setHeader(Constants.X_REGISTER_AT_URL_HEADER, "url");
 
+        if (!isTxnContextExist(context)) {
+            txnContext = BLangFunctions.invokeNew(txnManager.getProgFile(), "transactions.coordinator", "beginTransaction");
+            context.setProperty(Constants.TXN_ID, context.getBallerinaTransactionManager().getTransactionId());
+            context.setProperty(Constants.TXN_CONTEXT, txnContext);
+        } else {
+            txnContext = (BValue[]) context.getProperty(Constants.TXN_CONTEXT);
+        }
+        //set transaction headers to transport message
+        if (txnContext[0] instanceof BJSON) {
+            JsonNode jsonNode = ((BJSON) txnContext[0]).value();
+            httpRequestMsg.setHeader(Constants.X_XID_HEADER, jsonNode.get(Constants.X_XID_JSON_FIELD).asText());
+            httpRequestMsg.setHeader(Constants.X_REGISTER_AT_URL_HEADER, jsonNode.get(Constants.X_REGISTER_AT_URL_JSON_FIELD).asText());
+        }
+    }
+
+
+
+
+    private void runCoordinatorAndInitiator(Context context) {
+
+    }
+
+    private void createTransactionContext(Context context, CompileResult initiator) {
 
     }
 
     private boolean isCoordinatorExist(Context context) {
-        return context.getProperty(Constants.COORDINATOR) != null;
+        return context.getProperty(Constants.TXN_MANAGER) != null;
+    }
+
+    private boolean isTxnContextExist(Context context) {
+        Object txnId = context.getProperty(Constants.TXN_ID);
+        return txnId != null && context.getProperty(Constants.TXN_CONTEXT) != null
+                && txnId.equals(context.getBallerinaTransactionManager().getTransactionId());
     }
 
     @Override

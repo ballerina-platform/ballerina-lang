@@ -130,9 +130,13 @@ public class Constants {
     public static final String PREFLIGHT_RESOURCES = "PREFLIGHT_RESOURCES";
     public static final String RESOURCES_CORS = "RESOURCES_CORS";
 
-    public static final String COORDINATOR = "COORDINATOR";
+    public static final String TXN_MANAGER = "TXN_MANAGER";
+    public static final String TXN_ID = "TXN_ID";
+    public static final String TXN_CONTEXT = "TXN_CONTEXT";
     public static final String X_XID_HEADER = "X-XID";
+    public static final String X_XID_JSON_FIELD = "transactionId";
     public static final String X_REGISTER_AT_URL_HEADER = "X-Register-At-URL";
+    public static final String X_REGISTER_AT_URL_JSON_FIELD = "registerAtURL";
 
     public static final String CONNECTOR_NAME = "HttpClient";
 

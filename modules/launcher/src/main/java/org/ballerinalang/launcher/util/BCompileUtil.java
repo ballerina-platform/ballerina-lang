@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructInfo;
@@ -178,6 +179,38 @@ public class BCompileUtil {
         String packageName = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
         return compile(sourceRoot.toString(), packageName, compilerPhase);
+    }
+
+    /**
+     * Compile and return the semantic errors of a internal ballerina file.
+     *
+     * @param sourceFilePath Path to source package/file
+     * @return Semantic errors
+     */
+    public static CompileResult compileInternalPackage(String sourceFilePath, String packageName){
+        String effectiveSource;
+        Path sourcePath = Paths.get(sourceFilePath);
+        Path rootPath = Paths.get(System.getProperty(Constants.BALLERINA_HOME))
+                .resolve("src/" + sourcePath);
+        Path packagePath = Paths.get(packageName);
+        if (Files.isDirectory(packagePath)) {
+            String[] pkgParts = packageName.split("\\/");
+            List<Name> pkgNameComps = Arrays.stream(pkgParts)
+                    .map(part -> {
+                        if (part.equals("")) {
+                            return Names.EMPTY;
+                        } else if (part.equals("_")) {
+                            return Names.EMPTY;
+                        }
+                        return new Name(part);
+                    })
+                    .collect(Collectors.toList());
+            PackageID pkgId = new PackageID(pkgNameComps, Names.DEFAULT_VERSION);
+            effectiveSource = pkgId.getName().getValue();
+        } else {
+            effectiveSource = packageName;
+        }
+        return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN);
     }
 
     /**
