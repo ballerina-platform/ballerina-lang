@@ -9,7 +9,7 @@ function main(string[] args){
     s = "done";
 }
 function calculateExp1(int x, int y) (int) {
-    int z;
+    int z = 0;
     while(x >= y) {
         y = y + 1;
         if(y == 10){

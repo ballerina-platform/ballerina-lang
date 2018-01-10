@@ -75,10 +75,11 @@ import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.Instruction.InstructionACALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
+import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionTCALL;
+import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
-import org.ballerinalang.util.codegen.Mnemonics;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructFieldInfo;
@@ -89,18 +90,14 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
-import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
-import org.ballerinalang.util.codegen.cpentries.ForkJoinCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
-import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
-import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
 import org.ballerinalang.util.debugger.DebugCommand;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.VMDebugManager;
@@ -141,7 +138,7 @@ public class BLangVM {
     private static final String JOIN_TYPE_SOME = "some";
     private static final Logger logger = LoggerFactory.getLogger(BLangVM.class);
     private Context context;
-    private ControlStackNew controlStack;
+    private ControlStack controlStack;
     private ProgramFile programFile;
     private ConstantPoolEntry[] constPool;
     // Instruction pointer;
@@ -158,18 +155,17 @@ public class BLangVM {
     private void traceCode(PackageInfo packageInfo) {
         PrintStream printStream = System.out;
         for (int i = 0; i < code.length; i++) {
-            printStream.println(i + ": " + Mnemonics.getMnem(code[i].getOpcode()) + " " +
-                    getOperandsLine(code[i].getOperands()));
+            printStream.println(i + ": " + code[i].toString());
         }
     }
 
     public void run(Context ctx) {
-        StackFrame currentFrame = ctx.getControlStackNew().getCurrentFrame();
+        StackFrame currentFrame = ctx.getControlStack().getCurrentFrame();
         this.constPool = currentFrame.packageInfo.getConstPoolEntries();
         this.code = currentFrame.packageInfo.getInstructions();
 
         this.context = ctx;
-        this.controlStack = context.getControlStackNew();
+        this.controlStack = context.getControlStack();
         this.ip = context.getStartIP();
 
         if (context.getError() != null) {
@@ -184,7 +180,6 @@ public class BLangVM {
                     calleeSF.returnValues, retTypes);
 
             // TODO Remove
-            //prepareStructureTypeFromNativeAction(context.nativeArgValues);
             context.nativeArgValues = null;
             context.funcCallCPEntry = null;
             context.actionInfo = null;
@@ -228,17 +223,11 @@ public class BLangVM {
     private void exec() {
         int i;
         int j;
-        int k;
         int cpIndex; // Index of the constant pool
         FunctionCallCPEntry funcCallCPEntry;
         FunctionRefCPEntry funcRefCPEntry;
         TypeRefCPEntry typeRefCPEntry;
-        ActionRefCPEntry actionRefCPEntry;
         FunctionInfo functionInfo;
-        WorkerDataChannelRefCPEntry workerRefCPEntry;
-        WrkrInteractionArgsCPEntry wrkrIntRefCPEntry;
-        WorkerDataChannelInfo workerDataChannel;
-        ForkJoinCPEntry forkJoinCPEntry;
         InstructionCALL callIns;
 
         boolean isDebugging = programFile.getDebugManager().isDebugEnabled();
@@ -337,12 +326,12 @@ public class BLangVM {
                     copyRegistryValue(sf, operands[0], operands[1], operands[2]);
                     break;
 
-                case InstructionCodes.ILOAD:
-                case InstructionCodes.FLOAD:
-                case InstructionCodes.SLOAD:
-                case InstructionCodes.BLOAD:
-                case InstructionCodes.LLOAD:
-                case InstructionCodes.RLOAD:
+                case InstructionCodes.IMOVE:
+                case InstructionCodes.FMOVE:
+                case InstructionCodes.SMOVE:
+                case InstructionCodes.BMOVE:
+                case InstructionCodes.LMOVE:
+                case InstructionCodes.RMOVE:
                 case InstructionCodes.IALOAD:
                 case InstructionCodes.FALOAD:
                 case InstructionCodes.SALOAD:
@@ -521,29 +510,17 @@ public class BLangVM {
                     i = operands[0];
                     endTransaction(i);
                     break;
-                case InstructionCodes.WRKINVOKE:
-                    cpIndex = operands[0];
-                    workerRefCPEntry = (WorkerDataChannelRefCPEntry) constPool[cpIndex];
-                    workerDataChannel = workerRefCPEntry.getWorkerDataChannelInfo();
-
-                    cpIndex = operands[1];
-                    wrkrIntRefCPEntry = (WrkrInteractionArgsCPEntry) constPool[cpIndex];
-                    invokeWorker(workerDataChannel, wrkrIntRefCPEntry);
+                case InstructionCodes.WRKSEND:
+                    InstructionWRKSendReceive wrkSendIns = (InstructionWRKSendReceive) instruction;
+                    handleWorkerSend(wrkSendIns.dataChannelInfo, wrkSendIns.types, wrkSendIns.regs);
                     break;
-                case InstructionCodes.WRKREPLY:
-                    cpIndex = operands[0];
-                    workerRefCPEntry = (WorkerDataChannelRefCPEntry) constPool[cpIndex];
-                    workerDataChannel = workerRefCPEntry.getWorkerDataChannelInfo();
-
-                    cpIndex = operands[1];
-                    wrkrIntRefCPEntry = (WrkrInteractionArgsCPEntry) constPool[cpIndex];
-                    replyWorker(workerDataChannel, wrkrIntRefCPEntry);
+                case InstructionCodes.WRKRECEIVE:
+                    InstructionWRKSendReceive wrkReceiveIns = (InstructionWRKSendReceive) instruction;
+                    handleWorkerReceive(wrkReceiveIns.dataChannelInfo, wrkReceiveIns.types, wrkReceiveIns.regs);
                     break;
                 case InstructionCodes.FORKJOIN:
-                    cpIndex = operands[0];
-
-                    forkJoinCPEntry = (ForkJoinCPEntry) constPool[cpIndex];
-                    invokeForkJoin(forkJoinCPEntry);
+                    InstructionFORKJOIN forkJoinIns = (InstructionFORKJOIN) instruction;
+                    invokeForkJoin(forkJoinIns);
                     break;
                 case InstructionCodes.WRKSTART:
                     startWorkers();
@@ -567,7 +544,7 @@ public class BLangVM {
                     break;
                 case InstructionCodes.ERRSTORE:
                     i = operands[0];
-                    sf.refLocalVars[i] = context.getError();
+                    sf.refRegs[i] = context.getError();
                     // clear error.
                     context.setError(null);
                     break;
@@ -931,35 +908,35 @@ public class BLangVM {
         BMap<String, BRefType> bMap;
         BJSON jsonVal;
         switch (opcode) {
-            case InstructionCodes.ILOAD:
+            case InstructionCodes.IMOVE:
                 lvIndex = operands[0];
                 i = operands[1];
-                sf.longRegs[i] = sf.longLocalVars[lvIndex];
+                sf.longRegs[i] = sf.longRegs[lvIndex];
                 break;
-            case InstructionCodes.FLOAD:
+            case InstructionCodes.FMOVE:
                 lvIndex = operands[0];
                 i = operands[1];
-                sf.doubleRegs[i] = sf.doubleLocalVars[lvIndex];
+                sf.doubleRegs[i] = sf.doubleRegs[lvIndex];
                 break;
-            case InstructionCodes.SLOAD:
+            case InstructionCodes.SMOVE:
                 lvIndex = operands[0];
                 i = operands[1];
-                sf.stringRegs[i] = sf.stringLocalVars[lvIndex];
+                sf.stringRegs[i] = sf.stringRegs[lvIndex];
                 break;
-            case InstructionCodes.BLOAD:
+            case InstructionCodes.BMOVE:
                 lvIndex = operands[0];
                 i = operands[1];
-                sf.intRegs[i] = sf.intLocalVars[lvIndex];
+                sf.intRegs[i] = sf.intRegs[lvIndex];
                 break;
-            case InstructionCodes.LLOAD:
+            case InstructionCodes.LMOVE:
                 lvIndex = operands[0];
                 i = operands[1];
-                sf.byteRegs[i] = sf.byteLocalVars[lvIndex];
+                sf.byteRegs[i] = sf.byteRegs[lvIndex];
                 break;
-            case InstructionCodes.RLOAD:
+            case InstructionCodes.RMOVE:
                 lvIndex = operands[0];
                 i = operands[1];
-                sf.refRegs[i] = sf.refLocalVars[lvIndex];
+                sf.refRegs[i] = sf.refRegs[lvIndex];
                 break;
             case InstructionCodes.IALOAD:
                 i = operands[0];
@@ -1244,32 +1221,32 @@ public class BLangVM {
             case InstructionCodes.ISTORE:
                 i = operands[0];
                 lvIndex = operands[1];
-                sf.longLocalVars[lvIndex] = sf.longRegs[i];
+                sf.longRegs[lvIndex] = sf.longRegs[i];
                 break;
             case InstructionCodes.FSTORE:
                 i = operands[0];
                 lvIndex = operands[1];
-                sf.doubleLocalVars[lvIndex] = sf.doubleRegs[i];
+                sf.doubleRegs[lvIndex] = sf.doubleRegs[i];
                 break;
             case InstructionCodes.SSTORE:
                 i = operands[0];
                 lvIndex = operands[1];
-                sf.stringLocalVars[lvIndex] = sf.stringRegs[i];
+                sf.stringRegs[lvIndex] = sf.stringRegs[i];
                 break;
             case InstructionCodes.BSTORE:
                 i = operands[0];
                 lvIndex = operands[1];
-                sf.intLocalVars[lvIndex] = sf.intRegs[i];
+                sf.intRegs[lvIndex] = sf.intRegs[i];
                 break;
             case InstructionCodes.LSTORE:
                 i = operands[0];
                 lvIndex = operands[1];
-                sf.byteLocalVars[lvIndex] = sf.byteRegs[i];
+                sf.byteRegs[lvIndex] = sf.byteRegs[i];
                 break;
             case InstructionCodes.RSTORE:
                 i = operands[0];
                 lvIndex = operands[1];
-                sf.refLocalVars[lvIndex] = sf.refRegs[i];
+                sf.refRegs[lvIndex] = sf.refRegs[i];
                 break;
             case InstructionCodes.IASTORE:
                 i = operands[0];
@@ -2261,7 +2238,7 @@ public class BLangVM {
             case InstructionCodes.XML2S:
                 i = operands[0];
                 j = operands[1];
-                sf.stringRegs[j] = sf.refRegs[j].stringValue();
+                sf.stringRegs[j] = sf.refRegs[i].stringValue();
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -2507,18 +2484,18 @@ public class BLangVM {
             localVarAttrInfo.getLocalVariables().forEach(localVarInfo -> {
                 VariableInfo variableInfo = new VariableInfo(localVarInfo.getVariableName(), "Local");
                 if (BTypes.typeInt.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BInteger(fcp.longLocalVars[localVarInfo.getVariableIndex()]));
+                    variableInfo.setBValue(new BInteger(fcp.longRegs[localVarInfo.getVariableIndex()]));
                 } else if (BTypes.typeFloat.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BFloat(fcp.doubleLocalVars[localVarInfo.getVariableIndex()]));
+                    variableInfo.setBValue(new BFloat(fcp.doubleRegs[localVarInfo.getVariableIndex()]));
                 } else if (BTypes.typeString.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BString(fcp.stringLocalVars[localVarInfo.getVariableIndex()]));
+                    variableInfo.setBValue(new BString(fcp.stringRegs[localVarInfo.getVariableIndex()]));
                 } else if (BTypes.typeBoolean.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BBoolean(fcp.intLocalVars[localVarInfo
+                    variableInfo.setBValue(new BBoolean(fcp.intRegs[localVarInfo
                             .getVariableIndex()] == 1 ? true : false));
                 } else if (BTypes.typeBlob.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BBlob(fcp.byteLocalVars[localVarInfo.getVariableIndex()]));
+                    variableInfo.setBValue(new BBlob(fcp.byteRegs[localVarInfo.getVariableIndex()]));
                 } else {
-                    variableInfo.setBValue(fcp.refLocalVars[localVarInfo.getVariableIndex()]);
+                    variableInfo.setBValue(fcp.refRegs[localVarInfo.getVariableIndex()]);
                 }
                 frameInfo.addVariableInfo(variableInfo);
             });
@@ -2663,11 +2640,11 @@ public class BLangVM {
         }
     }
 
-    private void beginTransaction(int transactionId, int retryCountAvailable) {
+    private void beginTransaction(int transactionId, int retryCountRegIndex) {
         //Transaction is attempted three times by default to improve resiliency
         int retryCount = 3;
-        if (retryCountAvailable == 1) {
-            retryCount = (int) controlStack.currentFrame.getLongRegs()[0];
+        if (retryCountRegIndex != -1) {
+            retryCount = (int) controlStack.currentFrame.getLongRegs()[retryCountRegIndex];
             if (retryCount < 0) {
                 context.setError(BLangVMErrors.createError(this.context, ip,
                         BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
@@ -2711,7 +2688,6 @@ public class BLangVM {
         this.constPool = calleeSF.packageInfo.getConstPoolEntries();
         this.code = calleeSF.packageInfo.getInstructions();
         ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
-
     }
 
     public void invokeAction(String actionName, int[] argRegs, int[] retRegs) {
@@ -2734,26 +2710,24 @@ public class BLangVM {
         }
     }
 
-    public void invokeWorker(WorkerDataChannelInfo workerDataChannel,
-                             WrkrInteractionArgsCPEntry wrkrIntRefCPEntry) {
+    public void handleWorkerSend(WorkerDataChannelInfo workerDataChannel, BType[] types, int[] regs) {
         StackFrame currentFrame = controlStack.currentFrame;
 
         // Extract the outgoing expressions
-        BValue[] arguments = new BValue[wrkrIntRefCPEntry.getBTypes().length];
-        copyArgValuesForWorkerInvoke(currentFrame, wrkrIntRefCPEntry.getArgRegs(),
-                wrkrIntRefCPEntry.getBTypes(), arguments);
+        BValue[] arguments = new BValue[types.length];
+        copyArgValuesForWorkerSend(currentFrame, regs, types, arguments);
 
         //populateArgumentValuesForWorker(expressions, arguments);
-        workerDataChannel.setTypes(wrkrIntRefCPEntry.getBTypes());
+        workerDataChannel.setTypes(types);
         workerDataChannel.putData(arguments);
     }
 
-    public void invokeForkJoin(ForkJoinCPEntry forkJoinCPEntry) {
-        ForkjoinInfo forkjoinInfo = forkJoinCPEntry.getForkjoinInfo();
+    public void invokeForkJoin(InstructionFORKJOIN forkJoinIns) {
+        ForkjoinInfo forkjoinInfo = forkJoinIns.forkJoinCPEntry.getForkjoinInfo();
         List<BLangVMWorkers.WorkerExecutor> workerRunnerList = new ArrayList<>();
         long timeout = Long.MAX_VALUE;
         if (forkjoinInfo.isTimeoutAvailable()) {
-            timeout = this.controlStack.currentFrame.getLongRegs()[0];
+            timeout = this.controlStack.currentFrame.getLongRegs()[forkJoinIns.timeoutRegIndex];
         }
         Queue<WorkerResult> resultMsgs = new ConcurrentLinkedQueue<>();
         Map<String, BLangVMWorkers.WorkerExecutor> workers = new HashMap<>();
@@ -2762,7 +2736,7 @@ public class BLangVM {
             workerContext.blockingInvocation = true;
             StackFrame callerSF = this.controlStack.currentFrame;
             int[] argRegs = forkjoinInfo.getArgRegs();
-            ControlStackNew workerControlStack = workerContext.getControlStackNew();
+            ControlStack workerControlStack = workerContext.getControlStack();
             StackFrame calleeSF = new StackFrame(this.controlStack.currentFrame.getCallableUnitInfo(),
                     workerInfo, -1, new int[1]);
             workerControlStack.pushFrame(calleeSF);
@@ -2787,24 +2761,26 @@ public class BLangVM {
         }
         boolean success = this.invokeJoinWorkers(workers, joinWorkerNames, workerCount, timeout);
         if (success) {
-            this.ip = forkjoinInfo.getJoinIp();
+            this.ip = forkJoinIns.joinBlockAddr;
             /* assign values to join block message arrays */
-            int offsetJoin = forkjoinInfo.getJoinMemOffset();
+
+            int offsetJoin = forkJoinIns.joinVarRegIndex;
             BMap<String, BRefValueArray> mbMap = new BMap<>();
             for (WorkerResult workerResult : resultMsgs) {
                 mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
             }
-            this.controlStack.currentFrame.getRefLocalVars()[offsetJoin] = mbMap;
+            this.controlStack.currentFrame.getRefRegs()[offsetJoin] = mbMap;
         } else {
             /* timed out */
-            this.ip = forkjoinInfo.getTimeoutIp();
+            this.ip = forkJoinIns.timeoutBlockAddr;
             /* execute the timeout block */
-            int offsetTimeout = forkjoinInfo.getTimeoutMemOffset();
+
+            int offsetTimeout = forkJoinIns.timeoutVarRegIndex;
             BMap<String, BRefValueArray> mbMap = new BMap<>();
             for (WorkerResult workerResult : resultMsgs) {
                 mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
             }
-            this.controlStack.currentFrame.getRefLocalVars()[offsetTimeout] = mbMap;
+            this.controlStack.currentFrame.getRefRegs()[offsetTimeout] = mbMap;
         }     
     }
     
@@ -2833,7 +2809,7 @@ public class BLangVM {
     private void handleWorkerReturn() {
         WorkerContext workerContext = (WorkerContext) this.context;
         if (workerContext.parentSF.tryReturn()) {
-            StackFrame workerCallerSF = workerContext.getControlStackNew().currentFrame;
+            StackFrame workerCallerSF = workerContext.getControlStack().currentFrame;
             workerContext.parentSF.returnedWorker = workerCallerSF.workerInfo.getWorkerName();
 
             StackFrame parentSF = workerContext.parentSF;
@@ -2841,7 +2817,7 @@ public class BLangVM {
             copyWorkersReturnValues(workerCallerSF, parentSF);
             // Switch to parent context
             this.context = workerContext.parent;
-            this.controlStack = this.context.getControlStackNew();
+            this.controlStack = this.context.getControlStack();
             controlStack.popFrame();
             this.constPool = this.controlStack.currentFrame.packageInfo.getConstPoolEntries();
             this.code = this.controlStack.currentFrame.packageInfo.getInstructions();
@@ -2853,17 +2829,14 @@ public class BLangVM {
         }
     }
 
-    public void replyWorker(WorkerDataChannelInfo workerDataChannel,
-                            WrkrInteractionArgsCPEntry wrkrIntCPEntry) {
-
+    public void handleWorkerReceive(WorkerDataChannelInfo workerDataChannel, BType[] types, int[] regs) {
         BValue[] passedInValues = (BValue[]) workerDataChannel.takeData();
         StackFrame currentFrame = controlStack.currentFrame;
-        copyArgValuesForWorkerReply(currentFrame, wrkrIntCPEntry.getArgRegs(),
-                wrkrIntCPEntry.getBTypes(), passedInValues);
+        copyArgValuesForWorkerReceive(currentFrame, regs, types, passedInValues);
     }
 
-    public static void copyArgValuesForWorkerInvoke(StackFrame callerSF, int[] argRegs, BType[] paramTypes,
-                                                    BValue[] arguments) {
+    public static void copyArgValuesForWorkerSend(StackFrame callerSF, int[] argRegs,
+                                                  BType[] paramTypes, BValue[] arguments) {
         for (int i = 0; i < argRegs.length; i++) {
             BType paramType = paramTypes[i];
             int argReg = argRegs[i];
@@ -2878,8 +2851,7 @@ public class BLangVM {
                     arguments[i] = new BString(callerSF.stringRegs[argReg]);
                     break;
                 case TypeTags.BOOLEAN_TAG:
-                    boolean temp = (callerSF.intRegs[argReg]) > 0 ? true : false;
-                    arguments[i] = new BBoolean(temp);
+                    arguments[i] = new BBoolean(callerSF.intRegs[argReg] > 0);
                     break;
                 case TypeTags.BLOB_TAG:
                     arguments[i] = new BBlob(callerSF.byteRegs[argReg]);
@@ -2890,35 +2862,29 @@ public class BLangVM {
         }
     }
 
-    public static void copyArgValuesForWorkerReply(StackFrame currentSF, int[] argRegs, BType[] paramTypes,
-                                                   BValue[] passedInValues) {
-        int longRegIndex = -1;
-        int doubleRegIndex = -1;
-        int stringRegIndex = -1;
-        int booleanRegIndex = -1;
-        int blobRegIndex = -1;
-        int refRegIndex = -1;
-
+    public static void copyArgValuesForWorkerReceive(StackFrame currentSF, int[] argRegs,
+                                                     BType[] paramTypes, BValue[] passedInValues) {
         for (int i = 0; i < argRegs.length; i++) {
+            int regIndex = argRegs[i];
             BType paramType = paramTypes[i];
             switch (paramType.getTag()) {
                 case TypeTags.INT_TAG:
-                    currentSF.getLongRegs()[++longRegIndex] = ((BInteger) passedInValues[i]).intValue();
+                    currentSF.getLongRegs()[regIndex] = ((BInteger) passedInValues[i]).intValue();
                     break;
                 case TypeTags.FLOAT_TAG:
-                    currentSF.getDoubleRegs()[++doubleRegIndex] = ((BFloat) passedInValues[i]).floatValue();
+                    currentSF.getDoubleRegs()[regIndex] = ((BFloat) passedInValues[i]).floatValue();
                     break;
                 case TypeTags.STRING_TAG:
-                    currentSF.getStringRegs()[++stringRegIndex] = ((BString) passedInValues[i]).stringValue();
+                    currentSF.getStringRegs()[regIndex] = (passedInValues[i]).stringValue();
                     break;
                 case TypeTags.BOOLEAN_TAG:
-                    currentSF.getIntRegs()[++booleanRegIndex] = (((BBoolean) passedInValues[i]).booleanValue()) ? 1 : 0;
+                    currentSF.getIntRegs()[regIndex] = (((BBoolean) passedInValues[i]).booleanValue()) ? 1 : 0;
                     break;
                 case TypeTags.BLOB_TAG:
-                    currentSF.getByteRegs()[++blobRegIndex] = ((BBlob) passedInValues[i]).blobValue();
+                    currentSF.getByteRegs()[regIndex] = ((BBlob) passedInValues[i]).blobValue();
                     break;
                 default:
-                    currentSF.getRefRegs()[++refRegIndex] = (BRefType) passedInValues[i];
+                    currentSF.getRefRegs()[regIndex] = (BRefType) passedInValues[i];
             }
         }
     }
@@ -2932,39 +2898,37 @@ public class BLangVM {
         int refLocalVals = argRegs[5];
 
         for (int i = 0; i <= longLocalVals; i++) {
-            calleeSF.getLongLocalVars()[i] = callerSF.getLongLocalVars()[i];
+            calleeSF.getLongRegs()[i] = callerSF.getLongRegs()[i];
         }
 
         for (int i = 0; i <= doubleLocalVals; i++) {
-            calleeSF.getDoubleLocalVars()[i] = callerSF.getDoubleLocalVars()[i];
+            calleeSF.getDoubleRegs()[i] = callerSF.getDoubleRegs()[i];
         }
 
         for (int i = 0; i <= stringLocalVals; i++) {
-            calleeSF.getStringLocalVars()[i] = callerSF.getStringLocalVars()[i];
+            calleeSF.getStringRegs()[i] = callerSF.getStringRegs()[i];
         }
 
         for (int i = 0; i <= booleanLocalVals; i++) {
-            calleeSF.getIntLocalVars()[i] = callerSF.getIntLocalVars()[i];
+            calleeSF.getIntRegs()[i] = callerSF.getIntRegs()[i];
         }
 
         for (int i = 0; i <= refLocalVals; i++) {
-            calleeSF.getRefLocalVars()[i] = callerSF.getRefLocalVars()[i];
+            calleeSF.getRefRegs()[i] = callerSF.getRefRegs()[i];
         }
 
         for (int i = 0; i <= blobLocalVals; i++) {
-            calleeSF.getByteLocalVars()[i] = callerSF.getByteLocalVars()[i];
+            calleeSF.getByteRegs()[i] = callerSF.getByteRegs()[i];
         }
-
-
     }
 
     public static void copyValues(StackFrame parent, StackFrame workerSF) {
-        System.arraycopy(parent.longLocalVars, 0, workerSF.longLocalVars, 0, parent.longLocalVars.length);
-        System.arraycopy(parent.doubleLocalVars, 0, workerSF.doubleLocalVars, 0, parent.doubleLocalVars.length);
-        System.arraycopy(parent.intLocalVars, 0, workerSF.intLocalVars, 0, parent.intLocalVars.length);
-        System.arraycopy(parent.stringLocalVars, 0, workerSF.stringLocalVars, 0, parent.stringLocalVars.length);
-        System.arraycopy(parent.byteLocalVars, 0, workerSF.byteLocalVars, 0, parent.byteLocalVars.length);
-        System.arraycopy(parent.refLocalVars, 0, workerSF.refLocalVars, 0, parent.refLocalVars.length);
+        System.arraycopy(parent.longRegs, 0, workerSF.longRegs, 0, parent.longRegs.length);
+        System.arraycopy(parent.doubleRegs, 0, workerSF.doubleRegs, 0, parent.doubleRegs.length);
+        System.arraycopy(parent.intRegs, 0, workerSF.intRegs, 0, parent.intRegs.length);
+        System.arraycopy(parent.stringRegs, 0, workerSF.stringRegs, 0, parent.stringRegs.length);
+        System.arraycopy(parent.byteRegs, 0, workerSF.byteRegs, 0, parent.byteRegs.length);
+        System.arraycopy(parent.refRegs, 0, workerSF.refRegs, 0, parent.refRegs.length);
     }
 
 
@@ -2981,27 +2945,29 @@ public class BLangVM {
             int argReg = argRegs[i];
             switch (paramType.getTag()) {
                 case TypeTags.INT_TAG:
-                    calleeSF.longLocalVars[++longRegIndex] = callerSF.longRegs[argReg];
+                    calleeSF.longRegs[++longRegIndex] = callerSF.longRegs[argReg];
                     break;
                 case TypeTags.FLOAT_TAG:
-                    calleeSF.doubleLocalVars[++doubleRegIndex] = callerSF.doubleRegs[argReg];
+                    calleeSF.doubleRegs[++doubleRegIndex] = callerSF.doubleRegs[argReg];
                     break;
                 case TypeTags.STRING_TAG:
-                    calleeSF.stringLocalVars[++stringRegIndex] = callerSF.stringRegs[argReg];
+                    calleeSF.stringRegs[++stringRegIndex] = callerSF.stringRegs[argReg];
                     break;
                 case TypeTags.BOOLEAN_TAG:
-                    calleeSF.intLocalVars[++booleanRegIndex] = callerSF.intRegs[argReg];
+                    calleeSF.intRegs[++booleanRegIndex] = callerSF.intRegs[argReg];
                     break;
                 case TypeTags.BLOB_TAG:
-                    calleeSF.byteLocalVars[++blobRegIndex] = callerSF.byteRegs[argReg];
+                    calleeSF.byteRegs[++blobRegIndex] = callerSF.byteRegs[argReg];
                     break;
                 default:
-                    calleeSF.refLocalVars[++refRegIndex] = callerSF.refRegs[argReg];
+                    calleeSF.refRegs[++refRegIndex] = callerSF.refRegs[argReg];
             }
         }
     }
 
     private void handleReturn() {
+
+        // TODO Cache stack frames -  improvement
         StackFrame currentSF = controlStack.popFrame();
         if (controlStack.currentFrame != null) {
             StackFrame callersSF = controlStack.currentFrame;
