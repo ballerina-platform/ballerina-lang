@@ -312,7 +312,6 @@ public class BLangPackageBuilder {
     }
 
     public void addConstraintType(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
-
         BLangNameReference nameReference = nameReferenceStack.pop();
         BLangUserDefinedType constraintType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         constraintType.pos = pos;

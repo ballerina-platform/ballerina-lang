@@ -1220,7 +1220,7 @@ public class BLangVM {
 
                 bRefType = bMap.get(sf.stringRegs[j]);
                 if (bRefType != null) {
-                    sf.stringRegs[k] = ((BString) bRefType).stringValue();
+                    sf.stringRegs[k] = bRefType.stringValue();
                 } else {
                     sf.stringRegs[k] = STRING_NULL_VALUE;
                 }
@@ -1237,7 +1237,7 @@ public class BLangVM {
 
                 bRefType = bMap.get(sf.stringRegs[j]);
                 if (bRefType != null) {
-                    sf.intRegs[k] = ((BBoolean) bRefType).booleanValue() == BBoolean.TRUE.booleanValue() ? 1 : 0;
+                    sf.intRegs[k] = ((BBoolean) bRefType).booleanValue() ? 1 : 0;
                 } else {
                     sf.intRegs[k] = 0;
                 }
