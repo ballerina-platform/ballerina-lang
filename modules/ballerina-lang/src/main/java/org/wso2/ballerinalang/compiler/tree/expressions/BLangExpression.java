@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 
 /**
  * {@code BLangExpression} represents an expression node in Ballerina AST.
@@ -39,7 +40,7 @@ public abstract class BLangExpression extends BLangNode implements ExpressionNod
      * This result of this expression is saved in this virtual register index. This field is used
      * during the code generation phase of the compiler.
      */
-    public int regIndex;
+    public RegIndex regIndex;
 
     public boolean isMultiReturnExpr() {
         return false;

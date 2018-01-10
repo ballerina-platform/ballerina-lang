@@ -63,7 +63,7 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
 
     public BValue getRefArgument(Context context, int index) {
         if (index > -1) {
-            BValue result = context.getControlStackNew().getCurrentFrame().getRefLocalVars()[index];
+            BValue result = context.getControlStack().getCurrentFrame().getRefRegs()[index];
             if (result == null) {
                 throw new BallerinaException("argument " + index + " is null");
             }
@@ -75,35 +75,35 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
 
     public int getIntArgument(Context context, int index) {
         if (index > -1) {
-            return (int) context.getControlStackNew().getCurrentFrame().getLongLocalVars()[index];
+            return (int) context.getControlStack().getCurrentFrame().getLongRegs()[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
 
     public String getStringArgument(Context context, int index) {
         if (index > -1) {
-            return context.getControlStackNew().getCurrentFrame().getStringLocalVars()[index];
+            return context.getControlStack().getCurrentFrame().getStringRegs()[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
 
     public long getLongArgument(Context context, int index) {
         if (index > -1) {
-            return (long) context.getControlStackNew().getCurrentFrame().getDoubleLocalVars()[index];
+            return (long) context.getControlStack().getCurrentFrame().getDoubleRegs()[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
 
     public boolean getBooleanArgument(Context context, int index) {
         if (index > -1) {
-            return (context.getControlStackNew().getCurrentFrame().getIntLocalVars()[index] == 1);
+            return (context.getControlStack().getCurrentFrame().getIntRegs()[index] == 1);
         }
         throw new ArgumentOutOfRangeException(index);
     }
 
     public byte[] getBlobArgument(Context context, int index) {
         if (index > -1) {
-            return context.getControlStackNew().getCurrentFrame().getByteLocalVars()[index];
+            return context.getControlStack().getCurrentFrame().getByteRegs()[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }

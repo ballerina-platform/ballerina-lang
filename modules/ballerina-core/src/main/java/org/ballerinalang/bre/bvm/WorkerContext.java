@@ -33,7 +33,7 @@ public class WorkerContext extends Context {
     public WorkerContext(ProgramFile programFile, Context parent) {
         super(programFile);
         this.parent = parent;
-        parentSF = parent.getControlStackNew().currentFrame;
+        parentSF = parent.getControlStack().currentFrame;
         this.workerCounter = parent.getWorkerCounter();
         this.populateContextPropsFromParent();
     }

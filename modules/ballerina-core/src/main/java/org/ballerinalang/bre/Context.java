@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.bre.bvm.ControlStack;
 import org.ballerinalang.bre.bvm.WorkerCounter;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.values.BStruct;
@@ -40,7 +40,7 @@ import java.util.Map;
 public class Context {
 
     //TODO: Rename this into BContext and move this to runtime package
-    private ControlStackNew controlStackNew;
+    private ControlStack controlStack;
     //TODO remove below after jms and ftp full migration.
     private CarbonMessage cMsg;
     private BServerConnectorFuture connectorFuture;
@@ -64,12 +64,12 @@ public class Context {
 
     @Deprecated
     public Context() {
-        this.controlStackNew = new ControlStackNew();
+        this.controlStack = new ControlStack();
     }
 
     public Context(ProgramFile programFile) {
         this.programFile = programFile;
-        this.controlStackNew = new ControlStackNew();
+        this.controlStack = new ControlStack();
         this.workerCounter = new WorkerCounter();
     }
 
@@ -81,8 +81,8 @@ public class Context {
         this.debugContext = debugContext;
     }
 
-    public ControlStackNew getControlStackNew() {
-        return controlStackNew;
+    public ControlStack getControlStack() {
+        return controlStack;
     }
 
     public CarbonMessage getCarbonMessage() {
@@ -134,15 +134,15 @@ public class Context {
     }
 
     public BStruct getError() {
-        if (controlStackNew.currentFrame != null) {
-            return controlStackNew.currentFrame.getErrorThrown();
+        if (controlStack.currentFrame != null) {
+            return controlStack.currentFrame.getErrorThrown();
         }
         return this.unhandledError;
     }
 
     public void setError(BStruct error) {
-        if (controlStackNew.currentFrame != null) {
-            controlStackNew.currentFrame.setErrorThrown(error);
+        if (controlStack.currentFrame != null) {
+            controlStack.currentFrame.setErrorThrown(error);
         } else {
             this.unhandledError = error;
         }
