@@ -2253,7 +2253,7 @@ public class BLangVM {
     }
 
     private void execIteratorOperation(StackFrame sf, int opcode, int[] operands) {
-        BCollection collection = (BCollection) sf.refLocalVars[operands[0]];
+        BCollection collection = (BCollection) sf.refRegs[operands[0]];
         if (collection == null) {
             handleNullRefError();
             return;
@@ -2264,12 +2264,12 @@ public class BLangVM {
         BIterator iterator;
         switch (opcode) {
             case InstructionCodes.ITR_NEW:
-                sf.stringLocalVars[j] = collection.newIterator();
+                sf.stringRegs[j] = collection.newIterator();
                 break;
             case InstructionCodes.ITR_HAS_NEXT:
                 k = operands[2];
                 l = operands[3];
-                iteratorID = sf.stringLocalVars[j];
+                iteratorID = sf.stringRegs[j];
                 iterator = collection.getIterator(iteratorID);
                 if (iterator == null) {     // This is an unlikely event.
                     sf.intRegs[k] = 0;
@@ -2281,7 +2281,7 @@ public class BLangVM {
                 break;
             case InstructionCodes.ITR_NEXT:
                 k = operands[2];
-                iteratorID = sf.stringLocalVars[j];
+                iteratorID = sf.stringRegs[j];
                 iterator = collection.getIterator(iteratorID);
                 if (iterator == null) {     // This is an unlikely event.
                     sf.refRegs[k] = null;

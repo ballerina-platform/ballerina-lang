@@ -2502,20 +2502,20 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangForeach foreach) {
-        // Calculate temporary registries/Local variables for iteration.
-        int itrIDVar = ++lvIndexes.tString;
-        int itrCollectionVar = ++lvIndexes.tRef;
-        int cursorReg = ++regIndexes.tRef;
-        int conditionReg = ++regIndexes.tBoolean;
+        // Calculate registries for iteration.
+        Operand itrIDVar = getLVIndex(TypeTags.STRING);
+        Operand itrCollectionVar = getLVIndex(foreach.collection.type.tag);
+        RegIndex cursorReg = getRegIndex(TypeTags.ANY);
+        RegIndex conditionReg = getRegIndex(TypeTags.BOOLEAN);
         // Create new Iterator for given collection, and store iterator ID.
         this.genNode(foreach.collection, env);
         this.emit(InstructionCodes.RSTORE, foreach.collection.regIndex, itrCollectionVar);
         this.emit(InstructionCodes.ITR_NEW, itrCollectionVar, itrIDVar);
         // Start of the foreach.
-        Instruction gotoStartOfLoop = InstructionFactory.get(InstructionCodes.GOTO, this.nextIP());
+        Instruction gotoStartOfLoop = InstructionFactory.get(InstructionCodes.GOTO, new Operand(this.nextIP()));
         // Checks given iterator has next value, load result and next cursor value in to given registries.
         this.emit(InstructionCodes.ITR_HAS_NEXT, itrCollectionVar, itrIDVar, conditionReg, cursorReg);
-        Instruction gotoEndOfInstr = InstructionFactory.get(InstructionCodes.BR_FALSE, conditionReg, -1);
+        Instruction gotoEndOfInstr = InstructionFactory.get(InstructionCodes.BR_FALSE, conditionReg, new Operand(-1));
         this.emit(gotoEndOfInstr);
         // assign variables.
         this.generateForeachVarAssignment(foreach.varRefs, foreach.collection, itrIDVar, itrCollectionVar, cursorReg);
@@ -2524,7 +2524,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // move to next iteration.
         this.emit(gotoStartOfLoop);
         // end of the iteration.
-        gotoEndOfInstr.setOperand(1, this.nextIP());
+        gotoEndOfInstr.ops[1].value = this.nextIP();
     }
 
     public void visit(BLangWhile whileNode) {
@@ -2882,18 +2882,14 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     // private helper methods of visitors.
 
-    private void generateForeachVarAssignment(List<BLangExpression> vars, BLangExpression col, int itrID, int itrVar,
-                                              int cursorReg) {
-        vars.stream()
+    private void generateForeachVarAssignment(List<BLangExpression> variables, BLangExpression col, Operand itrID,
+                                              Operand itrVar, Operand cursorReg) {
+        variables.stream()
                 .filter(v -> v.type.tag != TypeTags.NONE)   // Ignoring ignored ("_") variables.
-                .forEach(v -> { // Create Local varaiable in
-                    BLangVariableReference varRef = (BLangVariableReference) v;
-                    varRef.symbol.varIndex = getNextIndex(v.type.tag, lvIndexes);
-                    LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varRef.symbol);
-                    localVarAttrInfo.localVars.add(localVarInfo);
-                });
+                .map(expr -> (BLangVariableReference) expr)
+                .forEach(varRef -> visitVarSymbol(varRef.symbol, lvIndexes, localVarAttrInfo));
         BLangVariableReference indexVarRef, valueVarRef;
-        int valueReg = ++regIndexes.tRef;
+        RegIndex valueReg = getRegIndex(TypeTags.ANY);
         int typeTag;
         boolean stringBasedCursor = false;
         switch (col.type.tag) {
@@ -2914,36 +2910,32 @@ public class CodeGenerator extends BLangNodeVisitor {
                 return;
         }
         // Currently any foreach collection can have either one or two variables.
-        indexVarRef = (BLangVariableReference) (vars.size() == 2 ? vars.get(0) : null);
-        valueVarRef = (BLangVariableReference) (vars.size() == 2 ? vars.get(1) : vars.get(0));
+        indexVarRef = (BLangVariableReference) (variables.size() == 2 ? variables.get(0) : null);
+        valueVarRef = (BLangVariableReference) (variables.size() == 2 ? variables.get(1) : variables.get(0));
         if (indexVarRef != null) {  // Unbox index variable.
-            int errReg = ++regIndexes.tRef;
+            RegIndex errReg = getRegIndex(TypeTags.ERROR);
             if (stringBasedCursor) {
-                int stringReg = ++regIndexes.tString;
-                int lvIndex = ++lvIndexes.tString;
-                indexVarRef.symbol.varIndex = lvIndex;
+                RegIndex stringReg = getRegIndex(TypeTags.STRING);
+                indexVarRef.symbol.varIndex = getLVIndex(TypeTags.STRING);
                 emit(InstructionCodes.ANY2S, cursorReg, stringReg, errReg);
-                emit(InstructionCodes.SSTORE, stringReg, lvIndex);
+                emit(InstructionCodes.SSTORE, stringReg, indexVarRef.symbol.varIndex);
             } else {
-                int intReg = ++regIndexes.tInt;
-                int lvIndex = ++lvIndexes.tInt;
-                indexVarRef.symbol.varIndex = lvIndex;
+                RegIndex intReg = getRegIndex(TypeTags.INT);
+                indexVarRef.symbol.varIndex = getLVIndex(TypeTags.INT); ;
                 emit(InstructionCodes.ANY2I, cursorReg, intReg, errReg);
-                emit(InstructionCodes.ISTORE, intReg, lvIndex);
+                emit(InstructionCodes.ISTORE, intReg, indexVarRef.symbol.varIndex);
             }
         }
         // load current value
         emit(InstructionCodes.ITR_NEXT, itrVar, itrID, valueReg);
         if (typeTag < TypeTags.TYPE) {  // Unbox value for values types.
-            int errReg = ++regIndexes.tRef;
-            OpcodeAndIndex regOI = getOpcodeAndIndex(typeTag, InstructionCodes.ANY2I, regIndexes);
-            emit(regOI.opcode, valueReg, regOI.index, errReg);
-            valueReg = regOI.index; // New Value location.
+            RegIndex errReg = getRegIndex(TypeTags.ERROR);
+            RegIndex regIndex = getRegIndex(typeTag);
+            emit(getOpcode(typeTag, InstructionCodes.ANY2I), valueReg, regIndex, errReg);
+            valueReg = regIndex; // New Value location.
         }
-        // assign loaded value to variable.
-        OpcodeAndIndex varOI = getOpcodeAndIndex(typeTag, InstructionCodes.ISTORE, lvIndexes);
-        valueVarRef.symbol.varIndex = varOI.index;
-        emit(varOI.opcode, valueReg, varOI.index);
+        valueVarRef.symbol.varIndex = getLVIndex(typeTag);
+        emit(getOpcode(typeTag, InstructionCodes.ISTORE), valueReg, valueVarRef.symbol.varIndex);
     }
 
 
