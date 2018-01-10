@@ -1484,6 +1484,16 @@ class SizingUtil {
 
         components['block-header'].setOpaque(true);
 
+        // calculate left margin from the lifeline centre
+        let leftMargin = this.calcLeftMargin(node.body.statements);
+        leftMargin = (leftMargin === 0) ? this.config.flowChartControlStatement.gap.left
+                                        // since there is no left expansion for if,
+                                        // we take the left margin as it is
+                                        : leftMargin;
+        viewState.components['left-margin'] = {
+            w: leftMargin,
+        };
+
         // for compound statement like if , while we need to render condition expression
         // we will calculate the width of the expression and adjust the block statement
         if (expression) {
@@ -1763,6 +1773,8 @@ class SizingUtil {
         // calculate left margin from the lifeline centre
         let leftMargin = this.calcLeftMargin(node.body.statements);
         leftMargin = (leftMargin === 0) ? this.config.flowChartControlStatement.gap.left
+                                        // since there is a left expansion for while when nested,
+                                        // add a left padding
                                         : (leftMargin + this.config.flowChartControlStatement.padding.left);
         viewState.components['left-margin'] = {
             w: leftMargin,
