@@ -52,7 +52,7 @@ public class BLangVMWorkers {
 
     public static void invoke(ProgramFile programFile, CallableUnitInfo callableUnitInfo, Context parent,
                               Map<String, Object> properties) {
-        StackFrame callerSF = parent.getControlStackNew().currentFrame;
+        StackFrame callerSF = parent.getControlStack().currentFrame;
         WorkerReturnIndex workerReturnIndex = calculateWorkerReturnIndex(callableUnitInfo.getRetParamTypes());
 
         for (WorkerInfo workerInfo : callableUnitInfo.getWorkerInfoMap().values()) {
@@ -81,7 +81,7 @@ public class BLangVMWorkers {
 
     private static void populateWorkerStack(CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, Context ctx,
                                             WorkerReturnIndex returnIndex, StackFrame callerSF) {
-        ControlStackNew controlStack = ctx.getControlStackNew();
+        ControlStack controlStack = ctx.getControlStack();
         StackFrame startSF = new StackFrame(callableUnitInfo.getPackageInfo(), -1, new int[0]);
         controlStack.pushFrame(startSF);
 
