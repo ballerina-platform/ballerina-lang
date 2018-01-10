@@ -2355,7 +2355,7 @@ public class BLangVM {
             debugManager.releaseDebugSessionLock();
         }
         //Between this release lock and acquire lock, some other thread can acquire the session lock as well.
-        if (code[cp].getOpcode() != InstructionCodes.WRKREPLY && !debugContext.isSessionActive()) {
+        if (code[cp].getOpcode() != InstructionCodes.WRKRECEIVE && !debugContext.isSessionActive()) {
             debugManager.tryAcquireDebugSessionLock();
             debugContext.setSessionActive(true);
         }

@@ -371,22 +371,22 @@ public class VMDebugManager {
                 VariableDTO variableDTO = new VariableDTO(l.getVariableName(), "Local");
                 switch (l.getVariableType().getTag()) {
                     case TypeTags.INT_TAG:
-                        variableDTO.setBValue(new BInteger(fcp.getLongLocalVars()[l.getVariableIndex()]));
+                        variableDTO.setBValue(new BInteger(fcp.getLongRegs()[l.getVariableIndex()]));
                         break;
                     case TypeTags.FLOAT_TAG:
-                        variableDTO.setBValue(new BFloat(fcp.getDoubleLocalVars()[l.getVariableIndex()]));
+                        variableDTO.setBValue(new BFloat(fcp.getDoubleRegs()[l.getVariableIndex()]));
                         break;
                     case TypeTags.STRING_TAG:
-                        variableDTO.setBValue(new BString(fcp.getStringLocalVars()[l.getVariableIndex()]));
+                        variableDTO.setBValue(new BString(fcp.getStringRegs()[l.getVariableIndex()]));
                         break;
                     case TypeTags.BOOLEAN_TAG:
-                        variableDTO.setBValue(new BBoolean(fcp.getIntLocalVars()[l.getVariableIndex()] == 1));
+                        variableDTO.setBValue(new BBoolean(fcp.getIntRegs()[l.getVariableIndex()] == 1));
                         break;
                     case TypeTags.BLOB_TAG:
-                        variableDTO.setBValue(new BBlob(fcp.getByteLocalVars()[l.getVariableIndex()]));
+                        variableDTO.setBValue(new BBlob(fcp.getByteRegs()[l.getVariableIndex()]));
                         break;
                     default:
-                        variableDTO.setBValue(fcp.getRefLocalVars()[l.getVariableIndex()]);
+                        variableDTO.setBValue(fcp.getRefRegs()[l.getVariableIndex()]);
                         break;
                 }
                 frameDTO.addVariable(variableDTO);
