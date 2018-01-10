@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.ForeachNode;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -39,6 +40,7 @@ public class BLangForeach extends BLangStatement implements ForeachNode {
     public BLangExpression collection;
     public List<BLangExpression> varRefs = new ArrayList<>();
     public BLangBlockStmt body;
+    public List<BType> varTypes;
 
     @Override
     public ExpressionNode getCollection() {

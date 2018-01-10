@@ -193,6 +193,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
@@ -2517,7 +2518,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.emit(InstructionCodes.BR_FALSE, conditionVar, foreachEndAddress);
 
         // assign variables.
-        generateForeachVarAssignment(foreach.varRefs, foreach.collection, iteratorVar);
+        generateForeachVarAssignment(foreach, iteratorVar);
 
         this.genNode(foreach.body, env);                        // generate foreach body.
         this.emit(InstructionCodes.GOTO, foreachStartAddress);  // move to next iteration.
@@ -2879,19 +2880,22 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     // private helper methods of visitors.
 
-    private void generateForeachVarAssignment(List<BLangExpression> variables, BLangExpression col,
-                                              Operand iteratorIndex) {
+    private void generateForeachVarAssignment(BLangForeach foreach, Operand iteratorIndex) {
+        List<BLangVariableReference> variables = foreach.varRefs.stream()
+                .map(expr -> (BLangVariableReference) expr)
+                .collect(Collectors.toList());
         // create Local variable Info entries.
         variables.stream()
                 .filter(v -> v.type.tag != TypeTags.NONE)   // Ignoring ignored ("_") variables.
-                .map(expr -> (BLangVariableReference) expr)
                 .forEach(varRef -> visitVarSymbol(varRef.symbol, lvIndexes, localVarAttrInfo));
         List<Operand> nextOperands = new ArrayList<>();
         nextOperands.add(iteratorIndex);
         nextOperands.add(new Operand(variables.size()));
-        variables.stream()
-                .map(expr -> (BLangVariableReference) expr)
-                .forEach(v -> nextOperands.add(v.symbol.varIndex));
+        for (int i = 0; i < variables.size(); i++) {
+            BLangVariableReference varRef = variables.get(i);
+            nextOperands.add(Optional.ofNullable(varRef.symbol.varIndex)
+                    .orElse(getRegIndex(foreach.varTypes.get(i).tag)));
+        }
         this.emit(InstructionCodes.ITR_NEXT, nextOperands.toArray(new Operand[0]));
     }
 

@@ -642,9 +642,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangForeach foreach) {
         typeChecker.checkExpr(foreach.collection, env);
-        List<BType> bTypes = types.checkForeachTypes(foreach.collection, foreach.varRefs.size());
+        foreach.varTypes = types.checkForeachTypes(foreach.collection, foreach.varRefs.size());
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(foreach.body, env);
-        handleForeachVariables(foreach, bTypes, blockEnv);
+        handleForeachVariables(foreach, foreach.varTypes, blockEnv);
         analyzeStmt(foreach.body, blockEnv);
     }
 
