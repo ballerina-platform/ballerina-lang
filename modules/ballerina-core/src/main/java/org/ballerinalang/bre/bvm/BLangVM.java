@@ -193,6 +193,11 @@ public class BLangVM {
             context.setError(BLangVMErrors.createError(context, ip, message));
             handleError();
         } finally {
+            Debugger debugger = programFile.getDebugger();
+            if (debugger.isDebugEnabled() && debugger.isClientSessionActive() && context.getDebugContext().isAtive()) {
+                context.getDebugContext().setActive(false);
+                debugger.releaseDebugSessionLock();
+            }
             if (!isWaitingOnNonBlockingAction() || context.getError() != null) {
                 // end of the active worker from the VM. ( graceful or forced exit on unhandled error. )
                 // Doesn't count non-blocking action invocation.

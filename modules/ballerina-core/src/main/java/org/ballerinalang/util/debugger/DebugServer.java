@@ -39,9 +39,11 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
  *
  * @since 0.88
  */
-public class DebugServer {
+class DebugServer {
 
     private Debugger debugger;
+
+    private Channel serverChannel;
 
     DebugServer(Debugger debugger) {
         this.debugger = debugger;
@@ -70,13 +72,13 @@ public class DebugServer {
     /**
      * Start the web socket server.
      */
-    public void startServer() {
+    void startServer() {
         //lets start the server in a new thread.
-        Runnable run = () -> DebugServer.this.startListning(debugger);
+        Runnable run = DebugServer.this::startListening;
         (new Thread(run)).start();
     }
 
-    private void startListning(Debugger debugManager) {
+    private void startListening() {
         int port = getDebugPort();
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -86,13 +88,13 @@ public class DebugServer {
                     .channel(NioServerSocketChannel.class)
                     //todo activate debug logs once implemented.
                     //.handler(new LoggingHandler(LogLevel.INFO))
-                    .childHandler(new DebugServerInitializer(debugManager));
-            Channel ch = b.bind(port).sync().channel();
+                    .childHandler(new DebugServerInitializer(debugger));
+            serverChannel = b.bind(port).sync().channel();
 
             PrintStream out = System.out;
             out.println(DebugConstants.DEBUG_MESSAGE + port);
 
-            ch.closeFuture().sync();
+            serverChannel.closeFuture().sync();
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         } catch (InterruptedException e) {
@@ -110,5 +112,9 @@ public class DebugServer {
             debugPort = DebugConstants.DEFAULT_DEBUG_PORT;
         }
         return Integer.parseInt(debugPort);
+    }
+
+    void closeServerChannel() {
+        serverChannel.close();
     }
 }

@@ -78,6 +78,10 @@ public class Debugger {
         this.setClientHandler(new VMDebugClientHandler());
         DebugServer debugServer = new DebugServer(this);
         debugServer.startServer();
+        /*
+          registering a shutdown hook to shut down netty debug listener when shutting down the system.
+         */
+        Runtime.getRuntime().addShutdownHook(new DebuggerShutDownHook(this, debugServer));
     }
 
     protected void setupDebugger() {
@@ -419,5 +423,25 @@ public class Debugger {
      */
     protected void setClientHandler(DebugClientHandler clientHandler) {
         this.clientHandler = clientHandler;
+    }
+
+    /**
+     * Shutdown hook to clean up debug server when shut down happens.
+     */
+    static class DebuggerShutDownHook extends Thread {
+
+        private Debugger debugger;
+        private DebugServer debugServer;
+
+        DebuggerShutDownHook(Debugger debugger, DebugServer debugServer) {
+            this.debugger = debugger;
+            this.debugServer = debugServer;
+        }
+
+        @Override
+        public void run() {
+            debugger.notifyExit();
+            debugServer.closeServerChannel();
+        }
     }
 }

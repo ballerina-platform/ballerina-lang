@@ -39,10 +39,6 @@ public class DebuggerUtil {
         context.setDebugContext(debugContext);
         debugger.addDebugContext(debugContext);
         bLangVM.run(context);
-        if (debugContext.isAtive()) {
-            debugContext.setActive(false);
-            debugger.releaseDebugSessionLock();
-        }
     }
 
 }

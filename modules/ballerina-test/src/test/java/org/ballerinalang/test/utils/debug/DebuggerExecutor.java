@@ -112,10 +112,6 @@ public class DebuggerExecutor implements Runnable {
 
         BLangVM bLangVM = new BLangVM(programFile);
         bLangVM.run(bContext);
-        if (bContext.getDebugContext().isAtive()) {
-            bContext.getDebugContext().setActive(false);
-            debugger.releaseDebugSessionLock();
-        }
         bContext.await();
         debugger.notifyExit();
     }
