@@ -274,12 +274,13 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test(description = "test declaration of two response method. Error is shown in the console", enabled = false)
     public void testRedeclarationOfTwoResponseMethods() {
-//        String path = "/hello/15";
-//        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-//        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-//
-//        Assert.assertNotNull(response, "Response message not found");
-//        Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), "wso2");
+        String path = "/hello/15";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), "wso2");
     }
 
     @Test
