@@ -20,6 +20,7 @@ package org.ballerinalang.test.debugger;
 import org.ballerinalang.test.utils.debug.ExpectedResults;
 import org.ballerinalang.test.utils.debug.VMDebuggerUtil;
 import org.ballerinalang.test.utils.debug.WorkerResults;
+import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -34,7 +35,7 @@ import static org.ballerinalang.test.utils.debug.Step.STEP_OUT;
 import static org.ballerinalang.test.utils.debug.Step.STEP_OVER;
 
 /**
- * Test Cases for {@link org.ballerinalang.util.debugger.VMDebugManager}.
+ * Test Cases for {@link Debugger}.
  */
 public class VMDebuggerTest {
 
@@ -57,8 +58,8 @@ public class VMDebuggerTest {
     public void testResume() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".", FILE,
                 3, 16, 27, 28, 31, 33, 35, 41, 42, 43, 44, 45);
-        WorkerResults mainWorker = new WorkerResults(VMDebuggerUtil.createWorkerBreakPoints(".",
-                FILE, 3, 16, 41, 28, 35, 42, 43), RESUME, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME);
+        WorkerResults mainWorker = new WorkerResults(VMDebuggerUtil.createWorkerBreakPoints(".", FILE,
+                3, 16, 41, 28, 35, 42, 43), RESUME, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME);
 
         ExpectedResults expRes = new ExpectedResults(mainWorker, false);
 
@@ -79,13 +80,12 @@ public class VMDebuggerTest {
     public void testStepIn() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".", FILE, 5, 8, 41);
 
-        WorkerResults mainWorker = new WorkerResults(VMDebuggerUtil.createWorkerBreakPoints(".",
-                FILE, 5, 12, 13, 14, 15, 19, 13, 8, 41, 25, 26, 28, 29, 35, 36, 42, 43, 9), STEP_IN, STEP_IN, STEP_IN, STEP_IN, STEP_IN, STEP_IN, RESUME, STEP_IN,
-                STEP_IN, STEP_IN, STEP_IN, STEP_IN, STEP_IN, STEP_IN, STEP_IN, STEP_IN, STEP_IN, RESUME);
+        WorkerResults mainWorker = new WorkerResults(VMDebuggerUtil.createWorkerBreakPoints(".", FILE,
+                5, 12, 13, 14, 15, 19, 13, 8, 41, 25, 26, 28, 29, 35, 36, 42, 43, 9),
+                STEP_IN, STEP_IN, STEP_IN, STEP_IN, STEP_IN, STEP_IN, RESUME, STEP_IN, STEP_IN,
+                STEP_IN, STEP_IN, STEP_IN, STEP_IN, STEP_IN, STEP_IN, STEP_IN, STEP_IN, RESUME);
 
         ExpectedResults expRes = new ExpectedResults(mainWorker, false);
-
-
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints, expRes);
     }
 
@@ -95,9 +95,7 @@ public class VMDebuggerTest {
 
         WorkerResults mainWorker = new WorkerResults(VMDebuggerUtil.createWorkerBreakPoints(".",
                 FILE, 25, 42, 9), STEP_OUT, STEP_OUT, RESUME);
-
         ExpectedResults expRes = new ExpectedResults(mainWorker, false);
-
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints, expRes);
     }
 
@@ -105,8 +103,8 @@ public class VMDebuggerTest {
     public void testStepOver() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".", FILE, 3);
 
-        WorkerResults mainWorker = new WorkerResults(VMDebuggerUtil.createWorkerBreakPoints(".",
-                FILE, 3, 5, 6, 8, 9, 10), STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, RESUME);
+        WorkerResults mainWorker = new WorkerResults(VMDebuggerUtil.createWorkerBreakPoints(".", FILE,
+                3, 5, 6, 8, 9, 10), STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, RESUME);
 
         ExpectedResults expRes = new ExpectedResults(mainWorker, false);
 
@@ -117,21 +115,21 @@ public class VMDebuggerTest {
     public void testStepOverIfStmt() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".", FILE, 26);
 
-        WorkerResults mainWorker = new WorkerResults(VMDebuggerUtil.createWorkerBreakPoints(".",
-                FILE, 26, 28, 29, 35, 36, 42), STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, RESUME);
+        WorkerResults mainWorker = new WorkerResults(VMDebuggerUtil.createWorkerBreakPoints(".", FILE,
+                26, 28, 29, 35, 36, 42), STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, RESUME);
 
         ExpectedResults expRes = new ExpectedResults(mainWorker, false);
 
-        VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints,expRes);
+        VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints, expRes);
     }
 
     @Test(description = "Testing Step over in WhileStmt.")
     public void testStepOverWhileStmt() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".", FILE, 13, 19, 21);
 
-        WorkerResults mainWorker = new WorkerResults(VMDebuggerUtil.createWorkerBreakPoints(".",
-                FILE, 13, 14, 19, 13, 19, 13, 19, 13, 19, 13, 21), STEP_OVER, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME,
-                RESUME, RESUME, RESUME);
+        WorkerResults mainWorker = new WorkerResults(VMDebuggerUtil.createWorkerBreakPoints(".", FILE,
+                13, 14, 19, 13, 19, 13, 19, 13, 19, 13, 21),
+                STEP_OVER, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME);
 
         ExpectedResults expRes = new ExpectedResults(mainWorker, false);
 
@@ -158,12 +156,11 @@ public class VMDebuggerTest {
                 "try-catch-finally.bal", 22);
 
         WorkerResults mainWorker = new WorkerResults(VMDebuggerUtil.createWorkerBreakPoints(".",
-                "try-catch-finally.bal", 22, 30, 32,
-                34, 35, 36, 37, 38, 46, 47, 48, 53, 58, 59, 61, 63), STEP_IN, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER,
+                "try-catch-finally.bal", 22, 30, 32, 34, 35, 36, 37, 38, 46, 47, 48, 53, 58, 59, 61, 63),
+                STEP_IN, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER,
                 STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, RESUME);
 
         ExpectedResults expRes = new ExpectedResults(mainWorker, false);
-
         VMDebuggerUtil.startDebug("test-src/debugger/try-catch-finally.bal", breakPoints, expRes);
     }
 

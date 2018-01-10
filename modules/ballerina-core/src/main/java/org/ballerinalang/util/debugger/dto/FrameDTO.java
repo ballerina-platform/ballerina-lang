@@ -28,11 +28,7 @@ public class FrameDTO {
 
     private String packageName, frameName, fileName;
     private int lineID;
-    private List<VariableDTO> variables = new ArrayList<VariableDTO>();
-
-    public FrameDTO(){
-
-    }
+    private List<VariableDTO> variables = new ArrayList<>();
 
     public FrameDTO(String packageName, String frameName, String fileName, int lineID) {
         this.packageName = packageName;

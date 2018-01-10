@@ -36,9 +36,6 @@ public class VariableDTO {
     private String scope, name;
     private String type, value;
 
-    public VariableDTO() {
-    }
-
     public VariableDTO(String name, String scope) {
         this.scope = scope;
         this.name = name;
@@ -71,7 +68,7 @@ public class VariableDTO {
     }
 
     private String getStringValue(BValue bValue) {
-        String bValueString = "";
+        String bValueString;
         if (bValue instanceof BValueType || bValue instanceof BXML || bValue instanceof BJSON) {
             bValueString = bValue.stringValue();
         } else if (bValue instanceof BNewArray) {

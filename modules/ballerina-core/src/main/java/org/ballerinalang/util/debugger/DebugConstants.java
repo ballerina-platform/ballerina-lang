@@ -33,32 +33,29 @@ public class DebugConstants {
     static final String DEBUG_WEBSOCKET_PATH = "/debug";
 
     // commands sent by client
-    public static final String CMD_START = "START";
-    public static final String CMD_STOP = "STOP";
-    public static final String CMD_SET_POINTS = "SET_POINTS";
-    public static final String CMD_STEP_OVER = "STEP_OVER";
-    public static final String CMD_RESUME = "RESUME";
-    public static final String CMD_STEP_IN = "STEP_IN";
-    public static final String CMD_STEP_OUT = "STEP_OUT";
+    static final String CMD_START = "START";
+    static final String CMD_STOP = "STOP";
+    static final String CMD_SET_POINTS = "SET_POINTS";
+    static final String CMD_STEP_OVER = "STEP_OVER";
+    static final String CMD_RESUME = "RESUME";
+    static final String CMD_STEP_IN = "STEP_IN";
+    static final String CMD_STEP_OUT = "STEP_OUT";
 
     // messages sent back to client
-    public static final String CODE_HIT = "DEBUG_HIT";
-    public static final String MSG_HIT = "Debug point hit.";
+    static final String CODE_HIT = "DEBUG_HIT";
+    static final String MSG_HIT = "Debug point hit.";
 
-    public static final String CODE_INVALID = "INVALID";
-    public static final String MSG_INVALID = "Invalid Command";
-    public static final String MSG_INVALID_THREAD_ID = "Invalid Thread ID : ";
+    static final String CODE_INVALID = "INVALID";
+    static final String MSG_INVALID = "Invalid Command";
+    static final String MSG_INVALID_THREAD_ID = "Invalid Thread ID : ";
 
-    public static final String CODE_ACK = "ACK";
+    static final String CODE_ACK = "ACK";
 
-    public static final String CODE_COMPLETE = "COMPLETE";
-    public static final String MSG_COMPLETE = "Debug session completed.";
-
-    public static final String CODE_EXIT = "EXIT";
-    public static final String MSG_EXIT = "Exiting from debugger.";
+    static final String CODE_EXIT = "EXIT";
+    static final String MSG_EXIT = "Exiting from debugger.";
 
     //startup message.
-    public static final String DEBUG_MESSAGE = "Ballerina remote debugger is activated on port : ";
+    static final String DEBUG_MESSAGE = "Ballerina remote debugger is activated on port : ";
     public static final String ERROR_JSON = "{ \"error\": true }";
-    public static final String DEBUG_SERVER_ERROR = "Debug Server Error. Closing client connection.";
+    static final String DEBUG_SERVER_ERROR = "Debug Server Error. Closing client connection.";
 }

@@ -88,7 +88,6 @@ import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
-import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
@@ -99,7 +98,8 @@ import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.debugger.DebugCommand;
 import org.ballerinalang.util.debugger.DebugContext;
-import org.ballerinalang.util.debugger.VMDebugManager;
+import org.ballerinalang.util.debugger.Debugger;
+import org.ballerinalang.util.debugger.DebuggerUtil;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -203,17 +203,9 @@ public class BLangVM {
 
     public void execWorker(Context context, int startIP) {
         context.setStartIP(startIP);
-        VMDebugManager debugManager = programFile.getDebugManager();
-        if (debugManager.isDebugEnabled() && debugManager.isClientSessionActive()) {
-            DebugContext debugContext = new DebugContext();
-            debugContext.setCurrentCommand(DebugCommand.RESUME);
-            context.setDebugContext(debugContext);
-            debugManager.addDebugContext(debugContext);
-            run(context);
-            if (debugContext.isSessionActive()) {
-                debugContext.setSessionActive(false);
-                debugManager.releaseDebugSessionLock();
-            }
+        Debugger debugger = programFile.getDebugger();
+        if (debugger.isDebugEnabled() && debugger.isClientSessionActive()) {
+            DebuggerUtil.runInDebugMode(this, context, debugger);
             return;
         }
         run(context);
@@ -232,7 +224,7 @@ public class BLangVM {
         FunctionInfo functionInfo;
         InstructionCALL callIns;
 
-        boolean isDebugging = programFile.getDebugManager().isDebugEnabled();
+        boolean isDebugging = programFile.getDebugger().isDebugEnabled();
 
         StackFrame currentSF, callersSF;
         int callersRetRegIndex;
@@ -2344,20 +2336,20 @@ public class BLangVM {
      * @param cp Current instruction point.
      */
     private void debugging(int cp) {
-        VMDebugManager debugManager = programFile.getDebugManager();
+        Debugger debugManager = programFile.getDebugger();
         if (!debugManager.isClientSessionActive()) {
             return;
         }
         DebugContext debugContext = context.getDebugContext();
 
-        if (debugContext.getCurrentCommand() == DebugCommand.RESUME && debugContext.isSessionActive()) {
-            debugContext.setSessionActive(false);
+        if (debugContext.getCurrentCommand() == DebugCommand.RESUME && debugContext.isAtive()) {
+            debugContext.setActive(false);
             debugManager.releaseDebugSessionLock();
         }
         //Between this release lock and acquire lock, some other thread can acquire the session lock as well.
-        if (code[cp].getOpcode() != InstructionCodes.WRKRECEIVE && !debugContext.isSessionActive()) {
+        if (code[cp].getOpcode() != InstructionCodes.WRKRECEIVE && !debugContext.isAtive()) {
             debugManager.tryAcquireDebugSessionLock();
-            debugContext.setSessionActive(true);
+            debugContext.setActive(true);
         }
         processDebugging(cp, debugManager, debugContext);
     }
@@ -2369,7 +2361,7 @@ public class BLangVM {
      * @param debugManager  Debug manager object.
      * @param debugContext  Current debug context object.
      */
-    private void processDebugging(int cp, VMDebugManager debugManager, DebugContext debugContext) {
+    private void processDebugging(int cp, Debugger debugManager, DebugContext debugContext) {
         LineNumberInfo currentExecLine = debugManager
                 .getLineNumber(controlStack.currentFrame.packageInfo.getPkgPath(), cp);
         if (currentExecLine.equals(debugContext.getLastLine())
@@ -2385,26 +2377,26 @@ public class BLangVM {
                 debugHit(currentExecLine, debugManager, debugContext);
                 break;
             case STEP_OVER:
-                if (controlStack.currentFrame == debugContext.getSF()) {
+                if (controlStack.currentFrame == debugContext.getStackFrame()) {
                     debugHit(currentExecLine, debugManager, debugContext);
                     return;
                 }
                 if (debugContext.getLastLine().checkIpRangeForInstructionCode(code, InstructionCodes.RET)
-                        && controlStack.currentFrame == debugContext.getSF().prevStackFrame) {
+                        && controlStack.currentFrame == debugContext.getStackFrame().prevStackFrame) {
                     debugHit(currentExecLine, debugManager, debugContext);
                     return;
                 }
                 debugContext.setCurrentCommand(DebugCommand.STEP_OVER_INTMDT);
                 break;
             case STEP_OVER_INTMDT:
-                if (controlStack.currentFrame != debugContext.getSF()) {
+                if (controlStack.currentFrame != debugContext.getStackFrame()) {
                     return;
                 }
                 debugHit(currentExecLine, debugManager, debugContext);
                 break;
             case STEP_OUT:
                 debugContext.setCurrentCommand(DebugCommand.STEP_OUT_INTMDT);
-                debugContext.setSF(debugContext.getSF().prevStackFrame);
+                debugContext.setStackFrame(debugContext.getStackFrame().prevStackFrame);
                 interMediateDebugCheck(currentExecLine, debugManager, debugContext);
                 break;
             case STEP_OUT_INTMDT:
@@ -2424,9 +2416,9 @@ public class BLangVM {
      * @param debugManager      Debug manager object.
      * @param debugContext      Current debug context.
      */
-    private void interMediateDebugCheck(LineNumberInfo currentExecLine, VMDebugManager debugManager,
+    private void interMediateDebugCheck(LineNumberInfo currentExecLine, Debugger debugManager,
                                         DebugContext debugContext) {
-        if (controlStack.currentFrame != debugContext.getSF()) {
+        if (controlStack.currentFrame != debugContext.getStackFrame()) {
             return;
         }
         debugHit(currentExecLine, debugManager, debugContext);
@@ -2441,7 +2433,7 @@ public class BLangVM {
      * @param debugContext      Current debug context.
      * @return Boolean true if it's a debug point, false otherwise.
      */
-    private boolean debugPointCheck(LineNumberInfo currentExecLine, VMDebugManager debugManager,
+    private boolean debugPointCheck(LineNumberInfo currentExecLine, Debugger debugManager,
                                     DebugContext debugContext) {
         if (!currentExecLine.isDebugPoint()) {
             return false;
@@ -2458,10 +2450,10 @@ public class BLangVM {
      * @param debugManager      Debug manager object.
      * @param debugContext      Current debug context.
      */
-    private void debugHit(LineNumberInfo currentExecLine, VMDebugManager debugManager,
+    private void debugHit(LineNumberInfo currentExecLine, Debugger debugManager,
                           DebugContext debugContext) {
         debugContext.setLastLine(currentExecLine);
-        debugContext.setSF(controlStack.currentFrame);
+        debugContext.setStackFrame(controlStack.currentFrame);
         debugManager.notifyDebugHit(controlStack.currentFrame, currentExecLine, debugContext.getThreadId());
         debugManager.waitTillDebuggeeResponds();
     }

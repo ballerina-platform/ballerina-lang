@@ -70,11 +70,6 @@ public interface DebugClientHandler {
     boolean isChannelActive();
 
     /**
-     * Called when execution is end.
-     */
-    void notifyComplete();
-
-    /**
      * Called when main program exit.
      */
     void notifyExit();

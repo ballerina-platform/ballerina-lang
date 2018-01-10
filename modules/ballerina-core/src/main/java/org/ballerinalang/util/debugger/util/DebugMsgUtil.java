@@ -42,24 +42,24 @@ import java.util.List;
  */
 public class DebugMsgUtil {
     private static final Logger log = LoggerFactory.getLogger(DebugMsgUtil.class);
-    public static final String CODE = "code";
-    public static final String MESSAGE = "message";
-    public static final String THREAD_ID = "threadId";
-    public static final String FRAMES = "frames";
-    public static final String LOCATION = "location";
-    public static final String PACKAGE_PATH = "packagePath";
-    public static final String FILE_NAME = "fileName";
-    public static final String LINE_NUMBER = "lineNumber";
-    public static final String PACKAGE_NAME = "packageName";
-    public static final String FRAME_NAME = "frameName";
-    public static final String LINE_ID = "lineID";
-    public static final String VARIABLES = "variables";
-    public static final String SCOPE = "scope";
-    public static final String NAME = "name";
-    public static final String TYPE = "type";
-    public static final String VALUE = "value";
-    public static final String COMMAND = "command";
-    public static final String POINTS = "points";
+    private static final String CODE = "code";
+    private static final String MESSAGE = "message";
+    private static final String THREAD_ID = "threadId";
+    private static final String FRAMES = "frames";
+    private static final String LOCATION = "location";
+    private static final String PACKAGE_PATH = "packagePath";
+    private static final String FILE_NAME = "fileName";
+    private static final String LINE_NUMBER = "lineNumber";
+    private static final String PACKAGE_NAME = "packageName";
+    private static final String FRAME_NAME = "frameName";
+    private static final String LINE_ID = "lineID";
+    private static final String VARIABLES = "variables";
+    private static final String SCOPE = "scope";
+    private static final String NAME = "name";
+    private static final String TYPE = "type";
+    private static final String VALUE = "value";
+    private static final String COMMAND = "command";
+    private static final String POINTS = "points";
 
     /**
      * Method to generate json message from the MessageDTO object instance.

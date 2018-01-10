@@ -48,11 +48,11 @@ import java.util.concurrent.Semaphore;
  *
  * @since 0.88
  */
-public class VMDebugManager {
+public class Debugger {
 
     private boolean debugEnabled = false;
 
-    private DebugServer debugServer;
+    private ProgramFile programFile;
 
     private DebugClientHandler clientHandler;
 
@@ -62,7 +62,8 @@ public class VMDebugManager {
 
     private volatile Semaphore debugSem;
 
-    public VMDebugManager() {
+    public Debugger(ProgramFile programFile) {
+        this.programFile = programFile;
         String debug = System.getProperty(Constants.SYSTEM_PROP_BAL_DEBUG);
         if (debug != null && !debug.isEmpty()) {
             debugEnabled = true;
@@ -70,41 +71,19 @@ public class VMDebugManager {
     }
 
     /**
-     * Method to check debug enabled or not.
-     *
-     * @return debugEnabled value.
-     */
-    public boolean isDebugEnabled() {
-        return debugEnabled;
-    }
-
-    public void setDebugEnabled(boolean debugEnabled) {
-        this.debugEnabled = debugEnabled;
-    }
-
-    /**
      * Method to initialize debug manager.
-     *
-     * @param programFile   used to initialize debug manager.
-     * @param clientHandler session used to communicate with client.
-     * @param debugServer Debug server
      */
-    public void init(ProgramFile programFile, DebugClientHandler clientHandler, DebugServer debugServer) {
+    public void init() {
+        this.setupDebugger();
+        this.setClientHandler(new VMDebugClientHandler());
+        DebugServer debugServer = new DebugServer(this);
+        debugServer.startServer();
+    }
+
+    protected void setupDebugger() {
         this.executionSem = new Semaphore(0);
         this.debugSem = new Semaphore(1);
-        this.initDebugInfoHolder(programFile);
-        this.clientHandler = clientHandler;
-        this.debugServer = debugServer;
-        this.debugServer.startServer(this);
-    }
-
-    private void initDebugInfoHolder(ProgramFile programFile) {
-        if (this.debugInfoHolder != null) {
-            return;
-        }
-
-        this.debugInfoHolder = new DebugInfoHolder();
-        this.debugInfoHolder.init(programFile);
+        this.debugInfoHolder = new DebugInfoHolder(programFile);
     }
 
     /**
@@ -161,7 +140,7 @@ public class VMDebugManager {
      *
      * @param json the json
      */
-    public void processDebugCommand(String json) {
+    void processDebugCommand(String json) {
         try {
             processCommand(json);
         } catch (Exception e) {
@@ -173,7 +152,7 @@ public class VMDebugManager {
     }
 
     private void processCommand(String json) {
-        CommandDTO command = null;
+        CommandDTO command;
         try {
             command = DebugMsgUtil.buildCommandDTO(json);
         } catch (Exception e) {
@@ -223,30 +202,54 @@ public class VMDebugManager {
         debugInfoHolder.addDebugPoints(breakPointDTOS);
     }
 
+    /**
+     * Method to start debugging.
+     */
     public void startDebug() {
         resume();
     }
 
+    /**
+     * Method to resume current debug session.
+     */
     public void resume() {
         clientHandler.updateAllDebugContexts(DebugCommand.RESUME);
         executionSem.release();
     }
 
+    /**
+     * Method to do "STEP_IN" command.
+     *
+     * @param threadId to be resumed.
+     */
     public void stepIn(String threadId) {
         getDebugContext(threadId).setCurrentCommand(DebugCommand.STEP_IN);
         executionSem.release();
     }
 
+    /**
+     * Method to do "STEP_OVER" command.
+     *
+     * @param threadId to be resumed.
+     */
     public void stepOver(String threadId) {
         getDebugContext(threadId).setCurrentCommand(DebugCommand.STEP_OVER);
         executionSem.release();
     }
 
+    /**
+     * Method to do "STEP_OUT" command.
+     *
+     * @param threadId to be resumed.
+     */
     public void stepOut(String threadId) {
         getDebugContext(threadId).setCurrentCommand(DebugCommand.STEP_OUT);
         executionSem.release();
     }
 
+    /**
+     * Method to stop debugging process for all threads.
+     */
     public void stopDebugging() {
         debugInfoHolder.clearDebugLocations();
         clientHandler.updateAllDebugContexts(DebugCommand.RESUME);
@@ -265,11 +268,11 @@ public class VMDebugManager {
     }
 
     /**
-     * Set debug channel.
+     * Set debug session by adding the channel.
      *
      * @param channel the channel
      */
-    public void addDebugSession(Channel channel) throws DebugException {
+    void addDebugSession(Channel channel) throws DebugException {
         this.clientHandler.setChannel(channel);
         sendAcknowledge("Channel registered.");
     }
@@ -305,13 +308,6 @@ public class VMDebugManager {
     }
 
     /**
-     * Notify client when debugger has finish execution.
-     */
-    public void notifyComplete() {
-        clientHandler.notifyComplete();
-    }
-
-    /**
      * Notify client when the debugger is exiting.
      */
     public void notifyExit() {
@@ -326,7 +322,7 @@ public class VMDebugManager {
      *
      * @param messageText message to send to the client
      */
-    public void sendAcknowledge(String messageText) {
+    private void sendAcknowledge(String messageText) {
         MessageDTO message = new MessageDTO(DebugConstants.CODE_ACK, messageText);
         clientHandler.sendCustomMsg(message);
     }
@@ -398,5 +394,30 @@ public class VMDebugManager {
             frame = frame.prevStackFrame;
         }
         return message;
+    }
+
+    /**
+     * Method to check debug enabled or not.
+     *
+     * @return debugEnabled value.
+     */
+    public boolean isDebugEnabled() {
+        return debugEnabled;
+    }
+
+    /**
+     * Method to set debug enabled or not.
+     */
+    public void setDebugEnabled() {
+        this.debugEnabled = true;
+    }
+
+    /**
+     * Method to set client handler.
+     *
+     * @param clientHandler instance.
+     */
+    protected void setClientHandler(DebugClientHandler clientHandler) {
+        this.clientHandler = clientHandler;
     }
 }

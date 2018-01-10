@@ -19,7 +19,7 @@ package org.ballerinalang.test.utils.debug;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.util.debugger.VMDebugManager;
+import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.testng.Assert;
 
@@ -35,31 +35,30 @@ import java.util.List;
 public class VMDebuggerUtil {
 
     public static void startDebug(String srcPath, BreakPointDTO[] bPoints, ExpectedResults expRes) {
-        TestDebugClientHandler clientHandler = new TestDebugClientHandler();
-        TestDebugServer debugServer = new TestDebugServer();
-        VMDebugManager debugManager = setupProgram(srcPath, clientHandler, debugServer, bPoints);
 
-        if (!debugServer.tryAcquireLock(1000)) {
+        TestDebugger debugger = setupProgram(srcPath, bPoints);
+
+        if (!debugger.tryAcquireLock(1000)) {
             Assert.fail("VM doesn't start within 1000ms");
         }
 
-        debugManager.startDebug();
+        debugger.startDebug();
 
         Step currentStep = Step.RESUME;
         while (true) {
-            clientHandler.aquireSem();
-            if (clientHandler.isExit) {
+            debugger.getClientHandler().aquireSem();
+            if (debugger.getClientHandler().isExit) {
                 Assert.assertTrue(expRes.checkDebugSuccess());
                 break;
             }
-            checkDebugPointHit(expRes, clientHandler.haltPosition, currentStep);
+            checkDebugPointHit(expRes, debugger.getClientHandler().haltPosition, currentStep);
             currentStep = expRes.getCurrent().getNextStep();
-            executeDebuggerCmd(debugManager, clientHandler, currentStep);
+            executeDebuggerCmd(debugger, debugger.getClientHandler(), currentStep);
         }
     }
 
     private static void checkDebugPointHit(ExpectedResults expRes, BreakPointDTO halt, Step crntStep) {
-        BreakPointDTO expLocation = null;
+        BreakPointDTO expLocation;
         if (!expRes.isMultiThreaded() || !Step.RESUME.equals(crntStep)) {
             expLocation = expRes.getCurrent().getCurrentLocation();
             expRes.getCurrent().incrementPointer();
@@ -119,8 +118,8 @@ public class VMDebuggerUtil {
         return breakPointDTOS;
     }
 
-    public static void executeDebuggerCmd(VMDebugManager debugManager,
-                                          TestDebugClientHandler debugClientHandler, Step cmd) {
+    private static void executeDebuggerCmd(Debugger debugManager,
+                                           TestDebugClientHandler debugClientHandler, Step cmd) {
         switch (cmd) {
             case STEP_IN:
                 debugManager.stepIn(debugClientHandler.getThreadId());
@@ -139,17 +138,17 @@ public class VMDebuggerUtil {
         }
     }
 
-    private static VMDebugManager setupProgram(String sourceFilePath, TestDebugClientHandler clientHandler,
-                                               TestDebugServer debugServer, BreakPointDTO[] breakPoints) {
+    private static TestDebugger setupProgram(String sourceFilePath, BreakPointDTO[] breakPoints) {
         CompileResult result = BCompileUtil.compile(sourceFilePath);
 
-        VMDebugManager debugManager = result.getProgFile().getDebugManager();
-        debugManager.setDebugEnabled(true);
+        TestDebugger debugger = new TestDebugger(result.getProgFile());
+        result.getProgFile().setDebugger(debugger);
+        debugger.setDebugEnabled();
 
         String[] args = {"Hello", "World"};
-        DebuggerExecutor executor = new DebuggerExecutor(result, args, clientHandler, debugServer,
+        DebuggerExecutor executor = new DebuggerExecutor(result, args, debugger,
                 new ArrayList<>(Arrays.asList(breakPoints)));
         (new Thread(executor)).start();
-        return debugManager;
+        return debugger;
     }
 }

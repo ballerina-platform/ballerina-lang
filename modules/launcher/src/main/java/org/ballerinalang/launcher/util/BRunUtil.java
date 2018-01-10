@@ -22,6 +22,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.program.BLangFunctions;
 
 /**
@@ -87,6 +88,8 @@ public class BRunUtil {
             throw new IllegalStateException("compilation contains errors.");
         }
         ProgramFile programFile = compileResult.getProgFile();
+        Debugger debugger = new Debugger(programFile);
+        programFile.setDebugger(debugger);
         PackageInfo packageInfo = programFile.getPackageInfo(packageName);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
         if (functionInfo == null) {
@@ -125,6 +128,8 @@ public class BRunUtil {
         ProgramFile programFile = compileResult.getProgFile();
         PackageInfo packageInfo = programFile.getPackageInfo(packageName);
         Context context = new Context(programFile);
+        Debugger debugger = new Debugger(programFile);
+        programFile.setDebugger(debugger);
         compileResult.setContext(context);
         BLangFunctions.invokePackageInitFunction(programFile, packageInfo.getInitFunctionInfo(), context);
     }
@@ -143,6 +148,8 @@ public class BRunUtil {
             throw new IllegalStateException("compilation contains errors.");
         }
         ProgramFile programFile = compileResult.getProgFile();
+        Debugger debugger = new Debugger(programFile);
+        programFile.setDebugger(debugger);
         return BLangFunctions.invokeNew(programFile, packageName, functionName, args);
     }
 
@@ -172,6 +179,8 @@ public class BRunUtil {
             throw new IllegalStateException("compilation contains errors.");
         }
         ProgramFile programFile = compileResult.getProgFile();
+        Debugger debugger = new Debugger(programFile);
+        programFile.setDebugger(debugger);
         return BLangFunctions.invokeNew(programFile, programFile.getEntryPkgName(), functionName, args);
     }
 
@@ -189,6 +198,8 @@ public class BRunUtil {
             throw new IllegalStateException("compilation contains errors.");
         }
         ProgramFile programFile = compileResult.getProgFile();
+        Debugger debugger = new Debugger(programFile);
+        programFile.setDebugger(debugger);
         return BLangFunctions.invokeNew(programFile, programFile.getEntryPkgName(), functionName, args, context);
     }
 
@@ -212,6 +223,8 @@ public class BRunUtil {
      * @param context invocation context.
      */
     public static void invoke(CompileResult compileResult, FunctionInfo initFuncInfo, Context context) {
+        Debugger debugger = new Debugger(compileResult.getProgFile());
+        compileResult.getProgFile().setDebugger(debugger);
         BLangFunctions.invokeFunction(compileResult.getProgFile(), initFuncInfo, context);
     }
 }

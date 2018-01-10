@@ -37,9 +37,8 @@ import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
-import org.ballerinalang.util.debugger.DebugCommand;
-import org.ballerinalang.util.debugger.DebugContext;
-import org.ballerinalang.util.debugger.VMDebugManager;
+import org.ballerinalang.util.debugger.Debugger;
+import org.ballerinalang.util.debugger.DebuggerUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Arrays;
@@ -80,7 +79,7 @@ public class ResourceExecutor {
 
         //TODO remove this with a proper way
         if (properties != null) {
-            properties.forEach((k, v) -> context.setProperty(k, v));
+            properties.forEach(context::setProperty);
         }
 
         ControlStack controlStack = context.getControlStack();
@@ -159,17 +158,9 @@ public class ResourceExecutor {
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
         context.setAsResourceContext();
         context.startTrackWorker();
-        VMDebugManager debugManager = programFile.getDebugManager();
-        if (debugManager.isDebugEnabled()) {
-            DebugContext debugContext = new DebugContext();
-            debugContext.setCurrentCommand(DebugCommand.RESUME);
-            context.setDebugContext(debugContext);
-            debugManager.addDebugContext(debugContext);
-            bLangVM.run(context);
-            if (debugContext.isSessionActive()) {
-                debugContext.setSessionActive(false);
-                debugManager.releaseDebugSessionLock();
-            }
+        Debugger debugger = programFile.getDebugger();
+        if (debugger.isDebugEnabled()) {
+            DebuggerUtil.runInDebugMode(bLangVM, context, debugger);
             return;
         }
         bLangVM.run(context);

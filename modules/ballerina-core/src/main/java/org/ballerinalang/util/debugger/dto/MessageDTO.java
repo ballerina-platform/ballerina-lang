@@ -36,7 +36,7 @@ public class MessageDTO {
 
     private BreakPointDTO location;
 
-    private List<FrameDTO> frames = new ArrayList<FrameDTO>();
+    private List<FrameDTO> frames = new ArrayList<>();
 
     public MessageDTO(String code, String message) {
         this.code = code;

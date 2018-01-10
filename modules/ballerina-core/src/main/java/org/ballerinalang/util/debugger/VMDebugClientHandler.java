@@ -40,7 +40,7 @@ public class VMDebugClientHandler implements DebugClientHandler {
     //key - threadid
     private Map<String, DebugContext> contextMap;
 
-    public VMDebugClientHandler() {
+    VMDebugClientHandler() {
         //Using concurrent map because multiple threads may try to access this concurrently
         this.contextMap = new ConcurrentHashMap<>();
     }
@@ -80,12 +80,6 @@ public class VMDebugClientHandler implements DebugClientHandler {
     @Override
     public boolean isChannelActive() {
         return channel != null;
-    }
-
-    @Override
-    public void notifyComplete() {
-        MessageDTO message = new MessageDTO(DebugConstants.CODE_COMPLETE, DebugConstants.MSG_COMPLETE);
-        pushMessageToClient(message);
     }
 
     @Override

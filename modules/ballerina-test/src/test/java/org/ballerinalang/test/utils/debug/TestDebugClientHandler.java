@@ -95,10 +95,6 @@ public class TestDebugClientHandler implements DebugClientHandler {
         }
 
         @Override
-        public void notifyComplete() {
-        }
-
-        @Override
         public void notifyExit() {
             isExit = true;
             executionSem.release();

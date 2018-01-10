@@ -29,11 +29,11 @@ public class DebugContext {
     private volatile DebugCommand currentCommand;
 
     private LineNumberInfo lastLine;
-    private StackFrame sf;
+    private StackFrame stackFrame;
 
     private String threadId;
 
-    private volatile boolean sessionActive = false;
+    private volatile boolean active = false;
 
     public DebugCommand getCurrentCommand() {
         return currentCommand;
@@ -47,12 +47,12 @@ public class DebugContext {
         return lastLine;
     }
 
-    public StackFrame getSF() {
-        return sf;
+    public StackFrame getStackFrame() {
+        return stackFrame;
     }
 
-    public void setSF(StackFrame sf) {
-        this.sf = sf;
+    public void setStackFrame(StackFrame stackFrame) {
+        this.stackFrame = stackFrame;
     }
 
     public void setLastLine(LineNumberInfo lastLine) {
@@ -67,11 +67,11 @@ public class DebugContext {
         this.threadId = threadId;
     }
 
-    public boolean isSessionActive() {
-        return sessionActive;
+    public boolean isAtive() {
+        return active;
     }
 
-    public void setSessionActive(boolean sessionActive) {
-        this.sessionActive = sessionActive;
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

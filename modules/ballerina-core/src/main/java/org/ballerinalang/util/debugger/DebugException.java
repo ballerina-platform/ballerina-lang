@@ -28,7 +28,4 @@ public class DebugException extends RuntimeException {
         super(message);
     }
 
-    DebugException(String message, Throwable e) {
-        super(message, e);
-    }
 }
