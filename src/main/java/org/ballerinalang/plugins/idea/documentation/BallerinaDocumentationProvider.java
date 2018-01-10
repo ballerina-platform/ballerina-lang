@@ -264,7 +264,8 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
             Collection<TypeNameNode> typeNameNodes =
                     PsiTreeUtil.getChildrenOfTypeAsList(typeListNode, TypeNameNode.class);
             // Add each TypeNameNode to the result list.
-            typeNameNodes.forEach(typeNameNode -> results.add(typeNameNode.getText()));
+            typeNameNodes.forEach(typeNameNode ->
+                    results.add(BallerinaParameterInfoHandler.formatParameter(typeNameNode.getText())));
             // Return the results.
             return results;
         }
@@ -276,7 +277,8 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
             Collection<ParameterNode> parameterNodes =
                     PsiTreeUtil.findChildrenOfType(parameterListNode, ParameterNode.class);
             // Add each ParameterNode to the result list.
-            parameterNodes.forEach(parameterNode -> results.add(parameterNode.getText()));
+            parameterNodes.forEach(parameterNode ->
+                    results.add(BallerinaParameterInfoHandler.formatParameter(parameterNode.getText())));
             // Return the results.
             return results;
         }
