@@ -17,14 +17,13 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 import java.lang.reflect.Array;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * {@code BArray} represents an arrays in Ballerina.
@@ -43,8 +42,6 @@ public abstract class BNewArray implements BRefType, BCollection {
     protected static final int DEFAULT_ARRAY_SIZE = 100;
 
     protected int size = 0;
-
-    private Map<String, BIterator> iteratorMap = new HashMap<>();
 
     public abstract void grow(int newLength);
 
@@ -124,47 +121,40 @@ public abstract class BNewArray implements BRefType, BCollection {
     public abstract BValue getBValue(long index);
 
     @Override
-    public String newIterator() {
-        BArrayIterator iterator = new BArrayIterator(this);
-        iteratorMap.put(iterator.id, iterator);
-        return iterator.id;
-    }
-
-    @Override
-    public BIterator getIterator(String id) {
-        return iteratorMap.get(id);
+    public BIterator newIterator() {
+        return new BArrayIterator(this);
     }
 
     /**
-     * Array Iterator implementation.
+     * {@code {@link BArrayIterator}} provides iterator implementation for Ballerina array values.
      *
      * @since 0.96.0
      */
-    public class BArrayIterator implements BIterator {
-        BNewArray collection;
-        final String id;
-        int cursor = 0;
+    static class BArrayIterator implements BIterator {
+        BNewArray array;
+        long cursor = 0;
         long length;
 
         BArrayIterator(BNewArray value) {
-            id = UUID.randomUUID().toString();
-            this.collection = value;
+            this.array = value;
             this.length = value.size();
         }
 
         @Override
-        public String getID() {
-            return id;
+        public BValue[] getNext(int arity) {
+            long cursor = this.cursor++;
+            if (arity == 1) {
+                return new BValue[]{array.getBValue(cursor)};
+            }
+            return new BValue[]{new BInteger(cursor), array.getBValue(cursor)};
         }
 
         @Override
-        public BValue getNext() {
-            return collection.getBValue(cursor++);
-        }
-
-        @Override
-        public BValue getCursor() {
-            return new BInteger(cursor);
+        public BType[] getParamType(int arity) {
+            if (arity == 1) {
+                return new BType[]{((BArrayType) array.getType()).getElementType()};
+            }
+            return new BType[]{BTypes.typeInt, ((BArrayType) array.getType()).getElementType()};
         }
 
         @Override

@@ -40,7 +40,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -2502,29 +2501,27 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangForeach foreach) {
-        // Calculate registries for iteration.
-        Operand itrIDVar = getLVIndex(TypeTags.STRING);
-        Operand itrCollectionVar = getLVIndex(foreach.collection.type.tag);
-        RegIndex cursorReg = getRegIndex(TypeTags.ANY);
-        RegIndex conditionReg = getRegIndex(TypeTags.BOOLEAN);
+        // Calculate temporary scope variables for iteration.
+        Operand iteratorVar = getLVIndex(TypeTags.ITERATOR);
+        Operand conditionVar = getLVIndex(TypeTags.BOOLEAN);
+
         // Create new Iterator for given collection, and store iterator ID.
         this.genNode(foreach.collection, env);
-        this.emit(InstructionCodes.RSTORE, foreach.collection.regIndex, itrCollectionVar);
-        this.emit(InstructionCodes.ITR_NEW, itrCollectionVar, itrIDVar);
-        // Start of the foreach.
-        Instruction gotoStartOfLoop = InstructionFactory.get(InstructionCodes.GOTO, new Operand(this.nextIP()));
-        // Checks given iterator has next value, load result and next cursor value in to given registries.
-        this.emit(InstructionCodes.ITR_HAS_NEXT, itrCollectionVar, itrIDVar, conditionReg, cursorReg);
-        Instruction gotoEndOfInstr = InstructionFactory.get(InstructionCodes.BR_FALSE, conditionReg, new Operand(-1));
-        this.emit(gotoEndOfInstr);
+        this.emit(InstructionCodes.ITR_NEW, foreach.collection.regIndex, iteratorVar);
+
+        Operand foreachStartAddress = new Operand(nextIP());
+        Operand foreachEndAddress = new Operand(-1);
+
+        // Checks given iterator has a next value.
+        this.emit(InstructionCodes.ITR_HAS_NEXT, iteratorVar, conditionVar);
+        this.emit(InstructionCodes.BR_FALSE, conditionVar, foreachEndAddress);
+
         // assign variables.
-        this.generateForeachVarAssignment(foreach.varRefs, foreach.collection, itrIDVar, itrCollectionVar, cursorReg);
-        // generate foreach body.
-        this.genNode(foreach.body, env);
-        // move to next iteration.
-        this.emit(gotoStartOfLoop);
-        // end of the iteration.
-        gotoEndOfInstr.ops[1].value = this.nextIP();
+        generateForeachVarAssignment(foreach.varRefs, foreach.collection, iteratorVar);
+
+        this.genNode(foreach.body, env);                        // generate foreach body.
+        this.emit(InstructionCodes.GOTO, foreachStartAddress);  // move to next iteration.
+        foreachEndAddress.value = this.nextIP();
     }
 
     public void visit(BLangWhile whileNode) {
@@ -2882,60 +2879,20 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     // private helper methods of visitors.
 
-    private void generateForeachVarAssignment(List<BLangExpression> variables, BLangExpression col, Operand itrID,
-                                              Operand itrVar, Operand cursorReg) {
+    private void generateForeachVarAssignment(List<BLangExpression> variables, BLangExpression col,
+                                              Operand iteratorIndex) {
+        // create Local variable Info entries.
         variables.stream()
                 .filter(v -> v.type.tag != TypeTags.NONE)   // Ignoring ignored ("_") variables.
                 .map(expr -> (BLangVariableReference) expr)
                 .forEach(varRef -> visitVarSymbol(varRef.symbol, lvIndexes, localVarAttrInfo));
-        BLangVariableReference indexVarRef, valueVarRef;
-        RegIndex valueReg = getRegIndex(TypeTags.ANY);
-        int typeTag;
-        boolean stringBasedCursor = false;
-        switch (col.type.tag) {
-            case TypeTags.ARRAY:
-                typeTag = ((BArrayType) col.type).eType.tag;
-                break;
-            case TypeTags.MAP:
-                typeTag = ((BMapType) col.type).constraint.tag;
-                stringBasedCursor = true;
-                break;
-            case TypeTags.JSON:
-                typeTag = col.type.tag;  // Both JSON and XML elements' type tag will be them self.
-                break;
-            case TypeTags.XML:
-                typeTag = col.type.tag;  // Both JSON and XML elements' type tag will be them self.
-                break;
-            default:
-                return;
-        }
-        // Currently any foreach collection can have either one or two variables.
-        indexVarRef = (BLangVariableReference) (variables.size() == 2 ? variables.get(0) : null);
-        valueVarRef = (BLangVariableReference) (variables.size() == 2 ? variables.get(1) : variables.get(0));
-        if (indexVarRef != null) {  // Unbox index variable.
-            RegIndex errReg = getRegIndex(TypeTags.ERROR);
-            if (stringBasedCursor) {
-                RegIndex stringReg = getRegIndex(TypeTags.STRING);
-                indexVarRef.symbol.varIndex = getLVIndex(TypeTags.STRING);
-                emit(InstructionCodes.ANY2S, cursorReg, stringReg, errReg);
-                emit(InstructionCodes.SSTORE, stringReg, indexVarRef.symbol.varIndex);
-            } else {
-                RegIndex intReg = getRegIndex(TypeTags.INT);
-                indexVarRef.symbol.varIndex = getLVIndex(TypeTags.INT); ;
-                emit(InstructionCodes.ANY2I, cursorReg, intReg, errReg);
-                emit(InstructionCodes.ISTORE, intReg, indexVarRef.symbol.varIndex);
-            }
-        }
-        // load current value
-        emit(InstructionCodes.ITR_NEXT, itrVar, itrID, valueReg);
-        if (typeTag < TypeTags.TYPE) {  // Unbox value for values types.
-            RegIndex errReg = getRegIndex(TypeTags.ERROR);
-            RegIndex regIndex = getRegIndex(typeTag);
-            emit(getOpcode(typeTag, InstructionCodes.ANY2I), valueReg, regIndex, errReg);
-            valueReg = regIndex; // New Value location.
-        }
-        valueVarRef.symbol.varIndex = getLVIndex(typeTag);
-        emit(getOpcode(typeTag, InstructionCodes.ISTORE), valueReg, valueVarRef.symbol.varIndex);
+        List<Operand> nextOperands = new ArrayList<>();
+        nextOperands.add(iteratorIndex);
+        nextOperands.add(new Operand(variables.size()));
+        variables.stream()
+                .map(expr -> (BLangVariableReference) expr)
+                .forEach(v -> nextOperands.add(v.symbol.varIndex));
+        this.emit(InstructionCodes.ITR_NEXT, nextOperands.toArray(new Operand[0]));
     }
 
 

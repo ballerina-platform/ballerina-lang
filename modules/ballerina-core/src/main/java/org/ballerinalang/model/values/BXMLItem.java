@@ -33,6 +33,7 @@ import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
 import org.apache.axiom.om.util.AXIOMUtil;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.model.util.XMLValidationUtils;
@@ -40,13 +41,9 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
-
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
@@ -68,8 +65,7 @@ public final class BXMLItem extends BXML<OMNode> {
 
     private OMNode omNode;
     private XMLNodeType nodeType;
-    private Map<String, BIterator> iteratorMap = new HashMap<>();
-    
+
     /**
      * Create an empty XMLValue.
      */
@@ -750,46 +746,38 @@ public final class BXMLItem extends BXML<OMNode> {
     }
 
     @Override
-    public String newIterator() {
-        BXMLItemIterator iterator = new BXMLItemIterator(this);
-        iteratorMap.put(iterator.id, iterator);
-        return iterator.id;
-    }
-
-    @Override
-    public BIterator getIterator(String id) {
-        return iteratorMap.get(id);
+    public BIterator newIterator() {
+        return new BXMLItemIterator(this);
     }
 
     /**
-     * XML item iterator implementation.
+     * {@code {@link BXMLItemIterator}} provides iterator for xml items..
      *
-     * @sine 0.96.0
+     * @since 0.96.0
      */
-    class BXMLItemIterator implements BIterator {
+    static class BXMLItemIterator implements BIterator {
 
-        final String id;
         BXMLItem value;
         int cursor = 0;
 
-        public BXMLItemIterator(BXMLItem bxmlItem) {
-            id = UUID.randomUUID().toString();
+        BXMLItemIterator(BXMLItem bxmlItem) {
             value = bxmlItem;
         }
 
         @Override
-        public String getID() {
-            return id;
+        public BValue[] getNext(int arity) {
+            if (arity == 1) {
+                return cursor++ == 0 ? new BValue[]{value} : null;
+            }
+            return cursor++ == 0 ? new BValue[]{new BInteger(0), value} : null;
         }
 
         @Override
-        public BValue getNext() {
-            return cursor++ == 0 ? value : null;
-        }
-
-        @Override
-        public BValue getCursor() {
-            return new BInteger(cursor);
+        public BType[] getParamType(int arity) {
+            if (arity == 1) {
+                return new BType[]{BTypes.typeXML};
+            }
+            return new BType[]{BTypes.typeInt, BTypes.typeXML};
         }
 
         @Override

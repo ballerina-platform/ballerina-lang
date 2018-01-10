@@ -229,6 +229,10 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWJSON] = "newjson";
         mnemonics[InstructionCodes.NEWDATATABLE] = "newdatatable";
 
+        mnemonics[InstructionCodes.ITR_NEW] = "itr_new";
+        mnemonics[InstructionCodes.ITR_HAS_NEXT] = "itr_has_next";
+        mnemonics[InstructionCodes.ITR_NEXT] = "itr_next";
+
         mnemonics[InstructionCodes.IRET] = "iret";
         mnemonics[InstructionCodes.FRET] = "fret";
         mnemonics[InstructionCodes.SRET] = "sret";

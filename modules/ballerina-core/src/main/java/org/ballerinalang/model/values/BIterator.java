@@ -17,33 +17,31 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+
 /**
- * Iterator for Ballerina Collections.
+ * {@code {@link BIterator}} represents a Iterator of a Ballerina {@code {@link BCollection}}.
  *
  * @since 0.96.0
  */
-public interface BIterator {
+public interface BIterator extends BRefType {
 
     /**
-     * Get ID of the iterator.
+     * Get the array of next value for given argument arity.
      *
-     * @return iterator ID
+     * @param arity Number of arguments
+     * @return array of next value for given argument arity
      */
-    String getID();
+    BValue[] getNext(int arity);
 
     /**
-     * Get next value.
+     * Get the array of types supported for given argument arity.
      *
-     * @return next value
+     * @param arity Number of arguments
+     * @return supported types as an array
      */
-    BValue getNext();
-
-    /**
-     * Get current cursor value.
-     *
-     * @return current cursor
-     */
-    BValue getCursor();
+    BType[] getParamType(int arity);
 
     /**
      * Checks collection has a next value.
@@ -51,4 +49,26 @@ public interface BIterator {
      * @return true, if has a next value, false otherwise
      */
     boolean hasNext();
+
+    /* Default implementation */
+
+    @Override
+    default String stringValue() {
+        return null;
+    }
+
+    @Override
+    default BType getType() {
+        return BTypes.typeIterator;
+    }
+
+    @Override
+    default BValue copy() {
+        return null;
+    }
+
+    @Override
+    default Object value() {
+        return null;
+    }
 }

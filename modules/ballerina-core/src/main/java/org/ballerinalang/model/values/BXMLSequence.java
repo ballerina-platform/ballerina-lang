@@ -19,6 +19,7 @@ package org.ballerinalang.model.values;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.util.BLangConstants;
@@ -26,12 +27,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import javax.xml.namespace.QName;
 
 import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
@@ -44,8 +41,7 @@ import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 public final class BXMLSequence extends BXML<BRefValueArray> {
 
     private BRefValueArray sequence;
-    private Map<String, BIterator> iteratorMap = new HashMap<>();
-    
+
     /**
      * Create an empty xml sequence.
      */
@@ -435,41 +431,39 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
     }
 
     @Override
-    public String newIterator() {
-        BXMLSequenceIterator iterator = new BXMLSequenceIterator(this);
-        iteratorMap.put(iterator.id, iterator);
-        return iterator.id;
+    public BIterator newIterator() {
+        return new BXMLSequenceIterator(this);
     }
 
-    @Override
-    public BIterator getIterator(String id) {
-        return iteratorMap.get(id);
-    }
+    /**
+     * {@code {@link BXMLSequenceIterator }} provides iterator for xml items..
+     *
+     * @since 0.96.0
+     */
+    static class BXMLSequenceIterator implements BIterator {
 
-    private class BXMLSequenceIterator implements BIterator {
-
-        final String id;
         BXMLSequence value;
         int cursor = 0;
 
-        public BXMLSequenceIterator(BXMLSequence bxmlSequence) {
-            id = UUID.randomUUID().toString();
+        BXMLSequenceIterator(BXMLSequence bxmlSequence) {
             value = bxmlSequence;
         }
 
         @Override
-        public String getID() {
-            return id;
+        public BValue[] getNext(int arity) {
+            if (arity == 1) {
+                return new BValue[]{value.sequence.get(cursor++)};
+            }
+            int cursor = this.cursor++;
+            return new BValue[]{new BInteger(cursor), value.sequence.get(cursor)};
         }
 
         @Override
-        public BValue getNext() {
-            return value.sequence.get(cursor++);
-        }
-
-        @Override
-        public BValue getCursor() {
-            return new BInteger(cursor);
+        public BType[] getParamType(int arity) {
+            if (arity == 1) {
+                return new BType[]{BTypes.typeXML};
+            }
+            return new BType[]{BTypes.typeInt, BTypes.typeXML};
         }
 
         @Override

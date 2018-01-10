@@ -37,20 +37,18 @@ public class BTypes {
     public static BType typeConnector = new BConnectorType(TypeConstants.CONNECTOR_TNAME, null);
     public static BType typeNull = new BNullType(TypeConstants.NULL_TNAME, null);
     public static BType typeXMLAttributes = new BXMLAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME, null);
+    public static BType typeIterator = new BIteratorType(TypeConstants.ITERATOR_TNAME, null);
 
     private BTypes() {
     }
 
     public static boolean isValueType(BType type) {
-        if (type == BTypes.typeInt ||
+        return type == BTypes.typeInt ||
                 type == BTypes.typeFloat ||
                 type == BTypes.typeString ||
                 type == BTypes.typeBoolean ||
-                type == BTypes.typeBlob) {
-            return true;
-        }
+                type == BTypes.typeBlob;
 
-        return false;
     }
 
     public static BType getTypeFromName(String typeName) {

@@ -254,7 +254,6 @@ public interface InstructionCodes {
     int ITR_HAS_NEXT = 221;
     int ITR_NEXT = 222;
 
-    int REG_CP = 230;
     int IRET = 231;
     int FRET = 232;
     int SRET = 233;

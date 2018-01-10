@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
@@ -25,13 +26,11 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -50,8 +49,6 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final Lock readLock = lock.readLock();
     private final Lock writeLock = lock.writeLock();
-
-    private Map<String, BIterator> iteratorMap = new HashMap<>();
 
     public BMap() {
         map =  new LinkedHashMap<>();
@@ -178,7 +175,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
 
     @Override
     public BValue copy() {
-        BMap newMap = BTypes.typeMap.getEmptyValue();
+        BMap<K, BValue> newMap = BTypes.typeMap.getEmptyValue();
         for (Map.Entry<K, V> entry: map.entrySet()) {
             BValue value = entry.getValue();
             newMap.put(entry.getKey(), value == null ? null : value.copy());
@@ -206,62 +203,45 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     }
 
     @Override
-    public String newIterator() {
-        BMapIterator iterator = new BMapIterator(this);
-        iteratorMap.put(iterator.id, iterator);
-        return iterator.id;
-    }
-
-    @Override
-    public BIterator getIterator(String id) {
-        return iteratorMap.get(id);
+    public BIterator newIterator() {
+        return new BMapIterator<>(this);
     }
 
     /**
-     * Implementation of Ballerina Map Iterator.
+     * {@code {@link BMapIterator}} provides iterator implementation for map values.
      *
      * @since 0.96.0
      */
-    class BMapIterator implements BIterator {
+    static class BMapIterator<K, V extends BValue> implements BIterator {
 
-        final String id;
-        BMap collection;
-        Iterator iterator;
-        BString currentCursor;
-        boolean isCursorRead;
+        BMap<K, V> collection;
+        Iterator<Map.Entry<K, V>> iterator;
 
-        public BMapIterator(BMap value) {
-            id = UUID.randomUUID().toString();
+        BMapIterator(BMap<K, V> value) {
             collection = value;
-            iterator = collection.keySet().iterator();
+            iterator = collection.map.entrySet().iterator();
         }
 
         @Override
-        public String getID() {
-            return id;
-        }
-
-        @Override
-        public BValue getNext() {
-            BValue value = collection.get(currentCursor.stringValue());
-            isCursorRead = false;
-            currentCursor = null;
-            return value;
-        }
-
-        @Override
-        public BValue getCursor() {
-            if (isCursorRead) {
-                return currentCursor;
+        public BValue[] getNext(int arity) {
+            Map.Entry<K, V> next = iterator.next();
+            if (arity == 1) {
+                return new BValue[]{next.getValue()};
             }
-            isCursorRead = true;
-            currentCursor = iterator.hasNext() ? new BString((String) iterator.next()) : null;
-            return currentCursor;
+            return new BValue[]{new BString((String) next.getKey()), next.getValue()};
+        }
+
+        @Override
+        public BType[] getParamType(int arity) {
+            if (arity == 1) {
+                return new BType[]{((BMapType) collection.getType()).getElementType()};
+            }
+            return new BType[]{BTypes.typeString, ((BMapType) collection.getType()).getElementType()};
         }
 
         @Override
         public boolean hasNext() {
-            return isCursorRead || iterator.hasNext();
+            return iterator.hasNext();
         }
     }
 }

@@ -36,11 +36,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.StringJoiner;
-import java.util.UUID;
 
 /**
  * {@code BJSON} represents a JSON value in Ballerina.
@@ -59,8 +56,6 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
 
     // Output stream to write message out to the socket
     private OutputStream outputStream;
-
-    private Map<String, BIterator> iteratorMap = new HashMap<>();
 
     /**
      * Initialize a {@link BJSON} from a {@link JsonNode} object.
@@ -270,33 +265,25 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     }
 
     @Override
-    public String newIterator() {
-        BJSONIterator iterator = new BJSONIterator(this);
-        iteratorMap.put(iterator.id, iterator);
-        return iterator.id;
-    }
-
-    @Override
-    public BIterator getIterator(String id) {
-        return iteratorMap.get(id);
+    public BIterator newIterator() {
+        return new BJSONIterator(this);
     }
 
     /**
+     * {@code {@link BJSONIterator}} provides iterator implementation for json values.
+     *
      * @since 0.96.0
      */
-    class BJSONIterator implements BIterator {
+    static class BJSONIterator implements BIterator {
 
-        final String id;
         BJSON collection;
-        boolean isJSONArray;
         // Fields for JSON Object iteration.
         Iterator iterator;
         // Fields for JSON Array iteration.
-        int size;
-        int cursor = 0;
+        boolean isJSONArray;
+        int size, cursor = 0;
 
-        public BJSONIterator(BJSON value) {
-            id = UUID.randomUUID().toString();
+        BJSONIterator(BJSON value) {
             collection = value;
             if (collection.type.getTag() == TypeTags.ARRAY_TAG || collection.value().isArray()) {
                 isJSONArray = true;     // This is a JSON Array. Index will be a int.
@@ -307,22 +294,28 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
         }
 
         @Override
-        public String getID() {
-            return id;
-        }
-
-        @Override
-        public BValue getNext() {
+        public BValue[] getNext(int arity) {
             if (isJSONArray) {
-                return new BJSON(collection.value.get(cursor++));
+                long cursor = this.cursor++;
+                if (arity == 1) {
+                    return new BValue[]{new BJSON(collection.value.get((int) cursor))};
+                } else {
+                    return new BValue[]{new BInteger(cursor), new BJSON(collection.value.get((int) cursor))};
+                }
             }
-            return new BJSON(collection.value.get((String) iterator.next()));
+            if (arity == 1) {
+                return new BValue[]{new BJSON(collection.value.get((String) iterator.next()))};
+            }
+            return null;
         }
 
         @Override
-        public BValue getCursor() {
-            if (isJSONArray) {
-                return new BInteger(cursor);
+        public BType[] getParamType(int arity) {
+            if (arity == 1) {
+                return new BType[]{BTypes.typeJSON};
+            }
+            if (arity == 2 && isJSONArray) {
+                return new BType[]{BTypes.typeInt, BTypes.typeJSON};
             }
             return null;
         }

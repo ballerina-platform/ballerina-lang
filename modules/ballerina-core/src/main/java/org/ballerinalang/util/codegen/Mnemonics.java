@@ -43,7 +43,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.BCONST_1] = "bconst_1";
         mnemonics[InstructionCodes.RCONST_NULL] = "rconst_null";
 
-        mnemonics[InstructionCodes.REG_CP] = "reg_cp";
         mnemonics[InstructionCodes.IMOVE] = "imove";
         mnemonics[InstructionCodes.FMOVE] = "fmove";
         mnemonics[InstructionCodes.SMOVE] = "smove";

@@ -78,6 +78,7 @@ import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.Instruction.InstructionACALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
+import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionTCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
@@ -323,9 +324,6 @@ public class BLangVM {
                 case InstructionCodes.RCONST_NULL:
                     i = operands[0];
                     sf.refRegs[i] = null;
-                    break;
-                case InstructionCodes.REG_CP:
-                    copyRegistryValue(sf, operands[0], operands[1], operands[2]);
                     break;
 
                 case InstructionCodes.IMOVE:
@@ -771,7 +769,7 @@ public class BLangVM {
                 case InstructionCodes.ITR_NEW:
                 case InstructionCodes.ITR_NEXT:
                 case InstructionCodes.ITR_HAS_NEXT:
-                    execIteratorOperation(sf, opcode, operands);
+                    execIteratorOperation(sf, instruction);
                     break;
                 default:
                     throw new UnsupportedOperationException();
@@ -2252,65 +2250,68 @@ public class BLangVM {
         }
     }
 
-    private void execIteratorOperation(StackFrame sf, int opcode, int[] operands) {
-        BCollection collection = (BCollection) sf.refRegs[operands[0]];
-        if (collection == null) {
-            handleNullRefError();
-            return;
-        }
-        int j = operands[1];
-        int k, l;
-        String iteratorID;
+    private void execIteratorOperation(StackFrame sf, Instruction instruction) {
+        int i, j;
+        BCollection collection;
         BIterator iterator;
-        switch (opcode) {
+        InstructionIteratorNext nextInstruction;
+        switch (instruction.getOpcode()) {
             case InstructionCodes.ITR_NEW:
-                sf.stringRegs[j] = collection.newIterator();
+                i = instruction.getOperands()[0];   // collection
+                j = instruction.getOperands()[1];   // iterator variable (ref) index.
+                collection = (BCollection) sf.refRegs[i];
+                if (collection == null) {
+                    handleNullRefError();
+                    return;
+                }
+                sf.refRegs[j] = collection.newIterator();
                 break;
             case InstructionCodes.ITR_HAS_NEXT:
-                k = operands[2];
-                l = operands[3];
-                iteratorID = sf.stringRegs[j];
-                iterator = collection.getIterator(iteratorID);
-                if (iterator == null) {     // This is an unlikely event.
-                    sf.intRegs[k] = 0;
-                    sf.refRegs[l] = null;
+                i = instruction.getOperands()[0];   // iterator
+                j = instruction.getOperands()[1];   // boolean variable index to store has next result
+                iterator = (BIterator) sf.refRegs[i];
+                if (iterator == null) {
+                    sf.intRegs[j] = 0;
                     return;
                 }
-                sf.intRegs[k] = iterator.hasNext() ? 1 : 0;
-                sf.refRegs[l] = (BRefType) iterator.getCursor();
+                sf.intRegs[j] = iterator.hasNext() ? 1 : 0;
                 break;
             case InstructionCodes.ITR_NEXT:
-                k = operands[2];
-                iteratorID = sf.stringRegs[j];
-                iterator = collection.getIterator(iteratorID);
-                if (iterator == null) {     // This is an unlikely event.
-                    sf.refRegs[k] = null;
+                nextInstruction = (InstructionIteratorNext) instruction;
+                iterator = (BIterator) sf.refRegs[nextInstruction.iteratorIndex];
+                if (iterator == null) {
                     return;
                 }
-                sf.refRegs[k] = (BRefType) iterator.getNext();
+                BType[] varTypes = iterator.getParamType(nextInstruction.arity);
+                BValue[] values = iterator.getNext(nextInstruction.arity);
+                copyValuesToRegistries(sf, varTypes, values, nextInstruction.retRegs);
                 break;
         }
     }
 
-    private void copyRegistryValue(StackFrame sf, int typeTag, int source, int target) {
-        switch (typeTag) {
-            case TypeTags.INT_TAG:
-                sf.longRegs[target] = sf.longRegs[source];
-                break;
-            case TypeTags.FLOAT_TAG:
-                sf.doubleRegs[target] = sf.doubleRegs[source];
-                break;
-            case TypeTags.STRING_TAG:
-                sf.stringRegs[target] = sf.stringRegs[source];
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                sf.intRegs[target] = sf.intRegs[source];
-                break;
-            case TypeTags.BLOB_TAG:
-                sf.byteRegs[target] = sf.byteRegs[source];
-                break;
-            default:
-                sf.refRegs[target] = sf.refRegs[source];
+    private void copyValuesToRegistries(StackFrame sf, BType[] varTypes, BValue[] values, int[] targets) {
+        for (int i = 0; i < varTypes.length; i++) {
+            BValue source = values[i];
+            int target = targets[i];
+            switch (varTypes[i].getTag()) {
+                case TypeTags.INT_TAG:
+                    sf.longRegs[target] = ((BInteger) source).intValue();
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    sf.doubleRegs[target] = ((BFloat) source).floatValue();
+                    break;
+                case TypeTags.STRING_TAG:
+                    sf.stringRegs[target] = source.stringValue();
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    sf.intRegs[target] = ((BBoolean) source).booleanValue() ? 1 : 0;
+                    break;
+                case TypeTags.BLOB_TAG:
+                    sf.byteRegs[target] = ((BBlob) source).blobValue();
+                    break;
+                default:
+                    sf.refRegs[target] = (BRefType) source;
+            }
         }
     }
 

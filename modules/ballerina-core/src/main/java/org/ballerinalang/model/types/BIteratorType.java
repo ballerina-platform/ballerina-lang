@@ -15,19 +15,38 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.model.values;
+package org.ballerinalang.model.types;
+
+import org.ballerinalang.model.values.BIterator;
+import org.ballerinalang.model.values.BValue;
 
 /**
- * {@code {@link BCollection}} represents a collection in Ballerina.
+ * {@code BIteratorType} represents the type of iterator in ballerina.
  *
  * @since 0.96.0
  */
-public interface BCollection {
+public class BIteratorType extends BType {
 
-    /**
-     * Create new Iterator for this collection.
-     *
-     * @return created unique iterator ID
-     */
-    BIterator newIterator();
+    BIteratorType(String typeName, String pkgPath) {
+        super(typeName, pkgPath, BIterator.class);
+    }
+
+    public <V extends BValue> V getZeroValue() {
+        return null;
+    }
+
+    @Override
+    public <V extends BValue> V getEmptyValue() {
+        return null;
+    }
+
+    @Override
+    public TypeSignature getSig() {
+        return null;
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.ITERATOR_TAG;
+    }
 }
