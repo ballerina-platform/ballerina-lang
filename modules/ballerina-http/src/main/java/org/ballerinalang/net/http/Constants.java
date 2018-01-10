@@ -135,7 +135,7 @@ public class Constants {
     public static final String EXPOSE_HEADERS = "exposeHeaders";
     public static final String PREFLIGHT_RESOURCES = "PREFLIGHT_RESOURCES";
     public static final String RESOURCES_CORS = "RESOURCES_CORS";
-    public static final String LISTENER_INTERFACE_ID = "LISTENER_INTERFACE_ID";
+    public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
 
     public static final String CONNECTOR_NAME = "HttpClient";
 
