@@ -114,10 +114,49 @@
     margin: 0 5px;
 }
 
+.connector-list {
+    width:210px;
+    overflow-y: hidden;
+    height: 30px;
+	transition-property: all;
+	transition-duration: 0.4s;
+	transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+}
+
+.connector-list-hidden {
+    height: 0;
+    overflow:hidden;
+    transition-property: all;
+	transition-duration: 0.4s;
+	transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+}
+
+.connector-select-hidden {
+    height: 0;
+    overflow:hidden;
+    opacity: 0;
+    transition-property: all;
+	transition-duration: 0.4s;
+	transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+}
+
 .connector-select {
     width:210px;
-    height: 300px; 
-    overflow:hidden;
+    overflow-y: hidden;
+    height: 300px;
+    opacity: 1;
+	transition-property: all;
+	transition-duration: 0.4s;
+	transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+}
+
+@-webkit-keyframes connector-appear {
+    0% { height: 0%;}
+    100% { opacity: 100%;}
+}
+@-moz-keyframes connector-appear {
+    0% { height: 0%;}
+    100% { opacity: 100%;}
 }
 
 .connector-select input{
