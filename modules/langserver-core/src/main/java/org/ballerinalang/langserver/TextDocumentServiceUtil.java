@@ -128,7 +128,7 @@ public class TextDocumentServiceUtil {
         Path filePath = getPath(uri);
         Path fileNamePath = filePath.getFileName();
         String fileName = "";
-        if(fileNamePath != null) {
+        if (fileNamePath != null) {
             fileName = fileNamePath.toString();
         }
 
