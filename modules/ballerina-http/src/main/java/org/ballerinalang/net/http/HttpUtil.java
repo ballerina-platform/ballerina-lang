@@ -915,11 +915,11 @@ public class HttpUtil {
 
     public static ChunkConfig getChunkConfig(String chunking) {
         ChunkConfig chunkConfig;
-        if ("auto".equalsIgnoreCase(chunking)) {
+        if (Constants.CHUNKING_AUTO.equalsIgnoreCase(chunking)) {
             chunkConfig = ChunkConfig.AUTO;
-        } else if ("always".equalsIgnoreCase(chunking)) {
+        } else if (Constants.CHUNKING_ALWAYS.equalsIgnoreCase(chunking)) {
             chunkConfig = ChunkConfig.ALWAYS;
-        } else if ("never".equalsIgnoreCase(chunking)) {
+        } else if (Constants.CHUNKING_NEVER.equalsIgnoreCase(chunking)) {
             chunkConfig = ChunkConfig.NEVER;
         } else {
             throw new BallerinaConnectorException("Invalid configuration found for Transfer-Encoding : " + chunking);
@@ -1002,12 +1002,13 @@ public class HttpUtil {
             List<Parameter> serverParams = new ArrayList();
             Parameter serverCiphers;
             if (sslEnabledProtocolsAttrVal != null && sslEnabledProtocolsAttrVal.getStringValue() != null) {
-                serverCiphers = new Parameter("sslEnabledProtocols", sslEnabledProtocolsAttrVal.getStringValue());
+                serverCiphers = new Parameter(Constants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS,
+                        sslEnabledProtocolsAttrVal.getStringValue());
                 serverParams.add(serverCiphers);
             }
 
             if (ciphersAttrVal != null && ciphersAttrVal.getStringValue() != null) {
-                serverCiphers = new Parameter("ciphers", ciphersAttrVal.getStringValue());
+                serverCiphers = new Parameter(Constants.ANN_CONFIG_ATTR_CIPHERS, ciphersAttrVal.getStringValue());
                 serverParams.add(serverCiphers);
             }
 

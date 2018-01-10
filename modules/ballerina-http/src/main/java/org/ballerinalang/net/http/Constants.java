@@ -60,6 +60,8 @@ public class Constants {
     public static final String PKCS_STORE_TYPE = "PKCS12";
     public static final String CHUNKED = "chunked";
     public static final String CHUNKING_AUTO = "auto";
+    public static final String CHUNKING_ALWAYS = "always";
+    public static final String CHUNKING_NEVER = "never";
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
 
