@@ -91,3 +91,62 @@ function testConstrainedMapConstrainedWithValueTypeArray() (int, int) {
     int[] rIntArr = testMap.item;
     return rIntArr[0], rIntArr[1];
 }
+
+function testConstrainedMapIntTypePositive() (int, int) {
+    map<int> testMap = {};
+    testMap["item_1"] = 36;
+    testMap["item_2"] = 63;
+    int item_1 = testMap["item_1"];
+    int item_2 = testMap["item_2"];
+    return item_1, item_2;
+}
+
+function testConstrainedMapIntTypeNegative() (int, int) {
+    map<int> testMap = {};
+    testMap["item_1"] = 36;
+    testMap["item_2"] = 63;
+    int item_1 = testMap["item_1_n"];
+    int item_2 = testMap["item_2_n"];
+    return item_1, item_2;
+}
+
+
+function testConstrainedMapFloatTypePositive() (float, float) {
+    float dummy = 6.9;
+    map<float> testMap = {};
+    testMap["item_1"] = 3.6;
+    testMap["item_2"] = 6.3;
+    float item_1 = testMap["item_1"];
+    float item_2 = testMap["item_2"];
+    dummy = 9.6;
+    return item_1, item_2;
+}
+
+function testConstrainedMapFloatTypeNegative() (float, float) {
+    float dummy = 6.9;
+    map<float> testMap = {};
+    testMap["item_1"] = 3.6;
+    testMap["item_2"] = 6.3;
+    float item_1 = testMap["item_1_n"];
+    float item_2 = testMap["item_2_n"];
+    dummy = 9.6;
+    return item_1, item_2;
+}
+
+function testConstrainedMapBooleanTypePositive() (boolean, boolean) {
+    map<boolean> testMap = {};
+    testMap["item_1"] = true;
+    testMap["item_2"] = false;
+    boolean item_1 = testMap["item_1"];
+    boolean item_2 = testMap["item_2"];
+    return item_1, item_2;
+}
+
+function testConstrainedMapBooleanTypeNegative() (boolean, boolean) {
+    map<boolean> testMap = {};
+    testMap["item_1"] = true;
+    testMap["item_2"] = false;
+    boolean item_1 = testMap["item_1_n"];
+    boolean item_2 = testMap["item_2_n"];
+    return item_1, item_2;
+}

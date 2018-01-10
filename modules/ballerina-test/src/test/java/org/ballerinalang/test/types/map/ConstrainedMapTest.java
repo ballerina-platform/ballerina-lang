@@ -22,6 +22,8 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -145,6 +147,78 @@ public class ConstrainedMapTest {
         Assert.assertTrue(returns[1] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 25);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 30);
+    }
+
+    @Test(description = "Test Map constrained with value type int positive.")
+    public void testConstrainedMapIntTypePositive() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testConstrainedMapIntTypePositive");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 36);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 63);
+    }
+
+    @Test(description =  "Test Map constrained with value type int negative.")
+    public void testConstrainedMapIntTypeNegative() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testConstrainedMapIntTypeNegative");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+    }
+
+    @Test(description = "Test Map constrained with value type float positive.")
+    public void testConstrainedMapFloatTypePositive() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testConstrainedMapFloatTypePositive");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertTrue(returns[0] instanceof BFloat);
+        Assert.assertTrue(returns[1] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 3.6);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 6.3);
+    }
+
+    @Test(description =  "Test Map constrained with value type float negative.")
+    public void testConstrainedMapFloatTypeNegative() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testConstrainedMapFloatTypeNegative");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertTrue(returns[0] instanceof BFloat);
+        Assert.assertTrue(returns[1] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 0.0);
+    }
+
+    @Test(description = "Test Map constrained with value type boolean positive.")
+    public void testConstrainedMapBooleanTypePositive() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testConstrainedMapBooleanTypePositive");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(returns[1] instanceof BBoolean);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+    }
+
+    @Test(description =  "Test Map constrained with value type boolean negative.")
+    public void testConstrainedMapBooleanTypeNegative() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testConstrainedMapBooleanTypeNegative");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(returns[1] instanceof BBoolean);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
     }
 
 }
