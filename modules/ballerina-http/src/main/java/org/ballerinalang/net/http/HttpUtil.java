@@ -1001,12 +1001,12 @@ public class HttpUtil {
 
             List<Parameter> serverParams = new ArrayList();
             Parameter serverCiphers;
-            if (sslEnabledProtocolsAttrVal.getStringValue() != null) {
+            if (sslEnabledProtocolsAttrVal != null && sslEnabledProtocolsAttrVal.getStringValue() != null) {
                 serverCiphers = new Parameter("sslEnabledProtocols", sslEnabledProtocolsAttrVal.getStringValue());
                 serverParams.add(serverCiphers);
             }
 
-            if (ciphersAttrVal.getStringValue() != null) {
+            if (ciphersAttrVal != null && ciphersAttrVal.getStringValue() != null) {
                 serverCiphers = new Parameter("ciphers", ciphersAttrVal.getStringValue());
                 serverParams.add(serverCiphers);
             }
