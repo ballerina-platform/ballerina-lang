@@ -1801,7 +1801,9 @@ class SizingUtil {
         let leftMargin = 0;
         nodes.forEach((node) => {
             if (node.viewState.components['left-margin']) {
-                leftMargin += node.viewState.components['left-margin'].w;
+                if (node.viewState.components['left-margin'].w > leftMargin) {
+                    leftMargin = node.viewState.components['left-margin'].w;
+                }
             }
         });
         return leftMargin;
