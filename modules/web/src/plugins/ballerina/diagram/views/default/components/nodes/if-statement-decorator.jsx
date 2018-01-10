@@ -28,6 +28,7 @@ import ActiveArbiter from '../decorators/active-arbiter';
 import Breakpoint from '../decorators/breakpoint';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import ElseStatementDecorator from './else-statement-decorator';
+import ArrowDecorator from '../decorators/arrow-decorator';
 
 /**
  * Wraps other UI elements and provide box with a heading.
@@ -283,8 +284,14 @@ class IfStatementDecorator extends React.Component {
                 }}
             >
                 <polyline
-                    points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y} ${p6X}, ${p6Y}`}
+                    points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y}`}
                     className='flowchart-background-empty-rect'
+                />
+                <ArrowDecorator
+                    start={{ x: p5X, y: p5Y }}
+                    end={{ x: p6X, y: p6Y }}
+                    classNameArrow='flowchart-action-arrow'
+                    classNameArrowHead='flowchart-action-arrow-head'
                 />
                 <polyline
                     points={`${p2X},${p2Y} ${p8X},${p8Y} ${p3X},${p3Y} ${p9X}, ${p9Y} ${p2X},${p2Y}`}

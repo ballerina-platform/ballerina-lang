@@ -79,7 +79,7 @@ class Arrow extends React.Component {
                     className={className}
                 />
                 <polygon
-                    points={`-${arrowSize},-${arrowSize} 0,0 -${arrowSize},${arrowSize}`}
+                    points={`-${arrowSize},-${arrowSize * (7 / 10)} 0,0 -${arrowSize},${arrowSize * (7 / 10)}`}
                     transform={`translate(${arrowHeadX}, ${arrowHeadY})
                                 rotate(${this.getArrowAngle(start, end)}, 0, 0)`}
                     className={classNameArrowHead}
