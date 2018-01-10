@@ -27,6 +27,11 @@ import org.testng.annotations.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
+import static org.ballerinalang.test.utils.debug.Step.RESUME;
+import static org.ballerinalang.test.utils.debug.Step.STEP_IN;
+import static org.ballerinalang.test.utils.debug.Step.STEP_OUT;
+import static org.ballerinalang.test.utils.debug.Step.STEP_OVER;
+
 /**
  * Test Cases for {@link org.ballerinalang.util.debugger.VMDebugManager}.
  */
@@ -49,10 +54,11 @@ public class VMDebuggerTest {
 
     @Test(description = "Testing Resume with break points.")
     public void testResume() {
-        BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".", FILE, 3, 41, 35);
-        Step[] debugCommand = {Step.RESUME, Step.RESUME, Step.RESUME, Step.RESUME};
+        BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".", FILE,
+                3, 16, 27, 28, 31, 33, 35, 41, 42, 43, 44, 45);
+        Step[] debugCommand = {RESUME, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME};
         BreakPointDTO[] expectedBreakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
-                FILE, 3, 41, 35, 41);
+                FILE, 3, 16, 41, 28, 35, 42, 43);
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints,
                                   expectedBreakPoints, debugCommand);
     }
@@ -69,10 +75,10 @@ public class VMDebuggerTest {
     @Test(description = "Testing Step In.")
     public void testStepIn() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".", FILE, 5, 8, 41);
-        Step[] debugCommand = {Step.STEP_IN, Step.RESUME, Step.RESUME, Step.STEP_IN, Step.STEP_IN, Step.RESUME,
-                Step.RESUME, Step.RESUME};
+        Step[] debugCommand = {STEP_IN, STEP_IN, STEP_IN, STEP_IN, STEP_IN, STEP_IN, RESUME, STEP_IN,
+                STEP_IN, STEP_IN, STEP_IN, STEP_IN, STEP_IN, STEP_IN, STEP_IN, STEP_IN, STEP_IN, RESUME};
         BreakPointDTO[] expectedBreakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
-                FILE, 5, 13, 5, 8, 41, 25, 41, 8);
+                FILE, 5, 12, 13, 14, 15, 19, 13, 8, 41, 25, 26, 28, 29, 35, 36, 42, 43, 9);
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints,
                                   expectedBreakPoints, debugCommand);
     }
@@ -80,9 +86,9 @@ public class VMDebuggerTest {
     @Test(description = "Testing Step Out.")
     public void testStepOut() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".", FILE, 25);
-        Step[] debugCommand = {Step.STEP_OUT, Step.STEP_OUT, Step.RESUME};
+        Step[] debugCommand = {STEP_OUT, STEP_OUT, RESUME};
         BreakPointDTO[] expectedBreakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
-                FILE, 25, 41, 8);
+                FILE, 25, 42, 9);
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints,
                                   expectedBreakPoints, debugCommand);
     }
@@ -90,8 +96,7 @@ public class VMDebuggerTest {
     @Test(description = "Testing Step Over.")
     public void testStepOver() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".", FILE, 3);
-        Step[] debugCommand = {Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER,
-                Step.STEP_OVER, Step.RESUME};
+        Step[] debugCommand = {STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, RESUME};
         BreakPointDTO[] expectedBreakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
                 FILE, 3, 5, 6, 8, 9, 10);
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints,
@@ -101,10 +106,9 @@ public class VMDebuggerTest {
     @Test(description = "Testing Step over in IfCondition.")
     public void testStepOverIfStmt() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".", FILE, 26);
-        Step[] debugCommand = {Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER,
-                Step.STEP_OVER, Step.RESUME};
+        Step[] debugCommand = {STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, RESUME};
         BreakPointDTO[] expectedBreakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
-                FILE, 26, 28, 29, 35, 36, 41);
+                FILE, 26, 28, 29, 35, 36, 42);
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints,
                                   expectedBreakPoints, debugCommand);
     }
@@ -112,8 +116,8 @@ public class VMDebuggerTest {
     @Test(description = "Testing Step over in WhileStmt.")
     public void testStepOverWhileStmt() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".", FILE, 13, 19, 21);
-        Step[] debugCommand = {Step.STEP_OVER, Step.RESUME, Step.RESUME, Step.RESUME, Step.RESUME, Step.RESUME,
-                Step.RESUME, Step.RESUME, Step.RESUME, Step.RESUME, Step.RESUME};
+        Step[] debugCommand = {STEP_OVER, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME,
+                RESUME, RESUME, RESUME};
         BreakPointDTO[] expectedBreakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
                 FILE, 13, 14, 19, 13, 19, 13, 19, 13, 19, 13, 21);
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints,
@@ -124,7 +128,7 @@ public class VMDebuggerTest {
     public void testWhileStatementResume() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
                 "while-statement.bal", 5);
-        Step[] debugCommand = {Step.RESUME, Step.RESUME, Step.RESUME, Step.RESUME, Step.RESUME};
+        Step[] debugCommand = {RESUME, RESUME, RESUME, RESUME, RESUME};
         BreakPointDTO[] expectedBreakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
                 "while-statement.bal", 5, 5, 5, 5, 5);
         VMDebuggerUtil.startDebug("test-src/debugger/while-statement.bal", breakPoints,
@@ -135,9 +139,8 @@ public class VMDebuggerTest {
     public void testTryCatchScenarioForPath() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
                 "try-catch-finally.bal", 22);
-        Step[] debugCommand = {Step.STEP_IN, Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER,
-                Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER,
-                Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER, Step.STEP_OVER, Step.RESUME};
+        Step[] debugCommand = {STEP_IN, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER,
+                STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, RESUME};
         BreakPointDTO[] expectedBreakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
                 "try-catch-finally.bal", 22, 30, 32,
                 34, 35, 36, 37, 38, 46, 47, 48, 53, 58, 59, 61, 63);

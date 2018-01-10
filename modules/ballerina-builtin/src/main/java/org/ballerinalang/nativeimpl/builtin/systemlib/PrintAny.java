@@ -55,7 +55,7 @@ public class PrintAny extends AbstractNativeFunction {
     @Override
     public BValue getRefArgument(Context context, int index) {
         if (index > -1) {
-            return context.getControlStackNew().getCurrentFrame().getRefLocalVars()[index];
+            return context.getControlStack().getCurrentFrame().getRefRegs()[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
