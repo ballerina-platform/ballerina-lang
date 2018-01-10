@@ -751,7 +751,7 @@ public final class BXMLItem extends BXML<OMNode> {
     }
 
     /**
-     * {@code {@link BXMLItemIterator}} provides iterator for xml items..
+     * {@code {@link BXMLItemIterator}} provides iterator for xml items.
      *
      * @since 0.96.0
      */

@@ -28,10 +28,10 @@ import org.ballerinalang.model.types.BTypes;
 public interface BIterator extends BRefType {
 
     /**
-     * Get the array of next value for given argument arity.
+     * Get the array of BValues for next element for given argument arity.
      *
      * @param arity Number of arguments
-     * @return array of next value for given argument arity
+     * @return array of BValues for next element for given argument arity
      */
     BValue[] getNext(int arity);
 

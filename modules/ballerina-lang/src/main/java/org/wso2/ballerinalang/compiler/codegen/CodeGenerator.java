@@ -2507,7 +2507,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         Operand iteratorVar = getLVIndex(TypeTags.ITERATOR);
         Operand conditionVar = getLVIndex(TypeTags.BOOLEAN);
 
-        // Create new Iterator for given collection, and store iterator ID.
+        // Create new Iterator for given collection.
         this.genNode(foreach.collection, env);
         this.emit(InstructionCodes.ITR_NEW, foreach.collection.regIndex, iteratorVar);
 
@@ -2920,7 +2920,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
         this.emit(InstructionCodes.ITR_NEXT, nextOperands.toArray(new Operand[0]));
     }
-
 
     private void visitFunctionPointerLoad(BLangExpression fpExpr, BInvokableSymbol funcSymbol) {
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, funcSymbol.pkgID);

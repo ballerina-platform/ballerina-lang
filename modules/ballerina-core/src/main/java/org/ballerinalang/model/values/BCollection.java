@@ -27,7 +27,7 @@ public interface BCollection {
     /**
      * Create new Iterator for this collection.
      *
-     * @return created unique iterator ID
+     * @return iterator created.
      */
     BIterator newIterator();
 }
