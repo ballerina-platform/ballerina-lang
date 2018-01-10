@@ -25,6 +25,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -161,7 +162,7 @@ public class ConstrainedMapTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 63);
     }
 
-    @Test(description =  "Test Map constrained with value type int negative.")
+    @Test(description = "Test Map constrained with value type int negative.")
     public void testConstrainedMapIntTypeNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult,
                 "testConstrainedMapIntTypeNegative");
@@ -185,7 +186,7 @@ public class ConstrainedMapTest {
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 6.3);
     }
 
-    @Test(description =  "Test Map constrained with value type float negative.")
+    @Test(description = "Test Map constrained with value type float negative.")
     public void testConstrainedMapFloatTypeNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult,
                 "testConstrainedMapFloatTypeNegative");
@@ -209,7 +210,7 @@ public class ConstrainedMapTest {
         Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
     }
 
-    @Test(description =  "Test Map constrained with value type boolean negative.")
+    @Test(description = "Test Map constrained with value type boolean negative.")
     public void testConstrainedMapBooleanTypeNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult,
                 "testConstrainedMapBooleanTypeNegative");
@@ -219,6 +220,30 @@ public class ConstrainedMapTest {
         Assert.assertTrue(returns[1] instanceof BBoolean);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
         Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+    }
+
+    @Test(description = "Test Map constrained with value type blob positive.")
+    public void testConstrainedMapBlobTypePositive() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testConstrainedMapBlobTypePositive");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "hi");
+        Assert.assertEquals(((BString) returns[1]).stringValue(), "ballerina");
+    }
+
+    @Test(description = "Test Map constrained with value type blob negative.")
+    public void testConstrainedMapBlobTypeNegative() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testConstrainedMapBlobTypeNegative");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "");
+        Assert.assertEquals(((BString) returns[1]).stringValue(), "");
     }
 
 }

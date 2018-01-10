@@ -110,7 +110,6 @@ function testConstrainedMapIntTypeNegative() (int, int) {
     return item_1, item_2;
 }
 
-
 function testConstrainedMapFloatTypePositive() (float, float) {
     float dummy = 6.9;
     map<float> testMap = {};
@@ -149,4 +148,34 @@ function testConstrainedMapBooleanTypeNegative() (boolean, boolean) {
     boolean item_1 = testMap["item_1_n"];
     boolean item_2 = testMap["item_2_n"];
     return item_1, item_2;
+}
+
+function testConstrainedMapBlobTypePositive() (string, string) {
+    map<blob> testMap = {};
+    string sitem_1 = "hi";
+    blob bitem_1 = sitem_1.toBlob("UTF-8");
+    string sitem_2 = "ballerina";
+    blob bitem_2 = sitem_2.toBlob("UTF-8");
+    testMap["item_1"] = bitem_1;
+    testMap["item_2"] = bitem_2;
+    blob item_1 = testMap["item_1"];
+    blob item_2 = testMap["item_2"];
+    string rsitem_1 = item_1.toString("UTF-8");
+    string rsitem_2 = item_2.toString("UTF-8");
+    return rsitem_1, rsitem_2;
+}
+
+function testConstrainedMapBlobTypeNegative() (string, string) {
+    map<blob> testMap = {};
+    string sitem_1 = "hi";
+    blob bitem_1 = sitem_1.toBlob("UTF-8");
+    string sitem_2 = "ballerina";
+    blob bitem_2 = sitem_2.toBlob("UTF-8");
+    testMap["item_1"] = bitem_1;
+    testMap["item_2"] = bitem_2;
+    blob item_1 = testMap["item_1_n"];
+    blob item_2 = testMap["item_2_n"];
+    string rsitem_1 = item_1.toString("UTF-8");
+    string rsitem_2 = item_2.toString("UTF-8");
+    return rsitem_1, rsitem_2;
 }
