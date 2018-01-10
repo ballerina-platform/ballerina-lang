@@ -1,15 +1,17 @@
 body {
   padding: 0;
   margin: 0;
+  padding-top: 41px;
 }
 
 #header {
-  height: 40px;
   background-color: #333;
   color: #fff;
   padding: 6px 10px;
+  min-height: 40px;
 }
-#header > a {
+
+#header a {
   color: #fff;
 }
 a.logo {
@@ -37,7 +39,7 @@ a.logo {
   padding: 20px 0;
 }
 
-.left-panel > h3{
+.navbar-header > h3 {
   font-size:16px;
   font-weight: 300;
   padding-left: 10px;
@@ -96,7 +98,7 @@ label.thin-text{
 .light-gray{ color: #999;}
 
 .main-wrapper {
-  padding:30px;
+  padding:20px 40px;
 }
 
 .main-content-wrapper {
@@ -179,4 +181,50 @@ td, th{
 }
 .padding-bottom{
   padding-bottom: 15px;
+}
+.secondary-menu > ul {
+  list-style: none;
+}
+
+.container-full {
+  margin: 0 auto;
+  width: 100%;
+}
+
+.docerina-content {
+    margin-right: 0px;
+}
+
+.navbar-fixed-side {
+    margin: 0;
+}
+
+.package-name-ul > li > a {
+    background-color: #f9f9f9 !important;
+    border-bottom: 0 !important;
+    color: #1a1a1a !important;
+    padding-top: 0px !important;
+    padding-bottom: 10px !important;
+}
+
+.package-list-wrapper {
+    border: 0 !important;
+}
+
+.constructs-ul {
+    list-style: none;
+    padding-left: 20px;
+}
+
+.constructs-ul > li > a {
+    color: #1a1a1a !important;
+}
+
+.construct-inner-items-ul {
+    list-style: none;
+    padding-left: 20px;
+}
+
+.construct-inner-items-ul > li > a {
+    color: #1a1a1a !important;
 }
