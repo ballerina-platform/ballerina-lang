@@ -301,7 +301,7 @@ public class JsonParser {
                         sm.currentQuoteChar = ch;
                         state = STRING_VALUE_STATE;
                     } else if (ch == EOF) {
-                        throw new JsonParserException("unexpected end of JSON document");
+                        throw new JsonParserException("empty JSON document");
                     } else {
                         state = NON_STRING_VALUE_STATE;
                     }
