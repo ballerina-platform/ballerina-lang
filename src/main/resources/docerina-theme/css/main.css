@@ -1,6 +1,8 @@
 body {
   padding: 0;
   margin: 0;
+  height: 100%;
+  overflow: hidden;
 }
 
 #header {
@@ -100,7 +102,7 @@ label.thin-text{
   padding:20px 40px;
 }
 
-.main-wrapper .content {
+#content {
     margin: 0;
     margin-top: 17px;
     padding-bottom: 15px;
@@ -241,6 +243,7 @@ td, th{
 
 .constructs-ul > li.active > a {
     text-decoration: underline;
+    line-height: 1.6;
 }
 
 .construct-inner-items-ul {
@@ -249,8 +252,14 @@ td, th{
 }
 
 .construct-inner-items-ul > li > a {
-    color: #1a1a1a !important;
+    color: #333 !important;
+    line-height: 1.6;
 }
 
-.constructs-wrapper {
+.construct-icon {
+    float: left;
+}
+
+.construct-name {
+    padding-left: 18px;
 }

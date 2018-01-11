@@ -46,38 +46,46 @@
                                 <li>
                                     <!--Package Name-->
                                     {{#if active}}
-                                        <a> {{packageName.name}}</a>
+                                        <a>{{packageName.prefix}}<span class="bold">{{packageName.suffix}}</a>
                                         <div class="constructs-wrapper">
                                             <!--Construct of Package-->
                                             <ul class="constructs-ul">
                                                 {{#each constructs}}
                                                     <li>
                                                         <a href="#{{name}}">
-                                                            <span class="{{icon}}"> </span>
-                                                            {{name}}
-                                                            {{#if isFunction}}
-                                                                ( {{join parameters " , "}} )
-                                                                {{#if returnParams}}
-                                                                ( {{join returnParams " , "}} )
+                                                            <div class="construct-icon">
+                                                                <span class="{{icon}}"> </span>
+                                                            </div>
+                                                            <div class="construct-name">
+                                                                {{name}}
+                                                                {{#if isFunction}}
+                                                                    ( {{join parameters " , "}} )
+                                                                    {{#if returnParams}}
+                                                                    ( {{join returnParams " , "}} )
+                                                                    {{/if}}
                                                                 {{/if}}
-                                                            {{/if}}
-                                                            {{#if isConnector}}
-                                                                ({{#each parameters}}{{dataType}} {{name}}{{#unless
-                                                                        @last}}
-                                                                ,{{/unless}}{{/each}})
-                                                            {{/if}}
+                                                                {{#if isConnector}}
+                                                                    ({{#each parameters}}{{dataType}} {{name}}{{#unless
+                                                                            @last}}
+                                                                    ,{{/unless}}{{/each}})
+                                                                {{/if}}
+                                                            </div>
                                                         </a>
                                                     </li>
                                                     {{#each children}}
                                                         <ul class="construct-inner-items-ul">
                                                             <li>
                                                                 <a href="#{{name}}">
-                                                                    <span class="{{icon}}"> </span>
-                                                                    {{name}}
-                                                                    ( {{join parameters " , "}} )
-                                                                    {{#if returnParams}}
-                                                                    ( {{join returnParams " , "}} )
-                                                                    {{/if}}
+                                                                    <div class="construct-icon">
+                                                                        <span class="{{icon}}"> </span>
+                                                                    </div>
+                                                                    <div class="construct-name">
+                                                                        {{name}}
+                                                                        ( {{join parameters " , "}} )
+                                                                        {{#if returnParams}}
+                                                                        ( {{join returnParams " , "}} )
+                                                                        {{/if}}
+                                                                    </div>
                                                                 </a>
                                                             </li>
                                                         </ul>
