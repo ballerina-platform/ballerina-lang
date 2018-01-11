@@ -1250,18 +1250,29 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addElseBlock(getCurrentPos(ctx), getWS(ctx));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void enterIterateStatement(BallerinaParser.IterateStatementContext ctx) {
+    public void enterForeachStatement(BallerinaParser.ForeachStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.startForeachStatement();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void exitIterateStatement(BallerinaParser.IterateStatementContext ctx) {
+    public void exitForeachStatement(BallerinaParser.ForeachStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.addForeachStatement(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitIntRangeExpression(BallerinaParser.IntRangeExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.addIntRangeExpression(getCurrentPos(ctx), getWS(ctx),
+                ctx.LEFT_PARENTHESIS() == null, ctx.RIGHT_PARENTHESIS() == null);
     }
 
     /**

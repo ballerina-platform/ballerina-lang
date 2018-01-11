@@ -209,4 +209,22 @@ public class Instruction {
             return Mnemonics.getMnem(opcode) + " " + sj.toString();
         }
     }
+
+    /**
+     * {@code {@link InstructionIteratorNext}} represents the ITR_NEXT instruction in Ballerina bytecode.
+     *
+     * @since 0.96.0
+     */
+    public static class InstructionIteratorNext extends Instruction {
+
+        public int iteratorIndex, arity;
+        public int[] retRegs;
+
+        InstructionIteratorNext(int opcode, int iteratorIndex, int arity, int[] retRegs) {
+            super(opcode);
+            this.iteratorIndex = iteratorIndex;
+            this.arity = arity;
+            this.retRegs = retRegs;
+        }
+    }
 }
