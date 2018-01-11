@@ -361,8 +361,8 @@ public class HttpConnectionManager {
 
         // For the moment we don't have to pass it down to transport as we only support
         // chunking. Once we start supporting gzip, deflate, etc, we need to parse down the config.
-        String transferEncoding = options.getStringField(Constants.ENABLE_CHUNKING_INDEX);
-        if (transferEncoding != null) {
+        String transferEncoding = options.getStringField(Constants.TRANSFER_ENCODING);
+        if (transferEncoding != null && !Constants.ANN_CONFIG_ATTR_CHUNKING.equalsIgnoreCase(transferEncoding)) {
             throw new BallerinaConnectorException("Unsupported configuration found for Transfer-Encoding : "
                     + transferEncoding);
         }

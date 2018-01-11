@@ -893,11 +893,10 @@ public class HttpUtil {
 
             // For the moment we don't have to pass it down to transport as we only support
             // chunking. Once we start supporting gzip, deflate, etc, we need to parse down the config.
-            if (transferEncoding != null) {
-                if (!"chunking".equalsIgnoreCase(transferEncoding.getStringValue())) {
-                    throw new BallerinaConnectorException("Unsupported configuration found for Transfer-Encoding : "
-                            + transferEncoding.getStringValue());
-                }
+            if (transferEncoding != null && !Constants.ANN_CONFIG_ATTR_CHUNKING
+                    .equalsIgnoreCase(transferEncoding.getStringValue())) {
+                throw new BallerinaConnectorException("Unsupported configuration found for Transfer-Encoding : "
+                        + transferEncoding.getStringValue());
             }
 
             if (chunking != null) {
