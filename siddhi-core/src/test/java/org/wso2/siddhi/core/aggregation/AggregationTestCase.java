@@ -542,7 +542,7 @@ public class AggregationTestCase {
                 "from stockStream " +
                 "select avg(price) as avgPrice, sum(price) as totalPrice, (price * quantity) as lastTradeValue, " +
                 "count() as count " +
-                "aggregate by timestamp every sec...year ;" +
+                "aggregate by timestamp every day...year ;" +
 
                 "define stream inputStream (symbol string, value int, startTime string, " +
                 "endTime string, perValue string); " +

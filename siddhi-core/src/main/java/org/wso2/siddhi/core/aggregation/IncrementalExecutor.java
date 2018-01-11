@@ -424,7 +424,9 @@ public class IncrementalExecutor implements Executor, Snapshotable {
             eventChunk.add(streamEvent);
             LOG.debug("Event dispatched by " + this.duration + " incremental executor: " + eventChunk.toString());
             table.addEvents(eventChunk, 1);
-            next.execute(eventChunk);
+            if (getNextExecutor() != null) {
+                next.execute(eventChunk);
+            }
         }
         cleanBaseIncrementalValueStore(startTimeOfNewAggregates, aBaseIncrementalValueStore);
     }
@@ -439,7 +441,9 @@ public class IncrementalExecutor implements Executor, Snapshotable {
             }
             LOG.debug("Event dispatched by " + this.duration + " incremental executor: " + eventChunk.toString());
             table.addEvents(eventChunk, noOfEvents);
-            next.execute(eventChunk);
+            if (getNextExecutor() != null) {
+                next.execute(eventChunk);
+            }
         }
         baseIncrementalValueGroupByStore.clear();
     }
