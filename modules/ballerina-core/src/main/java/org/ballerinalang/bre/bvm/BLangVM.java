@@ -92,6 +92,7 @@ import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
+import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
@@ -2977,12 +2978,13 @@ public class BLangVM {
     }
 
     public static void copyValues(StackFrame parent, StackFrame workerSF) {
-        System.arraycopy(parent.longRegs, 0, workerSF.longRegs, 0, parent.longRegs.length);
-        System.arraycopy(parent.doubleRegs, 0, workerSF.doubleRegs, 0, parent.doubleRegs.length);
-        System.arraycopy(parent.intRegs, 0, workerSF.intRegs, 0, parent.intRegs.length);
-        System.arraycopy(parent.stringRegs, 0, workerSF.stringRegs, 0, parent.stringRegs.length);
-        System.arraycopy(parent.byteRegs, 0, workerSF.byteRegs, 0, parent.byteRegs.length);
-        System.arraycopy(parent.refRegs, 0, workerSF.refRegs, 0, parent.refRegs.length);
+        CodeAttributeInfo codeInfo = parent.callableUnitInfo.getDefaultWorkerInfo().getCodeAttributeInfo();
+        System.arraycopy(parent.longRegs, 0, workerSF.longRegs, 0, codeInfo.getMaxLongLocalVars());
+        System.arraycopy(parent.doubleRegs, 0, workerSF.doubleRegs, 0, codeInfo.getMaxDoubleLocalVars());
+        System.arraycopy(parent.intRegs, 0, workerSF.intRegs, 0, codeInfo.getMaxIntLocalVars());
+        System.arraycopy(parent.stringRegs, 0, workerSF.stringRegs, 0, codeInfo.getMaxStringLocalVars());
+        System.arraycopy(parent.byteRegs, 0, workerSF.byteRegs, 0, codeInfo.getMaxByteLocalVars());
+        System.arraycopy(parent.refRegs, 0, workerSF.refRegs, 0, codeInfo.getMaxRefLocalVars());
     }
 
 
