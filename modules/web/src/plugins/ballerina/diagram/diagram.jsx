@@ -170,7 +170,6 @@ class Diagram extends React.Component {
 
         controllers = _.merge(controllers, overlayComponents);
 
-
         const tln = (this.props.model.getTopLevelNodes()) ? this.props.model.getTopLevelNodes() : [];
         const children = getComponentForNodeArray(tln, this.props.mode);
 
@@ -180,6 +179,7 @@ class Diagram extends React.Component {
             dropTarget={this.props.model}
             bBox={viewState.bBox}
             overlayComponents={controllers}
+            disabled={this.props.disabled}
         >
             { children }
             <TopLevelNodes model={this.props.model} />
@@ -192,6 +192,7 @@ Diagram.propTypes = {
     mode: PropTypes.string,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
+    disabled: PropTypes.bool.isRequired,
 };
 
 Diagram.contextTypes = {
@@ -212,6 +213,7 @@ Diagram.childContextTypes = {
 
 Diagram.defaultProps = {
     mode: 'default',
+    disabled: false,
 };
 
 export default Diagram;

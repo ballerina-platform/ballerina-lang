@@ -19,26 +19,25 @@ import _ from 'lodash';
 import log from 'log';
 import Plugin from 'core/plugin/plugin';
 import { listen } from 'vscode-ws-jsonrpc';
+import { setTimeout } from 'timers';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { parseFile, getPathSeperator, getServiceEndpoint } from 'api-client/api-client';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
 import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
 import { EVENTS as WORKSPACE_EVENTS, COMMANDS as WORKSPACE_CMDS } from 'core/workspace/constants';
 import { createOrUpdate, move } from 'core/workspace/fs-util';
-import SourceEditor from 'plugins/ballerina/views/source-editor';
 import { CLASSES } from 'plugins/ballerina/views/constants';
 import Document from 'plugins/ballerina/docerina/document.jsx';
 import Editor from './views/editor-wrapper';
 import { PLUGIN_ID, EDITOR_ID, DOC_VIEW_ID, COMMANDS as COMMAND_IDS, TOOLS as TOOL_IDS,
-            DIALOGS as DIALOG_IDS, EVENTS, VIEWS as VIEW_IDS } from './constants';
+            DIALOGS as DIALOG_IDS, EVENTS } from './constants';
 import OpenProgramDirConfirmDialog from './dialogs/OpenProgramDirConfirmDialog';
 import FixPackageNameOrPathConfirmDialog from './dialogs/FixPackageNameOrPathConfirmDialog';
 import { getLangServerClientInstance } from './langserver/lang-server-client-controller';
-import ToolPaletteView from './tool-palette/tool-palette-view';
 import { isInCorrectPath, getCorrectPackageForPath, getCorrectPathForPackage } from './utils/program-dir-utils';
 import TreeBuilder from './model/tree-builder';
 import FragmentUtils from './utils/fragment-utils';
-import { setTimeout } from 'timers';
+
 
 /**
  * Plugin for Ballerina Lang
@@ -127,15 +126,6 @@ class BallerinaPlugin extends Plugin {
                         return {
                             ballerinaPlugin: this,
                         };
-                    },
-                    previewView: {
-                        component: SourceEditor,
-                        customPropsProvider: () => {
-                            return {
-                                ballerinaPlugin: this,
-                                parseFailed: false,
-                            };
-                        },
                     },
                     tabTitleClass: CLASSES.TAB_TITLE.DESIGN_VIEW,
                     newFileContentProvider: (fileFullPath) => {

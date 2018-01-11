@@ -2716,7 +2716,6 @@
     }
     
     .SplitPane .vertical  {
-        background-color: #FFF;
     }
     
     .swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
@@ -2743,7 +2742,7 @@
     }
     
     .SplitPane .vertical {
-        overflow: auto;
+        overflow: hidden;
     }
     
     .swaggerEditor .SplitPane {
@@ -3981,21 +3980,19 @@
         position: absolute;
         height: 100%;
         width: 100%;
-        background-color: rgba(60, 60, 60, 0.5);
+        background-color: rgba(60, 60, 60, 0.0);
         .error-list {
-            border-left: 5px solid #910a0a;
             position: relative;
             text-align: left;
             padding: 10px;
-            left: 20%;
-            top: 20%;
-            width: 60%;
-            background-color: rgba(60, 60, 60, 1);
-            color: white;
+            width:400px;
+            margin: auto;
+            top: 20px;
+            background-color: #d8d8d8;
             .list-heading {
                 text-align: center;
                 font-size: 16px;
-                margin-bottom: 15px;
+                color:#CC0000;
             }
         }
     }
@@ -4425,4 +4422,10 @@
   
   .grid-background {
     height: 100%;
+  }
+
+  .design-view-disabled {
+      .button-background{
+          color: #a3a3a3 !important;
+      }
   }

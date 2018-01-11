@@ -19,6 +19,7 @@
 
 export const DESIGN_VIEW = 'DESIGN_VIEW';
 export const SOURCE_VIEW = 'SOURCE_VIEW';
+export const SPLIT_VIEW = 'SPLIT_VIEW';
 export const SWAGGER_VIEW = 'SWAGGER_VIEW';
 export const FILE_AST_PROPERTY = 'ast';
 

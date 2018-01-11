@@ -71,7 +71,7 @@ class EditorTabs extends View {
         };
 
         // Binding commands.
-        props.editorPlugin.appContext.command.on('show-split-view', () => {
+        props.editorPlugin.appContext.command.on('show-preview-panel', () => {
             this.setPreviewPanelState(true);
         });
 
@@ -219,9 +219,9 @@ class EditorTabs extends View {
                             autoHide // Hide delay in ms
                             autoHideTimeout={1000}
                         >
-                                <editor.component
-                                    {...finalProps}
-                                />
+                            <editor.component
+                                {...finalProps}
+                            />
                         </Scrollbars>
                     </ErrorBoundary>
                 </TabPane>
