@@ -1,3 +1,5 @@
+import ballerina.net.http;
+
 function forkJoinWithTimeoutTest1() (map) {
     map m = {};
     fork {
