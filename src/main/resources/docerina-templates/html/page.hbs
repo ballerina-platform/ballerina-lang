@@ -27,7 +27,7 @@
 
     <title>Ballerina API Documentation</title>
 </head>
-<body>
+<body data-spy="scroll" data-target=".constructs-wrapper">
 <!-- Fixed navbar -->
 <div id="header" class="navbar navbar-fixed-top">
     <div class="container-full">
@@ -45,45 +45,48 @@
                     <div class="collapse navbar-collapse package-list-wrapper">
                         {{#each links}}
                             <ul class="nav navbar-nav package-name-ul">
-                                <li {{#unless @first}}class="active"{{/unless}}>
+                                <li>
                                     <!--Package Name-->
                                     {{#if active}}
                                         <a> {{packageName.name}}</a>
-                                        <!--Construct of Package-->
-                                        <ul class="constructs-ul">
-                                            {{#each constructs}}
-                                                <li>
-                                                    <a href="#{{name}}">
-                                                        <span class="{{icon}}"> </span>
-                                                        {{name}}
-                                                        {{#if isFunction}}
-                                                            ( {{join parameters " , "}} )
-                                                            {{#if returnParams}}
-                                                            ( {{join returnParams " , "}} )
-                                                            {{/if}}
-                                                        {{/if}}
-                                                        {{#if isConnector}}
-                                                            ({{#each parameters}}{{dataType}} {{name}}{{#unless @last}}
-                                                            ,{{/unless}}{{/each}})
-                                                        {{/if}}
-                                                    </a>
-                                                </li>
-                                                {{#each children}}
-                                                    <ul class="construct-inner-items-ul">
-                                                        <li>
-                                                            <a href="#{{name}}">
-                                                                <span class="{{icon}}"> </span>
-                                                                {{name}}
+                                        <div class="constructs-wrapper">
+                                            <!--Construct of Package-->
+                                            <ul class="constructs-ul">
+                                                {{#each constructs}}
+                                                    <li>
+                                                        <a href="#{{name}}">
+                                                            <span class="{{icon}}"> </span>
+                                                            {{name}}
+                                                            {{#if isFunction}}
                                                                 ( {{join parameters " , "}} )
                                                                 {{#if returnParams}}
                                                                 ( {{join returnParams " , "}} )
                                                                 {{/if}}
-                                                            </a>
-                                                        </li>
-                                                    </ul>
+                                                            {{/if}}
+                                                            {{#if isConnector}}
+                                                                ({{#each parameters}}{{dataType}} {{name}}{{#unless
+                                                                        @last}}
+                                                                ,{{/unless}}{{/each}})
+                                                            {{/if}}
+                                                        </a>
+                                                    </li>
+                                                    {{#each children}}
+                                                        <ul class="construct-inner-items-ul">
+                                                            <li>
+                                                                <a href="#{{name}}">
+                                                                    <span class="{{icon}}"> </span>
+                                                                    {{name}}
+                                                                    ( {{join parameters " , "}} )
+                                                                    {{#if returnParams}}
+                                                                    ( {{join returnParams " , "}} )
+                                                                    {{/if}}
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    {{/each}}
                                                 {{/each}}
-                                            {{/each}}
-                                        </ul>
+                                            </ul>
+                                        </div>
                                     {{else}}
                                         <a href="{{packageName.name}}.html">{{packageName.prefix}}<span
                                                 class="bold">{{packageName.suffix}}</span></a>
