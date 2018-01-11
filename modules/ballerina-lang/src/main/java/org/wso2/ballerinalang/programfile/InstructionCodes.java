@@ -250,7 +250,11 @@ public interface InstructionCodes {
     int NEWJSON = 213;
     int NEWDATATABLE = 215;
 
-    int REG_CP = 230;
+    int NEW_INT_RANGE = 219;
+    int ITR_NEW = 220;
+    int ITR_HAS_NEXT = 221;
+    int ITR_NEXT = 222;
+
     int IRET = 231;
     int FRET = 232;
     int SRET = 233;

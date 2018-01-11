@@ -720,15 +720,25 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitElseClause(BallerinaParser.ElseClauseContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#iterateStatement}.
+	 * Enter a parse tree produced by {@link BallerinaParser#foreachStatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterIterateStatement(BallerinaParser.IterateStatementContext ctx);
+	void enterForeachStatement(BallerinaParser.ForeachStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#iterateStatement}.
+	 * Exit a parse tree produced by {@link BallerinaParser#foreachStatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitIterateStatement(BallerinaParser.IterateStatementContext ctx);
+	void exitForeachStatement(BallerinaParser.ForeachStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#intRangeExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterIntRangeExpression(BallerinaParser.IntRangeExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#intRangeExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitIntRangeExpression(BallerinaParser.IntRangeExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#whileStatement}.
 	 * @param ctx the parse tree

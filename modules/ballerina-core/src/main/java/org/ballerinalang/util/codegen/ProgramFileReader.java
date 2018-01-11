@@ -33,6 +33,7 @@ import org.ballerinalang.natives.NativeUnitLoader;
 import org.ballerinalang.util.codegen.Instruction.InstructionACALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
+import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionTCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
@@ -1385,6 +1386,8 @@ public class ProgramFileReader {
                 case InstructionCodes.JSONNEWARRAY:
                 case InstructionCodes.NEWSTRUCT:
                 case InstructionCodes.NEWCONNECTOR:
+                case InstructionCodes.ITR_NEW:
+                case InstructionCodes.ITR_HAS_NEXT:
                 case InstructionCodes.IRET:
                 case InstructionCodes.FRET:
                 case InstructionCodes.SRET:
@@ -1406,7 +1409,6 @@ public class ProgramFileReader {
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
                     break;
 
-                case InstructionCodes.REG_CP:
                 case InstructionCodes.IALOAD:
                 case InstructionCodes.FALOAD:
                 case InstructionCodes.SALOAD:
@@ -1521,6 +1523,7 @@ public class ProgramFileReader {
                 case InstructionCodes.XML2S:
                 case InstructionCodes.S2JSONX:
                 case InstructionCodes.NULL2S:
+                case InstructionCodes.NEW_INT_RANGE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1595,6 +1598,12 @@ public class ProgramFileReader {
                     packageInfo.addInstruction(new InstructionFORKJOIN(opcode, forkJoinIndexCPIndex,
                             forkJoinIndexCPEntry, timeoutRegIndex, joinVarRegIndex, joinBlockAddr,
                             timeoutVarRegIndex, timeoutBlockAddr));
+                    break;
+                case InstructionCodes.ITR_NEXT:
+                    int iteratorIndex = codeStream.readInt();
+                    retRegs = getArgRegs(codeStream);
+                    packageInfo.addInstruction(new InstructionIteratorNext(opcode, iteratorIndex, retRegs.length,
+                            retRegs));
                     break;
                 default:
                     throw new ProgramFileFormatException("unknown opcode " + opcode +
