@@ -24,6 +24,8 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ChunkConfig;
@@ -35,11 +37,14 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Get executed when the response is available.
  */
 public class HttpOutboundRespListener implements HttpConnectorListener {
+
+    private static final Logger log = LoggerFactory.getLogger(HttpOutboundRespListener.class);
 
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
@@ -71,58 +76,79 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
             outboundResponseMsg.getHttpContentAsync().setMessageListener(httpContent ->
                     this.sourceContext.channel().eventLoop().execute(() -> {
-                if (Util.isLastHttpContent(httpContent)) {
-                    if (!isHeaderWritten) {
-                        if ((chunkConfig == ChunkConfig.ALWAYS)
-                                && Util.isVersionCompatibleForChunking(requestDataHolder.getHttpVersion())) {
-                            Util.setupChunkedRequest(outboundResponseMsg);
-                        } else {
-                            contentLength += httpContent.content().readableBytes();
-                            Util.setupContentLengthRequest(outboundResponseMsg, contentLength);
+                        try {
+                            writeOutboundResponse(outboundResponseMsg, keepAlive, httpContent);
+                        } catch (Exception exception) {
+                            String errorMsg = "Failed to send the outbound response : "
+                                    + exception.getMessage().toLowerCase(Locale.ENGLISH);
+                            log.error(errorMsg, exception);
+                            inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(exception);
                         }
-                        writeOutboundResponseHeaders(outboundResponseMsg, keepAlive);
-                    }
-
-                    if (chunkConfig == ChunkConfig.NEVER) {
-                        for (HttpContent cachedHttpContent : contentList) {
-                            sourceContext.writeAndFlush(cachedHttpContent);
-                        }
-                    }
-                    ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(httpContent);
-                    HttpResponseStatusFuture outboundRespStatusFuture =
-                            inboundRequestMsg.getHttpOutboundRespStatusFuture();
-                    outboundChannelFuture.addListener(genericFutureListener -> {
-                        if (genericFutureListener.cause() != null) {
-                            outboundRespStatusFuture.notifyHttpListener(genericFutureListener.cause());
-                        } else {
-                            outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
-                        }
-                    });
-
-                    if (!keepAlive) {
-                        outboundChannelFuture.addListener(ChannelFutureListener.CLOSE);
-                    }
-                    if (handlerExecutor != null) {
-                        handlerExecutor.executeAtSourceResponseSending(outboundResponseMsg);
-                    }
-                    outboundResponseMsg.removeHttpContentAsyncFuture();
-                    contentList.clear();
-                    contentLength = 0;
-                } else {
-                    if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO)
-                            && Util.isVersionCompatibleForChunking(requestDataHolder.getHttpVersion())) {
-                        if (!isHeaderWritten) {
-                            Util.setupChunkedRequest(outboundResponseMsg);
-                            writeOutboundResponseHeaders(outboundResponseMsg, keepAlive);
-                        }
-                        sourceContext.writeAndFlush(httpContent);
-                    } else {
-                        this.contentList.add(httpContent);
-                        contentLength += httpContent.content().readableBytes();
-                    }
-                }
-            }));
+                    }));
         });
+    }
+
+    private void writeOutboundResponse(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive,
+            HttpContent httpContent) {
+        if (Util.isLastHttpContent(httpContent)) {
+            if (!isHeaderWritten) {
+                if ((chunkConfig == ChunkConfig.ALWAYS)
+                        && Util.isVersionCompatibleForChunking(requestDataHolder.getHttpVersion())) {
+                    Util.setupChunkedRequest(outboundResponseMsg);
+                } else {
+                    contentLength += httpContent.content().readableBytes();
+                    Util.setupContentLengthRequest(outboundResponseMsg, contentLength);
+                }
+                writeOutboundResponseHeaders(outboundResponseMsg, keepAlive);
+            }
+
+            ChannelFuture outboundChannelFuture = writeOutboundResponseBody(httpContent);
+
+            if (!keepAlive) {
+                outboundChannelFuture.addListener(ChannelFutureListener.CLOSE);
+            }
+            if (handlerExecutor != null) {
+                handlerExecutor.executeAtSourceResponseSending(outboundResponseMsg);
+            }
+            resetState(outboundResponseMsg);
+        } else {
+            if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO)
+                    && Util.isVersionCompatibleForChunking(requestDataHolder.getHttpVersion())) {
+                if (!isHeaderWritten) {
+                    Util.setupChunkedRequest(outboundResponseMsg);
+                    writeOutboundResponseHeaders(outboundResponseMsg, keepAlive);
+                }
+                sourceContext.writeAndFlush(httpContent);
+            } else {
+                this.contentList.add(httpContent);
+                contentLength += httpContent.content().readableBytes();
+            }
+        }
+    }
+
+    private ChannelFuture writeOutboundResponseBody(HttpContent httpContent) {
+        if (chunkConfig == ChunkConfig.NEVER) {
+            for (HttpContent cachedHttpContent : contentList) {
+                sourceContext.writeAndFlush(cachedHttpContent);
+            }
+        }
+        ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(httpContent);
+        HttpResponseStatusFuture outboundRespStatusFuture =
+                inboundRequestMsg.getHttpOutboundRespStatusFuture();
+        outboundChannelFuture.addListener(genericFutureListener -> {
+            if (genericFutureListener.cause() != null) {
+                outboundRespStatusFuture.notifyHttpListener(genericFutureListener.cause());
+            } else {
+                outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
+            }
+        });
+        return outboundChannelFuture;
+    }
+
+    private void resetState(HTTPCarbonMessage outboundResponseMsg) {
+        outboundResponseMsg.removeHttpContentAsyncFuture();
+        contentList.clear();
+        contentLength = 0;
     }
 
     // Decides whether to close the connection after sending the response

@@ -210,12 +210,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
         //This check was added because in case of netty embedded channel, this could be of type 'EmbeddedSocketAddress'.
         if (ctx.channel().localAddress() instanceof InetSocketAddress) {
-            localAddress  = (InetSocketAddress) ctx.channel().localAddress();
+            localAddress = (InetSocketAddress) ctx.channel().localAddress();
         }
-        sourceReqCmsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT, localAddress != null ?
-                localAddress.getPort() : null);
-        sourceReqCmsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID, interfaceId);
-        sourceReqCmsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, Constants.HTTP_SCHEME);
+        sourceReqCmsg.setProperty(Constants.LISTENER_PORT, localAddress.getPort());
+        sourceReqCmsg.setProperty(Constants.LISTENER_INTERFACE_ID, interfaceId);
+        sourceReqCmsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
 
         boolean isSecuredConnection = false;
         if (ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null) {

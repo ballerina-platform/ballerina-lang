@@ -53,7 +53,7 @@ public class ConnectionPoolMainTestCase {
         TransportsConfiguration transportsConfiguration = TestUtil.getConfiguration(
                 "/simple-test-config" + File.separator + "netty-transports.yml");
 
-        httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new SendChannelIDServerInitializer(5000));
+        httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new SendChannelIDServerInitializer(6000));
 
         HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
         httpClientConnector = connectorFactory.createHttpClientConnector(
@@ -75,7 +75,7 @@ public class ConnectionPoolMainTestCase {
             // While the first request is being processed by the back-end,
             // we send the second request which forces the client connector to
             // create a new connection.
-            Thread.sleep(2500);
+            Thread.sleep(4000);
             TestUtil.sendRequestAsync(requestTwoLatch, httpClientConnector);
 
             String responseOne = TestUtil.waitAndGetStringEntity(requestOneLatch, responseListener);
