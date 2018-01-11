@@ -67,8 +67,8 @@ public class SQLDataIterator implements DataIterator {
     private BStructType bStructType;
     private StructInfo timeStructInfo;
     private StructInfo zoneStructInfo;
-    private boolean hasNextRow;
-    private boolean checkedForNext;
+    private boolean hasNextVal;
+    private boolean nextPrefetched;
 
     public SQLDataIterator(Connection conn, Statement stmt, ResultSet rs, Calendar utcCalendar,
             List<ColumnDefinition> columnDefs, BStructType structType, StructInfo timeStructInfo,
@@ -81,8 +81,8 @@ public class SQLDataIterator implements DataIterator {
         this.bStructType = structType;
         this.timeStructInfo = timeStructInfo;
         this.zoneStructInfo = zoneStructInfo;
-        this.hasNextRow = false;
-        this.checkedForNext = false;
+        this.nextPrefetched = false;
+        this.hasNextVal = false;
     }
 
     @Override
@@ -100,15 +100,14 @@ public class SQLDataIterator implements DataIterator {
         }
         try {
             if (isConsume) {
-                hasNextRow = rs.next();
-                checkedForNext = true;
+                return rs.next();
             } else {
-                if (!hasNextRow || !checkedForNext) {
-                    hasNextRow = rs.next();
-                    checkedForNext = true;
+                if (!nextPrefetched) {
+                    hasNextVal = rs.next();
+                    nextPrefetched = true;
                 }
+                return hasNextVal;
             }
-            return hasNextRow;
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
@@ -206,8 +205,13 @@ public class SQLDataIterator implements DataIterator {
         int index = 0;
         String columnName = null;
         try {
-            if (!hasNextRow && !hasNext(false)) {
-                throw new BallerinaException("resultSet is positioned after last row");
+            if (!nextPrefetched) {
+                boolean hasNext = rs.next();
+                if (!hasNext) {
+                    throw new BallerinaException("resultSet is positioned after last row");
+                }
+            } else {
+                nextPrefetched = false;
             }
             for (ColumnDefinition columnDef : columnDefs) {
                 if (columnDef instanceof SQLColumnDefinition) {
@@ -344,7 +348,6 @@ public class SQLDataIterator implements DataIterator {
                     "error in retrieving next value for column: " + columnName + ": at index:" + index + ":" + e
                             .getMessage());
         }
-        hasNextRow = false;
         return bStruct;
     }
 
