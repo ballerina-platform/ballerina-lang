@@ -30,7 +30,7 @@ const tools = [
     {
         id: 'while',
         name: 'While',
-        icon: 'dgm-while',
+        icon: 'while',
         title: 'While',
         nodeFactoryMethod: DefaultNodeFactory.createWhile,
         description: 'Provide a way to execute a series of statements as long as a boolean expression is met',
