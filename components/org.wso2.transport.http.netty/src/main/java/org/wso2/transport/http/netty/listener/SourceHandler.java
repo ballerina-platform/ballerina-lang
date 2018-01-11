@@ -212,7 +212,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (ctx.channel().localAddress() instanceof InetSocketAddress) {
             localAddress = (InetSocketAddress) ctx.channel().localAddress();
         }
-        sourceReqCmsg.setProperty(Constants.LISTENER_PORT, localAddress.getPort());
+        sourceReqCmsg.setProperty(Constants.LISTENER_PORT, localAddress != null ? localAddress.getPort() : null);
         sourceReqCmsg.setProperty(Constants.LISTENER_INTERFACE_ID, interfaceId);
         sourceReqCmsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
 
