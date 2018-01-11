@@ -18,6 +18,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
+import Area from './area';
 import Button from './button';
 import Menu from './menu';
 import Item from './item';
@@ -149,50 +150,51 @@ class LifelineButton extends React.Component {
         };
 
         return (
-            <Button
-                bBox={this.props.bBox}
-                buttonX={0}
-                buttonY={0}
-                showAlways
-                buttonRadius={8}
-            >
-                <Menu>
-                    { !this.state.listConnectors &&
-                    <div>
-                        <Item
-                            label='Action'
-                            icon='fw fw-action'
-                            callback={this.showConnectors}
-                        />
-                        {this.props.items}
-                    </div>
-                    }
-                    { this.state.listConnectors &&
-                        <div
-                            className='connector-select'
-                            // onMouseOut={this.hideConnectors}
-                        >
-                            <div
-                                className='connector-select-close'
-                                onClick={this.hideConnectors}
-                            >
-                                <i className='fw fw-left' />
-                            </div>
-                            <Autosuggest
-                                suggestions={suggestions}
-                                onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-                                onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-                                onSuggestionSelected={this.onSuggestionSelected}
-                                getSuggestionValue={this.getSuggestionValue}
-                                renderSuggestion={renderSuggestion}
-                                alwaysRenderSuggestions
-                                inputProps={inputProps}
-                                ref={this.storeInputReference}
+            <Area bBox={this.props.bBox}>
+                <Button
+                    buttonX={0}
+                    buttonY={0}
+                    showAlways
+                    buttonRadius={8}
+                >
+                    <Menu>
+                        { !this.state.listConnectors &&
+                        <div>
+                            <Item
+                                label='Action'
+                                icon='fw fw-action'
+                                callback={this.showConnectors}
                             />
+                            {this.props.items}
                         </div>
-                    }
-                </Menu>
-            </Button>
+                        }
+                        { this.state.listConnectors &&
+                            <div
+                                className='connector-select'
+                                // onMouseOut={this.hideConnectors}
+                            >
+                                <div
+                                    className='connector-select-close'
+                                    onClick={this.hideConnectors}
+                                >
+                                    <i className='fw fw-left' />
+                                </div>
+                                <Autosuggest
+                                    suggestions={suggestions}
+                                    onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+                                    onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+                                    onSuggestionSelected={this.onSuggestionSelected}
+                                    getSuggestionValue={this.getSuggestionValue}
+                                    renderSuggestion={renderSuggestion}
+                                    alwaysRenderSuggestions
+                                    inputProps={inputProps}
+                                    ref={this.storeInputReference}
+                                />
+                            </div>
+                        }
+                    </Menu>
+                </Button>
+            </Area>
         );
     }
 }

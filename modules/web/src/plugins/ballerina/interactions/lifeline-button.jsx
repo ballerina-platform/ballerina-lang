@@ -143,6 +143,13 @@ class LifelineButton extends React.Component {
             onChange: this.onChange,
         };
 
+        let connectorCssClass = 'connector-select-hidden';
+        let connectorListCssClass = 'connector-list';
+        if (this.state.listConnectors) {
+            connectorCssClass = 'connector-select';
+            connectorListCssClass = 'connector-list-hidden';
+        }
+
         return (
             <Area bBox={this.props.bBox}>
                 <Button
@@ -151,40 +158,35 @@ class LifelineButton extends React.Component {
                     showAlways
                 >
                     <Menu>
-                        { !this.state.listConnectors &&
-                        <div>
+                        <div className={connectorListCssClass}>
                             {this.props.items}
-                            <Item
-                                label='Endpoint'
-                                icon='fw fw-endpoint'
-                                callback={this.showConnectors}
+                        </div>
+                        <Item
+                            label='Endpoint'
+                            icon='fw fw-endpoint'
+                            callback={this.showConnectors}
+                        />
+                        <div
+                            className={connectorCssClass}
+                        >
+                            <div
+                                className='connector-select-close'
+                                onClick={this.hideConnectors}
+                            >
+                                <i className='fw fw-left' />
+                            </div>
+                            <Autosuggest
+                                suggestions={suggestions}
+                                onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+                                onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+                                onSuggestionSelected={this.onSuggestionSelected}
+                                getSuggestionValue={this.getSuggestionValue}
+                                renderSuggestion={renderSuggestion}
+                                alwaysRenderSuggestions
+                                inputProps={inputProps}
+                                ref={this.storeInputReference}
                             />
                         </div>
-                        }
-                        { this.state.listConnectors &&
-                            <div
-                                className='connector-select'
-                                // onMouseOut={this.hideConnectors}
-                            >
-                                <div
-                                    className='connector-select-close'
-                                    onClick={this.hideConnectors}
-                                >
-                                    <i className='fw fw-left' />
-                                </div>
-                                <Autosuggest
-                                    suggestions={suggestions}
-                                    onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-                                    onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-                                    onSuggestionSelected={this.onSuggestionSelected}
-                                    getSuggestionValue={this.getSuggestionValue}
-                                    renderSuggestion={renderSuggestion}
-                                    alwaysRenderSuggestions
-                                    inputProps={inputProps}
-                                    ref={this.storeInputReference}
-                                />
-                            </div>
-                        }
                     </Menu>
                 </Button>
             </Area>
