@@ -42,8 +42,8 @@ service<http> PizzaService {
 connector TestConnector (string url) {
     
     @doc:Description{value:"Test action of test connector"}
-    action testAction() (http:Response) {
-        http:Response m = {};
+    action testAction() (http:OutResponse) {
+        http:OutResponse m = {};
         return m;
     }
 }
