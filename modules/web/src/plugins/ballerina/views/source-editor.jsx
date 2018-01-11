@@ -31,6 +31,7 @@ import SourceViewCompleterFactory from './../../ballerina/utils/source-view-comp
 import { CHANGE_EVT_TYPES } from './constants';
 import Grammar from './../utils/monarch-grammar';
 import { getMonacoKeyBinding } from '../utils/monaco-key-utils';
+import BAL_LANG_CONFIG from '../utils/monaco-lang-config';
 
 const BAL_LANGUAGE = 'ballerina-lang';
 
@@ -159,6 +160,7 @@ class SourceEditor extends React.Component {
         this.editorInstance = editorInstance;
         monaco.languages.register({ id: BAL_LANGUAGE });
         monaco.languages.setMonarchTokensProvider(BAL_LANGUAGE, Grammar);
+        monaco.languages.setLanguageConfiguration(BAL_LANGUAGE, BAL_LANG_CONFIG);
         const uri = monaco.Uri.parse(this.props.file.toURI());
         let modelForFile = monaco.editor.getModel(uri);
         if (!modelForFile) {
@@ -302,8 +304,10 @@ class SourceEditor extends React.Component {
                         contextmenu: false,
                         renderIndentGuides: true,
                         autoClosingBrackets: true,
+                        matchBrackets: true,
                         automaticLayout: true,
                         glyphMargin: true,
+                        folding: true,
                     }}
                     width={width}
                     height={height}
