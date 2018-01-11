@@ -44,7 +44,7 @@
                                 <filter>
                                     <artifact>org.ballerinalang:*</artifact>
                                     <includes>
-                                        org/ballerinalang/langserver/**
+                                        <include>org/ballerinalang/langserver/**</include>
                                     </includes>
                                 </filter>
                             </filters>
