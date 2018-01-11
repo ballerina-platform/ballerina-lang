@@ -162,8 +162,13 @@ class DesignView extends React.Component {
 
         const shouldShowTransform = isTransformActive && activeTransformModel;
 
+        const disabled = (this.props.disabled) ? 'design-view-disabled' : '';
+
         return (
-            <div className='design-view-container' style={{ display: this.props.show ? 'block' : 'none' }}>
+            <div
+                className={`design-view-container ${disabled}`}
+                style={{ display: this.props.show ? 'block' : 'none' }}
+            >
                 <div className='outerCanvasDiv'>
                     <DragLayer />
                     <Scrollbars

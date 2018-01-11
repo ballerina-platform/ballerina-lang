@@ -170,10 +170,6 @@ class Diagram extends React.Component {
 
         controllers = _.merge(controllers, overlayComponents);
 
-        if (this.props.disabled) {
-            controllers = [];
-        }
-
         const tln = (this.props.model.getTopLevelNodes()) ? this.props.model.getTopLevelNodes() : [];
         const children = getComponentForNodeArray(tln, this.props.mode);
 

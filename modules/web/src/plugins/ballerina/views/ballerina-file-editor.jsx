@@ -761,31 +761,6 @@ class BallerinaFileEditor extends React.Component {
                     transitionEnterTimeout={300}
                     transitionLeaveTimeout={300}
                 >
-                    {this.props.isPreviewViewEnabled && !_.isEmpty(this.state.syntaxErrors) &&
-                        <div className='syntax-error-overlay'>
-                            <div className='error-list'>
-                                <div className='list-heading'>
-                                    Cannot update design view due to below syntax errors.
-                                </div>
-                                <Scrollbars
-                                    autoHeight
-                                    autoHeightMax={400}
-                                    autoHide
-                                    autoHideTimeout={1000}
-                                >
-                                    <ul className='errors'>
-                                        {this.state.syntaxErrors.map(({ row, column, text }) => {
-                                            return (
-                                                <li>
-                                                    {`${text} at Line:${row}:${column}`}
-                                                </li>
-                                            );
-                                        })}
-                                    </ul>
-                                </Scrollbars>
-                            </div>
-                        </div>
-                    }
                     {showLoadingOverlay &&
                         <div className='bal-file-editor-loading-container'>
                             <div id='parse-pending-loader'>
@@ -804,7 +779,19 @@ class BallerinaFileEditor extends React.Component {
                                         defaultSize={(this.props.width / 2)}
                                         onChange={this.handleSplitChange}
                                     >
-                                        {designView}
+                                        <div>
+                                            {this.state.activeView === SPLIT_VIEW
+                                                && !_.isEmpty(this.state.syntaxErrors) &&
+                                                <div className='syntax-error-overlay'>
+                                                    <div className='error-list'>
+                                                        <div className='list-heading'>
+                                                            Cannot update design view due to syntax errors.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                            {designView}
+                                        </div>
                                         {sourceView}
                                     </SplitPane>
                                 </div>
