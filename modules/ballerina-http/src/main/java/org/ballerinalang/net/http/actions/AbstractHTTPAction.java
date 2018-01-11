@@ -36,6 +36,7 @@ import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.RetryConfig;
+import org.ballerinalang.net.http.transactions.MicroTransactionManager;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
@@ -191,7 +192,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     context.getProperty(Constants.SRC_HANDLER));
         }
         if (context.isInTransaction()) {
-            registerWithCoordinator(context, httpRequestMsg);
+            MicroTransactionManager.registerWithCoordinator(context, httpRequestMsg);
         }
         executeNonBlocking(context, httpRequestMsg, httpClientConnectorLister);
         return ballerinaFuture;
@@ -237,54 +238,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         long retryCount = retryConfig.getIntField(Constants.RETRY_COUNT_INDEX);
         long interval = retryConfig.getIntField(Constants.RETRY_INTERVAL_INDEX);
         return new RetryConfig(retryCount, interval);
-    }
-
-    private void registerWithCoordinator(Context context, HTTPCarbonMessage httpRequestMsg) {
-        CompileResult txnManager;
-        BValue[] txnContext;
-        if (!isCoordinatorExist(context)) {
-            txnManager = BCompileUtil
-                    .compileInternalPackage("ballerina/net/http/", "transactions.coordinator");
-            LauncherUtils.runInternalServices(txnManager.getProgFile(), context);
-            context.setProperty(Constants.TXN_MANAGER, txnManager);
-        } else {
-            txnManager = (CompileResult) context.getProperty(Constants.TXN_MANAGER);
-        }
-
-        if (!isTxnContextExist(context)) {
-            txnContext = BLangFunctions.invokeNew(txnManager.getProgFile(), "transactions.coordinator", "beginTransaction");
-            context.setProperty(Constants.TXN_ID, context.getBallerinaTransactionManager().getTransactionId());
-            context.setProperty(Constants.TXN_CONTEXT, txnContext);
-        } else {
-            txnContext = (BValue[]) context.getProperty(Constants.TXN_CONTEXT);
-        }
-        //set transaction headers to transport message
-        if (txnContext[0] instanceof BJSON) {
-            JsonNode jsonNode = ((BJSON) txnContext[0]).value();
-            httpRequestMsg.setHeader(Constants.X_XID_HEADER, jsonNode.get(Constants.X_XID_JSON_FIELD).asText());
-            httpRequestMsg.setHeader(Constants.X_REGISTER_AT_URL_HEADER, jsonNode.get(Constants.X_REGISTER_AT_URL_JSON_FIELD).asText());
-        }
-    }
-
-
-
-
-    private void runCoordinatorAndInitiator(Context context) {
-
-    }
-
-    private void createTransactionContext(Context context, CompileResult initiator) {
-
-    }
-
-    private boolean isCoordinatorExist(Context context) {
-        return context.getProperty(Constants.TXN_MANAGER) != null;
-    }
-
-    private boolean isTxnContextExist(Context context) {
-        Object txnId = context.getProperty(Constants.TXN_ID);
-        return txnId != null && context.getProperty(Constants.TXN_CONTEXT) != null
-                && txnId.equals(context.getBallerinaTransactionManager().getTransactionId());
     }
 
     @Override

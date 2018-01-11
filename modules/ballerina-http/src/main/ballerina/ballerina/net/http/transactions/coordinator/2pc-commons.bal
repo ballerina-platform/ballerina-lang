@@ -1,4 +1,4 @@
-package transactions.coordinator;
+package ballerina.net.http.transactions.coordinator;
 import ballerina.log;
 
 public const string PROTOCOL_COMPLETION = "completion";

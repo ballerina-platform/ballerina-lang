@@ -1,4 +1,4 @@
-package transactions.coordinator;
+package ballerina.net.http.transactions.coordinator;
 
 import ballerina.util;
 import ballerina.math;
