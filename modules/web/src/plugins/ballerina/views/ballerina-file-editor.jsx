@@ -18,7 +18,9 @@
 import log from 'log';
 import _ from 'lodash';
 import React from 'react';
+import cn from 'classnames';
 import PropTypes from 'prop-types';
+import SplitPane from 'react-split-pane';
 import { Scrollbars } from 'react-custom-scrollbars';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import DebugManager from 'plugins/debugger/DebugManager/DebugManager'; // FIXME: Importing from debugger plugin
@@ -34,7 +36,7 @@ import SwaggerView from './swagger-view.jsx';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
-import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES, CLASSES, FILE_AST_PROPERTY } from './constants';
+import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES, CLASSES, SPLIT_VIEW } from './constants';
 import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
 import SyncLineNumbersVisitor from './../visitors/sync-line-numbers';
 import SyncBreakpointsVisitor from './../visitors/sync-breakpoints';
@@ -47,6 +49,7 @@ import { DOC_VIEW_ID } from 'plugins/ballerina/constants';
 import ErrorMappingVisitor from './../visitors/error-mapping-visitor';
 import SyncErrorsVisitor from './../visitors/sync-errors';
 import { EVENTS } from '../constants';
+import ViewButton from './view-button';
 
 /**
  * React component for BallerinaFileEditor.
@@ -71,7 +74,8 @@ class BallerinaFileEditor extends React.Component {
             parseFailed: true,
             syntaxErrors: [],
             model: undefined,
-            activeView: DESIGN_VIEW,
+            activeView: SPLIT_VIEW,
+            splitSize: (this.props.width / 2),
             lastRenderedTimestamp: undefined,
         };
         this.skipLoadingOverlay = false;
@@ -146,7 +150,19 @@ class BallerinaFileEditor extends React.Component {
         });
 
         this.resetSwaggerView = this.resetSwaggerView.bind(this);
+        this.handleSplitChange = this.handleSplitChange.bind(this);
     }
+
+
+    /**
+     * @override
+     * @param {any} nextProps next props.
+     * @memberof BallerinaFileEditor
+     */
+    componentWillReceiveProps(nextProps) {
+        this.state.splitSize = nextProps.width / 2;
+    }
+
 
     /**
      * @override
@@ -236,7 +252,7 @@ class BallerinaFileEditor extends React.Component {
         } else if (TreeUtils.isVariableDef(node)
             && node.getVariable().getInitialExpression()
             && (TreeUtils.isInvocation(node.getVariable().getInitialExpression()) ||
-            TreeUtils.isConnectorInitExpr(node.getVariable().getInitialExpression()))) {
+                TreeUtils.isConnectorInitExpr(node.getVariable().getInitialExpression()))) {
             fullPackageName = node.getVariable().getInitialExpression().getFullPackageName();
         } else if (TreeUtils.isEndpointTypeVariableDef(node)) {
             fullPackageName = node.getVariable().getInitialExpression().getFullPackageName();
@@ -587,7 +603,7 @@ class BallerinaFileEditor extends React.Component {
                     newState.syntaxErrors = syntaxErrors;
                     newState.isASTInvalid = true;
                     // keep current AST when in preview view - even though its not valid
-                    if (!this.props.isPreviewViewEnabled) {
+                    if (!this.state.activeView === SPLIT_VIEW) {
                         newState.model = undefined;
                         // cannot be in a view which depends on AST
                         // hence forward to source view
@@ -647,6 +663,10 @@ class BallerinaFileEditor extends React.Component {
         });
     }
 
+    handleSplitChange(size) {
+        this.setState({ splitSize: size });
+    }
+
     /**
      * @description Get package name from astRoot
      * @returns string - Package name
@@ -681,26 +701,55 @@ class BallerinaFileEditor extends React.Component {
         // If there are syntax errors, forward editor to source view - if split view is not active.
         // If split view is active - we will render an overly on top of design view with error list
         if (!_.isEmpty(this.state.syntaxErrors)) {
-            if (this.props.isPreviewViewEnabled) {
-                this.state.activeView = DESIGN_VIEW;
-            } else {
+            if (this.state.activeView === DESIGN_VIEW) {
                 this.state.activeView = SOURCE_VIEW;
             }
         }
 
         const showDesignView = this.state.initialParsePending
-            || (this.props.isPreviewViewEnabled && this.state.activeView === DESIGN_VIEW)
+            || (this.state.activeView === SPLIT_VIEW)
             || ((!this.state.parseFailed)
                 && _.isEmpty(this.state.syntaxErrors)
                 && this.state.activeView === DESIGN_VIEW);
         const showSourceView = !this.props.isPreviewViewEnabled && (this.state.parseFailed
             || !_.isEmpty(this.state.syntaxErrors)
-            || this.state.activeView === SOURCE_VIEW);
+            || this.state.activeView === SOURCE_VIEW
+            || this.state.activeView === SPLIT_VIEW);
         const showSwaggerView = (!this.state.parseFailed
             && !_.isNil(this.state.swaggerViewTargetService)
             && this.state.activeView === SWAGGER_VIEW);
 
         const showLoadingOverlay = !this.skipLoadingOverlay && this.state.parsePending;
+
+        const sourceWidth = (this.state.activeView === SOURCE_VIEW) ? this.props.width :
+            this.props.width - this.state.splitSize;
+        const designWidth = (this.state.activeView === DESIGN_VIEW) ? this.props.width : this.state.splitSize;
+
+        const sourceView = (
+            <SourceView
+                displayErrorList={popupErrorListInSourceView}
+                parseFailed={this.state.parseFailed}
+                file={this.props.file}
+                commandProxy={this.props.commandProxy}
+                show={showSourceView}
+                panelResizeInProgress={this.props.panelResizeInProgress}
+                width={sourceWidth}
+                height={this.props.height}
+            />
+        );
+
+        const designView = (
+            <DesignView
+                model={this.state.model}
+                show={showDesignView}
+                file={this.props.file}
+                commandProxy={this.props.commandProxy}
+                width={designWidth}
+                height={this.props.height}
+                panelResizeInProgress={this.props.panelResizeInProgress}
+                disabled={this.state.parseFailed}
+            />
+        );
 
         return (
             <div
@@ -745,31 +794,48 @@ class BallerinaFileEditor extends React.Component {
                         </div>
                     }
                 </CSSTransitionGroup>
-                <DesignView
-                    model={this.state.model}
-                    show={showDesignView}
-                    file={this.props.file}
-                    commandProxy={this.props.commandProxy}
-                    width={this.props.width}
-                    height={this.props.height}
-                    panelResizeInProgress={this.props.panelResizeInProgress}
-                />
-                <SourceView
-                    displayErrorList={popupErrorListInSourceView}
-                    parseFailed={this.state.parseFailed}
-                    file={this.props.file}
-                    commandProxy={this.props.commandProxy}
-                    show={showSourceView}
-                    panelResizeInProgress={this.props.panelResizeInProgress}
-                    width={this.props.width}
-                    height={this.props.height}
-                />
+                {(() => {
+                    switch (this.state.activeView) {
+                        case SPLIT_VIEW:
+                            return (
+                                <div className='split-view-container'>
+                                    <SplitPane
+                                        split='vertical'
+                                        defaultSize={(this.props.width / 2)}
+                                        onChange={this.handleSplitChange}
+                                    >
+                                        {designView}
+                                        {sourceView}
+                                    </SplitPane>
+                                </div>
+                            );
+                        default:
+                            return [designView, sourceView];
+                    }
+                })()}
                 <div style={{ display: showSwaggerView ? 'block' : 'none' }}>
                     <SwaggerView
                         targetService={this.state.swaggerViewTargetService}
                         commandProxy={this.props.commandProxy}
                         hideSwaggerAceEditor={this.hideSwaggerAceEditor}
                         resetSwaggerViewFun={this.resetSwaggerView}
+                    />
+                </div>
+                <div className={cn('bottom-right-controls-container')}>
+                    <ViewButton
+                        label='Design View'
+                        icon='design-view'
+                        onClick={() => { this.setActiveView(DESIGN_VIEW); }}
+                    />
+                    <ViewButton
+                        label='Source View'
+                        icon='code-view'
+                        onClick={() => { this.setActiveView(SOURCE_VIEW); }}
+                    />
+                    <ViewButton
+                        label='Split View'
+                        icon='code'
+                        onClick={() => { this.setActiveView(SPLIT_VIEW); }}
                     />
                 </div>
             </div>

@@ -18,7 +18,6 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import cn from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 import BallerinaDiagram from 'plugins/ballerina/diagram/diagram';
 import TransformerExpanded from 'plugins/ballerina/diagram/views/default/components/transformer/transformer-expanded';
@@ -186,6 +185,7 @@ class DesignView extends React.Component {
                                         mode={this.state.mode}
                                         width={this.props.width - TOOL_PALETTE_WIDTH}
                                         height={this.props.height}
+                                        disabled={this.props.disabled}
                                     />
                                 }
                             </div>
@@ -202,44 +202,6 @@ class DesignView extends React.Component {
                     }
                 </div>
                 <div className='tool-palette-container' ref={this.setToolPaletteContainer} />
-                <div className={cn('bottom-right-controls-container', { hide: this.context.isPreviewViewEnabled })}>
-                    <div
-                        className='view-source-btn btn-icon'
-                        onClick={() => {
-                            this.context.editor.setActiveView('SOURCE_VIEW');
-                        }}
-                    >
-                        <div className='bottom-label-icon-wrapper'>
-                            <i className='fw fw-code-view fw-inverse' />
-                        </div>
-                        <div
-                            className='bottom-view-label'
-                            onClick={() => {
-                                this.context.editor.setActiveView('SOURCE_VIEW');
-                            }}
-                        >
-                            Source View
-                        </div>
-                    </div>
-                    <div
-                        className='view-split-view-btn btn-icon'
-                        onClick={() => {
-                            this.props.commandProxy.dispatch('show-split-view', true);
-                        }}
-                    >
-                        <div className='bottom-label-icon-wrapper'>
-                            <i className='fw fw-code fw-inverse' />
-                        </div>
-                        <div
-                            className='bottom-view-label'
-                            onClick={() => {
-                                this.props.commandProxy.dispatch('show-split-view', true);
-                            }}
-                        >
-                            Split View
-                        </div>
-                    </div>
-                </div>
             </div>
         );
     }
@@ -256,11 +218,13 @@ DesignView.propTypes = {
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
     panelResizeInProgress: PropTypes.bool.isRequired,
+    disabled: PropTypes.bool.isRequired,
 };
 
 DesignView.defaultProps = {
     show: true,
     model: undefined,
+    disabled: false,
 };
 
 DesignView.contextTypes = {

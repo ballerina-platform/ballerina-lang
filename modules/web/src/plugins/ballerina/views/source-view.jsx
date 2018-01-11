@@ -175,31 +175,6 @@ class SourceView extends React.Component {
                             }
                         }
                     >
-                        <div className={classNames('view-design-btn btn-icon',
-                                    { target: this.state.displayErrorList })}
-                        >
-                            <div className='bottom-label-icon-wrapper'>
-                                <i className='fw fw-design-view fw-inverse' />
-                            </div>
-                            <div
-                                className='bottom-view-label'
-                                ref={(ref) => {
-                                    this.errorListPopoverTarget = ref;
-                                }}
-                            >
-                                Design View
-                            </div>
-                            {hasSyntaxErrors && this.context.isTabActive() &&
-                                <Overlay
-                                    show={this.state.displayErrorList}
-                                    container={this}
-                                    target={this.errorListPopoverTarget}
-                                    placement='top'
-                                >
-                                    {errorListPopover}
-                                </Overlay>
-                            }
-                        </div>
                         {hasSyntaxErrors && !this.state.displayErrorList &&
                             <CSSTransitionGroup
                                 transitionName='error-count-badge'

@@ -2716,7 +2716,6 @@
     }
     
     .SplitPane .vertical  {
-        background-color: #FFF;
     }
     
     .swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
@@ -2743,7 +2742,7 @@
     }
     
     .SplitPane .vertical {
-        overflow: auto;
+        overflow: hidden;
     }
     
     .swaggerEditor .SplitPane {
