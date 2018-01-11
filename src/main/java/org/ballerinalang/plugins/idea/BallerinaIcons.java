@@ -28,6 +28,7 @@ public class BallerinaIcons {
     public static final Icon ICON = IconLoader.findIcon("/icons/ballerina.png");
     public static final Icon APPLICATION_RUN = createIconWithShift(ICON, AllIcons.Nodes.RunnableMark);
     public static final Icon RUN = AllIcons.RunConfigurations.TestState.Run;
+    public static final Icon TEST = AllIcons.RunConfigurations.TestState.Green2;
     public static final Icon RECURSIVE = AllIcons.Gutter.RecursiveMethod;
     public static final Icon PACKAGE = AllIcons.Nodes.Package;
     public static final Icon FUNCTION = AllIcons.Nodes.Field;

@@ -37,6 +37,7 @@ import org.ballerinalang.plugins.idea.debugger.BallerinaWebSocketConnector;
 import org.ballerinalang.plugins.idea.runconfig.application.BallerinaApplicationRunningState;
 import org.ballerinalang.plugins.idea.runconfig.remote.BallerinaRemoteConfiguration;
 import org.ballerinalang.plugins.idea.runconfig.remote.BallerinaRemoteRunningState;
+import org.ballerinalang.plugins.idea.runconfig.test.BallerinaTestRunningState;
 import org.ballerinalang.plugins.idea.util.BallerinaHistoryProcessListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -71,6 +72,28 @@ public class BallerinaDebugger extends GenericProgramRunner {
             FileDocumentManager.getInstance().saveAllDocuments();
             ((BallerinaApplicationRunningState) state).setHistoryProcessHandler(historyProcessListener);
             ((BallerinaApplicationRunningState) state).setDebugPort(port);
+
+            return XDebuggerManager.getInstance(env.getProject()).startSession(env, new XDebugProcessStarter() {
+
+                @NotNull
+                @Override
+                public XDebugProcess start(@NotNull XDebugSession session) throws ExecutionException {
+                    // Get the host address.
+                    String address = NetUtils.getLocalHostString() + ":" + port;
+                    // Create a new connector. This will be used to communicate with the debugger.
+                    BallerinaWebSocketConnector ballerinaDebugSession = new BallerinaWebSocketConnector(address);
+                    return new BallerinaDebugProcess(session, ballerinaDebugSession, getExecutionResults(state, env));
+                }
+            }).getRunContentDescriptor();
+        } else if (state instanceof BallerinaTestRunningState) {
+            FileDocumentManager.getInstance().saveAllDocuments();
+            BallerinaHistoryProcessListener historyProcessListener = new BallerinaHistoryProcessListener();
+
+            int port = findFreePort();
+
+            FileDocumentManager.getInstance().saveAllDocuments();
+            ((BallerinaTestRunningState) state).setHistoryProcessHandler(historyProcessListener);
+            ((BallerinaTestRunningState) state).setDebugPort(port);
 
             return XDebuggerManager.getInstance(env.getProject()).startSession(env, new XDebugProcessStarter() {
 

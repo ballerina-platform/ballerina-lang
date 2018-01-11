@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 
 public class BallerinaConsoleFolding extends ConsoleFolding {
 
-    private static final String REGEX = "ballerina(.bat)? (run|build) .+";
+    private static final String REGEX = "ballerina(.bat)? (run|build|test) .+";
     private static final Pattern PATTERN = Pattern.compile(REGEX);
 
     @Override
