@@ -103,6 +103,10 @@ public class AggregationParser {
                             "Hence, can't create the siddhi app '" + siddhiAppContext.getName() + "'",
                     aggregationDefinition.getQueryContextStartIndex(), aggregationDefinition.getQueryContextEndIndex());
         }
+        if (streamDefinitionMap.get(aggregationDefinition.getBasicSingleInputStream().getStreamId()) == null) {
+           throw new SiddhiAppCreationException("Stream " + aggregationDefinition.getBasicSingleInputStream().
+                   getStreamId() + " has not been defined");
+        }
         try {
             List<VariableExpressionExecutor> incomingVariableExpressionExecutors = new ArrayList<>();
 
