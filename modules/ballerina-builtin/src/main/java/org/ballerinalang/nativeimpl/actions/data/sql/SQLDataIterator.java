@@ -67,7 +67,8 @@ public class SQLDataIterator implements DataIterator {
     private BStructType bStructType;
     private StructInfo timeStructInfo;
     private StructInfo zoneStructInfo;
-    private boolean cursorMoved;
+    private boolean hasNextRow;
+    private boolean checkedForNext;
 
     public SQLDataIterator(Connection conn, Statement stmt, ResultSet rs, Calendar utcCalendar,
             List<ColumnDefinition> columnDefs, BStructType structType, StructInfo timeStructInfo,
@@ -80,6 +81,8 @@ public class SQLDataIterator implements DataIterator {
         this.bStructType = structType;
         this.timeStructInfo = timeStructInfo;
         this.zoneStructInfo = zoneStructInfo;
+        this.hasNextRow = false;
+        this.checkedForNext = false;
     }
 
     @Override
@@ -91,14 +94,21 @@ public class SQLDataIterator implements DataIterator {
     }
 
     @Override
-    public boolean next() {
+    public boolean hasNext(boolean isConsume) {
         if (rs == null) {
             return false;
         }
         try {
-            boolean hasNext = rs.next();
-            cursorMoved = true;
-            return hasNext;
+            if (isConsume) {
+                hasNextRow = rs.next();
+                checkedForNext = true;
+            } else {
+                if (!hasNextRow || !checkedForNext) {
+                    hasNextRow = rs.next();
+                    checkedForNext = true;
+                }
+            }
+            return hasNextRow;
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
@@ -196,9 +206,8 @@ public class SQLDataIterator implements DataIterator {
         int index = 0;
         String columnName = null;
         try {
-            if (!cursorMoved) {
-                boolean hasNext = next();
-                if (!hasNext) {
+            if (!hasNextRow) {
+                if (!hasNext(false)) {
                     throw new BallerinaException("resultSet is positioned after last row");
                 }
             }
@@ -337,7 +346,7 @@ public class SQLDataIterator implements DataIterator {
                     "error in retrieving next value for column: " + columnName + ": at index:" + index + ":" + e
                             .getMessage());
         }
-        cursorMoved = false;
+        hasNextRow = false;
         return bStruct;
     }
 
