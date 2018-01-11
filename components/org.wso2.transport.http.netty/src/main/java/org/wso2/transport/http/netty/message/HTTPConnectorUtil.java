@@ -1,16 +1,12 @@
 package org.wso2.transport.http.netty.message;
 
 import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.config.TransportProperty;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -74,67 +70,5 @@ public class HTTPConnectorUtil {
         }
         // Create Bootstrap Configuration from listener parameters
         return new ServerBootstrapConfiguration(transportProperties);
-    }
-
-    /**
-     * Method to build listener configuration using provided properties map.
-     *
-     * @param id            HttpConnectorListener id
-     * @param properties    Property map
-     * @return              listener config
-     */
-    public static ListenerConfiguration buildListenerConfig(String id, Map<String, String> properties) {
-        String host = properties.get(Constants.HTTP_HOST) != null ?
-                properties.get(Constants.HTTP_HOST) : Constants.HTTP_DEFAULT_HOST;
-        int port = Integer.parseInt(properties.get(Constants.HTTP_PORT));
-        ListenerConfiguration config = new ListenerConfiguration(id, host, port);
-        String scheme = properties.get(Constants.SCHEME);
-        if (scheme != null && scheme.equals(Constants.HTTPS_SCHEME)) {
-            config.setScheme(scheme);
-            config.setKeyStoreFile(properties.get(Constants.HTTP_KEY_STORE_FILE));
-            config.setKeyStorePass(properties.get(Constants.HTTP_KEY_STORE_PASS));
-            config.setCertPass(properties.get(Constants.HTTP_CERT_PASS));
-            if (properties.get(Constants.HTTP_TRUST_STORE_FILE) != null) {
-                config.setTrustStoreFile(properties.get(Constants.HTTP_TRUST_STORE_FILE));
-            }
-            if (properties.get(Constants.HTTP_TRUST_STORE_PASS) != null) {
-                config.setTrustStorePass(properties.get(Constants.HTTP_TRUST_STORE_PASS));
-            }
-            if (properties.get(Constants.SSL_VERIFY_CLIENT) != null) {
-                config.setVerifyClient(properties.get(Constants.SSL_VERIFY_CLIENT));
-            }
-            if (properties.get(Constants.TLS_STORE_TYPE) != null) {
-                config.setTlsStoreType(properties.get(Constants.TLS_STORE_TYPE));
-            }
-            List<Parameter> serverParams = new ArrayList<>();
-            if (properties.get(Constants.SERVER_SUPPORT_SSL_PROTOCOLS) != null) {
-                Parameter serverProtocols = new Parameter(Constants.SERVER_SUPPORT_SSL_PROTOCOLS,
-                        properties.get(Constants.SERVER_SUPPORT_SSL_PROTOCOLS));
-                serverParams.add(serverProtocols);
-            }
-            if (properties.get(Constants.SERVER_SUPPORT_CIPHERS) != null) {
-                Parameter serverCiphers = new Parameter(Constants.SERVER_SUPPORT_CIPHERS,
-                        properties.get(Constants.SERVER_SUPPORT_CIPHERS));
-                serverParams.add(serverCiphers);
-            }
-            if (!serverParams.isEmpty()) {
-                config.setParameters(serverParams);
-            }
-            if (properties.get(Constants.SSL_PROTOCOL) != null) {
-                config.setSslProtocol(properties.get(Constants.SSL_PROTOCOL));
-            }
-        }
-
-        if (properties.get(Constants.KEEP_ALIVE) != null) {
-            config.setKeepAlive(Boolean.valueOf(properties.get(Constants.KEEP_ALIVE)));
-        }
-
-        return config;
-    }
-
-    public static String getListenerInterface(Map<String, String> parameters) {
-        String host = parameters.get("host") != null ? parameters.get("host") : "0.0.0.0";
-        int port = Integer.parseInt(parameters.get("port"));
-        return host + ":" + port;
     }
 }

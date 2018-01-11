@@ -302,6 +302,8 @@ public final class Constants {
     public static final String ENDPOINT_TIMEOUT_MSG = "Endpoint timed out";
     public static final String CHUNKED = "chunked";
 
+    public static final String LISTENER_PORT = "LISTENER_PORT";
+
     private Constants() {
     }
 }
