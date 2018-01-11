@@ -99,7 +99,7 @@ public class ResponseNativeFunctionNegativeTest {
         } catch (Throwable e) {
             error = e.getMessage();
         }
-        Assert.assertTrue(error.contains("unexpected end of JSON document"));
+        Assert.assertTrue(error.contains("empty JSON document"));
     }
 
     @Test(description = "Test method with string payload")
