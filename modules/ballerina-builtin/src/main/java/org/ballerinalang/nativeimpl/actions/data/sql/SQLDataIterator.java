@@ -206,10 +206,8 @@ public class SQLDataIterator implements DataIterator {
         int index = 0;
         String columnName = null;
         try {
-            if (!hasNextRow) {
-                if (!hasNext(false)) {
-                    throw new BallerinaException("resultSet is positioned after last row");
-                }
+            if (!hasNextRow && !hasNext(false)) {
+                throw new BallerinaException("resultSet is positioned after last row");
             }
             for (ColumnDefinition columnDef : columnDefs) {
                 if (columnDef instanceof SQLColumnDefinition) {

@@ -501,7 +501,7 @@ public class DatatableTest {
                 + "-2147483648|-9223372036854775808#3|0|0|0|0#");
     }
 
-    //@Test(groups = "DatatableTest", description = "Check blob binary and clob types types.")
+    @Test(groups = "DatatableTest", description = "Check blob binary and clob types types.")
     public void testComplexTypeInsertAndRetrieval() {
         BValue[] returns = BRunUtil.invoke(result, "testComplexTypeInsertAndRetrieval");
         Assert.assertEquals(returns.length, 5);

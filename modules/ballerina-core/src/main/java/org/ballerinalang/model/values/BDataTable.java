@@ -53,8 +53,8 @@ public class BDataTable implements BRefType<Object> {
         return BTypes.typeDatatable;
     }
 
-    public boolean hasNext(boolean isInTransaction, boolean increment) {
-        boolean hasNext = iterator.hasNext(increment);
+    public boolean hasNext(boolean isInTransaction, boolean isConsume) {
+        boolean hasNext = iterator.hasNext(isConsume);
         if (!hasNext) {
             close(isInTransaction);
         }
