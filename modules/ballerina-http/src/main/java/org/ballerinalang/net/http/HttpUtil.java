@@ -998,7 +998,7 @@ public class HttpUtil {
                 listenerConfiguration.setTrustStorePass(trustStorePasswordAttrVal.getStringValue());
             }
 
-            List<Parameter> serverParams = new ArrayList();
+            List<Parameter> serverParams = new ArrayList<>();
             Parameter serverCiphers;
             if (sslEnabledProtocolsAttrVal != null && sslEnabledProtocolsAttrVal.getStringValue() != null) {
                 serverCiphers = new Parameter(Constants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS,

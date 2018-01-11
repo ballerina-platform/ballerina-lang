@@ -58,7 +58,6 @@ public class Constants {
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
     public static final String TLS_STORE_TYPE = "tlsStoreType";
     public static final String PKCS_STORE_TYPE = "PKCS12";
-    public static final String CHUNKED = "chunked";
     public static final String CHUNKING_AUTO = "auto";
     public static final String CHUNKING_ALWAYS = "always";
     public static final String CHUNKING_NEVER = "never";
