@@ -162,7 +162,7 @@ public class WebSocketServerTestCase {
         pongCheckClient.shutDown();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testIdleTimeout() throws InterruptedException, ProtocolException, SSLException, URISyntaxException {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost("localhost");

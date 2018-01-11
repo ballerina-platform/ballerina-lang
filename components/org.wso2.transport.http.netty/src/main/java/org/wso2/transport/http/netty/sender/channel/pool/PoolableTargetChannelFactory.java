@@ -64,7 +64,7 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     public Object makeObject() throws Exception {
         Bootstrap clientBootstrap = instantiateAndConfigBootStrap(eventLoopGroup,
                 eventLoopClass, bootstrapConfiguration);
-        SSLEngine clientSslEngine = instantiateAndConfigSSL(senderConfiguration.getSslConfig());
+        SSLEngine clientSslEngine = instantiateAndConfigSSL(senderConfiguration.getSSLConfig());
         HTTPClientInitializer httpClientInitializer = instantiateAndConfigClientInitializer(senderConfiguration,
                 clientBootstrap, clientSslEngine, connectionManager);
         clientBootstrap.handler(httpClientInitializer);
