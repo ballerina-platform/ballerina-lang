@@ -302,7 +302,7 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertNull(response.getMessageDataSource());
+        Assert.assertEquals(0, response.getFullMessageLength());
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
                 , "Response code mismatch");
 

@@ -345,8 +345,9 @@ struct Proxy {
 public struct Options {
     int port;
     int endpointTimeout = 60000;
-    boolean enableChunking = true;
     boolean keepAlive = true;
+	string transferEncoding = "chunking";
+	string chunking = "auto";
 	string httpVersion;
     FollowRedirects followRedirects;
     SSL ssl;

@@ -358,8 +358,17 @@ public class HttpConnectionManager {
 
         senderConfiguration.setFollowRedirect(followRedirect == 1);
         senderConfiguration.setMaxRedirectCount(maxRedirectCount);
-        int enableChunking = options.getBooleanField(Constants.ENABLE_CHUNKING_INDEX);
-        senderConfiguration.setChunkEnabled(enableChunking == 1);
+
+        // For the moment we don't have to pass it down to transport as we only support
+        // chunking. Once we start supporting gzip, deflate, etc, we need to parse down the config.
+        String transferEncoding = options.getStringField(Constants.TRANSFER_ENCODING);
+        if (transferEncoding != null && !Constants.ANN_CONFIG_ATTR_CHUNKING.equalsIgnoreCase(transferEncoding)) {
+            throw new BallerinaConnectorException("Unsupported configuration found for Transfer-Encoding : "
+                    + transferEncoding);
+        }
+
+        String chunking = options.getStringField(Constants.ENABLE_CHUNKING_INDEX);
+        senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
 
         long endpointTimeout = options.getIntField(Constants.ENDPOINT_TIMEOUT_STRUCT_INDEX);
         if (endpointTimeout < 0 || (int) endpointTimeout != endpointTimeout) {
@@ -369,6 +378,7 @@ public class HttpConnectionManager {
 
         boolean isKeepAlive = options.getBooleanField(Constants.IS_KEEP_ALIVE_INDEX) == 1;
         senderConfiguration.setKeepAlive(isKeepAlive);
+
         String httpVersion = options.getStringField(Constants.HTTP_VERSION_STRUCT_INDEX);
         senderConfiguration.setHttpVersion(httpVersion);
     }
