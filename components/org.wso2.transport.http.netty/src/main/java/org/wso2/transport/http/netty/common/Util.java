@@ -299,9 +299,9 @@ public class Util {
         }
 
         sslProtocol = sslProtocol != null ? sslProtocol : "TLS";
-        sslConfig.setSslProtocol(sslProtocol);
+        sslConfig.setSSLProtocol(sslProtocol);
         tlsStoreType = tlsStoreType != null ? tlsStoreType : "JKS";
-        sslConfig.setTlsStoreType(tlsStoreType);
+        sslConfig.setTLSStoreType(tlsStoreType);
 
         if (trustStoreFilePath != null) {
 
@@ -342,9 +342,9 @@ public class Util {
         sslConfig.setTrustStore(trustStore).setTrustStorePass(trustStorePass);
         sslConfig.setClientMode(true);
         sslProtocol = sslProtocol != null ? sslProtocol : "TLS";
-        sslConfig.setSslProtocol(sslProtocol);
+        sslConfig.setSSLProtocol(sslProtocol);
         tlsStoreType = tlsStoreType != null ? tlsStoreType : "JKS";
-        sslConfig.setTlsStoreType(tlsStoreType);
+        sslConfig.setTLSStoreType(tlsStoreType);
         if (parametersList != null) {
             for (Parameter parameter : parametersList) {
                 String paramName = parameter.getName();

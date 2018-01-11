@@ -117,11 +117,11 @@ public class ListenerConfiguration {
         this.port = port;
     }
 
-    public String getTlsStoreType() {
+    public String getTLSStoreType() {
         return tlsStoreType;
     }
 
-    public void setTlsStoreType(String tlsStoreType) {
+    public void setTLSStoreType(String tlsStoreType) {
         this.tlsStoreType = tlsStoreType;
     }
 
@@ -189,11 +189,11 @@ public class ListenerConfiguration {
         return verifyClient;
     }
 
-    public void setSslProtocol(String sslProtocol) {
+    public void setSSLProtocol(String sslProtocol) {
         this.sslProtocol = sslProtocol;
     }
 
-    public String getSslProtocol() {
+    public String getSSLProtocol() {
         return sslProtocol;
     }
 
@@ -237,7 +237,7 @@ public class ListenerConfiguration {
         this.parameters = parameters;
     }
 
-    public SSLConfig getSslConfig() {
+    public SSLConfig getSSLConfig() {
         if (scheme == null || !scheme.equalsIgnoreCase("https")) {
             return null;
         }

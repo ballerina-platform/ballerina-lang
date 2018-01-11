@@ -104,11 +104,11 @@ public class SenderConfiguration {
         this.id = id;
     }
 
-    public void setSslProtocol(String sslProtocol) {
+    public void setSSLProtocol(String sslProtocol) {
         this.sslProtocol = sslProtocol;
     }
 
-    public String getSslProtocol() {
+    public String getSSLProtocol() {
         return sslProtocol;
     }
 
@@ -116,11 +116,11 @@ public class SenderConfiguration {
         return certPass;
     }
 
-    public String getTlsStoreType() {
+    public String getTLSStoreType() {
         return tlsStoreType;
     }
 
-    public void setTlsStoreType(String storeType) {
+    public void setTLSStoreType(String storeType) {
         this.tlsStoreType = storeType;
     }
 
@@ -184,7 +184,7 @@ public class SenderConfiguration {
         this.trustStorePass = trustStorePass;
     }
 
-    public SSLConfig getSslConfig() {
+    public SSLConfig getSSLConfig() {
         if (scheme == null || !scheme.equalsIgnoreCase("https")) {
             return null;
         }

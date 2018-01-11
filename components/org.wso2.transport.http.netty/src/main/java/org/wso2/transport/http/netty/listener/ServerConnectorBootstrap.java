@@ -76,8 +76,8 @@ public class ServerConnectorBootstrap {
 //            ListenerConfiguration listenerConfiguration = serverConnector.getListenerConfiguration();
 //            SslContext http2sslContext = null;
 //            // Create HTTP/2 ssl context during interface binding.
-//            if (listenerConfiguration.isHttp2() && listenerConfiguration.getSslConfig() != null) {
-//                http2sslContext = new SSLHandlerFactory(listenerConfiguration.getSslConfig())
+//            if (listenerConfiguration.isHttp2() && listenerConfiguration.getSSLConfig() != null) {
+//                http2sslContext = new SSLHandlerFactory(listenerConfiguration.getSSLConfig())
 //                        .createHttp2TLSContext();
 //            }
 
