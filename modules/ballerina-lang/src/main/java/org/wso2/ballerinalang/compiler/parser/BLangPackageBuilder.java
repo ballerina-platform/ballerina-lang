@@ -1280,6 +1280,7 @@ public class BLangPackageBuilder {
         foreach.addWS(ws);
         foreach.pos = pos;
         foreach.setCollection(exprNodeStack.pop());
+        foreach.addWS(commaWsStack.pop());
         List<ExpressionNode> lExprList = exprNodeListStack.pop();
         lExprList.forEach(expressionNode -> foreach.addVariable((BLangVariableReference) expressionNode));
         BLangBlockStmt foreachBlock = (BLangBlockStmt) this.blockNodeStack.pop();
