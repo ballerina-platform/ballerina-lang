@@ -156,7 +156,12 @@ public class TextDocumentServiceUtil {
         return (BLangPackage) compiler.getAST();
     }
 
-    private static Path getPath(String uri) {
+    /**
+     *  Get Path from URI.
+     * @param uri               Path URI String
+     * @return                  File Path
+     */
+    public static Path getPath(String uri) {
         Path path = null;
         try {
             path = Paths.get(new URL(uri).toURI());
