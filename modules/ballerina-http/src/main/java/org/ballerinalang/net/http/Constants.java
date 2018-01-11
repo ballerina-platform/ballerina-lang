@@ -61,6 +61,7 @@ public class Constants {
     public static final String CHUNKING_AUTO = "auto";
     public static final String CHUNKING_ALWAYS = "always";
     public static final String CHUNKING_NEVER = "never";
+    public static final String MAX_ACTIVE_CONNECTIONS_PER_POOL = "client.max.active.connections.per.pool";
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
 
@@ -166,6 +167,7 @@ public class Constants {
     public static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final int OPTIONS_STRUCT_INDEX = 0;
     public static final int ENDPOINT_TIMEOUT_STRUCT_INDEX = 1;
+    public static final int MAX_ACTIVE_CONNECTIONS_INDEX = 2;
     public static final int TRANSFER_ENCODING = 0;
     public static final int ENABLE_CHUNKING_INDEX = 1;
     public static final int IS_KEEP_ALIVE_INDEX = 0;
