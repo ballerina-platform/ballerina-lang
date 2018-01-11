@@ -172,17 +172,13 @@ public class BLangVM {
             handleError();
         } else if (isWaitingOnNonBlockingAction()) {
             // // TODO : Temporary to solution make non-blocking working.
-            BType[] retTypes = context.actionInfo.getRetParamTypes();
+            BType[] retTypes = context.nonBlockingContext.actionInfo.getRetParamTypes();
             StackFrame calleeSF = controlStack.popFrame();
             this.constPool = controlStack.currentFrame.packageInfo.getConstPoolEntries();
             this.code = controlStack.currentFrame.packageInfo.getInstructions();
-            handleReturnFromNativeCallableUnit(controlStack.currentFrame, context.funcCallCPEntry.getRetRegs(),
+            handleReturnFromNativeCallableUnit(controlStack.currentFrame, context.nonBlockingContext.retRegs,
                     calleeSF.returnValues, retTypes);
-
-            // TODO Remove
-            context.nativeArgValues = null;
-            context.funcCallCPEntry = null;
-            context.actionInfo = null;
+            context.nonBlockingContext = null;
         }
 
         try {
@@ -3093,8 +3089,7 @@ public class BLangVM {
                 if (caleeSF.packageInfo == null) {
                     caleeSF.packageInfo = actionInfo.getPackageInfo();
                 }
-                context.programFile = programFile;
-                context.actionInfo = actionInfo;
+                context.nonBlockingContext = new Context.NonBlockingContext(actionInfo, retRegs);
 
                 ConnectorFuture future = nativeAction.execute(context);
                 if (future == null) {
@@ -3768,6 +3763,6 @@ public class BLangVM {
     }
 
     private boolean isWaitingOnNonBlockingAction() {
-        return context.actionInfo != null;
+        return context.nonBlockingContext != null;
     }
 }
