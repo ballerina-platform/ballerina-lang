@@ -45,7 +45,7 @@ function testIntRangeSimple(int a, int b)(string){
 
 function testIntRangeEmptySet()(string){
     output = "";
-    foreach i,j in 5 .. 0  {
+    foreach i,j in 5.. 0  {
         concatTwoInts(i, j);
     }
     return output;
@@ -77,7 +77,7 @@ function testIntRangeComplex()(string){
 
 function testIntRangeExcludeStart()(string){
     output = "";
-    foreach i,j in ( -10 .. 10 ] {
+    foreach i,j in ( -10..10] {
         concatTwoInts(i, j);
     }
     return output;
@@ -85,7 +85,7 @@ function testIntRangeExcludeStart()(string){
 
 function testIntRangeExcludeEnd()(string){
     output = "";
-    foreach i,j in [ -10 .. 10 ) {
+    foreach i,j in [-10..10 ) {
         concatTwoInts(i, j);
     }
     return output;
@@ -93,7 +93,7 @@ function testIntRangeExcludeEnd()(string){
 
 function testIntRangeExcludeBoth()(string){
     output = "";
-    foreach i,j in ( -10 .. 10 ) {
+    foreach i,j in (-10 .. 10) {
         concatTwoInts(i, j);
     }
     return output;
@@ -101,7 +101,7 @@ function testIntRangeExcludeBoth()(string){
 
 function testIntRangeIncludeBoth()(string){
     output = "";
-    foreach i,j in [ -10 .. 10 ] {
+    foreach i,j in [-10..10] {
         concatTwoInts(i, j);
     }
     return output;
