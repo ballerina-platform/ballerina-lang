@@ -164,6 +164,7 @@ public class WebSocketServerTestCase {
 
     @Test(enabled = false)
     public void testIdleTimeout() throws InterruptedException, ProtocolException, SSLException, URISyntaxException {
+        // TODO: Fix this. This fails intermittently. Issue #38
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost("localhost");
         listenerConfiguration.setPort(TestUtil.ALTER_INTERFACE_PORT);
