@@ -170,7 +170,7 @@ public class ServerConnectorBootstrap {
             this.host = host;
             this.port = port;
             this.connectorID =  id;
-            httpServerChannelInitializer.setInterfaceId(Util.createServerConnectorID(host, port));
+            httpServerChannelInitializer.setInterfaceId(id);
         }
 
         @Override
