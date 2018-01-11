@@ -100,6 +100,16 @@ label.thin-text{
   padding:20px 40px;
 }
 
+.main-wrapper .content {
+    margin: 0;
+    margin-top: 17px;
+    padding-bottom: 15px;
+    width: 82%;
+    height: 94%;
+    position: fixed;
+    overflow: scroll;
+}
+
 .main-content-wrapper {
   padding:30px;
 }
@@ -196,6 +206,16 @@ td, th{
 
 .navbar-fixed-side {
     margin: 0;
+    margin-top: 40px;
+    padding-bottom: 15px;
+    width: 17%;
+    height: 94%;
+    position: fixed;
+    overflow: scroll;
+}
+
+.package-name-ul {
+    width: 100%;
 }
 
 .package-name-ul > li > a {
