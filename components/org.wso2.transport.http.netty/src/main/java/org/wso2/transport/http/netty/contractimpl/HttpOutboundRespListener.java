@@ -44,7 +44,7 @@ import java.util.Locale;
  */
 public class HttpOutboundRespListener implements HttpConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(HttpConnectorListener.class);
+    private static final Logger log = LoggerFactory.getLogger(HttpOutboundRespListener.class);
 
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
