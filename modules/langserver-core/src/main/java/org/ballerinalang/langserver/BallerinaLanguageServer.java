@@ -55,6 +55,7 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
         res.getCapabilities().setSignatureHelpProvider(signatureHelpOptions);
         res.getCapabilities().setHoverProvider(true);
         res.getCapabilities().setDocumentSymbolProvider(true);
+        res.getCapabilities().setDefinitionProvider(true);
 
         return CompletableFuture.supplyAsync(() -> res);
     }
