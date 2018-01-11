@@ -2040,59 +2040,6 @@ export default {
             "connector": false
         },
         "parameters": [
-            {
-                "ws": [
-                    {
-                        "ws": " ",
-                        "i": 8,
-                        "text": "url",
-                        "static": false
-                    }
-                ],
-                "position": {
-                    "startColumn": 39,
-                    "startLine": 2,
-                    "endColumn": 46,
-                    "endLine": 2
-                },
-                "symbolType": [
-                    "string"
-                ],
-                "typeNode": {
-                    "ws": [
-                        {
-                            "ws": "",
-                            "i": 6,
-                            "text": "string",
-                            "static": true
-                        }
-                    ],
-                    "position": {
-                        "startColumn": 39,
-                        "startLine": 2,
-                        "endColumn": 39,
-                        "endLine": 2
-                    },
-                    "symbolType": [
-                        "string"
-                    ],
-                    "typeKind": "string",
-                    "kind": "ValueType"
-                },
-                "annotationAttachments": [],
-                "name": {
-                    "literal": false,
-                    "value": "url",
-                    "kind": "Identifier"
-                },
-                "kind": "Variable",
-                "public": false,
-                "native": false,
-                "const": false,
-                "lambda": false,
-                "parallel": false,
-                "connector": false
-            }
         ],
         "initAction": {
             "position": {
