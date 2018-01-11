@@ -1471,7 +1471,7 @@ class SizingUtil {
 
         components['block-header'].h = this.config.flowChartControlStatement.heading.height
                                         + this.config.flowChartControlStatement.padding.top
-                                        + this.config.flowChartControlStatement.heading.flowPathHeight;
+                                        + this.config.flowChartControlStatement.heading.gap;
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
@@ -1634,22 +1634,19 @@ class SizingUtil {
         const catchBlocks = node.catchBlocks || [];
         let height = node.viewState.bBox.h;
         const finallyBody = node.finallyBody;
-        let maxWidth = node.body.viewState.bBox.w;
+        let width = node.body.viewState.bBox.w;
 
-        // Here we check for the max width. Consider each block's body and set the max width to the try node's width
-        // During the position calculation iteration, we increase the each corresponding component's width accordingly
         catchBlocks.forEach((catchBlock) => {
             height += catchBlock.viewState.bBox.h;
-            maxWidth = Math.max(maxWidth, catchBlock.body.viewState.bBox.w);
+            width += catchBlock.viewState.bBox.h;
         });
 
         if (finallyBody) {
             height += finallyBody.viewState.bBox.h;
-            maxWidth = Math.max(maxWidth, finallyBody.viewState.bBox.w);
         }
 
         node.viewState.bBox.h = height;
-        node.viewState.bBox.w = maxWidth;
+        node.viewState.bBox.w = width;
     }
 
     /**
@@ -1758,7 +1755,7 @@ class SizingUtil {
 
         components['block-header'].h = this.config.flowChartControlStatement.heading.height
                                         + this.config.flowChartControlStatement.padding.top
-                                        + this.config.flowChartControlStatement.heading.flowPathHeight;
+                                        + this.config.flowChartControlStatement.heading.gap;
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
@@ -1939,11 +1936,12 @@ class SizingUtil {
         const bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
 
-        components['block-header'].h = this.config.blockStatement.heading.height;
+        components['block-header'].h = this.config.compoundStatement.heading.height
+                                        + this.config.compoundStatement.heading.gap;
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
-        viewState.components['statement-box'].h = bodyHeight + this.config.blockStatement.heading.height;
+        viewState.components['statement-box'].h = bodyHeight + components['block-header'].h;
         viewState.components['statement-box'].w = bodyWidth;
         viewState.bBox.h = viewState.components['statement-box'].h + viewState.components['drop-zone'].h
                             + this.config.statement.gutter.h;
@@ -1956,7 +1954,7 @@ class SizingUtil {
         // we will calculate the width of the expression and adjust the block statement
         if (expression) {
             // see how much space we have to draw the condition
-            const available = bodyWidth - this.config.blockStatement.heading.width - 10;
+            const available = bodyWidth - this.config.compoundStatement.heading.width - 10;
             components.expression = this.getTextWidth(expression.getSource(true), 0, available);
         }
     }

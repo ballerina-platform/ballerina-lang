@@ -167,10 +167,38 @@ export const flowChartControlStatement = {
         paramPaddingX: 5,
         paramSeparatorOffsetX: 20,
         paramEndOffsetX: 6,
-        flowPathHeight: statement.height,
+        gap: statement.height,
     },
     gutter: {
-        h: (2 * statement.gutter.h),
+        h: statement.height,
+    },
+    body: {
+        padding: {
+            top: 25,
+            right: 25,
+            bottom: 25,
+            left: 25,
+        },
+        height: 100,
+    },
+    padding: {
+        left: statement.height,
+        top: (statement.height / 2),
+        bottom: (statement.height / 2),
+    },
+    gap: {
+        left: (12 * statement.padding.left),
+    },
+};
+
+export const compoundStatement = {
+    heading: {
+        width: (statement.width * (1 / 2)),
+        height: (2 * statement.height),
+        gap: statement.height,
+    },
+    gutter: {
+        h: statement.gutter.h,
     },
     body: {
         padding: {
