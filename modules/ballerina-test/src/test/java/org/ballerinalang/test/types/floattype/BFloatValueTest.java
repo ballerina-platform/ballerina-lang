@@ -123,4 +123,14 @@ public class BFloatValueTest {
         BFloat floatValue = (BFloat) returns[0];
         Assert.assertEquals(floatValue.floatValue(), 5.0d, "Invalid float value returned.");
     }
+
+    @Test(description = "Test double value Division")
+    public void testFloatValues() {
+        BValue[] returns = BRunUtil.invoke(result, "testFloatValues");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 123.4, "Invalid float value returned.");
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 1.234e2, "Invalid float value returned.");
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.4d, "Invalid float value returned.");
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 1.234e2d, "Invalid float value returned.");
+    }
 }
