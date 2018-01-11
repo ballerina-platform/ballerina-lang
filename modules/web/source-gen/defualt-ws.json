@@ -277,6 +277,22 @@
     "before fieldName": "",
     "after fieldName": ""
   },
+  "Foreach": {
+    "before foreach": "",
+    "after foreach": " ",
+    "before variables": " ",
+    "after variables": "",
+    "before in": " ",
+    "after in": "",
+    "before collection": " ",
+    "after collection": "",
+    "before {": " ",
+    "after {": "",
+    "before body": "",
+    "after body": "",
+    "before }": "",
+    "after }": ""
+  },
   "ForkJoin": {
     "before fork": "",
     "after fork": "",
