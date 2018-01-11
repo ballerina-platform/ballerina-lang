@@ -48,15 +48,15 @@ public class BalScheduleTimer extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         FunctionRefCPEntry onTriggerFunctionRefCPEntry;
         FunctionRefCPEntry onErrorFunctionRefCPEntry = null;
-        if (ctx.getControlStackNew().getCurrentFrame().getRefLocalVars()[0] != null && ctx.getControlStackNew()
-                .getCurrentFrame().getRefLocalVars()[0] instanceof BFunctionPointer) {
+        if (ctx.getControlStack().getCurrentFrame().getRefRegs()[0] != null && ctx.getControlStack()
+                .getCurrentFrame().getRefRegs()[0] instanceof BFunctionPointer) {
             onTriggerFunctionRefCPEntry = ((BFunctionPointer) getRefArgument(ctx, 0)).value();
         } else {
             return getBValues(new BString(""),
                     BLangVMErrors.createError(ctx, 0, "The onTrigger function is not provided"));
         }
-        if (ctx.getControlStackNew().getCurrentFrame().getRefLocalVars()[1] != null && ctx.getControlStackNew()
-                .getCurrentFrame().getRefLocalVars()[1] instanceof BFunctionPointer) {
+        if (ctx.getControlStack().getCurrentFrame().getRefRegs()[1] != null && ctx.getControlStack()
+                .getCurrentFrame().getRefRegs()[1] instanceof BFunctionPointer) {
             onErrorFunctionRefCPEntry = ((BFunctionPointer) getRefArgument(ctx, 1)).value();
         }
         BStruct scheduler = (BStruct) getRefArgument(ctx, 2);

@@ -20,7 +20,7 @@ package org.ballerinalang.test.utils.debug;
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
-import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.bre.bvm.ControlStack;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BRefType;
@@ -110,9 +110,9 @@ public class DebuggerExecutor implements Runnable {
         callerSF.getRefRegs()[0] = arrayArgs;
 
         StackFrame stackFrame = new StackFrame(mainFuncInfo, defaultWorkerInfo, -1, new int[0]);
-        stackFrame.getRefLocalVars()[0] = arrayArgs;
-        ControlStackNew controlStackNew = bContext.getControlStackNew();
-        controlStackNew.pushFrame(stackFrame);
+        stackFrame.getRefRegs()[0] = arrayArgs;
+        ControlStack controlStack = bContext.getControlStack();
+        controlStack.pushFrame(stackFrame);
         bContext.startTrackWorker();
         bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
 

@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperat
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,9 +39,9 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
     public BLangExpression expr;
     public BLangType typeNode;
     public List<BType> types = new ArrayList<>(0);
-    public int[] regIndexes;
     public BConversionOperatorSymbol conversionSymbol;
     public BLangInvocation transformerInvocation;
+    private RegIndex[] regIndexes;
 
     public ExpressionNode getExpression() {
         return expr;
@@ -93,8 +94,12 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
         this.types = types;
     }
 
-    @Override
-    public int[] getRegIndexes() {
-        return this.regIndexes;
+    public RegIndex[] getRegIndexes() {
+        return regIndexes;
+    }
+
+    public void setRegIndexes(RegIndex[] regIndexes) {
+        this.regIndexes = regIndexes;
+        this.regIndex = regIndexes != null && regIndexes.length > 0 ? regIndexes[0] : null;
     }
 }
