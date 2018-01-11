@@ -349,9 +349,9 @@ public struct Options {
     int endpointTimeout = 60000;
     int maxActiveConnections = -1;
     boolean keepAlive = true;
-	string transferEncoding = "chunking";
-	string chunking = "auto";
-	string httpVersion;
+    string transferEncoding = "chunking";
+    string chunking = "auto";
+    string httpVersion;
     FollowRedirects followRedirects;
     SSL ssl;
     Retry retryConfig;
