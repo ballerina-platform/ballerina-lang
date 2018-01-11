@@ -48,17 +48,28 @@ public class MultipartRequestDecoder {
         this.httpCarbonMessage = httpCarbonMessage;
     }
 
+    /**
+     * Check whether the carbon message represent a multipart request.
+     *
+     * @return boolean indicating whether the carbon message contains multipart content
+     */
     public boolean isMultipartRequest() {
         nettyRequestDecoder = new HttpPostRequestDecoder(Util.createHttpRequest(httpCarbonMessage));
         return nettyRequestDecoder.isMultipart();
     }
 
+    /**
+     * Parse the content of carbon message.
+     *
+     * @throws IOException when no body content is found
+     */
     public void parseBody() throws IOException {
         boolean isReadAll = false;
         while (!isReadAll) {
             HttpContent httpContent = httpCarbonMessage.getHttpContent();
             if (httpContent == null) {
-                throw new IOException("No entity was added to the queue before the timeout");
+                resetPostRequestDecoder();
+                throw new IOException("No content was found to decode!");
             } else {
                 nettyRequestDecoder = nettyRequestDecoder.offer(httpContent);
                 readChunkByChunk();
@@ -95,7 +106,7 @@ public class MultipartRequestDecoder {
     /**
      * Construct body parts from chunks.
      *
-     * @param data InterfaceHttpData
+     * @param data Data object that needs to be decoded
      */
     private void processChunk(InterfaceHttpData data) {
         if (LOG.isDebugEnabled()) {
@@ -128,20 +139,25 @@ public class MultipartRequestDecoder {
                 }
                 break;
             default:
-                LOG.warn("Received unknown attribute type. Skipping.");
+                LOG.warn("Received unknown attribute type.");
                 break;
         }
         multiparts.add(bodyPart);
     }
 
     /**
-     * Reset Request decoder.
+     * Reset request decoder.
      */
-    private void resetPostRequestDecoder() {
+    public void resetPostRequestDecoder() {
         nettyRequestDecoder.destroy();
         nettyRequestDecoder = null;
     }
 
+    /**
+     * Get a list of body parts.
+     *
+     * @return a list of multiparts
+     */
     public List<HttpBodyPart> getMultiparts() {
         return multiparts;
     }
