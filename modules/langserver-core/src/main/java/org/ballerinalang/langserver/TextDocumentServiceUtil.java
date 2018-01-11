@@ -126,8 +126,12 @@ public class TextDocumentServiceUtil {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         String fileContent = docManager.getFileContent(Paths.get(URI.create(uri)));
         Path filePath = getPath(uri);
-        String[] pathComponents = uri.split("\\" + File.separator);
-        String fileName = pathComponents[pathComponents.length - 1];
+        Path fileNamePath = filePath.getFileName();
+        String fileName = "";
+        if (fileNamePath != null) {
+            fileName = fileNamePath.toString();
+        }
+
         String pkgName = TextDocumentServiceUtil.getPackageFromContent(fileContent);
         String sourceRoot = TextDocumentServiceUtil.getSourceRoot(filePath, pkgName);
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, docManager);
