@@ -5,7 +5,6 @@ options {
     tokenVocab = BallerinaLexer;
 }
 
-//todo comment statment
 //todo revisit blockStatement
 
 // starting point for parsing a bal file
@@ -235,7 +234,7 @@ statement
     |   assignmentStatement
     |   bindStatement
     |   ifElseStatement
-    |   iterateStatement
+    |   foreachStatement
     |   whileStatement
     |   nextStatement
     |   breakStatement
@@ -311,9 +310,13 @@ elseClause
     :   ELSE LEFT_BRACE statement*RIGHT_BRACE
     ;
 
-//todo replace with 'foreach'
-iterateStatement
-    :   ITERATE LEFT_PARENTHESIS typeName Identifier COLON expression RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
+foreachStatement
+    :   FOREACH LEFT_PARENTHESIS? variableReferenceList IN  (expression | intRangeExpression) RIGHT_PARENTHESIS? LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
+intRangeExpression
+    : expression RANGE expression
+    | (LEFT_BRACKET|LEFT_PARENTHESIS) expression RANGE expression (RIGHT_BRACKET|RIGHT_PARENTHESIS)
     ;
 
 whileStatement

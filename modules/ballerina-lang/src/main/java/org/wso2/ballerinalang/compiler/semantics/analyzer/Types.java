@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -50,6 +51,7 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -336,6 +338,62 @@ public class Types {
             }
         }
         return true;
+    }
+
+    List<BType> checkForeachTypes(BLangNode collection, int variableSize) {
+        BType collectionType = collection.type;
+        List<BType> errorTypes;
+        int maxSupportedTypes;
+        switch (collectionType.tag) {
+            case TypeTags.ARRAY:
+                BArrayType bArrayType = (BArrayType) collectionType;
+                if (variableSize == 1) {
+                    return Lists.of(bArrayType.eType);
+                } else if (variableSize == 2) {
+                    return Lists.of(symTable.intType, bArrayType.eType);
+                } else {
+                    maxSupportedTypes = 2;
+                    errorTypes = Lists.of(symTable.intType, bArrayType.eType);
+                }
+                break;
+            case TypeTags.MAP:
+                BMapType bMapType = (BMapType) collectionType;
+                if (variableSize == 1) {
+                    return Lists.of(bMapType.constraint);
+                } else if (variableSize == 2) {
+                    return Lists.of(symTable.stringType, bMapType.constraint);
+                } else {
+                    maxSupportedTypes = 2;
+                    errorTypes = Lists.of(symTable.stringType, bMapType.constraint);
+                }
+                break;
+            case TypeTags.JSON:
+                if (variableSize == 1) {
+                    return Lists.of(symTable.jsonType);
+                } else {
+                    maxSupportedTypes = 1;
+                    errorTypes = Lists.of(symTable.jsonType);
+                }
+                break;
+            case TypeTags.XML:
+                if (variableSize == 1) {
+                    return Lists.of(symTable.xmlType);
+                } else if (variableSize == 2) {
+                    return Lists.of(symTable.intType, symTable.xmlType);
+                } else {
+                    maxSupportedTypes = 2;
+                    errorTypes = Lists.of(symTable.intType, symTable.xmlType);
+                }
+                break;
+            case TypeTags.ERROR:
+                return Collections.nCopies(variableSize, symTable.errType);
+            default:
+                dlog.error(collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION, collectionType);
+                return Collections.nCopies(variableSize, symTable.errType);
+        }
+        dlog.error(collection.pos, DiagnosticCode.ITERABLE_TOO_MANY_VARIABLES, collectionType);
+        errorTypes.addAll(Collections.nCopies(variableSize - maxSupportedTypes, symTable.errType));
+        return errorTypes;
     }
 
     private boolean checkActionTypeEquality(BInvokableSymbol source, BInvokableSymbol target) {
