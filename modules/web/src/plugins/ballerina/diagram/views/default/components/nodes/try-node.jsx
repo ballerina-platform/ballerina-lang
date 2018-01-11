@@ -97,7 +97,6 @@ class TryNode extends React.Component {
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        // const catchViews = getComponentForNodeArray(model.catchBlocks);
         const dropZone = model.viewState.components['drop-zone'];
 
         return (
@@ -121,18 +120,6 @@ class TryNode extends React.Component {
                     model={model}
                     body={model.body}
                 />
-
-                {/* {this.getAddBlockButton()}
-                {catchViews}
-                {model.finallyBody &&
-                <CompoundStatementDecorator
-                    bBox={bBox}
-                    title={'finally'}
-                    model={model.finallyBody}
-                    body={model.finallyBody}
-                    disableButtons={{ delete: disableDeleteForFinally }}
-                />
-                } */}
             </g>
         );
     }

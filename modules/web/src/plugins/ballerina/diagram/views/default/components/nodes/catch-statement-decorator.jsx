@@ -27,14 +27,12 @@ import ActionBox from '../decorators/action-box';
 import ActiveArbiter from '../decorators/active-arbiter';
 import Breakpoint from '../decorators/breakpoint';
 import { getComponentForNodeArray } from './../../../../diagram-util';
-import FinallyStatementDecorator from './finally-statement-decorator';
-import CatchStatementDecorator from './catch-statement-decorator';
 
 /**
  * Wraps other UI elements and provide box with a heading.
  * Enrich elements with a action box and expression editors.
  */
-class TryStatementDecorator extends React.Component {
+class CatchStatementDecorator extends React.Component {
 
     /**
      * Initialize the block decorator.
@@ -229,7 +227,7 @@ class TryStatementDecorator extends React.Component {
         const p4Y = p2Y;
 
         const p5X = p4X;
-        const p5Y = bBox.y + bBox.h;
+        const p5Y = bBox.y + statementBBox.h;
 
         const p6X = bBox.x;
         const p6Y = p5Y;
@@ -243,8 +241,8 @@ class TryStatementDecorator extends React.Component {
         const p11X = p1X;
         const p11Y = p1Y + (titleH / 2);
 
-        // const p12X = p8X;
-        // const p12Y = p8Y + this.context.designer.config.flowChartControlStatement.heading.gap;
+        const p12X = p8X;
+        const p12Y = p8Y + this.context.designer.config.compoundStatement.heading.gap;
 
         this.conditionBox = new SimpleBBox(p2X, (p2Y - (this.context.designer.config.statement.height / 2)),
             statementBBox.w, this.context.designer.config.statement.height);
@@ -261,8 +259,6 @@ class TryStatementDecorator extends React.Component {
         }
 
         const body = getComponentForNodeArray(this.props.model.body);
-        const finallyStmt = model.finallyBody;
-        const disableDeleteForFinally = model.catchBlocks.length <= 0 && model.finallyBody;
 
         return (
             <g
@@ -289,7 +285,7 @@ class TryStatementDecorator extends React.Component {
                     x={p8X}
                     y={p2Y}
                     className='statement-title-text'
-                >try
+                >catch
                 </text>
                 <DropZone
                     x={p11X}
@@ -324,31 +320,11 @@ class TryStatementDecorator extends React.Component {
                     onBreakpointClick={() => this.props.onBreakpointClick()}
                     disableButtons={this.props.disableButtons}
                 />
-                {(() => {
-                    if (model.catchBlocks.length > 0) {
-                        return model.catchBlocks.map((catchStmt) => {
-                            return (
-                                <CatchStatementDecorator
-                                    bBox={catchStmt.viewState.bBox}
-                                    model={catchStmt}
-                                    body={catchStmt}
-                                />);
-                        });
-                    }
-                    return (null);
-                })()}
-                {finallyStmt &&
-                <FinallyStatementDecorator
-                    bBox={finallyStmt.viewState.bBox}
-                    model={finallyStmt}
-                    body={finallyStmt}
-                    disableButtons={{ delete: disableDeleteForFinally }}
-                />}
             </g>);
     }
 }
 
-TryStatementDecorator.defaultProps = {
+CatchStatementDecorator.defaultProps = {
     draggable: null,
     children: null,
     undeletable: false,
@@ -365,11 +341,14 @@ TryStatementDecorator.defaultProps = {
     isDebugHit: false,
 };
 
-TryStatementDecorator.propTypes = {
+CatchStatementDecorator.propTypes = {
     model: PropTypes.instanceOf(Node).isRequired,
     children: PropTypes.arrayOf(PropTypes.node),
     bBox: PropTypes.instanceOf(SimpleBBox).isRequired,
     dropTarget: PropTypes.instanceOf(Node).isRequired,
+    expression: PropTypes.shape({
+        text: PropTypes.string,
+    }).isRequired,
     editorOptions: PropTypes.shape({
         propertyType: PropTypes.string,
         key: PropTypes.string,
@@ -396,7 +375,7 @@ TryStatementDecorator.propTypes = {
     isDebugHit: PropTypes.bool,
 };
 
-TryStatementDecorator.contextTypes = {
+CatchStatementDecorator.contextTypes = {
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
@@ -405,4 +384,4 @@ TryStatementDecorator.contextTypes = {
     designer: PropTypes.instanceOf(Object),
 };
 
-export default breakpointHoc(TryStatementDecorator);
+export default breakpointHoc(CatchStatementDecorator);
