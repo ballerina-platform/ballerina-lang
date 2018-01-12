@@ -210,8 +210,7 @@ public class BLangVM {
         context.setStartIP(startIP);
         Debugger debugger = programFile.getDebugger();
         if (debugger.isDebugEnabled() && debugger.isClientSessionActive()) {
-            DebuggerUtil.runInDebugMode(this, context, debugger);
-            return;
+            DebuggerUtil.initDebugContext(context, debugger);
         }
         run(context);
     }
@@ -229,15 +228,15 @@ public class BLangVM {
         FunctionInfo functionInfo;
         InstructionCALL callIns;
 
-        boolean isDebugging = programFile.getDebugger().isDebugEnabled();
+        boolean debugEnabled = programFile.getDebugger().isDebugEnabled();
 
         StackFrame currentSF, callersSF;
         int callersRetRegIndex;
 
         while (ip >= 0 && ip < code.length && controlStack.currentFrame != null) {
 
-            if (isDebugging) {
-                debugging(ip);
+            if (debugEnabled) {
+                debug();
             }
             Instruction instruction = code[ip];
             int opcode = instruction.getOpcode();
@@ -2337,38 +2336,39 @@ public class BLangVM {
 
     /**
      * Method to calculate and detect debug points when the instruction point is given.
-     *
-     * @param cp Current instruction point.
      */
-    private void debugging(int cp) {
-        Debugger debugManager = programFile.getDebugger();
-        if (!debugManager.isClientSessionActive()) {
+    private void debug() {
+        Debugger debugger = programFile.getDebugger();
+        if (!debugger.isClientSessionActive()) {
             return;
         }
         DebugContext debugContext = context.getDebugContext();
 
-        if (debugContext.getCurrentCommand() == DebugCommand.RESUME && debugContext.isAtive()) {
-            debugContext.setActive(false);
-            debugManager.releaseDebugSessionLock();
-        }
+//        if (debugContext.getCurrentCommand() == DebugCommand.RESUME && debugContext.isAtive()) {
+//            debugContext.setActive(false);
+//            debugger.releaseDebugSessionLock();
+//        }
         //Between this release lock and acquire lock, some other thread can acquire the session lock as well.
-        if (code[cp].getOpcode() != InstructionCodes.WRKRECEIVE && !debugContext.isAtive()) {
-            debugManager.tryAcquireDebugSessionLock();
-            debugContext.setActive(true);
-        }
-        processDebugging(cp, debugManager, debugContext);
+//        if (code[cp].getOpcode() != InstructionCodes.WRKRECEIVE && !debugContext.isAtive()) {
+//            debugger.tryAcquireDebugSessionLock();
+//            debugContext.setActive(true);
+//        }
+        handleDebugOperations(debugger, debugContext);
     }
 
     /**
      * Method which process debug related operations.
      *
-     * @param cp            Current cp.
      * @param debugManager  Debug manager object.
      * @param debugContext  Current debug context object.
      */
-    private void processDebugging(int cp, Debugger debugManager, DebugContext debugContext) {
+    private void handleDebugOperations(Debugger debugManager, DebugContext debugContext) {
         LineNumberInfo currentExecLine = debugManager
-                .getLineNumber(controlStack.currentFrame.packageInfo.getPkgPath(), cp);
+                .getLineNumber(controlStack.currentFrame.packageInfo.getPkgPath(), ip);
+        /*
+         Below if check stops hitting the same debug line again and again in case that single line has
+         multiple instructions.
+         */
         if (currentExecLine.equals(debugContext.getLastLine())
                 || debugPointCheck(currentExecLine, debugManager, debugContext)) {
             return;
@@ -2376,7 +2376,10 @@ public class BLangVM {
 
         switch (debugContext.getCurrentCommand()) {
             case RESUME:
-                debugContext.setLastLine(null);
+                /*
+                 In case of a for loop, need to clear the last hit line, so that, same line can get hit again.
+                 */
+                debugContext.clearLastDebugLine();
                 break;
             case STEP_IN:
                 debugHit(currentExecLine, debugManager, debugContext);
@@ -2386,20 +2389,38 @@ public class BLangVM {
                     debugHit(currentExecLine, debugManager, debugContext);
                     return;
                 }
-                if (debugContext.getLastLine().checkIpRangeForInstructionCode(code, InstructionCodes.RET)
-                        && controlStack.currentFrame == debugContext.getStackFrame().prevStackFrame) {
+                /*
+                 This is either,
+                 1) function call (instruction of the next function)
+                 2) returning to the previous function
+                 below if condition checks the 2nd possibility, and if that's the case, then it's a debug hit
+                 */
+                if (code[debugContext.getLastLine().getIp()].getOpcode() == InstructionCodes.RET) {
+//                if (debugContext.getLastLine().checkIpRangeForInstructionCode(code, InstructionCodes.RET)
+//                        && controlStack.currentFrame == debugContext.getStackFrame().prevStackFrame) {
                     debugHit(currentExecLine, debugManager, debugContext);
                     return;
                 }
+                /*
+                 This means it's a function call. So using intermediate step to wait until
+                 returning from that function call.
+                 */
                 debugContext.setCurrentCommand(DebugCommand.STEP_OVER_INTMDT);
                 break;
             case STEP_OVER_INTMDT:
-                if (controlStack.currentFrame != debugContext.getStackFrame()) {
-                    return;
-                }
-                debugHit(currentExecLine, debugManager, debugContext);
+                /*
+                 Here it checks whether it has returned to the previous stack frame (that is previous function) if so,
+                 then debug hit.
+                 */
+                interMediateDebugCheck(currentExecLine, debugManager, debugContext);
                 break;
             case STEP_OUT:
+                /*
+                 This is the first instruction of immediate next line of the last debug hit point. So next debug hit
+                 point should be when it comes to the "previousStackFrame" of the "stackFrame" relevant to the
+                 last debug hit point. So here that stack frame is saved and using intermediate step to wait until
+                 a instruction for that stack frame.
+                 */
                 debugContext.setCurrentCommand(DebugCommand.STEP_OUT_INTMDT);
                 debugContext.setStackFrame(debugContext.getStackFrame().prevStackFrame);
                 interMediateDebugCheck(currentExecLine, debugManager, debugContext);
@@ -2452,15 +2473,24 @@ public class BLangVM {
      * And also to notify the debugger.
      *
      * @param currentExecLine   Current execution line.
-     * @param debugManager      Debug manager object.
+     * @param debugger      Debug manager object.
      * @param debugContext      Current debug context.
      */
-    private void debugHit(LineNumberInfo currentExecLine, Debugger debugManager,
+    private void debugHit(LineNumberInfo currentExecLine, Debugger debugger,
                           DebugContext debugContext) {
+        //Between this release lock and acquire lock, some other thread can acquire the session lock as well.
+        if (code[ip].getOpcode() != InstructionCodes.WRKRECEIVE && !debugContext.isAtive()) {
+            debugger.tryAcquireDebugSessionLock();
+            debugContext.setActive(true);
+        }
         debugContext.setLastLine(currentExecLine);
         debugContext.setStackFrame(controlStack.currentFrame);
-        debugManager.notifyDebugHit(controlStack.currentFrame, currentExecLine, debugContext.getThreadId());
-        debugManager.waitTillDebuggeeResponds();
+        debugger.notifyDebugHit(controlStack.currentFrame, currentExecLine, debugContext.getThreadId());
+        debugger.waitTillDebuggeeResponds();
+        if (debugContext.getCurrentCommand() == DebugCommand.RESUME && debugContext.isAtive()) {
+            debugContext.setActive(false);
+            debugger.releaseDebugSessionLock();
+        }
     }
 
     private void handleAnyToRefTypeCast(StackFrame sf, int[] operands, BType targetType) {

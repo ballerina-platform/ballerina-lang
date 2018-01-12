@@ -27,18 +27,16 @@ import org.ballerinalang.bre.bvm.BLangVM;
  */
 public class DebuggerUtil {
     /**
-     * Helper method to run code in debug mode.
+     * Helper method to init debug context.
      *
-     * @param bLangVM   to run the code.
      * @param context   of the code.
      * @param debugger  instance for debug purposes.
      */
-    public static void runInDebugMode(BLangVM bLangVM, Context context, Debugger debugger) {
+    public static void initDebugContext(Context context, Debugger debugger) {
         DebugContext debugContext = new DebugContext();
         debugContext.setCurrentCommand(DebugCommand.RESUME);
         context.setDebugContext(debugContext);
         debugger.addDebugContext(debugContext);
-        bLangVM.run(context);
     }
 
 }

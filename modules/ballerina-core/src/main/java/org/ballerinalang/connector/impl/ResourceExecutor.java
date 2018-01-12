@@ -160,8 +160,7 @@ public class ResourceExecutor {
         context.startTrackWorker();
         Debugger debugger = programFile.getDebugger();
         if (debugger.isDebugEnabled()) {
-            DebuggerUtil.runInDebugMode(bLangVM, context, debugger);
-            return;
+            DebuggerUtil.initDebugContext(context, debugger);
         }
         bLangVM.run(context);
     }

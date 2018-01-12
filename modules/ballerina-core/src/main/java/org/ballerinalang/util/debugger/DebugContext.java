@@ -59,6 +59,10 @@ public class DebugContext {
         this.lastLine = lastLine;
     }
 
+    public void clearLastDebugLine() {
+        this.lastLine = null;
+    }
+
     public String getThreadId() {
         return threadId;
     }
