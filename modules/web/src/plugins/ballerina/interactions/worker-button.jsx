@@ -23,6 +23,7 @@ import Button from './button';
 import Menu from './menu';
 import Item from './item';
 import DefaultNodeFactory from '../model/default-node-factory';
+import TreeUtil from '../model/tree-util';
 
 // Use your imagination to render suggestions.
 const renderSuggestion = suggestion => (
@@ -41,11 +42,15 @@ class LifelineButton extends React.Component {
         super();
         this.state = {
             listConnectors: false,
+            listActions: false,
+            selectedConnecter: '',
             value: '',
             suggestions: [],
         };
         this.showConnectors = this.showConnectors.bind(this);
         this.hideConnectors = this.hideConnectors.bind(this);
+        this.showActions = this.showActions.bind(this);
+        this.hideActions = this.hideActions.bind(this);
         /* this.onChange = this.onChange.bind(this);
         this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this);
         this.onSuggestionsClearRequested = this.onSuggestionsClearRequested.bind(this); */
@@ -80,23 +85,24 @@ class LifelineButton extends React.Component {
             const pkgname = pkg.getName();
             const connectors = pkg.getConnectors();
             connectors.forEach((connector) => {
-                console.log(connector);
                 const conName = connector.getName();
-                const actions = connector.getActions();
-                actions.forEach((action) => {
-                    const actionName = action.getName();
-                    // do the match
-                    if (value === ''
-                        || actionName.toLowerCase().includes(value)) {
-                        suggestions.push({
-                            pkg,
-                            action,
-                            connector,
-                            packageName: pkg.getName(),
-                            fullPackageName: pkg.getName(),
-                        });
-                    }
-                });
+                if (this.state.selectedConnecter === conName) {
+                    const actions = connector.getActions();
+                    actions.forEach((action) => {
+                        const actionName = action.getName();
+                        // do the match
+                        if (value === ''
+                            || actionName.toLowerCase().includes(value)) {
+                            suggestions.push({
+                                pkg,
+                                action,
+                                connector,
+                                packageName: pkg.getName(),
+                                fullPackageName: pkg.getName(),
+                            });
+                        }
+                    });
+                }
             });
         });
 
@@ -123,15 +129,24 @@ class LifelineButton extends React.Component {
         }
     }
 
-    showConnectors() {
-        this.setState({ listConnectors: true });
+    showConnectors(connectorName) {
+        this.setState({ listConnectors: true, listActions: false, selectedConnecter: connectorName });
     }
 
     hideConnectors() {
-        this.setState({ listConnectors: false });
+        this.setState({ listConnectors: false, listActions: true });
+    }
+
+    showActions() {
+        this.setState({ listActions: true, listConnectors: false });
+    }
+
+    hideActions() {
+        this.setState({ listActions: false, listConnectors: false });
     }
 
     onSuggestionSelected(event, item) {
+        this.setState({ listConnectors: false, listActions: false, selectedConnecter: '' });
         const node = DefaultNodeFactory.createConnectorActionInvocationAssignmentStatement(item.suggestion);
         this.props.model.acceptDrop(node);
     }
@@ -144,10 +159,13 @@ class LifelineButton extends React.Component {
         const { value, suggestions } = this.state;
 
         const inputProps = {
-            placeholder: 'Select Connector',
+            placeholder: 'Select Action',
             value,
             onChange: this.onChange,
         };
+
+        const currentEndpoints = this.props.model.getStatements()
+        .filter(stmt => TreeUtil.isVariableDef(stmt) && TreeUtil.isEndpointType(stmt.getVariable().getTypeNode()));
 
         return (
             <Area bBox={this.props.bBox}>
@@ -158,17 +176,38 @@ class LifelineButton extends React.Component {
                     buttonRadius={8}
                 >
                     <Menu>
-                        { !this.state.listConnectors &&
+                        { !this.state.listConnectors && !this.state.listActions &&
                         <div>
+                            {currentEndpoints.length > 0 &&
                             <Item
                                 label='Action'
                                 icon='fw fw-action'
-                                callback={this.showConnectors}
+                                callback={this.showActions}
                             />
+                            }
                             {this.props.items}
                         </div>
                         }
-                        { this.state.listConnectors &&
+                        {this.state.listActions && !this.state.listConnectors &&
+                        <div>
+                            <div
+                                className='connector-select-close'
+                                onClick={this.hideActions}
+                            >
+                                <i className='fw fw-left' /> Select an endpoint
+                            </div><br /><br />
+                            {
+                            currentEndpoints.map((statement) => {
+                                return (<Item
+                                    label={statement.getVariable().getName().getValue()}
+                                    icon='fw fw-endpoint'
+                                    callback={() => this.showConnectors(statement.getVariable().getTypeNode().getConstraint().getTypeName().getValue())}
+                                />);
+                            })
+                            }
+                        </div>
+                        }
+                        { this.state.listConnectors && !this.state.listActions &&
                             <div
                                 className='connector-select'
                                 // onMouseOut={this.hideConnectors}
