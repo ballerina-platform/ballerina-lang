@@ -32,7 +32,7 @@ import java.util.List;
  */
 public interface DataIterator {
 
-    boolean hasNext(boolean isConsume);
+    boolean next();
 
     void close(boolean isInTransaction);
 

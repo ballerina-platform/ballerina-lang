@@ -67,8 +67,6 @@ public class SQLDataIterator implements DataIterator {
     private BStructType bStructType;
     private StructInfo timeStructInfo;
     private StructInfo zoneStructInfo;
-    private boolean hasNextVal;
-    private boolean nextPrefetched;
 
     public SQLDataIterator(Connection conn, Statement stmt, ResultSet rs, Calendar utcCalendar,
             List<ColumnDefinition> columnDefs, BStructType structType, StructInfo timeStructInfo,
@@ -81,8 +79,18 @@ public class SQLDataIterator implements DataIterator {
         this.bStructType = structType;
         this.timeStructInfo = timeStructInfo;
         this.zoneStructInfo = zoneStructInfo;
-        this.nextPrefetched = false;
-        this.hasNextVal = false;
+    }
+
+    @Override
+    public boolean next() {
+        if (rs == null) {
+            return false;
+        }
+        try {
+            return rs.next();
+        } catch (SQLException e) {
+            throw new BallerinaException(e.getMessage(), e);
+        }
     }
 
     @Override
@@ -91,26 +99,6 @@ public class SQLDataIterator implements DataIterator {
         rs = null;
         stmt = null;
         conn = null;
-    }
-
-    @Override
-    public boolean hasNext(boolean isConsume) {
-        if (rs == null) {
-            return false;
-        }
-        try {
-            if (isConsume) {
-                return rs.next();
-            } else {
-                if (!nextPrefetched) {
-                    hasNextVal = rs.next();
-                    nextPrefetched = true;
-                }
-                return hasNextVal;
-            }
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
     }
 
     @Override
@@ -205,14 +193,6 @@ public class SQLDataIterator implements DataIterator {
         int index = 0;
         String columnName = null;
         try {
-            if (!nextPrefetched) {
-                boolean hasNext = rs.next();
-                if (!hasNext) {
-                    throw new BallerinaException("resultSet is positioned after last row");
-                }
-            } else {
-                nextPrefetched = false;
-            }
             for (ColumnDefinition columnDef : columnDefs) {
                 if (columnDef instanceof SQLColumnDefinition) {
                     SQLColumnDefinition def = (SQLColumnDefinition) columnDef;
