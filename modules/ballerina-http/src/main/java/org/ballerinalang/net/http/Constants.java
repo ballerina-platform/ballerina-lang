@@ -143,8 +143,12 @@ public class Constants {
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
     public static final String CONNECTION = "Connection";
     public static final String REQUEST = "Request";
-    public static final String ENTITY = "Entity";
+    public static final String IN_REQUEST = "InRequest";
+    public static final String OUT_REQUEST = "OutRequest";
+    public static final String IN_RESPONSE = "InResponse";
+    public static final String OUT_RESPONSE = "OutResponse";
     public static final String RESPONSE = "Response";
+    public static final String ENTITY = "Entity";
     public static final String HEADER_VALUE = "value";
     public static final String HEADER_PARAM = "param";
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";

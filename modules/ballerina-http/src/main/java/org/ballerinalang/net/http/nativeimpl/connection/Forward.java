@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.net.http.nativeimpl.inbound.response;
+package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorUtils;
@@ -42,11 +42,11 @@ import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 /**
  * Native function to respond back the caller.
  *
- * @since 0.96
+ * @since 0.95.6
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
-        functionName = "respond",
+        functionName = "forward",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
                              structPackage = "ballerina.net.http"),
         args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "InResponse",
@@ -60,12 +60,12 @@ public class Forward extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct connectionStruct = (BStruct) getRefArgument(context, 0);
-        BStruct outboundResponseStruct = (BStruct) getRefArgument(context, 1);
+        BStruct inboundResponseStruct = (BStruct) getRefArgument(context, 1);
         HTTPCarbonMessage requestMessage = HttpUtil.getCarbonMsg(connectionStruct, null);
 
         HttpUtil.checkFunctionValidity(connectionStruct, requestMessage);
         HTTPCarbonMessage responseMessage = HttpUtil
-                .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
+                .getCarbonMsg(inboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
         AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.ANN_NAME_CONFIG);
 
@@ -82,20 +82,20 @@ public class Forward extends AbstractNativeFunction {
             // default behaviour: keepAlive = true
             responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
         }
-        BStruct entity = (BStruct) outboundResponseStruct.getNativeData(MESSAGE_ENTITY);
+        BStruct entity = (BStruct) inboundResponseStruct.getNativeData(MESSAGE_ENTITY);
         if (entity == null) {
             entity = ConnectorUtils.createAndGetStruct(context,
                     org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
                     org.ballerinalang.mime.util.Constants.ENTITY);
             entity.setRefField(ENTITY_HEADERS_INDEX, new BMap<>());
-            outboundResponseStruct.addNativeData(MESSAGE_ENTITY, entity);
-            outboundResponseStruct.addNativeData(IS_ENTITY_BODY_PRESENT, false);
+            inboundResponseStruct.addNativeData(MESSAGE_ENTITY, entity);
+            inboundResponseStruct.addNativeData(IS_ENTITY_BODY_PRESENT, false);
         }
         if (entity.getRefField(ENTITY_HEADERS_INDEX) != null) {
-            HttpUtil.setHeadersToTransportMessage(responseMessage, outboundResponseStruct);
+            HttpUtil.setHeadersToTransportMessage(responseMessage, inboundResponseStruct);
         }
 
         return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage,
-                outboundResponseStruct);
+                inboundResponseStruct);
     }
 }
