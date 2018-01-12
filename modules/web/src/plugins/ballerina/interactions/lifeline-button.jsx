@@ -102,9 +102,7 @@ class LifelineButton extends React.Component {
     }
 
     componentDidMount() {
-        if (this.input) {
-            this.input.focus();
-        }
+
     }
 
     onChange(event, { newValue, method }) {
