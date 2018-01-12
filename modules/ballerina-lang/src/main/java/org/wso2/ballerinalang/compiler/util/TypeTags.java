@@ -47,6 +47,7 @@ public class TypeTags {
     public static final int XML_ATTRIBUTES = ANNOTATION + 1;
     public static final int ERROR = XML_ATTRIBUTES + 1;
     public static final int ENDPOINT = ERROR + 1;
+    public static final int ITERATOR = ENDPOINT + 1;
 
     private TypeTags() {
     }

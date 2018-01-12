@@ -81,4 +81,9 @@ public class BRefValueArray extends BNewArray {
         }
         return sj.toString();
     }
+
+    @Override
+    public BValue getBValue(long index) {
+        return get(index);
+    }
 }

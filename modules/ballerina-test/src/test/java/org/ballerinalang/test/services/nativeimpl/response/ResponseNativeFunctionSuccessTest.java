@@ -139,7 +139,6 @@ public class ResponseNativeFunctionSuccessTest {
 
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
-        dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
         HttpUtil.addMessageDataSource(response, dataSource);
 
         HttpUtil.addCarbonMsg(response, cMsg);
@@ -157,7 +156,6 @@ public class ResponseNativeFunctionSuccessTest {
 
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
-        dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
         HttpUtil.addMessageDataSource(response, dataSource);
 
         cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(payload.length()));
@@ -271,7 +269,6 @@ public class ResponseNativeFunctionSuccessTest {
 
         String payload = "{'code':'123'}";
         BallerinaMessageDataSource dataSource = new BJSON(payload);
-        dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
         HttpUtil.addMessageDataSource(response, dataSource);
 
         cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
@@ -331,7 +328,6 @@ public class ResponseNativeFunctionSuccessTest {
         String payload = "ballerina";
 
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
-        dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
         HttpUtil.addMessageDataSource(response, dataSource);
 
         HttpUtil.addCarbonMsg(response, cMsg);
@@ -361,7 +357,6 @@ public class ResponseNativeFunctionSuccessTest {
 
         String payload = "<name>ballerina</name>";
         BallerinaMessageDataSource dataSource = new BXMLItem(payload);
-        dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
         HttpUtil.addMessageDataSource(response, dataSource);
 
         HttpUtil.addCarbonMsg(response, cMsg);

@@ -67,7 +67,7 @@ public annotation Authorization {
     string description;
     string authType;
     string apiName;
-    string in;
+    string inFlow;
     string flow;
     string authorizationUrl;
     string tokenUrl;
@@ -91,7 +91,7 @@ public annotation ParametersInfo attach resource {
 }
 
 public annotation ParameterInfo {
-    string in;
+    string inInfo;
     string name;
     string description;
     boolean required;

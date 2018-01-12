@@ -265,7 +265,7 @@ public class TextRecordChannel {
     private String composeRecord(BStringArray fields) {
         StringBuilder recordConsolidator = new StringBuilder();
         String finalizedRecord;
-        long numberOfFields = fields.length();
+        long numberOfFields = fields.size();
         final int fieldStartIndex = 0;
         final long secondLastFieldIndex = numberOfFields - 1;
         if (log.isDebugEnabled()) {
