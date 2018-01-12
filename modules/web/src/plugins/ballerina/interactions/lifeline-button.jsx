@@ -202,8 +202,8 @@ class LifelineButton extends React.Component {
                                 ref={this.storeInputReference}
                             />
                             {this.state.value !== '' &&
-                            <div className='add-new-connector-button'>
-                                <a onClick={this.createConnector}>
+                            <div className='add-new-connector-area'>
+                                <a className='add-new-connector-button' onClick={this.createConnector}>
                                     <i className='fw fw-connector' />
                                     {' Create new connector "'}
                                     <b>{this.state.value + '"'}</b>
