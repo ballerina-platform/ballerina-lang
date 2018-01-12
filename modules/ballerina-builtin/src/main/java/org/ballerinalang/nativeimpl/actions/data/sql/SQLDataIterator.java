@@ -82,6 +82,14 @@ public class SQLDataIterator implements DataIterator {
     }
 
     @Override
+    public void close(boolean isInTransaction) {
+        SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
+        rs = null;
+        stmt = null;
+        conn = null;
+    }
+
+    @Override
     public boolean next() {
         if (rs == null) {
             return false;
@@ -91,14 +99,6 @@ public class SQLDataIterator implements DataIterator {
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
-    }
-
-    @Override
-    public void close(boolean isInTransaction) {
-        SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
-        rs = null;
-        stmt = null;
-        conn = null;
     }
 
     @Override
