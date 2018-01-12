@@ -86,7 +86,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.net.http.Constants.MESSAGE_DATA_SOURCE;
-import static org.ballerinalang.net.http.Constants.MESSAGE_OUTPUT_STREAM;
 
 /**
  * Utility class providing utility methods.
@@ -209,12 +208,9 @@ public class HttpUtil {
 
         httpCarbonMessage.waitAndReleaseAllEntities();
 
-        HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
         byte[] payload = nativeFunction.getBlobArgument(context, 0);
-        OutputStream messageOutputStream = httpMessageDataStreamer.getOutputStream();
         BlobDataSource blobDataSource = new BlobDataSource(payload);
         addMessageDataSource(httpMessageStruct, blobDataSource);
-        addMessageOutputStream(httpMessageStruct, messageOutputStream);
 
         httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
 
@@ -230,9 +226,7 @@ public class HttpUtil {
         httpCarbonMessage.waitAndReleaseAllEntities();
 
         BJSON payload = (BJSON) abstractNativeFunction.getRefArgument(context, 1);
-        OutputStream messageOutputStream = new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream();
         addMessageDataSource(httpMessageStruct, payload);
-        addMessageOutputStream(httpMessageStruct, messageOutputStream);
 
         HttpUtil.setHeaderToStruct(context, httpMessageStruct, Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
 
@@ -248,10 +242,8 @@ public class HttpUtil {
         httpCarbonMessage.waitAndReleaseAllEntities();
 
         String payload = abstractNativeFunction.getStringArgument(context, 0);
-        OutputStream messageOutputStream = new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream();
         StringDataSource stringDataSource = new StringDataSource(payload);
         addMessageDataSource(httpMessageStruct, stringDataSource);
-        addMessageOutputStream(httpMessageStruct, messageOutputStream);
 
         HttpUtil.setHeaderToStruct(context, httpMessageStruct, Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
         if (log.isDebugEnabled()) {
@@ -270,9 +262,7 @@ public class HttpUtil {
         httpCarbonMessage.waitAndReleaseAllEntities();
 
         BXML payload = (BXML) abstractNativeFunction.getRefArgument(context, 1);
-        OutputStream messageOutputStream = new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream();
         addMessageDataSource(httpMessageStruct, payload);
-        addMessageOutputStream(httpMessageStruct, messageOutputStream);
 
         HttpUtil.setHeaderToStruct(context, httpMessageStruct, Constants.CONTENT_TYPE, Constants.APPLICATION_XML);
 
@@ -291,10 +281,8 @@ public class HttpUtil {
                 result = (BlobDataSource) httpMessageStruct.getNativeData(MESSAGE_DATA_SOURCE);
             } else {
                 HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
-                OutputStream messageOutputStream = httpMessageDataStreamer.getOutputStream();
                 result = new BlobDataSource(toByteArray(httpMessageDataStreamer.getInputStream()));
                 HttpUtil.addMessageDataSource(httpMessageStruct, result);
-                HttpUtil.addMessageOutputStream(httpMessageStruct, messageOutputStream);
             }
             if (log.isDebugEnabled()) {
                 log.debug("String representation of the payload:" + result.getMessageAsString());
@@ -325,9 +313,7 @@ public class HttpUtil {
             } else {
                 HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
                 result = new BJSON(httpMessageDataStreamer.getInputStream());
-                OutputStream messageOutputStream = httpMessageDataStreamer.getOutputStream();
                 addMessageDataSource(httpMessageStruct, result);
-                addMessageOutputStream(httpMessageStruct, messageOutputStream);
             }
         } catch (Throwable e) {
             throw new BallerinaException("Error while retrieving json payload from message: " + e.getMessage());
@@ -355,7 +341,6 @@ public class HttpUtil {
                 result = new BString(payload);
 
                 addMessageDataSource(httpMessageStruct, new StringDataSource(payload));
-                addMessageOutputStream(httpMessageStruct, httpMessageDataStreamer.getOutputStream());
             }
             if (log.isDebugEnabled()) {
                 log.debug("Payload in String:" + result.stringValue());
@@ -386,9 +371,7 @@ public class HttpUtil {
                         .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
                 HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
                 result = XMLUtils.parse(httpMessageDataStreamer.getInputStream());
-                OutputStream outputStream = httpMessageDataStreamer.getOutputStream();
                 addMessageDataSource(httpMessageStruct, result);
-                addMessageOutputStream(httpMessageStruct, outputStream);
             }
         } catch (Throwable e) {
             throw new BallerinaException("Error while retrieving XML payload from message: " + e.getMessage());
@@ -413,16 +396,11 @@ public class HttpUtil {
         struct.addNativeData(MESSAGE_DATA_SOURCE, messageDataSource);
     }
 
-    public static void addMessageOutputStream(BStruct struct, OutputStream messageOutputStream) {
-        struct.addNativeData(MESSAGE_OUTPUT_STREAM, messageOutputStream);
-    }
-
     public static MessageDataSource getMessageDataSource(BStruct httpMsgStruct) {
         return (MessageDataSource) httpMsgStruct.getNativeData(MESSAGE_DATA_SOURCE);
     }
 
-    public static void closeMessageOutputStream(BStruct httpMsgStruct) {
-        OutputStream messageOutputStream = (OutputStream) httpMsgStruct.getNativeData(MESSAGE_OUTPUT_STREAM);
+    public static void closeMessageOutputStream(OutputStream messageOutputStream) {
         try {
             if (messageOutputStream != null) {
                 messageOutputStream.close();
@@ -484,8 +462,9 @@ public class HttpUtil {
         MessageDataSource outboundMessageSource = HttpUtil.getMessageDataSource(httpMessageStruct);
         HttpResponseStatusFuture outboundResponseStatusFuture = sendOutboundResponse(requestMessage, responseMessage);
         if (outboundMessageSource != null) {
-            outboundMessageSource.serializeData((OutputStream) httpMessageStruct.getNativeData(MESSAGE_OUTPUT_STREAM));
-            HttpUtil.closeMessageOutputStream(httpMessageStruct);
+            OutputStream messageOutputStream = new HttpMessageDataStreamer(responseMessage).getOutputStream();
+            outboundMessageSource.serializeData(messageOutputStream);
+            HttpUtil.closeMessageOutputStream(messageOutputStream);
         }
 
         try {
