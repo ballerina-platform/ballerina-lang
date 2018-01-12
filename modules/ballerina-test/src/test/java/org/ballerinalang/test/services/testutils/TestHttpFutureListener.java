@@ -26,7 +26,7 @@ import org.ballerinalang.net.http.CorsHeaderGenerator;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -92,6 +92,7 @@ public class TestHttpFutureListener implements ConnectorFutureListener {
 
     public void setResponseMsg(HTTPCarbonMessage httpCarbonMessage) {
         this.responseMsg = httpCarbonMessage;
+        executionWaitSem.release();
     }
 
     public HTTPCarbonMessage getResponseMsg() {

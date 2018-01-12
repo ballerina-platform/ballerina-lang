@@ -43,6 +43,6 @@ public class TypeTags {
     public static final int NULL_TAG = 18;
     public static final int XML_ATTRIBUTES_TAG = 19;
     public static final int TYPE_TAG = 20;
-    public static final int C_JSON_TAG = 21;
-    public static final int ENUM_TAG = 22;
+    public static final int ENUM_TAG = 21;
+    public static final int ITERATOR_TAG = 22;
 }

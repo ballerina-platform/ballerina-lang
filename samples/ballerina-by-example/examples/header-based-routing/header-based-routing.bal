@@ -20,15 +20,12 @@ service<http> headerBasedRouting {
         http:Response clientResponse = {};
         http:HttpConnectorError err;
         //Native function getHeader() returns header value of a specified header name.
-        string nameString;
-        boolean headerExists;
-        nameString, headerExists = req.getHeader("type");
-        if (headerExists && nameString == "location") {
+        string nameString = req.getHeader("type").value;
+        if (nameString == "location") {
             //"post" represent the POST action of HTTP connector. Route payload to relevant service.
             clientResponse, err = locationEP.post("/v2/594e12271100001f13d6d3a6", newRequest);
         } else {
             //"get" action can be used to make http GET call.
-
             clientResponse, err = weatherEP.get("/data/2.5/weather?lat=35&lon=139&appid=b1b1", newRequest);
         }
 
@@ -36,9 +33,9 @@ service<http> headerBasedRouting {
         if (err != null) {
             res.setStatusCode(500);
             res.setStringPayload(err.msg);
-            res.send();
+            _ = res.send();
         } else {
-            res.forward(clientResponse);
+            _ = res.forward(clientResponse);
         }
     }
 }

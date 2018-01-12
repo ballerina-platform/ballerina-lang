@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -50,6 +51,7 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -142,7 +144,7 @@ public class Types {
             return actualType;
         } else if (actualType.tag == TypeTags.ERROR) {
             return actualType;
-        } else if (actualType.tag == TypeTags.NULL && !isValueType(expType)) {
+        } else if (actualType.tag == TypeTags.NULL && isNullable(expType)) {
             return actualType;
         } else if (isSameType(actualType, expType)) {
             return actualType;
@@ -160,7 +162,7 @@ public class Types {
     }
 
     public boolean isValueType(BType type) {
-        return type.tag <= TypeTags.TYPE;
+        return type.tag < TypeTags.TYPE;
     }
 
     public boolean isAnnotationFieldType(BType type) {
@@ -199,8 +201,13 @@ public class Types {
             return true;
         }
 
-        if (source.tag == TypeTags.JSON && target.tag == TypeTags.JSON) {
-            return ((BJSONType) target).constraint.tag == TypeTags.NONE;
+        if (target.tag == TypeTags.JSON) {
+            if (source.tag == TypeTags.JSON) {
+                return ((BJSONType) target).constraint.tag == TypeTags.NONE;
+            }
+            if (source.tag == TypeTags.ARRAY) {
+                return isArrayTypesAssignable(source, target);
+            }
         }
 
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
@@ -216,6 +223,13 @@ public class Types {
 
         } else if (source.tag == TypeTags.ARRAY) {
             // Only the right-hand side is an array type
+
+            // if the target type is a json, then element type of the rhs array
+            // can be a string|int|float|boolean|json
+            if (target.tag == TypeTags.JSON) {
+                return isJSONAssignableType(source);
+            }
+
             // Then lhs type should 'any' type
             return target.tag == TypeTags.ANY;
 
@@ -265,7 +279,7 @@ public class Types {
         }
 
         // Now one or both types are not array types and they have to be equal
-        return target == source;
+        return isSameType(source, target);
     }
 
     public boolean checkStructEquivalency(BType actualType, BType expType) {
@@ -324,6 +338,62 @@ public class Types {
             }
         }
         return true;
+    }
+
+    List<BType> checkForeachTypes(BLangNode collection, int variableSize) {
+        BType collectionType = collection.type;
+        List<BType> errorTypes;
+        int maxSupportedTypes;
+        switch (collectionType.tag) {
+            case TypeTags.ARRAY:
+                BArrayType bArrayType = (BArrayType) collectionType;
+                if (variableSize == 1) {
+                    return Lists.of(bArrayType.eType);
+                } else if (variableSize == 2) {
+                    return Lists.of(symTable.intType, bArrayType.eType);
+                } else {
+                    maxSupportedTypes = 2;
+                    errorTypes = Lists.of(symTable.intType, bArrayType.eType);
+                }
+                break;
+            case TypeTags.MAP:
+                BMapType bMapType = (BMapType) collectionType;
+                if (variableSize == 1) {
+                    return Lists.of(bMapType.constraint);
+                } else if (variableSize == 2) {
+                    return Lists.of(symTable.stringType, bMapType.constraint);
+                } else {
+                    maxSupportedTypes = 2;
+                    errorTypes = Lists.of(symTable.stringType, bMapType.constraint);
+                }
+                break;
+            case TypeTags.JSON:
+                if (variableSize == 1) {
+                    return Lists.of(symTable.jsonType);
+                } else {
+                    maxSupportedTypes = 1;
+                    errorTypes = Lists.of(symTable.jsonType);
+                }
+                break;
+            case TypeTags.XML:
+                if (variableSize == 1) {
+                    return Lists.of(symTable.xmlType);
+                } else if (variableSize == 2) {
+                    return Lists.of(symTable.intType, symTable.xmlType);
+                } else {
+                    maxSupportedTypes = 2;
+                    errorTypes = Lists.of(symTable.intType, symTable.xmlType);
+                }
+                break;
+            case TypeTags.ERROR:
+                return Collections.nCopies(variableSize, symTable.errType);
+            default:
+                dlog.error(collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION, collectionType);
+                return Collections.nCopies(variableSize, symTable.errType);
+        }
+        dlog.error(collection.pos, DiagnosticCode.ITERABLE_TOO_MANY_VARIABLES, collectionType);
+        errorTypes.addAll(Collections.nCopies(variableSize - maxSupportedTypes, symTable.errType));
+        return errorTypes;
     }
 
     private boolean checkActionTypeEquality(BInvokableSymbol source, BInvokableSymbol target) {
@@ -510,6 +580,24 @@ public class Types {
         return true;
     }
 
+    private boolean isNullable(BType fieldType) {
+        if (!isValueType(fieldType)) {
+            return true;
+        }
+
+        // TODO: include blob as well, when the null support for blob is implemented
+        if (fieldType.tag == TypeTags.STRING) {
+            return true;
+        }
+
+        return false;
+    }
+    
+    private boolean isJSONAssignableType(BType type) {
+        int typeTag = getElementType(type).tag; 
+        return typeTag <= TypeTags.BOOLEAN || typeTag == TypeTags.JSON;
+    }
+
     private boolean checkStructFieldToJSONConvertibility(BType structType, BType fieldType) {
         // If the struct field type is the struct
         if (structType == fieldType) {
@@ -562,8 +650,17 @@ public class Types {
         @Override
         public BSymbol visit(BJSONType t, BType s) {
             // Handle constrained JSON
-            if (isSameType(s, t) || (s.tag == TypeTags.JSON && t.constraint.tag == TypeTags.NONE)) {
+            if (isSameType(s, t)) {
                 return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
+            } else if (s.tag == TypeTags.JSON) {
+                if (t.constraint.tag == TypeTags.NONE) {
+                    return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
+                } else if (((BJSONType) s).constraint.tag == TypeTags.NONE) {
+                    return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
+                } else if (checkStructEquivalency(((BJSONType) s).constraint, t.constraint)) {
+                    return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
+                }
+                return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
             } else if (s.tag == TypeTags.ARRAY) {
                 return getExplicitArrayCastOperator(t, s, t, s);
             } else if (t.constraint.tag != TypeTags.NONE) {

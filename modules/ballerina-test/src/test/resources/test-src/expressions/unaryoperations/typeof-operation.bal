@@ -400,3 +400,66 @@ function testTypeAccessExprSameStructType() (int) {
        return 0;
     }
 }
+
+function testTypeOfJson() (type, type, type, type, type, type){
+    json j1 = {"foo":"bar"}; // object type
+    json j2 = [1, "foo", true];
+    json j3 = "foo";
+    json j4 = 3;
+    json j5 = 7.65;
+    json j6 = true;
+    
+    return typeof j1, typeof j2, typeof j3, typeof j4, typeof j5, typeof j6;
+}
+
+function testCheckTypeOfJson() (json, json[], string, int, float, boolean){
+    json j1 = {"foo":"bar"}; // object type
+    json j2 = [1, "foo", true];
+    json j3 = "foo";
+    json j4 = 3;
+    json j5 = 7.65;
+    json j6 = true;
+    
+    json j;
+    json[] ja;
+    string s;
+    int a;
+    float f;
+    boolean b;
+    
+    if (typeof j1 == typeof json) {
+        j = j1;
+    }
+    
+    println(typeof j2);
+    println(typeof json[]);
+    if (typeof j2 == typeof json[]) {
+        var ja, e = (json[]) j2;
+        println(e);
+    } else {
+        println("error on json[] cast");
+    }
+
+    if (typeof j3 == typeof string) {
+        s, _ = (string) j3;
+    }
+    
+    if (typeof j4 == typeof int) {
+        a, _ = (int) j4;
+    }
+
+    if (typeof j5 == typeof float) {
+        f, _ = (float) j5;
+    }
+    
+    if (typeof j6 == typeof boolean) {
+        b, _ = (boolean) j6;
+    }
+    
+    return j, ja, s, a, f, b;
+}
+
+function testTypeOfStructArray() (type, type, type) {
+    Person[] p = [{}, {}];
+    return typeof p, typeof Person[], typeof Person[][];
+}

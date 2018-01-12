@@ -87,6 +87,28 @@ public class BMapValueTest {
     }
 
     @Test
+    public void testBMapClear() {
+        BMap<BString, BInteger> map = new BMap<>();
+        map.put(new BString("IS"), new BInteger(0));
+        map.put(new BString("ESB"), new BInteger(1));
+        map.put(new BString("APIM"), new BInteger(2));
+        assertEquals(map.size(), 3);
+        map.clear();
+        assertEquals(map.size(), 0);
+    }
+
+    @Test
+    public void testBMapHasKey() {
+        BMap<BString, BInteger> map = new BMap<>();
+        map.put(new BString("IS"), new BInteger(0));
+        map.put(new BString("ESB"), new BInteger(1));
+        map.put(new BString("APIM"), new BInteger(2));
+        assertEquals(map.hasKey(new BString("IS")), true);
+        assertEquals(map.hasKey(new BString("ESB")), true);
+        assertEquals(map.hasKey(new BString("APIM")), true);
+    }
+
+    @Test
     void testGrammar() {
         programFile = BCompileUtil.compile("test-src/types/map/map-value.bal");
     }

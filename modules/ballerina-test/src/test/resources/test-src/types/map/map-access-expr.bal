@@ -49,3 +49,43 @@ function constructString(map m) (string) {
     }
     return returnStr;
 }
+
+function testMapClear() (int) {
+    map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
+    namesMap.clear();
+    return lengthof namesMap;
+}
+
+function testHasKeyPositive() (boolean) {
+    map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
+    return namesMap.hasKey("fname");
+}
+
+function testHasKeyNegative() (boolean) {
+    map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
+    return namesMap.hasKey("fname2");
+}
+
+function testGetMapValues () (string, string) {
+    json j = {"city":"Colombo", "country":"SriLanka"};
+    int[] arr = [7,8,9];
+    map m = { name:"Supun",
+                  age:25,
+                  gpa:2.81,
+                  status:true,
+                  info:null,
+                  address:{city:"CA", "country":"USA"},
+                  intArray:arr,
+                  addressArray:[
+                        {address:{city:"Colombo", "country":"SriLanka"}},
+                        {address:{city:"Kandy", "country":"SriLanka"}},
+                        {address:{city:"Galle", "country":"SriLanka"}}
+                  ],
+                  finfo:j
+                };
+    any[] values = m.values();
+    var nam, _ = (string) values[0];
+    var jsn, _ = (json) values[8];
+    var city, _ = (string) jsn.city;
+    return nam, city;
+}

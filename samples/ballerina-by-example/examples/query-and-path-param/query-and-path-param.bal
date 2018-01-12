@@ -16,6 +16,6 @@ service<http> sample {
         // A util method to set the json payload to the response message.
         res.setJsonPayload(responseJson);
         // Send a response to the client.
-        res.send();
+        _ = res.send();
     }
 }

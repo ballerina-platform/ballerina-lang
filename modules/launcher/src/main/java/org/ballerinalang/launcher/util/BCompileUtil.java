@@ -154,7 +154,7 @@ public class BCompileUtil {
      * @param pathLocation location of the directory.
      * @return the path with directoryName + file.
      */
-    private static String concatFileName(String fileName, Path pathLocation) {
+    public static String concatFileName(String fileName, Path pathLocation) {
         final String windowsFolderSeparator = "\\";
         final String unixFolderSeparator = "/";
         StringBuilder path = new StringBuilder(pathLocation.toAbsolutePath().toString());

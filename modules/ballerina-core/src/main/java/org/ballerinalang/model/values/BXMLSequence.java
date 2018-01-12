@@ -19,16 +19,19 @@ package org.ballerinalang.model.values;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.xml.namespace.QName;
+
+import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
  * {@code BXMLSequence} represents a sequence of {@link BXMLItem}s in Ballerina.
@@ -38,7 +41,7 @@ import javax.xml.namespace.QName;
 public final class BXMLSequence extends BXML<BRefValueArray> {
 
     private BRefValueArray sequence;
-    
+
     /**
      * Create an empty xml sequence.
      */
@@ -124,7 +127,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
             return ((BXMLItem) sequence.get(0)).getAttribute(localName, namespace);
         }
         
-        return ZERO_STRING_VALUE;
+        return STRING_NULL_VALUE;
     }
     
     /**
@@ -136,7 +139,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
             return ((BXMLItem) sequence.get(0)).getAttribute(localName, namespace, prefix);
         }
         
-        return ZERO_STRING_VALUE;
+        return STRING_NULL_VALUE;
     }
     
     /**
@@ -388,7 +391,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         } catch (Throwable t) {
             handleXmlException("failed to get xml as string: ", t);
         }
-        return "";
+        return BLangConstants.STRING_NULL_VALUE;
     }
     
     /**
@@ -425,5 +428,47 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         }
         
         ((BXMLItem) sequence.get(0)).removeAttribute(qname);
+    }
+
+    @Override
+    public BIterator newIterator() {
+        return new BXMLSequenceIterator(this);
+    }
+
+    /**
+     * {@code {@link BXMLSequenceIterator }} provides iterator for xml items..
+     *
+     * @since 0.96.0
+     */
+    static class BXMLSequenceIterator implements BIterator {
+
+        BXMLSequence value;
+        int cursor = 0;
+
+        BXMLSequenceIterator(BXMLSequence bxmlSequence) {
+            value = bxmlSequence;
+        }
+
+        @Override
+        public BValue[] getNext(int arity) {
+            if (arity == 1) {
+                return new BValue[]{value.sequence.get(cursor++)};
+            }
+            int cursor = this.cursor++;
+            return new BValue[]{new BInteger(cursor), value.sequence.get(cursor)};
+        }
+
+        @Override
+        public BType[] getParamType(int arity) {
+            if (arity == 1) {
+                return new BType[]{BTypes.typeXML};
+            }
+            return new BType[]{BTypes.typeInt, BTypes.typeXML};
+        }
+
+        @Override
+        public boolean hasNext() {
+            return cursor < value.sequence.size();
+        }
     }
 }

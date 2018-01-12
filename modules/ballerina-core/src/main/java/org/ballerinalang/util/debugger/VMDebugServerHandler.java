@@ -60,6 +60,12 @@ public class VMDebugServerHandler extends SimpleChannelInboundHandler<Object> {
 
     private WebSocketServerHandshaker handshaker;
 
+    private VMDebugManager debugManager;
+
+    public VMDebugServerHandler(VMDebugManager debugManager) {
+        this.debugManager = debugManager;
+    }
+
     @Override
     public void channelRead0(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof FullHttpRequest) {
@@ -100,7 +106,6 @@ public class VMDebugServerHandler extends SimpleChannelInboundHandler<Object> {
         if (handshaker == null) {
             WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
         } else {
-            VMDebugManager debugManager = VMDebugManager.getInstance();
             try {
                 debugManager.addDebugSession(ctx.channel());
             } catch (DebugException e) {
@@ -129,7 +134,6 @@ public class VMDebugServerHandler extends SimpleChannelInboundHandler<Object> {
         }
 
         String request = ((TextWebSocketFrame) frame).text();
-        VMDebugManager debugManager = VMDebugManager.getInstance();
         debugManager.processDebugCommand(request);
     }
 

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.ConstrainedType;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
@@ -42,7 +43,7 @@ public class BJSONType extends BBuiltInRefType implements ConstrainedType {
     public <R> R accept(BTypeVisitor<R> visitor, BType type) {
         return visitor.visit(this, type);
     }
-    
+
     @Override
     public String toString() {
         if (constraint.tag == TypeTags.NONE || constraint.tag == TypeTags.ERROR) {
@@ -50,5 +51,14 @@ public class BJSONType extends BBuiltInRefType implements ConstrainedType {
         }
 
         return super.toString() + "<" + constraint + ">";
+    }
+
+    @Override
+    public String getDesc() {
+        if (constraint.tag == TypeTags.NONE || constraint.tag == TypeTags.ERROR) {
+            return TypeDescriptor.SIG_JSON + ";";
+        }
+
+        return TypeDescriptor.SIG_JSON + constraint.getQualifiedTypeName() + ";";
     }
 }

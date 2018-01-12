@@ -18,11 +18,7 @@
 
 package org.ballerinalang.util.debugger.dto;
 
-import org.ballerinalang.model.NodeLocation;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.regex.Matcher;
+import java.util.List;
 
 /**
  * DTO class representing commands send to debugger from the client.
@@ -35,7 +31,7 @@ public class CommandDTO {
 
     private String threadId;
 
-    private ArrayList<BreakPointDTO> points;
+    private List<BreakPointDTO> points;
 
     public String getCommand() {
         return command;
@@ -53,29 +49,11 @@ public class CommandDTO {
         this.threadId = threadId;
     }
 
-    public ArrayList<BreakPointDTO> getPoints() {
+    public List<BreakPointDTO> getPoints() {
         return points;
     }
 
-    public void setPoints(ArrayList<BreakPointDTO> points) {
+    public void setPoints(List<BreakPointDTO> points) {
         this.points = points;
-    }
-
-
-    /**
-     * This method is there to decouple core and editor data transfer.
-     * 
-     * @return list of locations of the break points
-     */
-    public ArrayList<NodeLocation> getBreakPoints() {
-        ArrayList<NodeLocation> breakPoints = new ArrayList<NodeLocation>();
-        for (BreakPointDTO bp: points) {
-            // TODO : Change the API for accepting breakpoints
-            // convert "/" into platform's file separator
-            // Server should derive actual file path from path sent from debugger client which is normalized to /
-            String fileName = bp.getFileName().replaceAll("/", Matcher.quoteReplacement(File.separator));
-            breakPoints.add(new NodeLocation(fileName, bp.getLineNumber()));
-        }
-        return breakPoints;
     }
 }

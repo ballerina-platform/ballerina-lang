@@ -21,7 +21,7 @@
         <Class name="org.ballerinalang.net.http.CorsPopulator"/>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.net.http.HttpServerConnector"/>
+        <Class name="org.ballerinalang.net.http.BallerinaHttpServerConnector"/>
     </Match>
     <Match>
         <Class name="org.ballerinalang.net.uri.DispatcherUtil"/>
@@ -42,7 +42,7 @@
         <Class name="org.ballerinalang.net.ws.WebSocketServicesRegistry"/>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.net.http.HttpServerConnector"/>
+        <Class name="org.ballerinalang.net.http.BallerinaHttpServerConnector"/>
     </Match>
     <Match>
         <Package name="org.ballerinalang.net.http"/>

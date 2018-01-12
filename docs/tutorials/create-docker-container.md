@@ -16,7 +16,7 @@ This tutorial includes instructions of creating a Docker image using the followi
 1. First download the Ballerina tools distribution. The latest Ballerina pack can be found at: https://ballerinalang.org/downloads/
 1. Extract the downloaded .zip file, set up the Ballerina runtime, and run Ballerina. For more information on how to do this, see [Quick Tour](../quick-tour.md).
 1. Create a Ballerina service to be added to the Docker container. Create the following service in the Ballerina Composer **Source View** (you can alternatively create a main function). Name the file: `docker-service.bal`.
-    ```
+    ```Ballerina
     import ballerina.net.http;
 
     @http:configuration {basePath:"/echo"}
@@ -70,7 +70,7 @@ The Docker distribution for Ballerina is available on Docker Hub as ballerinalan
     mkdir -p ~/ballerina/service/
     ```
 1. Add the following service to ~/ballerina/service
-    ```
+    ```Ballerina
     import ballerina.net.http;
 
     @http:configuration {basePath:"/echo"}

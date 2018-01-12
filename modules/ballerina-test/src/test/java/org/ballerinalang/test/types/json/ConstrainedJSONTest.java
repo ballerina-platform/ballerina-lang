@@ -37,7 +37,6 @@ public class ConstrainedJSONTest {
 
     private CompileResult compileResult;
     private CompileResult negativeResult;
-    private static final double DELTA = 0.01;
 
     @BeforeClass
     public void setup() {
@@ -47,6 +46,8 @@ public class ConstrainedJSONTest {
 
     @Test(description = "Test basic json struct constraint")
     public void testConstrainedJSONNegative() {
+        Assert.assertEquals(negativeResult.getErrorCount(), 9);
+        
         // testStructConstraintInInitializationInvalid
         BAssertUtil.validateError(negativeResult, 0, "undefined field 'firstName' in struct 'Person'", 15, 23);
         
@@ -69,6 +70,11 @@ public class ConstrainedJSONTest {
         
         // tesInitializationWithInvalidNestedStruct
         BAssertUtil.validateError(negativeResult, 6, "undefined field 'foo' in struct 'PhoneNumber'", 67, 107);
+        
+        BAssertUtil.validateError(negativeResult, 7,
+                "incompatible types: 'json<Person>[]' cannot be cast to 'json<Student>[]'", 72, 17);
+
+        BAssertUtil.validateError(negativeResult, 8, "incompatible types: expected 'json', found 'blob[]'", 78, 14);
     }
 
     @Test(description = "Test basic json struct constraint")
@@ -76,15 +82,15 @@ public class ConstrainedJSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonStructConstraint");
 
         Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertTrue((((BJSON) returns[0]).value()).isTextual());
+        Assert.assertTrue((((BJSON) returns[0]).value()).isString());
         Assert.assertEquals(returns[0].stringValue(), "John Doe");
 
         Assert.assertTrue(returns[1] instanceof BJSON);
-        Assert.assertTrue((((BJSON) returns[1]).value()).isInt());
-        Assert.assertEquals((((BJSON) returns[1]).value()).asInt(), 30);
+        Assert.assertTrue((((BJSON) returns[1]).value()).isLong());
+        Assert.assertEquals((((BJSON) returns[1]).value()).longValue(), 30);
 
         Assert.assertTrue(returns[2] instanceof BJSON);
-        Assert.assertTrue((((BJSON) returns[2]).value()).isTextual());
+        Assert.assertTrue((((BJSON) returns[2]).value()).isString());
         Assert.assertEquals(returns[2].stringValue(), "London");
 
         // Todo - Fix incorrect return value issue
@@ -103,15 +109,15 @@ public class ConstrainedJSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonInitializationWithStructConstraint");
 
         Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertTrue((((BJSON) returns[0]).value()).isTextual());
+        Assert.assertTrue((((BJSON) returns[0]).value()).isString());
         Assert.assertEquals(returns[0].stringValue(), "John Doe");
 
         Assert.assertTrue(returns[1] instanceof BJSON);
-        Assert.assertTrue((((BJSON) returns[1]).value()).isInt());
-        Assert.assertEquals((((BJSON) returns[1]).value()).asInt(), 30);
+        Assert.assertTrue((((BJSON) returns[1]).value()).isLong());
+        Assert.assertEquals((((BJSON) returns[1]).value()).longValue(), 30);
 
         Assert.assertTrue(returns[2] instanceof BJSON);
-        Assert.assertTrue((((BJSON) returns[2]).value()).isTextual());
+        Assert.assertTrue((((BJSON) returns[2]).value()).isString());
         Assert.assertEquals(returns[2].stringValue(), "London");
     }
 
@@ -153,26 +159,6 @@ public class ConstrainedJSONTest {
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\",\"age\":30,\"address\":\"London\"}");
     }
-    
-    @Test(description = "Test JSON to Constaint JSON unsafe cast.", enabled = false)
-    public void testJSONToConstraintJsonUnsafeCast() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJSONToConstraintJsonUnsafeCast");
-        Assert.assertNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(((BStruct) returns[1]).getStringField(0), "'json' cannot be cast to 'json<Person>'");
-    }
-
-    @Test(description = "Test JSON to Constaint unsafe cast positive.", enabled = false)
-    public void testJSONToConstraintJsonUnsafeCastPositive() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJSONToConstraintJsonUnsafeCastPositive");
-        Assert.assertTrue(returns[0] instanceof BJSON);
-    }
-
-    @Test(description = "Test Constaint JSON to Constaint JSON Assignment.", enabled = false)
-    public void testConstraintJSONToConstraintJsonAssignment() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToConstraintJsonAssignment");
-        Assert.assertNotNull(returns[0]);
-    }
 
     @Test
     public void testContrainingWithNestedStructs() {
@@ -189,26 +175,135 @@ public class ConstrainedJSONTest {
         Assert.assertEquals(returns[2].stringValue(), "1234");
     }
 
-    /*
-        TODO: Add the below test cases once the constrained-json to un-constrained-json cast is implemented
+    @Test(description = "Test JSON to Constaint JSON unsafe cast.")
+    public void testJSONToConstraintJsonUnsafeCast() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJSONToConstraintJsonUnsafeCast");
+        Assert.assertNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertEquals(((BStruct) returns[1]).getStringField(0), "'json' cannot be cast to 'json<Person>'");
+    }
 
-        function testJSONToConstraintJsonUnsafeCast() (json, TypeCastError) {
-            json<Person> j;
-            TypeCastError err;
-            j,err = (json<Person>)getPlainJson();
-            return j,err;
-        }
-        
-        function testJSONToConstraintJsonUnsafeCastPositive() (json) {
-            json<Person> j;
-            j,_ = (json<Person>)getPersonEquivalentPlainJson();
-            return j;
-        }
-        
-        function testConstraintJSONToConstraintJsonAssignment() (json) {
-            json<Person> j = (json<Person>)getStudent();
-            return j;
-        }
-     */
-     
+    @Test(description = "Test JSON to Constaint unsafe cast positive.")
+    public void testJSONToConstraintJsonUnsafeCastPositive() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJSONToConstraintJsonUnsafeCastPositive");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "John Doe");
+        Assert.assertTrue(returns[1] instanceof BJSON);
+        Assert.assertEquals(returns[1].stringValue(), "30");
+        Assert.assertTrue(returns[2] instanceof BJSON);
+        Assert.assertEquals(returns[2].stringValue(), "London");
+        Assert.assertNull(returns[3]);
+    }
+
+    @Test(description = "Test Constaint JSON to Constaint JSON safe cast.")
+    public void testConstraintJSONToConstraintJsonCast() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToConstraintJsonCast");
+        Assert.assertNotNull(returns[0]);
+
+        // TODO: in the resulting json, "class" field should not be visible.
+        // This test case should be updated once the https://github.com/ballerinalang/ballerina/issues/4252
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"name\":\"John Doe\",\"age\":30,\"address\":\"Colombo\",\"class\":\"5\"}");
+    }
+
+    @Test(description = "Test Constaint JSON to Constaint JSON unsafe cast postive scenario.")
+    public void testConstraintJSONToConstraintJsonUnsafePositiveCast() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToConstraintJsonUnsafePositiveCast");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"name\":\"John Doe\",\"age\":30,\"address\":\"Colombo\",\"class\":\"5\"}");
+        Assert.assertNull(returns[1]);
+    }
+
+    @Test(description = "Test Constaint JSON to Constaint JSON unsafe cast negative scenario.")
+    public void testConstraintJSONToConstraintJsonUnsafeNegativeCast() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToConstraintJsonUnsafeNegativeCast");
+        Assert.assertNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertEquals(((BStruct) returns[1]).getStringField(0),
+                "'json<Employee>' cannot be cast to 'json<Student>'");
+    }
+
+    @Test
+    public void testJSONArrayToConstraintJsonArrayCastPositive() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToConstraintJsonArrayCastPositive");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(),
+                "[{\"name\":\"John Doe\",\"age\":30,\"address\":\"Colombo\",\"class\":\"5\"}]");
+    }
+
+    @Test
+    public void testJSONArrayToConstraintJsonArrayCastNegative() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToConstraintJsonArrayCastNegative");
+        Assert.assertNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertEquals(((BStruct) returns[1]).getStringField(0), "'json[]' cannot be cast to 'json<Student>[]'");
+    }
+
+    @Test
+    public void testJSONArrayToCJsonArrayCast() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToCJsonArrayCast");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(),
+                "[{\"name\":\"John Doe\",\"age\":30,\"address\":\"London\",\"class\":\"B\"}]");
+    }
+
+    @Test
+    public void testJSONArrayToCJsonArrayCastNegative() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToCJsonArrayCastNegative");
+        Assert.assertNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertEquals(((BStruct) returns[1]).getStringField(0), "'json[]' cannot be cast to 'json<Student>[]'");
+    }
+
+    @Test
+    public void testIntArrayToJsonAssignment() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIntArrayToJsonAssignment");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "[1, 5, 9]");
+    }
+
+    @Test
+    public void testFloatArrayToJsonAssignment() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatArrayToJsonAssignment");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "[1.3, 5.4, 9.4]");
+    }
+
+    @Test
+    public void testStringArrayToJsonAssignment() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStringArrayToJsonAssignment");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "[\"apple\", \"orange\"]");
+    }
+
+    @Test
+    public void testBooleanArrayToJsonAssignment() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanArrayToJsonAssignment");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "[true, true, false]");
+    }
+
+    @Test
+    public void testJSONArrayToJsonAssignment() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToJsonAssignment");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "[{\"a\":\"b\"},{\"c\":\"d\"}]");
+    }
+
+    @Test
+    public void testCJSONArrayToJsonAssignment() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCJSONArrayToJsonAssignment");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "[{\"name\":\"John Doe\",\"age\":30,\"address\":\"London\"}," +
+                "{\"name\":\"John Doe\",\"age\":40,\"address\":\"London\"}]");
+    }
+
+    @Test
+    public void testMixedTypeJSONArrayToCJsonArrayCastNegative() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMixedTypeJSONArrayToCJsonArrayCastNegative");
+        Assert.assertNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertEquals(((BStruct) returns[1]).getStringField(0), "'json[]' cannot be cast to 'json<Student>[]'");
+    }
 }

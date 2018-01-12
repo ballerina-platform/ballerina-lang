@@ -18,13 +18,6 @@
 
 package org.ballerinalang.model.util;
 
-import com.fasterxml.jackson.core.JsonParser.NumberType;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
@@ -39,6 +32,7 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.util.JsonNode.Type;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BDataTable;
@@ -61,9 +55,6 @@ import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructInfo;
-import org.ballerinalang.util.codegen.attributes.AttributeInfo;
-import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
-import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
@@ -105,23 +96,24 @@ public class JSONUtils {
      * @param map {@link BMap} to be converted to {@link BJSON}
      * @return JSON representation of the provided map
      */
+    @SuppressWarnings("unchecked")
     public static BJSON convertMapToJSON(BMap<String, BValue> map) {
         Set<String> keys = map.keySet();
-        BJSON bjson = new BJSON("{}");
-        ObjectNode jsonNode = (ObjectNode) bjson.value();
+        BJSON bjson = new BJSON(new JsonNode(Type.OBJECT));
+        JsonNode jsonNode = bjson.value();
         for (String key : keys) {
             try {
                 BValue bvalue = map.get(key);
                 if (bvalue == null) {
                     jsonNode.set(key, new BJSON(NULL).value());
                 } else if (bvalue.getType() == BTypes.typeString) {
-                    jsonNode.put(key, bvalue.stringValue());
+                    jsonNode.set(key, bvalue.stringValue());
                 } else if (bvalue.getType() == BTypes.typeInt) {
-                    jsonNode.put(key, ((BInteger) bvalue).intValue());
+                    jsonNode.set(key, ((BInteger) bvalue).intValue());
                 } else if (bvalue.getType() == BTypes.typeFloat) {
-                    jsonNode.put(key, ((BFloat) bvalue).floatValue());
+                    jsonNode.set(key, ((BFloat) bvalue).floatValue());
                 } else if (bvalue.getType() == BTypes.typeBoolean) {
-                    jsonNode.put(key, ((BBoolean) bvalue).booleanValue());
+                    jsonNode.set(key, ((BBoolean) bvalue).booleanValue());
                 } else if (bvalue.getType() == BTypes.typeMap) {
                     jsonNode.set(key, convertMapToJSON((BMap<String, BValue>) bvalue).value());
                 } else if (bvalue.getType() == BTypes.typeJSON) {
@@ -148,8 +140,8 @@ public class JSONUtils {
      * @return JSON representation of the provided intArray
      */
     public static BJSON convertArrayToJSON(BIntArray intArray) {
-        BJSON bjson = new BJSON("[]");
-        ArrayNode arrayNode = (ArrayNode) bjson.value();
+        BJSON bjson = new BJSON(new JsonNode(Type.ARRAY));
+        JsonNode arrayNode = bjson.value();
         for (int i = 0; i < intArray.size(); i++) {
             long value = intArray.get(i);
             arrayNode.add(value);
@@ -164,8 +156,8 @@ public class JSONUtils {
      * @return JSON representation of the provided floatArray
      */
     public static BJSON convertArrayToJSON(BFloatArray floatArray) {
-        BJSON bjson = new BJSON("[]");
-        ArrayNode arrayNode = (ArrayNode) bjson.value();
+        BJSON bjson = new BJSON(new JsonNode(Type.ARRAY));
+        JsonNode arrayNode = bjson.value();
         for (int i = 0; i < floatArray.size(); i++) {
             double value = floatArray.get(i);
             arrayNode.add(value);
@@ -180,8 +172,8 @@ public class JSONUtils {
      * @return JSON representation of the provided stringArray
      */
     public static BJSON convertArrayToJSON(BStringArray stringArray) {
-        BJSON bjson = new BJSON("[]");
-        ArrayNode arrayNode = (ArrayNode) bjson.value();
+        BJSON bjson = new BJSON(new JsonNode(Type.ARRAY));
+        JsonNode arrayNode = bjson.value();
         for (int i = 0; i < stringArray.size(); i++) {
             String value = stringArray.get(i);
             arrayNode.add(value);
@@ -196,8 +188,8 @@ public class JSONUtils {
      * @return JSON representation of the provided booleanArray
      */
     public static BJSON convertArrayToJSON(BBooleanArray booleanArray) {
-        BJSON bjson = new BJSON("[]");
-        ArrayNode arrayNode = (ArrayNode) bjson.value();
+        BJSON bjson = new BJSON(new JsonNode(Type.ARRAY));
+        JsonNode arrayNode = bjson.value();
         for (int i = 0; i < booleanArray.size(); i++) {
             int value = booleanArray.get(i);
             arrayNode.add(value == 1);
@@ -234,16 +226,17 @@ public class JSONUtils {
      * @param refValueArray {@link BRefValueArray} to be converted to {@link BJSON}
      * @return JSON representation of the provided refValueArray
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static BJSON convertArrayToJSON(BRefValueArray refValueArray) {
-        BJSON bjson = new BJSON("[]");
-        ArrayNode arrayNode = (ArrayNode) bjson.value();
+        BJSON bjson = new BJSON(new JsonNode(Type.ARRAY));
+        JsonNode arrayNode = bjson.value();
         for (int i = 0; i < refValueArray.size(); i++) {
             BRefType value = refValueArray.get(i);
             if (value == null) {
                 arrayNode.add(new BJSON(NULL).value());
             } else if (value.getType() == BTypes.typeMap) {
                 arrayNode.add(convertMapToJSON((BMap<String, BValue>) value).value());
-            } else if (value.getType() == BTypes.typeJSON) {
+            } else if (value instanceof BJSON) {
                 arrayNode.add(((BJSON) value).value());
             } else if (value instanceof BStruct) {
                 arrayNode.add(convertStructToJSON((BStruct) value).value());
@@ -263,9 +256,10 @@ public class JSONUtils {
      * @param struct {@link BStruct} to be converted to {@link BJSON}
      * @return JSON representation of the provided array
      */
+    @SuppressWarnings("unchecked")
     public static BJSON convertStructToJSON(BStruct struct) {
-        BJSON bjson = new BJSON("{}");
-        ObjectNode jsonNode = (ObjectNode) bjson.value();
+        BJSON bjson = new BJSON(new JsonNode(Type.OBJECT));
+        JsonNode jsonNode = bjson.value();
         BStructType structType = (BStructType) struct.getType();
 
         int longRegIndex = -1;
@@ -279,16 +273,16 @@ public class JSONUtils {
             try {
                 switch (fieldType.getTag()) {
                     case TypeTags.INT_TAG:
-                        jsonNode.put(key, struct.getIntField(++longRegIndex));
+                        jsonNode.set(key, struct.getIntField(++longRegIndex));
                         break;
                     case TypeTags.FLOAT_TAG:
-                        jsonNode.put(key, struct.getFloatField(++doubleRegIndex));
+                        jsonNode.set(key, struct.getFloatField(++doubleRegIndex));
                         break;
                     case TypeTags.STRING_TAG:
-                        jsonNode.put(key, struct.getStringField(++stringRegIndex));
+                        jsonNode.set(key, struct.getStringField(++stringRegIndex));
                         break;
                     case TypeTags.BOOLEAN_TAG:
-                        jsonNode.put(key, struct.getBooleanField(++booleanRegIndex) == 1);
+                        jsonNode.set(key, struct.getBooleanField(++booleanRegIndex) == 1);
                         break;
                     case TypeTags.BLOB_TAG:
                         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
@@ -299,7 +293,7 @@ public class JSONUtils {
                             jsonNode.set(key, new BJSON(NULL).value());
                         } else if (value.getType() == BTypes.typeMap) {
                             jsonNode.set(key, convertMapToJSON((BMap<String, BValue>) value).value());
-                        } else if (value.getType() == BTypes.typeJSON) {
+                        } else if (value instanceof BJSON) {
                             jsonNode.set(key, ((BJSON) value).value());
                         } else if (value instanceof BNewArray) {
                             jsonNode.set(key, convertArrayToJSON((BNewArray) value).value());
@@ -341,7 +335,7 @@ public class JSONUtils {
         
         if (!jsonNode.isObject()) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CANNOT_GET_VALUE_INCOMPATIBLE_TYPES,
-                    elementName, getComplexObjectTypeName(JsonNodeType.OBJECT), getTypeName(jsonNode));
+                    elementName, getComplexObjectTypeName(Type.OBJECT), getTypeName(jsonNode));
         }
         
         try {
@@ -374,11 +368,11 @@ public class JSONUtils {
 
         if (!jsonNode.isObject()) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CANNOT_SET_VALUE_INCOMPATIBLE_TYPES,
-                    elementName, getComplexObjectTypeName(JsonNodeType.OBJECT), getTypeName(jsonNode));
+                    elementName, getComplexObjectTypeName(Type.OBJECT), getTypeName(jsonNode));
         }
 
         try {
-            ((ObjectNode) jsonNode).set(elementName, jsonElement);
+            jsonNode.set(elementName, jsonElement);
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }
@@ -424,7 +418,7 @@ public class JSONUtils {
 
         if (!jsonNode.isArray()) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CANNOT_GET_VALUE_INCOMPATIBLE_TYPES,
-                    index, getComplexObjectTypeName(JsonNodeType.ARRAY), getTypeName(jsonNode));
+                    index, getComplexObjectTypeName(Type.ARRAY), getTypeName(jsonNode));
         }
 
         try {
@@ -454,20 +448,19 @@ public class JSONUtils {
             return;
         }
 
-        JsonNode jsonNode = json.value();
+        JsonNode arrayNode = json.value();
 
-        if (!jsonNode.isArray()) {
+        if (!arrayNode.isArray()) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CANNOT_SET_VALUE_INCOMPATIBLE_TYPES, index,
-                    getComplexObjectTypeName(JsonNodeType.ARRAY), getTypeName(jsonNode));
+                    getComplexObjectTypeName(Type.ARRAY), getTypeName(arrayNode));
         }
 
         JsonNode jsonElement = element == null ? null : element.value();
-        ArrayNode arrayNode = ((ArrayNode) jsonNode);
         try {
             if (arrayNode.size() <= index) {
                 // auto-grow the array
                 for (int i = arrayNode.size(); i < index; i++) {
-                    arrayNode.add(NullNode.getInstance());
+                    arrayNode.addNull();
                 }
                 arrayNode.add(jsonElement);
             } else {
@@ -483,28 +476,26 @@ public class JSONUtils {
      *
      * @param json JSON object to get the corresponding xml
      * @param attributePrefix String prefix used for attributes
+     * @param arrayEntryTag String used as the tag in the arrays
      * @return BXML XML representation of the given json object
      */
+    @SuppressWarnings("rawtypes")
     public static BXML convertToXML(BJSON json, String attributePrefix, String arrayEntryTag) {
-        try {
-            BXML xml;
-            JsonNode jsonNode = json.value();
-            ArrayList<BXML> omElementArrayList = traverseTree(jsonNode, attributePrefix, arrayEntryTag);
-            if (omElementArrayList.size() == 1) {
-                xml = omElementArrayList.get(0);
-            } else {
-                //There is a multi rooted node and create xml sequence from it
-                BRefValueArray elementsSeq = new BRefValueArray();
-                int count = omElementArrayList.size();
-                for (int i = 0; i < count; i++) {
-                    elementsSeq.add(i, omElementArrayList.get(i));
-                }
-                xml = new BXMLSequence(elementsSeq);
+        BXML xml;
+        JsonNode jsonNode = json.value();
+        List<BXML> omElementArrayList = traverseTree(jsonNode, attributePrefix, arrayEntryTag);
+        if (omElementArrayList.size() == 1) {
+            xml = omElementArrayList.get(0);
+        } else {
+            // There is a multi rooted node and create xml sequence from it
+            BRefValueArray elementsSeq = new BRefValueArray();
+            int count = omElementArrayList.size();
+            for (int i = 0; i < count; i++) {
+                elementsSeq.add(i, omElementArrayList.get(i));
             }
-            return xml;
-        } catch (Throwable t) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_SET_ERROR, t.getMessage());
+            xml = new BXMLSequence(elementsSeq);
         }
+        return xml;
     }
 
     /**
@@ -515,9 +506,9 @@ public class JSONUtils {
      * @param arrayEntryTag String used as the tag in the arrays
      * @return List of xml items genereated during the traversal.
      */
-    private static ArrayList<BXML> traverseTree(JsonNode node, String attributePrefix, String arrayEntryTag)
-            throws Exception {
-        ArrayList<BXML> xmlArray = new ArrayList<>();
+    @SuppressWarnings("rawtypes")
+    private static List<BXML> traverseTree(JsonNode node, String attributePrefix, String arrayEntryTag) {
+        List<BXML> xmlArray = new ArrayList<>();
         if (node.isValueNode()) {
             BXML xml = XMLUtils.parse(node.asText());
             xmlArray.add(xml);
@@ -536,26 +527,35 @@ public class JSONUtils {
      * @param omElementArrayList List of xml iterms generated
      * @param attributePrefix String prefix used for attributes
      * @param arrayEntryTag String used as the tag in the arrays
-     * @return List of xml items genereated during the traversal.
+     * @return List of xml items generated during the traversal.
      */
+    @SuppressWarnings("rawtypes")
     private static OMElement traverseJsonNode(JsonNode node, String nodeName, OMElement parentElement,
-            ArrayList<BXML> omElementArrayList, String attributePrefix, String arrayEntryTag) throws Exception {
+            List<BXML> omElementArrayList, String attributePrefix, String arrayEntryTag) {
         OMElement currentRoot = null;
-        boolean processNode = true;
         if (nodeName != null) {
-            currentRoot = OM_FACTORY.createOMElement(nodeName, null);
-            //Extract attributes and set to the immidiate parent.
+            //Extract attributes and set to the immediate parent.
             if (nodeName.startsWith(attributePrefix)) {
                 if (!node.isValueNode()) {
                     throw new BallerinaException("attribute cannot be an object or array");
                 }
                 if (parentElement != null) {
                     String attributeKey = nodeName.substring(1);
+                    // Validate whether the attribute name is an XML supported qualified name, according to the XML
+                    // recommendation.
+                    XMLValidationUtils.validateXMLName(attributeKey);
+
                     parentElement.addAttribute(attributeKey, node.asText(), null);
-                    processNode = false;
                 }
+                return parentElement;
             }
+
+            // Validate whether the tag name is an XML supported qualified name, according to the XML recommendation.
+            XMLValidationUtils.validateXMLName(nodeName);
+            
+            currentRoot = OM_FACTORY.createOMElement(nodeName, null);
         }
+
         if (node.isObject()) {
             Iterator<Entry<String, JsonNode>> nodeIterator = node.fields();
             while (nodeIterator.hasNext()) {
@@ -590,11 +590,10 @@ public class JSONUtils {
         } else {
             throw new BallerinaException("error in converting json to xml");
         }
+
         //Set the current constructed root the parent element
         if (parentElement != null) {
-            if (processNode) {
-                parentElement.addChild(currentRoot);
-            }
+            parentElement.addChild(currentRoot);
             currentRoot = parentElement;
         }
         return currentRoot;
@@ -607,7 +606,7 @@ public class JSONUtils {
      * @return BInteger value of the JSON, if its a integer or a long JSON node. Error, otherwise.
      */
     private static long jsonNodeToInt(JsonNode jsonNode) {
-        if (jsonNode.isInt() || jsonNode.isLong()) {
+        if (jsonNode.isLong()) {
             return jsonNode.longValue();
         }
 
@@ -622,7 +621,7 @@ public class JSONUtils {
      * @return BFloat value of the JSON, if its a double or a float JSON node. Error, otherwise.
      */
     private static double jsonNodeToFloat(JsonNode jsonNode) {
-        if (jsonNode.isFloat() || jsonNode.isDouble()) {
+        if (jsonNode.isDouble()) {
             return jsonNode.doubleValue();
         }
 
@@ -656,7 +655,7 @@ public class JSONUtils {
         BMap<String, BValue> map = BTypes.typeMap.getEmptyValue();
         if (!jsonNode.isObject()) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
-                    getComplexObjectTypeName(JsonNodeType.OBJECT), getTypeName(jsonNode));
+                    getComplexObjectTypeName(Type.OBJECT), getTypeName(jsonNode));
         }
 
         Iterator<Entry<String, JsonNode>> fields = jsonNode.fields();
@@ -692,7 +691,7 @@ public class JSONUtils {
     public static BStruct convertJSONNodeToStruct(JsonNode jsonNode, BStructType structType, PackageInfo pkgInfo) {
         if (!jsonNode.isObject()) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
-                    getComplexObjectTypeName(JsonNodeType.OBJECT), getTypeName(jsonNode));
+                    getComplexObjectTypeName(Type.OBJECT), getTypeName(jsonNode));
         }
 
         int longRegIndex = -1;
@@ -707,62 +706,32 @@ public class JSONUtils {
             BType fieldType = fieldInfo.getFieldType();
             String fieldName = fieldInfo.getName();
             try {
-                boolean containsField = jsonNode.has(fieldName);
-                DefaultValueAttributeInfo defaultValAttrInfo = null;
-                JsonNode jsonValue = null;
-
-                if (containsField) {
-                    jsonValue = jsonNode.get(fieldName);
-                } else {
-                    defaultValAttrInfo = (DefaultValueAttributeInfo) getAttributeInfo(fieldInfo,
-                            AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
+                if (!jsonNode.has(fieldName)) {
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.MISSING_FIELD_IN_JSON, fieldName);
                 }
+
+                JsonNode jsonValue = jsonNode.get(fieldName);
                 switch (fieldType.getTag()) {
                     case TypeTags.INT_TAG:
-                        longRegIndex++;
-                        if (containsField) {
-                            bStruct.setIntField(longRegIndex, jsonNodeToInt(jsonValue));
-                        } else if (defaultValAttrInfo != null) {
-                            bStruct.setIntField(longRegIndex, defaultValAttrInfo.getDefaultValue().getIntValue());
-                        }
+                        bStruct.setIntField(++longRegIndex, jsonNodeToInt(jsonValue));
                         break;
                     case TypeTags.FLOAT_TAG:
-                        doubleRegIndex++;
-                        if (containsField) {
-                            bStruct.setFloatField(doubleRegIndex, jsonNodeToFloat(jsonValue));
-                        } else if (defaultValAttrInfo != null) {
-                            bStruct.setFloatField(doubleRegIndex, defaultValAttrInfo.getDefaultValue().getFloatValue());
-                        }
+                        bStruct.setFloatField(++doubleRegIndex, jsonNodeToFloat(jsonValue));
                         break;
                     case TypeTags.STRING_TAG:
-                        stringRegIndex++;
-                        if (containsField) {
-                            String stringVal;
-                            if (jsonValue.isTextual()) {
-                                stringVal = jsonValue.textValue();
-                            } else {
-                                stringVal = jsonValue.toString();
-                            }
-                            bStruct.setStringField(stringRegIndex, stringVal);
-                        } else if (defaultValAttrInfo != null) {
-                            bStruct.setStringField(stringRegIndex,
-                                    defaultValAttrInfo.getDefaultValue().getStringValue());
+                        String stringVal;
+                        if (jsonValue.isString()) {
+                            stringVal = jsonValue.stringValue();
+                        } else {
+                            stringVal = jsonValue.toString();
                         }
+                        bStruct.setStringField(++stringRegIndex, stringVal);
                         break;
                     case TypeTags.BOOLEAN_TAG:
-                        booleanRegIndex++;
-                        if (containsField) {
-                            bStruct.setBooleanField(booleanRegIndex, jsonNodeToBool(jsonValue) ? 1 : 0);
-                        } else if (defaultValAttrInfo != null) {
-                            bStruct.setBooleanField(booleanRegIndex,
-                                    defaultValAttrInfo.getDefaultValue().getBooleanValue() ? 1 : 0);
-                        }
+                        bStruct.setBooleanField(++booleanRegIndex, jsonNodeToBool(jsonValue) ? 1 : 0);
                         break;
                     default:
                         refRegIndex++;
-                        if (!containsField) {
-                            break;
-                        }
                         if ((jsonValue == null || jsonValue.isNull())) {
                             bStruct.setRefField(refRegIndex, null);
                         } else if (fieldType instanceof BJSONType || fieldType instanceof BAnyType) {
@@ -789,41 +758,6 @@ public class JSONUtils {
     }
 
     /**
-     * Check the compatibility of casting a JSON to a target type.
-     * 
-     * @param json json to cast
-     * @param targetType Target type
-     * @return Runtime compatibility for casting
-     */
-    public static boolean checkJSONCast(JsonNode json, BType targetType) {
-        switch (targetType.getTag()) {
-            case TypeTags.STRING_TAG:
-                return json.isTextual();
-            case TypeTags.INT_TAG:
-                return json.isInt() || json.isLong();
-            case TypeTags.FLOAT_TAG:
-                return json.isFloat() || json.isDouble();
-            case TypeTags.ARRAY_TAG:
-                if (!json.isArray()) {
-                    return false;
-                }
-
-                boolean castable;
-                BArrayType arrayType = (BArrayType) targetType;
-                ArrayNode array = (ArrayNode) json;
-                for (int i = 0; i < array.size(); i++) {
-                    castable = checkJSONCast(array.get(i), arrayType.getElementType());
-                    if (!castable) {
-                        return false;
-                    }
-                }
-                return true;
-            default:
-                return true;
-        }
-    }
-
-    /**
      * Returns the keys of a JSON as a {@link BStringArray}.
      * 
      * @param json {@link BJSON} to get the keys
@@ -836,12 +770,12 @@ public class JSONUtils {
 
         JsonNode node = json.value();
 
-        if (node.getNodeType() != JsonNodeType.OBJECT) {
+        if (!node.isObject()) {
             return new BStringArray();
         }
 
         List<String> keys = new ArrayList<String>();
-        Iterator<String> keysItr = ((ObjectNode) node).fieldNames();
+        Iterator<String> keysItr = node.fieldNames();
         while (keysItr.hasNext()) {
             keys.add(keysItr.next());
         }
@@ -857,11 +791,11 @@ public class JSONUtils {
     public static void remove(BJSON json, String fieldName) {
         JsonNode node = json.value();
 
-        if (node.getNodeType() != JsonNodeType.OBJECT) {
+        if (!node.isObject()) {
             return;
         }
 
-        ((ObjectNode) node).remove(fieldName);
+        node.remove(fieldName);
     }
 
     /**
@@ -872,16 +806,16 @@ public class JSONUtils {
      * @return If the provided JSON is of array type, this method will return a {@link BArrayType} containing the values
      *         of the JSON array. Otherwise the method will throw a {@link BallerinaException}.
      */
-    private static BNewArray jsonNodeToBArray(JsonNode jsonNode, BArrayType targetArrayType, PackageInfo pkgInfo) {
-        if (!jsonNode.isArray()) {
+    @SuppressWarnings("rawtypes")
+    private static BNewArray jsonNodeToBArray(JsonNode arrayNode, BArrayType targetArrayType, PackageInfo pkgInfo) {
+        if (!arrayNode.isArray()) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
-                    getComplexObjectTypeName(JsonNodeType.ARRAY), getTypeName(jsonNode));
+                    getComplexObjectTypeName(Type.ARRAY), getTypeName(arrayNode));
         }
 
         BType elementType = targetArrayType.getElementType();
         BRefValueArray refValueArray;
 
-        ArrayNode arrayNode = (ArrayNode) jsonNode;
         switch (elementType.getTag()) {
             case TypeTags.INT_TAG:
                 return jsonNodeToBIntArray(arrayNode);
@@ -917,7 +851,7 @@ public class JSONUtils {
         }
     }
 
-    private static BIntArray jsonNodeToBIntArray(ArrayNode arrayNode) {
+    private static BIntArray jsonNodeToBIntArray(JsonNode arrayNode) {
         BIntArray intArray = new BIntArray();
         for (int i = 0; i < arrayNode.size(); i++) {
             JsonNode jsonValue = arrayNode.get(i);
@@ -926,7 +860,7 @@ public class JSONUtils {
         return intArray;
     }
 
-    private static BFloatArray jsonNodeToBFloatArray(ArrayNode arrayNode) {
+    private static BFloatArray jsonNodeToBFloatArray(JsonNode arrayNode) {
         BFloatArray floatArray = new BFloatArray();
         for (int i = 0; i < arrayNode.size(); i++) {
             JsonNode jsonValue = arrayNode.get(i);
@@ -935,13 +869,13 @@ public class JSONUtils {
         return floatArray;
     }
 
-    private static BStringArray jsonNodeToBStringArray(ArrayNode arrayNode) {
+    private static BStringArray jsonNodeToBStringArray(JsonNode arrayNode) {
         BStringArray stringArray = new BStringArray();
         for (int i = 0; i < arrayNode.size(); i++) {
             JsonNode jsonValue = arrayNode.get(i);
             String value;
-            if (jsonValue.isTextual()) {
-                value = jsonValue.textValue();
+            if (jsonValue.isString()) {
+                value = jsonValue.stringValue();
             } else {
                 value = jsonValue.toString();
             }
@@ -950,7 +884,7 @@ public class JSONUtils {
         return stringArray;
     }
 
-    private static BBooleanArray jsonNodeToBBooleanArray(ArrayNode arrayNode) {
+    private static BBooleanArray jsonNodeToBBooleanArray(JsonNode arrayNode) {
         BBooleanArray booleanArray = new BBooleanArray();
         for (int i = 0; i < arrayNode.size(); i++) {
             JsonNode jsonValue = arrayNode.get(i);
@@ -968,11 +902,11 @@ public class JSONUtils {
     private static BValue getBValue(JsonNode json) {
         if (json == null || json.isNull()) {
             return null;
-        } else if (json.isTextual()) {
-            return new BString(json.textValue());
-        } else if (json.isInt() || json.isLong()) {
+        } else if (json.isString()) {
+            return new BString(json.stringValue());
+        } else if (json.isLong()) {
             return new BInteger(json.longValue());
-        } else if (json.isFloat() || json.isDouble()) {
+        } else if (json.isDouble()) {
             return new BFloat(json.doubleValue());
         } else if (json.isBoolean()) {
             return new BBoolean(json.booleanValue());
@@ -982,19 +916,14 @@ public class JSONUtils {
     }
     
     public static String getTypeName(JsonNode jsonValue) {
-        JsonNodeType nodeType = jsonValue.getNodeType();
+        Type nodeType = jsonValue.getType();
         switch(nodeType) {
-            case NUMBER:
-                NumberType numberType = jsonValue.numberType();
-                switch(numberType) {
-                    case DOUBLE:
-                        return NumberType.FLOAT.name().toLowerCase();
-                    case LONG:
-                        return NumberType.INT.name().toLowerCase();
-                    default:
-                        return numberType.name().toLowerCase();
-                }
+            case LONG:
+                return "int";
+            case DOUBLE:
+                return "float";
             case ARRAY:
+                /* falling through */
             case OBJECT:
                 return getComplexObjectTypeName(nodeType);
             default:
@@ -1002,7 +931,7 @@ public class JSONUtils {
         }
     }
     
-    private static String getComplexObjectTypeName(JsonNodeType nodeType) {
+    private static String getComplexObjectTypeName(Type nodeType) {
         return "json-" + nodeType.name().toLowerCase();
     }
     
@@ -1011,12 +940,4 @@ public class JSONUtils {
         throw new BallerinaException(errorMsg + e.getMessage(), e);
     }
 
-    private static AttributeInfo getAttributeInfo(AttributeInfoPool attrInfoPool, AttributeInfo.Kind attrInfoKind) {
-        for (AttributeInfo attributeInfo : attrInfoPool.getAttributeInfoEntries()) {
-            if (attributeInfo.getKind() == attrInfoKind) {
-                return attributeInfo;
-            }
-        }
-        return null;
-    }
 }

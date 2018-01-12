@@ -18,9 +18,15 @@
 package org.ballerinalang.model;
 
 import org.apache.axiom.om.ds.AbstractPushOMDataSource;
+import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BDataTable;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.util.Map;
+import java.sql.SQLException;
+import java.sql.Struct;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -52,46 +58,24 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
 
     @Override
     public void serialize(XMLStreamWriter xmlStreamWriter) throws XMLStreamException {
-        xmlStreamWriter.writeStartElement(this.rootWrapper);
+        xmlStreamWriter.writeStartElement("", this.rootWrapper, "");
         while (dataTable.hasNext(this.isInTransaction)) {
-            xmlStreamWriter.writeStartElement(this.rowWrapper);
+            xmlStreamWriter.writeStartElement("", this.rowWrapper, "");
+            BStructType structType = dataTable.getStructType();
+            BStructType.StructField[] structFields = null;
+            if (structType != null) {
+                structFields = structType.getStructFields();
+            }
+            int index = 1;
             for (ColumnDefinition col : dataTable.getColumnDefs()) {
-                boolean isArray = false;
-                xmlStreamWriter.writeStartElement(col.getName());
-                String value = null;
-                switch (col.getType()) {
-                case BOOLEAN:
-                    value = String.valueOf(dataTable.getBoolean(col.getName()));
-                    break;
-                case STRING:
-                    value = dataTable.getString(col.getName());
-                    break;
-                case INT:
-                    value = String.valueOf(dataTable.getInt(col.getName()));
-                    break;
-                case FLOAT:
-                    value = String.valueOf(dataTable.getFloat(col.getName()));
-                    break;
-                case BLOB:
-                    value = dataTable.getBlob(col.getName());
-                    break;
-                case ARRAY:
-                    isArray = true;
-                    processArray(xmlStreamWriter, col);
-                    break;
-                default:
-                    value = dataTable.getObjectAsString(col.getName());
-                    break;
+                String name;
+                if (structFields != null) {
+                    name = structFields[index - 1].getFieldName();
+                } else {
+                    name = col.getName();
                 }
-                if (!isArray) {
-                    if (value == null) {
-                        xmlStreamWriter.writeNamespace(XSI_PREFIX, XSI_NAMESPACE);
-                        xmlStreamWriter.writeAttribute(XSI_PREFIX, XSI_NAMESPACE, "nil", "true");
-                    } else {
-                        xmlStreamWriter.writeCharacters(value);
-                    }
-                }
-                xmlStreamWriter.writeEndElement();
+                writeElement(xmlStreamWriter, name, col.getType(), index, structFields);
+                ++index;
             }
             xmlStreamWriter.writeEndElement();
         }
@@ -100,20 +84,99 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
         xmlStreamWriter.flush();
     }
 
-    private void processArray(XMLStreamWriter xmlStreamWriter, ColumnDefinition col)
-            throws XMLStreamException {
-        Map<String, Object> array = dataTable.getArray(col.getName());
-        if (array != null && !array.isEmpty()) {
-            for (Map.Entry<String, Object> values : array.entrySet()) {
-                xmlStreamWriter.writeStartElement(ARRAY_ELEMENT_NAME);
-                xmlStreamWriter.writeCharacters(String.valueOf(values.getValue()));
+    private void writeElement(XMLStreamWriter xmlStreamWriter, String name, TypeKind type, int index,
+            BStructType.StructField[] structFields) throws XMLStreamException {
+        boolean isArray = false;
+        xmlStreamWriter.writeStartElement("", name, "");
+        String value = null;
+        switch (type) {
+        case BOOLEAN:
+            value = String.valueOf(dataTable.getBoolean(index));
+            break;
+        case STRING:
+            value = dataTable.getString(index);
+            break;
+        case INT:
+            value = String.valueOf(dataTable.getInt(index));
+            break;
+        case FLOAT:
+            value = String.valueOf(dataTable.getFloat(index));
+            break;
+        case BLOB:
+            value = dataTable.getBlob(index);
+            break;
+        case ARRAY:
+            isArray = true;
+            Object[] array = dataTable.getArray(index);
+            processArray(xmlStreamWriter, array);
+            break;
+        case STRUCT:
+            isArray = true;
+            Object[] structData = dataTable.getStruct(index);
+            if (structFields == null) {
+                processArray(xmlStreamWriter, structData);
+            } else {
+                processStruct(xmlStreamWriter, structData, structFields, index);
+            }
+            break;
+        default:
+            value = dataTable.getString(index);
+            break;
+        }
+        if (!isArray) {
+            if (value == null) {
+                xmlStreamWriter.writeNamespace(XSI_PREFIX, XSI_NAMESPACE);
+                xmlStreamWriter.writeAttribute(XSI_PREFIX, XSI_NAMESPACE, "nil", "true");
+            } else {
+                xmlStreamWriter.writeCharacters(value);
+            }
+        }
+        xmlStreamWriter.writeEndElement();
+    }
+
+    private void processArray(XMLStreamWriter xmlStreamWriter, Object[] array) throws XMLStreamException {
+        if (array != null) {
+            for (Object value  : array) {
+                xmlStreamWriter.writeStartElement("", ARRAY_ELEMENT_NAME, "");
+                xmlStreamWriter.writeCharacters(String.valueOf(value));
                 xmlStreamWriter.writeEndElement();
             }
         }
     }
 
+    private void processStruct(XMLStreamWriter xmlStreamWriter, Object[] structData,
+            BStructType.StructField[] structFields, int index) throws XMLStreamException {
+        try {
+            int i = 0;
+            boolean structError = true;
+            BType internaltType = structFields[index - 1].fieldType;
+            if (internaltType.getTag() == TypeTags.STRUCT_TAG) {
+                BStructType.StructField[] interanlStructFields = ((BStructType) internaltType).getStructFields();
+                if (interanlStructFields != null) {
+                    for (Object val : structData) {
+                        xmlStreamWriter.writeStartElement("", interanlStructFields[i].fieldName, "");
+                        if (val instanceof Struct) {
+                            processStruct(xmlStreamWriter, ((Struct) val).getAttributes(), interanlStructFields, i + 1);
+                        } else {
+                            xmlStreamWriter.writeCharacters(val.toString());
+                        }
+                        xmlStreamWriter.writeEndElement();
+                        ++i;
+                    }
+                    structError = false;
+                }
+            }
+            if (structError) {
+                throw new BallerinaException("error in constructing the xml element from struct type data");
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException(
+                    "error in retrieving struct data to construct the inner xml element:" + e.getMessage());
+        }
+    }
+
     @Override
     public boolean isDestructiveWrite() {
-        return false;
+        return true;
     }
 }

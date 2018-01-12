@@ -18,25 +18,19 @@
 package org.ballerinalang.nativeimpl.builtin.timelib;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
-import java.time.zone.ZoneRulesException;
-import java.util.Date;
-import java.util.TimeZone;
 
 /**
  * Contains utility methods for time related functions.
@@ -45,9 +39,6 @@ import java.util.TimeZone;
  */
 public abstract class AbstractTimeFunction extends AbstractNativeFunction {
 
-    public static final String TIME_PACKAGE = "ballerina.builtin";
-    public static final String STRUCT_TYPE_TIME = "Time";
-    public static final String STRUCT_TYPE_TIMEZONE = "Timezone";
     public static final String KEY_ZONED_DATETIME = "ZonedDateTime";
 
     private StructInfo timeStructInfo;
@@ -55,18 +46,23 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
 
     BStruct createCurrentTime(Context context) {
         long currentTime = Instant.now().toEpochMilli();
-        BStruct currentTimezone = createCurrentTimeZone(context);
-        return BLangVMStructs.createBStruct(getTimeStructInfo(context), currentTime, currentTimezone);
+        return Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), currentTime,
+                ZoneId.systemDefault().toString());
     }
 
     BStruct createDateTime(Context context, int year, int month, int day, int hour, int minute, int second,
-            int milliSecond, String zoneID) {
+            int milliSecond, String zoneIDStr) {
         int nanoSecond = milliSecond * 1000000;
-        ZoneId zoneId = ZoneId.of(zoneID);
+        ZoneId zoneId;
+        if (zoneIDStr.isEmpty()) {
+            zoneId = ZoneId.systemDefault();
+            zoneIDStr = zoneId.toString();
+        } else {
+            zoneId = ZoneId.of(zoneIDStr);
+        }
         ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, day, hour, minute, second, nanoSecond, zoneId);
-        BStruct timezone = createTimeZone(context, zoneId);
         long timeValue = zonedDateTime.toInstant().toEpochMilli();
-        return BLangVMStructs.createBStruct(getTimeStructInfo(context), timeValue , timezone);
+        return Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), timeValue, zoneIDStr);
     }
 
     BStruct parseTime(Context context, String dateValue, String pattern) {
@@ -110,9 +106,9 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
                 zoneId = ZoneId.systemDefault();
             }
             ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, day, hour, minute, second, nanoSecond, zoneId);
-            BStruct timezone = createTimeZone(context, zoneId);
             long timeValue = zonedDateTime.toInstant().toEpochMilli();
-            return BLangVMStructs.createBStruct(getTimeStructInfo(context), timeValue , timezone);
+            return Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), timeValue,
+                    zoneId.toString());
 
         } catch (DateTimeParseException e) {
             throw new BallerinaException("parse date " + dateValue + " for the format " + pattern  + " failed ");
@@ -147,7 +143,7 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
         BStruct zoneData = (BStruct) timeStruct.getRefField(0);
         String zoneIdName = zoneData.getStringField(0);
         long mSec = dateTime.toInstant().toEpochMilli();
-        return createTime(context, mSec, zoneIdName);
+        return Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), mSec, zoneIdName);
     }
 
     BStruct subtractDuration(Context context, BStruct timeStruct, long years, long months, long days, long hours,
@@ -159,11 +155,11 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
         BStruct zoneData = (BStruct) timeStruct.getRefField(0);
         String zoneIdName = zoneData.getStringField(0);
         long mSec = dateTime.toInstant().toEpochMilli();
-        return createTime(context, mSec, zoneIdName);
+        return Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), mSec, zoneIdName);
     }
 
     BStruct changeTimezone(Context context, BStruct timeStruct, String zoneId) {
-        BStruct timezone = createTimeZone(context, zoneId);
+        BStruct timezone = Utils.createTimeZone(Utils.getTimeZoneStructInfo(context), zoneId);
         timeStruct.setRefField(0, timezone);
         clearStructCache(timeStruct);
         return timeStruct;
@@ -210,11 +206,6 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
         return dateTime.getDayOfWeek().toString();
     }
 
-    private BStruct createTime(Context context, long timeValue, String zoneId) {
-        BStruct timezone = createTimeZone(context, zoneId);
-        return BLangVMStructs.createBStruct(getTimeStructInfo(context), timeValue, timezone);
-    }
-
     private ZonedDateTime getZonedDateTime(BStruct timeStruct) {
         ZonedDateTime dateTime = (ZonedDateTime) timeStruct.getNativeData(KEY_ZONED_DATETIME);
         if (dateTime != null) {
@@ -242,56 +233,16 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
         timeStruct.addNativeData(KEY_ZONED_DATETIME, null);
     }
 
-    private BStruct createCurrentTimeZone(Context context) {
-        //Get zone id
-        ZoneId zoneId = ZoneId.systemDefault();
-        String zoneIdName = zoneId.toString();
-        //Get offset in seconds
-        ZoneOffset o = OffsetDateTime.now().getOffset();
-        int offset = o.getTotalSeconds();
-        return BLangVMStructs.createBStruct(getTimeZoneStructInfo(context), zoneIdName, offset);
-    }
-
-    private BStruct createTimeZone(Context context, String zoneIdValue) {
-        String zoneIdName;
-        try {
-            ZoneId zoneId = ZoneId.of(zoneIdValue);
-            zoneIdName = zoneId.toString();
-            //Get offset in seconds
-            TimeZone tz = TimeZone.getTimeZone(zoneId);
-            int offsetInMills  = tz.getOffset(new Date().getTime());
-            int offset = offsetInMills / 1000;
-            return BLangVMStructs.createBStruct(getTimeZoneStructInfo(context), zoneIdName, offset);
-        } catch (ZoneRulesException e) {
-            throw new BallerinaException("invalid timezone id " + zoneIdValue);
-        }
-
-    }
-
-    private BStruct createTimeZone(Context context, ZoneId zoneId) {
-        //Get zone id
-        String zoneIdName = zoneId.toString();
-        //Get offset in seconds
-        TimeZone tz = TimeZone.getTimeZone(zoneId);
-        int offsetInMills  = tz.getOffset(new Date().getTime());
-        int offset = offsetInMills / 1000;
-        return BLangVMStructs.createBStruct(getTimeZoneStructInfo(context), zoneIdName, offset);
-    }
-
     private StructInfo getTimeZoneStructInfo(Context context) {
-        StructInfo result = zoneStructInfo;
-        if (result == null) {
-            PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(TIME_PACKAGE);
-            zoneStructInfo = timePackageInfo.getStructInfo(STRUCT_TYPE_TIMEZONE);
+        if (zoneStructInfo == null) {
+            zoneStructInfo = Utils.getTimeZoneStructInfo(context);
         }
         return zoneStructInfo;
     }
 
     private StructInfo getTimeStructInfo(Context context) {
-        StructInfo result = timeStructInfo;
-        if (result == null) {
-            PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(TIME_PACKAGE);
-            timeStructInfo = timePackageInfo.getStructInfo(STRUCT_TYPE_TIME);
+        if (timeStructInfo == null) {
+            timeStructInfo = Utils.getTimeStructInfo(context);
         }
         return timeStructInfo;
     }

@@ -30,6 +30,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.net.ws.WebSocketConnectionManager;
+import org.ballerinalang.net.ws.WsOpenConnectionInfo;
 import org.ballerinalang.test.utils.ws.MockWebSocketSession;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -83,7 +84,7 @@ public class NativeFunctionsTestCase {
         upgradeHeaders.put(header1Key, header1Value);
         upgradeHeaders.put(header2Key, header2Value);
 
-        wsConnection = BCompileUtil.createAndGetStruct(programFile, Constants.WEBSOCKET_PACKAGE_NAME,
+        wsConnection = BCompileUtil.createAndGetStruct(programFile, Constants.PROTOCOL_PACKAGE_WS,
                                                      Constants.STRUCT_WEBSOCKET_CONNECTION);
         wsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, session);
         wsConnection.addNativeData(Constants.NATIVE_DATA_UPGRADE_HEADERS, upgradeHeaders);
@@ -165,10 +166,12 @@ public class NativeFunctionsTestCase {
         String testSessionID = "test_session_id";
         MockWebSocketSession testSession = new MockWebSocketSession(testSessionID);
         BStruct testParentWsConnection = BCompileUtil.createAndGetStruct(programFile,
-                Constants.WEBSOCKET_PACKAGE_NAME, Constants.STRUCT_WEBSOCKET_CONNECTION);
+                                                Constants.PROTOCOL_PACKAGE_WS, Constants.STRUCT_WEBSOCKET_CONNECTION);
         testParentWsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, testSession);
         wsConnection.addNativeData(Constants.NATIVE_DATA_PARENT_CONNECTION_ID, testSessionID);
-        WebSocketConnectionManager.getInstance().addConnection(testSessionID, testParentWsConnection);
+        WsOpenConnectionInfo connectionInfo =
+                new WsOpenConnectionInfo(null, testParentWsConnection, null);
+        WebSocketConnectionManager.getInstance().addConnection(testSessionID, connectionInfo);
 
         // Test the original WebSocket connection.
         BValue[] inputBValues = {wsConnection};

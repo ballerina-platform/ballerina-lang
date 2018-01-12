@@ -35,13 +35,13 @@ import java.io.File;
 public class SQLTransactionsTest {
 
     CompileResult result;
-    private static final String DB_NAME = "TEST_SQL_CONNECTOR";
+    private static final String DB_NAME = "TEST_SQL_CONNECTOR_TR";
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/connectors/sql/sql-transactions.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
-        SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/SQLConnectorDataFile.sql");
+        SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLTableCreate.sql");
     }
 
     @Test
@@ -89,8 +89,8 @@ public class SQLTransactionsTest {
     }
 
     @Test
-    public void testTransactonHandlerOrder() {
-        BValue[] returns = BRunUtil.invoke(result, "testTransactonHandlerOrder");
+    public void testTwoTransactons() {
+        BValue[] returns = BRunUtil.invoke(result, "testTwoTransactons");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 4);
@@ -106,7 +106,7 @@ public class SQLTransactionsTest {
     public void testLocalTransactonFailed() {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransactionFailed");
         Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "beforetx inTrx inFld inTrx inFld inTrx inFld inTrx inFld inAbrt "
+        Assert.assertEquals(returns[0].stringValue(), "beforetx inTrx inFld inTrx inFld inTrx inFld inTrx inFld "
                 + "inCatch afterTrx");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
@@ -115,7 +115,7 @@ public class SQLTransactionsTest {
     public void testLocalTransactonSuccessWithFailed() {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransactonSuccessWithFailed");
         Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "beforetx inTrx inFld inTrx inFld inTrx inCmt afterTrx");
+        Assert.assertEquals(returns[0].stringValue(), "beforetx inTrx inFld inTrx inFld inTrx afterTrx");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 

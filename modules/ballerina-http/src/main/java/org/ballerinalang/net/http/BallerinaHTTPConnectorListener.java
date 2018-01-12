@@ -23,8 +23,8 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.model.values.BValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Collections;
 import java.util.Map;
@@ -36,9 +36,15 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(BallerinaHTTPConnectorListener.class);
 
+    private final HTTPServicesRegistry httpServicesRegistry;
+
+    public BallerinaHTTPConnectorListener(HTTPServicesRegistry httpServicesRegistry) {
+        this.httpServicesRegistry = httpServicesRegistry;
+    }
+
     @Override
     public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-        HttpResource httpResource = HttpDispatcher.findResource(httpCarbonMessage);
+        HttpResource httpResource = HttpDispatcher.findResource(httpServicesRegistry, httpCarbonMessage);
         //TODO below should be fixed properly
         //basically need to find a way to pass information from server connector side to client connector side
         Map<String, Object> properties = null;
@@ -48,7 +54,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         }
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
         ConnectorFuture future = Executor.submit(httpResource.getBalResource(), properties, signatureParams);
-        ConnectorFutureListener futureListener = new HttpConnectorFutureListener(httpCarbonMessage, signatureParams[0]);
+        ConnectorFutureListener futureListener = new HttpConnectorFutureListener(httpCarbonMessage);
         future.setConnectorFutureListener(futureListener);
     }
 

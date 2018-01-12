@@ -20,9 +20,9 @@ service<http> passthrough {
         if (err != null) {
             res.setStatusCode(500);
             res.setStringPayload(err.msg);
-            res.send();
+            _ = res.send();
         } else {
-            res.forward(clientResponse);
+            _ = res.forward(clientResponse);
         }
     }
 }
@@ -36,6 +36,6 @@ service<http> echo {
     }
     resource echoResource (http:Request req, http:Response res) {
         res.setStringPayload("Resource is invoked");
-        res.send();
+        _ = res.send();
     }
 }

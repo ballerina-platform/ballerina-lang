@@ -21,6 +21,7 @@ package org.ballerinalang.net.ws.actions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
@@ -28,17 +29,19 @@ import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.BallerinaHttpServerConnector;
 import org.ballerinalang.net.ws.BallerinaWsClientConnectorListener;
 import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.net.ws.WebSocketService;
-import org.ballerinalang.net.ws.WebSocketServicesRegistry;
-import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeFuture;
-import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeListener;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WsClientConnectorConfig;
-import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.ballerinalang.net.ws.WsOpenConnectionInfo;
+import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
+import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
+import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
+import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 
+import java.util.HashMap;
 import javax.websocket.Session;
 
 /**
@@ -62,7 +65,10 @@ public class ConnectWithDefault extends AbstractNativeWsAction {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
         String remoteUrl = getUrlFromConnector(bconnector);
         String clientServiceName = getClientServiceNameFromConnector(bconnector);
-        WebSocketService wsService = WebSocketServicesRegistry.getInstance().getClientService(clientServiceName);
+        BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
+                getBallerinaServerConnector(context, Constants.HTTP_PACKAGE_PATH);
+        final WebSocketService wsService =
+                httpServerConnector.getWebSocketServicesRegistry().getClientService(clientServiceName);
         if (wsService == null) {
             throw new BallerinaConnectorException("Cannot find client service: " + clientServiceName);
         }
@@ -74,20 +80,23 @@ public class ConnectWithDefault extends AbstractNativeWsAction {
         ClientConnectorFuture connectorFuture = new ClientConnectorFuture();
         WebSocketClientConnector clientConnector =
                 connectorFactory.createWsClientConnector(clientConnectorConfig);
-        HandshakeFuture handshakeFuture = clientConnector.connect(new BallerinaWsClientConnectorListener(wsService));
+        BallerinaWsClientConnectorListener clientConnectorListener = new BallerinaWsClientConnectorListener();
+        HandshakeFuture handshakeFuture = clientConnector.connect(clientConnectorListener);
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
-                BStruct wsConnection = createWsConnectionStruct(context, session, null);
-                context.getControlStackNew().currentFrame.returnValues[0] = wsConnection;
-                storeWsConnection(session.getId(), wsConnection);
+                BStruct wsConnection = createWsConnectionStruct(wsService, session, null);
+                context.getControlStack().currentFrame.returnValues[0] = wsConnection;
+                WsOpenConnectionInfo connectionInfo =
+                        new WsOpenConnectionInfo(wsService, wsConnection, new HashMap<>());
+                clientConnectorListener.setConnectionInfo(connectionInfo);
                 connectorFuture.notifySuccess();
             }
 
             @Override
             public void onError(Throwable t) {
                 BStruct wsError = createWsErrorStruct(context, t);
-                context.getControlStackNew().currentFrame.returnValues[1] = wsError;
+                context.getControlStack().currentFrame.returnValues[1] = wsError;
                 connectorFuture.notifySuccess();
             }
         });

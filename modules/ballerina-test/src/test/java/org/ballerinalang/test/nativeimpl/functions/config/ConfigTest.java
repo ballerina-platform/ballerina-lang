@@ -18,6 +18,7 @@
 package org.ballerinalang.test.nativeimpl.functions.config;
 
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.config.utils.ConfigFileParserException;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -106,7 +107,7 @@ public class ConfigTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
-        Assert.assertEquals(returnVals[0].stringValue(), "");
+        Assert.assertNull(returnVals[0].stringValue());
     }
 
     @Test(description = "test instance method with runtime and custom config file properties")
@@ -170,7 +171,22 @@ public class ConfigTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
-        Assert.assertEquals(returnVals[0].stringValue(), "");
+        Assert.assertNull(returnVals[0].stringValue());
+    }
+
+    @Test(description = "Test config entries with trailing whitespaces")
+    public void testEntriesWithTrailingWhitespace() throws ConfigFileParserException {
+        BString id = new BString("http3");
+        BString key = new BString("ballerina.http.port");
+        BValue[] inputArg = {id, key};
+        ConfigRegistry registry = ConfigRegistry.getInstance();
+        registry.initRegistry(new HashMap<>());
+        registry.loadConfigurations();
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testConfigsWithWhitespace", inputArg);
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BString);
+        Assert.assertEquals(returnVals[0].stringValue(), "7070");
     }
 
     private Map<String, String> getRuntimeProperties() {

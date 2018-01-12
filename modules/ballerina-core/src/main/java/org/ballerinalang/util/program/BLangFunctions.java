@@ -20,7 +20,7 @@ package org.ballerinalang.util.program;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.bre.bvm.ControlStack;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
@@ -31,6 +31,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -111,11 +112,11 @@ public class BLangFunctions {
                                           Context context) {
 
         PackageInfo packageInfo = functionInfo.getPackageInfo();
-        ControlStackNew controlStackNew = context.getControlStackNew();
+        ControlStack controlStack = context.getControlStack();
         // First Create the caller's stack frame. This frame contains zero local variables, but it contains enough
         // registers to hold function arguments as well as return values from the callee.
         StackFrame callerSF = new StackFrame(packageInfo, -1, new int[0]);
-        controlStackNew.pushFrame(callerSF);
+        controlStack.pushFrame(callerSF);
         // TODO Create registers to hold return values
 
         int longRegCount = 0;
@@ -162,7 +163,7 @@ public class BLangFunctions {
         // Now create callee's stackframe
         WorkerInfo defaultWorkerInfo = functionInfo.getDefaultWorkerInfo();
         SynchronizedStackFrame calleeSF = new SynchronizedStackFrame(functionInfo, defaultWorkerInfo, -1, retRegs);
-        controlStackNew.pushFrame(calleeSF);
+        controlStack.pushFrame(calleeSF);
 
         int longParamCount = 0;
         int doubleParamCount = 0;
@@ -173,54 +174,53 @@ public class BLangFunctions {
 
         CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
 
-        long[] longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
-        double[] doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
-        String[] stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
+        long[] longRegs = new long[codeAttribInfo.getMaxLongRegs()];
+        double[] doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
+        String[] stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         // Setting the zero values for strings
-        Arrays.fill(stringLocalVars, "");
+        Arrays.fill(stringRegs, BLangConstants.STRING_NULL_VALUE);
 
-        int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
-        byte[][] byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
-        BRefType[] refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
+        int[] intRegs = new int[codeAttribInfo.getMaxIntRegs()];
+        byte[][] byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
+        BRefType[] refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
 
         for (int i = 0; i < functionInfo.getParamTypes().length; i++) {
             BType argType = functionInfo.getParamTypes()[i];
             switch (argType.getTag()) {
                 case TypeTags.INT_TAG:
-                    longLocalVars[longParamCount] = ((BInteger) args[i]).intValue();
+                    longRegs[longParamCount] = ((BInteger) args[i]).intValue();
                     longParamCount++;
                     break;
                 case TypeTags.FLOAT_TAG:
-                    doubleLocalVars[doubleParamCount] = ((BFloat) args[i]).floatValue();
+                    doubleRegs[doubleParamCount] = ((BFloat) args[i]).floatValue();
                     doubleParamCount++;
                     break;
                 case TypeTags.STRING_TAG:
-                    stringLocalVars[stringParamCount] = args[i].stringValue();
+                    stringRegs[stringParamCount] = args[i].stringValue();
                     stringParamCount++;
                     break;
                 case TypeTags.BOOLEAN_TAG:
-                    intLocalVars[intParamCount] = ((BBoolean) args[i]).booleanValue() ? 1 : 0;
+                    intRegs[intParamCount] = ((BBoolean) args[i]).booleanValue() ? 1 : 0;
                     intParamCount++;
                     break;
                 case TypeTags.BLOB_TAG:
-                    byteLocalVars[byteParamCount] = ((BBlob) args[i]).blobValue();
+                    byteRegs[byteParamCount] = ((BBlob) args[i]).blobValue();
                     byteParamCount++;
                     break;
                 default:
-                    refLocalVars[refParamCount] = (BRefType) args[i];
+                    refRegs[refParamCount] = (BRefType) args[i];
                     refParamCount++;
                     break;
             }
         }
 
-        calleeSF.setLongLocalVars(longLocalVars);
-        calleeSF.setDoubleLocalVars(doubleLocalVars);
-        calleeSF.setStringLocalVars(stringLocalVars);
-        calleeSF.setIntLocalVars(intLocalVars);
-        calleeSF.setByteLocalVars(byteLocalVars);
-        calleeSF.setRefLocalVars(refLocalVars);
-
-
+        calleeSF.setLongRegs(longRegs);
+        calleeSF.setDoubleRegs(doubleRegs);
+        calleeSF.setStringRegs(stringRegs);
+        calleeSF.setIntRegs(intRegs);
+        calleeSF.setByteRegs(byteRegs);
+        calleeSF.setRefRegs(refRegs);
+        
         BLangVM bLangVM = new BLangVM(bLangProgram);
         context.startTrackWorker();
         context.setStartIP(codeAttribInfo.getCodeAddrs());
@@ -271,7 +271,7 @@ public class BLangFunctions {
     public static void invokeFunction(ProgramFile programFile, FunctionInfo initFuncInfo, Context context) {
         WorkerInfo defaultWorker = initFuncInfo.getDefaultWorkerInfo();
         SynchronizedStackFrame stackFrame = new SynchronizedStackFrame(initFuncInfo, defaultWorker, -1, new int[0]);
-        context.getControlStackNew().pushFrame(stackFrame);
+        context.getControlStack().pushFrame(stackFrame);
 
         BLangVM bLangVM = new BLangVM(programFile);
         context.startTrackWorker();

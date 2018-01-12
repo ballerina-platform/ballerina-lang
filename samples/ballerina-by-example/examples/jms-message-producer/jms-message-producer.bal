@@ -6,6 +6,7 @@ function main (string[] args) {
 }
 
 function jmsSender() (boolean) {
+    endpoint<jms:ClientConnector> jmsEP {}
     // We define the connection properties as a map. 'providerUrl' or 'configFilePath' and the 'initialContextFactory' vary according to the JMS provider you use.
     // In this example we connect to the WSO2 MB server.
     map properties = {
@@ -15,7 +16,8 @@ function jmsSender() (boolean) {
         "connectionFactoryName": "QueueConnectionFactory",
         "connectionFactoryType" : "queue"};
     // Create the JMS client Connector using the connection properties we defined earlier.
-    jms:ClientConnector jmsEP = create jms:ClientConnector(properties);
+    jms:ClientConnector jmsConn = create jms:ClientConnector(properties);
+    bind jmsConn with jmsEP;
     // Create an empty Ballerina message.
     message queueMessage = {};
     // Set a string payload to the message.

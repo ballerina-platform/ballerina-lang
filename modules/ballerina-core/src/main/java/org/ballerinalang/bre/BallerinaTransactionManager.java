@@ -37,14 +37,12 @@ public class BallerinaTransactionManager {
     private Map<String, BallerinaTransactionContext> transactionContextStore;
     private TransactionManager transactionManager;
     private int transactionLevel; //level of the nested transaction
-    private boolean transactionError; //status of nested transactions
     private Map<Integer, Integer> allowedTransactionRetryCounts;
     private Map<Integer, Integer> currentTransactionRetryCounts;
 
     public BallerinaTransactionManager() {
         this.transactionContextStore = new HashMap<>();
         this.transactionLevel = 0;
-        this.transactionError = false;
         this.allowedTransactionRetryCounts = new HashMap<>();
         this.currentTransactionRetryCounts = new HashMap<>();
     }
@@ -67,10 +65,6 @@ public class BallerinaTransactionManager {
 
     public BallerinaTransactionContext getTransactionContext(String id) {
         return transactionContextStore.get(id);
-    }
-
-    public void setTransactionError(boolean transactionError) {
-        this.transactionError = transactionError;
     }
 
     public void beginTransactionBlock(int transactionID, int retryCount) {
@@ -102,7 +96,7 @@ public class BallerinaTransactionManager {
     }
 
     public void commitTransactionBlock() {
-        if (transactionLevel == 1 && !this.transactionError) {
+        if (transactionLevel == 1) {
             commitNonXAConnections();
             closeAllConnections();
             commitXATransaction();

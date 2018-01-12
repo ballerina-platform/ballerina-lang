@@ -134,7 +134,6 @@ public class CharacterInputOutputBufferTest {
         characterChannel.close();
     }
 
-
     @Test(description = "Read characters into multiple iterations")
     public void readCharacters() throws IOException, URISyntaxException {
         int numberOfCharactersToRead = 2;
@@ -153,6 +152,19 @@ public class CharacterInputOutputBufferTest {
         numberOfCharactersToRead = 4;
         readCharacters = characterChannel.read(numberOfCharactersToRead);
         Assert.assertEquals(readCharacters.length(), 3);
+        characterChannel.close();
+    }
+
+    @Test(description = "Reads all characters from the file")
+    public void readAllCharacters() throws IOException, URISyntaxException {
+        final int expectedContentLength = 1702;
+        //Number of characters in this file would be 6
+        ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/longParagraph.txt");
+        AbstractChannel channel = new MockByteChannel(byteChannel, 10);
+        CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
+        String responseValue = characterChannel.readAll();
+
+        Assert.assertEquals(responseValue.length(), expectedContentLength);
         characterChannel.close();
     }
 

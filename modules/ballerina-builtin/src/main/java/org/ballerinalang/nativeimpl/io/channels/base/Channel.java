@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -44,11 +46,43 @@ public abstract class Channel extends AbstractChannel {
      */
     private Buffer contentBuffer;
 
+    /**
+     * <p>
+     * Specifies the maximum number of bytes which will be read in each chunk.
+     * </p>
+     * <p>
+     * This value will be used when reading all the bytes from the channel.
+     * </p>
+     *
+     * @see Channel#readAll()
+     */
+    private static final int MAX_BUFFER_CHUNK_SIZE = 1024;
+
     private static final Logger log = LoggerFactory.getLogger(Channel.class);
 
     public Channel(ByteChannel channel, int size) throws BallerinaIOException {
         super(channel);
         contentBuffer = new Buffer(size);
+    }
+
+    /**
+     * <p>
+     * Merge the list of buffers together into one.
+     * </p>
+     * <p>
+     * <b>Note : </b> This will be used to consolidate buffers read in multiple iterations into one.
+     * </p>
+     *
+     * @param bufferList the list which contains all bytes read through the buffer.
+     * @param size       the size of all the bytes read.
+     * @return the response buffer which contains all consolidated bytes.
+     */
+    private byte[] merge(List<ByteBuffer> bufferList, int size) {
+        ByteBuffer consolidatedBuffer = ByteBuffer.allocate(size);
+        for (ByteBuffer buffer : bufferList) {
+            consolidatedBuffer.put(buffer);
+        }
+        return consolidatedBuffer.array();
     }
 
     /**
@@ -69,6 +103,29 @@ public abstract class Channel extends AbstractChannel {
     public byte[] read(int numberOfBytes) throws BallerinaIOException {
         ByteBuffer readBuffer = contentBuffer.get(numberOfBytes, this);
         return readBuffer.array();
+    }
+
+    /**
+     * Reads all bytes from the I/O source.
+     *
+     * @return all the bytes read.
+     * @throws BallerinaException during I/O error.
+     */
+    public byte[] readAll() throws BallerinaException {
+        List<ByteBuffer> readBufferList = new ArrayList<>();
+        int totalNumberOfBytes = 0;
+        boolean hasRemaining = false;
+        do {
+            ByteBuffer readBuffer = contentBuffer.get(MAX_BUFFER_CHUNK_SIZE, this);
+            int numberOfBytesRead = readBuffer.limit();
+            if (numberOfBytesRead > 0) {
+                readBufferList.add(readBuffer);
+                totalNumberOfBytes = totalNumberOfBytes + numberOfBytesRead;
+            } else {
+                hasRemaining = true;
+            }
+        } while (!hasRemaining);
+        return merge(readBufferList, totalNumberOfBytes);
     }
 
     /**

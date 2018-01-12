@@ -31,7 +31,7 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Locale;
 
@@ -82,13 +82,18 @@ public class Forward extends AbstractHTTPAction {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String path = getStringArgument(context, 0);
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
+        
         if (requestStruct.getNativeData(Constants.INBOUND_REQUEST) == null) {
             throw new BallerinaException("invalid inbound request parameter");
         }
-        HTTPCarbonMessage cMsg = HttpUtil.getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
-        String httpVerb = (String) cMsg.getProperty(Constants.HTTP_METHOD);
-        prepareRequest(bConnector, path, cMsg);
-        cMsg.setProperty(Constants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
-        return cMsg;
+        
+        HTTPCarbonMessage outboundRequestMsg = HttpUtil
+                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
+        prepareRequest(bConnector, path, outboundRequestMsg, requestStruct);
+
+        String httpVerb = (String) outboundRequestMsg.getProperty(Constants.HTTP_METHOD);
+        outboundRequestMsg.setProperty(Constants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
+
+        return outboundRequestMsg;
     }
 }

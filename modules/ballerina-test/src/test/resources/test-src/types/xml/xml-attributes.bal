@@ -170,9 +170,9 @@ function testGetAttributeWithoutLocalname() (string) {
     return x1@["{http://sample.com/wso2/e}"];
 }
 
-function testGetAttributeWithEmptyNamespace() (string) {
+function testGetAttributeWithEmptyNamespace() (string, string) {
     var x1, _ = <xml> "<root xmlns:ns4=\"http://sample.com/wso2/f\" xmlns=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns4:foo3=\"bar3\"/>";
-    return x1@["{}foo1"];
+    return x1@["{}foo1"], x1@["foo1"];
 }
 
 function testGetNamespaceAsAttribute() (string) {

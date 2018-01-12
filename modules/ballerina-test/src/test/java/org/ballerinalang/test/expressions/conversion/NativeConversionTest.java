@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.test.expressions.conversion;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BIntArray;
@@ -129,6 +129,8 @@ public class NativeConversionTest {
         Assert.assertEquals(marksArray.get(0), 87);
         Assert.assertEquals(marksArray.get(1), 94);
         Assert.assertEquals(marksArray.get(2), 72);
+        
+        Assert.assertNull(returns[1]);
     }
 
     @Test
@@ -176,13 +178,13 @@ public class NativeConversionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJson");
         Assert.assertTrue(returns[0] instanceof BJSON);
         JsonNode child = ((BJSON) returns[0]).value();
-        Assert.assertEquals(child.get("name").textValue(), "Child");
-        Assert.assertEquals(child.get("age").intValue(), 25);
+        Assert.assertEquals(child.get("name").stringValue(), "Child");
+        Assert.assertEquals(child.get("age").longValue(), 25);
 
         JsonNode parent = child.get("parent");
         Assert.assertTrue(parent.isObject());
-        Assert.assertEquals(parent.get("name").textValue(), "Parent");
-        Assert.assertEquals(parent.get("age").intValue(), 50);
+        Assert.assertEquals(parent.get("name").stringValue(), "Parent");
+        Assert.assertEquals(parent.get("age").longValue(), 50);
         Assert.assertTrue(parent.get("parent").isNull());
         Assert.assertTrue(parent.get("info").isNull());
         Assert.assertTrue(parent.get("address").isNull());
@@ -190,19 +192,19 @@ public class NativeConversionTest {
 
         JsonNode info = child.get("info");
         Assert.assertTrue(info.isObject());
-        Assert.assertEquals(info.get("status").textValue(), "single");
+        Assert.assertEquals(info.get("status").stringValue(), "single");
 
         JsonNode address = child.get("address");
         Assert.assertTrue(info.isObject());
-        Assert.assertEquals(address.get("country").textValue(), "SriLanka");
-        Assert.assertEquals(address.get("city").textValue(), "Colombo");
+        Assert.assertEquals(address.get("country").stringValue(), "SriLanka");
+        Assert.assertEquals(address.get("city").stringValue(), "Colombo");
 
         JsonNode marks = child.get("marks");
         Assert.assertTrue(marks.isArray());
         Assert.assertEquals(marks.size(), 3);
-        Assert.assertEquals(marks.get(0).intValue(), 87);
-        Assert.assertEquals(marks.get(1).intValue(), 94);
-        Assert.assertEquals(marks.get(2).intValue(), 72);
+        Assert.assertEquals(marks.get(0).longValue(), 87);
+        Assert.assertEquals(marks.get(1).longValue(), 94);
+        Assert.assertEquals(marks.get(2).longValue(), 72);
     }
 
     @Test(description = "Test converting a struct to a struct")
@@ -261,12 +263,12 @@ public class NativeConversionTest {
         BRunUtil.invoke(compileResult, "testIncompatibleJsonToStruct");
     }
 
-    //    @Test
+    @Test(description = "Test converting a incompatible JSON to a struct",
+            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*cannot convert 'json' to type 'Person': error while mapping " +
+                    "'parent': no such field found in json.*")
     public void testJsonToStructWithMissingFields() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToStructWithMissingFields");
-        Assert.assertEquals(returns[0].stringValue(), "{name:\"Child\", age:25, parent:null, info:" +
-                "{\"status\":\"single\"}, address:{\"city\":\"Colombo\", \"country\":\"SriLanka\"}, " +
-                "marks:[87, 94, 72], a:null, score:0.0, alive:false, children:null}");
     }
 
     @Test(description = "Test converting a JSON with incompatible inner map to a struct",
@@ -485,15 +487,20 @@ public class NativeConversionTest {
     @Test
     public void testEmptyJSONtoStructWithDefaults() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyJSONtoStructWithDefaults");
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(returns[0].stringValue(), "{s:\"string value\", a:45, f:5.3, b:true, j:null, blb:null}");
+        Assert.assertNull(returns[0]);
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        Assert.assertEquals(((BStruct) returns[1]).getStringField(0), "cannot convert 'json' to type " +
+                "'StructWithDefaults': error while mapping 's': no such field found in json");
     }
 
     @Test
     public void testEmptyJSONtoStructWithoutDefaults() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyJSONtoStructWithoutDefaults");
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(returns[0].stringValue(), "{s:\"\", a:0, f:0.0, b:false, j:null, blb:null}");
+        Assert.assertNull(returns[0]);
+
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        Assert.assertEquals(((BStruct) returns[1]).getStringField(0), "cannot convert 'json' to type " +
+                "'StructWithoutDefaults': error while mapping 's': no such field found in json");
     }
 
     @Test
@@ -516,5 +523,49 @@ public class NativeConversionTest {
         Assert.assertTrue(returns[0] instanceof BInteger);
         int expected = 10;
         Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);
+    }
+    
+    @Test
+    public void testErrorOnConversions() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testErrorOnConversions");
+        Assert.assertNull(returns[0]);
+        Assert.assertNull(returns[1]);
+        Assert.assertNull(returns[2]);
+    }
+    
+    @Test
+    public void testNullStringToOtherTypes() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNullStringToOtherTypes");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BStruct) returns[1]).getStringField(0), "'null' cannot be converted to 'int'");
+
+        Assert.assertTrue(returns[2] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 0.0);
+        Assert.assertEquals(((BStruct) returns[3]).getStringField(0), "'null' cannot be converted to 'float'");
+
+        Assert.assertTrue(returns[4] instanceof BBoolean);
+        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), false);
+        Assert.assertNull(returns[5]);
+
+        Assert.assertNull(returns[6]);
+        Assert.assertNull(returns[8]);
+    }
+
+    @Test
+    public void structWithComplexMapToJson() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "structWithComplexMapToJson");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"foo\":{\"a\":4,\"b\":2.5,\"c\":true,\"d\":\"apple\"," +
+                "\"e\":{\"foo\":\"bar\"},\"f\":{\"name\":\"\",\"age\":0},\"g\":[1,8,7],\"h\":null}}");
+    }
+
+    @Test
+    public void structWithComplexArraysToJson() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "structWithComplexArraysToJson");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"a\":[4,6,9],\"b\":[4.6,7.5],\"c\":[true,true,false]," +
+                "\"d\":[\"apple\",\"orange\"],\"e\":[{},{}],\"f\":[{\"name\":\"\",\"age\":0}," +
+                "{\"name\":\"\",\"age\":0}],\"g\":[{\"foo\":\"bar\"}]}");
     }
 }

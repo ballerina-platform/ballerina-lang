@@ -201,13 +201,11 @@ public class BNullValueTest {
 
     @Test(description = "Test negative test cases")
     void testNullValueNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 7);
+        Assert.assertEquals(negativeResult.getErrorCount(), 5);
         BAssertUtil.validateError(negativeResult, 0, "operator '==' not defined for 'xml' and 'json'", 5, 9);
-        BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'string', found 'null'", 13, 16);
-        BAssertUtil.validateError(negativeResult, 2, "operator '>' not defined for 'null' and 'xml'", 22, 13);
-        BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'int', found 'null'", 26, 13);
-        BAssertUtil.validateError(negativeResult, 4, "operator '+' not defined for 'null' and 'null'", 30, 13);
-        BAssertUtil.validateError(negativeResult, 5, "incompatible types: 'null' cannot be cast to 'string'", 34, 16);
-        BAssertUtil.validateError(negativeResult, 6, "incompatible types: 'null' cannot be cast to 'json'", 38, 14);
+        BAssertUtil.validateError(negativeResult, 1, "operator '>' not defined for 'null' and 'xml'", 22, 13);
+        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'int', found 'null'", 26, 13);
+        BAssertUtil.validateError(negativeResult, 3, "operator '+' not defined for 'null' and 'null'", 30, 13);
+        BAssertUtil.validateError(negativeResult, 4, "incompatible types: 'null' cannot be cast to 'json'", 38, 14);
     }
 }

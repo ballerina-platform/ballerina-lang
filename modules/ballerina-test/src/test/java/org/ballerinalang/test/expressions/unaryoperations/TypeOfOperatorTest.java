@@ -19,7 +19,11 @@ package org.ballerinalang.test.expressions.unaryoperations;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BTypeValue;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -285,8 +289,7 @@ public class TypeOfOperatorTest {
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
         int actual = (int) ((BInteger) returns[0]).intValue();
-        int expected = 1;
-        Assert.assertEquals(actual, expected);
+        Assert.assertEquals(actual, 2);
     }
 
     @Test(description = "Test reference type access expression type as return value")
@@ -298,8 +301,7 @@ public class TypeOfOperatorTest {
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
         int actual = (int) ((BInteger) returns[0]).intValue();
-        int expected = 1;
-        Assert.assertEquals(actual, expected);
+        Assert.assertEquals(actual, 2);
     }
 
     @Test(description = "Test reference type access expression type of multi dimensional array negative case")
@@ -462,15 +464,10 @@ public class TypeOfOperatorTest {
     @Test(description = "Test TypeAccessExpr with ValueType array.")
     public void testTypeAccessExprValueTypeArray() {
         BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result,
-                "testTypeAccessExprValueTypeArray", args);
-
+        BValue[] returns = BRunUtil.invoke(result, "testTypeAccessExprValueTypeArray", args);
         Assert.assertEquals(returns.length, 1);
-
-
         int actual = (int) ((BInteger) returns[0]).intValue();
-        int expected = 0;
-        Assert.assertEquals(actual, expected);
+        Assert.assertEquals(actual, 1);
     }
 
     @Test(description = "Test TypeAccessExpr with ValueType array negative.")
@@ -543,6 +540,44 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test type of json")
+    public void testTypeOfJson() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeOfJson");
+        Assert.assertEquals(returns[0].stringValue(), "json");
+        Assert.assertEquals(returns[1].stringValue(), "json[]");
+        Assert.assertEquals(returns[2].stringValue(), "string");
+        Assert.assertEquals(returns[3].stringValue(), "int");
+        Assert.assertEquals(returns[4].stringValue(), "float");
+        Assert.assertEquals(returns[5].stringValue(), "boolean");
+    }
+
+    @Test(description = "Test type of json")
+    public void testCheckTypeOfJson() {
+        BValue[] returns = BRunUtil.invoke(result, "testCheckTypeOfJson");
+        Assert.assertSame(returns[0].getClass(), BJSON.class);
+        Assert.assertEquals(returns[0].stringValue(), "{\"foo\":\"bar\"}");
+
+        Assert.assertSame(returns[1].getClass(), BJSON.class);
+        Assert.assertEquals(returns[1].stringValue(), "[1,\"foo\",true]");
+
+        Assert.assertSame(returns[2].getClass(), BString.class);
+        Assert.assertEquals(returns[2].stringValue(), "foo");
+
+        Assert.assertSame(returns[3].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 3);
+
+        Assert.assertSame(returns[4].getClass(), BFloat.class);
+        Assert.assertEquals(((BFloat) returns[4]).floatValue(), 7.65);
+
+        Assert.assertSame(returns[5].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[5]).booleanValue(), true);
+    }
+
+    @Test(description = "Test type of struct array")
+    public void testTypeOfStructArray() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeOfStructArray");
+        Assert.assertEquals(returns[0].stringValue(), "Person[]");
+        Assert.assertEquals(returns[1].stringValue(), "Person[]");
+        Assert.assertEquals(returns[2].stringValue(), "Person[][]");
+    }
 }
-
-

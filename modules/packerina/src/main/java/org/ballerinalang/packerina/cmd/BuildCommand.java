@@ -21,24 +21,14 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.util.BLangConstants;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.programfile.ProgramFileWriter;
+import org.ballerinalang.packerina.BuilderUtils;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
  * This class represents the "ballerina build" command.
@@ -61,7 +51,7 @@ public class BuildCommand implements BLauncherCmd {
     @Parameter(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @Parameter(names = "--debug", hidden = true)
+    @Parameter(names = "--java.debug", hidden = true)
     private String debugPort;
 
     public void execute() {
@@ -88,7 +78,7 @@ public class BuildCommand implements BLauncherCmd {
             targetPath = Paths.get(outputFileName);
         }
 
-        compileAndWrite(sourceRootPath, packagePath, targetPath);
+        BuilderUtils.compileAndWrite(sourceRootPath, packagePath, targetPath);
     }
 
     @Override
@@ -119,51 +109,5 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void setSelfCmdParser(JCommander selfCmdParser) {
-    }
-
-    private static void compileAndWrite(Path sourceRootPath, Path packagePath, Path targetPath) {
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, sourceRootPath.toString());
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
-        options.put(PRESERVE_WHITESPACE, "false");
-
-        // compile
-        Compiler compiler = Compiler.getInstance(context);
-        compiler.compile(packagePath.toString());
-        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
-
-        Path balxFilePath = getTargetBALXFilePath(packagePath, targetPath);
-
-        try {
-            ProgramFileWriter.writeProgram(programFile, balxFilePath);
-        } catch (Throwable e) {
-            throw new BLangRuntimeException("ballerina: error writing program file '" + balxFilePath.toString() + "'",
-                    e);
-        }
-    }
-
-    private static Path getTargetBALXFilePath(Path packagePath, Path targetPath) {
-        Path balxFilePath;
-        if (targetPath != null) {
-            balxFilePath = targetPath;
-        } else {
-            Path lastName = packagePath.getFileName();
-            // lastName cannot be null here.
-            String fileName = lastName != null ? lastName.toString() : "";
-            if (fileName.endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
-                balxFilePath = Paths
-                        .get(fileName.substring(0, fileName.length() - BLangConstants.BLANG_SRC_FILE_SUFFIX.length()));
-            } else {
-                balxFilePath = packagePath.getName(packagePath.getNameCount() - 1);
-            }
-        }
-
-        String balxFilePathStr = balxFilePath.toString();
-        if (!balxFilePathStr.endsWith(BLangConstants.BLANG_EXEC_FILE_SUFFIX)) {
-            balxFilePath =
-                    balxFilePath.resolveSibling(balxFilePath.getFileName() + BLangConstants.BLANG_EXEC_FILE_SUFFIX);
-        }
-        return balxFilePath;
     }
 }

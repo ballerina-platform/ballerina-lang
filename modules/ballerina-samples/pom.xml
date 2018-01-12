@@ -31,8 +31,184 @@
     <name>Ballerina - Samples</name>
     <url>http://ballerinalang.org</url>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-builtin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-packerina</artifactId>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- this is to copy getting_started samples to target directory-->
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/getting_started</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>../../samples/getting_started</directory>
+                                    <filtering>true</filtering>
+                                    <excludes>
+                                        <exclude>target/**</exclude>
+                                        <exclude>scripts/**</exclude>
+                                        <exclude>pom.xml</exclude>
+                                        <exclude>README.txt</exclude>
+                                        <exclude>LICENSE.txt</exclude>
+                                        <exclude>release-notes.html</exclude>
+                                        <exclude>**/*.ipr</exclude>
+                                        <exclude>**/*.iwr</exclude>
+                                        <exclude>**/*.eclipse</exclude>
+                                        <exclude>**/*.iml</exclude>
+                                        <exclude>**/*.balx</exclude>
+                                    </excludes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- generating balx files-->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <id>passthroughService</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <arguments>
+                                <argument>${basedir}</argument>
+                                <argument>target/getting_started/passthroughService</argument>
+                                <argument>passthroughservice.samples</argument>
+                                <argument>target/getting_started/passthroughService/passthroughService.balx</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>restfulService</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <arguments>
+                                <argument>${basedir}</argument>
+                                <argument>target/getting_started/restfulService</argument>
+                                <argument>restfulservice.samples</argument>
+                                <argument>target/getting_started/restfulService/ecommerceService.balx</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>routingServices</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <arguments>
+                                <argument>${basedir}</argument>
+                                <argument>target/getting_started/routingServices</argument>
+                                <argument>routingServices.samples</argument>
+                                <argument>target/getting_started/routingServices/routingServices.balx</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>serviceChaining</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <arguments>
+                                <argument>${basedir}</argument>
+                                <argument>target/getting_started/serviceChaining</argument>
+                                <argument>servicechaining.samples</argument>
+                                <argument>target/getting_started/serviceChaining/ATMLocatorService.balx</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>clientsample</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <arguments>
+                                <argument>${basedir}</argument>
+                                <argument>target/getting_started/websocket/clientsample</argument>
+                                <argument>sample.websocket.client</argument>
+                                <argument>target/getting_started/websocket/clientsample/webSocketClientSample.balx</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>proxyserver</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <arguments>
+                                <argument>${basedir}</argument>
+                                <argument>target/getting_started/websocket/proxyserver</argument>
+                                <argument>sample.websocket.proxyserver</argument>
+                                <argument>target/getting_started/websocket/proxyserver/proxyserver.balx</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>org.ballerinalang.sample.SampleGenerator</mainClass>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -48,7 +224,7 @@
                             <descriptors>
                                 <descriptor>${basedir}/src/assembly/bin.xml</descriptor>
                             </descriptors>
-                            <finalName>${artifactId}-${project.version}</finalName>
+                            <finalName>${project.artifactId}-${project.version}</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                         </configuration>
                     </execution>

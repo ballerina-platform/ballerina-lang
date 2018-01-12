@@ -38,7 +38,7 @@ public class RuntimeTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/runtimeTest.bal");
+        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/runtime-test.bal");
     }
 
     @Test

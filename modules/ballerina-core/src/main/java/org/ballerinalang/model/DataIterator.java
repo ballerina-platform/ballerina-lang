@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.model;
 
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  *  This interface represents an data iterator operations.
@@ -36,21 +36,23 @@ public interface DataIterator {
 
     void close(boolean isInTransaction);
 
-    String getString(String columnName);
+    String getString(int columnIndex);
 
-    long getInt(String columnName);
+    long getInt(int columnIndex);
 
-    double getFloat(String columnName);
+    double getFloat(int columnIndex);
 
-    boolean getBoolean(String columnName);
+    boolean getBoolean(int columnIndex);
 
-    String getBlob(String columnName);
+    String getBlob(int columnIndex);
 
-    String getObjectAsString(String columnName);
+    Object[] getStruct(int columnIndex);
 
-    Map<String, Object> getArray(String columnName);
+    Object[] getArray(int columnIndex);
 
     BStruct generateNext();
 
     List<ColumnDefinition> getColumnDefinitions();
+
+    BStructType getStructType();
 }

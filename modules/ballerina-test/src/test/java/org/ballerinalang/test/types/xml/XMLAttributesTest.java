@@ -197,14 +197,14 @@ public class XMLAttributesTest {
         Assert.assertEquals(returns[1].stringValue(), "bar2");
         
         Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertEquals(returns[2].stringValue(), "");
+        Assert.assertNull(returns[2].stringValue());
     }
     
     @Test
     public void testGetAttributeWithoutLocalname() {
         BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testGetAttributeWithoutLocalname");
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "");
+        Assert.assertNull(returns[0].stringValue());
     }
     
     @Test
@@ -212,6 +212,9 @@ public class XMLAttributesTest {
         BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testGetAttributeWithEmptyNamespace");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "bar1");
+        
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(returns[1].stringValue(), "bar1");
     }
 
     @Test
@@ -231,7 +234,7 @@ public class XMLAttributesTest {
         Assert.assertEquals(returns[1].stringValue(), "bar2");
 
         Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertEquals(returns[2].stringValue(), "");
+        Assert.assertNull(returns[2].stringValue());
     }
 
     @Test

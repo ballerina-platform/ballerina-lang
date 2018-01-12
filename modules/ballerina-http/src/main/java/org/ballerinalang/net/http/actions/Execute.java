@@ -29,8 +29,8 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.contract.ClientConnectorException;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.contract.ClientConnectorException;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Locale;
 
@@ -87,7 +87,7 @@ public class Execute extends AbstractHTTPAction {
         //TODO check below line
         HTTPCarbonMessage defaultCarbonMsg = HttpUtil.createHttpCarbonMessage(true);
         HTTPCarbonMessage cMsg = HttpUtil.getCarbonMsg(requestStruct, defaultCarbonMsg);
-        prepareRequest(bConnector, path, cMsg);
+        prepareRequest(bConnector, path, cMsg, requestStruct);
 
         // If the verb is not specified, use the verb in incoming message
         if (httpVerb == null || "".equals(httpVerb)) {

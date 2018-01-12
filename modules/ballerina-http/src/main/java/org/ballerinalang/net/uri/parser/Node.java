@@ -18,6 +18,8 @@
 
 package org.ballerinalang.net.uri.parser;
 
+import org.ballerinalang.net.http.Constants;
+
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -82,6 +84,7 @@ public abstract class Node<DataElementType extends DataElement> {
                     }
                     dataElement = childNode.matchAll(subUriFragment, variables, start + matchLength);
                     if (dataElement != null) {
+                        setUriPostFix(variables, subUriFragment);
                         return dataElement;
                     }
                     continue;
@@ -101,6 +104,10 @@ public abstract class Node<DataElementType extends DataElement> {
             }
         }
         return null;
+    }
+
+    private void setUriPostFix(Map<String, String> variables, String subUriFragment) {
+        variables.putIfAbsent(Constants.REST_URI_POSTFIX, "/" + subUriFragment);
     }
 
     abstract String expand(Map<String, String> variables);

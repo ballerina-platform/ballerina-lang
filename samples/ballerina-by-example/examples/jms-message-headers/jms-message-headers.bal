@@ -13,6 +13,9 @@ import ballerina.net.jms;
 }
 service<jms> jmsService {
     resource onMessage (message m) {
+        endpoint<jms:ClientConnector> jmsEp {
+
+        }
         // Read all the supported headers from the message.
         string correlationId = messages:getHeader(m, jms:HDR_CORRELATION_ID);
         string timestamp = messages:getHeader(m, jms:HDR_TIMESTAMP);
@@ -61,7 +64,8 @@ service<jms> jmsService {
                          "connectionFactoryName": "QueueConnectionFactory",
                          "connectionFactoryType" : "queue"};
 
-        jms:ClientConnector jmsEP = create jms:ClientConnector(properties);
+        jms:ClientConnector jmsConnector = create jms:ClientConnector(properties);
+        bind jmsConnector with jmsEp;
         jmsEP.send("MySecondQueue", responseMessage);
 
     }

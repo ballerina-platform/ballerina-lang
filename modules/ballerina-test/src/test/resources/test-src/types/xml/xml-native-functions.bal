@@ -344,6 +344,26 @@ function testSetChildrenDefaultNamespace() (xml, boolean, boolean, xml, string) 
     return x1, isEmpty, isSingleton, x1.children(), x5@["citizen"];
 }
 
+function testSetChildrenEmptyNamespace() (xml, boolean, boolean, xml, string) {
+    xmlns "http://sample.com/test";
+
+    var x1, _ = <xml> "<name xmlns=\"http://sample.com/test\"><fname>supun</fname><lname>setunga</lname></name>";
+    string elemantName = "{}residency";
+    string attributeName = "citizen";
+    string elementValue = "true";
+    string attributeValue = "true";
+    xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
+    xml x3 = x1.children();
+    xml x4 = x3 + x2;
+    x1.setChildren(x4);
+
+    boolean isEmpty = x1.isEmpty();
+    boolean isSingleton = x1.isSingleton();
+    xml x5 = x1.selectChildren("{}residency");
+
+    return x1, isEmpty, isSingleton, x1.children(), x5@["citizen"];
+}
+
 function testSetChildrenWithDifferentNamespaceForAttribute() (xml, boolean, boolean, string) {
     xmlns "http://sample.com/test";
 

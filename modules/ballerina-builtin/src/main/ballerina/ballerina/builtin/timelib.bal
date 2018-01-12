@@ -28,7 +28,7 @@ public native function currentTime()(Time);
 @Param {value:"minute: The minute-of-hour to represent, from 0 to 59"}
 @Param {value:"second: The second-of-minute to represent, from 0 to 59"}
 @Param {value:"milliSecond: The milli-of-second to represent, from 0 to 999"}
-@Param {value:"zoneId: The zone id of the required timezone"}
+@Param {value:"zoneId: The zone id of the required timezone.If empty the system local timezone will be used"}
 @Return { value:"Time struct containing time and zone information."}
 public native function createTime(int year, int month, int date, int hour, int minute, int second, int milliSecond,
                                   string zoneId)(Time);

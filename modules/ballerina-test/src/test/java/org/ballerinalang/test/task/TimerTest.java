@@ -113,7 +113,7 @@ public class TimerTest {
         assertNull(returns[1], "Ballerina scheduler returned an error");
         await().atMost(5, SECONDS).until(() -> {
             BValue[] error = BRunUtil.invokeStateful(timerCompileResult, "getError");
-            return error != null && error[0] != null && !error[0].stringValue().equals("");
+            return error != null && error[0] != null && error[0].stringValue() != null;
         });
 
         // Now test whether the onError Ballerina function got called
@@ -183,8 +183,8 @@ public class TimerTest {
         assertNotEquals(w2TaskId, "", "Invalid task ID from worker w2");  // A non-null task ID should be returned
         await().atMost(10, SECONDS).until(() -> {
             BValue[] errors = BRunUtil.invokeStateful(timerCompileResult, "getErrors");
-            return errors != null && errors[0] != null && !errors[0].stringValue().equals("") &&
-                    errors[1] != null && !errors[1].stringValue().equals("");
+            return errors != null && errors[0] != null && errors[0].stringValue() != null &&
+                    errors[1] != null && errors[1].stringValue() != null;
         });
 
         // Now test whether the onError Ballerina function got called

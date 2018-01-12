@@ -18,7 +18,6 @@
 
 package org.ballerinalang.nativeimpl.util;
 
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
@@ -28,45 +27,27 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import java.nio.charset.Charset;
 import java.util.Base64;
+import javax.xml.bind.DatatypeConverter;
 
 /**
  * Native function ballerina.util:base64ToBase16Encode.
  *
- * @since 0.8.0
+ * @since 0.95.2
  */
-
 @BallerinaFunction(
         packageName = "ballerina.util",
         functionName = "base64ToBase16Encode",
-        args = { @Argument(name = "baseString", type = TypeKind.STRING)},
-        returnType = { @ReturnType(type = TypeKind.STRING) },
+        args = {@Argument(name = "baseString", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true)
-/**
- * This function converts a Base 64 encoded string to a Base16 encoded string.
- */
 public class Base64ToBase16Encode extends AbstractNativeFunction {
-
 
     @Override
     public BValue[] execute(Context context) {
-        String stringValue = getStringArgument(context, 0);
-
-        String result;
-        byte[] keyBytes = Base64.getDecoder().decode(stringValue.getBytes(Charset.defaultCharset()));
-
-        final char[] hexArray = "0123456789ABCDEF".toCharArray();
-        char[] hexChars = new char[keyBytes.length * 2];
-
-        for (int j = 0; j < keyBytes.length; j++) {
-            final int byteVal = keyBytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[byteVal >>> 4];
-            hexChars[j * 2 + 1] = hexArray[byteVal & 0x0F];
-        }
-
-        result = new String(hexChars);
-
-        return getBValues(new BString(result));
+        String value = getStringArgument(context, 0);
+        byte[] base64DecodedValue = Base64.getDecoder().decode(value);
+        String base16EncodedValue = DatatypeConverter.printHexBinary(base64DecodedValue);
+        return getBValues(new BString(base16EncodedValue));
     }
 }

@@ -21,7 +21,7 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.parser.DataElement;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.ArrayList;
 import java.util.Arrays;

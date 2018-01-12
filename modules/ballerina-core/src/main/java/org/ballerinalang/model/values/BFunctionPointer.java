@@ -19,6 +19,7 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 
 /**
@@ -41,7 +42,7 @@ public class BFunctionPointer implements BRefType<FunctionRefCPEntry> {
 
     @Override
     public String stringValue() {
-        return "";
+        return BLangConstants.STRING_EMPTY_VALUE;
     }
 
     @Override

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
@@ -43,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -68,12 +70,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -320,8 +321,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void validateAttributes(BLangAnnotationAttachment annAttachmentNode, BAnnotationSymbol annotationSymbol) {
         annAttachmentNode.attributes.forEach(annotAttachmentAttribute -> {
-            BAnnotationAttributeSymbol attributeSymbol = (BAnnotationAttributeSymbol)
-                    annotationSymbol.scope.lookup(new Name(annotAttachmentAttribute.getName())).symbol;
+            Name attributeName = names.fromIdNode((BLangIdentifier) annotAttachmentAttribute.getName());
+            BAnnotationAttributeSymbol attributeSymbol =
+                    (BAnnotationAttributeSymbol) annotationSymbol.scope.lookup(attributeName).symbol;
+            
             // Resolve Attribute against the Annotation Definition
             if (attributeSymbol == null) {
                 this.dlog.error(annAttachmentNode.pos, DiagnosticCode.NO_SUCH_ATTRIBUTE,
@@ -429,15 +432,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // Annotation Definition attribute is present
             Optional<BLangAnnotAttachmentAttribute> matchingAttribute = Arrays
                     .stream(annAttachmentNode.getAttributes().toArray(attributeArrray))
-                    .filter(attribute -> attribute.name.equals(defAttribute.name.getValue()))
+                    .filter(attribute -> attribute.name.value.equals(defAttribute.name.getValue()))
                     .findAny();
             // If no matching attribute is present populate with default value
             if (!matchingAttribute.isPresent()) {
                 if (defAttribute.expr != null) {
                     BLangAnnotAttachmentAttributeValue value = new BLangAnnotAttachmentAttributeValue();
                     value.value = defAttribute.expr;
-                    BLangAnnotAttachmentAttribute attribute =
-                            new BLangAnnotAttachmentAttribute(defAttribute.name.getValue(), value);
+                    BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+                    name.value = defAttribute.name.getValue();
+                    BLangAnnotAttachmentAttribute attribute = new BLangAnnotAttachmentAttribute(name, value);
                     annAttachmentNode.addAttribute(attribute);
                 }
                 continue;
@@ -636,6 +640,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    public void visit(BLangForeach foreach) {
+        typeChecker.checkExpr(foreach.collection, env);
+        foreach.varTypes = types.checkForeachTypes(foreach.collection, foreach.varRefs.size());
+        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(foreach.body, env);
+        handleForeachVariables(foreach, foreach.varTypes, blockEnv);
+        analyzeStmt(foreach.body, blockEnv);
+    }
+
     public void visit(BLangWhile whileNode) {
         typeChecker.checkExpr(whileNode.expr, env, Lists.of(symTable.booleanType));
         analyzeStmt(whileNode.body, env);
@@ -732,12 +744,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (transactionNode.failedBody != null) {
             analyzeStmt(transactionNode.failedBody, env);
         }
-        if (transactionNode.committedBody != null) {
-            analyzeStmt(transactionNode.committedBody, env);
-        }
-        if (transactionNode.abortedBody != null) {
-            analyzeStmt(transactionNode.abortedBody, env);
-        }
         if (transactionNode.retryCount != null) {
             typeChecker.checkExpr(transactionNode.retryCount, env, Lists.of(symTable.intType));
             checkRetryStmtValidity(transactionNode.retryCount);
@@ -746,11 +752,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAbort abortNode) {
-    }
-
-    @Override
-    public void visit(BLangRetry retryNode) {
-
     }
 
     private boolean isJoinResultType(BLangVariable var) {
@@ -984,6 +985,33 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     // Private methods
 
+    private void handleForeachVariables(BLangForeach foreachStmt, List<BType> varTypes, SymbolEnv env) {
+        for (int i = 0; i < foreachStmt.varRefs.size(); i++) {
+            BLangExpression varRef = foreachStmt.varRefs.get(i);
+            // foreach variables supports only simpleVarRef expressions only.
+            if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                dlog.error(varRef.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRef);
+                continue;
+            }
+            BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
+            simpleVarRef.lhsVar = true;
+            Name varName = names.fromIdNode(simpleVarRef.variableName);
+            if (varName == Names.IGNORE) {
+                simpleVarRef.type = this.symTable.noType;
+                typeChecker.checkExpr(simpleVarRef, env);
+                continue;
+            }
+            // Check variable symbol for existence.
+            BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
+            if (symbol == symTable.notFoundSymbol) {
+                symbolEnter.defineVarSymbol(simpleVarRef.pos, Collections.emptySet(), varTypes.get(i), varName, env);
+                typeChecker.checkExpr(simpleVarRef, env);
+            } else {
+                dlog.error(simpleVarRef.pos, DiagnosticCode.REDECLARED_SYMBOL, varName);
+            }
+        }
+    }
+
     private void handleAssignNodeWithVar(BLangAssignment assignNode) {
         int ignoredCount = 0;
         int createdSymbolCount = 0;
@@ -1000,9 +1028,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 expTypes.add(symTable.errType);
                 continue;
             }
-            ((BLangVariableReference) varRef).lhsVar = true;
             // Check variable symbol if exists.
             BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
+            ((BLangVariableReference) varRef).lhsVar = true;
             Name varName = names.fromIdNode(simpleVarRef.variableName);
             if (varName == Names.IGNORE) {
                 ignoredCount++;
@@ -1043,11 +1071,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
             typeChecker.checkExpr(simpleVarRef, env);
         }
-    }
-
-    @Override
-    public void visit(BLangComment commentNode) {
-        // do nothing
     }
 
     private void checkRetryStmtValidity(BLangExpression retryCountExpr) {

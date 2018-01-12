@@ -23,6 +23,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
@@ -30,6 +31,7 @@ import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BDataTable;
+import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -39,7 +41,9 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BTypeValue;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDataIterator;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
@@ -68,7 +72,10 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.TimeZone;
 import javax.sql.XAConnection;
 import javax.transaction.TransactionManager;
@@ -90,12 +97,13 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     @Override
     public BValue getRefArgument(Context context, int index) {
         if (index > -1) {
-            return context.getControlStackNew().getCurrentFrame().getRefLocalVars()[index];
+            return context.getControlStack().getCurrentFrame().getRefRegs()[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
 
-    protected void executeQuery(Context context, SQLDatasource datasource, String query, BRefValueArray parameters) {
+    protected void executeQuery(Context context, SQLDatasource datasource, String query, BRefValueArray parameters,
+            BStructType structType) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -106,7 +114,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             stmt = getPreparedStatement(conn, datasource, processedQuery);
             createProcessedStatement(conn, stmt, parameters);
             rs = stmt.executeQuery();
-            context.getControlStackNew().getCurrentFrame().returnValues[0] = constructDataTable(rs, stmt, conn);
+            context.getControlStack().getCurrentFrame().returnValues[0] = constructDataTable(context, rs, stmt, conn,
+                    structType);
         } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
             throw new BallerinaException("execute query failed: " + e.getMessage(), e);
@@ -124,7 +133,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             createProcessedStatement(conn, stmt, parameters);
             int count = stmt.executeUpdate();
             BInteger updatedCount = new BInteger(count);
-            context.getControlStackNew().getCurrentFrame().returnValues[0] = updatedCount;
+            context.getControlStack().getCurrentFrame().returnValues[0] = updatedCount;
         } catch (SQLException e) {
             throw new BallerinaException("execute update failed: " + e.getMessage(), e);
         } finally {
@@ -157,13 +166,13 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             createProcessedStatement(conn, stmt, parameters);
             int count = stmt.executeUpdate();
             BInteger updatedCount = new BInteger(count);
-            context.getControlStackNew().getCurrentFrame().returnValues[0] = updatedCount;
+            context.getControlStack().getCurrentFrame().returnValues[0] = updatedCount;
             rs = stmt.getGeneratedKeys();
             /*The result set contains the auto generated keys. There can be multiple auto generated columns
             in a table.*/
             if (rs.next()) {
                 BStringArray generatedKeys = getGeneratedKeys(rs);
-                context.getControlStackNew().getCurrentFrame().returnValues[1] = generatedKeys;
+                context.getControlStack().getCurrentFrame().returnValues[1] = generatedKeys;
             }
         } catch (SQLException e) {
             throw new BallerinaException("execute update with generated keys failed: " + e.getMessage(), e);
@@ -173,7 +182,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     }
 
     protected void executeProcedure(Context context, SQLDatasource datasource,
-                                    String query, BRefValueArray parameters) {
+                                    String query, BRefValueArray parameters, BStructType structType) {
         Connection conn = null;
         CallableStatement stmt = null;
         ResultSet rs = null;
@@ -185,7 +194,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             rs = executeStoredProc(stmt);
             setOutParameters(stmt, parameters);
             if (rs != null) {
-                context.getControlStackNew().getCurrentFrame().returnValues[0] = constructDataTable(rs, stmt, conn);
+                context.getControlStack().getCurrentFrame().returnValues[0] = constructDataTable(context, rs, stmt,
+                        conn, structType);
             } else {
                 SQLDatasourceUtils.cleanupConnection(null, stmt, conn, isInTransaction);
             }
@@ -238,7 +248,16 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 countArray.add(i, updatedCount[i]);
             }
         }
-        context.getControlStackNew().getCurrentFrame().returnValues[0] = countArray;
+        context.getControlStack().getCurrentFrame().returnValues[0] = countArray;
+    }
+
+    protected BStructType getStructType(Context context) {
+        BStructType structType = null;
+        BTypeValue type = (BTypeValue) getRefArgument(context, 2);
+        if (type != null) {
+            structType = (BStructType) type.value();
+        }
+        return structType;
     }
 
     /**
@@ -255,8 +274,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             for (int i = 0; i < paramCount; i++) {
                 BStruct paramValue = (BStruct) parameters.get(i);
                 if (paramValue != null) {
-                    BValue value = paramValue.getRefField(0);
-                    String sqlType = paramValue.getStringField(0);
+                    String sqlType = getSQLType(paramValue);
+                    BValue value = paramValue.getRefField(1);
                     if (value != null && value.getType().getTag() == TypeTags.ARRAY_TAG &&
                             !Constants.SQLDataTypes.ARRAY.equalsIgnoreCase(sqlType)) {
                         count = (int) ((BNewArray) value).size();
@@ -361,16 +380,22 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         return stmt;
     }
 
-    private ArrayList<ColumnDefinition> getColumnDefinitions(ResultSet rs)
+    private List<ColumnDefinition> getColumnDefinitions(ResultSet rs)
             throws SQLException {
-        ArrayList<ColumnDefinition> columnDefs = new ArrayList<>();
+        List<ColumnDefinition> columnDefs = new ArrayList<>();
+        Set<String> columnNames = new HashSet<>();
         ResultSetMetaData rsMetaData = rs.getMetaData();
         int cols = rsMetaData.getColumnCount();
         for (int i = 1; i <= cols; i++) {
             String colName = rsMetaData.getColumnLabel(i);
+            if (columnNames.contains(colName)) {
+                String tableName = rsMetaData.getTableName(i).toUpperCase();
+                colName = tableName + "." + colName;
+            }
             int colType = rsMetaData.getColumnType(i);
             TypeKind mappedType = SQLDatasourceUtils.getColumnType(colType);
             columnDefs.add(new SQLDataIterator.SQLColumnDefinition(colName, mappedType, colType));
+            columnNames.add(colName);
         }
         return columnDefs;
     }
@@ -430,9 +455,9 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         for (int index = 0; index < paramCount; index++) {
             BStruct paramStruct = (BStruct) params.get(index);
             if (paramStruct != null) {
-                String sqlType = paramStruct.getStringField(0);
-                BValue value = paramStruct.getRefField(0);
-                int direction = (int) paramStruct.getIntField(0);
+                String sqlType = getSQLType(paramStruct);
+                BValue value = paramStruct.getRefField(1);
+                int direction = getParameterDirection(paramStruct);
                 //If the parameter is an array and sql type is not "array" then treat it as an array of parameters
                 if (value != null && value.getType().getTag() == TypeTags.ARRAY_TAG && !Constants.SQLDataTypes.ARRAY
                         .equalsIgnoreCase(sqlType)) {
@@ -572,8 +597,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         for (int index = 0; index < paramCount; index++) {
             BStruct paramValue = (BStruct) params.get(index);
             if (paramValue != null) {
-                String sqlType = paramValue.getStringField(0);
-                int direction = (int) paramValue.getIntField(0);
+                String sqlType = getSQLType(paramValue);
+                int direction = getParameterDirection(paramValue);
                 if (direction == Constants.QueryParamDirection.INOUT
                         || direction == Constants.QueryParamDirection.OUT) {
                     setOutParameterValue(stmt, sqlType, index, paramValue);
@@ -590,90 +615,90 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             switch (sqlDataType) {
             case Constants.SQLDataTypes.INTEGER: {
                 int value = stmt.getInt(index + 1);
-                paramValue.setRefField(0, new BInteger(value)); //Value is the first position of the struct
+                paramValue.setRefField(1, new BInteger(value)); //Value is the first position of the struct
             }
             break;
             case Constants.SQLDataTypes.VARCHAR: {
                 String value = stmt.getString(index + 1);
-                paramValue.setRefField(0, new BString(value));
+                paramValue.setRefField(1, new BString(value));
             }
             break;
             case Constants.SQLDataTypes.NUMERIC:
             case Constants.SQLDataTypes.DECIMAL: {
                 BigDecimal value = stmt.getBigDecimal(index + 1);
                 if (value == null) {
-                    paramValue.setRefField(0, new BFloat(0));
+                    paramValue.setRefField(1, new BFloat(0));
                 } else {
-                    paramValue.setRefField(0, new BFloat(value.doubleValue()));
+                    paramValue.setRefField(1, new BFloat(value.doubleValue()));
                 }
             }
             break;
             case Constants.SQLDataTypes.BIT:
             case Constants.SQLDataTypes.BOOLEAN: {
                 boolean value = stmt.getBoolean(index + 1);
-                paramValue.setRefField(0, new BBoolean(value));
+                paramValue.setRefField(1, new BBoolean(value));
             }
             break;
             case Constants.SQLDataTypes.TINYINT: {
                 byte value = stmt.getByte(index + 1);
-                paramValue.setRefField(0, new BInteger(value));
+                paramValue.setRefField(1, new BInteger(value));
             }
             break;
             case Constants.SQLDataTypes.SMALLINT: {
                 short value = stmt.getShort(index + 1);
-                paramValue.setRefField(0, new BInteger(value));
+                paramValue.setRefField(1, new BInteger(value));
             }
             break;
             case Constants.SQLDataTypes.BIGINT: {
                 long value = stmt.getLong(index + 1);
-                paramValue.setRefField(0, new BInteger(value));
+                paramValue.setRefField(1, new BInteger(value));
             }
             break;
             case Constants.SQLDataTypes.REAL:
             case Constants.SQLDataTypes.FLOAT: {
                 float value = stmt.getFloat(index + 1);
-                paramValue.setRefField(0, new BFloat(value));
+                paramValue.setRefField(1, new BFloat(value));
             }
             break;
             case Constants.SQLDataTypes.DOUBLE: {
                 double value = stmt.getDouble(index + 1);
-                paramValue.setRefField(0, new BFloat(value));
+                paramValue.setRefField(1, new BFloat(value));
             }
             break;
             case Constants.SQLDataTypes.CLOB: {
                 Clob value = stmt.getClob(index + 1);
-                paramValue.setRefField(0, new BString(SQLDatasourceUtils.getString(value)));
+                paramValue.setRefField(1, new BString(SQLDatasourceUtils.getString(value)));
             }
             break;
             case Constants.SQLDataTypes.BLOB: {
                 Blob value = stmt.getBlob(index + 1);
-                paramValue.setRefField(0, new BString(SQLDatasourceUtils.getString(value)));
+                paramValue.setRefField(1, new BString(SQLDatasourceUtils.getString(value)));
             }
             break;
             case Constants.SQLDataTypes.BINARY: {
                 byte[] value = stmt.getBytes(index + 1);
-                paramValue.setRefField(0, new BString(SQLDatasourceUtils.getString(value)));
+                paramValue.setRefField(1, new BString(SQLDatasourceUtils.getString(value)));
             }
             break;
             case Constants.SQLDataTypes.DATE: {
                 Date value = stmt.getDate(index + 1);
-                paramValue.setRefField(0, new BString(SQLDatasourceUtils.getString(value)));
+                paramValue.setRefField(1, new BString(SQLDatasourceUtils.getString(value)));
             }
             break;
             case Constants.SQLDataTypes.TIMESTAMP:
             case Constants.SQLDataTypes.DATETIME: {
                 Timestamp value = stmt.getTimestamp(index + 1, utcCalendar);
-                paramValue.setRefField(0, new BString(SQLDatasourceUtils.getString(value)));
+                paramValue.setRefField(1, new BString(SQLDatasourceUtils.getString(value)));
             }
             break;
             case Constants.SQLDataTypes.TIME: {
                 Time value = stmt.getTime(index + 1, utcCalendar);
-                paramValue.setRefField(0, new BString(SQLDatasourceUtils.getString(value)));
+                paramValue.setRefField(1, new BString(SQLDatasourceUtils.getString(value)));
             }
             break;
             case Constants.SQLDataTypes.ARRAY: {
                 Array value = stmt.getArray(index + 1);
-                paramValue.setRefField(0, new BString(SQLDatasourceUtils.getString(value)));
+                paramValue.setRefField(1, new BString(SQLDatasourceUtils.getString(value)));
             }
             break;
             case Constants.SQLDataTypes.STRUCT: {
@@ -686,7 +711,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                         stringValue = value.toString();
                     }
                 }
-                paramValue.setRefField(0, new BString(stringValue));
+                paramValue.setRefField(1, new BString(stringValue));
             }
             break;
             default:
@@ -702,7 +727,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         int paramCount = (int) params.size();
         for (int index = 0; index < paramCount; index++) {
             BStruct paramValue = (BStruct) params.get(index);
-            int direction = (int) paramValue.getIntField(0);
+            int direction = getParameterDirection(paramValue);
             if (direction == Constants.QueryParamDirection.OUT || direction == Constants.QueryParamDirection.INOUT) {
                 return true;
             }
@@ -770,8 +795,38 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         return conn;
     }
 
-    private BDataTable constructDataTable(ResultSet rs, Statement stmt, Connection conn) throws SQLException {
-        ArrayList<ColumnDefinition> columnDefinitions = getColumnDefinitions(rs);
-        return new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar, columnDefinitions));
+    private BDataTable constructDataTable(Context context, ResultSet rs, Statement stmt, Connection conn,
+            BStructType structType) throws SQLException {
+        List<ColumnDefinition> columnDefinitions = getColumnDefinitions(rs);
+        return new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar, columnDefinitions, structType,
+                Utils.getTimeStructInfo(context), Utils.getTimeZoneStructInfo(context)));
+    }
+
+    private String getSQLType(BStruct parameter) {
+        String sqlType = "";
+        BEnumerator typeEnum = (BEnumerator) parameter.getRefField(0);
+        if (typeEnum != null) {
+            sqlType = typeEnum.getName();
+        }
+        return sqlType;
+
+    }
+
+    private int getParameterDirection(BStruct parameter) {
+        int direction = 0;
+        BEnumerator dirEnum = (BEnumerator) parameter.getRefField(2);
+        if (dirEnum != null) {
+            String sqlType = dirEnum.getName();
+            switch (sqlType) {
+            case Constants.QueryParamDirection.DIR_OUT:
+                direction = Constants.QueryParamDirection.OUT;
+                break;
+            case Constants.QueryParamDirection.DIR_INOUT:
+                direction = Constants.QueryParamDirection.INOUT;
+                break;
+            }
+        }
+        return direction;
+
     }
 }

@@ -32,6 +32,8 @@ public class ConfigRegistry {
 
     private static final ConfigRegistry configRegistry = new ConfigRegistry();
 
+    private static final String STRING_NULL_VALUE = null;
+
     private Map<String, String> globalConfigs = new HashMap<>();
     private Map<String, Map<String, String>> instanceConfigs = new HashMap<>();
 
@@ -80,7 +82,7 @@ public class ConfigRegistry {
      */
     public String getGlobalConfigValue(String configKey) {
         if (globalConfigs.isEmpty() || (globalConfigs.get(configKey) == null)) {
-            return "";
+            return STRING_NULL_VALUE;
         }
         return globalConfigs.get(configKey);
     }
@@ -103,13 +105,13 @@ public class ConfigRegistry {
      */
     public String getInstanceConfigValue(String instanceId, String configKey) {
         if (instanceConfigs.isEmpty() || (instanceConfigs.get(instanceId) == null)) {
-            return "";
+            return STRING_NULL_VALUE;
         }
 
         Map<String, String> instanceConfig = instanceConfigs.get(instanceId);
         String configValue = instanceConfig.get(configKey);
         if (configValue == null) {
-            return "";
+            return STRING_NULL_VALUE;
         }
         return configValue;
     }

@@ -46,7 +46,7 @@ public class InstallCommand implements BLauncherCmd {
     @Parameter(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @Parameter(names = "--debug", hidden = true)
+    @Parameter(names = "--java.debug", hidden = true)
     private String debugPort;
 
     @Override

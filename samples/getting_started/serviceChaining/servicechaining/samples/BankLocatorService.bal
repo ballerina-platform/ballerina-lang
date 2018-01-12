@@ -19,6 +19,6 @@ service<http> Banklocator {
             payload = {"ABCBank":{"BranchCode":"-1"}};
         }
         res.setJsonPayload(payload);
-        res.send();
+        _ = res.send();
     }
 }

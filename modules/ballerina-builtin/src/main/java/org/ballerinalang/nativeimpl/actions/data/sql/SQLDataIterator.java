@@ -21,37 +21,35 @@ import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BFloatArray;
+import org.ballerinalang.model.values.BIntArray;
+import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.nativeimpl.actions.data.sql.client.SQLDatasourceUtils;
+import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Struct;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This iterator mainly wrap java.sql.ResultSet. This will provide datatable operations
@@ -67,15 +65,20 @@ public class SQLDataIterator implements DataIterator {
     private Calendar utcCalendar;
     private List<ColumnDefinition> columnDefs;
     private BStructType bStructType;
+    private StructInfo timeStructInfo;
+    private StructInfo zoneStructInfo;
 
     public SQLDataIterator(Connection conn, Statement stmt, ResultSet rs, Calendar utcCalendar,
-            List<ColumnDefinition> columnDefs) throws SQLException {
+            List<ColumnDefinition> columnDefs, BStructType structType, StructInfo timeStructInfo,
+            StructInfo zoneStructInfo) throws SQLException {
         this.conn = conn;
         this.stmt = stmt;
         this.rs = rs;
         this.utcCalendar = utcCalendar;
         this.columnDefs = columnDefs;
-        generateStructType();
+        this.bStructType = structType;
+        this.timeStructInfo = timeStructInfo;
+        this.zoneStructInfo = zoneStructInfo;
     }
 
     @Override
@@ -99,104 +102,87 @@ public class SQLDataIterator implements DataIterator {
     }
 
     @Override
-    public String getString(String columnName) {
+    public String getString(int columnIndex) {
         try {
-            return rs.getString(columnName);
+            return rs.getString(columnIndex);
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
     }
 
     @Override
-    public long getInt(String columnName) {
+    public long getInt(int columnIndex) {
         try {
-            return rs.getLong(columnName);
+            return rs.getLong(columnIndex);
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
     }
 
     @Override
-    public double getFloat(String columnName) {
+    public double getFloat(int columnIndex) {
         try {
-            return rs.getDouble(columnName);
+            return rs.getDouble(columnIndex);
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
     }
 
     @Override
-    public boolean getBoolean(String columnName) {
+    public boolean getBoolean(int columnIndex) {
         try {
-            return rs.getBoolean(columnName);
+            return rs.getBoolean(columnIndex);
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
     }
 
     @Override
-    public String getBlob(String columnName) {
+    public String getBlob(int columnIndex) {
         try {
-            Blob bValue = rs.getBlob(columnName);
+            Blob bValue = rs.getBlob(columnIndex);
             return SQLDatasourceUtils.getString(bValue);
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
     }
 
-    private String getString(Object object) throws SQLException {
-        String value;
-        if (object instanceof Blob) {
-            value = SQLDatasourceUtils.getString((Blob) object);
-        } else if (object instanceof Timestamp) {
-            value = SQLDatasourceUtils.getString((Timestamp) object);
-        } else if (object instanceof Clob) {
-            value = SQLDatasourceUtils.getString((Clob) object);
-        } else if (object instanceof Date) {
-            value = SQLDatasourceUtils.getString((Date) object);
-        } else if (object instanceof Time) {
-            value = SQLDatasourceUtils.getString((Time) object);
-        } else if (object instanceof InputStream) {
-            value = SQLDatasourceUtils.getString((InputStream) object);
-        } else {
-            value = String.valueOf(object);
+    @Override
+    public Object[] getStruct(int columnIndex) {
+        Object[] objArray = null;
+        try {
+            Struct data = (Struct) rs.getObject(columnIndex);
+            if (data != null) {
+                objArray = data.getAttributes();
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException(e.getMessage(), e);
         }
-        return value;
+        return objArray;
     }
 
     @Override
-    public String getObjectAsString(String columnName) {
+    public Object[] getArray(int columnIndex) {
         try {
-            Object object = rs.getObject(columnName);
-            if (object != null) {
-                return getString(object);
-            } else {
-                return null;
-            }
+            return generateArrayDataResult(rs.getArray(columnIndex));
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
     }
 
-    @Override
-    public Map<String, Object> getArray(String columnName) {
-        Map<String, Object> resultMap = new HashMap<>();
-        try {
-            Array array = rs.getArray(columnName);
-            if (!rs.wasNull()) {
-                Object[] objArray = (Object[]) array.getArray();
-                for (int i = 0; i < objArray.length; i++) {
-                    resultMap.put(String.valueOf(i), objArray[i]);
-                }
-            }
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
+    private Object[] generateArrayDataResult(Array array) throws SQLException {
+        Object[] objArray = null;
+        if (!rs.wasNull()) {
+            objArray = (Object[]) array.getArray();
         }
-        return resultMap;
+        return objArray;
     }
 
     @Override
     public BStruct generateNext() {
+        if (bStructType == null) {
+            throw new BallerinaException("the expected struct type is not specified in action");
+        }
         BStruct bStruct = new BStruct(bStructType);
         int longRegIndex = -1;
         int doubleRegIndex = -1;
@@ -204,16 +190,19 @@ public class SQLDataIterator implements DataIterator {
         int booleanRegIndex = -1;
         int blobRegIndex = -1;
         int refRegIndex = -1;
+        int index = 0;
+        String columnName = null;
         try {
             for (ColumnDefinition columnDef : columnDefs) {
                 if (columnDef instanceof SQLColumnDefinition) {
                     SQLColumnDefinition def = (SQLColumnDefinition) columnDef;
-                    String columnName = def.getName();
+                    columnName = def.getName();
                     int sqlType = def.getSqlType();
+                    ++index;
                     switch (sqlType) {
                     case Types.ARRAY:
-                        BMap<String, BValue> bMapvalue = getDataArray(columnName);
-                        bStruct.setRefField(++refRegIndex, bMapvalue);
+                        Array dataArray = rs.getArray(index);
+                        bStruct.setRefField(++refRegIndex, getDataArray(dataArray));
                         break;
                     case Types.CHAR:
                     case Types.VARCHAR:
@@ -221,14 +210,14 @@ public class SQLDataIterator implements DataIterator {
                     case Types.NCHAR:
                     case Types.NVARCHAR:
                     case Types.LONGNVARCHAR:
-                        String sValue = rs.getString(columnName);
+                        String sValue = rs.getString(index);
                         bStruct.setStringField(++stringRegIndex, sValue);
                         break;
                     case Types.BLOB:
                     case Types.BINARY:
                     case Types.VARBINARY:
                     case Types.LONGVARBINARY:
-                        Blob value = rs.getBlob(columnName);
+                        Blob value = rs.getBlob(index);
                         if (value != null) {
                             bStruct.setBlobField(++blobRegIndex, value.getBytes(1L, (int) value.length()));
                         } else {
@@ -236,54 +225,78 @@ public class SQLDataIterator implements DataIterator {
                         }
                         break;
                     case Types.CLOB:
-                        String clobValue = SQLDatasourceUtils.getString((rs.getClob(columnName)));
+                        String clobValue = SQLDatasourceUtils.getString((rs.getClob(index)));
                         bStruct.setStringField(++stringRegIndex, clobValue);
                         break;
                     case Types.NCLOB:
-                        String nClobValue = SQLDatasourceUtils.getString(rs.getNClob(columnName));
+                        String nClobValue = SQLDatasourceUtils.getString(rs.getNClob(index));
                         bStruct.setStringField(++stringRegIndex, nClobValue);
                         break;
                     case Types.DATE:
-                        String dateValue = SQLDatasourceUtils.getString(rs.getDate(columnName));
-                        bStruct.setStringField(++stringRegIndex, dateValue);
+                        Date date = rs.getDate(index);
+                        int fieldType = bStructType.getStructFields()[index - 1].getFieldType().getTag();
+                        if (fieldType == TypeTags.STRING_TAG) {
+                            String dateValue = SQLDatasourceUtils.getString(date);
+                            bStruct.setStringField(++stringRegIndex, dateValue);
+                        } else if (fieldType == TypeTags.STRUCT_TAG) {
+                            bStruct.setRefField(++refRegIndex, createTimeStruct(date.getTime()));
+                        } else if (fieldType == TypeTags.INT_TAG) {
+                            bStruct.setIntField(++longRegIndex, date.getTime());
+                        }
                         break;
                     case Types.TIME:
                     case Types.TIME_WITH_TIMEZONE:
-                        String timeValue = SQLDatasourceUtils.getString(rs.getTime(columnName, utcCalendar));
-                        bStruct.setStringField(++stringRegIndex, timeValue);
+                        Time time = rs.getTime(index, utcCalendar);
+                        fieldType = bStructType.getStructFields()[index - 1].getFieldType().getTag();
+                        if (fieldType == TypeTags.STRING_TAG) {
+                            String timeValue = SQLDatasourceUtils.getString(time);
+                            bStruct.setStringField(++stringRegIndex, timeValue);
+                        } else if (fieldType == TypeTags.STRUCT_TAG) {
+                            bStruct.setRefField(++refRegIndex, createTimeStruct(time.getTime()));
+                        } else if (fieldType == TypeTags.INT_TAG) {
+                            bStruct.setIntField(++longRegIndex, time.getTime());
+                        }
                         break;
                     case Types.TIMESTAMP:
                     case Types.TIMESTAMP_WITH_TIMEZONE:
-                        String timestmpValue = SQLDatasourceUtils.getString(rs.getTimestamp(columnName, utcCalendar));
-                        bStruct.setStringField(++stringRegIndex, timestmpValue);
+                        Timestamp timestamp = rs.getTimestamp(index, utcCalendar);
+                        fieldType = bStructType.getStructFields()[index - 1].getFieldType().getTag();
+                        if (fieldType == TypeTags.STRING_TAG) {
+                            String timestmpValue = SQLDatasourceUtils.getString(timestamp);
+                            bStruct.setStringField(++stringRegIndex, timestmpValue);
+                        } else if (fieldType == TypeTags.STRUCT_TAG) {
+                            bStruct.setRefField(++refRegIndex, createTimeStruct(timestamp.getTime()));
+                        } else if (fieldType == TypeTags.INT_TAG) {
+                            bStruct.setIntField(++longRegIndex, timestamp.getTime());
+                        }
                         break;
                     case Types.ROWID:
-                        BValue strValue = new BString(new String(rs.getRowId(columnName).getBytes(), "UTF-8"));
+                        BValue strValue = new BString(new String(rs.getRowId(index).getBytes(), "UTF-8"));
                         bStruct.setStringField(++stringRegIndex, strValue.stringValue());
                         break;
                     case Types.TINYINT:
                     case Types.SMALLINT:
-                        long iValue = rs.getInt(columnName);
+                        long iValue = rs.getInt(index);
                         bStruct.setIntField(++longRegIndex, iValue);
                         break;
                     case Types.INTEGER:
                     case Types.BIGINT:
-                        long lValue = rs.getLong(columnName);
+                        long lValue = rs.getLong(index);
                         bStruct.setIntField(++longRegIndex, lValue);
                         break;
                     case Types.REAL:
                     case Types.FLOAT:
-                        double fValue = rs.getFloat(columnName);
+                        double fValue = rs.getFloat(index);
                         bStruct.setFloatField(++doubleRegIndex, fValue);
                         break;
                     case Types.DOUBLE:
-                        double dValue = rs.getDouble(columnName);
+                        double dValue = rs.getDouble(index);
                         bStruct.setFloatField(++doubleRegIndex, dValue);
                         break;
                     case Types.NUMERIC:
                     case Types.DECIMAL:
                         double decimalValue = 0;
-                        BigDecimal bigDecimalValue = rs.getBigDecimal(columnName);
+                        BigDecimal bigDecimalValue = rs.getBigDecimal(index);
                         if (bigDecimalValue != null) {
                             decimalValue = bigDecimalValue.doubleValue();
                         }
@@ -291,19 +304,29 @@ public class SQLDataIterator implements DataIterator {
                         break;
                     case Types.BIT:
                     case Types.BOOLEAN:
-                        boolean boolValue = rs.getBoolean(columnName);
+                        boolean boolValue = rs.getBoolean(index);
                         bStruct.setBooleanField(++booleanRegIndex, boolValue ? 1 : 0);
+                        break;
+                    case Types.STRUCT:
+                        Struct structdata = (Struct) rs.getObject(index);
+                        BType structFieldType = bStructType.getStructFields()[index - 1].getFieldType();
+                        fieldType = structFieldType.getTag();
+                        if (fieldType == TypeTags.STRUCT_TAG) {
+                            bStruct.setRefField(++refRegIndex,
+                                    createUserDefinedType(structdata, (BStructType) structFieldType));
+                        }
                         break;
                     default:
                         throw new BallerinaException(
-                                "unsupported sql type " + sqlType + " found for the column " + columnName);
+                                "unsupported sql type " + sqlType + " found for the column " + columnName + " index:"
+                                        + index);
                     }
                 }
             }
-        } catch (SQLException e) {
-            throw new BallerinaException("error in retrieving next value: " + e.getMessage());
-        } catch (UnsupportedEncodingException e) {
-            throw new BallerinaException("error in retrieving next value for rowid type: " + e.getCause().getMessage());
+        }  catch (Throwable e) {
+            throw new BallerinaException(
+                    "error in retrieving next value for column: " + columnName + ": at index:" + index + ":" + e
+                            .getMessage());
         }
         return bStruct;
     }
@@ -313,95 +336,119 @@ public class SQLDataIterator implements DataIterator {
         return this.columnDefs;
     }
 
-    private BMap<String, BValue> getDataArray(String columnName) {
-        Map<String, Object> arrayMap = getArray(columnName);
-        BMap<String, BValue> returnMap = new BMap<>();
-        if (!arrayMap.isEmpty()) {
-            for (Map.Entry<String, Object> entry : arrayMap.entrySet()) {
-                String key = entry.getKey();
-                Object obj = entry.getValue();
+    @Override
+    public BStructType getStructType() {
+        return this.bStructType;
+    }
+
+    private BNewArray getDataArray(Array array) throws SQLException {
+        Object[] dataArray = generateArrayDataResult(array);
+        if (dataArray != null) {
+            int length = dataArray.length;
+            if (length > 0) {
+                Object obj = dataArray[0];
                 if (obj instanceof String) {
-                    returnMap.put(key, new BString(String.valueOf(obj)));
+                    BStringArray stringDataArray = new BStringArray();
+                    for (int i = 0; i < length; i++) {
+                        stringDataArray.add(i, (String) dataArray[i]);
+                    }
+                    return stringDataArray;
                 } else if (obj instanceof Boolean) {
-                    returnMap.put(key, new BBoolean(Boolean.valueOf(obj.toString())));
+                    BBooleanArray boolDataArray = new BBooleanArray();
+                    for (int i = 0; i < length; i++) {
+                        boolDataArray.add(i, ((Boolean) dataArray[i]) ? 1 : 0);
+                    }
+                    return boolDataArray;
                 } else if (obj instanceof Integer) {
-                    returnMap.put(key, new BInteger(Integer.parseInt(obj.toString())));
+                    BIntArray intDataArray = new BIntArray();
+                    for (int i = 0; i < length; i++) {
+                        intDataArray.add(i, ((Integer) dataArray[i]));
+                    }
+                    return intDataArray;
                 } else if (obj instanceof Long) {
-                    returnMap.put(key, new BInteger(Long.parseLong(obj.toString())));
+                    BIntArray longDataArray = new BIntArray();
+                    for (int i = 0; i < length; i++) {
+                        longDataArray.add(i, (Long) dataArray[i]);
+                    }
+                    return longDataArray;
                 } else if (obj instanceof Float) {
-                    returnMap.put(key, new BFloat(Float.parseFloat(obj.toString())));
+                    BFloatArray floatDataArray = new BFloatArray();
+                    for (int i = 0; i < length; i++) {
+                        floatDataArray.add(i, (Float) dataArray[i]);
+                    }
+                    return floatDataArray;
                 } else if (obj instanceof Double) {
-                    returnMap.put(key, new BFloat(Double.parseDouble(obj.toString())));
+                    BFloatArray doubleDataArray = new BFloatArray();
+                    for (int i = 0; i < dataArray.length; i++) {
+                        doubleDataArray.add(i, (Double) dataArray[i]);
+                    }
+                    return doubleDataArray;
                 }
             }
         }
-        return returnMap;
+        return null;
     }
 
-    private void generateStructType() {
-        BType[] structTypes = new BType[columnDefs.size()];
-        BStructType.StructField[] structFields = new BStructType.StructField[columnDefs.size()];
-        int typeIndex  = 0;
-        for (ColumnDefinition columnDef : columnDefs) {
-            BType type;
-            switch (columnDef.getType()) {
-            case ARRAY:
-                type = BTypes.typeMap;
-                break;
-            case STRING:
-                type = BTypes.typeString;
-                break;
-            case BLOB:
-                type = BTypes.typeBlob;
-                break;
-            case INT:
-                type = BTypes.typeInt;
-                break;
-            case FLOAT:
-                type = BTypes.typeFloat;
-                break;
-            case BOOLEAN:
-                type = BTypes.typeBoolean;
-                break;
-            default:
-                type = BTypes.typeNull;
-            }
-            structTypes[typeIndex] = type;
-            structFields[typeIndex] = new BStructType.StructField(type, columnDef.getName());
-            ++typeIndex;
-        }
-
-        int[] fieldCount = populateMaxSizes(structTypes);
-        bStructType = new BStructType("RS", null);
-        bStructType.setStructFields(structFields);
-        bStructType.setFieldTypeCount(fieldCount);
+    private BStruct createTimeStruct(long millis) {
+        return Utils.createTimeStruct(zoneStructInfo, timeStructInfo, millis, Constants.TIMEZONE_UTC);
     }
 
-    private static int[] populateMaxSizes(BType[] paramTypes) {
-        int[] maxSizes = new int[6];
-        for (int i = 0; i < paramTypes.length; i++) {
-            BType paramType = paramTypes[i];
-            switch (paramType.getTag()) {
-            case TypeTags.INT_TAG:
-                ++maxSizes[0];
-                break;
-            case TypeTags.FLOAT_TAG:
-                ++maxSizes[1];
-                break;
-            case TypeTags.STRING_TAG:
-                ++maxSizes[2];
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                ++maxSizes[3];
-                break;
-            case TypeTags.BLOB_TAG:
-                ++maxSizes[4];
-                break;
-            default:
-                ++maxSizes[5];
-            }
+    private BStruct createUserDefinedType(Struct structValue, BStructType structType) {
+        if (structValue == null) {
+            return null;
         }
-        return maxSizes;
+        BStructType.StructField[] internalStructFields = structType.getStructFields();
+        BStruct struct = new BStruct(structType);
+        try {
+            Object[] dataArray = structValue.getAttributes();
+            if (dataArray != null) {
+                if (dataArray.length != internalStructFields.length) {
+                    throw new BallerinaException("specified struct and returned struct are not compatible");
+                }
+                int longRegIndex = -1;
+                int doubleRegIndex = -1;
+                int stringRegIndex = -1;
+                int booleanRegIndex = -1;
+                int refRegIndex = -1;
+                int index = 0;
+                for (BStructType.StructField internalField : internalStructFields) {
+                    int type = internalField.getFieldType().getTag();
+                    Object value = dataArray[index];
+                    switch (type) {
+                    case TypeTags.INT_TAG:
+                        if (value instanceof BigDecimal) {
+                            struct.setIntField(++longRegIndex, ((BigDecimal) value).intValue());
+                        } else {
+                            struct.setIntField(++longRegIndex, (long) value);
+                        }
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        if (value instanceof BigDecimal) {
+                            struct.setFloatField(++doubleRegIndex, ((BigDecimal) value).doubleValue());
+                        } else {
+                            struct.setFloatField(++doubleRegIndex, (double) value);
+                        }
+                        break;
+                    case TypeTags.STRING_TAG:
+                        struct.setStringField(++stringRegIndex, (String) value);
+                        break;
+                    case TypeTags.BOOLEAN_TAG:
+                        struct.setBooleanField(++booleanRegIndex, (int) value);
+                        break;
+                    case TypeTags.STRUCT_TAG:
+                        struct.setRefField(++refRegIndex,
+                                createUserDefinedType((Struct) value, (BStructType) internalField.fieldType));
+                        break;
+                    default:
+                        throw new BallerinaException("error in retrieving UDT data for unsupported type:" + type);
+                    }
+                    ++index;
+                }
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("error in retrieving UDT data:" + e.getMessage());
+        }
+        return struct;
     }
 
     /**

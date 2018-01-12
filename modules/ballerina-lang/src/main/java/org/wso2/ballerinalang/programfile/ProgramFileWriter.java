@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.programfile;
 
 
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
+import org.wso2.ballerinalang.programfile.Instruction.Operand;
 import org.wso2.ballerinalang.programfile.attributes.AnnotationAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.CodeAttributeInfo;
@@ -32,7 +33,6 @@ import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.FunctionCallCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
@@ -42,7 +42,6 @@ import org.wso2.ballerinalang.programfile.cpentries.TransformerRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.TypeRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.UTF8CPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.WrkrInteractionArgsCPEntry;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.io.BufferedOutputStream;
@@ -59,6 +58,9 @@ import java.nio.file.Path;
  * @since 0.90
  */
 public class ProgramFileWriter {
+
+    // Size to be written to tag a null value
+    private static final int NULL_VALUE_FIELD_SIZE_TAG = -1;
 
     public static void writeProgram(ProgramFile programFile, Path execFilePath) throws IOException {
         BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(execFilePath));
@@ -107,9 +109,15 @@ public class ProgramFileWriter {
             switch (cpEntry.getEntryType()) {
                 case CP_ENTRY_UTF8:
                     String stringVal = ((UTF8CPEntry) cpEntry).getValue();
-                    byte[] bytes = toUTF(stringVal);
-                    dataOutStream.writeShort(bytes.length);
-                    dataOutStream.writeUTF(stringVal);
+                    if (stringVal != null) {
+                        byte[] bytes = toUTF(stringVal);
+                        dataOutStream.writeShort(bytes.length);
+                        dataOutStream.write(bytes);
+                    } else {
+                        // If the string value is null, we write the size as -1. 
+                        // This marks that the value followed by -1 size is a null value.
+                        dataOutStream.writeShort(NULL_VALUE_FIELD_SIZE_TAG);
+                    }
                     break;
                 case CP_ENTRY_INTEGER:
                     long longVal = ((IntegerCPEntry) cpEntry).getValue();
@@ -137,19 +145,6 @@ public class ProgramFileWriter {
                     dataOutStream.writeInt(actionRefEntry.getPackageCPIndex());
                     dataOutStream.writeInt(actionRefEntry.getNameCPIndex());
                     break;
-                case CP_ENTRY_FUNCTION_CALL_ARGS:
-                    FunctionCallCPEntry funcCallEntry = (FunctionCallCPEntry) cpEntry;
-                    int[] argRegs = funcCallEntry.getArgRegs();
-                    dataOutStream.writeByte(argRegs.length);
-                    for (int argReg : argRegs) {
-                        dataOutStream.writeInt(argReg);
-                    }
-                    int[] retRegs = funcCallEntry.getRetRegs();
-                    dataOutStream.writeByte(retRegs.length);
-                    for (int retReg : retRegs) {
-                        dataOutStream.writeInt(retReg);
-                    }
-                    break;
                 case CP_ENTRY_STRUCTURE_REF:
                     StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) cpEntry;
                     dataOutStream.writeInt(structureRefCPEntry.packageCPIndex);
@@ -162,15 +157,6 @@ public class ProgramFileWriter {
                 case CP_ENTRY_FORK_JOIN:
                     ForkJoinCPEntry forkJoinCPEntry = (ForkJoinCPEntry) cpEntry;
                     dataOutStream.writeInt(forkJoinCPEntry.forkJoinInfoIndex);
-                    break;
-                case CP_ENTRY_WRKR_INTERACTION:
-                    WrkrInteractionArgsCPEntry workerInvokeCPEntry = (WrkrInteractionArgsCPEntry) cpEntry;
-                    dataOutStream.writeInt(workerInvokeCPEntry.getTypesSignatureCPIndex());
-                    int[] workerInvokeArgRegs = workerInvokeCPEntry.getArgRegs();
-                    dataOutStream.writeByte(workerInvokeArgRegs.length);
-                    for (int argReg : workerInvokeArgRegs) {
-                        dataOutStream.writeInt(argReg);
-                    }
                     break;
                 case CP_ENTRY_WRKR_DATA_CHNL_REF:
                     WorkerDataChannelRefCPEntry workerDataChannelCPEntry = (WorkerDataChannelRefCPEntry) cpEntry;
@@ -451,11 +437,6 @@ public class ProgramFileWriter {
         for (int argReg : argRegs) {
             dataOutStream.writeInt(argReg);
         }
-        int[] retRegs = forkjoinInfo.getRetRegs();
-        dataOutStream.writeShort(retRegs.length);
-        for (int retReg : retRegs) {
-            dataOutStream.writeInt(retReg);
-        }
 
         WorkerInfo[] workerInfos = forkjoinInfo.getWorkerInfos();
         dataOutStream.writeShort(workerInfos.length);
@@ -474,11 +455,6 @@ public class ProgramFileWriter {
         for (int cpIndex : joinWrkrNameCPIndexes) {
             dataOutStream.writeInt(cpIndex);
         }
-
-        dataOutStream.writeInt(forkjoinInfo.getTimeoutIp());
-        dataOutStream.writeInt(forkjoinInfo.getTimeoutMemOffset());
-        dataOutStream.writeInt(forkjoinInfo.getJoinIp());
-        dataOutStream.writeInt(forkjoinInfo.getJoinMemOffset());
     }
 
     private static void writeAttributeInfoEntries(DataOutputStream dataOutStream,
@@ -585,9 +561,8 @@ public class ProgramFileWriter {
         DataOutputStream dataOutStream = new DataOutputStream(byteAOS);
         for (Instruction instruction : instructions) {
             dataOutStream.write(instruction.opcode);
-            int[] operands = instruction.operands;
-            for (int operand : operands) {
-                dataOutStream.writeInt(operand);
+            for (Operand operand : instruction.ops) {
+                dataOutStream.writeInt(operand.value);
             }
         }
         return byteAOS.toByteArray();

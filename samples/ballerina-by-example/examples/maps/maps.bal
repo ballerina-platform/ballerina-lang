@@ -24,7 +24,7 @@ function main (string[] args) {
     println(addrMap.keys());
 
     //Number of keys in the map.
-    println(addrMap.length());
+    println(lengthof addrMap);
 
     //You can remove a key using the 'remove' method.
     addrMap.remove("postalCode");

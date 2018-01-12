@@ -19,7 +19,7 @@ package org.ballerinalang.connector.impl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
-import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.bre.bvm.ControlStack;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BType;
@@ -27,15 +27,18 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
-import org.ballerinalang.util.debugger.DebugInfoHolder;
+import org.ballerinalang.util.debugger.DebugCommand;
+import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -60,40 +63,8 @@ public class ResourceExecutor {
      */
     public static void execute(Resource resource, BServerConnectorFuture connectorFuture,
                                Map<String, Object> properties, BValue... bValues) {
-// engage Service interceptors.
-//        if (BLangRuntimeRegistry.getInstance().isInterceptionEnabled(protocol)) {
-//            org.ballerinalang.runtime.model.ServerConnector serverConnector =
-// BLangRuntimeRegistry.getInstance().getServerConnector(protocol);
-//            resourceCallback = new ServiceInterceptorCallback(callback, protocol);
-//            List<ServiceInterceptor> serviceInterceptorList = serverConnector.getServiceInterceptorList();
-//            BMessage message = new BMessage(cMsg);
-//            // Invoke request interceptor serviceInterceptorList.
-//            for (ServiceInterceptor interceptor : serviceInterceptorList) {
-//                if (interceptor.getRequestFunction() == null) {
-//                    continue;
-//                }
-//                ServiceInterceptor.Result result = BLangVMInterceptors.invokeResourceInterceptor(interceptor,
-//                        interceptor.getRequestFunction(), message);
-//                if (result.getMessageIntercepted() == null) {
-//                    // Can't Intercept null message further. Let it handle at server connector level.
-//                    breLog.error("error in service interception, return message null in " +
-//                            (".".equals(interceptor.getPackageInfo().getPkgPath()) ? "" :
-//                                    interceptor.getPackageInfo().getPkgPath() + ":") +
-//                            ServiceInterceptor.REQUEST_INTERCEPTOR_NAME);
-//                    callback.done(null);
-//                    return;
-//                }
-//                message = result.getMessageIntercepted();
-//                if (!result.isInvokeNext()) {
-//                    callback.done(message.value());
-//                    return;
-//                }
-//                resourceMessage = message.value();
-//            }
-//        }
-
         if (resource == null) {
-            //todo
+            connectorFuture.notifyFailure(new BallerinaException("trying to execute a null resource"));
         }
         ResourceInfo resourceInfo = ((BResource) resource).getResourceInfo();
         ServiceInfo serviceInfo = resourceInfo.getServiceInfo();
@@ -110,21 +81,21 @@ public class ResourceExecutor {
             properties.forEach((k, v) -> context.setProperty(k, v));
         }
 
-        ControlStackNew controlStackNew = context.getControlStackNew();
+        ControlStack controlStack = context.getControlStack();
 
         // Now create callee's stack-frame
         WorkerInfo defaultWorkerInfo = resourceInfo.getDefaultWorkerInfo();
         StackFrame calleeSF = new StackFrame(resourceInfo, defaultWorkerInfo, -1, new int[0]);
-        controlStackNew.pushFrame(calleeSF);
+        controlStack.pushFrame(calleeSF);
 
         CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
         context.setStartIP(codeAttribInfo.getCodeAddrs());
 
-        String[] stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
-        int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
-        long[] longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
-        double[] doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
-        BRefType[] refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
+        String[] stringReg = new String[codeAttribInfo.getMaxStringRegs()];
+        int[] intRegs = new int[codeAttribInfo.getMaxIntRegs()];
+        long[] longRegs = new long[codeAttribInfo.getMaxLongRegs()];
+        double[] doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
+        BRefType[] refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
 
         int stringParamCount = 0;
         int intParamCount = 0;
@@ -141,57 +112,59 @@ public class ResourceExecutor {
                 // Set default values
                 if (value == null || "".equals(value)) {
                     if (btype == BTypes.typeString) {
-                        stringLocalVars[stringParamCount++] = "";
+                        stringReg[stringParamCount++] = BLangConstants.STRING_NULL_VALUE;
                     }
                     continue;
                 }
 
                 if (btype == BTypes.typeString) {
-                    stringLocalVars[stringParamCount++] = value.stringValue();
+                    stringReg[stringParamCount++] = value.stringValue();
                 } else if (btype == BTypes.typeBoolean) {
                     if ("true".equalsIgnoreCase(value.stringValue())) {
-                        intLocalVars[intParamCount++] = 1;
+                        intRegs[intParamCount++] = 1;
                     } else if ("false".equalsIgnoreCase(value.stringValue())) {
-                        intLocalVars[intParamCount++] = 0;
+                        intRegs[intParamCount++] = 0;
                     } else {
                         throw new BallerinaException("Unsupported parameter type for parameter " + value);
                     }
                 } else if (btype == BTypes.typeFloat) {
-                    doubleLocalVars[doubleParamCount++] = new Double(((BFloat) value).floatValue());
+                    doubleRegs[doubleParamCount++] = new Double(((BFloat) value).floatValue());
                 } else if (btype == BTypes.typeInt) {
-                    longLocalVars[longParamCount++] = ((BInteger) value).intValue();
+                    longRegs[longParamCount++] = ((BInteger) value).intValue();
                 } else if (value instanceof BStruct) {
-                    refLocalVars[refParamCount++] = (BRefType) value;
+                    refRegs[refParamCount++] = (BRefType) value;
+                } else if (value instanceof BRefValueArray) {
+                    refRegs[refParamCount++] = (BRefType) value;
                 } else {
-                    //TODO Can't throw, need to handle with future
-                    throw new BallerinaException("Unsupported parameter type for parameter " + value);
+                    connectorFuture.notifyFailure(new BallerinaException("unsupported " +
+                            "parameter type for parameter " + value));
                 }
             }
         }
 
         // It is given that first parameter of the resource is carbon message.
-        calleeSF.setLongLocalVars(longLocalVars);
-        calleeSF.setDoubleLocalVars(doubleLocalVars);
-        calleeSF.setStringLocalVars(stringLocalVars);
-        calleeSF.setIntLocalVars(intLocalVars);
-        calleeSF.setRefLocalVars(refLocalVars);
+        calleeSF.setLongRegs(longRegs);
+        calleeSF.setDoubleRegs(doubleRegs);
+        calleeSF.setStringRegs(stringReg);
+        calleeSF.setIntRegs(intRegs);
+        calleeSF.setRefRegs(refRegs);
 
         // Execute workers
         // Pass the incoming message variable into the worker invocations
         // Fix #2623
         StackFrame callerSF = new StackFrame(resourceInfo, defaultWorkerInfo, -1, new int[0]);
         callerSF.setRefRegs(new BRefType[1]);
-        callerSF.getRefRegs()[0] = refLocalVars[0];
+        callerSF.getRefRegs()[0] = refRegs[0];
 
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
         context.setAsResourceContext();
         context.startTrackWorker();
-        if (VMDebugManager.getInstance().isDebugEnabled() && VMDebugManager.getInstance().isDebugSessionActive()) {
-            VMDebugManager debugManager = VMDebugManager.getInstance();
-            context.setAndInitDebugInfoHolder(new DebugInfoHolder());
-            context.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
-            context.setDebugEnabled(true);
-            debugManager.setDebuggerContext(context);
+        VMDebugManager debugManager = programFile.getDebugManager();
+        if (debugManager.isDebugEnabled()) {
+            DebugContext debugContext = new DebugContext();
+            debugContext.setCurrentCommand(DebugCommand.RESUME);
+            context.setDebugContext(debugContext);
+            debugManager.addDebugContext(debugContext);
         }
         bLangVM.run(context);
     }

@@ -21,7 +21,6 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -33,8 +32,8 @@ import org.ballerinalang.runtime.message.StringDataSource;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
  * Test cases for ballerina.net.http.request negative native functions.
@@ -44,8 +43,8 @@ public class RequestNativeFunctionNegativeTest {
     private CompileResult result, resultNegative;
     private final String requestStruct = Constants.REQUEST;
     private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
-    private String filePath = "test-src/statements/services/nativeimpl/request/requestNativeFunctionNegative.bal";
-    private String filePathNeg = "test-src/statements/services/nativeimpl/request/requestCompileNegative.bal";
+    private String filePath = "test-src/statements/services/nativeimpl/request/request-native-function-negative.bal";
+    private String filePathNeg = "test-src/statements/services/nativeimpl/request/request-compile-negative.bal";
 
     @BeforeClass
     public void setup() {
@@ -65,7 +64,7 @@ public class RequestNativeFunctionNegativeTest {
         } catch (Throwable e) {
             error = e.getMessage();
         }
-        Assert.assertEquals(error.substring(23, 45), "invalid content length");
+        Assert.assertTrue(error.contains("invalid content length"));
     }
 
     @Test
@@ -76,9 +75,8 @@ public class RequestNativeFunctionNegativeTest {
         BString key = new BString(Constants.CONTENT_TYPE);
         BValue[] inputArg = {request, key};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
-        Assert.assertNotNull(((BString) returnVals[0]).value());
-        Assert.assertEquals(((BString) returnVals[0]).value(), "");
-        Assert.assertFalse(((BBoolean) returnVals[1]).booleanValue());
+        Assert.assertNotNull(returnVals[0]);
+        Assert.assertNull(((BString) returnVals[0]).value());
     }
 
     @Test(description = "Test method without json payload")
@@ -93,19 +91,19 @@ public class RequestNativeFunctionNegativeTest {
         } catch (Throwable e) {
             error = e.getMessage();
         }
-        Assert.assertEquals(error.substring(23, 133), "error while retrieving json payload from message: " +
-                "failed to create json: No content to map due to end-of-input");
+        Assert.assertTrue(error.contains("unexpected end of JSON document"));
     }
 
     @Test(description = "Test method with string payload")
     public void testGetJsonPayloadWithStringPayload() {
         BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
+
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        cMsg.setMessageDataSource(dataSource);
-        cMsg.setAlreadyRead(true);
+        HttpUtil.addMessageDataSource(request, dataSource);
+
         HttpUtil.addCarbonMsg(request, cMsg);
         BValue[] inputArg = {request};
         String error = null;
@@ -114,8 +112,7 @@ public class RequestNativeFunctionNegativeTest {
         } catch (Throwable e) {
             error = e.getMessage();
         }
-        Assert.assertEquals(error.substring(23, 118), "error while retrieving json payload from message: " +
-                "Unrecognized token 'ballerina': was expecting");
+        Assert.assertTrue(error.contains("unrecognized token 'ballerina'"));
     }
 
     @Test
@@ -128,7 +125,7 @@ public class RequestNativeFunctionNegativeTest {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetProperty", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(((BString) returnVals[0]).value(), "");
+        Assert.assertNull(returnVals[0].stringValue());
     }
 
     @Test(description = "Test getStringPayload method without a paylaod")
@@ -147,11 +144,12 @@ public class RequestNativeFunctionNegativeTest {
     public void testGetStringPayloadMethodWithJsonPayload() {
         BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
+
         String payload = "{\"code\":\"123\"}";
         BallerinaMessageDataSource dataSource = new BJSON(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-        cMsg.setMessageDataSource(dataSource);
-        cMsg.setAlreadyRead(true);
+        HttpUtil.addMessageDataSource(request, dataSource);
+
         HttpUtil.addCarbonMsg(request, cMsg);
         BValue[] inputArg = {request};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
@@ -239,12 +237,9 @@ public class RequestNativeFunctionNegativeTest {
 
     @Test
     public void testCompilationErrorTestCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
         //testRequestSetStatusCode
         BAssertUtil.validateError(resultNegative, 0,
-                                 "undefined function 'setStatusCode' in struct 'ballerina.net.http:Request'", 4, 5);
-        //testRequestGetContentLengthWithString
-        BAssertUtil.validateError(resultNegative, 1, "incompatible types: expected 'int', found 'string'", 9, 26);
+                "undefined function 'setStatusCode' in struct 'ballerina.net.http:Request'", 4, 5);
     }
-
 }

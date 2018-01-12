@@ -20,11 +20,13 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.SQLDBUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -53,53 +55,47 @@ public class SQLActionsTest {
         result = BCompileUtil.compile("test-src/connectors/sql/sql-actions.bal");
         resultNegative = BCompileUtil.compile("test-src/connectors/sql/sql-actions-negative.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
-        SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/SQLConnectorDataFile.sql");
+        SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLConnectorDataFile.sql");
     }
 
     @Test(groups = "ConnectorTest")
     public void testInsertTableData() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testInsertTableData", args);
+        BValue[] returns = BRunUtil.invoke(result, "testInsertTableData");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
     @Test(groups = "ConnectorTest")
     public void testCreateTable() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testCreateTable", args);
+        BValue[] returns = BRunUtil.invoke(result, "testCreateTable");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 0);
     }
 
     @Test(groups = "ConnectorTest")
     public void testUpdateTableData() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testUpdateTableData", args);
+        BValue[] returns = BRunUtil.invoke(result, "testUpdateTableData");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
     @Test(groups = "ConnectorTest")
     public void testGeneratedKeyOnInsert() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyOnInsert", args);
+        BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyOnInsert");
         BString retValue = (BString) returns[0];
         Assert.assertTrue(retValue.intValue() > 0);
     }
 
     @Test(groups = "ConnectorTest")
     public void testGeneratedKeyWithColumn() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyWithColumn", args);
+        BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyWithColumn");
         BString retValue = (BString) returns[0];
         Assert.assertTrue(retValue.intValue() > 0);
     }
 
     @Test(groups = "ConnectorTest")
     public void testSelectData() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testSelectData", args);
+        BValue[] returns = BRunUtil.invoke(result, "testSelectData");
         BString retValue = (BString) returns[0];
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);
@@ -107,8 +103,7 @@ public class SQLActionsTest {
 
     @Test(groups = "ConnectorTest for int float types")
     public   void testSelectIntFloatData() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testSelectIntFloatData", args);
+        BValue[] returns = BRunUtil.invoke(result, "testSelectIntFloatData");
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertSame(returns[1].getClass(), BInteger.class);
@@ -138,8 +133,7 @@ public class SQLActionsTest {
 
     @Test(groups = "ConnectorTest")
     public void testCallProcedureWithResultSet() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testCallProcedureWithResultSet", args);
+        BValue[] returns = BRunUtil.invoke(result, "testCallProcedureWithResultSet");
         BString retValue = (BString) returns[0];
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);
@@ -147,8 +141,7 @@ public class SQLActionsTest {
 
     @Test(groups = "ConnectorTest")
     public void testQueryParameters() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testQueryParameters", args);
+        BValue[] returns = BRunUtil.invoke(result, "testQueryParameters");
         BString retValue = (BString) returns[0];
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);
@@ -156,8 +149,7 @@ public class SQLActionsTest {
 
     @Test(groups = "ConnectorTest")
     public void testInsertTableDataWithParameters() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testInsertTableDataWithParameters", args);
+        BValue[] returns = BRunUtil.invoke(result, "testInsertTableDataWithParameters");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
@@ -179,8 +171,7 @@ public class SQLActionsTest {
 
     @Test(groups = "ConnectorTest")
     public void testOutParameters() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testOutParameters", args);
+        BValue[] returns = BRunUtil.invoke(result, "testOutParameters");
         Assert.assertEquals(returns.length, 14);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
@@ -200,8 +191,7 @@ public class SQLActionsTest {
 
     @Test(groups = "ConnectorTest")
     public void testNullOutParameters() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testNullOutParameters", args);
+        BValue[] returns = BRunUtil.invoke(result, "testNullOutParameters");
         Assert.assertEquals(returns.length, 14);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
@@ -221,8 +211,7 @@ public class SQLActionsTest {
 
     @Test(groups = "ConnectorTest")
     public void testINParameters() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testINParameters", args);
+        BValue[] returns = BRunUtil.invoke(result, "testINParameters");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
@@ -236,16 +225,14 @@ public class SQLActionsTest {
 
     @Test(groups = "ConnectorTest")
     public void testNullINParameters() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testNullINParameters", args);
+        BValue[] returns = BRunUtil.invoke(result, "testNullINParameters");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
     @Test(groups = "ConnectorTest")
     public void testINOutParameters() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testINOutParameters", args);
+        BValue[] returns = BRunUtil.invoke(result, "testINOutParameters");
         Assert.assertEquals(returns.length, 14);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
@@ -265,8 +252,7 @@ public class SQLActionsTest {
 
     @Test(groups = "ConnectorTest")
     public void testNullINOutParameters() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testNullINOutParameters", args);
+        BValue[] returns = BRunUtil.invoke(result, "testNullINOutParameters");
         Assert.assertEquals(returns.length, 14);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
@@ -286,57 +272,54 @@ public class SQLActionsTest {
 
     @Test(groups = "ConnectorTest")
     public void testEmptySQLType() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testEmptySQLType", args);
+        BValue[] returns = BRunUtil.invoke(result, "testEmptySQLType");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
     @Test(groups = "ConnectorTest")
     public void testArrayInParameters() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testArrayInParameters", args);
+        BValue[] returns = BRunUtil.invoke(result, "testArrayInParameters");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
 
-        Assert.assertTrue(returns[1] instanceof BMap);
-        BMap<String, BInteger> intArray = (BMap) returns[1];
-        Assert.assertEquals(intArray.get("0").intValue(), 1);
+        Assert.assertTrue(returns[1] instanceof BIntArray);
+        BIntArray intArray = (BIntArray) returns[1];
+        Assert.assertEquals(intArray.get(0), 1);
 
-        Assert.assertTrue(returns[2] instanceof BMap);
-        BMap<String, BInteger> longArray = (BMap) returns[2];
-        Assert.assertEquals(longArray.get("0").intValue(), 1503383034226L);
-        Assert.assertEquals(longArray.get("1").intValue(), 1503383034224L);
-        Assert.assertEquals(longArray.get("2").intValue(), 1503383034225L);
+        Assert.assertTrue(returns[2] instanceof BIntArray);
+        BIntArray longArray = (BIntArray) returns[2];
+        Assert.assertEquals(longArray.get(0), 1503383034226L);
+        Assert.assertEquals(longArray.get(1), 1503383034224L);
+        Assert.assertEquals(longArray.get(2), 1503383034225L);
 
-        Assert.assertTrue(returns[3] instanceof BMap);
-        BMap<String, BFloat> doubleArray = (BMap) returns[3];
-        Assert.assertEquals(doubleArray.get("0").floatValue(), 1503383034226.23D);
-        Assert.assertEquals(doubleArray.get("1").floatValue(), 1503383034224.43D);
-        Assert.assertEquals(doubleArray.get("2").floatValue(), 1503383034225.123D);
+        Assert.assertTrue(returns[3] instanceof BFloatArray);
+        BFloatArray doubleArray = (BFloatArray) returns[3];
+        Assert.assertEquals(doubleArray.get(0), 1503383034226.23D);
+        Assert.assertEquals(doubleArray.get(1), 1503383034224.43D);
+        Assert.assertEquals(doubleArray.get(2), 1503383034225.123D);
 
-        Assert.assertTrue(returns[4] instanceof BMap);
-        BMap<String, BString> stringArray = (BMap) returns[4];
-        Assert.assertEquals(stringArray.get("0").stringValue(), "Hello");
-        Assert.assertEquals(stringArray.get("1").stringValue(), "Ballerina");
+        Assert.assertTrue(returns[4] instanceof BStringArray);
+        BStringArray stringArray = (BStringArray) returns[4];
+        Assert.assertEquals(stringArray.get(0), "Hello");
+        Assert.assertEquals(stringArray.get(1), "Ballerina");
 
-        Assert.assertTrue(returns[5] instanceof BMap);
-        BMap<String, BBoolean> booleanArray = (BMap) returns[5];
-        Assert.assertEquals(booleanArray.get("0").booleanValue(), true);
-        Assert.assertEquals(booleanArray.get("1").booleanValue(), false);
-        Assert.assertEquals(booleanArray.get("2").booleanValue(), true);
+        Assert.assertTrue(returns[5] instanceof BBooleanArray);
+        BBooleanArray booleanArray = (BBooleanArray) returns[5];
+        Assert.assertEquals(booleanArray.get(0), 1);
+        Assert.assertEquals(booleanArray.get(1), 0);
+        Assert.assertEquals(booleanArray.get(2), 1);
 
-        Assert.assertTrue(returns[6] instanceof BMap);
-        BMap<String, BFloat> floatArray = (BMap) returns[6];
-        Assert.assertEquals(floatArray.get("0").floatValue(), 245.23);
-        Assert.assertEquals(floatArray.get("1").floatValue(), 5559.49);
-        Assert.assertEquals(floatArray.get("2").floatValue(), 8796.123);
+        Assert.assertTrue(returns[6] instanceof BFloatArray);
+        BFloatArray floatArray = (BFloatArray) returns[6];
+        Assert.assertEquals(floatArray.get(0), 245.23);
+        Assert.assertEquals(floatArray.get(1), 5559.49);
+        Assert.assertEquals(floatArray.get(2), 8796.123);
     }
 
     @Test(groups = "ConnectorTest")
     public void testArrayOutParameters() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testArrayOutParameters", args);
+        BValue[] returns = BRunUtil.invoke(result, "testArrayOutParameters");
         Assert.assertEquals(returns[0].stringValue(), "[1,2,3]");
         Assert.assertEquals(returns[1].stringValue(), "[100000000,200000000,300000000]");
         Assert.assertEquals(returns[2].stringValue(), "[245.23,5559.49,8796.123]");
@@ -347,9 +330,7 @@ public class SQLActionsTest {
 
     @Test(groups = "ConnectorTest")
     public void testArrayInOutParameters() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testArrayInOutParameters", args);
-
+        BValue[] returns = BRunUtil.invoke(result, "testArrayInOutParameters");
         Assert.assertEquals(returns[0].stringValue(), "1");
         Assert.assertEquals(returns[1].stringValue(), "[1,2,3]");
         Assert.assertEquals(returns[2].stringValue(), "[100000000,200000000,300000000]");
@@ -361,8 +342,7 @@ public class SQLActionsTest {
 
     @Test(groups = "ConnectorTest")
     public void testBatchUpdate() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdate", args);
+        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdate");
         BIntArray retValue = (BIntArray) returns[0];
         Assert.assertEquals(retValue.get(0), 1);
         Assert.assertEquals(retValue.get(1), 1);
@@ -381,16 +361,14 @@ public class SQLActionsTest {
 
     @Test(groups = "ConnectorTest")
     public void testBatchUpdateWithNullParam() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithNullParam", args);
+        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithNullParam");
         BIntArray retValue = (BIntArray) returns[0];
         Assert.assertEquals(retValue.get(0), 1);
     }
 
     @Test(groups = "ConnectorTest")
     public void testInsertTimeData() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testDateTimeInParameters", args);
+        BValue[] returns = BRunUtil.invoke(result, "testDateTimeInParameters");
         BIntArray retValue = (BIntArray) returns[0];
         Assert.assertEquals((int) retValue.get(0), 1);
         Assert.assertEquals((int) retValue.get(1), 1);
@@ -440,10 +418,36 @@ public class SQLActionsTest {
 
     @Test(dependsOnGroups = "ConnectorTest")
     public void testCloseConnectionPool() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool", args);
+        BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(groups = "DatatableTest", description = "Check blob binary and clob types types.")
+    public void testComplexTypeRetrieval() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "testComplexTypeRetrieval", args);
+        Assert.assertEquals(returns[0].stringValue(), "<results><result><ROW_ID>1</ROW_ID><INT_TYPE>10</INT_TYPE>"
+                + "<LONG_TYPE>9223372036854774807</LONG_TYPE><FLOAT_TYPE>123.34</FLOAT_TYPE>"
+                + "<DOUBLE_TYPE>2.139095039E9</DOUBLE_TYPE><BOOLEAN_TYPE>true</BOOLEAN_TYPE>"
+                + "<STRING_TYPE>Hello</STRING_TYPE><NUMERIC_TYPE>1234.567</NUMERIC_TYPE>"
+                + "<DECIMAL_TYPE>1234.567</DECIMAL_TYPE><REAL_TYPE>1234.567</REAL_TYPE><TINYINT_TYPE>1</TINYINT_TYPE>"
+                + "<SMALLINT_TYPE>5555</SMALLINT_TYPE><CLOB_TYPE>very long text</CLOB_TYPE>"
+                + "<BLOB_TYPE>d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==</BLOB_TYPE>"
+                + "<BINARY_TYPE>d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu</BINARY_TYPE></result></results>");
+        Assert.assertEquals(returns[1].stringValue(), "<results><result><ROW_ID>1</ROW_ID>"
+                + "<DATE_TYPE>2017-02-03</DATE_TYPE><TIME_TYPE>11:35:45</TIME_TYPE>"
+                + "<DATETIME_TYPE>2017-02-03 11:53:00.000000</DATETIME_TYPE>"
+                + "<TIMESTAMP_TYPE>2017-02-03 11:53:00.000000</TIMESTAMP_TYPE></result></results>");
+        Assert.assertEquals(returns[2].stringValue(), "[{\"ROW_ID\":1,\"INT_TYPE\":10,"
+                + "\"LONG_TYPE\":9223372036854774807,\"FLOAT_TYPE\":123.34,\"DOUBLE_TYPE\":2.139095039E9,"
+                + "\"BOOLEAN_TYPE\":true,\"STRING_TYPE\":\"Hello\",\"NUMERIC_TYPE\":1234.567,\"DECIMAL_TYPE\":1234.567,"
+                + "\"REAL_TYPE\":1234.567,\"TINYINT_TYPE\":1,\"SMALLINT_TYPE\":5555,\"CLOB_TYPE\":\"very long text\","
+                + "\"BLOB_TYPE\":\"d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==\","
+                + "\"BINARY_TYPE\":\"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu\"}]");
+        Assert.assertEquals(returns[3].stringValue(), "[{\"ROW_ID\":1,\"DATE_TYPE\":\"2017-02-03\","
+                + "\"TIME_TYPE\":\"11:35:45\",\"DATETIME_TYPE\":\"2017-02-03 11:53:00.000000\","
+                + "\"TIMESTAMP_TYPE\":\"2017-02-03 11:53:00.000000\"}]");
     }
 
     @Test(description = "Test failed select query",

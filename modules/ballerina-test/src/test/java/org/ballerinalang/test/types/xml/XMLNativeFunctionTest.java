@@ -101,7 +101,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[1].stringValue(), "element");
 
         Assert.assertSame(returns[2].getClass(), BString.class);
-        Assert.assertEquals(returns[2].stringValue(), "");
+        Assert.assertNull(returns[2].stringValue());
     }
 
     @Test
@@ -525,6 +525,37 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(returns[0] instanceof BXML);
 
         Assert.assertEquals(returns[0].stringValue(), "<name xmlns=\"http://sample.com/test\"><fname>supun</fname>"
+                + "<lname>setunga</lname><residency citizen=\"true\">true</residency></name>");
+
+        // is children seq is empty?
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+
+        // is children seq is singleton?
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+
+        // Check children
+        Assert.assertTrue(returns[3] instanceof BXML);
+        BRefValueArray children = ((BXMLSequence) returns[3]).value();
+        Assert.assertEquals(children.size(), 3);
+        Assert.assertEquals(children.get(0).stringValue(), "<fname xmlns=\"http://sample.com/test\">supun</fname>");
+        Assert.assertEquals(children.get(1).stringValue(), "<lname xmlns=\"http://sample.com/test\">setunga</lname>");
+        Assert.assertEquals(children.get(2).stringValue(),
+                "<residency xmlns=\"http://sample.com/test\" citizen=\"true\">true</residency>");
+
+        // Check attribute value
+        Assert.assertSame(returns[4].getClass(), BString.class);
+        Assert.assertEquals(((BString) returns[4]).stringValue(), "true");
+    }
+
+    @Test
+    public void testSetChildrenWithEmptyNamespace() {
+        BValue[] returns = BRunUtil.invoke(result, "testSetChildrenEmptyNamespace");
+        Assert.assertEquals(returns.length, 5);
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(returns[0].stringValue(), "<name xmlns=\"http://sample.com/test\"><fname>supun</fname>"
                 + "<lname>setunga</lname><residency xmlns=\"\" citizen=\"true\">true</residency></name>");
 
         // is children seq is empty?
@@ -553,6 +584,9 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testSetChildrenWithDifferentNamespaceForAttribute");
         Assert.assertEquals(returns.length, 4);
         Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<name xmlns=\"http://sample.com/test\">" +
+                "<fname>supun</fname><lname>setunga</lname><residency xmlns:nsncdom=\"http://sample.com/test/code\" " +
+                "nsncdom:citizen=\"true\">true</residency></name>");
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
@@ -574,8 +608,8 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(returns[0] instanceof BXML);
 
         Assert.assertEquals(returns[0].stringValue(), "<name xmlns=\"http://sample.com/test\">" +
-                "<fname>supun</fname><lname>setunga</lname><residency xmlns=\"\" " + 
-                "xmlns:pre=\"http://sample.com/test/code\" pre:citizen=\"true\">true</residency></name>");
+                "<fname>supun</fname><lname>setunga</lname><residency xmlns:pre=\"http://sample.com/test/code\" " +
+                "pre:citizen=\"true\">true</residency></name>");
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
@@ -1327,10 +1361,10 @@ public class XMLNativeFunctionTest {
     public void testParseXMLCommentWithXMLDeclrEntity() {
         BValue[] returns = BRunUtil.invoke(result, "testParseXMLCommentWithXMLDeclrEntity");
         Assert.assertEquals(returns[0], null);
-        Assert.assertTrue(returns[1].stringValue().startsWith("{msg:\"Unexpected EOF in prolog"));
+        Assert.assertTrue(returns[1].stringValue().startsWith("{msg:\"failed to create xml: Unexpected EOF in prolog"));
         Assert.assertTrue(returns[1].stringValue().endsWith("at [row,col {unknown-source}]:"
                         + " [1,74]\", cause:null, stackTrace:[{caller:\"testParseXMLCommentWithXMLDeclrEntity\", "
-                        + "packageName:\".\", fileName:\"xml-native-functions.bal\", lineNumber:816}], sourceType:"
+                        + "packageName:\".\", fileName:\"xml-native-functions.bal\", lineNumber:836}], sourceType:"
                         + "\"string\", targetType:\"xml\"}"));
     }
 

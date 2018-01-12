@@ -89,6 +89,11 @@ public class CharacterChannel {
      */
     private static final int MINIMUM_BYTE_BUFFER_SIZE = 0;
 
+    /**
+     * Maximum number of characters which should be read per single read.
+     */
+    private static final int MAX_CHAR_COUNT_PER_READ = 1024;
+
 
     public CharacterChannel(AbstractChannel channel, String encoding) {
         this.channel = channel;
@@ -260,6 +265,21 @@ public class CharacterChannel {
             throw new BallerinaIOException("Error occurred while reading characters from buffer", e);
         }
         return content.toString();
+    }
+
+    /**
+     * Reads all content from the I/O source.
+     *
+     * @return all content which is read.
+     */
+    public String readAll() {
+        StringBuilder response = new StringBuilder();
+        String value;
+        do {
+            value = read(MAX_CHAR_COUNT_PER_READ);
+            response.append(value);
+        } while (!value.isEmpty());
+        return response.toString();
     }
 
     /**

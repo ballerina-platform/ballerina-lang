@@ -100,3 +100,39 @@ public native function <string mainString> split (string regex) (string[]);
 @Param { value:"encoding: Encoding to used in the conversion" }
 @Return { value:"The blob representation of the given String" }
 public native function <string mainString> toBlob (string encoding) (blob);
+
+@Description { value: "Represents a Regular expression in ballerina and can perform various Regular expression methods."}
+@Field { value : "regex:Pattern as a String"}
+public struct Regex {
+   string pattern;
+}
+
+@Description { value:"Finds all the strings matching the regular expression"}
+@Param { value:"mainString: The original string argument" }
+@Param { value:"reg: Regular expression" }
+@Return { value: "The matching string array"}
+@Return { value:"error: Error will be returned if there exist a syntax error in pattern" }
+public native function <string mainString> findAllWithRegex (Regex reg) (string[], error);
+
+@Description { value:"Returns a Boolean value indicating whether the string matches the regular expression"}
+@Param { value:"mainString: The original string argument" }
+@Param { value:"reg: Regular expression" }
+@Return { value: "True if the string matches the regex; false otherwise"}
+@Return { value:"error: Error will be returned if there exist a syntax error in pattern" }
+public native function <string mainString>  matchesWithRegex (Regex reg) (boolean, error);
+
+@Description { value:"Replaces the mainString with the replacement of occurrences that matches the given regular expression" }
+@Param { value:"mainString: The original string argument" }
+@Param { value:"reg: Regular expression" }
+@Param { value:"replaceWith: The replacement string" }
+@Return { value:"The derived string" }
+@Return { value:"error: Error will be returned if there exist a syntax error in pattern" }
+public native function <string mainString> replaceAllWithRegex (Regex reg, string replaceWith) (string, error);
+
+@Description { value:"Replaces the first instance of the regular expression matching area with the replaceWith string and returns the result"}
+@Param { value:"mainString: The original string argument" }
+@Param { value:"reg: Regular expression" }
+@Param { value:"replaceWith: The replacement string" }
+@Return { value:"The derived string" }
+@Return { value:"error: Error will be returned if there exist a syntax error in pattern" }
+public native function <string mainString> replaceFirstWithRegex (Regex reg, string replaceWith) (string, error);

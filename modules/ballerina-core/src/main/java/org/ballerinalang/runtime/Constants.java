@@ -23,15 +23,9 @@ package org.ballerinalang.runtime;
  */
 public class Constants {
 
-    // Intermediate headers added to the ballerina message
-    public static final String INTERMEDIATE_HEADERS = "INTERMEDIATE_HEADERS";
-
-    // Name of the map that holds Resource arguments which are populated from server connector.
-    public static final String RESOURCE_ARGS = "RESOURCE_ARGS";
-
     // Ballerina version system property name
     public static final String BALLERINA_VERSION = "ballerina.version";
 
     // Name of the system property to hold the debug port
-    public static final String SYSTEM_PROP_BAL_DEBUG = "ballerina.debug";
+    public static final String SYSTEM_PROP_BAL_DEBUG = "debug";
 }

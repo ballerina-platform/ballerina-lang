@@ -27,7 +27,7 @@ function main (string[] args) {
     xml x = content.slice(2, 3);
     println(x);
 
-    // All the element-type items from an taken from an XML sequence.
+    // All the element-type items are taken from an XML sequence.
     x = content.elements();
     println(x);
 

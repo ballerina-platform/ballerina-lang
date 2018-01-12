@@ -10,7 +10,7 @@ service<http> negativeTemplateURI {
     resource echo1 (http:Request req, http:Response res, string abc) {
         json responseJson = {"first":abc, "echo":"echo"};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -20,6 +20,6 @@ service<http> negativeTemplateURI {
     resource echo2 (http:Request req, http:Response res, string xyz) {
         json responseJson = {"first":xyz, "echo":"echo"};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 }

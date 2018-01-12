@@ -95,6 +95,7 @@ public class BLangWSPreservingParserListener extends BLangParserListener {
                 // This is needed to handle A + B + C case of BinaryAddSubExpression
                 rangeEndTokenIndex = ((TerminalNode) child).getSymbol().getTokenIndex();
             } else {
+                rangesOfRuleContext.pop();
                 return;
             }
         } else {

@@ -30,8 +30,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 public class BLangTransaction extends BLangStatement implements TransactionNode {
     public BLangBlockStmt transactionBody;
     public BLangBlockStmt failedBody;
-    public BLangBlockStmt committedBody;
-    public BLangBlockStmt abortedBody;
     public BLangExpression retryCount;
 
     public BLangTransaction() {
@@ -39,13 +37,9 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
 
     public BLangTransaction(BLangBlockStmt transactionBody,
                             BLangBlockStmt failedBody,
-                            BLangBlockStmt committedBody,
-                            BLangBlockStmt abortedBody,
                             BLangExpression retryCount) {
         this.transactionBody = transactionBody;
         this.failedBody = failedBody;
-        this.committedBody = committedBody;
-        this.abortedBody = abortedBody;
         this.retryCount = retryCount;
     }
 
@@ -57,16 +51,6 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     @Override
     public BLangBlockStmt getFailedBody() {
         return failedBody;
-    }
-
-    @Override
-    public BLangBlockStmt getCommittedBody() {
-        return committedBody;
-    }
-
-    @Override
-    public BLangBlockStmt getAbortedBody() {
-        return abortedBody;
     }
 
     @Override
@@ -82,16 +66,6 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     @Override
     public void setFailedBody(BlockNode body) {
         this.failedBody = (BLangBlockStmt) body;
-    }
-
-    @Override
-    public void setCommittedBody(BlockNode body) {
-        this.committedBody = (BLangBlockStmt) body;
-    }
-
-    @Override
-    public void setAbortedBody(BlockNode body) {
-        this.abortedBody = (BLangBlockStmt) body;
     }
 
     @Override
@@ -113,8 +87,6 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     public String toString() {
         return "Transaction: {" + transactionBody + "} "
                 + (failedBody != null ? " failed {" + String.valueOf(failedBody) + "}" : "")
-                + (committedBody != null ? " committed {" + String.valueOf(committedBody) + "}" : "")
-                + (abortedBody != null ? " aborted {" + String.valueOf(abortedBody) + "}" : "")
                 + (retryCount != null ? " retry (" + retryCount + ")" : "");
     }
 }

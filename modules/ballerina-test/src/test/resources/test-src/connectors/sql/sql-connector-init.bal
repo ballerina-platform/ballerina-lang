@@ -1,88 +1,66 @@
 import ballerina.data.sql;
 
-struct ResultCustomers {
-    string FIRSTNAME;
-}
-
 function testConnectionPoolProperties () (string firstName) {
     endpoint<sql:ClientConnector> testDB {}
-    sql:ConnectionProperties properties = {url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              driverClassName:"org.hsqldb.jdbc.JDBCDriver", maximumPoolSize:1,
-                                              idleTimeout:600000, connectionTimeout:30000, autoCommit:true, maxLifetime:1800000,
-                                              minimumIdle:1, poolName:"testHSQLPool", isolateInternalQueries:false,
-                                              allowPoolSuspension:false, readOnly:false, validationTimeout:5000, leakDetectionThreshold:0,
-                                              connectionInitSql:"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS",
-                                              transactionIsolation:"TRANSACTION_READ_COMMITTED", catalog:"PUBLIC",
-                                              connectionTestQuery:"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS"};
-    bind create sql:ClientConnector(sql:HSQLDB_FILE, "", 0, "", "SA", "", properties) with testDB;
-
-    sql:Parameter[] parameters = [];
-    datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = 1", parameters);
-    TypeCastError err;
-    ResultCustomers rs;
-    while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, err = (ResultCustomers) dataStruct;
-        firstName = rs.FIRSTNAME;
-    }
-    testDB.close ();
+    sql:ConnectionProperties properties = {url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+                      driverClassName:"org.hsqldb.jdbc.JDBCDriver", maximumPoolSize:1,
+                      idleTimeout:600000, connectionTimeout:30000, autoCommit:true, maxLifetime:1800000,
+                      minimumIdle:1, poolName:"testHSQLPool", isolateInternalQueries:false,
+                      allowPoolSuspension:false, readOnly:false, validationTimeout:5000, leakDetectionThreshold:0,
+                      connectionInitSql:"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS",
+                      transactionIsolation:"TRANSACTION_READ_COMMITTED", catalog:"PUBLIC",
+                      connectionTestQuery:"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS"};
+    bind create sql:ClientConnector(sql:DB.HSQLDB_FILE, "", 0, "", "SA", "", properties) with testDB;
+    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    var j, _ = <json>dt;
+    firstName = j.toString();
     return;
 }
 
 function testConnectorWithDefaultPropertiesForListedDB () (string firstName) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", null);
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/", 0,
+                                   "TEST_SQL_CONNECTOR_INIT", "SA", "", null);
     }
-
-    sql:Parameter[] parameters = [];
-    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
-    TypeCastError err;
-    ResultCustomers rs;
-    while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, err = (ResultCustomers)dataStruct;
-        firstName = rs.FIRSTNAME;
-    }
-    testDB.close();
+    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    var j, _ = <json>dt;
+    firstName = j.toString();
     return;
 }
 
 
 function testConnectorWithDirectUrl () (string firstName) {
     endpoint<sql:ClientConnector> testDB {}
-    sql:ConnectionProperties Properties = {url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR"};
-    bind create sql:ClientConnector("", "", 0, "", "SA", "", Properties) with testDB;
-
-    sql:Parameter[] parameters = [];
-    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
-    TypeCastError err;
-    ResultCustomers rs;
-    while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, err = (ResultCustomers)dataStruct;
-        firstName = rs.FIRSTNAME;
-    }
-    testDB.close();
+    sql:ConnectionProperties Properties = {url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT"};
+    bind create sql:ClientConnector(sql:DB.GENERIC, "", 0, "", "SA", "", Properties) with testDB;
+    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    var j, _ = <json>dt;
+    firstName = j.toString();
     return;
 }
 
 function testConnectorWithDataSourceClass () (string firstName) {
     endpoint<sql:ClientConnector> testDB {}
-    map propertiesMap = {"loginTimeout":109, "url":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR"};
+    map propertiesMap = {"loginTimeout":109, "url":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT"};
     sql:ConnectionProperties properties = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource",
                                               datasourceProperties:propertiesMap};
-    bind create sql:ClientConnector("", "", 0, "", "SA", "", properties) with testDB;
+    bind create sql:ClientConnector(sql:DB.GENERIC, "", 0, "", "SA", "", properties) with testDB;
+    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    var j, _ = <json>dt;
+    firstName = j.toString();
+    return;
+}
 
-    sql:Parameter[] parameters = [];
-    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
-    TypeCastError err;
-    ResultCustomers rs;
-    while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, err = (ResultCustomers)dataStruct;
-        firstName = rs.FIRSTNAME;
-    }
+function testConnectorWithDataSourceClassAndProps () (string firstName) {
+    endpoint<sql:ClientConnector> testDB {}
+    map propertiesMap = {"loginTimeout":109};
+    sql:ConnectionProperties properties = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource",
+                                              datasourceProperties:propertiesMap};
+    bind create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                    0, "TEST_SQL_CONNECTOR_INIT", "SA", "", properties) with testDB;
+    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    var j, _ = <json>dt;
+    firstName = j.toString();
     testDB.close();
     return;
 }
@@ -90,51 +68,23 @@ function testConnectorWithDataSourceClass () (string firstName) {
 function testConnectorWithDataSourceClassWithoutURL () (string firstName) {
     endpoint<sql:ClientConnector> testDB {}
     sql:ConnectionProperties properties = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource"};
-    bind create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties) with testDB;
-
-    sql:Parameter[] parameters = [];
-    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
-    TypeCastError err;
-    ResultCustomers rs;
-    while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, err = (ResultCustomers)dataStruct;
-        firstName = rs.FIRSTNAME;
-    }
-    testDB.close();
+    bind create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/", 0,
+                                    "TEST_SQL_CONNECTOR_INIT", "SA", "", properties) with testDB;
+    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    var j, _ = <json>dt;
+    firstName = j.toString();
     return;
 }
 
 function testConnectorWithDataSourceClassURLPriority () (string firstName) {
     endpoint<sql:ClientConnector> testDB {}
-    map propertiesMap = {"url":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR"};
+    map propertiesMap = {"url":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT"};
     sql:ConnectionProperties properties = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource",
                                               datasourceProperties:propertiesMap};
-    bind create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                        "INVALID_DB_NAME", "SA", "", properties) with testDB;
-
-    sql:Parameter[] parameters = [];
-    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
-    TypeCastError err;
-    ResultCustomers rs;
-    while (dt.hasNext()) {
-        any dataStruct = dt.getNext();
-        rs, err = (ResultCustomers)dataStruct;
-        firstName = rs.FIRSTNAME;
-    }
-    testDB.close();
-    return;
-}
-
-function testInvalidDBType () (string firstName) {
-    endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector("TESTDB", "./target/tempdb/",
-                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
-    }
-
-    sql:Parameter[] parameters = [];
-    _ = testDB.update("Insert into Customers(firstName) values ('James')", parameters);
-    testDB.close();
+    bind create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/", 0,
+                                    "INVALID_DB_NAME", "SA", "", properties) with testDB;
+    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    var j, _ = <json>dt;
+    firstName = j.toString();
     return;
 }

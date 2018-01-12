@@ -36,7 +36,7 @@ public class NetURITest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/netUri.bal");
+        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/net-uri.bal");
     }
 
     @Test

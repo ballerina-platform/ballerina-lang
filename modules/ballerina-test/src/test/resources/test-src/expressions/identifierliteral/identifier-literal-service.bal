@@ -10,7 +10,7 @@ service<http> |sample service| {
     resource |sample resource| (http:Request req, http:Response res) {
         json responseJson = {"key":"keyVal", "value":"valueOfTheString"};
         res.setJsonPayload(responseJson);
-        res.send();
+        _ = res.send();
     }
 
     @http:resourceConfig {
@@ -20,7 +20,7 @@ service<http> |sample service| {
     resource |sample resource2| (http:Request req, http:Response res) {
         string |a a| = "hello";
         res.setStringPayload(|a a|);
-        res.send();
+        _ = res.send();
     }
 }
 

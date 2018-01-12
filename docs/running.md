@@ -5,25 +5,25 @@ This page describes how to run a Ballerina program, either in standalone or serv
 
 The following command is used to execute the `main()` function of a Ballerina program from a `.bal` file, package, or archive file:
 
-```
+```bash
 ballerina run (filename | packagename | mainarchive)
 ```
 
 #### Examples
 1) Execute the `main()` function of the `say-hello-world.bal` Ballerina program with no arguments.
-```
+```bash
 ballerina run say-hello-world.bal
 ```
 2) Execute the `main()` function of the `hello-world.bal` Ballerina program with argument `WSO2`.
-```
+```bash
 ballerina run hello-world.bal WSO2
 ```
 3) Execute the `main()` function of the `hello-world.bal` Ballerina program with argument `WSO2 Inc`. If the argument value contains a space, use double quotes to enclose it.
-```
+```bash
 ballerina run hello-world.bal "WSO2 Inc"
 ```
 4) Execute the `main()` function of the `multiplier.bal` Ballerina program with arguments `5` and `10`.
-```
+```bash
 ballerina run multiplier.bal 5 10
 ```
 
@@ -33,13 +33,13 @@ The following commands are used to run Ballerina programs as services:
 
 To run named services:
 
-```
+```bash
 ballerina run (filename | packagename | servicearchive)+
 ```
 
 To run a collection of service archives from service root:
 
-```
+```bash
 ballerina run [-sr serviceroot]
 ```
 
@@ -50,11 +50,11 @@ TODO: add link to that doc once it's checked in.
 ## Additional commands
 
 To print the Ballerina version: 
-```
+```bash
 ballerina version
 ```
 
 To print help on using the Ballerina commands:
-```
+```bash
 ballerina help
 ```

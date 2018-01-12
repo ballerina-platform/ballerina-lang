@@ -27,7 +27,7 @@ public class Constants extends org.ballerinalang.net.http.Constants {
     public static final String CONNECTOR_NAME = "WsClient";
     public static final String TO = "TO";
 
-    public static final String WEBSOCKET_PACKAGE_NAME = "ballerina.net.ws";
+    public static final String PROTOCOL_PACKAGE_WS = "ballerina.net.ws";
     public static final String PROTOCOL_WEBSOCKET = "ws";
 
     public static final String ANNOTATION_CONFIGURATION = "configuration";

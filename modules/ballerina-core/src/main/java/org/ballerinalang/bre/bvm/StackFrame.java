@@ -35,14 +35,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 0.88
  */
 public class StackFrame {
-    long[] longLocalVars;
-    double[] doubleLocalVars;
-    String[] stringLocalVars;
-    // These are used for array indexes and boolean values;
-    int[] intLocalVars;
-    byte[][] byteLocalVars;
-    BRefType[] refLocalVars;
-
     long[] longRegs;
     double[] doubleRegs;
     String[] stringRegs;
@@ -63,9 +55,7 @@ public class StackFrame {
     PackageInfo packageInfo;
     WorkerInfo workerInfo;
 
-    // To Support old native function and action invocation
-    // TODO Refactor this when native function and action invocations are improved.
-    public BValue[] argValues;
+    // To support old native function and action invocation
     public BValue[] returnValues;
 
     // To support worker return.
@@ -86,24 +76,12 @@ public class StackFrame {
         this.workerInfo = workerInfo;
         CodeAttributeInfo codeAttribInfo = workerInfo.getCodeAttributeInfo();
 
-        this.longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
-        this.doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
-
-        this.stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
-        // Setting the zero values for strings
-        Arrays.fill(stringLocalVars, "");
-
-        this.intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
-        this.byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
-        Arrays.fill(byteLocalVars, new byte[0]);
-
-        this.refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
-
         this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
         this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
         this.byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
+        Arrays.fill(this.byteRegs, new byte[0]);
         this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
 
         this.retAddrs = retAddrs;
@@ -121,52 +99,17 @@ public class StackFrame {
         this.workerInfo = workerInfo;
         CodeAttributeInfo codeAttribInfo = workerInfo.getCodeAttributeInfo();
 
-        this.longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
-        this.doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
-
-        this.stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
-        // Setting the zero values for strings
-        Arrays.fill(stringLocalVars, "");
-
-        this.intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
-        this.byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
-        Arrays.fill(byteLocalVars, new byte[0]);
-        this.refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
-
         this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
         this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
         this.byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
+        Arrays.fill(this.byteRegs, new byte[0]);
         this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
 
         this.retAddrs = retAddrs;
         this.retRegIndexes = retRegIndexes;
         this.returnValues = returnValues;
-    }
-
-    public long[] getLongLocalVars() {
-        return longLocalVars;
-    }
-
-    public double[] getDoubleLocalVars() {
-        return doubleLocalVars;
-    }
-
-    public String[] getStringLocalVars() {
-        return stringLocalVars;
-    }
-
-    public int[] getIntLocalVars() {
-        return intLocalVars;
-    }
-
-    public byte[][] getByteLocalVars() {
-        return byteLocalVars;
-    }
-
-    public BRefType[] getRefLocalVars() {
-        return refLocalVars;
     }
 
     public long[] getLongRegs() {
@@ -191,30 +134,6 @@ public class StackFrame {
 
     public BRefType[] getRefRegs() {
         return refRegs;
-    }
-
-    public void setLongLocalVars(long[] longLocalVars) {
-        this.longLocalVars = longLocalVars;
-    }
-
-    public void setDoubleLocalVars(double[] doubleLocalVars) {
-        this.doubleLocalVars = doubleLocalVars;
-    }
-
-    public void setStringLocalVars(String[] stringLocalVars) {
-        this.stringLocalVars = stringLocalVars;
-    }
-
-    public void setIntLocalVars(int[] intLocalVars) {
-        this.intLocalVars = intLocalVars;
-    }
-
-    public void setByteLocalVars(byte[][] byteLocalVars) {
-        this.byteLocalVars = byteLocalVars;
-    }
-
-    public void setRefLocalVars(BRefType[] refLocalVars) {
-        this.refLocalVars = refLocalVars;
     }
 
     public void setLongRegs(long[] longRegs) {

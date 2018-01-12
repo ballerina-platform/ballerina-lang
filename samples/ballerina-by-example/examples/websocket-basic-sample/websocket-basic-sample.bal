@@ -8,9 +8,9 @@ import ballerina.net.ws;
     host: "0.0.0.0",
     port: 9090,
     wssPort: 9095,
-    keyStoreFile: "${ballerina.home}/bre/security/wso2carbon.jks",
-    keyStorePassword: "wso2carbon",
-    certPassword: "wso2carbon"
+    keyStoreFile: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+    keyStorePassword: "ballerina",
+    certPassword: "ballerina"
 }
 service<ws> SimpleSecureServer {
 

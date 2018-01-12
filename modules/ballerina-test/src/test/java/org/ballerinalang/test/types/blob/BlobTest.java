@@ -41,7 +41,7 @@ public class BlobTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/blob/blobTest.bal");
+        result = BCompileUtil.compile("test-src/types/blob/blob-test.bal");
     }
 
 

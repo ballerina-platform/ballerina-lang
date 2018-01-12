@@ -19,12 +19,12 @@
 package org.ballerinalang.net.ws;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 /**
  * Ballerina Connector listener for WebSocket.
@@ -33,10 +33,10 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMess
  */
 public class BallerinaWsClientConnectorListener implements WebSocketConnectorListener {
 
-    private final WebSocketService wsService;
+    private WsOpenConnectionInfo connectionInfo;
 
-    public BallerinaWsClientConnectorListener(WebSocketService wsService) {
-        this.wsService = wsService;
+    public void setConnectionInfo(WsOpenConnectionInfo connectionInfo) {
+        this.connectionInfo = connectionInfo;
     }
 
     @Override
@@ -46,22 +46,22 @@ public class BallerinaWsClientConnectorListener implements WebSocketConnectorLis
 
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
-        WebSocketDispatcher.dispatchTextMessage(wsService, webSocketTextMessage);
+        WebSocketDispatcher.dispatchTextMessage(connectionInfo, webSocketTextMessage);
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
-        WebSocketDispatcher.dispatchBinaryMessage(wsService, webSocketBinaryMessage);
+        WebSocketDispatcher.dispatchBinaryMessage(connectionInfo, webSocketBinaryMessage);
     }
 
     @Override
     public void onMessage(WebSocketControlMessage webSocketControlMessage) {
-        WebSocketDispatcher.dispatchControlMessage(wsService, webSocketControlMessage);
+        WebSocketDispatcher.dispatchControlMessage(connectionInfo, webSocketControlMessage);
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        WebSocketDispatcher.dispatchCloseMessage(wsService, webSocketCloseMessage);
+        WebSocketDispatcher.dispatchCloseMessage(connectionInfo, webSocketCloseMessage);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class BallerinaWsClientConnectorListener implements WebSocketConnectorLis
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
-        WebSocketDispatcher.dispatchIdleTimeout(wsService, controlMessage);
+        WebSocketDispatcher.dispatchIdleTimeout(connectionInfo, controlMessage);
     }
 
 }

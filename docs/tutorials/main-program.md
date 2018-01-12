@@ -29,7 +29,7 @@ It is time to create a main program to solve your integration problem.
 1. On the Welcome page, click **File** and select **New** from the dropdown list.
 1. On the tool palette that you see on the left of the Composer, click the **Main Function** icon and drag it to the canvas.
 
-![alt text](../images/AddMainProgram.gif)
+![alt text](../images/AddMainNew.gif)
 
 ## Add a connector
 
@@ -42,11 +42,12 @@ Graphically, connectors are modeled as a separate lifeline to represent its inde
 Connectors may need to have usage specific parameters and hence must be instantiated prior to use. For example, an HTTP connector will need the URL to connect to in the minimum.
 
 1. On the tool palette, click **More Connectors** to see a list of all available connectors.
-    ![alt text](../images/MoreConnectors.png)
-1. From the list that appears, expand **ballerina.net.http** and drag a **ClientConnector** onto the canvas.
-    ![alt text](../images/addConnector.gif)
-1. Add the endpoint URL (http://api.openweathermap.org/data/2.5/forecast?appid=f6f43202ba90c14ab13479aa2a2beefb&q=Washington,US) within quotation marks "" as the connector endpoint. You can also change the name of the endpoint to something suitable. For more information on how to get this URL and call it to get the JSON content, see [Get information from the weather forecast API](#get-information-from-the-weather-forecast-api).
-    ![alt text](../images/ConnectorEndpoint.gif)
+1. From the list that appears, expand **ballerina.net.http** and drag the **Endpoint** of the connector onto the canvas.
+    ![alt text](../images/AddHttpClient.gif)
+1. Add the endpoint URL (http://api.openweathermap.org/data/2.5/forecast?appid=f6f43202ba90c14ab13479aa2a2beefb&q=Washington,US). For more information on how to get this URL and call it to get the JSON content, see [Get information from the weather forecast API](#get-information-from-the-weather-forecast-api).
+    ![alt text](../images/HttpClientAdd.png)
+1. You can also change the name of the endpoint to something suitable. 
+    ![alt text](../images/forecastAPInew.png)
 
 ## Call the connector
 
@@ -54,17 +55,16 @@ When you add a connector, you need to have a way of calling a connector and thos
 
 A connector comes with a set of actions that represent the interactions that one can have with the remote service. Actions can be one directional or bi-directional and represent blocking from the calling worker's perspective. That is, the calling thread is blocked until the action has completed its remote interaction.
 
-In the case of the HTTP connector you are using in this tutorial, the actions are listed out under the connector in the tool palette.
+In the case of the **HTTPClient** connector you are using in this tutorial, the actions are listed out under the connector in the tool palette.
 
-![alt text](../images/Actions.png)
+![alt text](../images/ConnectorActionsNew.png)
 
-1. Add an action by dragging one of the actions from the tool palette onto the canvas. In this instance, you need to add a GET action as this is a GET request to the weather forecast API. Place the GET action under the main program you added.
-    ![alt text](../images/AddingAction.gif)    
-1. To call the connector from the main program, draw an arrow to the connector from the action.
-    ![alt text](../images/ConnectingAction.gif)
+1. Add an action by dragging one of the actions from the tool palette onto the canvas. In this instance, you need to add a GET action as this is a GET request to the weather forecast API. Drag and drop the GET action under the main program you added.
+    ![alt text](../images/AddGetHTTP.gif)    
+   This calls the connector from the main program and can be visualized via an arrow to the connector from the action.
 1. You also need to pass a message to the connector from the main program. To do this, you must first add a variable.
 
-    ![alt text](../images/AddVariable.gif)
+    ![alt text](../images/AddVariableNew.gif)
 1. Define a message in the variable you just added. Curly brackets **{}** are used to denote an empty message. The default message is defined as the letter **m**.
 
     ![alt text](../images/DefineMessage.png)

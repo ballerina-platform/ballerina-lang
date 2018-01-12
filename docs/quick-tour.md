@@ -17,17 +17,15 @@ The HelloWorld sample will show you how easy it is to run Ballerina, send it a r
 Let's take a look at what the sample looks like in the Ballerina programming language:
 
 ```
-import ballerina.lang.system;
 function main (string[] args) {
-  system:println("Hello, World!");
-}
+  println("Hello, World!");
 ``` 
 
 The HelloWorld sample doesn't take any specific input, so simply running it will cause it to print "Hello, World!" at the command line.
 
 At the command prompt, navigate to the `<ballerina_home>/samples/helloWorld` directory and enter the following line:
 
-```
+```bash
 ballerina run helloworld.bal
 ```
 
@@ -57,7 +55,7 @@ You can build your integrations by creating sequence diagrams, dragging elements
     
     ![alt text](images/ComposerNew.png "Welcome page")
     
-    Let's open a sample and take a look around. 
+Let's open a sample and take a look around. 
 
 ## Explore the Ballerina Composer
 
@@ -105,6 +103,3 @@ Once you have accessed the composer, you can have a look around using the availa
 
 1. Click the "x" to the right of "echoService.bal" in the tab title to close this sample, and click **Don't Save** when prompted.
 
-## Whats Next
-
-Now that you've had a look around, it's time to start using Ballerina and [write your first Ballerina program](tutorials/first-program.md).

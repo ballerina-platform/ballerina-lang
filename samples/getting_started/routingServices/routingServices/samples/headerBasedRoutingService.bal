@@ -17,16 +17,14 @@ service<http> headerBasedRouting {
             create http:HttpClient("http://localhost:9090/nyseStocks", {});
         }
         string nyseString = "nyse";
-        string nameString;
-        boolean headerExists;
-        nameString, headerExists = req.getHeader("name");
+        var nameString = req.getHeader("name");
         http:Response clientResponse = {};
         http:HttpConnectorError err;
-        if (headerExists && nameString == nyseString) {
+        if (nameString.value == nyseString) {
             clientResponse, err = nyseEP.post("/stocks", req);
         } else {
             clientResponse, err = nasdaqEP.post("/stocks", req);
         }
-        resp.forward(clientResponse);
+        _ = resp.forward(clientResponse);
     }
 }

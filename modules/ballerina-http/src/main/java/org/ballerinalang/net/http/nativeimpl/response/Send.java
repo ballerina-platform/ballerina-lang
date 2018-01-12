@@ -25,31 +25,58 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.ballerinalang.util.codegen.AnnAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnAttributeValue;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * Native function to send response back to the caller.
- *
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "send",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Response",
                              structPackage = "ballerina.net.http"),
+        returnType = @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
+                                 structPackage = "ballerina.net.http"),
         isPublic = true
 )
 public class Send extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(Send.class);
-
     @Override
     public BValue[] execute(Context context) {
-        BStruct responseStruct = (BStruct) getRefArgument(context, 0);
-        HttpUtil.methodInvocationCheck(responseStruct);
-        HttpUtil.operationNotAllowedCheck(responseStruct);
-        context.getConnectorFuture().notifyReply(responseStruct);
-        return VOID_RETURN;
+        BStruct outboundResponseStruct = (BStruct) getRefArgument(context, 0);
+        HTTPCarbonMessage requestMessage = (HTTPCarbonMessage) outboundResponseStruct
+                .getNativeData(Constants.INBOUND_REQUEST_MESSAGE);
+        HttpUtil.checkFunctionValidity(outboundResponseStruct, requestMessage);
+
+        HTTPCarbonMessage responseMessage = HttpUtil
+                .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
+
+        AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
+                Constants.PROTOCOL_PACKAGE_HTTP, Constants.ANN_NAME_CONFIG);
+
+        if (configAnn != null) {
+            AnnAttributeValue keepAliveAttrVal = configAnn.getAttributeValue(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE);
+
+            if (keepAliveAttrVal != null && !keepAliveAttrVal.getBooleanValue()) {
+                responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_CLOSE);
+            } else {
+                // default behaviour: keepAlive = true
+                responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
+            }
+        } else {
+            // default behaviour: keepAlive = true
+            responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
+        }
+        if (outboundResponseStruct.getRefField(Constants.RESPONSE_HEADERS_INDEX) != null) {
+            HttpUtil.setHeadersToTransportMessage(responseMessage, outboundResponseStruct);
+        }
+
+        return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage,
+                outboundResponseStruct);
     }
 }

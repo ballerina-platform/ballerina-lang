@@ -17,14 +17,16 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
+import org.ballerinalang.model.tree.IdentifierNode;
+
 /**
  * @since 0.94
  */
 public interface AnnotationAttachmentAttributeNode extends ExpressionNode {
 
-    String getName();
+    IdentifierNode getName();
 
-    void setName(String name);
+    void setName(IdentifierNode name);
 
     AnnotationAttachmentAttributeValueNode getValue();
 

@@ -1,5 +1,5 @@
 function main (string[] args) {
-    //Create a XML.
+    //Create an XML.
     var x, _ = <xml>("<h:Store id = \"AST\" xmlns:h=\"http://www.test.com\">" +
                      "<h:name>Anne</h:name>" +
                      "<h:address><h:street>Main</h:street>" +

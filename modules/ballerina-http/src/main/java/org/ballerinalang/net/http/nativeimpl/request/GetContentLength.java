@@ -42,6 +42,6 @@ public class GetContentLength extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return HttpUtil.getContentLength(context, this, true);
+        return HttpUtil.getContentLength(context, this);
     }
 }

@@ -19,13 +19,13 @@ JTA specifies standard Java interfaces between the transaction manager and the o
 
 A `transaction` is defined as follows:
 
-```
+```ballerina
 transaction { 
 
-   sql:ClientConnector.update(testdb1,...) 
+   testdb1.update(...) 
 
 
-   sql:ClientConnector.update(testdb2,...) 
+   testdb2.update(...) 
 
 	If ( ...) {
 		abort;
@@ -34,7 +34,7 @@ transaction {
 
    ....
    //commit all local &	 XA transactions and close connections
-} aborted { 
+} failed { 
    //Logic which needs to execute on transaction failure
    ...
 
@@ -42,16 +42,12 @@ transaction {
 }
 
 ```
-The `aborted` section is executed after the transaction is rolled back due to any of the following conditions:
-- an exception occurred within the transaction block
-- abort statement
-- throw statement
 
 ### Nested Transactions
 
 A `nested transaction` is defined as follows:
 
-```
+```ballerina
 transaction { 
 
    ....
@@ -64,8 +60,7 @@ transaction {
 
 	   ....
 
-	} 
-	aborted { 
+	} failed { 
 	   ...
 
 	   ...
@@ -76,59 +71,39 @@ transaction {
 
 
 } 
-aborted { 
-   //Logic which needs to execute on transaction failure
-   ...
 
-   ...
-}
 ```
-Ballerina allows you to have transactions within a transaction.  All internal transactions are committed or aborted at the end of the outer most transaction block. If any of the transactions fail, the aborted block gets executed and all the transactions are rollbacked. The transaction is successful if all the nested transactions are successfully committed.
+Ballerina allows you to have transactions within a transaction.  All internal transactions are committed or aborted at the end of the outer most transaction block.
 
 ## Example
 
 The following is an example of a local transaction where the transaction gets aborted if any of the `update` actions fail.
 
-```
-    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                         "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    sql:Parameter[] parameters = [];
-    transaction {
-    sql:ClientConnector.update(testDB, "Insert into Customers
-                (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 200, 5000.75, 'USA')",
-                               parameters);
-    sql:ClientConnector.update(testDB, "Insert into Customers
-                (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 200, 5000.75, 'USA')",
-                               parameters);
-    } aborted {
-        system.println("The transaction is aborted");
-    }
-    sql:ClientConnector.close(testDB);
-
-```
-
-The following is an example of the `abort` statement in a transaction.
-
-```
-    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                         "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    sql:Parameter[] parameters = [];
-    transaction {
-        int insertCount = sql:ClientConnector.update(testDB, "Insert into Customers
-                (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 220, 5000.75, 'USA')",
-                                                     parameters);
-
-        insertCount = sql:ClientConnector.update(testDB, "Insert into Customers
-                (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 220, 5000.75, 'USA')",
-                                             parameters);
-        int i = 0;
-        if (i == 0) {
-            abort;//transaction can be aborted based on a condition
+```ballerina
+    import ballerina.data.sql;
+    
+    function main (string[] args) {
+        endpoint<sql:ClientConnector> testDB {
+          create sql:ClientConnector(
+            sql:DB.MYSQL, "localhost", 3306, "testdb", "root", "root", {maximumPoolSize:5});
         }
-    } aborted {
-        system.println("The transaction is aborted");
+        boolean transactionSuccess = false;
+        transaction with retries(4){
+            int c = testDB.update("INSERT INTO CUSTOMER(ID,NAME) VALUES (1, 'Anne')", null);
+            c = testDB.update("INSERT INTO SALARY (ID, MON_SALARY) VALUES (1, 2500)", null);
+            println("Inserted count:" + c);
+            if (c == 0) {
+                abort;
+            }
+            transactionSuccess = true;
+        } failed {
+            transactionSuccess = false;
+        }
+        if (transactionSuccess) {
+            println("Transaction committed");
+        }
+        testDB.close();
     }
-    sql:ClientConnector.close(testDB);
+
+
 ```

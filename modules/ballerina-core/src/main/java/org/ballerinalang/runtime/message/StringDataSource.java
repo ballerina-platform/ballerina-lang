@@ -65,7 +65,6 @@ public class StringDataSource extends BallerinaMessageDataSource {
     public void serializeData() {
         try {
             this.outputStream.write(this.value.getBytes(Charset.defaultCharset()));
-            this.outputStream.close();
         } catch (IOException e) {
             throw new BallerinaException("Error occurred during writing the string message to the output stream", e);
         }

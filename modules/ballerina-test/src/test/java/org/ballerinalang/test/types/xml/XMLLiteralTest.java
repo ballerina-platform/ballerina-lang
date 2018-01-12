@@ -28,6 +28,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLSequence;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -104,8 +105,7 @@ public class XMLLiteralTest {
      
     @Test
     public void testXMLTextLiteral() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testXMLTextLiteral", args);
+        BValue[] returns = BRunUtil.invoke(result, "testXMLTextLiteral");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "aaa");
 
@@ -127,8 +127,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testXMLCommentLiteral() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testXMLCommentLiteral", args);
+        BValue[] returns = BRunUtil.invoke(result, "testXMLCommentLiteral");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<!--aaa-->");
 
@@ -150,8 +149,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testXMLPILiteral() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testXMLPILiteral", args);
+        BValue[] returns = BRunUtil.invoke(result, "testXMLPILiteral");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<?foo ?>");
 
@@ -170,30 +168,27 @@ public class XMLLiteralTest {
 
     @Test
     public void testExpressionAsElementName() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testExpressionAsElementName", args);
+        BValue[] returns = BRunUtil.invoke(result, "testExpressionAsElementName");
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<11>hello</11>");
+        Assert.assertEquals(returns[0].stringValue(), "<foo>hello</foo>");
 
         Assert.assertTrue(returns[1] instanceof BXML);
-        Assert.assertEquals(returns[1].stringValue(), "<foo&gt;bar>hello</foo&gt;bar>");
+        Assert.assertEquals(returns[1].stringValue(), "<bar3>hello</bar3>");
     }
 
     @Test
     public void testExpressionAsAttributeName() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testExpressionAsAttributeName", args);
+        BValue[] returns = BRunUtil.invoke(result, "testExpressionAsAttributeName");
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<foo bar=\"attribute value\">hello</foo>");
+        Assert.assertEquals(returns[0].stringValue(), "<foo foo=\"attribute value\">hello</foo>");
 
         Assert.assertTrue(returns[1] instanceof BXML);
-        Assert.assertEquals(returns[1].stringValue(), "<foo foo&gt;bar=\"attribute value\">hello</foo>");
+        Assert.assertEquals(returns[1].stringValue(), "<foo bar5=\"attribute value\">hello</foo>");
     }
     
     @Test
     public void testExpressionAsAttributeValue() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testExpressionAsAttributeValue", args);
+        BValue[] returns = BRunUtil.invoke(result, "testExpressionAsAttributeValue");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<foo bar=\"&quot;zzz&quot;\"/>");
 
@@ -213,8 +208,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testElementLiteralWithTemplateChildren() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testElementLiteralWithTemplateChildren", args);
+        BValue[] returns = BRunUtil.invoke(result, "testElementLiteralWithTemplateChildren");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root>hello aaa&lt;bbb good morning <fname>John</fname> "
                 + "<lname>Doe</lname>. Have a nice day!<foo>123</foo><bar/></root>");
@@ -230,9 +224,8 @@ public class XMLLiteralTest {
 
     @Test
     public void testElementLiteralWithNamespaces() {
-        BValue[] args = {};
         BValue[] returns =
-                BRunUtil.invoke(literalWithNamespacesResult, "testElementLiteralWithNamespaces", args);
+                BRunUtil.invoke(literalWithNamespacesResult, "testElementLiteralWithNamespaces");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
                 "<root xmlns=\"http://ballerina.com/\" xmlns:ns0=\"http://ballerina.com/a\" "
@@ -253,8 +246,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testElementWithQualifiedName() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testElementWithQualifiedName", args);
+        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testElementWithQualifiedName");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns1=\"http://ballerina.com/b\">hello</root>");
 
@@ -278,8 +270,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testDefineInlineNamespace() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testDefineInlineNamespace", args);
+        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testDefineInlineNamespace");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<nsx:foo xmlns:nsx=\"http://wso2.com\" "
                 + "xmlns:ns1=\"http://ballerina.com/b\" nsx:id=\"123\">hello</nsx:foo>");
@@ -287,9 +278,8 @@ public class XMLLiteralTest {
 
     @Test
     public void testDefineInlineDefaultNamespace() {
-        BValue[] args = {};
         BValue[] returns =
-                BRunUtil.invoke(literalWithNamespacesResult, "testDefineInlineDefaultNamespace", args);
+                BRunUtil.invoke(literalWithNamespacesResult, "testDefineInlineDefaultNamespace");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<foo xmlns=\"http://ballerina.com/default/namespace\" "
                 + "xmlns:nsx=\"http://wso2.com/aaa\" xmlns:ns1=\"http://ballerina.com/b\">hello</foo>");
@@ -305,18 +295,16 @@ public class XMLLiteralTest {
                         + "xmlns:ns1=\"http://ballerina.com/b\">hello</foo>");
     }
 
-    @Test
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: error, message: start and end tag names mismatch: 'foo' and " +
+                    "'bar'.*")
     public void testMismatchTagNameVar() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testMismatchTagNameVar", args);
-        Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<foo>hello</foo>");
+        BRunUtil.invoke(result, "testMismatchTagNameVar");
     }
 
     @Test
     public void testTextWithValidMultiTypeExpressions() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testTextWithValidMultiTypeExpressions", args);
+        BValue[] returns = BRunUtil.invoke(result, "testTextWithValidMultiTypeExpressions");
         Assert.assertTrue(returns[0] instanceof BXMLItem);
 
         Assert.assertEquals(returns[0].stringValue(), "hello 11 world. How 1.35 are you true?");
@@ -324,8 +312,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testArithmaticExpreesionInXMLTemplate() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testArithmaticExpreesionInXMLTemplate", args);
+        BValue[] returns = BRunUtil.invoke(result, "testArithmaticExpreesionInXMLTemplate");
         Assert.assertTrue(returns[0] instanceof BXMLItem);
 
         Assert.assertEquals(returns[0].stringValue(), "<foo id=\"hello 5\">hello</foo>");
@@ -333,8 +320,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testFunctionCallInXMLTemplate() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testFunctionCallInXMLTemplate", args);
+        BValue[] returns = BRunUtil.invoke(result, "testFunctionCallInXMLTemplate");
         Assert.assertTrue(returns[0] instanceof BXMLItem);
 
         Assert.assertEquals(returns[0].stringValue(), "<foo>&lt;-->returned from a function</foo>");
@@ -342,8 +328,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testUsingNamespcesOfParent() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testUsingNamespcesOfParent", args);
+        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testUsingNamespcesOfParent");
         Assert.assertTrue(returns[0] instanceof BXMLItem);
 
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns0=\"http://ballerinalang.com/\" "
@@ -352,8 +337,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testComplexXMLLiteral() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testComplexXMLLiteral", args);
+        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testComplexXMLLiteral");
         Assert.assertTrue(returns[0] instanceof BXMLItem);
         Assert.assertEquals(returns[0].stringValue(),
                 BCompileUtil.readFileAsString("test-src/types/xml/sampleXML.txt"));
@@ -361,12 +345,12 @@ public class XMLLiteralTest {
 
     @Test
     public void testElementWithEmptyUriQualifiedName() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testElementWithEmptyUriQualifiedName", args);
+        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testElementWithEmptyUriQualifiedName");
         Assert.assertTrue(returns[0] instanceof BXMLItem);
 
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns1=\"http://ballerina.com/b\">hello</root>");
-        Assert.assertEquals(returns[1].stringValue(), "<root xmlns:ns1=\"http://ballerina.com/b\">hello</root>");
+        Assert.assertEquals(returns[1].stringValue(),
+                "<root xmlns=\"http://ballerina.com/\" xmlns:ns1=\"http://ballerina.com/b\">hello</root>");
         Assert.assertEquals(returns[2].stringValue(),
                 "<root xmlns=\"http://ballerina.com/\" xmlns:ns1=\"http://ballerina.com/b\">hello</root>");
     }
@@ -402,5 +386,26 @@ public class XMLLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "testNullXMLinXMLLiteral");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root></root>");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: error, message: invalid xml qualified name: unsupported " +
+                    "characters in '11'.*")
+    public void testInvalidElementName_1() {
+        BRunUtil.invoke(result, "testInvalidElementName_1");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: error, message: invalid xml qualified name: unsupported " +
+                    "characters in 'foo&gt;bar'.*")
+    public void testInvalidElementName_2() {
+        BRunUtil.invoke(result, "testInvalidElementName_2");
+    }
+    
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: error, message: invalid xml qualified name: unsupported " +
+                    "characters in 'foo&gt;bar'.*")
+    public void testIvalidAttributeName() {
+        BRunUtil.invoke(result, "testIvalidAttributeName");
     }
 }

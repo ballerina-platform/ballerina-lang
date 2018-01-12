@@ -7,6 +7,6 @@ service<http> helloWorld {
         // A util method that can be used to set string payload.
         res.setStringPayload("Hello, World!");
         // Sends the response back to the client.
-        res.send();
+        _ = res.send();
     }
 }

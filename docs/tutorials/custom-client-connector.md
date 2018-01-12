@@ -34,7 +34,6 @@ A connector contains the following syntax in Ballerina.
     VariableDeclaration;*
     ActionDefinition;+
 }
-
 ```
 
 Any variables declared at the connector level is visible to all actions. The lifetime of the connector also defines the lifetime of the variables and they are local to each connector instance.
@@ -45,7 +44,6 @@ The structure of an action definition is as follows.
 [ActionAnnotations]
 action actionName ([Input parameters]) ([Output parameters]){
 }
-
 ```
 
 The execution semantics of an action are the same as that of a function: it runs using the caller's thread and the caller blocks until the action completes execution.
@@ -80,15 +78,17 @@ This section of the tutorial explains the way a sample custom client connector i
 
 1. From the list that appears, expand **ballerina.net.http** and drag a **ClientConnector** onto the canvas.
 1. Provide the connector parameter list. In order to connect to GitHub APIs, this connector uses an authenticated user and a token obtained for that user.  Furthermore, you need to initialize the connection to the GitHub API as shown below.
-    ```
+    ```Ballerina
     public connector ClientConnector (string username, string token) {
          endpoint<http:HttpClient> gitEP { create http:HttpClient("https://api.github.com", {});}
     }
     ```
 1. Prepare the base64 encoded key value to be sent in authorization header to the back end. The Ballerina built-in base64encoder is used for this purpose and the logic in this scenario is written in another function that resides in the same package as the connector.
-    ```
+    ```Ballerina
     package org.wso2.ballerina.connectors.github;
+ 
     import ballerina.util;
+ 
     function getBase64EncodedKey (string value1,string value2) (string encodedString) {
 	    string toEncode = value1 + ":" + value2;
 	    encodedString = <string>util:base64encode(toEncode);
@@ -96,14 +96,14 @@ This section of the tutorial explains the way a sample custom client connector i
     }
     ```
 1. The above function is called within the connector to obtain the encoded string as shown below.
-    ```
+    ```ballerina
     public connector ClientConnector (string username, string token) {
-    endpoint<http:HttpClient> gitEP { create http:HttpClient("https://api.github.com", {});}
-    string authHeader = getBase64EncodedKey(username, token);
+        endpoint<http:HttpClient> gitEP { create http:HttpClient("https://api.github.com", {});}
+        string authHeader = getBase64EncodedKey(username, token);
     }
     ```
 1. The first action retrieves the list of repositories per organization. The action defined takes in the desired organization as a parameter and returns a HTTP response and, within the action, the relevant REST API is invoked.
-    ```
+    ```Ballerina
     action getReposOfOrg (string orgnization) (http:Response, http:HttpConnectorError) {
     	http:Request request = {};
     	string gitPath = string `/orgs/{{orgnization}}/repos`;
@@ -111,7 +111,8 @@ This section of the tutorial explains the way a sample custom client connector i
     	http:Response response = {};
     	http:HttpConnectorError err;
     	response, err = gitEP.get(gitPath, request);
-    	return response, err;}
+    	return response, err;
+ 	}
     ```
     Other actions can be configured in a similar manner.
 
@@ -120,12 +121,12 @@ This section of the tutorial explains the way a sample custom client connector i
 In order to test the connector, you must have a Ballerina program with either a main function or a service. This tutorial uses a service for the purpose. This test service is created in another package.
 
 1. Import the client connector made above to the file where the service is written.
-    ```	
+    ```Ballerina
     package com.test.sample;
     import org.wso2.ballerina.connectors.github;
     ```
 1. Inside a resource initialize and invoke the client connector as follows.
-    ``` 
+    ```Ballerina
     resource getReposForOrganization (http:Request req,http:Response res, string org) {
         endpoint<github:ClientConnector> gitHubConnector{
         }
@@ -142,7 +143,7 @@ In order to test the connector, you must have a Ballerina program with either a 
     ```
 The following is the full code of the sample.
 
-```
+```Ballerina
 package org.wso2.ballerina.connectors.github;
 
 import ballerina.net.http;
@@ -213,6 +214,5 @@ public connector ClientConnector (string username, string token) {
         response, err = gitEP.get(gitPath, request);
         return response, err;
     }
-
 }
 ```

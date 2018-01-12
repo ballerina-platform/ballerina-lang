@@ -23,13 +23,16 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.net.uri.URITemplate;
+import org.ballerinalang.net.uri.URITemplateException;
+import org.ballerinalang.net.uri.parser.Literal;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -37,27 +40,24 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Store all the WebSocket serviceEndpointsMap here.
+ * Store all the WebSocket serviceEndpointsTemplate here.
  */
 public class WebSocketServicesRegistry {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketServicesRegistry.class);
-    private static final WebSocketServicesRegistry REGISTRY = new WebSocketServicesRegistry();
 
-    // Map<interface, Map<uri, ServiceName>>
-    private final Map<String, Map<String, String>> serviceEndpointsMap = new ConcurrentHashMap<>();
+    // Map<interface, URITemplate<WebSocketService, messageType>>
+    private final Map<String, URITemplate<WebSocketService, WebSocketMessage>>
+            serviceEndpointsTemplate = new ConcurrentHashMap<>();
     // Map<clientServiceName, ClientService>
     private final Map<String, WebSocketService> clientServices = new ConcurrentHashMap<>();
-    // Map<clientServiceName, ServiceEndpoint>
-    private final Map<String, WebSocketService> serviceEndpoints = new ConcurrentHashMap<>();
+    // Map<ServiceName, ServiceEndpoint>
+    private Map<String, WebSocketService> masterServices = new ConcurrentHashMap<>();
 
-    private final Map<String, WebSocketService> slaveEndpoints = new HashMap<>();
+    private Map<String, WebSocketService> slaveServices = new HashMap<>();
+    private List<UpgradableServiceInfo> httpToWsUpgradableServices = new LinkedList<>();
 
-    private WebSocketServicesRegistry() {
-    }
-
-    public static WebSocketServicesRegistry getInstance() {
-        return REGISTRY;
+    public WebSocketServicesRegistry() {
     }
 
     /**
@@ -72,15 +72,15 @@ public class WebSocketServicesRegistry {
         } else {
             if (WebSocketServiceValidator.validateServiceEndpoint(service)) {
                 Annotation configAnnotation =
-                        service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_CONFIGURATION);
+                        HttpUtil.getServiceConfigAnnotation(service, Constants.PROTOCOL_PACKAGE_WS);
                 if (configAnnotation == null) {
-                    slaveEndpoints.put(service.getName(), service);
+                    slaveServices.put(service.getName(), service);
                     return;
                 }
 
                 String basePath = findFullWebSocketUpgradePath(service);
                 if (basePath == null) {
-                    slaveEndpoints.put(service.getName(), service);
+                    slaveServices.put(service.getName(), service);
                     return;
                 }
 
@@ -90,18 +90,9 @@ public class WebSocketServicesRegistry {
                 for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
                     String entryListenerInterface =
                             listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
-                    Map<String, String> servicesOnInterface = serviceEndpointsMap
-                            .computeIfAbsent(entryListenerInterface, k -> new HashMap<>());
-
+                    addServiceToURITemplate(entryListenerInterface, basePath, service);
+                    masterServices.put(service.getName(), service);
                     HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
-                    // Assumption : this is always sequential, no two simultaneous calls can get here
-                    if (servicesOnInterface.containsKey(basePath)) {
-                        throw new BallerinaConnectorException(
-                                "service with base path :" + basePath + " already exists in listener : "
-                                        + entryListenerInterface);
-                    }
-                    servicesOnInterface.put(basePath, service.getName());
-                    serviceEndpoints.put(service.getName(), service);
                 }
 
                 logger.info("Service deployed : " + service.getName() + " with context " + basePath);
@@ -109,42 +100,59 @@ public class WebSocketServicesRegistry {
         }
     }
 
-    public void registerServiceByName(String serviceInterface, String uri, String serviceName) {
-        Map<String, String> servicesOnInterface = serviceEndpointsMap
-                .computeIfAbsent(serviceInterface, k -> new HashMap<>());
-        servicesOnInterface.put(uri, serviceName);
+    public void addUpgradableServiceByName(String entryListenerInterface, String basePath, String serviceName) {
+        httpToWsUpgradableServices.add(new UpgradableServiceInfo(entryListenerInterface, basePath, serviceName));
     }
 
-    public void validateSeverEndpoints() {
-        for (Map.Entry<String, Map<String, String>> serviceInterfaceEntry : serviceEndpointsMap.entrySet()) {
-            for (Map.Entry<String, String> uriToEndpointNameEntry : serviceInterfaceEntry.getValue().entrySet()) {
-                String serviceName = uriToEndpointNameEntry.getValue();
-                if (!serviceEndpoints.containsKey(serviceName)) {
-                    if (slaveEndpoints.containsKey(serviceName)) {
-                        WebSocketService service = slaveEndpoints.remove(serviceName);
-                        serviceEndpoints.put(serviceName, service);
-                    } else {
-                        throw new BallerinaConnectorException("Could not find a WebSocket service for " +
-                                                                      "the service name: " + serviceName);
-                    }
+    public void completeDeployment() {
+        httpToWsUpgradableServices.forEach(upgradableServiceInfo -> {
+            String serviceName = upgradableServiceInfo.getServiceName();
+            if (!masterServices.containsKey(serviceName)) {
+                if (!slaveServices.containsKey(serviceName)) {
+                    throw new BallerinaConnectorException("Cannot find a WebSocket service for service name "
+                                                                  + upgradableServiceInfo.getServiceName());
                 }
+                masterServices.put(serviceName, slaveServices.remove(serviceName));
             }
-        }
+            addServiceToURITemplate(upgradableServiceInfo.getServiceInterface(),
+                                    upgradableServiceInfo.getBasePath(), masterServices.get(serviceName));
+        });
 
-        if (slaveEndpoints.size() > 0) {
-            String errorMsg = "Cannot register following services: \n";
-            for (String serviceName : slaveEndpoints.keySet()) {
-                WebSocketService service = slaveEndpoints.remove(serviceName);
-                if (service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME,
-                                          Constants.ANNOTATION_CONFIGURATION) == null) {
+        if (slaveServices.size() > 0) {
+            StringBuilder errorMsg = new StringBuilder("Cannot register following services: \n");
+            for (String serviceName : slaveServices.keySet()) {
+                WebSocketService service = slaveServices.remove(serviceName);
+                if (HttpUtil.getServiceConfigAnnotation(service, Constants.PROTOCOL_PACKAGE_WS) == null) {
                     String msg = "Cannot deploy WebSocket service without configuration annotation";
-                    errorMsg = errorMsg + String.format("\t%s: %s\n", serviceName, msg);
+                    errorMsg.append(String.format("\t%s: %s\n", serviceName, msg));
                 } else {
                     String msg = "Cannot deploy WebSocket service without associated path";
-                    errorMsg = errorMsg + String.format("\t%s: %s\n", serviceName, msg);
+                    errorMsg.append(String.format("\t%s: %s\n", serviceName, msg));
                 }
             }
-            throw new BallerinaConnectorException(errorMsg);
+            throw new BallerinaConnectorException(errorMsg.toString());
+        }
+
+        // After deployment is completed these data structures are not needed anymore.
+        masterServices.clear();
+        slaveServices.clear();
+        httpToWsUpgradableServices.clear();
+    }
+
+    private void addServiceToURITemplate(String entryListenerInterface, String basePath, WebSocketService service) {
+        URITemplate<WebSocketService, WebSocketMessage> servicesOnInterface = serviceEndpointsTemplate
+                .computeIfAbsent(entryListenerInterface, k -> {
+                    try {
+                        return new URITemplate<>(new Literal<>(new WsDataElement(), "/"));
+                    } catch (URITemplateException e) {
+                        throw new BallerinaConnectorException(e.getMessage());
+                    }
+                });
+
+        try {
+            servicesOnInterface.parse(basePath, service, new WsDataElementFactory());
+        } catch (URITemplateException e) {
+            throw new BallerinaConnectorException(e.getMessage());
         }
     }
 
@@ -162,40 +170,15 @@ public class WebSocketServicesRegistry {
     }
 
     /**
-     * Unregister service for Map.
-     *
-     * @param service service to unregister.
-     */
-    public void unregisterService(WebSocketService service) {
-        if (serviceEndpoints.containsKey(service.getName())) {
-            serviceEndpoints.remove(service.getName());
-            serviceEndpointsMap.entrySet().forEach(serviceInterface -> {
-                List<String> uriList = new LinkedList<>();
-                Map<String, String> uriToServiceNameMap = serviceInterface.getValue();
-                uriToServiceNameMap.entrySet().forEach(uriToServiceName -> {
-                    if (uriToServiceName.getValue().equals(service.getName())) {
-                        uriList.add(uriToServiceName.getKey());
-                    }
-                });
-                Iterator<String> uriListIterator = uriList.iterator();
-                while (uriListIterator.hasNext()) {
-                    uriToServiceNameMap.remove(uriListIterator.next());
-                }
-            });
-        } else {
-            clientServices.remove(service.getName());
-        }
-    }
-
-    /**
      * Find the best matching service.
      *
      * @param listenerInterface Listener interface of the the service.
      * @param uri uri of the service.
      * @return the service which matches.
      */
-    public WebSocketService getServiceEndpoint(String listenerInterface, String uri) {
-        return serviceEndpoints.get(serviceEndpointsMap.get(listenerInterface).get(uri));
+    public WebSocketService matchServiceEndpoint(String listenerInterface, String uri, Map<String, String> variables) {
+        // Message can be null here since WsDataElement does not use inbound message to match services.
+        return serviceEndpointsTemplate.get(listenerInterface).matches(uri, variables, null);
     }
 
     /**
@@ -237,8 +220,7 @@ public class WebSocketServicesRegistry {
      */
     private String findFullWebSocketUpgradePath(WebSocketService service) {
         // Find Base path for WebSocket
-        Annotation configAnnotation = service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME,
-                Constants.ANN_NAME_CONFIG);
+        Annotation configAnnotation = HttpUtil.getServiceConfigAnnotation(service, Constants.PROTOCOL_PACKAGE_WS);
         String basePath = null;
         if (configAnnotation != null) {
             AnnAttrValue annotationAttributeBasePathValue = configAnnotation.getAnnAttrValue
@@ -251,16 +233,28 @@ public class WebSocketServicesRegistry {
         return basePath;
     }
 
-    /**
-     * Find the listener interface of a given service.
-     *
-     * @param service {@link WebSocketService} which the listener interface should be found.
-     * @return the listener interface of the service.
-     */
-    private String getListenerInterface(WebSocketService service) {
-        // TODO : Handle correct interface addition to default interface.
-        String listenerInterface = Constants.DEFAULT_INTERFACE;
-        return listenerInterface;
+    private class UpgradableServiceInfo {
+        private final String basePath;
+        private final String serviceInterface;
+        private final String serviceName;
+
+        private UpgradableServiceInfo(String basePath, String serviceInterface, String serviceName) {
+            this.basePath = basePath;
+            this.serviceInterface = serviceInterface;
+            this.serviceName = serviceName;
+        }
+
+        private String getBasePath() {
+            return basePath;
+        }
+
+        private String getServiceInterface() {
+            return serviceInterface;
+        }
+
+        private String getServiceName() {
+            return serviceName;
+        }
     }
 
 }

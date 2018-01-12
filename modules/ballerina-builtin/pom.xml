@@ -59,11 +59,6 @@
             <artifactId>axiom-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.ecf</groupId>
-            <artifactId>org.apache.commons.codec</artifactId>
-            <version>1.9.0.v20170208-1614</version>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
@@ -88,7 +83,7 @@
             <artifactId>ballerina-config</artifactId>
         </dependency>
     </dependencies>
-    
+
     <build>
         <resources>
             <resource>
@@ -135,5 +130,5 @@
     <properties>
       <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
     </properties>
-    
+
 </project>

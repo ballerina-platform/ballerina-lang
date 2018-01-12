@@ -99,6 +99,6 @@ function testMapSynchronization()(int)
             }
         }
     } join (all) (map results) {
-        return m.length();
+        return lengthof m;
     }
 }

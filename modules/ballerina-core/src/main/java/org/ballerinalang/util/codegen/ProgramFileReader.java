@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.connector.api.AbstractNativeAction;
@@ -22,7 +22,7 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BFunctionType;
-import org.ballerinalang.model.types.BJSONConstraintType;
+import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -30,6 +30,12 @@ import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.NativeUnitLoader;
+import org.ballerinalang.util.codegen.Instruction.InstructionACALL;
+import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
+import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
+import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
+import org.ballerinalang.util.codegen.Instruction.InstructionTCALL;
+import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
@@ -55,7 +61,6 @@ import org.ballerinalang.util.codegen.cpentries.TransformerRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
-import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ProgramFileFormatException;
 
@@ -170,9 +175,15 @@ public class ProgramFileReader {
         PackageInfo packageInfo;
         switch (cpEntryType) {
             case CP_ENTRY_UTF8:
-                // Discard the length of bytes for now.
-                dataInStream.readShort();
-                String strValue = dataInStream.readUTF();
+                short length = dataInStream.readShort();
+                String strValue = null;
+
+                // If the length of the bytes is -1, that means no UTF value has been written.
+                // i.e: string value represented by the UTF should be null.
+                // Therefore we read the UTF value only if the length >= 0.
+                if (length >= 0) {
+                    strValue = dataInStream.readUTF();
+                }
                 return new UTF8CPEntry(strValue);
 
             case CP_ENTRY_INTEGER:
@@ -250,20 +261,6 @@ public class ProgramFileReader {
                         cpIndex, actionName);
 
                 return actionRefCPEntry;
-            case CP_ENTRY_FUNCTION_CALL_ARGS:
-                int argLength = dataInStream.readByte();
-                int[] argRegs = new int[argLength];
-                for (int i = 0; i < argLength; i++) {
-                    argRegs[i] = dataInStream.readInt();
-                }
-
-                int retLength = dataInStream.readByte();
-                int[] retRegs = new int[retLength];
-                for (int i = 0; i < retLength; i++) {
-                    retRegs[i] = dataInStream.readInt();
-                }
-
-                return new FunctionCallCPEntry(argRegs, retRegs);
             case CP_ENTRY_STRUCTURE_REF:
                 pkgCPIndex = dataInStream.readInt();
                 packageRefCPEntry = (PackageRefCPEntry) constantPool.getCPEntry(pkgCPIndex);
@@ -294,19 +291,6 @@ public class ProgramFileReader {
                 int forkJoinCPIndex = dataInStream.readInt();
                 ForkJoinCPEntry forkJoinCPEntry = new ForkJoinCPEntry(forkJoinCPIndex);
                 return forkJoinCPEntry;
-            case CP_ENTRY_WRKR_INTERACTION:
-                int typesSignatureCPIndex = dataInStream.readInt();
-                UTF8CPEntry typesSignatureCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typesSignatureCPIndex);
-                // When it comes to here, constantPool is always package info
-                BType[] bTypes = getParamTypes(typesSignatureCPEntry.getValue(), (PackageInfo) constantPool);
-                int workerInvokeArgLength = dataInStream.readByte();
-                int[] workerInvokeArgRegs = new int[workerInvokeArgLength];
-                for (int i = 0; i < workerInvokeArgLength; i++) {
-                    workerInvokeArgRegs[i] = dataInStream.readInt();
-                }
-                WrkrInteractionArgsCPEntry wrkrInvokeCPEntry
-                        = new WrkrInteractionArgsCPEntry(workerInvokeArgRegs, bTypes);
-                return wrkrInvokeCPEntry;
             case CP_ENTRY_WRKR_DATA_CHNL_REF:
                 int uniqueNameCPIndex = dataInStream.readInt();
                 UTF8CPEntry wrkrDtChnlTypesSigCPEntry = (UTF8CPEntry) constantPool
@@ -494,14 +478,14 @@ public class ProgramFileReader {
                     BType bType = getBTypeFromDescriptor(typeSig);
                     typeRefCPEntry.setType(bType);
                     break;
-            default:
-                break;
+                default:
+                    break;
             }
         }
     }
 
     private void readConnectorActionInfoEntries(DataInputStream dataInStream,
-                                          PackageInfo packageInfo) throws IOException {
+                                                PackageInfo packageInfo) throws IOException {
         for (ConnectorInfo connectorInfo : packageInfo.getConnectorInfoEntries()) {
             // Read action info entries
             int actionCount = dataInStream.readShort();
@@ -542,7 +526,7 @@ public class ProgramFileReader {
                     if (nativeActionObj == null && !actionInfo.name.equals("<init>")) {
                         throw new BLangRuntimeException("native action not available " +
                                 actionInfo.getPkgPath() + ":" + actionInfo
-                                .getConnectorInfo().getName() + "." +  actionName);
+                                .getConnectorInfo().getName() + "." + actionName);
                     }
                     actionInfo.setNativeAction(nativeActionObj);
                 }
@@ -838,7 +822,7 @@ public class ProgramFileReader {
                 typeStack.push(BTypes.getTypeFromName(typeName));
                 return nameIndex + 1;
             case 'C':
-            case 'K':
+            case 'J':
             case 'T':
             case 'E':
                 char typeChar = chars[index];
@@ -868,8 +852,12 @@ public class ProgramFileReader {
 
                 if (typeChar == 'C') {
                     typeStack.push(packageInfoOfType.getConnectorInfo(name).getType());
-                } else if (typeChar == 'K') {
-                    typeStack.push(new BJSONConstraintType(packageInfoOfType.getStructInfo(name).getType()));
+                } else if (typeChar == 'J') {
+                    if (name.isEmpty()) {
+                        typeStack.push(BTypes.typeJSON);
+                    } else {
+                        typeStack.push(new BJSONType(packageInfoOfType.getStructInfo(name).getType()));
+                    }
                 } else if (typeChar == 'E') {
                     typeStack.push(packageInfoOfType.getEnumInfo(name).getType());
                 } else {
@@ -913,22 +901,23 @@ public class ProgramFileReader {
             case 'R':
                 return BTypes.getTypeFromName(desc.substring(1, desc.length() - 1));
             case 'C':
-            case 'K':
+            case 'J':
             case 'T':
             case 'E':
-                String pkgPath;
-                String name;
-                PackageInfo packageInfoOfType;
                 String typeName = desc.substring(1, desc.length() - 1);
                 String[] parts = typeName.split(":");
-                pkgPath = parts[0];
-                name = parts[1];
-                packageInfoOfType = programFile.getPackageInfo(pkgPath);
 
-                if (ch == 'C') {
+                if (ch == 'J' && parts.length == 1) {
+                    return BTypes.typeJSON;
+                }
+
+                String pkgPath = parts[0];
+                String name = parts[1];
+                PackageInfo packageInfoOfType = programFile.getPackageInfo(pkgPath);
+                if (ch == 'J') {
+                    return new BJSONType(packageInfoOfType.getStructInfo(name).getType());
+                } else if (ch == 'C') {
                     return packageInfoOfType.getConnectorInfo(name).getType();
-                } else if (ch == 'K') {
-                    return new BJSONConstraintType(packageInfoOfType.getStructInfo(name).getType());
                 } else if (ch == 'E') {
                     return packageInfoOfType.getEnumInfo(name).getType();
                 } else {
@@ -1006,15 +995,8 @@ public class ProgramFileReader {
             argRegs[i] = dataInStream.readInt();
         }
 
-        int retRegLength = dataInStream.readShort();
-        int[] retRegs = new int[retRegLength];
-        for (int i = 0; i < retRegLength; i++) {
-            retRegs[i] = dataInStream.readInt();
-        }
-
         ForkJoinCPEntry forkJoinCPEntry = (ForkJoinCPEntry) packageInfo.getCPEntry(indexCPIndex);
-
-        ForkjoinInfo forkjoinInfo = new ForkjoinInfo(argRegs, retRegs);
+        ForkjoinInfo forkjoinInfo = new ForkjoinInfo(argRegs);
         forkjoinInfo.setIndex(forkJoinCPEntry.getForkJoinCPIndex());
         forkjoinInfo.setIndexCPIndex(indexCPIndex);
 
@@ -1047,21 +1029,7 @@ public class ProgramFileReader {
         }
         forkjoinInfo.setJoinWrkrNameIndexes(joinWrkrCPIndexes);
         forkjoinInfo.setJoinWorkerNames(joinWrkrNames);
-
-        int timeoutIp = dataInStream.readInt();
-        forkjoinInfo.setTimeoutIp(timeoutIp);
-
-        int timeoutMemOffset = dataInStream.readInt();
-        forkjoinInfo.setTimeoutMemOffset(timeoutMemOffset);
-
-        int joinIp = dataInStream.readInt();
-        forkjoinInfo.setJoinIp(joinIp);
-
-        int joinMemOffset = dataInStream.readInt();
-        forkjoinInfo.setJoinMemOffset(joinMemOffset);
-
         forkJoinCPEntry.setForkjoinInfo(forkjoinInfo);
-
         return forkjoinInfo;
     }
 
@@ -1204,7 +1172,7 @@ public class ProgramFileReader {
     }
 
     private ParamAnnAttachmentInfo getParamAttachmentInfo(DataInputStream dataInStream,
-                                                ConstantPool constantPool) throws IOException {
+                                                          ConstantPool constantPool) throws IOException {
         int paramIndex = dataInStream.readInt();
         ParamAnnAttachmentInfo prmAnnAttchmntInfo = new ParamAnnAttachmentInfo(paramIndex);
 
@@ -1332,6 +1300,11 @@ public class ProgramFileReader {
         DataInputStream codeStream = new DataInputStream(new ByteArrayInputStream(code));
         while (codeStream.available() > 0) {
             int i, j, k, h;
+            int funcRefCPIndex;
+            FunctionRefCPEntry funcRefCPEntry;
+            int[] argRegs;
+            int[] retRegs;
+
             int opcode = codeStream.readUnsignedByte();
             switch (opcode) {
                 case InstructionCodes.HALT:
@@ -1357,11 +1330,9 @@ public class ProgramFileReader {
                 case InstructionCodes.BCONST_1:
                 case InstructionCodes.RCONST_NULL:
                 case InstructionCodes.GOTO:
-                case InstructionCodes.FORKJOIN:
                 case InstructionCodes.THROW:
                 case InstructionCodes.ERRSTORE:
                 case InstructionCodes.TR_END:
-                case InstructionCodes.NEWJSON:
                 case InstructionCodes.NEWMAP:
                 case InstructionCodes.NEWDATATABLE:
                     i = codeStream.readInt();
@@ -1371,12 +1342,12 @@ public class ProgramFileReader {
                 case InstructionCodes.ICONST:
                 case InstructionCodes.FCONST:
                 case InstructionCodes.SCONST:
-                case InstructionCodes.ILOAD:
-                case InstructionCodes.FLOAD:
-                case InstructionCodes.SLOAD:
-                case InstructionCodes.BLOAD:
-                case InstructionCodes.LLOAD:
-                case InstructionCodes.RLOAD:
+                case InstructionCodes.IMOVE:
+                case InstructionCodes.FMOVE:
+                case InstructionCodes.SMOVE:
+                case InstructionCodes.BMOVE:
+                case InstructionCodes.LMOVE:
+                case InstructionCodes.RMOVE:
                 case InstructionCodes.IGLOAD:
                 case InstructionCodes.FGLOAD:
                 case InstructionCodes.SGLOAD:
@@ -1404,12 +1375,6 @@ public class ProgramFileReader {
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.TR_RETRY:
                 case InstructionCodes.TR_BEGIN:
-                case InstructionCodes.CALL:
-                case InstructionCodes.WRKINVOKE:
-                case InstructionCodes.WRKREPLY:
-                case InstructionCodes.NCALL:
-                case InstructionCodes.ACALL:
-                case InstructionCodes.FPCALL:
                 case InstructionCodes.FPLOAD:
                 case InstructionCodes.ARRAYLEN:
                 case InstructionCodes.INEWARRAY:
@@ -1421,6 +1386,8 @@ public class ProgramFileReader {
                 case InstructionCodes.JSONNEWARRAY:
                 case InstructionCodes.NEWSTRUCT:
                 case InstructionCodes.NEWCONNECTOR:
+                case InstructionCodes.ITR_NEW:
+                case InstructionCodes.ITR_HAS_NEXT:
                 case InstructionCodes.IRET:
                 case InstructionCodes.FRET:
                 case InstructionCodes.SRET:
@@ -1434,12 +1401,13 @@ public class ProgramFileReader {
                 case InstructionCodes.LENGTHOF:
                 case InstructionCodes.TYPEOF:
                 case InstructionCodes.TYPELOAD:
-                case InstructionCodes.TCALL:
+                case InstructionCodes.SEQ_NULL:
+                case InstructionCodes.SNE_NULL:
+                case InstructionCodes.NEWJSON:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
                     break;
-
 
                 case InstructionCodes.IALOAD:
                 case InstructionCodes.FALOAD:
@@ -1554,6 +1522,8 @@ public class ProgramFileReader {
                 case InstructionCodes.S2XML:
                 case InstructionCodes.XML2S:
                 case InstructionCodes.S2JSONX:
+                case InstructionCodes.NULL2S:
+                case InstructionCodes.NEW_INT_RANGE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1572,6 +1542,68 @@ public class ProgramFileReader {
                     k = codeStream.readInt();
                     h = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k, h));
+                    break;
+
+                case InstructionCodes.CALL:
+                case InstructionCodes.NCALL:
+                    funcRefCPIndex = codeStream.readInt();
+                    funcRefCPEntry = (FunctionRefCPEntry) packageInfo.getCPEntry(funcRefCPIndex);
+                    packageInfo.addInstruction(new InstructionCALL(opcode, funcRefCPIndex,
+                            funcRefCPEntry.getFunctionInfo(), getArgRegs(codeStream), getArgRegs(codeStream)));
+                    break;
+                case InstructionCodes.ACALL:
+                    int actionRefCPIndex = codeStream.readInt();
+                    ActionRefCPEntry actionRefCPEntry = (ActionRefCPEntry) packageInfo.getCPEntry(actionRefCPIndex);
+                    packageInfo.addInstruction(new InstructionACALL(opcode, actionRefCPIndex,
+                            actionRefCPEntry.getActionName(), getArgRegs(codeStream), getArgRegs(codeStream)));
+                    break;
+                case InstructionCodes.FPCALL:
+                    funcRefCPIndex = codeStream.readInt();
+                    argRegs = getArgRegs(codeStream);
+                    retRegs = getArgRegs(codeStream);
+
+                    FunctionCallCPEntry funcCallCPEntry = new FunctionCallCPEntry(argRegs, retRegs);
+                    int funcCallCPIndex = packageInfo.addCPEntry(funcCallCPEntry);
+
+                    packageInfo.addInstruction(InstructionFactory.get(opcode, funcRefCPIndex, funcCallCPIndex));
+                    break;
+                case InstructionCodes.TCALL:
+                    int transformCPIndex = codeStream.readInt();
+                    TransformerRefCPEntry transformerRefCPEntry =
+                            (TransformerRefCPEntry) packageInfo.getCPEntry(transformCPIndex);
+                    packageInfo.addInstruction(new InstructionTCALL(opcode, transformCPIndex,
+                            transformerRefCPEntry.getTransformerInfo(),
+                            getArgRegs(codeStream), getArgRegs(codeStream)));
+                    break;
+                case InstructionCodes.WRKSEND:
+                case InstructionCodes.WRKRECEIVE:
+                    int channelRefCPIndex = codeStream.readInt();
+                    WorkerDataChannelRefCPEntry channelRefCPEntry = (WorkerDataChannelRefCPEntry)
+                            packageInfo.getCPEntry(channelRefCPIndex);
+                    int sigCPIndex = codeStream.readInt();
+                    UTF8CPEntry sigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(sigCPIndex);
+                    BType[] bTypes = getParamTypes(sigCPEntry.getValue(), packageInfo);
+                    packageInfo.addInstruction(new InstructionWRKSendReceive(opcode, channelRefCPIndex,
+                            channelRefCPEntry.getWorkerDataChannelInfo(), sigCPIndex, bTypes, getArgRegs(codeStream)));
+                    break;
+                case InstructionCodes.FORKJOIN:
+                    int forkJoinIndexCPIndex = codeStream.readInt();
+                    ForkJoinCPEntry forkJoinIndexCPEntry =
+                            (ForkJoinCPEntry) packageInfo.getCPEntry(forkJoinIndexCPIndex);
+                    int timeoutRegIndex = codeStream.readInt();
+                    int joinVarRegIndex = codeStream.readInt();
+                    int joinBlockAddr = codeStream.readInt();
+                    int timeoutVarRegIndex = codeStream.readInt();
+                    int timeoutBlockAddr = codeStream.readInt();
+                    packageInfo.addInstruction(new InstructionFORKJOIN(opcode, forkJoinIndexCPIndex,
+                            forkJoinIndexCPEntry, timeoutRegIndex, joinVarRegIndex, joinBlockAddr,
+                            timeoutVarRegIndex, timeoutBlockAddr));
+                    break;
+                case InstructionCodes.ITR_NEXT:
+                    int iteratorIndex = codeStream.readInt();
+                    retRegs = getArgRegs(codeStream);
+                    packageInfo.addInstruction(new InstructionIteratorNext(opcode, iteratorIndex, retRegs.length,
+                            retRegs));
                     break;
                 default:
                     throw new ProgramFileFormatException("unknown opcode " + opcode +
@@ -1611,8 +1643,8 @@ public class ProgramFileReader {
                             packageInfo.getTransformerInfo(transformerRefCPEntry.getTransformerName());
                     transformerRefCPEntry.setTransformerInfo(transformerInfo);
                     break;
-            default:
-                break;
+                default:
+                    break;
             }
         }
     }
@@ -1707,5 +1739,14 @@ public class ProgramFileReader {
                 throw new ProgramFileFormatException("unknown default value type " + typeDesc);
         }
         return defaultValue;
+    }
+
+    private int[] getArgRegs(DataInputStream codeStream) throws IOException {
+        int nArgRegs = codeStream.readInt();
+        int[] argRegs = new int[nArgRegs];
+        for (int index = 0; index < nArgRegs; index++) {
+            argRegs[index] = codeStream.readInt();
+        }
+        return argRegs;
     }
 }

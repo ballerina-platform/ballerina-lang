@@ -33,16 +33,14 @@ public class WorkerContext extends Context {
     public WorkerContext(ProgramFile programFile, Context parent) {
         super(programFile);
         this.parent = parent;
-        parentSF = parent.getControlStackNew().currentFrame;
+        parentSF = parent.getControlStack().currentFrame;
         this.workerCounter = parent.getWorkerCounter();
         this.populateContextPropsFromParent();
     }
     
     private void populateContextPropsFromParent() {
         this.setConnectorFuture(this.parent.getConnectorFuture());
-        this.setBallerinaTransactionManager(this.parent.getBallerinaTransactionManager());
         this.setServiceInfo(this.parent.getServiceInfo());
-        this.setDebugInfoHolder(this.parent.getDebugInfoHolder());
     }
 
 }

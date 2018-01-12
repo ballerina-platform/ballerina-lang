@@ -3,7 +3,7 @@ import ballerina.data.sql;
 function main (string[] args) {
     endpoint<sql:ClientConnector> testDB {
       create sql:ClientConnector(
-             sql:MYSQL, "localhost", 3306, "testdb", "root", "root", {maximumPoolSize:5});
+        sql:DB.MYSQL, "localhost", 3306, "testdb", "root", "root", {maximumPoolSize:5});
     }
     //Create the tables required for the transaction.
     int updatedRows = testDB.update("CREATE TABLE IF NOT EXISTS CUSTOMER (ID INT,
@@ -11,8 +11,12 @@ function main (string[] args) {
     updatedRows = testDB.update("CREATE TABLE IF NOT EXISTS SALARY (ID INT,
         MON_SALARY FLOAT)", null);
     //Here is the transaction block. You can use a Try catch here since update action can
-    //throw errors due to SQL errors, connection pool errors etc.
-    transaction {
+    //throw errors due to SQL errors, connection pool errors etc. The retry count is the
+    //number of times the transaction is tried before aborting. By default a transaction
+    //is tried three times before aborting. Only integer literals or constants are
+    //allowed for retry count.
+    boolean transactionSuccess = false;
+    transaction with retries(4){
         //This is the first action participate in the transaction.
         int c = testDB.update("INSERT INTO CUSTOMER(ID,NAME) VALUES (1, 'Anne')", null);
         //This is the second action participate in the transaction.
@@ -23,6 +27,7 @@ function main (string[] args) {
         if (c == 0) {
             abort;
         }
+        transactionSuccess = true;
         //The end curly bracket marks the end of the transaction and the transaction will
         //be committed or rolled back at this point.
     } failed {
@@ -30,17 +35,9 @@ function main (string[] args) {
         //exception or a throw statement. This block will execute each time
         //transaction is failed until retry count is reached.
         println("Transaction failed");
-        //The retry count is the number of times the transaction is tried before
-        //aborting. By default a transaction is tried three times before aborting.
-        //Only integer literals or constants are allowed for retry count.
-        retry 4;
-    } aborted {
-        //The aborted block will be executed if the transaction is aborted using an abort
-        //statement or failed even after retrying the specified count.
-        println("Transaction aborted");
-    } committed {
-        //The committed block will be executed if the transaction
-        //is successfully committed.
+        transactionSuccess = false;
+    }
+    if (transactionSuccess) {
         println("Transaction committed");
     }
     //Close the connection pool.

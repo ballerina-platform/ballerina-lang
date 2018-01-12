@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.util.debugger;
 
-import org.ballerinalang.bre.bvm.StackFrame;
-import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -32,29 +30,23 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 
 /**
- * {@link DebugInfoHolder} holds information relevant to current debugging session.
+ * {@link DebugInfoHolder} holds information relevant to debug points for program file.
  *
  * @since 0.88
  */
 public class DebugInfoHolder {
-    private volatile Semaphore executionSem;
-    private DebugSessionObserver debugSessionObserver;
-    private DebugCommand currentCommand;
 
     private Map<String, DebuggerPkgInfo> packageInfoMap = new HashMap<>();
-    private LineNumberInfo lastLine;
-    private StackFrame sf;
-
-    public DebugInfoHolder() {
-        this.executionSem = new Semaphore(0);
-    }
 
     public void init(ProgramFile programFile) {
-        Arrays.stream(programFile.getPackageInfoEntries()).forEach(p -> processPkgInfo(p));
+        processPkgInfos(programFile.getPackageInfoEntries());
+    }
+
+    private void processPkgInfos(PackageInfo[] pkgInfos) {
+        Arrays.stream(pkgInfos).forEach(p -> processPkgInfo(p));
     }
 
     /**
@@ -71,8 +63,6 @@ public class DebugInfoHolder {
         List<LineNumberInfo> lineNumberInfos = lineNumberTableAttributeInfo.getLineNumberInfoList().stream().sorted(
                 Comparator.comparing(LineNumberInfo::getIp)).collect(Collectors.toList());
 
-        //TODO remove above line if already sorted
-//        List<LineNumberInfo> lineNumberInfos = lineNumberTableAttributeInfo.getLineNumberInfoEntries();
         LineNumberInfo currentLineNoInfo = null;
         for (LineNumberInfo lineNoInfo : lineNumberInfos) {
             if (currentLineNoInfo == null) {
@@ -87,39 +77,7 @@ public class DebugInfoHolder {
         packageInfoMap.put(packageInfo.getPkgPath(), debuggerPkgInfo);
     }
 
-    public void waitTillDebuggeeResponds() {
-        try {
-            executionSem.acquire();
-        } catch (InterruptedException e) {
-            //TODO error handle
-        }
-    }
-
-    /**
-     * Get semaphore queue length.
-     *
-     * @return  Queue length.
-     */
-    public int getSemaphorQueueLength() {
-        return executionSem.getQueueLength();
-    }
-
-    /**
-     * Return whether there are queued threads or not.
-     *
-     * @return  Queued threads exist or not.
-     */
-    public boolean hasQueuedThreads() {
-        return executionSem.hasQueuedThreads();
-    }
-
-    public void releaseLock() {
-        executionSem.release();
-    }
-
     private void addDebugPoint(BreakPointDTO breakPointDTO) {
-        //TODO remove below line later
-//        breakPointDTO.setPackagePath(".");
         if (packageInfoMap.get(breakPointDTO.getPackagePath()) == null) {
             return;
         }
@@ -139,71 +97,6 @@ public class DebugInfoHolder {
 
     public LineNumberInfo getLineNumber(String packagePath, int ip) {
         return packageInfoMap.get(packagePath).getLineNumberInfo(ip);
-    }
-
-    public void setDebugSessionObserver(DebugSessionObserver debugSessionObserver) {
-        this.debugSessionObserver = debugSessionObserver;
-    }
-
-    public DebugSessionObserver getDebugSessionObserver() {
-        return debugSessionObserver;
-    }
-
-    public DebugCommand getCurrentCommand() {
-        return currentCommand;
-    }
-
-    public void setCurrentCommand(DebugCommand currentCommand) {
-        this.currentCommand = currentCommand;
-    }
-
-    public LineNumberInfo getLastLine() {
-        return lastLine;
-    }
-
-    public StackFrame getSF() {
-        return sf;
-    }
-
-    public void setSF(StackFrame sf) {
-        this.sf = sf;
-    }
-
-    public void setLastLine(LineNumberInfo lastLine) {
-        this.lastLine = lastLine;
-    }
-
-    public void resume() {
-        currentCommand = DebugCommand.RESUME;
-        releaseLock();
-    }
-
-    public void stepIn() {
-        currentCommand = DebugCommand.STEP_IN;
-        releaseLock();
-    }
-
-    public void stepOver() {
-        currentCommand = DebugCommand.STEP_OVER;
-        releaseLock();
-    }
-
-    public void stepOut() {
-        currentCommand = DebugCommand.STEP_OUT;
-        releaseLock();
-    }
-
-    /**
-     * Debugging steps.
-     */
-    public enum DebugCommand {
-        STEP_IN,
-        STEP_OVER,
-        STEP_OVER_INTMDT,
-        STEP_OUT,
-        STEP_OUT_INTMDT,
-        RESUME,
-        STOP
     }
 
     class DebuggerPkgInfo {

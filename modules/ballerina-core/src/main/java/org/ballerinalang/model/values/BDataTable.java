@@ -19,11 +19,11 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.DataIterator;
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * The {@code BDataTable} represents a data set in Ballerina.
@@ -69,36 +69,40 @@ public class BDataTable implements BRefType<Object> {
         return iterator.generateNext();
     }
 
-    public String getString(String columnName) {
-        return iterator.getString(columnName);
+    public String getString(int columnIndex) {
+        return iterator.getString(columnIndex);
     }
 
-    public long getInt(String columnName) {
-        return iterator.getInt(columnName);
+    public long getInt(int columnIndex) {
+        return iterator.getInt(columnIndex);
     }
 
-    public double getFloat(String columnName) {
-        return iterator.getFloat(columnName);
+    public double getFloat(int columnIndex) {
+        return iterator.getFloat(columnIndex);
     }
 
-    public boolean getBoolean(String columnName) {
-        return iterator.getBoolean(columnName);
+    public boolean getBoolean(int columnIndex) {
+        return iterator.getBoolean(columnIndex);
     }
 
-    public String getBlob(String columnName) {
-        return iterator.getBlob(columnName);
+    public String getBlob(int columnIndex) {
+        return iterator.getBlob(columnIndex);
     }
 
-    public String getObjectAsString(String columnName) {
-        return iterator.getObjectAsString(columnName);
+    public Object[] getStruct(int columnIndex) {
+        return iterator.getStruct(columnIndex);
     }
 
-    public Map<String, Object> getArray(String columnName) {
-        return iterator.getArray(columnName);
+    public Object[] getArray(int columnIndex) {
+        return iterator.getArray(columnIndex);
     }
 
     public List<ColumnDefinition> getColumnDefs() {
         return iterator.getColumnDefinitions();
+    }
+
+    public BStructType getStructType() {
+        return iterator.getStructType();
     }
 
     @Override

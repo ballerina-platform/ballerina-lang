@@ -47,7 +47,7 @@ org.wso2.carbon.connector.framework-4.2.6.jar                                   
 org.wso2.carbon.core-5.1.0.jar                                                  bundle         apache2   11763     
 org.wso2.carbon.messaging-2.2.3.jar                                             bundle         apache2   11771     
 org.wso2.carbon.transport.file-4.2.6.jar                                        bundle         apache2   11779     
-org.wso2.carbon.transport.http.netty-4.2.6.jar                                  bundle         apache2   11778     
+org.wso2.transport.http.netty-4.2.6.jar                                         bundle         apache2   11778
 org.wso2.carbon.transport.jms-4.2.6.jar                                         bundle         apache2   11777     
 Saxon-HE-9.7.0.wso2v1.jar                                                       bundle         mpl10     11756     
 slf4j-api-1.7.22.jar                                                            bundle         mit       2078      

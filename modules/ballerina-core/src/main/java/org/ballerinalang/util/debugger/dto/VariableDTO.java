@@ -18,7 +18,7 @@
 
 package org.ballerinalang.util.debugger.dto;
 
-import org.ballerinalang.bre.nonblocking.debugger.VariableInfo;
+import org.ballerinalang.util.debugger.info.VariableInfo;
 
 /**
  * DTO class representing variables in the stack upon a debug hit.

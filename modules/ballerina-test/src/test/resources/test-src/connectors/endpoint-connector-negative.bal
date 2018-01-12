@@ -96,3 +96,13 @@ function initEndointWithString(string val) {
         val;
     }
 }
+
+connector ConWithWrongActions() {
+    action get()(string) {
+        string value = "sample value";
+    }
+
+    action get1()(string value) {
+        value = "Foo-";
+    }
+ }

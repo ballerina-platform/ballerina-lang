@@ -1,7 +1,30 @@
 package ballerina.net.http;
 
 @Description { value:"Represents an HTTP request message"}
+@Field {value:"host: The server host name"}
+@Field {value:"port: The server port"}
+@Field {value:"path: Resource path of request URI"}
+@Field {value:"method: HTTP request method"}
+@Field {value:"httpVersion: The version of HTTP"}
+@Field {value:"userAgent: User-Agent request header"}
+@Field {value:"headers: Request headers"}
 public struct Request {
+	string remoteHost;
+	int port;
+	string path;
+	string method;
+	string httpVersion;
+	string userAgent;
+	string restUriPostFix;
+	map headers;
+}
+
+@Description { value:"Represents an HTTP header value"}
+@Field {value:"value: The value of header"}
+@Field {value:"param: The param map of header"}
+public struct HeaderValue {
+	string value;
+	map param;
 }
 
 @Description { value:"Gets the request URL from the request"}
@@ -18,11 +41,6 @@ public native function <Request req> getContentLength () (int);
 @Param { value:"req: A request message" }
 @Return { value:"The HTTP request method associated with the request" }
 public native function <Request req> getMethod () (string);
-
-@Description { value:"Sets the Content-Length header on the request"}
-@Param { value:"req: A request message" }
-@Param { value:"contentLength: Length of the message" }
-public native function <Request req> setContentLength (int contentLength);
 
 @Description { value:"Gets the form parameters from the HTTP request as a map"}
 @Param { value:"req: The request message" }
@@ -49,6 +67,11 @@ public native function <Request req> getXmlPayload () (xml);
 @Return { value:"The blob representation of the message payload" }
 public native function <Request req> getBinaryPayload () (blob);
 
+@Description { value:"Sets a blob as the request payload"}
+@Param { value:"req: A request message" }
+@Param { value:"payload: The blob representation of the message payload" }
+public native function <Request req> setBinaryPayload (blob payload);
+
 @Description { value:"Sets a request property"}
 @Param { value:"req: A request message" }
 @Param { value:"propertyName: The name of the property" }
@@ -60,28 +83,10 @@ public native function <Request req> setProperty (string propertyName, string pr
 @Param { value:"payload: The payload to be set to the request as a string" }
 public native function <Request req> setStringPayload (string payload);
 
-@Description { value:"Gets a transport header from the request"}
-@Param { value:"req: A request message" }
-@Param { value:"headerName: The header name" }
-@Return { value:"The first header value for the provided header name" }
-@Return { value:"Indicates whether the header exists" }
-public native function <Request req> getHeader (string headerName) (string, boolean);
-
 @Description { value:"Gets the request payload as a string"}
 @Param { value:"req: A request message" }
 @Return { value:"The string representation of the message payload" }
 public native function <Request req> getStringPayload () (string);
-
-@Description { value:"Adds a transport header to the request"}
-@Param { value:"req: A request message" }
-@Param { value:"key: The header name" }
-@Param { value:"value: The header value" }
-public native function <Request req> addHeader (string key, string value);
-
-@Description { value:"Gets transport headers from the request"}
-@Param { value:"req: A request message" }
-@Return { value:"string[]: The header values" }
-public native function <Request req> getHeaders () (string[]);
 
 @Description { value:"Sets a JSON as the request payload"}
 @Param { value:"req: A request message" }
@@ -94,34 +99,21 @@ public native function <Request req> setJsonPayload (json payload);
 @Return { value:"The property value" }
 public native function <Request req> getProperty (string propertyName) (string);
 
-@Description { value:"Removes a transport header from the request"}
-@Param { value:"req: A request message" }
-@Param { value:"key: The header name" }
-public native function <Request req> removeHeader (string key);
-
-@Description { value:"Removes all transport headers from the message"}
-@Param { value:"req: A request message" }
-public native function <Request req> removeAllHeaders ();
-
 @Description { value:"Sets an XML as the payload"}
 @Param { value:"req: A request message" }
 @Param { value:"payload: The XML payload object" }
 public native function <Request req> setXmlPayload (xml payload);
 
-@Description { value:"Clones and creates a new instance of a request message"}
-@Param { value:"req: A request message" }
-@Return { value:"The new instance of the request message" }
-public native function <Request req> clone () (Request);
-
-@Description { value:"Sets the value of a transport header"}
-@Param { value:"req: A request message" }
-@Param { value:"key: The header name" }
-@Param { value:"value: The header value" }
-public native function <Request req> setHeader (string key, string value);
-
-
 @Description { value:"Represents an HTTP response message"}
+@Field {value:"statusCode: The response status code"}
+@Field {value:"reasonPhrase: The status code reason phrase"}
+@Field {value:"server: The server header"}
+@Field {value:"headers: Response headers"}
 public struct Response {
+    int statusCode;
+    string reasonPhrase;
+    string server;
+    map headers;
 }
 
 @Description { value:"Gets the HTTP status code from the response"}
@@ -133,11 +125,6 @@ public native function <Response res> getStatusCode () (int);
 @Param { value:"res: The response message" }
 @Return { value:"Length of the response payload" }
 public native function <Response res> getContentLength () (int);
-
-@Description { value:"Sets the Content-Length header on the response"}
-@Param { value:"res: The response message" }
-@Param { value:"contentLength: Length of the message" }
-public native function <Response res> setContentLength (int contentLength);
 
 @Description { value:"Sets the HTTP status code of the response"}
 @Param { value:"res: The response message" }
@@ -164,6 +151,11 @@ public native function <Response res> getXmlPayload () (xml);
 @Return { value:"The blob representation of the message payload" }
 public native function <Response res> getBinaryPayload () (blob);
 
+@Description { value:"Sets a blob as the response payload"}
+@Param { value:"res: The response message" }
+@Param { value:"payload: The blob representation of the message payload" }
+public native function <Response res> setBinaryPayload (blob payload);
+
 @Description { value:"Sets a response property"}
 @Param { value:"res: The response message" }
 @Param { value:"propertyName: The name of the property" }
@@ -175,28 +167,10 @@ public native function <Response res> setProperty (string propertyName, string p
 @Param { value:"payload: The string payload to be set" }
 public native function <Response res> setStringPayload (string payload);
 
-@Description { value:"Gets the named HTTP header from the response"}
-@Param { value:"res: The response message" }
-@Param { value:"headerName: The header name" }
-@Return { value:"The first header value for the provided header name" }
-@Return { value:"Indicates whether the header exists" }
-public native function <Response res> getHeader (string headerName) (string, boolean);
-
 @Description { value:"Gets the response payload as a string"}
 @Param { value:"res: The response message" }
 @Return { value:"The string representation of the message payload" }
 public native function <Response res> getStringPayload () (string);
-
-@Description { value:"Adds the specified key/value pair as an HTTP header to the response"}
-@Param { value:"res: The response message" }
-@Param { value:"key: The header name" }
-@Param { value:"value: The header value" }
-public native function <Response res> addHeader (string key, string value);
-
-@Description { value:"Gets the HTTP headers from the response"}
-@Param { value:"res: The response message" }
-@Return { value:"string[]: The header values" }
-public native function <Response res> getHeaders () (string[]);
 
 @Description { value:"Sets a JSON as the response payload"}
 @Param { value:"req: The response message" }
@@ -209,39 +183,21 @@ public native function <Response res> setJsonPayload (json payload);
 @Return { value:"The property value" }
 public native function <Response res> getProperty (string propertyName) (string);
 
-@Description { value:"Removes a transport header from the response"}
-@Param { value:"res: The response message" }
-@Param { value:"key: The header name" }
-public native function <Response res> removeHeader (string key);
-
-@Description { value:"Removes all transport headers from the response"}
-@Param { value:"res: The response message" }
-public native function <Response res> removeAllHeaders ();
-
 @Description { value:"Sets an XML as the response payload"}
 @Param { value:"res: The response message" }
 @Param { value:"payload: The XML payload object" }
 public native function <Response res> setXmlPayload (xml payload);
 
-@Description { value:"Clones and creates a new instance of a response message"}
-@Param { value:"res: The response message" }
-@Return { value:"The new instance of the response message" }
-public native function <Response res> clone () (Response);
-
-@Description { value:"Sets the value of a transport header"}
-@Param { value:"res: The response message" }
-@Param { value:"key: The header name" }
-@Param { value:"value: The header value" }
-public native function <Response res> setHeader (string key, string value);
-
 @Description { value:"Sends outbound response to the caller."}
 @Param { value:"res: The response message" }
-public native function <Response res> send ();
+@Return { value:"Error occured during HTTP server connector send" }
+public native function <Response res> send () (HttpConnectorError);
 
 @Description { value:"Forwards client service response directly to the caller."}
 @Param { value:"res: The response message" }
 @Param { value:"resp: The new instance of the response message" }
-public native function <Response res> forward (Response resp);
+@Return { value:"Error occured during HTTP server connector forward" }
+public native function <Response res> forward (Response resp) (HttpConnectorError);
 
 @Description { value:"Represents an HTTP Session"}
 public struct Session {
@@ -379,15 +335,19 @@ struct Proxy {
 @Description { value:"Options struct represents options to be used for HTTP client invocation" }
 @Field {value:"port: Port number of the remote service"}
 @Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
-@Field {value:"chunkDisabled: Disable chunking"}
+@Field {value:"enableChunking: Enable/disable chunking"}
+@Field {value:"keepAlive: Keep the connection or close it (default value: true)"}
+@Field {value:"httpVersion: The version of HTTP outbound request"}
 @Field {value:"followRedirects: Redirect related options"}
-@Field {value:"ssl: ssl/tls related options"}
+@Field {value:"ssl: SSL/TLS related options"}
 @Field {value:"retryConfig: Retry related options"}
 @Field {value:"proxy: Proxy server related options"}
 public struct Options {
     int port;
     int endpointTimeout = 60000;
     boolean enableChunking = true;
+    boolean keepAlive = true;
+	string httpVersion;
     FollowRedirects followRedirects;
     SSL ssl;
     Retry retryConfig;
@@ -448,6 +408,13 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	@Return { value:"The response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
 	native action get (string path, Request req) (Response, HttpConnectorError);
+
+	@Description { value:"OPTIONS action implementation of the HTTP Connector"}
+	@Param { value:"path: Request path" }
+	@Param { value:"req: An HTTP Request struct" }
+	@Return { value:"The response message" }
+	@Return { value:"Error occured during HTTP client invocation" }
+	native action options (string path, Request req) (Response, HttpConnectorError);
 
 	@Description { value:"forward action can be used to invoke an HTTP call with incoming request HTTPVerb"}
 	@Param { value:"path: Request path" }

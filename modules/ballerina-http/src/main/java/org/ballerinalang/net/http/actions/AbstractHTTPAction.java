@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.http.actions;
 
+import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -29,17 +30,17 @@ import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.RetryConfig;
+import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.Headers;
-import org.wso2.carbon.transport.http.netty.contract.ClientConnectorException;
-import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
-import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
-import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.contract.ClientConnectorException;
+import org.wso2.transport.http.netty.contract.HttpClientConnector;
+import org.wso2.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -53,68 +54,110 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
 
-    private static final String BALLERINA_USER_AGENT;
-
-    /* Application level timeout */
-    private static final long SENDER_TIMEOUT = 180000; // TODO: Make this configurable with endpoint timeout impl
-
+    private static final String CACHE_BALLERINA_VERSION;
     static {
-        String version = System.getProperty(BALLERINA_VERSION);
-        if (version != null) {
-            BALLERINA_USER_AGENT = "ballerina/" + version;
-        } else {
-            BALLERINA_USER_AGENT = "ballerina";
-        }
+        CACHE_BALLERINA_VERSION = System.getProperty(BALLERINA_VERSION);
     }
 
-    protected void prepareRequest(BConnector connector, String path, HTTPCarbonMessage cMsg) {
+    protected HTTPCarbonMessage createCarbonMsg(Context context) {
+
+        // Extract Argument values
+        BConnector bConnector = (BConnector) getRefArgument(context, 0);
+        String path = getStringArgument(context, 0);
+        BStruct requestStruct  = ((BStruct) getRefArgument(context, 1));
+        HTTPCarbonMessage requestMsg = HttpUtil
+                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
+
+        prepareRequest(bConnector, path, requestMsg, requestStruct);
+
+        return requestMsg;
+    }
+
+    protected void prepareRequest(BConnector connector, String path, HTTPCarbonMessage outboundRequest,
+            BStruct requestStruct) {
 
         validateParams(connector);
+        HttpUtil.populateOutboundRequest(requestStruct, outboundRequest);
 
-        String uri = null;
         try {
-            uri = connector.getStringField(0) + path;
-
+            String uri = connector.getStringField(0) + path;
             URL url = new URL(uri);
+
+            int port = getOutboundReqPort(url);
             String host = url.getHost();
-            int port = 80;
-            if (url.getPort() != -1) {
-                port = url.getPort();
-            } else if (url.getProtocol().equalsIgnoreCase(Constants.PROTOCOL_HTTPS)) {
-                port = 443;
-            }
 
-            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HOST, host);
-            cMsg.setProperty(Constants.PORT, port);
-            String toPath = url.getPath();
-            String query = url.getQuery();
-            if (query != null) {
-                toPath = toPath + "?" + query;
-            }
-            cMsg.setProperty(Constants.TO, toPath);
-
-            cMsg.setProperty(Constants.PROTOCOL, url.getProtocol());
-            setHostHeader(cMsg, host, port);
-
-            //Set User-Agent Header
-            Object headerObj = cMsg.getProperty(org.ballerinalang.runtime.Constants.INTERMEDIATE_HEADERS);
-
-            if (headerObj == null) {
-                headerObj = new Headers();
-                cMsg.setProperty(org.ballerinalang.runtime.Constants.INTERMEDIATE_HEADERS, headerObj);
-            }
-            Headers headers = (Headers) headerObj;
-
-            if (!headers.contains(Constants.USER_AGENT_HEADER)) { // If User-Agent is not already set from program
-                cMsg.setHeader(Constants.USER_AGENT_HEADER, BALLERINA_USER_AGENT);
-            }
+            setOutboundReqProperties(outboundRequest, url, port, host);
+            setOutboundReqHeaders(outboundRequest, port, host);
 
         } catch (MalformedURLException e) {
             throw new BallerinaException("Malformed url specified. " + e.getMessage());
         } catch (Throwable t) {
             throw new BallerinaException("Failed to prepare request. " + t.getMessage());
         }
+    }
 
+    private void setOutboundReqHeaders(HTTPCarbonMessage outboundRequest, int port, String host) {
+        HttpHeaders headers = outboundRequest.getHeaders();
+        setHostHeader(host, port, headers);
+        setOutboundUserAgent(headers);
+        removeConnectionHeader(headers);
+    }
+
+    private void setOutboundReqProperties(HTTPCarbonMessage outboundRequest, URL url, int port, String host) {
+        outboundRequest.setProperty(org.wso2.transport.http.netty.common.Constants.HOST, host);
+        outboundRequest.setProperty(Constants.PORT, port);
+
+        String outboundReqPath = getOutboundReqPath(url);
+        outboundRequest.setProperty(Constants.TO, outboundReqPath);
+
+        outboundRequest.setProperty(Constants.PROTOCOL, url.getProtocol());
+    }
+
+    private void setHostHeader(String host, int port, HttpHeaders headers) {
+        if (port == 80 || port == 443) {
+            headers.set(org.wso2.transport.http.netty.common.Constants.HOST, host);
+        } else {
+            headers.set(org.wso2.transport.http.netty.common.Constants.HOST, host + ":" + port);
+        }
+    }
+
+    private void removeConnectionHeader(HttpHeaders headers) {
+        // Remove existing Connection header
+        if (headers.contains(Constants.CONNECTION_HEADER)) {
+            headers.remove(Constants.CONNECTION_HEADER);
+        }
+    }
+
+    private void setOutboundUserAgent(HttpHeaders headers) {
+        String userAgent;
+        if (CACHE_BALLERINA_VERSION != null) {
+            userAgent = "ballerina/" + CACHE_BALLERINA_VERSION;
+        } else {
+            userAgent = "ballerina";
+        }
+
+        if (!headers.contains(Constants.USER_AGENT_HEADER)) { // If User-Agent is not already set from program
+            headers.set(Constants.USER_AGENT_HEADER, userAgent);
+        }
+    }
+
+    private String getOutboundReqPath(URL url) {
+        String toPath = url.getPath();
+        String query = url.getQuery();
+        if (query != null) {
+            toPath = toPath + "?" + query;
+        }
+        return toPath;
+    }
+
+    private int getOutboundReqPort(URL url) {
+        int port = 80;
+        if (url.getPort() != -1) {
+            port = url.getPort();
+        } else if (url.getProtocol().equalsIgnoreCase(Constants.PROTOCOL_HTTPS)) {
+            port = 443;
+        }
+        return port;
     }
 
     private boolean validateParams(BConnector connector) {
@@ -144,7 +187,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         return ballerinaFuture;
     }
 
-    protected void executeNonBlocking(Context context, HTTPCarbonMessage httpRequestMsg,
+    private void executeNonBlocking(Context context, HTTPCarbonMessage httpRequestMsg,
                                     HTTPClientConnectorListener httpClientConnectorLister) {
         try {
             BConnector bConnector = (BConnector) getRefArgument(context, 0);
@@ -153,10 +196,20 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     HttpConnectionManager.getInstance().getHTTPHttpClientConnector(scheme, bConnector);
             HttpResponseFuture future = clientConnector.send(httpRequestMsg);
             future.setHttpConnectorListener(httpClientConnectorLister);
+            serializeDataSource(context);
         } catch (BallerinaConnectorException e) {
             throw new BallerinaException(e.getMessage(), e, context);
         } catch (Exception e) {
             throw new BallerinaException("Failed to send httpRequestMsg to the backend", e, context);
+        }
+    }
+
+    private void serializeDataSource(Context context) {
+        BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
+        MessageDataSource messageDataSource = HttpUtil.getMessageDataSource(requestStruct);
+        if (messageDataSource != null) {
+            messageDataSource.serializeData();
+            HttpUtil.closeMessageOutputStream(requestStruct);
         }
     }
 
@@ -199,17 +252,10 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         @Override
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-            if (httpCarbonMessage.getMessagingException() == null) {
-                BStruct response = createResponseStruct(this.context);
-                response.addNativeData("transport_message", httpCarbonMessage);
-                ballerinaFuture.notifyReply(response);
-            } else {
-                //TODO should we throw or should we create error struct and pass? or do we need this at all?
-                BallerinaConnectorException ex = new BallerinaConnectorException(httpCarbonMessage
-                        .getMessagingException().getMessage(), httpCarbonMessage.getMessagingException());
-                logger.error("non-blocking action invocation validation failed. ", ex);
-                ballerinaFuture.notifyFailure(ex);
-            }
+            BStruct response = createStruct(this.context, Constants.RESPONSE);
+            HttpUtil.setHeaderValueStructType(createStruct(this.context, Constants.HEADER_VALUE_STRUCT));
+            HttpUtil.populateInboundResponse(response, httpCarbonMessage);
+            ballerinaFuture.notifyReply(response);
         }
 
         @Override
@@ -227,7 +273,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
 
         private void notifyError(Throwable throwable) {
-            BStruct httpConnectorError = createErrorStruct(context);
+            BStruct httpConnectorError = createStruct(context, Constants.HTTP_CONNECTOR_ERROR);
             httpConnectorError.setStringField(0, throwable.getMessage());
             if (throwable instanceof ClientConnectorException) {
                 ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
@@ -237,45 +283,12 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             ballerinaFuture.notifyReply(null, httpConnectorError);
         }
 
-        private BStruct createResponseStruct(Context context) {
-            PackageInfo sessionPackageInfo = context.getProgramFile()
+        private BStruct createStruct(Context context, String structName) {
+            PackageInfo httpPackageInfo = context.getProgramFile()
                     .getPackageInfo(Constants.PROTOCOL_PACKAGE_HTTP);
-            StructInfo sessionStructInfo = sessionPackageInfo.getStructInfo(Constants.RESPONSE);
-            BStructType structType = sessionStructInfo.getType();
-            BStruct bStruct = new BStruct(structType);
-
-            return bStruct;
-        }
-
-        private BStruct createErrorStruct(Context context) {
-            PackageInfo sessionPackageInfo = context.getProgramFile()
-                    .getPackageInfo(Constants.PROTOCOL_PACKAGE_HTTP);
-            StructInfo sessionStructInfo = sessionPackageInfo.getStructInfo(Constants.HTTP_CONNECTOR_ERROR);
-            BStructType structType = sessionStructInfo.getType();
+            StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
+            BStructType structType = structInfo.getType();
             return new BStruct(structType);
-        }
-    }
-
-    protected HTTPCarbonMessage createCarbonMsg(Context context) {
-
-        // Extract Argument values
-        BConnector bConnector = (BConnector) getRefArgument(context, 0);
-        String path = HttpUtil.sanitizeUri(getStringArgument(context, 0));
-        BStruct requestStruct  = ((BStruct) getRefArgument(context, 1));
-        //TODO check below line
-        HTTPCarbonMessage requestMsg = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
-        prepareRequest(bConnector, path, requestMsg);
-        return requestMsg;
-    }
-
-    protected void setHostHeader(HTTPCarbonMessage cMsg, String host, int port) {
-        if (!cMsg.getHeaders().contains(org.wso2.carbon.transport.http.netty.common.Constants.HOST)) {
-            if (port == 80 || port == 443) {
-                cMsg.getHeaders().set(org.wso2.carbon.transport.http.netty.common.Constants.HOST, host);
-            } else {
-                cMsg.getHeaders().set(org.wso2.carbon.transport.http.netty.common.Constants.HOST, host + ":" + port);
-            }
         }
     }
 }

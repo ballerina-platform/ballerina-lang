@@ -89,3 +89,28 @@ function split(string j, string k) (string[]) {
 function toBlob(string l, string m) (blob) {
     return l.toBlob(m);
 }
+
+function nullInString() (string, string) {
+    string s1;
+    string s2 = null;
+    return s1, s2;
+}
+
+function concatNullString() (string) {
+    string s1;
+    string s2 = null;
+    return s1 + s2;
+}
+
+function compareNullStringWithNull() (boolean, boolean, boolean, boolean, 
+                              boolean, boolean, boolean, boolean) {
+    string s1;
+    string s2 = null;
+    return s1 == null, null == s1, s1 != null, null != s1, s2 == null, null == s2, s2 != null, null != s2;
+}
+
+function compareNotNullStringWithNull() (boolean, boolean, boolean, boolean) {
+    string s1 = "hello";
+    string s2 = null;
+    return s1 == null, s1 != null, s1 == s2, s1 != s2;
+}

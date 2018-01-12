@@ -33,8 +33,8 @@ import java.util.stream.Stream;
 public class CorsPopulator {
 
     public static void populateServiceCors(HttpService service) {
-        CorsHeaders corsHeaders = populateAndGetCorsHeaders(service.getBalService()
-                .getAnnotation(Constants.HTTP_PACKAGE_PATH , Constants.ANN_NAME_CONFIG));
+        CorsHeaders corsHeaders = populateAndGetCorsHeaders(
+                HttpUtil.getServiceConfigAnnotation(service.getBalService(), Constants.HTTP_PACKAGE_PATH));
         service.setCorsHeaders(corsHeaders);
         if (!corsHeaders.isAvailable()) {
             return;
@@ -48,8 +48,8 @@ public class CorsPopulator {
     }
 
     public static void processResourceCors(HttpResource resource, HttpService service) {
-        CorsHeaders corsHeaders = populateAndGetCorsHeaders(resource.getBalResource()
-                .getAnnotation(Constants.HTTP_PACKAGE_PATH, Constants.ANN_NAME_RESOURCE_CONFIG));
+        CorsHeaders corsHeaders = populateAndGetCorsHeaders(
+                HttpUtil.getResourceConfigAnnotation(resource.getBalResource(), Constants.HTTP_PACKAGE_PATH));
         if (!corsHeaders.isAvailable()) {
             //resource doesn't have cors headers, hence use service cors
             resource.setCorsHeaders(service.getCorsHeaders());

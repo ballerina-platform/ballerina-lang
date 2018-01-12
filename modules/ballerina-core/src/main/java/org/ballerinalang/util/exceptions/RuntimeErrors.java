@@ -30,7 +30,7 @@ public enum RuntimeErrors {
     INCOMPATIBLE_TYPE_FOR_CASTING("incompatible.types", "RUNTIME_0005"),
     CASTING_WITHOUT_REQUIRED_FIELD("casting.without.required.field", "RUNTIME_0006"),
     CASTING_FAILED_WITH_CAUSE("casting.failed.with.cause", "RUNTIME_0007"),
-    MISSING_FIELD("missing.field", "RUNTIME_0008"),
+    MISSING_FIELD_IN_JSON("missing.field.in.json", "RUNTIME_0008"),
     CANNOT_SET_VALUE_INCOMPATIBLE_TYPES("cannot.set.value.incompatible.types", "RUNTIME_0009"),
     CANNOT_GET_VALUE_INCOMPATIBLE_TYPES("cannot.get.value.incompatible.types", "RUNTIME_0010"),
     INCOMPATIBLE_FIELD_TYPE_FOR_CASTING("incompatible.field.type.for.casting", "RUNTIME_0011"),

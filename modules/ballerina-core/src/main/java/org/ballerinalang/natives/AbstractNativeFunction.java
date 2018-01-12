@@ -31,6 +31,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
+import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
@@ -72,7 +73,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
 
     public BValue getRefArgument(Context context, int index) {
         if (index > -1) {
-            BValue result = context.getControlStackNew().getCurrentFrame().getRefLocalVars()[index];
+            BValue result = context.getControlStack().getCurrentFrame().getRefRegs()[index];
             if (result == null) {
                 throw new BallerinaException("argument " + index + " is null");
             }
@@ -84,7 +85,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
 
     public byte[] getBlobArgument(Context context, int index) {
         if (index > -1) {
-            byte[] result = context.getControlStackNew().getCurrentFrame().getByteLocalVars()[index];
+            byte[] result = context.getControlStack().getCurrentFrame().getByteRegs()[index];
             if (result == null) {
                 throw new BallerinaException("argument " + index + " is null");
             }
@@ -104,14 +105,18 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
      */
     public long getIntArgument(Context context, int index) {
         if (index > -1) {
-            return context.getControlStackNew().getCurrentFrame().getLongLocalVars()[index];
+            return context.getControlStack().getCurrentFrame().getLongRegs()[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
 
     public String getStringArgument(Context context, int index) {
         if (index > -1) {
-            return context.getControlStackNew().getCurrentFrame().getStringLocalVars()[index];
+            String str = context.getControlStack().getCurrentFrame().getStringRegs()[index];
+            if (str == null) {
+                throw new BLangNullReferenceException();
+            }
+            return str;
         }
         throw new ArgumentOutOfRangeException(index);
     }
@@ -126,7 +131,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
      */
     public double getFloatArgument(Context context, int index) {
         if (index > -1) {
-            return context.getControlStackNew().getCurrentFrame().getDoubleLocalVars()[index];
+            return context.getControlStack().getCurrentFrame().getDoubleRegs()[index];
         } else {
             throw new ArgumentOutOfRangeException(index);
         }
@@ -134,7 +139,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
 
     public boolean getBooleanArgument(Context context, int index) {
         if (index > -1) {
-            return (context.getControlStackNew().getCurrentFrame().getIntLocalVars()[index] == 1);
+            return (context.getControlStack().getCurrentFrame().getIntRegs()[index] == 1);
         }
         throw new ArgumentOutOfRangeException(index);
     }
@@ -187,7 +192,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     public void executeNative(Context context) {
         try {
             BValue[] retVals = execute(context);
-            BValue[] returnRefs = context.getControlStackNew().getCurrentFrame().returnValues;
+            BValue[] returnRefs = context.getControlStack().getCurrentFrame().returnValues;
 
             if (returnRefs.length != 0) {
                 for (int i = 0; i < returnRefs.length; i++) {

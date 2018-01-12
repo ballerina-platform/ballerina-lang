@@ -16,6 +16,6 @@ service<http> passthrough {
         http:Response clientResponse = {};
         http:HttpConnectorError err;
         clientResponse, err = nyseEP.get("/nyseStock/stocks", req);
-        resp.forward(clientResponse);
+        _ = resp.forward(clientResponse);
     }
 }

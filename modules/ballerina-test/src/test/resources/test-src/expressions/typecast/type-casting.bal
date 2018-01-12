@@ -543,3 +543,24 @@ function testSameTypeCast() (int) {
     int b = (int) a;
     return b;
 }
+
+function testErrorOnCasting() (TypeCastError, TypeCastError, TypeCastError, TypeCastError) {
+
+    // json to string
+    json j1 = "hello";
+    var s, err1 = (string) j1;
+
+    // json to int
+    json j2 = 4;
+    var i, err2 = (int) j2; 
+
+    // json to float
+    json j3 = 4.2;
+    var f, err3 = (float) j3; 
+
+    // json to boolean
+    json j4 = true;
+    var b, err4 = (boolean) j4;
+
+    return err1, err2, err3, err4;
+}
