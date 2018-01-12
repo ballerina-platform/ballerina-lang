@@ -309,6 +309,24 @@ class FinallyStatementDecorator extends React.Component {
                     onBreakpointClick={() => this.props.onBreakpointClick()}
                     disableButtons={this.props.disableButtons}
                 />
+                <rect
+                    x={bBox.x}
+                    y={bBox.y}
+                    width={bBox.w}
+                    height={bBox.h}
+                    stroke='green'
+                    strokeWidth='3'
+                    fillOpacity='0'
+                />
+                <rect
+                    x={statementBBox.x}
+                    y={statementBBox.y}
+                    width={statementBBox.w}
+                    height={statementBBox.h}
+                    stroke='yellow'
+                    fillOpacity='0'
+                    strokeWidth='2'
+                />
             </g>);
     }
 }

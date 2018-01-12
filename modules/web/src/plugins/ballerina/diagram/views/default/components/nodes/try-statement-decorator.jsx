@@ -373,22 +373,71 @@ class TryStatementDecorator extends React.Component {
                         return ({ connectorLineComp });
                     }
                 })()}
-                {/* {finallyStmt &&
+                {(() => {
+                    if (model.catchBlocks.length > 0) {
+                        const connectorLineComp = (
+                            <ArrowDecorator
+                                start={{
+                                    x: p4X,
+                                    y: bBox.y + bBox.h,
+                                }}
+                                end={{
+                                    x: bBox.x,
+                                    y: bBox.y + bBox.h,
+                                }}
+                                classNameArrow='flowchart-action-arrow'
+                                classNameArrowHead='flowchart-action-arrow-head'
+                            />);
+                        let connectorEdgeTopX = p4X;
+                        let connectorEdgeBottomX = p4X;
+                        const catchComponents = model.catchBlocks.map((catchStmt) => {
+                            const catchComp = (
+                                <CatchStatementDecorator
+                                    bBox={catchStmt.viewState.bBox}
+                                    model={catchStmt}
+                                    body={catchStmt}
+                                    connectorEdgeX={{
+                                        top: connectorEdgeTopX,
+                                        bottom: connectorEdgeBottomX,
+                                    }}
+                                />);
+                            connectorEdgeTopX = catchStmt.viewState.bBox.x + (titleW / 2);
+                            connectorEdgeBottomX = catchStmt.viewState.bBox.x;
+                            return catchComp;
+                        });
+                        return (<g>
+                            {connectorLineComp}
+                            {catchComponents}
+                        </g>);
+                    } else {
+                        const connectorLineComp = (
+                            <line
+                                x1={p4X}
+                                y1={bBox.y + bBox.h}
+                                x2={p6X}
+                                y2={bBox.y + bBox.h}
+                                classNameArrow='flowchart-action-arrow'
+                                classNameArrowHead='flowchart-action-arrow-head'
+                            />);
+                        return ({ connectorLineComp });
+                    }
+                })()}
+                {finallyStmt &&
                 <FinallyStatementDecorator
                     bBox={finallyStmt.viewState.bBox}
                     model={finallyStmt}
                     body={finallyStmt}
                     disableButtons={{ delete: disableDeleteForFinally }}
-                />} */}
-                {/* <rect
+                />}
+                <rect
                     x={bBox.x}
                     y={bBox.y}
                     width={bBox.w}
                     height={bBox.h}
-                    stroke='yellow'
+                    stroke='red'
                     strokeWidth='2'
                     fillOpacity='0'
-                /> */}
+                />
                 {/* <rect
                     x={statementBBox.x}
                     y={statementBBox.y}

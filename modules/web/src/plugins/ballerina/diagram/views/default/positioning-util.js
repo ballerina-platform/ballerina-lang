@@ -20,6 +20,7 @@ import _ from 'lodash';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
 import TreeUtil from './../../../model/tree-util';
 import OverlayComponentsRenderingUtil from './../default/components/utils/overlay-component-rendering-util';
+import finallyStatementDecorator from 'plugins/ballerina/diagram/views/default/components/nodes/finally-statement-decorator';
 
 class PositioningUtil {
 
@@ -1403,7 +1404,7 @@ class PositioningUtil {
     positionTryNode(node) {
         this.positionCompoundStatementComponents(node);
 
-        const catchBlocks = node.catchBlocks;
+        const catchBlocks = node.catchBlocks || [];
         const finallyBody = node.finallyBody;
 
         // position the try node
@@ -1439,19 +1440,20 @@ class PositioningUtil {
         if (finallyBody) {
             const finallyX = node.viewState.bBox.x;
             let finallyY;
-            // If there are no catch blocks, position the finally block wrt the try node
-            if (catchBlocks.length) {
-                // Position based on the last catch block
-                finallyY = (catchBlocks[catchBlocks.length - 1]).viewState.components['statement-box'].y
-                    + (catchBlocks[catchBlocks.length - 1]).viewState.components['statement-box'].h;
-            } else {
-                finallyY = node.viewState.bBox.y + node.viewState.components['statement-box'].h;
+            if (catchBlocks.length > 0) {
+                finallyY = catchBlocks[0].viewState.bBox.y + catchBlocks[0].viewState.bBox.h;
             }
 
             // Position the finally block
             finallyBody.viewState.bBox.x = finallyX;
-            finallyBody.viewState.bBox.y = finallyY;
-            // this.positionCompoundStatementComponents(finallyBody);
+            console.log('sizing finally in try');
+            const finallyStatementStartY = finallyY + finallyBody.viewState.components['block-header'].h;
+            finallyBody.viewState.components['statement-box'].y = finallyStatementStartY;
+            finallyBody.viewState.components['statement-box'].x = finallyX;
+            finallyBody.viewState.bBox.y = finallyY; // finallyStatementStartY;
+            this.positionBlockNode(finallyBody);
+            // reset finally body y after statements are positioned.
+            // finallyBody.viewState.bBox.y = finallyY;
         }
     }
 

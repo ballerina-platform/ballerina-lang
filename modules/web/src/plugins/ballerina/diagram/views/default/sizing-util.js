@@ -265,7 +265,6 @@ class SizingUtil {
      * @param {object} node - finally node
      */
     sizeFinallyNode(node) {
-        this.sizeBlockNode(node);
     }
 
     /**
@@ -1731,34 +1730,14 @@ class SizingUtil {
             nodeWidth += catchStmt.viewState.bBox.w;
         });
 
-        // make all catch statements the same height before adding finally height
-        // catchStmts.forEach((catchStmt) => {
-        //     catchStmt.viewState.bBox.h = allCHeight; // + components['block-header'].h;
-        // });
+        // finally sizing
+        const finallyBody = node.finallyBody;
+        if (finallyBody) {
+            nodeHeight += finallyBody.viewState.bBox.h;
+            finallyBody.viewState.components['statement-box'].h = finallyBody.viewState.bBox.h
+                            - finallyBody.viewState.components['block-header'].h;
+        }
 
-        // const elseStmt = node.elseStatement;
-        // if (elseStmt && (!(TreeUtil.isBlock(elseStmt) && elseStmt.statements.length === 0))) {
-        //     const elseHeight = elseStmt.viewState.bBox.h;
-        //     nodeHeight += elseHeight;
-        //     nodeWidth += elseStmt.viewState.bBox.w;
-        // }
-        // this.sizeCompoundNode(node);
-        // const catchBlocks = node.catchBlocks || [];
-        // let height = node.viewState.bBox.h;
-        // const finallyBody = node.finallyBody;
-        // let width = node.body.viewState.bBox.w;
-
-        // catchBlocks.forEach((catchBlock) => {
-        //     height += catchBlock.viewState.bBox.h;
-        //     width += catchBlock.viewState.bBox.h;
-        // });
-
-        // if (finallyBody) {
-        //     height += finallyBody.viewState.bBox.h;
-        // }
-
-        // node.viewState.bBox.h = height;
-        // node.viewState.bBox.w = width;
         node.viewState.bBox.h = nodeHeight;
         node.viewState.bBox.w = nodeWidth;
     }

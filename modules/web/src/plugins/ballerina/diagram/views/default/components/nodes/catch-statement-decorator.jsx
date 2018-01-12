@@ -238,9 +238,6 @@ class CatchStatementDecorator extends React.Component {
         const p11X = p1X;
         const p11Y = p1Y + (titleH / 2);
 
-        const p12X = p8X;
-        const p12Y = p8Y + this.context.designer.config.compoundStatement.heading.gap;
-
         this.conditionBox = new SimpleBBox(p2X, (p2Y - (this.context.designer.config.statement.height / 2)),
             statementBBox.w, this.context.designer.config.statement.height);
 
@@ -385,6 +382,10 @@ CatchStatementDecorator.propTypes = {
         delete: PropTypes.bool.isRequired,
         jump: PropTypes.bool.isRequired,
     }),
+    connectorEdgeX: PropTypes.shape({
+        top: PropTypes.number,
+        bottom: PropTypes.number,
+    }).isRequired,
     disableDropzoneMiddleLineOverlay: PropTypes.bool,
     isDebugHit: PropTypes.bool,
 };
