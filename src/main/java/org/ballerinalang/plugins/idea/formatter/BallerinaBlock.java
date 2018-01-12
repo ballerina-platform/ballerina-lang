@@ -149,7 +149,7 @@ public class BallerinaBlock extends AbstractBlock {
     }
 
     private static boolean isACodeBlock(@NotNull final IElementType parentElementType) {
-        if (parentElementType == IF_ELSE_STATEMENT || parentElementType == ITERATE_STATEMENT
+        if (parentElementType == IF_ELSE_STATEMENT || parentElementType == FOREACH_STATEMENT
                 || parentElementType == WHILE_STATEMENT || parentElementType == WORKER_DECLARATION
                 || parentElementType == FORK_JOIN_STATEMENT || parentElementType == TRANSACTION_STATEMENT
                 || parentElementType == IF_CLAUSE || parentElementType == ELSE_IF_CLAUSE

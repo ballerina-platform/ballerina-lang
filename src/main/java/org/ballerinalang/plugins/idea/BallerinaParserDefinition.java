@@ -71,7 +71,7 @@ import org.ballerinalang.plugins.idea.psi.FunctionTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IfElseStatementNode;
 import org.ballerinalang.plugins.idea.psi.InvocationNode;
-import org.ballerinalang.plugins.idea.psi.IterateStatementNode;
+import org.ballerinalang.plugins.idea.psi.ForEachStatementNode;
 import org.ballerinalang.plugins.idea.psi.JoinClauseNode;
 import org.ballerinalang.plugins.idea.psi.JoinConditionNode;
 import org.ballerinalang.plugins.idea.psi.LambdaFunctionNode;
@@ -154,7 +154,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
 
     public static final TokenSet KEYWORDS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             ABORT, ACTION, ALL, ANNOTATION, AS, ATTACH, BIND, BREAK, CATCH, CONNECTOR, CONST, CREATE, ELSE, ENDPOINT,
-            ENUM, FAILED, FINALLY, FORK, FUNCTION, IF, IMPORT, ITERATE, JOIN, LENGTHOF, NATIVE, NEXT, PACKAGE,
+            ENUM, FAILED, FINALLY, FOREACH, FORK, FUNCTION, IF, IMPORT, IN, JOIN, LENGTHOF, NATIVE, NEXT, PACKAGE,
             PARAMETER, PUBLIC, REPLY, RESOURCE, RETRIES, RETURN, RETURNS, SERVICE, SOME, STRUCT, THROW, TIMEOUT,
             TRANSACTION, TRANSFORMER, TRY, VAR, WHILE, WORKER, XMLNS, TYPEOF, TYPE_BOOL, TYPE_INT, TYPE_FLOAT,
             TYPE_STRING, TYPE_BLOB, TYPE_MAP, TYPE_XML, TYPE_JSON, TYPE_DATATABLE, TYPE_ANY, TYPE_TYPE, VERSION,
@@ -354,8 +354,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new CatchClauseNode(node);
             case BallerinaParser.RULE_codeBlockParameter:
                 return new CodeBlockParameterNode(node);
-            case BallerinaParser.RULE_iterateStatement:
-                return new IterateStatementNode(node);
+            case BallerinaParser.RULE_foreachStatement:
+                return new ForEachStatementNode(node);
             case BallerinaParser.RULE_joinClause:
                 return new JoinClauseNode(node);
             case BallerinaParser.RULE_timeoutClause:

@@ -82,7 +82,7 @@ public class BallerinaTypes {
     public static final RuleIElementType ELSE_IF_CLAUSE = ruleIElementTypes.get(RULE_elseIfClause);
     public static final RuleIElementType ELSE_CLAUSE = ruleIElementTypes.get(RULE_elseClause);
     public static final RuleIElementType CODE_BLOCK_BODY = ruleIElementTypes.get(RULE_codeBlockBody);
-    public static final RuleIElementType ITERATE_STATEMENT = ruleIElementTypes.get(RULE_iterateStatement);
+    public static final RuleIElementType FOREACH_STATEMENT = ruleIElementTypes.get(RULE_foreachStatement);
     public static final RuleIElementType WHILE_STATEMENT = ruleIElementTypes.get(RULE_whileStatement);
     public static final RuleIElementType TRY_CATCH_STATEMENT = ruleIElementTypes.get(RULE_tryCatchStatement);
     public static final RuleIElementType CATCH_CLAUSE = ruleIElementTypes.get(RULE_catchClause);
@@ -157,7 +157,8 @@ public class BallerinaTypes {
     public static final TokenIElementType FUNCTION = tokenIElementTypes.get(BallerinaLexer.FUNCTION);
     public static final TokenIElementType IF = tokenIElementTypes.get(BallerinaLexer.IF);
     public static final TokenIElementType IMPORT = tokenIElementTypes.get(BallerinaLexer.IMPORT);
-    public static final TokenIElementType ITERATE = tokenIElementTypes.get(BallerinaLexer.ITERATE);
+    public static final TokenIElementType FOREACH = tokenIElementTypes.get(BallerinaLexer.FOREACH);
+    public static final TokenIElementType IN = tokenIElementTypes.get(BallerinaLexer.IN);
     public static final TokenIElementType JOIN = tokenIElementTypes.get(BallerinaLexer.JOIN);
     public static final TokenIElementType JSON = tokenIElementTypes.get(BallerinaLexer.TYPE_JSON);
     public static final TokenIElementType LENGTHOF = tokenIElementTypes.get(BallerinaLexer.LENGTHOF);

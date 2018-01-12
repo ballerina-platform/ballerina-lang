@@ -25,9 +25,9 @@ import org.ballerinalang.plugins.idea.psi.scopes.ParameterContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class IterateStatementNode extends ANTLRPsiNode implements CodeBlockScope, ParameterContainer {
+public class ForEachStatementNode extends ANTLRPsiNode implements CodeBlockScope, ParameterContainer {
 
-    public IterateStatementNode(@NotNull ASTNode node) {
+    public ForEachStatementNode(@NotNull ASTNode node) {
         super(node);
     }
 
