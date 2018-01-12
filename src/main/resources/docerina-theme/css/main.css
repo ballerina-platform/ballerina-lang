@@ -133,7 +133,7 @@ label.thin-text{
 }
 
 table {
-  margin: 0 0 2em 1em;
+  margin: 0 0 0 1em;
   width: 60%;
   border: 0;
 }
@@ -189,6 +189,7 @@ td, th{
 .function-wrapper > ul > li{
   list-style: none;
   padding: 0;
+  margin: 2em 0;
 }
 .padding-bottom{
   padding-bottom: 15px;
@@ -251,12 +252,12 @@ td, th{
 
 .constructs-ul > li > a {
     color: #222 !important;
-    line-height: 1.6;
+    line-height: 1.8;
 }
 
 .constructs-ul > li.active > a {
     text-decoration: underline;
-    line-height: 1.6;
+    line-height: 1.8;
 }
 
 .construct-inner-items-ul {
@@ -266,13 +267,19 @@ td, th{
 
 .construct-inner-items-ul > li > a {
     color: #333 !important;
-    line-height: 1.6;
+    line-height: 1.8;
 }
 
 .construct-icon {
     float: left;
+    color: #888;
+    margin-right: 10px;
 }
 
 .construct-name {
-    padding-left: 18px;
+    padding-left: 24px;
+}
+
+.construct-wrapper {
+    margin: 2em 0;
 }
