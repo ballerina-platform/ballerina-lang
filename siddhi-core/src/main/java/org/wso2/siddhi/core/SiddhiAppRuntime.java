@@ -311,35 +311,46 @@ public class SiddhiAppRuntime {
     }
 
     public synchronized void start() {
-        if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
-            siddhiAppContext.getStatisticsManager().startReporting();
-        }
-        for (EternalReferencedHolder eternalReferencedHolder : siddhiAppContext.getEternalReferencedHolders()) {
-            eternalReferencedHolder.start();
-        }
-        for (List<Sink> sinks : sinkMap.values()) {
-            for (Sink sink : sinks) {
-                sink.connectWithRetry();
+        try {
+            if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
+                siddhiAppContext.getStatisticsManager().startReporting();
+            }
+            for (EternalReferencedHolder eternalReferencedHolder : siddhiAppContext.getEternalReferencedHolders()) {
+                eternalReferencedHolder.start();
+            }
+            for (List<Sink> sinks : sinkMap.values()) {
+                for (Sink sink : sinks) {
+                    sink.connectWithRetry();
+                }
+            }
+
+            for (Table table : tableMap.values()) {
+                table.connectWithRetry();
+            }
+
+            for (StreamJunction streamJunction : streamJunctionMap.values()) {
+                streamJunction.startProcessing();
+            }
+            for (List<Source> sources : sourceMap.values()) {
+                for (Source source : sources) {
+                    source.connectWithRetry();
+                }
+            }
+
+            for (AggregationRuntime aggregationRuntime : aggregationMap.values()) {
+                aggregationRuntime.getRecreateInMemoryData().recreateInMemoryData();
+            }
+            running = true;
+        } catch (Throwable t) {
+            log.error("Error starting Siddhi App '" + siddhiAppContext.getName() + "', triggering shutdown process. "
+                    + t.getMessage());
+            try {
+                shutdown();
+            } catch (Throwable t1) {
+                log.error("Error shutting down partially started Siddhi App '" + siddhiAppContext.getName() + "', "
+                        + t1.getMessage());
             }
         }
-
-        for (Table table : tableMap.values()) {
-            table.connectWithRetry();
-        }
-
-        for (StreamJunction streamJunction : streamJunctionMap.values()) {
-            streamJunction.startProcessing();
-        }
-        for (List<Source> sources : sourceMap.values()) {
-            for (Source source : sources) {
-                source.connectWithRetry();
-            }
-        }
-
-        for (AggregationRuntime aggregationRuntime : aggregationMap.values()) {
-            aggregationRuntime.getRecreateInMemoryData().recreateInMemoryData();
-        }
-        running = true;
     }
 
     public synchronized void shutdown() {
