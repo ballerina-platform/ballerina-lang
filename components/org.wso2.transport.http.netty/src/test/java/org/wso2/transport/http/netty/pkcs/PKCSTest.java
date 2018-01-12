@@ -71,7 +71,7 @@ public class PKCSTest {
             if (config.getId().contains(Constants.HTTPS_SCHEME)) {
                 config.setTrustStoreFile(TestUtil.getAbsolutePath(trustStoreFile));
                 config.setTrustStorePass(password);
-                config.setTlsStoreType(tlsStoreType);
+                config.setTLSStoreType(tlsStoreType);
             }
         });
 
@@ -84,7 +84,7 @@ public class PKCSTest {
         listenerConfiguration.setKeyStorePass(password);
         listenerConfiguration.setCertPass(password);
         listenerConfiguration.setScheme(scheme);
-        listenerConfiguration.setTlsStoreType(tlsStoreType);
+        listenerConfiguration.setTLSStoreType(tlsStoreType);
 
         ServerConnector connector = factory
                 .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
