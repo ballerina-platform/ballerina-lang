@@ -28,7 +28,7 @@
     <groupId>org.ballerinalang.tools</groupId>
     <artifactId>tools-distribution</artifactId>
     <packaging>pom</packaging>
-    <version>0.95.1-SNAPSHOT</version>
+    <version>0.95.7</version>
     <name>Ballerina - Tools</name>
     <description>Ballerina - Tools</description>
 
@@ -37,7 +37,7 @@
         <developerConnection>scm:git:https://github.com/ballerinalang/distribution.git
         </developerConnection>
         <connection>scm:git:https://github.com/ballerinalang/distribution.git</connection>
-        <tag>HEAD</tag>
+        <tag>v0.95.7</tag>
     </scm>
 
     <repositories>
