@@ -65,14 +65,14 @@ class AboutDialog extends React.Component {
                         />
                         <span className="appname">Composer</span>
                         </div>
-                        <div className="version">v0.95.1.SNAPSHOT</div>
+                        <div className="version">v0.95.7.</div>
                     </div>
                 }
                 onHide={this.onDialogHide}
                 className="modal-about"
                 actions={
                     <div>
-                        © {new Date().getFullYear()}
+                        ?? {new Date().getFullYear()}
                         &nbsp;
                         <a
                             href="http://wso2.com/"
