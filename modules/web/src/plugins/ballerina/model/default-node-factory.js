@@ -323,7 +323,7 @@ class DefaultNodeFactory {
 
     createConnectorActionInvocationAssignmentStatement(args) {
         let stmtString = '';
-        const { action, packageName, fullPackageName } = args;
+        const { action, packageName, fullPackageName, endpoint } = args;
 
         if (action && action.getReturnParams().length > 0) {
             stmtString = 'var var1 = ';
@@ -358,6 +358,10 @@ class DefaultNodeFactory {
             node.getExpression().getName().setValue(action.getName());
             node.getExpression().setFullPackageName(fullPackageName);
             node.getExpression().getPackageAlias().setValue(pkgStr);
+        }
+
+        if (endpoint) {
+            node.getExpression().getExpression().getVariableName().setValue(endpoint);
         }
 
         node.getExpression().invocationType = 'ACTION';
