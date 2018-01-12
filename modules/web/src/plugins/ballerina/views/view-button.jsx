@@ -24,9 +24,10 @@ import PropTypes from 'prop-types';
 class ViewButton extends React.Component {
 
     render() {
+        const active = (this.props.active) ? 'active' : '';
         return (
             <div
-                className='view-split-view-btn btn-icon'
+                className={`view-split-view-btn btn-icon ${active}`}
                 onClick={this.props.onClick}
             >
                 <div className='bottom-label-icon-wrapper'>
@@ -48,10 +49,12 @@ ViewButton.propTypes = {
     onClick: PropTypes.func.isRequired,
     label: PropTypes.string,
     icon: PropTypes.string.isRequired,
+    active: PropTypes.bool.isRequired,
 };
 
 ViewButton.defaultProps = {
     label: '',
+    active: false,
 };
 
 export default ViewButton;

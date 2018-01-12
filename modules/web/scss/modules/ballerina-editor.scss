@@ -674,7 +674,7 @@
         .btn-icon {
             float: left;
         }
-    }    
+    }
     
     .bottom-right-controls-container .btn-icon span {
         font-size: 12px;
@@ -684,7 +684,11 @@
     
     .bottom-right-controls-container .btn-icon:hover:after {
         opacity: 0.5
-    }    
+    }
+    
+    .bottom-right-controls-container .active{
+        font-weight: bold;
+    }
     
     .panel {
         & .panel-header {
@@ -4429,3 +4433,4 @@
           color: #a3a3a3 !important;
       }
   }
+
