@@ -115,6 +115,10 @@ FieldBasedAccessExpr
    : <expression.source> . <fieldName.value>
    ;
 
+Foreach
+   : foreach <variables-joined-by,>* in <collection.source> { <body.source> }
+   ;
+
 ForkJoin
    : fork { <workers>* } join ( <joinType> <joinCount> <joinedWorkerIdentifiers-joined-by,>* ) ( <joinResultVar.source> ) { <joinBody.source> } timeout ( <timeOutExpression.source> ) ( <timeOutVariable.source> ) { <timeoutBody.source> }
    : fork { <workers>* } join ( <joinType> <joinCount> <joinedWorkerIdentifiers-joined-by,>* ) ( <joinResultVar.source> ) { <joinBody.source> }

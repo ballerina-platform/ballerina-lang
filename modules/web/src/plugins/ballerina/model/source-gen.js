@@ -255,6 +255,12 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'FieldBasedAccessExpr':
             return getSourceOf(node.expression, pretty, l, replaceLambda) + w()
                  + '.' + w() + node.fieldName.valueWithBar;
+        case 'Foreach':
+            return dent() + w() + 'foreach' + a(' ')
+                 + join(node.variables, pretty, replaceLambda, l, w, ' ', ',') + w(' ') + 'in' + b(' ')
+                 + getSourceOf(node.collection, pretty, l, replaceLambda) + w(' ') + '{'
+                 + indent() + getSourceOf(node.body, pretty, l, replaceLambda)
+                 + outdent() + w() + '}';
         case 'ForkJoin':
             if (node.workers && node.joinType && node.joinCount >= 0
                          && node.joinedWorkerIdentifiers && node.joinResultVar && node.joinBody
