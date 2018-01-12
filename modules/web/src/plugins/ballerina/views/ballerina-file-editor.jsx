@@ -50,7 +50,6 @@ import ErrorMappingVisitor from './../visitors/error-mapping-visitor';
 import SyncErrorsVisitor from './../visitors/sync-errors';
 import { EVENTS } from '../constants';
 import ViewButton from './view-button';
-import ErrorBoundary from 'core/editor/views/ErrorBoundary';
 
 /**
  * React component for BallerinaFileEditor.
