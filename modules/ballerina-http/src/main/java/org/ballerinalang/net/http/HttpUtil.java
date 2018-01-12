@@ -977,7 +977,7 @@ public class HttpUtil {
                 throw new BallerinaException("Truststore password value must be provided to enable Mutual SSL");
             }
 
-            listenerConfiguration.setTlsStoreType(Constants.PKCS_STORE_TYPE);
+            listenerConfiguration.setTLSStoreType(Constants.PKCS_STORE_TYPE);
             listenerConfiguration.setKeyStoreFile(keyStoreFileAttrVal.getStringValue());
             listenerConfiguration.setKeyStorePass(keyStorePasswordAttrVal.getStringValue());
             listenerConfiguration.setCertPass(certPasswordAttrVal.getStringValue());
@@ -1010,7 +1010,7 @@ public class HttpUtil {
             }
 
             if (sslProtocolAttrVal != null) {
-                listenerConfiguration.setSslProtocol(sslProtocolAttrVal.getStringValue());
+                listenerConfiguration.setSSLProtocol(sslProtocolAttrVal.getStringValue());
             }
 
             listenerConfiguration

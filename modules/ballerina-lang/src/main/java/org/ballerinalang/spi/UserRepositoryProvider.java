@@ -15,22 +15,24 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.programfile;
+package org.ballerinalang.spi;
+
+import org.ballerinalang.repository.PackageRepository;
 
 /**
- * @since 0.94
+ * This represents the Java SPI interface for a Ballerina user package repository provider.
+ * It has highest presidency, over system and extension repos.
+ *
+ * @since 0.95.1
  */
-public class ProgramFileConstants {
+public interface UserRepositoryProvider {
 
-    public static final int MAGIC_NUMBER = 0xBA1DA4CE;
-    public static final short VERSION_NUMBER = 15;
+    /**
+     * Loads the user package repository exposed by this service.
+     *
+     * @return the loaded {@link PackageRepository} object
+     */
+    PackageRepository loadRepository();
 
-    // int, float, string, boolean, blob, reference type
-    public static final int NO_OF_VAR_TYPE_CATEGORIES = 6;
-    public static final int INT_OFFSET = 0;
-    public static final int FLOAT_OFFSET = 1;
-    public static final int STRING_OFFSET = 2;
-    public static final int BOOL_OFFSET = 3;
-    public static final int BLOB_OFFSET = 4;
-    public static final int REF_OFFSET = 5;
 }
+

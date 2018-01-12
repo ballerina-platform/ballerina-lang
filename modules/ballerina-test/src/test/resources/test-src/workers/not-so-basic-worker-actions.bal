@@ -1,3 +1,5 @@
+import ballerina.net.http;
+
 function forkJoinWithTimeoutTest1() (map) {
     map m = {};
     fork {
@@ -467,4 +469,16 @@ function forkJoinWithSameWorkerContent () (string result) {
         result = result + ", W2: " + s2[0];
     }
     return result;
+}
+
+function testWorkerStackCreation ()(int) {
+    endpoint<http:HttpClient> c {
+        create http:HttpClient("http://example.com", {port:80,keepAlive:true, httpVersion : "HTTP1.1", ssl : {}});
+    }
+    worker w1 {
+        return 1;
+    }
+    worker w2 {
+        println("testWorkerStackCreation done.");
+    }
 }
