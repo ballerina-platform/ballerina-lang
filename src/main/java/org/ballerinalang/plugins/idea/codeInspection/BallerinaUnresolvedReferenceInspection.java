@@ -152,12 +152,12 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
                                                                           @NotNull Collection<NameReferenceNode>
                                                                                   nodes) {
         List<ProblemDescriptor> problemDescriptors = new LinkedList<>();
-        for (NameReferenceNode annotationAttributeNode : nodes) {
+        for (NameReferenceNode node : nodes) {
             ProgressManager.checkCanceled();
-            if (annotationAttributeNode == null) {
+            if (node == null || "_".equals(node.getText())) {
                 continue;
             }
-            PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(annotationAttributeNode,
+            PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(node,
                     PackageNameNode.class);
             if (packageNameNode != null) {
                 PsiReference reference = packageNameNode.findReferenceAt(0);
@@ -168,7 +168,7 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
                     }
                 }
             }
-            IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(annotationAttributeNode, IdentifierPSINode.class);
+            IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(node, IdentifierPSINode.class);
             if (identifier == null) {
                 continue;
             }
