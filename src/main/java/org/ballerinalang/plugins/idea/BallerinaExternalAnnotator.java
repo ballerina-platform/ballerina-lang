@@ -104,7 +104,8 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
                 }
                 urlClassLoader = new URLClassLoader(filesToLoad.toArray(new URL[filesToLoad.size()]),
                         this.getClass().getClassLoader());
-                Class classToLoad = Class.forName("org.ballerinalang.launcher.BTester", true, urlClassLoader);
+                Class classToLoad = Class.forName("org.ballerinalang.launcher.util.BCompileUtil", true,
+                        urlClassLoader);
                 method = classToLoad.getMethod("getDiagnostics", ClassLoader.class, String.class, String.class);
             } catch (MalformedURLException | NoSuchMethodException | ClassNotFoundException e) {
                 LOGGER.debug(e.getMessage(), e);
