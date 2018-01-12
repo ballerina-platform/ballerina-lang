@@ -169,12 +169,12 @@
     </modules>
 
     <properties>
-        <ballerina.runtime.version>${project.version}</ballerina.runtime.version>
-        <ballerina.composer.version>${ballerina.runtime.version}</ballerina.composer.version>
-        <testerina.version>${ballerina.runtime.version}</testerina.version>
-        <tool.swagger.version>${ballerina.runtime.version}</tool.swagger.version>
-        <ballerina.container.version>${ballerina.runtime.version}</ballerina.container.version>
-        <docerina.version>${ballerina.runtime.version}</docerina.version>
+        <ballerina.runtime.version>0.95.7</ballerina.runtime.version>
+        <ballerina.composer.version>0.95.7</ballerina.composer.version>
+        <testerina.version>0.95.7</testerina.version>
+        <tool.swagger.version>0.95.7</tool.swagger.version>
+        <ballerina.container.version>0.95.7</ballerina.container.version>
+        <docerina.version>0.95.7</docerina.version>
         <docerina.maven.plugin.version>${ballerina.runtime.version}</docerina.maven.plugin.version>
         <commons-net.version>3.6</commons-net.version>
     </properties>
