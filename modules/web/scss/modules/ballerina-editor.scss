@@ -1312,7 +1312,14 @@
         dominant-baseline: central;
         width: 120px;
         max-width: 250px;
-        fill: #000000;
+        fill: #000;
+    }
+
+    .statement-title-text {
+        text-anchor: middle;
+        dominant-baseline: central;
+        fill: #777;
+        font-style: italic;
     }
 
     .client-invocation-text,
@@ -1320,7 +1327,7 @@
         paint-order: stroke;
         text-anchor: start;
         dominant-baseline: central;
-        stroke:#ffffff;
+        stroke:#fff;
         stroke-width: 4;
     }
 
@@ -2311,15 +2318,15 @@
     }
     
     .operations-annotation-icon {
-        color: #FFF;
+        color: #FFFFFF;
         opacity: 1;
         background-color: #2b2b2b;
         width: 30px;
     }
     
     .statement-title-rect {
-        fill: #FFFFFF;
-        stroke: #818181;
+        fill: #fff;
+        stroke: #000;
     }
     
     .statement-title-rect-error {
