@@ -88,8 +88,8 @@ import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
 import static org.ballerinalang.mime.util.Constants.SUBTYPE_INDEX;
-import static org.ballerinalang.net.http.Constants.ENTITY_BODY_REQUIRED_INDEX;
 import static org.ballerinalang.net.http.Constants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.Constants.HTTP_MESSAGE_INDEX;
 import static org.ballerinalang.net.http.Constants.MESSAGE_OUTPUT_STREAM;
@@ -263,58 +263,70 @@ public class HttpUtil {
      * @param context                Ballerina context
      * @param abstractNativeFunction Reference to abstract native ballerina function
      * @param isRequest              boolean representing whether the message is a request or a response
+     * @param isEntityBodyRequired   boolean representing whether the entity body is required
      * @return Entity of the request or response
      */
-    public static BValue[] getEntity(Context context, AbstractNativeFunction abstractNativeFunction,
-            boolean isRequest) {
+    public static BValue[] getEntity(Context context, AbstractNativeFunction abstractNativeFunction, boolean isRequest,
+            boolean isEntityBodyRequired) {
         BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, HTTP_MESSAGE_INDEX);
         BStruct entity = (BStruct) httpMessageStruct.getNativeData(MESSAGE_ENTITY);
-        boolean isEntityBodyRequired = abstractNativeFunction.getBooleanArgument(context, ENTITY_BODY_REQUIRED_INDEX);
-
-        HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         boolean isEntityBodyAvailable = false;
         if (httpMessageStruct.getNativeData(IS_ENTITY_BODY_PRESENT) != null) {
             isEntityBodyAvailable = (Boolean) httpMessageStruct.getNativeData(IS_ENTITY_BODY_PRESENT);
         }
         if (entity != null && isEntityBodyRequired && !isEntityBodyAvailable) {
-            HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
-            InputStream inputStream = httpMessageDataStreamer.getInputStream();
-            String baseType = getContentType(entity);
-            long contentLength = entity.getIntField(0);
-            if (baseType != null) {
-                switch (baseType) {
-                    case org.ballerinalang.mime.util.Constants.TEXT_PLAIN:
-                    case org.ballerinalang.mime.util.Constants.APPLICATION_FORM:
-                        MimeUtil.readAndSetStringPayload(context, entity, inputStream, contentLength);
-                        break;
-                    case org.ballerinalang.mime.util.Constants.APPLICATION_JSON:
-                        MimeUtil.readAndSetJsonPayload(context, entity, inputStream, contentLength);
-                        break;
-                    case org.ballerinalang.mime.util.Constants.APPLICATION_XML:
-                        MimeUtil.readAndSetXmlPayload(context, entity, inputStream, contentLength);
-                        break;
-                    default:
-                        MimeUtil.readAndSetBinaryPayload(context, entity, inputStream, contentLength);
-                        break;
-                }
-            } else {
-                MimeUtil.readAndSetBinaryPayload(context, entity, inputStream, contentLength);
-            }
-            httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
-            httpMessageStruct.addNativeData(IS_ENTITY_BODY_PRESENT, true);
-            OutputStream messageOutputStream = httpMessageDataStreamer.getOutputStream();
-            HttpUtil.addMessageOutputStream(httpMessageStruct, messageOutputStream);
+            populateEntityBody(context, httpMessageStruct, entity, isRequest);
         }
         if (entity == null) {
-            entity = ConnectorUtils.createAndGetStruct(context,
-                    org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
-                    org.ballerinalang.mime.util.Constants.ENTITY);
+            entity = ConnectorUtils
+                    .createAndGetStruct(context, org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
+                            org.ballerinalang.mime.util.Constants.ENTITY);
             entity.setRefField(ENTITY_HEADERS_INDEX, new BMap<>());
             httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
             httpMessageStruct.addNativeData(IS_ENTITY_BODY_PRESENT, false);
         }
         return abstractNativeFunction.getBValues(entity);
+    }
+
+    /**
+     * Populate the entity with the entity body.
+     *
+     * @param context           Represent ballerina context
+     * @param httpMessageStruct Represent ballerina request/response message
+     * @param entity            Represent a ballerina entity
+     * @param isRequest         boolean representing whether the message is a request or a response
+     */
+    private static void populateEntityBody(Context context, BStruct httpMessageStruct, BStruct entity,
+            boolean isRequest) {
+        HTTPCarbonMessage httpCarbonMessage = HttpUtil
+                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+        HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
+        InputStream inputStream = httpMessageDataStreamer.getInputStream();
+        String baseType = getContentType(entity);
+        long contentLength = entity.getIntField(SIZE_INDEX);
+        if (baseType != null) {
+            switch (baseType) {
+                case org.ballerinalang.mime.util.Constants.TEXT_PLAIN:
+                case org.ballerinalang.mime.util.Constants.APPLICATION_FORM:
+                    MimeUtil.readAndSetStringPayload(context, entity, inputStream, contentLength);
+                    break;
+                case org.ballerinalang.mime.util.Constants.APPLICATION_JSON:
+                    MimeUtil.readAndSetJsonPayload(context, entity, inputStream, contentLength);
+                    break;
+                case org.ballerinalang.mime.util.Constants.APPLICATION_XML:
+                    MimeUtil.readAndSetXmlPayload(context, entity, inputStream, contentLength);
+                    break;
+                default:
+                    MimeUtil.readAndSetBinaryPayload(context, entity, inputStream, contentLength);
+                    break;
+            }
+        } else {
+            MimeUtil.readAndSetBinaryPayload(context, entity, inputStream, contentLength);
+        }
+        httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
+        httpMessageStruct.addNativeData(IS_ENTITY_BODY_PRESENT, true);
+        OutputStream messageOutputStream = httpMessageDataStreamer.getOutputStream();
+        HttpUtil.addMessageOutputStream(httpMessageStruct, messageOutputStream);
     }
 
     private static String getContentType(BStruct entity) {

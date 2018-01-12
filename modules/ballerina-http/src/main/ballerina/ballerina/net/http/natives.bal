@@ -42,16 +42,20 @@ public struct Request {
     string restUriPostFix;
 }
 
-@Description { value:"Get the entity from the request"}
+@Description { value:"Get the entity from the request with the body included"}
 @Param { value:"req: The request message" }
-@Param { value:"isEntityBodyRequired: Whether the entity body should be populated" }
 @Return { value:"Entity of the request" }
-public native function <Request req> getEntity (boolean isEntityBodyRequired) (mime:Entity);
+public native function <Request req> getEntity () (mime:Entity);
+
+@Description { value:"Get the entity from the request without the body. This function is to be used only internally"}
+@Param { value:"req: The request message" }
+@Return { value:"Entity of the request" }
+native function <Request req> getEntityWithoutBody () (mime:Entity);
 
 @Description { value:"Set the entity to request"}
 @Param { value:"req: The request message" }
 @Return { value:"Entity of the request" }
-public native function <Request res> setEntity (mime:Entity entity);
+public native function <Request req> setEntity (mime:Entity entity);
 
 @Description { value:"Gets the request URL from the request"}
 @Param { value:"req: The request message" }
@@ -90,10 +94,15 @@ public struct Response {
     string server;
 }
 
-@Description { value:"Get the entity from the response"}
+@Description { value:"Get the entity from the response with the body"}
 @Param { value:"req: The response message" }
 @Return { value:"Entity of the response" }
-public native function <Response res> getEntity (boolean isEntityBodyRequired) (mime:Entity);
+public native function <Response res> getEntity () (mime:Entity);
+
+@Description { value:"Get the entity from the response without the body. This function is to be used only internally"}
+@Param { value:"req: The response message" }
+@Return { value:"Entity of the response" }
+native function <Response res> getEntityWithoutBody () (mime:Entity);
 
 @Description { value:"Set the entity to response"}
 @Param { value:"req: The response message" }

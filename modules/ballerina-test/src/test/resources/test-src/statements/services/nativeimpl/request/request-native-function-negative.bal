@@ -38,7 +38,7 @@ function testGetRequestURL (http:Request req) (string) {
 }
 
 function testGetEntity (http:Request req) (mime:Entity) {
-    mime:Entity entity = req.getEntity(true);
+    mime:Entity entity = req.getEntity();
     return entity;
 }
 

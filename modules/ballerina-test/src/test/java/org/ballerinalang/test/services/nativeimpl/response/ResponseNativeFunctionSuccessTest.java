@@ -38,8 +38,6 @@ import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -59,7 +57,6 @@ import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
-import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_FILE;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.TEXT_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
@@ -69,7 +66,6 @@ import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
  * Test cases for ballerina.net.http.response success native functions.
  */
 public class ResponseNativeFunctionSuccessTest {
-    private static final Logger LOG = LoggerFactory.getLogger(ResponseNativeFunctionSuccessTest.class);
 
     private CompileResult result, serviceResult;
     private final String responseStruct = Constants.RESPONSE;
@@ -77,7 +73,6 @@ public class ResponseNativeFunctionSuccessTest {
     private final String mediaTypeStruct = MEDIA_TYPE;
     private final String headerStruct = HEADER_VALUE_STRUCT;
     private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
-    private final String protocolPackageFile = PROTOCOL_PACKAGE_FILE;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
     private String sourceFilePath = "test-src/statements/services/nativeimpl/response/response-native-function.bal";
 
