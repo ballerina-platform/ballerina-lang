@@ -2488,7 +2488,8 @@ public class AggregationTestCase {
                 "@BufferSize('3') " +
                 "define aggregation stockAggregation " +
                         "from stockStream " +
-                        "select avg(price) as avgPrice, sum(price) as totalPrice, (price * quantity) as lastTradeValue, " +
+                        "select avg(price) as avgPrice, sum(price) as totalPrice, (price * quantity) as " +
+                        "lastTradeValue, " +
                         "count() as count " +
                         "aggregate by timestamp every sec...year ;" +
 
@@ -2586,7 +2587,8 @@ public class AggregationTestCase {
                 "@BufferSize('3') " +
                         "define aggregation stockAggregation " +
                         "from stockStream " +
-                        "select avg(price) as avgPrice, sum(price) as totalPrice, (price * quantity) as lastTradeValue, " +
+                        "select avg(price) as avgPrice, sum(price) as totalPrice, (price * quantity) as " +
+                        "lastTradeValue, " +
                         "count() as count " +
                         "aggregate by timestamp every sec...year ;" +
 
@@ -2684,7 +2686,8 @@ public class AggregationTestCase {
                 "@BufferSize('3') " +
                         "define aggregation stockAggregation " +
                         "from stockStream " +
-                        "select avg(price) as avgPrice, sum(price) as totalPrice, (price * quantity) as lastTradeValue, " +
+                        "select avg(price) as avgPrice, sum(price) as totalPrice, (price * quantity) as " +
+                        "lastTradeValue, " +
                         "count() as count " +
                         "group by symbol " +
                         "aggregate by timestamp every sec...year ;" +
