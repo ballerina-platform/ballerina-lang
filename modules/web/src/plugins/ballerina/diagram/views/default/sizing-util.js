@@ -1684,21 +1684,23 @@ class SizingUtil {
         components['block-header'] = new SimpleBBox();
         viewState.components.text = new SimpleBBox();
 
-        const bodyWidth = nodeBodyViewState.bBox.w;
+        let bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
 
         components['block-header'].h = this.config.compoundStatement.heading.height
                                         + this.config.compoundStatement.padding.top;
 
-        if (catchStmts.length > 0) {
-            // add an additional gap to allow the catch clauses in try if there are any
-            components['block-header'].h += (2 * this.config.compoundStatement.padding.top);
-        }
-
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
         viewState.components['statement-box'].h = bodyHeight;
         viewState.components['statement-box'].w = bodyWidth;
+
+        if (catchStmts.length > 0) {
+            // add an additional gap to allow the catch clauses in try
+            components['block-header'].h += (3 * this.config.compoundStatement.padding.top);
+            bodyWidth += this.config.compoundStatement.gap.left;
+        }
+
         viewState.bBox.h = viewState.components['statement-box'].h
                             + viewState.components['drop-zone'].h
                             + components['block-header'].h;
@@ -1721,8 +1723,7 @@ class SizingUtil {
         let nodeHeight = viewState.bBox.h;
         let nodeWidth = viewState.bBox.w;
 
-        
-
+        // try catch sizing
         catchStmts.forEach((catchStmt) => {
             const catchHeight = catchStmt.viewState.bBox.h;
             nodeHeight += catchHeight;

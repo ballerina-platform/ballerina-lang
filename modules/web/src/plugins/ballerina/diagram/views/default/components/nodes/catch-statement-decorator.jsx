@@ -200,19 +200,16 @@ class CatchStatementDecorator extends React.Component {
 
         // Defining coordinates of the diagram
         // (x,y)
-        // (P1)        (P2)|---------|(P3)      (P4)
-        //       |---------|   try   |----------|
-        // (P11) |         |____ ____|__________| (statementBox)
-        //       |              |(p8)           |
-        //       |              |               |
-        //       |         true |               |
-        //       |            __|__ (p12)       |
-        //       |            a = 1;            |
-        //       |              |               |
-        //  (P7) |               (p10)          |
-        //       |                              |
-        //       |_____________(P6)_____________| (P5)
-        //                      |
+        // (P1)       (P2)|---------|(P3)
+        //       ---------|  catch  |
+        //                |____ ____|
+        //                     |(p8)
+        //                   __|__
+        //                   a = 1;
+        //                     |
+        //                     |
+        //                     |
+        //                    (P6)
 
         const p1X = bBox.x - gapLeft;
         const p1Y = bBox.y + gapTop;
@@ -227,7 +224,7 @@ class CatchStatementDecorator extends React.Component {
         const p4Y = p2Y;
 
         const p5X = p4X;
-        const p5Y = bBox.y + statementBBox.h;
+        const p5Y = statementBBox.y + statementBBox.h;
 
         const p6X = bBox.x;
         const p6Y = p5Y;
@@ -268,10 +265,6 @@ class CatchStatementDecorator extends React.Component {
                     this.myRoot = group;
                 }}
             >
-                <polyline
-                    points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y} ${p6X},${p6Y}`}
-                    className='background-empty-rect'
-                />
                 <rect
                     x={p2X}
                     y={p1Y}
@@ -296,6 +289,13 @@ class CatchStatementDecorator extends React.Component {
                     dropTarget={this.props.model.body}
                     enableDragBg
                     enableCenterOverlayLine={!this.props.disableDropzoneMiddleLineOverlay}
+                />
+                <line
+                    x1={p8X}
+                    y1={p8Y}
+                    x2={p6X}
+                    y2={p6Y}
+                    className='flowchart-background-empty-rect'
                 />
                 <g>
                     <rect

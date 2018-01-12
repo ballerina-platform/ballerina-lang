@@ -29,6 +29,7 @@ import Breakpoint from '../decorators/breakpoint';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import FinallyStatementDecorator from './finally-statement-decorator';
 import CatchStatementDecorator from './catch-statement-decorator';
+import ArrowDecorator from '../decorators/arrow-decorator';
 
 /**
  * Wraps other UI elements and provide box with a heading.
@@ -204,16 +205,15 @@ class TryStatementDecorator extends React.Component {
         // (x,y)
         // (P1)        (P2)|---------|(P3)      (P4)
         //       |---------|   try   |----------|
-        // (P11) |         |____ ____|__________| (statementBox)
+        // (P11) |         |____ ____|__________|(statementBox)
         //       |              |(p8)           |
-        //       |              |               |
-        //       |         true |               |
-        //       |            __|__ (p12)       |
+        //       |              |               |---------------[catch]
+        //       |            __|__ (p12)       |(p9)
         //       |            a = 1;            |
         //       |              |               |
-        //  (P7) |               (p10)          |
+        //       |               (p10)          |
         //       |                              |
-        //       |_____________(P6)_____________| (P5)
+        //   (p7)|_____________(P6)_____________| (P5)
         //                      |
 
         const p1X = bBox.x - gapLeft;
@@ -229,22 +229,22 @@ class TryStatementDecorator extends React.Component {
         const p4Y = p2Y;
 
         const p5X = p4X;
-        const p5Y = bBox.y + bBox.h;
+        const p5Y = statementBBox.y + statementBBox.h;
 
         const p6X = bBox.x;
         const p6Y = p5Y;
 
+        const p7X = p1X;
+        const p7Y = p5Y;
+
         const p8X = bBox.x;
         const p8Y = p2Y + (titleH / 2);
 
-        const p9X = p8X;
+        const p9X = p4X;
         const p9Y = p8Y - titleH;
 
         const p11X = p1X;
         const p11Y = p1Y + (titleH / 2);
-
-        // const p12X = p8X;
-        // const p12Y = p8Y + this.context.designer.config.flowChartControlStatement.heading.gap;
 
         this.conditionBox = new SimpleBBox(p2X, (p2Y - (this.context.designer.config.statement.height / 2)),
             statementBBox.w, this.context.designer.config.statement.height);
@@ -273,7 +273,7 @@ class TryStatementDecorator extends React.Component {
                 }}
             >
                 <polyline
-                    points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y} ${p6X},${p6Y}`}
+                    points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y} ${p7X},${p7Y} ${p1X},${p1Y} ${p2X},${p2Y}`}
                     className='background-empty-rect'
                 />
                 <rect
@@ -325,14 +325,40 @@ class TryStatementDecorator extends React.Component {
                     disableButtons={this.props.disableButtons}
                 />
                 {(() => {
+                    const tryConnectorStartX = p4X;
+                    const tryConnectorY = p4Y + titleH - gapTop;
                     if (model.catchBlocks.length > 0) {
-                        return model.catchBlocks.map((catchStmt) => {
-                            return (
-                                <CatchStatementDecorator
-                                    bBox={catchStmt.viewState.bBox}
-                                    model={catchStmt}
-                                    body={catchStmt}
+                        return model.catchBlocks.map((catchStmt, i) => {
+                            const tryConnectorEndX = catchStmt.viewState.bBox.x;
+                            let connectorComp;
+                            if (i === 0) {
+                                connectorComp = (<ArrowDecorator
+                                    start={{
+                                        x: (tryConnectorEndX + (titleH / 2)),
+                                        y: catchStmt.viewState.bBox.y + catchStmt.viewState.bBox.h,
+                                    }}
+                                    end={{ x: p6X, y: p6Y }}
+                                    classNameArrow='flowchart-action-arrow'
+                                    classNameArrowHead='flowchart-action-arrow-head'
                                 />);
+                            }
+                            const catchComp = (
+                                <g>
+                                    <line
+                                        x1={tryConnectorStartX}
+                                        y1={tryConnectorY}
+                                        x2={tryConnectorEndX}
+                                        y2={tryConnectorY}
+                                        className='flowchart-background-empty-rect'
+                                    />
+                                    <CatchStatementDecorator
+                                        bBox={catchStmt.viewState.bBox}
+                                        model={catchStmt}
+                                        body={catchStmt}
+                                    />
+                                    {connectorComp}
+                                </g>);
+                            return catchComp;
                         });
                     }
                     return (null);
