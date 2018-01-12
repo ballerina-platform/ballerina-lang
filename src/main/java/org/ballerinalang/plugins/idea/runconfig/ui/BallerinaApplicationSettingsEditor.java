@@ -46,6 +46,7 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
     private LabeledComponent<TextFieldWithBrowseButton> myFileField;
     private LabeledComponent<EditorTextField> myPackageField;
     private LabeledComponent<RawCommandLineEditor> myParamsField;
+    private LabeledComponent<RawCommandLineEditor> myBallerinaParamsField;
     private LabeledComponent<TextFieldWithBrowseButton> myWorkingDirectoryField;
     private LabeledComponent<ModulesComboBox> myModulesComboBox;
     private Project myProject;
@@ -69,6 +70,8 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
         myModulesComboBox.getComponent().setSelectedModule(configuration.getConfigurationModule().getModule());
 
         myParamsField.getComponent().setText(configuration.getParams());
+        myBallerinaParamsField.getComponent().setText(configuration.getBallerinaToolParams());
+
         myWorkingDirectoryField.getComponent().setText(configuration.getWorkingDirectory());
     }
 
@@ -81,6 +84,7 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
         configuration.setFilePath(myFileField.getComponent().getText());
         configuration.setModule(myModulesComboBox.getComponent().getSelectedModule());
         configuration.setParams(myParamsField.getComponent().getText());
+        configuration.setBallerinaParams(myBallerinaParamsField.getComponent().getText());
         configuration.setWorkingDirectory(myWorkingDirectoryField.getComponent().getText());
     }
 
@@ -106,6 +110,9 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
 
         myParamsField = new LabeledComponent<>();
         myParamsField.setComponent(new RawCommandLineEditor());
+
+        myBallerinaParamsField = new LabeledComponent<>();
+        myBallerinaParamsField.setComponent(new RawCommandLineEditor());
 
         myModulesComboBox = new LabeledComponent<>();
         myModulesComboBox.setComponent(new ModulesComboBox());
