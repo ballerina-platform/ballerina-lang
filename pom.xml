@@ -159,7 +159,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.95.7</ballerina.version>
+        <ballerina.version>0.95.8-SNAPSHOT</ballerina.version>
         <project.scm.id>my-scm-server</project.scm.id>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
