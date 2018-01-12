@@ -214,7 +214,6 @@ class BallerinaFileEditor extends React.Component {
     onASTModified(evt) {
         if (evt.type === 'child-added') {
             this.addAutoImports(evt.data.node);
-            this.getConnectorDeclarations(evt.data.node);
         }
         TreeBuilder.modify(evt.origin);
 
@@ -813,16 +812,19 @@ class BallerinaFileEditor extends React.Component {
                         label='Design View'
                         icon='design-view'
                         onClick={() => { this.setActiveView(DESIGN_VIEW); }}
+                        active={this.state.activeView === DESIGN_VIEW}
                     />
                     <ViewButton
                         label='Source View'
                         icon='code-view'
                         onClick={() => { this.setActiveView(SOURCE_VIEW); }}
+                        active={this.state.activeView === SOURCE_VIEW}
                     />
                     <ViewButton
                         label='Split View'
                         icon='code'
                         onClick={() => { this.setActiveView(SPLIT_VIEW); }}
+                        active={this.state.activeView === SPLIT_VIEW}
                     />
                 </div>
             </div>
