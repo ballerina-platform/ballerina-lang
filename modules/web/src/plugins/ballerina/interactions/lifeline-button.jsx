@@ -23,6 +23,7 @@ import Button from './button';
 import Menu from './menu';
 import Item from './item';
 import DefaultNodeFactory from '../model/default-node-factory';
+import Connector from '../env/connector';
 
 // Use your imagination to render suggestions.
 const renderSuggestion = suggestion => (
@@ -55,6 +56,7 @@ class LifelineButton extends React.Component {
         this.onChange = this.onChange.bind(this);
         this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
         this.getSuggestionValue = this.getSuggestionValue.bind(this);
+        this.createConnector = this.createConnector.bind(this);
     }
 
     getSuggestionValue(suggestion) {
@@ -130,6 +132,21 @@ class LifelineButton extends React.Component {
         this.props.model.acceptDrop(node);
     }
 
+    createConnector() {
+        const connectorNode = DefaultNodeFactory.createConnector();
+        connectorNode.name.setValue(this.state.value);
+        const currentPackage = this.context.editor.environment.getCurrentPackage();
+
+        const node = DefaultNodeFactory.createEndpoint({
+            pkg: currentPackage,
+            connector: new Connector({ name: this.state.value, id: '', actions: [], params: [] }),
+            packageName: currentPackage.getName(),
+            fullPackageName: currentPackage.getName(),
+        });
+        this.props.model.acceptDrop(node);
+        this.props.model.getRoot().addTopLevelNodes(connectorNode);
+    }
+
     /**
      * render hover area and button
      * @return {object} button rendering object
@@ -186,6 +203,15 @@ class LifelineButton extends React.Component {
                                 inputProps={inputProps}
                                 ref={this.storeInputReference}
                             />
+                            {this.state.value !== '' &&
+                            <div className='add-new-connector-button'>
+                                <a onClick={this.createConnector}>
+                                    <i className='fw fw-connector' />
+                                    {' Create new connector "'}
+                                    <b>{this.state.value + '"'}</b>
+                                </a>
+                            </div>
+                            }
                         </div>
                     </Menu>
                 </Button>
