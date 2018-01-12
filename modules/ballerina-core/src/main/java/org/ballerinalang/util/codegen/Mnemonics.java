@@ -43,7 +43,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.BCONST_1] = "bconst_1";
         mnemonics[InstructionCodes.RCONST_NULL] = "rconst_null";
 
-        mnemonics[InstructionCodes.REG_CP] = "reg_cp";
         mnemonics[InstructionCodes.IMOVE] = "imove";
         mnemonics[InstructionCodes.FMOVE] = "fmove";
         mnemonics[InstructionCodes.SMOVE] = "smove";
@@ -232,6 +231,10 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWJSON] = "newjson";
         mnemonics[InstructionCodes.NEWDATATABLE] = "newdatatable";
 
+        mnemonics[InstructionCodes.NEW_INT_RANGE] = "new_int_range";
+        mnemonics[InstructionCodes.ITR_NEW] = "itr_new";
+        mnemonics[InstructionCodes.ITR_HAS_NEXT] = "itr_has_next";
+        mnemonics[InstructionCodes.ITR_NEXT] = "itr_next";
 
         mnemonics[InstructionCodes.IRET] = "iret";
         mnemonics[InstructionCodes.FRET] = "fret";

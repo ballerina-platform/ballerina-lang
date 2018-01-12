@@ -34,6 +34,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -108,6 +109,9 @@ public class GeneralFSPackageRepository implements PackageRepository {
     public Set<PackageID> listPackages(int maxDepth) {
         if (maxDepth <= 0) {
             throw new IllegalArgumentException("maxDepth must be greater than zero");
+        }
+        if (!Files.isDirectory(this.basePath)) {
+            return Collections.emptySet();
         }
         Set<PackageID> result = new LinkedHashSet<>();
         int baseNameCount = this.basePath.getNameCount();

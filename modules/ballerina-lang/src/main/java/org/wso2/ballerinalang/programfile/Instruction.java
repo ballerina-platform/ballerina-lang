@@ -28,7 +28,6 @@ import java.util.StringJoiner;
 public class Instruction {
 
     public int opcode;
-    int[] operands;
 
     public Operand[] ops;
 
@@ -42,17 +41,8 @@ public class Instruction {
         this.ops = operands;
     }
 
-    Instruction(int opcode, int... operands) {
-        this.opcode = opcode;
-        this.operands = operands;
-    }
-
     public int getOpcode() {
         return opcode;
-    }
-
-    public void setOperand(int index, int value) {
-        operands[index] = value;
     }
 
     @Override

@@ -435,6 +435,27 @@ public class DatatableTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
     }
 
+    @Test(groups = "DatatableTest", description = "Check select data with multiple rows accessing without getNext.")
+    public void testMutltipleRowsWithoutLoop() {
+        BValue[] returns = BRunUtil.invoke(result, "testMutltipleRowsWithoutLoop");
+        Assert.assertEquals(returns.length, 6);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 200);
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 100);
+        Assert.assertEquals(returns[4].stringValue(), "200_100_NOT");
+        Assert.assertEquals(returns[5].stringValue(), "200_HAS_HAS_100_NO_NO");
+    }
+
+    @Test(groups = "DatatableTest", description = "Check select data with multiple rows accessing without getNext.")
+    public void testHasNextWithoutConsume() {
+        BValue[] returns = BRunUtil.invoke(result, "testHasNextWithoutConsume");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+    }
+
     @Test(groups = "DatatableTest", description = "Check get float and double types.")
     public void testGetFloatTypes() {
         BValue[] returns = BRunUtil.invoke(result, "testGetFloatTypes");

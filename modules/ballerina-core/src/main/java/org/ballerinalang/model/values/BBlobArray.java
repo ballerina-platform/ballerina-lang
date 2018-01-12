@@ -67,4 +67,9 @@ public class BBlobArray extends BNewArray {
         blobArray.size = this.size;
         return blobArray;
     }
+
+    @Override
+    public BValue getBValue(long index) {
+        return new BBlob(get(index));
+    }
 }
