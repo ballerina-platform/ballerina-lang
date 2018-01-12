@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>language-server</artifactId>
     <packaging>pom</packaging>
-    <version>0.95.7</version>
+    <version>0.95.8-SNAPSHOT</version>
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerinalang</artifactId>
@@ -16,7 +16,7 @@
         <url>https://github.com/ballerinalang/language-server.git</url>
         <developerConnection>scm:git:https://github.com/ballerinalang/language-server.git</developerConnection>
         <connection>scm:git:https://github.com/ballerinalang/language-server.git</connection>
-        <tag>v0.95.7</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <repositories>
