@@ -72,6 +72,7 @@ import org.ballerinalang.plugins.idea.psi.EnumDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ForEachStatementNode;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationNode;
@@ -1035,6 +1036,24 @@ public class BallerinaPsiImplUtil {
                 PsiElement identifier = node.getNameIdentifier();
                 if (identifier != null && identifier instanceof IdentifierPSINode) {
                     results.add(((IdentifierPSINode) identifier));
+                }
+            }
+        }
+
+        if (scope instanceof ForEachStatementNode) {
+            VariableReferenceListNode variableReferenceListNode = PsiTreeUtil.getChildOfType(scope,
+                    VariableReferenceListNode.class);
+            if (variableReferenceListNode != null) {
+                List<VariableReferenceNode> variableReferenceNodes =
+                        PsiTreeUtil.getChildrenOfTypeAsList(variableReferenceListNode, VariableReferenceNode.class);
+                for (VariableReferenceNode variableReferenceNode : variableReferenceNodes) {
+                    if (variableReferenceNode != null) {
+                        IdentifierPSINode identifier = PsiTreeUtil.findChildOfType(variableReferenceNode,
+                                IdentifierPSINode.class);
+                        if (identifier != null) {
+                            results.add(identifier);
+                        }
+                    }
                 }
             }
         }
