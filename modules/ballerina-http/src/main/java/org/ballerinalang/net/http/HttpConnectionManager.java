@@ -81,7 +81,7 @@ public class HttpConnectionManager {
         return instance;
     }
 
-    Set<ListenerConfiguration> getDefaultListenerConfiugrationSet() {
+    public Set<ListenerConfiguration> getDefaultListenerConfiugrationSet() {
         Set<ListenerConfiguration> listenerConfigurationSet = new HashSet<>();
         for (ListenerConfiguration listenerConfiguration : trpConfig.getListenerConfigurations()) {
             listenerConfiguration.setId(listenerConfiguration.getHost() == null ?
