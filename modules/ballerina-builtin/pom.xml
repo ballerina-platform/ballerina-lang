@@ -59,10 +59,6 @@
             <artifactId>axiom-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
         </dependency>
@@ -98,7 +94,7 @@
                 <directory>${ballerina.source.directory}</directory>
                 <targetPath>META-INF/ballerina</targetPath>
             </resource>
-    	</resources>
+        </resources>
         <plugins>
             <!-- For ballerina annotation processing -->
             <plugin>
@@ -128,7 +124,7 @@
     </build>
 
     <properties>
-      <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
+        <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
     </properties>
 
 </project>
