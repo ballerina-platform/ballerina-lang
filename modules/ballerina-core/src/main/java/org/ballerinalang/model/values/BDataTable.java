@@ -71,8 +71,9 @@ public class BDataTable implements BRefType<Object> {
     public void next() {
         if (!nextPrefetched) {
             iterator.next();
+        } else {
+            nextPrefetched = false;
         }
-        nextPrefetched = false;
     }
 
     public void close(boolean isInTransaction) {
@@ -80,10 +81,7 @@ public class BDataTable implements BRefType<Object> {
     }
 
     public BStruct getNext() {
-        if (!nextPrefetched) {
-            iterator.next();
-        }
-        nextPrefetched = false;
+        next();
         return iterator.generateNext();
     }
 
