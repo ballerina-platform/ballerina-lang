@@ -52,8 +52,8 @@
             <artifactId>ballerina-core</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>org.wso2.carbon.transport</groupId>
-                    <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
+                    <groupId>org.wso2.transport.http</groupId>
+                    <artifactId>org.wso2.transport.http.netty</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -115,10 +115,9 @@
             <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.transport</groupId>
-            <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
-            <!-- Overriding the transport version to suite msf4j -->
-            <version>${org.wso2.carbon.transport.http.netty.version}</version>
+            <groupId>org.wso2.transport.http</groupId>
+            <artifactId>org.wso2.transport.http.netty</artifactId>
+            <version>${org.wso2.transport.http.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.msf4j</groupId>
@@ -259,7 +258,7 @@
         <microservice.mainClass>org.ballerinalang.composer.service.workspace.app.WorkspaceServiceRunner</microservice.mainClass>
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
         <project.build.sourceEncoding>${file.encoding}</project.build.sourceEncoding>
-        <org.wso2.carbon.transport.http.netty.version>5.0.1</org.wso2.carbon.transport.http.netty.version>
+        <org.wso2.transport.http.version>6.0.63</org.wso2.transport.http.version>
         <jackson.core.version>2.4.5</jackson.core.version>
         <maven.shadeplugin.version>2.4.1</maven.shadeplugin.version>
         <lsp4j.version>0.3.0</lsp4j.version>
