@@ -245,6 +245,12 @@
         <localInspection language="Ballerina" displayName="Function invocation inspection" groupPath="Ballerina"
                          groupName="General" enabledByDefault="true" level="WARNING"
                          implementationClass="org.ballerinalang.plugins.idea.codeInspection.FunctionInvocationInspection"/>
+
+        <!--completion confidences-->
+        <completion.confidence language="Ballerina"
+                               implementationClass="org.ballerinalang.plugins.idea.codeInsight.completion.SkipAutoPopupInForEach"
+                               id="ballerinaSkipAutoPopupInForEach"/>
+
     </extensions>
 
     <actions>
