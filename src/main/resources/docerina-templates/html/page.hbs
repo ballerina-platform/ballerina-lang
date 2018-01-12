@@ -121,23 +121,25 @@
                             ( {{join returnParams " , "}} )
                             {{/if}}
                         </h4>
-                        <p>
-                            <span class="fw-right gray xs-icon"></span>{{description}}
-                        </p>
+                        {{#if description}}
+                            <p>
+                                <span class="fw-right gray xs-icon"></span>{{description}}
+                            </p>
+                        {{/if}}
                         {{#if parameters}}
                             <p>
                                 <label class="table-header-text">Parameters:</label>
                             <table>
                                 <tr>
-                                    <th>Parameter Name</th>
-                                    <th>Data Type</th>
-                                    <th>Description</th>
+                                    <th class="col-md-4">Parameter Name</th>
+                                    <th class="col-md-2">Data Type</th>
+                                    <th class="col-md-6">Description</th>
                                 </tr>
                                 {{#each parameters}}
                                     <tr>
-                                        <td>{{name}}</td>
-                                        <td>{{dataType}}</td>
-                                        <td>{{description}}</td>
+                                        <td class="col-md-4">{{name}}</td>
+                                        <td class="col-md-2">{{dataType}}</td>
+                                        <td class="col-md-6">{{description}}</td>
                                     </tr>
                                 {{/each}}
                             </table>
@@ -148,15 +150,15 @@
                                 <label class="table-header-text">Return Parameters:</label>
                             <table border="1">
                                 <tr>
-                                    <th>Return Variable</th>
-                                    <th>Data Type</th>
-                                    <th>Description</th>
+                                    <th class="col-md-4">Return Variable</th>
+                                    <th class="col-md-2">Data Type</th>
+                                    <th class="col-md-6">Description</th>
                                 </tr>
                                 {{#each returnParams}}
                                     <tr>
-                                        <td>{{name}}</td>
-                                        <td> {{dataType}} </td>
-                                        <td>{{description}}</td>
+                                        <td class="col-md-4">{{name}}</td>
+                                        <td class="col-md-2">{{dataType}} </td>
+                                        <td class="col-md-6">{{description}}</td>
                                     </tr>
                                 {{/each}}
                             </table>
@@ -169,21 +171,25 @@
                             <span class="{{icon}} sm-icon"></span>
                             public struct {{name}}
                         </h4>
-                        <p><span class="fw-right gray xs-icon"></span>{{description}}</p>
+                        {{#if description}}
+                            <p>
+                                <span class="fw-right gray xs-icon"></span>{{description}}
+                            </p>
+                        {{/if}}
                         {{#if fields}}
                             <p>
                                 <label class="table-header-text">Fields:</label>
                             <table>
                                 <tr>
-                                    <th>Field Name</th>
-                                    <th>Data Type</th>
-                                    <th>Description</th>
+                                    <th class="col-md-4">Field Name</th>
+                                    <th class="col-md-2">Data Type</th>
+                                    <th class="col-md-6">Description</th>
                                 </tr>
                                 {{#each fields}}
                                     <tr>
-                                        <td>{{name}}</td>
-                                        <td>{{dataType}}</td>
-                                        <td>{{description}}</td>
+                                        <td class="col-md-4">{{name}}</td>
+                                        <td class="col-md-2">{{dataType}}</td>
+                                        <td class="col-md-6">{{description}}</td>
                                     </tr>
                                 {{/each}}
                             </table>
@@ -203,24 +209,25 @@
                                                 ( {{join returnParams " , "}} )
                                                 {{/if}}
                                             </h4>
-                                            <p>
-                                                <span class="fw-right gray xs-icon"></span>
-                                                {{description}}
-                                            </p>
+                                            {{#if description}}
+                                                <p>
+                                                    <span class="fw-right gray xs-icon"></span>{{description}}
+                                                </p>
+                                            {{/if}}
                                             {{#if parameters}}
                                                 <p>
                                                     <label class="table-header-text">Parameters:</label>
                                                 <table>
                                                     <tr>
-                                                        <th>Parameter Name</th>
-                                                        <th>Data Type</th>
-                                                        <th>Description</th>
+                                                        <th class="col-md-4">Parameter Name</th>
+                                                        <th class="col-md-2">Data Type</th>
+                                                        <th class="col-md-6">Description</th>
                                                     </tr>
                                                     {{#each parameters}}
                                                         <tr>
-                                                            <td>{{name}}</td>
-                                                            <td>{{dataType}}</td>
-                                                            <td>{{description}}</td>
+                                                            <td class="col-md-4">{{name}}</td>
+                                                            <td class="col-md-2">{{dataType}}</td>
+                                                            <td class="col-md-6">{{description}}</td>
                                                         </tr>
                                                     {{/each}}
                                                 </table>
@@ -230,15 +237,15 @@
                                                 <label class="table-header-text">Return Parameters:</label>
                                                 <table>
                                                     <tr>
-                                                        <th>Return Variable</th>
-                                                        <th>Data Type</th>
-                                                        <th>Description</th>
+                                                        <th class="col-md-4">Return Variable</th>
+                                                        <th class="col-md-2">Data Type</th>
+                                                        <th class="col-md-6">Description</th>
                                                     </tr>
                                                     {{#each returnParams}}
                                                         <tr>
-                                                            <td>{{name}}</td>
-                                                            <td>{{dataType}}</td>
-                                                            <td>{{description}}</td>
+                                                            <td class="col-md-4">{{name}}</td>
+                                                            <td class="col-md-2">{{dataType}}</td>
+                                                            <td class="col-md-6">{{description}}</td>
                                                         </tr>
                                                     {{/each}}
                                                 </table>
@@ -256,21 +263,25 @@
                             <span class="{{icon}} sm-icon"></span>
                             public connector {{name}} ( {{join parameters " , "}} )
                         </h4>
-                        <p><span class="fw-right gray xs-icon">{{description}}</p>
+                        {{#if description}}
+                            <p>
+                                <span class="fw-right gray xs-icon"></span>{{description}}
+                            </p>
+                        {{/if}}
                         {{#if parameters}}
                             <p>
                                 <label class="table-header-text">Parameters:</label>
                             <table>
                                 <tr>
-                                    <th>Parameter Name</th>
-                                    <th>Data Type</th>
-                                    <th>Description</th>
+                                    <th class="col-md-4">Parameter Name</th>
+                                    <th class="col-md-2">Data Type</th>
+                                    <th class="col-md-6">Description</th>
                                 </tr>
                                 {{#each parameters}}
                                     <tr>
-                                        <td>{{name}}</td>
-                                        <td>{{dataType}}</td>
-                                        <td>{{description}}</td>
+                                        <td class="col-md-4">{{name}}</td>
+                                        <td class="col-md-2">{{dataType}}</td>
+                                        <td class="col-md-6">{{description}}</td>
                                     </tr>
                                 {{/each}}
                             </table>
@@ -291,24 +302,25 @@
                                                 ( {{join returnParams " , "}} )
                                                 {{/if}}
                                             </h4>
-                                            <p>
-                                                <span class="fw-right gray xs-icon"></span>
-                                                {{description}}
-                                            </p>
+                                            {{#if description}}
+                                                <p>
+                                                    <span class="fw-right gray xs-icon"></span>{{description}}
+                                                </p>
+                                            {{/if}}
                                             {{#if parameters}}
                                                 <p>
                                                     <label class="table-header-text">Parameters:</label>
                                                 <table>
                                                     <tr>
-                                                        <th>Parameter Name</th>
-                                                        <th>Data Type</th>
-                                                        <th>Description</th>
+                                                        <th class="col-md-4">Parameter Name</th>
+                                                        <th class="col-md-2">Data Type</th>
+                                                        <th class="col-md-6">Description</th>
                                                     </tr>
                                                     {{#each parameters}}
                                                         <tr>
-                                                            <td>{{name}}</td>
-                                                            <td>{{dataType}}</td>
-                                                            <td>{{description}}</td>
+                                                            <td class="col-md-4">{{name}}</td>
+                                                            <td class="col-md-2">{{dataType}}</td>
+                                                            <td class="col-md-6">{{description}}</td>
                                                         </tr>
                                                     {{/each}}
                                                 </table>
@@ -319,15 +331,15 @@
                                                     <label class="table-header-text">Return Parameters:</label>
                                                 <table>
                                                     <tr>
-                                                        <th>Return Variable</th>
-                                                        <th>Data Type</th>
-                                                        <th>Description</th>
+                                                        <th class="col-md-4">Return Variable</th>
+                                                        <th class="col-md-2">Data Type</th>
+                                                        <th class="col-md-6">Description</th>
                                                     </tr>
                                                     {{#each returnParams}}
                                                         <tr>
-                                                            <td>{{name}}</td>
-                                                            <td>{{dataType}}</td>
-                                                            <td>{{description}}</td>
+                                                            <td class="col-md-4">{{name}}</td>
+                                                            <td class="col-md-2">{{dataType}}</td>
+                                                            <td class="col-md-6">{{description}}</td>
                                                         </tr>
                                                     {{/each}}
                                                 </table>
@@ -345,19 +357,23 @@
                             <span class="{{icon}} sm-icon"></span>
                             public enum {{name}}
                         </h4>
-                        <p><span class="fw-right gray xs-icon">{{description}}</p>
+                        {{#if description}}
+                            <p>
+                                <span class="fw-right gray xs-icon"></span>{{description}}
+                            </p>
+                        {{/if}}
                         {{#if enumerators}}
                             <p>
                                 <label class="table-header-text">Enumerators:</label>
                             <table>
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Description</th>
+                                    <th class="col-md-4">Name</th>
+                                    <th class="col-md-8">Description</th>
                                 </tr>
                                 {{#each enumerators}}
                                     <tr>
-                                        <td>{{name}}</td>
-                                        <td>{{description}}</td>
+                                        <td class="col-md-4">{{name}}</td>
+                                        <td class="col-md-8">{{description}}</td>
                                     </tr>
                                 {{/each}}
                             </table>
@@ -370,21 +386,25 @@
                             <span class="{{icon}} sm-icon"></span>
                             public annotation {{name}}
                         </h4>
-                        <p><span class="fw-right gray xs-icon">{{description}}</p>
+                        {{#if description}}
+                            <p>
+                                <span class="fw-right gray xs-icon"></span>{{description}}
+                            </p>
+                        {{/if}}
                         {{#if attributes}}
                             <p>
                                 <label class="table-header-text">Attributes:</label>
                             <table>
                                 <tr>
-                                    <th>Attribute Name</th>
-                                    <th>Data Type</th>
-                                    <th>Description</th>
+                                    <th class="col-md-4">Attribute Name</th>
+                                    <th class="col-md-2">Data Type</th>
+                                    <th class="col-md-6">Description</th>
                                 </tr>
                                 {{#each attributes}}
                                     <tr>
-                                        <td>{{name}}</td>
-                                        <th>{{dataType}}</th>
-                                        <td>{{description}}</td>
+                                        <td class="col-md-4">{{name}}</td>
+                                        <th class="col-md-2">{{dataType}}</th>
+                                        <td class="col-md-6">{{description}}</td>
                                     </tr>
                                 {{/each}}
                             </table>
@@ -395,18 +415,18 @@
                     {{#if isGlobalVariable}}
                         <h4 id="{{name}}">
                             <span class="{{icon}} sm-icon"></span>
-                            public annotation {{name}}
+                            {{name}}
                         </h4>
                         <table>
                             <tr>
-                                <th>Attribute Name</th>
-                                <th>Data Type</th>
-                                <th>Description</th>
+                                <th class="col-md-4">Attribute Name</th>
+                                <th class="col-md-2">Data Type</th>
+                                <th class="col-md-6">Description</th>
                             </tr>
                             <tr>
-                                <td>{{name}}</td>
-                                <th>{{dataType}}</th>
-                                <td>{{description}}</td>
+                                <td class="col-md-4">{{name}}</td>
+                                <th class="col-md-2">{{dataType}}</th>
+                                <td class="col-md-6">{{description}}</td>
                             </tr>
                         </table>
                     {{/if}}
