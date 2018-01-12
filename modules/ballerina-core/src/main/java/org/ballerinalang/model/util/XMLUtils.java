@@ -152,6 +152,10 @@ public class XMLUtils {
         BRefValueArray concatSeq = new BRefValueArray();
         int j = 0;
 
+        //Load the content fully before concat the two
+        firstSeq.build();
+        secondSeq.build();
+
         // Add all the items in the first sequence
         if (firstSeq.getNodeType() == XMLNodeType.SEQUENCE) {
             BRefValueArray seq = ((BXMLSequence) firstSeq).value();
@@ -159,7 +163,6 @@ public class XMLUtils {
                 concatSeq.add(j++, seq.get(i));
             }
         } else {
-            firstSeq.build();
             concatSeq.add(j++, firstSeq);
         }
 
@@ -170,7 +173,6 @@ public class XMLUtils {
                 concatSeq.add(j++, seq.get(i));
             }
         } else {
-            secondSeq.build();
             concatSeq.add(j++, secondSeq);
         }
 

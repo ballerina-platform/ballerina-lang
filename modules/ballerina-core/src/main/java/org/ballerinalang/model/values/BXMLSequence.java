@@ -411,6 +411,17 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         return this.sequence.size;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void build() {
+        for (int i = 0; i < sequence.size(); i++) {
+            BXMLItem item = (BXMLItem) sequence.get(i);
+            item.build();
+        }
+    }
+
     @Override
     public void removeAttribute(String qname) {
         if (sequence.size() != 1) {
