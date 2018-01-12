@@ -22,7 +22,7 @@ const tools = [
     {
         id: 'if',
         name: 'If',
-        icon: 'dgm-if-else',
+        icon: 'if-else',
         title: 'If',
         nodeFactoryMethod: DefaultNodeFactory.createIf,
         description: 'Provide a way to perform conditional execution',
