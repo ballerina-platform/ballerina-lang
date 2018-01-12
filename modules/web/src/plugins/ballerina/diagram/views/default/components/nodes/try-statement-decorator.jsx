@@ -325,51 +325,85 @@ class TryStatementDecorator extends React.Component {
                     disableButtons={this.props.disableButtons}
                 />
                 {(() => {
-                    const tryConnectorStartX = p4X;
-                    const tryConnectorY = p4Y + titleH - gapTop;
                     if (model.catchBlocks.length > 0) {
-                        return model.catchBlocks.map((catchStmt, i) => {
-                            const tryConnectorEndX = catchStmt.viewState.bBox.x;
+                        const connectorLineComp = (
+                            <ArrowDecorator
+                                start={{
+                                    x: p4X,
+                                    y: bBox.y + bBox.h,
+                                }}
+                                end={{
+                                    x: bBox.x,
+                                    y: bBox.y + bBox.h,
+                                }}
+                                classNameArrow='flowchart-action-arrow'
+                                classNameArrowHead='flowchart-action-arrow-head'
+                            />);
+                        const catchComponents = model.catchBlocks.map((catchStmt, i) => {
                             let connectorComp;
-                            if (i === 0) {
-                                connectorComp = (<ArrowDecorator
-                                    start={{
-                                        x: (tryConnectorEndX + (titleH / 2)),
-                                        y: catchStmt.viewState.bBox.y + catchStmt.viewState.bBox.h,
-                                    }}
-                                    end={{ x: p6X, y: p6Y }}
-                                    classNameArrow='flowchart-action-arrow'
-                                    classNameArrowHead='flowchart-action-arrow-head'
-                                />);
-                            }
                             const catchComp = (
                                 <g>
-                                    <line
-                                        x1={tryConnectorStartX}
-                                        y1={tryConnectorY}
-                                        x2={tryConnectorEndX}
-                                        y2={tryConnectorY}
-                                        className='flowchart-background-empty-rect'
-                                    />
                                     <CatchStatementDecorator
                                         bBox={catchStmt.viewState.bBox}
                                         model={catchStmt}
                                         body={catchStmt}
+                                        connectorEdgeX={p4X}
                                     />
                                     {connectorComp}
                                 </g>);
                             return catchComp;
                         });
+                        return (<g>
+                            {connectorLineComp}
+                            {catchComponents}
+                        </g>);
+                    } else {
+                        const connectorLineComp = (
+                            <line
+                                x1={p4X}
+                                y1={bBox.y + bBox.h}
+                                x2={p6X}
+                                y2={bBox.y + bBox.h}
+                                classNameArrow='flowchart-action-arrow'
+                                classNameArrowHead='flowchart-action-arrow-head'
+                            />);
+                        return (<g>
+                            {connectorLineComp}
+                        </g>);
                     }
-                    return (null);
                 })()}
-                {finallyStmt &&
+                {/* {finallyStmt &&
                 <FinallyStatementDecorator
                     bBox={finallyStmt.viewState.bBox}
                     model={finallyStmt}
                     body={finallyStmt}
                     disableButtons={{ delete: disableDeleteForFinally }}
-                />}
+                />} */}
+                {/* <rect
+                    x={bBox.x}
+                    y={bBox.y}
+                    width={bBox.w}
+                    height={bBox.h}
+                    stroke='red'
+                    fillOpacity='0'
+                /> */}
+                {/* <rect
+                    x={statementBBox.x}
+                    y={statementBBox.y}
+                    width={statementBBox.w}
+                    height={statementBBox.h}
+                    stroke='green'
+                    fillOpacity='0'
+                    strokeWidth='3'
+                />
+                <rect
+                    x={model.body.viewState.bBox.x}
+                    y={model.body.viewState.bBox.y}
+                    width={model.body.viewState.bBox.w}
+                    height={model.body.viewState.bBox.h}
+                    fillOpacity='0'
+                    stroke='cyan'
+                /> */}
             </g>);
     }
 }

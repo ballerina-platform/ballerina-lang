@@ -186,7 +186,7 @@ class CatchStatementDecorator extends React.Component {
      * @returns {XML} rendered component.
      */
     render() {
-        const { bBox, expression, isBreakpoint, isDebugHit } = this.props;
+        const { bBox, expression, isBreakpoint, isDebugHit, connectorEdgeX } = this.props;
         const { designer } = this.context;
 
         const model = this.props.model;
@@ -265,6 +265,13 @@ class CatchStatementDecorator extends React.Component {
                     this.myRoot = group;
                 }}
             >
+                <line
+                    x1={connectorEdgeX}
+                    y1={p2Y}
+                    x2={p2X}
+                    y2={p2Y}
+                    className='flowchart-background-empty-rect'
+                />
                 <rect
                     x={p2X}
                     y={p1Y}
@@ -320,6 +327,38 @@ class CatchStatementDecorator extends React.Component {
                     onBreakpointClick={() => this.props.onBreakpointClick()}
                     disableButtons={this.props.disableButtons}
                 />
+                <line
+                    x1={p6X}
+                    y1={p6Y}
+                    x2={connectorEdgeX}
+                    y2={p6Y}
+                    className='flowchart-background-empty-rect'
+                />
+                {/* <rect
+                    x={bBox.x}
+                    y={bBox.y}
+                    width={bBox.w}
+                    height={bBox.h}
+                    stroke='red'
+                    fillOpacity='0'
+                />
+                <rect
+                    x={statementBBox.x}
+                    y={statementBBox.y}
+                    width={statementBBox.w}
+                    height={statementBBox.h}
+                    fillOpacity='0'
+                    stroke='green'
+                    strokeWidth='3'
+                />
+                <rect
+                    x={model.body.viewState.bBox.x}
+                    y={model.body.viewState.bBox.y}
+                    width={model.body.viewState.bBox.w}
+                    height={model.body.viewState.bBox.h}
+                    fillOpacity='0'
+                    stroke='cyan'
+                /> */}
             </g>);
     }
 }

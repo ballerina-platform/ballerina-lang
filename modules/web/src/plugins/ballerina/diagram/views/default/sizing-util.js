@@ -1698,6 +1698,7 @@ class SizingUtil {
         if (catchStmts.length > 0) {
             // add an additional gap to allow the catch clauses in try
             components['block-header'].h += (3 * this.config.compoundStatement.padding.top);
+            // for the connector line of the first catch clause
             bodyWidth += this.config.compoundStatement.gap.left;
         }
 
@@ -1725,7 +1726,7 @@ class SizingUtil {
 
         // try catch sizing
         catchStmts.forEach((catchStmt) => {
-            const catchHeight = catchStmt.viewState.bBox.h;
+            const catchHeight = catchStmt.body.viewState.bBox.h;
             nodeHeight += catchHeight;
             nodeWidth += catchStmt.viewState.bBox.w;
         });
