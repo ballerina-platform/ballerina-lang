@@ -61,10 +61,11 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.contractimpl.HttpResponseStatusFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.ByteArrayOutputStream;
@@ -606,6 +607,40 @@ public class HttpUtil {
         headerValueStructType = struct.getType();
     }
 
+    public static void populateInboundRequest(BStruct inboundRequestStruct, HTTPCarbonMessage inboundRequestMsg) {
+        inboundRequestStruct.addNativeData(Constants.TRANSPORT_MESSAGE, inboundRequestMsg);
+        inboundRequestStruct.addNativeData(Constants.INBOUND_REQUEST, true);
+
+        enrichWithInboundRequestInfo(inboundRequestStruct, inboundRequestMsg);
+        enrichWithInboundRequestHeaders(inboundRequestStruct, inboundRequestMsg);
+    }
+
+    private static void enrichWithInboundRequestHeaders(BStruct inboundRequestStruct,
+            HTTPCarbonMessage inboundRequestMsg) {
+        if (inboundRequestMsg.getHeader(Constants.USER_AGENT_HEADER) != null) {
+            inboundRequestStruct.setStringField(Constants.REQUEST_USER_AGENT_INDEX,
+                    inboundRequestMsg.getHeader(Constants.USER_AGENT_HEADER));
+            inboundRequestMsg.removeHeader(Constants.USER_AGENT_HEADER);
+        }
+        inboundRequestStruct.setRefField(Constants.REQUEST_HEADERS_INDEX,
+                prepareHeaderMap(inboundRequestMsg.getHeaders(), new BMap<>()));
+    }
+
+    private static void enrichWithInboundRequestInfo(BStruct inboundRequestStruct,
+            HTTPCarbonMessage inboundRequestMsg) {
+        inboundRequestStruct.setStringField(Constants.REQUEST_PATH_INDEX,
+                (String) inboundRequestMsg.getProperty(Constants.REQUEST_URL));
+        inboundRequestStruct.setStringField(Constants.REQUEST_HOST_INDEX,
+                ((InetSocketAddress) inboundRequestMsg.getProperty(Constants.LOCAL_ADDRESS)).getHostName());
+        inboundRequestStruct.setIntField(Constants.REQUEST_PORT_INDEX,
+                (Integer) inboundRequestMsg.getProperty(Constants.LISTENER_PORT));
+        inboundRequestStruct.setStringField(Constants.REQUEST_METHOD_INDEX,
+                (String) inboundRequestMsg.getProperty(Constants.HTTP_METHOD));
+        inboundRequestStruct.setStringField(Constants.REQUEST_VERSION_INDEX,
+                (String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION));
+        Map<String, String> resourceArgValues =
+                (Map<String, String>) inboundRequestMsg.getProperty(Constants.RESOURCE_ARGS);
+        inboundRequestStruct.setStringField(Constants.REQUEST_REST_URI_POSTFIX_INDEX,
     public static void populateConnection(BStruct request, HTTPCarbonMessage cMsg) {
         request.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
         request.setStringField(Constants.CONNECTION_HOST_INDEX,
@@ -622,13 +657,6 @@ public class HttpUtil {
         Map<String, String> resourceArgValues = (Map<String, String>) cMsg.getProperty(Constants.RESOURCE_ARGS);
         request.setStringField(Constants.REQUEST_REST_URI_POSTFIX_INDEX,
                 resourceArgValues.get(Constants.REST_URI_POSTFIX));
-
-        if (cMsg.getHeader(Constants.USER_AGENT_HEADER) != null) {
-            request.setStringField(Constants.REQUEST_USER_AGENT_INDEX, cMsg.getHeader(Constants.USER_AGENT_HEADER));
-            cMsg.removeHeader(Constants.USER_AGENT_HEADER);
-        }
-        request.setRefField(Constants.REQUEST_HEADERS_INDEX,
-                prepareHeaderMap(cMsg.getHeaders(), new BMap<>()));
     }
 
     public static void populateInboundResponse(BStruct response, HTTPCarbonMessage cMsg) {
@@ -823,44 +851,89 @@ public class HttpUtil {
      * @return the set of {@link ListenerConfiguration} which were extracted from config annotation.
      */
     public static Set<ListenerConfiguration> getDefaultOrDynamicListenerConfig(Annotation annotationInfo) {
-        Map<String, Map<String, String>> listenerProp = buildListenerProperties(annotationInfo);
 
-        Set<ListenerConfiguration> listenerConfigurationSet;
-        if (listenerProp == null || listenerProp.isEmpty()) {
-            listenerConfigurationSet =
-                    HttpConnectionManager.getInstance().getDefaultListenerConfiugrationSet();
-        } else {
-            listenerConfigurationSet = getListenerConfigurationsFrom(listenerProp);
+        if (annotationInfo == null) {
+            return HttpConnectionManager.getInstance().getDefaultListenerConfiugrationSet();
         }
-        return listenerConfigurationSet;
+
+        //key - listenerId, value - listener config property map
+        Set<ListenerConfiguration> listenerConfSet = new HashSet<>();
+
+        extractBasicConfig(annotationInfo, listenerConfSet);
+        extractHttpsConfig(annotationInfo, listenerConfSet);
+
+        if (listenerConfSet.isEmpty()) {
+            listenerConfSet = HttpConnectionManager.getInstance().getDefaultListenerConfiugrationSet();
+        }
+
+        return listenerConfSet;
     }
 
-    private static String getListenerInterface(Map<String, String> parameters) {
-        String host = parameters.get("host") != null ? parameters.get("host") : "0.0.0.0";
-        int port = Integer.parseInt(parameters.get("port"));
+    private static String getListenerInterface(String host, int port) {
+        host = host != null ? host : "0.0.0.0";
         return host + ":" + port;
     }
 
-    /**
-     * Method to build map of listener property maps given the service annotation attachment.
-     * This will first look for the port property and if present then it will get other properties,
-     * and create the property map.
-     *
-     * @param configInfo In which listener configurations are specified.
-     * @return listenerConfMap      With required properties
-     */
-    private static Map<String, Map<String, String>> buildListenerProperties(Annotation configInfo) {
-        if (configInfo == null) {
-            return null;
-        }
-        //key - listenerId, value - listener config property map
-        Map<String, Map<String, String>> listenerConfMap = new HashMap<>();
-
-
+    private static void extractBasicConfig(Annotation configInfo, Set<ListenerConfiguration> listenerConfSet) {
         AnnAttrValue hostAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_HOST);
         AnnAttrValue portAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_PORT);
         AnnAttrValue keepAliveAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE);
+        AnnAttrValue transferEncoding = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_TRANSFER_ENCODING);
+        AnnAttrValue chunking = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_CHUNKING);
 
+        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
+        if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
+            listenerConfiguration.setPort(Math.toIntExact(portAttrVal.getIntValue()));
+
+            listenerConfiguration.setScheme(Constants.PROTOCOL_HTTP);
+            if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
+                listenerConfiguration.setHost(hostAttrVal.getStringValue());
+            } else {
+                listenerConfiguration.setHost(Constants.HTTP_DEFAULT_HOST);
+            }
+
+            if (keepAliveAttrVal != null) {
+                listenerConfiguration.setKeepAlive(keepAliveAttrVal.getBooleanValue());
+            } else {
+                listenerConfiguration.setKeepAlive(Boolean.TRUE);
+            }
+
+            // For the moment we don't have to pass it down to transport as we only support
+            // chunking. Once we start supporting gzip, deflate, etc, we need to parse down the config.
+            if (transferEncoding != null && !Constants.ANN_CONFIG_ATTR_CHUNKING
+                    .equalsIgnoreCase(transferEncoding.getStringValue())) {
+                throw new BallerinaConnectorException("Unsupported configuration found for Transfer-Encoding : "
+                        + transferEncoding.getStringValue());
+            }
+
+            if (chunking != null) {
+                ChunkConfig chunkConfig = getChunkConfig(chunking.getStringValue());
+                listenerConfiguration.setChunkConfig(chunkConfig);
+            } else {
+                listenerConfiguration.setChunkConfig(ChunkConfig.AUTO);
+            }
+
+            listenerConfiguration
+                    .setId(getListenerInterface(listenerConfiguration.getHost(), listenerConfiguration.getPort()));
+            listenerConfSet.add(listenerConfiguration);
+        }
+    }
+
+    public static ChunkConfig getChunkConfig(String chunking) {
+        ChunkConfig chunkConfig;
+        if (Constants.CHUNKING_AUTO.equalsIgnoreCase(chunking)) {
+            chunkConfig = ChunkConfig.AUTO;
+        } else if (Constants.CHUNKING_ALWAYS.equalsIgnoreCase(chunking)) {
+            chunkConfig = ChunkConfig.ALWAYS;
+        } else if (Constants.CHUNKING_NEVER.equalsIgnoreCase(chunking)) {
+            chunkConfig = ChunkConfig.NEVER;
+        } else {
+            throw new BallerinaConnectorException("Invalid configuration found for Transfer-Encoding : " + chunking);
+        }
+        return chunkConfig;
+    }
+
+    private static void extractHttpsConfig(Annotation configInfo, Set<ListenerConfiguration> listenerConfSet) {
         // Retrieve secure port from either http of ws configuration annotation.
         AnnAttrValue httpsPortAttrVal;
         if (configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_HTTPS_PORT) == null) {
@@ -880,34 +953,19 @@ public class HttpUtil {
                 .getAnnAttrValue(Constants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS);
         AnnAttrValue ciphersAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_CIPHERS);
         AnnAttrValue sslProtocolAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_SSL_PROTOCOL);
+        AnnAttrValue hostAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_HOST);
 
-        if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
-            Map<String, String> httpPropMap = new HashMap<>();
-            httpPropMap.put(Constants.ANN_CONFIG_ATTR_PORT, Long.toString(portAttrVal.getIntValue()));
-            httpPropMap.put(Constants.ANN_CONFIG_ATTR_SCHEME, Constants.PROTOCOL_HTTP);
-            if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
-                httpPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, hostAttrVal.getStringValue());
-            } else {
-                httpPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, Constants.HTTP_DEFAULT_HOST);
-            }
-            if (keepAliveAttrVal != null) {
-                httpPropMap.put(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE,
-                                String.valueOf(keepAliveAttrVal.getBooleanValue()));
-            } else {
-                httpPropMap.put(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE, Boolean.TRUE.toString());
-            }
-            listenerConfMap.put(buildInterfaceName(httpPropMap), httpPropMap);
-        }
-
+        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         if (httpsPortAttrVal != null && httpsPortAttrVal.getIntValue() > 0) {
-            Map<String, String> httpsPropMap = new HashMap<>();
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_PORT, Long.toString(httpsPortAttrVal.getIntValue()));
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_SCHEME, Constants.PROTOCOL_HTTPS);
+            listenerConfiguration.setPort(Math.toIntExact(httpsPortAttrVal.getIntValue()));
+            listenerConfiguration.setScheme(Constants.PROTOCOL_HTTPS);
+
             if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
-                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, hostAttrVal.getStringValue());
+                listenerConfiguration.setHost(hostAttrVal.getStringValue());
             } else {
-                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, Constants.HTTP_DEFAULT_HOST);
+                listenerConfiguration.setHost(Constants.HTTP_DEFAULT_HOST);
             }
+
             if (keyStoreFileAttrVal == null || keyStoreFileAttrVal.getStringValue() == null) {
                 //TODO get from language pack, and add location
                 throw new BallerinaConnectorException("Keystore location must be provided for secure connection");
@@ -932,62 +990,46 @@ public class HttpUtil {
                 throw new BallerinaException("Truststore password value must be provided to enable Mutual SSL");
             }
 
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_TLS_STORE_TYPE, Constants.PKCS_STORE_TYPE);
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_KEY_STORE_FILE, keyStoreFileAttrVal.getStringValue());
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS, keyStorePasswordAttrVal.getStringValue());
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_CERT_PASS, certPasswordAttrVal.getStringValue());
+            listenerConfiguration.setTLSStoreType(Constants.PKCS_STORE_TYPE);
+            listenerConfiguration.setKeyStoreFile(keyStoreFileAttrVal.getStringValue());
+            listenerConfiguration.setKeyStorePass(keyStorePasswordAttrVal.getStringValue());
+            listenerConfiguration.setCertPass(certPasswordAttrVal.getStringValue());
+
             if (sslVerifyClientAttrVal != null) {
-                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_SSL_VERIFY_CLIENT, sslVerifyClientAttrVal.getStringValue());
+                listenerConfiguration.setVerifyClient(sslVerifyClientAttrVal.getStringValue());
             }
             if (trustStoreFileAttrVal != null) {
-                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_TRUST_STORE_FILE, trustStoreFileAttrVal.getStringValue());
+                listenerConfiguration.setTrustStoreFile(trustStoreFileAttrVal.getStringValue());
             }
             if (trustStorePasswordAttrVal != null) {
-                httpsPropMap
-                        .put(Constants.ANN_CONFIG_ATTR_TRUST_STORE_PASS, trustStorePasswordAttrVal.getStringValue());
+                listenerConfiguration.setTrustStorePass(trustStorePasswordAttrVal.getStringValue());
             }
-            if (sslEnabledProtocolsAttrVal != null) {
-                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS,
+
+            List<Parameter> serverParams = new ArrayList<>();
+            Parameter serverCiphers;
+            if (sslEnabledProtocolsAttrVal != null && sslEnabledProtocolsAttrVal.getStringValue() != null) {
+                serverCiphers = new Parameter(Constants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS,
                         sslEnabledProtocolsAttrVal.getStringValue());
+                serverParams.add(serverCiphers);
             }
-            if (ciphersAttrVal != null) {
-                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_CIPHERS, ciphersAttrVal.getStringValue());
+
+            if (ciphersAttrVal != null && ciphersAttrVal.getStringValue() != null) {
+                serverCiphers = new Parameter(Constants.ANN_CONFIG_ATTR_CIPHERS, ciphersAttrVal.getStringValue());
+                serverParams.add(serverCiphers);
             }
+
+            if (!serverParams.isEmpty()) {
+                listenerConfiguration.setParameters(serverParams);
+            }
+
             if (sslProtocolAttrVal != null) {
-                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_SSL_PROTOCOL, sslProtocolAttrVal.getStringValue());
+                listenerConfiguration.setSSLProtocol(sslProtocolAttrVal.getStringValue());
             }
-            listenerConfMap.put(buildInterfaceName(httpsPropMap), httpsPropMap);
-        }
-        return listenerConfMap;
-    }
 
-    /**
-     * Build interface name using schema and port.
-     *
-     * @param propMap which has schema and port
-     * @return interfaceName
-     */
-    private static String buildInterfaceName(Map<String, String> propMap) {
-        StringBuilder iName = new StringBuilder();
-        iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_SCHEME));
-        iName.append("_");
-        iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_HOST));
-        iName.append("_");
-        iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_PORT));
-        return iName.toString();
-    }
-
-    private static Set<ListenerConfiguration> getListenerConfigurationsFrom(
-            Map<String, Map<String, String>> listenerProp) {
-        Set<ListenerConfiguration> listenerConfigurationSet = new HashSet<>();
-        for (Map.Entry<String, Map<String, String>> entry : listenerProp.entrySet()) {
-            Map<String, String> propMap = entry.getValue();
-            String entryListenerInterface = getListenerInterface(propMap);
-            ListenerConfiguration listenerConfiguration = HTTPConnectorUtil
-                    .buildListenerConfig(entryListenerInterface, propMap);
-            listenerConfigurationSet.add(listenerConfiguration);
+            listenerConfiguration
+                    .setId(getListenerInterface(listenerConfiguration.getHost(), listenerConfiguration.getPort()));
+            listenerConfSet.add(listenerConfiguration);
         }
-        return listenerConfigurationSet;
     }
 
     public static HTTPCarbonMessage createHttpCarbonMessage(boolean isRequest) {
@@ -1004,6 +1046,9 @@ public class HttpUtil {
         return httpCarbonMessage;
     }
 
+    public static void checkFunctionValidity(BStruct bStruct, HTTPCarbonMessage httpMsg) {
+        methodInvocationCheck(bStruct, httpMsg);
+        outboundResponseStructCheck(bStruct);
     public static String sanitizeUri(String uri) {
         if (uri.startsWith("/")) {
             return uri;

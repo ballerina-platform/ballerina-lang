@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.compiler.codegen;
 
 import org.ballerinalang.compiler.CompilerPhase;
@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
@@ -118,6 +119,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
@@ -147,6 +149,8 @@ import org.wso2.ballerinalang.programfile.ErrorTableEntry;
 import org.wso2.ballerinalang.programfile.ForkjoinInfo;
 import org.wso2.ballerinalang.programfile.FunctionInfo;
 import org.wso2.ballerinalang.programfile.Instruction;
+import org.wso2.ballerinalang.programfile.Instruction.Operand;
+import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.programfile.InstructionFactory;
 import org.wso2.ballerinalang.programfile.LineNumberInfo;
@@ -175,7 +179,6 @@ import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.FunctionCallCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
@@ -185,18 +188,21 @@ import org.wso2.ballerinalang.programfile.cpentries.TransformerRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.TypeRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.UTF8CPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.WrkrInteractionArgsCPEntry;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
+import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.FIELD;
+import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.LOCAL;
+import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.PACKAGE;
+import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.REG;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BLOB_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BOOL_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.FLOAT_OFFSET;
@@ -205,6 +211,8 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.REF_OFFSET
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.STRING_OFFSET;
 
 /**
+ * Generates Ballerina bytecode by visiting the AST.
+ *
  * @since 0.94
  */
 public class CodeGenerator extends BLangNodeVisitor {
@@ -214,28 +222,30 @@ public class CodeGenerator extends BLangNodeVisitor {
     /**
      * This structure holds current package-level variable indexes.
      */
-    private VariableIndex pvIndexes = new VariableIndex();
+    private VariableIndex pvIndexes = new VariableIndex(PACKAGE);
 
     /**
      * This structure holds current local variable indexes.
      */
-    private VariableIndex lvIndexes = new VariableIndex();
+    private VariableIndex lvIndexes = new VariableIndex(LOCAL);
 
     /**
      * This structure holds current field indexes.
      */
-    private VariableIndex fieldIndexes = new VariableIndex();
+    private VariableIndex fieldIndexes = new VariableIndex(FIELD);
 
     /**
      * This structure holds current register indexes.
      */
-    private VariableIndex regIndexes = new VariableIndex();
+    private VariableIndex regIndexes = new VariableIndex(REG);
 
     /**
      * This structure holds the maximum register count per type.
      * This structure is updated for every statement.
      */
-    private VariableIndex maxRegIndexes = new VariableIndex();
+    private VariableIndex maxRegIndexes = new VariableIndex(REG);
+
+    private List<RegIndex> regIndexList = new ArrayList<>();
 
     private SymbolEnv env;
     // TODO Remove this dependency from the code generator
@@ -256,7 +266,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     private ConnectorInfo currentConnectorInfo;
 
     // Required variables to generate code for assignment statements
-    private int rhsExprRegIndex = -1;
     private boolean varAssignment = false;
 
     private int transactionIndex = 0;
@@ -463,7 +472,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             setMaxRegIndexes(regIndexes, maxRegIndexes);
 
             // Reset the regIndexes structure for every statement
-            regIndexes = new VariableIndex();
+            regIndexes = new VariableIndex(REG);
         }
     }
 
@@ -478,31 +487,21 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangVariable varNode) {
-        int opcode;
-        int lvIndex;
         BVarSymbol varSymbol = varNode.symbol;
-
-        BLangExpression rhsExpr = varNode.expr;
-        if (rhsExpr != null) {
-            genNode(rhsExpr, this.env);
-            rhsExprRegIndex = rhsExpr.regIndex;
-        }
-
         int ownerSymTag = env.scope.owner.tag;
         if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
-            OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(varSymbol.type.tag,
-                    InstructionCodes.ISTORE, lvIndexes);
-            opcode = opcodeAndIndex.opcode;
-            lvIndex = opcodeAndIndex.index;
-            varSymbol.varIndex = lvIndex;
-            if (rhsExpr != null) {
-                emit(opcode, rhsExprRegIndex, lvIndex);
-            }
-
+            varSymbol.varIndex = getLVIndex(varSymbol.type.tag);
             LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varSymbol);
             localVarAttrInfo.localVars.add(localVarInfo);
         } else {
             // TODO Support other variable nodes
+            throw new IllegalStateException("");
+        }
+
+        BLangExpression rhsExpr = varNode.expr;
+        if (rhsExpr != null) {
+            rhsExpr.regIndex = varSymbol.varIndex;
+            genNode(rhsExpr, this.env);
         }
     }
 
@@ -557,24 +556,22 @@ public class CodeGenerator extends BLangNodeVisitor {
     @Override
     public void visit(BLangLiteral literalExpr) {
         int opcode;
-        int regIndex = -1;
+        Operand regIndex = calcAndGetExprRegIndex(literalExpr);
         int typeTag = literalExpr.type.tag;
 
         switch (typeTag) {
             case TypeTags.INT:
-                regIndex = ++regIndexes.tInt;
                 long longVal = (Long) literalExpr.value;
                 if (longVal >= 0 && longVal <= 5) {
                     opcode = InstructionCodes.ICONST_0 + (int) longVal;
                     emit(opcode, regIndex);
                 } else {
                     int intCPEntryIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(longVal));
-                    emit(InstructionCodes.ICONST, intCPEntryIndex, regIndex);
+                    emit(InstructionCodes.ICONST, getOperand(intCPEntryIndex), regIndex);
                 }
                 break;
 
             case TypeTags.FLOAT:
-                regIndex = ++regIndexes.tFloat;
                 double doubleVal = (Double) literalExpr.value;
                 if (doubleVal == 0 || doubleVal == 1 || doubleVal == 2 ||
                         doubleVal == 3 || doubleVal == 4 || doubleVal == 5) {
@@ -582,20 +579,18 @@ public class CodeGenerator extends BLangNodeVisitor {
                     emit(opcode, regIndex);
                 } else {
                     int floatCPEntryIndex = currentPkgInfo.addCPEntry(new FloatCPEntry(doubleVal));
-                    emit(InstructionCodes.FCONST, floatCPEntryIndex, regIndex);
+                    emit(InstructionCodes.FCONST, getOperand(floatCPEntryIndex), regIndex);
                 }
                 break;
 
             case TypeTags.STRING:
-                regIndex = ++regIndexes.tString;
                 String strValue = (String) literalExpr.value;
                 StringCPEntry stringCPEntry = new StringCPEntry(addUTF8CPEntry(currentPkgInfo, strValue), strValue);
                 int strCPIndex = currentPkgInfo.addCPEntry(stringCPEntry);
-                emit(InstructionCodes.SCONST, strCPIndex, regIndex);
+                emit(InstructionCodes.SCONST, getOperand(strCPIndex), regIndex);
                 break;
 
             case TypeTags.BOOLEAN:
-                regIndex = ++regIndexes.tBoolean;
                 boolean booleanVal = (Boolean) literalExpr.value;
                 if (!booleanVal) {
                     opcode = InstructionCodes.BCONST_0;
@@ -605,11 +600,8 @@ public class CodeGenerator extends BLangNodeVisitor {
                 emit(opcode, regIndex);
                 break;
             case TypeTags.NULL:
-                regIndex = ++regIndexes.tRef;
                 emit(InstructionCodes.RCONST_NULL, regIndex);
         }
-
-        literalExpr.regIndex = regIndex;
     }
 
     @Override
@@ -621,13 +613,11 @@ public class CodeGenerator extends BLangNodeVisitor {
             etype = ((BArrayType) arrayLiteral.type).eType;
         }
 
-        int typeCPindex = getTypeCPIndex(arrayLiteral);
-
         // Emit create array instruction
         int opcode = getOpcode(etype.tag, InstructionCodes.INEWARRAY);
-        int arrayVarRegIndex = ++regIndexes.tRef;
-        arrayLiteral.regIndex = arrayVarRegIndex;
-        emit(opcode, arrayVarRegIndex, typeCPindex);
+        Operand arrayVarRegIndex = calcAndGetExprRegIndex(arrayLiteral);
+        Operand typeCPIndex = getOperand(getTypeCPIndex(arrayLiteral));
+        emit(opcode, arrayVarRegIndex, typeCPIndex);
 
         // Emit instructions populate initial array values;
         for (int i = 0; i < arrayLiteral.exprs.size(); i++) {
@@ -636,7 +626,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
             BLangLiteral indexLiteral = new BLangLiteral();
             indexLiteral.pos = arrayLiteral.pos;
-            indexLiteral.value = new Long(i);
+            indexLiteral.value = (long) i;
             indexLiteral.type = symTable.intType;
             genNode(indexLiteral, this.env);
 
@@ -647,17 +637,15 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangJSONArrayLiteral arrayLiteral) {
-        int jsonVarRegIndex = ++regIndexes.tRef;
-        arrayLiteral.regIndex = jsonVarRegIndex;
+        arrayLiteral.regIndex = calcAndGetExprRegIndex(arrayLiteral);
         List<BLangExpression> argExprs = arrayLiteral.exprs;
 
         BLangLiteral arraySizeLiteral = new BLangLiteral();
         arraySizeLiteral.pos = arrayLiteral.pos;
-        arraySizeLiteral.value = new Long(argExprs.size());
+        arraySizeLiteral.value = (long) argExprs.size();
         arraySizeLiteral.type = symTable.intType;
-        arraySizeLiteral.accept(this);
-
-        emit(InstructionCodes.JSONNEWARRAY, jsonVarRegIndex, arraySizeLiteral.regIndex);
+        genNode(arraySizeLiteral, this.env);
+        emit(InstructionCodes.JSONNEWARRAY, arrayLiteral.regIndex, arraySizeLiteral.regIndex);
 
         for (int i = 0; i < argExprs.size(); i++) {
             BLangExpression argExpr = argExprs.get(i);
@@ -665,20 +653,18 @@ public class CodeGenerator extends BLangNodeVisitor {
 
             BLangLiteral indexLiteral = new BLangLiteral();
             indexLiteral.pos = arrayLiteral.pos;
-            indexLiteral.value = new Long(i);
+            indexLiteral.value = (long) i;
             indexLiteral.type = symTable.intType;
             genNode(indexLiteral, this.env);
-
-            emit(InstructionCodes.JSONASTORE, jsonVarRegIndex, indexLiteral.regIndex, argExpr.regIndex);
+            emit(InstructionCodes.JSONASTORE, arrayLiteral.regIndex, indexLiteral.regIndex, argExpr.regIndex);
         }
     }
 
     @Override
     public void visit(BLangJSONLiteral jsonLiteral) {
-        int jsonVarRegIndex = ++regIndexes.tRef;
-        jsonLiteral.regIndex = jsonVarRegIndex;
-        int typeCPindex = getTypeCPIndex(jsonLiteral);
-        emit(InstructionCodes.NEWJSON, jsonVarRegIndex, typeCPindex);
+        jsonLiteral.regIndex = calcAndGetExprRegIndex(jsonLiteral);
+        Operand typeCPIndex = getOperand(getTypeCPIndex(jsonLiteral));
+        emit(InstructionCodes.NEWJSON, jsonLiteral.regIndex, typeCPIndex);
 
         for (BLangRecordKeyValue keyValue : jsonLiteral.keyValuePairs) {
             BLangExpression keyExpr = keyValue.key.expr;
@@ -687,14 +673,13 @@ public class CodeGenerator extends BLangNodeVisitor {
             BLangExpression valueExpr = keyValue.valueExpr;
             genNode(valueExpr, this.env);
 
-            emit(InstructionCodes.JSONSTORE, jsonVarRegIndex, keyExpr.regIndex, valueExpr.regIndex);
+            emit(InstructionCodes.JSONSTORE, jsonLiteral.regIndex, keyExpr.regIndex, valueExpr.regIndex);
         }
     }
 
     @Override
     public void visit(BLangMapLiteral mapLiteral) {
-        int mapVarRegIndex = ++regIndexes.tRef;
-        mapLiteral.regIndex = mapVarRegIndex;
+        Operand mapVarRegIndex = calcAndGetExprRegIndex(mapLiteral);
         emit(InstructionCodes.NEWMAP, mapVarRegIndex);
 
         // Handle Map init stuff
@@ -715,16 +700,15 @@ public class CodeGenerator extends BLangNodeVisitor {
         int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, structSymbol.pkgID);
         int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
-        int structCPIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
+        Operand structCPIndex = getOperand(currentPkgInfo.addCPEntry(structureRefCPEntry));
 
         //Emit an instruction to create a new struct.
-        int structRegIndex = ++regIndexes.tRef;
+        Operand structRegIndex = calcAndGetExprRegIndex(structLiteral);
         emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
-        structLiteral.regIndex = structRegIndex;
 
         for (BLangRecordKeyValue keyValue : structLiteral.keyValuePairs) {
             BLangRecordKey key = keyValue.key;
-            int fieldIndex = key.fieldSymbol.varIndex;
+            Operand fieldIndex = key.fieldSymbol.varIndex;
 
             genNode(keyValue.valueExpr, this.env);
 
@@ -735,64 +719,45 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLocalVarRef localVarRef) {
-        int lvIndex = localVarRef.symbol.varIndex;
-        if (varAssignment) {
-            int opcode = getOpcode(localVarRef.type.tag, InstructionCodes.ISTORE);
-            emit(opcode, rhsExprRegIndex, lvIndex);
+        if (localVarRef.regIndex != null && (localVarRef.regIndex.isLHSIndex || localVarRef.regIndex.isVarIndex)) {
+            emit(getOpcode(localVarRef.type.tag, InstructionCodes.IMOVE),
+                    localVarRef.symbol.varIndex, localVarRef.regIndex);
             return;
         }
 
-        OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(localVarRef.type.tag,
-                InstructionCodes.ILOAD, regIndexes);
-        int opcode = opcodeAndIndex.opcode;
-        int exprRegIndex = opcodeAndIndex.index;
-        emit(opcode, lvIndex, exprRegIndex);
-        localVarRef.regIndex = exprRegIndex;
+        localVarRef.regIndex = localVarRef.symbol.varIndex;
     }
 
     @Override
     public void visit(BLangFieldVarRef fieldVarRef) {
-        int varRegIndex;
-        int fieldIndex = fieldVarRef.symbol.varIndex;
+        RegIndex fieldIndex = fieldVarRef.symbol.varIndex;
 
         // This is a connector field.
         // the connector reference must be stored in the current reference register index.
-        varRegIndex = ++regIndexes.tRef;
-
-        // The connector is always the first parameter of the action
-        emit(InstructionCodes.RLOAD, 0, varRegIndex);
-
+        Operand varRegIndex = getOperand(0);
         if (varAssignment) {
-            int opcode = getOpcode(fieldVarRef.type.tag,
-                    InstructionCodes.IFIELDSTORE);
-            emit(opcode, varRegIndex, fieldIndex, rhsExprRegIndex);
+            int opcode = getOpcode(fieldVarRef.type.tag, InstructionCodes.IFIELDSTORE);
+            emit(opcode, varRegIndex, fieldIndex, fieldVarRef.regIndex);
             return;
         }
 
-        OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(fieldVarRef.type.tag,
-                InstructionCodes.IFIELDLOAD, regIndexes);
-        int opcode = opcodeAndIndex.opcode;
-        int exprRegIndex = opcodeAndIndex.index;
+        int opcode = getOpcode(fieldVarRef.type.tag, InstructionCodes.IFIELDLOAD);
+        RegIndex exprRegIndex = calcAndGetExprRegIndex(fieldVarRef);
         emit(opcode, varRegIndex, fieldIndex, exprRegIndex);
-        fieldVarRef.regIndex = exprRegIndex;
     }
 
     @Override
     public void visit(BLangPackageVarRef packageVarRef) {
-        int gvIndex = packageVarRef.symbol.varIndex;
+        Operand gvIndex = packageVarRef.symbol.varIndex;
         if (varAssignment) {
-            int opcode = getOpcode(packageVarRef.type.tag,
-                    InstructionCodes.IGSTORE);
-            emit(opcode, rhsExprRegIndex, gvIndex);
+            int opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.IGSTORE);
+            emit(opcode, packageVarRef.regIndex, gvIndex);
             return;
         }
 
-        OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(packageVarRef.type.tag,
-                InstructionCodes.IGLOAD, regIndexes);
-        int opcode = opcodeAndIndex.opcode;
-        int exprRegIndex = opcodeAndIndex.index;
-        emit(opcode, gvIndex, exprRegIndex);
-        packageVarRef.regIndex = exprRegIndex;
+        int opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.IGLOAD);
+        packageVarRef.regIndex = calcAndGetExprRegIndex(packageVarRef);
+        emit(opcode, gvIndex, packageVarRef.regIndex);
     }
 
     @Override
@@ -806,22 +771,16 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.varAssignment = false;
 
         genNode(fieldAccessExpr.expr, this.env);
-        int varRefRegIndex = fieldAccessExpr.expr.regIndex;
+        Operand varRefRegIndex = fieldAccessExpr.expr.regIndex;
 
         int opcode;
-        int fieldRegIndex;
-        int fieldIndex = fieldAccessExpr.symbol.varIndex;
+        Operand fieldIndex = fieldAccessExpr.symbol.varIndex;
         if (variableStore) {
             opcode = getOpcode(fieldAccessExpr.symbol.type.tag, InstructionCodes.IFIELDSTORE);
-            emit(opcode, varRefRegIndex, fieldIndex, rhsExprRegIndex);
+            emit(opcode, varRefRegIndex, fieldIndex, fieldAccessExpr.regIndex);
         } else {
-            OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(fieldAccessExpr.symbol.type.tag,
-                    InstructionCodes.IFIELDLOAD, regIndexes);
-            opcode = opcodeAndIndex.opcode;
-            fieldRegIndex = opcodeAndIndex.index;
-
-            emit(opcode, varRefRegIndex, fieldIndex, fieldRegIndex);
-            fieldAccessExpr.regIndex = fieldRegIndex;
+            opcode = getOpcode(fieldAccessExpr.symbol.type.tag, InstructionCodes.IFIELDLOAD);
+            emit(opcode, varRefRegIndex, fieldIndex, calcAndGetExprRegIndex(fieldAccessExpr));
         }
 
         this.varAssignment = variableStore;
@@ -833,17 +792,15 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.varAssignment = false;
 
         genNode(mapKeyAccessExpr.expr, this.env);
-        int varRefRegIndex = mapKeyAccessExpr.expr.regIndex;
+        Operand varRefRegIndex = mapKeyAccessExpr.expr.regIndex;
 
         genNode(mapKeyAccessExpr.indexExpr, this.env);
-        int keyRegIndex = mapKeyAccessExpr.indexExpr.regIndex;
+        Operand keyRegIndex = mapKeyAccessExpr.indexExpr.regIndex;
 
         if (variableStore) {
-            emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, rhsExprRegIndex);
+            emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, mapKeyAccessExpr.regIndex);
         } else {
-            int mapValueRegIndex = ++regIndexes.tRef;
-            emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, mapValueRegIndex);
-            mapKeyAccessExpr.regIndex = mapValueRegIndex;
+            emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(mapKeyAccessExpr));
         }
 
         this.varAssignment = variableStore;
@@ -855,26 +812,22 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.varAssignment = false;
 
         genNode(jsonAccessExpr.expr, this.env);
-        int varRefRegIndex = jsonAccessExpr.expr.regIndex;
+        Operand varRefRegIndex = jsonAccessExpr.expr.regIndex;
 
         genNode(jsonAccessExpr.indexExpr, this.env);
-        int keyRegIndex = jsonAccessExpr.indexExpr.regIndex;
+        Operand keyRegIndex = jsonAccessExpr.indexExpr.regIndex;
 
         if (jsonAccessExpr.indexExpr.type.tag == TypeTags.INT) {
             if (variableStore) {
-                emit(InstructionCodes.JSONASTORE, varRefRegIndex, keyRegIndex, rhsExprRegIndex);
+                emit(InstructionCodes.JSONASTORE, varRefRegIndex, keyRegIndex, jsonAccessExpr.regIndex);
             } else {
-                int mapValueRegIndex = ++regIndexes.tRef;
-                emit(InstructionCodes.JSONALOAD, varRefRegIndex, keyRegIndex, mapValueRegIndex);
-                jsonAccessExpr.regIndex = mapValueRegIndex;
+                emit(InstructionCodes.JSONALOAD, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(jsonAccessExpr));
             }
         } else {
             if (variableStore) {
-                emit(InstructionCodes.JSONSTORE, varRefRegIndex, keyRegIndex, rhsExprRegIndex);
+                emit(InstructionCodes.JSONSTORE, varRefRegIndex, keyRegIndex, jsonAccessExpr.regIndex);
             } else {
-                int mapValueRegIndex = ++regIndexes.tRef;
-                emit(InstructionCodes.JSONLOAD, varRefRegIndex, keyRegIndex, mapValueRegIndex);
-                jsonAccessExpr.regIndex = mapValueRegIndex;
+                emit(InstructionCodes.JSONLOAD, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(jsonAccessExpr));
             }
         }
 
@@ -887,14 +840,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.varAssignment = false;
 
         genNode(xmlIndexAccessExpr.expr, this.env);
-        int varRefRegIndex = xmlIndexAccessExpr.expr.regIndex;
+        RegIndex varRefRegIndex = xmlIndexAccessExpr.expr.regIndex;
 
         genNode(xmlIndexAccessExpr.indexExpr, this.env);
-        int indexRegIndex = xmlIndexAccessExpr.indexExpr.regIndex;
+        RegIndex indexRegIndex = xmlIndexAccessExpr.indexExpr.regIndex;
 
-        int elementRegIndex = ++regIndexes.tRef;
+        RegIndex elementRegIndex = calcAndGetExprRegIndex(xmlIndexAccessExpr);
         emit(InstructionCodes.XMLLOAD, varRefRegIndex, indexRegIndex, elementRegIndex);
-        xmlIndexAccessExpr.regIndex = elementRegIndex;
         this.varAssignment = variableStore;
     }
 
@@ -904,20 +856,18 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.varAssignment = false;
 
         genNode(arrayIndexAccessExpr.expr, this.env);
-        int varRefRegIndex = arrayIndexAccessExpr.expr.regIndex;
+        Operand varRefRegIndex = arrayIndexAccessExpr.expr.regIndex;
 
         genNode(arrayIndexAccessExpr.indexExpr, this.env);
-        int indexRegIndex = arrayIndexAccessExpr.indexExpr.regIndex;
+        Operand indexRegIndex = arrayIndexAccessExpr.indexExpr.regIndex;
 
         BArrayType arrayType = (BArrayType) arrayIndexAccessExpr.expr.type;
         if (variableStore) {
             int opcode = getOpcode(arrayType.eType.tag, InstructionCodes.IASTORE);
-            emit(opcode, varRefRegIndex, indexRegIndex, rhsExprRegIndex);
+            emit(opcode, varRefRegIndex, indexRegIndex, arrayIndexAccessExpr.regIndex);
         } else {
-            OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(arrayType.eType.tag,
-                    InstructionCodes.IALOAD, regIndexes);
-            emit(opcodeAndIndex.opcode, varRefRegIndex, indexRegIndex, opcodeAndIndex.index);
-            arrayIndexAccessExpr.regIndex = opcodeAndIndex.index;
+            int opcode = getOpcode(arrayType.eType.tag, InstructionCodes.IALOAD);
+            emit(opcode, varRefRegIndex, indexRegIndex, calcAndGetExprRegIndex(arrayIndexAccessExpr));
         }
 
         this.varAssignment = variableStore;
@@ -927,11 +877,10 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangEnumeratorAccessExpr enumeratorAccessExpr) {
         int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, enumeratorAccessExpr.type.getDesc());
         TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
-        int typeCPIndex = currentPkgInfo.addCPEntry(typeRefCPEntry);
-        int varIndex = enumeratorAccessExpr.symbol.varIndex;
-        int regIndex = ++regIndexes.tRef;
-        emit(InstructionCodes.ENUMERATORLOAD, typeCPIndex, varIndex, regIndex);
-        enumeratorAccessExpr.regIndex = regIndex;
+        Operand typeCPIndex = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
+        Operand varIndex = enumeratorAccessExpr.symbol.varIndex;
+        emit(InstructionCodes.ENUMERATORLOAD, typeCPIndex, varIndex,
+                calcAndGetExprRegIndex(enumeratorAccessExpr));
     }
 
     public void visit(BLangBinaryExpr binaryExpr) {
@@ -946,104 +895,90 @@ public class CodeGenerator extends BLangNodeVisitor {
             BLangExpression expr = (binaryExpr.lhsExpr.type.tag == TypeTags.NULL) ?
                     binaryExpr.rhsExpr : binaryExpr.lhsExpr;
             genNode(expr, this.env);
-            int opcode = binaryExpr.opSymbol.opcode;
-            int exprIndex = getNextIndex(binaryExpr.type.tag, regIndexes);
-            binaryExpr.regIndex = exprIndex;
-            emit(opcode, expr.regIndex, exprIndex);
+            emit(binaryExpr.opSymbol.opcode, expr.regIndex, calcAndGetExprRegIndex(binaryExpr));
         } else {
             genNode(binaryExpr.lhsExpr, this.env);
             genNode(binaryExpr.rhsExpr, this.env);
-
-            int opcode = binaryExpr.opSymbol.opcode;
-            int exprIndex = getNextIndex(binaryExpr.type.tag, regIndexes);
-
-            binaryExpr.regIndex = exprIndex;
-            emit(opcode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, exprIndex);
+            RegIndex regIndex = calcAndGetExprRegIndex(binaryExpr);
+            emit(binaryExpr.opSymbol.opcode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex);
         }
     }
 
     private void visitAndExpression(BLangBinaryExpr binaryExpr) {
+        // Code address to jump if at least one of the expressions get evaluated to false.
+        // short-circuit evaluation
+        Operand falseJumpAddr = getOperand(-1);
+
         // Generate code for the left hand side
         genNode(binaryExpr.lhsExpr, this.env);
-
-        // Last operand will be filled later.
-        Instruction lEvalInstruction = InstructionFactory.get(InstructionCodes.BR_FALSE,
-                binaryExpr.lhsExpr.regIndex, -1);
-        emit(lEvalInstruction);
+        emit(InstructionCodes.BR_FALSE, binaryExpr.lhsExpr.regIndex, falseJumpAddr);
 
         // Generate code for the right hand side
         genNode(binaryExpr.rhsExpr, this.env);
-
-        // Last operand will be filled later.
-        Instruction rEvalInstruction = InstructionFactory.get(InstructionCodes.BR_FALSE,
-                binaryExpr.rhsExpr.regIndex, -1);
-        emit(rEvalInstruction);
+        emit(InstructionCodes.BR_FALSE, binaryExpr.rhsExpr.regIndex, falseJumpAddr);
 
         // If both l and r conditions are true, then load 'true'
-        int exprRegIndex = ++regIndexes.tBoolean;
-        binaryExpr.regIndex = exprRegIndex;
-        emit(InstructionCodes.BCONST_1, exprRegIndex);
+        calcAndGetExprRegIndex(binaryExpr);
+        emit(InstructionCodes.BCONST_1, binaryExpr.regIndex);
 
-        Instruction goToIns = InstructionFactory.get(InstructionCodes.GOTO, -1);
-        emit(goToIns);
+        Operand gotoAddr = getOperand(-1);
+        emit(InstructionCodes.GOTO, gotoAddr);
 
-        int loadFalseIP = nextIP();
-        lEvalInstruction.setOperand(1, loadFalseIP);
-        rEvalInstruction.setOperand(1, loadFalseIP);
+        falseJumpAddr.value = nextIP();
 
         // Load 'false' if the both conditions are false;
-        emit(InstructionCodes.BCONST_0, exprRegIndex);
-        goToIns.setOperand(0, nextIP());
+        emit(InstructionCodes.BCONST_0, binaryExpr.regIndex);
+        gotoAddr.value = nextIP();
     }
 
-    private void visitOrExpression (BLangBinaryExpr binaryExpr) {
+    private void visitOrExpression(BLangBinaryExpr binaryExpr) {
+        // short-circuit evaluation
+        // Code address to jump if the lhs expression gets evaluated to 'true'.
+        Operand lExprTrueJumpAddr = getOperand(-1);
+
+        // Code address to jump if the rhs expression gets evaluated to 'false'.
+        Operand rExprFalseJumpAddr = getOperand(-1);
+
         // Generate code for the left hand side
         genNode(binaryExpr.lhsExpr, this.env);
-
-        // Last operand will be filled later.
-        Instruction lEvalInstruction = InstructionFactory.get(InstructionCodes.BR_TRUE,
-                binaryExpr.lhsExpr.regIndex, -1);
-        emit(lEvalInstruction);
+        emit(InstructionCodes.BR_TRUE, binaryExpr.lhsExpr.regIndex, lExprTrueJumpAddr);
 
         // Generate code for the right hand side
         genNode(binaryExpr.rhsExpr, this.env);
+        emit(InstructionCodes.BR_FALSE, binaryExpr.rhsExpr.regIndex, rExprFalseJumpAddr);
 
-        // Last operand will be filled later.
-        Instruction rEvalInstruction = InstructionFactory.get(InstructionCodes.BR_FALSE,
-                binaryExpr.rhsExpr.regIndex, -1);
-        emit(rEvalInstruction);
-
-        // If either l and r conditions are true, then load 'true'
-        lEvalInstruction.setOperand(1, nextIP());
-        int exprRegIndex = ++regIndexes.tBoolean;
-        binaryExpr.regIndex = exprRegIndex;
+        lExprTrueJumpAddr.value = nextIP();
+        RegIndex exprRegIndex = calcAndGetExprRegIndex(binaryExpr);
         emit(InstructionCodes.BCONST_1, exprRegIndex);
 
-        Instruction goToIns = InstructionFactory.get(InstructionCodes.GOTO, -1);
-        emit(goToIns);
-        rEvalInstruction.setOperand(1, nextIP());
+        Operand gotoAddr = getOperand(-1);
+        emit(InstructionCodes.GOTO, gotoAddr);
+        rExprFalseJumpAddr.value = nextIP();
 
         // Load 'false' if the both conditions are false;
         emit(InstructionCodes.BCONST_0, exprRegIndex);
-        goToIns.setOperand(0, nextIP());
+        gotoAddr.value = nextIP();
     }
 
     public void visit(BLangInvocation iExpr) {
-        if (iExpr.expr == null) {
-            BInvokableSymbol funcSymbol = (BInvokableSymbol) iExpr.symbol;
-            int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, funcSymbol.pkgID);
-            int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
-            FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
-
-            int funcCallCPIndex = getFunctionCallCPIndex(iExpr);
-            int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
-
-            if (Symbols.isNative(funcSymbol)) {
-                emit(InstructionCodes.NCALL, funcRefCPIndex, funcCallCPIndex);
-            } else {
-                emit(InstructionCodes.CALL, funcRefCPIndex, funcCallCPIndex);
-            }
+        if (iExpr.expr != null) {
+            return;
         }
+
+        BInvokableSymbol funcSymbol = (BInvokableSymbol) iExpr.symbol;
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, funcSymbol.pkgID);
+        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
+        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
+
+        int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
+        Operand[] operands = getFuncOperands(iExpr, funcRefCPIndex);
+
+        if (Symbols.isNative(funcSymbol)) {
+            emit(InstructionCodes.NCALL, operands);
+        } else {
+            emit(InstructionCodes.CALL, operands);
+        }
+
     }
 
     public void visit(BLangActionInvocation aIExpr) {
@@ -1053,9 +988,9 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex, actionNameCPIndex);
         int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
-        int actionCallIndex = getFunctionCallCPIndex(aIExpr);
+        Operand[] operands = getFuncOperands(aIExpr, actionRefCPIndex);
 
-        emit(InstructionCodes.ACALL, actionRefCPIndex, actionCallIndex);
+        emit(InstructionCodes.ACALL, operands);
     }
 
     public void visit(BLangConnectorInit cIExpr) {
@@ -1064,12 +999,11 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, connectorSymbol.pkgID);
         int connNameCPIndex = addUTF8CPEntry(currentPkgInfo, connectorType.tsymbol.name.value);
-
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgRefCPIndex, connNameCPIndex);
-        int structureRefCPIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
+        Operand structureRefCPIndex = getOperand(currentPkgInfo.addCPEntry(structureRefCPEntry));
+
         //Emit an instruction to create a new connector.
-        int connectorRegIndex = ++regIndexes.tRef;
-        cIExpr.regIndex = connectorRegIndex;
+        RegIndex connectorRegIndex = calcAndGetExprRegIndex(cIExpr);
         emit(InstructionCodes.NEWCONNECTOR, structureRefCPIndex, connectorRegIndex);
 
         List<BLangExpression> argExprs = cIExpr.argsExpr;
@@ -1077,24 +1011,22 @@ public class CodeGenerator extends BLangNodeVisitor {
             BLangExpression argExpr = argExprs.get(i);
             genNode(argExpr, this.env);
             BVarSymbol paramSymbol = connectorType.tsymbol.params.get(i);
-
-            int fieldIndex = paramSymbol.varIndex;
             int opcode = getOpcode(paramSymbol.type.tag, InstructionCodes.IFIELDSTORE);
-            emit(opcode, connectorRegIndex, fieldIndex, argExpr.regIndex);
+            emit(opcode, connectorRegIndex, paramSymbol.varIndex, argExpr.regIndex);
         }
 
         BInvokableSymbol initFunc = connectorSymbol.initFunctionSymbol;
         int initFuncNameIndex = addUTF8CPEntry(currentPkgInfo, initFunc.name.value);
         FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, initFuncNameIndex);
-        int initFuncRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
-        FunctionCallCPEntry initFuncCallCPEntry = new FunctionCallCPEntry(new int[]{connectorRegIndex}, new int[0]);
-        int initFuncCallIndex = currentPkgInfo.addCPEntry(initFuncCallCPEntry);
-        emit(InstructionCodes.CALL, initFuncRefCPIndex, initFuncCallIndex);
+        Operand initFuncRefCPIndex = getOperand(currentPkgInfo.addCPEntry(funcRefCPEntry));
+        Operand[] operands = new Operand[]{initFuncRefCPIndex, getOperand(1), connectorRegIndex, getOperand(0)};
+        emit(InstructionCodes.CALL, operands);
 
         int actionNameCPIndex = addUTF8CPEntry(currentPkgInfo, "<init>");
         ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex, actionNameCPIndex);
-        int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
-        emit(InstructionCodes.ACALL, actionRefCPIndex, initFuncCallIndex);
+        Operand actionRefCPIndex = getOperand(currentPkgInfo.addCPEntry(actionRefCPEntry));
+        operands = new Operand[]{actionRefCPIndex, getOperand(1), connectorRegIndex, getOperand(0)};
+        emit(InstructionCodes.ACALL, operands);
     }
 
     public void visit(BLangFunctionInvocation iExpr) {
@@ -1103,13 +1035,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
         FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
 
-        int funcCallCPIndex = getFunctionCallCPIndex(iExpr);
         int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
+        Operand[] operands = getFuncOperands(iExpr, funcRefCPIndex);
 
         if (Symbols.isNative(funcSymbol)) {
-            emit(InstructionCodes.NCALL, funcRefCPIndex, funcCallCPIndex);
+            emit(InstructionCodes.NCALL, operands);
         } else {
-            emit(InstructionCodes.CALL, funcRefCPIndex, funcCallCPIndex);
+            emit(InstructionCodes.CALL, operands);
         }
     }
 
@@ -1119,86 +1051,90 @@ public class CodeGenerator extends BLangNodeVisitor {
         int transformerNameCPIndex = addUTF8CPEntry(currentPkgInfo, transformerSymbol.name.value);
         TransformerRefCPEntry transformerRefCPEntry = new TransformerRefCPEntry(pkgRefCPIndex, transformerNameCPIndex);
 
-        int transformerCallCPIndex = getFunctionCallCPIndex(iExpr);
         int transformerRefCPIndex = currentPkgInfo.addCPEntry(transformerRefCPEntry);
+        Operand[] operands = getFuncOperands(iExpr, transformerRefCPIndex);
 
-        emit(InstructionCodes.TCALL, transformerRefCPIndex, transformerCallCPIndex);
+        emit(InstructionCodes.TCALL, operands);
     }
 
     public void visit(BFunctionPointerInvocation iExpr) {
-        int funcCallCPIndex = getFunctionCallCPIndex(iExpr);
+        Operand[] operands = getFuncOperands(iExpr, -1);
         genNode(iExpr.expr, env);
-        emit(InstructionCodes.FPCALL, regIndexes.tRef, funcCallCPIndex);
+        operands[0] = iExpr.expr.regIndex;
+        emit(InstructionCodes.FPCALL, operands);
     }
 
     public void visit(BLangTypeCastExpr castExpr) {
-        BLangExpression rExpr = castExpr.expr;
-        genNode(rExpr, this.env);
+        int opcode = castExpr.castSymbol.opcode;
+        RegIndex[] castExprRegIndexes = castExpr.getRegIndexes();
 
-        // TODO Improve following logic
-        int opCode = castExpr.castSymbol.opcode;
-        int errorRegIndex = ++regIndexes.tRef;
+        // Figure out the reg index of the error value
+        RegIndex errorRegIndex = castExprRegIndexes == null ?
+                calcAndGetExprRegIndex(null, TypeTags.STRUCT) :
+                calcAndGetExprRegIndex(castExprRegIndexes[1], TypeTags.STRUCT);
 
-        if (opCode == InstructionCodes.CHECKCAST) {
-            int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, castExpr.type.getDesc());
-            TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
-            int typeCPIndex = currentPkgInfo.addCPEntry(typeRefCPEntry);
-            int targetRegIndex = getNextIndex(castExpr.type.tag, regIndexes);
+        // Figure out the reg index of the result value
+        BType castExprType = castExpr.types.get(0);
+        RegIndex castExprRegIndex = castExprRegIndexes == null ?
+                calcAndGetExprRegIndex(castExpr.regIndex, castExprType.tag) :
+                calcAndGetExprRegIndex(castExprRegIndexes[0], castExprType.tag);
 
-            castExpr.regIndexes = new int[]{targetRegIndex, errorRegIndex};
-            emit(opCode, rExpr.regIndex, typeCPIndex, targetRegIndex, errorRegIndex);
-
-        } else if (opCode == InstructionCodes.ANY2T ||
-                opCode == InstructionCodes.ANY2C ||
-                opCode == InstructionCodes.ANY2E) {
-            int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, castExpr.type.getDesc());
-            TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
-            int typeCPIndex = currentPkgInfo.addCPEntry(typeRefCPEntry);
-            int targetRegIndex = getNextIndex(castExpr.type.tag, regIndexes);
-
-            castExpr.regIndexes = new int[]{targetRegIndex, errorRegIndex};
-            emit(opCode, rExpr.regIndex, typeCPIndex, targetRegIndex, errorRegIndex);
-
-        } else if (opCode != 0) {
-            int targetRegIndex = getNextIndex(castExpr.type.tag, regIndexes);
-            castExpr.regIndexes = new int[]{targetRegIndex, errorRegIndex};
-            emit(opCode, rExpr.regIndex, targetRegIndex, errorRegIndex);
-
-        } else {
-            // Ignore NOP opcode
-            castExpr.regIndexes = new int[]{rExpr.regIndex, errorRegIndex};
+        castExprRegIndexes = new RegIndex[]{castExprRegIndex, errorRegIndex};
+        castExpr.setRegIndexes(castExprRegIndexes);
+        if (opcode == InstructionCodes.NOP) {
+            castExpr.expr.regIndex = createLHSRegIndex(castExprRegIndex);
+            genNode(castExpr.expr, this.env);
+            return;
         }
 
-        castExpr.regIndex = castExpr.regIndexes[0];
+        genNode(castExpr.expr, this.env);
+        if (opcode == InstructionCodes.ANY2T ||
+                opcode == InstructionCodes.ANY2C ||
+                opcode == InstructionCodes.ANY2E ||
+                opcode == InstructionCodes.CHECKCAST) {
+            int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, castExpr.type.getDesc());
+            TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
+            Operand typeCPIndex = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
+            emit(opcode, castExpr.expr.regIndex, typeCPIndex, castExprRegIndex, errorRegIndex);
+        } else {
+            emit(opcode, castExpr.expr.regIndex, castExprRegIndex, errorRegIndex);
+        }
     }
 
-    public void visit(BLangTypeConversionExpr conversionExpr) {
-        BLangExpression rExpr = conversionExpr.expr;
-        genNode(rExpr, this.env);
 
-        int opCode = conversionExpr.conversionSymbol.opcode;
-        int errorRegIndex = ++regIndexes.tRef;
+    public void visit(BLangTypeConversionExpr convExpr) {
+        int opcode = convExpr.conversionSymbol.opcode;
+        RegIndex[] convExprRegIndexes = convExpr.getRegIndexes();
 
-        if (opCode == InstructionCodes.MAP2T || opCode == InstructionCodes.JSON2T) {
-            int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, conversionExpr.type.getDesc());
-            TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
-            int typeCPIndex = currentPkgInfo.addCPEntry(typeRefCPEntry);
-            int targetRegIndex = getNextIndex(conversionExpr.type.tag, regIndexes);
+        // Figure out the reg index of the error value
+        RegIndex errorRegIndex = convExprRegIndexes == null ?
+                calcAndGetExprRegIndex(null, TypeTags.STRUCT) :
+                calcAndGetExprRegIndex(convExprRegIndexes[1], TypeTags.STRUCT);
 
-            conversionExpr.regIndexes = new int[]{targetRegIndex, errorRegIndex};
-            emit(opCode, rExpr.regIndex, typeCPIndex, targetRegIndex, errorRegIndex);
+        // Figure out the reg index of the result value
+        BType castExprType = convExpr.types.get(0);
+        RegIndex convExprRegIndex = convExprRegIndexes == null ?
+                calcAndGetExprRegIndex(convExpr.regIndex, castExprType.tag) :
+                calcAndGetExprRegIndex(convExprRegIndexes[0], castExprType.tag);
 
-        } else if (opCode != 0) {
-            int targetRegIndex = getNextIndex(conversionExpr.type.tag, regIndexes);
-            conversionExpr.regIndexes = new int[]{targetRegIndex, errorRegIndex};
-            emit(opCode, rExpr.regIndex, targetRegIndex, errorRegIndex);
-
-        } else {
-            // Ignore  NOP opcode
-            conversionExpr.regIndexes = new int[]{rExpr.regIndex, errorRegIndex};
+        convExprRegIndexes = new RegIndex[]{convExprRegIndex, errorRegIndex};
+        convExpr.setRegIndexes(convExprRegIndexes);
+        if (opcode == InstructionCodes.NOP) {
+            convExpr.expr.regIndex = createLHSRegIndex(convExprRegIndex);
+            genNode(convExpr.expr, this.env);
+            return;
         }
 
-        conversionExpr.regIndex = conversionExpr.regIndexes[0];
+        genNode(convExpr.expr, this.env);
+        if (opcode == InstructionCodes.MAP2T || opcode == InstructionCodes.JSON2T) {
+            int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, convExpr.type.getDesc());
+            TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
+            Operand typeCPIndex = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
+            emit(opcode, convExpr.expr.regIndex, typeCPIndex, convExprRegIndex, errorRegIndex);
+
+        } else {
+            emit(opcode, convExpr.expr.regIndex, convExprRegIndex, errorRegIndex);
+        }
     }
 
     public void visit(BLangRecordLiteral recordLiteral) {
@@ -1206,63 +1142,58 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangTernaryExpr ternaryExpr) {
+        // Determine the reg index of the ternary expression and this reg index will be used by both then and else
+        // expressions to store their result
+        RegIndex ternaryExprRegIndex = calcAndGetExprRegIndex(ternaryExpr);
+
+        // Generate code for the condition
         this.genNode(ternaryExpr.expr, this.env);
-        Instruction ifCondJumpInstr = InstructionFactory.get(InstructionCodes.BR_FALSE, ternaryExpr.expr.regIndex, -1);
-        this.emit(ifCondJumpInstr);
+        Operand ifFalseJumpAddr = getOperand(-1);
+        this.emit(InstructionCodes.BR_FALSE, ternaryExpr.expr.regIndex, ifFalseJumpAddr);
+
+        // Generate code for the then expression
+        ternaryExpr.thenExpr.regIndex = createLHSRegIndex(ternaryExprRegIndex);
         this.genNode(ternaryExpr.thenExpr, this.env);
-        ternaryExpr.regIndex = ternaryExpr.thenExpr.regIndex;
-        Instruction endJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, -1);
-        this.emit(endJumpInstr);
-        ifCondJumpInstr.setOperand(1, this.nextIP());
+        Operand endJumpAddr = getOperand(-1);
+        this.emit(InstructionCodes.GOTO, endJumpAddr);
+        ifFalseJumpAddr.value = nextIP();
+
+        // Generate code for the then expression
+        ternaryExpr.elseExpr.regIndex = createLHSRegIndex(ternaryExprRegIndex);
         this.genNode(ternaryExpr.elseExpr, this.env);
-        Instruction instruction = InstructionFactory.get(InstructionCodes.REG_CP, ternaryExpr.type.tag,
-                ternaryExpr.elseExpr.regIndex, ternaryExpr.regIndex);
-        this.emit(instruction);
-        endJumpInstr.setOperand(0, this.nextIP());
+        endJumpAddr.value = nextIP();
     }
 
     public void visit(BLangTypeofExpr accessExpr) {
         int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, accessExpr.resolvedType.getDesc());
         TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
-        int typeCPIndex = currentPkgInfo.addCPEntry(typeRefCPEntry);
-
-        int opcode;
-        int exprIndex;
-
-        exprIndex = ++regIndexes.tRef;
-        opcode = InstructionCodes.TYPELOAD;
-        emit(opcode, typeCPIndex, exprIndex);
-        accessExpr.regIndex = exprIndex;
+        Operand typeCPIndex = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
+        emit(InstructionCodes.TYPELOAD, typeCPIndex, calcAndGetExprRegIndex(accessExpr));
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {
-        genNode(unaryExpr.expr, this.env);
+        RegIndex exprIndex = calcAndGetExprRegIndex(unaryExpr);
 
         int opcode;
-        int exprIndex;
-
         if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
+            genNode(unaryExpr.expr, this.env);
             if (unaryExpr.expr.type.tag == TypeTags.ANY || unaryExpr.expr.type.tag == TypeTags.JSON) {
-                exprIndex = ++regIndexes.tRef;
                 opcode = unaryExpr.opSymbol.opcode;
                 emit(opcode, unaryExpr.expr.regIndex, exprIndex);
             } else {
                 int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, unaryExpr.expr.type.getDesc());
                 TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
-                int typeCPIndex = currentPkgInfo.addCPEntry(typeRefCPEntry);
+                Operand typeCPIndex = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
 
-                exprIndex = ++regIndexes.tRef;
                 opcode = unaryExpr.opSymbol.opcode;
                 emit(opcode, typeCPIndex, exprIndex);
             }
-            unaryExpr.regIndex = exprIndex;
         } else if (OperatorKind.ADD.equals(unaryExpr.operator)) {
-            unaryExpr.regIndex = unaryExpr.expr.regIndex;
+            unaryExpr.expr.regIndex = createLHSRegIndex(unaryExpr.regIndex);
+            genNode(unaryExpr.expr, this.env);
         } else {
+            genNode(unaryExpr.expr, this.env);
             opcode = unaryExpr.opSymbol.opcode;
-            exprIndex = getNextIndex(unaryExpr.type.tag, regIndexes);
-
-            unaryExpr.regIndex = exprIndex;
             emit(opcode, unaryExpr.expr.regIndex, exprIndex);
         }
     }
@@ -1274,11 +1205,12 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     // private methods
 
-    private void genNode(BLangNode node, SymbolEnv env) {
+    private <T extends BLangNode, U extends SymbolEnv> T genNode(T t, U u) {
         SymbolEnv prevEnv = this.env;
-        this.env = env;
-        node.accept(this);
+        this.env = u;
+        t.accept(this);
         this.env = prevEnv;
+        return t;
     }
 
     private void genPackage(BPackageSymbol pkgSymbol) {
@@ -1312,41 +1244,30 @@ public class CodeGenerator extends BLangNodeVisitor {
         return strBuilder.toString();
     }
 
-    private OpcodeAndIndex getOpcodeAndIndex(int typeTag, int baseOpcode, VariableIndex indexes) {
+    private int getNextIndex(int typeTag, VariableIndex indexes) {
         int index;
-        int opcode;
         switch (typeTag) {
             case TypeTags.INT:
-                opcode = baseOpcode;
                 index = ++indexes.tInt;
                 break;
             case TypeTags.FLOAT:
-                opcode = baseOpcode + FLOAT_OFFSET;
                 index = ++indexes.tFloat;
                 break;
             case TypeTags.STRING:
-                opcode = baseOpcode + STRING_OFFSET;
                 index = ++indexes.tString;
                 break;
             case TypeTags.BOOLEAN:
-                opcode = baseOpcode + BOOL_OFFSET;
                 index = ++indexes.tBoolean;
                 break;
             case TypeTags.BLOB:
-                opcode = baseOpcode + BLOB_OFFSET;
                 index = ++indexes.tBlob;
                 break;
             default:
-                opcode = baseOpcode + REF_OFFSET;
                 index = ++indexes.tRef;
                 break;
         }
 
-        return new OpcodeAndIndex(opcode, index);
-    }
-
-    private int getNextIndex(int typeTag, VariableIndex indexes) {
-        return getOpcodeAndIndex(typeTag, -1, indexes).index;
+        return index;
     }
 
     private int getOpcode(int typeTag, int baseOpcode) {
@@ -1375,9 +1296,82 @@ public class CodeGenerator extends BLangNodeVisitor {
         return opcode;
     }
 
+    private Operand getOperand(int value) {
+        return new Operand(value);
+    }
+
+    private RegIndex getLVIndex(int typeTag) {
+        return getRegIndexInternal(typeTag, LOCAL);
+    }
+
+    private RegIndex getPVIndex(int typeTag) {
+        return getRegIndexInternal(typeTag, PACKAGE);
+    }
+
+    private RegIndex getFieldIndex(int typeTag) {
+        return getRegIndexInternal(typeTag, FIELD);
+    }
+
+    private RegIndex getRegIndex(int typeTag) {
+        RegIndex regIndex = getRegIndexInternal(typeTag, REG);
+        addToRegIndexList(regIndex);
+        return regIndex;
+    }
+
+    private RegIndex getRegIndexInternal(int typeTag, VariableIndex.Kind varIndexKind) {
+        int index;
+        switch (varIndexKind) {
+            case REG:
+                return new RegIndex(getNextIndex(typeTag, regIndexes), typeTag);
+            case PACKAGE:
+                index = getNextIndex(typeTag, pvIndexes);
+                break;
+            case FIELD:
+                index = getNextIndex(typeTag, fieldIndexes);
+                break;
+            default:
+                index = getNextIndex(typeTag, lvIndexes);
+                break;
+        }
+
+        RegIndex regIndex = new RegIndex(index, typeTag);
+        regIndex.isVarIndex = true;
+        return regIndex;
+    }
+
+    private RegIndex calcAndGetExprRegIndex(BLangExpression expr) {
+        expr.regIndex = calcAndGetExprRegIndex(expr.regIndex, expr.type.tag);
+        return expr.regIndex;
+    }
+
+    private RegIndex calcAndGetExprRegIndex(RegIndex regIndex, int typeTag) {
+        if (regIndex != null && (regIndex.isVarIndex || regIndex.isLHSIndex)) {
+            return regIndex;
+        }
+
+        return getRegIndex(typeTag);
+    }
+
+    private RegIndex createLHSRegIndex(RegIndex regIndex) {
+        if (regIndex.isVarIndex || regIndex.isLHSIndex) {
+            return regIndex;
+        }
+
+        RegIndex lhsRegIndex = new RegIndex(regIndex.value, regIndex.typeTag, true);
+        addToRegIndexList(lhsRegIndex);
+        return lhsRegIndex;
+    }
+
+    private void addToRegIndexList(RegIndex regIndex) {
+        if (regIndex.isVarIndex) {
+            throw new IllegalStateException("");
+        }
+        regIndexList.add(regIndex);
+    }
+
     private LocalVariableInfo getLocalVarAttributeInfo(BVarSymbol varSymbol) {
         int varNameCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.name.value);
-        int varIndex = varSymbol.varIndex;
+        int varIndex = varSymbol.varIndex.value;
         int sigCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.type.getDesc());
         return new LocalVariableInfo(varNameCPIndex, sigCPIndex, varIndex);
     }
@@ -1545,50 +1539,37 @@ public class CodeGenerator extends BLangNodeVisitor {
                                           LocalVariableAttributeInfo localVarAttrInfo) {
 
         // TODO Read param and return param annotations
-        invokableSymbol.params.forEach(param -> visitInvokableNodeParam(param, localVarAttrInfo));
-        invokableSymbol.retParams.forEach(param -> visitInvokableNodeParam(param, localVarAttrInfo));
+        invokableSymbol.params.forEach(param -> visitVarSymbol(param, lvIndexes, localVarAttrInfo));
+        invokableSymbol.retParams.forEach(param -> visitVarSymbol(param, lvIndexes, localVarAttrInfo));
         callableUnitInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttrInfo);
     }
 
-    private void visitInvokableNodeParam(BVarSymbol paramSymbol, LocalVariableAttributeInfo localVarAttrInfo) {
-        paramSymbol.varIndex = getNextIndex(paramSymbol.type.tag, lvIndexes);
-        LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(paramSymbol);
-        localVarAttrInfo.localVars.add(localVarInfo);
-        // TODO read parameter annotations
-    }
-
-    private void visitServiceNodeVariable(BVarSymbol variableSymbol, LocalVariableAttributeInfo localVarAttrInfo) {
-        variableSymbol.varIndex = getNextIndex(variableSymbol.type.tag, pvIndexes);
-        LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(variableSymbol);
-        localVarAttrInfo.localVars.add(localVarInfo);
-    }
-
-    private void visitConnectorNodeVariable(BVarSymbol variableSymbol, LocalVariableAttributeInfo localVarAttrInfo) {
-        variableSymbol.varIndex = getNextIndex(variableSymbol.type.tag, fieldIndexes);
-        LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(variableSymbol);
+    private void visitVarSymbol(BVarSymbol varSymbol, VariableIndex variableIndex,
+                                LocalVariableAttributeInfo localVarAttrInfo) {
+        varSymbol.varIndex = getRegIndexInternal(varSymbol.type.tag, variableIndex.kind);
+        LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varSymbol);
         localVarAttrInfo.localVars.add(localVarInfo);
     }
 
     private void visitAnnotationAttachment(BLangAnnotationAttachment annotationAttachment,
-                                                  AnnotationAttributeInfo annotationAttributeInfo) {
+                                           AnnotationAttributeInfo annotationAttributeInfo) {
         AnnAttachmentInfo attachmentInfo = getAnnotationAttachmentInfo(annotationAttachment);
         annotationAttributeInfo.attachmentList.add(attachmentInfo);
     }
 
     private void visitReturnStatementsExprs(BLangReturn returnNode) {
-        BLangExpression expr;
         int i = 0;
         while (i < returnNode.exprs.size()) {
-            expr = returnNode.exprs.get(i);
+            BLangExpression expr = returnNode.exprs.get(i);
             this.genNode(expr, this.env);
             if (expr.isMultiReturnExpr()) {
                 MultiReturnExpr invExpr = (MultiReturnExpr) expr;
                 for (int j = 0; j < invExpr.getRegIndexes().length; j++) {
-                    emit(this.typeTagToInstr(invExpr.getTypes().get(j).tag), i, invExpr.getRegIndexes()[j]);
+                    emit(this.typeTagToInstr(invExpr.getTypes().get(j).tag), getOperand(i), invExpr.getRegIndexes()[j]);
                     i++;
                 }
             } else {
-                emit(this.typeTagToInstr(expr.type.tag), i, expr.regIndex);
+                emit(this.typeTagToInstr(expr.type.tag), getOperand(i), expr.regIndex);
                 i++;
             }
         }
@@ -1596,7 +1577,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private VariableIndex copyVarIndex(VariableIndex that) {
-        VariableIndex vIndexes = new VariableIndex();
+        VariableIndex vIndexes = new VariableIndex(that.kind);
         vIndexes.tInt = that.tInt;
         vIndexes.tFloat = that.tFloat;
         vIndexes.tString = that.tString;
@@ -1618,16 +1599,41 @@ public class CodeGenerator extends BLangNodeVisitor {
         codeAttributeInfo.maxByteLocalVars = lvIndexes.tBlob + 1;
         codeAttributeInfo.maxRefLocalVars = lvIndexes.tRef + 1;
 
-        codeAttributeInfo.maxLongRegs = maxRegIndexes.tInt + 1;
-        codeAttributeInfo.maxDoubleRegs = maxRegIndexes.tFloat + 1;
-        codeAttributeInfo.maxStringRegs = maxRegIndexes.tString + 1;
-        codeAttributeInfo.maxIntRegs = maxRegIndexes.tBoolean + 1;
-        codeAttributeInfo.maxByteRegs = maxRegIndexes.tBlob + 1;
-        codeAttributeInfo.maxRefRegs = maxRegIndexes.tRef + 1;
+        codeAttributeInfo.maxLongRegs = codeAttributeInfo.maxLongLocalVars + maxRegIndexes.tInt + 1;
+        codeAttributeInfo.maxDoubleRegs = codeAttributeInfo.maxDoubleLocalVars + maxRegIndexes.tFloat + 1;
+        codeAttributeInfo.maxStringRegs = codeAttributeInfo.maxStringLocalVars + maxRegIndexes.tString + 1;
+        codeAttributeInfo.maxIntRegs = codeAttributeInfo.maxIntLocalVars + maxRegIndexes.tBoolean + 1;
+        codeAttributeInfo.maxByteRegs = codeAttributeInfo.maxByteLocalVars + maxRegIndexes.tBlob + 1;
+        codeAttributeInfo.maxRefRegs = codeAttributeInfo.maxRefLocalVars + maxRegIndexes.tRef + 1;
 
-        lvIndexes = new VariableIndex();
-        regIndexes = new VariableIndex();
-        maxRegIndexes = new VariableIndex();
+        // Update register indexes.
+        for (RegIndex regIndex : regIndexList) {
+            switch (regIndex.typeTag) {
+                case TypeTags.INT:
+                    regIndex.value = regIndex.value + codeAttributeInfo.maxLongLocalVars;
+                    break;
+                case TypeTags.FLOAT:
+                    regIndex.value = regIndex.value + codeAttributeInfo.maxDoubleLocalVars;
+                    break;
+                case TypeTags.STRING:
+                    regIndex.value = regIndex.value + codeAttributeInfo.maxStringLocalVars;
+                    break;
+                case TypeTags.BOOLEAN:
+                    regIndex.value = regIndex.value + codeAttributeInfo.maxIntLocalVars;
+                    break;
+                case TypeTags.BLOB:
+                    regIndex.value = regIndex.value + codeAttributeInfo.maxByteLocalVars;
+                    break;
+                default:
+                    regIndex.value = regIndex.value + codeAttributeInfo.maxRefLocalVars;
+                    break;
+            }
+        }
+
+        regIndexList = new ArrayList<>();
+        lvIndexes = new VariableIndex(LOCAL);
+        regIndexes = new VariableIndex(REG);
+        maxRegIndexes = new VariableIndex(REG);
     }
 
     private void setMaxRegIndexes(VariableIndex current, VariableIndex max) {
@@ -1648,7 +1654,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         indexes.tRef++;
     }
 
-    private int emit(int opcode, int... operands) {
+    private int emit(int opcode) {
+        currentPkgInfo.instructionList.add(InstructionFactory.get(opcode));
+        return currentPkgInfo.instructionList.size();
+    }
+
+    private int emit(int opcode, Operand... operands) {
         currentPkgInfo.instructionList.add(InstructionFactory.get(opcode, operands));
         return currentPkgInfo.instructionList.size();
     }
@@ -1673,28 +1684,38 @@ public class CodeGenerator extends BLangNodeVisitor {
         attributeInfoPool.addAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE, varCountAttribInfo);
     }
 
-    private int getFunctionCallCPIndex(BLangInvocation iExpr) {
-        int[] argRegs = new int[iExpr.argExprs.size()];
-        for (int i = 0; i < iExpr.argExprs.size(); i++) {
-            BLangExpression argExpr = iExpr.argExprs.get(i);
-            genNode(argExpr, this.env);
-            argRegs[i] = argExpr.regIndex;
+    private Operand[] getFuncOperands(BLangInvocation iExpr, int funcRefCPIndex) {
+        // call funcRefCPIndex, nArgRegs, argRegs[nArgRegs], nRetRegs, retRegs[nRetRegs]
+        int i = 0;
+        int nArgRegs = iExpr.argExprs.size();
+        int nRetRegs = iExpr.types.size();
+        Operand[] operands = new Operand[nArgRegs + nRetRegs + 3];
+        operands[i++] = getOperand(funcRefCPIndex);
+        operands[i++] = getOperand(nArgRegs);
+        for (BLangExpression argExpr : iExpr.argExprs) {
+            operands[i++] = genNode(argExpr, this.env).regIndex;
         }
 
         // Calculate registers to store return values
-        int[] retRegs = new int[iExpr.types.size()];
-        for (int i = 0; i < iExpr.types.size(); i++) {
-            BType retType = iExpr.types.get(i);
-            retRegs[i] = getNextIndex(retType.tag, regIndexes);
+        operands[i++] = getOperand(nRetRegs);
+        RegIndex[] iExprRegIndexes;
+        if (iExpr.getRegIndexes() != null) {
+            iExprRegIndexes = iExpr.getRegIndexes();
+        } else if (iExpr.regIndex != null) {
+            iExprRegIndexes = new RegIndex[nRetRegs];
+            iExprRegIndexes[0] = iExpr.regIndex;
+        } else {
+            iExprRegIndexes = new RegIndex[nRetRegs];
         }
 
-        iExpr.regIndexes = retRegs;
-        if (retRegs.length > 0) {
-            iExpr.regIndex = retRegs[0];
+        for (int j = 0; j < nRetRegs; j++) {
+            RegIndex regIndex = calcAndGetExprRegIndex(iExprRegIndexes[j], iExpr.getTypes().get(j).tag);
+            iExprRegIndexes[j] = regIndex;
+            operands[i++] = regIndex;
         }
 
-        FunctionCallCPEntry funcCallCPEntry = new FunctionCallCPEntry(argRegs, retRegs);
-        return currentPkgInfo.addCPEntry(funcCallCPEntry);
+        iExpr.setRegIndexes(iExprRegIndexes);
+        return operands;
     }
 
     private void addVariableCountAttributeInfo(ConstantPool constantPool,
@@ -1748,11 +1769,10 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private void createPackageVarInfo(BLangVariable varNode) {
         BVarSymbol varSymbol = varNode.symbol;
-        BType varType = varSymbol.type;
-        varSymbol.varIndex = getNextIndex(varType.tag, pvIndexes);
+        varSymbol.varIndex = getPVIndex(varSymbol.type.tag);
 
         int varNameCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.name.value);
-        int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, varType.getDesc());
+        int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.type.getDesc());
         PackageVarInfo pkgVarInfo = new PackageVarInfo(varNameCPIndex, typeSigCPIndex, varSymbol.flags);
         currentPkgInfo.pkgVarInfoMap.put(varSymbol.name.value, pkgVarInfo);
 
@@ -1788,7 +1808,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             }
 
             structInfo.fieldInfoEntries.add(structFieldInfo);
-            structField.symbol.varIndex = getNextIndex(structFieldInfo.fieldType.tag, fieldIndexes);
+            structField.symbol.varIndex = getFieldIndex(structField.symbol.type.tag);
         }
 
         // Create variable count attribute info
@@ -1796,7 +1816,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
                 fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
         addVariableCountAttributeInfo(currentPkgInfo, structInfo, fieldCount);
-        fieldIndexes = new VariableIndex();
+        fieldIndexes = new VariableIndex(FIELD);
     }
 
     private void createEnumInfoEntry(BLangEnum enumNode) {
@@ -1806,9 +1826,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         EnumInfo enumInfo = new EnumInfo(currentPackageRefCPIndex, enumNameCPIndex);
         currentPkgInfo.addEnumInfo(enumSymbol.name.value, enumInfo);
         enumInfo.enumType = (BEnumType) enumSymbol.type;
-        
+
         for (int i = 0; i < enumNode.enumerators.size(); i++) {
             BLangEnumerator enumeratorNode = enumNode.enumerators.get(i);
+            enumeratorNode.symbol.varIndex = new RegIndex(i, enumSymbol.type.tag);
+            enumeratorNode.symbol.varIndex.isVarIndex = true;
 
             int enumeratorNameCPIndex = addUTF8CPEntry(currentPkgInfo, enumeratorNode.symbol.name.toString());
             EnumeratorInfo enumeratorInfo = new EnumeratorInfo(enumeratorNameCPIndex, i, enumInfo.enumType);
@@ -1876,8 +1898,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add connector level variables
         int localVarAttNameIndex = addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.value());
         LocalVariableAttributeInfo localVarAttributeInfo = new LocalVariableAttributeInfo(localVarAttNameIndex);
-        connectorNode.params.forEach(var -> visitConnectorNodeVariable(var.symbol, localVarAttributeInfo));
-        connectorNode.varDefs.forEach(var -> visitConnectorNodeVariable(var.var.symbol, localVarAttributeInfo));
+        connectorNode.params.forEach(var -> visitVarSymbol(var.symbol, fieldIndexes, localVarAttributeInfo));
+        connectorNode.varDefs.forEach(var -> visitVarSymbol(var.var.symbol, fieldIndexes, localVarAttributeInfo));
         connectorInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
 
         // Create variable count attribute info
@@ -1893,7 +1915,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Create action info entries for all actions
         connectorNode.actions.forEach(res -> createActionInfoEntry(res, connectorInfo));
         createActionInfoEntry(connectorNode.initAction, connectorInfo);
-        fieldIndexes = new VariableIndex();
+        fieldIndexes = new VariableIndex(FIELD);
     }
 
     private void createActionInfoEntry(BLangAction actionNode, ConnectorInfo connectorInfo) {
@@ -1926,9 +1948,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             ServiceInfo serviceInfo = new ServiceInfo(currentPackageRefCPIndex, serviceNameCPIndex, protocolPkgCPIndex);
             // Add service level variables
             int localVarAttNameIndex = addUTF8CPEntry(currentPkgInfo,
-                                                      AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.value());
+                    AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.value());
             LocalVariableAttributeInfo localVarAttributeInfo = new LocalVariableAttributeInfo(localVarAttNameIndex);
-            serviceNode.vars.forEach(var -> visitServiceNodeVariable(var.var.symbol, localVarAttributeInfo));
+            serviceNode.vars.forEach(var -> visitVarSymbol(var.var.symbol, pvIndexes, localVarAttributeInfo));
             serviceInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
             // Create the init function info
             BLangFunction serviceInitFunction = (BLangFunction) serviceNode.getInitFunction();
@@ -2054,13 +2076,25 @@ public class CodeGenerator extends BLangNodeVisitor {
      *
      * @since 0.94
      */
-    private static class VariableIndex {
+    static class VariableIndex {
+        public enum Kind {
+            LOCAL,
+            FIELD,
+            PACKAGE,
+            REG
+        }
+
         int tInt = -1;
         int tFloat = -1;
         int tString = -1;
         int tBoolean = -1;
         int tBlob = -1;
         int tRef = -1;
+        Kind kind;
+
+        VariableIndex(Kind kind) {
+            this.kind = kind;
+        }
 
         public int[] toArray() {
             int[] result = new int[6];
@@ -2075,61 +2109,41 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     }
 
-    /**
-     * Bean class which keep both opcode and the current variable index.
-     *
-     * @since 0.94
-     */
-    public static class OpcodeAndIndex {
-        int opcode;
-        int index;
-
-        public OpcodeAndIndex(int opcode, int index) {
-            this.opcode = opcode;
-            this.index = index;
-        }
-    }
-
     public void visit(BLangWorker workerNode) {
         this.genNode(workerNode.body, this.env);
     }
 
     /* visit the workers within fork-join block */
-    private void processJoinWorkers(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo, VariableIndex lvIndexesCopy,
+    private void processJoinWorkers(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo,
                                     SymbolEnv forkJoinEnv) {
         UTF8CPEntry codeUTF8CPEntry = new UTF8CPEntry(AttributeInfo.Kind.CODE_ATTRIBUTE.toString());
         int codeAttribNameIndex = this.currentPkgInfo.addCPEntry(codeUTF8CPEntry);
         for (BLangWorker worker : forkJoin.workers) {
+            VariableIndex lvIndexesCopy = copyVarIndex(this.lvIndexes);
+            this.regIndexes = new VariableIndex(REG);
+            VariableIndex regIndexesCopy = this.regIndexes;
+            this.regIndexes = new VariableIndex(REG);
+            VariableIndex maxRegIndexesCopy = this.maxRegIndexes;
+            this.maxRegIndexes = new VariableIndex(REG);
+            List<RegIndex> regIndexListCopy = this.regIndexList;
+            this.regIndexList = new ArrayList<>();
+
             WorkerInfo workerInfo = forkjoinInfo.getWorkerInfo(worker.name.value);
             workerInfo.codeAttributeInfo.attributeNameIndex = codeAttribNameIndex;
             workerInfo.codeAttributeInfo.codeAddrs = this.nextIP();
             this.currentWorkerInfo = workerInfo;
-            this.lvIndexes = this.copyVarIndex(lvIndexesCopy);
             this.genNode(worker.body, forkJoinEnv);
             this.endWorkerInfoUnit(workerInfo.codeAttributeInfo);
             this.emit(InstructionCodes.HALT);
+
+            this.lvIndexes = lvIndexesCopy;
+            this.regIndexes = regIndexesCopy;
+            this.maxRegIndexes = maxRegIndexesCopy;
+            this.regIndexList = regIndexListCopy;
         }
     }
 
-    private ForkjoinInfo processForkJoinTimeout(BLangForkJoin forkJoin) {
-        BLangExpression argExpr = forkJoin.timeoutExpression;
-        int[] retRegs;
-        if (argExpr != null) {
-            retRegs = new int[1];
-            this.genNode(argExpr, this.env);
-            retRegs[0] = argExpr.regIndex;
-        } else {
-            retRegs = new int[0];
-        }
-        VariableIndex argRegs = this.lvIndexes;
-        ForkjoinInfo forkjoinInfo = new ForkjoinInfo(argRegs.toArray(), retRegs);
-        if (argExpr != null) {
-            forkjoinInfo.setTimeoutAvailable(true);
-        }
-        return forkjoinInfo;
-    }
-
-    private void populatForkJoinWorkerInfo(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo) {
+    private void populateForkJoinWorkerInfo(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo) {
         for (BLangWorker worker : forkJoin.workers) {
             UTF8CPEntry workerNameCPEntry = new UTF8CPEntry(worker.name.value);
             int workerNameCPIndex = this.currentPkgInfo.addCPEntry(workerNameCPEntry);
@@ -2139,46 +2153,47 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     /* generate code for Join block */
-    private void processJoinBlock(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo, SymbolEnv forkJoinEnv) {
+    private void processJoinBlock(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo, SymbolEnv forkJoinEnv,
+                                  RegIndex joinVarRegIndex, Operand joinBlockAddr) {
         UTF8CPEntry joinType = new UTF8CPEntry(forkJoin.joinType.name());
         int joinTypeCPIndex = this.currentPkgInfo.addCPEntry(joinType);
         forkjoinInfo.setJoinType(forkJoin.joinType.name());
         forkjoinInfo.setJoinTypeCPIndex(joinTypeCPIndex);
-        forkjoinInfo.setJoinIp(nextIP());
+        joinBlockAddr.value = nextIP();
+
         if (forkJoin.joinResultVar != null) {
             visitForkJoinParameterDefs(forkJoin.joinResultVar, forkJoinEnv);
+            joinVarRegIndex.value = forkJoin.joinResultVar.symbol.varIndex.value;
         }
-        int joinMemOffset = forkJoin.joinResultVar.symbol.varIndex;
-        forkjoinInfo.setJoinMemOffset(joinMemOffset);
+
         if (forkJoin.joinedBody != null) {
             this.genNode(forkJoin.joinedBody, forkJoinEnv);
         }
     }
 
     /* generate code for timeout block */
-    private void processTimeoutBlock(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo, SymbolEnv forkJoinEnv) {
+    private void processTimeoutBlock(BLangForkJoin forkJoin, SymbolEnv forkJoinEnv,
+                                     RegIndex timeoutVarRegIndex, Operand timeoutBlockAddr) {
         /* emit a GOTO instruction to jump out of the timeout block */
-        Instruction gotoInstruction = InstructionFactory.get(InstructionCodes.GOTO, -1);
-        this.emit(gotoInstruction);
-        forkjoinInfo.setTimeoutIp(nextIP());
-        if (forkJoin.timeoutExpression != null) {
-            this.genNode(forkJoin.timeoutExpression, forkJoinEnv);
-        }
+        Operand gotoAddr = getOperand(-1);
+        this.emit(InstructionCodes.GOTO, gotoAddr);
+        timeoutBlockAddr.value = nextIP();
+
         if (forkJoin.timeoutVariable != null) {
             visitForkJoinParameterDefs(forkJoin.timeoutVariable, forkJoinEnv);
+            timeoutVarRegIndex.value = forkJoin.timeoutVariable.symbol.varIndex.value;
         }
-        int timeoutMemOffset = forkJoin.joinResultVar.symbol.varIndex;
-        forkjoinInfo.setTimeoutMemOffset(timeoutMemOffset);
+
         if (forkJoin.timeoutBody != null) {
             this.genNode(forkJoin.timeoutBody, forkJoinEnv);
         }
-        gotoInstruction.setOperand(0, nextIP());
+        gotoAddr.value = nextIP();
     }
 
     public void visit(BLangForkJoin forkJoin) {
         SymbolEnv forkJoinEnv = SymbolEnv.createForkJoinSymbolEnv(forkJoin, this.env);
-        ForkjoinInfo forkjoinInfo = this.processForkJoinTimeout(forkJoin);
-        this.populatForkJoinWorkerInfo(forkJoin, forkjoinInfo);
+        ForkjoinInfo forkjoinInfo = new ForkjoinInfo(this.lvIndexes.toArray());
+        this.populateForkJoinWorkerInfo(forkJoin, forkjoinInfo);
         int forkJoinInfoIndex = this.forkJoinCount++;
         /* was I already inside a fork/join */
         if (this.env.forkJoin != null) {
@@ -2186,18 +2201,28 @@ public class CodeGenerator extends BLangNodeVisitor {
         } else {
             this.currentCallableUnitInfo.defaultWorkerInfo.addForkJoinInfo(forkjoinInfo);
         }
-        ForkJoinCPEntry forkJoinIndexCPEntry = new ForkJoinCPEntry(forkJoinInfoIndex);
-        int forkJoinInfoIndexCPEntryIndex = this.currentPkgInfo.addCPEntry(forkJoinIndexCPEntry);
+        ForkJoinCPEntry forkJoinCPEntry = new ForkJoinCPEntry(forkJoinInfoIndex);
+        Operand forkJoinCPIndex = getOperand(this.currentPkgInfo.addCPEntry(forkJoinCPEntry));
+        forkjoinInfo.setIndexCPIndex(forkJoinCPIndex.value);
 
-        forkjoinInfo.setIndexCPIndex(forkJoinInfoIndexCPEntryIndex);
-        this.emit(InstructionCodes.FORKJOIN, forkJoinInfoIndexCPEntryIndex);
-        VariableIndex lvIndexesCopy = this.copyVarIndex(this.lvIndexes);
-        VariableIndex regIndexesCopy = this.copyVarIndex(this.regIndexes);
-        VariableIndex maxRegIndexesCopy = this.copyVarIndex(this.maxRegIndexes);
-        this.processJoinWorkers(forkJoin, forkjoinInfo, lvIndexesCopy, forkJoinEnv);
-        this.lvIndexes = lvIndexesCopy;
-        this.regIndexes = regIndexesCopy;
-        this.maxRegIndexes = maxRegIndexesCopy;
+        RegIndex timeoutRegIndex = new RegIndex(-1, TypeTags.INT);
+        addToRegIndexList(timeoutRegIndex);
+        if (forkJoin.timeoutExpression != null) {
+            forkjoinInfo.setTimeoutAvailable(true);
+            this.genNode(forkJoin.timeoutExpression, forkJoinEnv);
+            timeoutRegIndex.value = forkJoin.timeoutExpression.regIndex.value;
+        }
+
+        // FORKJOIN forkJoinCPIndex timeoutRegIndex joinVarRegIndex joinBlockAddr timeoutVarRegIndex timeoutBlockAddr
+        RegIndex joinVarRegIndex = new RegIndex(-1, TypeTags.MAP);
+        Operand joinBlockAddr = getOperand(-1);
+        RegIndex timeoutVarRegIndex = new RegIndex(-1, TypeTags.MAP);
+        Operand timeoutBlockAddr = getOperand(-1);
+        this.emit(InstructionCodes.FORKJOIN, forkJoinCPIndex, timeoutRegIndex,
+                joinVarRegIndex, joinBlockAddr, timeoutVarRegIndex, timeoutBlockAddr);
+
+        this.processJoinWorkers(forkJoin, forkjoinInfo, forkJoinEnv);
+
         int i = 0;
         int[] joinWrkrNameCPIndexes = new int[forkJoin.joinedWorkers.size()];
         String[] joinWrkrNames = new String[joinWrkrNameCPIndexes.length];
@@ -2211,49 +2236,50 @@ public class CodeGenerator extends BLangNodeVisitor {
         forkjoinInfo.setJoinWrkrNameIndexes(joinWrkrNameCPIndexes);
         forkjoinInfo.setJoinWorkerNames(joinWrkrNames);
         forkjoinInfo.setWorkerCount(forkJoin.joinedWorkerCount);
-        this.processJoinBlock(forkJoin, forkjoinInfo, forkJoinEnv);
-        this.processTimeoutBlock(forkJoin, forkjoinInfo, forkJoinEnv);
+        this.processJoinBlock(forkJoin, forkjoinInfo, forkJoinEnv, joinVarRegIndex, joinBlockAddr);
+        this.processTimeoutBlock(forkJoin, forkJoinEnv, timeoutVarRegIndex, timeoutBlockAddr);
     }
 
     private void visitForkJoinParameterDefs(BLangVariable parameterDef, SymbolEnv forkJoinEnv) {
         LocalVariableAttributeInfo localVariableAttributeInfo = new LocalVariableAttributeInfo(1);
-        int lvIndex = this.getNextIndex(parameterDef.type.tag, this.lvIndexes);
-        parameterDef.symbol.varIndex = lvIndex;
+        parameterDef.symbol.varIndex = getLVIndex(parameterDef.type.tag);
         this.genNode(parameterDef, forkJoinEnv);
         LocalVariableInfo localVariableDetails = this.getLocalVarAttributeInfo(parameterDef.symbol);
         localVariableAttributeInfo.localVars.add(localVariableDetails);
     }
 
-    public void visit(BLangWorkerSend workerSendNode) {
+    public void visit(BLangWorkerSend workerSendStmt) {
         WorkerDataChannelInfo workerDataChannelInfo = this.getWorkerDataChannelInfo(this.currentCallableUnitInfo,
-                this.currentWorkerInfo.getWorkerName(), workerSendNode.workerIdentifier.value);
+                this.currentWorkerInfo.getWorkerName(), workerSendStmt.workerIdentifier.value);
         WorkerDataChannelRefCPEntry wrkrInvRefCPEntry = new WorkerDataChannelRefCPEntry(workerDataChannelInfo
                 .getUniqueNameCPIndex(), workerDataChannelInfo.getUniqueName());
         wrkrInvRefCPEntry.setWorkerDataChannelInfo(workerDataChannelInfo);
-        int wrkrInvRefCPIndex = currentPkgInfo.addCPEntry(wrkrInvRefCPEntry);
-        if (workerSendNode.isForkJoinSend) {
-            this.currentWorkerInfo.setWrkrDtChnlRefCPIndex(wrkrInvRefCPIndex);
+        Operand wrkrInvRefCPIndex = getOperand(currentPkgInfo.addCPEntry(wrkrInvRefCPEntry));
+        if (workerSendStmt.isForkJoinSend) {
+            this.currentWorkerInfo.setWrkrDtChnlRefCPIndex(wrkrInvRefCPIndex.value);
             this.currentWorkerInfo.setWorkerDataChannelInfoForForkJoin(workerDataChannelInfo);
         }
-        workerDataChannelInfo.setDataChannelRefIndex(wrkrInvRefCPIndex);
-        int workerInvocationIndex = this.getWorkerSendCPIndex(workerSendNode);
-        this.emit(InstructionCodes.WRKINVOKE, wrkrInvRefCPIndex, workerInvocationIndex);
-    }
+        workerDataChannelInfo.setDataChannelRefIndex(wrkrInvRefCPIndex.value);
 
-    private void genNodeList(List<BLangExpression> exprs, SymbolEnv env) {
-        exprs.forEach(e -> this.genNode(e, env));
-    }
-
-    private int[] extractsRegisters(List<BLangExpression> exprs) {
-        int[] regs = new int[exprs.size()];
-        for (int i = 0; i < regs.length; i++) {
-            regs[i] = exprs.get(i).regIndex;
+        int nArgExprs = workerSendStmt.exprs.size();
+        RegIndex[] argRegs = new RegIndex[nArgExprs];
+        BType[] bTypes = new BType[nArgExprs];
+        for (int i = 0; i < nArgExprs; i++) {
+            BLangExpression argExpr = workerSendStmt.exprs.get(i);
+            genNode(argExpr, this.env);
+            argRegs[i] = argExpr.regIndex;
+            bTypes[i] = argExpr.type;
         }
-        return regs;
-    }
+        UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(bTypes));
+        Operand sigCPIndex = getOperand(this.currentPkgInfo.addCPEntry(sigCPEntry));
 
-    private BType[] extractTypes(List<BLangExpression> exprs) {
-        return exprs.stream().map(e -> e.type).collect(Collectors.toList()).toArray(new BType[0]);
+        // WRKSEND wrkrInvRefCPIndex typesCPIndex nRegIndexes, regIndexes[nRegIndexes]
+        Operand[] wrkSendArgRegs = new Operand[nArgExprs + 3];
+        wrkSendArgRegs[0] = wrkrInvRefCPIndex;
+        wrkSendArgRegs[1] = sigCPIndex;
+        wrkSendArgRegs[2] = getOperand(nArgExprs);
+        System.arraycopy(argRegs, 0, wrkSendArgRegs, 3, argRegs.length);
+        this.emit(InstructionCodes.WRKSEND, wrkSendArgRegs);
     }
 
     private String generateSig(BType[] types) {
@@ -2262,53 +2288,55 @@ public class CodeGenerator extends BLangNodeVisitor {
         return builder.toString();
     }
 
-    private int getWorkerSendCPIndex(BLangWorkerSend workerSendStmt) {
-        List<BLangExpression> argExprs = workerSendStmt.exprs;
-        this.genNodeList(argExprs, this.env);
-        int[] argRegs = this.extractsRegisters(argExprs);
-        BType[] bTypes = this.extractTypes(argExprs);
-        UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(bTypes));
-        int sigCPIndex = this.currentPkgInfo.addCPEntry(sigCPEntry);
-        WrkrInteractionArgsCPEntry workerInvokeCPEntry = new WrkrInteractionArgsCPEntry(argRegs, sigCPEntry);
-        workerInvokeCPEntry.setTypesSignatureCPIndex(sigCPIndex);
-        return this.currentPkgInfo.addCPEntry(workerInvokeCPEntry);
-    }
-
-    public void visit(BLangWorkerReceive workerReceiveNode) {
+    public void visit(BLangWorkerReceive workerReceiveStmt) {
         WorkerDataChannelInfo workerDataChannelInfo = this.getWorkerDataChannelInfo(this.currentCallableUnitInfo,
-                workerReceiveNode.workerIdentifier.value, this.currentWorkerInfo.getWorkerName());
+                workerReceiveStmt.workerIdentifier.value, this.currentWorkerInfo.getWorkerName());
         WorkerDataChannelRefCPEntry wrkrChnlRefCPEntry = new WorkerDataChannelRefCPEntry(workerDataChannelInfo
                 .getUniqueNameCPIndex(), workerDataChannelInfo.getUniqueName());
         wrkrChnlRefCPEntry.setWorkerDataChannelInfo(workerDataChannelInfo);
-        int wrkrRplyRefCPIndex = currentPkgInfo.addCPEntry(wrkrChnlRefCPEntry);
-        workerDataChannelInfo.setDataChannelRefIndex(wrkrRplyRefCPIndex);
-        int workerReplyIndex = getWorkerReplyCPIndex(workerReceiveNode);
-        WrkrInteractionArgsCPEntry wrkrRplyCPEntry = (WrkrInteractionArgsCPEntry) this.currentPkgInfo.getCPEntry(
-                workerReplyIndex);
-        emit(InstructionCodes.WRKREPLY, wrkrRplyRefCPIndex, workerReplyIndex);
-        /* generate store instructions to store the values */
-        int[] rhsExprRegIndexes = wrkrRplyCPEntry.getArgRegs();
-        List<BLangExpression> lhsExprs = workerReceiveNode.exprs;
-        for (int i = 0; i < lhsExprs.size(); i++) {
-            this.rhsExprRegIndex = rhsExprRegIndexes[i];
+        Operand wrkrRplyRefCPIndex = getOperand(currentPkgInfo.addCPEntry(wrkrChnlRefCPEntry));
+        workerDataChannelInfo.setDataChannelRefIndex(wrkrRplyRefCPIndex.value);
+
+        List<BLangExpression> lhsExprs = workerReceiveStmt.exprs;
+        int nLHSExprs = lhsExprs.size();
+        RegIndex[] regIndexes = new RegIndex[nLHSExprs];
+        BType[] bTypes = new BType[nLHSExprs];
+        for (int i = 0; i < nLHSExprs; i++) {
+            BLangExpression lExpr = lhsExprs.get(i);
+            if (lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && lExpr instanceof BLangLocalVarRef) {
+                lExpr.regIndex = ((BLangLocalVarRef) lExpr).symbol.varIndex;
+                regIndexes[i] = lExpr.regIndex;
+            } else {
+                lExpr.regIndex = getRegIndex(lExpr.type.tag);
+                lExpr.regIndex.isLHSIndex = true;
+                regIndexes[i] = lExpr.regIndex;
+            }
+
+            bTypes[i] = lExpr.type;
+        }
+
+        UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(bTypes));
+        Operand sigCPIndex = getOperand(currentPkgInfo.addCPEntry(sigCPEntry));
+
+        // WRKRECEIVE wrkrRplyRefCPIndex typesCPIndex nRegIndexes, regIndexes[nRegIndexes]
+        Operand[] wrkReceiveArgRegs = new Operand[nLHSExprs + 3];
+        wrkReceiveArgRegs[0] = wrkrRplyRefCPIndex;
+        wrkReceiveArgRegs[1] = sigCPIndex;
+        wrkReceiveArgRegs[2] = getOperand(nLHSExprs);
+        System.arraycopy(regIndexes, 0, wrkReceiveArgRegs, 3, regIndexes.length);
+        emit(InstructionCodes.WRKRECEIVE, wrkReceiveArgRegs);
+
+        for (BLangExpression lExpr : lhsExprs) {
+            if (lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                    lExpr instanceof BLangLocalVarRef) {
+                continue;
+            }
+
             this.varAssignment = true;
-            this.genNode(lhsExprs.get(i), this.env);
+            this.genNode(lExpr, this.env);
             this.varAssignment = false;
         }
-    }
 
-    private int getWorkerReplyCPIndex(BLangWorkerReceive workerReplyStmt) {
-        BType[] retTypes = this.extractTypes(workerReplyStmt.exprs);
-        int[] argRegs = new int[retTypes.length];
-        for (int i = 0; i < retTypes.length; i++) {
-            BType retType = retTypes[i];
-            argRegs[i] = getNextIndex(retType.tag, this.regIndexes);
-        }
-        UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(retTypes));
-        int sigCPIndex = currentPkgInfo.addCPEntry(sigCPEntry);
-        WrkrInteractionArgsCPEntry wrkrRplyCPEntry = new WrkrInteractionArgsCPEntry(argRegs, sigCPEntry);
-        wrkrRplyCPEntry.setTypesSignatureCPIndex(sigCPIndex);
-        return currentPkgInfo.addCPEntry(wrkrRplyCPEntry);
     }
 
     public void visit(BLangConnector connectorNode) {
@@ -2378,30 +2406,61 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangAssignment assignNode) {
+        List<BLangExpression> lhrExprs = assignNode.varRefs;
         if (assignNode.declaredWithVar) {
-            assignNode.varRefs.stream()
-                    .filter(v -> v.type.tag != TypeTags.NONE)
-                    .forEach(v -> {
-                        BLangVariableReference varRef = (BLangVariableReference) v;
-                        varRef.symbol.varIndex = getNextIndex(v.type.tag, lvIndexes);
-                        LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varRef.symbol);
-                        localVarAttrInfo.localVars.add(localVarInfo);
+            lhrExprs.stream()
+                    .filter(lhsExr -> lhsExr.type.tag != TypeTags.NONE)
+                    .map(lhsExr -> (BLangVariableReference) lhsExr)
+                    .forEach(varRef -> {
+                        visitVarSymbol(varRef.symbol, lvIndexes, localVarAttrInfo);
                     });
         }
-        genNode(assignNode.expr, this.env);
-        int[] rhsExprRegIndexes;
-        if (assignNode.expr.isMultiReturnExpr()) {
-            rhsExprRegIndexes = ((MultiReturnExpr) assignNode.expr).getRegIndexes();
-        } else {
-            rhsExprRegIndexes = new int[]{assignNode.expr.regIndex};
-        }
-        for (int i = 0; i < assignNode.varRefs.size(); i++) {
-            BLangExpression lExpr = assignNode.varRefs.get(i);
+
+        // Calculate the register indexes of lhs expressions.
+        int nLHSExpr = lhrExprs.size();
+        RegIndex[] regIndexes = new RegIndex[nLHSExpr];
+        for (int i = 0; i < nLHSExpr; i++) {
+            BLangExpression lExpr = lhrExprs.get(i);
             if (lExpr.type.tag == TypeTags.NONE) {
                 continue;
             }
-            rhsExprRegIndex = rhsExprRegIndexes[i];
+
+            if (lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                    lExpr instanceof BLangLocalVarRef) {
+                lExpr.regIndex = ((BLangVariableReference) lExpr).symbol.varIndex;
+                regIndexes[i] = lExpr.regIndex;
+            }
+        }
+
+        // Set calculated reg indexes and visit rhs expression
+        BLangExpression rhsExpr = assignNode.expr;
+        if (rhsExpr.isMultiReturnExpr()) {
+            ((MultiReturnExpr) rhsExpr).setRegIndexes(regIndexes);
+        } else {
+            rhsExpr.regIndex = regIndexes[0];
+        }
+        genNode(rhsExpr, this.env);
+
+
+        // Set the reg indexes generated by visiting rhs expression to lhs expression
+        if (rhsExpr.isMultiReturnExpr()) {
+            regIndexes = ((MultiReturnExpr) rhsExpr).getRegIndexes();
+        } else {
+            regIndexes[0] = rhsExpr.regIndex;
+        }
+        for (int i = 0; i < lhrExprs.size(); i++) {
+            BLangExpression lExpr = lhrExprs.get(i);
+            if (lExpr.type.tag == TypeTags.NONE) {
+                continue;
+            }
+
+            if (lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                    lExpr instanceof BLangLocalVarRef) {
+                continue;
+            }
+
             varAssignment = true;
+            lExpr.regIndex = regIndexes[i];
             genNode(lExpr, this.env);
             varAssignment = false;
         }
@@ -2424,90 +2483,121 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangIf ifNode) {
         addLineNumberInfo(ifNode.pos);
-        this.genNode(ifNode.expr, this.env);
-        Instruction ifCondJumpInstr = InstructionFactory.get(InstructionCodes.BR_FALSE, ifNode.expr.regIndex, -1);
-        this.emit(ifCondJumpInstr);
-        this.genNode(ifNode.body, this.env);
-        Instruction endJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, -1);
-        this.emit(endJumpInstr);
-        ifCondJumpInstr.setOperand(1, this.nextIP());
+
+        // Generate code for the if condition evaluation
+        genNode(ifNode.expr, this.env);
+        Operand ifCondJumpAddr = getOperand(-1);
+        emit(InstructionCodes.BR_FALSE, ifNode.expr.regIndex, ifCondJumpAddr);
+
+        // Generate code for the then body
+        genNode(ifNode.body, this.env);
+        Operand endJumpAddr = getOperand(-1);
+        emit(InstructionCodes.GOTO, endJumpAddr);
+        ifCondJumpAddr.value = nextIP();
+
+        // Visit else statement if any
         if (ifNode.elseStmt != null) {
-            this.genNode(ifNode.elseStmt, this.env);
+            genNode(ifNode.elseStmt, this.env);
         }
-        endJumpInstr.setOperand(0, this.nextIP());
+        endJumpAddr.value = nextIP();
+    }
+
+    public void visit(BLangForeach foreach) {
+        // Calculate temporary scope variables for iteration.
+        Operand iteratorVar = getLVIndex(TypeTags.ITERATOR);
+        Operand conditionVar = getLVIndex(TypeTags.BOOLEAN);
+
+        // Create new Iterator for given collection.
+        this.genNode(foreach.collection, env);
+        this.emit(InstructionCodes.ITR_NEW, foreach.collection.regIndex, iteratorVar);
+
+        Operand foreachStartAddress = new Operand(nextIP());
+        Operand foreachEndAddress = new Operand(-1);
+
+        // Checks given iterator has a next value.
+        this.emit(InstructionCodes.ITR_HAS_NEXT, iteratorVar, conditionVar);
+        this.emit(InstructionCodes.BR_FALSE, conditionVar, foreachEndAddress);
+
+        // assign variables.
+        generateForeachVarAssignment(foreach, iteratorVar);
+
+        this.genNode(foreach.body, env);                        // generate foreach body.
+        this.emit(InstructionCodes.GOTO, foreachStartAddress);  // move to next iteration.
+        foreachEndAddress.value = this.nextIP();
     }
 
     public void visit(BLangWhile whileNode) {
-        Instruction gotoTopJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, this.nextIP());
+        Instruction gotoTopJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, getOperand(this.nextIP()));
         this.genNode(whileNode.expr, this.env);
-        Instruction whileCondJumpInstr = InstructionFactory.get(InstructionCodes.BR_FALSE,
-                whileNode.expr.regIndex, -1);
-        Instruction exitLoopJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, -1);
-        this.emit(whileCondJumpInstr);
+
+        Operand exitLoopJumpAddr = getOperand(-1);
+        Instruction exitLoopJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, exitLoopJumpAddr);
+        emit(InstructionCodes.BR_FALSE, whileNode.expr.regIndex, exitLoopJumpAddr);
+
         this.loopResetInstructionStack.push(gotoTopJumpInstr);
         this.loopExitInstructionStack.push(exitLoopJumpInstr);
         this.genNode(whileNode.body, this.env);
         this.loopResetInstructionStack.pop();
         this.loopExitInstructionStack.pop();
         this.emit(gotoTopJumpInstr);
-        int endIP = this.nextIP();
-        whileCondJumpInstr.setOperand(1, endIP);
-        exitLoopJumpInstr.setOperand(0, endIP);
+
+        exitLoopJumpAddr.value = nextIP();
     }
 
     public void visit(BLangTransaction transactionNode) {
         ++transactionIndex;
-        int retryCountAvailable = 0;
+        Operand retryCountRegIndex = new RegIndex(-1, TypeTags.INT);
         if (transactionNode.retryCount != null) {
             this.genNode(transactionNode.retryCount, this.env);
-            retryCountAvailable = 1;
+            retryCountRegIndex = transactionNode.retryCount.regIndex;
         }
 
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
-        Instruction gotoEndOfTransactionBlock = InstructionFactory.get(InstructionCodes.GOTO, -1);
-        Instruction gotoEndOfFailedTransactionBlock = InstructionFactory.get(InstructionCodes.GOTO, -1);
-        abortInstructions.push(gotoEndOfFailedTransactionBlock);
+        Operand failedTransBlockEndAddr = getOperand(-1);
+        Instruction gotoFailedTransBlockEnd = InstructionFactory.get(InstructionCodes.GOTO, failedTransBlockEndAddr);
+        abortInstructions.push(gotoFailedTransBlockEnd);
 
         //start transaction
-        this.emit(InstructionFactory.get(InstructionCodes.TR_BEGIN, transactionIndex, retryCountAvailable));
-        int startIP = nextIP();
-        Instruction gotoStartTransactionBlock = InstructionFactory.get(InstructionCodes.GOTO, startIP);
+        this.emit(InstructionCodes.TR_BEGIN, getOperand(transactionIndex), retryCountRegIndex);
+        Operand transBlockStartAddr = getOperand(nextIP());
 
         //retry transaction;
-        Instruction retryInstruction = InstructionFactory.get(InstructionCodes.TR_RETRY, transactionIndex, -1);
-        this.emit(retryInstruction);
+        Operand retryInsAddr = getOperand(-1);
+        this.emit(InstructionCodes.TR_RETRY, getOperand(transactionIndex), retryInsAddr);
 
         //process transaction statements
         this.genNode(transactionNode.transactionBody, this.env);
 
         //end the transaction
-        int endIP = nextIP();
-        this.emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.SUCCESS.value()));
+        int transBlockEndAddr = nextIP();
+        this.emit(InstructionCodes.TR_END, getOperand(TransactionStatus.SUCCESS.value()));
 
         abortInstructions.pop();
 
-        emit(gotoEndOfTransactionBlock);
+        Operand transStmtEndAddr = getOperand(-1);
+        emit(InstructionCodes.GOTO, transStmtEndAddr);
 
         // CodeGen for error handling.
         int errorTargetIP = nextIP();
-        emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.FAILED.value()));
+        emit(InstructionCodes.TR_END, getOperand(TransactionStatus.FAILED.value()));
         if (transactionNode.failedBody != null) {
             this.genNode(transactionNode.failedBody, this.env);
 
         }
-        emit(gotoStartTransactionBlock);
+        emit(InstructionCodes.GOTO, transBlockStartAddr);
         int ifIP = nextIP();
-        retryInstruction.setOperand(1, ifIP);
+        retryInsAddr.value = ifIP;
 
-        emit(InstructionFactory.get(InstructionCodes.THROW, -1));
-        ErrorTableEntry errorTableEntry = new ErrorTableEntry(startIP, endIP, errorTargetIP, 0, -1);
+        emit(InstructionCodes.THROW, getOperand(-1));
+        ErrorTableEntry errorTableEntry = new ErrorTableEntry(transBlockStartAddr.value,
+                transBlockEndAddr, errorTargetIP, 0, -1);
         errorTable.addErrorTableEntry(errorTableEntry);
 
-        gotoEndOfFailedTransactionBlock.setOperand(0, nextIP());
-        emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.FAILED.value()));
+        failedTransBlockEndAddr.value = nextIP();
+        emit(InstructionCodes.TR_END, getOperand(TransactionStatus.FAILED.value()));
 
-        gotoEndOfTransactionBlock.setOperand(0, nextIP());
-        emit(InstructionFactory.get(InstructionCodes.TR_END, TransactionStatus.END.value()));
+        transStmtEndAddr.value = nextIP();
+        emit(InstructionCodes.TR_END, getOperand(TransactionStatus.END.value()));
     }
 
     public void visit(BLangAbort abortNode) {
@@ -2526,18 +2616,19 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLocalXMLNS xmlnsNode) {
+        RegIndex lvIndex = getLVIndex(TypeTags.STRING);
         BLangExpression nsURIExpr = xmlnsNode.namespaceURI;
-        int lvIndex = ++lvIndexes.tString;
-        BXMLNSSymbol nsSymbol = (BXMLNSSymbol) xmlnsNode.symbol;
+        nsURIExpr.regIndex = createLHSRegIndex(lvIndex);
         genNode(nsURIExpr, env);
+
+        BXMLNSSymbol nsSymbol = (BXMLNSSymbol) xmlnsNode.symbol;
         nsSymbol.nsURIIndex = lvIndex;
-        emit(InstructionCodes.SSTORE, nsURIExpr.regIndex, lvIndex);
     }
 
     @Override
     public void visit(BLangPackageXMLNS xmlnsNode) {
         BLangExpression nsURIExpr = xmlnsNode.namespaceURI;
-        int pvIndex = ++pvIndexes.tString;
+        Operand pvIndex = getPVIndex(TypeTags.STRING);
         BXMLNSSymbol nsSymbol = (BXMLNSSymbol) xmlnsNode.symbol;
         genNode(nsURIExpr, env);
         nsSymbol.nsURIIndex = pvIndex;
@@ -2548,40 +2639,42 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangXMLQName xmlQName) {
         // If the QName is use outside of XML, treat it as string.
         if (!xmlQName.isUsedInXML) {
+            xmlQName.regIndex = calcAndGetExprRegIndex(xmlQName);
             String qName = xmlQName.namespaceURI == null ? xmlQName.localname.value
                     : ("{" + xmlQName.namespaceURI + "}" + xmlQName.localname);
-            xmlQName.regIndex = createStringLiteral(qName, env);
+            xmlQName.regIndex = createStringLiteral(qName, xmlQName.regIndex, env);
             return;
         }
 
         // Else, treat it as QName
-        int nsURIIndex = getNamespaceURIIndex(xmlQName.nsSymbol, env);
-        int localnameIndex = createStringLiteral(xmlQName.localname.value, env);
-        int prefixIndex = createStringLiteral(xmlQName.prefix.value, env);
-        xmlQName.regIndex = ++regIndexes.tRef;
+        RegIndex nsURIIndex = getNamespaceURIIndex(xmlQName.nsSymbol, env);
+        RegIndex localnameIndex = createStringLiteral(xmlQName.localname.value, null, env);
+        RegIndex prefixIndex = createStringLiteral(xmlQName.prefix.value, null, env);
+        xmlQName.regIndex = calcAndGetExprRegIndex(xmlQName.regIndex, TypeTags.XML);
         emit(InstructionCodes.NEWQNAME, localnameIndex, nsURIIndex, prefixIndex, xmlQName.regIndex);
     }
 
     @Override
     public void visit(BLangXMLAttribute xmlAttribute) {
         SymbolEnv xmlAttributeEnv = SymbolEnv.getXMLAttributeEnv(xmlAttribute, env);
-        BLangExpression attrNameExpr = (BLangExpression) xmlAttribute.name;
+        BLangExpression attrNameExpr = xmlAttribute.name;
+        attrNameExpr.regIndex = calcAndGetExprRegIndex(attrNameExpr);
         genNode(attrNameExpr, xmlAttributeEnv);
-        int attrQNameRegIndex = attrNameExpr.regIndex;
+        RegIndex attrQNameRegIndex = attrNameExpr.regIndex;
 
         // If the attribute name is a string representation of qname
         if (attrNameExpr.getKind() != NodeKind.XML_QNAME) {
-            int localNameRegIndex = ++regIndexes.tString;
-            int uriRegIndex = ++regIndexes.tString;
+            RegIndex localNameRegIndex = getRegIndex(TypeTags.STRING);
+            RegIndex uriRegIndex = getRegIndex(TypeTags.STRING);
             emit(InstructionCodes.S2QNAME, attrQNameRegIndex, localNameRegIndex, uriRegIndex);
 
-            attrQNameRegIndex = ++regIndexes.tRef;
+            attrQNameRegIndex = getRegIndex(TypeTags.XML);
             generateURILookupInstructions(((BLangXMLElementLiteral) env.node).namespacesInScope, localNameRegIndex,
                     uriRegIndex, attrQNameRegIndex, xmlAttribute.pos, xmlAttributeEnv);
             attrNameExpr.regIndex = attrQNameRegIndex;
         }
 
-        BLangExpression attrValueExpr = (BLangExpression) xmlAttribute.value;
+        BLangExpression attrValueExpr = xmlAttribute.value;
         genNode(attrValueExpr, env);
 
         if (xmlAttribute.isNamespaceDeclr) {
@@ -2592,7 +2685,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLElementLiteral xmlElementLiteral) {
         SymbolEnv xmlElementEnv = SymbolEnv.getXMLElementEnv(xmlElementLiteral, env);
-        xmlElementLiteral.regIndex = ++regIndexes.tRef;
+        xmlElementLiteral.regIndex = calcAndGetExprRegIndex(xmlElementLiteral);
 
         // Visit in-line namespace declarations. These needs to be visited first before visiting the 
         // attributes, start and end tag names of the element.
@@ -2602,16 +2695,16 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Create start tag name
         BLangExpression startTagName = (BLangExpression) xmlElementLiteral.getStartTagName();
-        int startTagNameRegIndex = visitXMLTagName(startTagName, xmlElementEnv, xmlElementLiteral);
+        RegIndex startTagNameRegIndex = visitXMLTagName(startTagName, xmlElementEnv, xmlElementLiteral);
 
         // Create end tag name. If there is no endtag name (empty XML tag), 
         // then consider start tag name as the end tag name too.
         BLangExpression endTagName = (BLangExpression) xmlElementLiteral.getEndTagName();
-        int endTagNameRegIndex = endTagName == null ? startTagNameRegIndex
+        RegIndex endTagNameRegIndex = endTagName == null ? startTagNameRegIndex
                 : visitXMLTagName(endTagName, xmlElementEnv, xmlElementLiteral);
 
         // Create an XML with the given QName
-        int defaultNsURIIndex = getNamespaceURIIndex(xmlElementLiteral.defaultNsSymbol, xmlElementEnv);
+        RegIndex defaultNsURIIndex = getNamespaceURIIndex(xmlElementLiteral.defaultNsSymbol, xmlElementEnv);
         emit(InstructionCodes.NEWXMLELEMENT, xmlElementLiteral.regIndex, startTagNameRegIndex, endTagNameRegIndex,
                 defaultNsURIIndex);
 
@@ -2619,7 +2712,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         xmlElementLiteral.namespacesInScope.forEach((name, symbol) -> {
             BLangXMLQName nsQName = new BLangXMLQName(name.getValue(), XMLConstants.XMLNS_ATTRIBUTE);
             genNode(nsQName, xmlElementEnv);
-            int uriIndex = getNamespaceURIIndex(symbol, xmlElementEnv);
+            RegIndex uriIndex = getNamespaceURIIndex(symbol, xmlElementEnv);
             emit(InstructionCodes.XMLATTRSTORE, xmlElementLiteral.regIndex, nsQName.regIndex, uriIndex);
         });
 
@@ -2639,21 +2732,25 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
-        xmlTextLiteral.regIndex = ++regIndexes.tRef;
+        if (xmlTextLiteral.type == null) {
+            xmlTextLiteral.regIndex = calcAndGetExprRegIndex(xmlTextLiteral.regIndex, TypeTags.XML);
+        } else {
+            xmlTextLiteral.regIndex = calcAndGetExprRegIndex(xmlTextLiteral);
+        }
         genNode(xmlTextLiteral.concatExpr, env);
         emit(InstructionCodes.NEWXMLTEXT, xmlTextLiteral.regIndex, xmlTextLiteral.concatExpr.regIndex);
     }
 
     @Override
     public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-        xmlCommentLiteral.regIndex = ++regIndexes.tRef;
+        xmlCommentLiteral.regIndex = calcAndGetExprRegIndex(xmlCommentLiteral);
         genNode(xmlCommentLiteral.concatExpr, env);
         emit(InstructionCodes.NEWXMLCOMMENT, xmlCommentLiteral.regIndex, xmlCommentLiteral.concatExpr.regIndex);
     }
 
     @Override
     public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
-        xmlProcInsLiteral.regIndex = ++regIndexes.tRef;
+        xmlProcInsLiteral.regIndex = calcAndGetExprRegIndex(xmlProcInsLiteral);
         genNode(xmlProcInsLiteral.dataConcatExpr, env);
         genNode(xmlProcInsLiteral.target, env);
         emit(InstructionCodes.NEWXMLPI, xmlProcInsLiteral.regIndex, xmlProcInsLiteral.target.regIndex,
@@ -2662,14 +2759,15 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLQuotedString xmlQuotedString) {
+        xmlQuotedString.concatExpr.regIndex = calcAndGetExprRegIndex(xmlQuotedString);
         genNode(xmlQuotedString.concatExpr, env);
         xmlQuotedString.regIndex = xmlQuotedString.concatExpr.regIndex;
     }
 
     @Override
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
+        stringTemplateLiteral.concatExpr.regIndex = createLHSRegIndex(stringTemplateLiteral.regIndex);
         genNode(stringTemplateLiteral.concatExpr, env);
-        stringTemplateLiteral.regIndex = stringTemplateLiteral.concatExpr.regIndex;
     }
 
     @Override
@@ -2678,41 +2776,40 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.varAssignment = false;
 
         genNode(xmlAttributeAccessExpr.expr, this.env);
-        int varRefRegIndex = xmlAttributeAccessExpr.expr.regIndex;
+        RegIndex varRefRegIndex = xmlAttributeAccessExpr.expr.regIndex;
 
         if (xmlAttributeAccessExpr.indexExpr == null) {
-            int xmlValueRegIndex = ++regIndexes.tRef;
+            RegIndex xmlValueRegIndex = calcAndGetExprRegIndex(xmlAttributeAccessExpr);
             emit(InstructionCodes.XML2XMLATTRS, varRefRegIndex, xmlValueRegIndex);
-            xmlAttributeAccessExpr.regIndex = xmlValueRegIndex;
             return;
         }
 
         BLangExpression indexExpr = xmlAttributeAccessExpr.indexExpr;
         genNode(xmlAttributeAccessExpr.indexExpr, this.env);
-        int qnameRegIndex = xmlAttributeAccessExpr.indexExpr.regIndex;
+        RegIndex qnameRegIndex = xmlAttributeAccessExpr.indexExpr.regIndex;
 
         // If this is a string representation of qname
         if (indexExpr.getKind() != NodeKind.XML_QNAME) {
-            int localNameRegIndex = ++regIndexes.tString;
-            int uriRegIndex = ++regIndexes.tString;
+            RegIndex localNameRegIndex = getRegIndex(TypeTags.STRING);
+            RegIndex uriRegIndex = getRegIndex(TypeTags.STRING);
             emit(InstructionCodes.S2QNAME, qnameRegIndex, localNameRegIndex, uriRegIndex);
 
-            qnameRegIndex = ++regIndexes.tRef;
+            qnameRegIndex = getRegIndex(TypeTags.XML);
             generateURILookupInstructions(xmlAttributeAccessExpr.namespaces, localNameRegIndex,
                     uriRegIndex, qnameRegIndex, indexExpr.pos, env);
         }
 
         if (variableStore) {
-            emit(InstructionCodes.XMLATTRSTORE, varRefRegIndex, qnameRegIndex, rhsExprRegIndex);
+            emit(InstructionCodes.XMLATTRSTORE, varRefRegIndex, qnameRegIndex, xmlAttributeAccessExpr.regIndex);
         } else {
-            int xmlValueRegIndex = ++regIndexes.tRef;
+            RegIndex xmlValueRegIndex = calcAndGetExprRegIndex(xmlAttributeAccessExpr);
             emit(InstructionCodes.XMLATTRLOAD, varRefRegIndex, qnameRegIndex, xmlValueRegIndex);
-            xmlAttributeAccessExpr.regIndex = xmlValueRegIndex;
         }
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
-        Instruction instructGotoTryCatchEnd = InstructionFactory.get(InstructionCodes.GOTO, -1);
+        Operand gotoTryCatchEndAddr = getOperand(-1);
+        Instruction instructGotoTryCatchEnd = InstructionFactory.get(InstructionCodes.GOTO, gotoTryCatchEndAddr);
         List<int[]> unhandledErrorRangeList = new ArrayList<>();
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
 
@@ -2761,15 +2858,15 @@ public class CodeGenerator extends BLangNodeVisitor {
             }
             // Append finally block instruction.
             genNode(tryNode.finallyBody, env);
-            emit(InstructionFactory.get(InstructionCodes.THROW, -1));
+            emit(InstructionFactory.get(InstructionCodes.THROW, getOperand(-1)));
         }
-        instructGotoTryCatchEnd.setOperand(0, nextIP());
+        gotoTryCatchEndAddr.value = nextIP();
     }
 
     public void visit(BLangCatch bLangCatch) {
         // Define local variable index for Error.
         BLangVariable variable = bLangCatch.param;
-        int lvIndex = ++lvIndexes.tRef;
+        RegIndex lvIndex = getLVIndex(variable.symbol.type.tag);
         variable.symbol.varIndex = lvIndex;
         emit(InstructionFactory.get(InstructionCodes.ERRSTORE, lvIndex));
 
@@ -2781,8 +2878,48 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(exprStmtNode.expr, this.env);
     }
 
+    @Override
+    public void visit(BLangIntRangeExpression rangeExpr) {
+        BLangExpression startExpr = rangeExpr.startExpr;
+        BLangExpression endExpr = rangeExpr.endExpr;
+
+        genNode(startExpr, env);
+        genNode(endExpr, env);
+        rangeExpr.regIndex = calcAndGetExprRegIndex(rangeExpr);
+
+        if (!rangeExpr.includeStart || !rangeExpr.includeEnd) {
+            RegIndex const1RegIndex = getRegIndex(TypeTags.INT);
+            emit(InstructionCodes.ICONST_1, const1RegIndex);
+            if (!rangeExpr.includeStart) {
+                emit(InstructionCodes.IADD, startExpr.regIndex, const1RegIndex, startExpr.regIndex);
+            }
+            if (!rangeExpr.includeEnd) {
+                emit(InstructionCodes.ISUB, endExpr.regIndex, const1RegIndex, endExpr.regIndex);
+            }
+        }
+        emit(InstructionCodes.NEW_INT_RANGE, startExpr.regIndex, endExpr.regIndex, rangeExpr.regIndex);
+    }
 
     // private helper methods of visitors.
+
+    private void generateForeachVarAssignment(BLangForeach foreach, Operand iteratorIndex) {
+        List<BLangVariableReference> variables = foreach.varRefs.stream()
+                .map(expr -> (BLangVariableReference) expr)
+                .collect(Collectors.toList());
+        // create Local variable Info entries.
+        variables.stream()
+                .filter(v -> v.type.tag != TypeTags.NONE)   // Ignoring ignored ("_") variables.
+                .forEach(varRef -> visitVarSymbol(varRef.symbol, lvIndexes, localVarAttrInfo));
+        List<Operand> nextOperands = new ArrayList<>();
+        nextOperands.add(iteratorIndex);
+        nextOperands.add(new Operand(variables.size()));
+        for (int i = 0; i < variables.size(); i++) {
+            BLangVariableReference varRef = variables.get(i);
+            nextOperands.add(Optional.ofNullable(varRef.symbol.varIndex)
+                    .orElse(getRegIndex(foreach.varTypes.get(i).tag)));
+        }
+        this.emit(InstructionCodes.ITR_NEXT, nextOperands.toArray(new Operand[0]));
+    }
 
     private void visitFunctionPointerLoad(BLangExpression fpExpr, BInvokableSymbol funcSymbol) {
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, funcSymbol.pkgID);
@@ -2790,9 +2927,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
 
         int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
-        int nextIndex = getNextIndex(TypeTags.INVOKABLE, regIndexes);
-        fpExpr.regIndex = nextIndex;
-        emit(InstructionCodes.FPLOAD, funcRefCPIndex, nextIndex);
+        RegIndex nextIndex = calcAndGetExprRegIndex(fpExpr);
+        emit(InstructionCodes.FPLOAD, getOperand(funcRefCPIndex), nextIndex);
     }
 
     private void generateFinallyInstructions(BLangStatement statement) {
@@ -2818,36 +2954,35 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
-    private int getNamespaceURIIndex(BXMLNSSymbol namespaceSymbol, SymbolEnv env) {
+    private RegIndex getNamespaceURIIndex(BXMLNSSymbol namespaceSymbol, SymbolEnv env) {
         if (namespaceSymbol == null && env.node.getKind() == NodeKind.XML_ATTRIBUTE) {
-            return createStringLiteral(XMLConstants.NULL_NS_URI, env);
+            return createStringLiteral(XMLConstants.NULL_NS_URI, null, env);
         }
 
         if (namespaceSymbol == null) {
-            return createStringLiteral(null, env);
+            return createStringLiteral(null, null, env);
         }
 
         // If the namespace is defined within a callable unit, get the URI index in the local var registry.
         // Otherwise get the URI index in the global var registry.
-        int index = ++regIndexes.tString;
         if ((namespaceSymbol.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
-            emit(InstructionCodes.SLOAD, namespaceSymbol.nsURIIndex, index);
-        } else {
-            emit(InstructionCodes.SGLOAD, namespaceSymbol.nsURIIndex, index);
+            return (RegIndex) namespaceSymbol.nsURIIndex;
         }
 
+        RegIndex index = getRegIndex(TypeTags.STRING);
+        emit(InstructionCodes.SGLOAD, namespaceSymbol.nsURIIndex, index);
         return index;
     }
 
-    private void generateURILookupInstructions(Map<Name, BXMLNSSymbol> namespaces, int localNameRegIndex,
-                                               int uriRegIndex, int targetQNameRegIndex, DiagnosticPos pos,
+    private void generateURILookupInstructions(Map<Name, BXMLNSSymbol> namespaces, RegIndex localNameRegIndex,
+                                               RegIndex uriRegIndex, RegIndex targetQNameRegIndex, DiagnosticPos pos,
                                                SymbolEnv symbolEnv) {
         if (namespaces.isEmpty()) {
-            createQNameWithoutPrefix(localNameRegIndex, uriRegIndex, targetQNameRegIndex, pos);
+            createQNameWithoutPrefix(localNameRegIndex, uriRegIndex, targetQNameRegIndex);
             return;
         }
 
-        Stack<Instruction> endJumpInstrStack = new Stack<>();
+        Stack<Operand> endJumpInstrStack = new Stack<>();
         String prefix;
 
         for (Entry<Name, BXMLNSSymbol> keyValues : namespaces.entrySet()) {
@@ -2864,78 +2999,79 @@ public class CodeGenerator extends BLangNodeVisitor {
             BXMLNSSymbol nsSymbol = keyValues.getValue();
 
             int opcode = getOpcode(TypeTags.STRING, InstructionCodes.IEQ);
-            int conditionExprIndex = ++regIndexes.tBoolean;
+            RegIndex conditionExprIndex = getRegIndex(TypeTags.BOOLEAN);
             emit(opcode, uriRegIndex, getNamespaceURIIndex(nsSymbol, symbolEnv), conditionExprIndex);
 
-            Instruction ifCondJumpInstr = InstructionFactory.get(InstructionCodes.BR_FALSE, conditionExprIndex, -1);
-            emit(ifCondJumpInstr);
+            Operand ifCondJumpAddr = getOperand(-1);
+            emit(InstructionCodes.BR_FALSE, conditionExprIndex, ifCondJumpAddr);
 
             // Below section creates instructions to be executed, if the above condition succeeds (then body)
 
             // create the prefix literal
-            int prefixIndex = createStringLiteral(prefix, env);
+            RegIndex prefixIndex = createStringLiteral(prefix, null, env);
 
             // create a qname
             emit(InstructionCodes.NEWQNAME, localNameRegIndex, uriRegIndex, prefixIndex, targetQNameRegIndex);
 
-            Instruction endJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, -1);
-            emit(endJumpInstr);
-            endJumpInstrStack.add(endJumpInstr);
+            Operand endJumpAddr = getOperand(-1);
+            emit(InstructionCodes.GOTO, endJumpAddr);
+            endJumpInstrStack.add(endJumpAddr);
 
-            ifCondJumpInstr.setOperand(1, nextIP());
+            ifCondJumpAddr.value = nextIP();
         }
 
         // else part. create a qname with empty prefix
-        createQNameWithoutPrefix(localNameRegIndex, uriRegIndex, targetQNameRegIndex, pos);
+        createQNameWithoutPrefix(localNameRegIndex, uriRegIndex, targetQNameRegIndex);
 
         while (!endJumpInstrStack.isEmpty()) {
-            endJumpInstrStack.pop().setOperand(0, this.nextIP());
+            endJumpInstrStack.pop().value = nextIP();
         }
     }
 
-    private void createQNameWithoutPrefix(int localNameRegIndex, int uriRegIndex, int targetQNameRegIndex,
-                                            DiagnosticPos pos) {
-        int prefixIndex = createStringLiteral(null, env);
+    private void createQNameWithoutPrefix(RegIndex localNameRegIndex, RegIndex uriRegIndex,
+                                          RegIndex targetQNameRegIndex) {
+        RegIndex prefixIndex = createStringLiteral(null, null, env);
         emit(InstructionCodes.NEWQNAME, localNameRegIndex, uriRegIndex, prefixIndex, targetQNameRegIndex);
     }
 
     /**
      * Creates a string literal expression, generate the code and returns the registry index.
      *
-     * @param value String value to generate the string literal
-     * @param env Environment
+     * @param value    String value to generate the string literal
+     * @param regIndex String literal expression's reg index
+     * @param env      Environment
      * @return String registry index of the generated string
      */
-    private int createStringLiteral(String value, SymbolEnv env) {
+    private RegIndex createStringLiteral(String value, RegIndex regIndex, SymbolEnv env) {
         BLangLiteral prefixLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         prefixLiteral.value = value;
         prefixLiteral.typeTag = TypeTags.STRING;
         prefixLiteral.type = symTable.stringType;
+        prefixLiteral.regIndex = regIndex;
         genNode(prefixLiteral, env);
         return prefixLiteral.regIndex;
     }
 
     /**
      * Visit XML tag name and return the index of the tag name in the reference registry.
-     * 
-     * @param tagName Tag name expression
-     * @param xmlElementEnv Environment of the XML element of the tag
+     *
+     * @param tagName           Tag name expression
+     * @param xmlElementEnv     Environment of the XML element of the tag
      * @param xmlElementLiteral XML element literal to which the tag name belongs to
-     * @return Index of the tag name, in the reference registry 
+     * @return Index of the tag name, in the reference registry
      */
-    private int visitXMLTagName(BLangExpression tagName, 
-                                SymbolEnv xmlElementEnv,
-                                BLangXMLElementLiteral xmlElementLiteral) {
+    private RegIndex visitXMLTagName(BLangExpression tagName, SymbolEnv xmlElementEnv,
+                                     BLangXMLElementLiteral xmlElementLiteral) {
         genNode(tagName, xmlElementEnv);
-        int startTagNameRegIndex = tagName.regIndex;
+        RegIndex startTagNameRegIndex = tagName.regIndex;
 
         // If this is a string representation of element name, generate the namespace lookup instructions
         if (tagName.getKind() != NodeKind.XML_QNAME) {
-            int localNameRegIndex = ++regIndexes.tString;
-            int uriRegIndex = ++regIndexes.tString;
+            RegIndex localNameRegIndex = getRegIndex(TypeTags.STRING);
+            RegIndex uriRegIndex = getRegIndex(TypeTags.STRING);
             emit(InstructionCodes.S2QNAME, startTagNameRegIndex, localNameRegIndex, uriRegIndex);
 
-            startTagNameRegIndex = ++regIndexes.tRef;
+            startTagNameRegIndex = getRegIndex(TypeTags.XML);
             generateURILookupInstructions(xmlElementLiteral.namespacesInScope, localNameRegIndex, uriRegIndex,
                     startTagNameRegIndex, xmlElementLiteral.pos, xmlElementEnv);
             tagName.regIndex = startTagNameRegIndex;
@@ -2943,7 +3079,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         return startTagNameRegIndex;
     }
-    
+
     private int getTypeCPIndex(BLangExpression expr) {
         int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, expr.type.getDesc());
         TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);

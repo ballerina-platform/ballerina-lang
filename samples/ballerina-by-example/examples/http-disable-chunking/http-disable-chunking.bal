@@ -7,9 +7,9 @@ service<http> chunkingSample {
         path:"/"
     }
     resource sample (http:Request req, http:Response res) {
-        //Config client connector chunking behaviour by adding boolean value to enableChunking option.
+        //Config client connector chunking behaviour by adding auto (default value), always or never to chunking option.
         endpoint<http:HttpClient> endPoint {
-            create http:HttpClient("http://localhost:9090", {enableChunking:false});
+            create http:HttpClient("http://localhost:9090", {chunking:"never"});
         }
         //Create new request and set payload.
         http:Request newReq = {};
