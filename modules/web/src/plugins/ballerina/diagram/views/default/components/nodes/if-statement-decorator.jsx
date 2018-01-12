@@ -256,7 +256,7 @@ class IfStatementDecorator extends React.Component {
         const p11Y = p1Y + (titleH / 2);
 
         const p12X = p8X;
-        const p12Y = p8Y + this.context.designer.config.flowChartControlStatement.heading.flowPathHeight;
+        const p12Y = p8Y + this.context.designer.config.flowChartControlStatement.heading.gap;
 
         this.conditionBox = new SimpleBBox(p2X, (p2Y - (this.context.designer.config.statement.height / 2)),
             statementBBox.w, this.context.designer.config.statement.height);
