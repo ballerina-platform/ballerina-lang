@@ -5,7 +5,6 @@ options {
     tokenVocab = BallerinaLexer;
 }
 
-//todo comment statment
 //todo revisit blockStatement
 
 // starting point for parsing a bal file
@@ -242,7 +241,7 @@ statement
     |   assignmentStatement
     |   bindStatement
     |   ifElseStatement
-    |   iterateStatement
+    |   foreachStatement
     |   whileStatement
     |   nextStatement
     |   breakStatement
@@ -251,7 +250,6 @@ statement
     |   throwStatement
     |   returnStatement
     |   (triggerWorker | workerReply)
-    |   commentStatement
     |   expressionStmt
     |   transactionStatement
     |   abortStatement
@@ -323,9 +321,13 @@ elseClause
     :   RIGHT_BRACE ELSE LEFT_BRACE codeBlockBody
     ;
 
-//todo replace with 'foreach'
-iterateStatement
-    :   ITERATE LEFT_PARENTHESIS codeBlockParameter COLON expression RIGHT_PARENTHESIS LEFT_BRACE codeBlockBody RIGHT_BRACE
+foreachStatement
+    :   FOREACH LEFT_PARENTHESIS? variableReferenceList IN  (expression | intRangeExpression) RIGHT_PARENTHESIS? LEFT_BRACE codeBlockBody RIGHT_BRACE
+    ;
+
+intRangeExpression
+    : expression RANGE expression
+    | (LEFT_BRACKET|LEFT_PARENTHESIS) expression RANGE expression (RIGHT_BRACKET|RIGHT_PARENTHESIS)
     ;
 
 whileStatement
@@ -394,10 +396,6 @@ triggerWorker
 // below left Identifier is of type WORKER and the right Identifier is of type message
 workerReply
     :   expressionList LARROW workerReference SEMICOLON
-    ;
-
-commentStatement
-    :   LINE_COMMENT
     ;
 
 variableReference
@@ -481,7 +479,6 @@ expression
     |   connectorInit                                                       # connectorInitExpression
     |   typeCast                                                            # typeCastingExpression
     |   typeConversion                                                      # typeConversionExpression
-    |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   TYPEOF builtInTypeName                                              # typeAccessExpression
     |   (ADD | SUB | NOT | LENGTHOF | TYPEOF) simpleExpression              # unaryExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression

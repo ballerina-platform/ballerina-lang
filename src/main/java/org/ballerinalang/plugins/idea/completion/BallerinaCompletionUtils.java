@@ -116,11 +116,12 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder TRY;
     private static final LookupElementBuilder CATCH;
     private static final LookupElementBuilder FINALLY;
-    private static final LookupElementBuilder ITERATE;
     private static final LookupElementBuilder WHILE;
     private static final LookupElementBuilder NEXT;
     private static final LookupElementBuilder BREAK;
     private static final LookupElementBuilder THROW;
+    private static final LookupElementBuilder FOREACH;
+    private static final LookupElementBuilder IN;
 
     private static final LookupElementBuilder TRUE;
     private static final LookupElementBuilder FALSE;
@@ -179,11 +180,12 @@ public class BallerinaCompletionUtils {
         TRY = createKeywordLookupElement("try");
         CATCH = createKeywordLookupElement("catch");
         FINALLY = createKeywordLookupElement("finally");
-        ITERATE = createKeywordLookupElement("iterate");
         WHILE = createKeywordLookupElement("while");
         NEXT = createKeywordLookupElement("next", ";");
         BREAK = createKeywordLookupElement("break", ";");
         THROW = createKeywordLookupElement("throw");
+        FOREACH = createKeywordLookupElement("foreach");
+        IN = createKeywordLookupElement("in");
 
         TRUE = createKeywordLookupElement("true", null);
         FALSE = createKeywordLookupElement("false", null);
@@ -381,11 +383,11 @@ public class BallerinaCompletionUtils {
         lookupElements.add(createKeywordAsLookup(TRY));
         lookupElements.add(createKeywordAsLookup(CATCH));
         lookupElements.add(createKeywordAsLookup(FINALLY));
-        lookupElements.add(createKeywordAsLookup(ITERATE));
         lookupElements.add(createKeywordAsLookup(WHILE));
         lookupElements.add(createKeywordAsLookup(NEXT));
         lookupElements.add(createKeywordAsLookup(BREAK));
         lookupElements.add(createKeywordAsLookup(THROW));
+        lookupElements.add(createKeywordAsLookup(FOREACH));
         return lookupElements;
     }
 

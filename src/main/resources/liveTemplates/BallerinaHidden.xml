@@ -134,9 +134,9 @@
         </context>
     </template>
 
-    <template description='Iterate Statement' id='ballerina_lang_iterate' name='ballerina_lang_iterate'
-              toReformat='false' toShortenFQNames='true' value='iterate ($VAR$ : $EXPRESSION$) {&#10;    $END$&#10;}'>
-        <variable name="VAR" expression="" defaultValue="" alwaysStopAt="true"/>
+    <template description='ForEach Statement' id='ballerina_lang_foreach' name='ballerina_lang_foreach'
+              toReformat='false' toShortenFQNames='true' value='foreach $REFERENCE$ in $EXPRESSION$ {&#10;    $END$&#10;}'>
+        <variable name="REFERENCE" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="EXPRESSION" expression="" defaultValue="" alwaysStopAt="true"/>
         <context>
             <option name="BALLERINA_RESOURCE" value="true"/>

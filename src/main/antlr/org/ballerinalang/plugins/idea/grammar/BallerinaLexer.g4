@@ -45,7 +45,7 @@ CREATE          : 'create';
 ATTACH          : 'attach';
 IF              : 'if';
 ELSE            : 'else';
-ITERATE         : 'iterate';
+FOREACH         : 'foreach';
 WHILE           : 'while';
 NEXT            : 'next';
 BREAK           : 'break';
@@ -68,6 +68,7 @@ LENGTHOF        : 'lengthof';
 TYPEOF          : 'typeof';
 WITH            : 'with';
 BIND            : 'bind';
+IN              : 'in';
 
 // Separators
 
@@ -111,6 +112,7 @@ RARROW      : '->' ;
 LARROW      : '<-';
 AT          : '@';
 BACKTICK    : '`';
+RANGE       : '..';
 
 TILDE           : '~';
 BITAND          : '&';

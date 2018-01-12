@@ -2,9 +2,30 @@
 
 function test () {
 
-     iterate     (       string         s       :      list      )      {
-         // test
-           }
+    foreach     i   ,    j  in    x     ..  b   {
+        concatTwoInts(i, j) ;
+}
+
+  foreach    i ,    j       in         (      -10       ..     10       ]    {
+  concatTwoInts(i, j);
+                   }
+
+                   foreach    i   ,   j    in    [   -10   ..  10   ) {
+                               concatTwoInts(i, j);
+  }
+
+  foreach    i   ,   j    in    (   -10    ..    10    ) {
+  concatTwoInts(i, j);
+                   }
+
+                   foreach     i    ,   j    in    [    -10    ..    10     ]    {
+                               concatTwoInts(i, j);
+  }
+
+  foreach   k   ,   v    in    m    {
+                 var val,_ = (string) v;
+  stringConcat(k, val);
+                  }
 
        while       (    a        !=         null        )        {
            // test
