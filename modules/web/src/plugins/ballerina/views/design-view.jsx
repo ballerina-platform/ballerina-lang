@@ -26,6 +26,7 @@ import DragLayer from './../drag-drop/drag-layer';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import { TOOL_PALETTE_WIDTH } from './constants';
 import { EVENTS } from '../constants';
+import DesignViewErrorBoundary from './DesignViewErrorBoundary';
 
 class DesignView extends React.Component {
 
@@ -157,7 +158,7 @@ class DesignView extends React.Component {
         if (isTransformActive) {
             activeTransformModel = this.props.model.filterTopLevelNodes(
                 node => (TreeUtil.isTransformer(node))).find(node =>
-                                                                    (node.getSignature() === activeTransformSignature));
+                    (node.getSignature() === activeTransformSignature));
         }
 
         const shouldShowTransform = isTransformActive && activeTransformModel;
@@ -185,13 +186,15 @@ class DesignView extends React.Component {
                             <div className='html-overlay' ref={this.setOverlayContainer} />
                             <div className='diagram root' ref={this.setDiagramContainer} >
                                 {this.props.model &&
-                                    <BallerinaDiagram
-                                        model={this.props.model}
-                                        mode={this.state.mode}
-                                        width={this.props.width - TOOL_PALETTE_WIDTH}
-                                        height={this.props.height}
-                                        disabled={this.props.disabled}
-                                    />
+                                    <DesignViewErrorBoundary>
+                                        <BallerinaDiagram
+                                            model={this.props.model}
+                                            mode={this.state.mode}
+                                            width={this.props.width - TOOL_PALETTE_WIDTH}
+                                            height={this.props.height}
+                                            disabled={this.props.disabled}
+                                        />
+                                    </DesignViewErrorBoundary>
                                 }
                             </div>
                         </div>
