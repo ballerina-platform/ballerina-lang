@@ -339,18 +339,21 @@ class TryStatementDecorator extends React.Component {
                                 classNameArrow='flowchart-action-arrow'
                                 classNameArrowHead='flowchart-action-arrow-head'
                             />);
-                        const catchComponents = model.catchBlocks.map((catchStmt, i) => {
-                            let connectorComp;
+                        let connectorEdgeTopX = p4X;
+                        let connectorEdgeBottomX = p4X;
+                        const catchComponents = model.catchBlocks.map((catchStmt) => {
                             const catchComp = (
-                                <g>
-                                    <CatchStatementDecorator
-                                        bBox={catchStmt.viewState.bBox}
-                                        model={catchStmt}
-                                        body={catchStmt}
-                                        connectorEdgeX={p4X}
-                                    />
-                                    {connectorComp}
-                                </g>);
+                                <CatchStatementDecorator
+                                    bBox={catchStmt.viewState.bBox}
+                                    model={catchStmt}
+                                    body={catchStmt}
+                                    connectorEdgeX={{
+                                        top: connectorEdgeTopX,
+                                        bottom: connectorEdgeBottomX,
+                                    }}
+                                />);
+                            connectorEdgeTopX = catchStmt.viewState.bBox.x + (titleW / 2);
+                            connectorEdgeBottomX = catchStmt.viewState.bBox.x;
                             return catchComp;
                         });
                         return (<g>
@@ -367,9 +370,7 @@ class TryStatementDecorator extends React.Component {
                                 classNameArrow='flowchart-action-arrow'
                                 classNameArrowHead='flowchart-action-arrow-head'
                             />);
-                        return (<g>
-                            {connectorLineComp}
-                        </g>);
+                        return ({ connectorLineComp });
                     }
                 })()}
                 {/* {finallyStmt &&
@@ -384,7 +385,8 @@ class TryStatementDecorator extends React.Component {
                     y={bBox.y}
                     width={bBox.w}
                     height={bBox.h}
-                    stroke='red'
+                    stroke='yellow'
+                    strokeWidth='2'
                     fillOpacity='0'
                 /> */}
                 {/* <rect

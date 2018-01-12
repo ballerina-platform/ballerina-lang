@@ -1415,8 +1415,8 @@ class PositioningUtil {
         const catchStartX = node.viewState.bBox.x + this.config.compoundStatement.gap.left;
         const catchStartY = node.viewState.bBox.y + (3 * this.config.compoundStatement.padding.top);
 
-        const catchStmtWidth = node.viewState.components['statement-box'].w;
-        const catchHeight = node.viewState.components['statement-box'].h;
+        let catchStmtWidth = node.viewState.components['statement-box'].w;
+        let catchHeight = node.viewState.components['statement-box'].h;
 
         catchBlocks.forEach((catchStmt) => {
             catchStmt.viewState.bBox.x = catchStartX + catchStmtWidth;
@@ -1426,8 +1426,13 @@ class PositioningUtil {
                 + catchStmt.viewState.components['block-header'].h + catchHeight;
             catchStmt.viewState.components['statement-box'].y = catchStmt.body.viewState.bBox.y;
             catchStmt.viewState.components['statement-box'].x = catchStmt.body.viewState.bBox.x;
-            // catchStmtWidth += catchStmt.viewState.bBox.w;
-            // catchHeight += catchStmt.body.viewState.bBox.h;
+            catchStmtWidth += catchStmt.viewState.bBox.w;
+            catchHeight += catchStmt.body.viewState.bBox.h;
+        });
+
+        // make all catch statements same height
+        catchBlocks.forEach((catchStmt) => {
+            catchStmt.viewState.bBox.h = catchHeight + catchStmt.viewState.components['block-header'].h;
         });
 
         // position finally block

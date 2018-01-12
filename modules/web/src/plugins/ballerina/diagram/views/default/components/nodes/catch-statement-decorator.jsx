@@ -224,7 +224,7 @@ class CatchStatementDecorator extends React.Component {
         const p4Y = p2Y;
 
         const p5X = p4X;
-        const p5Y = statementBBox.y + statementBBox.h;
+        const p5Y = bBox.y + bBox.h;
 
         const p6X = bBox.x;
         const p6Y = p5Y;
@@ -266,7 +266,7 @@ class CatchStatementDecorator extends React.Component {
                 }}
             >
                 <line
-                    x1={connectorEdgeX}
+                    x1={connectorEdgeX.top}
                     y1={p2Y}
                     x2={p2X}
                     y2={p2Y}
@@ -330,35 +330,10 @@ class CatchStatementDecorator extends React.Component {
                 <line
                     x1={p6X}
                     y1={p6Y}
-                    x2={connectorEdgeX}
-                    y2={p6Y}
+                    x2={connectorEdgeX.bottom}
+                    y2={p5Y}
                     className='flowchart-background-empty-rect'
                 />
-                {/* <rect
-                    x={bBox.x}
-                    y={bBox.y}
-                    width={bBox.w}
-                    height={bBox.h}
-                    stroke='red'
-                    fillOpacity='0'
-                />
-                <rect
-                    x={statementBBox.x}
-                    y={statementBBox.y}
-                    width={statementBBox.w}
-                    height={statementBBox.h}
-                    fillOpacity='0'
-                    stroke='green'
-                    strokeWidth='3'
-                />
-                <rect
-                    x={model.body.viewState.bBox.x}
-                    y={model.body.viewState.bBox.y}
-                    width={model.body.viewState.bBox.w}
-                    height={model.body.viewState.bBox.h}
-                    fillOpacity='0'
-                    stroke='cyan'
-                /> */}
             </g>);
     }
 }

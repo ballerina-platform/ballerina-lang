@@ -1731,6 +1731,11 @@ class SizingUtil {
             nodeWidth += catchStmt.viewState.bBox.w;
         });
 
+        // make all catch statements the same height before adding finally height
+        // catchStmts.forEach((catchStmt) => {
+        //     catchStmt.viewState.bBox.h = allCHeight; // + components['block-header'].h;
+        // });
+
         // const elseStmt = node.elseStatement;
         // if (elseStmt && (!(TreeUtil.isBlock(elseStmt) && elseStmt.statements.length === 0))) {
         //     const elseHeight = elseStmt.viewState.bBox.h;
