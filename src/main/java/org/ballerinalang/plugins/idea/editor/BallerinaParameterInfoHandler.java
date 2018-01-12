@@ -739,7 +739,8 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         // Get parameter nodes.
         Collection<ParameterNode> parameterNodes = PsiTreeUtil.getChildrenOfTypeAsList(node, ParameterNode.class);
         for (ParameterNode parameterNode : parameterNodes) {
-            params.add(parameterNode.getText());
+            // Parameters might have spaces in between. So we need to remove them as well.
+            params.add(formatParameter(parameterNode.getText()));
         }
         return params;
     }
@@ -755,5 +756,15 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             params.add(typeNameNode.getText());
         }
         return params;
+    }
+
+    /**
+     * Removes excess spaces in the provided string. This is used to format parameters and types.
+     *
+     * @param text text to be formatted
+     * @return formatted string.
+     */
+    public static String formatParameter(String text) {
+        return text.trim().replaceAll("\\s+", " ").replaceAll("( )?\\[ ]", "[]");
     }
 }
