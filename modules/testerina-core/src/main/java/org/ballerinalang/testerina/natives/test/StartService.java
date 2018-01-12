@@ -50,10 +50,8 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -283,11 +281,15 @@ public class StartService extends AbstractNativeFunction {
         }
         
         AnnAttributeValue keyStoreFileAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_KEY_STORE_FILE);
-        AnnAttributeValue keyStorePasswordAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS);
+        AnnAttributeValue keyStorePasswordAttrVal =
+                                                configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS);
         AnnAttributeValue certPasswordAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_CERT_PASS);
-        AnnAttributeValue trustStoreFileAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_TRUST_STORE_FILE);
-        AnnAttributeValue trustStorePasswordAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_TRUST_STORE_PASS);
-        AnnAttributeValue sslVerifyClientAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_SSL_VERIFY_CLIENT);
+        AnnAttributeValue trustStoreFileAttrVal =
+                                            configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_TRUST_STORE_FILE);
+        AnnAttributeValue trustStorePasswordAttrVal =
+                                            configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_TRUST_STORE_PASS);
+        AnnAttributeValue sslVerifyClientAttrVal =
+                                            configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_SSL_VERIFY_CLIENT);
         AnnAttributeValue sslEnabledProtocolsAttrVal = configInfo
                 .getAttributeValue(Constants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS);
         AnnAttributeValue ciphersAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_CIPHERS);
@@ -371,76 +373,6 @@ public class StartService extends AbstractNativeFunction {
         }
     }
 
-    /**
-     * Method to build map of listener property maps given the service annotation attachment.
-     * This will first look for the port property and if present then it will get other properties,
-     * and create the property map.
-     *
-     * TODO use methods from ballerina once available.
-     * @param configInfo            In which listener configurations are specified.
-     * @return listenerConfMap      With required properties
-     */
-    private Map<String, Map<String, String>> buildListerProperties(AnnAttachmentInfo configInfo) {
-        if (configInfo == null) {
-            return null;
-        }
-        //key - listenerId, value - listener config property map
-        Map<String, Map<String, String>> listenerConfMap = new HashMap<>();
-
-        AnnAttributeValue hostAttrVal = configInfo.getAttributeValue
-                (Constants.ANN_CONFIG_ATTR_HOST);
-        AnnAttributeValue portAttrVal = configInfo.getAttributeValue
-                (Constants.ANN_CONFIG_ATTR_PORT);
-        AnnAttributeValue httpsPortAttrVal = configInfo.getAttributeValue
-                (Constants.ANN_CONFIG_ATTR_HTTPS_PORT);
-        AnnAttributeValue keyStoreFileAttrVal = configInfo.getAttributeValue
-                (Constants.ANN_CONFIG_ATTR_KEY_STORE_FILE);
-        AnnAttributeValue keyStorePassAttrVal = configInfo.getAttributeValue
-                (Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS);
-        AnnAttributeValue certPassAttrVal = configInfo.getAttributeValue
-                (Constants.ANN_CONFIG_ATTR_CERT_PASS);
-
-        if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
-            Map<String, String> httpPropMap = new HashMap<>();
-            httpPropMap.put(Constants.ANN_CONFIG_ATTR_PORT, Long.toString(portAttrVal.getIntValue()));
-            httpPropMap.put(Constants.ANN_CONFIG_ATTR_SCHEME, Constants.PROTOCOL_HTTP);
-            if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
-                httpPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, hostAttrVal.getStringValue());
-            } else {
-                httpPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, Constants.HTTP_DEFAULT_HOST);
-            }
-            listenerConfMap.put(buildInterfaceName(httpPropMap), httpPropMap);
-        }
-
-        if (httpsPortAttrVal != null && httpsPortAttrVal.getIntValue() > 0) {
-            Map<String, String> httpsPropMap = new HashMap<>();
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_PORT, Long.toString(httpsPortAttrVal.getIntValue()));
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_SCHEME, Constants.PROTOCOL_HTTPS);
-            if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
-                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, hostAttrVal.getStringValue());
-            } else {
-                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, Constants.HTTP_DEFAULT_HOST);
-            }
-            if (keyStoreFileAttrVal == null || keyStoreFileAttrVal.getStringValue() == null) {
-                //TODO get from language pack, and add location
-                throw new BallerinaException("Keystore location must be provided for protocol https");
-            }
-            if (keyStorePassAttrVal == null || keyStorePassAttrVal.getStringValue() == null) {
-                //TODO get from language pack, and add location
-                throw new BallerinaException("Keystore password value must be provided for protocol https");
-            }
-            if (certPassAttrVal == null || certPassAttrVal.getStringValue() == null) {
-                //TODO get from language pack, and add location
-                throw new BallerinaException("Certificate password value must be provided for protocol https");
-            }
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_KEY_STORE_FILE, keyStoreFileAttrVal.getStringValue());
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS, keyStorePassAttrVal.getStringValue());
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_CERT_PASS, certPassAttrVal.getStringValue());
-            listenerConfMap.put(buildInterfaceName(httpsPropMap), httpsPropMap);
-        }
-        return listenerConfMap;
-    }
-
     //TODO use methods from ballerina once available.
     private String discoverBasePathFrom(ServiceInfo service, AnnAttachmentInfo annotationInfo) {
         String basePath = service.getName();
@@ -459,23 +391,6 @@ public class StartService extends AbstractNativeFunction {
             basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
         }
         return basePath;
-    }
-
-    /**
-     * Build interface name using schema and port.
-     *
-     * TODO use methods from ballerina once available.
-     * @param propMap which has schema and port
-     * @return interfaceName
-     */
-    private String buildInterfaceName(Map<String, String> propMap) {
-        StringBuilder iName = new StringBuilder();
-        iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_SCHEME));
-        iName.append("_");
-        iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_HOST));
-        iName.append("_");
-        iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_PORT));
-        return iName.toString();
     }
 
     //TODO use methods from ballerina once available.
