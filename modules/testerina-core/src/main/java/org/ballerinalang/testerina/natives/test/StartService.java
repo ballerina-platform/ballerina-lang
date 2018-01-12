@@ -19,6 +19,7 @@ package org.ballerinalang.testerina.natives.test;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
@@ -40,16 +41,17 @@ import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.transport.http.netty.config.Parameter;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -192,86 +194,183 @@ public class StartService extends AbstractNativeFunction {
      * @return  listenerProp map.
      */
     private Set<ListenerConfiguration> getListenerConfig(AnnAttachmentInfo annotationInfo) {
-        Map<String, Map<String, String>> listenerProp = buildListerProperties(annotationInfo);
-
-        Set<ListenerConfiguration> listenerConfigurationSet;
-        if (listenerProp == null || listenerProp.isEmpty()) {
-            listenerConfigurationSet =
-                    HttpConnectionManager.getInstance().getDefaultListenerConfiugrationSet();
-        } else {
-            listenerConfigurationSet = getListenerConfigurationsFrom(listenerProp);
+        if (annotationInfo == null) {
+            return HttpConnectionManager.getInstance().getDefaultListenerConfiugrationSet();
         }
-        return listenerConfigurationSet;
-    }
-
-    /**
-     * Method to build map of listener property maps given the service annotation attachment.
-     * This will first look for the port property and if present then it will get other properties,
-     * and create the property map.
-     *
-     * TODO use methods from ballerina once available.
-     * @param configInfo            In which listener configurations are specified.
-     * @return listenerConfMap      With required properties
-     */
-    private Map<String, Map<String, String>> buildListerProperties(AnnAttachmentInfo configInfo) {
-        if (configInfo == null) {
-            return null;
-        }
+    
         //key - listenerId, value - listener config property map
-        Map<String, Map<String, String>> listenerConfMap = new HashMap<>();
-
-        AnnAttributeValue hostAttrVal = configInfo.getAttributeValue
-                (Constants.ANN_CONFIG_ATTR_HOST);
-        AnnAttributeValue portAttrVal = configInfo.getAttributeValue
-                (Constants.ANN_CONFIG_ATTR_PORT);
-        AnnAttributeValue httpsPortAttrVal = configInfo.getAttributeValue
-                (Constants.ANN_CONFIG_ATTR_HTTPS_PORT);
-        AnnAttributeValue keyStoreFileAttrVal = configInfo.getAttributeValue
-                (Constants.ANN_CONFIG_ATTR_KEY_STORE_FILE);
-        AnnAttributeValue keyStorePassAttrVal = configInfo.getAttributeValue
-                (Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS);
-        AnnAttributeValue certPassAttrVal = configInfo.getAttributeValue
-                (Constants.ANN_CONFIG_ATTR_CERT_PASS);
-
-        if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
-            Map<String, String> httpPropMap = new HashMap<>();
-            httpPropMap.put(Constants.ANN_CONFIG_ATTR_PORT, Long.toString(portAttrVal.getIntValue()));
-            httpPropMap.put(Constants.ANN_CONFIG_ATTR_SCHEME, Constants.PROTOCOL_HTTP);
-            if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
-                httpPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, hostAttrVal.getStringValue());
-            } else {
-                httpPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, Constants.HTTP_DEFAULT_HOST);
-            }
-            listenerConfMap.put(buildInterfaceName(httpPropMap), httpPropMap);
+        Set<ListenerConfiguration> listenerConfSet = new HashSet<>();
+    
+        extractBasicConfig(annotationInfo, listenerConfSet);
+        extractHttpsConfig(annotationInfo, listenerConfSet);
+    
+        if (listenerConfSet.isEmpty()) {
+            listenerConfSet = HttpConnectionManager.getInstance().getDefaultListenerConfiugrationSet();
         }
-
-        if (httpsPortAttrVal != null && httpsPortAttrVal.getIntValue() > 0) {
-            Map<String, String> httpsPropMap = new HashMap<>();
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_PORT, Long.toString(httpsPortAttrVal.getIntValue()));
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_SCHEME, Constants.PROTOCOL_HTTPS);
+    
+        return listenerConfSet;
+    }
+    
+    private void extractBasicConfig(AnnAttachmentInfo configInfo, Set<ListenerConfiguration> listenerConfSet) {
+        AnnAttributeValue hostAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_HOST);
+        AnnAttributeValue portAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_PORT);
+        AnnAttributeValue keepAliveAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE);
+        AnnAttributeValue transferEncoding = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_TRANSFER_ENCODING);
+        AnnAttributeValue chunking = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_CHUNKING);
+        
+        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
+        if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
+            listenerConfiguration.setPort(Math.toIntExact(portAttrVal.getIntValue()));
+            
+            listenerConfiguration.setScheme(Constants.PROTOCOL_HTTP);
             if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
-                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, hostAttrVal.getStringValue());
+                listenerConfiguration.setHost(hostAttrVal.getStringValue());
             } else {
-                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, Constants.HTTP_DEFAULT_HOST);
+                listenerConfiguration.setHost(Constants.HTTP_DEFAULT_HOST);
             }
+            
+            if (keepAliveAttrVal != null) {
+                listenerConfiguration.setKeepAlive(keepAliveAttrVal.getBooleanValue());
+            } else {
+                listenerConfiguration.setKeepAlive(Boolean.TRUE);
+            }
+            
+            // For the moment we don't have to pass it down to transport as we only support
+            // chunking. Once we start supporting gzip, deflate, etc, we need to parse down the config.
+            if (transferEncoding != null && !Constants.ANN_CONFIG_ATTR_CHUNKING
+                    .equalsIgnoreCase(transferEncoding.getStringValue())) {
+                throw new BallerinaConnectorException("Unsupported configuration found for Transfer-Encoding : "
+                                                      + transferEncoding.getStringValue());
+            }
+            
+            if (chunking != null) {
+                ChunkConfig chunkConfig = getChunkConfig(chunking.getStringValue());
+                listenerConfiguration.setChunkConfig(chunkConfig);
+            } else {
+                listenerConfiguration.setChunkConfig(ChunkConfig.AUTO);
+            }
+            
+            listenerConfiguration
+                    .setId(getListenerInterface(listenerConfiguration.getHost(), listenerConfiguration.getPort()));
+            listenerConfSet.add(listenerConfiguration);
+        }
+    }
+    
+    public ChunkConfig getChunkConfig(String chunking) {
+        ChunkConfig chunkConfig;
+        if (Constants.CHUNKING_AUTO.equalsIgnoreCase(chunking)) {
+            chunkConfig = ChunkConfig.AUTO;
+        } else if (Constants.CHUNKING_ALWAYS.equalsIgnoreCase(chunking)) {
+            chunkConfig = ChunkConfig.ALWAYS;
+        } else if (Constants.CHUNKING_NEVER.equalsIgnoreCase(chunking)) {
+            chunkConfig = ChunkConfig.NEVER;
+        } else {
+            throw new BallerinaConnectorException("Invalid configuration found for Transfer-Encoding : " + chunking);
+        }
+        return chunkConfig;
+    }
+    
+    private void extractHttpsConfig(AnnAttachmentInfo configInfo, Set<ListenerConfiguration> listenerConfSet) {
+        // Retrieve secure port from either http of ws configuration annotation.
+        AnnAttributeValue httpsPortAttrVal;
+        if (configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_HTTPS_PORT) == null) {
+            httpsPortAttrVal =
+                    configInfo.getAttributeValue(org.ballerinalang.net.ws.Constants.ANN_CONFIG_ATTR_WSS_PORT);
+        } else {
+            httpsPortAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_HTTPS_PORT);
+        }
+        
+        AnnAttributeValue keyStoreFileAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_KEY_STORE_FILE);
+        AnnAttributeValue keyStorePasswordAttrVal =
+                                                configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS);
+        AnnAttributeValue certPasswordAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_CERT_PASS);
+        AnnAttributeValue trustStoreFileAttrVal =
+                                            configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_TRUST_STORE_FILE);
+        AnnAttributeValue trustStorePasswordAttrVal =
+                                            configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_TRUST_STORE_PASS);
+        AnnAttributeValue sslVerifyClientAttrVal =
+                                            configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_SSL_VERIFY_CLIENT);
+        AnnAttributeValue sslEnabledProtocolsAttrVal = configInfo
+                .getAttributeValue(Constants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS);
+        AnnAttributeValue ciphersAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_CIPHERS);
+        AnnAttributeValue sslProtocolAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_SSL_PROTOCOL);
+        AnnAttributeValue hostAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_HOST);
+        
+        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
+        if (httpsPortAttrVal != null && httpsPortAttrVal.getIntValue() > 0) {
+            listenerConfiguration.setPort(Math.toIntExact(httpsPortAttrVal.getIntValue()));
+            listenerConfiguration.setScheme(Constants.PROTOCOL_HTTPS);
+            
+            if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
+                listenerConfiguration.setHost(hostAttrVal.getStringValue());
+            } else {
+                listenerConfiguration.setHost(Constants.HTTP_DEFAULT_HOST);
+            }
+            
             if (keyStoreFileAttrVal == null || keyStoreFileAttrVal.getStringValue() == null) {
                 //TODO get from language pack, and add location
-                throw new BallerinaException("Keystore location must be provided for protocol https");
+                throw new BallerinaConnectorException("Keystore location must be provided for secure connection");
             }
-            if (keyStorePassAttrVal == null || keyStorePassAttrVal.getStringValue() == null) {
+            if (keyStorePasswordAttrVal == null || keyStorePasswordAttrVal.getStringValue() == null) {
                 //TODO get from language pack, and add location
-                throw new BallerinaException("Keystore password value must be provided for protocol https");
+                throw new BallerinaConnectorException("Keystore password value must be provided for secure connection");
             }
-            if (certPassAttrVal == null || certPassAttrVal.getStringValue() == null) {
+            if (certPasswordAttrVal == null || certPasswordAttrVal.getStringValue() == null) {
                 //TODO get from language pack, and add location
-                throw new BallerinaException("Certificate password value must be provided for protocol https");
+                throw new BallerinaConnectorException(
+                        "Certificate password value must be provided for secure connection");
             }
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_KEY_STORE_FILE, keyStoreFileAttrVal.getStringValue());
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS, keyStorePassAttrVal.getStringValue());
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_CERT_PASS, certPassAttrVal.getStringValue());
-            listenerConfMap.put(buildInterfaceName(httpsPropMap), httpsPropMap);
+            if ((trustStoreFileAttrVal == null || trustStoreFileAttrVal.getStringValue() == null)
+                && sslVerifyClientAttrVal != null) {
+                //TODO get from language pack, and add location
+                throw new BallerinaException("Truststore location must be provided to enable Mutual SSL");
+            }
+            if ((trustStorePasswordAttrVal == null || trustStorePasswordAttrVal.getStringValue() == null)
+                && sslVerifyClientAttrVal != null) {
+                //TODO get from language pack, and add location
+                throw new BallerinaException("Truststore password value must be provided to enable Mutual SSL");
+            }
+            
+            listenerConfiguration.setTLSStoreType(Constants.PKCS_STORE_TYPE);
+            listenerConfiguration.setKeyStoreFile(keyStoreFileAttrVal.getStringValue());
+            listenerConfiguration.setKeyStorePass(keyStorePasswordAttrVal.getStringValue());
+            listenerConfiguration.setCertPass(certPasswordAttrVal.getStringValue());
+            
+            if (sslVerifyClientAttrVal != null) {
+                listenerConfiguration.setVerifyClient(sslVerifyClientAttrVal.getStringValue());
+            }
+            if (trustStoreFileAttrVal != null) {
+                listenerConfiguration.setTrustStoreFile(trustStoreFileAttrVal.getStringValue());
+            }
+            if (trustStorePasswordAttrVal != null) {
+                listenerConfiguration.setTrustStorePass(trustStorePasswordAttrVal.getStringValue());
+            }
+            
+            List<Parameter> serverParams = new ArrayList<>();
+            Parameter serverCiphers;
+            if (sslEnabledProtocolsAttrVal != null && sslEnabledProtocolsAttrVal.getStringValue() != null) {
+                serverCiphers = new Parameter(Constants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS,
+                        sslEnabledProtocolsAttrVal.getStringValue());
+                serverParams.add(serverCiphers);
+            }
+            
+            if (ciphersAttrVal != null && ciphersAttrVal.getStringValue() != null) {
+                serverCiphers = new Parameter(Constants.ANN_CONFIG_ATTR_CIPHERS, ciphersAttrVal.getStringValue());
+                serverParams.add(serverCiphers);
+            }
+            
+            if (!serverParams.isEmpty()) {
+                listenerConfiguration.setParameters(serverParams);
+            }
+            
+            if (sslProtocolAttrVal != null) {
+                listenerConfiguration.setSSLProtocol(sslProtocolAttrVal.getStringValue());
+            }
+            
+            listenerConfiguration
+                    .setId(getListenerInterface(listenerConfiguration.getHost(), listenerConfiguration.getPort()));
+            listenerConfSet.add(listenerConfiguration);
         }
-        return listenerConfMap;
     }
 
     //TODO use methods from ballerina once available.
@@ -294,40 +393,9 @@ public class StartService extends AbstractNativeFunction {
         return basePath;
     }
 
-    /**
-     * Build interface name using schema and port.
-     *
-     * TODO use methods from ballerina once available.
-     * @param propMap which has schema and port
-     * @return interfaceName
-     */
-    private String buildInterfaceName(Map<String, String> propMap) {
-        StringBuilder iName = new StringBuilder();
-        iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_SCHEME));
-        iName.append("_");
-        iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_HOST));
-        iName.append("_");
-        iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_PORT));
-        return iName.toString();
-    }
-
     //TODO use methods from ballerina once available.
-    private Set<ListenerConfiguration> getListenerConfigurationsFrom(Map<String, Map<String, String>> listenerProp) {
-        Set<ListenerConfiguration> listenerConfigurationSet = new HashSet<>();
-        for (Map.Entry<String, Map<String, String>> entry : listenerProp.entrySet()) {
-            Map<String, String> propMap = entry.getValue();
-            String entryListenerInterface = getListenerInterface(propMap);
-            ListenerConfiguration listenerConfiguration = HTTPConnectorUtil.buildListenerConfig(entryListenerInterface,
-                                                                                                propMap);
-            listenerConfigurationSet.add(listenerConfiguration);
-        }
-        return listenerConfigurationSet;
-    }
-
-    //TODO use methods from ballerina once available.
-    private String getListenerInterface(Map<String, String> parameters) {
-        String host = parameters.get("host") != null ? parameters.get("host") : "0.0.0.0";
-        int port = Integer.parseInt(parameters.get("port"));
+    private String getListenerInterface(String host, int port) {
+        host = host != null ? host : "0.0.0.0";
         return host + ":" + port;
     }
 
