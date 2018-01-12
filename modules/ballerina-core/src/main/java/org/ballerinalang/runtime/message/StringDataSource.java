@@ -30,7 +30,6 @@ import java.nio.charset.Charset;
  */
 public class StringDataSource extends BallerinaMessageDataSource {
     private String value;
-    private OutputStream outputStream;
 
     /**
      * Create a String datasource with a string.
@@ -39,18 +38,6 @@ public class StringDataSource extends BallerinaMessageDataSource {
      */
     public StringDataSource(String value) {
         this.value = value;
-        this.outputStream = null;
-    }
-
-    /**
-     * Create a String datasource with a string and a target output stream.
-     * 
-     * @param value         String value
-     * @param outputStream  Target outputstream
-     */
-    public StringDataSource(String value, OutputStream outputStream) {
-        this.value = value;
-        this.outputStream = outputStream;
     }
 
     public String getValue() {
@@ -62,17 +49,12 @@ public class StringDataSource extends BallerinaMessageDataSource {
     }
 
     @Override
-    public void serializeData() {
+    public void serializeData(OutputStream outputStream) {
         try {
-            this.outputStream.write(this.value.getBytes(Charset.defaultCharset()));
+            outputStream.write(this.value.getBytes(Charset.defaultCharset()));
         } catch (IOException e) {
             throw new BallerinaException("Error occurred during writing the string message to the output stream", e);
         }
-    }
-
-    @Override
-    public void setOutputStream(OutputStream outputStream) {
-        this.outputStream = outputStream;
     }
 
     @Override

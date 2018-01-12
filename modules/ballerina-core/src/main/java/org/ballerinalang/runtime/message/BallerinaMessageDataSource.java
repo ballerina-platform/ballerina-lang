@@ -56,11 +56,8 @@ public class BallerinaMessageDataSource implements MessageDataSource {
     }
 
     @Override
-    public void serializeData() {
+    public void serializeData(OutputStream outputStream) {
         // This is where we write to output stream
-    }
-
-    public void setOutputStream(OutputStream outputStream) {
     }
 
     @Override

@@ -42,9 +42,11 @@ import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import static org.ballerinalang.net.http.Constants.MESSAGE_OUTPUT_STREAM;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
 /**
@@ -208,7 +210,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
         MessageDataSource messageDataSource = HttpUtil.getMessageDataSource(requestStruct);
         if (messageDataSource != null) {
-            messageDataSource.serializeData();
+            messageDataSource.serializeData((OutputStream) requestStruct.getNativeData(MESSAGE_OUTPUT_STREAM));
             HttpUtil.closeMessageOutputStream(requestStruct);
         }
     }

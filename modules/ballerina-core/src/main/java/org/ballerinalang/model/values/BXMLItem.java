@@ -40,6 +40,7 @@ import org.ballerinalang.model.util.XMLValidationUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -579,9 +580,9 @@ public final class BXMLItem extends BXML<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public void serializeData() {
+    public void serializeData(OutputStream outputStream) {
         try {
-            this.omNode.serialize(this.outputStream);
+            this.omNode.serialize(outputStream);
         } catch (Throwable t) {
             handleXmlException("error occurred during writing the message to the output stream: ", t);
         }

@@ -55,11 +55,6 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     }
 
     /**
-     * Output stream to write message out to the socket.
-     */
-    private OutputStream outputStream;
-
-    /**
      * Retrieve the value for the given key from map.
      * @param key key used to get the value
      * @return value
@@ -189,17 +184,12 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     }
 
     @Override
-    public void serializeData() {
+    public void serializeData(OutputStream outputStream) {
         try {
             outputStream.write(stringValue().getBytes(Charset.defaultCharset()));
         } catch (IOException e) {
             throw new BallerinaException("Error occurred while serializing data", e);
         }
-    }
-
-    @Override
-    public void setOutputStream(OutputStream outputStream) {
-        this.outputStream = outputStream;
     }
 
     @Override

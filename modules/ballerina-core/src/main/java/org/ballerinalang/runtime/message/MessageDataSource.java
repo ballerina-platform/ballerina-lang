@@ -18,6 +18,7 @@
 
 package org.ballerinalang.runtime.message;
 
+import java.io.OutputStream;
 import java.util.Map;
 
 /**
@@ -68,7 +69,7 @@ public interface MessageDataSource {
     /**
      * Serialize data in to a byte stream.
      */
-    public void serializeData();
+    public void serializeData(OutputStream outputStream);
 
     /**
      * Returns the entire message as string.

@@ -24,10 +24,8 @@ import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.xml.namespace.QName;
 
 /**
@@ -46,8 +44,6 @@ import javax.xml.namespace.QName;
  */
 public abstract class BXML<T> extends BallerinaMessageDataSource implements BRefType<T>, BCollection {
 
-    protected OutputStream outputStream;
-    
     /**
      * Start of a XML comment.
      */
@@ -276,15 +272,7 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
     public BallerinaMessageDataSource clone() {
         return copy();
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setOutputStream(OutputStream outputStream) {
-        this.outputStream = outputStream;
-    }
-    
+
     // private methods
     
     protected static void handleXmlException(String message, Throwable t) {
