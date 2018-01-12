@@ -42,7 +42,7 @@
                     </div>
                     <div class="collapse navbar-collapse package-list-wrapper">
                         {{#each links}}
-                            <ul class="nav navbar-nav package-name-ul">
+                            <ul class="nav navbar-nav package-name-ul {{#if active}}active{{/if}}">
                                 <li>
                                     <!--Package Name-->
                                     {{#if active}}
@@ -115,7 +115,7 @@
                     {{#if isFunction}}
                         <h4 id="{{name}}">
                             <span class="{{icon}} sm-icon"> </span>
-                            {{name}}
+                            public function {{name}}
                             ( {{join parameters " , "}} )
                             {{#if returnParams}}
                             ( {{join returnParams " , "}} )
@@ -169,7 +169,7 @@
                             <span class="{{icon}} sm-icon"></span>
                             public struct {{name}}
                         </h4>
-                        <p>{{description}}</p>
+                        <p><span class="fw-right gray xs-icon"></span>{{description}}</p>
                         {{#if fields}}
                             <p>
                                 <label class="table-header-text">Fields:</label>
@@ -254,9 +254,9 @@
                     {{#if isConnector}}
                         <h4 id="{{name}}">
                             <span class="{{icon}} sm-icon"></span>
-                            {{name}} ( {{join parameters " , "}} )
+                            public connector {{name}} ( {{join parameters " , "}} )
                         </h4>
-                        <p>{{description}}</p>
+                        <p><span class="fw-right gray xs-icon">{{description}}</p>
                         {{#if parameters}}
                             <p>
                                 <label class="table-header-text">Parameters:</label>
@@ -343,9 +343,9 @@
                     {{#if isEnum}}
                         <h4 id="{{name}}">
                             <span class="{{icon}} sm-icon"></span>
-                            {{name}}
+                            public enum {{name}}
                         </h4>
-                        <p>{{description}}</p>
+                        <p><span class="fw-right gray xs-icon">{{description}}</p>
                         {{#if enumerators}}
                             <p>
                                 <label class="table-header-text">Enumerators:</label>
@@ -368,9 +368,9 @@
                     {{#if isAnnotation}}
                         <h4 id="{{name}}">
                             <span class="{{icon}} sm-icon"></span>
-                            {{name}}
+                            public annotation {{name}}
                         </h4>
-                        <p>{{description}}</p>
+                        <p><span class="fw-right gray xs-icon">{{description}}</p>
                         {{#if attributes}}
                             <p>
                                 <label class="table-header-text">Attributes:</label>
@@ -395,7 +395,7 @@
                     {{#if isGlobalVariable}}
                         <h4 id="{{name}}">
                             <span class="{{icon}} sm-icon"></span>
-                            {{name}}
+                            public annotation {{name}}
                         </h4>
                         <table>
                             <tr>

@@ -214,22 +214,34 @@ td, th{
     height: 94%;
     position: fixed;
     overflow: scroll;
+    background-color: #f0f0f0;
+}
+
+.navbar-fixed-side > div.container {
+    padding-right: 0;
+    padding-left: 0;
 }
 
 .package-name-ul {
     width: 100%;
 }
 
+.package-name-ul.active {
+    padding: 0 0 15px 0;
+    background: #f9f9f9 !important;
+}
+
 .package-name-ul > li > a {
-    background-color: #f9f9f9 !important;
     border-bottom: 0 !important;
     color: #1a1a1a !important;
-    padding-top: 0px !important;
-    padding-bottom: 10px !important;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
 }
 
 .package-list-wrapper {
     border: 0 !important;
+    padding-right: 0;
+    padding-left: 0;
 }
 
 .constructs-ul {
@@ -238,7 +250,8 @@ td, th{
 }
 
 .constructs-ul > li > a {
-    color: #1a1a1a !important;
+    color: #222 !important;
+    line-height: 1.6;
 }
 
 .constructs-ul > li.active > a {
