@@ -228,7 +228,8 @@ class ControllerPositioningUtil {
         let workerButton = <span />;
         if (node.workers.length > 0) {
             x = node.workers[node.workers.length - 1].viewState.bBox.x +
-                node.workers[node.workers.length - 1].viewState.bBox.w;
+                node.workers[node.workers.length - 1].viewState.bBox.w +
+                this.config.lifeLine.gutter.h;
         } else {
             // add default worker plus.
             workerButton = this.getWorkerButton(node.viewState.components.defaultWorker, node.body);
@@ -377,7 +378,10 @@ class ControllerPositioningUtil {
      *
      */
     positionWorkerNodeControllers(node) {
-        return this.getWorkerButton(node.viewState.bBox, node.body);
+        if (node.parent) { // TODO This is a bug fix need to find the root cause.
+            return this.getWorkerButton(node.viewState.bBox, node.body);
+        }
+        return undefined;
     }
 
     getWorkerButton(bBox, node) {
