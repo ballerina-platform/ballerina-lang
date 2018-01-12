@@ -542,7 +542,7 @@ public class AggregationTestCase {
                 "from stockStream " +
                 "select avg(price) as avgPrice, sum(price) as totalPrice, (price * quantity) as lastTradeValue, " +
                 "count() as count " +
-                "aggregate by timestamp every day...year ;" +
+                "aggregate by timestamp every min, day, year ;" +
 
                 "define stream inputStream (symbol string, value int, startTime string, " +
                 "endTime string, perValue string); " +
@@ -1017,8 +1017,7 @@ public class AggregationTestCase {
         siddhiManager.createSiddhiAppRuntime(stockStream + query);
     }
 
-    @Test(dependsOnMethods = {"incrementalStreamProcessorTest14"},
-            expectedExceptions = SiddhiAppCreationException.class)
+    @Test(dependsOnMethods = {"incrementalStreamProcessorTest14"})
     public void incrementalStreamProcessorTest15() {
         LOG.info("incrementalStreamProcessorTest15");
         SiddhiManager siddhiManager = new SiddhiManager();
