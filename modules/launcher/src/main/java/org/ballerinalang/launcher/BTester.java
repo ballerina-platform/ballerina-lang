@@ -70,7 +70,7 @@ public class BTester {
             org.ballerinalang.util.codegen.ProgramFile executableProgram = getExecutableProgram(programFile);
 //            traceCode(executableProgram.getEntryPackage());
             BLangFunctions.invokeNew(executableProgram, executableProgram.getEntryPkgName(),
-                                                           "main", new BValue[1]);
+                                     "main", new BValue[1]);
         }
     }
 
