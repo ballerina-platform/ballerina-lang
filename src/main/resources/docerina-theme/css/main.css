@@ -271,7 +271,7 @@ td, th{
 }
 
 .construct-inner-items-ul > li > a {
-    color: #333 !important;
+    color: #555 !important;
     line-height: 1.8;
 }
 
@@ -283,6 +283,7 @@ td, th{
 
 .construct-name {
     padding-left: 24px;
+    font-weight: 300;
 }
 
 .construct-wrapper {
