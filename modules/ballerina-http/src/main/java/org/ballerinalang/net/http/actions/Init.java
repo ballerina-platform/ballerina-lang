@@ -102,6 +102,11 @@ public class Init extends AbstractHTTPAction {
         BStruct options = (BStruct) connector.getRefField(Constants.OPTIONS_STRUCT_INDEX);
         if (options != null) {
             populateSenderConfigurationOptions(senderConfiguration, options);
+            long maxActiveConnections = options.getIntField(Constants.MAX_ACTIVE_CONNECTIONS_INDEX);
+            if (!isInteger(maxActiveConnections)) {
+                throw new BallerinaConnectorException("invalid maxActiveConnections value: " + maxActiveConnections);
+            }
+            properties.put(Constants.MAX_ACTIVE_CONNECTIONS_PER_POOL, (int) maxActiveConnections);
         }
 
         HttpClientConnector httpClientConnector =
