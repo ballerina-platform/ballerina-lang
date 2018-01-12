@@ -630,10 +630,6 @@ public class HttpUtil {
             HTTPCarbonMessage inboundRequestMsg) {
         inboundRequestStruct.setStringField(Constants.REQUEST_PATH_INDEX,
                 (String) inboundRequestMsg.getProperty(Constants.REQUEST_URL));
-        inboundRequestStruct.setStringField(Constants.REQUEST_HOST_INDEX,
-                ((InetSocketAddress) inboundRequestMsg.getProperty(Constants.LOCAL_ADDRESS)).getHostName());
-        inboundRequestStruct.setIntField(Constants.REQUEST_PORT_INDEX,
-                (Integer) inboundRequestMsg.getProperty(Constants.LISTENER_PORT));
         inboundRequestStruct.setStringField(Constants.REQUEST_METHOD_INDEX,
                 (String) inboundRequestMsg.getProperty(Constants.HTTP_METHOD));
         inboundRequestStruct.setStringField(Constants.REQUEST_VERSION_INDEX,
@@ -641,22 +637,14 @@ public class HttpUtil {
         Map<String, String> resourceArgValues =
                 (Map<String, String>) inboundRequestMsg.getProperty(Constants.RESOURCE_ARGS);
         inboundRequestStruct.setStringField(Constants.REQUEST_REST_URI_POSTFIX_INDEX,
-    public static void populateConnection(BStruct request, HTTPCarbonMessage cMsg) {
-        request.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
-        request.setStringField(Constants.CONNECTION_HOST_INDEX,
-                ((InetSocketAddress) cMsg.getProperty(Constants.LOCAL_ADDRESS)).getHostName());
-        request.setIntField(Constants.CONNECTION_PORT_INDEX, (Integer) cMsg.getProperty(Constants.LISTENER_PORT));
+                resourceArgValues.get(Constants.REST_URI_POSTFIX));
     }
 
-    public static void populateInboundRequest(BStruct request, HTTPCarbonMessage cMsg) {
-        request.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
-        request.addNativeData(Constants.INBOUND_REQUEST, true);
-        request.setStringField(Constants.REQUEST_PATH_INDEX, (String) cMsg.getProperty(Constants.REQUEST_URL));
-        request.setStringField(Constants.REQUEST_METHOD_INDEX, (String) cMsg.getProperty(Constants.HTTP_METHOD));
-        request.setStringField(Constants.REQUEST_VERSION_INDEX, (String) cMsg.getProperty(Constants.HTTP_VERSION));
-        Map<String, String> resourceArgValues = (Map<String, String>) cMsg.getProperty(Constants.RESOURCE_ARGS);
-        request.setStringField(Constants.REQUEST_REST_URI_POSTFIX_INDEX,
-                resourceArgValues.get(Constants.REST_URI_POSTFIX));
+    public static void enrichConnectionInfo(BStruct connection, HTTPCarbonMessage cMsg) {
+        connection.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
+        connection.setStringField(Constants.CONNECTION_HOST_INDEX,
+                ((InetSocketAddress) cMsg.getProperty(Constants.LOCAL_ADDRESS)).getHostName());
+        connection.setIntField(Constants.CONNECTION_PORT_INDEX, (Integer) cMsg.getProperty(Constants.LISTENER_PORT));
     }
 
     public static void populateInboundResponse(BStruct response, HTTPCarbonMessage cMsg) {
@@ -1044,16 +1032,6 @@ public class HttpUtil {
             httpCarbonMessage.setEndOfMsgAdded(true);
         }
         return httpCarbonMessage;
-    }
-
-    public static void checkFunctionValidity(BStruct bStruct, HTTPCarbonMessage httpMsg) {
-        methodInvocationCheck(bStruct, httpMsg);
-        outboundResponseStructCheck(bStruct);
-    public static String sanitizeUri(String uri) {
-        if (uri.startsWith("/")) {
-            return uri;
-        }
-        return "/".concat(uri);
     }
 
     public static void checkFunctionValidity(BStruct bStruct, HTTPCarbonMessage reqMsg) {

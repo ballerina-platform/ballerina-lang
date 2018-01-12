@@ -138,7 +138,7 @@ public class HttpDispatcher {
         HttpUtil.setHeaderValueStructType(ConnectorUtils.createStruct(httpResource.getBalResource(),
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.HEADER_VALUE_STRUCT));
 
-        HttpUtil.populateConnection(connection, httpCarbonMessage);
+        HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage);
         HttpUtil.populateInboundRequest(request, httpCarbonMessage);
 
         List<ParamDetail> paramDetails = httpResource.getParamDetails();
