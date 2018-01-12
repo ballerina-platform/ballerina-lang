@@ -214,7 +214,6 @@ class BallerinaFileEditor extends React.Component {
     onASTModified(evt) {
         if (evt.type === 'child-added') {
             this.addAutoImports(evt.data.node);
-            this.getConnectorDeclarations(evt.data.node);
         }
         TreeBuilder.modify(evt.origin);
 

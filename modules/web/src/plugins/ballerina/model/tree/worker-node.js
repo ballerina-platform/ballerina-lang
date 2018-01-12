@@ -31,7 +31,7 @@ class WorkerNode extends AbstractWorkerNode {
         // We need to determine the exact number of workers.
         // If the number of workers are two and there exist a worker with the name default
         // We transfer the statements in the default worker to the parent's body.
-        if (parentWorkerCount === 2 &&
+        /* if (parentWorkerCount === 2 &&
             parentDefaultWorker &&
             this.name.value !== 'default') {
             const statements = parent.body.getStatements().concat(parentDefaultWorker.body.statements);
@@ -40,7 +40,8 @@ class WorkerNode extends AbstractWorkerNode {
             super.remove();
         } else {
             super.remove();
-        }
+        } */
+        super.remove();
     }
 }
 
