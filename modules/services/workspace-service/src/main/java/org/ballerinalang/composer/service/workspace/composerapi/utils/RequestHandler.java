@@ -31,6 +31,8 @@ import org.eclipse.lsp4j.jsonrpc.messages.RequestMessage;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +43,9 @@ import java.util.concurrent.ExecutionException;
  * Handler to handle the request received from the web socket of the composer API.
  */
 public class RequestHandler {
+
+    private static Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+
     /**
      * Caching the built in packages.
      */
@@ -53,16 +58,26 @@ public class RequestHandler {
         RequestMessage jsonrpcRequest = null;
         // Check if the text sent by the client is a valid JSON
         if (isJSONValid(text)) {
-            jsonrpcRequest = gson.fromJson(text, RequestMessage.class);
-            if (jsonrpcRequest.getMethod().equals("PING")) {
-                return sendPong();
-            } else if (jsonrpcRequest.getMethod().equals(Constants.BUILT_IN_PACKAGES)) {
-                return getBuiltInPackages(jsonrpcRequest);
-            } else if (jsonrpcRequest.getId() != null) { // Its a request
-                return handlerRequest(endpoint, jsonrpcRequest);
-            } else { // Its a notification
-                handlerNotification(endpoint, jsonrpcRequest);
-                return null;
+            try {
+                jsonrpcRequest = gson.fromJson(text, RequestMessage.class);
+                if (jsonrpcRequest.getMethod().equals("PING")) {
+                    return sendPong();
+                } else if (jsonrpcRequest.getMethod().equals(Constants.BUILT_IN_PACKAGES)) {
+                    return getBuiltInPackages(jsonrpcRequest);
+                } else if (jsonrpcRequest.getId() != null) { // Its a request
+                    return handlerRequest(endpoint, jsonrpcRequest);
+                } else { // Its a notification
+                    handlerNotification(endpoint, jsonrpcRequest);
+                    return null;
+                }
+            } catch (Exception e) {
+                final String error = "Error while handling request. " + e.getMessage();
+                logger.error(error, e);
+                ResponseMessage jsonrpcResponse = new ResponseMessage();
+                jsonrpcResponse.setId(null);
+                ResponseError responseError = handleError(-32701, error);
+                jsonrpcResponse.setError(responseError);
+                return gson.toJson(jsonrpcResponse);
             }
         } else {
             ResponseMessage jsonrpcResponse = new ResponseMessage();
