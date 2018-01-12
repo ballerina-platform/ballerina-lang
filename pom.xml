@@ -293,6 +293,6 @@
 
     <properties>
         <cobertura.version>2.7</cobertura.version>
-        <ballerina.version>0.95.7</ballerina.version>
+        <ballerina.version>0.95.8-SNAPSHOT</ballerina.version>
     </properties>
 </project>
