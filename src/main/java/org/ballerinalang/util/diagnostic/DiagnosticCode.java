@@ -18,8 +18,6 @@ package org.ballerinalang.util.diagnostic;
 
 /**
  * This class contains a list of diagnostic codes.
- *
- * @since 0.94
  */
 public enum DiagnosticCode {
 

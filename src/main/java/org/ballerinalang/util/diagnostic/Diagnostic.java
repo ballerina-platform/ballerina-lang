@@ -16,15 +16,10 @@
 
 package org.ballerinalang.util.diagnostic;
 
-/**
- * @since 0.94
- */
 public interface Diagnostic {
 
     /**
      * Kind of the diagnostic.
-     *
-     * @since 0.94
      */
     enum Kind {
         ERROR,
@@ -32,9 +27,6 @@ public interface Diagnostic {
         NOTE,
     }
 
-    /**
-     * @since 0.94
-     */
     interface DiagnosticSource {
 
         String getPackageName();
@@ -44,9 +36,6 @@ public interface Diagnostic {
         String getCompilationUnitName();
     }
 
-    /**
-     * @since 0.94
-     */
     interface DiagnosticPosition {
 
         DiagnosticSource getSource();
