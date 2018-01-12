@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.programfile;
 
 import java.util.Arrays;
+import java.util.StringJoiner;
 
 /**
  * {@code Instruction} represents an bytecode instruction in Ballerina.
@@ -26,31 +27,59 @@ import java.util.Arrays;
  */
 public class Instruction {
 
-    int opcode;
-    int[] operands;
+    public int opcode;
 
-    Instruction(int opcode, int... operands) {
+    public Operand[] ops;
+
+    Instruction(int opcode) {
         this.opcode = opcode;
-        this.operands = operands;
+        this.ops = new Operand[0];
+    }
+
+    Instruction(int opcode, Operand... operands) {
+        this.opcode = opcode;
+        this.ops = operands;
     }
 
     public int getOpcode() {
         return opcode;
     }
 
-    public int[] getOperands() {
-        return operands;
-    }
-
-    public void setOperand(int index, int value) {
-        operands[index] = value;
-    }
-
     @Override
     public String toString() {
-        return "Instruction{" +
-                "opcode=" + opcode +
-                ", operands=" + Arrays.toString(operands) +
-                '}';
+        StringJoiner sj = new StringJoiner(" ");
+        Arrays.stream(ops).forEach(i -> sj.add(String.valueOf(i.value)));
+        return Mnemonics.getMnem(opcode) + " " + sj.toString();
+    }
+
+    /**
+     * @since 0.95.7
+     */
+    public static class Operand {
+        public int value = -1;
+
+        public Operand(int value) {
+            this.value = value;
+        }
+    }
+
+    /**
+     * @since 0.95.7
+     */
+    public static class RegIndex extends Operand {
+        public int typeTag;
+        public boolean isLHSIndex;
+        public boolean isVarIndex;
+
+        public RegIndex(int value, int typeTag) {
+            super(value);
+            this.typeTag = typeTag;
+        }
+
+        public RegIndex(int value, int typeTag, boolean isLHSIndex) {
+            super(value);
+            this.typeTag = typeTag;
+            this.isLHSIndex = isLHSIndex;
+        }
     }
 }

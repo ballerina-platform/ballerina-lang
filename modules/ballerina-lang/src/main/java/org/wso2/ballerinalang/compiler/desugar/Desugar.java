@@ -65,6 +65,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
@@ -103,6 +104,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
@@ -400,6 +402,14 @@ public class Desugar extends BLangNodeVisitor {
         ifNode.body = rewrite(ifNode.body);
         ifNode.elseStmt = rewrite(ifNode.elseStmt);
         result = ifNode;
+    }
+
+    @Override
+    public void visit(BLangForeach foreach) {
+        foreach.varRefs = rewrite(foreach.varRefs);
+        foreach.collection = rewriteExpr(foreach.collection);
+        foreach.body = rewrite(foreach.body);
+        result = foreach;
     }
 
     @Override
@@ -866,6 +876,13 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeofExpr accessExpr) {
         result = accessExpr;
+    }
+
+    @Override
+    public void visit(BLangIntRangeExpression intRangeExpression) {
+        intRangeExpression.startExpr = rewriteExpr(intRangeExpression.startExpr);
+        intRangeExpression.endExpr = rewriteExpr(intRangeExpression.endExpr);
+        result = intRangeExpression;
     }
 
     // private functions

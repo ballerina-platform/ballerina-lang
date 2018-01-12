@@ -99,7 +99,7 @@ public class ResponseNativeFunctionNegativeTest {
         } catch (Throwable e) {
             error = e.getMessage();
         }
-        Assert.assertTrue(error.contains("unexpected end of JSON document"));
+        Assert.assertTrue(error.contains("empty JSON document"));
     }
 
     @Test(description = "Test method with string payload")
@@ -279,7 +279,8 @@ public class ResponseNativeFunctionNegativeTest {
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getMessageDataSource().getMessageAsString(), "wso2");
+        Assert.assertEquals(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), "wso2");
     }
 
     @Test

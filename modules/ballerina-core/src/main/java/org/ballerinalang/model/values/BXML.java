@@ -44,7 +44,7 @@ import javax.xml.namespace.QName;
  *
  * @since 0.8.0
  */
-public abstract class BXML<T> extends BallerinaMessageDataSource implements BRefType<T> {
+public abstract class BXML<T> extends BallerinaMessageDataSource implements BRefType<T>, BCollection {
 
     protected OutputStream outputStream;
     

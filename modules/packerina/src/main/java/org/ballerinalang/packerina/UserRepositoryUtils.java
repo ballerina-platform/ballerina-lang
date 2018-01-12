@@ -18,7 +18,6 @@
 package org.ballerinalang.packerina;
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.util.program.BLangPackages;
 import org.ballerinalang.util.program.BLangPrograms;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -105,11 +104,10 @@ public class UserRepositoryUtils {
 
         Path srcDirectoryPath = BLangPrograms.validateAndResolveSourcePath(sourceRootPath, packagePath);
 
-        Path packageName = BLangPackages.convertToPackageName(packagePath);
         Path targetDirectoryPath = initializeUserRepository()
                 .resolve(USER_REPO_ARTIFACTS_DIRNAME)
                 .resolve(USER_REPO_SRC_DIRNAME)
-                .resolve(packageName);
+                .resolve(packagePath);
 
         try {
             Files.list(srcDirectoryPath)
@@ -132,7 +130,7 @@ public class UserRepositoryUtils {
                                 throw new RuntimeException("a file exists with the same name as the package name: " +
                                         targetDirectoryPath.toString());
                             } else if (!Files.exists(targetDirectoryPath, LinkOption.NOFOLLOW_LINKS)) {
-                                Files.createDirectory(targetDirectoryPath);
+                                Files.createDirectories(targetDirectoryPath);
                             }
 
                             Files.copy(filePath, targetFilePath, options);
@@ -148,12 +146,12 @@ public class UserRepositoryUtils {
     }
 
     public static void uninstallSourcePackage(String packageStr) {
-        Path packageName = BLangPackages.convertToPackageName(Paths.get(packageStr));
+        Path packagePath = Paths.get(packageStr);
         Path userRepoSrcPath = initializeUserRepository()
                 .resolve(USER_REPO_ARTIFACTS_DIRNAME)
                 .resolve(USER_REPO_SRC_DIRNAME);
 
-        Path dirPathToDelete = userRepoSrcPath.resolve(packageName);
+        Path dirPathToDelete = userRepoSrcPath.resolve(packagePath);
         if (Files.exists(dirPathToDelete, LinkOption.NOFOLLOW_LINKS) &&
                 !Files.isDirectory(dirPathToDelete, LinkOption.NOFOLLOW_LINKS)) {
             throw new RuntimeException("a file exists with the same name as the package name: " +
@@ -176,14 +174,26 @@ public class UserRepositoryUtils {
                                     ": " + e.getMessage(), e);
                         }
                     });
-            
-            Files.delete(dirPathToDelete);
+
+            deleteEmptyDirsUpTo(dirPathToDelete, userRepoSrcPath);
         } catch (DirectoryNotEmptyException e) {
             throw new RuntimeException("error uninstalling package: " + packageStr +
                     ": directory not empty: " + dirPathToDelete.toString(), e);
         } catch (IOException e) {
             throw new RuntimeException("error uninstalling package: " + packageStr +
                     ": " + e.getMessage(), e);
+        }
+    }
+
+    private static void deleteEmptyDirsUpTo(Path from, Path to) throws IOException {
+        Path pathsInBetween = to.relativize(from);
+        for (int i = pathsInBetween.getNameCount(); i > 0; i--) {
+            Path toRemove = to.resolve(pathsInBetween.subpath(0, i));
+            if (Files.list(toRemove).findAny().isPresent()) {
+                return;
+            } else {
+                Files.delete(toRemove);
+            }
         }
     }
 }
