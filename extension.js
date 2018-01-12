@@ -1,6 +1,8 @@
-const { workspace, ExtensionContext } = require('vscode');
+const { workspace, commands, window, ExtensionContext } = require('vscode');
 const { LanguageClient, LanguageClientOptions, ServerOptions } = require('vscode-languageclient');
 const path = require('path');
+
+let oldConfig;
 
 exports.activate = function(context) {
 	// The server is implemented in java
@@ -8,7 +10,7 @@ exports.activate = function(context) {
 	const main = 'org.ballerinalang.langserver.launchers.stdio.Main';
 
 	const config = workspace.getConfiguration('ballerina');
-
+	oldConfig = config;
 	// in windows class path seperated by ';'
 	const sep = process.platform === 'win32' ? ';' : ':';
 	
@@ -44,3 +46,18 @@ exports.activate = function(context) {
 	// client can be deactivated on extension deactivation
 	context.subscriptions.push(disposable);
 }
+
+workspace.onDidChangeConfiguration(params => {
+	const newConfig = workspace.getConfiguration('ballerina');
+	if (newConfig.sdk != oldConfig.sdk) {
+		const msg = 'Ballerina sdk path configuration changed. Please restart vscode for changes to take effect.';
+		const action = 'Restart Now';
+		window.showWarningMessage(msg, action).then((selection) => {
+			if (action === selection) {
+				commands.executeCommand('workbench.action.reloadWindow');
+			}
+		});
+	}
+
+	oldConfig = newConfig;
+});
