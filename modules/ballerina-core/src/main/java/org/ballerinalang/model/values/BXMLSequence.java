@@ -417,8 +417,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
     @Override
     public void build() {
         for (int i = 0; i < sequence.size(); i++) {
-            BXMLItem item = (BXMLItem) sequence.get(i);
-            item.build();
+            ((BXML<?>) sequence.get(i)).build();
         }
     }
 
