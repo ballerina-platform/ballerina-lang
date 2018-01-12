@@ -3,5 +3,5 @@ $(document).ready(function() {
         target: ".constructs-wrapper",
         offset: 70
     });
-    console.log(spyScroll);
+//    console.log(spyScroll);
 });
