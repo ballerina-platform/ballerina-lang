@@ -79,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
@@ -119,6 +120,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
@@ -193,9 +195,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.FIELD;
@@ -2526,6 +2528,30 @@ public class CodeGenerator extends BLangNodeVisitor {
         endJumpAddr.value = nextIP();
     }
 
+    public void visit(BLangForeach foreach) {
+        // Calculate temporary scope variables for iteration.
+        Operand iteratorVar = getLVIndex(TypeTags.ITERATOR);
+        Operand conditionVar = getLVIndex(TypeTags.BOOLEAN);
+
+        // Create new Iterator for given collection.
+        this.genNode(foreach.collection, env);
+        this.emit(InstructionCodes.ITR_NEW, foreach.collection.regIndex, iteratorVar);
+
+        Operand foreachStartAddress = new Operand(nextIP());
+        Operand foreachEndAddress = new Operand(-1);
+
+        // Checks given iterator has a next value.
+        this.emit(InstructionCodes.ITR_HAS_NEXT, iteratorVar, conditionVar);
+        this.emit(InstructionCodes.BR_FALSE, conditionVar, foreachEndAddress);
+
+        // assign variables.
+        generateForeachVarAssignment(foreach, iteratorVar);
+
+        this.genNode(foreach.body, env);                        // generate foreach body.
+        this.emit(InstructionCodes.GOTO, foreachStartAddress);  // move to next iteration.
+        foreachEndAddress.value = this.nextIP();
+    }
+
     public void visit(BLangWhile whileNode) {
         Instruction gotoTopJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, getOperand(this.nextIP()));
         this.genNode(whileNode.expr, this.env);
@@ -2878,8 +2904,48 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(exprStmtNode.expr, this.env);
     }
 
+    @Override
+    public void visit(BLangIntRangeExpression rangeExpr) {
+        BLangExpression startExpr = rangeExpr.startExpr;
+        BLangExpression endExpr = rangeExpr.endExpr;
+
+        genNode(startExpr, env);
+        genNode(endExpr, env);
+        rangeExpr.regIndex = calcAndGetExprRegIndex(rangeExpr);
+
+        if (!rangeExpr.includeStart || !rangeExpr.includeEnd) {
+            RegIndex const1RegIndex = getRegIndex(TypeTags.INT);
+            emit(InstructionCodes.ICONST_1, const1RegIndex);
+            if (!rangeExpr.includeStart) {
+                emit(InstructionCodes.IADD, startExpr.regIndex, const1RegIndex, startExpr.regIndex);
+            }
+            if (!rangeExpr.includeEnd) {
+                emit(InstructionCodes.ISUB, endExpr.regIndex, const1RegIndex, endExpr.regIndex);
+            }
+        }
+        emit(InstructionCodes.NEW_INT_RANGE, startExpr.regIndex, endExpr.regIndex, rangeExpr.regIndex);
+    }
 
     // private helper methods of visitors.
+
+    private void generateForeachVarAssignment(BLangForeach foreach, Operand iteratorIndex) {
+        List<BLangVariableReference> variables = foreach.varRefs.stream()
+                .map(expr -> (BLangVariableReference) expr)
+                .collect(Collectors.toList());
+        // create Local variable Info entries.
+        variables.stream()
+                .filter(v -> v.type.tag != TypeTags.NONE)   // Ignoring ignored ("_") variables.
+                .forEach(varRef -> visitVarSymbol(varRef.symbol, lvIndexes, localVarAttrInfo));
+        List<Operand> nextOperands = new ArrayList<>();
+        nextOperands.add(iteratorIndex);
+        nextOperands.add(new Operand(variables.size()));
+        for (int i = 0; i < variables.size(); i++) {
+            BLangVariableReference varRef = variables.get(i);
+            nextOperands.add(Optional.ofNullable(varRef.symbol.varIndex)
+                    .orElse(getRegIndex(foreach.varTypes.get(i).tag)));
+        }
+        this.emit(InstructionCodes.ITR_NEXT, nextOperands.toArray(new Operand[0]));
+    }
 
     private void visitFunctionPointerLoad(BLangExpression fpExpr, BInvokableSymbol funcSymbol) {
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, funcSymbol.pkgID);

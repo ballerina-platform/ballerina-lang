@@ -32,15 +32,9 @@ import java.nio.charset.Charset;
 public class BlobDataSource extends BallerinaMessageDataSource {
 
     private byte[] value;
-    private OutputStream outputStream;
 
     public BlobDataSource(byte[] value) {
         this.value = value;
-    }
-
-    public BlobDataSource(byte[] value, OutputStream outputStream) {
-        this.value = value;
-        this.outputStream = outputStream;
     }
 
     public byte[] getValue() {
@@ -52,17 +46,12 @@ public class BlobDataSource extends BallerinaMessageDataSource {
     }
 
     @Override
-    public void serializeData() {
+    public void serializeData(OutputStream outputStream) {
         try {
             outputStream.write(value);
         } catch (IOException e) {
             throw new BallerinaException("Error occurred while writing the binary payload to the output stream", e);
         }
-    }
-
-    @Override
-    public void setOutputStream(OutputStream outputStream) {
-        this.outputStream = outputStream;
     }
 
     @Override

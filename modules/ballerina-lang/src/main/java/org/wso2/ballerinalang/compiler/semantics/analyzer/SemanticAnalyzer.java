@@ -71,6 +71,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
@@ -639,6 +640,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    public void visit(BLangForeach foreach) {
+        typeChecker.checkExpr(foreach.collection, env);
+        foreach.varTypes = types.checkForeachTypes(foreach.collection, foreach.varRefs.size());
+        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(foreach.body, env);
+        handleForeachVariables(foreach, foreach.varTypes, blockEnv);
+        analyzeStmt(foreach.body, blockEnv);
+    }
+
     public void visit(BLangWhile whileNode) {
         typeChecker.checkExpr(whileNode.expr, env, Lists.of(symTable.booleanType));
         analyzeStmt(whileNode.body, env);
@@ -976,6 +985,33 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     // Private methods
 
+    private void handleForeachVariables(BLangForeach foreachStmt, List<BType> varTypes, SymbolEnv env) {
+        for (int i = 0; i < foreachStmt.varRefs.size(); i++) {
+            BLangExpression varRef = foreachStmt.varRefs.get(i);
+            // foreach variables supports only simpleVarRef expressions only.
+            if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                dlog.error(varRef.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRef);
+                continue;
+            }
+            BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
+            simpleVarRef.lhsVar = true;
+            Name varName = names.fromIdNode(simpleVarRef.variableName);
+            if (varName == Names.IGNORE) {
+                simpleVarRef.type = this.symTable.noType;
+                typeChecker.checkExpr(simpleVarRef, env);
+                continue;
+            }
+            // Check variable symbol for existence.
+            BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
+            if (symbol == symTable.notFoundSymbol) {
+                symbolEnter.defineVarSymbol(simpleVarRef.pos, Collections.emptySet(), varTypes.get(i), varName, env);
+                typeChecker.checkExpr(simpleVarRef, env);
+            } else {
+                dlog.error(simpleVarRef.pos, DiagnosticCode.REDECLARED_SYMBOL, varName);
+            }
+        }
+    }
+
     private void handleAssignNodeWithVar(BLangAssignment assignNode) {
         int ignoredCount = 0;
         int createdSymbolCount = 0;
@@ -992,9 +1028,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 expTypes.add(symTable.errType);
                 continue;
             }
-            ((BLangVariableReference) varRef).lhsVar = true;
             // Check variable symbol if exists.
             BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
+            ((BLangVariableReference) varRef).lhsVar = true;
             Name varName = names.fromIdNode(simpleVarRef.variableName);
             if (varName == Names.IGNORE) {
                 ignoredCount++;

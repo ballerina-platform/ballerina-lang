@@ -21,7 +21,7 @@ package org.ballerinalang.test.services.interceptors;
 //import org.ballerinalang.runtime.config.ConfigConstants;
 
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.runtime.message.StringDataSource;
+import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -31,6 +31,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 //import org.ballerinalang.runtime.model.BLangRuntimeRegistry;
 //import org.ballerinalang.test.services.testutils.EnvironmentInitializer;
@@ -74,7 +75,8 @@ public class ResourceInterceptorTest {
     public void testFailedRequestIntercept() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
         HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
-        String value = ((StringDataSource) response.getMessageDataSource()).getValue();
+        String value = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(value, "invalid login ");
     }
 
@@ -84,7 +86,8 @@ public class ResourceInterceptorTest {
         cMsg.setHeader("username", "bob");
         cMsg.setHeader("password", "bob");
         HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
-        String value = ((StringDataSource) response.getMessageDataSource()).getValue();
+        String value = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(value, "invalid login bob");
     }
 

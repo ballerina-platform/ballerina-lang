@@ -21,11 +21,9 @@ import org.ballerinalang.bre.bvm.ControlStack;
 import org.ballerinalang.bre.bvm.WorkerCounter;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -54,11 +52,9 @@ public class Context {
 
     protected WorkerCounter workerCounter;
 
-    // TODO : Temporary solution to make non-blocking working.
-    public BValue[] nativeArgValues;
     public ProgramFile programFile;
-    public FunctionCallCPEntry funcCallCPEntry;
-    public ActionInfo actionInfo;
+    // TODO : Temporary solution to make non-blocking working.
+    public NonBlockingContext nonBlockingContext;
     // TODO : Fix this. Added this for fork-join. Issue #3718.
     public boolean blockingInvocation;
 
@@ -204,5 +200,20 @@ public class Context {
 
     public WorkerCounter getWorkerCounter() {
         return workerCounter;
+    }
+
+    /**
+     * Data holder for Non-Blocking Action invocation.
+     *
+     * @since 0.96.0
+     */
+    public static class NonBlockingContext {
+        public ActionInfo actionInfo;
+        public int[] retRegs;
+
+        public NonBlockingContext(ActionInfo actionInfo, int[] retRegs) {
+            this.actionInfo = actionInfo;
+            this.retRegs = retRegs;
+        }
     }
 }

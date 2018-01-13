@@ -94,7 +94,7 @@ public class HTTPServicesRegistry {
         Set<ListenerConfiguration> listenerConfigurationSet = HttpUtil.getDefaultOrDynamicListenerConfig(annotation);
 
         for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
-            String entryListenerInterface = listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
+            String entryListenerInterface = listenerConfiguration.getId();
             Map<String, HttpService> servicesOnInterface = servicesInfoMap
                     .computeIfAbsent(entryListenerInterface, k -> new HashMap<>());
 

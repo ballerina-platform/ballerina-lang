@@ -71,6 +71,7 @@ public interface InstructionCodes {
     int LFIELDLOAD = 44;
     int RFIELDLOAD = 45;
 
+    int MAPLOAD = 46;
     int JSONLOAD = 47;
     int ENUMERATORLOAD = 48;
 
@@ -101,6 +102,7 @@ public interface InstructionCodes {
     int LFIELDSTORE = 72;
     int RFIELDSTORE = 73;
 
+    int MAPSTORE = 74;
     int JSONSTORE = 75;
 
     int IADD = 76;
@@ -248,10 +250,11 @@ public interface InstructionCodes {
     int NEWJSON = 213;
     int NEWDATATABLE = 215;
 
-    int MAPSTORE = 218;
-    int MAPLOAD = 219;
+    int NEW_INT_RANGE = 219;
+    int ITR_NEW = 220;
+    int ITR_HAS_NEXT = 221;
+    int ITR_NEXT = 222;
 
-    int REG_CP = 230;
     int IRET = 231;
     int FRET = 232;
     int SRET = 233;

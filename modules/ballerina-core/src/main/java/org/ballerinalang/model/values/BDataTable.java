@@ -33,9 +33,13 @@ import java.util.List;
 public class BDataTable implements BRefType<Object> {
 
     private DataIterator iterator;
+    private boolean hasNextVal;
+    private boolean nextPrefetched;
 
     public BDataTable(DataIterator dataIterator) {
         this.iterator = dataIterator;
+        this.nextPrefetched = false;
+        this.hasNextVal = false;
     }
 
     @Override
@@ -54,11 +58,22 @@ public class BDataTable implements BRefType<Object> {
     }
 
     public boolean hasNext(boolean isInTransaction) {
-        boolean hasNext = iterator.next();
-        if (!hasNext) {
+        if (!nextPrefetched) {
+            hasNextVal = iterator.next();
+            nextPrefetched = true;
+        }
+        if (!hasNextVal) {
             close(isInTransaction);
         }
-        return hasNext;
+        return hasNextVal;
+    }
+
+    public void next() {
+        if (!nextPrefetched) {
+            iterator.next();
+        } else {
+            nextPrefetched = false;
+        }
     }
 
     public void close(boolean isInTransaction) {
@@ -66,6 +81,7 @@ public class BDataTable implements BRefType<Object> {
     }
 
     public BStruct getNext() {
+        next();
         return iterator.generateNext();
     }
 
