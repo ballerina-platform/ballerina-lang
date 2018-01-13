@@ -208,12 +208,6 @@ public class Types {
             }
         }
 
-        if (target.tag == TypeTags.MAP) {
-            if (source.tag == TypeTags.MAP) {
-                return ((BMapType) target).constraint.tag == TypeTags.ANY;
-            }
-        }
-
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target);
     }
@@ -592,6 +586,12 @@ public class Types {
 
         @Override
         public BSymbol visit(BMapType t, BType s) {
+            // Semantically fail all casts for Constrained Maps.
+            // Eg:- ANY2MAP cast is undefined for Constrained Maps.
+            if (t.constraint.tag != TypeTags.ANY) {
+                return symTable.notFoundSymbol;
+            }
+
             return symResolver.resolveOperator(Names.CAST_OP, Lists.of(s, t));
         }
 
@@ -689,6 +689,11 @@ public class Types {
 
         @Override
         public BSymbol visit(BMapType t, BType s) {
+            // Semantically fail all conversions for Constrained Maps.
+            if (t.constraint.tag != TypeTags.ANY) {
+                return symTable.notFoundSymbol;
+            }
+
             if (s.tag == TypeTags.STRUCT) {
                 return createConversionOperatorSymbol(s, t, true, InstructionCodes.T2MAP);
             }

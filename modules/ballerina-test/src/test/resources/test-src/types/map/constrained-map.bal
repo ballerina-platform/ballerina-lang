@@ -45,15 +45,6 @@ function testConstrainedMapStructTypeNegative() (Person) {
     return val;
 }
 
-function testAnyAssignment() (string) {
-    map<string> testMap = {};
-    testMap["name"] = "kevin";
-    map anyMap = testMap;
-    string val;
-    val,_ = (string)anyMap["name"];
-    return val;
-}
-
 function testConstrainedMapValueTypeAssignWithFieldAccessPositive() (string, string) {
     map<string> testMap = {};
     testMap.name = "kevin";

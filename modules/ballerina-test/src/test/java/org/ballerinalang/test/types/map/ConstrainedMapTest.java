@@ -99,13 +99,6 @@ public class ConstrainedMapTest {
         Assert.assertNull(returns[0]);
     }
 
-    @Test(description = "Test Map constrained with value type assignment to Map constrained with any.")
-    public void testAnyAssignment() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAnyAssignment");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "kevin");
-    }
-
     @Test(description = "Test Map constrained with value type value retrieval positive case" +
             " assignment with field access expressions.")
     public void testConstrainedMapValueTypeAssignWithFieldAccessPositive() {

@@ -248,19 +248,8 @@ public interface InstructionCodes {
     int NEWJSON = 213;
     int NEWDATATABLE = 215;
 
-    int IMAPSTORE = 217;
-    int FMAPSTORE = 218;
-    int SMAPSTORE = 219;
-    int BMAPSTORE = 220;
-    int LMAPSTORE = 221;
-    int RMAPSTORE = 222;
-
-    int IMAPLOAD = 223;
-    int FMAPLOAD = 224;
-    int SMAPLOAD = 225;
-    int BMAPLOAD = 226;
-    int LMAPLOAD = 227;
-    int RMAPLOAD = 228;
+    int MAPSTORE = 218;
+    int MAPLOAD = 219;
 
     int REG_CP = 230;
     int IRET = 231;

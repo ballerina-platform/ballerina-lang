@@ -351,12 +351,7 @@ public class BLangVM {
                 case InstructionCodes.BFIELDLOAD:
                 case InstructionCodes.LFIELDLOAD:
                 case InstructionCodes.RFIELDLOAD:
-                case InstructionCodes.IMAPLOAD:
-                case InstructionCodes.FMAPLOAD:
-                case InstructionCodes.SMAPLOAD:
-                case InstructionCodes.BMAPLOAD:
-                case InstructionCodes.LMAPLOAD:
-                case InstructionCodes.RMAPLOAD:
+                case InstructionCodes.MAPLOAD:
                 case InstructionCodes.JSONLOAD:
                 case InstructionCodes.ENUMERATORLOAD:
                     execLoadOpcodes(sf, opcode, operands);
@@ -387,12 +382,7 @@ public class BLangVM {
                 case InstructionCodes.BFIELDSTORE:
                 case InstructionCodes.LFIELDSTORE:
                 case InstructionCodes.RFIELDSTORE:
-                case InstructionCodes.IMAPSTORE:
-                case InstructionCodes.FMAPSTORE:
-                case InstructionCodes.SMAPSTORE:
-                case InstructionCodes.BMAPSTORE:
-                case InstructionCodes.LMAPSTORE:
-                case InstructionCodes.RMAPSTORE:
+                case InstructionCodes.MAPSTORE:
                 case InstructionCodes.JSONSTORE:
                     execStoreOpcodes(sf, opcode, operands);
                     break;
@@ -700,7 +690,11 @@ public class BLangVM {
                     break;
                 case InstructionCodes.NEWMAP:
                     i = operands[0];
-                    sf.refRegs[i] = new BMap<String, BRefType>();
+                    cpIndex = operands[1];
+                    typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
+                    BType mapType = typeRefCPEntry.getType();
+                    sf.refRegs[i] = new BMap<String, BRefType>(mapType);
+
                     break;
                 case InstructionCodes.NEWJSON:
                     i = operands[0];
@@ -1174,92 +1168,7 @@ public class BLangVM {
                 sf.refRegs[j] = structureType.getRefField(fieldIndex);
                 break;
 
-            case InstructionCodes.IMAPLOAD:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                bMap = (BMap<String, BRefType>) sf.refRegs[i];
-                if (bMap == null) {
-                    handleNullRefError();
-                    break;
-                }
-
-                bRefType = bMap.get(sf.stringRegs[j]);
-                if (bRefType != null) {
-                    sf.longRegs[k] = ((BInteger) bRefType).intValue();
-                } else {
-                    sf.longRegs[k] = 0;
-                }
-                break;
-            case InstructionCodes.FMAPLOAD:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                bMap = (BMap<String, BRefType>) sf.refRegs[i];
-                if (bMap == null) {
-                    handleNullRefError();
-                    break;
-                }
-
-                bRefType = bMap.get(sf.stringRegs[j]);
-                if (bRefType != null) {
-                    sf.doubleRegs[k] = ((BFloat) bRefType).floatValue();
-                } else {
-                    sf.doubleRegs[k] = 0;
-                }
-                break;
-            case InstructionCodes.SMAPLOAD:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                bMap = (BMap<String, BRefType>) sf.refRegs[i];
-                if (bMap == null) {
-                    handleNullRefError();
-                    break;
-                }
-
-                bRefType = bMap.get(sf.stringRegs[j]);
-                if (bRefType != null) {
-                    sf.stringRegs[k] = bRefType.stringValue();
-                } else {
-                    sf.stringRegs[k] = STRING_NULL_VALUE;
-                }
-                break;
-            case InstructionCodes.BMAPLOAD:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                bMap = (BMap<String, BRefType>) sf.refRegs[i];
-                if (bMap == null) {
-                    handleNullRefError();
-                    break;
-                }
-
-                bRefType = bMap.get(sf.stringRegs[j]);
-                if (bRefType != null) {
-                    sf.intRegs[k] = ((BBoolean) bRefType).booleanValue() ? 1 : 0;
-                } else {
-                    sf.intRegs[k] = 0;
-                }
-                break;
-            case InstructionCodes.LMAPLOAD:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                bMap = (BMap<String, BRefType>) sf.refRegs[i];
-                if (bMap == null) {
-                    handleNullRefError();
-                    break;
-                }
-
-                bRefType = bMap.get(sf.stringRegs[j]);
-                if (bRefType != null) {
-                    sf.byteRegs[k] = ((BBlob) bRefType).blobValue();
-                } else {
-                    sf.byteRegs[k] = new byte[0];
-                }
-                break;
-            case InstructionCodes.RMAPLOAD:
+            case InstructionCodes.MAPLOAD:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
@@ -1311,7 +1220,7 @@ public class BLangVM {
         BBlobArray bBlobArray;
         BRefValueArray bArray;
         StructureType structureType;
-        BMap<String, BRefType> bMap;
+        BMap bMap;
         BJSON jsonVal;
         switch (opcode) {
             case InstructionCodes.ISTORE:
@@ -1570,67 +1479,7 @@ public class BLangVM {
                 break;
 
 
-            case InstructionCodes.IMAPSTORE:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                bMap = (BMap<String, BRefType>) sf.refRegs[i];
-                if (bMap == null) {
-                    handleNullRefError();
-                    break;
-                }
-
-                bMap.put(sf.stringRegs[j], new BInteger(sf.longRegs[k]));
-                break;
-            case InstructionCodes.FMAPSTORE:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                bMap = (BMap<String, BRefType>) sf.refRegs[i];
-                if (bMap == null) {
-                    handleNullRefError();
-                    break;
-                }
-
-                bMap.put(sf.stringRegs[j], new BFloat(sf.doubleRegs[k]));
-                break;
-            case InstructionCodes.SMAPSTORE:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                bMap = (BMap<String, BRefType>) sf.refRegs[i];
-                if (bMap == null) {
-                    handleNullRefError();
-                    break;
-                }
-
-                bMap.put(sf.stringRegs[j], new BString(sf.stringRegs[k]));
-                break;
-            case InstructionCodes.BMAPSTORE:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                bMap = (BMap<String, BRefType>) sf.refRegs[i];
-                if (bMap == null) {
-                    handleNullRefError();
-                    break;
-                }
-
-                bMap.put(sf.stringRegs[j], new BBoolean(sf.intRegs[k] == 1));
-                break;
-            case InstructionCodes.LMAPSTORE:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                bMap = (BMap<String, BRefType>) sf.refRegs[i];
-                if (bMap == null) {
-                    handleNullRefError();
-                    break;
-                }
-
-                bMap.put(sf.stringRegs[j], new BBlob(sf.byteRegs[k]));
-                break;
-            case InstructionCodes.RMAPSTORE:
+            case InstructionCodes.MAPSTORE:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];

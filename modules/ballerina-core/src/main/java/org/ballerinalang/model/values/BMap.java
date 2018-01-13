@@ -42,6 +42,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implements BRefType {
 
+    private BType type = BTypes.typeMap;
 
     @SuppressWarnings("unchecked")
     private LinkedHashMap<K, V> map;
@@ -50,7 +51,12 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     private final Lock writeLock = lock.writeLock();
 
     public BMap() {
-        map =  new LinkedHashMap<>();
+        map = new LinkedHashMap<>();
+    }
+
+    public BMap(BType type) {
+        this.map = new LinkedHashMap<>();
+        this.type = type;
     }
 
     /**
@@ -169,7 +175,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
 
     @Override
     public BType getType() {
-        return BTypes.typeMap;
+        return this.type;
     }
 
     @Override

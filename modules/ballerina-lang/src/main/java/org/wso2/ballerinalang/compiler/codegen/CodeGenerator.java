@@ -679,7 +679,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     @Override
     public void visit(BLangMapLiteral mapLiteral) {
         Operand mapVarRegIndex = calcAndGetExprRegIndex(mapLiteral);
-        emit(InstructionCodes.NEWMAP, mapVarRegIndex);
+        Operand typeCPIndex = getOperand(getTypeCPIndex(mapLiteral));
+        emit(InstructionCodes.NEWMAP, mapVarRegIndex, typeCPIndex);
 
         // Handle Map init stuff
         for (BLangRecordKeyValue keyValue : mapLiteral.keyValuePairs) {
@@ -691,8 +692,14 @@ public class CodeGenerator extends BLangNodeVisitor {
 
             BMapType mapType = (BMapType) mapLiteral.type;
 
-            int opcode = getOpcode(mapType.constraint.tag, InstructionCodes.IMAPSTORE);
-            emit(opcode, mapVarRegIndex, keyExpr.regIndex, valueExpr.regIndex);
+            int opcode = getValueToRefTypeCastOpcode(mapType.constraint.tag);
+            if (opcode == InstructionCodes.NOP) {
+                emit(InstructionCodes.MAPSTORE, mapVarRegIndex, keyExpr.regIndex, valueExpr.regIndex);
+            } else {
+                RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
+                emit(opcode, valueExpr.regIndex, refRegMapValue, getRegIndex(TypeTags.STRUCT));
+                emit(InstructionCodes.MAPSTORE, mapVarRegIndex, keyExpr.regIndex, refRegMapValue);
+            }
         }
     }
 
@@ -798,14 +805,26 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         genNode(mapKeyAccessExpr.indexExpr, this.env);
         Operand keyRegIndex = mapKeyAccessExpr.indexExpr.regIndex;
-        int opcode;
         BMapType mapType = (BMapType) mapKeyAccessExpr.expr.type;
         if (variableStore) {
-            opcode = getOpcode(mapType.constraint.tag, InstructionCodes.IMAPSTORE);
-            emit(opcode, varRefRegIndex, keyRegIndex, mapKeyAccessExpr.regIndex);
+            int opcode = getValueToRefTypeCastOpcode(mapType.constraint.tag);
+            if (opcode == InstructionCodes.NOP) {
+                emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, mapKeyAccessExpr.regIndex);
+            } else {
+                RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
+                emit(opcode, mapKeyAccessExpr.regIndex, refRegMapValue, getRegIndex(TypeTags.STRUCT));
+                emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, refRegMapValue);
+            }
         } else {
-            opcode = getOpcode(mapType.constraint.tag, InstructionCodes.IMAPLOAD);
-            emit(opcode, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(mapKeyAccessExpr));
+            int opcode = getRefToValueTypeCastOpcode(mapType.constraint.tag);
+            if (opcode == InstructionCodes.NOP) {
+                emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(mapKeyAccessExpr));
+            } else {
+                RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
+                emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, refRegMapValue);
+                emit(opcode, refRegMapValue, calcAndGetExprRegIndex(mapKeyAccessExpr),
+                        getRegIndex(TypeTags.STRUCT));
+            }
         }
 
         this.varAssignment = variableStore;
@@ -3026,4 +3045,55 @@ public class CodeGenerator extends BLangNodeVisitor {
         TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
         return currentPkgInfo.addCPEntry(typeRefCPEntry);
     }
+
+    private int getValueToRefTypeCastOpcode(int typeTag) {
+        int opcode;
+        switch (typeTag) {
+            case TypeTags.INT:
+                opcode = InstructionCodes.I2ANY;
+                break;
+            case TypeTags.FLOAT:
+                opcode = InstructionCodes.F2ANY;
+                break;
+            case TypeTags.STRING:
+                opcode = InstructionCodes.S2ANY;
+                break;
+            case TypeTags.BOOLEAN:
+                opcode = InstructionCodes.B2ANY;
+                break;
+            case TypeTags.BLOB:
+                opcode = InstructionCodes.L2ANY;
+                break;
+            default:
+                opcode = InstructionCodes.NOP;
+                break;
+        }
+        return opcode;
+    }
+
+    private int getRefToValueTypeCastOpcode(int typeTag) {
+        int opcode;
+        switch (typeTag) {
+            case TypeTags.INT:
+                opcode = InstructionCodes.ANY2I;
+                break;
+            case TypeTags.FLOAT:
+                opcode = InstructionCodes.ANY2F;
+                break;
+            case TypeTags.STRING:
+                opcode = InstructionCodes.ANY2S;
+                break;
+            case TypeTags.BOOLEAN:
+                opcode = InstructionCodes.ANY2B;
+                break;
+            case TypeTags.BLOB:
+                opcode = InstructionCodes.ANY2L;
+                break;
+            default:
+                opcode = InstructionCodes.NOP;
+                break;
+        }
+        return opcode;
+    }
+
 }

@@ -33,20 +33,29 @@ import org.ballerinalang.model.values.BValue;
  */
 public class BMapType extends BType implements BIndexedType {
 
-    private BType elementType;
+    private BType constraint;
 
     /**
      * Create a type from the given name.
      *
      * @param typeName string name of the type
      */
-    BMapType(String typeName, BType elementType, String pkgPath) {
+    public BMapType(String typeName, BType constraint, String pkgPath) {
         super(typeName, pkgPath, BMap.class);
-        this.elementType = elementType;
+        this.constraint = constraint;
+    }
+
+    public BMapType(BType constraint) {
+        super(TypeConstants.MAP_TNAME, null, BMap.class);
+        this.constraint = constraint;
+    }
+
+    public BType getConstrainedType() {
+        return constraint;
     }
 
     public BType getElementType() {
-        return elementType;
+        return constraint;
     }
 
     @Override
@@ -61,11 +70,35 @@ public class BMapType extends BType implements BIndexedType {
 
     @Override
     public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_REFTYPE, TypeEnum.MAP.getName());
+        return new TypeSignature(TypeSignature.SIG_MAP, constraint.getSig());
     }
 
     @Override
     public int getTag() {
         return TypeTags.MAP_TAG;
     }
+
+    @Override
+    public String toString() {
+        if (constraint == null) {
+            return super.toString();
+        } else {
+            return "map" + "<" + constraint.getName() + ">";
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj) || !(obj instanceof BMapType)) {
+            return false;
+        }
+
+        BMapType other = (BMapType) obj;
+        if (constraint == other.constraint) {
+            return true;
+        }
+
+        return constraint.equals(other.constraint);
+    }
+
 }

@@ -37,5 +37,6 @@ public class TypeDescriptor {
     public static final String SIG_TYPE = "Y";
     public static final String SIG_VOID = "V";
     public static final String SIG_ANNOTATION = "@";
+    public static final String SIG_MAP = "M";
 
 }
