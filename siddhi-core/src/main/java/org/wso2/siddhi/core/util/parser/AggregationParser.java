@@ -25,7 +25,6 @@ import org.wso2.siddhi.core.aggregation.RecreateInMemoryData;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
@@ -102,6 +101,10 @@ public class AggregationParser {
                     "AggregationDefinition '" + aggregationDefinition.getId() + "'s selection is not defined. " +
                             "Hence, can't create the siddhi app '" + siddhiAppContext.getName() + "'",
                     aggregationDefinition.getQueryContextStartIndex(), aggregationDefinition.getQueryContextEndIndex());
+        }
+        if (streamDefinitionMap.get(aggregationDefinition.getBasicSingleInputStream().getStreamId()) == null) {
+           throw new SiddhiAppCreationException("Stream " + aggregationDefinition.getBasicSingleInputStream().
+                   getStreamId() + " has not been defined");
         }
         try {
             List<VariableExpressionExecutor> incomingVariableExpressionExecutors = new ArrayList<>();
@@ -634,23 +637,7 @@ public class AggregationParser {
             if (isRange(timePeriod)) {
                 durations = fillGap(durations.get(0), durations.get(1));
             }
-//            return sortedDurations(durations);
-            // TODO: 11/24/17 The commented out code above is to be used when we support skipping durations
-            // todo (e.g sec, min, day -> hour is skipped). For now, if comma separated values are given, we need to
-            // todo ensure that the durations are given sequentially. Hence the below code segment. Remove when
-            // todo allowing skipping durations
-
-            List<TimePeriod.Duration> sortedDurations = sortedDurations(durations);
-            int ordinalOfPrevDuration = sortedDurations.get(0).ordinal();
-            for (int i = 1; i < sortedDurations.size(); i++) {
-                if (ordinalOfPrevDuration != sortedDurations.get(i).ordinal() - 1) {
-                    TimePeriod.Duration[] allDurations = TimePeriod.Duration.values();
-                    throw new OperationNotSupportedException("Expected " + allDurations[ordinalOfPrevDuration + 1] +
-                            " after " + allDurations[ordinalOfPrevDuration] + ", but found " + sortedDurations.get(i));
-                }
-                ordinalOfPrevDuration = sortedDurations.get(i).ordinal();
-            }
-            return sortedDurations;
+            return sortedDurations(durations);
         } catch (Throwable t) {
             ExceptionUtil.populateQueryContext(t, timePeriod, null);
             throw t;

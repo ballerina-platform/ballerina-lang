@@ -69,9 +69,9 @@ public class IncrementalExecutor implements Executor, Snapshotable {
     private boolean isRoot;
     private long millisecondsPerDuration;
     private boolean eventOlderThanBuffer;
-    private int countEventsGreaterThanCurrentMax = 0;
     private int maxTimestampPosition;
     private long maxTimestampInBuffer;
+    private long minTimestampInBuffer;
     private Semaphore mutex;
     private boolean isRootAndLoadedFromTable = false;
     private String elementId;
@@ -183,6 +183,7 @@ public class IncrementalExecutor implements Executor, Snapshotable {
                         processAggregates(streamEvent);
                     } else if (!ignoreEventsOlderThanBuffer) {
                         // Incoming event is older than buffer
+                        startTimeOfAggregates = minTimestampInBuffer;
                         processAggregates(streamEvent);
                     }
                 }
@@ -200,6 +201,7 @@ public class IncrementalExecutor implements Executor, Snapshotable {
                         processAggregates(streamEvent);
                     } else if (!ignoreEventsOlderThanBuffer) {
                         // Incoming event is older than current processing event.
+                        startTimeOfAggregates = minTimestampInBuffer;
                         processAggregates(streamEvent);
                     }
                 }
@@ -316,7 +318,6 @@ public class IncrementalExecutor implements Executor, Snapshotable {
     private void dispatchBufferedAggregateEvents(long startTimeOfNewAggregates) {
         int lastDispatchIndex;
         if (currentBufferIndex == -1) {
-            ++countEventsGreaterThanCurrentMax;
             maxTimestampPosition = 0;
             maxTimestampInBuffer = startTimeOfNewAggregates;
             currentBufferIndex = 0;
@@ -324,7 +325,6 @@ public class IncrementalExecutor implements Executor, Snapshotable {
             return;
         }
         if (startTimeOfNewAggregates > maxTimestampInBuffer) {
-            ++countEventsGreaterThanCurrentMax;
             if ((startTimeOfNewAggregates - maxTimestampInBuffer) / millisecondsPerDuration >= bufferSize + 1) {
                 // Need to flush all events
                 if (isGroupBy) {
@@ -343,22 +343,48 @@ public class IncrementalExecutor implements Executor, Snapshotable {
                 lastDispatchIndex = (maxTimestampPosition
                         + (int) ((startTimeOfNewAggregates - maxTimestampInBuffer) / millisecondsPerDuration))
                         % (bufferSize + 1);
+                int minTimestampIndex = maxTimestampPosition - bufferSize;
+                if (minTimestampIndex < 0) {
+                    minTimestampIndex = (bufferSize + 1) + minTimestampIndex;
+                }
                 if (isGroupBy) {
-                    Map<String, BaseIncrementalValueStore> baseIncrementalValueGroupByStore =
-                            baseIncrementalValueGroupByStoreList.get(lastDispatchIndex);
-                    if (baseIncrementalValueGroupByStore.size() > 0) {
-                        for (int i = 0; i <= lastDispatchIndex; i++) {
-                            dispatchEvents(baseIncrementalValueGroupByStoreList.get(i));
+                    while (true) {
+                        Map<String, BaseIncrementalValueStore> baseIncrementalValueGroupByStore =
+                                baseIncrementalValueGroupByStoreList.get(minTimestampIndex);
+                        if (baseIncrementalValueGroupByStore.size() > 0) {
+                            dispatchEvents(baseIncrementalValueGroupByStore);
+                        }
+                        ++minTimestampIndex;
+                        if (minTimestampIndex > bufferSize) {
+                            minTimestampIndex = 0;
+                        }
+
+                        if (lastDispatchIndex != bufferSize) {
+                            if (minTimestampIndex == lastDispatchIndex + 1) {
+                                break;
+                            }
+                        } else if (minTimestampIndex == 0) {
+                            break;
                         }
                     }
                 } else {
-                    for (int i = 0; i <= lastDispatchIndex; i++) {
+                    while (true) {
                         BaseIncrementalValueStore aBaseIncrementalValueStore = baseIncrementalValueStoreList
-                                .get(i);
-                        if (aBaseIncrementalValueStore.isProcessed() &&
-                                aBaseIncrementalValueStore.getTimestamp() <= baseIncrementalValueStoreList
-                                .get(lastDispatchIndex).getTimestamp()) {
-                            dispatchEvent(startTimeOfNewAggregates, baseIncrementalValueStoreList.get(i));
+                                .get(minTimestampIndex);
+                        if (aBaseIncrementalValueStore.isProcessed()) {
+                            dispatchEvent(startTimeOfNewAggregates, aBaseIncrementalValueStore);
+                        }
+                        ++minTimestampIndex;
+                        if (minTimestampIndex > bufferSize) {
+                            minTimestampIndex = 0;
+                        }
+
+                        if (lastDispatchIndex != bufferSize) {
+                            if (minTimestampIndex == lastDispatchIndex + 1) {
+                                break;
+                            }
+                        } else if (minTimestampIndex == 0) {
+                            break;
                         }
                     }
                 }
@@ -379,11 +405,14 @@ public class IncrementalExecutor implements Executor, Snapshotable {
 
         } else {
             // Incoming event is older than buffer
-            if (countEventsGreaterThanCurrentMax <= bufferSize + 1) {
-                currentBufferIndex = 0;
+            int minTimestampPosition = maxTimestampPosition - bufferSize;
+            if (minTimestampPosition < 0) {
+                currentBufferIndex = (bufferSize + 1) + minTimestampPosition;
             } else {
-                currentBufferIndex = (maxTimestampPosition + 1) % (bufferSize + 1);
+                currentBufferIndex = minTimestampPosition; // This could actually only be 0 (since the largest value
+                // maxTimestampPosition can take equals the buffer size)
             }
+            minTimestampInBuffer = maxTimestampInBuffer - bufferSize * millisecondsPerDuration;
             eventOlderThanBuffer = true;
         }
     }
@@ -395,7 +424,9 @@ public class IncrementalExecutor implements Executor, Snapshotable {
             eventChunk.add(streamEvent);
             LOG.debug("Event dispatched by " + this.duration + " incremental executor: " + eventChunk.toString());
             table.addEvents(eventChunk, 1);
-            next.execute(eventChunk);
+            if (getNextExecutor() != null) {
+                next.execute(eventChunk);
+            }
         }
         cleanBaseIncrementalValueStore(startTimeOfNewAggregates, aBaseIncrementalValueStore);
     }
@@ -410,7 +441,9 @@ public class IncrementalExecutor implements Executor, Snapshotable {
             }
             LOG.debug("Event dispatched by " + this.duration + " incremental executor: " + eventChunk.toString());
             table.addEvents(eventChunk, noOfEvents);
-            next.execute(eventChunk);
+            if (getNextExecutor() != null) {
+                next.execute(eventChunk);
+            }
         }
         baseIncrementalValueGroupByStore.clear();
     }
@@ -514,9 +547,9 @@ public class IncrementalExecutor implements Executor, Snapshotable {
         state.put("StartTimeOfAggregates", startTimeOfAggregates);
         state.put("TimerStarted", timerStarted);
         state.put("EventOlderThanBuffer", eventOlderThanBuffer);
-        state.put("CountEventsGreaterThanCurrentMax", countEventsGreaterThanCurrentMax);
         state.put("MaxTimestampPosition", maxTimestampPosition);
         state.put("MaxTimestampInBuffer", maxTimestampInBuffer);
+        state.put("MinTimestampInBuffer", minTimestampInBuffer);
         state.put("IsRootAndLoadedFromTable", isRootAndLoadedFromTable);
         state.put("Mutex", mutex);
         return state;
@@ -529,9 +562,9 @@ public class IncrementalExecutor implements Executor, Snapshotable {
         startTimeOfAggregates = (long) state.get("StartTimeOfAggregates");
         timerStarted = (boolean) state.get("TimerStarted");
         eventOlderThanBuffer = (boolean) state.get("EventOlderThanBuffer");
-        countEventsGreaterThanCurrentMax = (int) state.get("CountEventsGreaterThanCurrentMax");
         maxTimestampPosition = (int) state.get("MaxTimestampPosition");
         maxTimestampInBuffer = (long) state.get("MaxTimestampInBuffer");
+        minTimestampInBuffer = (long) state.get("MinTimestampInBuffer");
         isRootAndLoadedFromTable = (boolean) state.get("IsRootAndLoadedFromTable");
         mutex = (Semaphore) state.get("Mutex");
     }
