@@ -134,6 +134,10 @@ public enum DiagnosticCode {
     ATTRIBUTE_VAL_CANNOT_REFER_NON_CONST("annotation.attribute.value.cannot.refer.non.constant"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
 
+    // Error codes related to iteration.
+    ITERABLE_NOT_SUPPORTED_COLLECTION("iterable.not.supported.collection"),
+    ITERABLE_TOO_MANY_VARIABLES("iterable.too.many.variables"),
+
     // Parser error diagnostic codes
     INVALID_TOKEN("invalid.token"),
     MISSING_TOKEN("missing.token"),
