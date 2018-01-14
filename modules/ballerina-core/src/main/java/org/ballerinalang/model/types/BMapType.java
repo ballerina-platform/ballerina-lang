@@ -80,7 +80,7 @@ public class BMapType extends BType implements BIndexedType {
 
     @Override
     public String toString() {
-        if (constraint == null) {
+        if (constraint == BTypes.typeAny) {
             return super.toString();
         } else {
             return "map" + "<" + constraint.getName() + ">";
