@@ -33,6 +33,16 @@ code --install-extension Ballerina-[version].vsix
 ~~~
 Find more info [here](https://code.visualstudio.com/docs/editor/extension-gallery#_install-from-a-vsix)
 
+## Configuring the Ballerina SDK path
+
+If you plan on using ballerina libraries other than the ones in the standard ballerina distribution you should set the `ballerina.sdk` setting to the path to the directory of extracted ballerina distribution.
+
+To get to the settings in vscode use `Ctrl` + `,` in Windows and Linux and `⌘` + `,` in macOS. [More info](https://code.visualstudio.com/docs/getstarted/settings).
+
+![set sdk](docs/set-sdk.png)
+
+vscode need to be restarted for a new configuration to take effect.
+
 ## Running the plugin for development
 
 1. Install [maven](https://maven.apache.org/install.html) and [nodejs](https://nodejs.org/en/)
