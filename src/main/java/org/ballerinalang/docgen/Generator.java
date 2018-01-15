@@ -28,6 +28,7 @@ import org.ballerinalang.docgen.model.GlobalVariableDoc;
 import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
+import org.ballerinalang.docgen.model.PrimitiveTypeDoc;
 import org.ballerinalang.docgen.model.StructDoc;
 import org.ballerinalang.docgen.model.Variable;
 import org.ballerinalang.model.tree.AnnotatableNode;
@@ -68,6 +69,8 @@ public class Generator {
      */
     public static Page generatePage(BLangPackage balPackage, List<PackageName> packages) {
         ArrayList<Documentable> documentables = new ArrayList<>();
+        String packageName = (balPackage.symbol).pkgID.name.value;
+        
         // Check for structs in the package
         if (balPackage.getStructs().size() > 0) {
             for (BLangStruct struct : balPackage.getStructs()) {
@@ -85,6 +88,15 @@ public class Generator {
                                     ((BLangUserDefinedType) langType).typeName.value : langType.toString());
                             if (typeName.equals(parentDocumentable.name)) {
                                 parentDocumentable.children.add(createDocForNode(function));
+                            } else {
+                                // Check for primitives in ballerina.builtin
+                                if ("ballerina.builtin".equals(packageName)) {
+                                    createDocForNode(typeName);
+                                    PrimitiveTypeDoc newPrimitiveType = new PrimitiveTypeDoc(typeName, "", "", new
+                                            ArrayList<>());
+                                    newPrimitiveType.children.add(createDocForNode(function));
+                                    documentables.add(newPrimitiveType);
+                                }
                             }
                         }
                     }
@@ -110,7 +122,6 @@ public class Generator {
         for (BLangVariable var : balPackage.getGlobalVariables()) {
             documentables.add(createDocForNode(var));
         }
-        String packageName = (balPackage.symbol).pkgID.name.value;
 
         //Create the links to select which page or package is active
         List<Link> links = new ArrayList<>();
