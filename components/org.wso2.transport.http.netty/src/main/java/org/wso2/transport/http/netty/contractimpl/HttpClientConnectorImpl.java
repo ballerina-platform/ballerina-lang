@@ -204,7 +204,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
         this.chunkConfig = senderConfiguration.getChunkingConfig();
         this.followRedirect = senderConfiguration.isFollowRedirect();
         this.socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(Constants.ENDPOINT_TIMEOUT);
-        this.sslConfig = senderConfiguration.getSslConfig();
+        this.sslConfig = senderConfiguration.getSSLConfig();
         this.keepAlive = senderConfiguration.isKeepAlive();
     }
 }
