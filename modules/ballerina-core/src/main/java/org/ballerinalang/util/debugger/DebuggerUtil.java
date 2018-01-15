@@ -18,7 +18,6 @@
 package org.ballerinalang.util.debugger;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVM;
 
 /**
  * Contains util methods for debugger.

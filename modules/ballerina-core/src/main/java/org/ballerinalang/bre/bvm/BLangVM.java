@@ -2402,24 +2402,15 @@ public class BLangVM {
 //            debugger.tryAcquireDebugSessionLock();
 //            debugContext.setActive(true);
 //        }
-        handleDebugOperations(debugger, debugContext);
-    }
 
-    /**
-     * Method which process debug related operations.
-     *
-     * @param debugManager  Debug manager object.
-     * @param debugContext  Current debug context object.
-     */
-    private void handleDebugOperations(Debugger debugManager, DebugContext debugContext) {
-        LineNumberInfo currentExecLine = debugManager
+        LineNumberInfo currentExecLine = debugger
                 .getLineNumber(controlStack.currentFrame.packageInfo.getPkgPath(), ip);
         /*
          Below if check stops hitting the same debug line again and again in case that single line has
          multiple instructions.
          */
         if (currentExecLine.equals(debugContext.getLastLine())
-                || debugPointCheck(currentExecLine, debugManager, debugContext)) {
+                || debugPointCheck(currentExecLine, debugger, debugContext)) {
             return;
         }
 
@@ -2431,23 +2422,24 @@ public class BLangVM {
                 debugContext.clearLastDebugLine();
                 break;
             case STEP_IN:
-                debugHit(currentExecLine, debugManager, debugContext);
+                debugHit(currentExecLine, debugger, debugContext);
                 break;
             case STEP_OVER:
                 if (controlStack.currentFrame == debugContext.getStackFrame()) {
-                    debugHit(currentExecLine, debugManager, debugContext);
+                    debugHit(currentExecLine, debugger, debugContext);
                     return;
                 }
                 /*
                  This is either,
                  1) function call (instruction of the next function)
                  2) returning to the previous function
-                 below if condition checks the 2nd possibility, and if that's the case, then it's a debug hit
+                 below if condition checks the 2nd possibility, and if that's the case, then it's a debug hit.
+                 To check that, it needs to check whether last line contains return instruction or not. (return
+                 line may have multiple instructions, ex - return v1 + v2 * v3 + v4;
                  */
-                if (code[debugContext.getLastLine().getIp()].getOpcode() == InstructionCodes.RET) {
-//                if (debugContext.getLastLine().checkIpRangeForInstructionCode(code, InstructionCodes.RET)
-//                        && controlStack.currentFrame == debugContext.getStackFrame().prevStackFrame) {
-                    debugHit(currentExecLine, debugManager, debugContext);
+                if (debugContext.getLastLine().checkIpRangeForInstructionCode(code, InstructionCodes.RET)
+                        && controlStack.currentFrame == debugContext.getStackFrame().prevStackFrame) {
+                    debugHit(currentExecLine, debugger, debugContext);
                     return;
                 }
                 /*
@@ -2461,7 +2453,7 @@ public class BLangVM {
                  Here it checks whether it has returned to the previous stack frame (that is previous function) if so,
                  then debug hit.
                  */
-                interMediateDebugCheck(currentExecLine, debugManager, debugContext);
+                interMediateDebugCheck(currentExecLine, debugger, debugContext);
                 break;
             case STEP_OUT:
                 /*
@@ -2472,15 +2464,15 @@ public class BLangVM {
                  */
                 debugContext.setCurrentCommand(DebugCommand.STEP_OUT_INTMDT);
                 debugContext.setStackFrame(debugContext.getStackFrame().prevStackFrame);
-                interMediateDebugCheck(currentExecLine, debugManager, debugContext);
+                interMediateDebugCheck(currentExecLine, debugger, debugContext);
                 break;
             case STEP_OUT_INTMDT:
-                interMediateDebugCheck(currentExecLine, debugManager, debugContext);
+                interMediateDebugCheck(currentExecLine, debugger, debugContext);
                 break;
             default:
                 logger.warn("invalid debug command, exiting from debugging");
-                debugManager.notifyExit();
-                debugManager.stopDebugging();
+                debugger.notifyExit();
+                debugger.stopDebugging();
         }
     }
 
@@ -2488,15 +2480,15 @@ public class BLangVM {
      * Inter mediate debug check to avoid switch case falling through.
      *
      * @param currentExecLine   Current execution line.
-     * @param debugManager      Debug manager object.
+     * @param debugger          Debugger object.
      * @param debugContext      Current debug context.
      */
-    private void interMediateDebugCheck(LineNumberInfo currentExecLine, Debugger debugManager,
+    private void interMediateDebugCheck(LineNumberInfo currentExecLine, Debugger debugger,
                                         DebugContext debugContext) {
         if (controlStack.currentFrame != debugContext.getStackFrame()) {
             return;
         }
-        debugHit(currentExecLine, debugManager, debugContext);
+        debugHit(currentExecLine, debugger, debugContext);
     }
 
     /**
@@ -2504,16 +2496,15 @@ public class BLangVM {
      * If it's a debug point, then notify the debugger.
      *
      * @param currentExecLine   Current execution line.
-     * @param debugManager      Debug manager object.
+     * @param debugger          Debugger object.
      * @param debugContext      Current debug context.
      * @return Boolean true if it's a debug point, false otherwise.
      */
-    private boolean debugPointCheck(LineNumberInfo currentExecLine, Debugger debugManager,
-                                    DebugContext debugContext) {
+    private boolean debugPointCheck(LineNumberInfo currentExecLine, Debugger debugger, DebugContext debugContext) {
         if (!currentExecLine.isDebugPoint()) {
             return false;
         }
-        debugHit(currentExecLine, debugManager, debugContext);
+        debugHit(currentExecLine, debugger, debugContext);
         return true;
     }
 
@@ -2522,16 +2513,14 @@ public class BLangVM {
      * And also to notify the debugger.
      *
      * @param currentExecLine   Current execution line.
-     * @param debugger      Debug manager object.
+     * @param debugger          Debugger object.
      * @param debugContext      Current debug context.
      */
-    private void debugHit(LineNumberInfo currentExecLine, Debugger debugger,
-                          DebugContext debugContext) {
-        //Between this release lock and acquire lock, some other thread can acquire the session lock as well.
-        if (code[ip].getOpcode() != InstructionCodes.WRKRECEIVE && !debugContext.isAtive()) {
-            debugger.tryAcquireDebugSessionLock();
-            debugContext.setActive(true);
+    private void debugHit(LineNumberInfo currentExecLine, Debugger debugger, DebugContext debugContext) {
+        if (!debugContext.isAtive() && !debugger.tryAcquireDebugSessionLock()) {
+            return;
         }
+        debugContext.setActive(true);
         debugContext.setLastLine(currentExecLine);
         debugContext.setStackFrame(controlStack.currentFrame);
         debugger.notifyDebugHit(controlStack.currentFrame, currentExecLine, debugContext.getThreadId());

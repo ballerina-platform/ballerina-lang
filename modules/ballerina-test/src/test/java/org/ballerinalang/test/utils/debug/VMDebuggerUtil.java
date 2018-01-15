@@ -48,7 +48,6 @@ public class VMDebuggerUtil {
         while (true) {
             debugger.getClientHandler().aquireSem();
             if (debugger.getClientHandler().isExit) {
-                Assert.assertTrue(expRes.checkDebugSuccess());
                 break;
             }
             checkDebugPointHit(expRes, debugger.getClientHandler().haltPosition, currentStep);

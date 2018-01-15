@@ -112,14 +112,10 @@ public class Debugger {
     }
 
     /**
-     * Method to acquire debug session.
+     * Method to try acquire debug session.
      */
-    public void tryAcquireDebugSessionLock() {
-        try {
-            debugSem.acquire();
-        } catch (InterruptedException e) {
-            //ignore
-        }
+    public boolean tryAcquireDebugSessionLock() {
+        return debugSem.tryAcquire();
     }
 
     /**
