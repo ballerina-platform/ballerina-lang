@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Test Util class to hold expected results.
  *
- * @since 0.95.7
+ * @since 0.96
  */
 public class ExpectedResults {
 

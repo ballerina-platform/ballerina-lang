@@ -22,7 +22,7 @@ import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 /**
  * Test Util class to hold expected worker results.
  *
- * @since 0.95.7
+ * @since 0.96
  */
 public class WorkerResults {
 

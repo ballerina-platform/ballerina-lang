@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * {@code VMDebugManager} Manages debug sessions and handle debug related actions.
  *
- * @since 0.95.7
+ * @since 0.96
  */
 public class TestDebugger extends Debugger {
     private volatile Semaphore executionSem;

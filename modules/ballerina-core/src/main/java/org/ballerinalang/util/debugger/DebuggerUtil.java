@@ -22,7 +22,7 @@ import org.ballerinalang.bre.Context;
 /**
  * Contains util methods for debugger.
  *
- * @since 0.95.7
+ * @since 0.96
  */
 public class DebuggerUtil {
     /**

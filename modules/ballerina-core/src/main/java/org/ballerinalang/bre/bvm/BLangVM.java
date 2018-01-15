@@ -2393,16 +2393,6 @@ public class BLangVM {
         }
         DebugContext debugContext = context.getDebugContext();
 
-//        if (debugContext.getCurrentCommand() == DebugCommand.RESUME && debugContext.isAtive()) {
-//            debugContext.setActive(false);
-//            debugger.releaseDebugSessionLock();
-//        }
-        //Between this release lock and acquire lock, some other thread can acquire the session lock as well.
-//        if (code[cp].getOpcode() != InstructionCodes.WRKRECEIVE && !debugContext.isAtive()) {
-//            debugger.tryAcquireDebugSessionLock();
-//            debugContext.setActive(true);
-//        }
-
         LineNumberInfo currentExecLine = debugger
                 .getLineNumber(controlStack.currentFrame.packageInfo.getPkgPath(), ip);
         /*
