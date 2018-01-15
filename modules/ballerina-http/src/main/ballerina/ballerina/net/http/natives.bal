@@ -385,12 +385,12 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	native action put (string path, Request req) (Response, HttpConnectorError);
 
 	@Description { value:"Invokes an HTTP call with the specified HTTP verb."}
-	@Param { value:"HTTPVerb: HTTP verb value" }
+	@Param { value:"httpVerb: HTTP verb value" }
 	@Param { value:"path: Resource path " }
 	@Param { value:"req: An HTTP Request struct" }
 	@Return { value:"The response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
-	native action execute (string HTTPVerb, string path, Request req) (Response, HttpConnectorError);
+	native action execute (string httpVerb, string path, Request req) (Response, HttpConnectorError);
 
 	@Description { value:"The PATCH action implementation of the HTTP Connector."}
 	@Param { value:"path: Resource path " }

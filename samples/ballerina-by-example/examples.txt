@@ -66,6 +66,7 @@ HTTPS Server/Client Connectors
 HTTP Disable Chunking
 HTTP to WebSocket Upgrade
 HTTP CORS
+HTTP Circuit Breaker
 Log API
 Function Pointers
 Lambda
