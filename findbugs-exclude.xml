@@ -5,6 +5,6 @@
     </Match>
     <Match>
         <Package name="org.ballerinalang.docgen.model"/>
-        <Package name="org.ballerinalang.docgen.Generator"/>
+        <Class name="org.ballerinalang.docgen.Generator"/>
     </Match>
 </FindBugsFilter>
