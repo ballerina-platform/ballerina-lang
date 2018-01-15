@@ -150,18 +150,13 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     }
 
     private HttpRoute getTargetRoute(HTTPCarbonMessage httpCarbonMessage) {
-        // Fetch Host
-        String host;
-        Object hostProperty = httpCarbonMessage.getProperty(Constants.HOST);
-        if (hostProperty != null && hostProperty instanceof String) {
-            host = (String) hostProperty;
-        } else {
-            host = Constants.LOCALHOST;
-            httpCarbonMessage.setProperty(Constants.HOST, Constants.LOCALHOST);
-            log.debug("Cannot find property HOST of type string, hence using localhost as the host");
-        }
+        String host = fetchHost(httpCarbonMessage);
+        int port = fetchPort(httpCarbonMessage);
 
-        // Fetch Port
+        return new HttpRoute(host, port);
+    }
+
+    private int fetchPort(HTTPCarbonMessage httpCarbonMessage) {
         int port;
         Object intProperty = httpCarbonMessage.getProperty(Constants.PORT);
         if (intProperty != null && intProperty instanceof Integer) {
@@ -171,8 +166,20 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
             httpCarbonMessage.setProperty(Constants.PORT, port);
             log.debug("Cannot find property PORT of type integer, hence using " + port);
         }
+        return port;
+    }
 
-        return new HttpRoute(host, port);
+    private String fetchHost(HTTPCarbonMessage httpCarbonMessage) {
+        String host;
+        Object hostProperty = httpCarbonMessage.getProperty(Constants.HOST);
+        if (hostProperty != null && hostProperty instanceof String) {
+            host = (String) hostProperty;
+        } else {
+            host = Constants.LOCALHOST;
+            httpCarbonMessage.setProperty(Constants.HOST, Constants.LOCALHOST);
+            log.debug("Cannot find property HOST of type string, hence using localhost as the host");
+        }
+        return host;
     }
 
     /**
