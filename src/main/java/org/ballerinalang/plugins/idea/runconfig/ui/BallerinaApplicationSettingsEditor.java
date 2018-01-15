@@ -46,6 +46,7 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
     private LabeledComponent<TextFieldWithBrowseButton> myFileField;
     private LabeledComponent<EditorTextField> myPackageField;
     private LabeledComponent<RawCommandLineEditor> myParamsField;
+    private LabeledComponent<RawCommandLineEditor> myBallerinaParamsField;
     private LabeledComponent<TextFieldWithBrowseButton> myWorkingDirectoryField;
     private LabeledComponent<ModulesComboBox> myModulesComboBox;
     private Project myProject;
@@ -69,6 +70,8 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
         myModulesComboBox.getComponent().setSelectedModule(configuration.getConfigurationModule().getModule());
 
         myParamsField.getComponent().setText(configuration.getParams());
+        myBallerinaParamsField.getComponent().setText(configuration.getBallerinaToolParams());
+
         myWorkingDirectoryField.getComponent().setText(configuration.getWorkingDirectory());
     }
 
@@ -81,12 +84,8 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
         configuration.setFilePath(myFileField.getComponent().getText());
         configuration.setModule(myModulesComboBox.getComponent().getSelectedModule());
         configuration.setParams(myParamsField.getComponent().getText());
+        configuration.setBallerinaParams(myBallerinaParamsField.getComponent().getText());
         configuration.setWorkingDirectory(myWorkingDirectoryField.getComponent().getText());
-        if (runKind == RunConfigurationKind.SERVICE) {
-            myParamsField.setVisible(false);
-        } else {
-            myParamsField.setVisible(true);
-        }
     }
 
     @NotNull
@@ -112,6 +111,9 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
         myParamsField = new LabeledComponent<>();
         myParamsField.setComponent(new RawCommandLineEditor());
 
+        myBallerinaParamsField = new LabeledComponent<>();
+        myBallerinaParamsField.setComponent(new RawCommandLineEditor());
+
         myModulesComboBox = new LabeledComponent<>();
         myModulesComboBox.setComponent(new ModulesComboBox());
     }
@@ -135,15 +137,5 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
         for (RunConfigurationKind kind : RunConfigurationKind.values()) {
             myRunKindComboBox.getComponent().addItem(kind);
         }
-        myRunKindComboBox.getComponent().addActionListener(e -> onRunKindChanged());
-    }
-
-    private void onRunKindChanged() {
-        RunConfigurationKind selectedKind = (RunConfigurationKind) myRunKindComboBox.getComponent().getSelectedItem();
-        if (selectedKind == null) {
-            selectedKind = RunConfigurationKind.MAIN;
-        }
-        boolean isMainSelected = selectedKind == RunConfigurationKind.MAIN;
-        myParamsField.setVisible(isMainSelected);
     }
 }

@@ -74,8 +74,8 @@ public class BallerinaHiddenTemplateCompletionTest extends BallerinaCompletionTe
         doCheckResult("test.bal", "function test(){ finally<caret> }", "function test(){ finally {\n    \n} }", null);
     }
 
-    public void testIterateKeyword() {
-        doCheckResult("test.bal", "function test(){ iterate<caret> }", "function test(){ iterate ( : ) {\n    \n} }",
+    public void testForEachKeyword() {
+        doCheckResult("test.bal", "function test(){ foreach<caret> }", "function test(){ foreach  in  {\n    \n} }",
                 null);
     }
 

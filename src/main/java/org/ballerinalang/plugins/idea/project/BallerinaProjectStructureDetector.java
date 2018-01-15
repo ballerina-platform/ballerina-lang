@@ -24,6 +24,7 @@ import com.intellij.ide.util.projectWizard.importSources.DetectedProjectRoot;
 import com.intellij.ide.util.projectWizard.importSources.DetectedSourceRoot;
 import com.intellij.ide.util.projectWizard.importSources.ProjectFromSourcesBuilder;
 import com.intellij.ide.util.projectWizard.importSources.ProjectStructureDetector;
+import com.intellij.openapi.util.io.FileUtil;
 import org.ballerinalang.plugins.idea.BallerinaModuleType;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkType;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +34,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
@@ -42,15 +44,20 @@ public class BallerinaProjectStructureDetector extends ProjectStructureDetector 
     @Override
     public DirectoryProcessingResult detectRoots(@NotNull File dir, @NotNull File[] children, @NotNull File base,
                                                  @NotNull List<DetectedProjectRoot> result) {
-        // There can be only one project root, it is the directory that the user selects.
-        result.add(new DetectedProjectRoot(base) {
+        // We only need to mark the root as a Ballerina project root only if there is at least one Ballerina file.
+        Pattern pattern = Pattern.compile(".*\\.bal");
+        List<File> filesByMask = FileUtil.findFilesByMask(pattern, base);
+        if (!filesByMask.isEmpty()) {
+            // There can be only one project root, it is the directory that the user selects.
+            result.add(new DetectedProjectRoot(base) {
 
-            @NotNull
-            @Override
-            public String getRootTypeName() {
-                return "Ballerina";
-            }
-        });
+                @NotNull
+                @Override
+                public String getRootTypeName() {
+                    return "Ballerina";
+                }
+            });
+        }
         return DirectoryProcessingResult.SKIP_CHILDREN;
     }
 

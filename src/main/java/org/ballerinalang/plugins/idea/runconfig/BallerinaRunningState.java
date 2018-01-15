@@ -52,18 +52,8 @@ public abstract class BallerinaRunningState<T extends BallerinaRunConfigurationB
     @Override
     protected ProcessHandler startProcess() throws ExecutionException {
         BallerinaExecutor executor = patchExecutor(createCommonExecutor());
-        // We only need to set
-        GeneralCommandLine commandLine;
-        if (myConfiguration instanceof BallerinaRunConfigurationWithMain) {
-            RunConfigurationKind runKind = ((BallerinaRunConfigurationWithMain) myConfiguration).getRunKind();
-            if (runKind == RunConfigurationKind.MAIN) {
-                commandLine = executor.withParameterString(myConfiguration.getParams()).createCommandLine();
-            } else {
-                commandLine = executor.createCommandLine();
-            }
-        } else {
-            commandLine = executor.withParameterString(myConfiguration.getParams()).createCommandLine();
-        }
+        // We only need to set parameters.
+        GeneralCommandLine commandLine = executor.withParameterString(myConfiguration.getParams()).createCommandLine();
         KillableColoredProcessHandler handler = new KillableColoredProcessHandler(commandLine, true);
         ProcessTerminatedListener.attach(handler);
         return handler;

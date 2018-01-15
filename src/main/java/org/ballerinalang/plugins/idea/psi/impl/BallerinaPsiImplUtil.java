@@ -72,6 +72,7 @@ import org.ballerinalang.plugins.idea.psi.EnumDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ForEachStatementNode;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationNode;
@@ -1039,6 +1040,24 @@ public class BallerinaPsiImplUtil {
             }
         }
 
+        if (scope instanceof ForEachStatementNode) {
+            VariableReferenceListNode variableReferenceListNode = PsiTreeUtil.getChildOfType(scope,
+                    VariableReferenceListNode.class);
+            if (variableReferenceListNode != null) {
+                List<VariableReferenceNode> variableReferenceNodes =
+                        PsiTreeUtil.getChildrenOfTypeAsList(variableReferenceListNode, VariableReferenceNode.class);
+                for (VariableReferenceNode variableReferenceNode : variableReferenceNodes) {
+                    if (variableReferenceNode != null) {
+                        IdentifierPSINode identifier = PsiTreeUtil.findChildOfType(variableReferenceNode,
+                                IdentifierPSINode.class);
+                        if (identifier != null) {
+                            results.add(identifier);
+                        }
+                    }
+                }
+            }
+        }
+
         Collection<AssignmentStatementNode> assignmentStatementNodes = PsiTreeUtil.findChildrenOfType(scope,
                 AssignmentStatementNode.class);
         for (AssignmentStatementNode assignmentStatementNode : assignmentStatementNodes) {
@@ -1218,7 +1237,7 @@ public class BallerinaPsiImplUtil {
         for (VariableReferenceNode variableReferenceNode : variableReferenceNodes) {
 
             IdentifierPSINode identifier = PsiTreeUtil.findChildOfType(variableReferenceNode, IdentifierPSINode.class);
-            if (identifier != null) {
+            if (identifier != null && !"_".equals(identifier.getText())) {
                 results.add(identifier);
             }
         }
