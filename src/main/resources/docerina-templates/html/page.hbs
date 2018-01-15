@@ -1,0 +1,324 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Ballerina API Documentation</title>
+    <meta charset="utf-8"/>
+    <meta id="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <link rel="stylesheet" href="docerina-theme/css/font-ballerina/css/font-ballerina.css">
+</head>
+<body>
+<div id="packageList">
+    <header id="header">
+        <a href="index.html"><strong>Ballerina</strong> API Documentation</a>
+    </header>
+    <h3> Packages: </h3>
+    {{#each links}}
+        <ul>
+            <li>
+                {{#if active}}
+                    <a> {{packageName}}</a>
+                {{else}}
+                    <a href="{{packageName}}.html"> {{packageName}}</a>
+                {{/if}}
+            </li>
+        </ul>
+    {{/each}}
+</div>
+<div id="sidebar">
+    <h1> <span class="opener">{{packageName}}</span> </h1>
+    <ul>
+        {{#each constructs}}
+            <li>
+                <a href="#{{name}}">
+                    <span class={{icon}}> </span>
+                    {{name}}
+                    {{#if isFunction}}
+                        ( {{join parameters " , "}} )
+                        {{#if returnParams}}
+                            ( {{join returnParams " , "}} )
+                        {{/if}}
+                    {{/if}}
+                    {{#if isConnector}}
+                        ({{#each parameters}}{{dataType}} {{name}}{{#unless @last}},{{/unless}}{{/each}})
+                    {{/if}}
+                </a>
+            </li>
+            {{#each children}}
+                <ul>
+                    <li>
+                        <a href="#{{name}}">
+                            <span class={{icon}}> </span>
+                            {{name}}
+                            ( {{join parameters " , "}} )
+                            {{#if returnParams}}
+                                ( {{join returnParams " , "}} )
+                            {{/if}}
+                        </a>
+                    </li>
+                </ul>
+            {{/each}}
+        {{/each}}
+    </ul>
+</div>
+<!-- Main Content on the right-->
+<div id="content">
+    <h1> {{packageName}} </h1>
+    {{#each constructs}}
+        <!-- Function -->
+        {{#if isFunction}}
+            <h2 id={{name}}><span class={{icon}}> </span> {{name}}
+                ( {{join parameters " , "}} )
+                {{#if returnParams}}
+                    ( {{join returnParams " , "}} )
+                {{/if}}
+            </h2>
+            <p>{{description}}</p>
+            {{#if parameters}}
+                <p><b>Parameters:</b>
+                <table border="1">
+                    <tr>
+                        <th>Parameter Name</th>
+                        <th>Data Type</th>
+                        <th>Description</th>
+                    </tr>
+                    {{#each parameters}}
+                        <tr>
+                            <td>{{name}}</td>
+                            <td>{{dataType}}</td>
+                            <td>{{description}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+                </p>
+            {{/if}}
+            {{#if bLangNode.retParams}}
+                <p><b>Return Parameters:</b>
+                <table border="1">
+                    <tr>
+                        <th>Return Variable</th>
+                        <th>Data Type</th>
+                        <th>Description</th>
+                    </tr>
+                    {{#each returnParams}}
+                        <tr>
+                            <td>{{name}}</td>
+                            <td> {{dataType}} </td>
+                            <td>{{description}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+                </p>
+            {{/if}}
+        {{/if}}
+        <!-- Struct-binded functions grouped together -->
+        {{#if isStruct}}
+            <h2 id={{name}}><span class={{icon}}> </span> {{name}} </h2>
+            <p>{{description}}</p>
+            {{#if fields}}
+                <p><b> Fields: </b>
+                <table border="1">
+                    <tr>
+                        <th>Field Name</th>
+                        <th>Data Type</th>
+                        <th>Description</th>
+                    </tr>
+                    {{#each fields}}
+                        <tr>
+                            <td>{{name}}</td>
+                            <td>{{dataType}}</td>
+                            <td>{{description}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+                </p>
+            {{/if}}
+            <ul>
+                {{#each children}}
+                    <li>
+                        <h3 id={{name}}> <span class={{icon}}> {{name}}
+                            ( {{join parameters " , "}} )
+                            {{#if returnParams}}
+                                ( {{join returnParams " , "}} )
+                            {{/if}}
+                        </h3>
+                        <p>{{description}}</p>
+                        {{#if parameters}}
+                            <p><b>Parameters:</b>
+                            <table border="1">
+                                <tr>
+                                    <th>Parameter Name</th>
+                                    <th>Data Type</th>
+                                    <th>Description</th>
+                                </tr>
+                                {{#each parameters}}
+                                    <tr>
+                                        <td>{{name}}</td>
+                                        <td>{{dataType}}</td>
+                                        <td>{{description}}</td>
+                                    </tr>
+                                {{/each}}
+                            </table>
+                            </p>
+                        {{/if}}
+                        {{#if returnParams}}
+                            <p><b>Return Parameters:</b>
+                            <table border="1">
+                                <tr>
+                                    <th>Return Variable</th>
+                                    <th>Data Type</th>
+                                    <th>Description</th>
+                                </tr>
+                                {{#each returnParams}}
+                                    <tr>
+                                        <td>{{name}}</td>
+                                        <td>{{dataType}}</td>
+                                        <td>{{description}}</td>
+                                    </tr>
+                                {{/each}}
+                            </table>
+                            </p>
+                        {{/if}}
+                    </li>
+                {{/each}}
+            </ul>
+        {{/if}}
+        <!-- Connectors and its actions -->
+        {{#if isConnector}}
+            <h2 id={{name}}><span class={{icon}}> </span> {{name}} ( {{join parameters " , "}} )</h2>
+            <p>{{description}}</p>
+            {{#if parameters}}
+                <p><b>Parameters:</b>
+                <table border="1">
+                    <tr>
+                        <th>Parameter Name</th>
+                        <th>Data Type</th>
+                        <th>Description</th>
+                    </tr>
+                    {{#each parameters}}
+                        <tr>
+                            <td>{{name}}</td>
+                            <td>{{dataType}}</td>
+                            <td>{{description}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+                </p>
+            {{/if}}
+            <ul>
+                {{#if children}}
+                    <h4>Actions:</h4>
+                {{/if}}
+                {{#each children}}
+                    <li>
+                        <h3 id={{name}}><span class={{icon}}> </span>
+                            {{name}}
+                            ( {{join parameters " , "}} )
+                            {{#if returnParams}}
+                                ( {{join returnParams " , "}} )
+                            {{/if}}
+                        </h3>
+                        <p>{{description}}</p>
+                        {{#if parameters}}
+                            <p><b>Parameters:</b>
+                            <table border="1">
+                                <tr>
+                                    <th>Parameter Name</th>
+                                    <th>Data Type</th>
+                                    <th>Description</th>
+                                </tr>
+                                {{#each parameters}}
+                                    <tr>
+                                        <td>{{name}}</td>
+                                        <td>{{dataType}}</td>
+                                        <td>{{description}}</td>
+                                    </tr>
+                                {{/each}}
+                            </table>
+                            </p>
+                        {{/if}}
+                        {{#if returnParams}}
+                            <p><b>Return Parameters:</b>
+                            <table border="1">
+                                <tr>
+                                    <th>Return Variable</th>
+                                    <th>Data Type</th>
+                                    <th>Description</th>
+                                </tr>
+                                {{#each returnParams}}
+                                    <tr>
+                                        <td>{{name}}</td>
+                                        <td>{{dataType}}</td>
+                                        <td>{{description}}</td>
+                                    </tr>
+                                {{/each}}
+                            </table>
+                            </p>
+                        {{/if}}
+                    </li>
+                {{/each}}
+            </ul>
+        {{/if}}
+        <!-- Enums-->
+        {{#if isEnum}}
+            <h2 id={{name}}><span class={{icon}}> </span> {{name}} </h2>
+            <p>{{description}}</p>
+            {{#if enumerators}}
+                <p><b>Enumerators:</b>
+                <table border="1">
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                    </tr>
+                    {{#each enumerators}}
+                        <tr>
+                            <td>{{name}}</td>
+                            <td>{{description}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+                </p>
+            {{/if}}
+        {{/if}}
+        <!-- Annotations-->
+        {{#if isAnnotation}}
+            <h2 id={{name}}><span class={{icon}}> </span> {{name}} </h2>
+            <p>{{description}}</p>
+            {{#if attributes}}
+                <p><b>Attributes:</b>
+                <table border="1">
+                    <tr>
+                        <th>Attribute Name</th>
+                        <th>Data Type</th>
+                        <th>Description</th>
+                    </tr>
+                    {{#each attributes}}
+                        <tr>
+                            <td>{{name}}</td>
+                            <th>{{dataType}}</th>
+                            <td>{{description}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+                </p>
+            {{/if}}
+        {{/if}}
+        <!-- Global Variables-->
+        {{#if isGlobalVariable}}
+            <h2 id={{name}}><span class={{icon}}> </span> {{name}} </h2>
+            <table border="1">
+                <tr>
+                    <th>Attribute Name</th>
+                    <th>Data Type</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>{{name}}</td>
+                    <th>{{dataType}}</th>
+                    <td>{{description}}</td>
+                </tr>
+            </table>
+        {{/if}}
+    {{/each}}
+</div>
+</body>
+</html>
