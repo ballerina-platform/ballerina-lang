@@ -156,7 +156,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.95.8-SNAPSHOT</ballerina.version>
+        <ballerina.version>${project.version}</ballerina.version>
         <msf4j.examples.version>2.1.0</msf4j.examples.version>
         <antlr.maven.plugin.version>4.5.1</antlr.maven.plugin.version>
         <maven.checkstyleplugin.excludes>**/parser/*,**/${native.constructs.provider.class}.java</maven.checkstyleplugin.excludes>
