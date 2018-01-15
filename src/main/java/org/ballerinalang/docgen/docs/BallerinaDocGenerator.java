@@ -112,11 +112,13 @@ public class BallerinaDocGenerator {
                     Path parentDir = sourceFilePath.getParent();
                     Path fileName = sourceFilePath.getFileName();
 
-                    if (parentDir == null || fileName == null) {
+                    if (fileName == null) {
                         log.warn("Skipping the source generation for invalid path: " + sourceFilePath);
                         continue;
                     }
-
+                    if (parentDir == null) {
+                        parentDir = Paths.get(".");
+                    }
                     docsMap = generatePackageDocsFromBallerina(parentDir.toString(), fileName, packageFilter, isNative);
                 } else {
                     Path dirPath = Paths.get(source);
