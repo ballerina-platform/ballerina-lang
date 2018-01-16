@@ -53,6 +53,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Generates the Page objects for bal packages
@@ -88,15 +89,6 @@ public class Generator {
                                     ((BLangUserDefinedType) langType).typeName.value : langType.toString());
                             if (typeName.equals(parentDocumentable.name)) {
                                 parentDocumentable.children.add(createDocForNode(function));
-                            } else {
-                                // Check for primitives in ballerina.builtin
-                                if ("ballerina.builtin".equals(packageName)) {
-                                    createDocForNode(typeName);
-                                    PrimitiveTypeDoc newPrimitiveType = new PrimitiveTypeDoc(typeName, "", "", new
-                                            ArrayList<>());
-                                    newPrimitiveType.children.add(createDocForNode(function));
-                                    documentables.add(newPrimitiveType);
-                                }
                             }
                         }
                     }
@@ -122,20 +114,80 @@ public class Generator {
         for (BLangVariable var : balPackage.getGlobalVariables()) {
             documentables.add(createDocForNode(var));
         }
-
-        //Create the links to select which page or package is active
+        
+        // Create the links to select which page or package is active
+        List<Link> links = createPackageLinks(balPackage, packages, null);
+    
+        return new Page(packageName, documentables, links);
+    }
+    
+    public static Page generateDocsForPrimitives(BLangPackage balPackage, List<PackageName> packages) {
+        ArrayList<Documentable> documentables = new ArrayList<>();
+        
+        // Check for functions in the package
+        if (balPackage.getFunctions().size() > 0) {
+            for (BLangFunction function : balPackage.getFunctions()) {
+                if (function.getReceiver() != null) {
+                    TypeNode langType = function.getReceiver().getTypeNode();
+                    if (!(langType instanceof BLangUserDefinedType)) {
+                        // Check for primitives in ballerina.builtin
+                        Optional<PrimitiveTypeDoc> existingPrimitiveType = documentables
+                                .stream()
+                                .filter((doc) -> doc instanceof PrimitiveTypeDoc &&
+                                                 (((PrimitiveTypeDoc) doc)).name.equals(langType.toString()))
+                                .map(doc -> (PrimitiveTypeDoc) doc)
+                                .findFirst();
+                        
+                        PrimitiveTypeDoc primitiveTypeDoc;
+                        if (existingPrimitiveType.isPresent()) {
+                            primitiveTypeDoc = existingPrimitiveType.get();
+                        } else {
+                            primitiveTypeDoc = new PrimitiveTypeDoc(langType.toString(), "fw-variable", "",
+                                                                                                    new ArrayList<>());
+                            documentables.add(primitiveTypeDoc);
+                        }
+                        
+                        primitiveTypeDoc.children.add(createDocForNode(function));
+                    }
+                }
+            }
+        }
+    
+        // Create the links to select which page or package is active
+        List<Link> links = createPackageLinks(balPackage, packages, "Primitive-Types");
+        
+        return new Page("Primitive-Types", documentables, links);
+    }
+    
+    private static List<Link> createPackageLinks(BLangPackage balPackage, List<PackageName> packages,
+                                                                                            String pageNameOverride) {
         List<Link> links = new ArrayList<>();
+        String pageName = null != pageNameOverride ? pageNameOverride : (balPackage.symbol).pkgID.name.value;
+//
+//        Optional<PackageName> ballerinaBuiltinPackage = packages.stream()
+//                .filter(p -> p.name.equals("ballerina.builtin"))
+//                .findFirst();
+    
+//        if (ballerinaBuiltinPackage.isPresent()) {
+//            PackageName primitivePackageName = new PackageName("", "Primitive-Types");
+//            if ("Primitive-Types".equals(pageName)) {
+//                links.add(new Link(primitivePackageName, true));
+//            } else {
+//                links.add(new Link(primitivePackageName, false));
+//            }
+//        }
+    
         for (PackageName pkg : packages) {
-            if (pkg.getName().equals(packageName)) {
+            if (pkg.getName().equals(pageName)) {
                 links.add(new Link(pkg, true));
             } else {
                 links.add(new Link(pkg, false));
             }
         }
-        Page page = new Page(packageName, documentables, links);
-        return page;
+        
+        return links;
     }
-
+    
     /**
      * Create documentation for enums
      * @param enumNode
@@ -263,7 +315,7 @@ public class Generator {
         String structName = structNode.getName().value;
         // Check if its an anonymus struct
         if (structName.contains(ANONYMOUS_STRUCT)) {
-            structName = "Anonymus Struct";
+            structName = "Anonymous Struct";
         }
         List<Variable> fields = new ArrayList<>();
 

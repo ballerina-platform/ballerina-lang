@@ -154,6 +154,9 @@ public class BallerinaDocGenerator {
                 Collections.sort(packageNames);
     
                 List<PackageName> packageNameList = PackageName.convertList(packageNames);
+                if (packageNames.contains("ballerina.builtin")) {
+                    packageNameList.add(0, new PackageName("", "Primitive-Types"));
+                }
     
                 //Generate pages for the packages
                 String packageTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TEMPLATE_NAME_KEY,
@@ -176,9 +179,18 @@ public class BallerinaDocGenerator {
                                         Comparator.comparing(
                                                 a -> a.getName().getValue())));
                     }
+    
+                    String packagePath = refinePackagePath(bLangPackage);
+                    
                     Page page = Generator.generatePage(bLangPackage, packageNameList);
-                    String filePath = output + File.separator + refinePackagePath(bLangPackage) + HTML;
+                    String filePath = output + File.separator + packagePath + HTML;
                     Writer.writeHtmlDocument(page, packageTemplateName, filePath);
+    
+                    if ("ballerina.builtin".equals(packagePath)) {
+                        Page primitivesPage = Generator.generateDocsForPrimitives(bLangPackage, packageNameList);
+                        String primitivesFilePath = output + File.separator + "Primitive-types" + HTML;
+                        Writer.writeHtmlDocument(primitivesPage, packageTemplateName, primitivesFilePath);
+                    }
                 }
                 //Generate the index file with the list of all packages
                 String indexTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TEMPLATE_NAME_KEY,
