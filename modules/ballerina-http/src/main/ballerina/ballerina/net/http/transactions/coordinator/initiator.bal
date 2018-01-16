@@ -1,20 +1,6 @@
-package ballerina.net.http.transactions.coordinator;
+package transactions.coordinator;
 
 import ballerina.util;
-import ballerina.math;
-
-//public function main (string[] args) {
-//    println("Initiating transaction...");
-//
-//    json txnContext = beginTransaction();
-//
-//    callBusinessService(txnContext);
-//    _ = commitTransaction(txnContext);
-//    //_ = abortTransaction(txnContext);
-//    //sleep(1000);
-//}
-
-
 
 struct UpdateStockQuoteRequest {
     string symbol;
@@ -31,7 +17,7 @@ function beginTransaction () returns (json) {
     var res = createTransactionContext(req);
     var payload = res.getJsonPayload();
     return payload;
-//}
+}
 //
 //function callBusinessService (json txnContext) {
 //    endpoint<BizClient> participantEP {
@@ -48,17 +34,20 @@ function beginTransaction () returns (json) {
 //    println(j);
 //}
 //
-//function commitTransaction (json txnContext) returns (json) {
-//    endpoint<TransactionClient> coordinatorEP {
-//        create TransactionClient();
-//    }
-//    var txnId, _ = (string) txnContext["transactionId"];
-//    CommitRequest commitReq = {transactionId:txnId};
-//    var j, e = coordinatorEP.commitTransaction(commitReq);
-//    println(e);
-//    println(j);
-//    return j;
-//}
+function commitTransaction (json txnContext) returns (json) {
+    var txnId, _ = (string) txnContext["transactionId"];
+    CommitRequest commitReq = {transactionId:txnId};
+    //var j, e = coordinatorEP.commitTransaction(commitReq);
+    var j, _ = <json>commitReq;
+    http:Request req = {};
+    req.setJsonPayload(j);
+    //Think of returning error
+    var res = commitTransactionFunction(req);
+    json jsonRes = res.getJsonPayload();
+
+    println(jsonRes);
+    return jsonRes;
+}
 //
 //function abortTransaction (json txnContext) returns (json) {
 //    endpoint<TransactionClient> coordinatorEP {
@@ -70,4 +59,4 @@ function beginTransaction () returns (json) {
 //    println(e);
 //    println(j);
 //    return j;
-}
+//}

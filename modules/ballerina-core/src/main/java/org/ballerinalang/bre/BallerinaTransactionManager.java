@@ -39,7 +39,7 @@ public class BallerinaTransactionManager {
     private int transactionLevel; //level of the nested transaction
     private Map<Integer, Integer> allowedTransactionRetryCounts;
     private Map<Integer, Integer> currentTransactionRetryCounts;
-    private int transactionId;
+    private MicroTransactionContext microTransactionContext;
 
     public BallerinaTransactionManager() {
         this.transactionContextStore = new HashMap<>();
@@ -97,15 +97,18 @@ public class BallerinaTransactionManager {
     }
 
     public void commitTransactionBlock() {
+        microTransactionContext.commit();
         if (transactionLevel == 1) {
             commitNonXAConnections();
             closeAllConnections();
             commitXATransaction();
             doneTransactionContexts();
         }
+
     }
 
     public void rollbackTransactionBlock() {
+        microTransactionContext.abort();
         if (transactionLevel == 1) {
             rollbackNonXAConnections();
             rollbackXATransaction();
@@ -213,11 +216,11 @@ public class BallerinaTransactionManager {
         transactionContextStore.clear();
     }
 
-    public void setTransactionId(int transactionId) {
-        this.transactionId = transactionId;
+    public MicroTransactionContext getMicroTransactionContext() {
+        return microTransactionContext;
     }
 
-    public int getTransactionId() {
-        return transactionId;
+    public void setMicroTransactionContext(MicroTransactionContext microTransactionContext) {
+        this.microTransactionContext = microTransactionContext;
     }
 }

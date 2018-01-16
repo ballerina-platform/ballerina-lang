@@ -1,4 +1,4 @@
-package ballerina.net.http.transactions.coordinator;
+package transactions.coordinator;
 
 import ballerina.net.http;
 import ballerina.log;
@@ -78,6 +78,8 @@ public function createTransactionContext(http:Request req) (http:Response) {
             var resPayload, _ = <json>context;
             res.setJsonPayload(resPayload);
             log:printInfo("Created transaction: " + txnId);
+            println("transactions------initiator---------------------");
+            println(transactions);
         }
     }
     return res;

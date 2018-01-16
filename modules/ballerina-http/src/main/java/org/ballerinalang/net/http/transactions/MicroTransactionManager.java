@@ -18,59 +18,82 @@
 
 package org.ballerinalang.net.http.transactions;
 
+import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.Constants;
-import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * {@code MicroTransactionManager} represents the request of create-context.
  *
- *  @since 0.95
+ *  @since 0.96.0
  */
 public class MicroTransactionManager {
 
-    public static void registerWithCoordinator(Context context, HTTPCarbonMessage httpRequestMsg) {
-        CompileResult txnManager;
-        BValue[] txnContext;
-        if (!isCoordinatorExist(context)) {
-            txnManager = BCompileUtil
+    private ProgramFile txnCoordinatorProgFile = null;
+    private static MicroTransactionManager instance = new MicroTransactionManager();
+    private Context balContext;
+
+
+    public static MicroTransactionManager getInstance() {
+        return instance;
+    }
+
+    public void initAndRegister(Context context, HTTPCarbonMessage httpRequestMsg) {
+
+        BValue txnContext;
+        BallerinaTransactionManager balTransactionManager = context.getBallerinaTransactionManager();
+
+        //init coordinator service
+        if (getTxnCoordinatorProgFile() == null) {
+            //TODO:lock
+            CompileResult compileResult = BCompileUtil
                     .compileInternalPackage("ballerina/net/http/", "transactions.coordinator");
-            LauncherUtils.runInternalServices(txnManager.getProgFile(), context);
-            context.setProperty(Constants.TXN_MANAGER, txnManager);
-        } else {
-            txnManager = (CompileResult) context.getProperty(Constants.TXN_MANAGER);
+            BRunUtil.invokePackageInit(compileResult);
+
+            if (compileResult.getProgFile() == null) {
+                throw new BallerinaException("Failed to deploy transaction coordinator service");
+            }
+            txnCoordinatorProgFile = compileResult.getProgFile();
+            balContext = compileResult.getContext();
+            LauncherUtils.runInternalServices(getTxnCoordinatorProgFile(), context);
+            //release
         }
 
-        if (!isTxnContextExist(context)) {
-            txnContext = BLangFunctions.invokeNew(txnManager.getProgFile(), "transactions.coordinator", "beginTransaction");
-            context.setProperty(Constants.TXN_ID, context.getBallerinaTransactionManager().getTransactionId());
-            context.setProperty(Constants.TXN_CONTEXT, txnContext);
+        //register initiator
+        if (true) {
+            BValue[] resultValues = BRunUtil.invokeStateful(getTxnCoordinatorProgFile(), "transactions.coordinator"
+                    , "beginTransaction", getBalContext());
+            balTransactionManager.setMicroTransactionContext(new TransactionContext(txnContext = resultValues[0]));
         } else {
-            txnContext = (BValue[]) context.getProperty(Constants.TXN_CONTEXT);
+            txnContext = ((TransactionContext)balTransactionManager.getMicroTransactionContext()).getBalContext();
         }
+
         //set transaction headers to transport message
-        if (txnContext[0] instanceof BJSON) {
-            JsonNode jsonNode = ((BJSON) txnContext[0]).value();
-            httpRequestMsg.setHeader(Constants.X_XID_HEADER, jsonNode.get(Constants.X_XID_JSON_FIELD).asText());
-            httpRequestMsg.setHeader(Constants.X_REGISTER_AT_URL_HEADER, jsonNode.get(Constants.X_REGISTER_AT_URL_JSON_FIELD).asText());
+        if (!(txnContext instanceof BJSON)) {
+            throw new BallerinaException("Invalid transaction context: Failed to set transaction headers");
         }
+        JsonNode jsonNode = ((BJSON) txnContext).value();
+        httpRequestMsg.setHeader(Constants.X_XID_HEADER, jsonNode.get(Constants.X_XID_JSON_FIELD).asText());
+        httpRequestMsg.setHeader(Constants.X_REGISTER_AT_URL_HEADER, jsonNode.get(Constants.X_REGISTER_AT_URL_JSON_FIELD).asText());
+
     }
 
 
-    private static boolean isCoordinatorExist(Context context) {
-        return context.getProperty(Constants.TXN_MANAGER) != null;
+    public ProgramFile getTxnCoordinatorProgFile() {
+        return txnCoordinatorProgFile;
     }
 
-    private static boolean isTxnContextExist(Context context) {
-        Object txnId = context.getProperty(Constants.TXN_ID);
-        return txnId != null && context.getProperty(Constants.TXN_CONTEXT) != null
-                && txnId.equals(context.getBallerinaTransactionManager().getTransactionId());
+    public Context getBalContext() {
+        return balContext;
     }
 }

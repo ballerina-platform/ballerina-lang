@@ -22,15 +22,9 @@ import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpConnectionManager;
@@ -41,7 +35,6 @@ import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
@@ -72,7 +65,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         // Extract Argument values
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String path = getStringArgument(context, 0);
-        BStruct requestStruct  = ((BStruct) getRefArgument(context, 1));
+        BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
         HTTPCarbonMessage requestMsg = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
 
@@ -82,7 +75,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     }
 
     protected void prepareRequest(BConnector connector, String path, HTTPCarbonMessage outboundRequest,
-            BStruct requestStruct) {
+                                  BStruct requestStruct) {
 
         validateParams(connector);
         HttpUtil.populateOutboundRequest(requestStruct, outboundRequest);
@@ -192,7 +185,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     context.getProperty(Constants.SRC_HANDLER));
         }
         if (context.isInTransaction()) {
-            MicroTransactionManager.registerWithCoordinator(context, httpRequestMsg);
+            MicroTransactionManager.getInstance().initAndRegister(context, httpRequestMsg);
         }
         executeNonBlocking(context, httpRequestMsg, httpClientConnectorLister);
         return ballerinaFuture;
