@@ -18,13 +18,13 @@
 
     <parent>
         <groupId>org.ballerinalang</groupId>
-        <artifactId>ballerina-composer-parent</artifactId>
+        <artifactId>composer-server-parent</artifactId>
         <version>0.95.1-SNAPSHOT</version>
-        <relativePath>../../../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>workspace-service</artifactId>
+    <artifactId>composer-workspace-service</artifactId>
     <name>Ballerina Composer - Workspace Service</name>
     <url>http://ballerinalang.org</url>
 

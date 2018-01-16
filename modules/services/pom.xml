@@ -10,5 +10,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>server-launcher</artifactId>
+    <artifactId>composer-services-parent</artifactId>
+    <name>Ballerina Composer - Services Parent</name>
+    <modules>
+        <module>workspace-service</module>
+    </modules>
+
 </project>
