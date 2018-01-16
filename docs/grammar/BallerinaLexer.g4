@@ -59,7 +59,6 @@ CATCH       : 'catch' ;
 FINALLY     : 'finally' ;
 THROW       : 'throw' ;
 RETURN      : 'return' ;
-REPLY       : 'reply' ;
 TRANSACTION : 'transaction' ;
 ABORT       : 'abort' ;
 FAILED      : 'failed' ;
@@ -69,6 +68,7 @@ TYPEOF      : 'typeof' ;
 WITH        : 'with' ;
 BIND        : 'bind' ;
 IN          : 'in' ;
+LOCK        : 'lock' ;
 
 // Separators
 
