@@ -262,7 +262,6 @@ td, th{
 
 .constructs-ul > li.active > a {
     text-decoration: underline;
-    line-height: 1.8;
 }
 
 .construct-inner-items-ul {
@@ -273,6 +272,10 @@ td, th{
 .construct-inner-items-ul > li > a {
     color: #555 !important;
     line-height: 1.8;
+}
+
+.construct-inner-items-ul > li.active > a {
+    text-decoration: underline;
 }
 
 .construct-icon {
