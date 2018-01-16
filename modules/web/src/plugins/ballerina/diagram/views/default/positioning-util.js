@@ -1442,18 +1442,23 @@ class PositioningUtil {
             let finallyY;
             if (catchBlocks.length > 0) {
                 finallyY = catchBlocks[0].viewState.bBox.y + catchBlocks[0].viewState.bBox.h;
+            } else {
+                finallyY = node.viewState.components['statement-box'].y + node.viewState.components['statement-box'].h;
             }
 
             // Position the finally block
+            const finallyViewState = node.viewState.components['finally-block'];
             finallyBody.viewState.bBox.x = finallyX;
-            console.log('sizing finally in try');
-            const finallyStatementStartY = finallyY + finallyBody.viewState.components['block-header'].h;
-            finallyBody.viewState.components['statement-box'].y = finallyStatementStartY;
-            finallyBody.viewState.components['statement-box'].x = finallyX;
-            finallyBody.viewState.bBox.y = finallyY; // finallyStatementStartY;
+            const finallyStatementBBoxY = finallyY + finallyViewState.components['block-header'].h;
+            finallyBody.viewState.bBox.y = finallyStatementBBoxY;
             this.positionBlockNode(finallyBody);
-            // reset finally body y after statements are positioned.
-            // finallyBody.viewState.bBox.y = finallyY;
+            finallyViewState.components['statement-box'].y = finallyStatementBBoxY;
+            finallyViewState.components['statement-box'].x = finallyX;
+
+            // since finally is a block node, the positioning of the finally title has to be done within try block
+            // rendering will also be done in try decorator
+            node.viewState.components['finally-block'].x = finallyX;
+            node.viewState.components['finally-block'].y = finallyY;
         }
     }
 

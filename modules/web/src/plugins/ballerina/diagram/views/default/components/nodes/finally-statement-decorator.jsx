@@ -190,7 +190,7 @@ class FinallyStatementDecorator extends React.Component {
         const { designer } = this.context;
 
         const model = this.props.model;
-        const viewState = model.viewState;
+        const viewState = bBox;
         const titleH = this.context.designer.config.compoundStatement.heading.height;
         const titleW = this.context.designer.config.compoundStatement.heading.width;
         const statementBBox = viewState.components['statement-box'];
@@ -308,24 +308,6 @@ class FinallyStatementDecorator extends React.Component {
                     onJumptoCodeLine={() => this.onJumpToCodeLine()}
                     onBreakpointClick={() => this.props.onBreakpointClick()}
                     disableButtons={this.props.disableButtons}
-                />
-                <rect
-                    x={bBox.x}
-                    y={bBox.y}
-                    width={bBox.w}
-                    height={bBox.h}
-                    stroke='green'
-                    strokeWidth='3'
-                    fillOpacity='0'
-                />
-                <rect
-                    x={statementBBox.x}
-                    y={statementBBox.y}
-                    width={statementBBox.w}
-                    height={statementBBox.h}
-                    stroke='yellow'
-                    fillOpacity='0'
-                    strokeWidth='2'
                 />
             </g>);
     }

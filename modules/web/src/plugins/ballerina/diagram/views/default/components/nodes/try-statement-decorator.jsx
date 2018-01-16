@@ -326,135 +326,76 @@ class TryStatementDecorator extends React.Component {
                 />
                 {(() => {
                     if (model.catchBlocks.length > 0) {
-                        const connectorLineComp = (
-                            <ArrowDecorator
-                                start={{
-                                    x: p4X,
-                                    y: bBox.y + bBox.h,
-                                }}
-                                end={{
-                                    x: bBox.x,
-                                    y: bBox.y + bBox.h,
-                                }}
-                                classNameArrow='flowchart-action-arrow'
-                                classNameArrowHead='flowchart-action-arrow-head'
-                            />);
                         let connectorEdgeTopX = p4X;
                         let connectorEdgeBottomX = p4X;
+                        let connectorEdgeBottomY = model.catchBlocks[0].viewState.bBox.y +
+                            model.catchBlocks[0].viewState.bBox.h;
+                        if (finallyStmt) {
+                            connectorEdgeBottomY +=
+                                (model.viewState.components['finally-block'].components['block-header'].h
+                                    - designer.config.statement.gutter.h);
+                        }
                         const catchComponents = model.catchBlocks.map((catchStmt) => {
                             const catchComp = (
-                                <CatchStatementDecorator
-                                    bBox={catchStmt.viewState.bBox}
-                                    model={catchStmt}
-                                    body={catchStmt}
-                                    connectorEdgeX={{
-                                        top: connectorEdgeTopX,
-                                        bottom: connectorEdgeBottomX,
-                                    }}
-                                />);
+                                <g>
+                                    <CatchStatementDecorator
+                                        bBox={catchStmt.viewState.bBox}
+                                        model={catchStmt}
+                                        body={catchStmt}
+                                        connectorEdgeX={{
+                                            top: connectorEdgeTopX,
+                                            bottom: connectorEdgeBottomX,
+                                        }}
+                                    />
+                                    <line
+                                        x1={catchStmt.viewState.bBox.x}
+                                        y1={connectorEdgeBottomY}
+                                        x2={connectorEdgeBottomX}
+                                        y2={connectorEdgeBottomY}
+                                        className='flowchart-background-empty-rect'
+                                    />
+                                    <line
+                                        x1={catchStmt.viewState.bBox.x}
+                                        y1={catchStmt.viewState.bBox.y + catchStmt.viewState.bBox.h}
+                                        x2={catchStmt.viewState.bBox.x}
+                                        y2={connectorEdgeBottomY}
+                                        className='flowchart-background-empty-rect'
+                                    />
+                                </g>);
                             connectorEdgeTopX = catchStmt.viewState.bBox.x + (titleW / 2);
                             connectorEdgeBottomX = catchStmt.viewState.bBox.x;
                             return catchComp;
                         });
-                        return (<g>
-                            {connectorLineComp}
-                            {catchComponents}
-                        </g>);
-                    } else {
-                        const connectorLineComp = (
-                            <line
-                                x1={p4X}
-                                y1={bBox.y + bBox.h}
-                                x2={p6X}
-                                y2={bBox.y + bBox.h}
-                                classNameArrow='flowchart-action-arrow'
-                                classNameArrowHead='flowchart-action-arrow-head'
-                            />);
-                        return ({ connectorLineComp });
-                    }
-                })()}
-                {(() => {
-                    if (model.catchBlocks.length > 0) {
-                        const connectorLineComp = (
-                            <ArrowDecorator
-                                start={{
-                                    x: p4X,
-                                    y: bBox.y + bBox.h,
-                                }}
-                                end={{
-                                    x: bBox.x,
-                                    y: bBox.y + bBox.h,
-                                }}
-                                classNameArrow='flowchart-action-arrow'
-                                classNameArrowHead='flowchart-action-arrow-head'
-                            />);
-                        let connectorEdgeTopX = p4X;
-                        let connectorEdgeBottomX = p4X;
-                        const catchComponents = model.catchBlocks.map((catchStmt) => {
-                            const catchComp = (
-                                <CatchStatementDecorator
-                                    bBox={catchStmt.viewState.bBox}
-                                    model={catchStmt}
-                                    body={catchStmt}
-                                    connectorEdgeX={{
-                                        top: connectorEdgeTopX,
-                                        bottom: connectorEdgeBottomX,
+                        if (!finallyStmt) {
+                            const connectorLineComp = (
+                                <ArrowDecorator
+                                    start={{
+                                        x: p4X,
+                                        y: bBox.y + bBox.h,
                                     }}
+                                    end={{
+                                        x: bBox.x,
+                                        y: bBox.y + bBox.h,
+                                    }}
+                                    classNameArrow='flowchart-action-arrow'
+                                    classNameArrowHead='flowchart-action-arrow-head'
                                 />);
-                            connectorEdgeTopX = catchStmt.viewState.bBox.x + (titleW / 2);
-                            connectorEdgeBottomX = catchStmt.viewState.bBox.x;
-                            return catchComp;
-                        });
-                        return (<g>
-                            {connectorLineComp}
-                            {catchComponents}
-                        </g>);
-                    } else {
-                        const connectorLineComp = (
-                            <line
-                                x1={p4X}
-                                y1={bBox.y + bBox.h}
-                                x2={p6X}
-                                y2={bBox.y + bBox.h}
-                                classNameArrow='flowchart-action-arrow'
-                                classNameArrowHead='flowchart-action-arrow-head'
-                            />);
-                        return ({ connectorLineComp });
+                            return (<g>
+                                {connectorLineComp}
+                                {<g>{ catchComponents }</g>}
+                            </g>);
+                        }
+                        return (<g>{ catchComponents }</g>);
                     }
+                    return (null);
                 })()}
                 {finallyStmt &&
                 <FinallyStatementDecorator
-                    bBox={finallyStmt.viewState.bBox}
+                    bBox={model.viewState.components['finally-block']}
                     model={finallyStmt}
                     body={finallyStmt}
                     disableButtons={{ delete: disableDeleteForFinally }}
                 />}
-                <rect
-                    x={bBox.x}
-                    y={bBox.y}
-                    width={bBox.w}
-                    height={bBox.h}
-                    stroke='red'
-                    strokeWidth='2'
-                    fillOpacity='0'
-                />
-                {/* <rect
-                    x={statementBBox.x}
-                    y={statementBBox.y}
-                    width={statementBBox.w}
-                    height={statementBBox.h}
-                    stroke='green'
-                    fillOpacity='0'
-                    strokeWidth='3'
-                />
-                <rect
-                    x={model.body.viewState.bBox.x}
-                    y={model.body.viewState.bBox.y}
-                    width={model.body.viewState.bBox.w}
-                    height={model.body.viewState.bBox.h}
-                    fillOpacity='0'
-                    stroke='cyan'
-                /> */}
             </g>);
     }
 }

@@ -24,9 +24,6 @@ class TryNode extends AbstractTryNode {
      * Set the children alias.
      * */
     setChildrenCompoundStatus() {
-        if (this.finallyBody) {
-            this.finallyBody.viewState.compound = true;
-        }
     }
 }
 

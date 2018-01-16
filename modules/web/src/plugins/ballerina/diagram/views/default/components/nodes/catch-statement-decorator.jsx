@@ -324,13 +324,6 @@ class CatchStatementDecorator extends React.Component {
                     onBreakpointClick={() => this.props.onBreakpointClick()}
                     disableButtons={this.props.disableButtons}
                 />
-                <line
-                    x1={p6X}
-                    y1={p6Y}
-                    x2={connectorEdgeX.bottom}
-                    y2={p5Y}
-                    className='flowchart-background-empty-rect'
-                />
             </g>);
     }
 }

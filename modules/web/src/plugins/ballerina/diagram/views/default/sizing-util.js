@@ -1733,9 +1733,20 @@ class SizingUtil {
         // finally sizing
         const finallyBody = node.finallyBody;
         if (finallyBody) {
-            nodeHeight += finallyBody.viewState.bBox.h;
-            finallyBody.viewState.components['statement-box'].h = finallyBody.viewState.bBox.h
-                            - finallyBody.viewState.components['block-header'].h;
+            // since finally is a block node, the sizing of the finally title has to be done within try block
+            // rendering will also be done in try decorator
+            node.viewState.components['finally-block'] = new SimpleBBox();
+            const finallyViewState = node.viewState.components['finally-block'];
+            finallyViewState.components = {};
+            finallyViewState.components['block-header'] = new SimpleBBox();
+            finallyViewState.components['block-header'].h = this.config.compoundStatement.heading.height +
+                                    this.config.statement.gutter.h;
+            finallyViewState.components['block-header'].w = finallyBody.viewState.bBox.w;
+            finallyViewState.components['statement-box'] = finallyBody.viewState.bBox;
+            finallyViewState.w = finallyBody.viewState.bBox.w;
+            finallyViewState.h = finallyViewState.components['block-header'].h +
+                                    finallyViewState.components['statement-box'].h;
+            nodeHeight += finallyViewState.h;
         }
 
         node.viewState.bBox.h = nodeHeight;
