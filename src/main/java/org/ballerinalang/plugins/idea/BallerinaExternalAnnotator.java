@@ -62,10 +62,9 @@ import java.util.List;
  */
 public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExternalAnnotator.Data, List<Diagnostic>> {
 
-    // NOTE: can't use instance vars as only 1 instance.
     private static Method method;
     private static URLClassLoader urlClassLoader;
-    private static Editor editor;
+    private Editor editor;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaExternalAnnotator.class);
 
@@ -75,52 +74,50 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
     @Override
     @Nullable
     public Data collectInformation(@NotNull PsiFile file, @NotNull Editor editor, boolean hasErrors) {
-        BallerinaExternalAnnotator.editor = editor;
+        this.editor = editor;
         VirtualFile virtualFile = file.getVirtualFile();
-
         String packageNameNode = getPackageName(file);
-        if (method == null) {
-            Module module = ModuleUtilCore.findModuleForFile(virtualFile, file.getProject());
-            if (module == null) {
-                return null;
-            }
-            Sdk moduleSdk = ModuleRootManager.getInstance(module).getSdk();
-            String sdkHome;
-            if (moduleSdk != null) {
-                sdkHome = moduleSdk.getHomePath();
-            } else {
-                sdkHome = BallerinaSdkService.getInstance(file.getProject()).getSdkHomePath(null);
-            }
+        // If method is not null, that means we have already loaded jars.
+        if (method != null) {
+            return new Data(editor, file, packageNameNode);
+        }
+        Module module = ModuleUtilCore.findModuleForFile(virtualFile, file.getProject());
+        if (module == null) {
+            return null;
+        }
+        Sdk moduleSdk = ModuleRootManager.getInstance(module).getSdk();
+        String sdkHome;
+        if (moduleSdk != null) {
+            sdkHome = moduleSdk.getHomePath();
+        } else {
+            sdkHome = BallerinaSdkService.getInstance(file.getProject()).getSdkHomePath(null);
+        }
 
-            try {
-                List<URL> filesToLoad = new LinkedList<>();
-                File[] files = new File(sdkHome + "/bre/lib").listFiles();
-                if (files != null) {
-                    for (File f : files) {
-                        if (f.isFile() && f.getName().endsWith(".jar")) {
-                            filesToLoad.add(f.toURI().toURL());
-                        }
+        try {
+            List<URL> filesToLoad = new LinkedList<>();
+            File[] files = new File(sdkHome + "/bre/lib").listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    if (f.isFile() && f.getName().endsWith(".jar")) {
+                        filesToLoad.add(f.toURI().toURL());
                     }
                 }
-                urlClassLoader = new URLClassLoader(filesToLoad.toArray(new URL[filesToLoad.size()]),
-                        this.getClass().getClassLoader());
-                Class classToLoad = Class.forName("org.ballerinalang.launcher.util.BCompileUtil", true,
-                        urlClassLoader);
-                method = classToLoad.getMethod("getDiagnostics", ClassLoader.class, String.class, String.class);
-            } catch (MalformedURLException | NoSuchMethodException | ClassNotFoundException e) {
-                LOGGER.debug(e.getMessage(), e);
             }
+            // Create a new class loader.
+            urlClassLoader = new URLClassLoader(filesToLoad.toArray(new URL[filesToLoad.size()]),
+                    this.getClass().getClassLoader());
+            Class classToLoad = Class.forName("org.ballerinalang.launcher.util.BCompileUtil", true,
+                    urlClassLoader);
+            // Get the method.
+            method = classToLoad.getMethod("getDiagnostics", ClassLoader.class, String.class, String.class);
+        } catch (MalformedURLException | NoSuchMethodException | ClassNotFoundException e) {
+            LOGGER.debug(e.getMessage(), e);
         }
         return new Data(editor, file, packageNameNode);
     }
 
     /**
-     * Called 2nd; look for trouble in file and return list of issues.
-     * <p>
-     * For most custom languages, you would not reimplement your semantic
-     * analyzer using PSI trees. Instead, here is where you would call out to
-     * your custom languages compiler or interpreter to get error messages
-     * or other bits of information you'd like to annotate the document with.
+     * Called 2nd. Look for trouble in file and return list of issues.
      */
     @Nullable
     @Override
@@ -277,6 +274,13 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
                 holder.createInfoAnnotation(textRange, diagnostic.getMessage());
             }
         }
+    }
+
+    /**
+     * This method is used to reset the method field after changing the SDK.
+     */
+    public static void reset() {
+        method = null;
     }
 
     public static class Data {

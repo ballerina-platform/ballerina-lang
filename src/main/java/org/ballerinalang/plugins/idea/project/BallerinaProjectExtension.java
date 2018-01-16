@@ -27,6 +27,7 @@ import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootModificationUtil;
 import com.intellij.openapi.roots.ProjectExtension;
 import com.intellij.openapi.util.AsyncResult;
+import org.ballerinalang.plugins.idea.BallerinaExternalAnnotator;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -58,6 +59,8 @@ public class BallerinaProjectExtension extends ProjectExtension {
                 WriteAction.run(() -> ModuleRootModificationUtil.setSdkInherited(module));
             }
         }
+        // Reset Ballerina external annotator.
+        BallerinaExternalAnnotator.reset();
     }
 
     @Override
