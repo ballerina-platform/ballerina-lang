@@ -22,7 +22,6 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -40,6 +39,8 @@ import java.sql.Statement;
 public class SQLDBUtils {
 
     public static final String DB_DIRECTORY = "./target/tempdb/";
+    public static final String DB_DIRECTORY_H2_1 = "./target/H2_1/";
+    public static final String DB_DIRECTORY_H2_2 = "./target/H2_2/";
 
     /**
      * Crete HyperSQL DB with the given name and initialize with given SQL file.
@@ -77,6 +78,46 @@ public class SQLDBUtils {
         }
     }
 
+    /**2
+     * Crete H DB with the given name and initialize with given SQL file.
+     *
+     * @param dbDirectory Name of the DB directory.
+     * @param dbName  Name of the DB instance.
+     * @param sqlFile SQL statements for initialization.
+     */
+    public static void initH2Database(String dbDirectory, String dbName, String sqlFile) {
+        Connection connection = null;
+        Statement st = null;
+        try {
+            Class.forName("org.h2.Driver");
+            String jdbcURL = "jdbc:h2:file:" + dbDirectory + dbName;
+            connection = DriverManager.getConnection(jdbcURL, "sa", "");
+            String sql = readFileToString(sqlFile);
+            String[] sqlQuery = sql.trim().split("/");
+            Statement st1 = connection.createStatement();
+            st1.close();
+            st = connection.createStatement();
+            for (String query : sqlQuery) {
+                st.executeUpdate(query.trim());
+            }
+            connection.commit();
+        } catch (ClassNotFoundException | SQLException e) {
+            int i = 0;
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                //Do nothing
+            }
+        }
+    }
+
+
     /**
      * Delete the given directory along with all files and sub directories.
      *
@@ -98,12 +139,12 @@ public class SQLDBUtils {
      * Delete all the files and sub directories which matches given prefix in a given directory.
      *
      * @param directory Directory which contains files to delete.
-     * @param prefix    Prefix for matching files to delete.
+     * @param affix    Prefix for matching files to delete.
      */
-    public static void deleteFiles(File directory, String prefix) {
+    public static void deleteFiles(File directory, String affix) {
         if (directory.isDirectory()) {
             for (File f : directory.listFiles()) {
-                if (f.getName().startsWith(prefix)) {
+                if (f.getName().startsWith(affix) || f.getName().endsWith(affix)) {
                     deleteDirectory(f);
                 }
             }
@@ -124,8 +165,6 @@ public class SQLDBUtils {
                 line = buf.readLine();
             }
             fileAsString = sb.toString();
-        } catch (FileNotFoundException e) {
-            // Ignore here
         } catch (IOException e) {
             // Ignore here
         }
