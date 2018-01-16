@@ -59,10 +59,9 @@ class LifelineButton extends React.Component {
         this.createConnector = this.createConnector.bind(this);
     }
 
-    getSuggestionValue(suggestion) {
-        return this.state.value;
-    }
+    componentDidMount() {
 
+    }
 
     // Autosuggest will call this function every time you need to clear suggestions.
     onSuggestionsClearRequested() {
@@ -101,15 +100,21 @@ class LifelineButton extends React.Component {
         });
     }
 
-    componentDidMount() {
-
-    }
-
     onChange(event, { newValue, method }) {
         this.setState({
             value: newValue,
         });
     }
+
+    onSuggestionSelected(event, item) {
+        const node = DefaultNodeFactory.createEndpoint(item.suggestion);
+        this.props.model.acceptDrop(node);
+    }
+
+    getSuggestionValue(suggestion) {
+        return this.state.value;
+    }
+
 
     storeInputReference(autosuggest) {
         if (autosuggest !== null) {
@@ -123,11 +128,6 @@ class LifelineButton extends React.Component {
 
     hideConnectors() {
         this.setState({ listConnectors: false });
-    }
-
-    onSuggestionSelected(event, item) {
-        const node = DefaultNodeFactory.createEndpoint(item.suggestion);
-        this.props.model.acceptDrop(node);
     }
 
     createConnector() {
