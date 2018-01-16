@@ -44,6 +44,7 @@ public class BallerinaConstants {
             NotificationGroup.toolWindowGroup("Ballerina Execution", ToolWindowId.RUN);
 
     public static final String BALLERINA_REPOSITORY = "BALLERINA_REPOSITORY";
+    public static final String BALLERINA_REPOSITORY_SOURCE_DIRECTORY = "artifacts/src";
     public static final String BALLERINA_LIBRARIES_SERVICE_NAME = "BallerinaLibraries";
     public static final String BALLERINA_LIBRARIES_CONFIG_FILE = "BallerinaLibraries.xml";
     public static final String BALLERINA_MODULE_SESTTINGS_SERVICE_NAME = "Ballerina";
