@@ -1,5 +1,8 @@
 import ballerina.net.http;
 
+import ballerina.mime;
+import ballerina.file;
+
 function testAddHeader (http:Response res, string key, string value) (http:Response) {
     res.addHeader(key, value);
     return res;
@@ -62,8 +65,8 @@ function testSetHeader (http:Response res, string key, string value) (http:Respo
 }
 
 function testSetHeaderStruct (http:Response res, string key, string value) (http:Response) {
-    http:HeaderValue[] headers = [{value:value, param:{b:"6", c:7}}, {value:value, param:{a:6}}];
-    res.headers[key] = headers;
+    mime:HeaderValue[] headers = [{value:value, param:{b:"6", c:7}}, {value:value, param:{a:6}}];
+    res.setHeaders(key, headers);
     return res;
 }
 
@@ -84,6 +87,11 @@ function testSetStringPayload (http:Response res, string value) (http:Response) 
 
 function testSetXmlPayload (http:Response res, xml value) (http:Response) {
     res.setXmlPayload(value);
+    return res;
+}
+
+function testSetEntityBody(http:Response res, file:File content, string contentType) (http:Response) {
+    res.setEntityBody(content, contentType);
     return res;
 }
 
@@ -131,12 +139,12 @@ service<http> helloServer {
         path:"/addResHeader"
     }
     resource addResHeader (http:Connection conn, http:Request req) {
-        http:Response res = {headers:{}};
-        http:HeaderValue[] headers = [{value:"ballerina", param:{b:"6", c:7}}, {value:"transport", param:{a:6}}];
-        res.headers["wso2"] = headers;
+        http:Response res = {};
+        mime:HeaderValue[] headers = [{value:"ballerina", param:{b:"6", c:7}}, {value:"transport", param:{a:6}}];
+        res.setHeaders("wso2", headers);
 
-        var values  = res.headers["wso2"];
-        var valueArr,_ = (http:HeaderValue[]) values;
+        var values = res.getHeaders("wso2");
+        var valueArr,_ = (mime:HeaderValue[]) values;
         string header = valueArr[0].value;
 
         map param = valueArr[0].param;
@@ -151,12 +159,12 @@ service<http> helloServer {
     }
     resource addResHeaderFunc (http:Connection conn, http:Request req) {
         http:Response res = {};
-        http:HeaderValue[] headers = [{value:"ballerina", param:{b:"6", c:7}}, {value:"transport", param:{a:6}}];
-        req.headers["wso2"] = headers;
+        mime:HeaderValue[] headers = [{value:"ballerina", param:{b:"6", c:7}}, {value:"transport", param:{a:6}}];
+        req.setHeaders("wso2", headers);
         req.addHeader("wso2", "chamil");
 
-        var values  = req.headers["wso2"];
-        var valueArr,_ = (http:HeaderValue[]) values;
+        var values = req.getHeaders("wso2");
+        var valueArr,_ = (mime:HeaderValue[]) values;
         int size =  lengthof valueArr;
         string header = valueArr[2].value;
 
@@ -168,12 +176,12 @@ service<http> helloServer {
         path:"/addResHeaderWithoutParam"
     }
     resource addResHeaderNoParam (http:Connection conn, http:Request req) {
-        http:Response res = {headers:{}};
-        http:HeaderValue[] headers = [{value:"ballerina", param:{}}, {value:"transport", param:{a:6}}];
-        res.headers["wso2"] = headers;
+        http:Response res = {};
+        mime:HeaderValue[] headers = [{value:"ballerina", param:{}}, {value:"transport", param:{a:6}}];
+        res.setHeaders("wso2", headers);
 
-        var values  = res.headers["wso2"];
-        var valueArr,_ = (http:HeaderValue[]) values;
+        var values = res.getHeaders("wso2");
+        var valueArr,_ = (mime:HeaderValue[]) values;
         string header = valueArr[0].value;
 
         map param = valueArr[0].param;
@@ -212,11 +220,11 @@ service<http> helloServer {
         path:"/getResHeader"
     }
     resource getResHeader (http:Connection conn, http:Request req) {
-        http:Response res = {headers:{}};
-        http:HeaderValue[] headers = [{value:"ballerina"}, {value:"transport", param:{a:6}}];
-        res.headers["wso2"] = headers;
-        var values  = res.headers["wso2"];
-        var valueArr,_ = (http:HeaderValue[]) values;
+        http:Response res = {};
+        mime:HeaderValue[] headers = [{value:"ballerina"}, {value:"transport", param:{a:6}}];
+        res.setHeaders("wso2", headers);
+        var values  = res.getHeaders("wso2");
+        var valueArr,_ = (mime:HeaderValue[]) values;
         string header = valueArr[0].value;
 
         res.setJsonPayload({value:header});
@@ -227,12 +235,12 @@ service<http> helloServer {
         path:"/getHeaders"
     }
     resource getHeaders (http:Connection conn, http:Request req) {
-        http:Response res = {headers:{}};
-        http:HeaderValue[] headers = [{value:"ballerina"}, {value:"transport", param:{a:"6"}}];
-        res.headers["wso2"] = headers;
+        http:Response res = {};
+        mime:HeaderValue[] headers = [{value:"ballerina"}, {value:"transport", param:{a:"6"}}];
+        res.setHeaders("wso2", headers);
 
-        var headerss = res.getHeaders("wso2");
-        var headerValue, _ = (string)headerss[1].value;
+        var responseHeaders = res.getHeaders("wso2");
+        var headerValue, _ = (string)responseHeaders[1].value;
 
         map param = headers[1].param;
         var paramVal,err = (string)param["a"];

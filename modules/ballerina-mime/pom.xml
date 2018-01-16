@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~ WSO2 Inc. licenses this file to you under the Apache License,
   ~ Version 2.0 (the "License"); you may not use this file except
@@ -16,24 +16,22 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
+        <groupId>org.ballerinalang</groupId>
         <version>0.95.8-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>ballerina-http</artifactId>
+    <artifactId>ballerina-mime</artifactId>
     <packaging>jar</packaging>
-    <name>Ballerina - Http/WS Implementation</name>
+    <name>Ballerina - MIME Implementation</name>
     <url>http://ballerinalang.org</url>
 
     <dependencies>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-core</artifactId>
@@ -46,55 +44,8 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-builtin</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-mime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-codec-http</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.transport.http</groupId>
-            <artifactId>org.wso2.transport.http.netty</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.messaging</groupId>
-            <artifactId>org.wso2.carbon.messaging</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.ops4j.pax.logging</groupId>
-                    <artifactId>pax-logging-log4j2</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.ops4j.pax.logging</groupId>
-                    <artifactId>pax-logging-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.wso2.carbon</groupId>
-                    <artifactId>org.wso2.carbon.kernel.feature</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.wso2.carbon</groupId>
-                    <artifactId>org.wso2.carbon.runtime.feature</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>javax.websocket</groupId>
-            <artifactId>javax.websocket-api</artifactId>
-        </dependency>
-        <!--TODO remove below later-->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
     </dependencies>
-    
+
     <build>
         <resources>
             <resource>
@@ -109,7 +60,7 @@
                 <directory>${generated.ballerina.source.directory}</directory>
                 <targetPath>META-INF/natives</targetPath>
             </resource>
-    	</resources>
+        </resources>
         <plugins>
             <!-- For ballerina annotation processing -->
             <plugin>
@@ -121,7 +72,7 @@
                         <processor>org.ballerinalang.codegen.BallerinaAnnotationProcessor</processor>
                     </processors>
                     <options>
-                        <nativeEntityProviderPackage>org.ballerinalang.net.generated.providers</nativeEntityProviderPackage>
+                        <nativeEntityProviderPackage>org.ballerinalang.mime.generated.providers</nativeEntityProviderPackage>
                         <nativeEntityProviderClass>StandardNativeElementProvider</nativeEntityProviderClass>
                     </options>
                 </configuration>
@@ -137,10 +88,12 @@
             </plugin>
         </plugins>
     </build>
-    
+
+
     <properties>
         <!-- Path to the generated natives ballerina files temp directory -->
         <generated.ballerina.source.directory>${project.build.directory}/../src/main/ballerina</generated.ballerina.source.directory>
         <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
     </properties>
+
 </project>

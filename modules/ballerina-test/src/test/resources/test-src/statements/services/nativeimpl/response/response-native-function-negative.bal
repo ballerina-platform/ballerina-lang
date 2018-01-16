@@ -1,4 +1,5 @@
 import ballerina.net.http;
+import ballerina.mime;
 
 function testAddHeader (http:Response res, string key, string value) (http:Response) {
     res.addHeader(key, value);
@@ -16,6 +17,11 @@ function testGetHeader (http:Response res, string key) (string) {
         return null;
     }
     return contentType.value;
+}
+
+function testGetEntity (http:Response response) (mime:Entity) {
+    mime:Entity entity = response.getEntity();
+    return entity;
 }
 
 function testGetJsonPayload (http:Response res) (json) {

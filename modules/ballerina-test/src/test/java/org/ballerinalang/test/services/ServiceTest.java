@@ -30,10 +30,17 @@ import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.messaging.Header;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
+import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
+import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 
 /**
  * Service/Resource dispatchers test class.
@@ -83,7 +90,9 @@ public class ServiceTest {
 
     @Test
     public void testSetString() {
-        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST");
+        List<Header> headers = new ArrayList<Header>();
+        headers.add(new Header("Content-Type", TEXT_PLAIN));
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST", headers, null);
         requestMsg.waitAndReleaseAllEntities();
         requestMsg.addMessageBody(ByteBuffer.wrap("hello".getBytes()));
         requestMsg.setEndOfMsgAdded(true);
@@ -131,7 +140,10 @@ public class ServiceTest {
 
     @Test(description = "Test getString after setting string")
     public void testGetStringAfterSetString() {
-        HTTPTestRequest setStringrequestMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST");
+        List<Header> headers = new ArrayList<Header>();
+        headers.add(new Header("Content-Type", TEXT_PLAIN));
+        HTTPTestRequest setStringrequestMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST", headers,
+                null);
         String stringresponseMsgPayload = "hello";
         setStringrequestMsg.waitAndReleaseAllEntities();
         setStringrequestMsg.addMessageBody(ByteBuffer.wrap(stringresponseMsgPayload.getBytes()));
@@ -167,7 +179,7 @@ public class ServiceTest {
         String path = "/echo/getFormParams";
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage(path, "POST", "firstName=WSO2&team=BalDance");
-        requestMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
+        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_FORM);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
@@ -183,7 +195,7 @@ public class ServiceTest {
         String path = "/echo/getFormParams";
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
-        requestMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
+        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_FORM);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
@@ -195,15 +207,13 @@ public class ServiceTest {
     public void testGetFormParamsEmptyresponseMsgPayload() {
         String path = "/echo/getFormParams";
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", "");
-        requestMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
+        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_FORM);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
-
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(responseMsg)
-                .getInputStream());
-        StringDataSource stringDataSource = new StringDataSource(responseMsgPayload);
-        Assert.assertNotNull(stringDataSource);
-        Assert.assertTrue(stringDataSource.getValue().contains("empty message payload"));
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertNotNull(bJson);
+        Assert.assertNull(bJson.value().get("Name").stringValue());
+        Assert.assertNull(bJson.value().get("Team").stringValue());
     }
 
     @Test(description = "Test GetFormParams with unsupported media type")
@@ -214,11 +224,10 @@ public class ServiceTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(responseMsg)
-                .getInputStream());
-        StringDataSource stringDataSource = new StringDataSource(responseMsgPayload);
-        Assert.assertNotNull(stringDataSource);
-        Assert.assertTrue(stringDataSource.getValue().contains("unsupported media type"));
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertNotNull(bJson);
+        Assert.assertNull(bJson.value().get("Name").stringValue());
+        Assert.assertNull(bJson.value().get("Team").stringValue());
     }
 
     @Test(description = "Test Http PATCH verb dispatching with a responseMsgPayload")

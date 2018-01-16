@@ -1,9 +1,11 @@
 package ballerina.net.http;
 
-function getHeaderValueArray (any headerValues, string headerName)(HeaderValue[]) {
-    var valueArray, err = (HeaderValue[]) headerValues;
+import ballerina.mime;
+
+function getHeaderValueArray (any headerValues, string headerName)(mime:HeaderValue[]) {
+    var valueArray, err = (mime:HeaderValue[]) headerValues;
     if (err != null) {
-        error errMsg = {msg:"expect 'ballerina.net.http:HeaderValue[]' as header value type of : " + headerName};
+        error errMsg = {msg:"expect 'ballerina.net.mime:HeaderValue[]' as header value type of : " + headerName};
         throw errMsg;
     }
     return valueArray;

@@ -84,6 +84,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-mime</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-http</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -203,6 +208,7 @@
         <module>modules/packerina</module>
         <module>modules/ballerina-test</module>
         <module>modules/ballerina-http</module>
+        <module>modules/ballerina-mime</module>
     </modules>
 
 </project>

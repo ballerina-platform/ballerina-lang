@@ -32,6 +32,9 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.mime.util.Constants.HEADER_VALUE_STRUCT;
+import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+
 /**
  * {@code HttpDispatcher} is responsible for dispatching incoming http requests to the correct resource.
  *
@@ -136,10 +139,18 @@ public class HttpDispatcher {
         BStruct request = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.REQUEST);
         HttpUtil.setHeaderValueStructType(ConnectorUtils.createStruct(httpResource.getBalResource(),
-                Constants.PROTOCOL_PACKAGE_HTTP, Constants.HEADER_VALUE_STRUCT));
+                PROTOCOL_PACKAGE_MIME, HEADER_VALUE_STRUCT));
+
+        BStruct entityForRequest = ConnectorUtils.createStruct(httpResource.getBalResource(),
+                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
+                org.ballerinalang.mime.util.Constants.ENTITY);
+
+        BStruct mediaType = ConnectorUtils.createStruct(httpResource.getBalResource(),
+                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
+                org.ballerinalang.mime.util.Constants.MEDIA_TYPE);
 
         HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage);
-        HttpUtil.populateInboundRequest(request, httpCarbonMessage);
+        HttpUtil.populateInboundRequest(request, entityForRequest, mediaType, httpCarbonMessage);
 
         List<ParamDetail> paramDetails = httpResource.getParamDetails();
         Map<String, String> resourceArgumentValues =

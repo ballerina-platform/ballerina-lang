@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,20 +26,20 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
 
 /**
- * Get the payload of the Message as a XML.
+ * Get the 'Entity' of the request with the body.
+ *
+ * @since 0.96
  */
-@BallerinaFunction(
-        packageName = "ballerina.net.http",
-        functionName = "getXmlPayload",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Request",
-                             structPackage = "ballerina.net.http"),
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
-)
-public class GetXMLPayload extends AbstractNativeFunction {
-
+@BallerinaFunction(packageName = "ballerina.net.http",
+                   functionName = "getEntity",
+                   receiver = @Receiver(type = TypeKind.STRUCT,
+                                        structType = "Request",
+                                        structPackage = "ballerina.net.http"),
+                   returnType = { @ReturnType(type = TypeKind.STRUCT) },
+                   isPublic = true)
+public class GetEntity extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        return HttpUtil.getXMLPayload(context, this, true);
+        return getBValues(HttpUtil.getEntity(context, this, true, true));
     }
 }

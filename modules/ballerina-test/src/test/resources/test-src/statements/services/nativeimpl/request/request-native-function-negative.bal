@@ -1,4 +1,5 @@
 import ballerina.net.http;
+import ballerina.mime;
 
 function testGetContentLength (http:Request req) (int) {
     int length = req.getContentLength();
@@ -34,6 +35,11 @@ function testGetRequestURL (http:Request req) (string) {
         url = "no url";
     }
     return url;
+}
+
+function testGetEntity (http:Request req) (mime:Entity) {
+    mime:Entity entity = req.getEntity();
+    return entity;
 }
 
 function testGetStringPayload (http:Request req) (string) {

@@ -27,9 +27,14 @@ import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.messaging.Header;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 import static org.ballerinalang.net.http.Constants.COOKIE_HEADER;
 import static org.ballerinalang.net.http.Constants.RESPONSE_COOKIE_HEADER;
 import static org.ballerinalang.net.http.Constants.SESSION_ID;
@@ -394,7 +399,9 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for struct attribute")
     public void testSessionForStructAttribute() {
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/myStruct", "POST", "wso2");
+        List<Header> headers = new ArrayList<Header>();
+        headers.add(new Header("Content-Type", TEXT_PLAIN));
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/myStruct", "POST", headers, "wso2");
         HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
@@ -406,7 +413,7 @@ public class HTTPSessionEssentialMethodsTest {
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
         String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 14);
 
-        cMsg = MessageUtils.generateHTTPMessage("/sample2/myStruct", "POST", "chamil");
+        cMsg = MessageUtils.generateHTTPMessage("/sample2/myStruct", "POST", headers, "chamil");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
         response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
@@ -419,7 +426,9 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for POST method string attribute")
     public void testPOSTForStringOutput() {
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample/hello", "POST", "chamil");
+        List<Header> headers = new ArrayList<Header>();
+        headers.add(new Header("Content-Type", TEXT_PLAIN));
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample/hello", "POST", headers, "chamil");
         HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
 
@@ -431,7 +440,7 @@ public class HTTPSessionEssentialMethodsTest {
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
         String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 14);
 
-        cMsg = MessageUtils.generateHTTPMessage("/sample/hello", "POST", "wso2");
+        cMsg = MessageUtils.generateHTTPMessage("/sample/hello", "POST", headers, "wso2");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
         response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);

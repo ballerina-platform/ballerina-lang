@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,26 +20,26 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
 
 /**
- * Set the payload of the Message as a XML.
+ * Get the 'Entity' of the response.
+ *
+ * @since 0.96
  */
-@BallerinaFunction(
-        packageName = "ballerina.net.http",
-        functionName = "setXmlPayload",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Response",
-                             structPackage = "ballerina.net.http"),
-        args = {@Argument(name = "payload", type = TypeKind.XML)},
-        isPublic = true
-)
-public class SetXMLPayload extends AbstractNativeFunction {
-
+@BallerinaFunction(packageName = "ballerina.net.http",
+                   functionName = "getEntity",
+                   receiver = @Receiver(type = TypeKind.STRUCT,
+                                        structType = "Response",
+                                        structPackage = "ballerina.net.http"),
+                   returnType = { @ReturnType(type = TypeKind.STRUCT) },
+                   isPublic = true)
+public class GetEntity extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        return HttpUtil.setXMLPayload(context, this, false);
+        return getBValues(HttpUtil.getEntity(context, this, false, true));
     }
 }

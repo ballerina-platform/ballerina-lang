@@ -149,14 +149,13 @@ public class Constants {
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
     public static final String CONNECTION = "Connection";
     public static final String REQUEST = "Request";
+    public static final String ENTITY = "Entity";
     public static final String RESPONSE = "Response";
-    public static final String HEADER_VALUE_STRUCT = "HeaderValue";
     public static final String HEADER_VALUE = "value";
     public static final String HEADER_PARAM = "param";
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
-    public static final String MESSAGE_DATA_SOURCE = "message_dataSource";
     public static final String MESSAGE_OUTPUT_STREAM = "message_output_stream";
     public static final String INBOUND_REQUEST = "inbound_request";
     public static final String HTTP_SESSION = "http_session";
@@ -183,6 +182,10 @@ public class Constants {
     public static final int CIPHERS_INDEX = 5;
     public static final int SSL_PROTOCOL_INDEX = 6;
 
+    public static final int HTTP_MESSAGE_INDEX = 0;
+    public static final int ENTITY_INDEX = 1;
+    public static final int ENTITY_BODY_REQUIRED_INDEX = 0;
+
     //Connection struct indexes
     public static final int CONNECTION_HOST_INDEX = 0;
     public static final int CONNECTION_PORT_INDEX = 0;
@@ -193,13 +196,11 @@ public class Constants {
     public static final int REQUEST_VERSION_INDEX = 2;
     public static final int REQUEST_USER_AGENT_INDEX = 3;
     public static final int REQUEST_REST_URI_POSTFIX_INDEX = 4;
-    public static final int REQUEST_HEADERS_INDEX = 0;
 
     //Response struct indexes
     public static final int RESPONSE_STATUS_CODE_INDEX = 0;
     public static final int RESPONSE_REASON_PHRASE_INDEX = 0;
     public static final int RESPONSE_SERVER_INDEX = 1;
-    public static final int RESPONSE_HEADERS_INDEX = 0;
 
     //HeaderValue struct indexes
     public static final int HEADER_VALUE_INDEX = 0;
@@ -222,34 +223,4 @@ public class Constants {
     public static final String HEADER_VAL_CONNECTION_KEEP_ALIVE = "Keep-Alive";
     public static final String EXPECT_HEADER = "Expect";
     public static final String HEADER_VAL_100_CONTINUE = "100-continue";
-    /**
-     * Content type HTTP header.
-     */
-    public static final String CONTENT_TYPE = "Content-Type";
-
-    /**
-     * HTTP content-type application/json.
-     */
-    public static final String APPLICATION_JSON = "application/json";
-
-    /**
-     * HTTP content-type application/xml.
-     */
-    public static final String APPLICATION_XML = "application/xml";
-
-    /**
-     * HTTP content-type text/plain.
-     */
-    public static final String TEXT_PLAIN = "text/plain";
-
-    /**
-     * HTTP content-type application/octet-stream.
-     */
-    public static final String OCTET_STREAM = "application/octet-stream";
-
-    /**
-     * HTTP content-type application/x-www-form-urlencoded.
-     */
-    public static final String APPLICATION_FORM = "application/x-www-form-urlencoded";
-
 }
