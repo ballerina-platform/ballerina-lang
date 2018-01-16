@@ -43,7 +43,7 @@ public class SQLDBUtils {
     public static final String DB_DIRECTORY_H2_2 = "./target/H2_2/";
 
     /**
-     * Crete HyperSQL DB with the given name and initialize with given SQL file.
+     * Create HyperSQL DB with the given name and initialize with given SQL file.
      *
      * @param dbDirectory Name of the DB directory.
      * @param dbName  Name of the DB instance.
@@ -65,21 +65,12 @@ public class SQLDBUtils {
         } catch (ClassNotFoundException | SQLException e) {
             //Do nothing
         } finally {
-            try {
-                if (st != null) {
-                    st.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                //Do nothing
-            }
+            releaseResources(connection, st);
         }
     }
 
-    /**2
-     * Crete H DB with the given name and initialize with given SQL file.
+    /**
+     * Create H2 DB with the given name and initialize with given SQL file.
      *
      * @param dbDirectory Name of the DB directory.
      * @param dbName  Name of the DB instance.
@@ -102,18 +93,9 @@ public class SQLDBUtils {
             }
             connection.commit();
         } catch (ClassNotFoundException | SQLException e) {
-            int i = 0;
+            //Do nothing
         } finally {
-            try {
-                if (st != null) {
-                    st.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                //Do nothing
-            }
+            releaseResources(connection, st);
         }
     }
 
@@ -169,5 +151,18 @@ public class SQLDBUtils {
             // Ignore here
         }
         return fileAsString;
+    }
+
+    private static void releaseResources(Connection connection, Statement st) {
+        try {
+            if (st != null) {
+                st.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            //Do nothing
+        }
     }
 }
