@@ -20,9 +20,11 @@ import com.beust.jcommander.ParameterException;
 import org.ballerinalang.composer.server.core.Server;
 import org.ballerinalang.composer.server.core.ServerConfig;
 import org.ballerinalang.composer.server.launcher.command.ServerCommand;
+import org.ballerinalang.composer.server.launcher.log.LogManagerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.PrintStream;
 
 /**
@@ -30,21 +32,31 @@ import java.io.PrintStream;
  */
 public class ServerLauncher {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServerLauncher.class);
+    private static Logger logger;
+
+    static {
+        try {
+            // Update the default log manager.
+            LogManagerUtils composerLogManagerUtils = new LogManagerUtils();
+            composerLogManagerUtils.updateLogManager();
+            logger = LoggerFactory.getLogger(ServerLauncher.class);
+        } catch (IOException e) {
+            logger.error("Error occurred while setting logging properties.", e);
+        }
+    }
 
     public static void main(String[] args) {
         ServerCommand commandArgs = new ServerCommand();
-        JCommander jcomander = new JCommander(commandArgs);
-        jcomander.setProgramName("composer");
+        JCommander jCommander = new JCommander(commandArgs);
+        jCommander.setProgramName("composer");
         try {
-            jcomander.parse(args);
+            jCommander.parse(args);
         } catch (ParameterException e) {
             PrintStream err = System.err;
             err.println("Invalid argument passed.");
             printUsage();
             return;
         }
-
         if (commandArgs.helpFlag) {
             PrintStream out = System.out;
             out.println("Ballerina composer, helps you to visualize and edit ballerina programs.");
