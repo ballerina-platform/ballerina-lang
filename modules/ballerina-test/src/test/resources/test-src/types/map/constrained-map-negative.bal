@@ -18,3 +18,37 @@ function testConstrainedMapAssignDifferentConstraintsNegative() (map<int>) {
     map<string> testMap = {};
     return testMap;
 }
+
+struct Person {
+    string name;
+    int age;
+    string address;
+}
+
+struct Employee {
+    string name;
+    int age;
+}
+
+function testInvalidMapPassAsArgument() (map<Person>) {
+    map<Employee> testMap = {};
+    map<Person> m = returnMap(testMap);
+    return m;
+}
+
+function returnMap(map<Person> m) (map<Person>) {
+    return m;
+}
+
+function testInvalidAnyMapPassAsArgument() (map<Person>) {
+    map testMap = {};
+    map<Person> m = returnMap(testMap);
+    return m;
+}
+
+function testInvalidStructEquivalentCast() (map<Person>) {
+    map<Employee> testEMap = {};
+    map<Person> testPMap;
+    testPMap,_ = (map<Person>)testEMap;
+    return testPMap;
+}

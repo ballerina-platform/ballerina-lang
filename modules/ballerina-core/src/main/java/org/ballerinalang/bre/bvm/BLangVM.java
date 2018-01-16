@@ -29,6 +29,7 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BJSONType;
+import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -1494,8 +1495,22 @@ public class BLangVM {
                     handleNullRefError();
                     break;
                 }
-
-                bMap.put(sf.stringRegs[j], sf.refRegs[k]);
+                BMapType mapType = (BMapType) bMap.getType();
+                if (sf.refRegs[k] == null) {
+                    if (!isValueType(mapType.getConstrainedType())) {
+                        // TODO improve logic for null case
+                        bMap.put(sf.stringRegs[j], sf.refRegs[k]);
+                    } else {
+                        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_MAP_INSERTION,
+                                mapType.getConstrainedType(), BTypes.typeNull);
+                    }
+                } else if (mapType.getConstrainedType() == BTypes.typeAny ||
+                        mapType.getConstrainedType().equals(sf.refRegs[k].getType())) {
+                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
+                } else {
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_MAP_INSERTION,
+                            mapType.getConstrainedType(), sf.refRegs[k].getType());
+                }
                 break;
 
 
@@ -3262,6 +3277,30 @@ public class BLangVM {
         // Array casting
         if (targetType.getTag() == TypeTags.ARRAY_TAG || sourceType.getTag() == TypeTags.ARRAY_TAG) {
             return checkArrayCast(sourceType, targetType);
+        }
+
+        // Check MAP casting
+        if (sourceType.getTag() == TypeTags.MAP_TAG && targetType.getTag() == TypeTags.MAP_TAG) {
+            return checkMapCast(sourceType, targetType);
+        }
+
+        return false;
+    }
+
+    private boolean checkMapCast(BType sourceType, BType targetType) {
+
+        BMapType sourceMapType = (BMapType) sourceType;
+        BMapType targetMapType = (BMapType) targetType;
+
+        if (sourceMapType.equals(targetMapType)) {
+            return true;
+        }
+
+        if (sourceMapType.getConstrainedType().getTag() == TypeTags.STRUCT_TAG
+                && targetMapType.getConstrainedType().getTag() == TypeTags.STRUCT_TAG) {
+            return checkStructEquivalency((BStructType) sourceMapType.getConstrainedType(),
+                    (BStructType) targetMapType.getConstrainedType());
+
         }
 
         return false;

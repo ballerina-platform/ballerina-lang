@@ -210,6 +210,22 @@ public class Types {
             }
         }
 
+        if (target.tag == TypeTags.MAP && source.tag == TypeTags.MAP) {
+            if (((BMapType) target).constraint.tag == TypeTags.ANY) {
+                return true;
+            }
+            if (checkStructEquivalency(((BMapType) source).constraint,
+                    ((BMapType) target).constraint)) {
+                return true;
+            }
+        }
+
+        if (target.tag == TypeTags.STRUCT && source.tag == TypeTags.STRUCT) {
+            if (checkStructEquivalency(source, target)) {
+                return true;
+            }
+        }
+
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target);
     }
@@ -644,9 +660,22 @@ public class Types {
 
         @Override
         public BSymbol visit(BMapType t, BType s) {
-            // Semantically fail all casts for Constrained Maps.
-            // Eg:- ANY2MAP cast is undefined for Constrained Maps.
-            if (t.constraint.tag != TypeTags.ANY) {
+            if (isSameType(s, t)) {
+                return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
+            } else if (s.tag == TypeTags.MAP) {
+                if (t.constraint.tag == TypeTags.ANY) {
+                    return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
+                } else if (((BMapType) s).constraint.tag == TypeTags.ANY) {
+                    return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
+                } else if (checkStructEquivalency(((BMapType) s).constraint,
+                        t.constraint)) {
+                    return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
+                } else {
+                    return symTable.notFoundSymbol;
+                }
+            } else if (t.constraint.tag != TypeTags.ANY) {
+                // Semantically fail rest of the casts for Constrained Maps.
+                // Eg:- ANY2MAP cast is undefined for Constrained Maps.
                 return symTable.notFoundSymbol;
             }
 

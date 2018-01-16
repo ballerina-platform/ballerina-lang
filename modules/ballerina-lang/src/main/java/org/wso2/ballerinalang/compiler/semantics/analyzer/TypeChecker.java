@@ -443,12 +443,15 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.BLOB:
             case TypeTags.JSON:
             case TypeTags.XML:
-            case TypeTags.MAP:
             case TypeTags.DATATABLE:
                 checkFunctionInvocationExpr(iExpr, iExpr.expr.type);
                 break;
             case TypeTags.ARRAY:
                 dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.expr.type);
+                break;
+            case TypeTags.MAP:
+                // allow map function for both constrained / un constrained maps
+                checkFunctionInvocationExpr(iExpr, this.symTable.mapType);
                 break;
             default:
                 // TODO Handle this condition

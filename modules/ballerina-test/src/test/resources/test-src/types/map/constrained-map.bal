@@ -24,11 +24,6 @@ function testConstrainedMapValueTypeIndexBasedNegative() (string) {
     return val;
 }
 
-struct Person {
-    string name;
-    int age;
-}
-
 function testConstrainedMapStructTypePositive() (string, int) {
     map<Person> testMap = {};
     Person jack = {name:"Jack", age:25};
@@ -169,4 +164,172 @@ function testConstrainedMapBlobTypeNegative() (string, string) {
     string rsitem_1 = item_1.toString("UTF-8");
     string rsitem_2 = item_2.toString("UTF-8");
     return rsitem_1, rsitem_2;
+}
+
+function testConstrainedMapValueTypeCast() (string) {
+    map<string> testMap = {name:"kevin"};
+    map m = getGenericMap(testMap);
+    map<string> castMap;
+    castMap, _ = (map<string>) m;
+    string val = castMap.name;
+    return val;
+}
+
+function testConstrainedMapValueTypeCastNegative() (TypeCastError) {
+    map<string> testMap = {name:"kevin"};
+    map m = getGenericMap(testMap);
+    map<int> castMap;
+    TypeCastError er;
+    _, er = (map<int>) m;
+    return er;
+}
+
+function getGenericMap(map m) (map){
+    return m;
+}
+
+function testConstrainedMapRefTypeCast() (string, int) {
+    map<Person> testMap = {};
+    Person jack = {name:"Jack", age:25};
+    testMap["item"] = jack;
+    map m = getGenericMap(testMap);
+    map<Person> castMap;
+    castMap, _ = (map<Person>) m;
+    Person p = castMap["item"];
+    return p.name, p.age;
+}
+
+function testConstrainedMapRefTypeCastNegative() (TypeCastError) {
+    map<Person> testMap = {};
+    Person jack = {name:"Jack", age:25};
+    testMap["item"] = jack;
+    map m = getGenericMap(testMap);
+    map<int> castMap;
+    TypeCastError er;
+    _, er = (map<int>) m;
+    return er;
+}
+
+function testUpdateStringMap() (string) {
+    map<string> testMap = {};
+    map m = updateGenericMap(testMap);
+    map<string> castMap;
+    castMap, _ = (map<string>) m;
+    string val = castMap.item;
+    return val;
+}
+
+function updateGenericMap(map m) (map) {
+    m["item"] = "update";
+    return m;
+}
+
+function testStringMapUpdateWithInvalidTypeNegativeCase() (string) {
+    map<string> testMap = {};
+    map m = updateGenericMapDifferentType(testMap);
+    map<string> castMap;
+    castMap, _ = (map<string>) m;
+    string val = castMap.item;
+    return val;
+}
+
+function updateGenericMapDifferentType(map m) (map) {
+    m["item"] = 1;
+    return m;
+}
+
+function testStringMapUpdateWithInvalidNullTypeNegativeCase() (string) {
+    map<string> testMap = {};
+    map m = updateGenericMapWithNullValue(testMap);
+    map<string> castMap;
+    castMap, _ = (map<string>) m;
+    string val = castMap.item;
+    return val;
+}
+
+function updateGenericMapWithNullValue(map m) (map) {
+    m["item"] = null;
+    return m;
+}
+
+struct Person {
+    string name;
+    int age;
+    string address;
+}
+
+struct Employee {
+    string name;
+    int age;
+}
+
+function testStructConstrainedMapRuntimeCast() (string, int) {
+    map<Person> testMap = {};
+    Person jack = {name:"Jack", age:25, address:"Usa"};
+    testMap["item"] = jack;
+    map m = getGenericMap(testMap);
+    map<Employee> castMap;
+    castMap, _ = (map<Employee>) m;
+    Employee p = castMap["item"];
+    return p.name, p.age;
+}
+
+function testStructConstrainedMapStaticCast() (string, int) {
+    map<Person> testMap = {};
+    Person jack = {name:"Jack", age:25, address:"Usa"};
+    testMap["item"] = jack;
+    map<Employee> castMap;
+    castMap, _ = (map<Employee>) testMap;
+    Employee p = castMap["item"];
+    return p.name, p.age;
+}
+
+
+function testStructEquivalentMapUpdate() (string, int) {
+    map<Person> testMap = {};
+    Person jack = {name:"Jack", age:25, address:"Usa"};
+    testMap["item"] = jack;
+    map<Employee> m = updateEquivalentMap(testMap);
+    map<Employee> castMap;
+    castMap, _ = (map<Employee>) m;
+    Employee p = castMap["item"];
+    return p.name, p.age;
+}
+
+function updateEquivalentMap(map<Employee> m) (map<Employee>) {
+    Employee b = {name:"Kevin", age:75};
+    m["update"] = b;
+    return m;
+}
+
+function testStructEquivalentMapAccess() (string, int) {
+    map<Person> testMap = {};
+    Person jack = {name:"Mervin", age:25, address:"Usa"};
+    testMap["item"] = jack;
+    string name;
+    int age;
+    name, age = equivalentMapAccess(testMap);
+    return name, age;
+}
+
+function equivalentMapAccess(map<Employee> m) (string, int) {
+    Employee b = m["item"];
+    return b.name, b.age;
+}
+
+function testStructMapUpdate() (string, int) {
+    map<Person> testMap = {};
+    Person jack = {name:"Jack", age:25, address:"Usa"};
+    testMap["item"] = jack;
+    map m = updateStructMap(testMap);
+    map<Employee> castMap;
+    castMap,_ = (map<Employee>) m;
+    Employee p = castMap["update"];
+    return p.name, p.age;
+}
+
+function updateStructMap(map m) (map) {
+    Person k = {name:"Arnold", age:45, address:"UK"};
+    m["update"] = k;
+    return m;
 }

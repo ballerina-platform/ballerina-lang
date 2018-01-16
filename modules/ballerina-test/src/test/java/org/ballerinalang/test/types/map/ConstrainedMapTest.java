@@ -26,7 +26,9 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -47,12 +49,21 @@ public class ConstrainedMapTest {
 
     @Test(description = "Test Map constrained with type negative semantic validations.")
     public void testConstrainedMapNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 4);
+        Assert.assertEquals(negativeResult.getErrorCount(), 7);
         BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'map<int>', found 'map'", 3, 12);
         BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'int', found 'string'", 7, 44);
         BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'string', found 'int'", 13, 23);
         BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'map<int>', found 'map<string>'",
                 19, 12);
+        BAssertUtil.validateError(negativeResult, 4, "incompatible types: expected 'map<Person>', " +
+                        "found 'map<Employee>'",
+                35, 31);
+        BAssertUtil.validateError(negativeResult, 5, "incompatible types: expected 'map<Person>', found 'map'",
+                45, 31);
+        BAssertUtil.validateError(negativeResult, 6, "incompatible types: 'map<Employee>' cannot be cast " +
+                        "to 'map<Person>'",
+                52, 18);
+
     }
 
     @Test(description = "Test Map constrained with value type value retrieval positive case.")
@@ -237,6 +248,109 @@ public class ConstrainedMapTest {
         Assert.assertTrue(returns[1] instanceof BString);
         Assert.assertEquals(((BString) returns[0]).stringValue(), "");
         Assert.assertEquals(((BString) returns[1]).stringValue(), "");
+    }
+
+    @Test(description = "Test cast map constrained with value type from map any positive.")
+    public void testConstrainedMapValueTypeCast() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapValueTypeCast");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "kevin");
+    }
+
+    @Test(description = "Test cast map constrained with value type from map any positive.")
+    public void testConstrainedMapValueTypeCastNegative() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapValueTypeCastNegative");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "'map<string>' cannot be cast to 'map<int>'");
+    }
+
+    @Test(description = "Test cast map constrained with ref type from map any positive.")
+    public void testConstrainedMapRefTypeCast() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapRefTypeCast");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertEquals(returns[0].stringValue(), "Jack");
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
+    }
+
+    @Test(description = "Test cast map constrained with ref type from map any negative.")
+    public void testConstrainedMapRefTypeCastNegative() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapRefTypeCastNegative");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "'map<Person>' cannot be cast to 'map<int>'");
+    }
+
+    @Test(description = "Test map constrained with string update.")
+    public void testUpdateStringMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUpdateStringMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "update");
+    }
+
+    @Test(description = "Test map constrained with string update with invalid type negative.",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: error, message: invalid map insertion: expected value of type " +
+                    "'string', found 'int'.*")
+    public void testStringMapUpdateWithInvalidTypeNegativeCase() {
+        BRunUtil.invoke(compileResult, "testStringMapUpdateWithInvalidTypeNegativeCase");
+    }
+
+    @Test(description = "Test map constrained with string update with invalid type negative.",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: error, message: invalid map insertion: expected value of type " +
+                    "'string', found 'null'.*")
+    public void testStringMapUpdateWithInvalidNullTypeNegativeCase() {
+        BRunUtil.invoke(compileResult, "testStringMapUpdateWithInvalidNullTypeNegativeCase");
+    }
+
+    @Test(description = "Test cast equivalent struct constrained maps in runtime time.")
+    public void testStructConstrainedMapRuntimeCast() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStructConstrainedMapRuntimeCast");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertEquals(returns[0].stringValue(), "Jack");
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
+    }
+
+    @Test(description = "Test cast equivalent struct constrained maps in compile time.")
+    public void testStructConstrainedMapStaticCast() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStructConstrainedMapStaticCast");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertEquals(returns[0].stringValue(), "Jack");
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
+    }
+
+    @Test(description = "Test equivalent struct constrained map update negative.",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: error, message: invalid map insertion: expected value of type " +
+                    "'Person', found 'Employee'.*")
+    public void testStructEquivalentMapUpdate() {
+        BRunUtil.invoke(compileResult, "testStructEquivalentMapUpdate");
+    }
+
+    @Test(description = "Test cast equivalent struct constrained maps in runtime time.")
+    public void testStructEquivalentMapAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStructEquivalentMapAccess");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertEquals(returns[0].stringValue(), "Mervin");
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
+    }
+
+    @Test(description = "Test struct map update after casting to map any.")
+    public void testStructMapUpdate() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStructMapUpdate");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertEquals(returns[0].stringValue(), "Arnold");
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 45);
     }
 
 }

@@ -42,7 +42,8 @@ public enum RuntimeErrors {
     INVALID_SERVICE_PROTOCOL("invalid.service.protocol", "RUNTIME_0017"),
     CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT("connector.input.types.are.not.equivalent", "RUNTIME_0018"),
     UNKNOWN_FIELD_JSON_STURCT("unknown.field.in.json.struct", "RUNTIME_0019"),
-    INVALID_RETRY_COUNT("invalid.retry.count", "RUNTIME_0020");
+    INVALID_RETRY_COUNT("invalid.retry.count", "RUNTIME_0020"),
+    INVALID_MAP_INSERTION("invalid.map.insertion", "RUNTIME_0021");
     
     private String errorMsgKey;
     private String errorCode;

@@ -40,8 +40,8 @@ public class ConstrainedJSONTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/types/jsontype/constrained-json.bal");
-        negativeResult = BCompileUtil.compile("test-src/types/jsontype/constrained-json-negative.bal");
+        //compileResult = BCompileUtil.compile(this, "test-src", "types/jsontype/constrained-json.bal");
+        negativeResult = BCompileUtil.compile(this, "test-src", "types/jsontype/constrained-json-negative.bal");
     }
 
     @Test(description = "Test basic json struct constraint")
