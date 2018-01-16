@@ -78,7 +78,7 @@
                                                     {{#each children}}
                                                         <ul class="construct-inner-items-ul">
                                                             <li>
-                                                                <a href="#{{name}}">
+                                                                <a href="#{{../name}}-{{name}}">
                                                                     <div class="construct-icon">
                                                                         <span class="{{icon}}"> </span>
                                                                     </div>
@@ -131,7 +131,7 @@
                                     <ul>
                                         {{#each children}}
                                             <li>
-                                                <h4 id="{{name}}">
+                                                <h4 id="{{../name}}-{{name}}">
                                                     <span class={{icon}}></span>
                                                     <span class="thin-text light-gray">&lt; {{../name}} &gt;</span>
                                                     {{name}}
@@ -278,7 +278,7 @@
                                     <ul>
                                         {{#each children}}
                                             <li>
-                                                <h4 id="{{name}}">
+                                                <h4 id="{{../name}}-{{name}}">
                                                     <span class={{icon}}></span>
                                                     <span class="thin-text light-gray">&lt; {{../name}} &gt;</span>
                                                     {{name}}
@@ -372,7 +372,7 @@
                                     <ul>
                                         {{#each children}}
                                             <li>
-                                                <h4 id="{{name}}">
+                                                <h4 id="{{../name}}-{{name}}">
                                                     <span class={{icon}}></span>
                                                     <span class="thin-text light-gray">< {{../name}} ></span>
                                                     {{name}}

@@ -261,7 +261,7 @@ td, th{
 }
 
 .constructs-ul > li.active > a {
-    text-decoration: underline;
+    font-weight: 600;
 }
 
 .construct-inner-items-ul {
@@ -272,10 +272,11 @@ td, th{
 .construct-inner-items-ul > li > a {
     color: #555 !important;
     line-height: 1.8;
+    font-weight: 300;
 }
 
 .construct-inner-items-ul > li.active > a {
-    text-decoration: underline;
+    font-weight: 600;
 }
 
 .construct-icon {
@@ -286,7 +287,6 @@ td, th{
 
 .construct-name {
     padding-left: 24px;
-    font-weight: 300;
 }
 
 .construct-wrapper {
