@@ -22,6 +22,7 @@ package org.ballerinalang.docgen.model;
  */
 public class Link {
     public final PackageName packageName;
+    public final String href;
     public final boolean active;
 
     /**
@@ -29,8 +30,9 @@ public class Link {
      * @param packageName package name
      * @param active if package is active/inactive
      */
-    public Link(PackageName packageName, boolean active) {
+    public Link(PackageName packageName, String href, boolean active) {
         this.packageName = packageName;
+        this.href = href;
         this.active = active;
     }
 }

@@ -28,7 +28,7 @@
 
     <title>Ballerina API Documentation</title>
 </head>
-<body data-spy="scroll" data-target=".constructs-wrapper">
+<body>
 <!-- Fixed navbar -->
 <div id="header" class="navbar navbar-fixed-top">
     <div class="container-full">
@@ -45,7 +45,7 @@
                     </div>
                     <div class="collapse navbar-collapse package-list-wrapper">
                         {{#each links}}
-                            <ul class="nav navbar-nav package-name-ul {{#if active}}active{{/if}}">
+                            <ul class="nav navbar-nav package-name-ul {{#if active}}active-package{{/if}}">
                                 <li>
                                     <!--Package Name-->
                                     {{#if active}}
@@ -97,7 +97,7 @@
                                             </ul>
                                         </div>
                                     {{else}}
-                                        <a href="{{packageName.name}}.html">{{packageName.prefix}}<span
+                                        <a href="{{href}}.html">{{packageName.prefix}}<span
                                                 class="bold">{{packageName.suffix}}</span></a>
                                     {{/if}}
                                 </li>

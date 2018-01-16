@@ -18,6 +18,7 @@
 
 package org.ballerinalang.docgen;
 
+import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.model.ActionDoc;
 import org.ballerinalang.docgen.model.AnnotationDoc;
 import org.ballerinalang.docgen.model.ConnectorDoc;
@@ -26,7 +27,6 @@ import org.ballerinalang.docgen.model.EnumDoc;
 import org.ballerinalang.docgen.model.FunctionDoc;
 import org.ballerinalang.docgen.model.GlobalVariableDoc;
 import org.ballerinalang.docgen.model.Link;
-import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.PrimitiveTypeDoc;
 import org.ballerinalang.docgen.model.StructDoc;
@@ -65,13 +65,13 @@ public class Generator {
 
     /**
      * Generate the page when the bal package is passed
-     * @param balPackage package
-     * @param packages list of available packages
-     * @return
+     * @param balPackage The current package that is being viewed.
+     * @param packages List of available packages.
+     * @return A page model for the current package.
      */
-    public static Page generatePage(BLangPackage balPackage, List<PackageName> packages) {
+    public static Page generatePage(BLangPackage balPackage, List<Link> packages) {
         ArrayList<Documentable> documentables = new ArrayList<>();
-        String packageName = (balPackage.symbol).pkgID.name.value;
+        String currentPackageName = (balPackage.symbol).pkgID.name.value;
         
         // Check for structs in the package
         if (balPackage.getStructs().size() > 0) {
@@ -130,12 +130,25 @@ public class Generator {
         }
         
         // Create the links to select which page or package is active
-        List<Link> links = createPackageLinks(balPackage, packages, null);
+        List<Link> links = new ArrayList<>();
+        for (Link pkgLink : packages) {
+            if (pkgLink.packageName.name.equals(currentPackageName)) {
+                links.add(new Link(pkgLink.packageName, pkgLink.href, true));
+            } else {
+                links.add(new Link(pkgLink.packageName, pkgLink.href, false));
+            }
+        }
     
-        return new Page(packageName, documentables, links);
+        return new Page(currentPackageName, documentables, links);
     }
     
-    public static Page generateDocsForPrimitives(BLangPackage balPackage, List<PackageName> packages) {
+    /**
+     * Generate the page for primitive types.
+     * @param balPackage The ballerina.builtin package.
+     * @param packages List of available packages.
+     * @return A page model for the primitive types.
+     */
+    public static Page generateDocsForPrimitives(BLangPackage balPackage, List<Link> packages) {
         ArrayList<Documentable> documentables = new ArrayList<>();
         
         // Check for functions in the package
@@ -168,30 +181,22 @@ public class Generator {
         }
     
         // Create the links to select which page or package is active
-        List<Link> links = createPackageLinks(balPackage, packages, "Primitive-Types");
-        
-        return new Page("Primitive-Types", documentables, links);
-    }
-    
-    private static List<Link> createPackageLinks(BLangPackage balPackage, List<PackageName> packages,
-                                                                                            String pageNameOverride) {
         List<Link> links = new ArrayList<>();
-        String pageName = null != pageNameOverride ? pageNameOverride : (balPackage.symbol).pkgID.name.value;
-        for (PackageName pkg : packages) {
-            if (pkg.getName().equals(pageName)) {
-                links.add(new Link(pkg, true));
+        for (Link pkgLink : packages) {
+            if (BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME.equals(pkgLink.packageName.name)) {
+                links.add(new Link(pkgLink.packageName, pkgLink.href, true));
             } else {
-                links.add(new Link(pkg, false));
+                links.add(new Link(pkgLink.packageName, pkgLink.href, false));
             }
         }
         
-        return links;
+        return new Page(BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME, documentables, links);
     }
     
     /**
-     * Create documentation for enums
-     * @param enumNode
-     * @return documentation for enum
+     * Create documentation for enums.
+     * @param enumNode ballerina enum node.
+     * @return documentation for enum.
      */
     public static EnumDoc createDocForNode(EnumNode enumNode) {
         String enumName = enumNode.getName().getValue();
@@ -210,7 +215,7 @@ public class Generator {
 
     /**
      * Create documentation for annotations
-     * @param annotationNode
+     * @param annotationNode ballerina annotation node.
      * @return documentation for annotation
      */
     public static AnnotationDoc createDocForNode(BLangAnnotation annotationNode) {
@@ -232,7 +237,7 @@ public class Generator {
 
     /**
      * Create documentation for global variables
-     * @param bLangVariable
+     * @param bLangVariable ballerina variable node.
      * @return documentation for global variables
      */
     public static GlobalVariableDoc createDocForNode(BLangVariable bLangVariable) {
@@ -244,7 +249,7 @@ public class Generator {
 
     /**
      * Create documentation for functions
-     * @param functionNode
+     * @param functionNode ballerina function node.
      * @return documentation for functions
      */
     public static FunctionDoc createDocForNode(BLangFunction functionNode) {
@@ -276,7 +281,7 @@ public class Generator {
 
     /**
      * Create documentation for actions
-     * @param actionNode
+     * @param actionNode ballerina action node.
      * @return documentation for actions
      */
     public static ActionDoc createDocForNode(BLangAction actionNode) {
@@ -308,7 +313,7 @@ public class Generator {
 
     /**
      * Create documentation for structs
-     * @param structNode
+     * @param structNode ballerina struct node.
      * @return documentation for structs
      */
     public static StructDoc createDocForNode(BLangStruct structNode) {
@@ -334,7 +339,7 @@ public class Generator {
 
     /**
      * Create documentation for connectors
-     * @param connectorNode
+     * @param connectorNode ballerina connector node.
      * @return documentation for connectors
      */
     public static ConnectorDoc createDocForNode(BLangConnector connectorNode) {
@@ -517,9 +522,9 @@ public class Generator {
     }
 
     /**
-     * Get the anonymus struct string
+     * Get the anonymous struct string
      * @param type struct type
-     * @return anonymus struct string
+     * @return anonymous struct string
      */
     private static String getAnonStructString(BStructType type) {
         StringBuilder builder = new StringBuilder();

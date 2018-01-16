@@ -112,7 +112,7 @@ label.thin-text{
     margin-top: 30px;
     padding-bottom: 15px;
     width: 82%;
-    height: 94%;
+    height: 96%;
     position: fixed;
     overflow: scroll;
 }
@@ -217,7 +217,7 @@ td, th{
     margin-top: 40px;
     padding-bottom: 15px;
     width: 17%;
-    height: 94%;
+    height: 96%;
     position: fixed;
     overflow: scroll;
     background-color: #f0f0f0;
@@ -232,7 +232,7 @@ td, th{
     width: 100%;
 }
 
-.package-name-ul.active {
+.package-name-ul.active-package {
     padding: 0 0 15px 0;
     background: #f9f9f9 !important;
 }
@@ -291,4 +291,8 @@ td, th{
 
 .construct-wrapper {
     margin: 2em 0;
+}
+
+.navbar-default .navbar-nav>.active>a {
+    background-color: transparent;
 }

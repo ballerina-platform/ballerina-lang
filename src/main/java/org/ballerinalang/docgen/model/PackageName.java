@@ -22,10 +22,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
- *
+ * Documentation model for representing a package name.
  */
 public class PackageName {
     public final String prefix;
@@ -35,14 +36,10 @@ public class PackageName {
     public PackageName(String prefix, String suffix) {
         this.prefix = prefix;
         this.suffix = suffix;
-        name = prefix + suffix;
+        name = this.prefix + this.suffix;
     }
     
-    public String getName() {
-        return this.name;
-    }
-    
-    public static List<PackageName> convertList(List<String> packageNames) {
+    public static List<Link> convertList(List<String> packageNames) {
     
         // Contains the common part of all packages
         List<String> commonPackagePart = null;
@@ -76,6 +73,7 @@ public class PackageName {
             String finalPrefix = prefix;
             return packageNames.stream()
                     .map((packageName) -> new PackageName(finalPrefix, packageName.replace(finalPrefix, "")))
+                    .map((packageObj -> new Link(packageObj, packageObj.name.toLowerCase(Locale.getDefault()), true)))
                     .collect(Collectors.toList());
         } else {
             return new ArrayList<>();

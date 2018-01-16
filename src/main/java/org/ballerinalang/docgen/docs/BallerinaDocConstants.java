@@ -28,5 +28,6 @@ public class BallerinaDocConstants {
     public static final String TEMPLATES_FOLDER_PATH_KEY = "templates.folder.path";
     public static final String INDEX_TEMPLATE_NAME_KEY = "index.template.name";
     public static final String ENABLE_DEBUG_LOGS = "debugDocerina";
-    public static final String PRIMITIVE_TYPES_PAGE_NAME = "Primitive-Types";
+    public static final String PRIMITIVE_TYPES_PAGE_NAME = "Primitive Types";
+    public static final String PRIMITIVE_TYPES_PAGE_HREF = "primitive-types";
 }
