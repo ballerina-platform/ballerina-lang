@@ -28,8 +28,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
-import org.ballerinalang.runtime.message.StringDataSource;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
