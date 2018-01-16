@@ -111,7 +111,8 @@
         <div class="col-sm-9 col-lg-10 content-wrapper main-wrapper">
             <div id="content">
                 <h3 class="thin-text padding-bottom">
-                    <span class="bold">{{packageName}}</span> package
+                    <span class="bold">{{packageName}}</span>
+                    {{#stringNotEquals packageName "Primitive Types"}}package{{/stringNotEquals}}
                 </h3>
                 {{#each constructs}}
                     <div class="construct-wrapper">
