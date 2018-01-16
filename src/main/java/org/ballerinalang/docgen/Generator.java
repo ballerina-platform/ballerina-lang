@@ -31,6 +31,7 @@ import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.PrimitiveTypeDoc;
 import org.ballerinalang.docgen.model.StructDoc;
 import org.ballerinalang.docgen.model.Variable;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.EnumNode;
@@ -75,44 +76,57 @@ public class Generator {
         // Check for structs in the package
         if (balPackage.getStructs().size() > 0) {
             for (BLangStruct struct : balPackage.getStructs()) {
-                documentables.add(createDocForNode(struct));
+                if (struct.getFlags().contains(Flag.PUBLIC)) {
+                    documentables.add(createDocForNode(struct));
+                }
             }
         }
         // Check for functions in the package
         if (balPackage.getFunctions().size() > 0) {
             for (BLangFunction function : balPackage.getFunctions()) {
-                if (function.getReceiver() != null) {
-                    if (documentables.size() > 0) {
-                        for (Documentable parentDocumentable : documentables) {
-                            TypeNode langType = function.getReceiver().getTypeNode();
-                            String typeName = (langType instanceof BLangUserDefinedType ?
-                                    ((BLangUserDefinedType) langType).typeName.value : langType.toString());
-                            if (typeName.equals(parentDocumentable.name)) {
-                                parentDocumentable.children.add(createDocForNode(function));
+                if (function.getFlags().contains(Flag.PUBLIC)) {
+                    if (function.getReceiver() != null) {
+                        if (documentables.size() > 0) {
+                            for (Documentable parentDocumentable : documentables) {
+                                TypeNode langType = function.getReceiver().getTypeNode();
+                                String typeName = (langType instanceof BLangUserDefinedType ?
+                                               ((BLangUserDefinedType) langType).typeName.value : langType.toString());
+                                
+                                if (typeName.equals(parentDocumentable.name)) {
+                                    parentDocumentable.children.add(createDocForNode(function));
+                                }
                             }
                         }
+                    } else {
+                        // If there's no receiver type i.e. no struct binding to the function
+                        documentables.add(createDocForNode(function));
                     }
-                } else {
-                    // If there's no receiver type i.e. no struct binding to the function
-                    documentables.add(createDocForNode(function));
                 }
             }
         }
         // Check for connectors in the package
         for (BLangConnector connector : balPackage.getConnectors()) {
-            documentables.add(createDocForNode(connector));
+            if (connector.getFlags().contains(Flag.PUBLIC)) {
+                documentables.add(createDocForNode(connector));
+            }
         }
         // Check for connectors in the package
         for (EnumNode enumNode : balPackage.getEnums()) {
-            documentables.add(createDocForNode(enumNode));
+            if (enumNode.getFlags().contains(Flag.PUBLIC)) {
+                documentables.add(createDocForNode(enumNode));
+            }
         }
         // Check for annotations
         for (BLangAnnotation annotation : balPackage.getAnnotations()) {
-            documentables.add(createDocForNode(annotation));
+            if (annotation.getFlags().contains(Flag.PUBLIC)) {
+                documentables.add(createDocForNode(annotation));
+            }
         }
         // Check for global variables
         for (BLangVariable var : balPackage.getGlobalVariables()) {
-            documentables.add(createDocForNode(var));
+            if (var.getFlags().contains(Flag.PUBLIC)) {
+                documentables.add(createDocForNode(var));
+            }
         }
         
         // Create the links to select which page or package is active
@@ -127,7 +141,7 @@ public class Generator {
         // Check for functions in the package
         if (balPackage.getFunctions().size() > 0) {
             for (BLangFunction function : balPackage.getFunctions()) {
-                if (function.getReceiver() != null) {
+                if (function.getFlags().contains(Flag.PUBLIC) && function.getReceiver() != null) {
                     TypeNode langType = function.getReceiver().getTypeNode();
                     if (!(langType instanceof BLangUserDefinedType)) {
                         // Check for primitives in ballerina.builtin
@@ -163,20 +177,6 @@ public class Generator {
                                                                                             String pageNameOverride) {
         List<Link> links = new ArrayList<>();
         String pageName = null != pageNameOverride ? pageNameOverride : (balPackage.symbol).pkgID.name.value;
-//
-//        Optional<PackageName> ballerinaBuiltinPackage = packages.stream()
-//                .filter(p -> p.name.equals("ballerina.builtin"))
-//                .findFirst();
-    
-//        if (ballerinaBuiltinPackage.isPresent()) {
-//            PackageName primitivePackageName = new PackageName("", "Primitive-Types");
-//            if ("Primitive-Types".equals(pageName)) {
-//                links.add(new Link(primitivePackageName, true));
-//            } else {
-//                links.add(new Link(primitivePackageName, false));
-//            }
-//        }
-    
         for (PackageName pkg : packages) {
             if (pkg.getName().equals(pageName)) {
                 links.add(new Link(pkg, true));

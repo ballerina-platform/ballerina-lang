@@ -148,6 +148,7 @@
                                                 {{#if parameters}}
                                                     <p>
                                                         <label class="table-header-text">Parameters:</label>
+                                                    </p>
                                                     <table>
                                                         <tr>
                                                             <th class="col-md-4">Parameter Name</th>
@@ -162,10 +163,11 @@
                                                             </tr>
                                                         {{/each}}
                                                     </table>
-                                                    </p>
                                                 {{/if}}
                                                 {{#if returnParams}}
-                                                    <label class="table-header-text">Return Parameters:</label>
+                                                    <p>
+                                                        <label class="table-header-text">Return Parameters:</label>
+                                                    </p>
                                                     <table>
                                                         <tr>
                                                             <th class="col-md-4">Return Variable</th>
@@ -180,7 +182,6 @@
                                                             </tr>
                                                         {{/each}}
                                                     </table>
-                                                    </p>
                                                 {{/if}}
                                             </li>
                                         {{/each}}
@@ -206,6 +207,7 @@
                             {{#if parameters}}
                                 <p>
                                     <label class="table-header-text">Parameters:</label>
+                                </p>
                                 <table>
                                     <tr>
                                         <th class="col-md-4">Parameter Name</th>
@@ -220,12 +222,12 @@
                                         </tr>
                                     {{/each}}
                                 </table>
-                                </p>
                             {{/if}}
                             {{#if bLangNode.retParams}}
                                 <p>
                                     <label class="table-header-text">Return Parameters:</label>
-                                <table border="1">
+                                </p>
+                                <table>
                                     <tr>
                                         <th class="col-md-4">Return Variable</th>
                                         <th class="col-md-2">Data Type</th>
@@ -239,7 +241,6 @@
                                         </tr>
                                     {{/each}}
                                 </table>
-                                </p>
                             {{/if}}
                         {{/if}}
                         <!-- Struct-binded functions grouped together -->
@@ -256,6 +257,7 @@
                             {{#if fields}}
                                 <p>
                                     <label class="table-header-text">Fields:</label>
+                                </p>
                                 <table>
                                     <tr>
                                         <th class="col-md-4">Field Name</th>
@@ -270,7 +272,6 @@
                                         </tr>
                                     {{/each}}
                                 </table>
-                                </p>
                             {{/if}}
                             {{#if children}}
                                 <div class="function-wrapper">
@@ -294,6 +295,7 @@
                                                 {{#if parameters}}
                                                     <p>
                                                         <label class="table-header-text">Parameters:</label>
+                                                    </p>
                                                     <table>
                                                         <tr>
                                                             <th class="col-md-4">Parameter Name</th>
@@ -308,10 +310,11 @@
                                                             </tr>
                                                         {{/each}}
                                                     </table>
-                                                    </p>
                                                 {{/if}}
                                                 {{#if returnParams}}
-                                                    <label class="table-header-text">Return Parameters:</label>
+                                                    <p>
+                                                        <label class="table-header-text">Return Parameters:</label>
+                                                    </p>
                                                     <table>
                                                         <tr>
                                                             <th class="col-md-4">Return Variable</th>
@@ -326,7 +329,6 @@
                                                             </tr>
                                                         {{/each}}
                                                     </table>
-                                                    </p>
                                                 {{/if}}
                                             </li>
                                         {{/each}}
@@ -348,6 +350,7 @@
                             {{#if parameters}}
                                 <p>
                                     <label class="table-header-text">Parameters:</label>
+                                </p>
                                 <table>
                                     <tr>
                                         <th class="col-md-4">Parameter Name</th>
@@ -362,7 +365,6 @@
                                         </tr>
                                     {{/each}}
                                 </table>
-                                </p>
                             {{/if}}
                             {{#if children}}
                                 <div class="function-wrapper">
@@ -387,6 +389,7 @@
                                                 {{#if parameters}}
                                                     <p>
                                                         <label class="table-header-text">Parameters:</label>
+                                                    </p>
                                                     <table>
                                                         <tr>
                                                             <th class="col-md-4">Parameter Name</th>
@@ -401,11 +404,11 @@
                                                             </tr>
                                                         {{/each}}
                                                     </table>
-                                                    </p>
                                                 {{/if}}
                                                 {{#if returnParams}}
                                                     <p>
                                                         <label class="table-header-text">Return Parameters:</label>
+                                                    </p>
                                                     <table>
                                                         <tr>
                                                             <th class="col-md-4">Return Variable</th>
@@ -420,7 +423,6 @@
                                                             </tr>
                                                         {{/each}}
                                                     </table>
-                                                    </p>
                                                 {{/if}}
                                             </li>
                                         {{/each}}
@@ -442,6 +444,7 @@
                             {{#if enumerators}}
                                 <p>
                                     <label class="table-header-text">Enumerators:</label>
+                                </p>
                                 <table>
                                     <tr>
                                         <th class="col-md-4">Name</th>
@@ -454,7 +457,6 @@
                                         </tr>
                                     {{/each}}
                                 </table>
-                                </p>
                             {{/if}}
                         {{/if}}
                         <!-- Annotations-->
@@ -471,6 +473,7 @@
                             {{#if attributes}}
                                 <p>
                                     <label class="table-header-text">Attributes:</label>
+                                </p>
                                 <table>
                                     <tr>
                                         <th class="col-md-4">Attribute Name</th>
@@ -485,7 +488,6 @@
                                         </tr>
                                     {{/each}}
                                 </table>
-                                </p>
                             {{/if}}
                         {{/if}}
                         <!-- Global Variables-->
