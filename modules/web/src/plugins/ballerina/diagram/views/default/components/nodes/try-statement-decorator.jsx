@@ -19,7 +19,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
-import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
 import './compound-statement-decorator.css';
@@ -49,9 +48,6 @@ class TryStatementDecorator extends React.Component {
         this.onJumpToCodeLine = this.onJumpToCodeLine.bind(this);
         this.setActionVisibilityFalse = this.setActionVisibility.bind(this, false);
         this.setActionVisibilityTrue = this.setActionVisibility.bind(this, true);
-        this.openExpressionEditor = e => this.openEditor(this.props.expression, this.props.editorOptions, e);
-        this.openParameterEditor = e => this.openEditor(this.props.parameterEditorOptions.value,
-            this.props.parameterEditorOptions, e);
     }
     /**
      * Handles click event of breakpoint, adds/remove breakpoint from the node when click event fired
@@ -145,22 +141,6 @@ class TryStatementDecorator extends React.Component {
     }
 
     /**
-     * renders an ExpressionEditor in the header space.
-     * @param {string} value - Initial value.
-     * @param {object} options - options to be sent to ExpressionEditor.
-     */
-    openEditor(value, options) {
-        const packageScope = this.context.environment;
-        if (value && options) {
-            new ExpressionEditor(
-                this.conditionBox,
-                this.onUpdate.bind(this),
-                options,
-                packageScope).render(this.context.getOverlayContainer());
-        }
-    }
-
-    /**
      * Render breakpoint element.
      * @private
      * @return {XML} React element of the breakpoint.
@@ -189,7 +169,7 @@ class TryStatementDecorator extends React.Component {
      * @returns {XML} rendered component.
      */
     render() {
-        const { bBox, expression, isBreakpoint, isDebugHit } = this.props;
+        const { bBox, isBreakpoint, isDebugHit } = this.props;
         const { designer } = this.context;
 
         const model = this.props.model;
@@ -231,17 +211,11 @@ class TryStatementDecorator extends React.Component {
         const p5X = p4X;
         const p5Y = statementBBox.y + statementBBox.h;
 
-        const p6X = bBox.x;
-        const p6Y = p5Y;
-
         const p7X = p1X;
         const p7Y = p5Y;
 
         const p8X = bBox.x;
         const p8Y = p2Y + (titleH / 2);
-
-        const p9X = p4X;
-        const p9Y = p8Y - titleH;
 
         const p11X = p1X;
         const p11Y = p1Y + (titleH / 2);
@@ -263,6 +237,7 @@ class TryStatementDecorator extends React.Component {
         const body = getComponentForNodeArray(this.props.model.body);
         const finallyStmt = model.finallyBody;
         const disableDeleteForFinally = model.catchBlocks.length <= 0 && model.finallyBody;
+        const disableDeleteForCatch = model.catchBlocks.length === 1 && (!model.finallyBody);
 
         return (
             <g
@@ -301,17 +276,6 @@ class TryStatementDecorator extends React.Component {
                     enableDragBg
                     enableCenterOverlayLine={!this.props.disableDropzoneMiddleLineOverlay}
                 />
-                <g>
-                    <rect
-                        x={p2X}
-                        y={p9Y}
-                        width={titleW}
-                        height={titleH}
-                        onClick={this.openExpressionEditor}
-                        className='invisible-rect'
-                    />
-                    {expression && <title> {expression.text} </title>}
-                </g>
                 { isBreakpoint && this.renderBreakpointIndicator() }
                 {this.props.children}
                 {body}
@@ -346,6 +310,7 @@ class TryStatementDecorator extends React.Component {
                                             top: connectorEdgeTopX,
                                             bottom: connectorEdgeBottomX,
                                         }}
+                                        disableButtons={{ delete: disableDeleteForCatch }}
                                     />
                                     <line
                                         x1={catchStmt.viewState.bBox.x}
@@ -366,8 +331,28 @@ class TryStatementDecorator extends React.Component {
                             connectorEdgeBottomX = catchStmt.viewState.bBox.x;
                             return catchComp;
                         });
-                        if (!finallyStmt) {
-                            const connectorLineComp = (
+                        let connectorLineComp;
+                        if (finallyStmt) {
+                            const arrowY = finallyStmt.viewState.bBox.y - designer.config.statement.gutter.h;
+                            // for arrow head add 5 when there are statements, as the start and end x positions overlap
+                            const arrowStartX = (finallyStmt.statements.length === 0) ? p4X : p4X + 5;
+                            connectorLineComp = (
+                                <g>
+                                    <ArrowDecorator
+                                        start={{
+                                            x: arrowStartX,
+                                            y: arrowY,
+                                        }}
+                                        end={{
+                                            x: finallyStmt.viewState.bBox.x + finallyStmt.viewState.bBox.w,
+                                            y: arrowY,
+                                        }}
+                                        classNameArrow='flowchart-action-arrow'
+                                        classNameArrowHead='flowchart-action-arrow-head'
+                                    />
+                                </g>);
+                        } else {
+                            connectorLineComp = (
                                 <ArrowDecorator
                                     start={{
                                         x: p4X,
@@ -380,12 +365,11 @@ class TryStatementDecorator extends React.Component {
                                     classNameArrow='flowchart-action-arrow'
                                     classNameArrowHead='flowchart-action-arrow-head'
                                 />);
-                            return (<g>
-                                {connectorLineComp}
-                                {<g>{ catchComponents }</g>}
-                            </g>);
                         }
-                        return (<g>{ catchComponents }</g>);
+                        return (<g>
+                            {connectorLineComp}
+                            {<g>{ catchComponents }</g>}
+                        </g>);
                     }
                     return (null);
                 })()}
@@ -422,21 +406,6 @@ TryStatementDecorator.propTypes = {
     children: PropTypes.arrayOf(PropTypes.node),
     bBox: PropTypes.instanceOf(SimpleBBox).isRequired,
     dropTarget: PropTypes.instanceOf(Node).isRequired,
-    editorOptions: PropTypes.shape({
-        propertyType: PropTypes.string,
-        key: PropTypes.string,
-        model: PropTypes.instanceOf(Node),
-        getterMethod: PropTypes.func,
-        setterMethod: PropTypes.func,
-    }),
-    parameterEditorOptions: PropTypes.shape({
-        propertyType: PropTypes.string,
-        key: PropTypes.string,
-        value: PropTypes.string,
-        model: PropTypes.instanceOf(Node),
-        getterMethod: PropTypes.func,
-        setterMethod: PropTypes.func,
-    }),
     onBreakpointClick: PropTypes.func.isRequired,
     isBreakpoint: PropTypes.bool.isRequired,
     disableButtons: PropTypes.shape({
