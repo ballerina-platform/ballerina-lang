@@ -101,11 +101,11 @@
                                id="ballerinaSkipAutoPopupInFloats"/>
 
         <completion.confidence language="Ballerina"
-                               implementationClass="org.ballerinalang.plugins.idea.codeinsight.completion.SkipAutoPopupInStrings"
+                               implementationClass="org.ballerinalang.plugins.idea.codeInsight.completion.SkipAutoPopupInStrings"
                                id="ballerinaSkipAutoPopupInStrings"/>
 
         <completion.confidence language="Ballerina"
-                               implementationClass="org.ballerinalang.plugins.idea.codeinsight.completion.SkipAutoPopupInComments"
+                               implementationClass="org.ballerinalang.plugins.idea.codeInsight.completion.SkipAutoPopupInComments"
                                id="ballerinaSkipAutoPopupInComments"/>
 
         <!--line marker-->
