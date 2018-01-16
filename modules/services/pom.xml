@@ -12,8 +12,42 @@
 
     <artifactId>composer-services-parent</artifactId>
     <name>Ballerina Composer - Services Parent</name>
+    <packaging>pom</packaging>
     <modules>
         <module>workspace-service</module>
     </modules>
-
+    <dependencies>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>composer-server-core</artifactId>
+            <version>0.95.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <!-- Generate JAVA SPI configs -->
+            <plugin>
+                <groupId>org.bsc.maven</groupId>
+                <artifactId>maven-processor-plugin</artifactId>
+                <version>${mvn.processor.plugin.version}</version>
+                <configuration>
+                    <processors>
+                        <processor>org.ballerinalang.composer.server.processor.ComposerServiceProcessor</processor>
+                    </processors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>process</id>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <properties>
+        <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
+    </properties>
 </project>
