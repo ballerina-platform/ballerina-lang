@@ -214,6 +214,7 @@ class LifelineButton extends React.Component {
                     buttonY={0}
                     showAlways
                     buttonRadius={8}
+                    menuOverButton
                 >
                     <Menu>
                         { !this.state.listConnectors && !this.state.listActions &&
@@ -230,12 +231,13 @@ class LifelineButton extends React.Component {
                         }
                         {this.state.listActions && !this.state.listConnectors &&
                         <div>
-                            <div
-                                className='connector-select-close'
-                                onClick={this.hideActions}
-                            >
-                                <i className='fw fw-left' /> Select an endpoint
-                            </div><br /><br />
+                            <div className='endpoint-select-header'>
+                                <div
+                                    className='connector-select-close'
+                                >
+                                    <i onClick={this.hideActions} className='nav-button fw fw-left' />Select an endpoint
+                                </div>
+                            </div>
                             {
                             currentEndpoints.map((statement) => {
                                 return (<Item

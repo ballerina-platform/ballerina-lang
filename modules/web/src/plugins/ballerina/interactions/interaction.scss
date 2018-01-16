@@ -34,7 +34,7 @@
 }
 
 .button-show-always{
-    z-index:50;
+    z-index:51;
     display: block;
     left:2px;
     top:2px;
@@ -184,7 +184,6 @@
 .connector-select-close {
     float: left;
     margin: 15px 0 0 15px;
-    cursor: pointer;
 }
 
 .add-new-connector-area {
@@ -205,4 +204,13 @@
 
 .add-new-connector-button:active {
     background: #ffca28;
+}
+
+.endpoint-select-header {
+    display: inline-block;
+}
+
+.nav-button {
+    padding-right: 10px;
+    cursor: pointer;
 }
