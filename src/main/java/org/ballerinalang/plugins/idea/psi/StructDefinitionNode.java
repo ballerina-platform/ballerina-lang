@@ -20,34 +20,23 @@ import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
-import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaItemPresentation;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import java.util.Collection;
+
+import javax.swing.Icon;
 
 public class StructDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
 
     public StructDefinitionNode(@NotNull ASTNode node) {
-        super(node, BallerinaParserDefinition.ID);
-    }
-
-    @Nullable
-    @Override
-    public PsiElement resolve(PsiNamedElement element) {
-        if (element.getParent() instanceof VariableReferenceNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//fieldDefinition/Identifier");
-        } else if (element.getParent() instanceof StatementNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//fieldDefinition/Identifier");
-        } else if (element.getParent() instanceof NameReferenceNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//fieldDefinition/Identifier");
-        }
-        return null;
+        super(node, BallerinaTypes.IDENTIFIER);
     }
 
     @Override
@@ -60,5 +49,21 @@ public class StructDefinitionNode extends IdentifierDefSubtree implements ScopeN
                 return BallerinaIcons.STRUCT;
             }
         };
+    }
+
+    @Nullable
+    @Override
+    public PsiElement resolve(PsiNamedElement element) {
+        Collection<FieldDefinitionNode> fieldDefinitionNodes = PsiTreeUtil.findChildrenOfType(this,
+                FieldDefinitionNode.class);
+        for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
+            IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode, IdentifierPSINode.class);
+            if (fieldName != null) {
+                if (fieldName.getText().equals(element.getText())) {
+                    return fieldName;
+                }
+            }
+        }
+        return null;
     }
 }

@@ -1,4 +1,4 @@
-const int /*def*/a;
+const int /*def*/a=10;
 
 connector test () {
 

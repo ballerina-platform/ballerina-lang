@@ -19,15 +19,12 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
-import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
-import org.antlr.jetbrains.adaptor.psi.ScopeNode;
-import org.ballerinalang.plugins.idea.BallerinaLanguage;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
+import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ServiceBodyNode extends ANTLRPsiNode implements ScopeNode {
+public class ServiceBodyNode extends ANTLRPsiNode implements VariableContainer {
 
     public ServiceBodyNode(@NotNull ASTNode node) {
         super(node);
@@ -36,17 +33,6 @@ public class ServiceBodyNode extends ANTLRPsiNode implements ScopeNode {
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
-        if (element.getParent() instanceof VariableReferenceNode) {
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//variableDefinitionStatement/Identifier");
-        } else if (element.getParent() instanceof NameReferenceNode) {
-            PsiElement resolvedElement = BallerinaPsiImplUtil.resolveElement(this, element,
-                    "//variableDefinitionStatement/Identifier", "//parameter/Identifier");
-            if (resolvedElement != null) {
-                return resolvedElement;
-            }
-            return BallerinaPsiImplUtil.resolveNameReferenceNode(this, element);
-        }
         return null;
     }
 }

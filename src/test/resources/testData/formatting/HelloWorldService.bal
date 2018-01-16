@@ -1,13 +1,10 @@
-    import  ballerina   .       lang    .   messages    ;
-    import  ballerina      .  net  . http ;
+import ballerina.net.http;
+import ballerina.net.http.response;
 
-    @   http   :  BasePath  {    value   :  "/hello"  }
-    service  helloWorld   {
+    service<    http    >   helloWorld   {
 
-     @   http   :  GET    { }
-     resource    sayHello   ( message   m    )    {
-         message     response     =  {    }   ;
-             messages    :   setStringPayload   (  response  ,     "Hello, World!" )    ;
-                reply   response  ;
-         }
-            }
+         resource sayHello ( http:    Request req ,    http   :  Response   res  ) {
+              response: setStringPayload(   res,     "Hello, World!");
+        response:   send(  res);
+       }
+    }

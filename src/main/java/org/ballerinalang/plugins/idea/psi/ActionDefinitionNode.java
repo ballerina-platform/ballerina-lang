@@ -20,38 +20,21 @@ import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
-import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
-import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
-import org.ballerinalang.plugins.idea.BallerinaLanguage;
-import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaItemPresentation;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
+import org.ballerinalang.plugins.idea.psi.scopes.LowerLevelDefinition;
+import org.ballerinalang.plugins.idea.psi.scopes.ParameterContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
-public class ActionDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
+public class ActionDefinitionNode extends IdentifierDefSubtree implements LowerLevelDefinition, ParameterContainer {
 
     public ActionDefinitionNode(@NotNull ASTNode node) {
-        super(node, BallerinaParserDefinition.ID);
-    }
-
-    @Nullable
-    @Override
-    public PsiElement resolve(PsiNamedElement element) {
-        if (element.getParent() instanceof VariableReferenceNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
-        } else if (element.getParent() instanceof NameReferenceNode) {
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//parameter/Identifier");
-        } else if (element.getParent() instanceof TypeNameNode) {
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//connectorDefinition/Identifier");
-        }
-        return null;
+        super(node, BallerinaTypes.IDENTIFIER);
     }
 
     @Override
@@ -64,5 +47,11 @@ public class ActionDefinitionNode extends IdentifierDefSubtree implements ScopeN
                 return BallerinaIcons.ACTION;
             }
         };
+    }
+
+    @Nullable
+    @Override
+    public PsiElement resolve(PsiNamedElement element) {
+        return null;
     }
 }

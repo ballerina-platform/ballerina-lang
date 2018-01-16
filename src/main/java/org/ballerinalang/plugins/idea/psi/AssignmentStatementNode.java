@@ -17,12 +17,29 @@
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.lang.ASTNode;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
+import com.intellij.psi.tree.IElementType;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 
 public class AssignmentStatementNode extends ANTLRPsiNode {
 
     public AssignmentStatementNode(@NotNull ASTNode node) {
         super(node);
+    }
+
+    public boolean isVar() {
+        PsiElement[] children = getChildren();
+        if (children.length > 0) {
+            if (children[0] instanceof LeafPsiElement) {
+                IElementType elementType = ((LeafPsiElement) children[0]).getElementType();
+                if (elementType == BallerinaTypes.VAR) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

@@ -18,7 +18,10 @@ package org.ballerinalang.plugins.idea.actions;
 
 import com.intellij.ide.fileTemplates.DefaultTemplatePropertiesProvider;
 import com.intellij.ide.fileTemplates.FileTemplate;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.psi.PsiDirectory;
+import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 
 import java.util.Properties;
@@ -29,7 +32,11 @@ public class BallerinaTemplatePropertiesProvider implements DefaultTemplatePrope
 
     @Override
     public void fillProperties(PsiDirectory directory, Properties props) {
-        String packageForDirectory = BallerinaUtil.suggestPackageNameForDirectory(directory);
-        props.setProperty(BALLERINA_PACKAGE_NAME, packageForDirectory);
+        Module module = ModuleUtil.findModuleForPsiElement(directory);
+        boolean isBallerinaModule = BallerinaSdkService.getInstance(directory.getProject()).isBallerinaModule(module);
+        if (isBallerinaModule) {
+            String packageForDirectory = BallerinaUtil.suggestPackageNameForDirectory(directory);
+            props.setProperty(BALLERINA_PACKAGE_NAME, packageForDirectory);
+        }
     }
 }

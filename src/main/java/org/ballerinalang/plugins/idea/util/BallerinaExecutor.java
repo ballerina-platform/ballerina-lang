@@ -50,9 +50,9 @@ import com.intellij.util.EnvironmentUtil;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
-import org.ballerinalang.plugins.idea.run.configuration.BallerinaConsoleFilter;
-import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunUtil;
-import org.ballerinalang.plugins.idea.sdk.BallerinaSdkUtil;
+import org.ballerinalang.plugins.idea.runconfig.BallerinaConsoleFilter;
+import org.ballerinalang.plugins.idea.runconfig.BallerinaRunUtil;
+import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -345,8 +345,8 @@ public class BallerinaExecutor {
     public GeneralCommandLine createCommandLine() throws ExecutionException {
         GeneralCommandLine commandLine = !myPtyDisabled && PtyCommandLine.isEnabled() ?
                 new PtyCommandLine() : new GeneralCommandLine();
-        commandLine.setExePath(ObjectUtils.notNull(myExePath, ObjectUtils.notNull(BallerinaSdkUtil
-                .getBallerinaExecutablePath(myProject))));
+        commandLine.setExePath(ObjectUtils.notNull(myExePath, ObjectUtils.notNull(BallerinaSdkService
+                .getBallerinaExecutablePath(myBallerinaPath))));
         commandLine.getEnvironment().putAll(myExtraEnvironment);
         //Todo - Add BALLERINA_REPOSITORY
         //        commandLine.getEnvironment().put(BallerinaConstants.BALLERINA_REPOSITORY,

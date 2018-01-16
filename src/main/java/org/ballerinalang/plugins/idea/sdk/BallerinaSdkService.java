@@ -17,37 +17,37 @@
 package org.ballerinalang.plugins.idea.sdk;
 
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
-import com.intellij.openapi.components.ComponentManager;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtil;
+import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.SimpleModificationTracker;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.psi.util.CachedValueProvider;
-import com.intellij.psi.util.CachedValuesManager;
-import com.intellij.util.ObjectUtils;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.VfsUtilCore;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
-import org.ballerinalang.plugins.idea.BallerinaModuleType;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.TestOnly;
 
 import java.io.File;
 import java.util.Set;
 
-public class BallerinaSdkService extends SimpleModificationTracker {
+public abstract class BallerinaSdkService extends SimpleModificationTracker {
 
     public static final Logger LOG = Logger.getInstance(BallerinaSdkService.class);
     private static final Set<String> FEDORA_SUBDIRECTORIES = ContainerUtil.newHashSet("linux_amd64", "linux_386",
             "linux_arm");
-    private Project myProject;
+    private static String ourTestSdkVersion;
+    @NotNull
+    protected final Project myProject;
 
     protected BallerinaSdkService(@NotNull Project project) {
         myProject = project;
@@ -55,6 +55,35 @@ public class BallerinaSdkService extends SimpleModificationTracker {
 
     public static BallerinaSdkService getInstance(@NotNull Project project) {
         return ServiceManager.getService(project, BallerinaSdkService.class);
+    }
+
+    @Nullable
+    public abstract String getSdkHomePath(@Nullable Module module);
+
+    @NotNull
+    public static String libraryRootToSdkPath(@NotNull VirtualFile root) {
+        return VfsUtilCore.urlToPath(StringUtil.trimEnd(StringUtil.trimEnd(StringUtil.trimEnd(root.getUrl(),
+                "src/pkg"), "src"), "/"));
+    }
+
+    @Nullable
+    public String getSdkVersion(@Nullable Module module) {
+        return ourTestSdkVersion;
+    }
+
+    public abstract void chooseAndSetSdk(@Nullable Module module);
+
+    /**
+     * Use this method in order to check whether the method is appropriate for providing Ballerina-specific code insight
+     */
+    @Contract("null -> false")
+    public boolean isBallerinaModule(@Nullable Module module) {
+        return module != null && !module.isDisposed();
+    }
+
+    @Nullable
+    public Configurable createSdkConfigurable() {
+        return null;
     }
 
     public static String getBallerinaExecutablePath(@Nullable String sdkHomePath) {
@@ -90,34 +119,12 @@ public class BallerinaSdkService extends SimpleModificationTracker {
         return null;
     }
 
-    @Contract("null -> false")
-    public boolean isBallerinaModule(@Nullable Module module) {
-        return module != null && ModuleUtil.getModuleType(module) == BallerinaModuleType.getInstance();
-    }
-
-    public String getSdkHomePath(@Nullable Module module) {
-        Sdk sdk = getBallerinaSdk(module);
-        return sdk != null ? sdk.getHomePath() : null;
-    }
-
-    private Sdk getBallerinaSdk(@Nullable Module module) {
-        if (module != null) {
-            Sdk sdk = ModuleRootManager.getInstance(module).getSdk();
-            if (sdk != null && sdk.getSdkType() instanceof BallerinaSdkType) {
-                return sdk;
-            }
-        }
-        Sdk sdk = ProjectRootManager.getInstance(myProject).getProjectSdk();
-        return sdk != null && sdk.getSdkType() instanceof BallerinaSdkType ? sdk : null;
-    }
-
-
-    @Nullable
-    public String getSdkVersion(@Nullable Module module) {
-        ComponentManager holder = ObjectUtils.notNull(module, myProject);
-        return CachedValuesManager.getManager(myProject).getCachedValue(holder, () -> {
-            Sdk sdk = getBallerinaSdk(module);
-            return CachedValueProvider.Result.create(sdk != null ? sdk.getVersionString() : null, this);
+    @TestOnly
+    public static void setTestingSdkVersion(@Nullable String version, @NotNull Disposable disposable) {
+        ourTestSdkVersion = version;
+        Disposer.register(disposable, () -> {
+            //noinspection AssignmentToStaticFieldFromInstanceMethod
+            ourTestSdkVersion = null;
         });
     }
 }

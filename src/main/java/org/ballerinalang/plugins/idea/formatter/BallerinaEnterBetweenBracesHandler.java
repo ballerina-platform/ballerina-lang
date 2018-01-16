@@ -26,7 +26,10 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
+import com.intellij.psi.tree.IElementType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 
 public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandler {
@@ -54,6 +57,13 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
         PsiElement element = file.findElementAt(caretOffset);
         if (element == null) {
             return false;
+        }
+
+        if (element instanceof LeafPsiElement) {
+            IElementType elementType = ((LeafPsiElement) element).getElementType();
+            if (elementType == BallerinaTypes.QUOTED_STRING) {
+                return false;
+            }
         }
 
         // Check whether the previous non whitespace element is '{'. If so, that means the caret is within a block.

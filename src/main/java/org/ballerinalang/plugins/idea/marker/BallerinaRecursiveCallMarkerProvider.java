@@ -24,16 +24,14 @@ import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.FunctionUtil;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
-import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.FunctionInvocationNode;
-import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
-import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
-import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.FunctionReferenceNode;
+import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,16 +52,16 @@ public class BallerinaRecursiveCallMarkerProvider implements LineMarkerProvider 
         // This is used to prevent adding multiple line markers to the same line.
         Set<Integer> lines = ContainerUtil.newHashSet();
         for (PsiElement element : elements) {
-            if (!isValidElement(element)) {
+            // Check whether the current element can be used to add recursive call marker.
+            if (!isMatchingElement(element)) {
                 continue;
             }
-            // If it is a function invocation, there should be a parent of NameReferenceNode.
-            NameReferenceNode nameReferenceNode = PsiTreeUtil.getParentOfType(element, NameReferenceNode.class);
-            if (nameReferenceNode == null) {
-                continue;
-            }
-            PsiElement resolvedElement = resolveElement(nameReferenceNode);
+            // Resolve the element to the definition. We use this to get the common context later.
+            PsiElement resolvedElement = resolveElement(element);
             if (resolvedElement == null) {
+                continue;
+            }
+            if (!(resolvedElement.getParent() instanceof FunctionDefinitionNode)) {
                 continue;
             }
             // Get the document manager;
@@ -73,12 +71,13 @@ public class BallerinaRecursiveCallMarkerProvider implements LineMarkerProvider 
             if (document == null) {
                 continue;
             }
+
             // Get the offset of the current element.
             int textOffset = element.getTextOffset();
             // Get the line number of the current element.
             int lineNumber = document.getLineNumber(textOffset);
             // Find the common context. For a recursive call, the common context should be a FunctionDefinitionNode.
-            PsiElement commonContext = PsiTreeUtil.findCommonContext(nameReferenceNode, resolvedElement);
+            PsiElement commonContext = PsiTreeUtil.findCommonContext(element, resolvedElement);
             if (commonContext instanceof FunctionDefinitionNode && !lines.contains(lineNumber)) {
                 // Add the number to the set.
                 lines.add(lineNumber);
@@ -88,36 +87,27 @@ public class BallerinaRecursiveCallMarkerProvider implements LineMarkerProvider 
         }
     }
 
-    private boolean isValidElement(@NotNull PsiElement element) {
-        // Check whether the element is an instance of IdentifierPSINode since recursion can only happen for those
-        // (function name and function invocation both are instance of IdentifierPSINode).
-        PsiElement parent = element.getParent();
-        PsiElement superParent = null;
-        if (parent != null) {
-            superParent = parent.getParent();
-        }
-        if (!(element instanceof IdentifierPSINode)) {
+    private boolean isMatchingElement(@NotNull PsiElement element) {
+        // If it is a function invocation, it can be a VariableReferenceNode or a FunctionReferenceNode.
+        if (element instanceof VariableReferenceNode) {
+            // If the function invocation happens in a VariableReferenceNode, the next visible element must be "(".
+            PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(element);
+            if (!(nextVisibleLeaf instanceof LeafPsiElement) || !"(".equals(nextVisibleLeaf.getText())) {
+                return false;
+            }
+            return true;
+        } else if (element instanceof FunctionReferenceNode) {
+            return true;
+        } else {
+            // Don't check other element types
             return false;
         }
-        if (!(superParent instanceof ExpressionNode || superParent instanceof FunctionInvocationStatementNode
-                || superParent instanceof FunctionInvocationNode)) {
-            return false;
-        }
-        if (!(parent instanceof FunctionInvocationStatementNode || parent instanceof NameReferenceNode)) {
-            return false;
-        }
-        return true;
     }
 
     @Nullable
-    private PsiElement resolveElement(@NotNull NameReferenceNode nameReferenceNode) {
-        // Get the identifier.
-        PsiElement identifier = nameReferenceNode.getNameIdentifier();
-        if (identifier == null) {
-            return null;
-        }
+    private PsiElement resolveElement(@NotNull PsiElement element) {
         // Get the reference.
-        PsiReference reference = identifier.getReference();
+        PsiReference reference = element.findReferenceAt(element.getTextLength());
         if (reference == null) {
             return null;
         }

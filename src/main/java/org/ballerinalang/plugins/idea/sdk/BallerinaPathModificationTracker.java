@@ -30,6 +30,7 @@ import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Set;
 
@@ -37,10 +38,12 @@ public class BallerinaPathModificationTracker {
 
     private final Set<String> pathsToTrack = ContainerUtil.newHashSet();
     private final Collection<VirtualFile> ballerinaPathRoots = ContainerUtil.newLinkedHashSet();
+    private static final String SOURCE_DIRECTORY = "artifacts/src";
 
     public BallerinaPathModificationTracker() {
         String ballerinaRepository = BallerinaEnvironmentUtil.retrieveRepositoryPathFromEnvironment();
         if (ballerinaRepository != null) {
+            ballerinaRepository = Paths.get(ballerinaRepository, SOURCE_DIRECTORY).toAbsolutePath().toString();
             String home = SystemProperties.getUserHome();
             for (String s : StringUtil.split(ballerinaRepository, File.pathSeparator)) {
                 if (s.contains("$HOME")) {

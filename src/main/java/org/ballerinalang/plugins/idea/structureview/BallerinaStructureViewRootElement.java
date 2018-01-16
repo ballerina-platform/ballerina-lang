@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class BallerinaStructureViewRootElement extends BallerinaStructureViewElement {
 
-    public BallerinaStructureViewRootElement(PsiFile element) {
+    BallerinaStructureViewRootElement(PsiFile element) {
         super(element);
     }
 

@@ -48,14 +48,17 @@ public class ParenthesisInsertHandler implements InsertHandler<LookupElement> {
     public void handleInsert(InsertionContext context, LookupElement item) {
         Editor editor = context.getEditor();
         char completionChar = context.getCompletionChar();
-        if (completionChar == ' ' || StringUtil.containsChar(myIgnoreOnChars, completionChar)) return;
+        if (completionChar == ' ' || StringUtil.containsChar(myIgnoreOnChars, completionChar)) {
+            return;
+        }
         Project project = editor.getProject();
         if (project != null) {
-            if (!isCompletionCharAtSpace(editor)) {
-                EditorModificationUtil.insertStringAtCaret(editor, " ()", false, 2);
+            int completionCharOffset = getCompletionCharOffset(editor);
+            if (completionCharOffset == -1) {
+                EditorModificationUtil.insertStringAtCaret(editor, "()", false, 1);
                 PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
             } else {
-                editor.getCaretModel().moveToOffset(editor.getCaretModel().getOffset() + 1);
+                editor.getCaretModel().moveToOffset(editor.getCaretModel().getOffset() + completionCharOffset + 1);
             }
             if (myTriggerAutoPopup) {
                 AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null);
@@ -63,9 +66,21 @@ public class ParenthesisInsertHandler implements InsertHandler<LookupElement> {
         }
     }
 
-    private static boolean isCompletionCharAtSpace(Editor editor) {
-        final int startOffset = editor.getCaretModel().getOffset();
-        final Document document = editor.getDocument();
-        return document.getTextLength() > startOffset && document.getCharsSequence().charAt(startOffset) == '(';
+    private static int getCompletionCharOffset(Editor editor) {
+        int startOffset = editor.getCaretModel().getOffset();
+        Document document = editor.getDocument();
+        int textLength = document.getTextLength();
+        CharSequence charsSequence = document.getCharsSequence();
+
+        char c;
+        for (int i = startOffset; i < textLength; i++) {
+            c = charsSequence.charAt(i);
+            if (c == '(') {
+                return i - startOffset;
+            } else if (!Character.isSpaceChar(c)) {
+                break;
+            }
+        }
+        return -1;
     }
 }

@@ -7,6 +7,10 @@ function test () {
 
     int k = (int)i + (int)j;
 
+    type t = typeof k;
+
+    int len = lengthof k;
+
     int[][] a = [];
 
     a[0] = [1, 2, 3, 5, 6];
@@ -25,10 +29,7 @@ function test () {
     xml VariableName;
     xml<{"SchemaNamespaceName"} SchemaTypeOrElementName> VariableName;
 
-    xmlDocument VariableName;
-    xmlDocument<{"SchemaNamespaceName"} DocumentElementTypeOrElementName> VariableName;
-
-    xml VariableName = `<xml-element-name [namespace declarations] [attributes]>element-content</xml-element-name>`;
+    xml x = xmls:parse("<root xmlns:ns4=\"http://sample.com/wso2/f\" xmlns:ns0Kf5j=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns0Kf5j:foo2=\"bar2\" ns4:foo3=\"bar3\"/>");
 
     json VariableName;
     json VariableName = {"PropertyName":"Value", "PropertyName":"Value"};

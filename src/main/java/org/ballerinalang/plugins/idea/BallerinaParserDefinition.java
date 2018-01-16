@@ -39,26 +39,46 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.ballerinalang.plugins.idea.grammar.BallerinaLexer;
 import org.ballerinalang.plugins.idea.grammar.BallerinaParser;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationReferenceNode;
+import org.ballerinalang.plugins.idea.psi.AnonStructTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
-import org.ballerinalang.plugins.idea.psi.ConnectorInitExpressionNode;
+import org.ballerinalang.plugins.idea.psi.BuiltInReferenceTypeNameNode;
+import org.ballerinalang.plugins.idea.psi.CatchClauseNode;
+import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
+import org.ballerinalang.plugins.idea.psi.CodeBlockBodyNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorInitNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorReferenceNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
-import org.ballerinalang.plugins.idea.psi.ExpressionAssignmentStatementNode;
-import org.ballerinalang.plugins.idea.psi.ExpressionVariableDefinitionStatementNode;
+import org.ballerinalang.plugins.idea.psi.EndpointBodyNode;
+import org.ballerinalang.plugins.idea.psi.EndpointDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.EnumDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.EnumFieldNode;
+import org.ballerinalang.plugins.idea.psi.FailedClauseNode;
+import org.ballerinalang.plugins.idea.psi.FieldNode;
 import org.ballerinalang.plugins.idea.psi.ForkJoinStatementNode;
+import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationNode;
+import org.ballerinalang.plugins.idea.psi.FunctionReferenceNode;
+import org.ballerinalang.plugins.idea.psi.FunctionTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IfElseStatementNode;
-import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
-import org.ballerinalang.plugins.idea.psi.MapStructLiteralNode;
+import org.ballerinalang.plugins.idea.psi.InvocationNode;
+import org.ballerinalang.plugins.idea.psi.ForEachStatementNode;
+import org.ballerinalang.plugins.idea.psi.JoinClauseNode;
+import org.ballerinalang.plugins.idea.psi.JoinConditionNode;
+import org.ballerinalang.plugins.idea.psi.LambdaFunctionNode;
+import org.ballerinalang.plugins.idea.psi.RecordKeyNode;
+import org.ballerinalang.plugins.idea.psi.RecordKeyValueNode;
+import org.ballerinalang.plugins.idea.psi.RecordLiteralNode;
+import org.ballerinalang.plugins.idea.psi.RecordValueNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
@@ -67,39 +87,45 @@ import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
-import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
-import org.ballerinalang.plugins.idea.psi.ReplyStatementNode;
+import org.ballerinalang.plugins.idea.psi.NamespaceDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.psi.ReferenceTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.ReturnParametersNode;
 import org.ballerinalang.plugins.idea.psi.ReturnStatementNode;
 import org.ballerinalang.plugins.idea.psi.SimpleLiteralNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
-import org.ballerinalang.plugins.idea.psi.PackageNameNode;
-import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.ReturnTypeListNode;
+import org.ballerinalang.plugins.idea.psi.SourceNotationNode;
+import org.ballerinalang.plugins.idea.psi.StringTemplateContentNode;
+import org.ballerinalang.plugins.idea.psi.StringTemplateLiteralNode;
+import org.ballerinalang.plugins.idea.psi.TypeCastNode;
+import org.ballerinalang.plugins.idea.psi.TypeConversionNode;
+import org.ballerinalang.plugins.idea.psi.TypeListNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.StructBodyNode;
 import org.ballerinalang.plugins.idea.psi.ThrowStatementNode;
-import org.ballerinalang.plugins.idea.psi.TransformStatementBodyNode;
-import org.ballerinalang.plugins.idea.psi.TransformStatementNode;
+import org.ballerinalang.plugins.idea.psi.TimeoutClauseNode;
+import org.ballerinalang.plugins.idea.psi.TransformerDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.TriggerWorkerNode;
+import org.ballerinalang.plugins.idea.psi.TryCatchStatementNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.TypeMapperBodyNode;
-import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceListNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
-import org.ballerinalang.plugins.idea.psi.WorkerInterationStatementNode;
+import org.ballerinalang.plugins.idea.psi.WorkerBodyNode;
+import org.ballerinalang.plugins.idea.psi.WorkerDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.WorkerReplyNode;
+import org.ballerinalang.plugins.idea.psi.XmlAttribNode;
+import org.ballerinalang.plugins.idea.psi.XmlContentNode;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.*;
 
@@ -107,14 +133,9 @@ public class BallerinaParserDefinition implements ParserDefinition {
 
     private static final IFileElementType FILE = new IFileElementType(BallerinaLanguage.INSTANCE);
 
-    public static TokenIElementType ID;
-
     static {
         PSIElementTypeFactory.defineLanguageIElementTypes(BallerinaLanguage.INSTANCE,
                 BallerinaParser.tokenNames, BallerinaParser.ruleNames);
-        List<TokenIElementType> tokenIElementTypes =
-                PSIElementTypeFactory.getTokenIElementTypes(BallerinaLanguage.INSTANCE);
-        ID = tokenIElementTypes.get(BallerinaLexer.Identifier);
     }
 
     public static final TokenSet IDENTIFIER = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
@@ -123,23 +144,24 @@ public class BallerinaParserDefinition implements ParserDefinition {
     public static final TokenSet COMMENTS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             LINE_COMMENT);
 
-    private static final TokenSet WHITESPACE = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE, WS);
+    public static final TokenSet WHITESPACE = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE, WS);
 
     public static final TokenSet STRING_LITERALS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
-            QuotedStringLiteral, BacktickStringLiteral);
+            QuotedStringLiteral);
 
     public static final TokenSet NUMBER = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             IntegerLiteral, FloatingPointLiteral);
 
     public static final TokenSet KEYWORDS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
-            ABORT, ABORTED, ACTION, ALL, ANNOTATION, ANY, AS, ATTACH, BREAK, CATCH, COMMITTED, CONNECTOR, CONST,
-            CONTINUE, CREATE, ELSE, FINALLY, FORK, FUNCTION, IF, IMPORT, ITERATE, JOIN, NATIVE, PACKAGE, PARAMETER,
-            REPLY, RESOURCE, RETURN, SERVICE, SOME, STRUCT, THROW, TIMEOUT, TRANSACTION, TRANSFORM, TRY, TYPEMAPPER,
-            WHILE, WORKER, BOOLEAN, INT, FLOAT, STRING, BLOB, MESSAGE, MAP, XML, XML_DOCUMENT, JSON, DATATABLE,
-            BooleanLiteral, NullLiteral);
+            ABORT, ACTION, ALL, ANNOTATION, AS, ATTACH, BIND, BREAK, CATCH, CONNECTOR, CONST, CREATE, ELSE, ENDPOINT,
+            ENUM, FAILED, FINALLY, FOREACH, FORK, FUNCTION, IF, IMPORT, IN, JOIN, LENGTHOF, NATIVE, NEXT, PACKAGE,
+            PARAMETER, PUBLIC, REPLY, RESOURCE, RETRIES, RETURN, RETURNS, SERVICE, SOME, STRUCT, THROW, TIMEOUT,
+            TRANSACTION, TRANSFORMER, TRY, VAR, WHILE, WORKER, XMLNS, TYPEOF, TYPE_BOOL, TYPE_INT, TYPE_FLOAT,
+            TYPE_STRING, TYPE_BLOB, TYPE_MAP, TYPE_XML, TYPE_JSON, TYPE_DATATABLE, TYPE_ANY, TYPE_TYPE, VERSION,
+            WITH, BooleanLiteral, NullLiteral);
 
     public static final TokenSet BRACES_AND_OPERATORS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
-            SEMI, COMMA, SENDARROW, RECEIVEARROW, TILDE, COLON);
+            SEMICOLON, COMMA, LARROW, RARROW, TILDE, COLON);
 
     public static final TokenSet BAD_CHARACTER = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             ERRCHAR);
@@ -226,14 +248,14 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new ResourceDefinitionNode(node);
             case BallerinaParser.RULE_packageName:
                 return new PackageNameNode(node);
-            case BallerinaParser.RULE_packagePath:
-                return new PackagePathNode(node);
+            case BallerinaParser.RULE_fullyQualifiedPackageName:
+                return new FullyQualifiedPackageNameNode(node);
             case BallerinaParser.RULE_expressionList:
                 return new ExpressionListNode(node);
             case BallerinaParser.RULE_expression:
                 return new ExpressionNode(node);
-            case BallerinaParser.RULE_functionInvocationStatement:
-                return new FunctionInvocationStatementNode(node);
+            case BallerinaParser.RULE_functionInvocation:
+                return new FunctionInvocationNode(node);
             case BallerinaParser.RULE_compilationUnit:
                 return new CompilationUnitNode(node);
             case BallerinaParser.RULE_packageDeclaration:
@@ -248,8 +270,6 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new StatementNode(node);
             case BallerinaParser.RULE_typeName:
                 return new TypeNameNode(node);
-            case BallerinaParser.RULE_actionInvocation:
-                return new ActionInvocationNode(node);
             case BallerinaParser.RULE_constantDefinition:
                 return new ConstantDefinitionNode(node);
             case BallerinaParser.RULE_structDefinition:
@@ -260,16 +280,12 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new AliasNode(node);
             case BallerinaParser.RULE_parameterList:
                 return new ParameterListNode(node);
-            case BallerinaParser.RULE_typeMapperDefinition:
-                return new TypeMapperNode(node);
-            case BallerinaParser.RULE_typeMapperBody:
-                return new TypeMapperBodyNode(node);
             case BallerinaParser.RULE_fieldDefinition:
                 return new FieldDefinitionNode(node);
-            case BallerinaParser.RULE_returnTypeList:
-                return new ReturnTypeListNode(node);
-            case BallerinaParser.RULE_connectorInitExpression:
-                return new ConnectorInitExpressionNode(node);
+            case BallerinaParser.RULE_typeList:
+                return new TypeListNode(node);
+            case BallerinaParser.RULE_connectorInit:
+                return new ConnectorInitNode(node);
             case BallerinaParser.RULE_serviceDefinition:
                 return new ServiceDefinitionNode(node);
             case BallerinaParser.RULE_valueTypeName:
@@ -292,34 +308,96 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new AssignmentStatementNode(node);
             case BallerinaParser.RULE_variableReferenceList:
                 return new VariableReferenceListNode(node);
-            case BallerinaParser.RULE_mapStructLiteral:
-                return new MapStructLiteralNode(node);
+            case BallerinaParser.RULE_recordLiteral:
+                return new RecordLiteralNode(node);
             case BallerinaParser.RULE_globalVariableDefinition:
                 return new GlobalVariableDefinitionNode(node);
-            case BallerinaParser.RULE_mapStructKeyValue:
-                return new MapStructKeyValueNode(node);
+            case BallerinaParser.RULE_recordKeyValue:
+                return new RecordKeyValueNode(node);
             case BallerinaParser.RULE_forkJoinStatement:
                 return new ForkJoinStatementNode(node);
-            case BallerinaParser.RULE_workerInteractionStatement:
-                return new WorkerInterationStatementNode(node);
-            case BallerinaParser.RULE_functionInvocation:
-                return new FunctionInvocationNode(node);
             case BallerinaParser.RULE_returnStatement:
                 return new ReturnStatementNode(node);
             case BallerinaParser.RULE_throwStatement:
                 return new ThrowStatementNode(node);
-            case BallerinaParser.RULE_replyStatement:
-                return new ReplyStatementNode(node);
             case BallerinaParser.RULE_annotationAttribute:
                 return new AnnotationAttributeNode(node);
-            case BallerinaParser.RULE_transformStatement:
-                return new TransformStatementNode(node);
-            case BallerinaParser.RULE_transformStatementBody:
-                return new TransformStatementBodyNode(node);
-            case BallerinaParser.RULE_expressionAssignmentStatement:
-                return new ExpressionAssignmentStatementNode(node);
-            case BallerinaParser.RULE_expressionVariableDefinitionStatement:
-                return new ExpressionVariableDefinitionStatementNode(node);
+            case BallerinaParser.RULE_transformerDefinition:
+                return new TransformerDefinitionNode(node);
+            case BallerinaParser.RULE_workerReply:
+                return new WorkerReplyNode(node);
+            case BallerinaParser.RULE_triggerWorker:
+                return new TriggerWorkerNode(node);
+            case BallerinaParser.RULE_workerDeclaration:
+                return new WorkerDeclarationNode(node);
+            case BallerinaParser.RULE_workerBody:
+                return new WorkerBodyNode(node);
+            case BallerinaParser.RULE_joinConditions:
+                return new JoinConditionNode(node);
+            case BallerinaParser.RULE_field:
+                return new FieldNode(node);
+            case BallerinaParser.RULE_annotationReference:
+                return new AnnotationReferenceNode(node);
+            case BallerinaParser.RULE_connectorReference:
+                return new ConnectorReferenceNode(node);
+            case BallerinaParser.RULE_recordKey:
+                return new RecordKeyNode(node);
+            case BallerinaParser.RULE_recordValue:
+                return new RecordValueNode(node);
+            case BallerinaParser.RULE_functionReference:
+                return new FunctionReferenceNode(node);
+            case BallerinaParser.RULE_codeBlockBody:
+                return new CodeBlockBodyNode(node);
+            case BallerinaParser.RULE_tryCatchStatement:
+                return new TryCatchStatementNode(node);
+            case BallerinaParser.RULE_catchClause:
+                return new CatchClauseNode(node);
+            case BallerinaParser.RULE_codeBlockParameter:
+                return new CodeBlockParameterNode(node);
+            case BallerinaParser.RULE_foreachStatement:
+                return new ForEachStatementNode(node);
+            case BallerinaParser.RULE_joinClause:
+                return new JoinClauseNode(node);
+            case BallerinaParser.RULE_timeoutClause:
+                return new TimeoutClauseNode(node);
+            case BallerinaParser.RULE_xmlAttrib:
+                return new XmlAttribNode(node);
+            case BallerinaParser.RULE_namespaceDeclaration:
+                return new NamespaceDeclarationNode(node);
+            case BallerinaParser.RULE_sourceNotation:
+                return new SourceNotationNode(node);
+            case BallerinaParser.RULE_stringTemplateLiteral:
+                return new StringTemplateLiteralNode(node);
+            case BallerinaParser.RULE_stringTemplateContent:
+                return new StringTemplateContentNode(node);
+            case BallerinaParser.RULE_typeCast:
+                return new TypeCastNode(node);
+            case BallerinaParser.RULE_typeConversion:
+                return new TypeConversionNode(node);
+            case BallerinaParser.RULE_xmlContent:
+                return new XmlContentNode(node);
+            case BallerinaParser.RULE_invocation:
+                return new InvocationNode(node);
+            case BallerinaParser.RULE_enumDefinition:
+                return new EnumDefinitionNode(node);
+            case BallerinaParser.RULE_enumField:
+                return new EnumFieldNode(node);
+            case BallerinaParser.RULE_builtInReferenceTypeName:
+                return new BuiltInReferenceTypeNameNode(node);
+            case BallerinaParser.RULE_referenceTypeName:
+                return new ReferenceTypeNameNode(node);
+            case BallerinaParser.RULE_functionTypeName:
+                return new FunctionTypeNameNode(node);
+            case BallerinaParser.RULE_lambdaFunction:
+                return new LambdaFunctionNode(node);
+            case BallerinaParser.RULE_endpointDeclaration:
+                return new EndpointDeclarationNode(node);
+            case BallerinaParser.RULE_endpointBody:
+                return new EndpointBodyNode(node);
+            case BallerinaParser.RULE_anonStructTypeName:
+                return new AnonStructTypeNameNode(node);
+            case BallerinaParser.RULE_failedClause:
+                return new FailedClauseNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

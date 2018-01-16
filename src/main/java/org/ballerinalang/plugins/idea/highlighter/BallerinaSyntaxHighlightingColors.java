@@ -16,7 +16,6 @@
 
 package org.ballerinalang.plugins.idea.highlighter;
 
-import com.intellij.ide.highlighter.JavaHighlightingColors;
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
@@ -28,7 +27,7 @@ public class BallerinaSyntaxHighlightingColors {
     public static final TextAttributesKey LINE_COMMENT = createTextAttributesKey("BALLERINA_LINE_COMMENT",
             DefaultLanguageHighlighterColors.LINE_COMMENT);
     public static final TextAttributesKey KEYWORD = createTextAttributesKey("BALLERINA_KEYWORD",
-            JavaHighlightingColors.KEYWORD);
+            DefaultLanguageHighlighterColors.KEYWORD);
     public static final TextAttributesKey STRING = createTextAttributesKey("BALLERINA_STRING",
             DefaultLanguageHighlighterColors.STRING);
     public static final TextAttributesKey NUMBER = createTextAttributesKey("BALLERINA_NUMBER",
@@ -43,6 +42,8 @@ public class BallerinaSyntaxHighlightingColors {
             DefaultLanguageHighlighterColors.METADATA);
     public static final TextAttributesKey CONSTANT = createTextAttributesKey("BALLERINA_CONSTANT",
             DefaultLanguageHighlighterColors.CONSTANT);
+    public static final TextAttributesKey GLOBAL_VARIABLE = createTextAttributesKey("BALLERINA_GLOBAL_VARIABLE",
+            DefaultLanguageHighlighterColors.INSTANCE_FIELD);
     public static final TextAttributesKey VALID_STRING_ESCAPE = createTextAttributesKey("BALLERINA_VALID_STRING_ESCAPE",
             DefaultLanguageHighlighterColors.VALID_STRING_ESCAPE);
     public static final TextAttributesKey INVALID_STRING_ESCAPE = createTextAttributesKey(
@@ -52,7 +53,7 @@ public class BallerinaSyntaxHighlightingColors {
     public static final TextAttributesKey STATIC_FIELD = createTextAttributesKey("BALLERINA_STATIC_FIELD",
             DefaultLanguageHighlighterColors.STATIC_FIELD);
     public static final TextAttributesKey TEMPLATE_LANGUAGE_COLOR = createTextAttributesKey
-            ("BALLERINA_TEMPLATE_LANGUAGE_COLOR", DefaultLanguageHighlighterColors.STATIC_METHOD);
+            ("BALLERINA_TEMPLATE_LANGUAGE_COLOR", DefaultLanguageHighlighterColors.INSTANCE_METHOD);
 
     private BallerinaSyntaxHighlightingColors() {
     }

@@ -25,7 +25,9 @@ import com.intellij.psi.impl.source.tree.PsiCoreCommentImpl;
 import com.intellij.psi.tree.IElementType;
 import org.antlr.jetbrains.adaptor.lexer.TokenIElementType;
 import org.ballerinalang.plugins.idea.grammar.BallerinaLexer;
+import org.ballerinalang.plugins.idea.psi.FloatingPointLiteral;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.QuotedLiteralString;
 import org.jetbrains.annotations.NotNull;
 
 public class BallerinaASTFactory extends CoreASTFactory {
@@ -48,7 +50,13 @@ public class BallerinaASTFactory extends CoreASTFactory {
      */
     @NotNull
     @Override
-    public LeafElement createLeaf(@NotNull IElementType type, CharSequence text) {
+    public LeafElement createLeaf(@NotNull IElementType type, @NotNull CharSequence text) {
+        if (type == BallerinaTypes.QUOTED_STRING) {
+            return new QuotedLiteralString(type, text);
+        }
+        if (type == BallerinaTypes.FLOATING_POINT) {
+            return new FloatingPointLiteral(type, text);
+        }
         if (type instanceof TokenIElementType &&
                 ((TokenIElementType) type).getANTLRTokenType() == BallerinaLexer.Identifier) {
             // found an ID node; here we do not distinguish between definitions and references

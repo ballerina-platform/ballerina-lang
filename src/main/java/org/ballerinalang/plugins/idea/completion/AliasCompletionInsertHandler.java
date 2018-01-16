@@ -24,44 +24,41 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiDocumentManager;
 
 public class AliasCompletionInsertHandler implements InsertHandler<LookupElement> {
 
     public final static InsertHandler<LookupElement> INSTANCE = new AliasCompletionInsertHandler(false);
 
-    private final String myIgnoreOnChars;
     private final boolean myTriggerAutoPopup;
 
-    public AliasCompletionInsertHandler(boolean triggerAutoPopup) {
-        this("", triggerAutoPopup);
-    }
-
-    public AliasCompletionInsertHandler(String ignoreOnChars, boolean triggerAutoPopup) {
-        myIgnoreOnChars = ignoreOnChars;
+    private AliasCompletionInsertHandler(boolean triggerAutoPopup) {
         myTriggerAutoPopup = triggerAutoPopup;
     }
 
     public void handleInsert(InsertionContext context, LookupElement item) {
         Editor editor = context.getEditor();
         char completionChar = context.getCompletionChar();
-        if (completionChar == ' ' || StringUtil.containsChar(myIgnoreOnChars, completionChar)) return;
+        if (completionChar == ' ') {
+            return;
+        }
         Project project = editor.getProject();
-        if (project != null) {
-            if (!isCompletionCharAtSpace(editor)) {
-                EditorModificationUtil.insertStringAtCaret(editor, " as ;",false,4);
-                PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
-            } else {
-                editor.getCaretModel().moveToOffset(editor.getCaretModel().getOffset() + 1);
-            }
-            if (myTriggerAutoPopup) {
-                AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null);
-            }
+        if (project == null) {
+            return;
+        }
+        if (!isCompletionCharAtSpace(editor)) {
+            EditorModificationUtil.insertStringAtCaret(editor, " as ;", false, 4);
+            PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
+        } else {
+            editor.getCaretModel().moveToOffset(editor.getCaretModel().getOffset() + 1);
+        }
+        if (myTriggerAutoPopup) {
+            AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null);
         }
     }
 
     private static boolean isCompletionCharAtSpace(Editor editor) {
+        // Todo - rewrite logic to identify already existing 'as' keyword
         final int startOffset = editor.getCaretModel().getOffset();
         final Document document = editor.getDocument();
         return document.getTextLength() > startOffset && document.getCharsSequence().charAt(startOffset) == '(';

@@ -1,4 +1,4 @@
-service test {
+service<http> test {
 
     resource test (message m) {
         Name name = {firstName:""};

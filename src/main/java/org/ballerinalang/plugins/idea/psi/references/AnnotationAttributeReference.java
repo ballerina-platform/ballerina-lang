@@ -16,34 +16,86 @@
 
 package org.ballerinalang.plugins.idea.psi.references;
 
+import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.ResolveResult;
+import com.intellij.psi.PsiReference;
+import com.intellij.psi.util.PsiTreeUtil;
+import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
+import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationReferenceNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class AnnotationAttributeReference extends BallerinaElementReference{
+import java.util.Collection;
+import java.util.List;
+
+public class AnnotationAttributeReference extends BallerinaElementReference {
 
     public AnnotationAttributeReference(@NotNull IdentifierPSINode element) {
         super(element);
     }
 
-    @Override
-    public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof FieldDefinitionNode;
-    }
-
     @Nullable
     @Override
     public PsiElement resolve() {
-        ResolveResult[] resolveResults = multiResolve(false);
-        return resolveResults.length != 0 ? resolveResults[0].getElement() : super.resolve();
+        IdentifierPSINode identifier = getElement();
+        AnnotationAttachmentNode annotationAttachmentNode = PsiTreeUtil.getParentOfType(identifier,
+                AnnotationAttachmentNode.class);
+        if (annotationAttachmentNode == null) {
+            return null;
+        }
+        AnnotationReferenceNode annotationReferenceNode = PsiTreeUtil.getChildOfType(annotationAttachmentNode,
+                AnnotationReferenceNode.class);
+        if (annotationReferenceNode == null) {
+            return null;
+        }
+        int textLength = annotationReferenceNode.getTextLength();
+        PsiReference reference = annotationReferenceNode.findReferenceAt(textLength);
+        if (reference == null) {
+            return null;
+        }
+        PsiElement annotationName = reference.resolve();
+        if (annotationName == null || !(annotationName instanceof IdentifierPSINode)) {
+            return null;
+        }
+        PsiElement annotationDefinition = annotationName.getParent();
+        Collection<FieldDefinitionNode> fieldDefinitionNodes = PsiTreeUtil.findChildrenOfType(annotationDefinition,
+                FieldDefinitionNode.class);
+        return BallerinaPsiImplUtil.resolveReference(fieldDefinitionNodes, identifier);
     }
 
     @NotNull
     @Override
     public Object[] getVariants() {
-        return new Object[0];
+        IdentifierPSINode identifier = getElement();
+        AnnotationAttachmentNode annotationAttachmentNode = PsiTreeUtil.getParentOfType(identifier,
+                AnnotationAttachmentNode.class);
+        if (annotationAttachmentNode == null) {
+            return new Object[0];
+        }
+        AnnotationReferenceNode annotationReferenceNode = PsiTreeUtil.getChildOfType(annotationAttachmentNode,
+                AnnotationReferenceNode.class);
+        if (annotationReferenceNode == null) {
+            return new Object[0];
+        }
+        int textLength = annotationReferenceNode.getTextLength();
+        PsiReference reference = annotationReferenceNode.findReferenceAt(textLength);
+        if (reference == null) {
+            return new Object[0];
+        }
+        PsiElement annotationName = reference.resolve();
+        if (annotationName == null || !(annotationName instanceof IdentifierPSINode)) {
+            return new Object[0];
+        }
+        PsiElement annotationDefinition = annotationName.getParent();
+        Collection<FieldDefinitionNode> fieldDefinitionNodes = PsiTreeUtil.findChildrenOfType(annotationDefinition,
+                FieldDefinitionNode.class);
+        List<LookupElement> results = BallerinaCompletionUtils.createFieldLookupElements(fieldDefinitionNodes,
+                (IdentifierPSINode) annotationName, PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+        return results.toArray(new LookupElement[results.size()]);
     }
 }

@@ -5,20 +5,20 @@ function main (string[] args) {
     message response = ClientConne<caret>ctor.get (nyseEP, "/nyseStock", m);
 }
 
-@doc:Description {value:"Native HTTP Client Connector"}
+@Description {value:"Native HTTP Client Connector"}
 connector ClientConnector (string serviceUri) {
 
-    @doc:Description {value:"GET action implementation of the HTTP Connector"}
-    @doc:Param {value:"c: Connector"}
-    @doc:Param {value:"path: Request path"}
-    @doc:Param {value:"m: message"}
-    @doc:Return {value:"message: The response message object"}
+    @Description {value:"GET action implementation of the HTTP Connector"}
+    @Param {value:"c: Connector"}
+    @Param {value:"path: Request path"}
+    @Param {value:"m: message"}
+    @Return {value:"message: The response message object"}
     native action get (ClientConnector c, string path, message m) (message);
 
-    @doc:Description { value:"The POST action implementation of the HTTP Connector."}
-    @doc:Param { value:"c: A connector object" }
-    @doc:Param { value:"path: Resource path " }
-    @doc:Param { value:"m: A message object" }
-    @doc:Return { value:"message: The response message object" }
+    @Description { value:"The POST action implementation of the HTTP Connector."}
+    @Param { value:"c: A connector object" }
+    @Param { value:"path: Resource path " }
+    @Param { value:"m: A message object" }
+    @Return { value:"message: The response message object" }
     native action post (ClientConnector c, string path, message m) (message);
 }

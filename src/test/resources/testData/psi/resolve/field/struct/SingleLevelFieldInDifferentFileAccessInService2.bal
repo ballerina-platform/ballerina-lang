@@ -1,4 +1,4 @@
-service test {
+service<http> test {
 
     resource test () {
         testStruct ts = {};

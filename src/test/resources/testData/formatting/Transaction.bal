@@ -1,20 +1,36 @@
-function test () {
-      map     propertiesMap   =      {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR", "username":"SA",
-                             "password"  :     ""   ,  "maximumPoolSize"        :   1   }   ;
-    sql :    ClientConnector  testDB   =    create     sql     :    ClientConnector (    propertiesMap   )  ;
-      sql     :        Parameter       [      ]      parameters   =     [   ]     ;
-    transaction {
-         int     insertCount  =    sql   :      ClientConnector       .update        (testDB,        "Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 220, 5000.75, 'USA')", parameters);
-
-        insertCount     =   sql   :      ClientConnector       .      update        (testDB,        "Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 220, 5000.75, 'USA')", parameters);
-        int      i    =  0  ;
-          if      (i      ==        0      )       {
-                  abort       ;//transaction can be aborted based on a condition
+function testNestedTransactionWithFailed (int i) (string) {
+    string a = "start";
+    try {
+        transaction     with    retries (3)  {
+            a = a + " inOuterTrx";
+            transaction  with    retries(2)  {
+                a = a + " inInnerTrx";
+                    try {
+                    if (i == -1) {
+                        error err = {msg:" err"};
+                           throw err;
+                    } else if (i == 0) {
+                        a = a + " abort";
+                        abort;
+                    } else if (i < -1) {
+                        TrxError err = {msg:" trxErr", data:"test"};
+                        throw err;
+                    }
+                } catch (TrxError err) {
+                    a = a + err.msg;
+                }
+                a = a + " endInnerTrx";
+            }    failed  {
+                a = a + " innerFailed";
+            }
+            a = a + " endOuterTrx";
+        }   failed   {
+            a = a + " outerFailed";
         }
-    }        aborted        {
-         system.println         (       "The transaction is aborted"       )  ;
-         }       committed        {
-      system.println         (       "The transaction is committed"       )  ;
-        }
-        sql :    ClientConnector .        close       (      testDB      )       ;
+        a = a + " ";
+    }    catch  (error err)  {
+        a = a + err.msg;
+      }
+      a = a + " end";
+         return a;
 }

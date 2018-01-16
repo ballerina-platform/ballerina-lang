@@ -30,17 +30,17 @@ import org.ballerinalang.plugins.idea.editor.BallerinaParameterInfoHandler;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
+import org.ballerinalang.plugins.idea.psi.InvocationNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
-import org.ballerinalang.plugins.idea.psi.PackageNameNode;
-import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ReturnParametersNode;
-import org.ballerinalang.plugins.idea.psi.ReturnTypeListNode;
+import org.ballerinalang.plugins.idea.psi.TypeListNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.jetbrains.annotations.NotNull;
@@ -52,7 +52,6 @@ import java.util.List;
 
 public class BallerinaDocumentationProvider extends AbstractDocumentationProvider {
 
-    private static final String DOC_PACKAGE_NAME = "doc";
     private static final String DOC_SEPARATOR = ":";
     private static final String DOC_DESCRIPTION = "Description";
     private static final String DOC_PARAM = "Param";
@@ -120,7 +119,7 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
                 stringBuilder.append(returnParams);
                 stringBuilder.append(")");
             }
-        } else if (parent instanceof ActionDefinitionNode) {
+        } else if (parent instanceof ActionDefinitionNode || parent instanceof InvocationNode) {
             // Add the action signature.
             stringBuilder.append("action ");
             stringBuilder.append(element.getText());
@@ -253,19 +252,20 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
         if (node == null) {
             return results;
         }
-        // But there can be two possible scenarios. The actual return types can be in either ReturnTypeListNode or
+        // But there can be two possible scenarios. The actual return types can be in either TypeListNode or
         // ParameterListNode. This is because return types can be named parameters. In that case, ParameterListNode is
         // available.
 
-        // First we check for ReturnTypeListNode.
-        ReturnTypeListNode returnTypeListNode = PsiTreeUtil.findChildOfType(node, ReturnTypeListNode.class);
+        // First we check for TypeListNode.
+        TypeListNode typeListNode = PsiTreeUtil.findChildOfType(node, TypeListNode.class);
         // If it is available, that means the return types are not named parameters.
-        if (returnTypeListNode != null) {
+        if (typeListNode != null) {
             // Each parameter will be of type TypeNameNode. So we get all return types.
             Collection<TypeNameNode> typeNameNodes =
-                    PsiTreeUtil.findChildrenOfType(returnTypeListNode, TypeNameNode.class);
+                    PsiTreeUtil.getChildrenOfTypeAsList(typeListNode, TypeNameNode.class);
             // Add each TypeNameNode to the result list.
-            typeNameNodes.forEach(typeNameNode -> results.add(typeNameNode.getText()));
+            typeNameNodes.forEach(typeNameNode ->
+                    results.add(BallerinaParameterInfoHandler.formatParameter(typeNameNode.getText())));
             // Return the results.
             return results;
         }
@@ -277,7 +277,8 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
             Collection<ParameterNode> parameterNodes =
                     PsiTreeUtil.findChildrenOfType(parameterListNode, ParameterNode.class);
             // Add each ParameterNode to the result list.
-            parameterNodes.forEach(parameterNode -> results.add(parameterNode.getText()));
+            parameterNodes.forEach(parameterNode ->
+                    results.add(BallerinaParameterInfoHandler.formatParameter(parameterNode.getText())));
             // Return the results.
             return results;
         }
@@ -308,7 +309,7 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
      * @return the package which contains the given element.
      */
     @Nullable
-    private static PackagePathNode getContainingPackage(PsiElement element) {
+    private static FullyQualifiedPackageNameNode getContainingPackage(PsiElement element) {
         // Get the containing file.
         PsiFile containingFile = element.getContainingFile();
         if (containingFile == null) {
@@ -320,8 +321,8 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
         if (packageDeclarationNode == null) {
             return null;
         }
-        // Return the PackagePathNode since it contains the package.
-        return PsiTreeUtil.findChildOfType(packageDeclarationNode, PackagePathNode.class);
+        // Return the FullyQualifiedPackageNameNode since it contains the package.
+        return PsiTreeUtil.findChildOfType(packageDeclarationNode, FullyQualifiedPackageNameNode.class);
     }
 
     /**
@@ -460,26 +461,16 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
      */
     private static AnnotationAttributeValueNode getAnnotationAttributeNode(PsiElement annotation,
                                                                            String annotationType) {
-        NameReferenceNode nameReferenceNode = PsiTreeUtil.findChildOfType(annotation, NameReferenceNode.class);
-        if (nameReferenceNode == null) {
+        AnnotationReferenceNode annotationReferenceNode = PsiTreeUtil.findChildOfType(annotation,
+                AnnotationReferenceNode.class);
+        if (annotationReferenceNode == null) {
             return null;
         }
-        PsiElement nameReferenceNodeIdentifier = nameReferenceNode.getNameIdentifier();
+        PsiElement nameReferenceNodeIdentifier = annotationReferenceNode.getNameIdentifier();
         if (nameReferenceNodeIdentifier == null) {
             return null;
         }
         if (!annotationType.equals(nameReferenceNodeIdentifier.getText())) {
-            return null;
-        }
-        PackageNameNode packageNameNode = PsiTreeUtil.findChildOfType(nameReferenceNode, PackageNameNode.class);
-        if (packageNameNode == null) {
-            return null;
-        }
-        PsiElement packageNameNodeIdentifier = packageNameNode.getNameIdentifier();
-        if (packageNameNodeIdentifier == null) {
-            return null;
-        }
-        if (!DOC_PACKAGE_NAME.equals(packageNameNodeIdentifier.getText())) {
             return null;
         }
         return PsiTreeUtil.findChildOfType(annotation, AnnotationAttributeValueNode.class);

@@ -23,13 +23,13 @@ import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiManager;
+import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.File;
 
 public class BallerinaUtil {
 
@@ -100,22 +100,33 @@ public class BallerinaUtil {
     public static String suggestPackageNameForDirectory(@Nullable PsiDirectory directory) {
         // If the directory is not null, get the package name
         if (directory != null) {
-            VirtualFile virtualFile = directory.getVirtualFile();
+            VirtualFile currentDirectory = directory.getVirtualFile();
+            Module module = ModuleUtilCore.findModuleForPsiElement(directory);
+            // Check directories in module content roots.
+            if (module != null) {
+                VirtualFile[] contentRoots = ModuleRootManager.getInstance(module).getContentRoots();
+                for (VirtualFile contentRoot : contentRoots) {
+                    if (!directory.getVirtualFile().getPath().startsWith(contentRoot.getPath())) {
+                        continue;
+                    }
+                    return getImportPath(currentDirectory, contentRoot);
+                }
+            }
+
             Project project = directory.getProject();
-            // Check directories in content roots.
+            // Check directories in project content roots.
             VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentRoots();
             for (VirtualFile contentRoot : contentRoots) {
                 if (!directory.getVirtualFile().getPath().startsWith(contentRoot.getPath())) {
                     continue;
                 }
-                return getImportPath(virtualFile, contentRoot);
+                return getImportPath(currentDirectory, contentRoot);
             }
 
-            // First we check the sources of module sdk.
-            Module module = ModuleUtilCore.findModuleForPsiElement(directory);
+            // Then we check the sources of module sdk.
             if (module != null) {
                 Sdk moduleSdk = ModuleRootManager.getInstance(module).getSdk();
-                String root = getImportPath(directory, virtualFile, moduleSdk);
+                String root = getImportPath(directory, currentDirectory, moduleSdk);
                 if (root != null) {
                     return root;
                 }
@@ -123,13 +134,21 @@ public class BallerinaUtil {
 
             // Then we check the sources of project sdk.
             Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
-            String root = getImportPath(directory, virtualFile, projectSdk);
+            String root = getImportPath(directory, currentDirectory, projectSdk);
             if (root != null) {
                 return root;
             }
 
-            // If the package name cannot be constructed, return empty string
-            return "";
+            String sdkHomePath = BallerinaSdkService.getInstance(project).getSdkHomePath(null);
+            if (sdkHomePath == null) {
+                return "";
+            }
+            VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByPath(sdkHomePath + "/src");
+            if (virtualFile == null) {
+                return "";
+            }
+
+            return getImportPath(currentDirectory, virtualFile);
         }
         // If the directory is null, return empty string
         return "";
@@ -167,19 +186,9 @@ public class BallerinaUtil {
         return trimmedPath;
     }
 
-    public static String suggestPackageNameForFile(Project project, VirtualFile virtualFile) {
-        String basePath = project.getBasePath();
-        if (isLibraryFile(project, virtualFile)) {
-            basePath = getLibraryRoot(project);
-        }
-        String relativePath = FileUtil.getRelativePath(basePath, virtualFile.getPath(),
-                File.separatorChar);
-        int len = relativePath.length() - virtualFile.getName().length();
-
-        if (len <= 0) {
-            return "";
-        }
-        // Remove separator at the end if the file is not situated at the project root and get the path.
-        return relativePath.substring(0, len - 1).replaceAll(File.separator, ".");
+    public static String suggestPackageNameForFile(@NotNull Project project, @NotNull VirtualFile virtualFile) {
+        VirtualFile parent = virtualFile.getParent();
+        PsiDirectory psiDirectory = PsiManager.getInstance(project).findDirectory(parent);
+        return suggestPackageNameForDirectory(psiDirectory);
     }
 }

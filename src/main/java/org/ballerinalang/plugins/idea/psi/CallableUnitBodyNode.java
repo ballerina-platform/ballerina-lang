@@ -19,14 +19,12 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
-import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
-import org.antlr.jetbrains.adaptor.psi.ScopeNode;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
+import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class CallableUnitBodyNode extends ANTLRPsiNode implements ScopeNode {
+public class CallableUnitBodyNode extends ANTLRPsiNode implements VariableContainer {
 
     public CallableUnitBodyNode(@NotNull ASTNode node) {
         super(node);
@@ -35,31 +33,6 @@ public class CallableUnitBodyNode extends ANTLRPsiNode implements ScopeNode {
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
-        if (element.getParent() instanceof NameReferenceNode
-                || element.getParent() instanceof StatementNode) {
-            FunctionInvocationNode functionInvocationNode = PsiTreeUtil.getParentOfType(element,
-                    FunctionInvocationNode.class);
-            if (functionInvocationNode == null) {
-                PsiElement resolvedElement = BallerinaPsiImplUtil.resolveElement(this, element,
-                        "//variableDefinitionStatement/Identifier");
-                if (resolvedElement != null) {
-                    if (!BallerinaPsiImplUtil.isStructField(element)) {
-                        PsiElement commonContext = PsiTreeUtil.findCommonContext(element, resolvedElement);
-                        if (!(commonContext instanceof BallerinaFile)) {
-                            return resolvedElement;
-                        }
-                    } else if (resolvedElement.getParent() instanceof GlobalVariableDefinitionNode) {
-                        return resolvedElement;
-                    }
-                }
-            }
-            return BallerinaPsiImplUtil.resolveNameReferenceNode(this, element);
-        } else if (element.getParent() instanceof VariableReferenceNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//variableDefinitionStatement/Identifier");
-        } else if (element.getParent() instanceof TypeNameNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
-                    "//connectorDefinition/Identifier");
-        }
         return null;
     }
 }

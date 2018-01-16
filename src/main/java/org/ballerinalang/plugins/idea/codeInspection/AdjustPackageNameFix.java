@@ -18,8 +18,10 @@ package org.ballerinalang.plugins.idea.codeInspection;
 
 import com.intellij.codeInsight.FileModificationService;
 import com.intellij.codeInsight.daemon.QuickFixBundle;
-import com.intellij.codeInspection.LocalQuickFix;
-import com.intellij.codeInspection.ProblemDescriptor;
+import com.intellij.codeInspection.LocalQuickFixAndIntentionActionOnPsiElement;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
@@ -28,46 +30,43 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaElementFactory;
+import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class AdjustPackageNameFix implements LocalQuickFix {
+public class AdjustPackageNameFix extends LocalQuickFixAndIntentionActionOnPsiElement {
+
     private final String myName;
 
-    public AdjustPackageNameFix(String targetPackage) {
+    AdjustPackageNameFix(@Nullable PsiElement element, @NotNull String targetPackage) {
+        super(element);
         myName = targetPackage;
     }
 
     @Override
     @NotNull
-    public String getName() {
-        return QuickFixBundle.message("adjust.package.text", myName);
-    }
-
-    @Override
-    @NotNull
     public String getFamilyName() {
-        return QuickFixBundle.message("adjust.package.family");
+        return "Adjust Package Name";
+    }
+
+    @NotNull
+    @Override
+    public String getText() {
+        return "Set package name to '" + myName + "'";
     }
 
     @Override
-    public void applyFix(@NotNull final Project project, @NotNull final ProblemDescriptor descriptor) {
-        PsiElement element = descriptor.getPsiElement();
-        if (element == null) {
-            return;
-        }
-        PsiFile file = element.getContainingFile();
+    public void invoke(@NotNull Project project, @NotNull PsiFile file, @Nullable Editor editor,
+                       @NotNull PsiElement startElement, @NotNull PsiElement endElement) {
         if (!FileModificationService.getInstance().prepareFileForWrite(file)) {
             return;
         }
-
         PsiDirectory directory = file.getContainingDirectory();
         if (directory == null) {
             return;
         }
-
         String targetPackage = BallerinaUtil.suggestPackageNameForDirectory(directory);
-
         try {
             PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(file,
                     PackageDeclarationNode.class);
