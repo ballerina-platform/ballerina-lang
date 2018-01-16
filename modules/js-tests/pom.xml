@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-composer-parent</artifactId>
-        <version>0.95.1-SNAPSHOT</version>
+        <version>0.95.8-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <packaging>pom</packaging>
@@ -94,10 +92,10 @@
                         </goals>
                         <configuration>
                             <target name="copy js files to target">
-                                <mkdir dir="${build.directory}/js-files-from-web"/>
+                                <mkdir dir="${build.directory}/js-files-from-web" />
                                 <copy todir="${build.directory}/js-files-from-web" overwrite="true" flatten="true">
                                     <fileset dir="${build.directory}/extracted-web/">
-                                        <include name="**/*.js"/>
+                                        <include name="**/*.js" />
                                     </fileset>
                                 </copy>
                             </target>
