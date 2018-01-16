@@ -40,7 +40,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class LogErrorCause extends AbstractLogFunction {
 
     public BValue[] execute(Context ctx) {
-        String pkg = ctx.getControlStackNew().currentFrame.prevStackFrame
+        String pkg = ctx.getControlStack().currentFrame.prevStackFrame
                 .getCallableUnitInfo().getPackageInfo().getPkgPath();
 
         if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.ERROR.value()) {

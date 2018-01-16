@@ -33,8 +33,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
-import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -185,9 +183,6 @@ public class ResponseNativeFunctionSuccessTest {
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
 
         String payload = "ballerina";
-        BallerinaMessageDataSource dataSource = new StringDataSource(payload);
-        dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-
         cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(payload.length()));
         cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
         HttpUtil.addCarbonMsg(response, cMsg);

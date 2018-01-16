@@ -80,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -109,6 +110,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
@@ -1269,6 +1271,24 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(bindNode);
     }
 
+    public void startForeachStatement() {
+        startBlock();
+    }
+
+    public void addForeachStatement(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
+        foreach.addWS(ws);
+        foreach.pos = pos;
+        foreach.setCollection(exprNodeStack.pop());
+        foreach.addWS(commaWsStack.pop());
+        List<ExpressionNode> lExprList = exprNodeListStack.pop();
+        lExprList.forEach(expressionNode -> foreach.addVariable((BLangVariableReference) expressionNode));
+        BLangBlockStmt foreachBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        foreachBlock.pos = pos;
+        foreach.setBody(foreachBlock);
+        addStmtToCurrentBlock(foreach);
+    }
+
     public void startWhileStmt() {
         startBlock();
     }
@@ -1672,6 +1692,20 @@ public class BLangPackageBuilder {
         }
 
         this.compUnit.addTopLevelNode(transformer);
+    }
+
+    public void addIntRangeExpression(DiagnosticPos pos,
+                                      Set<Whitespace> ws,
+                                      boolean includeStart,
+                                      boolean includeEnd) {
+        BLangIntRangeExpression intRangeExpr = (BLangIntRangeExpression) TreeBuilder.createIntRangeExpression();
+        intRangeExpr.pos = pos;
+        intRangeExpr.addWS(ws);
+        intRangeExpr.endExpr = (BLangExpression) this.exprNodeStack.pop();
+        intRangeExpr.startExpr = (BLangExpression) this.exprNodeStack.pop();
+        intRangeExpr.includeStart = includeStart;
+        intRangeExpr.includeEnd = includeEnd;
+        exprNodeStack.push(intRangeExpr);
     }
 
     // Private methods

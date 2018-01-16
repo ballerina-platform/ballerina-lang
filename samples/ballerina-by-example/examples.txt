@@ -34,6 +34,7 @@ XML Attributes
 XML Functions
 JSON To XML Conversion
 XML To JSON Conversion
+Foreach
 Worker
 Worker Interaction
 Fork/Join
