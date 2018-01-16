@@ -103,6 +103,15 @@ public class DatatableTest {
                 + "<STRING_TYPE>Hello</STRING_TYPE></result></results>");
     }
 
+    @Test(groups = "DatatableTest", description = "Check datatable to XML conversion with concat operation.")
+    public void testToXmlWithAdd() {
+        BValue[] returns = BRunUtil.invoke(result, "testToXmlWithAdd");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<results><result><INT_TYPE>1</INT_TYPE></result></results>"
+                + "<results><result><INT_TYPE>1</INT_TYPE></result></results>");
+    }
+
     @Test(groups = "DatatableTest", description = "Check xml streaming when result set consumed once.")
     public void testToJsonMultipleConsume() {
         BValue[] returns = BRunUtil.invoke(result, "testToJsonMultipleConsume");
