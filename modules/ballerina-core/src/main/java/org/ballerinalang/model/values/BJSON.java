@@ -54,9 +54,6 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     // json object model associated with this JSONType object
     private JsonNode value;
 
-    // Output stream to write message out to the socket
-    private OutputStream outputStream;
-
     /**
      * Initialize a {@link BJSON} from a {@link JsonNode} object.
      *
@@ -148,25 +145,20 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     }
 
     @Override
-    public void serializeData() {
+    public void serializeData(OutputStream outputStream) {
         try {
             /* the below order is important, where if the value is generated from a streaming data source,
              * it should be able to serialize the data out again using the value */
             if (this.value != null) {
-                this.value.serialize(this.outputStream);
+                this.value.serialize(outputStream);
             } else {
-                JsonGenerator gen = new JsonGenerator(this.outputStream);
+                JsonGenerator gen = new JsonGenerator(outputStream);
                 this.datasource.serialize(gen);
                 gen.flush();
             }
         } catch (Throwable t) {
             handleJsonException("error occurred during writing the message to the output stream: ", t);
         }
-    }
-
-    @Override
-    public void setOutputStream(OutputStream outputStream) {
-        this.outputStream = outputStream;
     }
 
     /**
