@@ -77,4 +77,9 @@ public class BFloatArray extends BNewArray {
         }
         return sj.toString();
     }
+
+    @Override
+    public BValue getBValue(long index) {
+        return new BFloat(get(index));
+    }
 }

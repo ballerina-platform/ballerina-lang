@@ -333,9 +333,11 @@ struct Proxy {
 
 @Description { value:"Options struct represents options to be used for HTTP client invocation" }
 @Field {value:"port: Port number of the remote service"}
-@Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
-@Field {value:"enableChunking: Enable/disable chunking"}
+@Field {value:"endpointTimeout: Endpoint timeout value in millisecond (default value: 60000 milliseconds)"}
+@Field {value:"maxActiveConnections: The maximum number of active connections the connector can create (default value: -1, indicates that the number of connections is not restricted)"}
 @Field {value:"keepAlive: Keep the connection or close it (default value: true)"}
+@Field {value:"transferEncoding: The types of encoding applied to the request (default value: chunking)"}
+@Field {value:"chunking: The chunking behaviour of the request"}
 @Field {value:"httpVersion: The version of HTTP outbound request"}
 @Field {value:"followRedirects: Redirect related options"}
 @Field {value:"ssl: SSL/TLS related options"}
@@ -344,9 +346,11 @@ struct Proxy {
 public struct Options {
     int port;
     int endpointTimeout = 60000;
-    boolean enableChunking = true;
+    int maxActiveConnections = -1;
     boolean keepAlive = true;
-	string httpVersion;
+    string transferEncoding = "chunking";
+    string chunking = "auto";
+    string httpVersion;
     FollowRedirects followRedirects;
     SSL ssl;
     Retry retryConfig;

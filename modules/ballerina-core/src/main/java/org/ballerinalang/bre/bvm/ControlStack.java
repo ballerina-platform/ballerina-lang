@@ -22,7 +22,7 @@ package org.ballerinalang.bre.bvm;
  *
  * @since 0.8.0
  */
-public class ControlStackNew {
+public class ControlStack {
 
     public StackFrame currentFrame;
 

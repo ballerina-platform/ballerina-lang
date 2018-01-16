@@ -33,7 +33,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
  * Test cases for ballerina.net.http.response negative native functions.
@@ -93,7 +92,7 @@ public class ResponseNativeFunctionNegativeTest {
         } catch (Throwable e) {
             error = e.getMessage();
         }
-        Assert.assertTrue(error.contains("unexpected end of JSON document"));
+        Assert.assertTrue(error.contains("empty JSON document"));
     }
 
     @Test(description = "Test method with string payload")
@@ -103,7 +102,6 @@ public class ResponseNativeFunctionNegativeTest {
 
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
-        dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
         HttpUtil.addMessageDataSource(request, dataSource);
 
         HttpUtil.addCarbonMsg(request, cMsg);
@@ -152,7 +150,6 @@ public class ResponseNativeFunctionNegativeTest {
 
         String payload = "{\"code\":\"123\"}";
         BallerinaMessageDataSource dataSource = new BJSON(payload);
-        dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
         HttpUtil.addMessageDataSource(request, dataSource);
 
         HttpUtil.addCarbonMsg(request, cMsg);
@@ -223,9 +220,11 @@ public class ResponseNativeFunctionNegativeTest {
     public void testCompilationErrorTestCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
         //testResponseSetStatusCodeWithString
-        BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'string'", 4, 23);
+        BAssertUtil.validateError(resultNegative, 0,
+                "incompatible types: expected 'int', found 'string'", 4, 23);
         //testResponseGetMethod
         BAssertUtil.validateError(resultNegative, 1,
-                "undefined function 'getMethod' in struct 'ballerina.net.http:Response'", 9, 21);
+                "undefined function 'getMethod' in struct 'ballerina.net.http:Response'",
+                9, 21);
     }
 }
