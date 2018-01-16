@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.composer.server.launcer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package org.ballerinalang.composer.server.core;
 
 /**
- * Launcher of ballerina composer backend server.
+ * Configuration for composer backend server.
  */
-public class ServerLauncher {
+public class ServerConfig {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServerLauncher.class);
+    private int serverPort;
 
+    public int getServerPort() {
+        return serverPort;
+    }
+
+    public void setServerPort(int serverPort) {
+        this.serverPort = serverPort;
+    }
 }

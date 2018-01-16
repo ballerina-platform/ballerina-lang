@@ -21,5 +21,9 @@
             <artifactId>composer-server-core</artifactId>
             <version>0.95.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.beust</groupId>
+            <artifactId>jcommander</artifactId>
+        </dependency>
     </dependencies>
 </project>
