@@ -193,7 +193,7 @@ export const flowChartControlStatement = {
 
 export const compoundStatement = {
     heading: {
-        width: (statement.width * (1 / 2)),
+        width: (statement.width * (2 / 3)),
         height: (2 * statement.height),
         gap: statement.height,
     },

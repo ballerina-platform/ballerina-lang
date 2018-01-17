@@ -1322,6 +1322,13 @@
         font-style: italic;
     }
 
+    .compound-statement-title-text {
+        text-anchor: start;
+        dominant-baseline: central;
+        fill: #777;
+        font-style: italic;
+    }
+
     .client-invocation-text,
     .action-invocation-text {
         paint-order: stroke;

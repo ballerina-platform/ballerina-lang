@@ -17,6 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
 import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
@@ -135,25 +136,6 @@ class CatchStatementDecorator extends React.Component {
     }
 
     /**
-     * True if the given element is a child of this element that has it's own focus.
-     * @private
-     * @param {HTMLElement} elmToCheck - child to be checked.
-     * @return {boolean} True if child is focusable.
-     */
-    isInFocusableChild(elmToCheck) {
-        const regex = new RegExp('(^|\\s)((compound-)?statement|life-line-group)(\\s|$)');
-        let isInStatement = false;
-        let elm = elmToCheck;
-        while (elm && elm !== this.myRoot && elm.getAttribute) {
-            if (regex.test(elm.getAttribute('class'))) {
-                isInStatement = true;
-            }
-            elm = elm.parentNode;
-        }
-        return isInStatement;
-    }
-
-    /**
      * Set catch condition.
      *  @param {String} newCondition - new condition to be applied to catch block.
      * */
@@ -177,6 +159,25 @@ class CatchStatementDecorator extends React.Component {
      * */
     getCatchCondition() {
         return this.props.model.getParameter().getSource();
+    }
+
+    /**
+     * True if the given element is a child of this element that has it's own focus.
+     * @private
+     * @param {HTMLElement} elmToCheck - child to be checked.
+     * @return {boolean} True if child is focusable.
+     */
+    isInFocusableChild(elmToCheck) {
+        const regex = new RegExp('(^|\\s)((compound-)?statement|life-line-group)(\\s|$)');
+        let isInStatement = false;
+        let elm = elmToCheck;
+        while (elm && elm !== this.myRoot && elm.getAttribute) {
+            if (regex.test(elm.getAttribute('class'))) {
+                isInStatement = true;
+            }
+            elm = elm.parentNode;
+        }
+        return isInStatement;
     }
 
     /**
@@ -319,16 +320,16 @@ class CatchStatementDecorator extends React.Component {
                 {expression &&
                     <text
                         x={p8X}
-                        y={p2Y}
+                        y={(p2Y + p8Y) / 2}
                         className='condition-text'
                     >
                         {displayExpression.text}
                     </text>
                 }
                 <text
-                    x={p8X}
-                    y={p2Y}
-                    className='statement-title-text'
+                    x={p2X + 2}
+                    y={(p1Y + p2Y) / 2}
+                    className='compound-statement-title-text'
                 >catch
                 </text>
                 <DropZone
