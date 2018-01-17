@@ -28,7 +28,7 @@
 
 .ballerina-editor {
     position: relative;
-    color: #333333;
+    color: #333;
     .grid-background {
         background-color: $tab-content-wrapper-bgcolor !important;
         background:  linear-gradient(-90deg, $tab-content-wrapper-grid-color 1px, transparent 1px),
@@ -50,13 +50,13 @@
     }
 
     .lifeline-title {
-        fill: #000000;
+        fill: #000;
         text-anchor: middle;
         cursor: text;
     }
     
     .lifeline-line {
-        stroke: #000000;
+        stroke: #000;
         stroke-width: 1px;
     }
     
@@ -65,12 +65,12 @@
     }
     
     .lifeline-tool-line {
-        stroke: #000000;
+        stroke: #000;
         stroke-width: 1px;
     }
     
     .lifeline-tool-rect {
-        fill: #FFFFFF;
+        fill: #fff;
         fill-opacity: 1;
     }
     
@@ -150,25 +150,25 @@
     }
     
     .httpMethodText {
-        fill: #000000;
+        fill: #000;
     }
     
     .resourcePathPrefix {
         stroke-width: 0.5;
-        stroke: #000000;
+        stroke: #000;
     
     }
     
     .resource > rect {
-        fill: #ffffff;
+        fill: #fff;
     }
     
     .worker > line {
-        stroke: #000000;
+        stroke: #000;
     }
     
     .worker > rect {
-        fill: #ffffff;
+        fill: #fff;
     }
     
     .resource-content {
@@ -183,7 +183,7 @@
         fill: #008000;
         fill-opacity: 0;
         stroke-width: 1;
-        stroke: #000000;
+        stroke: #000;
         shape-rendering: crispEdges;
     }
     
@@ -192,52 +192,52 @@
     }
     
     .client polygon {
-        stroke: #000000;
-        fill: #FFFFFF;
+        stroke: #000;
+        fill: #fff;
     }
     
     .client .lifeline-title {
-        fill: #000000;
+        fill: #000
     }
     
     .client line {
-        stroke: #000000;
+        stroke: #000;
     }
     
     .client text {
-        fill: #000000;
+        fill: #000;
     }
     
     .endpoint > line {
-        stroke: #000000;
+        stroke: #000;
     }
     
     .endpoint > rect {
-        fill: #ffffff;
+        fill: #fff;
     }
     
     .lifeline-polygon {
-        fill: #ffffff;
+        fill: #fff;
     }
     
     .try-block-mediator-tool > rect {
         fill-opacity: 1;
-        fill: #ffffff;
+        fill: #fff;
     }
     
     .try-block-mediator-tool > text {
         fill-opacity: 1;
-        fill: #ffffff;
+        fill: #fff;
     }
     
     .switch-mediator-tool > rect {
         fill-opacity: 1;
-        fill: #ffffff;
+        fill: #fff;
     }
     
     .switch-mediator-tool > text {
         fill-opacity: 1;
-        fill: #ffffff;
+        fill: #fff;
     }
     
     .payload-factory-tool > rect {
@@ -247,7 +247,7 @@
     
     .payload-factory-tool > text {
         fill-opacity: 1;
-        fill: #ffffff;
+        fill: #fff;
     }
     
     .log-mediator-tool > rect {
@@ -257,11 +257,11 @@
     
     .log-mediator-tool > text {
         fill-opacity: 1;
-        fill: #ffffff;
+        fill: #fff;
     }
     
     .message {
-        stroke: #000000;
+        stroke: #000;
         stroke-width: 1px;
     }
     
@@ -277,7 +277,7 @@
     }
     
     .marker {
-        fill: #000000;
+        fill: #000;
     }
     
     .mediator-title {
@@ -290,20 +290,20 @@
     }
     
     .source > polygon {
-        fill: #FFFFFF;
+        fill: #fff;
         stroke-width: 1;
-        stroke: #000000;
+        stroke: #000;
     }
     
     .action-rect{
-        fill: #FFFFFF;
+        fill: #fff;
         stroke-width: 1;
-        stroke: #333333;
+        stroke: #333;
     }
     
     .action-text{
         text-anchor: start;
-        fill:#333333;
+        fill:#333;
     }
     
     .action-line{
@@ -316,12 +316,12 @@
     }
     .action-arrow{
         stroke: #9d9d9d;
-        fill: #000000;
+        fill: #000;
     }
 
     .client-invocation-arrow{
-        stroke: #000000;
-        fill: #000000;
+        stroke: #000;
+        fill: #000;
     }
     
     .property-pane-action-button-edit {
@@ -455,12 +455,12 @@
     
     .client-life-line polygon{
         stroke: #333;
-        fill: #FFFFFF;
+        fill: #fff;
     }
     
     .start-action{
-        stroke: #000000;
-        fill: #FFFFFF;
+        stroke: #000;
+        fill: #fff;
     }
     
     .start-action text{
@@ -1245,13 +1245,13 @@
     }
     
     .statement-rect {
-        fill: #ffffff;
+        fill: #fff;
         stroke: #adadad;
         stroke-width: 1;
     }
     
     .statement-rect-error {
-        fill: #ffffff;
+        fill: #fff;
         stroke: #ff0202;
         stroke-width: 1;
     }
@@ -1262,21 +1262,21 @@
     }
     
     .background-empty-rect {
-        fill: #ffffff;
+        fill: #fff;
         fill-opacity: 0;
-        stroke: #000000;
+        stroke: #000;
         stroke-width: 1;
     }
     
     .background-empty-rect-error {
-        fill: #ffffff;
+        fill: #fff;
         fill-opacity: 0;
         stroke: #ff0202;
         stroke-width: 1;
     }
 
     .flowchart-background-empty-rect {
-        fill: #ffffff;
+        fill: #fff;
         fill-opacity: 0;
         stroke: $default-worker-lifeline-color;
         stroke-width: 1;
@@ -1312,7 +1312,21 @@
         dominant-baseline: central;
         width: 120px;
         max-width: 250px;
-        fill: #000000;
+        fill: #000;
+    }
+
+    .statement-title-text {
+        text-anchor: middle;
+        dominant-baseline: central;
+        fill: #777;
+        font-style: italic;
+    }
+
+    .compound-statement-title-text {
+        text-anchor: start;
+        dominant-baseline: central;
+        fill: #777;
+        font-style: italic;
     }
 
     .client-invocation-text,
@@ -1320,7 +1334,7 @@
         paint-order: stroke;
         text-anchor: start;
         dominant-baseline: central;
-        stroke:#ffffff;
+        stroke:#fff;
         stroke-width: 4;
     }
 
@@ -1618,15 +1632,15 @@
     }
     
     .property-pane-action-button-wrapper {
-        stroke: #000000;
+        stroke: #000;
         stroke-width: 0.5;
-        fill: #FFFFFF;
+        fill: #fff;
     }
     
     .statement-action-button-wrapper {
-        stroke: #000000;
+        stroke: #000;
         stroke-width: 0.5;
-        fill: #FFFFFF;
+        fill: #fff;
     }
     
     .property-pane-form-wrapper {
@@ -1634,14 +1648,14 @@
         max-height: 250px;
         border: 1px solid #cdcdcd;
         border-top: 2px solid #7b7b7b;
-        background: #FFFFFF;
+        background: #fff;
         position: absolute;
     }
     
     .expression-editor-form-wrapper {
         width: 265px;
         max-height: 250px;
-        background: #FFFFFF;
+        background: #fff;
         position: absolute;
     }
     
@@ -2311,25 +2325,25 @@
     }
     
     .operations-annotation-icon {
-        color: #FFF;
+        color: #fff;
         opacity: 1;
         background-color: #2b2b2b;
         width: 30px;
     }
     
     .statement-title-rect {
-        fill: #FFFFFF;
-        stroke: #818181;
+        fill: #fff;
+        stroke: #000;
     }
     
     .statement-title-rect-error {
-        fill: #FFFFFF;
+        fill: #fff;
         stroke: #ff0202;
     }
     
     .statement-title-polyline {
         fill: none;
-        stroke: #000000;
+        stroke: #000;
     }
     
     .statement-title-polyline-error {
@@ -3777,7 +3791,7 @@
         font-size: 14px;
     }
     .select2-container--default .select2-results__option--highlighted[aria-selected] {
-        background-color: #333333;
+        background-color: #333;
         color: #f17b31;
     }
     

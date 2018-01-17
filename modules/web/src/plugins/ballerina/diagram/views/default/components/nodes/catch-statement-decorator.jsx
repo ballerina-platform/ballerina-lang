@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,6 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
 import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
@@ -27,20 +28,20 @@ import ActionBox from '../decorators/action-box';
 import ActiveArbiter from '../decorators/active-arbiter';
 import Breakpoint from '../decorators/breakpoint';
 import { getComponentForNodeArray } from './../../../../diagram-util';
-import ElseStatementDecorator from './else-statement-decorator';
-import ArrowDecorator from '../decorators/arrow-decorator';
+import FragmentUtils from './../../../../../utils/fragment-utils';
+import TreeBuilder from './../../../../../model/tree-builder';
 
 /**
  * Wraps other UI elements and provide box with a heading.
  * Enrich elements with a action box and expression editors.
  */
-class IfStatementDecorator extends React.Component {
+class CatchStatementDecorator extends React.Component {
 
     /**
      * Initialize the block decorator.
      */
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             active: 'hidden',
         };
@@ -48,10 +49,18 @@ class IfStatementDecorator extends React.Component {
         this.onJumpToCodeLine = this.onJumpToCodeLine.bind(this);
         this.setActionVisibilityFalse = this.setActionVisibility.bind(this, false);
         this.setActionVisibilityTrue = this.setActionVisibility.bind(this, true);
-        this.openExpressionEditor = e => this.openEditor(this.props.expression, this.props.editorOptions, e);
-        this.openParameterEditor = e => this.openEditor(this.props.parameterEditorOptions.value,
-            this.props.parameterEditorOptions, e);
+        this.setCatchCondition = this.setCatchCondition.bind(this);
+        this.getCatchCondition = this.getCatchCondition.bind(this);
+        this.editorOptions = {
+            propertyType: 'text',
+            key: 'Catch condition',
+            model: this.props.model,
+            getterMethod: this.getCatchCondition,
+            setterMethod: this.setCatchCondition,
+        };
+        this.openExpressionEditor = e => this.openEditor(this.props.expression, this.editorOptions, e);
     }
+
     /**
      * Handles click event of breakpoint, adds/remove breakpoint from the node when click event fired
      *
@@ -72,7 +81,7 @@ class IfStatementDecorator extends React.Component {
      * @returns {void}
      */
     onDelete() {
-        const model = this.props.model || this.props.dropTarget;
+        const model = this.props.model;
         model.remove();
     }
     /**
@@ -122,6 +131,32 @@ class IfStatementDecorator extends React.Component {
                 this.context.activeArbiter.readyToDeactivate(this);
             }
         }
+    }
+
+    /**
+     * Set catch condition.
+     *  @param {String} newCondition - new condition to be applied to catch block.
+     * */
+    setCatchCondition(newCondition) {
+        if (!newCondition) {
+            return;
+        }
+        newCondition = _.trimEnd(newCondition, ';');
+        const fragmentJson = FragmentUtils.createArgumentParameterFragment(newCondition);
+        const parsedJson = FragmentUtils.parseFragment(fragmentJson);
+        if (!parsedJson.error) {
+            const newNode = TreeBuilder.build(parsedJson, this.props.model.parent, this.props.model.parent.kind);
+            newNode.clearWS();
+            this.props.model.setParameter(newNode);
+        }
+    }
+
+    /**
+     * Get catch condition
+     * @return {string} parameter source.
+     * */
+    getCatchCondition() {
+        return this.props.model.getParameter().getSource();
     }
 
     /**
@@ -188,45 +223,30 @@ class IfStatementDecorator extends React.Component {
      * @returns {XML} rendered component.
      */
     render() {
-        const { bBox, title, expression, isBreakpoint, isDebugHit } = this.props;
+        const { bBox, expression, isBreakpoint, isDebugHit, connectorStartX } = this.props;
         const { designer } = this.context;
 
         const model = this.props.model;
         const viewState = model.viewState;
-        const titleH = this.context.designer.config.flowChartControlStatement.heading.height;
-        const titleW = this.context.designer.config.flowChartControlStatement.heading.width;
+        const titleH = this.context.designer.config.compoundStatement.heading.height;
+        const titleW = this.context.designer.config.compoundStatement.heading.width;
         const statementBBox = viewState.components['statement-box'];
+        const gapLeft = this.context.designer.config.compoundStatement.padding.left;
+        const gapTop = this.context.designer.config.compoundStatement.padding.top;
         const displayExpression = viewState.components.expression;
-        const gapLeft = this.context.designer.config.flowChartControlStatement.gap.left;
-        const gapTop = this.context.designer.config.flowChartControlStatement.padding.top;
-
 
         // Defining coordinates of the diagram
-        //                     (x,y)
-        //
-        // (P1)                (P9)
-        //                (P2)  |  (P3)        (P4)
-        //                 [condition]--false---|
-        // (P11)              \_|_/_____________| (statementBox)
-        //                      |(p8)           |
-        //                      |               |
-        //                 true |               |
-        //                    __|__ (p12)     __|__
-        //                    a = 1;           a = 5;
-        //                      |               |
-        //  (P7)                 (p10)          |
-        //                                      |
-        //                  (P6) _______________| (P5)
-        //                      |
-        //
-        // Defining coordinates for the title
-        //           (p8)
-        //            / \
-        //          /     \
-        // ------>[condition]--false---|
-        //    (p2)  \     /  (p3)
-        //            \ /
-        //           (p9)
+        // (x,y)
+        // (P1)       (P2)|---------|(P3)
+        //       ---------|  catch  |
+        //                |____ ____|
+        //                     |(p8)
+        //                   __|__
+        //                   a = 1;
+        //                     |
+        //                     |
+        //                     |
+        //                    (P6)
 
         const p1X = bBox.x - gapLeft;
         const p1Y = bBox.y + gapTop;
@@ -234,29 +254,14 @@ class IfStatementDecorator extends React.Component {
         const p2X = bBox.x - (titleW / 2);
         const p2Y = p1Y + (titleH / 2);
 
-        const p3X = bBox.x + (titleW / 2);
-        const p3Y = p2Y;
-
-        const p4X = p1X + gapLeft + statementBBox.w;
-        const p4Y = p2Y;
-
-        const p5X = p4X;
-        const p5Y = bBox.y + bBox.h;
-
         const p6X = bBox.x;
-        const p6Y = p5Y;
+        const p6Y = bBox.y + bBox.h;
 
         const p8X = bBox.x;
         const p8Y = p2Y + (titleH / 2);
 
-        const p9X = p8X;
-        const p9Y = p8Y - titleH;
-
         const p11X = p1X;
         const p11Y = p1Y + (titleH / 2);
-
-        const p12X = p8X;
-        const p12Y = p8Y + this.context.designer.config.flowChartControlStatement.heading.gap;
 
         this.conditionBox = new SimpleBBox(p2X, (p2Y - (this.context.designer.config.statement.height / 2)),
             statementBBox.w, this.context.designer.config.statement.height);
@@ -273,7 +278,6 @@ class IfStatementDecorator extends React.Component {
         }
 
         const body = getComponentForNodeArray(this.props.model.body);
-        const elseComp = model.elseStatement;
 
         return (
             <g
@@ -283,58 +287,36 @@ class IfStatementDecorator extends React.Component {
                     this.myRoot = group;
                 }}
             >
-                <polyline
-                    points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y}`}
+                <line
+                    x1={connectorStartX}
+                    y1={p2Y}
+                    x2={p2X}
+                    y2={p2Y}
                     className='flowchart-background-empty-rect'
                 />
-                {(() => {
-                    if (viewState.isLastPathLine) {
-                        return (
-                            <line
-                                x1={p5X}
-                                y1={p5Y}
-                                x2={p6X}
-                                y2={p6Y}
-                                className='flowchart-background-empty-rect'
-                            />
-                        );
-                    } else {
-                        return (
-                            <ArrowDecorator
-                                start={{ x: p5X, y: p5Y }}
-                                end={{ x: p6X, y: p6Y }}
-                                classNameArrow='flowchart-action-arrow'
-                                classNameArrowHead='flowchart-action-arrow-head'
-                            />
-                        );
-                    }
-                })()}
-                <polyline
-                    points={`${p2X},${p2Y} ${p8X},${p8Y} ${p3X},${p3Y} ${p9X}, ${p9Y} ${p2X},${p2Y}`}
+                <rect
+                    x={p2X}
+                    y={p1Y}
+                    width={titleW}
+                    height={titleH}
                     className={statementRectClass}
+                    rx='5'
+                    ry='5'
                 />
                 {expression &&
                     <text
                         x={p8X}
-                        y={p2Y}
+                        y={(p2Y + p8Y) / 2}
                         className='condition-text'
                     >
                         {displayExpression.text}
                     </text>
                 }
                 <text
-                    x={p12X - 4}
-                    y={(p8Y + p12Y) / 2}
-                    className='flowchart-true-text'
-                >
-                    true
-                </text>
-                <text
-                    x={p3X + 4}
-                    y={p3Y - 4}
-                    className='flowchart-false-text'
-                >
-                    false
+                    x={p2X + 2}
+                    y={(p1Y + p2Y) / 2}
+                    className='compound-statement-title-text'
+                >catch
                 </text>
                 <DropZone
                     x={p11X}
@@ -346,12 +328,19 @@ class IfStatementDecorator extends React.Component {
                     enableDragBg
                     enableCenterOverlayLine={!this.props.disableDropzoneMiddleLineOverlay}
                 />
+                <line
+                    x1={p8X}
+                    y1={p8Y}
+                    x2={p6X}
+                    y2={p6Y}
+                    className='flowchart-background-empty-rect'
+                />
                 <g>
                     <rect
                         x={p2X}
-                        y={p9Y}
+                        y={p2Y}
                         width={titleW}
-                        height={titleH}
+                        height={titleH / 2}
                         onClick={this.openExpressionEditor}
                         className='invisible-rect'
                     />
@@ -369,18 +358,11 @@ class IfStatementDecorator extends React.Component {
                     onBreakpointClick={() => this.props.onBreakpointClick()}
                     disableButtons={this.props.disableButtons}
                 />
-                {elseComp && <ElseStatementDecorator
-                    dropTarget={model}
-                    bBox={elseComp.viewState.bBox}
-                    title={'else'}
-                    model={elseComp}
-                    body={elseComp}
-                />}
             </g>);
     }
 }
 
-IfStatementDecorator.defaultProps = {
+CatchStatementDecorator.defaultProps = {
     draggable: null,
     children: null,
     undeletable: false,
@@ -397,30 +379,13 @@ IfStatementDecorator.defaultProps = {
     isDebugHit: false,
 };
 
-IfStatementDecorator.propTypes = {
-    title: PropTypes.string.isRequired,
+CatchStatementDecorator.propTypes = {
     model: PropTypes.instanceOf(Node).isRequired,
     children: PropTypes.arrayOf(PropTypes.node),
     bBox: PropTypes.instanceOf(SimpleBBox).isRequired,
-    dropTarget: PropTypes.instanceOf(Node).isRequired,
     expression: PropTypes.shape({
         text: PropTypes.string,
     }).isRequired,
-    editorOptions: PropTypes.shape({
-        propertyType: PropTypes.string,
-        key: PropTypes.string,
-        model: PropTypes.instanceOf(Node),
-        getterMethod: PropTypes.func,
-        setterMethod: PropTypes.func,
-    }),
-    parameterEditorOptions: PropTypes.shape({
-        propertyType: PropTypes.string,
-        key: PropTypes.string,
-        value: PropTypes.string,
-        model: PropTypes.instanceOf(Node),
-        getterMethod: PropTypes.func,
-        setterMethod: PropTypes.func,
-    }),
     onBreakpointClick: PropTypes.func.isRequired,
     isBreakpoint: PropTypes.bool.isRequired,
     disableButtons: PropTypes.shape({
@@ -428,11 +393,12 @@ IfStatementDecorator.propTypes = {
         delete: PropTypes.bool.isRequired,
         jump: PropTypes.bool.isRequired,
     }),
+    connectorStartX: PropTypes.number.isRequired,
     disableDropzoneMiddleLineOverlay: PropTypes.bool,
     isDebugHit: PropTypes.bool,
 };
 
-IfStatementDecorator.contextTypes = {
+CatchStatementDecorator.contextTypes = {
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
@@ -441,4 +407,4 @@ IfStatementDecorator.contextTypes = {
     designer: PropTypes.instanceOf(Object),
 };
 
-export default breakpointHoc(IfStatementDecorator);
+export default breakpointHoc(CatchStatementDecorator);

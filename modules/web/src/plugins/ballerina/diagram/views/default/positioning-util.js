@@ -1401,71 +1401,64 @@ class PositioningUtil {
      * @param {object} node Try object
      */
     positionTryNode(node) {
-        // Position the try node
         this.positionCompoundStatementComponents(node);
 
-        const catchBlocks = node.catchBlocks;
+        const catchBlocks = node.catchBlocks || [];
         const finallyBody = node.finallyBody;
-        // New width is set at the sizing util (Propagate the max width to the try node)
-        const newWidth = node.viewState.bBox.w;
-        const x = node.viewState.bBox.x;
 
-        // set the new width of try node's components
-        node.body.viewState.bBox.w = newWidth;
-        node.viewState.components['drop-zone'].w = newWidth;
-        node.viewState.components['statement-box'].w = newWidth;
-        node.viewState.components['block-header'].w = newWidth;
+        // position the try node
+        node.body.viewState.bBox.x = node.viewState.components['statement-box'].x;
+        node.viewState.components['statement-box'].y += node.viewState.components['block-header'].h;
+        node.body.viewState.bBox.y = node.viewState.components['statement-box'].y;
 
-        // Position the try node
-        node.body.viewState.bBox.x = x;
-        node.body.viewState.bBox.y = node.viewState.components['statement-box'].y
-            + node.viewState.components['block-header'].h;
+        // position catch nodes
+        const catchStartX = node.viewState.bBox.x + this.config.compoundStatement.gap.left;
+        const catchStartY = node.viewState.bBox.y + (3 * this.config.compoundStatement.padding.top);
 
-        for (let itr = 0; itr < catchBlocks.length; itr++) {
-            const catchBlockBBox = (catchBlocks[itr]).viewState.bBox;
-            let y;
+        let catchStmtWidth = node.viewState.components['statement-box'].w;
+        let catchHeight = node.viewState.components['statement-box'].h;
 
-            if (itr === 0) {
-                // If the catch block is the first block, we position it with respect to the try node
-                y = node.viewState.components['statement-box'].y + node.viewState.components['statement-box'].h;
-            } else {
-                // Position the catch block, with respect to the previous catch block
-                y = (catchBlocks[itr - 1]).viewState.components['statement-box'].y
-                    + (catchBlocks[itr - 1]).viewState.components['statement-box'].h;
-            }
-            // Position the catch block
-            catchBlockBBox.x = x;
-            catchBlockBBox.y = y;
+        catchBlocks.forEach((catchStmt) => {
+            catchStmt.viewState.bBox.x = catchStartX + catchStmtWidth;
+            catchStmt.viewState.bBox.y = catchStartY;
+            catchStmt.body.viewState.bBox.x = catchStmt.viewState.bBox.x;
+            catchStmt.body.viewState.bBox.y = catchStartY
+                + catchStmt.viewState.components['block-header'].h + catchHeight;
+            catchStmt.viewState.components['statement-box'].y = catchStmt.body.viewState.bBox.y;
+            catchStmt.viewState.components['statement-box'].x = catchStmt.body.viewState.bBox.x;
+            catchStmtWidth += catchStmt.viewState.bBox.w;
+            catchHeight += catchStmt.body.viewState.bBox.h;
+        });
 
-            // increase the catch block's components' width
-            this.increaseNodeComponentWidth(catchBlocks[itr], newWidth);
+        // make all catch statements same height
+        catchBlocks.forEach((catchStmt) => {
+            catchStmt.viewState.bBox.h = catchHeight + catchStmt.viewState.components['block-header'].h;
+        });
 
-            // Position the compound statement components of catch block
-            this.positionCompoundStatementComponents(catchBlocks[itr]);
-
-            // Position the catch block's body and set new width
-            catchBlocks[itr].body.viewState.bBox.w = newWidth;
-            catchBlocks[itr].body.viewState.bBox.x = x;
-            catchBlocks[itr].body.viewState.bBox.y = y + catchBlocks[itr].viewState.components['block-header'].h;
-        }
-
+        // position finally block
         if (finallyBody) {
             const finallyX = node.viewState.bBox.x;
             let finallyY;
-            // If there are no catch blocks, position the finally block wrt the try node
-            if (catchBlocks.length) {
-                // Position based on the last catch block
-                finallyY = (catchBlocks[catchBlocks.length - 1]).viewState.components['statement-box'].y
-                    + (catchBlocks[catchBlocks.length - 1]).viewState.components['statement-box'].h;
+            if (catchBlocks.length > 0) {
+                finallyY = catchBlocks[0].viewState.bBox.y + catchBlocks[0].viewState.bBox.h;
             } else {
-                finallyY = node.viewState.components['statement-box'].y + node.viewState.components['statement-box'].h;
+                finallyY = node.viewState.components['statement-box'].y + node.viewState.components['statement-box'].h -
+                            this.config.statement.gutter.h;
             }
 
             // Position the finally block
+            const finallyViewState = node.viewState.components['finally-block'];
             finallyBody.viewState.bBox.x = finallyX;
-            finallyBody.viewState.bBox.y = finallyY + finallyBody.viewState.components['block-header'].h;
-            this.increaseNodeComponentWidth(finallyBody, newWidth);
-            this.positionCompoundStatementComponents(finallyBody);
+            const finallyStatementBBoxY = finallyY + finallyViewState.components['block-header'].h;
+            finallyBody.viewState.bBox.y = finallyStatementBBoxY;
+            this.positionBlockNode(finallyBody);
+            finallyViewState.components['statement-box'].y = finallyStatementBBoxY;
+            finallyViewState.components['statement-box'].x = finallyX;
+
+            // since finally is a block node, the positioning of the finally title has to be done within try block
+            // rendering will also be done in try decorator
+            node.viewState.components['finally-block'].x = finallyX;
+            node.viewState.components['finally-block'].y = finallyY;
         }
     }
 

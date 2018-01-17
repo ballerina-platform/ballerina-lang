@@ -18,8 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import CompoundStatementDecorator from './compound-statement-decorator';
-import { getComponentForNodeArray } from './../../../../diagram-util';
+import TryStatementDecorator from './try-statement-decorator';
 import TryNodeModel from './../../../../../model/tree/try-node';
 import DropZone from './../../../../../drag-drop/DropZone';
 import DefaultNodeFactory from './../../../../../model/default-node-factory';
@@ -97,9 +96,7 @@ class TryNode extends React.Component {
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const catchViews = getComponentForNodeArray(model.catchBlocks);
         const dropZone = model.viewState.components['drop-zone'];
-        const disableDeleteForFinally = model.catchBlocks.length <= 0 && model.finallyBody;
 
         return (
             <g>
@@ -115,26 +112,12 @@ class TryNode extends React.Component {
                     enableDragBg
                     enableCenterOverlayLine
                 />
-
-                <CompoundStatementDecorator
+                <TryStatementDecorator
                     dropTarget={model}
                     bBox={bBox}
-                    title={'try'}
                     model={model}
                     body={model.body}
                 />
-
-                {this.getAddBlockButton()}
-                {catchViews}
-                {model.finallyBody &&
-                <CompoundStatementDecorator
-                    bBox={bBox}
-                    title={'finally'}
-                    model={model.finallyBody}
-                    body={model.finallyBody}
-                    disableButtons={{ delete: disableDeleteForFinally }}
-                />
-                }
             </g>
         );
     }

@@ -24,15 +24,6 @@ class TryNode extends AbstractTryNode {
      * Set the children alias.
      * */
     setChildrenCompoundStatus() {
-        if (this.finallyBody) {
-            this.finallyBody.viewState.compound = true;
-        }
-
-        if (this.catchBlocks.length > 0) {
-            for (const catchBlock in this.catchBlocks) {
-                this.catchBlocks[catchBlock].body.viewState.compound = true;
-            }
-        }
     }
 }
 
