@@ -34,7 +34,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
@@ -101,11 +100,8 @@ public class RequestNativeFunctionNegativeTest {
     public void testGetJsonPayloadWithStringPayload() {
         BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
-
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
-        dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
-
         HttpUtil.addCarbonMsg(request, cMsg);
         BValue[] inputArg = { request };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);

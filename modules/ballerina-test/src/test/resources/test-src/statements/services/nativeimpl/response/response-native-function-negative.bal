@@ -20,7 +20,7 @@ function testGetHeader (http:Response res, string key) (string) {
 }
 
 function testGetEntity (http:Response response) (mime:Entity) {
-    mime:Entity entity = response.getEntity(true);
+    mime:Entity entity = response.getEntity();
     return entity;
 }
 

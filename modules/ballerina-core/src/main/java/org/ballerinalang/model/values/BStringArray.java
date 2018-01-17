@@ -52,16 +52,6 @@ public class BStringArray extends BNewArray {
         return values[(int) index];
     }
 
-    public int length() {
-        final int nullArrayValue = -1;
-        //There could be a possibility where a null array is being initialized
-        if (null != values) {
-            return values.length;
-        } else {
-            return nullArrayValue;
-        }
-    }
-
     @Override
     public BType getType() {
         return arrayType;
@@ -86,5 +76,10 @@ public class BStringArray extends BNewArray {
             sj.add("\"" + values[i] + "\"");
         }
         return sj.toString();
+    }
+
+    @Override
+    public BValue getBValue(long index) {
+        return new BString(get(index));
     }
 }

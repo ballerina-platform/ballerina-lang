@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 
 import java.util.List;
 
@@ -31,5 +32,7 @@ public interface MultiReturnExpr extends ExpressionNode {
 
     void setTypes(List<BType> types);
 
-    int[] getRegIndexes();
+    RegIndex[] getRegIndexes();
+
+    void setRegIndexes(RegIndex[] regIndexes);
 }

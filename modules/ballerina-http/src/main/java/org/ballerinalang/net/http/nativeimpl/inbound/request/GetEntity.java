@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
 
 /**
- * Get the 'Entity' of the request.
+ * Get the 'Entity' of the request with the body.
  *
  * @since 0.96.0
  */
@@ -42,6 +42,6 @@ import org.ballerinalang.net.http.HttpUtil;
 public class GetEntity extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        return getBValues(HttpUtil.getEntity(context, this, true));
+        return getBValues(HttpUtil.getEntity(context, this, true, true));
     }
 }

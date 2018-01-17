@@ -48,11 +48,15 @@ public struct InRequest {
     string restUriPostFix;
 }
 
-@Description { value:"Get the entity from the request"}
-@Param { value:"req: The inbound request message" }
-@Param { value:"isEntityBodyRequired: Whether the entity body should be populated" }
+@Description { value:"Get the entity from the request with the body included"}
+@Param { value:"req: The request message" }
 @Return { value:"Entity of the request" }
-public native function <InRequest req> getEntity (boolean isEntityBodyRequired) (mime:Entity);
+public native function <InRequest req> getEntity () (mime:Entity);
+
+@Description { value:"Get the entity from the request without the body. This function is to be used only internally"}
+@Param { value:"req: The request message" }
+@Return { value:"Entity of the request" }
+native function <InRequest req> getEntityWithoutBody () (mime:Entity);
 
 @Description { value:"Set the entity to inbound request"}
 @Param { value:"req: The inbound request message" }
@@ -111,9 +115,15 @@ public struct InResponse {
     string server;
 }
 
-@Description { value:"Get the entity from the inbound response"}
+@Description { value:"Get the entity from the inbound response with the body"}
 @Param { value:"res: The inbound response message" }
 @Return { value:"Entity of the response" }
+public native function <InResponse res> getEntity () (mime:Entity);
+
+@Description { value:"Get the entity from the response without the body. This function is to be used only internally"}
+@Param { value:"req: The response message" }
+@Return { value:"Entity of the response" }
+native function <Response res> getEntityWithoutBody () (mime:Entity);
 public native function <InResponse res> getEntity (boolean isEntityBodyRequired) (mime:Entity);
 
 @Description { value:"Set the entity to inbound response"}
@@ -291,9 +301,11 @@ struct Proxy {
 
 @Description { value:"Options struct represents options to be used for HTTP client invocation" }
 @Field {value:"port: Port number of the remote service"}
-@Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
-@Field {value:"enableChunking: Enable/disable chunking"}
+@Field {value:"endpointTimeout: Endpoint timeout value in millisecond (default value: 60000 milliseconds)"}
+@Field {value:"maxActiveConnections: The maximum number of active connections the connector can create (default value: -1, indicates that the number of connections is not restricted)"}
 @Field {value:"keepAlive: Keep the connection or close it (default value: true)"}
+@Field {value:"transferEncoding: The types of encoding applied to the request (default value: chunking)"}
+@Field {value:"chunking: The chunking behaviour of the request"}
 @Field {value:"httpVersion: The version of HTTP outbound request"}
 @Field {value:"followRedirects: Redirect related options"}
 @Field {value:"ssl: SSL/TLS related options"}
@@ -302,9 +314,11 @@ struct Proxy {
 public struct Options {
     int port;
     int endpointTimeout = 60000;
-    boolean enableChunking = true;
+    int maxActiveConnections = -1;
     boolean keepAlive = true;
-	string httpVersion;
+    string transferEncoding = "chunking";
+    string chunking = "auto";
+    string httpVersion;
     FollowRedirects followRedirects;
     SSL ssl;
     Retry retryConfig;

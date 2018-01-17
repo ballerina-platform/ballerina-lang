@@ -28,13 +28,10 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
-import org.ballerinalang.runtime.message.StringDataSource;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
@@ -115,8 +112,6 @@ public class ResponseNativeFunctionNegativeTest {
         BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         String payload = "ballerina";
-        BallerinaMessageDataSource dataSource = new StringDataSource(payload);
-        dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
         HttpUtil.addCarbonMsg(request, cMsg);
         BValue[] inputArg = { request };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
@@ -226,9 +221,11 @@ public class ResponseNativeFunctionNegativeTest {
     public void testCompilationErrorTestCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
         //testResponseSetStatusCodeWithString
-        BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'string'", 4, 23);
+        BAssertUtil.validateError(resultNegative, 0,
+                "incompatible types: expected 'int', found 'string'", 4, 23);
         //testResponseGetMethod
         BAssertUtil.validateError(resultNegative, 1,
-                "undefined function 'getMethod' in struct 'ballerina.net.http:Response'", 9, 21);
+                "undefined function 'getMethod' in struct 'ballerina.net.http:Response'",
+                9, 21);
     }
 }

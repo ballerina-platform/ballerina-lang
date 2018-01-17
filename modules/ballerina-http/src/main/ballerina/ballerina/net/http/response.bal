@@ -8,7 +8,7 @@ import ballerina.file;
 @Param {value:"headerName: The header name"}
 @Return {value:"The first header value struct for the provided header name. Returns null if the header does not exist."}
 public function <InResponse res> getHeader (string headerName) (mime:HeaderValue) {
-    mime:Entity entity = res.getEntity(false);
+    mime:Entity entity = res.getEntityWithoutBody();
     if (entity.headers == null) {
         return null;
     }
@@ -24,7 +24,7 @@ public function <InResponse res> getHeader (string headerName) (mime:HeaderValue
 @Param {value:"headerName: The header name"}
 @Param {value:"headerValue: The header value"}
 public function <OutResponse res> addHeader (string headerName, string headerValue) {
-    mime:Entity entity = res.getEntity(false);
+    mime:Entity entity = res.getEntityWithoutBody();
     if (entity.headers == null) {
         entity.headers = {};
     }
@@ -43,7 +43,7 @@ public function <OutResponse res> addHeader (string headerName, string headerVal
 @Param {value:"headerName: The header name"}
 @Return {value:"The header values struct array for a given header name"}
 public function <InResponse res> getHeaders (string headerName) (mime:HeaderValue[]) {
-    mime:Entity entity = res.getEntity(false);
+    mime:Entity entity = res.getEntityWithoutBody();
     if (entity.headers == null) {
         return null;
     }
@@ -59,7 +59,7 @@ public function <InResponse res> getHeaders (string headerName) (mime:HeaderValu
 @Param {value:"key: The header name"}
 @Param {value:"value: The header value"}
 public function <OutResponse res> setHeader (string key, string value) {
-    mime:Entity entity = res.getEntity(false);
+    mime:Entity entity = res.getEntityWithoutBody();
     if (entity.headers == null) {
         entity.headers = {};
     }
@@ -67,25 +67,37 @@ public function <OutResponse res> setHeader (string key, string value) {
     entity.headers[key] = header;
 }
 
-@Description {value:"Removes a transport header from the outbound response"}
-@Param {value:"res: The outbound response struct"}
+@Description {value:"Sets the value of a transport header with multiple header values"}
+@Param {value:"res: The outbound response message"}
+@Param {value:"headerName: The header name"}
+@Param {value:"headerValues: An array of header values"}
+public function <OutResponse res> setHeaders (string headerName, mime:HeaderValue[] headerValues) {
+    mime:Entity entity = res.getEntityWithoutBody();
+    if (entity.headers == null) {
+        entity.headers = {};
+    }
+    entity.headers[headerName] = headerValues;
+}
+
+@Description {value:"Removes a transport header from the response"}
+@Param {value:"res: The response message"}
 @Param {value:"key: The header name"}
 public function <OutResponse res> removeHeader (string key) {
-    mime:Entity entity = res.getEntity(false);
+    mime:Entity entity = res.getEntityWithoutBody();
     if (entity.headers == null) {
         return;
     }
     entity.headers.remove(key);
 }
 
-@Description {value:"Removes all transport headers from the outbound response"}
+@Description {value:"Removes all transport headers from the response"}
 @Param {value:"res: The outbound response struct"}
 public function <OutResponse res> removeAllHeaders () {
-    mime:Entity entity = res.getEntity(false);
+    mime:Entity entity = res.getEntityWithoutBody();
     entity.headers = {};
 }
 
-@Description {value:"Gets the Content-Length header from the inbound response"}
+@Description {value:"Gets the Content-Length header value from the inbound response"}
 @Param {value:"response: The inbound response struct"}
 @Return {value:"length of the message"}
 public function <InResponse response> getContentLength () (int) {
@@ -105,7 +117,7 @@ public function <InResponse response> getContentLength () (int) {
 @Param {value:"response: The inbound response struct"}
 @Return {value:"The JSON reresentation of the message payload"}
 public function <InResponse response> getJsonPayload () (json) {
-    mime:Entity entity = response.getEntity(true);
+    mime:Entity entity = response.getEntity();
     return mime:getJson(entity);
 }
 
@@ -113,7 +125,7 @@ public function <InResponse response> getJsonPayload () (json) {
 @Param {value:"response: The inbound response struct"}
 @Return {value:"The XML representation of the message payload"}
 public function <InResponse response> getXmlPayload () (xml) {
-    mime:Entity entity = response.getEntity(true);
+    mime:Entity entity = response.getEntity();
     return mime:getXml(entity);
 }
 
@@ -121,7 +133,7 @@ public function <InResponse response> getXmlPayload () (xml) {
 @Param {value:"response: The inbound response struct"}
 @Return {value:"The string representation of the message payload"}
 public function <InResponse response> getStringPayload () (string) {
-    mime:Entity entity = response.getEntity(true);
+    mime:Entity entity = response.getEntity();
     return mime:getText(entity);
 }
 
@@ -129,7 +141,7 @@ public function <InResponse response> getStringPayload () (string) {
 @Param {value:"response: The inbound response struct"}
 @Return {value:"The blob representation of the message payload"}
 public function <InResponse response> getBinaryPayload () (blob) {
-    mime:Entity entity = response.getEntity(true);
+    mime:Entity entity = response.getEntity();
     return mime:getBlob(entity);
 }
 
@@ -187,7 +199,7 @@ public function <OutResponse response> setBinaryPayload (blob payload) {
 @Param {value:"contentType: Content-Type of the given data"}
 public function <OutResponse response> setEntityBody(file:File content, string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
-    mime:Entity entity = response.getEntity(false);
+    mime:Entity entity = response.getEntityWithoutBody();
     entity.contentType = mediaType;
     entity.isInMemory = false;
     entity.overflowData = content;

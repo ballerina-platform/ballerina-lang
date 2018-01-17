@@ -266,7 +266,7 @@ public class BLangVMErrors {
         BRefValueArray stackTraceItems = new BRefValueArray();
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
         StructInfo stackTraceItem = errorPackageInfo.getStructInfo(STRUCT_FRAME);
-        ControlStackNew controlStack = context.getControlStackNew();
+        ControlStack controlStack = context.getControlStack();
 
         int currentIP = ip;
         Object[] values;

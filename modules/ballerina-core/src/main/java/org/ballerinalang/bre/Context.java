@@ -17,15 +17,13 @@
 */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.bre.bvm.ControlStack;
 import org.ballerinalang.bre.bvm.WorkerCounter;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -40,7 +38,7 @@ import java.util.Map;
 public class Context {
 
     //TODO: Rename this into BContext and move this to runtime package
-    private ControlStackNew controlStackNew;
+    private ControlStack controlStack;
     //TODO remove below after jms and ftp full migration.
     private CarbonMessage cMsg;
     private BServerConnectorFuture connectorFuture;
@@ -54,22 +52,20 @@ public class Context {
 
     protected WorkerCounter workerCounter;
 
-    // TODO : Temporary solution to make non-blocking working.
-    public BValue[] nativeArgValues;
     public ProgramFile programFile;
-    public FunctionCallCPEntry funcCallCPEntry;
-    public ActionInfo actionInfo;
+    // TODO : Temporary solution to make non-blocking working.
+    public NonBlockingContext nonBlockingContext;
     // TODO : Fix this. Added this for fork-join. Issue #3718.
     public boolean blockingInvocation;
 
     @Deprecated
     public Context() {
-        this.controlStackNew = new ControlStackNew();
+        this.controlStack = new ControlStack();
     }
 
     public Context(ProgramFile programFile) {
         this.programFile = programFile;
-        this.controlStackNew = new ControlStackNew();
+        this.controlStack = new ControlStack();
         this.workerCounter = new WorkerCounter();
     }
 
@@ -81,8 +77,8 @@ public class Context {
         this.debugContext = debugContext;
     }
 
-    public ControlStackNew getControlStackNew() {
-        return controlStackNew;
+    public ControlStack getControlStack() {
+        return controlStack;
     }
 
     public CarbonMessage getCarbonMessage() {
@@ -134,15 +130,15 @@ public class Context {
     }
 
     public BStruct getError() {
-        if (controlStackNew.currentFrame != null) {
-            return controlStackNew.currentFrame.getErrorThrown();
+        if (controlStack.currentFrame != null) {
+            return controlStack.currentFrame.getErrorThrown();
         }
         return this.unhandledError;
     }
 
     public void setError(BStruct error) {
-        if (controlStackNew.currentFrame != null) {
-            controlStackNew.currentFrame.setErrorThrown(error);
+        if (controlStack.currentFrame != null) {
+            controlStack.currentFrame.setErrorThrown(error);
         } else {
             this.unhandledError = error;
         }
@@ -204,5 +200,20 @@ public class Context {
 
     public WorkerCounter getWorkerCounter() {
         return workerCounter;
+    }
+
+    /**
+     * Data holder for Non-Blocking Action invocation.
+     *
+     * @since 0.96.0
+     */
+    public static class NonBlockingContext {
+        public ActionInfo actionInfo;
+        public int[] retRegs;
+
+        public NonBlockingContext(ActionInfo actionInfo, int[] retRegs) {
+            this.actionInfo = actionInfo;
+            this.retRegs = retRegs;
+        }
     }
 }

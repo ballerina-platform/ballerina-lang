@@ -78,8 +78,8 @@ public class HttpDispatcher {
         }
     }
 
-    protected static String getInterface(HTTPCarbonMessage cMsg) {
-        String interfaceId = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID);
+    protected static String getInterface(HTTPCarbonMessage inboundRequest) {
+        String interfaceId = (String) inboundRequest.getProperty(Constants.LISTENER_INTERFACE_ID);
         if (interfaceId == null) {
             if (breLog.isDebugEnabled()) {
                 breLog.debug("Interface id not found on the message, hence using the default interface");
@@ -149,7 +149,7 @@ public class HttpDispatcher {
                 org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
                 org.ballerinalang.mime.util.Constants.MEDIA_TYPE);
 
-        HttpUtil.populateConnection(connection, httpCarbonMessage);
+        HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage);
         HttpUtil.populateInboundRequest(request, entityForRequest, mediaType, httpCarbonMessage);
 
         List<ParamDetail> paramDetails = httpResource.getParamDetails();

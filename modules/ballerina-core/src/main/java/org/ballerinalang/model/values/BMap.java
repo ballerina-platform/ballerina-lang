@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
@@ -40,7 +41,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @param <V> Value
  * @since 0.8.0
  */
-public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implements BRefType {
+public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implements BRefType, BCollection {
 
 
     @SuppressWarnings("unchecked")
@@ -52,11 +53,6 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     public BMap() {
         map =  new LinkedHashMap<>();
     }
-
-    /**
-     * Output stream to write message out to the socket.
-     */
-    private OutputStream outputStream;
 
     /**
      * Retrieve the value for the given key from map.
@@ -174,7 +170,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
 
     @Override
     public BValue copy() {
-        BMap newMap = BTypes.typeMap.getEmptyValue();
+        BMap<K, BValue> newMap = BTypes.typeMap.getEmptyValue();
         for (Map.Entry<K, V> entry: map.entrySet()) {
             BValue value = entry.getValue();
             newMap.put(entry.getKey(), value == null ? null : value.copy());
@@ -188,7 +184,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     }
 
     @Override
-    public void serializeData() {
+    public void serializeData(OutputStream outputStream) {
         try {
             outputStream.write(stringValue().getBytes(Charset.defaultCharset()));
         } catch (IOException e) {
@@ -197,9 +193,46 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     }
 
     @Override
-    public void setOutputStream(OutputStream outputStream) {
-        this.outputStream = outputStream;
+    public BIterator newIterator() {
+        return new BMapIterator<>(this);
     }
 
+    /**
+     * {@code {@link BMapIterator}} provides iterator implementation for map values.
+     *
+     * @since 0.96.0
+     */
+    static class BMapIterator<K, V extends BValue> implements BIterator {
+
+        BMap<K, V> collection;
+        Iterator<Map.Entry<K, V>> iterator;
+
+        BMapIterator(BMap<K, V> value) {
+            collection = value;
+            iterator = collection.map.entrySet().iterator();
+        }
+
+        @Override
+        public BValue[] getNext(int arity) {
+            Map.Entry<K, V> next = iterator.next();
+            if (arity == 1) {
+                return new BValue[]{next.getValue()};
+            }
+            return new BValue[]{new BString((String) next.getKey()), next.getValue()};
+        }
+
+        @Override
+        public BType[] getParamType(int arity) {
+            if (arity == 1) {
+                return new BType[]{((BMapType) collection.getType()).getElementType()};
+            }
+            return new BType[]{BTypes.typeString, ((BMapType) collection.getType()).getElementType()};
+        }
+
+        @Override
+        public boolean hasNext() {
+            return iterator.hasNext();
+        }
+    }
 }
 

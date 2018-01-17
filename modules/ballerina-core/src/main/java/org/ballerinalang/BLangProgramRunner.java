@@ -20,7 +20,7 @@ package org.ballerinalang;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.bre.bvm.ControlStack;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
@@ -133,9 +133,9 @@ public class BLangProgramRunner {
         callerSF.getRefRegs()[0] = arrayArgs;
 
         StackFrame stackFrame = new StackFrame(mainFuncInfo, defaultWorkerInfo, -1, new int[0]);
-        stackFrame.getRefLocalVars()[0] = arrayArgs;
-        ControlStackNew controlStackNew = bContext.getControlStackNew();
-        controlStackNew.pushFrame(stackFrame);
+        stackFrame.getRefRegs()[0] = arrayArgs;
+        ControlStack controlStack = bContext.getControlStack();
+        controlStack.pushFrame(stackFrame);
         bContext.startTrackWorker();
         bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
 
