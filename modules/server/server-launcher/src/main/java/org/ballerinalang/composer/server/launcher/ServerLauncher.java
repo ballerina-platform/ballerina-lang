@@ -17,6 +17,8 @@ package org.ballerinalang.composer.server.launcher;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.ballerinalang.composer.server.core.Server;
 import org.ballerinalang.composer.server.core.ServerConfig;
 import org.ballerinalang.composer.server.launcher.command.ServerCommand;
@@ -24,6 +26,7 @@ import org.ballerinalang.composer.server.launcher.log.LogManagerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 
@@ -31,6 +34,8 @@ import java.io.PrintStream;
  * Launcher for ballerina composer backend server.
  */
 public class ServerLauncher {
+
+    public static final String SYS_BAL_COMPOSER_HOME = "bal.composer.home";
 
     private static Logger logger;
 
@@ -46,6 +51,15 @@ public class ServerLauncher {
     }
 
     public static void main(String[] args) {
+        String balHome = System.getProperty(SYS_BAL_COMPOSER_HOME);
+        if (balHome == null) {
+            balHome = System.getenv(SYS_BAL_COMPOSER_HOME);
+        }
+        if (balHome == null) {
+            // this condition will never reach if the app is started with 'composer' script.
+            logger.error("Unable to find ballerina composer home.");
+            return;
+        }
         ServerCommand commandArgs = new ServerCommand();
         JCommander jCommander = new JCommander(commandArgs);
         jCommander.setProgramName("composer");
@@ -65,8 +79,21 @@ public class ServerLauncher {
             printUsage();
             return;
         }
+        // reading configurations from server-config.yaml
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        File configFile = new File(balHome + "/resources/composer/server/service-config.yaml");
         ServerConfig config = new ServerConfig();
-        config.setServerPort(commandArgs.port);
+        if (configFile.exists()) {
+            try {
+                config = mapper.readValue(configFile, ServerConfig.class);
+            } catch (IOException e) {
+                logger.error("Error while reading server-config.yaml", e);
+            }
+        }
+        // give precedence to server-config.yaml (is this the correct approach?)
+        if (config.getServerPort() == 0) {
+            config.setServerPort(commandArgs.port);
+        }
         Server server = new Server(config);
         try {
             server.start();

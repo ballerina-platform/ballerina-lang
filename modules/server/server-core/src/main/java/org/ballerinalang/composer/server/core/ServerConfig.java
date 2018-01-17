@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.composer.server.core;
 
+import java.util.Map;
+
 /**
  * Configuration for composer backend server.
  */
@@ -22,11 +24,21 @@ public class ServerConfig {
 
     private int serverPort;
 
+    private Map<String, String> serviceConfigs;
+
     public int getServerPort() {
         return serverPort;
     }
 
     public void setServerPort(int serverPort) {
         this.serverPort = serverPort;
+    }
+
+    public Map<String, String> getServiceConfigs() {
+        return serviceConfigs;
+    }
+
+    public void setServiceConfigs(Map<String, String> serviceConfigs) {
+        this.serviceConfigs = serviceConfigs;
     }
 }
