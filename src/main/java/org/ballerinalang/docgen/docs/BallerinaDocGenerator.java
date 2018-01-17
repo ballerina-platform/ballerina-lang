@@ -165,7 +165,7 @@ public class BallerinaDocGenerator {
                     Writer.writeHtmlDocument(page, packageTemplateName, filePath);
     
                     if ("ballerina.builtin".equals(packagePath)) {
-                        Page primitivesPage = Generator.generateDocsForPrimitives(bLangPackage, packageNameList);
+                        Page primitivesPage = Generator.generatePageForPrimitives(bLangPackage, packageNameList);
                         String primitivesFilePath = output + File.separator + "primitive-types" + HTML;
                         Writer.writeHtmlDocument(primitivesPage, packageTemplateName, primitivesFilePath);
                     }

@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Test cases to see if common prefix of packages names are extracted correctly.
  */
-public class PackageNamesTest {
+public class BallerinaPackageNameDocGenTest {
     
     @Test
     public void oneCommonPackagePrefixTest() {
@@ -214,5 +214,22 @@ public class PackageNamesTest {
         Assert.assertEquals(packageNameList.get(1).packageName.suffix, "b", "Invalid suffix name.");
         Assert.assertEquals(packageNameList.get(2).packageName.suffix, "c", "Invalid suffix name.");
         Assert.assertEquals(packageNameList.get(3).packageName.suffix, "d", "Invalid suffix name.");
+    }
+    
+    @Test
+    public void noPackagesTest() {
+        List<String> packageNames = new ArrayList<>();
+        List<Link> packageNameList = PackageName.convertList(packageNames);
+        Assert.assertEquals(packageNameList.size(), 0, "Unknown package name generated.");
+    }
+    
+    @Test
+    public void packageNameToStringTest() {
+        List<String> packageNames = new ArrayList<>();
+        packageNames.add("org.eclipse.core.expressions.tests.one");
+    
+        List<Link> packageNameList = PackageName.convertList(packageNames);
+        Assert.assertEquals(packageNameList.get(0).packageName.toString(),
+                "PackageName{prefix='org.eclipse.core.expressions.tests.', suffix='one'}", "Unknown toString value.");
     }
 }

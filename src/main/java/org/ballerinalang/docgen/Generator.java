@@ -148,7 +148,7 @@ public class Generator {
      * @param packages List of available packages.
      * @return A page model for the primitive types.
      */
-    public static Page generateDocsForPrimitives(BLangPackage balPackage, List<Link> packages) {
+    public static Page generatePageForPrimitives(BLangPackage balPackage, List<Link> packages) {
         ArrayList<Documentable> documentables = new ArrayList<>();
         
         // Check for functions in the package
