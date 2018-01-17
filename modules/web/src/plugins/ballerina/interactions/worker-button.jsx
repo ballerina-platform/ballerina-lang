@@ -27,20 +27,33 @@ import TreeUtil from '../model/tree-util';
 import ConnectorAction from '../env/connector-action';
 
 // Use your imagination to render suggestions.
-const renderSuggestion = suggestion => (
-    <div>
+const renderSuggestion = (suggestion, value) => {
+    if (suggestion.addNewValue) {
+        return (
+            <div className='add-new-connector-area'>
+                <a className='add-new-connector-button'>
+                    <i className='fw fw-action' />
+                    {' Create new connector "'}
+                    <b>{value.query + '"'}</b>
+                </a>
+            </div>
+        );
+    }
+
+    return (<div>
         {suggestion.packageName.split(/[.]+/).pop()}
-            -&gt;
+        -&gt;
         <strong>{suggestion.action.getName()}</strong>
-    </div>
-);
+    </div>);
+};
 /**
  * Interaction lifeline button component
  */
 class LifelineButton extends React.Component {
 
-    constructor() {
+    constructor(props, contex) {
         super();
+        this.context = contex;
         this.state = {
             listConnectors: false,
             listActions: false,
@@ -49,6 +62,7 @@ class LifelineButton extends React.Component {
             value: '',
             suggestions: [],
         };
+
         this.showConnectors = this.showConnectors.bind(this);
         this.hideConnectors = this.hideConnectors.bind(this);
         this.showActions = this.showActions.bind(this);
@@ -64,6 +78,7 @@ class LifelineButton extends React.Component {
         this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
         this.getSuggestionValue = this.getSuggestionValue.bind(this);
         this.createAction = this.createAction.bind(this);
+        this.getAllSugestions = this.getAllSugestions.bind(this);
     }
 
     componentDidMount() {
@@ -74,9 +89,9 @@ class LifelineButton extends React.Component {
 
     // Autosuggest will call this function every time you need to clear suggestions.
     onSuggestionsClearRequested() {
-        this.setState({
-            suggestions: [],
-        });
+        // this.setState({
+        //     suggestions: [],
+        // });
     }
 
     // Autosuggest will call this function every time you need to update suggestions.
@@ -101,14 +116,18 @@ class LifelineButton extends React.Component {
                                 pkg,
                                 action,
                                 connector,
-                                packageName: pkg.getName(),
-                                fullPackageName: pkg.getName(),
+                                packageName: pkgname,
+                                fullPackageName: pkgname,
                             });
                         }
                     });
                 }
             });
         });
+
+        if (value !== '') {
+            suggestions.push({ addNewValue: true });
+        }
 
         this.setState({
             suggestions,
@@ -122,10 +141,41 @@ class LifelineButton extends React.Component {
     }
 
     onSuggestionSelected(event, item) {
-        item.suggestion.endpoint = this.state.selectedEndpoint;
-        this.setState({ listConnectors: false, listActions: false, selectedConnecter: '', selectedEndpoint: '' });
-        const node = DefaultNodeFactory.createConnectorActionInvocationAssignmentStatement(item.suggestion);
-        this.props.model.acceptDrop(node);
+        if (item.suggestion.addNewValue) {
+            this.createAction();
+        } else {
+            item.suggestion.endpoint = this.state.selectedEndpoint;
+            this.setState({ listConnectors: false, listActions: false, selectedConnecter: '', selectedEndpoint: '' });
+            const node = DefaultNodeFactory.createConnectorActionInvocationAssignmentStatement(item.suggestion);
+            this.props.model.acceptDrop(node);
+        }
+    }
+
+    getAllSugestions(connectorName) {
+        const environment = this.context.editor.environment;
+        const packages = environment.getFilteredPackages([]);
+        const suggestions = [];
+        packages.forEach((pkg) => {
+            const pkgname = pkg.getName();
+            const connectors = pkg.getConnectors();
+            connectors.forEach((connector) => {
+                const conName = connector.getName();
+                if (connectorName === conName) {
+                    const actions = connector.getActions();
+                    actions.forEach((action) => {
+                        suggestions.push({
+                            pkg,
+                            action,
+                            connector,
+                            packageName: pkgname,
+                            fullPackageName: pkgname,
+                        });
+                    });
+                }
+            });
+        });
+
+        return suggestions;
     }
 
     getSuggestionValue(suggestion) {
@@ -150,6 +200,7 @@ class LifelineButton extends React.Component {
             listActions: false,
             selectedConnecter: connectorName,
             selectedEndpoint: endpointName,
+            suggestions: this.getAllSugestions(connectorName),
         });
     }
 
@@ -201,10 +252,8 @@ class LifelineButton extends React.Component {
             value,
             onChange: this.onChange,
         };
-
         const currentEndpoints = this.props.model.getStatements()
         .filter(stmt => TreeUtil.isVariableDef(stmt) && TreeUtil.isEndpointType(stmt.getVariable().getTypeNode()));
-
         return (
             <Area bBox={this.props.bBox}>
                 <Button
@@ -269,15 +318,6 @@ class LifelineButton extends React.Component {
                                     inputProps={inputProps}
                                     ref={this.storeInputReference}
                                 />
-                                {this.state.value !== '' &&
-                                <div className='add-new-connector-area'>
-                                    <a className='add-new-connector-button' onClick={this.createAction}>
-                                        <i className='fw fw-action' />
-                                        {' Create new action "'}
-                                        <b>{this.state.value + '"'}</b>
-                                    </a>
-                                </div>
-                                }
                             </div>
                         }
                     </Menu>
