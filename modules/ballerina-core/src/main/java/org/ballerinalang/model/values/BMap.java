@@ -209,7 +209,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
 
         BMapIterator(BMap<K, V> value) {
             collection = value;
-            iterator = collection.map.entrySet().iterator();
+            iterator = new LinkedHashMap<>(value.map).entrySet().iterator();
         }
 
         @Override

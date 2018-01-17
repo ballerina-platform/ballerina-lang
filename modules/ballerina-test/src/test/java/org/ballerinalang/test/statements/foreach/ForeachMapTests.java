@@ -65,4 +65,22 @@ public class ForeachMapTests {
         Assert.assertEquals(returns[0].stringValue(), sb.toString());
     }
 
+    @Test
+    public void testDeleteWhileIteration() {
+        String result = "a:1A a:1A b:1B b:1B c:3C c:null ";
+        BValue[] returns = BRunUtil.invoke(program, "testDeleteWhileIteration");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), result);
+    }
+
+    @Test
+    public void testAddWhileIteration() {
+        String result = "a:1A a:1A b:2B c:3C aa:1A1A \n" +
+                        "b:2B a:1A b:2B c:3C aa:1A1A bb:2B2B \n" +
+                        "c:3C a:1A b:2B c:3C aa:1A1A bb:2B2B cc:3C3C \n";
+        BValue[] returns = BRunUtil.invoke(program, "testAddWhileIteration");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), result);
+    }
+
 }
