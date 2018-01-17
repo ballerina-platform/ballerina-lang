@@ -263,7 +263,7 @@ class SizingUtil {
         const expression = node.getParameter();
         if (expression) {
             components.expression = this.getTextWidth(expression.getSource(true), 0,
-                                        this.config.compoundStatement.heading.width - 5);
+                                        this.config.compoundStatement.heading.width);
         }
     }
 

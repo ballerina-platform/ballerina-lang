@@ -311,6 +311,9 @@ class TryStatementDecorator extends React.Component {
                                 getterMethod: getParameter,
                                 setterMethod: setParameter,
                             };
+                            const catchExpression = {
+                                text: catchStmt.getParameter().getSource(true),
+                            };
                             const catchComp = (
                                 <g>
                                     <CatchStatementDecorator
@@ -321,7 +324,7 @@ class TryStatementDecorator extends React.Component {
                                             top: connectorEdgeTopX,
                                             bottom: connectorEdgeBottomX,
                                         }}
-                                        expression={catchStmt.viewState.components.expression}
+                                        expression={catchExpression}
                                         disableButtons={{ delete: disableDeleteForCatch }}
                                         editorOptions={catchEditorOptions}
                                     />
