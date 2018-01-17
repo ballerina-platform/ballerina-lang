@@ -66,3 +66,23 @@ function testJSONNull () (string) {
     }
     return output;
 }
+
+struct Protocols {
+    string data;
+    Protocol[] plist;
+}
+
+struct Protocol {
+    string name;
+    string url;
+}
+
+function testJSONToStructCast () (string) {
+    json j = {data:"data", plist:[{name:"a", url:"h1"}, {name:"b", url:"h2"}]};
+    var protocolsData, _ = <Protocols>j;
+    output = "";
+    foreach protocol in protocolsData.plist {
+        concatString(protocol.name + "-" + protocol.url);
+    }
+    return output;
+}

@@ -96,4 +96,12 @@ public class ForeachJSONTests {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), result);
     }
+
+    @Test
+    public void testJSONToStructCast() {
+        String result = "a-h1 b-h2 ";
+        BValue[] returns = BRunUtil.invoke(program, "testJSONToStructCast");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), result);
+    }
 }
