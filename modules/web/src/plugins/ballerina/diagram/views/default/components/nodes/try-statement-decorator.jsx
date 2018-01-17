@@ -177,7 +177,7 @@ class TryStatementDecorator extends React.Component {
         const titleH = this.context.designer.config.compoundStatement.heading.height;
         const titleW = this.context.designer.config.compoundStatement.heading.width;
         const statementBBox = viewState.components['statement-box'];
-        const gapLeft = this.context.designer.config.compoundStatement.gap.left;
+        const gapLeft = viewState.components['left-margin'].w;
         const gapTop = this.context.designer.config.compoundStatement.padding.top;
 
         const finallyStmt = model.finallyBody;

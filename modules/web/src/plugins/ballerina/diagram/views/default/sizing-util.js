@@ -1719,9 +1719,9 @@ class SizingUtil {
         // calculate left margin from the lifeline centre
         let leftMargin = this.calcLeftMargin(node.body.statements);
         leftMargin = (leftMargin === 0) ? this.config.compoundStatement.gap.left
-                                        // since there is no left expansion for if,
-                                        // we take the left margin as it is
-                                        : leftMargin;
+                                        // since there is a left expansion for try when nested,
+                                        // add a left padding
+                                        : (leftMargin + this.config.compoundStatement.padding.left);
         viewState.components['left-margin'] = {
             w: leftMargin,
         };
@@ -1754,6 +1754,16 @@ class SizingUtil {
             finallyViewState.w = finallyBody.viewState.bBox.w;
             finallyViewState.h = finallyViewState.components['block-header'].h +
                                     finallyViewState.components['statement-box'].h;
+
+            // calculate left margin from the lifeline centre
+            let finallyLeftMargin = this.calcLeftMargin(finallyBody.statements);
+            finallyLeftMargin = (finallyLeftMargin === 0) ? this.config.compoundStatement.gap.left
+                                        // since there is a left expansion for try when nested,
+                                        // add a left padding
+                                        : (leftMargin + this.config.compoundStatement.padding.left);
+            finallyViewState.components['left-margin'] = {
+                w: finallyLeftMargin,
+            };
             nodeHeight += finallyViewState.h;
         }
 
