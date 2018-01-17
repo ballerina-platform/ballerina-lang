@@ -313,6 +313,13 @@ class IfStatementDecorator extends React.Component {
                     points={`${p2X},${p2Y} ${p8X},${p8Y} ${p3X},${p3Y} ${p9X}, ${p9Y} ${p2X},${p2Y}`}
                     className={statementRectClass}
                 />
+                <text
+                    x={p9X}
+                    y={p9Y + 14}
+                    className='statement-title-text'
+                >
+                    if
+                </text>
                 {expression &&
                     <text
                         x={p8X}
