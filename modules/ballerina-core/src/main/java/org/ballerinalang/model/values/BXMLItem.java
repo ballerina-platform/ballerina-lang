@@ -721,6 +721,14 @@ public final class BXMLItem extends BXML<OMNode> {
      * {@inheritDoc}
      */
     @Override
+    public void build() {
+        this.omNode.build();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void removeAttribute(String qname) {
         if (nodeType != XMLNodeType.ELEMENT || qname.isEmpty()) {
             return;
