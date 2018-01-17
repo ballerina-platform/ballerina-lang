@@ -196,8 +196,8 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(arrayLiteral.pos, DiagnosticCode.ARRAY_LITERAL_NOT_ALLOWED);
 
         } else if (expTypeTag == TypeTags.ANY) {
-            BLangExpression expr = arrayLiteral.exprs.get(0);
-            if (expr != null) {
+            if (arrayLiteral.exprs.size() > 0 && arrayLiteral.exprs.get(0) != null) {
+                BLangExpression expr = arrayLiteral.exprs.get(0);
                 // Allows only homogeneous arrays.
                 BType itemType = checkExpr(expr, this.env).get(0);
                 if (arrayLiteral.exprs.size() > 1) {

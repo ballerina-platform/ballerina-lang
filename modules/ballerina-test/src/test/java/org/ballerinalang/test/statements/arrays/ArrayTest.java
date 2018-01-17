@@ -42,8 +42,7 @@ import org.testng.annotations.Test;
  */
 public class ArrayTest {
 
-    private CompileResult compileResult;
-    CompileResult resultNegative;
+    private CompileResult compileResult, resultNegative;
 
     @BeforeClass
     public void setup() {
@@ -467,8 +466,12 @@ public class ArrayTest {
 
     @Test(description = "Test arrays with errors")
     public void testConnectorNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        Assert.assertEquals(resultNegative.getErrorCount(), 6);
         BAssertUtil.validateError(resultNegative, 0, "function invocation on type 'int[]' is not supported", 3, 18);
         BAssertUtil.validateError(resultNegative, 1, "function invocation on type 'string[]' is not supported", 8, 21);
+        BAssertUtil.validateError(resultNegative, 2, "invalid literal for type 'any'", 12, 13);
+        BAssertUtil.validateError(resultNegative, 3, "incompatible types: expected 'int', found 'boolean'", 14, 17);
+        BAssertUtil.validateError(resultNegative, 4, "incompatible types: expected 'string', found 'int'", 15, 24);
+        BAssertUtil.validateError(resultNegative, 5, "incompatible types: expected 'string', found 'boolean'", 15, 27);
     }
 }
