@@ -33,7 +33,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
 
             if (e != null) {
                 circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg);
+                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
                 return errorResponse, e;
             }
         } else if (currentState == CircuitState.HALF_OPEN) {
@@ -42,7 +42,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
 
             if (e != null) {
                 circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg);
+                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
                 return errorResponse, e;
             }
         } else {
@@ -65,7 +65,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
 
             if (e != null) {
                 circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg);
+                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
                 return errorResponse, e;
             }
         } else if (currentState == CircuitState.HALF_OPEN) {
@@ -74,7 +74,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
 
             if (e != null) {
                 circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg);
+                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
                 return errorResponse, e;
             }
         } else {
@@ -97,7 +97,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
 
             if (e != null) {
                 circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg);
+                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
                 return errorResponse, e;
             }
         } else if (currentState == CircuitState.HALF_OPEN) {
@@ -106,7 +106,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
 
             if (e != null) {
                 circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg);
+                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
                 return errorResponse, e;
             }
         } else {
@@ -129,7 +129,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
 
             if (e != null) {
                 circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg);
+                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
                 return errorResponse, e;
             }
         } else if (currentState == CircuitState.HALF_OPEN) {
@@ -138,7 +138,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
 
             if (e != null) {
                 circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg);
+                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
                 return errorResponse, e;
             }
         } else {
@@ -161,7 +161,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
 
             if (e != null) {
                 circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg);
+                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
                 return errorResponse, e;
             }
         } else if (currentState == CircuitState.HALF_OPEN) {
@@ -170,7 +170,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
 
             if (e != null) {
                 circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg);
+                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
                 return errorResponse, e;
             }
         } else {
@@ -193,7 +193,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
 
             if (e != null) {
                 circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg);
+                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
                 return errorResponse, e;
             }
         } else if (currentState == CircuitState.HALF_OPEN) {
@@ -202,7 +202,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
 
             if (e != null) {
                 circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg);
+                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
                 return errorResponse, e;
             }
         } else {
@@ -225,7 +225,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
 
             if (e != null) {
                 circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg);
+                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
                 return errorResponse, e;
             }
         } else if (currentState == CircuitState.HALF_OPEN) {
@@ -234,7 +234,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
 
             if (e != null) {
                 circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg);
+                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
                 return errorResponse, e;
             }
         } else {
@@ -257,7 +257,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
 
             if (e != null) {
                 circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg);
+                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
                 return errorResponse, e;
             }
         } else if (currentState == CircuitState.HALF_OPEN) {
@@ -266,7 +266,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
 
             if (e != null) {
                 circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg);
+                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
                 return errorResponse, e;
             }
         } else {
@@ -289,7 +289,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
 
             if (e != null) {
                 circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg);
+                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
                 return errorResponse, e;
             }
         } else if (currentState == CircuitState.HALF_OPEN) {
@@ -298,7 +298,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
 
             if (e != null) {
                 circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg);
+                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
                 return errorResponse, e;
             }
         } else {
@@ -352,10 +352,10 @@ function <CircuitHealth circuitHealth> updateHealth () {
     circuitHealth.lastErrorTime = currentTime();
 }
 
-function createErrorResponse (string msg) (http:Response) {
+function createErrorResponse (string msg, int statusCode) (http:Response) {
     http:Response errorResponse = {};
     errorResponse.setStringPayload(msg);
-    errorResponse.setStatusCode(500);
+    errorResponse.setStatusCode(statusCode);
     return errorResponse;
 }
 
@@ -364,5 +364,5 @@ function handleOpenCircuit (CircuitHealth circuitHealth, int resetTimeout) (http
     int timeDif = currentT.time - circuitHealth.lastErrorTime.time;
     int timeRemaining = resetTimeout - timeDif;
     return createErrorResponse("Upstream service unavailable. Requests to upstream service will be suspended for "
-                               + timeRemaining + " milliseconds");
+                               + timeRemaining + " milliseconds", 503);
 }
