@@ -209,7 +209,7 @@ public class BLangPackageBuilder {
     private Stack<XMLAttributeNode> xmlAttributeNodeStack = new Stack<>();
 
     private Stack<BLangAnnotationAttachmentPoint> attachmentPointStack = new Stack<>();
-    
+
     private Set<BLangImportPackage> imports = new HashSet<>();
 
     private Set<Whitespace> endpointVarWs;
@@ -223,7 +223,7 @@ public class BLangPackageBuilder {
     private int anonStructCount = 0;
 
     protected int lambdaFunctionCount = 0;
-    
+
     private DiagnosticLog dlog;
 
     private static final String PIPE = "|";
@@ -410,12 +410,14 @@ public class BLangPackageBuilder {
                                Set<Whitespace> ws,
                                String identifier,
                                boolean exprAvailable,
-                               int annotCount) {
+                               int annotCount,
+                               boolean isPrivate) {
 
         Set<Whitespace> wsForSemiColon = removeNthFromLast(ws, 0);
         BLangStruct structNode = (BLangStruct) this.structStack.peek();
         structNode.addWS(wsForSemiColon);
-        addVar(pos, ws, identifier, exprAvailable, annotCount);
+        BLangVariable field = addVar(pos, ws, identifier, exprAvailable, annotCount);
+        field.flagSet.add(isPrivate ? Flag.PRIVATE : Flag.PUBLIC);
     }
 
     public void addVarToAnnotation(DiagnosticPos pos,
@@ -431,11 +433,11 @@ public class BLangPackageBuilder {
     }
 
 
-    public void addVar(DiagnosticPos pos,
-                       Set<Whitespace> ws,
-                       String identifier,
-                       boolean exprAvailable,
-                       int annotCount) {
+    public BLangVariable addVar(DiagnosticPos pos,
+                                Set<Whitespace> ws,
+                                String identifier,
+                                boolean exprAvailable,
+                                int annotCount) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, exprAvailable);
         attachAnnotations(var, annotCount);
         var.pos = pos;
@@ -444,6 +446,8 @@ public class BLangPackageBuilder {
         } else {
             this.varListStack.peek().add(var);
         }
+
+        return var;
     }
 
     public void endCallableUnitSignature(Set<Whitespace> ws, String identifier, boolean paramsAvail,
@@ -1041,7 +1045,7 @@ public class BLangPackageBuilder {
     }
 
     public void startConnectorBody() {
-        /* end of connector definition header, so let's populate 
+        /* end of connector definition header, so let's populate
          * the connector information before processing the body */
         ConnectorNode connectorNode = this.connectorNodeStack.peek();
         if (!this.varListStack.empty()) {
@@ -1666,10 +1670,10 @@ public class BLangPackageBuilder {
     }
 
     public void endTransformerDef(DiagnosticPos pos,
-                               Set<Whitespace> ws,
-                               boolean publicFunc,
-                               String name,
-                               boolean paramsAvailable) {
+                                  Set<Whitespace> ws,
+                                  boolean publicFunc,
+                                  String name,
+                                  boolean paramsAvailable) {
 
         BLangTransformer transformer = (BLangTransformer) this.invokableNodeStack.pop();
         transformer.pos = pos;

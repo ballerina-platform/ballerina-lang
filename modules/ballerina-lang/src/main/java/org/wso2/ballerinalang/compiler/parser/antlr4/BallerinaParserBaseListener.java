@@ -232,6 +232,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterPrivateStructBody(BallerinaParser.PrivateStructBodyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPrivateStructBody(BallerinaParser.PrivateStructBodyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterAnnotationDefinition(BallerinaParser.AnnotationDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}

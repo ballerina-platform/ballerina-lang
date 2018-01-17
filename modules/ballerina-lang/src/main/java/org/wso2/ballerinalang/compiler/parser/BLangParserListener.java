@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.compiler.parser;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -55,7 +55,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     private String pkgVersion;
 
     public BLangParserListener(CompilerContext context, CompilationUnitNode compUnit,
-            BDiagnosticSource diagnosticSource) {
+                               BDiagnosticSource diagnosticSource) {
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
         this.diagnosticSrc = diagnosticSource;
     }
@@ -91,7 +91,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitCompilationUnit(BallerinaParser.CompilationUnitContext ctx) {
-         this.pkgBuilder.endCompilationUnit(getWS(ctx));
+        this.pkgBuilder.endCompilationUnit(getWS(ctx));
     }
 
     /**
@@ -319,7 +319,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgBuilder.endCallableUnitSignature(getWS(ctx), ctx.Identifier().getText(),
                 ctx.parameterList() != null, ctx.returnParameters() != null,
-                ctx.returnParameters() != null ? ctx.returnParameters().typeList() != null : false);
+                ctx.returnParameters() != null && ctx.returnParameters().typeList() != null);
     }
 
     /**
@@ -439,13 +439,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitStructBody(BallerinaParser.StructBodyContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void enterAnnotationDefinition(BallerinaParser.AnnotationDefinitionContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -542,7 +535,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean paramsAvailable = ctx.parameterList().size() > 1;
         this.pkgBuilder.endTransformerDef(getCurrentPos(ctx), getWS(ctx), publicFunc, transformerName, paramsAvailable);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -789,7 +782,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         // This is 'any' type
         this.pkgBuilder.addValueType(getCurrentPos(ctx), getWS(ctx), ctx.getChild(0).getText());
     }
-    
+
     @Override
     public void exitReferenceTypeName(BallerinaParser.ReferenceTypeNameContext ctx) {
     }
@@ -2045,12 +2038,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
+        DiagnosticPos currentPos = getCurrentPos(ctx);
+        Set<Whitespace> ws = getWS(ctx);
+        String name = ctx.Identifier().getText();
+        boolean exprAvailable = ctx.simpleLiteral() != null;
         if (ctx.parent instanceof BallerinaParser.StructBodyContext) {
-        this.pkgBuilder.addVarToStruct(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                ctx.simpleLiteral() != null, 0);
+            this.pkgBuilder.addVarToStruct(currentPos, ws, name, exprAvailable, 0, false);
+        } else if (ctx.parent instanceof BallerinaParser.PrivateStructBodyContext) {
+            this.pkgBuilder.addVarToStruct(currentPos, ws, name, exprAvailable, 0, true);
         } else if (ctx.parent instanceof BallerinaParser.AnnotationBodyContext) {
-            this.pkgBuilder.addVarToAnnotation(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                    ctx.simpleLiteral() != null, 0);
+            this.pkgBuilder.addVarToAnnotation(currentPos, ws, name, exprAvailable, 0);
         }
     }
 
