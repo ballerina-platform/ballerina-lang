@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.composer.server.spi.annotation;
+package org.ballerinalang.composer.server.spi;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.ballerinalang.composer.server.core.ServerConfig;
 
 /**
- * Marks SPI Services of Composer Backend.
+ * Represent a backend service provider of composer.
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.SOURCE)
-public @interface ComposerSPIService {
+public interface ComposerServiceProvider {
+    ComposerService createService(ServerConfig config);
 }

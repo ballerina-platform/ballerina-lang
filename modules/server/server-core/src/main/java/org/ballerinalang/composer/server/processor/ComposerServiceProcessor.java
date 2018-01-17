@@ -15,8 +15,8 @@
  */
 package org.ballerinalang.composer.server.processor;
 
-import org.ballerinalang.composer.server.spi.ComposerService;
-import org.ballerinalang.composer.server.spi.annotation.ComposerSPIService;
+import org.ballerinalang.composer.server.spi.ComposerServiceProvider;
+import org.ballerinalang.composer.server.spi.annotation.ComposerSPIServiceProvider;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -35,12 +35,12 @@ import javax.tools.StandardLocation;
 /**
  * Process all services and generate necessary configurations.
  */
-@SupportedAnnotationTypes({ "org.ballerinalang.composer.server.spi.annotation.ComposerSPIService" })
+@SupportedAnnotationTypes({ "org.ballerinalang.composer.server.spi.annotation.ComposerSPIServiceProvider" })
 public class ComposerServiceProcessor extends AbstractProcessor {
     private static final String JAVA_SPI_SERVICES_BASE_PATH = "META-INF/services/";
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        Set<? extends Element> spiElements = roundEnv.getElementsAnnotatedWith(ComposerSPIService.class);
+        Set<? extends Element> spiElements = roundEnv.getElementsAnnotatedWith(ComposerSPIServiceProvider.class);
         List<String> serviceImplClasses = new ArrayList<>();
         for (Element element: spiElements) {
             if (element.getKind() == ElementKind.CLASS) {
@@ -49,7 +49,7 @@ public class ComposerServiceProcessor extends AbstractProcessor {
             }
         }
         if (!serviceImplClasses.isEmpty()) {
-            createServiceConfig(ComposerService.class.getCanonicalName(), serviceImplClasses);
+            createServiceConfig(ComposerServiceProvider.class.getCanonicalName(), serviceImplClasses);
         }
         return true;
     }

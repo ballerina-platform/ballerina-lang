@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.composer.server.core;
 
-import org.ballerinalang.composer.server.spi.ComposerService;
+import org.ballerinalang.composer.server.spi.ComposerServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.msf4j.MicroservicesRunner;
@@ -29,18 +29,18 @@ public class Server {
     private static Logger logger = LoggerFactory.getLogger(Server.class);
 
     private final ServerConfig serverConfig;
-    private final ServiceLoader<ComposerService> serviceLoader;
+    private final ServiceLoader<ComposerServiceProvider> serviceProviderLoader;
     private final MicroservicesRunner microservicesRunner;
 
     public Server(ServerConfig config) {
         serverConfig = config;
-        serviceLoader = ServiceLoader.load(ComposerService.class);
+        serviceProviderLoader = ServiceLoader.load(ComposerServiceProvider.class);
         microservicesRunner = new MicroservicesRunner(serverConfig.getServerPort());
     }
 
     public void start() {
-        for (ComposerService service : serviceLoader) {
-            microservicesRunner.deploy(service);
+        for (ComposerServiceProvider serviceProvider : serviceProviderLoader) {
+            microservicesRunner.deploy(serviceProvider.createService(serverConfig));
         }
         microservicesRunner.start();
     }

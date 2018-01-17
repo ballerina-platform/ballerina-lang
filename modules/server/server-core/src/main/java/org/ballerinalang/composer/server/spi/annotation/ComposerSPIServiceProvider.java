@@ -13,11 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.composer.server.core;
+package org.ballerinalang.composer.server.spi.annotation;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Server constants.
+ * Marks SPI Service Providers of Composer Backend.
  */
-public class ServerConstants {
-    public static final String CONTEXT_ROOT = "/composer";
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.SOURCE)
+public @interface ComposerSPIServiceProvider {
 }
