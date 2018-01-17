@@ -18,6 +18,9 @@ package org.ballerinalang.composer.service.logging.service;
 import com.google.gson.JsonObject;
 import org.ballerinalang.composer.server.core.ServerConstants;
 import org.ballerinalang.composer.server.spi.ComposerService;
+import org.ballerinalang.composer.server.spi.ServiceInfo;
+import org.ballerinalang.composer.server.spi.ServiceType;
+import org.ballerinalang.composer.service.logging.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +34,7 @@ import javax.ws.rs.core.Response;
 /**
  * Composer's backend logging service.
  */
-@Path(ServerConstants.CONTEXT_ROOT + "/logging")
+@Path(ServerConstants.CONTEXT_ROOT + "/" + Constants.SERVICE_PATH)
 public class LoggingService implements ComposerService {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggingService.class);
@@ -89,4 +92,8 @@ public class LoggingService implements ComposerService {
         }
     }
 
+    @Override
+    public ServiceInfo getServiceInfo() {
+        return new ServiceInfo(Constants.SERVICE_NAME, Constants.SERVICE_PATH, ServiceType.HTTP);
+    }
 }

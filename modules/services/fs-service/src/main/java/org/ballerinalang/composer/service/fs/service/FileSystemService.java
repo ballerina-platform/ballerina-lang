@@ -19,6 +19,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.ballerinalang.composer.server.core.ServerConstants;
 import org.ballerinalang.composer.server.spi.ComposerService;
+import org.ballerinalang.composer.server.spi.ServiceInfo;
+import org.ballerinalang.composer.server.spi.ServiceType;
+import org.ballerinalang.composer.service.fs.Constants;
 import org.ballerinalang.composer.service.fs.FileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +56,7 @@ import javax.ws.rs.core.Response;
 /**
  *  Micro service that exposes the file system to composer.
  */
-@Path(ServerConstants.CONTEXT_ROOT + "/fs")
+@Path(ServerConstants.CONTEXT_ROOT + "/" + Constants.SERVICE_PATH)
 public class FileSystemService implements ComposerService {
 
     private static final Logger logger = LoggerFactory.getLogger(FileSystemService.class);
@@ -306,5 +309,10 @@ public class FileSystemService implements ComposerService {
 
     public void setRootPaths(List<java.nio.file.Path> rootPaths) {
         this.rootPaths = rootPaths;
+    }
+
+    @Override
+    public ServiceInfo getServiceInfo() {
+        return new ServiceInfo(Constants.SERVICE_NAME, Constants.SERVICE_PATH, ServiceType.HTTP);
     }
 }

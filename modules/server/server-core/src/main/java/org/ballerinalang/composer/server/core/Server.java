@@ -15,11 +15,16 @@
  */
 package org.ballerinalang.composer.server.core;
 
+import org.ballerinalang.composer.server.service.EndpointInfoService;
+import org.ballerinalang.composer.server.spi.ComposerService;
 import org.ballerinalang.composer.server.spi.ComposerServiceProvider;
+import org.ballerinalang.composer.server.spi.ServiceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.msf4j.MicroservicesRunner;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ServiceLoader;
 
 /**
@@ -31,17 +36,31 @@ public class Server {
     private final ServerConfig serverConfig;
     private final ServiceLoader<ComposerServiceProvider> serviceProviderLoader;
     private final MicroservicesRunner microservicesRunner;
+    private final List<ComposerService> serviceList;
 
     public Server(ServerConfig config) {
         serverConfig = config;
         serviceProviderLoader = ServiceLoader.load(ComposerServiceProvider.class);
         microservicesRunner = new MicroservicesRunner(serverConfig.getServerPort());
+        serviceList = new ArrayList<>();
     }
 
     public void start() {
+        // create services
         for (ComposerServiceProvider serviceProvider : serviceProviderLoader) {
-            microservicesRunner.deploy(serviceProvider.createService(serverConfig));
+            ComposerService service = serviceProvider.createService(serverConfig);
+            serviceList.add(service);
         }
+        // deploy services
+        for (ComposerService service: serviceList) {
+            if (service.getServiceInfo().getType() == ServiceType.HTTP) {
+                microservicesRunner.deploy(service);
+            } else if (service.getServiceInfo().getType() == ServiceType.WS) {
+                microservicesRunner.deployWebSocketEndpoint(service);
+            }
+        }
+        // deploy ep info service
+        microservicesRunner.deploy(new EndpointInfoService(serviceList));
         microservicesRunner.start();
     }
 

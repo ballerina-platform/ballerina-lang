@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.composer.server.spi;
+package org.ballerinalang.composer.service.fs;
 
 /**
- * Represent a backend service of composer.
+ * FS Service Constants.
  */
-public interface ComposerService {
-    ServiceInfo getServiceInfo();
+public class Constants {
+    public static final String SERVICE_NAME = "filesystem";
+    public static final String SERVICE_PATH = "fs";
 }
