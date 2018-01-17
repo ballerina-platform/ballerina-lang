@@ -19,6 +19,7 @@
 package org.ballerinalang.nativeimpl.builtin.maplib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
@@ -48,7 +49,7 @@ public class GetValues extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         BMap<String, BValue> map = (BMap<String, BValue>) getRefArgument(ctx, 0);
         Set<String> keySet = map.keySet();
-        BRefValueArray bRefValueArray = new BRefValueArray(BTypes.typeAny);
+        BRefValueArray bRefValueArray = new BRefValueArray(new BArrayType(BTypes.typeAny));
         int i = 0;
         for (String key : keySet) {
             BValue value = map.get(key);

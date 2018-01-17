@@ -46,7 +46,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      * Create an empty xml sequence.
      */
     public BXMLSequence() {
-        sequence = new BRefValueArray();
+        sequence = new BRefValueArray(BTypes.typeXMLArray);
     }
 
     /**
@@ -176,7 +176,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public BXML<?> elements() {
-        BRefValueArray elementsSeq = new BRefValueArray(BTypes.typeXML);
+        BRefValueArray elementsSeq = new BRefValueArray(BTypes.typeXMLArray);
         int j = 0;
         for (int i = 0; i < sequence.size(); i++) {
             BXMLItem item = (BXMLItem) sequence.get(i);
@@ -192,7 +192,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public BXML<?> elements(String qname) {
-        BRefValueArray elementsSeq = new BRefValueArray(BTypes.typeXML);
+        BRefValueArray elementsSeq = new BRefValueArray(BTypes.typeXMLArray);
         String qnameStr = getQname(qname).toString();
         int j = 0;
         for (int i = 0; i < sequence.size(); i++) {
@@ -210,7 +210,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public BXML<?> children() {
-        BRefValueArray elementsSeq = new BRefValueArray(BTypes.typeXML);
+        BRefValueArray elementsSeq = new BRefValueArray(BTypes.typeXMLArray);
         for (int i = 0; i < sequence.size(); i++) {
             BXMLItem element = (BXMLItem) sequence.get(i);
             if (element.getNodeType() != XMLNodeType.ELEMENT) {
@@ -232,7 +232,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public BXML<?> children(String qname) {
-        BRefValueArray elementsSeq = new BRefValueArray();
+        BRefValueArray elementsSeq = new BRefValueArray(BTypes.typeXMLArray);
         QName name = getQname(qname);
         for (int i = 0; i < sequence.size(); i++) {
             BXMLItem element = (BXMLItem) sequence.get(i);
@@ -279,7 +279,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public BXML<?> strip() {
-        BRefValueArray elementsSeq = new BRefValueArray();
+        BRefValueArray elementsSeq = new BRefValueArray(BTypes.typeXMLArray);
         int j = 0;
         for (int i = 0; i < sequence.size(); i++) {
             BXMLItem element = (BXMLItem) sequence.get(i);
@@ -319,7 +319,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         }
         
         int j = 0;
-        BRefValueArray elementsSeq = new BRefValueArray();
+        BRefValueArray elementsSeq = new BRefValueArray(BTypes.typeXMLArray);
         for (long i = startIndex; i < endIndex; i++) {
             elementsSeq.add(j++, sequence.get(i));
         }
@@ -344,7 +344,8 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
             }
         }
 
-        return new BXMLSequence(new BRefValueArray(descendants.toArray(new BXML[descendants.size()]), BTypes.typeXML));
+        return new BXMLSequence(new BRefValueArray(descendants.toArray(new BXML[descendants.size()]),
+                BTypes.typeXMLArray));
     }
 
     // Methods from Datasource impl
@@ -393,7 +394,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         for (int i = 0; i < sequence.size(); i++) {
             copiedVals[i] = ((BXML<?>) sequence.get(i)).copy();
         }
-        return new BXMLSequence(new BRefValueArray(copiedVals, BTypes.typeXML));
+        return new BXMLSequence(new BRefValueArray(copiedVals, BTypes.typeXMLArray));
     }
 
     /**

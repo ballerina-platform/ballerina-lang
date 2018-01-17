@@ -18,6 +18,7 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
@@ -263,9 +264,9 @@ public class BLangVMErrors {
      * @return generated StackTraceItem struct array
      */
     public static BRefValueArray generateStackTraceItems(Context context, int ip) {
-        BRefValueArray stackTraceItems = new BRefValueArray();
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
         StructInfo stackTraceItem = errorPackageInfo.getStructInfo(STRUCT_FRAME);
+        BRefValueArray stackTraceItems = new BRefValueArray(new BArrayType(stackTraceItem.getType()));
         ControlStack controlStack = context.getControlStack();
 
         int currentIP = ip;

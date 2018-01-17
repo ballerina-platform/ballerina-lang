@@ -34,6 +34,7 @@ import org.apache.axiom.om.impl.dom.TextImpl;
 import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.ballerinalang.model.DataTableOMDataSource;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.JsonNode.Type;
 import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BJSON;
@@ -49,7 +50,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -124,7 +124,7 @@ public class XMLUtils {
      */
     @SuppressWarnings("unchecked")
     public static BXML<?> parse(InputStream xmlStream) {
-        BRefValueArray elementsSeq = new BRefValueArray();
+        BRefValueArray elementsSeq = new BRefValueArray(BTypes.typeXMLArray);
         OMDocument doc;
         try {
             doc = OMXMLBuilderFactory.createOMBuilder(xmlStream).getDocument();
@@ -149,7 +149,7 @@ public class XMLUtils {
      * @return Concatenated XML sequence
      */
     public static BXML<?> concatenate(BXML<?> firstSeq, BXML<?> secondSeq) {
-        BRefValueArray concatSeq = new BRefValueArray();
+        BRefValueArray concatSeq = new BRefValueArray(BTypes.typeXMLArray);
         int j = 0;
 
         //Load the content fully before concat the two

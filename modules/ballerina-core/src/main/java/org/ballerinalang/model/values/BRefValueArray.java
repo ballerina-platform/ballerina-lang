@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 
 import java.util.Arrays;
@@ -27,22 +28,18 @@ import java.util.StringJoiner;
  */
 public class BRefValueArray extends BNewArray {
 
-    private BType arrayType;
+    private BArrayType arrayType;
 
     private BRefType[] values;
 
-    public BRefValueArray(BRefType[] values, BType type) {
+    public BRefValueArray(BRefType[] values, BArrayType type) {
         this.values = values;
         this.arrayType = type;
         this.size = values.length;
     }
 
-    public BRefValueArray(BType type) {
+    public BRefValueArray(BArrayType type) {
         this.arrayType = type;
-        values = (BRefType[]) newArrayInstance(BRefType.class);
-    }
-
-    public BRefValueArray() {
         values = (BRefType[]) newArrayInstance(BRefType.class);
     }
 

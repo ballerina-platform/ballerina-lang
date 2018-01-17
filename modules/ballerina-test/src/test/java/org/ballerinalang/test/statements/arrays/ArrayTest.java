@@ -164,7 +164,7 @@ public class ArrayTest {
     public void testXMLArrayCopyOf() {
         final String v1 = "<xml>a</xml>";
         final String v2 = "<xml>b</xml>";
-        BRefValueArray arrayValue = new BRefValueArray();
+        BRefValueArray arrayValue = new BRefValueArray(BTypes.typeXMLArray);
         arrayValue.add(0,  new BXMLItem(v1));
         arrayValue.add(1,  new BXMLItem(v2));
         BValue[] args = {arrayValue};
@@ -341,7 +341,7 @@ public class ArrayTest {
         final String v2 = "<xml>b</xml>";
         final String v3 = "<xml>c</xml>";
         final String v4 = "<xml>d</xml>";
-        BRefValueArray arrayValue = new BRefValueArray();
+        BRefValueArray arrayValue = new BRefValueArray(BTypes.typeXMLArray);
         arrayValue.add(0, new BXMLItem(v1));
         arrayValue.add(1, new BXMLItem(v2));
         arrayValue.add(2, new BXMLItem(v3));
@@ -361,7 +361,7 @@ public class ArrayTest {
     public void testXMLArrayCopyOfRangeNegative() {
         final String v1 = "<xml>a</xml>";
         final String v2 = "<xml>b</xml>";
-        BRefValueArray arrayValue = new BRefValueArray();
+        BRefValueArray arrayValue = new BRefValueArray(BTypes.typeXMLArray);
         arrayValue.add(0, new BXMLItem(v1));
         arrayValue.add(1, new BXMLItem(v2));
         BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
@@ -374,7 +374,7 @@ public class ArrayTest {
     public void testXMLArrayCopyOfRangNegativeMinusArgs() {
         final String v1 = "<xml>a</xml>";
         final String v2 = "<xml>b</xml>";
-        BRefValueArray arrayValue = new BRefValueArray();
+        BRefValueArray arrayValue = new BRefValueArray(BTypes.typeXMLArray);
         arrayValue.add(0, new BXMLItem(v1));
         arrayValue.add(1, new BXMLItem(v2));
         BValue[] args = {arrayValue , new BInteger(-1), new BInteger(3)};
@@ -461,7 +461,7 @@ public class ArrayTest {
         Assert.assertEquals(bBooleanArray.stringValue(), "[true, true, false]");
 
         BXMLItem[] xmlArray = { new BXMLItem("<foo/>"), new BXMLItem("<bar>hello</bar>") };
-        BRefValueArray bXmlArray = new BRefValueArray(xmlArray, BTypes.typeXML);
+        BRefValueArray bXmlArray = new BRefValueArray(xmlArray, BTypes.typeXMLArray);
         Assert.assertEquals(bXmlArray.stringValue(), "[<foo/>, <bar>hello</bar>]");
     }
 

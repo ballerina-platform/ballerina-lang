@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
@@ -28,8 +27,6 @@ import java.util.StringJoiner;
  * @since 0.87
  */
 public class BBooleanArray extends BNewArray {
-
-    private static BType arrayType = new BArrayType(BTypes.typeBoolean);
 
     private int[] values;
 
@@ -54,7 +51,7 @@ public class BBooleanArray extends BNewArray {
 
     @Override
     public BType getType() {
-        return arrayType;
+        return BTypes.typeBooleanArray;
     }
 
     @Override
