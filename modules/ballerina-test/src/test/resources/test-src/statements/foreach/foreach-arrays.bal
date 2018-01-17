@@ -170,3 +170,36 @@ function testStructArrayWithArityTwo()(string){
     }
     return output;
 }
+
+function testArrayInsertInt () (string) {
+    int[] iArray = [0];
+    iArray[3] = 3;
+    iArray[6] = 6;
+    output = "";
+    foreach i, v in iArray {
+        concatInt(i, v);
+    }
+    return output;
+}
+
+function testArrayInsertString () (string) {
+    string[] sArray = ["d0"];
+    sArray[3] = "d3";
+    sArray[6] = "d6";
+    output = "";
+    foreach i, v in sArray {
+        concatString(i, v);
+    }
+    return output;
+}
+
+function testArrayInsertInForeach () (string) {
+    string[] sArray = ["d0", "d1", "d2"];
+    output = "";
+    foreach i, v in sArray {
+        int j = i + 5;
+        sArray[j] = "d" + j;
+        concatString(i, v);
+    }
+    return output;
+}
