@@ -640,7 +640,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(struct, struct.symbol.scope, pkgEnv);
             BStructType structType = (BStructType) struct.symbol.type;
             structType.fields = struct.fields.stream()
-                    .peek(field -> field.flagSet.add(Flag.PUBLIC))
                     .peek(field -> defineNode(field, structEnv))
                     .map(field -> new BStructField(names.fromIdNode(field.name), field.type))
                     .collect(Collectors.toList());
