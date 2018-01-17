@@ -311,6 +311,13 @@ class WhileStatementDecorator extends React.Component {
                     y2={p6Y - 0.5}
                     className='flowchart-separator-line'
                 />
+                <text
+                    x={p9X}
+                    y={p9Y + 14}
+                    className='statement-title-text'
+                >
+                    while
+                </text>
                 {expression &&
                     <text
                         x={p8X}

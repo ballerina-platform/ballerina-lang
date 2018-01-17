@@ -126,7 +126,7 @@ class FunctionNode extends React.Component {
                     receiver={receiverType}
                 >
                     <Client
-                        title='Caller'
+                        title='caller'
                         bBox={this.props.model.viewState.components.client}
                     />
                     { this.props.model.getWorkers().length === 0 &&

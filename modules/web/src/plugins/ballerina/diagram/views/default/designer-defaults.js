@@ -104,11 +104,12 @@ export const lifeLine = {
 
 export const clientLine = {
     head: {
-        length: 45,
+        height: 30,
+        width: 80,
     },
     width: 80,
-    arrowGap: 50,
 };
+
 
 export const actionBox = {
     width: 66,
