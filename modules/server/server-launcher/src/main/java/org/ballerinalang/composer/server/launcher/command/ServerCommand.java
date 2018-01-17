@@ -25,7 +25,7 @@ public class ServerCommand {
     public boolean helpFlag = false;
 
     @Parameter(names = "--port", description = "Specify a custom port for the server to start.")
-    public Integer port = 8089;
+    public Integer port;
 
     @Parameter(names = "--debug", hidden = true)
     public String debugPort;

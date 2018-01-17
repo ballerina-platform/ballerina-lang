@@ -29,13 +29,17 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.DatagramSocket;
+import java.net.ServerSocket;
 
 /**
  * Launcher for ballerina composer backend server.
  */
 public class ServerLauncher {
 
-    public static final String SYS_BAL_COMPOSER_HOME = "bal.composer.home";
+    private static final String SYS_BAL_COMPOSER_HOME = "bal.composer.home";
+    private static final int DEFAULT_PORT = 8089;
+
 
     private static Logger logger;
 
@@ -94,6 +98,19 @@ public class ServerLauncher {
         if (config.getServerPort() == 0) {
             config.setServerPort(commandArgs.port);
         }
+        // if no port is provided via args or config, grab a free available port
+        if (config.getServerPort() == 0) {
+            config.setServerPort(getAvailablePort(DEFAULT_PORT));
+        }
+        // if the selected port is not available, print an error & exit
+        if (!isPortAvailable(config.getServerPort())) {
+            PrintStream err = System.err;
+            err.println("Error: Looks like you may be running the Ballerina composer already ?");
+            err.println(String.format("In any case, it appears someone is already using port %d, " +
+                    "please kick them out or tell me a different port to use.", config.getServerPort()));
+            printUsage();
+            System.exit(1);
+        }
         Server server = new Server(config);
         try {
             server.start();
@@ -111,5 +128,54 @@ public class ServerLauncher {
         out.println("    --file <file path>        Specify a Ballerina program file to open at the startup.");
         out.println("    --help -h help            for more information.");
         out.println("");
+    }
+
+    /**
+     * Checks to see if a specific port is available.
+     *
+     * @param port the port number to check for availability
+     * @return <tt>true</tt> if the port is available, or <tt>false</tt> if not
+     * @throws IllegalArgumentException is thrown if the port number is out of range
+     */
+    private static boolean isPortAvailable(int port) {
+        ServerSocket ss = null;
+        DatagramSocket ds = null;
+        try {
+            ss = new ServerSocket(port);
+            ss.setReuseAddress(true);
+            ds = new DatagramSocket(port);
+            ds.setReuseAddress(true);
+            return true;
+        } catch (IOException e) {
+            // Do nothing
+        } finally {
+            if (ds != null) {
+                ds.close();
+            }
+
+            if (ss != null) {
+                try {
+                    ss.close();
+                } catch (IOException e) {
+                    /* should not be thrown */
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * return a available port from the seed port.
+     * If the seed port is available it will return that.
+     *
+     * @param seed to check port
+     * @return seed
+     */
+    private static int getAvailablePort(int seed) {
+        while (!isPortAvailable(seed)) {
+            seed++;
+        }
+        return seed;
     }
 }
