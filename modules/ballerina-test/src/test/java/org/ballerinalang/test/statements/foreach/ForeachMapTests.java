@@ -67,7 +67,7 @@ public class ForeachMapTests {
 
     @Test
     public void testDeleteWhileIteration() {
-        String result = "a:1A a:1A b:1B b:1B c:3C c:null ";
+        String result = "a:1A a:1A b:2B b:2B c:3C c:null ";
         BValue[] returns = BRunUtil.invoke(program, "testDeleteWhileIteration");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), result);
