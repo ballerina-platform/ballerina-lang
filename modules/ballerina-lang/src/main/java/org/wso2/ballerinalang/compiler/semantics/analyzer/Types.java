@@ -180,6 +180,8 @@ public class Types {
      * 2) there exists an implicit cast symbol from source to target.
      * 3) both types are JSON and the target constraint is no type.
      * 4) both types are array type and both array types are assignable.
+     * 5) both types are MAP and the target constraint is any type or constraints are structurally equivalent.
+     * 6) both types are Struct and they are structurally equivalent.
      *
      * @param source type.
      * @param target type.
@@ -777,6 +779,7 @@ public class Types {
         @Override
         public BSymbol visit(BMapType t, BType s) {
             // Semantically fail all conversions for Constrained Maps.
+            // Eg:- T2MAP, XMLATTRS2MAP
             if (t.constraint.tag != TypeTags.ANY) {
                 return symTable.notFoundSymbol;
             }
