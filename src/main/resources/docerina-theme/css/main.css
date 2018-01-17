@@ -293,6 +293,10 @@ td, th{
     margin: 2em 0;
 }
 
+.construct-wrapper h4 {
+    padding-top: 5px;
+}
+
 .navbar-default .navbar-nav>.active>a {
     background-color: transparent;
 }
