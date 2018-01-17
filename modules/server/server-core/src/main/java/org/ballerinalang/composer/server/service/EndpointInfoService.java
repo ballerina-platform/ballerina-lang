@@ -16,6 +16,7 @@
 package org.ballerinalang.composer.server.service;
 
 import com.google.gson.JsonObject;
+import org.ballerinalang.composer.server.core.ServerConfig;
 import org.ballerinalang.composer.server.core.ServerConstants;
 import org.ballerinalang.composer.server.spi.ComposerService;
 import org.ballerinalang.composer.server.spi.ServiceInfo;
@@ -38,12 +39,14 @@ import javax.ws.rs.core.Response;
 public class EndpointInfoService implements ComposerService {
     static final String NAME = "endpointinfo";
     static final String PATH = "endpoint";
-    private final Map<String, String> serviceEPMap;
+    private final Map<String, ServiceInfo> serviceEPMap;
+    private final ServerConfig serverConfig;
 
-    public EndpointInfoService(List<ComposerService> serviceList) {
-        serviceEPMap = new HashMap<>();
+    public EndpointInfoService(ServerConfig serverConfig, List<ComposerService> serviceList) {
+        this.serverConfig = serverConfig;
+        this.serviceEPMap = new HashMap<>();
         for (ComposerService service: serviceList) {
-            serviceEPMap.put(service.getServiceInfo().getName(), service.getServiceInfo().getContextPath());
+            serviceEPMap.put(service.getServiceInfo().getName(), service.getServiceInfo());
         }
     }
     @GET
@@ -51,7 +54,7 @@ public class EndpointInfoService implements ComposerService {
     @Produces("application/json")
     public Response root(@QueryParam("name") String endpointName) {
         JsonObject entity = new JsonObject();
-        entity.addProperty("endpoint", serviceEPMap.get(endpointName));
+        entity.addProperty("endpoint", getEndpoint(endpointName));
         return Response.status(Response.Status.OK)
                 .entity(entity)
                 .header("Access-Control-Allow-Origin", '*')
@@ -62,5 +65,14 @@ public class EndpointInfoService implements ComposerService {
     @Override
     public ServiceInfo getServiceInfo() {
         return new ServiceInfo(NAME, PATH, ServiceType.HTTP);
+    }
+
+    private String getEndpoint(String endpointName) {
+        ServiceInfo serviceInfo = serviceEPMap.get(endpointName);
+        String protocol = serviceInfo.getType() == ServiceType.HTTP ? "http" : "ws";
+        return protocol + "://localhost:" + serverConfig.getServerPort()
+                + ServerConstants.CONTEXT_ROOT
+                + "/" + serviceInfo.getContextPath();
+
     }
 }

@@ -60,7 +60,7 @@ public class Server {
             }
         }
         // deploy ep info service
-        microservicesRunner.deploy(new EndpointInfoService(serviceList));
+        microservicesRunner.deploy(new EndpointInfoService(serverConfig, serviceList));
         microservicesRunner.start();
     }
 
