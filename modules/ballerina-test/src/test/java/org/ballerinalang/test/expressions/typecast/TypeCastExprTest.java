@@ -47,7 +47,7 @@ public class TypeCastExprTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/expressions/typecast/type-casting.bal");
+        result = BCompileUtil.compile(this, "test-src", "expressions/typecast/type-casting.bal");
     }
 
 //    @Test
@@ -633,9 +633,19 @@ public class TypeCastExprTest {
 
     @Test(description = "Test returning a mismatching error when casting")
     public void testMistmatchErrorInMultiReturnCasting() {
-        CompileResult res = BCompileUtil.compile("test-src/expressions/typecast/multi-return-casting-negative.bal");
+        CompileResult res = BCompileUtil.compile(this, "test-src",
+                "expressions/typecast/multi-return-casting-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
         BAssertUtil.validateError(res, 0, "incompatible types: expected 'Error', found 'TypeCastError'", 18, 14);
+    }
+
+    @Test(description = "Test returning a mismatching error when casting")
+    public void testStructEquivalentErrorDirectAssignment() {
+        CompileResult res = BCompileUtil.compile(this, "test-src",
+                "expressions/typecast/multi-struct-equivalent-direct-assignment.bal");
+        BValue[] returns = BRunUtil.invoke(res, "testStructEquivalentErrorDirectAssignment");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "'B' cannot be cast to 'A'");
     }
 
     @Test(description = "Test casting with too many returns")

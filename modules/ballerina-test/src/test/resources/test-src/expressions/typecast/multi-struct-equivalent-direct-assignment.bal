@@ -1,5 +1,5 @@
 struct Error {
-    string errorMsg;
+    string msg;
 }
 
 struct A {
@@ -11,9 +11,10 @@ struct B {
     string x;
 }
 
-function testMistmatchErrorInMultiReturnCasting() {
+function testStructEquivalentErrorDirectAssignment() (Error) {
     B b = {x: "x-valueof-b"};
     A a;
     Error err;
     a, err = (A) b;
+    return err;
 }
