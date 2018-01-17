@@ -441,4 +441,25 @@ public class ConstrainedMapTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
     }
 
+    @Test(description = "Test json to struct conversion where struct is included with constrained map.")
+    public void testJsonToStructConversionStructWithConstrainedMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToStructConversionStructWithConstrainedMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "Colombo");
+        Assert.assertEquals(((BString) returns[1]).stringValue(), "SriLanka");
+    }
+
+    @Test(description = "Test json to struct conversion where struct is included with constrained map negative.")
+    public void testJsonToStructConversionStructWithConstrainedMapNegative() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testJsonToStructConversionStructWithConstrainedMapNegative");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
+                "cannot convert 'json' to type 'PersonComplexTwo': error while mapping 'address': " +
+                        "incompatible types: expected 'int', found 'string' in json");
+    }
+
 }

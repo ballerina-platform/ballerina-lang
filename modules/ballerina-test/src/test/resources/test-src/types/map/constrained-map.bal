@@ -424,3 +424,80 @@ function testMapOfElementTypeRefArray() (string, int) {
     Employee jackR = r2[0];
     return jackR.name, jackR.age;
 }
+
+struct PersonComplex {
+    string name;
+    int age;
+    PersonComplex parent;
+    json info;
+    map<string> address;
+    int[] marks;
+    any a;
+    float score;
+    boolean alive;
+}
+
+function testJsonToStructConversionStructWithConstrainedMap() (string, string) {
+    json j = { name:"Child",
+               age:25,
+               parent:{
+                    name:"Parent",
+                    age:50,
+                    parent: null,
+                    address:null,
+                    info:null,
+                    marks:null,
+                    a:null,
+                    score: 4.57,
+                    alive:false
+               },
+               address:{"city":"Colombo", "country":"SriLanka"},
+               info:{status:"single"},
+               marks:[56,79],
+               a:"any value",
+               score: 5.67,
+               alive:true
+             };
+    PersonComplex p;
+    p,_ = <PersonComplex> j;
+    map<string> ms = p.address;
+    return ms["city"], ms["country"];
+}
+
+struct PersonComplexTwo {
+    string name;
+    int age;
+    PersonComplexTwo parent;
+    json info;
+    map<int> address;
+    int[] marks;
+    any a;
+    float score;
+    boolean alive;
+}
+
+function testJsonToStructConversionStructWithConstrainedMapNegative() (TypeConversionError) {
+    json j = { name:"Child",
+               age:25,
+               parent:{
+                    name:"Parent",
+                    age:50,
+                    parent: null,
+                    address:null,
+                    info:null,
+                    marks:null,
+                    a:null,
+                    score: 4.57,
+                    alive:false
+               },
+               address:{"city":"Colombo", "country":"SriLanka"},
+               info:{status:"single"},
+               marks:[56,79],
+               a:"any value",
+               score: 5.67,
+               alive:true
+             };
+    TypeConversionError err;
+    _,err = <PersonComplexTwo> j;
+    return err;
+}
