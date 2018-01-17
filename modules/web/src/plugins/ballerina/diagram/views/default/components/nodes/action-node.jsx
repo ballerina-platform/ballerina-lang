@@ -114,7 +114,7 @@ class ActionNode extends React.Component {
                     returnParams={returnParameters}
                 >
                     <Client
-                        title='Caller'
+                        title='caller'
                         bBox={this.props.model.viewState.components.client}
                     />
                     <g>

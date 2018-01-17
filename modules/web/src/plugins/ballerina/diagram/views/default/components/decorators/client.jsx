@@ -27,7 +27,8 @@ class Client extends React.Component {
         const topBox = Object.assign({}, bBox);
         const bottomBox = Object.assign({}, bBox);
 
-        const hLength = this.context.designer.config.clientLine.head.length;
+        const hWidth = this.context.designer.config.clientLine.head.width;
+        const hHeight = this.context.designer.config.clientLine.head.height;
         bottomBox.h = this.context.designer.config.lifeLine.head.height;
         topBox.h = this.context.designer.config.lifeLine.head.height;
 
@@ -35,20 +36,18 @@ class Client extends React.Component {
 
         // calculate the line coordinates
         const line = {};
-        line.x1 = (hLength / 2) + bBox.x;
-        line.x2 = (hLength / 2) + bBox.x;
+        line.x1 = (hWidth / 2) + bBox.x;
+        line.x2 = (hWidth / 2) + bBox.x;
         line.y1 = bBox.y;
         line.y2 = bBox.y + bBox.h;
 
 
-        const topHeaderCentreX = bBox.x + (hLength / 2);
+        const topHeaderCentreX = bBox.x + (hWidth / 2);
         const topHeaderCentreY = topBox.y;
         const bottomHeaderCentreX = topHeaderCentreX;
         const bottomHeaderCentreY = bBox.y + bBox.h;
 
         const invokeLineY = topBox.y + topBox.h + this.context.designer.config.statement.height;
-
-        const titleTextArray = this.props.title.split(' ');
 
         return (<g
             className='client-line-group'
@@ -61,60 +60,36 @@ class Client extends React.Component {
                 className='client-life-line unhoverable'
             />
             <rect
-                x={topHeaderCentreX - (hLength / 2)}
-                y={topHeaderCentreY - (hLength / 2)}
-                width={hLength}
-                height={hLength}
-                rx='3'
-                ry='3'
+                x={topHeaderCentreX - (hWidth / 2)}
+                y={topHeaderCentreY - (hHeight / 2)}
+                width={hWidth}
+                height={hHeight}
+                rx={hHeight / 2}
+                ry={hHeight / 2}
                 className='client-line-header'
-                transform={`rotate(45 ${topHeaderCentreX} ${topHeaderCentreY})`}
             />
             <rect
-                x={bottomHeaderCentreX - (hLength / 2)}
-                y={bottomHeaderCentreY - (hLength / 2)}
-                width={hLength}
-                height={hLength}
-                rx='3'
-                ry='3'
+                x={bottomHeaderCentreX - (hWidth / 2)}
+                y={bottomHeaderCentreY - (hHeight / 2)}
+                width={hWidth}
+                height={hHeight}
+                rx={hHeight / 2}
+                ry={hHeight / 2}
                 className='client-line-header'
-                transform={`rotate(45 ${bottomHeaderCentreX} ${bottomHeaderCentreY})`}
             />
-            {(titleTextArray.length === 1) &&
-                <g>
-                    <text
-                        x={topHeaderCentreX}
-                        y={topHeaderCentreY}
-                        className='client-line-text'
-                    >{this.props.title}</text>
-                    <text
-                        x={bottomHeaderCentreX}
-                        y={bottomHeaderCentreY}
-                        className='client-line-text'
-                    >{this.props.title}
-                    </text>
-                </g>
-            }
-            {(titleTextArray.length > 1) &&
-                <g>
-                    <text
-                        x={topHeaderCentreX}
-                        y={topHeaderCentreY}
-                        className='client-line-text'
-                    >
-                        <tspan x={topHeaderCentreX} dy='-8' className='client-line-text'>{titleTextArray[0]}</tspan>
-                        <tspan x={topHeaderCentreX} dy='15' className='client-line-text'>{titleTextArray[1]}</tspan>
-                    </text>
-                    <text
-                        x={bottomHeaderCentreX}
-                        y={bottomHeaderCentreY}
-                        className='client-line-text'
-                    >
-                        <tspan x={bottomHeaderCentreX} dy='-8' className='client-line-text'>{titleTextArray[0]}</tspan>
-                        <tspan x={bottomHeaderCentreX} dy='15' className='client-line-text'>{titleTextArray[1]}</tspan>
-                    </text>
-                </g>
-            }
+            <g>
+                <text
+                    x={topHeaderCentreX}
+                    y={topHeaderCentreY}
+                    className='client-line-text'
+                >{this.props.title}</text>
+                <text
+                    x={bottomHeaderCentreX}
+                    y={bottomHeaderCentreY}
+                    className='client-line-text'
+                >{this.props.title}
+                </text>
+            </g>
             <g>
                 <text
                     x={line.x1 + this.context.designer.config.statement.gutter.h}
@@ -145,7 +120,7 @@ Client.propTypes = {
 };
 
 Client.defaultProps = {
-    title: 'Caller',
+    title: 'caller',
 };
 
 Client.contextTypes = {
