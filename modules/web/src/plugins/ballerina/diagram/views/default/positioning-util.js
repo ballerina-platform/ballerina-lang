@@ -20,7 +20,6 @@ import _ from 'lodash';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
 import TreeUtil from './../../../model/tree-util';
 import OverlayComponentsRenderingUtil from './../default/components/utils/overlay-component-rendering-util';
-import finallyStatementDecorator from 'plugins/ballerina/diagram/views/default/components/nodes/finally-statement-decorator';
 
 class PositioningUtil {
 
@@ -1443,7 +1442,8 @@ class PositioningUtil {
             if (catchBlocks.length > 0) {
                 finallyY = catchBlocks[0].viewState.bBox.y + catchBlocks[0].viewState.bBox.h;
             } else {
-                finallyY = node.viewState.components['statement-box'].y + node.viewState.components['statement-box'].h;
+                finallyY = node.viewState.components['statement-box'].y + node.viewState.components['statement-box'].h -
+                            this.config.statement.gutter.h;
             }
 
             // Position the finally block

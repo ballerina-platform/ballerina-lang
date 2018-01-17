@@ -19,7 +19,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import TryStatementDecorator from './try-statement-decorator';
-// import { getComponentForNodeArray } from './../../../../diagram-util';
 import TryNodeModel from './../../../../../model/tree/try-node';
 import DropZone from './../../../../../drag-drop/DropZone';
 import DefaultNodeFactory from './../../../../../model/default-node-factory';
@@ -113,7 +112,6 @@ class TryNode extends React.Component {
                     enableDragBg
                     enableCenterOverlayLine
                 />
-
                 <TryStatementDecorator
                     dropTarget={model}
                     bBox={bBox}

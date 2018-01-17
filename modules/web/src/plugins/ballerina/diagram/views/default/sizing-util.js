@@ -257,6 +257,14 @@ class SizingUtil {
         viewState.bBox.w = bodyWidth;
 
         components['block-header'].setOpaque(true);
+
+        // for compound statement like if , while we need to render condition expression
+        // we will calculate the width of the expression and adjust the block statement
+        const expression = node.getParameter();
+        if (expression) {
+            components.expression = this.getTextWidth(expression.getSource(true), 0,
+                                        this.config.compoundStatement.heading.width - 5);
+        }
     }
 
     /**
@@ -1747,6 +1755,12 @@ class SizingUtil {
             finallyViewState.h = finallyViewState.components['block-header'].h +
                                     finallyViewState.components['statement-box'].h;
             nodeHeight += finallyViewState.h;
+        }
+
+        if ((catchStmts.length === 0) && finallyBody) {
+            // there are no catch statements the try and finally blocks interlock
+            // remove additional gap between try and finally
+            nodeHeight -= this.config.statement.gutter.h;
         }
 
         node.viewState.bBox.h = nodeHeight;

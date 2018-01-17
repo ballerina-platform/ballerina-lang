@@ -19,7 +19,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
-import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
 import './compound-statement-decorator.css';
@@ -46,9 +45,6 @@ class FinallyStatementDecorator extends React.Component {
         this.onJumpToCodeLine = this.onJumpToCodeLine.bind(this);
         this.setActionVisibilityFalse = this.setActionVisibility.bind(this, false);
         this.setActionVisibilityTrue = this.setActionVisibility.bind(this, true);
-        this.openExpressionEditor = e => this.openEditor(this.props.expression, this.props.editorOptions, e);
-        this.openParameterEditor = e => this.openEditor(this.props.parameterEditorOptions.value,
-            this.props.parameterEditorOptions, e);
     }
     /**
      * Handles click event of breakpoint, adds/remove breakpoint from the node when click event fired
@@ -70,7 +66,7 @@ class FinallyStatementDecorator extends React.Component {
      * @returns {void}
      */
     onDelete() {
-        const model = this.props.model || this.props.dropTarget;
+        const model = this.props.model;
         model.remove();
     }
     /**
@@ -142,22 +138,6 @@ class FinallyStatementDecorator extends React.Component {
     }
 
     /**
-     * renders an ExpressionEditor in the header space.
-     * @param {string} value - Initial value.
-     * @param {object} options - options to be sent to ExpressionEditor.
-     */
-    openEditor(value, options) {
-        const packageScope = this.context.environment;
-        if (value && options) {
-            new ExpressionEditor(
-                this.conditionBox,
-                this.onUpdate.bind(this),
-                options,
-                packageScope).render(this.context.getOverlayContainer());
-        }
-    }
-
-    /**
      * Render breakpoint element.
      * @private
      * @return {XML} React element of the breakpoint.
@@ -189,12 +169,11 @@ class FinallyStatementDecorator extends React.Component {
         const { bBox, isBreakpoint, isDebugHit } = this.props;
         const { designer } = this.context;
 
-        const model = this.props.model;
         const viewState = bBox;
         const titleH = this.context.designer.config.compoundStatement.heading.height;
         const titleW = this.context.designer.config.compoundStatement.heading.width;
         const statementBBox = viewState.components['statement-box'];
-        const gapLeft = this.context.designer.config.compoundStatement.padding.left;
+        const gapLeft = this.context.designer.config.compoundStatement.gap.left;
         const gapTop = this.context.designer.config.compoundStatement.padding.top;
 
 
@@ -209,13 +188,13 @@ class FinallyStatementDecorator extends React.Component {
         //       |            __|__ (p12)     __|__
         //       |            a = 1;           a = 5;
         //       |              |               |
-        //  (P7) |               (p10)          |
+        //       |               (p10)          |
         //       |                              |
-        //       |_____________(P6)_____________| (P5)
+        //  (P7) |_____________(P6)_____________| (P5)
         //                      |
 
         const p1X = bBox.x - gapLeft;
-        const p1Y = bBox.y + gapTop; // - titleH;
+        const p1Y = bBox.y + gapTop;
 
         const p2X = bBox.x - (titleW / 2);
         const p2Y = p1Y + (titleH / 2);
@@ -232,20 +211,14 @@ class FinallyStatementDecorator extends React.Component {
         const p6X = bBox.x;
         const p6Y = p5Y;
 
+        const p7X = p1X;
+        const p7Y = p5Y;
+
         const p8X = bBox.x;
         const p8Y = p2Y + (titleH / 2);
 
-        const p9X = p8X;
-        const p9Y = p8Y - titleH;
-
         const p11X = p1X;
         const p11Y = p1Y + (titleH / 2);
-
-        const p12X = p8X;
-        const p12Y = p8Y + this.context.designer.config.compoundStatement.heading.gap;
-
-        this.conditionBox = new SimpleBBox(p2X, (p2Y - (this.context.designer.config.statement.height / 2)),
-            statementBBox.w, this.context.designer.config.statement.height);
 
         const actionBoxBbox = new SimpleBBox();
         actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;
@@ -269,7 +242,8 @@ class FinallyStatementDecorator extends React.Component {
                 }}
             >
                 <polyline
-                    points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y} ${p6X},${p6Y}`}
+                    points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y} ${p6X},${p6Y} 
+                                ${p7X},${p7Y} ${p11X},${p11Y} ${p2X},${p2Y}`}
                     className='background-empty-rect'
                 />
                 <rect
@@ -293,7 +267,7 @@ class FinallyStatementDecorator extends React.Component {
                     width={statementBBox.w}
                     height={statementBBox.h}
                     baseComponent='rect'
-                    dropTarget={this.props.model.body}
+                    dropTarget={this.props.model}
                     enableDragBg
                     enableCenterOverlayLine={!this.props.disableDropzoneMiddleLineOverlay}
                 />
@@ -334,31 +308,12 @@ FinallyStatementDecorator.propTypes = {
     model: PropTypes.instanceOf(Node).isRequired,
     children: PropTypes.arrayOf(PropTypes.node),
     bBox: PropTypes.instanceOf(SimpleBBox).isRequired,
-    dropTarget: PropTypes.instanceOf(Node).isRequired,
-    expression: PropTypes.shape({
-        text: PropTypes.string,
-    }).isRequired,
-    editorOptions: PropTypes.shape({
-        propertyType: PropTypes.string,
-        key: PropTypes.string,
-        model: PropTypes.instanceOf(Node),
-        getterMethod: PropTypes.func,
-        setterMethod: PropTypes.func,
-    }),
-    parameterEditorOptions: PropTypes.shape({
-        propertyType: PropTypes.string,
-        key: PropTypes.string,
-        value: PropTypes.string,
-        model: PropTypes.instanceOf(Node),
-        getterMethod: PropTypes.func,
-        setterMethod: PropTypes.func,
-    }),
     onBreakpointClick: PropTypes.func.isRequired,
     isBreakpoint: PropTypes.bool.isRequired,
     disableButtons: PropTypes.shape({
-        debug: PropTypes.bool.isRequired,
-        delete: PropTypes.bool.isRequired,
-        jump: PropTypes.bool.isRequired,
+        debug: PropTypes.bool,
+        delete: PropTypes.bool,
+        jump: PropTypes.bool,
     }),
     disableDropzoneMiddleLineOverlay: PropTypes.bool,
     isDebugHit: PropTypes.bool,

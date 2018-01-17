@@ -69,7 +69,7 @@ class TryStatementDecorator extends React.Component {
      * @returns {void}
      */
     onDelete() {
-        const model = this.props.model || this.props.dropTarget;
+        const model = this.props.model;
         model.remove();
     }
     /**
@@ -177,8 +177,10 @@ class TryStatementDecorator extends React.Component {
         const titleH = this.context.designer.config.compoundStatement.heading.height;
         const titleW = this.context.designer.config.compoundStatement.heading.width;
         const statementBBox = viewState.components['statement-box'];
-        const gapLeft = this.context.designer.config.compoundStatement.padding.left;
+        const gapLeft = this.context.designer.config.compoundStatement.gap.left;
         const gapTop = this.context.designer.config.compoundStatement.padding.top;
+
+        const finallyStmt = model.finallyBody;
 
 
         // Defining coordinates of the diagram
@@ -209,7 +211,11 @@ class TryStatementDecorator extends React.Component {
         const p4Y = p2Y;
 
         const p5X = p4X;
-        const p5Y = statementBBox.y + statementBBox.h;
+        let p5Y = statementBBox.y + statementBBox.h;
+
+        if (model.catchBlocks.length === 0 && finallyStmt) {
+            p5Y += titleH / 2;
+        }
 
         const p7X = p1X;
         const p7Y = p5Y;
@@ -219,9 +225,6 @@ class TryStatementDecorator extends React.Component {
 
         const p11X = p1X;
         const p11Y = p1Y + (titleH / 2);
-
-        this.conditionBox = new SimpleBBox(p2X, (p2Y - (this.context.designer.config.statement.height / 2)),
-            statementBBox.w, this.context.designer.config.statement.height);
 
         const actionBoxBbox = new SimpleBBox();
         actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;
@@ -235,7 +238,6 @@ class TryStatementDecorator extends React.Component {
         }
 
         const body = getComponentForNodeArray(this.props.model.body);
-        const finallyStmt = model.finallyBody;
         const disableDeleteForFinally = model.catchBlocks.length <= 0 && model.finallyBody;
         const disableDeleteForCatch = model.catchBlocks.length === 1 && (!model.finallyBody);
 
@@ -248,7 +250,7 @@ class TryStatementDecorator extends React.Component {
                 }}
             >
                 <polyline
-                    points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y} ${p7X},${p7Y} ${p1X},${p1Y} ${p2X},${p2Y}`}
+                    points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y} ${p7X},${p7Y} ${p11X},${p11Y} ${p2X},${p2Y}`}
                     className='background-empty-rect'
                 />
                 <rect
@@ -300,6 +302,15 @@ class TryStatementDecorator extends React.Component {
                                     - designer.config.statement.gutter.h);
                         }
                         const catchComponents = model.catchBlocks.map((catchStmt) => {
+                            const setParameter = catchStmt.setParameter.bind(catchStmt);
+                            const getParameter = catchStmt.getParameter.bind(catchStmt);
+                            const catchEditorOptions = {
+                                propertyType: 'text',
+                                key: 'Catch Parameter',
+                                model: catchStmt,
+                                getterMethod: getParameter,
+                                setterMethod: setParameter,
+                            };
                             const catchComp = (
                                 <g>
                                     <CatchStatementDecorator
@@ -310,7 +321,9 @@ class TryStatementDecorator extends React.Component {
                                             top: connectorEdgeTopX,
                                             bottom: connectorEdgeBottomX,
                                         }}
+                                        expression={catchStmt.viewState.components.expression}
                                         disableButtons={{ delete: disableDeleteForCatch }}
+                                        editorOptions={catchEditorOptions}
                                     />
                                     <line
                                         x1={catchStmt.viewState.bBox.x}
@@ -405,7 +418,6 @@ TryStatementDecorator.propTypes = {
     model: PropTypes.instanceOf(Node).isRequired,
     children: PropTypes.arrayOf(PropTypes.node),
     bBox: PropTypes.instanceOf(SimpleBBox).isRequired,
-    dropTarget: PropTypes.instanceOf(Node).isRequired,
     onBreakpointClick: PropTypes.func.isRequired,
     isBreakpoint: PropTypes.bool.isRequired,
     disableButtons: PropTypes.shape({
