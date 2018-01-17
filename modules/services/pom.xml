@@ -15,6 +15,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>fs-service</module>
+        <module>log-service</module>
     </modules>
     <dependencies>
         <dependency>
