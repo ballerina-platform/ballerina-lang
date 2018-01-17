@@ -19,9 +19,6 @@
 package org.ballerinalang.docgen.docs.utils;
 
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.TypeEnum;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -49,27 +46,6 @@ public class BallerinaDocUtils {
             BallerinaDocConstants.ENABLE_DEBUG_LOGS));
     private static final PrintStream out = System.out;
 
-    /**
-     * @return the string representation of a type
-     */
-    public static String getType(TypeEnum argType, TypeEnum argEltType) {
-        if (TypeEnum.ARRAY.equals(argType)) {
-            return argEltType.getName() + "[]";
-        }
-        return argType.getName();
-    }
-
-    /**
-     * @return the string representation of a {@link BType}
-     */
-    public static String getType(BType type) {
-        if (type instanceof BArrayType) {
-            BArrayType t = (BArrayType) type;
-            return t.getElementType().toString() + "[]";
-        }
-        return type.toString();
-    }
-    
     /**
      * Find a given resource and copy its content recursively to a given target path.
      * @param resource name of the resource

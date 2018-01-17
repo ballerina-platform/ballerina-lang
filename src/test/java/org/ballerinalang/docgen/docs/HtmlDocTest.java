@@ -26,6 +26,8 @@ import org.ballerinalang.docgen.model.ConnectorDoc;
 import org.ballerinalang.docgen.model.EnumDoc;
 import org.ballerinalang.docgen.model.FunctionDoc;
 import org.ballerinalang.docgen.model.GlobalVariableDoc;
+import org.ballerinalang.docgen.model.Link;
+import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.StructDoc;
 import org.testng.Assert;
@@ -47,10 +49,10 @@ public class HtmlDocTest {
 
     @Test(description = "Multiple packages should be shown even when one page is generated")
     public void testMultiPackage() throws Exception {
-        List<String> packages = new ArrayList<>();
-        packages.add("a.b.c");
-        packages.add("x.y");
-        packages.add("x.y.z");
+        List<Link> packages = new ArrayList<>();
+        packages.add(new Link(new PackageName("a.b.c", ""), "", false));
+        packages.add(new Link(new PackageName("x.y", ""), "", false));
+        packages.add(new Link(new PackageName("x.y.z", ""), "", false));
 
         BLangPackage bLangPackage = createPackage("package x.y;");
         Page page = Generator.generatePage(bLangPackage, packages);
@@ -70,10 +72,63 @@ public class HtmlDocTest {
 
     @Test(description = "Functions in a package should be shown in the constructs")
     public void testFunctions() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y; public function hello(){}");
+        BLangPackage bLangPackage = createPackage("package x.y; public function hello(string name) (string){}");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "hello");
+        Assert.assertTrue(page.constructs.get(0) instanceof FunctionDoc, "Invalid documentable type");
+        FunctionDoc functionDoc = (FunctionDoc) page.constructs.get(0);
+        Assert.assertEquals(functionDoc.parameters.get(0).toString(), "string name", "Invalid parameter string value");
+        Assert.assertEquals(functionDoc.returnParams.get(0).toString(), "string", "Invalid return type");
+    }
+    
+    @Test(description = "Connectors in a package should be shown in the constructs")
+    public void testConnectors() throws Exception {
+        BLangPackage bLangPackage = createPackage("package x.y; " +
+                                                  "public connector HttpClient (string uri, int n){}" +
+                                                  "public connector Http2Client (string uri, int n){}");
+        Page page = generatePage(bLangPackage);
+        Assert.assertEquals(page.constructs.size(), 2);
+        Assert.assertEquals(page.constructs.get(0).name, "HttpClient");
+        Assert.assertEquals(page.constructs.get(1).name, "Http2Client");
+    }
+    
+    @Test(description = "Enums in a package should be shown in the constructs")
+    public void testEnums() throws Exception {
+        BLangPackage bLangPackage = createPackage("package x.y; " +
+                                                  "public enum Direction {IN,OUT}" +
+                                                  "public enum Money {USD,LKR}");
+        Page page = generatePage(bLangPackage);
+        Assert.assertEquals(page.constructs.size(), 2);
+        Assert.assertEquals(page.constructs.get(0).name, "Direction");
+        Assert.assertTrue(page.constructs.get(0) instanceof EnumDoc, "Invalid documentable type.");
+        Assert.assertEquals(((EnumDoc) page.constructs.get(0)).enumerators.get(0).toString(), "IN", "Invalid enum val");
+        Assert.assertEquals(((EnumDoc) page.constructs.get(0)).enumerators.get(1).toString(), "OUT",
+                "Invalid enum val");
+        
+        Assert.assertEquals(page.constructs.get(1).name, "Money");
+    }
+    
+    @Test(description = "Annotation in a package should be shown in the constructs")
+    public void testAnnotations() throws Exception {
+        BLangPackage bLangPackage = createPackage("package x.y; " +
+                                                  "public annotation ParameterInfo {}" +
+                                                  "public annotation ReturnInfo {}");
+        Page page = generatePage(bLangPackage);
+        Assert.assertEquals(page.constructs.size(), 2);
+        Assert.assertEquals(page.constructs.get(0).name, "ParameterInfo");
+        Assert.assertEquals(page.constructs.get(1).name, "ReturnInfo");
+    }
+    
+    @Test(description = "Annotation in a package should be shown in the constructs")
+    public void testGlobalVariables() throws Exception {
+        BLangPackage bLangPackage = createPackage("package x.y; " +
+                                                  "public int total = 98;" +
+                                                  "public string content = \"Name\";");
+        Page page = generatePage(bLangPackage);
+        Assert.assertEquals(page.constructs.size(), 2);
+        Assert.assertEquals(page.constructs.get(0).name, "total");
+        Assert.assertEquals(page.constructs.get(1).name, "content");
     }
 
     @Test(description = "Structs in a package should be shown in the constructs")
@@ -262,6 +317,38 @@ public class HtmlDocTest {
         Assert.assertEquals(annotationDoc.attributes.get(0).description, "Upgrade path for the WebSocket service " +
                 "from HTTP to WS", "Description of the annotation attribute should be extracted");
     }
+    
+    @Test(description = "Private constructs should not appear at all.")
+    public void testPrivateConstructsInPackage() {
+        BLangPackage bLangPackage = createPackage("package x.y; " +
+                                                  "function hello(){}" +
+                                                  "connector HttpClient (string uri, int n){}" +
+                                                  "connector Http2Client (string uri, int n){}" +
+                                                  "enum Direction { IN,OUT}" +
+                                                  "enum Money { USD,LKR}" +
+                                                  "annotation ParameterInfo {}" +
+                                                  "annotation ReturnInfo {}" +
+                                                  "int total = 98;" +
+                                                  "string content = \"Name\";" +
+                                                  "struct Message {}" +
+                                                  "struct Response {}");
+        Page page = generatePage(bLangPackage);
+        Assert.assertEquals(page.constructs.size(), 0);
+    }
+    
+    @Test(description = "Testing primitive constructs.")
+    public void testPrimitiveConstructsWithFunctions() {
+        BLangPackage bLangPackage = createPackage("package ballerina.builtin;" +
+                                                  "public native function <blob b> data (string encoding) (string);" +
+                                                  "public native function <blob b> sample () (string);");
+        List<Link> packages = new ArrayList<>();
+        packages.add(new Link(new PackageName((bLangPackage.symbol).pkgID.name.value, ""), "", false));
+        packages.add(new Link(new PackageName("", BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME),
+                BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF, false));
+        Page primitivesPage = Generator.generatePageForPrimitives(bLangPackage, packages);
+        Assert.assertEquals(primitivesPage.constructs.size(), 1);
+        Assert.assertEquals(primitivesPage.constructs.get(0).children.size(), 2);
+    }
 
     /**
      * Create the package from the bal file
@@ -269,8 +356,7 @@ public class HtmlDocTest {
      * @return BLangPackage
      */
     private BLangPackage createPackage(String source) {
-        BLangPackage pkg = WorkspaceUtils.getBallerinaFileForContent("untitled.bal", source);
-        return pkg;
+        return WorkspaceUtils.getBallerinaFileForContent("untitled.bal", source);
     }
 
     /**
@@ -279,8 +365,8 @@ public class HtmlDocTest {
      * @return page generated
      */
     private Page generatePage(BLangPackage balPackage) {
-        List<String> packages = new ArrayList<>();
-        packages.add((balPackage.symbol).pkgID.name.value);
+        List<Link> packages = new ArrayList<>();
+        packages.add(new Link(new PackageName((balPackage.symbol).pkgID.name.value, ""), "", false));
         return Generator.generatePage(balPackage, packages);
     }
 }

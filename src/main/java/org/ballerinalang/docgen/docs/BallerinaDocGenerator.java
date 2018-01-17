@@ -23,6 +23,8 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.Writer;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
+import org.ballerinalang.docgen.model.Link;
+import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.model.Name;
 import org.slf4j.Logger;
@@ -68,30 +70,6 @@ public class BallerinaDocGenerator {
     private static final Path BAL_BUILTIN_CORE = Paths.get("ballerina/builtin/core");
     private static final String HTML = ".html";
 
-    /**
-     * API to generate Ballerina API documentation.
-     * -     *
-     * -     * @param output path to the output directory where the API documentation will be written to.
-     * -     * @param packageFilter comma separated list of package names to be filtered from the documentation.
-     * -     * @param sources either the path to the directories where Ballerina source files reside or a path to a
-     * -     *            Ballerina file which does not belong to a package.
-     * -
-     */
-    public static void generateApiDocsWithFilter(String output, String packageFilter, String... sources) {
-        generateApiDocs(output, packageFilter, false, sources);
-    }
-
-    /**
-     * API to generate Ballerina API documentation for Native Source.
-     *
-     * @param output        path to the output directory where the API documentation will be written to.
-     * @param packageFilter comma separated list of package names to be filtered from the documentation.
-     * @param sources       either the path to the directories where Ballerina source files reside or a path to a
-     *                      Ballerina file which does not belong to a package.
-     */
-    public static void generateNativeApiDocs(String output, String packageFilter, String... sources) {
-        generateApiDocs(output, packageFilter, true, sources);
-    }
     /**
      * API to generate Ballerina API documentation.
      *
@@ -145,43 +123,58 @@ public class BallerinaDocGenerator {
 
                 // Sort packages by package path
                 List<BLangPackage> packageList = new ArrayList<>(docsMap.values());
-                Collections.sort(packageList, Comparator.comparing(pkg -> pkg.getPackageDeclaration().toString()));
+                packageList.sort(Comparator.comparing(pkg -> pkg.getPackageDeclaration().toString()));
 
                 //Iterate over the packages to generate the pages
                 List<String> packageNames = new ArrayList<>(docsMap.keySet());
                 // Sort the package names
                 Collections.sort(packageNames);
-
+    
+                List<Link> packageNameList = PackageName.convertList(packageNames);
+                if (packageNames.contains("ballerina.builtin")) {
+                    PackageName primitivesLinkName = new PackageName("",
+                                                                    BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME);
+                    packageNameList.add(0, new Link(primitivesLinkName, BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF,
+                                                                                                                false));
+                }
+    
                 //Generate pages for the packages
                 String packageTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TEMPLATE_NAME_KEY,
                         "page");
                 for (BLangPackage bLangPackage: packageList) {
                     // Sort functions, connectors, structs, type mappers and annotationDefs
-                    Collections.sort(bLangPackage.getFunctions(), Comparator.comparing(f -> {
-                        return (f.getReceiver() == null ? "" : f.getReceiver().getName()) + f.getName().getValue();
-
-                    }));
-                    Collections.sort(bLangPackage.getConnectors(), Comparator.comparing(c -> c.getName().getValue()));
-                    Collections.sort(bLangPackage.getStructs(), Comparator.comparing(s -> s.getName().getValue()));
-                    Collections.sort(bLangPackage.getAnnotations(), Comparator.comparing(a -> a.getName().getValue()));
-                    Collections.sort(bLangPackage.getEnums(), Comparator.comparing(a -> a.getName().getValue()));
+                    bLangPackage.getFunctions().sort(Comparator
+                            .comparing(f ->(f.getReceiver() == null
+                                            ? "" : f.getReceiver().getName()) + f.getName().getValue()));
+                    bLangPackage.getConnectors().sort(Comparator.comparing(c -> c.getName().getValue()));
+                    bLangPackage.getStructs().sort(Comparator.comparing(s -> s.getName().getValue()));
+                    bLangPackage.getAnnotations().sort(Comparator.comparing(a -> a.getName().getValue()));
+                    bLangPackage.getEnums().sort(Comparator.comparing(a -> a.getName().getValue()));
 
                     // Sort connector actions
                     if ((bLangPackage.getConnectors() != null) && (bLangPackage.getConnectors().size() > 0)) {
-                        bLangPackage.getConnectors().forEach(connector ->
-                                Collections.sort(connector.getActions(),
-                                        Comparator.comparing(
-                                                a -> a.getName().getValue())));
+                        bLangPackage.getConnectors().forEach(connector -> connector.getActions()
+                                .sort(Comparator
+                                    .comparing(a -> a.getName().getValue())));
                     }
-                    Page page = Generator.generatePage(bLangPackage, packageNames);
-                    String filePath = output + File.separator + refinePackagePath(bLangPackage) + HTML;
+    
+                    String packagePath = refinePackagePath(bLangPackage);
+                    
+                    Page page = Generator.generatePage(bLangPackage, packageNameList);
+                    String filePath = output + File.separator + packagePath + HTML;
                     Writer.writeHtmlDocument(page, packageTemplateName, filePath);
+    
+                    if ("ballerina.builtin".equals(packagePath)) {
+                        Page primitivesPage = Generator.generatePageForPrimitives(bLangPackage, packageNameList);
+                        String primitivesFilePath = output + File.separator + "primitive-types" + HTML;
+                        Writer.writeHtmlDocument(primitivesPage, packageTemplateName, primitivesFilePath);
+                    }
                 }
                 //Generate the index file with the list of all packages
                 String indexTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TEMPLATE_NAME_KEY,
                         "index");
                 String indexFilePath = output + File.separator + "index" + HTML;
-                Writer.writeHtmlDocument(packageNames, indexTemplateName, indexFilePath);
+                Writer.writeHtmlDocument(packageNameList, indexTemplateName, indexFilePath);
                 if (BallerinaDocUtils.isDebugEnabled()) {
                     out.println("Copying HTML theme...");
                 }

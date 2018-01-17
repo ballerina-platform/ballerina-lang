@@ -44,6 +44,9 @@ public class Variable {
         if (name.length() == 0) {
             return dataType;
         }
+        if  (dataType.length() == 0) {
+            return name;
+        }
         return dataType + " " + name;
     }
 }

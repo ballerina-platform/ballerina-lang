@@ -18,6 +18,7 @@
 
 package org.ballerinalang.docgen;
 
+import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.model.ActionDoc;
 import org.ballerinalang.docgen.model.AnnotationDoc;
 import org.ballerinalang.docgen.model.ConnectorDoc;
@@ -27,8 +28,10 @@ import org.ballerinalang.docgen.model.FunctionDoc;
 import org.ballerinalang.docgen.model.GlobalVariableDoc;
 import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.Page;
+import org.ballerinalang.docgen.model.PrimitiveTypeDoc;
 import org.ballerinalang.docgen.model.StructDoc;
 import org.ballerinalang.docgen.model.Variable;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.EnumNode;
@@ -51,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Generates the Page objects for bal packages
@@ -61,73 +65,138 @@ public class Generator {
 
     /**
      * Generate the page when the bal package is passed
-     * @param balPackage package
-     * @param packages list of available packages
-     * @return
+     * @param balPackage The current package that is being viewed.
+     * @param packages List of available packages.
+     * @return A page model for the current package.
      */
-    public static Page generatePage(BLangPackage balPackage, List<String> packages) {
+    public static Page generatePage(BLangPackage balPackage, List<Link> packages) {
         ArrayList<Documentable> documentables = new ArrayList<>();
+        String currentPackageName = (balPackage.symbol).pkgID.name.value;
+        
         // Check for structs in the package
         if (balPackage.getStructs().size() > 0) {
             for (BLangStruct struct : balPackage.getStructs()) {
-                documentables.add(createDocForNode(struct));
+                if (struct.getFlags().contains(Flag.PUBLIC)) {
+                    documentables.add(createDocForNode(struct));
+                }
             }
         }
         // Check for functions in the package
         if (balPackage.getFunctions().size() > 0) {
             for (BLangFunction function : balPackage.getFunctions()) {
-                if (function.getReceiver() != null) {
-                    if (documentables.size() > 0) {
-                        for (Documentable parentDocumentable : documentables) {
-                            TypeNode langType = function.getReceiver().getTypeNode();
-                            String typeName = (langType instanceof BLangUserDefinedType ?
-                                    ((BLangUserDefinedType) langType).typeName.value : langType.toString());
-                            if (typeName.equals(parentDocumentable.name)) {
-                                parentDocumentable.children.add(createDocForNode(function));
+                if (function.getFlags().contains(Flag.PUBLIC)) {
+                    if (function.getReceiver() != null) {
+                        if (documentables.size() > 0) {
+                            for (Documentable parentDocumentable : documentables) {
+                                TypeNode langType = function.getReceiver().getTypeNode();
+                                String typeName = (langType instanceof BLangUserDefinedType ?
+                                               ((BLangUserDefinedType) langType).typeName.value : langType.toString());
+                                
+                                if (typeName.equals(parentDocumentable.name)) {
+                                    parentDocumentable.children.add(createDocForNode(function));
+                                }
                             }
                         }
+                    } else {
+                        // If there's no receiver type i.e. no struct binding to the function
+                        documentables.add(createDocForNode(function));
                     }
-                } else {
-                    // If there's no receiver type i.e. no struct binding to the function
-                    documentables.add(createDocForNode(function));
                 }
             }
         }
         // Check for connectors in the package
         for (BLangConnector connector : balPackage.getConnectors()) {
-            documentables.add(createDocForNode(connector));
+            if (connector.getFlags().contains(Flag.PUBLIC)) {
+                documentables.add(createDocForNode(connector));
+            }
         }
         // Check for connectors in the package
         for (EnumNode enumNode : balPackage.getEnums()) {
-            documentables.add(createDocForNode(enumNode));
+            if (enumNode.getFlags().contains(Flag.PUBLIC)) {
+                documentables.add(createDocForNode(enumNode));
+            }
         }
         // Check for annotations
         for (BLangAnnotation annotation : balPackage.getAnnotations()) {
-            documentables.add(createDocForNode(annotation));
+            if (annotation.getFlags().contains(Flag.PUBLIC)) {
+                documentables.add(createDocForNode(annotation));
+            }
         }
         // Check for global variables
         for (BLangVariable var : balPackage.getGlobalVariables()) {
-            documentables.add(createDocForNode(var));
-        }
-        String packageName = (balPackage.symbol).pkgID.name.value;
-
-        //Create the links to select which page or package is active
-        List<Link> links = new ArrayList<>();
-        for (String pkg : packages) {
-            if (pkg.equals(packageName)) {
-                links.add(new Link(pkg, true));
-            } else {
-                links.add(new Link(pkg, false));
+            if (var.getFlags().contains(Flag.PUBLIC)) {
+                documentables.add(createDocForNode(var));
             }
         }
-        Page page = new Page(packageName, documentables, links);
-        return page;
+        
+        // Create the links to select which page or package is active
+        List<Link> links = new ArrayList<>();
+        for (Link pkgLink : packages) {
+            if (pkgLink.packageName.name.equals(currentPackageName)) {
+                links.add(new Link(pkgLink.packageName, pkgLink.href, true));
+            } else {
+                links.add(new Link(pkgLink.packageName, pkgLink.href, false));
+            }
+        }
+    
+        return new Page(currentPackageName, documentables, links);
     }
-
+    
     /**
-     * Create documentation for enums
-     * @param enumNode
-     * @return documentation for enum
+     * Generate the page for primitive types.
+     * @param balPackage The ballerina.builtin package.
+     * @param packages List of available packages.
+     * @return A page model for the primitive types.
+     */
+    public static Page generatePageForPrimitives(BLangPackage balPackage, List<Link> packages) {
+        ArrayList<Documentable> documentables = new ArrayList<>();
+        
+        // Check for functions in the package
+        if (balPackage.getFunctions().size() > 0) {
+            for (BLangFunction function : balPackage.getFunctions()) {
+                if (function.getFlags().contains(Flag.PUBLIC) && function.getReceiver() != null) {
+                    TypeNode langType = function.getReceiver().getTypeNode();
+                    if (!(langType instanceof BLangUserDefinedType)) {
+                        // Check for primitives in ballerina.builtin
+                        Optional<PrimitiveTypeDoc> existingPrimitiveType = documentables
+                                .stream()
+                                .filter((doc) -> doc instanceof PrimitiveTypeDoc &&
+                                                 (((PrimitiveTypeDoc) doc)).name.equals(langType.toString()))
+                                .map(doc -> (PrimitiveTypeDoc) doc)
+                                .findFirst();
+                        
+                        PrimitiveTypeDoc primitiveTypeDoc;
+                        if (existingPrimitiveType.isPresent()) {
+                            primitiveTypeDoc = existingPrimitiveType.get();
+                        } else {
+                            primitiveTypeDoc = new PrimitiveTypeDoc(langType.toString(), "fw-variable", "",
+                                                                                                    new ArrayList<>());
+                            documentables.add(primitiveTypeDoc);
+                        }
+                        
+                        primitiveTypeDoc.children.add(createDocForNode(function));
+                    }
+                }
+            }
+        }
+    
+        // Create the links to select which page or package is active
+        List<Link> links = new ArrayList<>();
+        for (Link pkgLink : packages) {
+            if (BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME.equals(pkgLink.packageName.name)) {
+                links.add(new Link(pkgLink.packageName, pkgLink.href, true));
+            } else {
+                links.add(new Link(pkgLink.packageName, pkgLink.href, false));
+            }
+        }
+        
+        return new Page(BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME, documentables, links);
+    }
+    
+    /**
+     * Create documentation for enums.
+     * @param enumNode ballerina enum node.
+     * @return documentation for enum.
      */
     public static EnumDoc createDocForNode(EnumNode enumNode) {
         String enumName = enumNode.getName().getValue();
@@ -146,7 +215,7 @@ public class Generator {
 
     /**
      * Create documentation for annotations
-     * @param annotationNode
+     * @param annotationNode ballerina annotation node.
      * @return documentation for annotation
      */
     public static AnnotationDoc createDocForNode(BLangAnnotation annotationNode) {
@@ -168,7 +237,7 @@ public class Generator {
 
     /**
      * Create documentation for global variables
-     * @param bLangVariable
+     * @param bLangVariable ballerina variable node.
      * @return documentation for global variables
      */
     public static GlobalVariableDoc createDocForNode(BLangVariable bLangVariable) {
@@ -180,7 +249,7 @@ public class Generator {
 
     /**
      * Create documentation for functions
-     * @param functionNode
+     * @param functionNode ballerina function node.
      * @return documentation for functions
      */
     public static FunctionDoc createDocForNode(BLangFunction functionNode) {
@@ -212,7 +281,7 @@ public class Generator {
 
     /**
      * Create documentation for actions
-     * @param actionNode
+     * @param actionNode ballerina action node.
      * @return documentation for actions
      */
     public static ActionDoc createDocForNode(BLangAction actionNode) {
@@ -244,14 +313,14 @@ public class Generator {
 
     /**
      * Create documentation for structs
-     * @param structNode
+     * @param structNode ballerina struct node.
      * @return documentation for structs
      */
     public static StructDoc createDocForNode(BLangStruct structNode) {
         String structName = structNode.getName().value;
         // Check if its an anonymus struct
         if (structName.contains(ANONYMOUS_STRUCT)) {
-            structName = "Anonymus Struct";
+            structName = "Anonymous Struct";
         }
         List<Variable> fields = new ArrayList<>();
 
@@ -270,7 +339,7 @@ public class Generator {
 
     /**
      * Create documentation for connectors
-     * @param connectorNode
+     * @param connectorNode ballerina connector node.
      * @return documentation for connectors
      */
     public static ConnectorDoc createDocForNode(BLangConnector connectorNode) {
@@ -453,9 +522,9 @@ public class Generator {
     }
 
     /**
-     * Get the anonymus struct string
+     * Get the anonymous struct string
      * @param type struct type
-     * @return anonymus struct string
+     * @return anonymous struct string
      */
     private static String getAnonStructString(BStructType type) {
         StringBuilder builder = new StringBuilder();
