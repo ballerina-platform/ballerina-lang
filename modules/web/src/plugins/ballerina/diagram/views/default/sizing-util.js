@@ -1771,6 +1771,18 @@ class SizingUtil {
             // there are no catch statements the try and finally blocks interlock
             // remove additional gap between try and finally
             nodeHeight -= this.config.statement.gutter.h;
+
+            const widthDiff = node.viewState.components['finally-block'].w - viewState.components['statement-box'].w;
+            if (widthDiff > 0) {
+                // resize catch block component width
+                viewState.components['statement-box'].w += widthDiff;
+                node.body.viewState.bBox.w += widthDiff;
+                viewState.bBox.w += widthDiff;
+            } else if (widthDiff < 0) {
+                // resize finally block component width
+                node.viewState.components['finally-block'].w += (-widthDiff);
+                node.viewState.components['finally-block'].components['statement-box'].w += (-widthDiff);
+            }
         }
 
         node.viewState.bBox.h = nodeHeight;
