@@ -27,31 +27,15 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
         http:Response res;
         http:HttpConnectorError e;
 
-        if (currentState == CircuitState.CLOSE) {
-            res, e = httpEP.post(path, req);
-            circuitHealth.requestCount = circuitHealth.requestCount + 1;
-
-            if (e != null) {
-                circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
-                return errorResponse, e;
-            }
-        } else if (currentState == CircuitState.HALF_OPEN) {
-            res, e = httpEP.post(path, req);
-            circuitHealth.requestCount = circuitHealth.requestCount + 1;
-
-            if (e != null) {
-                circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
-                return errorResponse, e;
-            }
-        } else {
+        if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            http:Response errorResponse = handleOpenCircuit(circuitHealth, resetTimeout);
-            return errorResponse, e;
+            res = handleOpenCircuit(circuitHealth, resetTimeout);
+        } else {
+            res, e = httpEP.post(path, req);
+            updateCircuitHealth(circuitHealth, e);
         }
 
-        return res, null;
+        return res, e;
     }
 
     action head (string path, http:Request req) (http:Response, http:HttpConnectorError) {
@@ -59,31 +43,15 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
         http:Response res;
         http:HttpConnectorError e;
 
-        if (currentState == CircuitState.CLOSE) {
-            res, e = httpEP.head(path, req);
-            circuitHealth.requestCount = circuitHealth.requestCount + 1;
-
-            if (e != null) {
-                circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
-                return errorResponse, e;
-            }
-        } else if (currentState == CircuitState.HALF_OPEN) {
-            res, e = httpEP.head(path, req);
-            circuitHealth.requestCount = circuitHealth.requestCount + 1;
-
-            if (e != null) {
-                circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
-                return errorResponse, e;
-            }
-        } else {
+        if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            http:Response errorResponse = handleOpenCircuit(circuitHealth, resetTimeout);
-            return errorResponse, e;
+            res = handleOpenCircuit(circuitHealth, resetTimeout);
+        } else {
+            res, e = httpEP.head(path, req);
+            updateCircuitHealth(circuitHealth, e);
         }
 
-        return res, null;
+        return res, e;
     }
 
     action put (string path, http:Request req) (http:Response, http:HttpConnectorError) {
@@ -91,31 +59,15 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
         http:Response res;
         http:HttpConnectorError e;
 
-        if (currentState == CircuitState.CLOSE) {
-            res, e = httpEP.put(path, req);
-            circuitHealth.requestCount = circuitHealth.requestCount + 1;
-
-            if (e != null) {
-                circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
-                return errorResponse, e;
-            }
-        } else if (currentState == CircuitState.HALF_OPEN) {
-            res, e = httpEP.put(path, req);
-            circuitHealth.requestCount = circuitHealth.requestCount + 1;
-
-            if (e != null) {
-                circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
-                return errorResponse, e;
-            }
-        } else {
+        if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            http:Response errorResponse = handleOpenCircuit(circuitHealth, resetTimeout);
-            return errorResponse, e;
+            res = handleOpenCircuit(circuitHealth, resetTimeout);
+        } else {
+            res, e = httpEP.put(path, req);
+            updateCircuitHealth(circuitHealth, e);
         }
 
-        return res, null;
+        return res, e;
     }
 
     action execute (string httpVerb, string path, http:Request req) (http:Response, http:HttpConnectorError) {
@@ -123,31 +75,15 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
         http:Response res;
         http:HttpConnectorError e;
 
-        if (currentState == CircuitState.CLOSE) {
-            res, e = httpEP.execute(httpVerb, path, req);
-            circuitHealth.requestCount = circuitHealth.requestCount + 1;
-
-            if (e != null) {
-                circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
-                return errorResponse, e;
-            }
-        } else if (currentState == CircuitState.HALF_OPEN) {
-            res, e = httpEP.execute(httpVerb, path, req);
-            circuitHealth.requestCount = circuitHealth.requestCount + 1;
-
-            if (e != null) {
-                circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
-                return errorResponse, e;
-            }
-        } else {
+        if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            http:Response errorResponse = handleOpenCircuit(circuitHealth, resetTimeout);
-            return errorResponse, e;
+            res = handleOpenCircuit(circuitHealth, resetTimeout);
+        } else {
+            res, e = httpEP.execute(httpVerb, path, req);
+            updateCircuitHealth(circuitHealth, e);
         }
 
-        return res, null;
+        return res, e;
     }
 
     action patch (string path, http:Request req) (http:Response, http:HttpConnectorError) {
@@ -155,31 +91,15 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
         http:Response res;
         http:HttpConnectorError e;
 
-        if (currentState == CircuitState.CLOSE) {
-            res, e = httpEP.patch(path, req);
-            circuitHealth.requestCount = circuitHealth.requestCount + 1;
-
-            if (e != null) {
-                circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
-                return errorResponse, e;
-            }
-        } else if (currentState == CircuitState.HALF_OPEN) {
-            res, e = httpEP.patch(path, req);
-            circuitHealth.requestCount = circuitHealth.requestCount + 1;
-
-            if (e != null) {
-                circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
-                return errorResponse, e;
-            }
-        } else {
+        if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            http:Response errorResponse = handleOpenCircuit(circuitHealth, resetTimeout);
-            return errorResponse, e;
+            res = handleOpenCircuit(circuitHealth, resetTimeout);
+        } else {
+            res, e = httpEP.patch(path, req);
+            updateCircuitHealth(circuitHealth, e);
         }
 
-        return res, null;
+        return res, e;
     }
 
     action delete (string path, http:Request req) (http:Response, http:HttpConnectorError) {
@@ -187,31 +107,15 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
         http:Response res;
         http:HttpConnectorError e;
 
-        if (currentState == CircuitState.CLOSE) {
-            res, e = httpEP.delete(path, req);
-            circuitHealth.requestCount = circuitHealth.requestCount + 1;
-
-            if (e != null) {
-                circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
-                return errorResponse, e;
-            }
-        } else if (currentState == CircuitState.HALF_OPEN) {
-            res, e = httpEP.delete(path, req);
-            circuitHealth.requestCount = circuitHealth.requestCount + 1;
-
-            if (e != null) {
-                circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
-                return errorResponse, e;
-            }
-        } else {
+        if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            http:Response errorResponse = handleOpenCircuit(circuitHealth, resetTimeout);
-            return errorResponse, e;
+            res = handleOpenCircuit(circuitHealth, resetTimeout);
+        } else {
+            res, e = httpEP.delete(path, req);
+            updateCircuitHealth(circuitHealth, e);
         }
 
-        return res, null;
+        return res, e;
     }
 
     action options (string path, http:Request req) (http:Response, http:HttpConnectorError) {
@@ -219,31 +123,15 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
         http:Response res;
         http:HttpConnectorError e;
 
-        if (currentState == CircuitState.CLOSE) {
-            res, e = httpEP.options(path, req);
-            circuitHealth.requestCount = circuitHealth.requestCount + 1;
-
-            if (e != null) {
-                circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
-                return errorResponse, e;
-            }
-        } else if (currentState == CircuitState.HALF_OPEN) {
-            res, e = httpEP.options(path, req);
-            circuitHealth.requestCount = circuitHealth.requestCount + 1;
-
-            if (e != null) {
-                circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
-                return errorResponse, e;
-            }
-        } else {
+        if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            http:Response errorResponse = handleOpenCircuit(circuitHealth, resetTimeout);
-            return errorResponse, e;
+            res = handleOpenCircuit(circuitHealth, resetTimeout);
+        } else {
+            res, e = httpEP.options(path, req);
+            updateCircuitHealth(circuitHealth, e);
         }
 
-        return res, null;
+        return res, e;
     }
 
     action forward (string path, http:Request req) (http:Response, http:HttpConnectorError) {
@@ -251,31 +139,15 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
         http:Response res;
         http:HttpConnectorError e;
 
-        if (currentState == CircuitState.CLOSE) {
-            res, e = httpEP.forward(path, req);
-            circuitHealth.requestCount = circuitHealth.requestCount + 1;
-
-            if (e != null) {
-                circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
-                return errorResponse, e;
-            }
-        } else if (currentState == CircuitState.HALF_OPEN) {
-            res, e = httpEP.forward(path, req);
-            circuitHealth.requestCount = circuitHealth.requestCount + 1;
-
-            if (e != null) {
-                circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
-                return errorResponse, e;
-            }
-        } else {
+        if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            http:Response errorResponse = handleOpenCircuit(circuitHealth, resetTimeout);
-            return errorResponse, e;
+            res = handleOpenCircuit(circuitHealth, resetTimeout);
+        } else {
+            res, e = httpEP.forward(path, req);
+            updateCircuitHealth(circuitHealth, e);
         }
 
-        return res, null;
+        return res, e;
     }
 
     action get (string path, http:Request req) (http:Response, http:HttpConnectorError) {
@@ -283,31 +155,15 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
         http:Response res;
         http:HttpConnectorError e;
 
-        if (currentState == CircuitState.CLOSE) {
-            res, e = httpEP.get(path, req);
-            circuitHealth.requestCount = circuitHealth.requestCount + 1;
-
-            if (e != null) {
-                circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
-                return errorResponse, e;
-            }
-        } else if (currentState == CircuitState.HALF_OPEN) {
-            res, e = httpEP.get(path, req);
-            circuitHealth.requestCount = circuitHealth.requestCount + 1;
-
-            if (e != null) {
-                circuitHealth.updateHealth();
-                http:Response errorResponse = createErrorResponse(e.msg, e.statusCode);
-                return errorResponse, e;
-            }
-        } else {
+        if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            http:Response errorResponse = handleOpenCircuit(circuitHealth, resetTimeout);
-            return errorResponse, e;
+            res = handleOpenCircuit(circuitHealth, resetTimeout);
+        } else {
+            res, e = httpEP.get(path, req);
+            updateCircuitHealth(circuitHealth, e);
         }
 
-        return res, null;
+        return res, e;
     }
 }
 
@@ -331,12 +187,10 @@ function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentSt
             currentState = CircuitState.CLOSE;
         }
     } else {
-        float currentFailureRate;
+        float currentFailureRate = 0;
 
         if (circuitHealth.requestCount > 0) {
             currentFailureRate = (circuitHealth.errorCount / circuitHealth.requestCount) * 100;
-        } else {
-            currentFailureRate = 0;
         }
 
         if (currentFailureRate > failureThreshold) {
@@ -347,9 +201,13 @@ function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentSt
     return currentState;
 }
 
-function <CircuitHealth circuitHealth> updateHealth () {
-    circuitHealth.errorCount = circuitHealth.errorCount + 1;
-    circuitHealth.lastErrorTime = currentTime();
+function updateCircuitHealth(CircuitHealth circuitHealth, http:HttpConnectorError err) {
+    circuitHealth.requestCount = circuitHealth.requestCount + 1;
+
+    if (err != null) {
+        circuitHealth.errorCount = circuitHealth.errorCount + 1;
+        circuitHealth.lastErrorTime = currentTime();
+    }
 }
 
 function createErrorResponse (string msg, int statusCode) (http:Response) {
