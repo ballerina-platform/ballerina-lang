@@ -59,8 +59,6 @@ class CatchStatementDecorator extends React.Component {
             setterMethod: this.setCatchCondition,
         };
         this.openExpressionEditor = e => this.openEditor(this.props.expression, this.editorOptions, e);
-        this.openParameterEditor = e => this.openEditor(this.props.parameterEditorOptions.value,
-            this.props.parameterEditorOptions, e);
     }
 
     /**
@@ -256,23 +254,11 @@ class CatchStatementDecorator extends React.Component {
         const p2X = bBox.x - (titleW / 2);
         const p2Y = p1Y + (titleH / 2);
 
-        const p3X = bBox.x + (titleW / 2);
-        const p3Y = p2Y;
-
-        const p4X = p1X + gapLeft + statementBBox.w;
-        const p4Y = p2Y;
-
-        const p5X = p4X;
-        const p5Y = bBox.y + bBox.h;
-
         const p6X = bBox.x;
-        const p6Y = p5Y;
+        const p6Y = bBox.y + bBox.h;
 
         const p8X = bBox.x;
         const p8Y = p2Y + (titleH / 2);
-
-        const p9X = p8X;
-        const p9Y = p8Y - titleH;
 
         const p11X = p1X;
         const p11Y = p1Y + (titleH / 2);
@@ -352,9 +338,9 @@ class CatchStatementDecorator extends React.Component {
                 <g>
                     <rect
                         x={p2X}
-                        y={p9Y}
+                        y={p2Y}
                         width={titleW}
-                        height={titleH}
+                        height={titleH / 2}
                         onClick={this.openExpressionEditor}
                         className='invisible-rect'
                     />
@@ -400,21 +386,6 @@ CatchStatementDecorator.propTypes = {
     expression: PropTypes.shape({
         text: PropTypes.string,
     }).isRequired,
-    editorOptions: PropTypes.shape({
-        propertyType: PropTypes.string,
-        key: PropTypes.string,
-        model: PropTypes.instanceOf(Node),
-        getterMethod: PropTypes.func,
-        setterMethod: PropTypes.func,
-    }),
-    parameterEditorOptions: PropTypes.shape({
-        propertyType: PropTypes.string,
-        key: PropTypes.string,
-        value: PropTypes.string,
-        model: PropTypes.instanceOf(Node),
-        getterMethod: PropTypes.func,
-        setterMethod: PropTypes.func,
-    }),
     onBreakpointClick: PropTypes.func.isRequired,
     isBreakpoint: PropTypes.bool.isRequired,
     disableButtons: PropTypes.shape({
