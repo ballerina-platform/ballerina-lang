@@ -85,8 +85,6 @@ public class SQLDBUtils {
             connection = DriverManager.getConnection(jdbcURL, "sa", "");
             String sql = readFileToString(sqlFile);
             String[] sqlQuery = sql.trim().split("/");
-            Statement st1 = connection.createStatement();
-            st1.close();
             st = connection.createStatement();
             for (String query : sqlQuery) {
                 st.executeUpdate(query.trim());
@@ -121,7 +119,7 @@ public class SQLDBUtils {
      * Delete all the files and sub directories which matches given prefix in a given directory.
      *
      * @param directory Directory which contains files to delete.
-     * @param affix    Prefix for matching files to delete.
+     * @param affix    Affix for finding the matching files to delete.
      */
     public static void deleteFiles(File directory, String affix) {
         if (directory.isDirectory()) {
