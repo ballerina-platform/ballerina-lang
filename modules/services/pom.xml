@@ -16,6 +16,7 @@
     <modules>
         <module>fs-service</module>
         <module>log-service</module>
+        <module>file-content-service</module>
     </modules>
     <dependencies>
         <dependency>
