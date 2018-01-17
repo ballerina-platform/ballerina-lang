@@ -1772,16 +1772,19 @@ class SizingUtil {
             // remove additional gap between try and finally
             nodeHeight -= this.config.statement.gutter.h;
 
-            const widthDiff = node.viewState.components['finally-block'].w - viewState.components['statement-box'].w;
+            const finallyViewState = node.viewState.components['finally-block'];
+            const widthDiff = finallyViewState.w - viewState.components['statement-box'].w;
             if (widthDiff > 0) {
                 // resize catch block component width
                 viewState.components['statement-box'].w += widthDiff;
                 node.body.viewState.bBox.w += widthDiff;
                 viewState.bBox.w += widthDiff;
+                viewState.components['left-margin'].w = finallyViewState.components['left-margin'].w;
             } else if (widthDiff < 0) {
                 // resize finally block component width
-                node.viewState.components['finally-block'].w += (-widthDiff);
-                node.viewState.components['finally-block'].components['statement-box'].w += (-widthDiff);
+                finallyViewState.w += (-widthDiff);
+                finallyViewState.components['statement-box'].w += (-widthDiff);
+                finallyViewState.components['left-margin'].w = viewState.components['left-margin'].w;
             }
         }
 
