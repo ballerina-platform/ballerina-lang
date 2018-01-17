@@ -49,9 +49,11 @@ public class PackageName {
             // Setting the first common package.
             if (commonPackagePart == null) {
                 commonPackagePart = new LinkedList<>(Arrays.asList(packageNameParts));
-                // Last package path is ignored.
-                commonPackagePart.remove(packageNameParts.length - 1);
-                continue;
+                if (packageNameParts.length - 1 > 0) {
+                    // Last package path is ignored.
+                    commonPackagePart.remove(packageNameParts.length - 1);
+                    continue;
+                }
             }
         
             // Evaluating the common package.

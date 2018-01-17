@@ -21,11 +21,10 @@ package org.ballerinalang.docgen.model;
 import java.util.List;
 
 /**
- *
+ * Documentation model for a primitive type.
  */
 public class PrimitiveTypeDoc extends Documentable {
     public final boolean isPrimitiveType;
-    
     
     /**
      * @param name        name of the node
