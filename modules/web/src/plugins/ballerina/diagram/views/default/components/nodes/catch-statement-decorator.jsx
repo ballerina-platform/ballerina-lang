@@ -223,7 +223,7 @@ class CatchStatementDecorator extends React.Component {
      * @returns {XML} rendered component.
      */
     render() {
-        const { bBox, expression, isBreakpoint, isDebugHit, connectorEdgeX } = this.props;
+        const { bBox, expression, isBreakpoint, isDebugHit, connectorStartX } = this.props;
         const { designer } = this.context;
 
         const model = this.props.model;
@@ -288,7 +288,7 @@ class CatchStatementDecorator extends React.Component {
                 }}
             >
                 <line
-                    x1={connectorEdgeX.top}
+                    x1={connectorStartX}
                     y1={p2Y}
                     x2={p2X}
                     y2={p2Y}
@@ -393,10 +393,7 @@ CatchStatementDecorator.propTypes = {
         delete: PropTypes.bool.isRequired,
         jump: PropTypes.bool.isRequired,
     }),
-    connectorEdgeX: PropTypes.shape({
-        top: PropTypes.number,
-        bottom: PropTypes.number,
-    }).isRequired,
+    connectorStartX: PropTypes.number.isRequired,
     disableDropzoneMiddleLineOverlay: PropTypes.bool,
     isDebugHit: PropTypes.bool,
 };

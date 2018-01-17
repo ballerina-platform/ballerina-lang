@@ -320,10 +320,7 @@ class TryStatementDecorator extends React.Component {
                                         bBox={catchStmt.viewState.bBox}
                                         model={catchStmt}
                                         body={catchStmt}
-                                        connectorEdgeX={{
-                                            top: connectorEdgeTopX,
-                                            bottom: connectorEdgeBottomX,
-                                        }}
+                                        connectorStartX={connectorEdgeTopX}
                                         expression={catchExpression}
                                         disableButtons={{ delete: disableDeleteForCatch }}
                                         editorOptions={catchEditorOptions}
