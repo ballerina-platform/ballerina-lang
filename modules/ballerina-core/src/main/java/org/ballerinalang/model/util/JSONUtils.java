@@ -114,7 +114,7 @@ public class JSONUtils {
                     jsonNode.set(key, ((BFloat) bvalue).floatValue());
                 } else if (bvalue.getType() == BTypes.typeBoolean) {
                     jsonNode.set(key, ((BBoolean) bvalue).booleanValue());
-                } else if (bvalue.getType() == BTypes.typeMap) {
+                } else if (bvalue instanceof BMap) {
                     jsonNode.set(key, convertMapToJSON((BMap<String, BValue>) bvalue).value());
                 } else if (bvalue.getType() == BTypes.typeJSON) {
                     jsonNode.set(key, ((BJSON) bvalue).value());
@@ -234,7 +234,7 @@ public class JSONUtils {
             BRefType value = refValueArray.get(i);
             if (value == null) {
                 arrayNode.add(new BJSON(NULL).value());
-            } else if (value.getType() == BTypes.typeMap) {
+            } else if (value instanceof BMap) {
                 arrayNode.add(convertMapToJSON((BMap<String, BValue>) value).value());
             } else if (value instanceof BJSON) {
                 arrayNode.add(((BJSON) value).value());
@@ -648,6 +648,7 @@ public class JSONUtils {
      * Convert a JSON node to a map.
      *
      * @param jsonNode JSON to convert
+     * @param mapType MapType which the JSON is converted to.
      * @return If the provided JSON is of object-type, this method will return a {@link BMap} containing the values
      * of the JSON object. Otherwise a {@link BallerinaException} will be thrown.
      */

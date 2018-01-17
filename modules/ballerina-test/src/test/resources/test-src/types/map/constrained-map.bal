@@ -333,3 +333,73 @@ function updateStructMap(map m) (map) {
     m["update"] = k;
     return m;
 }
+
+function testStructNotEquivalentRuntimeCast() (TypeCastError) {
+    map<Employee> testMap = {};
+    Employee jack = {name:"Jack", age:25};
+    testMap["item"] = jack;
+    map m = getGenericMap(testMap);
+    TypeCastError err;
+    _, err = (map<Person>) m;
+    return err;
+}
+
+function testAnyMapToValueTypeRuntimeCast() (TypeCastError) {
+    map testMap = {};
+    testMap["item"] = 5;
+    TypeCastError err;
+    _, err = (map<int>) testMap;
+    return err;
+}
+
+function testAnyMapToRefTypeRuntimeCast() (TypeCastError) {
+    map testMap = {};
+    Employee jack = {name:"Jack", age:25};
+    testMap["item"] = jack;
+    TypeCastError err;
+    _, err = (map<Employee>) testMap;
+    return err;
+}
+
+struct Student {
+    int index;
+    int age;
+}
+
+function testMapToStructConversion() (int, int) {
+    map<int> testMap = {};
+    testMap["index"] = 100;
+    testMap["age"] = 63;
+    Student k;
+    k,_ = <Student>testMap;
+    return k.index, k.age;
+}
+
+function testMapToStructConversionNegative() (TypeConversionError) {
+    map<string> testMap = {};
+    testMap["index"] = "100";
+    testMap["age"] = "63";
+    TypeConversionError err;
+    _,err = <Student>testMap;
+    return err;
+}
+
+function testMapFunctionsOnConstrainedMaps() (string[]) {
+    map<string> testMap = {};
+    testMap["index"] = "100";
+    testMap["age"] = "63";
+    return testMap.keys();
+}
+
+function testForEachOnConstrainedMaps() (string, string) {
+    map<string> testMap = {};
+    testMap["name"] = "Ronnie";
+    testMap["sname"] = "Coleman";
+    string[] arr = [];
+    int index = 0;
+    foreach v in testMap {
+            arr[index] = v;
+            index = index + 1;
+    }
+    return arr[0], arr[1];
+}

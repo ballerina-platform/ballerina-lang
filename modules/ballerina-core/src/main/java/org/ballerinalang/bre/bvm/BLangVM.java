@@ -917,7 +917,6 @@ public class BLangVM {
         BRefValueArray bArray;
         StructureType structureType;
         BMap<String, BRefType> bMap;
-        BRefType bRefType;
         BJSON jsonVal;
         switch (opcode) {
             case InstructionCodes.IMOVE:
@@ -1227,7 +1226,7 @@ public class BLangVM {
         BBlobArray bBlobArray;
         BRefValueArray bArray;
         StructureType structureType;
-        BMap bMap;
+        BMap<String, BRefType> bMap;
         BJSON jsonVal;
         switch (opcode) {
             case InstructionCodes.ISTORE:

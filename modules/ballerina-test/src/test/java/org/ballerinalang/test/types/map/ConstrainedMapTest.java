@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -351,6 +352,66 @@ public class ConstrainedMapTest {
         Assert.assertEquals(returns[0].stringValue(), "Arnold");
         Assert.assertTrue(returns[1] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 45);
+    }
+
+    @Test(description = "Test runtime cast for constrained maps of structurally not equivalent.")
+    public void testStructNotEquivalentRuntimeCast() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStructNotEquivalentRuntimeCast");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
+                "'map<Employee>' cannot be cast to 'map<Person>'");
+    }
+
+    @Test(description = "Test runtime cast for any map to int map.")
+    public void testAnyMapToValueTypeRuntimeCast() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAnyMapToValueTypeRuntimeCast");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
+                "'map' cannot be cast to 'map<int>'");
+    }
+
+    @Test(description = "Test runtime cast for any map to Employee map.")
+    public void testAnyMapToRefTypeRuntimeCast() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAnyMapToRefTypeRuntimeCast");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
+                "'map' cannot be cast to 'map<Employee>'");
+    }
+
+    @Test(description = "Test struct to map conversion for constrained map.")
+    public void testMapToStructConversion() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMapToStructConversion");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 63);
+    }
+
+    @Test(description = "Test struct to map conversion for constrained map negative.")
+    public void testMapToStructConversionNegative() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMapToStructConversionNegative");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
+                "cannot convert 'map<string>' to type 'Student: error while mapping 'index': " +
+                        "incompatible types: expected 'int', found 'string'");
+    }
+
+    @Test(description = "Test struct to map conversion for constrained map negative.")
+    public void testMapFunctionsOnConstrainedMaps() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMapFunctionsOnConstrainedMaps");
+        Assert.assertTrue(returns[0] instanceof BStringArray);
+        Assert.assertEquals(((BStringArray) returns[0]).size(), 2);
+    }
+
+    @Test(description = "Test struct to map conversion for constrained map negative.")
+    public void testForEachOnConstrainedMaps() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testForEachOnConstrainedMaps");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "Ronnie");
+        Assert.assertEquals(((BString) returns[1]).stringValue(), "Coleman");
     }
 
 }
