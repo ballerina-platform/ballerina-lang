@@ -50,7 +50,7 @@ public class ConstrainedMapTest {
 
     @Test(description = "Test Map constrained with type negative semantic validations.")
     public void testConstrainedMapNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 7);
+        Assert.assertEquals(negativeResult.getErrorCount(), 10);
         BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'map<int>', found 'map'", 3, 12);
         BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'int', found 'string'", 7, 44);
         BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'string', found 'int'", 13, 23);
@@ -64,7 +64,13 @@ public class ConstrainedMapTest {
         BAssertUtil.validateError(negativeResult, 6, "incompatible types: 'map<Employee>' cannot be cast " +
                         "to 'map<Person>'",
                 52, 18);
-
+        BAssertUtil.validateError(negativeResult, 7, "incompatible types: 'any' cannot be cast to 'map<Employee>'",
+                60, 17);
+        BAssertUtil.validateError(negativeResult, 8, "incompatible types: 'Student' cannot be convert to 'map<int>'",
+                72, 12);
+        BAssertUtil.validateError(negativeResult, 9, "incompatible types: 'map<Person>' " +
+                        "cannot be cast to 'map<Student>'",
+                79, 18);
     }
 
     @Test(description = "Test Map constrained with value type value retrieval positive case.")
@@ -412,6 +418,27 @@ public class ConstrainedMapTest {
         Assert.assertTrue(returns[1] instanceof BString);
         Assert.assertEquals(((BString) returns[0]).stringValue(), "Ronnie");
         Assert.assertEquals(((BString) returns[1]).stringValue(), "Coleman");
+    }
+
+    @Test(description = "Test constrained map of string array.")
+    public void testMapOfElementTypeArray() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMapOfElementTypeArray");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "Kollupitiya");
+        Assert.assertEquals(((BString) returns[1]).stringValue(), "Ja-Ela");
+    }
+
+    @Test(description = "Test constrained map of ref array.")
+    public void testMapOfElementTypeRefArray() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMapOfElementTypeRefArray");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertEquals(returns[0].stringValue(), "Jack");
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
     }
 
 }

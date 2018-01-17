@@ -403,3 +403,24 @@ function testForEachOnConstrainedMaps() (string, string) {
     }
     return arr[0], arr[1];
 }
+
+function testMapOfElementTypeArray() (string, string) {
+    map<string[]> testMap = {};
+    string[] s1 = ["name", "sname"];
+    string[] s2 = ["Kollupitiya", "Ja-Ela"];
+    testMap["a1"] = s1;
+    testMap["a2"] = s2;
+    string[] r2 = testMap["a2"];
+    return r2[0], r2[1];
+}
+
+function testMapOfElementTypeRefArray() (string, int) {
+    map<Employee[]> testMap = {};
+    Employee jack = {name:"Jack", age:25};
+    Employee[] e1 = [];
+    e1[0] = jack;
+    testMap["e1"] = e1;
+    Employee[] r2 = testMap["e1"];
+    Employee jackR = r2[0];
+    return jackR.name, jackR.age;
+}

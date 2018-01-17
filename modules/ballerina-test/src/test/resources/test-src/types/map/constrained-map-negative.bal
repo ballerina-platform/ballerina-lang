@@ -52,3 +52,30 @@ function testInvalidStructEquivalentCast() (map<Person>) {
     testPMap,_ = (map<Person>)testEMap;
     return testPMap;
 }
+
+function testInvalidCastAnyToConstrainedMap() (map<Employee>) {
+    map<Employee> testMap = {};
+    any m = testMap;
+    map<Employee> castMap;
+    castMap,_ = (map<Employee>)m;
+    return castMap;
+}
+
+struct Student {
+    int index;
+    int age;
+}
+
+function testInvalidStructToConstrainedMapSafeConversion() (map<int>) {
+    Student s = {index:100, age:25};
+    map<int> imap;
+    imap = <map<int>>s;
+    return imap;
+}
+
+function testInvalidStructEquivalentCastCaseTwo() (map<Student>) {
+    map<Person> testPMap = {};
+    map<Student> testSMap;
+    testSMap,_ = (map<Student>)testPMap;
+    return testSMap;
+}
