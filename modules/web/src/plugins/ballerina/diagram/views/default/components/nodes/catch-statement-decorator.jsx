@@ -27,6 +27,8 @@ import ActionBox from '../decorators/action-box';
 import ActiveArbiter from '../decorators/active-arbiter';
 import Breakpoint from '../decorators/breakpoint';
 import { getComponentForNodeArray } from './../../../../diagram-util';
+import FragmentUtils from './../../../../../utils/fragment-utils';
+import TreeBuilder from './../../../../../model/tree-builder';
 
 /**
  * Wraps other UI elements and provide box with a heading.
@@ -37,8 +39,8 @@ class CatchStatementDecorator extends React.Component {
     /**
      * Initialize the block decorator.
      */
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             active: 'hidden',
         };
@@ -46,10 +48,20 @@ class CatchStatementDecorator extends React.Component {
         this.onJumpToCodeLine = this.onJumpToCodeLine.bind(this);
         this.setActionVisibilityFalse = this.setActionVisibility.bind(this, false);
         this.setActionVisibilityTrue = this.setActionVisibility.bind(this, true);
-        this.openExpressionEditor = e => this.openEditor(this.props.expression, this.props.editorOptions, e);
+        this.setCatchCondition = this.setCatchCondition.bind(this);
+        this.getCatchCondition = this.getCatchCondition.bind(this);
+        this.editorOptions = {
+            propertyType: 'text',
+            key: 'Catch condition',
+            model: this.props.model,
+            getterMethod: this.getCatchCondition,
+            setterMethod: this.setCatchCondition,
+        };
+        this.openExpressionEditor = e => this.openEditor(this.props.expression, this.editorOptions, e);
         this.openParameterEditor = e => this.openEditor(this.props.parameterEditorOptions.value,
             this.props.parameterEditorOptions, e);
     }
+
     /**
      * Handles click event of breakpoint, adds/remove breakpoint from the node when click event fired
      *
@@ -70,7 +82,7 @@ class CatchStatementDecorator extends React.Component {
      * @returns {void}
      */
     onDelete() {
-        const model = this.props.model || this.props.dropTarget;
+        const model = this.props.model;
         model.remove();
     }
     /**
@@ -142,6 +154,32 @@ class CatchStatementDecorator extends React.Component {
     }
 
     /**
+     * Set catch condition.
+     *  @param {String} newCondition - new condition to be applied to catch block.
+     * */
+    setCatchCondition(newCondition) {
+        if (!newCondition) {
+            return;
+        }
+        newCondition = _.trimEnd(newCondition, ';');
+        const fragmentJson = FragmentUtils.createArgumentParameterFragment(newCondition);
+        const parsedJson = FragmentUtils.parseFragment(fragmentJson);
+        if (!parsedJson.error) {
+            const newNode = TreeBuilder.build(parsedJson, this.props.model.parent, this.props.model.parent.kind);
+            newNode.clearWS();
+            this.props.model.setParameter(newNode);
+        }
+    }
+
+    /**
+     * Get catch condition
+     * @return {string} parameter source.
+     * */
+    getCatchCondition() {
+        return this.props.model.getParameter().getSource();
+    }
+
+    /**
      * renders an ExpressionEditor in the header space.
      * @param {string} value - Initial value.
      * @param {object} options - options to be sent to ExpressionEditor.
@@ -196,7 +234,7 @@ class CatchStatementDecorator extends React.Component {
         const statementBBox = viewState.components['statement-box'];
         const gapLeft = this.context.designer.config.compoundStatement.padding.left;
         const gapTop = this.context.designer.config.compoundStatement.padding.top;
-
+        const displayExpression = viewState.components.expression;
 
         // Defining coordinates of the diagram
         // (x,y)
@@ -278,6 +316,15 @@ class CatchStatementDecorator extends React.Component {
                     rx='5'
                     ry='5'
                 />
+                {expression &&
+                    <text
+                        x={p8X}
+                        y={p2Y}
+                        className='condition-text'
+                    >
+                        {displayExpression.text}
+                    </text>
+                }
                 <text
                     x={p8X}
                     y={p2Y}
@@ -349,7 +396,6 @@ CatchStatementDecorator.propTypes = {
     model: PropTypes.instanceOf(Node).isRequired,
     children: PropTypes.arrayOf(PropTypes.node),
     bBox: PropTypes.instanceOf(SimpleBBox).isRequired,
-    dropTarget: PropTypes.instanceOf(Node).isRequired,
     expression: PropTypes.shape({
         text: PropTypes.string,
     }).isRequired,
