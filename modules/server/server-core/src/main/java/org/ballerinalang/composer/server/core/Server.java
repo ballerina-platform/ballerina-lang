@@ -49,7 +49,9 @@ public class Server {
         // create services
         for (ComposerServiceProvider serviceProvider : serviceProviderLoader) {
             ComposerService service = serviceProvider.createService(serverConfig);
-            serviceList.add(service);
+            if (service != null) {
+                serviceList.add(service);
+            }
         }
         // deploy services
         for (ComposerService service: serviceList) {

@@ -40,7 +40,6 @@ public class ServerLauncher {
     private static final String SYS_BAL_COMPOSER_HOME = "bal.composer.home";
     private static final int DEFAULT_PORT = 8089;
 
-
     private static Logger logger;
 
     static {
@@ -95,7 +94,7 @@ public class ServerLauncher {
             }
         }
         // give precedence to server-config.yaml (is this the correct approach?)
-        if (config.getServerPort() == 0) {
+        if (config.getServerPort() == 0 && commandArgs.port != null) {
             config.setServerPort(commandArgs.port);
         }
         // if no port is provided via args or config, grab a free available port
@@ -114,6 +113,7 @@ public class ServerLauncher {
         Server server = new Server(config);
         try {
             server.start();
+            logger.info("Composer started successfully at http://localhost:" + config.getServerPort());
         } catch (Exception e) {
             logger.error("Error while starting Composer Backend Server.", e);
         }

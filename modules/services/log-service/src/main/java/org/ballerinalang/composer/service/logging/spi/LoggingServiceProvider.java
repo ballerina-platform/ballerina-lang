@@ -19,6 +19,7 @@ import org.ballerinalang.composer.server.core.ServerConfig;
 import org.ballerinalang.composer.server.spi.ComposerService;
 import org.ballerinalang.composer.server.spi.ComposerServiceProvider;
 import org.ballerinalang.composer.server.spi.annotation.ComposerSPIServiceProvider;
+import org.ballerinalang.composer.service.logging.service.LoggingService;
 
 /**
  * Composer's backend logging service provider.
@@ -27,6 +28,6 @@ import org.ballerinalang.composer.server.spi.annotation.ComposerSPIServiceProvid
 public class LoggingServiceProvider implements ComposerServiceProvider {
     @Override
     public ComposerService createService(ServerConfig config) {
-        return null;
+        return new LoggingService();
     }
 }
