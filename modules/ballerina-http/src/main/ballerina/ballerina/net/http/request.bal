@@ -45,7 +45,7 @@ public function <OutRequest req> addHeader (string headerName, string headerValu
 @Param {value:"req: A inbound request message"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The header values struct array for a given header name"}
-public function <Request req> getHeaders (string headerName) (mime:HeaderValue[]) {
+public function <InRequest req> getHeaders (string headerName) (mime:HeaderValue[]) {
     mime:Entity entity = req.getEntityWithoutBody();
     if (entity.headers == null) {
         return null;
@@ -71,10 +71,10 @@ public function <OutRequest req> setHeader (string headerName, string headerValu
 }
 
 @Description {value:"Sets the value of a transport header with multiple header values"}
-@Param {value:"req: A request message"}
+@Param {value:"req: A outbound request message"}
 @Param {value:"headerName: The header name"}
 @Param {value:"headerValues: An array of header values"}
-public function <Request req> setHeaders (string headerName, mime:HeaderValue[] headerValues) {
+public function <OutRequest req> setHeaders (string headerName, mime:HeaderValue[] headerValues) {
     mime:Entity entity = req.getEntityWithoutBody();
     if (entity.headers == null) {
         entity.headers = {};
@@ -101,7 +101,7 @@ public function <OutRequest req> removeAllHeaders () {
 }
 
 @Description {value:"Checks whether the client expects a 100-continue response."}
-@Param {value:"req: A inbound request struct"}
+@Param {value:"req: A inbound request message"}
 @Return {value:"Returns true if the client expects a 100-continue response. If not, returns false."}
 public function <InRequest req> expects100Continue () (boolean) {
     var expectHeader = req.getHeader(HEADER_KEY_EXPECT);
@@ -112,7 +112,7 @@ public function <InRequest req> expects100Continue () (boolean) {
 }
 
 @Description {value:"Gets the Content-Length header from the inbound request"}
-@Param {value:"req: A inbound request struct"}
+@Param {value:"req: A inbound request message"}
 @Return {value:"length of the message"}
 public function <InRequest request> getContentLength () (int) {
     if (request.getHeader(CONTENT_LENGTH) != null) {
@@ -128,7 +128,7 @@ public function <InRequest request> getContentLength () (int) {
 }
 
 @Description {value:"Gets the request payload in JSON format"}
-@Param {value:"request: The inbound request struct"}
+@Param {value:"request: The inbound request message"}
 @Return {value:"The JSON reresentation of the message payload"}
 public function <InRequest request> getJsonPayload () (json) {
     mime:Entity entity = request.getEntity();
@@ -136,7 +136,7 @@ public function <InRequest request> getJsonPayload () (json) {
 }
 
 @Description {value:"Gets the request payload in XML format"}
-@Param {value:"request: The inbound request struct"}
+@Param {value:"request: The inbound request message"}
 @Return {value:"The XML representation of the message payload"}
 public function <InRequest request> getXmlPayload () (xml) {
     mime:Entity entity = request.getEntity();
@@ -144,7 +144,7 @@ public function <InRequest request> getXmlPayload () (xml) {
 }
 
 @Description {value:"Gets the request payload as a string"}
-@Param {value:"request: inbound request struct"}
+@Param {value:"request: inbound request message"}
 @Return {value:"The string representation of the message payload"}
 public function <InRequest request> getStringPayload () (string) {
     mime:Entity entity = request.getEntity();
@@ -152,7 +152,7 @@ public function <InRequest request> getStringPayload () (string) {
 }
 
 @Description {value:"Gets the request payload in blob format"}
-@Param {value:"request: The inbound request struct"}
+@Param {value:"request: The inbound request message"}
 @Return {value:"The blob representation of the message payload"}
 public function <InRequest request> getBinaryPayload () (blob) {
     mime:Entity entity = request.getEntity();
@@ -160,7 +160,7 @@ public function <InRequest request> getBinaryPayload () (blob) {
 }
 
 @Description {value:"Gets the form parameters from the HTTP request as a map"}
-@Param {value:"req: The inbound request struct"}
+@Param {value:"req: The inbound request message"}
 @Return {value:"The map of form params"}
 public function <InRequest request> getFormParams () (map) {
     mime:Entity entity = request.getEntity();
@@ -186,7 +186,7 @@ public function <InRequest request> getFormParams () (map) {
 }
 
 @Description {value:"Sets a JSON as the outbound request payload"}
-@Param {value:"request: The outbound request struct"}
+@Param {value:"request: The outbound request message"}
 @Param {value:"payload: The JSON payload to be set to the request"}
 public function <OutRequest request> setJsonPayload (json payload) {
     mime:Entity entity = {};
@@ -198,7 +198,7 @@ public function <OutRequest request> setJsonPayload (json payload) {
 }
 
 @Description {value:"Sets an XML as the payload"}
-@Param {value:"request: The outbound request struct"}
+@Param {value:"request: The outbound request message"}
 @Param {value:"payload: The XML payload object"}
 public function <OutRequest request> setXmlPayload (xml payload) {
     mime:Entity entity = {};
@@ -210,7 +210,7 @@ public function <OutRequest request> setXmlPayload (xml payload) {
 }
 
 @Description {value:"Sets a string as the outbound request payload"}
-@Param {value:"request: The outbound request struct"}
+@Param {value:"request: The outbound request message"}
 @Param {value:"payload: The payload to be set to the request as a string"}
 public function <OutRequest request> setStringPayload (string payload) {
     mime:Entity entity = {};
@@ -222,7 +222,7 @@ public function <OutRequest request> setStringPayload (string payload) {
 }
 
 @Description {value:"Sets a blob as the outbound request payload"}
-@Param {value:"request: outbound request struct"}
+@Param {value:"request: outbound request message"}
 @Param {value:"payload: The blob representation of the message payload"}
 public function <OutRequest request> setBinaryPayload (blob payload) {
     mime:Entity entity = {};
@@ -234,7 +234,7 @@ public function <OutRequest request> setBinaryPayload (blob payload) {
 }
 
 @Description {value:"Sets the entity body of the outbound request with the given file content"}
-@Param {value:"request: The outbound request struct"}
+@Param {value:"request: The outbound request message"}
 @Param {value:"content: File containing the actual content"}
 @Param {value:"contentType: Content-Type of the given data"}
 public function <OutRequest request> setEntityBody (file:File content, string contentType) {

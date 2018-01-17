@@ -242,7 +242,7 @@ public class HTTPServicesRegistry {
         }
 
         //Validate request parameter
-        if (isValidParam(paramDetails.get(1), Constants.REQUEST)) {
+        if (isValidParam(paramDetails.get(1), Constants.IN_REQUEST)) {
             throw new BallerinaConnectorException("second parameter should be of type - "
                     + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.IN_REQUEST);
         }

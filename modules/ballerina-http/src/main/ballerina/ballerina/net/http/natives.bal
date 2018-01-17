@@ -45,16 +45,16 @@ public struct InRequest {
 	string method;
 	string httpVersion;
 	string userAgent;
-    string restUriPostFix;
+    string extraPathInfo;
 }
 
-@Description { value:"Get the entity from the request with the body included"}
-@Param { value:"req: The request message" }
+@Description { value:"Get the entity from the inbound request with the body included"}
+@Param { value:"req: The inbound request message" }
 @Return { value:"Entity of the request" }
 public native function <InRequest req> getEntity () (mime:Entity);
 
-@Description { value:"Get the entity from the request without the body. This function is to be used only internally"}
-@Param { value:"req: The request message" }
+@Description { value:"Get the entity from the inbound request without the body. This function is to be used only internally"}
+@Param { value:"req: The inbound request message" }
 @Return { value:"Entity of the request" }
 native function <InRequest req> getEntityWithoutBody () (mime:Entity);
 
@@ -90,9 +90,13 @@ public struct OutRequest {
 
 @Description { value:"Get the entity from the outbound request"}
 @Param { value:"req: The outbound request message" }
-@Param { value:"isEntityBodyRequired: Whether the entity body should be populated" }
 @Return { value:"Entity of the request" }
-public native function <OutRequest req> getEntity (boolean isEntityBodyRequired) (mime:Entity);
+public native function <OutRequest req> getEntity () (mime:Entity);
+
+@Description { value:"Get the entity from the outbound request without the body. This function is to be used only internally"}
+@Param { value:"req: The outbound request message" }
+@Return { value:"Entity of the request" }
+native function <OutRequest req> getEntityWithoutBody () (mime:Entity);
 
 @Description { value:"Set the entity to outbound request"}
 @Param { value:"req: The outbound request message" }
@@ -120,11 +124,10 @@ public struct InResponse {
 @Return { value:"Entity of the response" }
 public native function <InResponse res> getEntity () (mime:Entity);
 
-@Description { value:"Get the entity from the response without the body. This function is to be used only internally"}
-@Param { value:"req: The response message" }
+@Description { value:"Get the entity from the inbound response without the body. This function is to be used only internally"}
+@Param { value:"req: The inbound response message" }
 @Return { value:"Entity of the response" }
-native function <Response res> getEntityWithoutBody () (mime:Entity);
-public native function <InResponse res> getEntity (boolean isEntityBodyRequired) (mime:Entity);
+native function <InResponse res> getEntityWithoutBody () (mime:Entity);
 
 @Description { value:"Set the entity to inbound response"}
 @Param { value:"res: The inbound response message" }
@@ -153,7 +156,12 @@ public struct OutResponse {
 @Description { value:"Get the entity from the outbound response"}
 @Param { value:"res: The outbound response message" }
 @Return { value:"Entity of the response" }
-public native function <OutResponse res> getEntity (boolean isEntityBodyRequired) (mime:Entity);
+public native function <OutResponse res> getEntity () (mime:Entity);
+
+@Description { value:"Get the entity from the outbound response without the body. This function is to be used only internally"}
+@Param { value:"req: The outbound response message" }
+@Return { value:"Entity of the response" }
+native function <OutResponse res> getEntityWithoutBody () (mime:Entity);
 
 @Description { value:"Set the entity to outbound response"}
 @Param { value:"res: The outbound response message" }
@@ -332,21 +340,21 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 
 	@Description { value:"The POST action implementation of the HTTP Connector."}
 	@Param { value:"path: Resource path " }
-	@Param { value:"req: An HTTP outbound request struct" }
+	@Param { value:"req: An HTTP outbound request message" }
 	@Return { value:"The inbound response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
 	native action post (string path, OutRequest req) (InResponse, HttpConnectorError);
 
 	@Description { value:"The HEAD action implementation of the HTTP Connector."}
 	@Param { value:"path: Resource path " }
-	@Param { value:"req: An HTTP outbound request struct" }
+	@Param { value:"req: An HTTP outbound request message" }
 	@Return { value:"The inbound response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
 	native action head (string path, OutRequest req) (InResponse, HttpConnectorError);
 
 	@Description { value:"The PUT action implementation of the HTTP Connector."}
 	@Param { value:"path: Resource path " }
-	@Param { value:"req: An HTTP outbound request struct" }
+	@Param { value:"req: An HTTP outbound request message" }
 	@Return { value:"The inbound response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
 	native action put (string path, OutRequest req) (InResponse, HttpConnectorError);
@@ -354,42 +362,42 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	@Description { value:"Invokes an HTTP call with the specified HTTP verb."}
 	@Param { value:"HTTPVerb: HTTP verb value" }
 	@Param { value:"path: Resource path " }
-	@Param { value:"req: An HTTP outbound request struct" }
+	@Param { value:"req: An HTTP outbound request message" }
 	@Return { value:"The inbound response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
 	native action execute (string HTTPVerb, string path, OutRequest req) (InResponse, HttpConnectorError);
 
 	@Description { value:"The PATCH action implementation of the HTTP Connector."}
 	@Param { value:"path: Resource path " }
-	@Param { value:"req: An HTTP outbound request struct" }
+	@Param { value:"req: An HTTP outbound request message" }
 	@Return { value:"The inbound response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
 	native action patch (string path, OutRequest req) (InResponse, HttpConnectorError);
 
 	@Description { value:"The DELETE action implementation of the HTTP connector"}
 	@Param { value:"path: Resource path " }
-	@Param { value:"req: An HTTP outbound request struct" }
+	@Param { value:"req: An HTTP outbound request message" }
 	@Return { value:"The inbound response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
 	native action delete (string path, OutRequest req) (InResponse, HttpConnectorError);
 
 	@Description { value:"GET action implementation of the HTTP Connector"}
 	@Param { value:"path: Request path" }
-	@Param { value:"req: An HTTP outbound request struct" }
+	@Param { value:"req: An HTTP outbound request message" }
 	@Return { value:"The inbound response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
 	native action get (string path, OutRequest req) (InResponse, HttpConnectorError);
 
 	@Description { value:"OPTIONS action implementation of the HTTP Connector"}
 	@Param { value:"path: Request path" }
-	@Param { value:"req: An HTTP outbound request struct" }
+	@Param { value:"req: An HTTP outbound request message" }
 	@Return { value:"The inbound response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
 	native action options (string path, OutRequest req) (InResponse, HttpConnectorError);
 
 	@Description { value:"forward action can be used to invoke an HTTP call with inbound request HTTPVerb"}
 	@Param { value:"path: Request path" }
-	@Param { value:"req: An HTTP outbound request struct" }
+	@Param { value:"req: An HTTP outbound request message" }
 	@Return { value:"The inbound response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
 	native action forward (string path, OutRequest req) (InResponse, HttpConnectorError);

@@ -42,6 +42,6 @@ import org.ballerinalang.net.http.HttpUtil;
 public class GetEntity extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        return getBValues(HttpUtil.getEntity(context, this, false));
+        return getBValues(HttpUtil.getEntity(context, this, false, true));
     }
 }

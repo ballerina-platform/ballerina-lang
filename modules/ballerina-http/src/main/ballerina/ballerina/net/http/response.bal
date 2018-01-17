@@ -20,7 +20,7 @@ public function <InResponse res> getHeader (string headerName) (mime:HeaderValue
 }
 
 @Description {value:"Adds the specified key/value pair as an HTTP header to the outbound response"}
-@Param {value:"res: The outbound response struct"}
+@Param {value:"res: The outbound response message"}
 @Param {value:"headerName: The header name"}
 @Param {value:"headerValue: The header value"}
 public function <OutResponse res> addHeader (string headerName, string headerValue) {
@@ -39,7 +39,7 @@ public function <OutResponse res> addHeader (string headerName, string headerVal
 }
 
 @Description {value:"Gets the HTTP headers from the inbound response"}
-@Param {value:"res: The inbound response struct"}
+@Param {value:"res: The inbound response message"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The header values struct array for a given header name"}
 public function <InResponse res> getHeaders (string headerName) (mime:HeaderValue[]) {
@@ -55,7 +55,7 @@ public function <InResponse res> getHeaders (string headerName) (mime:HeaderValu
 }
 
 @Description {value:"Sets the value of a transport header"}
-@Param {value:"res: The outbound response struct"}
+@Param {value:"res: The outbound response message"}
 @Param {value:"key: The header name"}
 @Param {value:"value: The header value"}
 public function <OutResponse res> setHeader (string key, string value) {
@@ -91,14 +91,14 @@ public function <OutResponse res> removeHeader (string key) {
 }
 
 @Description {value:"Removes all transport headers from the response"}
-@Param {value:"res: The outbound response struct"}
+@Param {value:"res: The outbound response message"}
 public function <OutResponse res> removeAllHeaders () {
     mime:Entity entity = res.getEntityWithoutBody();
     entity.headers = {};
 }
 
 @Description {value:"Gets the Content-Length header value from the inbound response"}
-@Param {value:"response: The inbound response struct"}
+@Param {value:"response: The inbound response message"}
 @Return {value:"length of the message"}
 public function <InResponse response> getContentLength () (int) {
     if (response.getHeader(CONTENT_LENGTH) != null) {
@@ -114,7 +114,7 @@ public function <InResponse response> getContentLength () (int) {
 }
 
 @Description {value:"Gets the inbound response payload in JSON format"}
-@Param {value:"response: The inbound response struct"}
+@Param {value:"response: The inbound response message"}
 @Return {value:"The JSON reresentation of the message payload"}
 public function <InResponse response> getJsonPayload () (json) {
     mime:Entity entity = response.getEntity();
@@ -122,7 +122,7 @@ public function <InResponse response> getJsonPayload () (json) {
 }
 
 @Description {value:"Gets the inbound response payload in XML format"}
-@Param {value:"response: The inbound response struct"}
+@Param {value:"response: The inbound response message"}
 @Return {value:"The XML representation of the message payload"}
 public function <InResponse response> getXmlPayload () (xml) {
     mime:Entity entity = response.getEntity();
@@ -130,7 +130,7 @@ public function <InResponse response> getXmlPayload () (xml) {
 }
 
 @Description {value:"Gets the inbound response payload as a string"}
-@Param {value:"response: The inbound response struct"}
+@Param {value:"response: The inbound response message"}
 @Return {value:"The string representation of the message payload"}
 public function <InResponse response> getStringPayload () (string) {
     mime:Entity entity = response.getEntity();
@@ -138,7 +138,7 @@ public function <InResponse response> getStringPayload () (string) {
 }
 
 @Description {value:"Gets the inbound response payload in blob format"}
-@Param {value:"response: The inbound response struct"}
+@Param {value:"response: The inbound response message"}
 @Return {value:"The blob representation of the message payload"}
 public function <InResponse response> getBinaryPayload () (blob) {
     mime:Entity entity = response.getEntity();
@@ -146,7 +146,7 @@ public function <InResponse response> getBinaryPayload () (blob) {
 }
 
 @Description {value:"Sets a JSON as the outbound response payload"}
-@Param {value:"response: The outbound response struct"}
+@Param {value:"response: The outbound response message"}
 @Param {value:"payload: The JSON payload object"}
 public function <OutResponse response> setJsonPayload (json payload) {
     mime:Entity entity = {};
@@ -158,7 +158,7 @@ public function <OutResponse response> setJsonPayload (json payload) {
 }
 
 @Description {value:"Sets an XML as the outbound response payload"}
-@Param {value:"response: The outbound response struct"}
+@Param {value:"response: The outbound response message"}
 @Param {value:"payload: The XML payload object"}
 public function <OutResponse response> setXmlPayload (xml payload) {
     mime:Entity entity = {};
@@ -170,7 +170,7 @@ public function <OutResponse response> setXmlPayload (xml payload) {
 }
 
 @Description { value:"Sets a string as the outbound response payload"}
-@Param { value:"response: The outbound response struct" }
+@Param { value:"response: The outbound response message" }
 @Param { value:"payload: The payload to be set to the response as a string" }
 public function <OutResponse response> setStringPayload (string payload) {
     mime:Entity entity = {};
@@ -182,7 +182,7 @@ public function <OutResponse response> setStringPayload (string payload) {
 }
 
 @Description {value:"Sets a blob as the outbound response payload"}
-@Param {value:"response: The outbound response struct"}
+@Param {value:"response: The outbound response message"}
 @Param {value:"payload: The blob representation of the message payload"}
 public function <OutResponse response> setBinaryPayload (blob payload) {
     mime:Entity entity = {};
@@ -194,7 +194,7 @@ public function <OutResponse response> setBinaryPayload (blob payload) {
 }
 
 @Description {value:"Sets the entity body of the outbound response with the given file content"}
-@Param {value:"response: The outbound response struct"}
+@Param {value:"response: The outbound response message"}
 @Param {value:"content: File containing the actual content"}
 @Param {value:"contentType: Content-Type of the given data"}
 public function <OutResponse response> setEntityBody(file:File content, string contentType) {

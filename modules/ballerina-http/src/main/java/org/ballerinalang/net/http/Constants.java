@@ -27,7 +27,7 @@ public class Constants {
 
     public static final String BASE_PATH = "BASE_PATH";
     public static final String SUB_PATH = "SUB_PATH";
-    public static final String REST_URI_POSTFIX = "REST_URI_POSTFIX";
+    public static final String EXTRA_PATH_INFO = "EXTRA_PATH_INFO";
     public static final String RESOURCE_ARGS = "RESOURCE_ARGS";
     public static final String QUERY_STR = "QUERY_STR";
     public static final String RAW_QUERY_STR = "RAW_QUERY_STR";
@@ -148,12 +148,10 @@ public class Constants {
     public static final String ANNOTATION_NAME_PATH = "Path";
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
     public static final String CONNECTION = "Connection";
-    public static final String REQUEST = "Request";
     public static final String IN_REQUEST = "InRequest";
     public static final String OUT_REQUEST = "OutRequest";
     public static final String IN_RESPONSE = "InResponse";
     public static final String OUT_RESPONSE = "OutResponse";
-    public static final String RESPONSE = "Response";
     public static final String ENTITY = "Entity";
     public static final String HEADER_VALUE = "value";
     public static final String HEADER_PARAM = "param";
@@ -161,7 +159,6 @@ public class Constants {
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
     public static final String MESSAGE_OUTPUT_STREAM = "message_output_stream";
-    public static final String INBOUND_REQUEST = "inbound_request";
     public static final String HTTP_SESSION = "http_session";
 
     public static final String HTTP_TRANSPORT_CONF = "transports.netty.conf";
@@ -194,17 +191,21 @@ public class Constants {
     public static final int CONNECTION_HOST_INDEX = 0;
     public static final int CONNECTION_PORT_INDEX = 0;
 
-    //Request struct indexes
-    public static final int REQUEST_PATH_INDEX = 0;
-    public static final int REQUEST_METHOD_INDEX = 1;
-    public static final int REQUEST_VERSION_INDEX = 2;
-    public static final int REQUEST_USER_AGENT_INDEX = 3;
-    public static final int REQUEST_REST_URI_POSTFIX_INDEX = 4;
+    //InRequest struct indexes
+    public static final int IN_REQUEST_PATH_INDEX = 0;
+    public static final int IN_REQUEST_METHOD_INDEX = 1;
+    public static final int IN_REQUEST_VERSION_INDEX = 2;
+    public static final int IN_REQUEST_USER_AGENT_INDEX = 3;
+    public static final int IN_REQUEST_EXTRA_PATH_INFO_INDEX = 4;
 
-    //Response struct indexes
-    public static final int RESPONSE_STATUS_CODE_INDEX = 0;
-    public static final int RESPONSE_REASON_PHRASE_INDEX = 0;
-    public static final int RESPONSE_SERVER_INDEX = 1;
+    //InResponse struct indexes
+    public static final int IN_RESPONSE_STATUS_CODE_INDEX = 0;
+    public static final int IN_RESPONSE_REASON_PHRASE_INDEX = 0;
+    public static final int IN_RESPONSE_SERVER_INDEX = 1;
+
+    //OutResponse struct indexes
+    public static final int OUT_RESPONSE_STATUS_CODE_INDEX = 0;
+    public static final int OUT_RESPONSE_REASON_PHRASE_INDEX = 0;
 
     //HeaderValue struct indexes
     public static final int HEADER_VALUE_INDEX = 0;

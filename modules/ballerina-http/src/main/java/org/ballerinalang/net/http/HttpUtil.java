@@ -547,37 +547,37 @@ public class HttpUtil {
     public static void populateInboundRequest(BStruct inboundRequestStruct, BStruct entity, BStruct mediaType,
                                               HTTPCarbonMessage inboundRequestMsg) {
         inboundRequestStruct.addNativeData(Constants.TRANSPORT_MESSAGE, inboundRequestMsg);
-        inboundRequestStruct.addNativeData(Constants.INBOUND_REQUEST, true);
+        inboundRequestStruct.addNativeData(Constants.IN_REQUEST, true);
 
-        enrichWithInboundRequestInfo(inboundRequestStruct, entity, mediaType, inboundRequestMsg);
+        populateEntity(entity, mediaType, inboundRequestMsg);
+        inboundRequestStruct.addNativeData(MESSAGE_ENTITY, entity);
+        inboundRequestStruct.addNativeData(IS_ENTITY_BODY_PRESENT, false);
+
+        enrichWithInboundRequestInfo(inboundRequestStruct, inboundRequestMsg);
         enrichWithInboundRequestHeaders(inboundRequestStruct, inboundRequestMsg);
     }
 
     private static void enrichWithInboundRequestHeaders(BStruct inboundRequestStruct,
             HTTPCarbonMessage inboundRequestMsg) {
         if (inboundRequestMsg.getHeader(Constants.USER_AGENT_HEADER) != null) {
-            inboundRequestStruct.setStringField(Constants.REQUEST_USER_AGENT_INDEX,
+            inboundRequestStruct.setStringField(Constants.IN_REQUEST_USER_AGENT_INDEX,
                     inboundRequestMsg.getHeader(Constants.USER_AGENT_HEADER));
             inboundRequestMsg.removeHeader(Constants.USER_AGENT_HEADER);
         }
     }
 
-    private static void enrichWithInboundRequestInfo(BStruct inboundRequestStruct, BStruct entity, BStruct mediaType,
-            HTTPCarbonMessage inboundRequestMsg) {
-        inboundRequestStruct.setStringField(Constants.REQUEST_PATH_INDEX,
+    private static void enrichWithInboundRequestInfo(BStruct inboundRequestStruct,
+                                                     HTTPCarbonMessage inboundRequestMsg) {
+        inboundRequestStruct.setStringField(Constants.IN_REQUEST_PATH_INDEX,
                 (String) inboundRequestMsg.getProperty(Constants.REQUEST_URL));
-        inboundRequestStruct.setStringField(Constants.REQUEST_METHOD_INDEX,
+        inboundRequestStruct.setStringField(Constants.IN_REQUEST_METHOD_INDEX,
                 (String) inboundRequestMsg.getProperty(Constants.HTTP_METHOD));
-        inboundRequestStruct.setStringField(Constants.REQUEST_VERSION_INDEX,
+        inboundRequestStruct.setStringField(Constants.IN_REQUEST_VERSION_INDEX,
                 (String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION));
         Map<String, String> resourceArgValues =
                 (Map<String, String>) inboundRequestMsg.getProperty(Constants.RESOURCE_ARGS);
-        inboundRequestStruct.setStringField(Constants.REQUEST_REST_URI_POSTFIX_INDEX,
-                resourceArgValues.get(Constants.REST_URI_POSTFIX));
-
-        populateEntity(entity, mediaType, inboundRequestMsg);
-        inboundRequestStruct.addNativeData(MESSAGE_ENTITY, entity);
-        inboundRequestStruct.addNativeData(IS_ENTITY_BODY_PRESENT, false);
+        inboundRequestStruct.setStringField(Constants.IN_REQUEST_EXTRA_PATH_INFO_INDEX,
+                resourceArgValues.get(Constants.EXTRA_PATH_INFO));
     }
 
     public static void enrichConnectionInfo(BStruct connection, HTTPCarbonMessage cMsg) {
@@ -590,26 +590,27 @@ public class HttpUtil {
     /**
      * Populate inbound response with headers and entity.
      *
-     * @param response  Ballerina struct to represent response
+     * @param inboundResponse  Ballerina struct to represent response
      * @param entity    Entity of the response
      * @param mediaType Content type of the response
-     * @param cMsg      Represent carbon message.
+     * @param inboundResponseMsg      Represent carbon message.
      */
-    public static void populateInboundResponse(BStruct response, BStruct entity, BStruct mediaType, HTTPCarbonMessage
-            cMsg) {
-        response.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
-        int statusCode = (Integer) cMsg.getProperty(Constants.HTTP_STATUS_CODE);
-        response.setIntField(Constants.RESPONSE_STATUS_CODE_INDEX, statusCode);
-        response.setStringField(Constants.RESPONSE_REASON_PHRASE_INDEX,
+    public static void populateInboundResponse(BStruct inboundResponse, BStruct entity, BStruct mediaType, HTTPCarbonMessage
+            inboundResponseMsg) {
+        inboundResponse.addNativeData(Constants.TRANSPORT_MESSAGE, inboundResponseMsg);
+        int statusCode = (Integer) inboundResponseMsg.getProperty(Constants.HTTP_STATUS_CODE);
+        inboundResponse.setIntField(Constants.IN_RESPONSE_STATUS_CODE_INDEX, statusCode);
+        inboundResponse.setStringField(Constants.IN_RESPONSE_REASON_PHRASE_INDEX,
                 HttpResponseStatus.valueOf(statusCode).reasonPhrase());
 
-        if (cMsg.getHeader(Constants.SERVER_HEADER) != null) {
-            response.setStringField(Constants.RESPONSE_SERVER_INDEX, cMsg.getHeader(Constants.SERVER_HEADER));
-            cMsg.removeHeader(Constants.SERVER_HEADER);
+        if (inboundResponseMsg.getHeader(Constants.SERVER_HEADER) != null) {
+            inboundResponse.setStringField(Constants.IN_RESPONSE_SERVER_INDEX,
+                    inboundResponseMsg.getHeader(Constants.SERVER_HEADER));
+            inboundResponseMsg.removeHeader(Constants.SERVER_HEADER);
         }
-        populateEntity(entity, mediaType, cMsg);
-        response.addNativeData(MESSAGE_ENTITY, entity);
-        response.addNativeData(IS_ENTITY_BODY_PRESENT, false);
+        populateEntity(entity, mediaType, inboundResponseMsg);
+        inboundResponse.addNativeData(MESSAGE_ENTITY, entity);
+        inboundResponse.addNativeData(IS_ENTITY_BODY_PRESENT, false);
     }
 
     /**
@@ -705,7 +706,7 @@ public class HttpUtil {
     public static void setHeadersToTransportMessage(HTTPCarbonMessage outboundRequest, BStruct messageStruct) {
         BStruct entityStruct = (BStruct) messageStruct.getNativeData(MESSAGE_ENTITY);
         outboundRequest.getHeaders().clear();
-        HttpHeaders removedHeaders = messageStruct.getType().getName().equals(Constants.REQUEST) ?
+        HttpHeaders removedHeaders = messageStruct.getType().getName().equals(Constants.OUT_REQUEST) ?
                 getRequestStructHeaders(messageStruct) : getResponseStructHeaders(messageStruct);
 
         BMap<String, BValue> headers = getEntityStructHeaders(entityStruct, removedHeaders);
@@ -731,8 +732,8 @@ public class HttpUtil {
     @SuppressWarnings("unchecked")
     private static HttpHeaders getRequestStructHeaders(BStruct struct) {
         HttpHeaders removedHeaders = new DefaultHttpHeaders();
-        if (!struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX).isEmpty()) {
-            removedHeaders.add(Constants.USER_AGENT_HEADER, struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX));
+        if (!struct.getStringField(Constants.IN_REQUEST_USER_AGENT_INDEX).isEmpty()) {
+            removedHeaders.add(Constants.USER_AGENT_HEADER, struct.getStringField(Constants.IN_REQUEST_USER_AGENT_INDEX));
         }
         return removedHeaders;
     }
@@ -740,8 +741,8 @@ public class HttpUtil {
     @SuppressWarnings("unchecked")
     private static HttpHeaders getResponseStructHeaders(BStruct struct) {
         HttpHeaders removedHeaders = new DefaultHttpHeaders();
-        if (!struct.getStringField(Constants.RESPONSE_SERVER_INDEX).isEmpty()) {
-            removedHeaders.add(Constants.SERVER_HEADER, struct.getStringField(Constants.RESPONSE_SERVER_INDEX));
+        if (!struct.getStringField(Constants.IN_RESPONSE_SERVER_INDEX).isEmpty()) {
+            removedHeaders.add(Constants.SERVER_HEADER, struct.getStringField(Constants.IN_RESPONSE_SERVER_INDEX));
         }
         return removedHeaders;
     }

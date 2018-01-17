@@ -28,20 +28,19 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
 
 /**
- * Get the 'Entity' of the request.
+ * Get the entity without the body of outbound request.
  *
- * @since 0.96.0
+ * @since 0.96
  */
-@BallerinaFunction(packageName = "ballerina.net.http",
-                   functionName = "getEntity",
-                   receiver = @Receiver(type = TypeKind.STRUCT,
-                                        structType = "OutRequest",
-                                        structPackage = "ballerina.net.http"),
-                   returnType = { @ReturnType(type = TypeKind.STRUCT) },
-                   isPublic = true)
-public class GetEntity extends AbstractNativeFunction {
+@BallerinaFunction(
+        packageName = "ballerina.net.http",
+        functionName = "getEntityWithoutBody",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "OutRequest", structPackage = "ballerina.net.http"),
+        returnType = {@ReturnType(type = TypeKind.STRUCT)}
+)
+public class GetEntityWithoutBody extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        return getBValues(HttpUtil.getEntity(context, this, true, true));
+        return getBValues(HttpUtil.getEntity(context, this, true, false));
     }
 }

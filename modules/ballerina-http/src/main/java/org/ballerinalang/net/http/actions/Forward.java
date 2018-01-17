@@ -83,7 +83,7 @@ public class Forward extends AbstractHTTPAction {
         String path = getStringArgument(context, 0);
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
         
-        if (requestStruct.getNativeData(Constants.INBOUND_REQUEST) == null) {
+        if (requestStruct.getNativeData(Constants.IN_REQUEST) == null) {
             throw new BallerinaException("invalid inbound request parameter");
         }
         
