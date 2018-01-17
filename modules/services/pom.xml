@@ -14,13 +14,24 @@
     <name>Ballerina Composer - Services Parent</name>
     <packaging>pom</packaging>
     <modules>
-        <module>workspace-service</module>
+        <module>fs-service</module>
     </modules>
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>composer-server-core</artifactId>
             <version>0.95.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.msf4j</groupId>
+            <artifactId>msf4j-core</artifactId>
+            <version>2.5.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
     <build>
@@ -48,6 +59,7 @@
         </plugins>
     </build>
     <properties>
+        <maven.findbugsplugin.version.exclude></maven.findbugsplugin.version.exclude>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
     </properties>
 </project>
