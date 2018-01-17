@@ -24,12 +24,9 @@ public class ServerCommand {
     @Parameter(names = {"--help", "-h", "help"}, hidden = true, help = true)
     public boolean helpFlag = false;
 
-    @Parameter(names = "--port", description = "Specify a custom port for the server to start.")
+    @Parameter(names = {"--port" , "-p"}, description = "Specify a custom port for the server to start.")
     public Integer port;
 
-    @Parameter(names = "--debug", hidden = true)
-    public String debugPort;
-
-    @Parameter(names = "--file" , description = "Specify a Ballerina program file to open at the startup.")
-    public String filePath;
+    @Parameter(names = "--publicPath", description = "Specify a custom path to server the public content from.")
+    public String publicPath;
 }

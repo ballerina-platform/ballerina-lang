@@ -16,6 +16,7 @@
 package org.ballerinalang.composer.server.core;
 
 import org.ballerinalang.composer.server.service.EndpointInfoService;
+import org.ballerinalang.composer.server.service.PublicContentService;
 import org.ballerinalang.composer.server.spi.ComposerService;
 import org.ballerinalang.composer.server.spi.ComposerServiceProvider;
 import org.ballerinalang.composer.server.spi.ServiceType;
@@ -63,6 +64,8 @@ public class Server {
         }
         // deploy ep info service
         microservicesRunner.deploy(new EndpointInfoService(serverConfig, serviceList));
+        // deploy public content service
+        microservicesRunner.deploy(new PublicContentService(serverConfig));
         microservicesRunner.start();
     }
 

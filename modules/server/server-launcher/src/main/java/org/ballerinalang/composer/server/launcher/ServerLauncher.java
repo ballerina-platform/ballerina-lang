@@ -37,7 +37,7 @@ import java.net.ServerSocket;
  */
 public class ServerLauncher {
 
-    private static final String SYS_BAL_COMPOSER_HOME = "bal.composer.home";
+    private static final String PROP_COMPOSER_CONFIG_PATH = "composer.config.path";
     private static final int DEFAULT_PORT = 8089;
 
     private static Logger logger;
@@ -54,17 +54,8 @@ public class ServerLauncher {
     }
 
     public static void main(String[] args) {
-        String balHome = System.getProperty(SYS_BAL_COMPOSER_HOME);
-        if (balHome == null) {
-            balHome = System.getenv(SYS_BAL_COMPOSER_HOME);
-        }
-        if (balHome == null) {
-            // this condition will never reach if the app is started with 'composer' script.
-            logger.error("Unable to find ballerina composer home.");
-            return;
-        }
-        ServerCommand commandArgs = new ServerCommand();
-        JCommander jCommander = new JCommander(commandArgs);
+        ServerCommand cmdLineArgs = new ServerCommand();
+        JCommander jCommander = new JCommander(cmdLineArgs);
         jCommander.setProgramName("composer");
         try {
             jCommander.parse(args);
@@ -74,7 +65,7 @@ public class ServerLauncher {
             printUsage();
             return;
         }
-        if (commandArgs.helpFlag) {
+        if (cmdLineArgs.helpFlag) {
             PrintStream out = System.out;
             out.println("Ballerina composer, helps you to visualize and edit ballerina programs.");
             out.println();
@@ -82,22 +73,25 @@ public class ServerLauncher {
             printUsage();
             return;
         }
-        // reading configurations from server-config.yaml
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        File configFile = new File(balHome + "/resources/composer/server/service-config.yaml");
         ServerConfig config = new ServerConfig();
-        if (configFile.exists()) {
-            try {
-                config = mapper.readValue(configFile, ServerConfig.class);
-            } catch (IOException e) {
-                logger.error("Error while reading server-config.yaml", e);
+        // reading configurations from config yaml file
+        String configFilePath = System.getProperty(PROP_COMPOSER_CONFIG_PATH);
+        if (configFilePath != null) {
+            ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+            File configFile = new File(configFilePath);
+            if (configFile.exists()) {
+                try {
+                    config = mapper.readValue(configFile, ServerConfig.class);
+                } catch (IOException e) {
+                    logger.error("Error while reading config file.", e);
+                }
             }
         }
-        // give precedence to server-config.yaml (is this the correct approach?)
-        if (config.getServerPort() == 0 && commandArgs.port != null) {
-            config.setServerPort(commandArgs.port);
+        // give precedence to command line arg for port
+        if (cmdLineArgs.port != null) {
+            config.setServerPort(cmdLineArgs.port);
         }
-        // if no port is provided via args or config, grab a free available port
+        // if no port is provided via cmd args or config file, try to grab an open port
         if (config.getServerPort() == 0) {
             config.setServerPort(getAvailablePort(DEFAULT_PORT));
         }
@@ -109,6 +103,10 @@ public class ServerLauncher {
                     "please kick them out or tell me a different port to use.", config.getServerPort()));
             printUsage();
             System.exit(1);
+        }
+        // give precedence to command line arg for public folder
+        if (cmdLineArgs.publicPath != null) {
+            config.setPublicFolder(cmdLineArgs.publicPath);
         }
         Server server = new Server(config);
         try {

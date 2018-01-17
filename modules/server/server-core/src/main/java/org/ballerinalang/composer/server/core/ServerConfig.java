@@ -24,6 +24,8 @@ public class ServerConfig {
 
     private int serverPort;
 
+    private String publicFolder;
+
     private Map<String, String> serviceConfigs;
 
     public int getServerPort() {
@@ -32,6 +34,14 @@ public class ServerConfig {
 
     public void setServerPort(int serverPort) {
         this.serverPort = serverPort;
+    }
+
+    public String getPublicFolder() {
+        return publicFolder;
+    }
+
+    public void setPublicFolder(String publicFolder) {
+        this.publicFolder = publicFolder;
     }
 
     public Map<String, String> getServiceConfigs() {
