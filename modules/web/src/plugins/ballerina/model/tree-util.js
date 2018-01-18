@@ -607,6 +607,20 @@ class TreeUtil extends AbstractTreeUtil {
         const regex = /\.\<init\>$/g;
         return regex.test(node.name.value);
     }
+
+     /**
+     * Provides available endpoints for provided models scope
+     * @param {object} model current model object
+     * @return {array}  available endpoints
+     */
+    getCurrentEndpoints(model) {
+        if (this.isResource(model) || this.isFunction(model)) {
+            return model.getBody().getStatements()
+            .filter(stmt => this.isVariableDef(stmt) && this.isEndpointType(stmt.getVariable().getTypeNode()));
+        } else {
+            return this.getCurrentEndpoints(model.parent);
+        }
+    }
 }
 
 export default new TreeUtil();

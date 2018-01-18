@@ -232,8 +232,7 @@ class LifelineButton extends React.Component {
             value,
             onChange: this.onChange,
         };
-        const currentEndpoints = this.props.model.getStatements()
-        .filter(stmt => TreeUtil.isVariableDef(stmt) && TreeUtil.isEndpointType(stmt.getVariable().getTypeNode()));
+        const currentEndpoints = TreeUtil.getCurrentEndpoints(this.props.model);
         return (
             <Area bBox={this.props.bBox}>
                 <Button
