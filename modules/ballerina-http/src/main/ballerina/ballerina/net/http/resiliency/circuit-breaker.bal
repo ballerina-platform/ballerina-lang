@@ -7,12 +7,17 @@ enum CircuitState {
 }
 
 struct CircuitHealth {
-    float requestCount;
-    float errorCount;
+    int requestCount;
+    int errorCount;
     Time lastErrorTime;
 }
 
-public connector CircuitBreaker (http:HttpClient httpClient, float failurePercentageThreshold, int resetTimeout) {
+@Description {value:"A Circuit Breaker implementation for to be used with the HTTP client connector to gracefully handle network errors"}
+@Param {value:"httpClient: The HTTP client connector to be wrapped with the circuit breaker"}
+@Param {value:"failureThreshold: The threshold for request failures. When this threshold is crossed, the circuit will trip. The threshold should be a value between 0 and 1."}
+@Param {value:"resetTimeout: The time period to wait before attempting to make another request to the upstream service"}
+// TODO: need to find a way to validate the arguments passed here
+public connector CircuitBreaker (http:HttpClient httpClient, float failureThreshold, int resetTimeout) {
 
     endpoint<http:HttpClient> httpEP {
         httpClient;
@@ -22,14 +27,19 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
     // TODO: once enum init inside a struct is do-able, move this inside circuitHealth (issue #4340)
     CircuitState currentState = CircuitState.CLOSE;
 
+    @Description {value:"The POST action implementation of the Circuit Breaker. Protects the invocation of the POST action of the underlying HTTP client connector."}
+    @Param {value:"path: Resource path"}
+    @Param {value:"request: An HTTP Request struct"}
+    @Return {value:"The Response struct"}
+    @Return {value:"Error occurred during the action invocation, if any"}
     action post (string path, http:Request request) (http:Response, http:HttpConnectorError) {
-        currentState = updateCircuitState(circuitHealth, currentState, failurePercentageThreshold, resetTimeout);
+        currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
         http:Response response;
         http:HttpConnectorError err;
 
         if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            response = handleOpenCircuit(circuitHealth, resetTimeout);
+            err = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
             response, err = httpEP.post(path, request);
             updateCircuitHealth(circuitHealth, err);
@@ -38,14 +48,19 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
         return response, err;
     }
 
+    @Description {value:"The HEAD action implementation of the Circuit Breaker. Protects the invocation of the HEAD action of the underlying HTTP client connector."}
+    @Param {value:"path: Resource path"}
+    @Param {value:"request: An HTTP Request struct"}
+    @Return {value:"The Response struct"}
+    @Return {value:"Error occurred during the action invocation, if any"}
     action head (string path, http:Request request) (http:Response, http:HttpConnectorError) {
-        currentState = updateCircuitState(circuitHealth, currentState, failurePercentageThreshold, resetTimeout);
+        currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
         http:Response response;
         http:HttpConnectorError err;
 
         if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            response = handleOpenCircuit(circuitHealth, resetTimeout);
+            err = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
             response, err = httpEP.head(path, request);
             updateCircuitHealth(circuitHealth, err);
@@ -54,14 +69,19 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
         return response, err;
     }
 
+    @Description {value:"The PUT action implementation of the Circuit Breaker. Protects the invocation of the PUT action of the underlying HTTP client connector."}
+    @Param {value:"path: Resource path"}
+    @Param {value:"request: An HTTP Request struct"}
+    @Return {value:"The Response struct"}
+    @Return {value:"Error occurred during the action invocation, if any"}
     action put (string path, http:Request request) (http:Response, http:HttpConnectorError) {
-        currentState = updateCircuitState(circuitHealth, currentState, failurePercentageThreshold, resetTimeout);
+        currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
         http:Response response;
         http:HttpConnectorError err;
 
         if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            response = handleOpenCircuit(circuitHealth, resetTimeout);
+            err = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
             response, err = httpEP.put(path, request);
             updateCircuitHealth(circuitHealth, err);
@@ -70,14 +90,20 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
         return response, err;
     }
 
+    @Description {value:"Protects the invocation of the Execute action of the underlying HTTP client connector. The Execute action can be used to invoke an HTTP call with the given HTTP verb."}
+    @Param {value:"httpVerb: HTTP verb to be used for the request"}
+    @Param {value:"path: Resource path"}
+    @Param {value:"request: An HTTP Request struct"}
+    @Return {value:"The Response struct"}
+    @Return {value:"Error occurred during the action invocation, if any"}
     action execute (string httpVerb, string path, http:Request request) (http:Response, http:HttpConnectorError) {
-        currentState = updateCircuitState(circuitHealth, currentState, failurePercentageThreshold, resetTimeout);
+        currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
         http:Response response;
         http:HttpConnectorError err;
 
         if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            response = handleOpenCircuit(circuitHealth, resetTimeout);
+            err = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
             response, err = httpEP.execute(httpVerb, path, request);
             updateCircuitHealth(circuitHealth, err);
@@ -86,14 +112,19 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
         return response, err;
     }
 
+    @Description {value:"The PATCH action implementation of the Circuit Breaker. Protects the invocation of the PATCH action of the underlying HTTP client connector."}
+    @Param {value:"path: Resource path"}
+    @Param {value:"request: An HTTP Request struct"}
+    @Return {value:"The Response struct"}
+    @Return {value:"Error occurred during the action invocation, if any"}
     action patch (string path, http:Request request) (http:Response, http:HttpConnectorError) {
-        currentState = updateCircuitState(circuitHealth, currentState, failurePercentageThreshold, resetTimeout);
+        currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
         http:Response response;
         http:HttpConnectorError err;
 
         if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            response = handleOpenCircuit(circuitHealth, resetTimeout);
+            err = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
             response, err = httpEP.patch(path, request);
             updateCircuitHealth(circuitHealth, err);
@@ -102,14 +133,19 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
         return response, err;
     }
 
+    @Description {value:"The DELETE action implementation of the Circuit Breaker. Protects the invocation of the DELETE action of the underlying HTTP client connector."}
+    @Param {value:"path: Resource path"}
+    @Param {value:"request: An HTTP Request struct"}
+    @Return {value:"The Response struct"}
+    @Return {value:"Error occurred during the action invocation, if any"}
     action delete (string path, http:Request request) (http:Response, http:HttpConnectorError) {
-        currentState = updateCircuitState(circuitHealth, currentState, failurePercentageThreshold, resetTimeout);
+        currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
         http:Response response;
         http:HttpConnectorError err;
 
         if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            response = handleOpenCircuit(circuitHealth, resetTimeout);
+            err = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
             response, err = httpEP.delete(path, request);
             updateCircuitHealth(circuitHealth, err);
@@ -118,14 +154,19 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
         return response, err;
     }
 
+    @Description {value:"The OPTIONS action implementation of the Circuit Breaker. Protects the invocation of the OPTIONS action of the underlying HTTP client connector."}
+    @Param {value:"path: Resource path"}
+    @Param {value:"request: An HTTP Request struct"}
+    @Return {value:"The Response struct"}
+    @Return {value:"Error occurred during the action invocation, if any"}
     action options (string path, http:Request request) (http:Response, http:HttpConnectorError) {
-        currentState = updateCircuitState(circuitHealth, currentState, failurePercentageThreshold, resetTimeout);
+        currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
         http:Response response;
         http:HttpConnectorError err;
 
         if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            response = handleOpenCircuit(circuitHealth, resetTimeout);
+            err = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
             response, err = httpEP.options(path, request);
             updateCircuitHealth(circuitHealth, err);
@@ -134,14 +175,19 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
         return response, err;
     }
 
+    @Description {value:"Protects the invocation of the Forward action of the underlying HTTP client connector. The Forward action can be used to forward an incoming request to an upstream service as it is."}
+    @Param {value:"path: Resource path"}
+    @Param {value:"request: An HTTP Request struct"}
+    @Return {value:"The Response struct"}
+    @Return {value:"Error occurred during the action invocation, if any"}
     action forward (string path, http:Request request) (http:Response, http:HttpConnectorError) {
-        currentState = updateCircuitState(circuitHealth, currentState, failurePercentageThreshold, resetTimeout);
+        currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
         http:Response response;
         http:HttpConnectorError err;
 
         if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            response = handleOpenCircuit(circuitHealth, resetTimeout);
+            err = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
             response, err = httpEP.forward(path, request);
             updateCircuitHealth(circuitHealth, err);
@@ -150,14 +196,19 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
         return response, err;
     }
 
+    @Description {value:"The GET action implementation of the Circuit Breaker. Protects the invocation of the GET action of the underlying HTTP client connector."}
+    @Param {value:"path: Resource path"}
+    @Param {value:"request: An HTTP Request struct"}
+    @Return {value:"The Response struct"}
+    @Return {value:"Error occurred during the action invocation, if any"}
     action get (string path, http:Request request) (http:Response, http:HttpConnectorError) {
-        currentState = updateCircuitState(circuitHealth, currentState, failurePercentageThreshold, resetTimeout);
+        currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
         http:Response response;
         http:HttpConnectorError err;
 
         if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            response = handleOpenCircuit(circuitHealth, resetTimeout);
+            err = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
             response, err = httpEP.get(path, request);
             updateCircuitHealth(circuitHealth, err);
@@ -190,7 +241,7 @@ function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentSt
         float currentFailureRate = 0;
 
         if (circuitHealth.requestCount > 0) {
-            currentFailureRate = (circuitHealth.errorCount / circuitHealth.requestCount) * 100;
+            currentFailureRate = ((float) circuitHealth.errorCount / circuitHealth.requestCount);
         }
 
         if (currentFailureRate > failureThreshold) {
@@ -210,17 +261,13 @@ function updateCircuitHealth(CircuitHealth circuitHealth, http:HttpConnectorErro
     }
 }
 
-function createErrorResponse (string msg, int statusCode) (http:Response) {
-    http:Response errorResponse = {};
-    errorResponse.setStringPayload(msg);
-    errorResponse.setStatusCode(statusCode);
-    return errorResponse;
-}
-
-function handleOpenCircuit (CircuitHealth circuitHealth, int resetTimeout) (http:Response) {
+function handleOpenCircuit (CircuitHealth circuitHealth, int resetTimeout) (http:HttpConnectorError) {
     Time currentT = currentTime();
     int timeDif = currentT.time - circuitHealth.lastErrorTime.time;
     int timeRemaining = resetTimeout - timeDif;
-    return createErrorResponse("Upstream service unavailable. Requests to upstream service will be suspended for "
-                               + timeRemaining + " milliseconds", 503);
+
+    http:HttpConnectorError err = {};
+    err.msg = "Upstream service unavailable. Requests to upstream service will be suspended for "
+              + timeRemaining + " milliseconds.";
+    return err;
 }

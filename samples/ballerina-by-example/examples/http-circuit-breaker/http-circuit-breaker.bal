@@ -25,6 +25,10 @@ service<http> circuitBreakerDemo {
 
         if (err != null) {
             println(err);
+            if (clientRes == null) {
+                clientRes = {};
+                clientRes.setStatusCode(err.statusCode);
+            }
         } else {
             println(clientRes.getStringPayload());
         }

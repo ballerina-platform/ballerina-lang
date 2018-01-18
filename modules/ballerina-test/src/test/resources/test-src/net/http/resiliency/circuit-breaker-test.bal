@@ -9,7 +9,7 @@ const string SCENARIO_TRIAL_RUN_FAILURE = "trial-run-failure";
 function testTypicalScenario () (http:Response[], http:HttpConnectorError[]) {
 
     endpoint<resiliency:CircuitBreaker> circuitBreakerEP {
-        create resiliency:CircuitBreaker((http:HttpClient)create MockHttpClient("http://localhost:8080", {}), 10, 2000);
+        create resiliency:CircuitBreaker((http:HttpClient)create MockHttpClient("http://localhost:8080", {}), 0.1, 2000);
     }
 
     http:Request request;
@@ -35,7 +35,7 @@ function testTypicalScenario () (http:Response[], http:HttpConnectorError[]) {
 function testTrialRunFailure () (http:Response[], http:HttpConnectorError[]) {
 
     endpoint<resiliency:CircuitBreaker> circuitBreakerEP {
-        create resiliency:CircuitBreaker((http:HttpClient)create MockHttpClient("http://localhost:8080", {}), 10, 2000);
+        create resiliency:CircuitBreaker((http:HttpClient)create MockHttpClient("http://localhost:8080", {}), 0.1, 2000);
     }
 
     http:Request request;

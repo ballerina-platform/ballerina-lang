@@ -358,8 +358,8 @@ public struct Options {
     Proxy proxy;
 }
 
-@Description { value:"Http client connector for outbound HTTP requests"}
-@Param { value:"serviceUri: Url of the service" }
+@Description { value:"HTTP client connector for outbound HTTP requests"}
+@Param { value:"serviceUri: URI of the service" }
 @Param { value:"connectorOptions: connector options" }
 public connector HttpClient (string serviceUri, Options connectorOptions) {
 
@@ -420,7 +420,7 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	@Return { value:"Error occured during HTTP client invocation" }
 	native action options (string path, Request req) (Response, HttpConnectorError);
 
-	@Description { value:"forward action can be used to invoke an HTTP call with incoming request HTTPVerb"}
+	@Description { value:"Forward action can be used to invoke an HTTP call with incoming request's HTTP verb"}
 	@Param { value:"path: Request path" }
 	@Param { value:"req: An HTTP Request struct" }
 	@Return { value:"The response message" }

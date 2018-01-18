@@ -35,6 +35,8 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
  */
 public class CircuitBreakerTest {
 
+    private static final String CB_ERROR_MSG = "Upstream service unavailable.";
+
     private CompileResult compileResult;
 
     @BeforeTest
@@ -47,7 +49,7 @@ public class CircuitBreakerTest {
      */
     @Test
     public void testCircuitBreaker() {
-        int[] expectedStatusCodes = new int[]{200, 200, 502, 503, 503, 200, 200, 200};
+        int[] expectedStatusCodes = new int[]{200, 200, 502, -1, -1, 200, 200, 200};
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testTypicalScenario");
 
         Assert.assertEquals(returnVals.length, 2);
@@ -68,7 +70,14 @@ public class CircuitBreakerTest {
                 BStruct err = (BStruct) errs.get(i);
                 long statusCode = err.getIntField(0);
 
-                Assert.assertEquals(statusCode, 502);
+                // Status code of 0 means it is not an error related to HTTP. In this case, it is the Circuit Breaker
+                // error for requests which were failed immediately.
+                if (statusCode == 0) {
+                    String msg = err.getStringField(0);
+                    Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG));
+                } else {
+                    Assert.assertEquals(statusCode, 502);
+                }
             }
         }
     }
@@ -83,7 +92,7 @@ public class CircuitBreakerTest {
      */
     @Test
     public void testTrialRunFailure() {
-        int[] expectedStatusCodes = new int[]{200, 502, 503, 502, 503, 503};
+        int[] expectedStatusCodes = new int[]{200, 502, -1, 502, -1, -1};
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testTrialRunFailure");
 
         Assert.assertEquals(returnVals.length, 2);
@@ -105,11 +114,17 @@ public class CircuitBreakerTest {
                 BStruct err = (BStruct) errs.get(i);
                 statusCode = err.getIntField(0);
 
-                Assert.assertEquals(statusCode, 502);
+                // Status code of 0 means it is not an error related to HTTP. In this case, it is the Circuit Breaker
+                // error for requests which were failed immediately.
+                if (statusCode == 0) {
+                    String msg = err.getStringField(0);
+                    Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG));
+                } else {
+                    Assert.assertEquals(statusCode, 502);
+                }
             }
         }
     }
-
 
     private HTTPCarbonMessage getCarbonMessage(BStruct response) {
         if (response != null) {
