@@ -125,11 +125,11 @@ public class HtmlDocTest {
     public void testGlobalVariables() throws Exception {
         BLangPackage bLangPackage = createPackage("package x.y; " +
                                                   "public int total = 98;" +
-                                                  "public string value = \"Name\";");
+                                                  "public string content = \"Name\";");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 2);
         Assert.assertEquals(page.constructs.get(0).name, "total");
-        Assert.assertEquals(page.constructs.get(1).name, "value");
+        Assert.assertEquals(page.constructs.get(1).name, "content");
     }
 
     @Test(description = "Structs in a package should be shown in the constructs")
@@ -330,7 +330,7 @@ public class HtmlDocTest {
                                                   "annotation ParameterInfo {}" +
                                                   "annotation ReturnInfo {}" +
                                                   "int total = 98;" +
-                                                  "string value = \"Name\";" +
+                                                  "string content = \"Name\";" +
                                                   "struct Message {}" +
                                                   "struct Response {}");
         Page page = generatePage(bLangPackage);
