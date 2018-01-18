@@ -41,12 +41,57 @@
             "title": "Ballerina configuration",
             "properties": {
                 "ballerina.sdk": {
-                    "type": ["string", "null"],
+                    "type": [
+                        "string",
+                        "null"
+                    ],
                     "default": null,
                     "description": "Specifies the path to the ballerina sdk"
                 }
             }
-        }
+        },
+        "breakpoints": [
+            {
+                "language": "ballerina"
+            }
+        ],
+        "debuggers": [
+            {
+                "type": "ballerina",
+                "label": "Ballerina Debug",
+                "program": "./debugger/index.js",
+                "runtime": "node",
+                "configurationAttributes": {
+                    "attach": {
+                        "required": [
+                            "port",
+                            "host"
+                        ],
+                        "properties": {
+                            "host": {
+                                "type": "string",
+                                "description": "Remote debug server host",
+                                "default": "127.0.0.1"
+                            },
+                            "port": {
+                                "type": "integer",
+                                "description": "Remote debug server port",
+                                "default": 5000
+                            }
+                        }
+                    }
+                },
+                "initialConfigurations": [
+                    {
+                        "type": "ballerina",
+                        "request": "attach",
+                        "name": "Ballerina Remote Debug",
+                        "host": "127.0.0.1",
+                        "port": 5000
+                    }
+                ]
+            }
+        ]
     },
     "main": "./extension.js",
     "scripts": {
@@ -54,7 +99,9 @@
         "test": "node ./node_modules/vscode/bin/test"
     },
     "dependencies": {
-        "vscode": "^1.1.6",
-        "vscode-languageclient": "^3.4.2"
+        "vscode": "^1.1.10",
+        "vscode-debugadapter": "^1.25.0",
+        "vscode-languageclient": "^3.4.2",
+        "ws": "^4.0.0"
     }
 }
