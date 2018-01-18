@@ -27,6 +27,7 @@ import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -199,6 +200,8 @@ public class BTestUtils {
             throw new IllegalStateException("compilation contains errors.");
         }
         ProgramFile programFile = compileResult.getProgFile();
+        Debugger debugger = new Debugger(programFile);
+        programFile.setDebugger(debugger);
         return BLangFunctions.invokeNew(programFile, packageName, functionName, args);
     }
 
@@ -228,6 +231,8 @@ public class BTestUtils {
             throw new IllegalStateException("compilation contains errors.");
         }
         ProgramFile programFile = compileResult.getProgFile();
+        Debugger debugger = new Debugger(programFile);
+        programFile.setDebugger(debugger);
         return BLangFunctions.invokeNew(programFile, programFile.getEntryPkgName(), functionName, args);
     }
 
@@ -251,6 +256,8 @@ public class BTestUtils {
      * @param context       invocation context.
      */
     public static void invoke(CompileResult compileResult, FunctionInfo initFuncInfo, Context context) {
+        Debugger debugger = new Debugger(compileResult.getProgFile());
+        compileResult.getProgFile().setDebugger(debugger);
         BLangFunctions.invokeFunction(compileResult.getProgFile(), initFuncInfo, context);
     }
 
@@ -263,6 +270,8 @@ public class BTestUtils {
         // TODO: improve. How to get the output
         CompileResult result = compile(sourceFilePath);
         ProgramFile programFile = result.getProgFile();
+        Debugger debugger = new Debugger(programFile);
+        programFile.setDebugger(debugger);
 
         // If there is no main or service entry point, throw an error
         if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
