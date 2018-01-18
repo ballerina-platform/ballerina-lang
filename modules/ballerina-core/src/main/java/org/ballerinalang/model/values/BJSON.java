@@ -291,13 +291,13 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
             if (isJSONArray) {
                 long cursor = this.cursor++;
                 if (arity == 1) {
-                    return new BValue[]{new BJSON(collection.value.get((int) cursor))};
+                    return new BValue[] {new BJSON(collection.value.get((int) cursor))};
                 } else {
-                    return new BValue[]{new BInteger(cursor), new BJSON(collection.value.get((int) cursor))};
+                    return new BValue[] {new BInteger(cursor), new BJSON(collection.value.get((int) cursor))};
                 }
             }
             if (arity == 1) {
-                return new BValue[]{new BJSON(iterator.next().getValue())};
+                return new BValue[] {new BJSON(iterator.next().getValue())};
             }
             return null;
         }
@@ -305,10 +305,10 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
         @Override
         public BType[] getParamType(int arity) {
             if (arity == 1) {
-                return new BType[]{BTypes.typeJSON};
+                return new BType[] {BTypes.typeJSON};
             }
             if (arity == 2 && isJSONArray) {
-                return new BType[]{BTypes.typeInt, BTypes.typeJSON};
+                return new BType[] {BTypes.typeInt, BTypes.typeJSON};
             }
             return null;
         }

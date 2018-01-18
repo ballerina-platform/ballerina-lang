@@ -144,17 +144,17 @@ public abstract class BNewArray implements BRefType, BCollection {
         public BValue[] getNext(int arity) {
             long cursor = this.cursor++;
             if (arity == 1) {
-                return new BValue[]{array.getBValue(cursor)};
+                return new BValue[] {array.getBValue(cursor)};
             }
-            return new BValue[]{new BInteger(cursor), array.getBValue(cursor)};
+            return new BValue[] {new BInteger(cursor), array.getBValue(cursor)};
         }
 
         @Override
         public BType[] getParamType(int arity) {
             if (arity == 1) {
-                return new BType[]{((BArrayType) array.getType()).getElementType()};
+                return new BType[] {((BArrayType) array.getType()).getElementType()};
             }
-            return new BType[]{BTypes.typeInt, ((BArrayType) array.getType()).getElementType()};
+            return new BType[] {BTypes.typeInt, ((BArrayType) array.getType()).getElementType()};
         }
 
         @Override
