@@ -33,7 +33,7 @@ const renderSuggestion = (suggestion, value) => {
             <div className='add-new-connector-area'>
                 <a className='add-new-connector-button'>
                     <i className='fw fw-action' />
-                    {' Create new connector "'}
+                    {' Create new action "'}
                     <b>{value.query + '"'}</b>
                 </a>
             </div>
@@ -67,12 +67,7 @@ class LifelineButton extends React.Component {
         this.hideConnectors = this.hideConnectors.bind(this);
         this.showActions = this.showActions.bind(this);
         this.hideActions = this.hideActions.bind(this);
-        /* this.onChange = this.onChange.bind(this);
         this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this);
-        this.onSuggestionsClearRequested = this.onSuggestionsClearRequested.bind(this); */
-
-        this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this);
-        this.onSuggestionsClearRequested = this.onSuggestionsClearRequested.bind(this);
         this.storeInputReference = this.storeInputReference.bind(this);
         this.onChange = this.onChange.bind(this);
         this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
@@ -85,13 +80,6 @@ class LifelineButton extends React.Component {
         if (this.input) {
             this.input.focus();
         }
-    }
-
-    // Autosuggest will call this function every time you need to clear suggestions.
-    onSuggestionsClearRequested() {
-        // this.setState({
-        //     suggestions: [],
-        // });
     }
 
     // Autosuggest will call this function every time you need to update suggestions.
@@ -174,7 +162,6 @@ class LifelineButton extends React.Component {
                 }
             });
         });
-
         return suggestions;
     }
 
@@ -248,7 +235,7 @@ class LifelineButton extends React.Component {
         const { value, suggestions } = this.state;
 
         const inputProps = {
-            placeholder: 'Select Action',
+            placeholder: 'Search',
             value,
             onChange: this.onChange,
         };
@@ -301,16 +288,15 @@ class LifelineButton extends React.Component {
                                 className='connector-select'
                                 // onMouseOut={this.hideConnectors}
                             >
-                                <div
-                                    className='connector-select-close'
-                                    onClick={this.hideConnectors}
-                                >
-                                    <i className='fw fw-left' />
+                                <div className='endpoint-select-header'>
+                                    <div className='connector-select-close'>
+                                        <i onClick={this.hideConnectors} className='nav-button fw fw-left' />
+                                        Select an action
+                                    </div>
                                 </div>
                                 <Autosuggest
                                     suggestions={suggestions}
                                     onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-                                    onSuggestionsClearRequested={this.onSuggestionsClearRequested}
                                     onSuggestionSelected={this.onSuggestionSelected}
                                     getSuggestionValue={this.getSuggestionValue}
                                     renderSuggestion={renderSuggestion}

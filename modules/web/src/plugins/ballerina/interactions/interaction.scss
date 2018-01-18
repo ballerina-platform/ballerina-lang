@@ -115,9 +115,9 @@
 }
 
 .connector-list {
-    width:210px;
+    width:224px;
     overflow-y: hidden;
-    height: 30px;
+    height: 60px;
 	transition-property: all;
 	transition-duration: 0.4s;
 	transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
@@ -141,7 +141,7 @@
 }
 
 .connector-select {
-    width:210px;
+    width:224px;
     overflow-y: hidden;
     min-height: 300px;
     opacity: 1;
@@ -160,20 +160,22 @@
 }
 
 .connector-select input{
-    width:170px;
+    width:214px;
     margin: 5px;
 }
 
 .connector-select ul li {
     background: #eeeeee;
-    padding: 5px 20px !important;
-    width: 210px;
+    padding: 5px 15px !important;
 }
 
 .connector-select ul li .pkg-name {
     font-size: 0.8em;
     font-weight: bold;
-    
+}
+
+.connector-select, .react-autosuggest__suggestions-container {
+    width: 224px;
 }
 
 .react-autosuggest__suggestion--highlighted{
@@ -188,6 +190,7 @@
 
 .add-new-connector-button {
     display: inline-block;
+
 }
 
 .add-new-connector-button:hover {
