@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.95.7 - 2018-01-18
+
+### Added
+- New features from language server v0.95.7
+    - Go to definition
+- Option to configure ballerina sdk path. See [how to](https://github.com/ballerinalang/plugin-vscode#configuring-the-ballerina-sdk-path).
+
+### Fixed
+- Hover and completions LS features not working in windows
+
 ## 0.95.6 - 2017-12-24
 
 ### Added

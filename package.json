@@ -4,6 +4,7 @@
     "description": " Ballerina is a flexible, powerful, beautiful programming language designed for integration",
     "version": "0.95.7",
     "publisher": "WSO2",
+    "repository": "https://github.com/ballerinalang/plugin-vscode",
     "icon": "images/ballerina.png",
     "engines": {
         "vscode": "^1.0.0"
