@@ -55,7 +55,12 @@
                                 <li>
                                     <!--Package Name-->
                                     {{#if active}}
-                                        <a>{{packageName.prefix}}<span class="bold">{{packageName.suffix}}</a>
+                                        {{#if caption.isPackageName}}
+                                            <a>{{caption.prefix}}<span class="bold">{{caption.suffix}}</a>
+                                        {{/if}}
+                                        {{#if caption.isStaticCaption}}
+                                            <a><span class="bold">{{caption.value}}</span></a>
+                                        {{/if}}
                                         <div class="constructs-wrapper">
                                             <!--Construct of Package-->
                                             <ul class="constructs-ul">
@@ -103,8 +108,14 @@
                                             </ul>
                                         </div>
                                     {{else}}
-                                        <a href="{{href}}.html">{{packageName.prefix}}<span
-                                                class="bold">{{packageName.suffix}}</span></a>
+                                        <a href="{{href}}.html">
+                                            {{#if caption.isPackageName}}
+                                                {{caption.prefix}}<span class="bold">{{caption.suffix}}</span>
+                                            {{/if}}
+                                            {{#if caption.isStaticCaption}}
+                                                <span class="bold">{{caption.value}}</span>
+                                            {{/if}}
+                                        </a>
                                     {{/if}}
                                 </li>
                             </ul>
@@ -118,8 +129,10 @@
             <div id="content" class="nano">
                 <div class="nano-content">
                     <h3 class="thin-text padding-bottom">
-                        <span class="bold">{{packageName}}</span>
-                        {{#stringNotEquals packageName "Primitive Types"}}package{{/stringNotEquals}}
+                        <span class="bold">{{heading.value}}</span>
+                        {{#if heading.isPackageName}}
+                             package
+                        {{/if}}
                     </h3>
                     {{#each constructs}}
                         <div class="construct-wrapper">

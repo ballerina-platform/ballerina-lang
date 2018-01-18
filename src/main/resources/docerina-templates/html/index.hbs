@@ -37,7 +37,12 @@
                                 {{#each this}}
                                 <li>
                                     <a href="{{href}}.html">
-                                        {{packageName.prefix}}<span class="bold">{{packageName.suffix}}</span>
+                                        {{#if caption.isPackageName}}
+                                            {{caption.prefix}}<span class="bold">{{caption.suffix}}</span>
+                                        {{/if}}
+                                        {{#if caption.isStaticCaption}}
+                                            <span class="bold">{{caption.value}}</span>
+                                        {{/if}}
                                     </a>
                                 </li>
                                 {{/each}}

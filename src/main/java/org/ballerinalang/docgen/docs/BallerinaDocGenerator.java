@@ -26,6 +26,7 @@ import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
+import org.ballerinalang.docgen.model.StaticCaption;
 import org.ballerinalang.model.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,8 +133,8 @@ public class BallerinaDocGenerator {
     
                 List<Link> packageNameList = PackageName.convertList(packageNames);
                 if (packageNames.contains("ballerina.builtin")) {
-                    PackageName primitivesLinkName = new PackageName("",
-                                                                    BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME);
+                    StaticCaption primitivesLinkName =
+                                                    new StaticCaption(BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME);
                     packageNameList.add(0, new Link(primitivesLinkName, BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF,
                                                                                                                 false));
                 }

@@ -29,6 +29,7 @@ import org.ballerinalang.docgen.model.GlobalVariableDoc;
 import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
+import org.ballerinalang.docgen.model.StaticCaption;
 import org.ballerinalang.docgen.model.StructDoc;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -343,7 +344,7 @@ public class HtmlDocTest {
                                                   "public native function <blob b> sample () (string);");
         List<Link> packages = new ArrayList<>();
         packages.add(new Link(new PackageName((bLangPackage.symbol).pkgID.name.value, ""), "", false));
-        packages.add(new Link(new PackageName("", BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME),
+        packages.add(new Link(new StaticCaption(BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME),
                 BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF, false));
         Page primitivesPage = Generator.generatePageForPrimitives(bLangPackage, packages);
         Assert.assertEquals(primitivesPage.constructs.size(), 1);

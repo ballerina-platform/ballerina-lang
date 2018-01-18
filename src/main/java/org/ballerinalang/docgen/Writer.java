@@ -20,8 +20,6 @@ package org.ballerinalang.docgen;
 
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.Helper;
-import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.context.FieldValueResolver;
 import com.github.jknack.handlebars.helper.StringHelpers;
@@ -56,16 +54,6 @@ public class Writer {
                     new Handlebars().with(new ClassPathTemplateLoader(templatesFolderPath), new FileTemplateLoader(
                             templatesFolderPath));
             handlebars.registerHelpers(StringHelpers.class);
-            handlebars.registerHelper("stringNotEquals", (Helper<String>) (s, options) -> {
-                Options.Buffer buffer = options.buffer();
-                if (options.param(0) instanceof String && s.equals(options.param(0))) {
-                    buffer.append(options.inverse());
-                } else {
-                    buffer.append(options.fn());
-                }
-                return buffer;
-            });
-            
             Template template = handlebars.compile(packageTemplateName);
 
             writer = new PrintWriter(filePath, "UTF-8");
