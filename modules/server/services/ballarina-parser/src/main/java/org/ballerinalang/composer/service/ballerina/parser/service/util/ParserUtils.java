@@ -90,6 +90,21 @@ public class ParserUtils {
     private static final Logger logger = LoggerFactory.getLogger(ParserUtils.class);
 
     /**
+     *
+     * @param directoryCount - packagePath
+     * @param filePath - file path to parent directory of the .bal file
+     * @return parent dir
+     */
+    public static java.nio.file.Path getProgramDirectory(int directoryCount, java.nio.file.Path filePath) {
+        // find program directory
+        java.nio.file.Path parentDir = filePath.getParent();
+        for (int i = 0; i < directoryCount; ++i) {
+            parentDir = parentDir.getParent();
+        }
+        return parentDir;
+    }
+
+    /**
      * This method is designed to generate the Ballerina model and Diagnostic information for a given Ballerina file.
      * saved in the file-system.
      *

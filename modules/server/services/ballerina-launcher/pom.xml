@@ -9,9 +9,14 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>composer-ballerina-parser-service</artifactId>
-    <name>Ballerina Composer - Ballerina Parser Service</name>
+    <artifactId>composer-ballerina-launcher-service</artifactId>
+    <name>Ballerina Composer - Ballerina Launcher Service</name>
     <dependencies>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>composer-ballerina-parser-service</artifactId>
+            <version>${ballerina.composer.server.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-core</artifactId>
@@ -19,18 +24,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-lang</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-builtin</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-http</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
         </dependency>
     </dependencies>
 </project>
