@@ -21,6 +21,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -70,6 +71,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -88,6 +90,35 @@ public class BallerinaParserService implements ComposerService {
     private static final String INVOCATION_TYPE = "invocationType";
     private static final String UNESCAPED_VALUE = "unescapedValue";
     private static final String PACKAGE_REGEX = "package\\s+([a-zA_Z_][\\.\\w]*);";
+
+    @OPTIONS
+    @Path("/built-in-packages")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBuiltInPackages() {
+        return Response.ok()
+                .header("Access-Control-Max-Age", "600 ")
+                .header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Credentials",
+                        "true").header("Access-Control-Allow-Methods", "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
+                .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
+    }
+
+    @GET
+    @Path("/built-in-packages")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response validateAndParseBFile() {
+        JsonObject response = new JsonObject();
+        // add package info into response
+        Gson gson = new Gson();
+        String json = gson.toJson(ParserUtils.getAllPackages().values());
+        JsonParser parser = new JsonParser();
+        JsonArray packagesArray = parser.parse(json).getAsJsonArray();
+        response.add("packages", packagesArray);
+        return Response.status(Response.Status.OK)
+                .entity(response)
+                .header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
+    }
 
     @POST
     @Path("/file/validate-and-parse")
