@@ -240,9 +240,11 @@ public class RequestNativeFunctionNegativeTest {
 
     @Test
     public void testCompilationErrorTestCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
         //testRequestSetStatusCode
         BAssertUtil.validateError(resultNegative, 0,
-                "undefined function 'setStatusCode' in struct 'ballerina.net.http:Request'", 4, 5);
+                "undefined function 'setStatusCode' in struct 'ballerina.net.http:InRequest'", 4, 5);
+        BAssertUtil.validateError(resultNegative, 1,
+                "undefined field 'statusCode' in struct 'ballerina.net.http:InRequest'", 5, 5);
     }
 }

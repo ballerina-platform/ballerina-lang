@@ -7,8 +7,8 @@ service<http> negativeTemplateURI {
         methods:["POST"],
         path:"/echo/{abc}/bar"
     }
-    resource echo1 (http:Connection conn, http:Request req, string abc) {
-        http:Response res = {};
+    resource echo1 (http:Connection conn, http:InRequest req, string abc) {
+        http:OutResponse res = {};
         json responseJson = {"first":abc, "echo":"echo"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -18,8 +18,8 @@ service<http> negativeTemplateURI {
         methods:["POST"],
         path:"/echo/{xyz}/bar"
     }
-    resource echo2 (http:Connection conn, http:Request req, string xyz) {
-        http:Response res = {};
+    resource echo2 (http:Connection conn, http:InRequest req, string xyz) {
+        http:OutResponse res = {};
         json responseJson = {"first":xyz, "echo":"echo"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
