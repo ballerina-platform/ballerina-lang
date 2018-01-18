@@ -572,6 +572,7 @@ public class ProgramFileWriter {
                                              StructFieldInfo structFieldInfo) throws IOException {
         dataOutStream.writeInt(structFieldInfo.nameCPIndex);
         dataOutStream.writeInt(structFieldInfo.signatureCPIndex);
+        dataOutStream.writeInt(structFieldInfo.flags);
 
         // Write attribute info
         writeAttributeInfoEntries(dataOutStream, structFieldInfo.getAttributeInfoEntries());

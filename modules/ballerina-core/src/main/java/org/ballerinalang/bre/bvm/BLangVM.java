@@ -33,6 +33,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.util.StringUtils;
@@ -3223,18 +3224,26 @@ public class BLangVM {
         return getElementType(((BArrayType) type).getElementType());
     }
 
-    public static boolean checkStructEquivalency(BStructType sourceType, BStructType targetType) {
+    public static boolean checkStructEquivalency(BStructType rhsType, BStructType lhsType) {
         // Struct Type equivalency
-        BStructType.StructField[] sFields = sourceType.getStructFields();
-        BStructType.StructField[] tFields = targetType.getStructFields();
+        BStructType.StructField[] rhsFields = rhsType.getStructFields();
+        BStructType.StructField[] lhsFields = lhsType.getStructFields();
 
-        if (tFields.length > sFields.length) {
+        if (lhsFields.length > rhsFields.length) {
             return false;
         }
 
-        for (int i = 0; i < tFields.length; i++) {
-            if (isAssignable(tFields[i].getFieldType(), sFields[i].getFieldType()) &&
-                    tFields[i].getFieldName().equals(sFields[i].getFieldName())) {
+        for (int i = 0; i < lhsFields.length; i++) {
+            // If rhs and lhs packages are not equal, then the lhs filed cannot be private.
+            String rhsFieldPkgPath = rhsType.getPackagePath() != null ? rhsType.getPackagePath() : "";
+            String lhsFieldPkgPath = lhsType.getPackagePath() != null ? lhsType.getPackagePath() : "";
+            if (!(rhsFieldPkgPath.equals(lhsFieldPkgPath)) &&
+                    Flags.isFlagOn(lhsFields[i].flags, Flags.PRIVATE)) {
+                return false;
+            }
+
+            if (isAssignable(lhsFields[i].getFieldType(), rhsFields[i].getFieldType()) &&
+                    lhsFields[i].getFieldName().equals(rhsFields[i].getFieldName())) {
                 continue;
             }
             return false;
@@ -3514,7 +3523,7 @@ public class BLangVM {
         int blobRegIndex = -1;
         int refRegIndex = -1;
 
-        BStructType.StructField[] structFields = ((BStructType) bStruct.getType()).getStructFields();
+        BStructType.StructField[] structFields = (bStruct.getType()).getStructFields();
         BMap<String, BValue> map = BTypes.typeMap.getEmptyValue();
         for (BStructType.StructField structField : structFields) {
             String key = structField.getFieldName();

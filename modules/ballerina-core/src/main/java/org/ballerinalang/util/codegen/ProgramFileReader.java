@@ -402,8 +402,10 @@ public class ProgramFileReader {
                 int fieldTypeSigCPIndex = dataInStream.readInt();
                 UTF8CPEntry fieldTypeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(fieldTypeSigCPIndex);
 
+                int flags = dataInStream.readInt();
+
                 StructFieldInfo fieldInfo = new StructFieldInfo(fieldNameCPIndex, fieldNameUTF8Entry.getValue(),
-                        fieldTypeSigCPIndex, fieldTypeSigUTF8Entry.getValue());
+                        fieldTypeSigCPIndex, fieldTypeSigUTF8Entry.getValue(), flags);
                 structInfo.addFieldInfo(fieldInfo);
 
                 readAttributeInfoEntries(dataInStream, packageInfo, fieldInfo);
@@ -1666,7 +1668,8 @@ public class ProgramFileReader {
                 fieldInfo.setFieldType(fieldType);
 
                 // Create the StructField in the BStructType. This is required for the type equivalence algorithm
-                BStructType.StructField structField = new BStructType.StructField(fieldType, fieldInfo.getName());
+                BStructType.StructField structField = new BStructType.StructField(fieldType,
+                        fieldInfo.getName(), fieldInfo.flags);
                 structFields[i] = structField;
             }
 

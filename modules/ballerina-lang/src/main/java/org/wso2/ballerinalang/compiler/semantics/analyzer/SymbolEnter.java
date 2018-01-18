@@ -641,7 +641,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BStructType structType = (BStructType) struct.symbol.type;
             structType.fields = struct.fields.stream()
                     .peek(field -> defineNode(field, structEnv))
-                    .map(field -> new BStructField(names.fromIdNode(field.name), field.type))
+                    .map(field -> new BStructField(names.fromIdNode(field.name), field.symbol))
                     .collect(Collectors.toList());
         });
     }
