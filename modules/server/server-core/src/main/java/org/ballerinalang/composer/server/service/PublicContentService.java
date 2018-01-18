@@ -21,10 +21,12 @@ import org.ballerinalang.composer.server.spi.ServiceInfo;
 import org.ballerinalang.composer.server.spi.ServiceType;
 import org.wso2.msf4j.Request;
 
+import java.io.File;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+
 
 /**
  * Micro service which exposes public content.
@@ -42,11 +44,21 @@ public class PublicContentService implements ComposerService {
 
     @GET
     public Response handleGet(@Context Request request) {
-        String rawUri = request.getUri();
+        String requestedPath = request.getUri();
         String publicFolder = serverConfig.getPublicFolder();
-        // TODO Add logic to check whether the requested file is in public folder and serve the file,
-        // or 404 if not found
-        return Response.ok().build();
+        String targetFilePath = publicFolder + File.separator;
+        if (requestedPath.trim().length() == 0 || requestedPath.endsWith("/")) {
+            targetFilePath += "index.html";
+        } else if (requestedPath.indexOf('?') != -1) {
+            targetFilePath += requestedPath.substring(0, requestedPath.indexOf('?'));
+        } else {
+            targetFilePath += requestedPath;
+        }
+        File file = new File(targetFilePath);
+        if (file.exists()) {
+            return Response.ok(file).build();
+        }
+        return Response.status(Response.Status.NOT_FOUND).build();
     }
 
     @Override
