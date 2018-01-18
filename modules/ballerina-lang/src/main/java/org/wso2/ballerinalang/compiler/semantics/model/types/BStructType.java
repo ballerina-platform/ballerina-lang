@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.ballerinalang.model.types.StructType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -66,14 +67,14 @@ public class BStructType extends BType implements StructType {
      * @since 0.94
      */
     public static class BStructField implements Field {
-
         public Name name;
-
         public BType type;
+        public BVarSymbol symbol;
 
-        public BStructField(Name name, BType type) {
+        public BStructField(Name name, BVarSymbol symbol) {
             this.name = name;
-            this.type = type;
+            this.symbol = symbol;
+            this.type = symbol.type;
         }
 
         @Override
@@ -83,7 +84,7 @@ public class BStructType extends BType implements StructType {
 
         @Override
         public BType getType() {
-            return type;
+            return symbol.type;
         }
     }
 }

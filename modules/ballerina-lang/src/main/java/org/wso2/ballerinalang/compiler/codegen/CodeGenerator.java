@@ -1798,7 +1798,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             int fieldNameCPIndex = addUTF8CPEntry(currentPkgInfo, structField.name.value);
             int sigCPIndex = addUTF8CPEntry(currentPkgInfo, structField.type.getDesc());
 
-            StructFieldInfo structFieldInfo = new StructFieldInfo(fieldNameCPIndex, sigCPIndex);
+            StructFieldInfo structFieldInfo = new StructFieldInfo(fieldNameCPIndex,
+                    sigCPIndex, structField.symbol.flags);
             structFieldInfo.fieldType = structField.type;
 
             // Populate default values

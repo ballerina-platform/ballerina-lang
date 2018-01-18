@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
@@ -282,22 +282,28 @@ public class Types {
         return isSameType(source, target);
     }
 
-    public boolean checkStructEquivalency(BType actualType, BType expType) {
-        if (actualType.tag != TypeTags.STRUCT || expType.tag != TypeTags.STRUCT) {
+    public boolean checkStructEquivalency(BType rhsType, BType lhsType) {
+        if (rhsType.tag != TypeTags.STRUCT || lhsType.tag != TypeTags.STRUCT) {
             return false;
         }
 
-        BStructType expStructType = (BStructType) expType;
-        BStructType actualStructType = (BStructType) actualType;
-        if (expStructType.fields.size() > actualStructType.fields.size()) {
+        BStructType lhsStructType = (BStructType) lhsType;
+        BStructType rhsStructType = (BStructType) rhsType;
+        if (lhsStructType.fields.size() > rhsStructType.fields.size()) {
             return false;
         }
 
-        for (int i = 0; i < expStructType.fields.size(); i++) {
-            BStructField expStructField = expStructType.fields.get(i);
-            BStructField actualStructField = actualStructType.fields.get(i);
-            if (expStructField.name.equals(actualStructField.name) &&
-                    isSameType(actualStructField.type, expStructField.type)) {
+        for (int i = 0; i < lhsStructType.fields.size(); i++) {
+            // If rhs and lhs packages are not equal, then the lhs filed cannot be private.
+            BStructField lhsStructField = lhsStructType.fields.get(i);
+            if (rhsType.tsymbol.pkgID != lhsType.tsymbol.pkgID &&
+                    !Symbols.isPublic(lhsStructField.symbol)) {
+                return false;
+            }
+
+            BStructField rhsStructField = rhsStructType.fields.get(i);
+            if (lhsStructField.name.equals(rhsStructField.name) &&
+                    isSameType(rhsStructField.type, lhsStructField.type)) {
                 continue;
             }
             return false;
@@ -592,9 +598,9 @@ public class Types {
 
         return false;
     }
-    
+
     private boolean isJSONAssignableType(BType type) {
-        int typeTag = getElementType(type).tag; 
+        int typeTag = getElementType(type).tag;
         return typeTag <= TypeTags.BOOLEAN || typeTag == TypeTags.JSON;
     }
 

@@ -86,10 +86,12 @@ public class BStructType extends BType {
     public static class StructField {
         public BType fieldType;
         public String fieldName;
+        public int flags;
 
-        public StructField(BType fieldType, String fieldName) {
+        public StructField(BType fieldType, String fieldName, int flags) {
             this.fieldType = fieldType;
             this.fieldName = fieldName;
+            this.flags = flags;
         }
 
         public BType getFieldType() {
