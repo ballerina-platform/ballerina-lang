@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.composer.service.ballerina.launcher.spi;
+package org.ballerinalang.composer.service.ballerina.swagger.spi;
 
 import org.ballerinalang.composer.server.core.ServerConfig;
 import org.ballerinalang.composer.server.spi.ComposerService;
 import org.ballerinalang.composer.server.spi.ComposerServiceProvider;
 import org.ballerinalang.composer.server.spi.annotation.ComposerSPIServiceProvider;
-import org.ballerinalang.composer.service.ballerina.launcher.service.BallerinaLauncherService;
+import org.ballerinalang.composer.service.ballerina.swagger.service.BallerinaToSwaggerService;
 
 /**
- * Service Provider for Micro service for ballerina launcher.
+ *  Ballerina To Swagger service provider.
  */
 @ComposerSPIServiceProvider
-public class BallerinaLauncherServiceProvider implements ComposerServiceProvider {
+public class BallerinaToSwaggerServiceProvider implements ComposerServiceProvider {
     @Override
     public ComposerService createService(ServerConfig config) {
-        return new BallerinaLauncherService();
+        return new BallerinaToSwaggerService();
     }
 }

@@ -16,6 +16,7 @@
         <module>logging</module>
         <module>ballerina-parser</module>
         <module>ballerina-launcher</module>
+        <module>ballerina-to-swagger</module>
     </modules>
     <dependencies>
         <dependency>

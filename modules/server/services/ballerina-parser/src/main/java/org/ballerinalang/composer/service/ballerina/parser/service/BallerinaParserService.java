@@ -25,6 +25,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.composer.server.core.ServerConstants;
 import org.ballerinalang.composer.server.spi.ComposerService;
 import org.ballerinalang.composer.server.spi.ServiceInfo;
 import org.ballerinalang.composer.server.spi.ServiceType;
@@ -79,6 +80,7 @@ import javax.ws.rs.core.Response;
 /**
  * Micro service for ballerina parser.
  */
+@Path(ServerConstants.CONTEXT_ROOT + "/" + Constants.SERVICE_PATH)
 public class BallerinaParserService implements ComposerService {
 
     private static final Logger logger = LoggerFactory.getLogger(BallerinaParserService.class);
