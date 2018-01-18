@@ -37,7 +37,7 @@ public class Server {
     private final ServerConfig serverConfig;
     private final ServiceLoader<ComposerServiceProvider> serviceProviderLoader;
     private final MicroservicesRunner microservicesRunner;
-    private final List<ComposerService> serviceList;
+    private List<ComposerService> serviceList;
 
     public Server(ServerConfig config) {
         serverConfig = config;
@@ -71,5 +71,13 @@ public class Server {
 
     public void stop() {
         microservicesRunner.stop();
+    }
+
+    public void setServiceList(List<ComposerService> serviceList) {
+        this.serviceList = serviceList;
+    }
+
+    public List<ComposerService> getServiceList() {
+        return serviceList;
     }
 }

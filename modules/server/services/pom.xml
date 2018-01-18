@@ -3,19 +3,17 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>ballerina-composer-parent</artifactId>
+        <artifactId>composer-server-parent</artifactId>
         <groupId>org.ballerinalang</groupId>
         <version>0.95.1-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>composer-services-parent</artifactId>
     <name>Ballerina Composer - Services Parent</name>
     <packaging>pom</packaging>
     <modules>
-        <module>fs-service</module>
-        <module>log-service</module>
+        <module>file-system</module>
+        <module>logging</module>
     </modules>
     <dependencies>
         <dependency>
@@ -26,7 +24,7 @@
         <dependency>
             <groupId>org.wso2.msf4j</groupId>
             <artifactId>msf4j-core</artifactId>
-            <version>2.5.0</version>
+            <version>${msf4j.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -60,7 +58,6 @@
         </plugins>
     </build>
     <properties>
-        <maven.findbugsplugin.version.exclude></maven.findbugsplugin.version.exclude>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
     </properties>
 </project>
