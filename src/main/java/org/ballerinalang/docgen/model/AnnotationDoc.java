@@ -31,13 +31,12 @@ public class AnnotationDoc extends Documentable {
      * Constructor
      * @param name annotation name
      * @param description description
-     * @param icon icon
      * @param children if there are any children
      * @param attributes annotation attributes
      */
-    public AnnotationDoc(String name, String description, String icon, ArrayList<Documentable> children,
+    public AnnotationDoc(String name, String description, ArrayList<Documentable> children,
                          List<Variable> attributes) {
-        super(name, icon, description, children);
+        super(name, "fw-annotation", description, children);
         this.attributes = attributes;
         isAnnotation = true;
     }

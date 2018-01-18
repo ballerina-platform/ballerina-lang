@@ -32,14 +32,13 @@ public class ActionDoc extends Documentable {
      * Constructor
      * @param name action name
      * @param description description
-     * @param icon icon
      * @param children if there are any children
      * @param parameters parameters of the action
      * @param returnParams return parameters of the action
      */
-    public ActionDoc(String name, String description, String icon, ArrayList<Documentable> children,
+    public ActionDoc(String name, String description, ArrayList<Documentable> children,
                      List<Variable> parameters, List<Variable> returnParams) {
-        super(name, icon, description, children);
+        super(name, "fw-action", description, children);
         this.parameters = parameters;
         this.returnParams = returnParams;
     }

@@ -33,14 +33,13 @@ public class FunctionDoc extends Documentable {
      * Constructor
      * @param name function name
      * @param description description
-     * @param icon icon
      * @param children children if any
      * @param parameters parameters of the function
      * @param returnParams return parameters of the function
      */
-    public FunctionDoc(String name, String icon, String description, ArrayList<Documentable> children,
+    public FunctionDoc(String name, String description, ArrayList<Documentable> children,
                        List<Variable> parameters, List<Variable> returnParams) {
-        super(name, icon, description, children);
+        super(name, "fw-function", description, children);
         this.parameters = parameters;
         this.returnParams = returnParams;
         isFunction = true;

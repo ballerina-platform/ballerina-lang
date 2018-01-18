@@ -30,13 +30,11 @@ public class StructDoc extends Documentable {
      * Constructor
      * @param name struct name
      * @param description description
-     * @param icon icon
      * @param children children if any
      * @param fields struct fields
      */
-    public StructDoc(String name, String description, String icon, ArrayList<Documentable> children,
-                     List<Variable> fields) {
-        super(name, icon, description, children);
+    public StructDoc(String name, String description, ArrayList<Documentable> children, List<Variable> fields) {
+        super(name, "fw-struct", description, children);
         this.fields = fields;
         isStruct = true;
     }

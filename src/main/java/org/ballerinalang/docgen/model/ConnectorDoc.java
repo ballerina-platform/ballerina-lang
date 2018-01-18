@@ -31,13 +31,11 @@ public class ConnectorDoc extends Documentable {
      * Constructor
      * @param name connector name
      * @param description description
-     * @param icon icon
      * @param children connector actions
      * @param parameters parameters of the connector
      */
-    public ConnectorDoc(String name, String description, String icon, List<Documentable> children,
-                        List<Variable> parameters) {
-        super(name, icon, description, children);
+    public ConnectorDoc(String name, String description, List<Documentable> children, List<Variable> parameters) {
+        super(name, "fw-connector", description, children);
         this.parameters = parameters;
         isConnector = true;
     }

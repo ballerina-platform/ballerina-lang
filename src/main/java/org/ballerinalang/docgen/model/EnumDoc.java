@@ -30,13 +30,11 @@ public class EnumDoc extends Documentable {
      * Constructor
      * @param name enum name
      * @param description description
-     * @param icon icon
      * @param children children if any
      * @param enumerators enumerators of the enum
      */
-    public EnumDoc(String name, String description, String icon, ArrayList<Documentable> children,
-                   List<Variable> enumerators) {
-        super(name, icon, description, children);
+    public EnumDoc(String name, String description, ArrayList<Documentable> children, List<Variable> enumerators) {
+        super(name, "fw-constant", description, children);
         this.enumerators = enumerators;
         isEnum = true;
     }
