@@ -32,6 +32,31 @@
             <version>${ballerina.composer.server.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>composer-ballerina-langserver-service</artifactId>
+            <version>${ballerina.composer.server.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>composer-ballerina-launcher-service</artifactId>
+            <version>${ballerina.composer.server.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>composer-ballerina-parser-service</artifactId>
+            <version>${ballerina.composer.server.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>composer-ballerina-to-swagger-service</artifactId>
+            <version>${ballerina.composer.server.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>composer-ballerina-try-it-service</artifactId>
+            <version>${ballerina.composer.server.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.lsp4j</groupId>
             <artifactId>org.eclipse.lsp4j</artifactId>
         </dependency>
