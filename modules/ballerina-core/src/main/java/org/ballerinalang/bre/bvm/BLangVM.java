@@ -691,9 +691,8 @@ public class BLangVM {
                     i = operands[0];
                     cpIndex = operands[1];
                     typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
-                    BType mapType = typeRefCPEntry.getType();
+                    BMapType mapType = (BMapType) typeRefCPEntry.getType();
                     sf.refRegs[i] = new BMap<String, BRefType>(mapType);
-
                     break;
                 case InstructionCodes.NEWJSON:
                     i = operands[0];
@@ -3299,7 +3298,6 @@ public class BLangVM {
                 && targetMapType.getConstrainedType().getTag() == TypeTags.STRUCT_TAG) {
             return checkStructEquivalency((BStructType) sourceMapType.getConstrainedType(),
                     (BStructType) targetMapType.getConstrainedType());
-
         }
 
         return false;

@@ -114,7 +114,7 @@ public class JSONUtils {
                     jsonNode.set(key, ((BFloat) bvalue).floatValue());
                 } else if (bvalue.getType() == BTypes.typeBoolean) {
                     jsonNode.set(key, ((BBoolean) bvalue).booleanValue());
-                } else if (bvalue instanceof BMap) {
+                } else if (bvalue.getType().getTag() == TypeTags.MAP_TAG) {
                     jsonNode.set(key, convertMapToJSON((BMap<String, BValue>) bvalue).value());
                 } else if (bvalue.getType() == BTypes.typeJSON) {
                     jsonNode.set(key, ((BJSON) bvalue).value());
@@ -234,7 +234,7 @@ public class JSONUtils {
             BRefType value = refValueArray.get(i);
             if (value == null) {
                 arrayNode.add(new BJSON(NULL).value());
-            } else if (value instanceof BMap) {
+            } else if (value.getType().getTag() == TypeTags.MAP_TAG) {
                 arrayNode.add(convertMapToJSON((BMap<String, BValue>) value).value());
             } else if (value instanceof BJSON) {
                 arrayNode.add(((BJSON) value).value());
@@ -291,7 +291,7 @@ public class JSONUtils {
                         BValue value = struct.getRefField(++refRegIndex);
                         if (value == null) {
                             jsonNode.set(key, new BJSON(NULL).value());
-                        } else if (value instanceof BMap) {
+                        } else if (value.getType().getTag() == TypeTags.MAP_TAG) {
                             jsonNode.set(key, convertMapToJSON((BMap<String, BValue>) value).value());
                         } else if (value instanceof BJSON) {
                             jsonNode.set(key, ((BJSON) value).value());
@@ -844,7 +844,7 @@ public class JSONUtils {
                 refValueArray = new BRefValueArray(elementType);
                 for (int i = 0; i < arrayNode.size(); i++) {
                     JsonNode element = arrayNode.get(i);
-                    if (elementType instanceof BMapType) {
+                    if (elementType.getTag() == TypeTags.MAP_TAG) {
                         refValueArray.add(i, jsonNodeToBMap(element, (BMapType) elementType));
                     } else if (elementType instanceof BStructType) {
                         refValueArray.add(i, convertJSONNodeToStruct(element, (BStructType) elementType, pkgInfo));

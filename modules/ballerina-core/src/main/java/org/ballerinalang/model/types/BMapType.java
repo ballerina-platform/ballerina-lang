@@ -38,7 +38,9 @@ public class BMapType extends BType implements BIndexedType {
     /**
      * Create a type from the given name.
      *
-     * @param typeName string name of the type
+     * @param typeName   string name of the type.
+     * @param constraint constraint type which particular map is bound to.
+     * @param pkgPath    package for the type.
      */
     public BMapType(String typeName, BType constraint, String pkgPath) {
         super(typeName, pkgPath, BMap.class);
@@ -50,10 +52,22 @@ public class BMapType extends BType implements BIndexedType {
         this.constraint = constraint;
     }
 
+    /**
+     * Returns element types which this map is constrained to.
+     *
+     * @return constraint type.
+     */
     public BType getConstrainedType() {
         return constraint;
     }
 
+    /**
+     * Returns element type which this map contains.
+     *
+     * @return element type.
+     * @deprecated use {@link #getConstrainedType()} instead.
+     */
+    @Deprecated
     public BType getElementType() {
         return constraint;
     }

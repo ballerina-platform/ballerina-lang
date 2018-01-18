@@ -55,7 +55,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
         map = new LinkedHashMap<>();
     }
 
-    public BMap(BType type) {
+    public BMap(BMapType type) {
         this.map = new LinkedHashMap<>();
         this.type = type;
     }
