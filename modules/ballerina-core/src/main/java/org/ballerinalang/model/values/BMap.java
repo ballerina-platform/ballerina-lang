@@ -209,24 +209,24 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
 
         BMapIterator(BMap<K, V> value) {
             collection = value;
-            iterator = collection.map.entrySet().iterator();
+            iterator = new LinkedHashMap<>(value.map).entrySet().iterator();
         }
 
         @Override
         public BValue[] getNext(int arity) {
             Map.Entry<K, V> next = iterator.next();
             if (arity == 1) {
-                return new BValue[]{next.getValue()};
+                return new BValue[] {next.getValue()};
             }
-            return new BValue[]{new BString((String) next.getKey()), next.getValue()};
+            return new BValue[] {new BString((String) next.getKey()), next.getValue()};
         }
 
         @Override
         public BType[] getParamType(int arity) {
             if (arity == 1) {
-                return new BType[]{((BMapType) collection.getType()).getElementType()};
+                return new BType[] {((BMapType) collection.getType()).getElementType()};
             }
-            return new BType[]{BTypes.typeString, ((BMapType) collection.getType()).getElementType()};
+            return new BType[] {BTypes.typeString, ((BMapType) collection.getType()).getElementType()};
         }
 
         @Override

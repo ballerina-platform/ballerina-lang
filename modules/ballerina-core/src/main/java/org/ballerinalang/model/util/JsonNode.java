@@ -293,7 +293,7 @@ public class JsonNode {
     
     public Iterator<Entry<String, JsonNode>> fields() {
         if (this.fields != null) {
-            return this.fields.entrySet().iterator();
+            return new LinkedHashMap<>(this.fields).entrySet().iterator();
         } else {
             return new LinkedHashMap<String, JsonNode>(0).entrySet().iterator();
         }
