@@ -18,6 +18,7 @@
         <module>ballerina-launcher</module>
         <module>ballerina-to-swagger</module>
         <module>ballerina-tryit</module>
+        <module>ballerina-langserver</module>
     </modules>
     <dependencies>
         <dependency>
