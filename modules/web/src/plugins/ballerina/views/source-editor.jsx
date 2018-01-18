@@ -23,7 +23,7 @@ import {
 } from 'monaco-languageclient';
 import debuggerHoc from 'src/plugins/debugger/views/DebuggerHoc';
 import File from 'core/workspace/model/file';
-import { EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
+import { COMMANDS, EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
 import { CONTENT_MODIFIED } from 'plugins/ballerina/constants/events';
 import { GO_TO_POSITION } from 'plugins/ballerina/constants/commands';
 import MonacoEditor from 'react-monaco-editor';
@@ -193,6 +193,34 @@ class SourceEditor extends React.Component {
                         },
                     },
                 });
+
+                editorInstance.onMouseDown((e) => {
+                    if (e.event.ctrlKey) {
+                        e.event.preventDefault();
+                        connection.sendRequest('textDocument/definition', {
+                            textDocument: {
+                                uri: uri.toString(),
+                            },
+                            position: {
+                                line: e.target.position.lineNumber - 1,
+                                character: e.target.position.column - 1,
+                            },
+                        })
+                        .then((result) => {
+                            if (result[0] && result[0].uri && result[0].range) {
+                                this.props.commandProxy.dispatch(COMMANDS.OPEN_FILE, {
+                                    filePath: monaco.Uri.parse(result[0].uri).path,
+                                });
+
+                                this.props.commandProxy.dispatch(COMMANDS.GO_TO_POSITION, {
+                                    row: result[0].range.start.line,
+                                    column: result[0].range.start.character,
+                                });
+                            }
+                        });
+                    }
+                });
+
                 const disposable = languageClient.start();
                 connection.onClose(() => disposable.dispose());
             });
