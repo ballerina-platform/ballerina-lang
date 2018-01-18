@@ -57,6 +57,11 @@
                 <artifactId>org.eclipse.lsp4j.jsonrpc</artifactId>
                 <version>${lsp4j.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${google.guava.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <build>
@@ -95,5 +100,6 @@
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
         <jackson.core.version>2.4.5</jackson.core.version>
         <ballerina.composer.server.version>0.95.1-SNAPSHOT</ballerina.composer.server.version>
+        <google.guava.version>21.0</google.guava.version>
     </properties>
 </project>

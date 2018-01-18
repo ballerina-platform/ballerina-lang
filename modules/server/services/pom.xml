@@ -14,6 +14,7 @@
     <modules>
         <module>file-system</module>
         <module>logging</module>
+        <module>ballarina-parser</module>
     </modules>
     <dependencies>
         <dependency>
