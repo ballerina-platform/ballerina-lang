@@ -19,7 +19,7 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>composer-server-core</artifactId>
-            <version>${ballerina.version}</version>
+            <version>${ballerina.composer.server.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.msf4j</groupId>
@@ -28,25 +28,9 @@
     </dependencies>
     <build>
         <plugins>
-            <!-- Generate JAVA SPI configs -->
             <plugin>
                 <groupId>org.bsc.maven</groupId>
                 <artifactId>maven-processor-plugin</artifactId>
-                <version>${mvn.processor.plugin.version}</version>
-                <configuration>
-                    <processors>
-                        <processor>org.ballerinalang.composer.server.processor.ComposerServiceProcessor</processor>
-                    </processors>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>process</id>
-                        <goals>
-                            <goal>process</goal>
-                        </goals>
-                        <phase>generate-sources</phase>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

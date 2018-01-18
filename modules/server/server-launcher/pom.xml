@@ -19,7 +19,7 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>composer-server-core</artifactId>
-            <version>${ballerina.version}</version>
+            <version>${ballerina.composer.server.version}</version>
         </dependency>
         <dependency>
             <groupId>com.beust</groupId>

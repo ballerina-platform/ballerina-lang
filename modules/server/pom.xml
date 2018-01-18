@@ -16,8 +16,8 @@
     <modules>
         <module>server-core</module>
         <module>server-launcher</module>
-        <module>distribution</module>
         <module>services</module>
+        <module>distribution</module>
     </modules>
     <dependencyManagement>
         <dependencies>
@@ -47,8 +47,44 @@
                 <artifactId>jackson-annotations</artifactId>
                 <version>${jackson.core.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.eclipse.lsp4j</groupId>
+                <artifactId>org.eclipse.lsp4j</artifactId>
+                <version>${lsp4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.lsp4j</groupId>
+                <artifactId>org.eclipse.lsp4j.jsonrpc</artifactId>
+                <version>${lsp4j.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- Generate JAVA SPI configs -->
+                <plugin>
+                    <groupId>org.bsc.maven</groupId>
+                    <artifactId>maven-processor-plugin</artifactId>
+                    <version>${mvn.processor.plugin.version}</version>
+                    <configuration>
+                        <processors>
+                            <processor>org.ballerinalang.composer.server.processor.ComposerServiceProcessor</processor>
+                        </processors>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>process</id>
+                            <goals>
+                                <goal>process</goal>
+                            </goals>
+                            <phase>generate-sources</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
     <properties>
         <project.build.sourceEncoding>${file.encoding}</project.build.sourceEncoding>
         <org.wso2.transport.http.version>6.0.63</org.wso2.transport.http.version>
@@ -58,6 +94,6 @@
         <msf4j.version>2.5.0</msf4j.version>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
         <jackson.core.version>2.4.5</jackson.core.version>
-        <ballerina.version>0.95.1-SNAPSHOT</ballerina.version>
+        <ballerina.composer.server.version>0.95.1-SNAPSHOT</ballerina.composer.server.version>
     </properties>
 </project>

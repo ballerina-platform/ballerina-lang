@@ -12,14 +12,32 @@
     <name>Ballerina Composer - Server Distribution</name>
     <dependencies>
         <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>composer-server-core</artifactId>
+            <version>${ballerina.composer.server.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>composer-server-launcher</artifactId>
+            <version>${ballerina.composer.server.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>composer-fs-service</artifactId>
+            <version>${ballerina.composer.server.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>composer-log-service</artifactId>
+            <version>${ballerina.composer.server.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.lsp4j</groupId>
             <artifactId>org.eclipse.lsp4j</artifactId>
-            <version>${lsp4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.lsp4j</groupId>
             <artifactId>org.eclipse.lsp4j.jsonrpc</artifactId>
-            <version>${lsp4j.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>
@@ -85,12 +103,10 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.core.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.core.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
@@ -99,7 +115,6 @@
         <dependency>
             <groupId>org.wso2.transport.http</groupId>
             <artifactId>org.wso2.transport.http.netty</artifactId>
-            <version>${org.wso2.transport.http.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.msf4j</groupId>
@@ -108,11 +123,6 @@
         <dependency>
             <groupId>com.beust</groupId>
             <artifactId>jcommander</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.jknack</groupId>
-            <artifactId>handlebars</artifactId>
-            <version>4.0.6</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.msf4j.example</groupId>
@@ -124,4 +134,58 @@
             <artifactId>language-server-core</artifactId>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${maven.shadeplugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>${composer.server.launcher.main}</mainClass>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                            </transformers>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>com.github.jknack:handlebars</exclude>
+                                    <exclude>org.ballerinalang:ballerina-core</exclude>
+                                    <exclude>org.ballerinalang:ballerina-lang</exclude>
+                                    <exclude>org.ballerinalang:ballerina-http</exclude>
+                                    <exclude>org.wso2.orbit.org.antlr:antlr4-runtime</exclude>
+                                    <exclude>org.apache.ws.commons.axiom:axiom-dom</exclude>
+                                    <exclude>org.wso2.staxon:staxon-core</exclude>
+                                    <exclude>commons-pool.wso2:commons-pool</exclude>
+                                    <exclude>org.wso2.carbon.utils:carbon-utils</exclude>
+                                    <exclude>org.wso2.orbit.org.yaml:snakeyaml</exclude>
+                                    <exclude>org.yaml:snakeyaml</exclude>
+                                    <exclude>org.atomikos.wso2:atomikos</exclude>
+                                </excludes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <properties>
+        <composer.server.launcher.main>org.ballerinalang.composer.server.launcher.ServerLauncher</composer.server.launcher.main>
+    </properties>
 </project>
