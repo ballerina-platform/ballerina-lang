@@ -19,7 +19,7 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>composer-server-core</artifactId>
-            <version>0.95.1-SNAPSHOT</version>
+            <version>${ballerina.version}</version>
         </dependency>
         <dependency>
             <groupId>com.beust</groupId>
@@ -28,19 +28,14 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.core.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.core.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
         </dependency>
     </dependencies>
-    <properties>
-        <jackson.core.version>2.4.5</jackson.core.version>
-    </properties>
 </project>
