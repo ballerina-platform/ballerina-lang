@@ -12,14 +12,16 @@ const string HEADER_KEY_EXPECT = "Expect";
 @Return {value:"The first header value struct for the provided header name. Returns null if the header does not exist."}
 public function <InRequest req> getHeader (string headerName) (mime:HeaderValue) {
     mime:Entity entity = req.getEntityWithoutBody();
-    if (entity.headers == null) {
-        return null;
-    }
-    var headerValues = entity.headers[headerName];
-    if (headerValues == null) {
-        return null;
-    }
-    return getHeaderValueArray(headerValues, headerName)[0];
+    return getHeadersFromEntity(entity, headerName)[0];
+}
+
+@Description {value:"Gets a transport header from the outbound request"}
+@Param {value:"req: A outbound request message"}
+@Param {value:"headerName: The header name"}
+@Return {value:"The first header value struct for the provided header name. Returns null if the header does not exist."}
+public function <OutRequest req> getHeader (string headerName) (mime:HeaderValue) {
+    mime:Entity entity = req.getEntityWithoutBody();
+    return getHeadersFromEntity(entity, headerName)[0];
 }
 
 @Description {value:"Adds the specified key/value pair as an HTTP header to the outbound request"}
@@ -47,14 +49,16 @@ public function <OutRequest req> addHeader (string headerName, string headerValu
 @Return {value:"The header values struct array for a given header name"}
 public function <InRequest req> getHeaders (string headerName) (mime:HeaderValue[]) {
     mime:Entity entity = req.getEntityWithoutBody();
-    if (entity.headers == null) {
-        return null;
-    }
-    var headerValues = entity.headers[headerName];
-    if (headerValues == null) {
-        return null;
-    }
-    return getHeaderValueArray(headerValues, headerName);
+    return getHeadersFromEntity(entity, headerName);
+}
+
+@Description {value:"Gets transport headers from the outbound request"}
+@Param {value:"req: A outbound request message"}
+@Param {value:"headerName: The header name"}
+@Return {value:"The header values struct array for a given header name"}
+public function <OutRequest req> getHeaders (string headerName) (mime:HeaderValue[]) {
+    mime:Entity entity = req.getEntityWithoutBody();
+    return getHeadersFromEntity(entity, headerName);
 }
 
 @Description {value:"Sets the value of a transport header"}

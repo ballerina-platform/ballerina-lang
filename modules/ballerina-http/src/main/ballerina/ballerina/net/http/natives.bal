@@ -168,16 +168,6 @@ native function <OutResponse res> getEntityWithoutBody () (mime:Entity);
 @Return { value:"Entity of the response" }
 public native function <OutResponse res> setEntity (mime:Entity entity);
 
-@Description { value:"Sets the HTTP status code of the response"}
-@Param { value:"res: The outbound response message" }
-@Param { value:"statusCode: HTTP status code" }
-public native function <OutResponse res> setStatusCode (int statusCode);
-
-@Description { value:"Sets a custom HTTP Reason phrase"}
-@Param { value:"res: The outbound response message" }
-@Param { value:"reasonPhrase: Reason phrase value" }
-public native function <OutResponse res> setReasonPhrase (string reasonPhrase);
-
 @Description { value:"Sets a response property"}
 @Param { value:"res: The outbound response message" }
 @Param { value:"propertyName: The name of the property" }
@@ -397,8 +387,8 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 
 	@Description { value:"forward action can be used to invoke an HTTP call with inbound request HTTPVerb"}
 	@Param { value:"path: Request path" }
-	@Param { value:"req: An HTTP outbound request message" }
+	@Param { value:"req: An HTTP inbound request message" }
 	@Return { value:"The inbound response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
-	native action forward (string path, OutRequest req) (InResponse, HttpConnectorError);
+	native action forward (string path, InRequest req) (InResponse, HttpConnectorError);
 }

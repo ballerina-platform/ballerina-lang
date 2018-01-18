@@ -9,14 +9,16 @@ import ballerina.file;
 @Return {value:"The first header value struct for the provided header name. Returns null if the header does not exist."}
 public function <InResponse res> getHeader (string headerName) (mime:HeaderValue) {
     mime:Entity entity = res.getEntityWithoutBody();
-    if (entity.headers == null) {
-        return null;
-    }
-    var headerValues = entity.headers[headerName];
-    if (headerValues == null) {
-        return null;
-    }
-    return getHeaderValueArray(headerValues, headerName)[0];
+    return getHeadersFromEntity(entity, headerName)[0];
+}
+
+@Description {value:"Gets the named HTTP header from the outbound response"}
+@Param {value:"res: The outbound response struct"}
+@Param {value:"headerName: The header name"}
+@Return {value:"The first header value struct for the provided header name. Returns null if the header does not exist."}
+public function <OutResponse res> getHeader (string headerName) (mime:HeaderValue) {
+    mime:Entity entity = res.getEntityWithoutBody();
+    return getHeadersFromEntity(entity, headerName)[0];
 }
 
 @Description {value:"Adds the specified key/value pair as an HTTP header to the outbound response"}
@@ -44,14 +46,16 @@ public function <OutResponse res> addHeader (string headerName, string headerVal
 @Return {value:"The header values struct array for a given header name"}
 public function <InResponse res> getHeaders (string headerName) (mime:HeaderValue[]) {
     mime:Entity entity = res.getEntityWithoutBody();
-    if (entity.headers == null) {
-        return null;
-    }
-    var headerValues = entity.headers[headerName];
-    if (headerValues == null) {
-        return null;
-    }
-    return getHeaderValueArray(headerValues, headerName);
+    return getHeadersFromEntity(entity, headerName);
+}
+
+@Description {value:"Gets the HTTP headers from the outbound response"}
+@Param {value:"res: The outbound response message"}
+@Param {value:"headerName: The header name"}
+@Return {value:"The header values struct array for a given header name"}
+public function <OutResponse res> getHeaders (string headerName) (mime:HeaderValue[]) {
+    mime:Entity entity = res.getEntityWithoutBody();
+    return getHeadersFromEntity(entity, headerName);
 }
 
 @Description {value:"Sets the value of a transport header"}

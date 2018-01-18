@@ -19,9 +19,7 @@
 package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -29,14 +27,9 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.util.codegen.AnnAttachmentInfo;
-import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
-import static org.ballerinalang.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 
 /**
@@ -63,37 +56,16 @@ public class Respond extends AbstractNativeFunction {
         BStruct outboundResponseStruct = (BStruct) getRefArgument(context, 1);
         HTTPCarbonMessage requestMessage = HttpUtil.getCarbonMsg(connectionStruct, null);
 
-        HttpUtil.checkFunctionValidity(connectionStruct, requestMessage);
+        HttpUtil.checkFunctionValidity(connectionStruct, requestMessage, outboundResponseStruct);
         HTTPCarbonMessage responseMessage = HttpUtil
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
-        AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
-                Constants.PROTOCOL_PACKAGE_HTTP, Constants.ANN_NAME_CONFIG);
+        HttpUtil.setKeepAliveHeader(context, responseMessage);
 
-        if (configAnn != null) {
-            AnnAttributeValue keepAliveAttrVal = configAnn.getAttributeValue(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE);
-
-            if (keepAliveAttrVal != null && !keepAliveAttrVal.getBooleanValue()) {
-                responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_CLOSE);
-            } else {
-                // default behaviour: keepAlive = true
-                responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
-            }
-        } else {
-            // default behaviour: keepAlive = true
-            responseMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
-        }
         BStruct entity = (BStruct) outboundResponseStruct.getNativeData(MESSAGE_ENTITY);
         if (entity == null) {
-            entity = ConnectorUtils.createAndGetStruct(context,
-                    org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
-                    org.ballerinalang.mime.util.Constants.ENTITY);
-            entity.setRefField(ENTITY_HEADERS_INDEX, new BMap<>());
-            outboundResponseStruct.addNativeData(MESSAGE_ENTITY, entity);
-            outboundResponseStruct.addNativeData(IS_ENTITY_BODY_PRESENT, false);
+            HttpUtil.setNewEntitiyToStruct(context, outboundResponseStruct);
         }
-        if (entity.getRefField(ENTITY_HEADERS_INDEX) != null) {
-            HttpUtil.setHeadersToTransportMessage(responseMessage, outboundResponseStruct);
-        }
+        HttpUtil.enrichOutboundMessage(responseMessage, outboundResponseStruct);
 
         return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage,
                 outboundResponseStruct);
