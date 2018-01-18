@@ -14,7 +14,7 @@
     <modules>
         <module>file-system</module>
         <module>logging</module>
-        <module>ballarina-parser</module>
+        <module>ballerina-parser</module>
         <module>ballerina-launcher</module>
     </modules>
     <dependencies>
