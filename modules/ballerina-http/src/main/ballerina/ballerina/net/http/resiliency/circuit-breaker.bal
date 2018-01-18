@@ -22,148 +22,148 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failurePercen
     // TODO: once enum init inside a struct is do-able, move this inside circuitHealth (issue #4340)
     CircuitState currentState = CircuitState.CLOSE;
 
-    action post (string path, http:Request req) (http:Response, http:HttpConnectorError) {
+    action post (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         currentState = updateCircuitState(circuitHealth, currentState, failurePercentageThreshold, resetTimeout);
-        http:Response res;
-        http:HttpConnectorError e;
+        http:Response response;
+        http:HttpConnectorError err;
 
         if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            res = handleOpenCircuit(circuitHealth, resetTimeout);
+            response = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
-            res, e = httpEP.post(path, req);
-            updateCircuitHealth(circuitHealth, e);
+            response, err = httpEP.post(path, request);
+            updateCircuitHealth(circuitHealth, err);
         }
 
-        return res, e;
+        return response, err;
     }
 
-    action head (string path, http:Request req) (http:Response, http:HttpConnectorError) {
+    action head (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         currentState = updateCircuitState(circuitHealth, currentState, failurePercentageThreshold, resetTimeout);
-        http:Response res;
-        http:HttpConnectorError e;
+        http:Response response;
+        http:HttpConnectorError err;
 
         if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            res = handleOpenCircuit(circuitHealth, resetTimeout);
+            response = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
-            res, e = httpEP.head(path, req);
-            updateCircuitHealth(circuitHealth, e);
+            response, err = httpEP.head(path, request);
+            updateCircuitHealth(circuitHealth, err);
         }
 
-        return res, e;
+        return response, err;
     }
 
-    action put (string path, http:Request req) (http:Response, http:HttpConnectorError) {
+    action put (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         currentState = updateCircuitState(circuitHealth, currentState, failurePercentageThreshold, resetTimeout);
-        http:Response res;
-        http:HttpConnectorError e;
+        http:Response response;
+        http:HttpConnectorError err;
 
         if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            res = handleOpenCircuit(circuitHealth, resetTimeout);
+            response = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
-            res, e = httpEP.put(path, req);
-            updateCircuitHealth(circuitHealth, e);
+            response, err = httpEP.put(path, request);
+            updateCircuitHealth(circuitHealth, err);
         }
 
-        return res, e;
+        return response, err;
     }
 
-    action execute (string httpVerb, string path, http:Request req) (http:Response, http:HttpConnectorError) {
+    action execute (string httpVerb, string path, http:Request request) (http:Response, http:HttpConnectorError) {
         currentState = updateCircuitState(circuitHealth, currentState, failurePercentageThreshold, resetTimeout);
-        http:Response res;
-        http:HttpConnectorError e;
+        http:Response response;
+        http:HttpConnectorError err;
 
         if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            res = handleOpenCircuit(circuitHealth, resetTimeout);
+            response = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
-            res, e = httpEP.execute(httpVerb, path, req);
-            updateCircuitHealth(circuitHealth, e);
+            response, err = httpEP.execute(httpVerb, path, request);
+            updateCircuitHealth(circuitHealth, err);
         }
 
-        return res, e;
+        return response, err;
     }
 
-    action patch (string path, http:Request req) (http:Response, http:HttpConnectorError) {
+    action patch (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         currentState = updateCircuitState(circuitHealth, currentState, failurePercentageThreshold, resetTimeout);
-        http:Response res;
-        http:HttpConnectorError e;
+        http:Response response;
+        http:HttpConnectorError err;
 
         if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            res = handleOpenCircuit(circuitHealth, resetTimeout);
+            response = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
-            res, e = httpEP.patch(path, req);
-            updateCircuitHealth(circuitHealth, e);
+            response, err = httpEP.patch(path, request);
+            updateCircuitHealth(circuitHealth, err);
         }
 
-        return res, e;
+        return response, err;
     }
 
-    action delete (string path, http:Request req) (http:Response, http:HttpConnectorError) {
+    action delete (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         currentState = updateCircuitState(circuitHealth, currentState, failurePercentageThreshold, resetTimeout);
-        http:Response res;
-        http:HttpConnectorError e;
+        http:Response response;
+        http:HttpConnectorError err;
 
         if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            res = handleOpenCircuit(circuitHealth, resetTimeout);
+            response = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
-            res, e = httpEP.delete(path, req);
-            updateCircuitHealth(circuitHealth, e);
+            response, err = httpEP.delete(path, request);
+            updateCircuitHealth(circuitHealth, err);
         }
 
-        return res, e;
+        return response, err;
     }
 
-    action options (string path, http:Request req) (http:Response, http:HttpConnectorError) {
+    action options (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         currentState = updateCircuitState(circuitHealth, currentState, failurePercentageThreshold, resetTimeout);
-        http:Response res;
-        http:HttpConnectorError e;
+        http:Response response;
+        http:HttpConnectorError err;
 
         if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            res = handleOpenCircuit(circuitHealth, resetTimeout);
+            response = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
-            res, e = httpEP.options(path, req);
-            updateCircuitHealth(circuitHealth, e);
+            response, err = httpEP.options(path, request);
+            updateCircuitHealth(circuitHealth, err);
         }
 
-        return res, e;
+        return response, err;
     }
 
-    action forward (string path, http:Request req) (http:Response, http:HttpConnectorError) {
+    action forward (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         currentState = updateCircuitState(circuitHealth, currentState, failurePercentageThreshold, resetTimeout);
-        http:Response res;
-        http:HttpConnectorError e;
+        http:Response response;
+        http:HttpConnectorError err;
 
         if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            res = handleOpenCircuit(circuitHealth, resetTimeout);
+            response = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
-            res, e = httpEP.forward(path, req);
-            updateCircuitHealth(circuitHealth, e);
+            response, err = httpEP.forward(path, request);
+            updateCircuitHealth(circuitHealth, err);
         }
 
-        return res, e;
+        return response, err;
     }
 
-    action get (string path, http:Request req) (http:Response, http:HttpConnectorError) {
+    action get (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         currentState = updateCircuitState(circuitHealth, currentState, failurePercentageThreshold, resetTimeout);
-        http:Response res;
-        http:HttpConnectorError e;
+        http:Response response;
+        http:HttpConnectorError err;
 
         if (currentState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            res = handleOpenCircuit(circuitHealth, resetTimeout);
+            response = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
-            res, e = httpEP.get(path, req);
-            updateCircuitHealth(circuitHealth, e);
+            response, err = httpEP.get(path, request);
+            updateCircuitHealth(circuitHealth, err);
         }
 
-        return res, e;
+        return response, err;
     }
 }
 
