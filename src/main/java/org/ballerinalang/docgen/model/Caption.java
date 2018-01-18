@@ -21,10 +21,10 @@ package org.ballerinalang.docgen.model;
 /**
  * Parent class for the value in a {@link Link}.
  */
-public class Linkable {
+public class Caption {
     public final String value;
     
-    public Linkable(String value) {
+    public Caption(String value) {
         this.value = value;
     }
 }

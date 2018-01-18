@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 /**
  * Documentation model for representing a package name.
  */
-public class PackageName extends Linkable {
+public class PackageName extends Caption {
     public final boolean isPackageName;
     public final String prefix;
     public final String suffix;

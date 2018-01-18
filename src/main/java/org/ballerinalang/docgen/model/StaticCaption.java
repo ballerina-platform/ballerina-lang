@@ -21,11 +21,11 @@ package org.ballerinalang.docgen.model;
 /**
  * Represents a regular text which can be the value of a {@link Link}
  */
-public class Text extends Linkable {
-    public final boolean isText;
+public class StaticCaption extends Caption {
+    public final boolean isStaticCaption;
     
-    public Text(String text) {
+    public StaticCaption(String text) {
         super(text);
-        this.isText = true;
+        this.isStaticCaption = true;
     }
 }

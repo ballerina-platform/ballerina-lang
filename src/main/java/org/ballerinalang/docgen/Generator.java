@@ -30,8 +30,8 @@ import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.PrimitiveTypeDoc;
+import org.ballerinalang.docgen.model.StaticCaption;
 import org.ballerinalang.docgen.model.StructDoc;
-import org.ballerinalang.docgen.model.Text;
 import org.ballerinalang.docgen.model.Variable;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotatableNode;
@@ -193,7 +193,7 @@ public class Generator {
             }
         }
     
-        Text primitivesPageHeading = new Text(BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME);
+        StaticCaption primitivesPageHeading = new StaticCaption(BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME);
         return new Page(primitivesPageHeading, primitiveTypes, links);
     }
     

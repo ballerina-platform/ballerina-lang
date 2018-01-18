@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class Page {
 
-    public final Linkable heading;
+    public final Caption heading;
     public final List<Documentable> constructs;
     public final List<Link> links;
 
@@ -35,7 +35,7 @@ public class Page {
      * @param constructs constructs in the package
      * @param links links to the other packages
      */
-    public Page(Linkable heading, ArrayList<Documentable> constructs, List<Link> links) {
+    public Page(Caption heading, ArrayList<Documentable> constructs, List<Link> links) {
         this.heading = heading;
         this.constructs = constructs;
         this.links = links;
