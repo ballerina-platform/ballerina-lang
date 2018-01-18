@@ -45,7 +45,7 @@ public class PublicContentService implements ComposerService {
     @GET
     public Response handleGet(@Context Request request) {
         String requestedPath = request.getUri();
-        String publicFolder = serverConfig.getPublicFolder();
+        String publicFolder = serverConfig.getPublicPath();
         String targetFilePath = publicFolder + File.separator;
         if (requestedPath.trim().length() == 0 || requestedPath.endsWith("/")) {
             targetFilePath += "index.html";

@@ -28,6 +28,6 @@ import org.ballerinalang.composer.service.ballerina.launcher.service.BallerinaLa
 public class BallerinaLauncherServiceProvider implements ComposerServiceProvider {
     @Override
     public ComposerService createService(ServerConfig config) {
-        return new BallerinaLauncherService();
+        return new BallerinaLauncherService(config);
     }
 }

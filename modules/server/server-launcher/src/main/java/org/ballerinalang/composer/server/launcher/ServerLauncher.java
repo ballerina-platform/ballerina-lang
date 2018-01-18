@@ -36,8 +36,10 @@ import java.net.ServerSocket;
  * Launcher for ballerina composer backend server.
  */
 public class ServerLauncher {
-
+    private static final String PROP_BALLERINA_HOME = "ballerina.home";
     private static final String PROP_COMPOSER_CONFIG_PATH = "composer.config.path";
+    private static final String PROP_MSF4J_HOST = "msf4j.host";
+    private static final String DEFAULT_INTERFACE = "127.0.0.1";
     private static final int DEFAULT_PORT = 8089;
 
     private static Logger logger;
@@ -74,6 +76,13 @@ public class ServerLauncher {
             return;
         }
         ServerConfig config = new ServerConfig();
+        // get ballerina home - give precedence to ballerina home defined in config file
+        // by reading from props or env before reading from config file
+        String balHome = System.getProperty(PROP_BALLERINA_HOME);
+        if (balHome == null) {
+            balHome = System.getenv(PROP_BALLERINA_HOME);
+        }
+        config.setBallerinaHome(balHome);
         // reading configurations from config yaml file
         String configFilePath = System.getProperty(PROP_COMPOSER_CONFIG_PATH);
         if (configFilePath != null) {
@@ -89,29 +98,40 @@ public class ServerLauncher {
         }
         // give precedence to command line arg for port
         if (cmdLineArgs.port != null) {
-            config.setServerPort(cmdLineArgs.port);
+            config.setPort(cmdLineArgs.port);
         }
         // if no port is provided via cmd args or config file, try to grab an open port
-        if (config.getServerPort() == 0) {
-            config.setServerPort(getAvailablePort(DEFAULT_PORT));
+        if (config.getPort() == 0) {
+            config.setPort(getAvailablePort(DEFAULT_PORT));
         }
         // if the selected port is not available, print an error & exit
-        if (!isPortAvailable(config.getServerPort())) {
+        if (!isPortAvailable(config.getPort())) {
             PrintStream err = System.err;
             err.println("Error: Looks like you may be running the Ballerina composer already ?");
             err.println(String.format("In any case, it appears someone is already using port %d, " +
-                    "please kick them out or tell me a different port to use.", config.getServerPort()));
+                    "please kick them out or tell me a different port to use.", config.getPort()));
             printUsage();
             System.exit(1);
         }
+        // give precedence to interface provided via cmd args
+        if (cmdLineArgs.host != null) {
+            config.setHost(cmdLineArgs.host);
+        }
+        // if interface is not provided via config file or cmd args, bind to default interface
+        if (config.getHost() == null) {
+            config.setHost(DEFAULT_INTERFACE);
+        }
+        // set msf4j host property
+        System.setProperty(PROP_MSF4J_HOST, config.getHost());
         // give precedence to command line arg for public folder
         if (cmdLineArgs.publicPath != null) {
-            config.setPublicFolder(cmdLineArgs.publicPath);
+            config.setPublicPath(cmdLineArgs.publicPath);
         }
         Server server = new Server(config);
         try {
             server.start();
-            logger.info("Composer started successfully at http://localhost:" + config.getServerPort());
+            logger.info("Composer started successfully at http://" + config.getHost()
+                    + ":" + config.getPort());
         } catch (Exception e) {
             logger.error("Error while starting Composer Backend Server.", e);
         }
@@ -122,9 +142,10 @@ public class ServerLauncher {
         out.println("");
         out.println("Usage: composer [options]");
         out.println("  Options:");
-        out.println("    --port <port_number>      Specify a custom port for file server to start.");
-        out.println("    --file <file path>        Specify a Ballerina program file to open at the startup.");
-        out.println("    --help -h help            for more information.");
+        out.println("    --port <port_number>           Specify a custom port for file server to start.");
+        out.println("    --host <interface>             Specify a custom interface to bind the server.");
+        out.println("    --publicPath <public_path>     Specify a custom path to server the public content from.");
+        out.println("    --help -h help                 for more information.");
         out.println("");
     }
 

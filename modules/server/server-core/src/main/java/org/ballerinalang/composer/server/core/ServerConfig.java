@@ -22,33 +22,53 @@ import java.util.Map;
  */
 public class ServerConfig {
 
-    private int serverPort;
+    private int port;
 
-    private String publicFolder;
+    private String host;
 
-    private Map<String, String> serviceConfigs;
+    private String ballerinaHome;
 
-    public int getServerPort() {
-        return serverPort;
+    private String publicPath;
+
+    private Map<String, Map<String, String>> customConfigs;
+
+    public int getPort() {
+        return port;
     }
 
-    public void setServerPort(int serverPort) {
-        this.serverPort = serverPort;
+    public void setPort(int port) {
+        this.port = port;
     }
 
-    public String getPublicFolder() {
-        return publicFolder;
+    public String getHost() {
+        return host;
     }
 
-    public void setPublicFolder(String publicFolder) {
-        this.publicFolder = publicFolder;
+    public void setHost(String host) {
+        this.host = host;
     }
 
-    public Map<String, String> getServiceConfigs() {
-        return serviceConfigs;
+    public String getBallerinaHome() {
+        return ballerinaHome;
     }
 
-    public void setServiceConfigs(Map<String, String> serviceConfigs) {
-        this.serviceConfigs = serviceConfigs;
+    public void setBallerinaHome(String ballerinaHome) {
+        this.ballerinaHome = ballerinaHome;
+    }
+
+    public String getPublicPath() {
+        return publicPath;
+    }
+
+    public void setPublicPath(String publicPath) {
+        this.publicPath = publicPath;
+    }
+
+    public Map<String, Map<String, String>> getCustomConfigs() {
+        return customConfigs;
+    }
+
+    public void setCustomConfigs(Map<String, Map<String, String>> customConfigs) {
+        this.customConfigs = customConfigs;
     }
 }

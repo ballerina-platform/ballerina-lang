@@ -22,9 +22,11 @@ import org.ballerinalang.composer.server.spi.ComposerService;
 import org.ballerinalang.composer.server.spi.ServiceInfo;
 import org.ballerinalang.composer.server.spi.ServiceType;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -33,30 +35,52 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- * Micro service which provides information about endpoints.
+ * Micro service which exposes configs to via http.
  */
-@Path(ServerConstants.CONTEXT_ROOT + "/" + EndpointInfoService.PATH)
-public class EndpointInfoService implements ComposerService {
-    static final String NAME = "endpointinfo";
-    static final String PATH = "endpoint";
+@Path(ServerConstants.CONTEXT_ROOT + "/" + ConfigService.PATH)
+public class ConfigService implements ComposerService {
+    static final String NAME = "config";
+    static final String PATH = "config";
     private final Map<String, ServiceInfo> serviceEPMap;
     private final ServerConfig serverConfig;
 
-    public EndpointInfoService(ServerConfig serverConfig, List<ComposerService> serviceList) {
+    public ConfigService(ServerConfig serverConfig, List<ComposerService> serviceList) {
         this.serverConfig = serverConfig;
         this.serviceEPMap = new HashMap<>();
         for (ComposerService service: serviceList) {
             serviceEPMap.put(service.getServiceInfo().getName(), service.getServiceInfo());
         }
     }
+
     @GET
-    @Path("/info")
+    @Path("/endpoint/info")
     @Produces("application/json")
-    public Response root(@QueryParam("name") String endpointName) {
+    public Response endpoint(@QueryParam("name") String endpointName) {
         JsonObject entity = new JsonObject();
         entity.addProperty("endpoint", getEndpoint(endpointName));
         return Response.status(Response.Status.OK)
                 .entity(entity)
+                .header("Access-Control-Allow-Origin", '*')
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    @GET
+    @Path("/endpoints")
+    @Produces("application/json")
+    public Response endpoints() {
+        return Response.status(Response.Status.OK)
+                .entity(getEndpoints())
+                .header("Access-Control-Allow-Origin", '*')
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    @GET
+    @Produces("application/json")
+    public Response config() {
+        return Response.status(Response.Status.OK)
+                .entity(getConfig())
                 .header("Access-Control-Allow-Origin", '*')
                 .type(MediaType.APPLICATION_JSON)
                 .build();
@@ -67,12 +91,34 @@ public class EndpointInfoService implements ComposerService {
         return new ServiceInfo(NAME, PATH, ServiceType.HTTP);
     }
 
+    private JsonObject getConfig() {
+        JsonObject config = new JsonObject();
+        config.add("services", getEndpoints());
+        config.addProperty("pathSeparator", File.separator);
+        config.addProperty("balHome", serverConfig.getBallerinaHome());
+        return config;
+    }
+
+    private JsonObject getEndpoints() {
+        JsonObject endpoints = new JsonObject();
+        Set<Map.Entry<String, ServiceInfo>> entries = serviceEPMap.entrySet();
+        for (Map.Entry<String, ServiceInfo> entry: entries) {
+            JsonObject endpoint = new JsonObject();
+            endpoint.addProperty("endpoint", getEndpoint(entry.getKey()));
+            endpoints.add(entry.getKey(), endpoint);
+        }
+        return endpoints;
+    }
+
     private String getEndpoint(String endpointName) {
+        if (!serviceEPMap.containsKey(endpointName)) {
+            return null;
+        }
         ServiceInfo serviceInfo = serviceEPMap.get(endpointName);
         String protocol = serviceInfo.getType() == ServiceType.HTTP ? "http" : "ws";
-        return protocol + "://localhost:" + serverConfig.getServerPort()
+        return protocol + "://" + serverConfig.getHost() + ":" + serverConfig.getPort()
                 + ServerConstants.CONTEXT_ROOT
-                + "/" + serviceInfo.getContextPath();
+                + "/" + serviceInfo.getPath();
 
     }
 }

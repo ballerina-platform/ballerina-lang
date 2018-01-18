@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.composer.service.ballerina.launcher.service;
 
+import org.ballerinalang.composer.server.core.ServerConfig;
 import org.ballerinalang.composer.server.core.ServerConstants;
 import org.ballerinalang.composer.server.spi.ComposerService;
 import org.ballerinalang.composer.server.spi.ServiceInfo;
@@ -39,20 +40,29 @@ public class BallerinaLauncherService implements ComposerService {
 
     private static final Logger logger = LoggerFactory.getLogger(BallerinaLauncherService.class);
 
+    private ServerConfig serverConfig;
+
+    public BallerinaLauncherService() {
+    }
+
+    public BallerinaLauncherService(ServerConfig serverConfig) {
+        this.serverConfig = serverConfig;
+    }
+
     @OnOpen
     public void onOpen (Session session) {
-        LaunchManager.getInstance().setSession(session);
+        LaunchManager.getInstance(serverConfig).setSession(session);
     }
 
     @OnMessage
     public void onTextMessage(String request, Session session) {
-        LaunchManager.getInstance().setSession(session);
-        LaunchManager.getInstance().processCommand(request);
+        LaunchManager.getInstance(serverConfig).setSession(session);
+        LaunchManager.getInstance(serverConfig).processCommand(request);
     }
 
     @OnClose
     public void onClose(CloseReason closeReason, Session session) {
-        LaunchManager.getInstance().stopProcess();
+        LaunchManager.getInstance(serverConfig).stopProcess();
     }
 
     @OnError

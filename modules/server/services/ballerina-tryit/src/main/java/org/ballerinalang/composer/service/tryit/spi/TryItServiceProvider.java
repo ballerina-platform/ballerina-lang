@@ -28,6 +28,6 @@ import org.ballerinalang.composer.service.tryit.service.TryItService;
 public class TryItServiceProvider implements ComposerServiceProvider {
     @Override
     public ComposerService createService(ServerConfig config) {
-        return new TryItService();
+        return new TryItService(config);
     }
 }

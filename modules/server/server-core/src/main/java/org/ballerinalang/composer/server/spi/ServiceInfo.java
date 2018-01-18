@@ -21,16 +21,16 @@ package org.ballerinalang.composer.server.spi;
 public class ServiceInfo {
     private String name;
 
-    private String contextPath;
+    private String path;
 
     private ServiceType type;
 
     public ServiceInfo() {
     }
 
-    public ServiceInfo(String name, String contextPath, ServiceType type) {
+    public ServiceInfo(String name, String path, ServiceType type) {
         this.name = name;
-        this.contextPath = contextPath;
+        this.path = path;
         this.type = type;
     }
 
@@ -42,12 +42,12 @@ public class ServiceInfo {
         this.name = name;
     }
 
-    public String getContextPath() {
-        return contextPath;
+    public String getPath() {
+        return path;
     }
 
-    public void setContextPath(String contextPath) {
-        this.contextPath = contextPath;
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public ServiceType getType() {

@@ -19,6 +19,7 @@ package org.ballerinalang.composer.service.ballerina.launcher.service;
 import com.google.gson.Gson;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ballerinalang.composer.server.core.ServerConfig;
 import org.ballerinalang.composer.service.ballerina.launcher.service.dto.CommandDTO;
 import org.ballerinalang.composer.service.ballerina.launcher.service.dto.MessageDTO;
 import org.ballerinalang.composer.service.ballerina.launcher.service.util.LaunchUtils;
@@ -39,13 +40,17 @@ public class LaunchManager {
 
     private static final Logger logger = LoggerFactory.getLogger(LaunchManager.class);
 
+    private static final String LAUNCHER_CONFIG_KEY = "launcher";
+
+    private static final String SERVICE_TRY_URL_CONFIG = "serviceTryURL";
+
+    private ServerConfig serverConfig;
+
     private static LaunchManager launchManagerInstance;
 
     private Session launchSession;
 
     private Command command;
-
-    private String startedServiceURL;
 
     private String port = StringUtils.EMPTY;
 
@@ -60,26 +65,21 @@ public class LaunchManager {
      *
      * @return LaunchManager instance
      */
-    public static LaunchManager getInstance() {
+    public static LaunchManager getInstance(ServerConfig serverConfig) {
         synchronized (LaunchManager.class) {
             if (launchManagerInstance == null) {
                 launchManagerInstance = new LaunchManager();
+                launchManagerInstance.serverConfig = serverConfig;
             }
         }
         return launchManagerInstance;
-    }
-
-    public void init(String startedServiceURL) {
-        // FIXME Get try it service URL to here
-        // set URL to invoke the started service.
-        this.startedServiceURL = startedServiceURL;
     }
 
     private void run(Command command) {
         Process program = null;
         this.command = command;
         // send a message if ballerina home is not set
-        if (null == System.getProperty("ballerina.home") || System.getProperty("ballerina.home").isEmpty()) {
+        if (null == serverConfig.getBallerinaHome()) {
             pushMessageToClient(launchSession, LauncherConstants.ERROR, LauncherConstants.ERROR, LauncherConstants
                     .INVALID_BAL_PATH_MESSAGE);
             pushMessageToClient(launchSession, LauncherConstants.ERROR, LauncherConstants.ERROR, LauncherConstants
@@ -137,14 +137,15 @@ public class LaunchManager {
                 // improve "server connector started" log message to have the service URL in it.
                 // This is to handle the cloud use case.
                 if (line.startsWith(LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_CLOUD)
-                        && startedServiceURL != null) {
-                    this.updatePort(startedServiceURL);
-                    line = LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_CLOUD + " " + startedServiceURL;
+                        && getServerStartedURL() != null) {
+                    this.updatePort(getServerStartedURL());
+                    line = LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_CLOUD + " "
+                            + getServerStartedURL();
                 }
 
                 // This is to handle local service run use case.
                 if (line.startsWith(LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL)
-                        && startedServiceURL == null) {
+                        && getServerStartedURL() == null) {
                     this.updatePort(line);
                     line = LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL + " " +
                             String.format(LauncherConstants.LOCAL_TRY_IT_URL, LauncherConstants.LOCALHOST, this.port);
@@ -213,6 +214,16 @@ public class LaunchManager {
             pushMessageToClient(launchSession, LauncherConstants.EXECUTION_TERMINATED, LauncherConstants.INFO,
                     LauncherConstants.TERMINATE_MESSAGE);
         }
+    }
+
+    private String getServerStartedURL() {
+        // read configs provided in server config yaml file for launcher
+        if (serverConfig.getCustomConfigs().containsKey(LAUNCHER_CONFIG_KEY)) {
+            return serverConfig.getCustomConfigs().get(LAUNCHER_CONFIG_KEY)
+                    .get(SERVICE_TRY_URL_CONFIG);
+        }
+        return null;
+
     }
 
     /**
