@@ -191,10 +191,6 @@
                             <artifactSet>
                                 <excludes>
                                     <exclude>com.github.jknack:handlebars</exclude>
-                                    <exclude>org.ballerinalang:ballerina-core</exclude>
-                                    <exclude>org.ballerinalang:ballerina-lang</exclude>
-                                    <exclude>org.ballerinalang:ballerina-http</exclude>
-                                    <exclude>org.wso2.orbit.org.antlr:antlr4-runtime</exclude>
                                     <exclude>org.apache.ws.commons.axiom:axiom-dom</exclude>
                                     <exclude>org.wso2.staxon:staxon-core</exclude>
                                     <exclude>commons-pool.wso2:commons-pool</exclude>

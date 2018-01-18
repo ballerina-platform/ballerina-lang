@@ -27,7 +27,7 @@ public class ServerCommand {
     @Parameter(names = {"--port" , "-p"}, description = "Specify a custom port for the server to start.")
     public Integer port;
 
-    @Parameter(names = {"--host" , "-h"}, description = "Specify a custom interface to bind the server.")
+    @Parameter(names = "--host", description = "Specify a custom interface to bind the server.")
     public String host;
 
     @Parameter(names = "--publicPath", description = "Specify a custom path to server the public content from.")

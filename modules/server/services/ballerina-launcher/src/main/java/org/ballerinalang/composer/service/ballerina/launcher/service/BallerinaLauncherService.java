@@ -72,6 +72,6 @@ public class BallerinaLauncherService implements ComposerService {
 
     @Override
     public ServiceInfo getServiceInfo() {
-        return new ServiceInfo(Constants.SERVICE_NAME, Constants.SERVICE_PATH, ServiceType.HTTP);
+        return new ServiceInfo(Constants.SERVICE_NAME, Constants.SERVICE_PATH, ServiceType.WS);
     }
 }

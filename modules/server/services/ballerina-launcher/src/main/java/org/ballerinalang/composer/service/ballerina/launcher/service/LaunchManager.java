@@ -218,7 +218,8 @@ public class LaunchManager {
 
     private String getServerStartedURL() {
         // read configs provided in server config yaml file for launcher
-        if (serverConfig.getCustomConfigs().containsKey(LAUNCHER_CONFIG_KEY)) {
+        if (serverConfig.getCustomConfigs() != null &&
+                serverConfig.getCustomConfigs().containsKey(LAUNCHER_CONFIG_KEY)) {
             return serverConfig.getCustomConfigs().get(LAUNCHER_CONFIG_KEY)
                     .get(SERVICE_TRY_URL_CONFIG);
         }
