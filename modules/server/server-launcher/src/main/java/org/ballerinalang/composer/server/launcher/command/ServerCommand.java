@@ -32,4 +32,7 @@ public class ServerCommand {
 
     @Parameter(names = "--publicPath", description = "Specify a custom path to server the public content from.")
     public String publicPath;
+
+    @Parameter(names = "--debug", hidden = true)
+    private String debugPort;
 }

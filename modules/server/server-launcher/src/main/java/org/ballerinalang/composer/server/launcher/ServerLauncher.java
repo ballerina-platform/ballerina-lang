@@ -38,6 +38,7 @@ import java.net.ServerSocket;
 public class ServerLauncher {
     private static final String PROP_BALLERINA_HOME = "ballerina.home";
     private static final String PROP_COMPOSER_CONFIG_PATH = "composer.config.path";
+    private static final String PROP_COMPOSER_PUBLIC_PATH = "composer.public.path";
     private static final String PROP_MSF4J_HOST = "msf4j.host";
     private static final String DEFAULT_INTERFACE = "127.0.0.1";
     private static final int DEFAULT_PORT = 8089;
@@ -83,6 +84,11 @@ public class ServerLauncher {
             balHome = System.getenv(PROP_BALLERINA_HOME);
         }
         config.setBallerinaHome(balHome);
+        // read public path prop if available - this is the approach with least precedence
+        String publicPath = System.getProperty(PROP_COMPOSER_PUBLIC_PATH);
+        if (publicPath != null) {
+            config.setPublicPath(publicPath);
+        }
         // reading configurations from config yaml file
         String configFilePath = System.getProperty(PROP_COMPOSER_CONFIG_PATH);
         if (configFilePath != null) {
