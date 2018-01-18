@@ -135,11 +135,11 @@ public class Generator {
         List<Link> links = new ArrayList<>();
         PackageName packageNameHeading = null;
         for (Link pkgLink : packages) {
-            if (pkgLink.content.value.equals(currentPackageName)) {
-                packageNameHeading = (PackageName) pkgLink.content;
-                links.add(new Link(pkgLink.content, pkgLink.href, true));
+            if (pkgLink.caption.value.equals(currentPackageName)) {
+                packageNameHeading = (PackageName) pkgLink.caption;
+                links.add(new Link(pkgLink.caption, pkgLink.href, true));
             } else {
-                links.add(new Link(pkgLink.content, pkgLink.href, false));
+                links.add(new Link(pkgLink.caption, pkgLink.href, false));
             }
         }
     
@@ -186,10 +186,10 @@ public class Generator {
         // Create the links to select which page or package is active
         List<Link> links = new ArrayList<>();
         for (Link pkgLink : packages) {
-            if (BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME.equals(pkgLink.content.value)) {
-                links.add(new Link(pkgLink.content, pkgLink.href, true));
+            if (BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME.equals(pkgLink.caption.value)) {
+                links.add(new Link(pkgLink.caption, pkgLink.href, true));
             } else {
-                links.add(new Link(pkgLink.content, pkgLink.href, false));
+                links.add(new Link(pkgLink.caption, pkgLink.href, false));
             }
         }
     

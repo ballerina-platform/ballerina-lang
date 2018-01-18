@@ -21,17 +21,17 @@ package org.ballerinalang.docgen.model;
  * Links of the packages available
  */
 public class Link {
-    public final Caption content;
+    public final Caption caption;
     public final String href;
     public final boolean active;
 
     /**
      * Constructor
-     * @param content package name
+     * @param caption package name
      * @param active if package is active/inactive
      */
-    public Link(Caption content, String href, boolean active) {
-        this.content = content;
+    public Link(Caption caption, String href, boolean active) {
+        this.caption = caption;
         this.href = href;
         this.active = active;
     }

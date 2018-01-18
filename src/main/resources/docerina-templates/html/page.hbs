@@ -55,11 +55,11 @@
                                 <li>
                                     <!--Package Name-->
                                     {{#if active}}
-                                        {{#if content.isPackageName}}
-                                            <a>{{content.prefix}}<span class="bold">{{content.suffix}}</a>
+                                        {{#if caption.isPackageName}}
+                                            <a>{{caption.prefix}}<span class="bold">{{caption.suffix}}</a>
                                         {{/if}}
-                                        {{#if content.isStaticCaption}}
-                                            <a><span class="bold">{{content.value}}</span></a>
+                                        {{#if caption.isStaticCaption}}
+                                            <a><span class="bold">{{caption.value}}</span></a>
                                         {{/if}}
                                         <div class="constructs-wrapper">
                                             <!--Construct of Package-->
@@ -109,11 +109,11 @@
                                         </div>
                                     {{else}}
                                         <a href="{{href}}.html">
-                                            {{#if content.isPackageName}}
-                                                {{content.prefix}}<span class="bold">{{content.suffix}}</span>
+                                            {{#if caption.isPackageName}}
+                                                {{caption.prefix}}<span class="bold">{{caption.suffix}}</span>
                                             {{/if}}
-                                            {{#if content.isStaticCaption}}
-                                                <span class="bold">{{content.value}}</span>
+                                            {{#if caption.isStaticCaption}}
+                                                <span class="bold">{{caption.value}}</span>
                                             {{/if}}
                                         </a>
                                     {{/if}}

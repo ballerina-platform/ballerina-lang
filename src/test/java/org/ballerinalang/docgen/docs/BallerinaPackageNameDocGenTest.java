@@ -45,18 +45,18 @@ public class BallerinaPackageNameDocGenTest {
         
         List<Link> packageNameList = PackageName.convertList(packageNames);
         for (Link pkgLink : packageNameList) {
-            Assert.assertEquals(((PackageName) pkgLink.content).prefix, "ballerina.", "Prefix was not ballerina for: " +
+            Assert.assertEquals(((PackageName) pkgLink.caption).prefix, "ballerina.", "Prefix was not ballerina for: " +
                                                                                      pkgLink);
         }
         
-        Assert.assertEquals(((PackageName) packageNameList.get(0).content).suffix, "builtin", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(1).content).suffix, "caching", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(2).content).suffix, "config", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(3).content).suffix, "data.sql", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(4).content).suffix, "file", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(5).content).suffix, "io", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(6).content).suffix, "log", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(7).content).suffix, "math", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(0).caption).suffix, "builtin", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(1).caption).suffix, "caching", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(2).caption).suffix, "config", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(3).caption).suffix, "data.sql", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(4).caption).suffix, "file", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(5).caption).suffix, "io", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(6).caption).suffix, "log", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(7).caption).suffix, "math", "Invalid suffix name.");
     }
     
     @Test
@@ -68,13 +68,13 @@ public class BallerinaPackageNameDocGenTest {
         
         List<Link> packageNameList = PackageName.convertList(packageNames);
         for (Link pkgLink : packageNameList) {
-            Assert.assertEquals(((PackageName) pkgLink.content).prefix, "org.eclipse.core.expressions.",
+            Assert.assertEquals(((PackageName) pkgLink.caption).prefix, "org.eclipse.core.expressions.",
                     "Prefix was not org.eclipse.core.expressions for: " + pkgLink);
         }
         
-        Assert.assertEquals(((PackageName) packageNameList.get(0).content).suffix, "tests", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(1).content).suffix, "samples", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(2).content).suffix, "org.eclipse.core.expressions",
+        Assert.assertEquals(((PackageName) packageNameList.get(0).caption).suffix, "tests", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(1).caption).suffix, "samples", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(2).caption).suffix, "org.eclipse.core.expressions",
                 "Invalid suffix name.");
     }
     
@@ -87,15 +87,15 @@ public class BallerinaPackageNameDocGenTest {
         
         List<Link> packageNameList = PackageName.convertList(packageNames);
         for (Link pkgLink : packageNameList) {
-            Assert.assertEquals(((PackageName) pkgLink.content).prefix, "org.eclipse.core.",
+            Assert.assertEquals(((PackageName) pkgLink.caption).prefix, "org.eclipse.core.",
                     "Prefix was not org.eclipse.core for: " + pkgLink);
         }
         
-        Assert.assertEquals(((PackageName) packageNameList.get(0).content).suffix, "expressions",
+        Assert.assertEquals(((PackageName) packageNameList.get(0).caption).suffix, "expressions",
                 "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(1).content).suffix, "expressions.tests",
+        Assert.assertEquals(((PackageName) packageNameList.get(1).caption).suffix, "expressions.tests",
                 "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(2).content).suffix, "expressions.samples",
+        Assert.assertEquals(((PackageName) packageNameList.get(2).caption).suffix, "expressions.samples",
                 "Invalid suffix name.");
     }
     
@@ -108,13 +108,13 @@ public class BallerinaPackageNameDocGenTest {
         
         List<Link> packageNameList = PackageName.convertList(packageNames);
         for (Link pkgLink : packageNameList) {
-            Assert.assertEquals(((PackageName) pkgLink.content).prefix, "org.eclipse.core.expressions.",
+            Assert.assertEquals(((PackageName) pkgLink.caption).prefix, "org.eclipse.core.expressions.",
                     "Prefix was not org.eclipse.core.expressions for: " + pkgLink);
         }
         
-        Assert.assertEquals(((PackageName) packageNameList.get(0).content).suffix, "tests", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(1).content).suffix, "samples", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(2).content).suffix, "client", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(0).caption).suffix, "tests", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(1).caption).suffix, "samples", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(2).caption).suffix, "client", "Invalid suffix name.");
     }
     
     @Test
@@ -126,12 +126,12 @@ public class BallerinaPackageNameDocGenTest {
         
         List<Link> packageNameList = PackageName.convertList(packageNames);
         for (Link pkgLink : packageNameList) {
-            Assert.assertEquals(((PackageName) pkgLink.content).prefix, "", "Prefix was found");
+            Assert.assertEquals(((PackageName) pkgLink.caption).prefix, "", "Prefix was found");
         }
         
-        Assert.assertEquals(((PackageName) packageNameList.get(0).content).suffix, "a.b.c", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(1).content).suffix, "x.y.z", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(2).content).suffix, "foo.bar", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(0).caption).suffix, "a.b.c", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(1).caption).suffix, "x.y.z", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(2).caption).suffix, "foo.bar", "Invalid suffix name.");
     }
     
     @Test
@@ -143,12 +143,12 @@ public class BallerinaPackageNameDocGenTest {
         
         List<Link> packageNameList = PackageName.convertList(packageNames);
         for (Link pkgLink : packageNameList) {
-            Assert.assertEquals(((PackageName) pkgLink.content).prefix, "", "Prefix was found");
+            Assert.assertEquals(((PackageName) pkgLink.caption).prefix, "", "Prefix was found");
         }
         
-        Assert.assertEquals(((PackageName) packageNameList.get(0).content).suffix, "foo.bar", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(1).content).suffix, "a.b.c", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(2).content).suffix, "foo.car", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(0).caption).suffix, "foo.bar", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(1).caption).suffix, "a.b.c", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(2).caption).suffix, "foo.car", "Invalid suffix name.");
     }
     
     @Test
@@ -160,13 +160,13 @@ public class BallerinaPackageNameDocGenTest {
         
         List<Link> packageNameList = PackageName.convertList(packageNames);
         for (Link pkgLink : packageNameList) {
-            Assert.assertEquals(((PackageName) pkgLink.content).prefix, "org.eclipse.core.expressions.",
+            Assert.assertEquals(((PackageName) pkgLink.caption).prefix, "org.eclipse.core.expressions.",
                     "Prefix was not org.eclipse.core.expressions for: " + pkgLink);
         }
         
-        Assert.assertEquals(((PackageName) packageNameList.get(0).content).suffix, "tests.one", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(1).content).suffix, "samples", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(2).content).suffix, "client.one.two",
+        Assert.assertEquals(((PackageName) packageNameList.get(0).caption).suffix, "tests.one", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(1).caption).suffix, "samples", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(2).caption).suffix, "client.one.two",
                 "Invalid suffix name.");
     }
     
@@ -179,14 +179,14 @@ public class BallerinaPackageNameDocGenTest {
         
         List<Link> packageNameList = PackageName.convertList(packageNames);
         for (Link pkgLink : packageNameList) {
-            Assert.assertEquals(((PackageName) pkgLink.content).prefix, "org.eclipse.core.",
+            Assert.assertEquals(((PackageName) pkgLink.caption).prefix, "org.eclipse.core.",
                     "Prefix was not org.eclipse.core for: " + pkgLink);
         }
         
-        Assert.assertEquals(((PackageName) packageNameList.get(0).content).suffix, "expressions.tests.one",
+        Assert.assertEquals(((PackageName) packageNameList.get(0).caption).suffix, "expressions.tests.one",
                 "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(1).content).suffix, "xyz", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(2).content).suffix, "expressions.client.one.two",
+        Assert.assertEquals(((PackageName) packageNameList.get(1).caption).suffix, "xyz", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(2).caption).suffix, "expressions.client.one.two",
                 "Invalid suffix name.");
     }
     
@@ -197,10 +197,10 @@ public class BallerinaPackageNameDocGenTest {
         
         List<Link> packageNameList = PackageName.convertList(packageNames);
         for (Link pkgLink : packageNameList) {
-            Assert.assertEquals(((PackageName) pkgLink.content).prefix, "", "Prefix found.");
+            Assert.assertEquals(((PackageName) pkgLink.caption).prefix, "", "Prefix found.");
         }
         
-        Assert.assertEquals(((PackageName) packageNameList.get(0).content).suffix, ".", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(0).caption).suffix, ".", "Invalid suffix name.");
     }
     
     @Test
@@ -213,13 +213,13 @@ public class BallerinaPackageNameDocGenTest {
         
         List<Link> packageNameList = PackageName.convertList(packageNames);
         for (Link pkgLink : packageNameList) {
-            Assert.assertEquals(((PackageName) pkgLink.content).prefix, "", "Prefix found.");
+            Assert.assertEquals(((PackageName) pkgLink.caption).prefix, "", "Prefix found.");
         }
         
-        Assert.assertEquals(((PackageName) packageNameList.get(0).content).suffix, "a", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(1).content).suffix, "b", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(2).content).suffix, "c", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(3).content).suffix, "d", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(0).caption).suffix, "a", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(1).caption).suffix, "b", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(2).caption).suffix, "c", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(3).caption).suffix, "d", "Invalid suffix name.");
     }
     
     @Test
@@ -235,7 +235,7 @@ public class BallerinaPackageNameDocGenTest {
         packageNames.add("org.eclipse.core.expressions.tests.one");
         
         List<Link> packageNameList = PackageName.convertList(packageNames);
-        Assert.assertEquals(packageNameList.get(0).content.toString(),
+        Assert.assertEquals(packageNameList.get(0).caption.toString(),
                 "PackageName{prefix='org.eclipse.core.expressions.tests.', suffix='one'}", "Unknown toString value.");
     }
 }

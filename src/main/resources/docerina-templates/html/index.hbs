@@ -37,11 +37,11 @@
                                 {{#each this}}
                                 <li>
                                     <a href="{{href}}.html">
-                                        {{#if content.isPackageName}}
-                                            {{content.prefix}}<span class="bold">{{content.suffix}}</span>
+                                        {{#if caption.isPackageName}}
+                                            {{caption.prefix}}<span class="bold">{{caption.suffix}}</span>
                                         {{/if}}
-                                        {{#if content.isStaticCaption}}
-                                            <span class="bold">{{content.value}}</span>
+                                        {{#if caption.isStaticCaption}}
+                                            <span class="bold">{{caption.value}}</span>
                                         {{/if}}
                                     </a>
                                 </li>
