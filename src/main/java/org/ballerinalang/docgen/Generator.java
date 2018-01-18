@@ -149,7 +149,7 @@ public class Generator {
      * @return A page model for the primitive types.
      */
     public static Page generatePageForPrimitives(BLangPackage balPackage, List<Link> packages) {
-        ArrayList<Documentable> documentables = new ArrayList<>();
+        ArrayList<Documentable> primitiveTypes = new ArrayList<>();
         
         // Check for functions in the package
         if (balPackage.getFunctions().size() > 0) {
@@ -158,7 +158,7 @@ public class Generator {
                     TypeNode langType = function.getReceiver().getTypeNode();
                     if (!(langType instanceof BLangUserDefinedType)) {
                         // Check for primitives in ballerina.builtin
-                        Optional<PrimitiveTypeDoc> existingPrimitiveType = documentables
+                        Optional<PrimitiveTypeDoc> existingPrimitiveType = primitiveTypes
                                 .stream()
                                 .filter((doc) -> doc instanceof PrimitiveTypeDoc &&
                                                  (((PrimitiveTypeDoc) doc)).name.equals(langType.toString()))
@@ -169,9 +169,8 @@ public class Generator {
                         if (existingPrimitiveType.isPresent()) {
                             primitiveTypeDoc = existingPrimitiveType.get();
                         } else {
-                            primitiveTypeDoc = new PrimitiveTypeDoc(langType.toString(), "fw-variable", "",
-                                                                                                    new ArrayList<>());
-                            documentables.add(primitiveTypeDoc);
+                            primitiveTypeDoc = new PrimitiveTypeDoc(langType.toString(), new ArrayList<>());
+                            primitiveTypes.add(primitiveTypeDoc);
                         }
                         
                         primitiveTypeDoc.children.add(createDocForNode(function));
@@ -190,7 +189,7 @@ public class Generator {
             }
         }
         
-        return new Page(BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME, documentables, links);
+        return new Page(BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME, primitiveTypes, links);
     }
     
     /**
@@ -210,7 +209,7 @@ public class Generator {
                 enumerators.add(variable);
             }
         }
-        return new EnumDoc(enumName, description((BLangNode) enumNode), "fw-constant", new ArrayList<>(), enumerators);
+        return new EnumDoc(enumName, description((BLangNode) enumNode), new ArrayList<>(), enumerators);
     }
 
     /**
@@ -231,8 +230,7 @@ public class Generator {
                 attributes.add(variable);
             }
         }
-        return new AnnotationDoc(annotationName, description(annotationNode), "fw-annotation",
-                new ArrayList<>(), attributes);
+        return new AnnotationDoc(annotationName, description(annotationNode), new ArrayList<>(), attributes);
     }
 
     /**
@@ -244,7 +242,7 @@ public class Generator {
         String globalVarName = bLangVariable.getName().getValue();
         String dataType = getTypeName(bLangVariable.getTypeNode());
         String desc = description(bLangVariable);
-        return new GlobalVariableDoc(globalVarName, desc, "fw-globe", new ArrayList<>(), dataType);
+        return new GlobalVariableDoc(globalVarName, desc, new ArrayList<>(), dataType);
     }
 
     /**
@@ -275,8 +273,7 @@ public class Generator {
                 returnParams.add(variable);
             }
         }
-        return new FunctionDoc(functionName, "fw-function", description(functionNode),
-                new ArrayList<>(), parameters, returnParams);
+        return new FunctionDoc(functionName, description(functionNode), new ArrayList<>(), parameters, returnParams);
     }
 
     /**
@@ -307,7 +304,7 @@ public class Generator {
                 returnParams.add(variable);
             }
         }
-        return new ActionDoc(actionName, description(actionNode), "fw-action", new ArrayList<>(),
+        return new ActionDoc(actionName, description(actionNode), new ArrayList<>(),
                 parameters, returnParams);
     }
 
@@ -334,7 +331,7 @@ public class Generator {
             }
         }
 
-        return new StructDoc(structName, description(structNode), "fw-struct", new ArrayList<>(), fields);
+        return new StructDoc(structName, description(structNode), new ArrayList<>(), fields);
     }
 
     /**
@@ -363,7 +360,7 @@ public class Generator {
                 actions.add(createDocForNode(action));
             }
         }
-        return new ConnectorDoc(connectorName, description(connectorNode), "fw-connector", actions, parameters);
+        return new ConnectorDoc(connectorName, description(connectorNode), actions, parameters);
     }
 
     /**

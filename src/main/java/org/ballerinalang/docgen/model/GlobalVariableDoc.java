@@ -30,13 +30,11 @@ public class GlobalVariableDoc extends Documentable {
      * Construct
      * @param name global variable name
      * @param description description
-     * @param icon icon
      * @param children children if any
      * @param dataType data type of the global variable
      */
-    public GlobalVariableDoc(String name, String description, String icon, ArrayList<Documentable> children,
-                             String dataType) {
-        super(name, icon, description, children);
+    public GlobalVariableDoc(String name, String description, ArrayList<Documentable> children, String dataType) {
+        super(name, "fw-globe", description, children);
         this.dataType = dataType;
         isGlobalVariable = true;
     }
