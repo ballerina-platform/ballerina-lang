@@ -350,6 +350,24 @@ public class HtmlDocTest {
         Assert.assertEquals(primitivesPage.constructs.size(), 1);
         Assert.assertEquals(primitivesPage.constructs.get(0).children.size(), 2);
     }
+    
+    @Test(description = "Tests whether default values are collected.")
+    public void testStructDefaultValues() {
+        BLangPackage bLangPackage = createPackage("package x.y; " +
+                                                  "public struct Person {" +
+                                                  "  string id;" +
+                                                  "  string address = \"20,Palm Grove\";" +
+                                                  "}");
+        Page page = generatePage(bLangPackage);
+        Assert.assertEquals(page.constructs.size(), 1);
+        Assert.assertTrue(page.constructs.get(0) instanceof StructDoc, "Documentable of type StructDoc expected.");
+        StructDoc personStructDoc = (StructDoc) page.constructs.get(0);
+        Assert.assertEquals(personStructDoc.fields.size(), 2, "2 fields are expected.");
+        Assert.assertEquals(personStructDoc.fields.get(0).name, "id", "Field \"id\" expected.");
+        Assert.assertEquals(personStructDoc.fields.get(1).name, "address", "Field \"address\" expected.");
+        Assert.assertEquals(personStructDoc.fields.get(1).defaultValue, "20,Palm Grove",
+                "Unexpected address value found.");
+    }
 
     /**
      * Create the package from the bal file

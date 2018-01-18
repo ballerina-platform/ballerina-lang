@@ -24,6 +24,7 @@ import org.ballerinalang.docgen.model.AnnotationDoc;
 import org.ballerinalang.docgen.model.ConnectorDoc;
 import org.ballerinalang.docgen.model.Documentable;
 import org.ballerinalang.docgen.model.EnumDoc;
+import org.ballerinalang.docgen.model.Field;
 import org.ballerinalang.docgen.model.FunctionDoc;
 import org.ballerinalang.docgen.model.GlobalVariableDoc;
 import org.ballerinalang.docgen.model.Link;
@@ -324,14 +325,18 @@ public class Generator {
         if (structName.contains(ANONYMOUS_STRUCT)) {
             structName = "Anonymous Struct";
         }
-        List<Variable> fields = new ArrayList<>();
+        List<Field> fields = new ArrayList<>();
 
         // Iterate through the struct fields
         if (structNode.getFields().size() > 0) {
             for (BLangVariable param : structNode.getFields()) {
                 String dataType = type(param);
                 String desc = fieldAnnotation(structNode, param);
-                Variable variable = new Variable(param.getName().value, dataType, desc);
+                String defaultValue = "";
+                if (null != param.getInitialExpression()) {
+                    defaultValue = param.getInitialExpression().toString();
+                }
+                Field variable = new Field(param.getName().value, dataType, desc, defaultValue);
                 fields.add(variable);
             }
         }
