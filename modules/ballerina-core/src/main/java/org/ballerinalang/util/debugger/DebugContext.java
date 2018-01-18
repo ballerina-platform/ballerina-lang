@@ -26,12 +26,14 @@ import org.ballerinalang.util.codegen.LineNumberInfo;
  * @since 0.95.4
  */
 public class DebugContext {
-    private DebugCommand currentCommand;
+    private volatile DebugCommand currentCommand;
 
     private LineNumberInfo lastLine;
-    private StackFrame sf;
+    private StackFrame stackFrame;
 
     private String threadId;
+
+    private volatile boolean active = false;
 
     public DebugCommand getCurrentCommand() {
         return currentCommand;
@@ -45,16 +47,20 @@ public class DebugContext {
         return lastLine;
     }
 
-    public StackFrame getSF() {
-        return sf;
+    public StackFrame getStackFrame() {
+        return stackFrame;
     }
 
-    public void setSF(StackFrame sf) {
-        this.sf = sf;
+    public void setStackFrame(StackFrame stackFrame) {
+        this.stackFrame = stackFrame;
     }
 
     public void setLastLine(LineNumberInfo lastLine) {
         this.lastLine = lastLine;
+    }
+
+    public void clearLastDebugLine() {
+        this.lastLine = null;
     }
 
     public String getThreadId() {
@@ -63,5 +69,13 @@ public class DebugContext {
 
     public void setThreadId(String threadId) {
         this.threadId = threadId;
+    }
+
+    public boolean isAtive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,17 +15,27 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.util.debugger;
 
+import org.ballerinalang.bre.Context;
 
 /**
- *  Debugger exception to wrap all debug errors.
+ * Contains util methods for debugger.
+ *
+ * @since 0.96
  */
-public class DebugException extends RuntimeException {
-
-    DebugException(String message) {
-        super(message);
+public class DebuggerUtil {
+    /**
+     * Helper method to init debug context.
+     *
+     * @param context   of the code.
+     * @param debugger  instance for debug purposes.
+     */
+    public static void initDebugContext(Context context, Debugger debugger) {
+        DebugContext debugContext = new DebugContext();
+        debugContext.setCurrentCommand(DebugCommand.RESUME);
+        context.setDebugContext(debugContext);
+        debugger.addDebugContext(debugContext);
     }
 
 }
