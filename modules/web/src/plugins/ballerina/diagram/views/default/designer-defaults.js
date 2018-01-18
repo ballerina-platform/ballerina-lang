@@ -196,6 +196,7 @@ export const flowChartControlStatement = {
     },
 };
 
+// for compound statements with their own lifeline. e.g. : catch
 export const compoundStatement = {
     heading: {
         width: (statement.width * (2 / 3)),
@@ -221,6 +222,9 @@ export const compoundStatement = {
     },
     gap: {
         left: (12 * statement.padding.left),
+    },
+    text: {
+        padding: 5,
     },
 };
 

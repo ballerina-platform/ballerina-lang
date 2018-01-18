@@ -200,7 +200,7 @@ class ClientResponderDecorator extends React.Component {
                         x={viewState.components.invocation.end.x
                             + this.context.designer.config.statement.gutter.h}
                         y={viewState.components.invocation.end.y
-                            - (this.context.designer.config.actionInvocationStatement.textHeight / 2)}
+                            - (this.context.designer.config.actionInvocationStatement.text.height / 2)}
                         className='action-invocation-text'
                     >
                         {viewState.displayText}

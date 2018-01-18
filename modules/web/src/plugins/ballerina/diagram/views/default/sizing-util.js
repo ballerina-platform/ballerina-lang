@@ -1694,8 +1694,8 @@ class SizingUtil {
         let bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
 
-        components['block-header'].h = this.config.compoundStatement.heading.height
-                                        + this.config.compoundStatement.padding.top;
+        components['block-header'].h = this.config.statement.height;
+                                        // + this.config.compoundStatement.padding.top;
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
@@ -1747,8 +1747,7 @@ class SizingUtil {
             const finallyViewState = node.viewState.components['finally-block'];
             finallyViewState.components = {};
             finallyViewState.components['block-header'] = new SimpleBBox();
-            finallyViewState.components['block-header'].h = this.config.compoundStatement.heading.height +
-                                    this.config.statement.gutter.h;
+            finallyViewState.components['block-header'].h = this.config.statement.height;
             finallyViewState.components['block-header'].w = finallyBody.viewState.bBox.w;
             finallyViewState.components['statement-box'] = finallyBody.viewState.bBox;
             finallyViewState.w = finallyBody.viewState.bBox.w;
@@ -1770,7 +1769,7 @@ class SizingUtil {
         if ((catchStmts.length === 0) && finallyBody) {
             // there are no catch statements the try and finally blocks interlock
             // remove additional gap between try and finally
-            nodeHeight -= this.config.statement.gutter.h;
+            // nodeHeight -= this.config.statement.gutter.h;
 
             const finallyViewState = node.viewState.components['finally-block'];
             const widthDiff = finallyViewState.w - viewState.components['statement-box'].w;

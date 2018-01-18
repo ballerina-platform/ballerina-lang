@@ -1323,7 +1323,7 @@
         font-style: italic;
     }
 
-    .compound-statement-title-text {
+    .statement-title-text-left {
         text-anchor: start;
         dominant-baseline: central;
         fill: #777;
@@ -2350,6 +2350,12 @@
     .statement-title-polyline-error {
         fill: none;
         stroke: #ff0202;
+    }
+
+    .compound-statment-rect {
+        fill: none;
+        stroke: #777;
+        stroke-dasharray: 3,3;
     }
     
     .arguments-main-action-wrapper {
