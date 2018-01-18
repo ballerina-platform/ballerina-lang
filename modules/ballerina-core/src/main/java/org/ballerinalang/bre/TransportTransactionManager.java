@@ -18,14 +18,14 @@
 package org.ballerinalang.bre;
 
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.ProgramFile;
 
 /**
- * {@code MicroTransactionContext} represents the context associated with a micro-transaction.
+ * {@code TransportTransactionManager} represents the context associated with a micro-transaction.
  *
  * @since 0.96.0
  */
-public interface MicroTransactionContext {
+public interface TransportTransactionManager {
     void commit();
     void abort();
+    BValue getCreatedContext();
 }
