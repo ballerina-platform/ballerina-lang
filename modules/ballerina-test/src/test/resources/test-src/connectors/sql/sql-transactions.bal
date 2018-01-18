@@ -277,11 +277,11 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
     int count = -1;
     int i = 0;
     try {
-        transaction with retries(4){
+        transaction with retries(4) {
             a = a + " inTrx";
-                _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+            _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 222, 5000.75, 'USA')", null);
-            if (i == 2 ){
+            if (i == 2) {
                 _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('Anne', 'Clerk', 222, 5000.75, 'USA')", null);
             } else {

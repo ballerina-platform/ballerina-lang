@@ -777,17 +777,17 @@ public final class BXMLItem extends BXML<OMNode> {
         @Override
         public BValue[] getNext(int arity) {
             if (arity == 1) {
-                return cursor++ == 0 ? new BValue[]{value} : null;
+                return cursor++ == 0 ? new BValue[] {value} : null;
             }
-            return cursor++ == 0 ? new BValue[]{new BInteger(0), value} : null;
+            return cursor++ == 0 ? new BValue[] {new BInteger(0), value} : null;
         }
 
         @Override
         public BType[] getParamType(int arity) {
             if (arity == 1) {
-                return new BType[]{BTypes.typeXML};
+                return new BType[] {BTypes.typeXML};
             }
-            return new BType[]{BTypes.typeInt, BTypes.typeXML};
+            return new BType[] {BTypes.typeInt, BTypes.typeXML};
         }
 
         @Override

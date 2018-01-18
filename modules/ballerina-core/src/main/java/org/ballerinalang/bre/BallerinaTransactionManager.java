@@ -98,8 +98,8 @@ public class BallerinaTransactionManager {
     public void commitTransactionBlock() {
         if (transactionLevel == 1) {
             commitNonXAConnections();
-            closeAllConnections();
             commitXATransaction();
+            closeAllConnections();
             doneTransactionContexts();
         }
     }

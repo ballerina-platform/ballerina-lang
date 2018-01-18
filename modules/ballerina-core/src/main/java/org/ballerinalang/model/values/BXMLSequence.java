@@ -453,18 +453,18 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         @Override
         public BValue[] getNext(int arity) {
             if (arity == 1) {
-                return new BValue[]{value.sequence.get(cursor++)};
+                return new BValue[] {value.sequence.get(cursor++)};
             }
             int cursor = this.cursor++;
-            return new BValue[]{new BInteger(cursor), value.sequence.get(cursor)};
+            return new BValue[] {new BInteger(cursor), value.sequence.get(cursor)};
         }
 
         @Override
         public BType[] getParamType(int arity) {
             if (arity == 1) {
-                return new BType[]{BTypes.typeXML};
+                return new BType[] {BTypes.typeXML};
             }
-            return new BType[]{BTypes.typeInt, BTypes.typeXML};
+            return new BType[] {BTypes.typeInt, BTypes.typeXML};
         }
 
         @Override

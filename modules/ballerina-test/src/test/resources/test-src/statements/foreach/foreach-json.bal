@@ -86,3 +86,31 @@ function testJSONToStructCast () (string) {
     }
     return output;
 }
+
+function testAddWhileIteration () (string) {
+    output = "";
+    foreach j in j1 {
+        if (j.toString() == "bob") {
+            j1["lastname"] = "smith";
+        }
+        concatString(j.toString());
+    }
+    foreach j in j1 {
+        concatString(j.toString());
+    }
+    return output;
+}
+
+function testDeleteWhileIteration () (string) {
+    output = "";
+    foreach j in j1 {
+        if (j.toString() == "bob") {
+            j1.remove("subjects");
+        }
+        concatString(j.toString());
+    }
+    foreach j in j1 {
+        concatString(j.toString());
+    }
+    return output;
+}
