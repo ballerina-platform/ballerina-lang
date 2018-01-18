@@ -315,7 +315,7 @@ class TryStatementDecorator extends React.Component {
                                 text: catchStmt.getParameter().getSource(true),
                             };
                             const catchComp = (
-                                <g>
+                                <g key={catchStmt.id}>
                                     <CatchStatementDecorator
                                         bBox={catchStmt.viewState.bBox}
                                         model={catchStmt}

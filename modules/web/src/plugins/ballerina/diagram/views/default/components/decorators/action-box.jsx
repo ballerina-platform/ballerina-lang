@@ -125,10 +125,10 @@ ActionBox.propTypes = {
     onDelete: PropTypes.func.isRequired,
     onJumptoCodeLine: PropTypes.func.isRequired,
     disableButtons: PropTypes.shape({
-        debug: PropTypes.bool.isRequired,
-        delete: PropTypes.bool.isRequired,
-        jump: PropTypes.bool.isRequired,
-    }),
+        debug: PropTypes.bool,
+        delete: PropTypes.bool,
+        jump: PropTypes.bool,
+    }).isRequired,
     dragState: PropTypes.shape({
         isDragging: PropTypes.bool.isRequired,
     }).isRequired,
