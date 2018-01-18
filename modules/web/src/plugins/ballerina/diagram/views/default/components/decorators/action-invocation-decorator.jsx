@@ -198,8 +198,8 @@ class ActionInvocationDecorator extends React.Component {
 
             if (viewState.components.invocation) {
                 backwardArrowStart.x = viewState.components.invocation.end.x;
-                backwardArrowStart.y = viewState.components['statement-box'].y
-                                + viewState.components['statement-box'].h;
+                backwardArrowStart.y = viewState.components.invocation.end.y
+                                + designer.config.actionInvocationStatement.timelineHeight;
                 backwardArrowEnd.x = statementBox.x + (designer.config.actionInvocationStatement.width / 2);
                 backwardArrowEnd.y = backwardArrowStart.y;
             }
@@ -246,11 +246,11 @@ class ActionInvocationDecorator extends React.Component {
                     enableCenterOverlayLine
                 />
                 <text
-                    x={statementBox.x
-                        + (designer.config.actionInvocationStatement.width / 2)
-                        + designer.config.statement.gutter.h}
+                    x={statementBox.x +
+                        (designer.config.actionInvocationStatement.width / 2) +
+                        designer.config.statement.gutter.h}
                     y={viewState.components.invocation.start.y
-                        - (designer.config.actionInvocationStatement.textHeight / 2)}
+                         - (designer.config.actionInvocationStatement.text.height / 2)}
                     className='action-invocation-text'
                     onClick={e => this.openEditor(e)}
                 >
@@ -260,7 +260,7 @@ class ActionInvocationDecorator extends React.Component {
                     x={viewState.components.invocation.end.x}
                     y={viewState.components.invocation.end.y}
                     width={designer.config.actionInvocationStatement.width}
-                    height={statementBox.h / 2}
+                    height={designer.config.actionInvocationStatement.timelineHeight}
                     className='action-invocation-statement-rect'
                 >
                     {tooltip}
