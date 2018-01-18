@@ -23,6 +23,43 @@ import './interaction.scss';
  * Interaction button component
  */
 class Button extends React.Component {
+
+    constructor() {
+        super();
+        this.state = { mouseClicked: false };
+        this.buttonClick = this.buttonClick.bind(this);
+        this.setWrapperRef = this.setWrapperRef.bind(this);
+        this.handleClickOutside = this.handleClickOutside.bind(this);
+    }
+
+    componentDidMount() {
+        document.addEventListener('mousedown', this.handleClickOutside);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('mousedown', this.handleClickOutside);
+    }
+
+    setWrapperRef(node) {
+        this.wrapperRef = node;
+    }
+
+    handleClickOutside(event) {
+        if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
+            this.setState({ mouseClicked: false });
+        } else {
+            this.buttonClick();
+        }
+    }
+
+    buttonClick() {
+        if (this.props.enableMouseClick) {
+            this.setState({ mouseClicked: true });
+        } else {
+            this.props.onClick();
+        }
+    }
+
     /**
      * render hover button
      * @return {object} button rendering object
@@ -36,6 +73,7 @@ class Button extends React.Component {
         const IconOpacity = this.props.hideIconBackground ? 0 : 1;
         const buttonArea = btnRadius + 2 + (btnRadius / 4);
         const topPadding = (-3 * btnRadius) + (btnRadius / 2);
+        let menuCss = 'interaction-menu-area';
         const menuStyle = {
             left: buttonArea,
             top: topPadding,
@@ -49,15 +87,23 @@ class Button extends React.Component {
             menuStyle.left = 0;
         }
 
+        if (this.props.enableMouseClick) {
+            if (this.state.mouseClicked) {
+                menuCss = 'interaction-menu-area-clicked';
+            } else {
+                menuCss = 'interaction-menu-area-hidden';
+            }
+        }
+
         return (
             <div
-                className='interaction-menu-area'
+                ref={this.setWrapperRef}
+                className={menuCss}
                 style={{ left: btnX, top: btnY, '--button-size': buttonArea + 'px' }}
             >
                 <div style={{ fontSize: btnRadius }} className='button-panel'>
                     <span
                         className={(this.props.showAlways ? 'button-show-always' : 'button') + ' fw-stack fw-lg'}
-                        onClick={this.props.onClick}
                         title={this.props.tooltip}
                     >
                         <i
@@ -88,6 +134,7 @@ Button.propTypes = {
     onClick: PropTypes.func,
     tooltip: PropTypes.string,
     menuOverButton: PropTypes.bool,
+    enableMouseClick: PropTypes.bool,
 };
 
 Button.defaultProps = {
@@ -102,6 +149,7 @@ Button.defaultProps = {
     onClick: () => {},
     tooltip: '',
     menuOverButton: false,
+    enableMouseClick: false,
 };
 
 export default Button;

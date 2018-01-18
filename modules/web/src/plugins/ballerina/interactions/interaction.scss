@@ -3,7 +3,7 @@
     position:absolute;
 }
 
-.interaction-menu-area {
+.interaction-menu-area, .interaction-menu-area-clicked {
     position:absolute;
     -webkit-clip-path: circle(var(--button-size) at var(--button-size) var(--button-size));
     clip-path: circle(var(--button-size) at var(--button-size) var(--button-size));
@@ -54,7 +54,7 @@
     100% { opacity: 1; font-size:100% }
 }
 
-.interaction-menu-area:hover {
+.interaction-menu-area:hover, .interaction-menu-area-clicked  {
     z-index:51;
     background: none;
     -webkit-transition-timing-function: ease-out;
@@ -65,7 +65,11 @@
     clip-path: circle(390px at 150px 24px);
 }
 
-.interaction-menu-area:hover .interaction-menu {
+.interaction-menu-area-hidden .interaction-menu {
+    display: none;
+}
+
+.interaction-menu-area:hover .interaction-menu, .interaction-menu-area-clicked .interaction-menu {
     opacity: 1;
     display: block;
     background: #eeeeee;
@@ -73,7 +77,7 @@
     float:left;
 }
 
-.interaction-menu-area:hover .interaction-menu-item {
+.interaction-menu-area:hover .interaction-menu-item, .interaction-menu-area-clicked .interaction-menu-item {
     opacity: 1;
     padding:0 24px;
 }

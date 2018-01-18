@@ -241,6 +241,7 @@ class LifelineButton extends React.Component {
                     showAlways
                     buttonRadius={8}
                     menuOverButton
+                    enableMouseClick
                 >
                     <Menu>
                         { !this.state.listConnectors && !this.state.listActions &&
