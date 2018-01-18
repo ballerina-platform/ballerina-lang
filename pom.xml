@@ -4,7 +4,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>plugin-vscode</artifactId>
     <packaging>pom</packaging>
-    <version>0.95.6</version>
+    <version>0.95.7</version>
     <repositories>
         <repository>
             <id>wso2.releases</id>
@@ -81,6 +81,6 @@
     </build>
     <properties>
         <langserver.launcher.id>language-server-stdio-launcher</langserver.launcher.id>
-        <langserver.launcher.version>0.95.1-SNAPSHOT</langserver.launcher.version>
+        <langserver.launcher.version>0.95.7</langserver.launcher.version>
     </properties>
 </project>
