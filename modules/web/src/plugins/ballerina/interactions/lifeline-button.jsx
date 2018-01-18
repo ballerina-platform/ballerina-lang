@@ -26,12 +26,23 @@ import DefaultNodeFactory from '../model/default-node-factory';
 import Connector from '../env/connector';
 
 // Use your imagination to render suggestions.
-const renderSuggestion = suggestion => (
-    <div>
+const renderSuggestion = (suggestion, value) => {
+    if (suggestion.addNewValue) {
+        return (
+            <div className='add-new-connector-area'>
+                <a className='add-new-connector-button'>
+                    <i className='fw fw-connector' />
+                    {' Create new connector "'}
+                    <b>{value.query + '"'}</b>
+                </a>
+            </div>
+        );
+    }
+    return (<div>
         <div className='pkg-name'>{suggestion.pkg.getName()}</div>
         {suggestion.connector.getName()}
-    </div>
-);
+    </div>);
+};
 /**
  * Interaction lifeline button component
  */
@@ -46,29 +57,13 @@ class LifelineButton extends React.Component {
         };
         this.showConnectors = this.showConnectors.bind(this);
         this.hideConnectors = this.hideConnectors.bind(this);
-        /* this.onChange = this.onChange.bind(this);
         this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this);
-        this.onSuggestionsClearRequested = this.onSuggestionsClearRequested.bind(this); */
-
-        this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this);
-        this.onSuggestionsClearRequested = this.onSuggestionsClearRequested.bind(this);
         this.storeInputReference = this.storeInputReference.bind(this);
         this.onChange = this.onChange.bind(this);
         this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
         this.getSuggestionValue = this.getSuggestionValue.bind(this);
         this.createConnector = this.createConnector.bind(this);
-    }
-
-    getSuggestionValue(suggestion) {
-        return this.state.value;
-    }
-
-
-    // Autosuggest will call this function every time you need to clear suggestions.
-    onSuggestionsClearRequested() {
-        this.setState({
-            suggestions: [],
-        });
+        this.getAllSuggestions = this.getAllSuggestions.bind(this);
     }
 
     // Autosuggest will call this function every time you need to update suggestions.
@@ -96,13 +91,12 @@ class LifelineButton extends React.Component {
             });
         });
 
+        if (value !== '') {
+            suggestions.push({ addNewValue: true });
+        }
         this.setState({
             suggestions,
         });
-    }
-
-    componentDidMount() {
-
     }
 
     onChange(event, { newValue, method }) {
@@ -111,6 +105,39 @@ class LifelineButton extends React.Component {
         });
     }
 
+    onSuggestionSelected(event, item) {
+        if (item.suggestion.addNewValue) {
+            this.createConnector();
+        } else {
+            const node = DefaultNodeFactory.createEndpoint(item.suggestion);
+            this.props.model.acceptDrop(node);
+        }
+    }
+
+    getAllSuggestions() {
+        const environment = this.context.editor.environment;
+        const packages = environment.getFilteredPackages([]);
+        const suggestions = [];
+        packages.forEach((pkg) => {
+            const pkgname = pkg.getName();
+            const connectors = pkg.getConnectors();
+            connectors.forEach((connector) => {
+                suggestions.push({
+                    pkg,
+                    connector,
+                    packageName: pkgname,
+                    fullPackageName: pkgname,
+                });
+            });
+        });
+        return suggestions;
+    }
+
+    getSuggestionValue(suggestion) {
+        return this.state.value;
+    }
+
+
     storeInputReference(autosuggest) {
         if (autosuggest !== null) {
             this.input = autosuggest.input;
@@ -118,16 +145,11 @@ class LifelineButton extends React.Component {
     }
 
     showConnectors() {
-        this.setState({ listConnectors: true });
+        this.setState({ listConnectors: true, suggestions: this.getAllSuggestions() });
     }
 
     hideConnectors() {
         this.setState({ listConnectors: false });
-    }
-
-    onSuggestionSelected(event, item) {
-        const node = DefaultNodeFactory.createEndpoint(item.suggestion);
-        this.props.model.acceptDrop(node);
     }
 
     createConnector() {
@@ -153,7 +175,7 @@ class LifelineButton extends React.Component {
         const { value, suggestions } = this.state;
 
         const inputProps = {
-            placeholder: 'Select Connector',
+            placeholder: 'Search',
             value,
             onChange: this.onChange,
         };
@@ -171,29 +193,30 @@ class LifelineButton extends React.Component {
                     buttonX={0}
                     buttonY={0}
                     showAlways
+                    menuOverButton
                 >
                     <Menu>
                         <div className={connectorListCssClass}>
                             {this.props.items}
-                        </div>
-                        <Item
+                            <Item
                             label='Endpoint'
                             icon='fw fw-endpoint'
                             callback={this.showConnectors}
                         />
+                        </div>
+
                         <div
                             className={connectorCssClass}
                         >
-                            <div
-                                className='connector-select-close'
-                                onClick={this.hideConnectors}
-                            >
-                                <i className='fw fw-left' />
+                            <div className='endpoint-select-header'>
+                                <div className='connector-select-close'>
+                                    <i onClick={this.hideConnectors} className='nav-button fw fw-left' />
+                                    Select a connector
+                                </div>
                             </div>
                             <Autosuggest
                                 suggestions={suggestions}
                                 onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-                                onSuggestionsClearRequested={this.onSuggestionsClearRequested}
                                 onSuggestionSelected={this.onSuggestionSelected}
                                 getSuggestionValue={this.getSuggestionValue}
                                 renderSuggestion={renderSuggestion}
@@ -201,15 +224,6 @@ class LifelineButton extends React.Component {
                                 inputProps={inputProps}
                                 ref={this.storeInputReference}
                             />
-                            {this.state.value !== '' &&
-                            <div className='add-new-connector-area'>
-                                <a className='add-new-connector-button' onClick={this.createConnector}>
-                                    <i className='fw fw-connector' />
-                                    {' Create new connector "'}
-                                    <b>{this.state.value + '"'}</b>
-                                </a>
-                            </div>
-                            }
                         </div>
                     </Menu>
                 </Button>

@@ -36,6 +36,19 @@ class Button extends React.Component {
         const IconOpacity = this.props.hideIconBackground ? 0 : 1;
         const buttonArea = btnRadius + 2 + (btnRadius / 4);
         const topPadding = (-3 * btnRadius) + (btnRadius / 2);
+        const menuStyle = {
+            left: buttonArea,
+            top: topPadding,
+            display: 'block',
+            position: 'relative',
+            float: 'left' };
+
+        if (this.props.menuOverButton) {
+            menuStyle.zIndex = 52;
+            menuStyle.top = (-3 * btnRadius) + 10;
+            menuStyle.left = 0;
+        }
+
         return (
             <div
                 className='interaction-menu-area'
@@ -54,13 +67,7 @@ class Button extends React.Component {
                         <i style={{ color: btnIconColor }} className={`fw fw-${this.props.icon} fw-stack-1x`} />
                     </span>
                 </div>
-                <div style={{
-                    left: buttonArea,
-                    top: topPadding,
-                    display: 'block',
-                    position: 'relative',
-                    float: 'left' }}
-                >
+                <div style={menuStyle}>
                     {this.props.children}
                 </div>
             </div>
@@ -80,6 +87,7 @@ Button.propTypes = {
     showAlways: PropTypes.bool,
     onClick: PropTypes.func,
     tooltip: PropTypes.string,
+    menuOverButton: PropTypes.bool,
 };
 
 Button.defaultProps = {
@@ -93,6 +101,7 @@ Button.defaultProps = {
     showAlways: false,
     onClick: () => {},
     tooltip: '',
+    menuOverButton: false,
 };
 
 export default Button;
