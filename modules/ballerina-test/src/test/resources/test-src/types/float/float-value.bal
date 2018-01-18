@@ -54,3 +54,10 @@ function testFloatParameter(float a) (float) {
     return b;
 }
 
+function testFloatValues()(float, float, float, float){
+    float a = 123.4;
+    float b = 1.234e2;
+    float c = 123.4f;
+    float d = 1.234e2d;
+    return a, b, c, d;
+}

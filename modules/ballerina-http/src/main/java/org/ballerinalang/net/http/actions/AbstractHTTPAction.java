@@ -27,7 +27,6 @@ import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.net.http.Constants;
-import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.RetryConfig;
 import org.ballerinalang.net.http.transactions.MicroTransactionManager;
@@ -42,7 +41,9 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -195,12 +196,11 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                                     HTTPClientConnectorListener httpClientConnectorLister) {
         try {
             BConnector bConnector = (BConnector) getRefArgument(context, 0);
-            String scheme = (String) httpRequestMsg.getProperty(Constants.PROTOCOL);
             HttpClientConnector clientConnector =
-                    HttpConnectionManager.getInstance().getHTTPHttpClientConnector(scheme, bConnector);
+                    (HttpClientConnector) bConnector.getnativeData(Constants.CONNECTOR_NAME);
             HttpResponseFuture future = clientConnector.send(httpRequestMsg);
             future.setHttpConnectorListener(httpClientConnectorLister);
-            serializeDataSource(context);
+            serializeDataSource(context, httpRequestMsg);
         } catch (BallerinaConnectorException e) {
             throw new BallerinaException(e.getMessage(), e, context);
         } catch (Exception e) {
@@ -208,12 +208,13 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
     }
 
-    private void serializeDataSource(Context context) {
+    private void serializeDataSource(Context context, HTTPCarbonMessage httpRequestMsg) {
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
         MessageDataSource messageDataSource = HttpUtil.getMessageDataSource(requestStruct);
         if (messageDataSource != null) {
-            messageDataSource.serializeData();
-            HttpUtil.closeMessageOutputStream(requestStruct);
+            OutputStream messageOutputStream = new HttpMessageDataStreamer(httpRequestMsg).getOutputStream();
+            messageDataSource.serializeData(messageOutputStream);
+            HttpUtil.closeMessageOutputStream(messageOutputStream);
         }
     }
 

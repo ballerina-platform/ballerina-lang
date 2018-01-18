@@ -166,6 +166,29 @@ function testToXmlMultipleConsume () (xml) {
     return null;
 }
 
+function testToXmlWithAdd () (xml) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:2});
+    }
+
+    try {
+        datatable dt1 = testDB.select("SELECT int_type from DataTable WHERE row_id = 1", null, null);
+        var result1, _ = <xml>dt1;
+
+        datatable dt2 = testDB.select("SELECT int_type from DataTable WHERE row_id = 1", null, null);
+        var result2, _ = <xml>dt2;
+
+        xml result = result1 + result2;
+
+        datatable dt3 = testDB.select("SELECT int_type from DataTable WHERE row_id = 1", null, null);
+        return result;
+    } finally {
+        testDB.close();
+    }
+    return null;
+}
+
 function testToJsonMultipleConsume () (json) {
     endpoint<sql:ClientConnector> testDB {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
@@ -696,10 +719,120 @@ function testMutltipleRows () (int i1, int i2) {
         } else {
             rs2, _ = (ResultPrimitiveInt)dt.getNext();
         }
-        i = i +1;
+        i = i + 1;
     }
     testDB.close();
     return rs1.INT_TYPE, rs2.INT_TYPE;
+}
+
+function testMutltipleRowsWithoutLoop () (int i1, int i2, int i3, int i4, string st1, string st2) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+
+    //Iterate the whole result
+    datatable dt = testDB.select("SELECT int_type from DataTableRep order by int_type desc", null,
+                                 typeof ResultPrimitiveInt);
+    while (dt.hasNext()) {
+        var rs, _ = (ResultPrimitiveInt)dt.getNext();
+        i1 = rs.INT_TYPE;
+    }
+
+    //Pick the first row only
+    dt = testDB.select("SELECT int_type from DataTableRep order by int_type desc", null, typeof ResultPrimitiveInt);
+    if (dt.hasNext()) {
+        var rs, _ = (ResultPrimitiveInt)dt.getNext();
+        i2 = rs.INT_TYPE;
+    }
+    dt.close();
+
+    //Pick all the rows without checking
+    dt = testDB.select("SELECT int_type from DataTableRep order by int_type desc", null, typeof ResultPrimitiveInt);
+    var rs1, _ = (ResultPrimitiveInt)dt.getNext();
+    i3 = rs1.INT_TYPE;
+
+    var rs2, _ = (ResultPrimitiveInt)dt.getNext();
+    i4 = rs2.INT_TYPE;
+    dt.close();
+
+    //Pick the first row by checking and next row without checking
+    string s1 = "";
+    dt = testDB.select("SELECT int_type from DataTableRep order by int_type desc", null, typeof ResultPrimitiveInt);
+    if (dt.hasNext()) {
+        var rs, _ = (ResultPrimitiveInt)dt.getNext();
+        int i = rs.INT_TYPE;
+        s1 = s1 + i;
+    }
+
+    var rs, _ = (ResultPrimitiveInt)dt.getNext();
+    int i = rs.INT_TYPE;
+    s1 = s1 + "_" + i;
+
+    if (dt.hasNext()) {
+        s1 = s1 + "_" + "HAS";
+    } else {
+        s1 = s1 + "_" + "NOT";
+    }
+
+    //Pick the first row without checking, then check and no fetch, and finally fetch row by checking
+    string s2 = "";
+    dt = testDB.select("SELECT int_type from DataTableRep order by int_type desc", null, typeof ResultPrimitiveInt);
+    rs, _ = (ResultPrimitiveInt)dt.getNext();
+    i = rs.INT_TYPE;
+    s2 = s2 + i;
+    if (dt.hasNext()) {
+        s2 = s2 + "_" + "HAS";
+    } else {
+        s2 = s2 + "_" + "NO";
+    }
+    if (dt.hasNext()) {
+        s2 = s2 + "_" + "HAS";
+    } else {
+        s2 = s2 + "_" + "NO";
+    }
+    if (dt.hasNext()) {
+        rs, _ = (ResultPrimitiveInt)dt.getNext();
+        i = rs.INT_TYPE;
+        s2 = s2 + "_" + i;
+    }
+    if (dt.hasNext()) {
+        s2 = s2 + "_" + "HAS";
+    } else {
+        s2 = s2 + "_" + "NO";
+    }
+    if (dt.hasNext()) {
+        s2 = s2 + "_" + "HAS";
+    } else {
+        s2 = s2 + "_" + "NO";
+    }
+    testDB.close();
+    return i1, i2, i3, i4, s1, s2;
+}
+
+function testHasNextWithoutConsume () (boolean b1, boolean b2, boolean b3) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+
+    datatable dt = testDB.select("SELECT int_type from DataTableRep order by int_type desc", null,
+                                 typeof ResultPrimitiveInt);
+    b1 = false;
+    b2 = false;
+    b3 = false;
+
+    if (dt.hasNext()) {
+        b1 = true;
+    }
+    if (dt.hasNext()) {
+        b2 = true;
+    }
+    if (dt.hasNext()) {
+        b3 = true;
+    }
+    testDB.close();
+    return b1, b2, b3;
 }
 
 function testGetFloatTypes () (float f, float d, float num, float dec) {

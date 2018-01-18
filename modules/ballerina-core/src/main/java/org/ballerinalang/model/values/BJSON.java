@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BStructType.StructField;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.util.JsonNode.Type;
@@ -35,6 +36,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.StringJoiner;
 
 /**
@@ -42,7 +45,7 @@ import java.util.StringJoiner;
  *
  * @since 0.8.0
  */
-public final class BJSON extends BallerinaMessageDataSource implements BRefType<JsonNode> {
+public final class BJSON extends BallerinaMessageDataSource implements BRefType<JsonNode>, BCollection {
 
     private BType type = BTypes.typeJSON;
 
@@ -51,9 +54,6 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
 
     // json object model associated with this JSONType object
     private JsonNode value;
-
-    // Output stream to write message out to the socket
-    private OutputStream outputStream;
 
     /**
      * Initialize a {@link BJSON} from a {@link JsonNode} object.
@@ -146,25 +146,20 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     }
 
     @Override
-    public void serializeData() {
+    public void serializeData(OutputStream outputStream) {
         try {
             /* the below order is important, where if the value is generated from a streaming data source,
              * it should be able to serialize the data out again using the value */
             if (this.value != null) {
-                this.value.serialize(this.outputStream);
+                this.value.serialize(outputStream);
             } else {
-                JsonGenerator gen = new JsonGenerator(this.outputStream);
+                JsonGenerator gen = new JsonGenerator(outputStream);
                 this.datasource.serialize(gen);
                 gen.flush();
             }
         } catch (Throwable t) {
             handleJsonException("error occurred during writing the message to the output stream: ", t);
         }
-    }
-
-    @Override
-    public void setOutputStream(OutputStream outputStream) {
-        this.outputStream = outputStream;
     }
 
     /**
@@ -260,6 +255,68 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
             handleJsonException("failed to clone the json message: ", t);
         }
         return clonedMessage;
+    }
+
+    @Override
+    public BIterator newIterator() {
+        return new BJSONIterator(this);
+    }
+
+    /**
+     * {@code {@link BJSONIterator}} provides iterator implementation for json values.
+     *
+     * @since 0.96.0
+     */
+    static class BJSONIterator implements BIterator {
+
+        BJSON collection;
+        // Fields for JSON Object iteration.
+        Iterator<Map.Entry<String, JsonNode>> iterator;
+        // Fields for JSON Array iteration.
+        boolean isJSONArray;
+        int size, cursor = 0;
+
+        BJSONIterator(BJSON value) {
+            collection = value;
+            if (collection.type.getTag() == TypeTags.ARRAY_TAG || collection.value().isArray()) {
+                isJSONArray = true;     // This is a JSON Array. Index will be a int.
+                size = collection.value().size();
+            } else {
+                iterator = collection.value().fields(); // This is a JSON Object or other type.
+            }
+        }
+
+        @Override
+        public BValue[] getNext(int arity) {
+            if (isJSONArray) {
+                long cursor = this.cursor++;
+                if (arity == 1) {
+                    return new BValue[] {new BJSON(collection.value.get((int) cursor))};
+                } else {
+                    return new BValue[] {new BInteger(cursor), new BJSON(collection.value.get((int) cursor))};
+                }
+            }
+            if (arity == 1) {
+                return new BValue[] {new BJSON(iterator.next().getValue())};
+            }
+            return null;
+        }
+
+        @Override
+        public BType[] getParamType(int arity) {
+            if (arity == 1) {
+                return new BType[] {BTypes.typeJSON};
+            }
+            if (arity == 2 && isJSONArray) {
+                return new BType[] {BTypes.typeInt, BTypes.typeJSON};
+            }
+            return null;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return isJSONArray ? cursor < size : iterator.hasNext();
+        }
     }
 
     /**

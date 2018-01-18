@@ -60,6 +60,7 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
     public void serialize(XMLStreamWriter xmlStreamWriter) throws XMLStreamException {
         xmlStreamWriter.writeStartElement("", this.rootWrapper, "");
         while (dataTable.hasNext(this.isInTransaction)) {
+            dataTable.next();
             xmlStreamWriter.writeStartElement("", this.rowWrapper, "");
             BStructType structType = dataTable.getStructType();
             BStructType.StructField[] structFields = null;

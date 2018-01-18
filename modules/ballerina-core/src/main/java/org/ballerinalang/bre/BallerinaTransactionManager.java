@@ -100,8 +100,8 @@ public class BallerinaTransactionManager {
         microTransactionContext.commit();
         if (transactionLevel == 1) {
             commitNonXAConnections();
-            closeAllConnections();
             commitXATransaction();
+            closeAllConnections();
             doneTransactionContexts();
         }
 

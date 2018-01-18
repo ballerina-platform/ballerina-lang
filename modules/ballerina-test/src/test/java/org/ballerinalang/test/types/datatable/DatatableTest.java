@@ -103,6 +103,15 @@ public class DatatableTest {
                 + "<STRING_TYPE>Hello</STRING_TYPE></result></results>");
     }
 
+    @Test(groups = "DatatableTest", description = "Check datatable to XML conversion with concat operation.")
+    public void testToXmlWithAdd() {
+        BValue[] returns = BRunUtil.invoke(result, "testToXmlWithAdd");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<results><result><INT_TYPE>1</INT_TYPE></result></results>"
+                + "<results><result><INT_TYPE>1</INT_TYPE></result></results>");
+    }
+
     @Test(groups = "DatatableTest", description = "Check xml streaming when result set consumed once.")
     public void testToJsonMultipleConsume() {
         BValue[] returns = BRunUtil.invoke(result, "testToJsonMultipleConsume");
@@ -433,6 +442,27 @@ public class DatatableTest {
         BValue[] returns = BRunUtil.invoke(result, "testMutltipleRows");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
+    }
+
+    @Test(groups = "DatatableTest", description = "Check select data with multiple rows accessing without getNext.")
+    public void testMutltipleRowsWithoutLoop() {
+        BValue[] returns = BRunUtil.invoke(result, "testMutltipleRowsWithoutLoop");
+        Assert.assertEquals(returns.length, 6);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 200);
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 100);
+        Assert.assertEquals(returns[4].stringValue(), "200_100_NOT");
+        Assert.assertEquals(returns[5].stringValue(), "200_HAS_HAS_100_NO_NO");
+    }
+
+    @Test(groups = "DatatableTest", description = "Check select data with multiple rows accessing without getNext.")
+    public void testHasNextWithoutConsume() {
+        BValue[] returns = BRunUtil.invoke(result, "testHasNextWithoutConsume");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
     }
 
     @Test(groups = "DatatableTest", description = "Check get float and double types.")
