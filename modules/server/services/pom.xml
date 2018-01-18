@@ -17,6 +17,7 @@
         <module>ballerina-parser</module>
         <module>ballerina-launcher</module>
         <module>ballerina-to-swagger</module>
+        <module>ballerina-tryit</module>
     </modules>
     <dependencies>
         <dependency>
