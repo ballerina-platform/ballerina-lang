@@ -136,9 +136,13 @@ export const statement = {
 };
 
 export const actionInvocationStatement = {
-    width: 8,
+    width: 6,
     height: (2 * statement.height),
-    textHeight: statement.height,
+    text: {
+        height: statement.height,
+        padding: 10,
+    },
+    timelineHeight: ((3 / 4) * statement.height),
 };
 
 export const blockStatement = {

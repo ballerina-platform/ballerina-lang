@@ -401,7 +401,9 @@ WhileStatementDecorator.propTypes = {
     children: PropTypes.arrayOf(PropTypes.node),
     bBox: PropTypes.instanceOf(SimpleBBox).isRequired,
     dropTarget: PropTypes.instanceOf(Node).isRequired,
-    expression: PropTypes.string.isRequired,
+    expression: PropTypes.shape({
+        text: PropTypes.string.isRequired,
+    }).isRequired,
     editorOptions: PropTypes.shape({
         propertyType: PropTypes.string,
         key: PropTypes.string,

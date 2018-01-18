@@ -100,7 +100,7 @@ class PositioningUtil {
                 };
                 viewState.components.invocation.start = arrowStartBBox;
                 arrowEndBBox.x = parentConstructNode.viewState.components.client.x
-                                + (this.config.clientLine.head.length / 2);
+                                    + (this.config.clientLine.head.width / 2);
                 arrowEndBBox.y = arrowStartBBox.y;
                 viewState.components.invocation.end = arrowEndBBox;
             }

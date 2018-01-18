@@ -389,9 +389,9 @@ CatchStatementDecorator.propTypes = {
     onBreakpointClick: PropTypes.func.isRequired,
     isBreakpoint: PropTypes.bool.isRequired,
     disableButtons: PropTypes.shape({
-        debug: PropTypes.bool.isRequired,
-        delete: PropTypes.bool.isRequired,
-        jump: PropTypes.bool.isRequired,
+        debug: PropTypes.bool,
+        delete: PropTypes.bool,
+        jump: PropTypes.bool,
     }),
     connectorStartX: PropTypes.number.isRequired,
     disableDropzoneMiddleLineOverlay: PropTypes.bool,
