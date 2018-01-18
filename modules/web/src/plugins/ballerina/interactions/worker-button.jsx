@@ -62,7 +62,6 @@ class LifelineButton extends React.Component {
             value: '',
             suggestions: [],
         };
-
         this.showConnectors = this.showConnectors.bind(this);
         this.hideConnectors = this.hideConnectors.bind(this);
         this.showActions = this.showActions.bind(this);
@@ -74,12 +73,6 @@ class LifelineButton extends React.Component {
         this.getSuggestionValue = this.getSuggestionValue.bind(this);
         this.createAction = this.createAction.bind(this);
         this.getAllSugestions = this.getAllSugestions.bind(this);
-    }
-
-    componentDidMount() {
-        if (this.input) {
-            this.input.focus();
-        }
     }
 
     // Autosuggest will call this function every time you need to update suggestions.

@@ -66,10 +66,6 @@ class LifelineButton extends React.Component {
         this.getAllSuggestions = this.getAllSuggestions.bind(this);
     }
 
-    componentDidMount() {
-
-    }
-
     // Autosuggest will call this function every time you need to update suggestions.
     // You already implemented this logic above, so just use it.
     onSuggestionsFetchRequested({ value }) {
