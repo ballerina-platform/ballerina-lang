@@ -28,17 +28,24 @@ import java.util.stream.Collectors;
 /**
  * Documentation model for representing a package name.
  */
-public class PackageName {
+public class PackageName extends Linkable {
+    public final boolean isPackageName;
     public final String prefix;
     public final String suffix;
-    public final String name;
     
     public PackageName(String prefix, String suffix) {
+        super(prefix + suffix);
         this.prefix = prefix;
         this.suffix = suffix;
-        name = this.prefix + this.suffix;
+        this.isPackageName = true;
     }
     
+    /**
+     * Converts a string list of package names to a {@link Link} list. While conversion, the {@link PackageName}'s
+     * suffix and prefix is populated. The common part of all packages will set as prefix and the rest be as suffix.
+     * @param packageNames The package names.
+     * @return Package names as a link.
+     */
     public static List<Link> convertList(List<String> packageNames) {
     
         // Contains the common part of all packages
@@ -75,13 +82,16 @@ public class PackageName {
             String finalPrefix = prefix;
             return packageNames.stream()
                     .map((packageName) -> new PackageName(finalPrefix, packageName.replace(finalPrefix, "")))
-                    .map((packageObj -> new Link(packageObj, packageObj.name.toLowerCase(Locale.getDefault()), true)))
+                    .map((packageObj -> new Link(packageObj, packageObj.value.toLowerCase(Locale.getDefault()), true)))
                     .collect(Collectors.toList());
         } else {
             return new ArrayList<>();
         }
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return "PackageName{" + "prefix='" + prefix + '\'' + ", suffix='" + suffix + '\'' + '}';

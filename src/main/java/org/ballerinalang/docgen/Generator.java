@@ -27,9 +27,11 @@ import org.ballerinalang.docgen.model.EnumDoc;
 import org.ballerinalang.docgen.model.FunctionDoc;
 import org.ballerinalang.docgen.model.GlobalVariableDoc;
 import org.ballerinalang.docgen.model.Link;
+import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.PrimitiveTypeDoc;
 import org.ballerinalang.docgen.model.StructDoc;
+import org.ballerinalang.docgen.model.Text;
 import org.ballerinalang.docgen.model.Variable;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotatableNode;
@@ -131,15 +133,17 @@ public class Generator {
         
         // Create the links to select which page or package is active
         List<Link> links = new ArrayList<>();
+        PackageName packageNameHeading = null;
         for (Link pkgLink : packages) {
-            if (pkgLink.packageName.name.equals(currentPackageName)) {
-                links.add(new Link(pkgLink.packageName, pkgLink.href, true));
+            if (pkgLink.content.value.equals(currentPackageName)) {
+                packageNameHeading = (PackageName) pkgLink.content;
+                links.add(new Link(pkgLink.content, pkgLink.href, true));
             } else {
-                links.add(new Link(pkgLink.packageName, pkgLink.href, false));
+                links.add(new Link(pkgLink.content, pkgLink.href, false));
             }
         }
     
-        return new Page(currentPackageName, documentables, links);
+        return new Page(packageNameHeading, documentables, links);
     }
     
     /**
@@ -182,14 +186,15 @@ public class Generator {
         // Create the links to select which page or package is active
         List<Link> links = new ArrayList<>();
         for (Link pkgLink : packages) {
-            if (BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME.equals(pkgLink.packageName.name)) {
-                links.add(new Link(pkgLink.packageName, pkgLink.href, true));
+            if (BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME.equals(pkgLink.content.value)) {
+                links.add(new Link(pkgLink.content, pkgLink.href, true));
             } else {
-                links.add(new Link(pkgLink.packageName, pkgLink.href, false));
+                links.add(new Link(pkgLink.content, pkgLink.href, false));
             }
         }
-        
-        return new Page(BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME, primitiveTypes, links);
+    
+        Text primitivesPageHeading = new Text(BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME);
+        return new Page(primitivesPageHeading, primitiveTypes, links);
     }
     
     /**

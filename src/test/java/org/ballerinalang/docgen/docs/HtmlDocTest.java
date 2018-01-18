@@ -30,6 +30,7 @@ import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.StructDoc;
+import org.ballerinalang.docgen.model.Text;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -124,11 +125,11 @@ public class HtmlDocTest {
     public void testGlobalVariables() throws Exception {
         BLangPackage bLangPackage = createPackage("package x.y; " +
                                                   "public int total = 98;" +
-                                                  "public string content = \"Name\";");
+                                                  "public string value = \"Name\";");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 2);
         Assert.assertEquals(page.constructs.get(0).name, "total");
-        Assert.assertEquals(page.constructs.get(1).name, "content");
+        Assert.assertEquals(page.constructs.get(1).name, "value");
     }
 
     @Test(description = "Structs in a package should be shown in the constructs")
@@ -329,7 +330,7 @@ public class HtmlDocTest {
                                                   "annotation ParameterInfo {}" +
                                                   "annotation ReturnInfo {}" +
                                                   "int total = 98;" +
-                                                  "string content = \"Name\";" +
+                                                  "string value = \"Name\";" +
                                                   "struct Message {}" +
                                                   "struct Response {}");
         Page page = generatePage(bLangPackage);
@@ -343,7 +344,7 @@ public class HtmlDocTest {
                                                   "public native function <blob b> sample () (string);");
         List<Link> packages = new ArrayList<>();
         packages.add(new Link(new PackageName((bLangPackage.symbol).pkgID.name.value, ""), "", false));
-        packages.add(new Link(new PackageName("", BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME),
+        packages.add(new Link(new Text(BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME),
                 BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF, false));
         Page primitivesPage = Generator.generatePageForPrimitives(bLangPackage, packages);
         Assert.assertEquals(primitivesPage.constructs.size(), 1);

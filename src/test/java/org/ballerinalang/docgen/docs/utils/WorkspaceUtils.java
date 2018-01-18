@@ -39,7 +39,7 @@ public class WorkspaceUtils {
         CompilerContext context = new CompilerContext();
         List<Name> names = new ArrayList<>();
         names.add(new Name("."));
-        // Registering custom PackageRepository to provide ballerina content without a file in file-system
+        // Registering custom PackageRepository to provide ballerina value without a file in file-system
         context.put(PackageRepository.class, new InMemoryPackageRepository(
                 new PackageID(names, new Name("0.0.0")),
                 "", fileName, source.getBytes(StandardCharsets.UTF_8)));
