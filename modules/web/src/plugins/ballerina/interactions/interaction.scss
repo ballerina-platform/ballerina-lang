@@ -147,11 +147,14 @@
 .connector-select {
     width:224px;
     overflow-y: hidden;
-    min-height: 300px;
     opacity: 1;
 	transition-property: all;
 	transition-duration: 0.4s;
 	transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+}
+
+.transform-function-list {
+    min-height: 300px;
 }
 
 @-webkit-keyframes connector-appear {

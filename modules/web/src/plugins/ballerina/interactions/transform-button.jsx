@@ -50,23 +50,11 @@ class TransformButton extends React.Component {
         };
         this.showConnectors = this.showConnectors.bind(this);
         this.hideConnectors = this.hideConnectors.bind(this);
-        /* this.onChange = this.onChange.bind(this);
         this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this);
-        this.onSuggestionsClearRequested = this.onSuggestionsClearRequested.bind(this); */
-
-        this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this);
-        this.onSuggestionsClearRequested = this.onSuggestionsClearRequested.bind(this);
         this.storeInputReference = this.storeInputReference.bind(this);
         this.onChange = this.onChange.bind(this);
         this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
-    }
-
-
-    // Autosuggest will call this function every time you need to clear suggestions.
-    onSuggestionsClearRequested() {
-        this.setState({
-            suggestions: [],
-        });
+        this.getAllSuggestions = this.getAllSuggestions.bind(this);
     }
 
     // Autosuggest will call this function every time you need to update suggestions.
@@ -99,6 +87,25 @@ class TransformButton extends React.Component {
         });
     }
 
+    getAllSuggestions() {
+        const environment = this.context.editor.environment;
+        const packages = environment.getFilteredPackages([]);
+        const suggestions = [];
+        packages.forEach((pkg) => {
+            const pkgname = pkg.getName();
+            const connectors = pkg.getFunctionDefinitions();
+            connectors.forEach((connector) => {
+                suggestions.push({
+                    pkg,
+                    functionDef: connector,
+                    packageName: pkgname,
+                    fullPackageName: pkgname,
+                });
+            });
+        });
+        return suggestions;
+    }
+
     onChange(event, { newValue, method }) {
         this.setState({
             value: newValue,
@@ -119,7 +126,7 @@ class TransformButton extends React.Component {
     }
 
     showConnectors() {
-        this.setState({ listConnectors: true });
+        this.setState({ listConnectors: true, suggestions: this.getAllSuggestions() });
     }
 
     hideConnectors() {
@@ -134,7 +141,7 @@ class TransformButton extends React.Component {
         const { value, suggestions } = this.state;
 
         const inputProps = {
-            placeholder: 'Select Function',
+            placeholder: 'Search',
             value,
             onChange: this.onChange,
         };
@@ -159,13 +166,17 @@ class TransformButton extends React.Component {
                         }
                         { this.state.listConnectors &&
                             <div
-                                className='connector-select'
+                                className='connector-select transform-function-list'
                             >
-                                <i className='fw fw-left icon button-close-menu' onClick={this.hideConnectors} />
+                                <div className='endpoint-select-header'>
+                                    <div className='connector-select-close'>
+                                        <i onClick={this.hideConnectors} className='nav-button fw fw-left' />
+                                        Select a connector
+                                    </div>
+                                </div>
                                 <Autosuggest
                                     suggestions={suggestions}
                                     onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-                                    onSuggestionsClearRequested={this.onSuggestionsClearRequested}
                                     onSuggestionSelected={this.onSuggestionSelected}
                                     getSuggestionValue={getSuggestionValue}
                                     renderSuggestion={renderSuggestion}
