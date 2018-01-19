@@ -1,3 +1,4 @@
+#Below is the structure of available configuration options.
 #port: 9093
 #host: localhost
 #ballerinaHome: ~/balhome/
@@ -5,3 +6,5 @@
 #customConfigs:
 #  launcher:
 #    serviceTryURL: http://appcloud...
+#  debugger:
+#    path: ws://appcloud...
