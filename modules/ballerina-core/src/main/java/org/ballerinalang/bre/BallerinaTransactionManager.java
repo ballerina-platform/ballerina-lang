@@ -106,7 +106,6 @@ public class BallerinaTransactionManager {
             closeAllConnections();
             doneTransactionContexts();
         }
-
     }
 
     public void rollbackTransactionBlock() {
