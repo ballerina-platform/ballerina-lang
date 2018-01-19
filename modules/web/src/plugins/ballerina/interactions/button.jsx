@@ -24,20 +24,24 @@ import './interaction.scss';
  */
 class Button extends React.Component {
 
-    constructor() {
+    constructor(props) {
         super();
-        this.state = { mouseClicked: false };
+        this.state = { mouseClicked: false, showAlways: props.showAlways };
         this.buttonClick = this.buttonClick.bind(this);
         this.setWrapperRef = this.setWrapperRef.bind(this);
         this.handleClickOutside = this.handleClickOutside.bind(this);
     }
 
     componentDidMount() {
-        document.addEventListener('mousedown', this.handleClickOutside);
+        if (this.props.enableMouseClick) {
+            document.addEventListener('mousedown', this.handleClickOutside);
+        }
     }
 
     componentWillUnmount() {
-        document.removeEventListener('mousedown', this.handleClickOutside);
+        if (this.props.enableMouseClick) {
+            document.removeEventListener('mousedown', this.handleClickOutside);
+        }
     }
 
     setWrapperRef(node) {
@@ -46,7 +50,7 @@ class Button extends React.Component {
 
     handleClickOutside(event) {
         if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
-            this.setState({ mouseClicked: false });
+            this.setState({ mouseClicked: false, showAlways: this.props.showAlways });
         } else {
             this.buttonClick();
         }
@@ -54,7 +58,7 @@ class Button extends React.Component {
 
     buttonClick() {
         if (this.props.enableMouseClick) {
-            this.setState({ mouseClicked: true });
+            this.setState({ mouseClicked: true, showAlways: true });
         } else {
             this.props.onClick();
         }
@@ -103,7 +107,7 @@ class Button extends React.Component {
             >
                 <div style={{ fontSize: btnRadius }} className='button-panel'>
                     <span
-                        className={(this.props.showAlways ? 'button-show-always' : 'button') + ' fw-stack fw-lg'}
+                        className={(this.state.showAlways ? 'button-show-always' : 'button') + ' fw-stack fw-lg'}
                         title={this.props.tooltip}
                     >
                         <i
