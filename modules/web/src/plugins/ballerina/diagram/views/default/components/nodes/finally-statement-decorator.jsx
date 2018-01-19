@@ -228,7 +228,7 @@ class FinallyStatementDecorator extends React.Component {
                     this.myRoot = group;
                 }}
             >
-                <rect
+                {this.props.drawBox && <rect
                     x={p1X}
                     y={p1Y}
                     width={blockBox.w}
@@ -236,7 +236,7 @@ class FinallyStatementDecorator extends React.Component {
                     className={statementRectClass}
                     rx='5'
                     ry='5'
-                />
+                />}
                 <text
                     x={p1X + designer.config.compoundStatement.text.padding}
                     y={p2Y}
@@ -284,6 +284,7 @@ FinallyStatementDecorator.defaultProps = {
     },
     disableDropzoneMiddleLineOverlay: false,
     isDebugHit: false,
+    drawBox: true,
 };
 
 FinallyStatementDecorator.propTypes = {
@@ -299,6 +300,7 @@ FinallyStatementDecorator.propTypes = {
     }),
     disableDropzoneMiddleLineOverlay: PropTypes.bool,
     isDebugHit: PropTypes.bool,
+    drawBox: PropTypes.bool,
 };
 
 FinallyStatementDecorator.contextTypes = {

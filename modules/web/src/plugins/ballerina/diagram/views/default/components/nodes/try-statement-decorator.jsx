@@ -230,6 +230,13 @@ class TryStatementDecorator extends React.Component {
             h: statementBBox.h + viewState.components['block-header'].h,
         };
 
+        let onlyFinally = false;
+        if (model.catchBlocks.length === 0 && finallyStmt) {
+            // if there are no catch blocks, the block box is drawn together for try and catch
+            onlyFinally = true;
+            blockBox.h += viewState.components['finally-block'].h;
+        }
+
         return (
             <g
                 onMouseOut={this.setActionVisibilityFalse}
@@ -247,6 +254,15 @@ class TryStatementDecorator extends React.Component {
                     rx='5'
                     ry='5'
                 />
+                {onlyFinally &&
+                    <line
+                        x1={p1X}
+                        y1={p1Y + statementBBox.h + viewState.components['block-header'].h}
+                        x2={p1X + blockBox.w}
+                        y2={p1Y + statementBBox.h + viewState.components['block-header'].h}
+                        className={statementRectClass}
+                    />
+                }
                 <text
                     x={p1X + designer.config.compoundStatement.text.padding}
                     y={p2Y}
@@ -378,6 +394,7 @@ class TryStatementDecorator extends React.Component {
                     model={finallyStmt}
                     body={finallyStmt}
                     disableButtons={{ delete: disableDeleteForFinally }}
+                    drawBox={!onlyFinally}
                 />}
             </g>);
     }
