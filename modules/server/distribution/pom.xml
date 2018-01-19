@@ -5,7 +5,7 @@
     <parent>
         <artifactId>composer-server-parent</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.95.1-SNAPSHOT</version>
+        <version>0.95.8-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>composer-server-distribution</artifactId>
@@ -14,47 +14,47 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>composer-server-core</artifactId>
-            <version>${ballerina.composer.server.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>composer-server-launcher</artifactId>
-            <version>${ballerina.composer.server.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>composer-fs-service</artifactId>
-            <version>${ballerina.composer.server.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>composer-log-service</artifactId>
-            <version>${ballerina.composer.server.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>composer-ballerina-langserver-service</artifactId>
-            <version>${ballerina.composer.server.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>composer-ballerina-launcher-service</artifactId>
-            <version>${ballerina.composer.server.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>composer-ballerina-parser-service</artifactId>
-            <version>${ballerina.composer.server.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>composer-ballerina-to-swagger-service</artifactId>
-            <version>${ballerina.composer.server.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>composer-ballerina-try-it-service</artifactId>
-            <version>${ballerina.composer.server.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.lsp4j</groupId>
@@ -201,6 +201,29 @@
                                 </excludes>
                             </artifactSet>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.5.2</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>${composer.server.launcher.main}</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

@@ -20,10 +20,9 @@
 
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>workspace-service</artifactId>
+            <artifactId>composer-server-distribution</artifactId>
             <version>${project.version}</version>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -45,7 +44,7 @@
                     <artifactItems>
                         <artifactItem>
                             <groupId>org.ballerinalang</groupId>
-                            <artifactId>workspace-service</artifactId>
+                            <artifactId>composer-server-distribution</artifactId>
                             <version>${project.version}</version>
                             <classifier>jar-with-dependencies</classifier>
                         </artifactItem>
@@ -150,7 +149,7 @@
                                 <argument>-Dbal.composer.home=.</argument>
                                 <argument>-jar</argument>
                                 <argument>
-                                    ${project.build.directory}/lib/workspace-service-${project.version}-jar-with-dependencies.jar
+                                    ${project.build.directory}/lib/composer-server-distribution-${project.version}-jar-with-dependencies.jar
                                 </argument>
                             </arguments>
                         </configuration>

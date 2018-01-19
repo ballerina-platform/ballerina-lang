@@ -17,6 +17,7 @@
 package org.ballerinalang.composer.service.workspace.swagger;
 
 import com.google.common.collect.Lists;
+
 import io.swagger.models.ExternalDocs;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
@@ -34,6 +35,7 @@ import io.swagger.models.properties.BooleanProperty;
 import io.swagger.models.properties.IntegerProperty;
 import io.swagger.models.properties.Property;
 import io.swagger.models.properties.StringProperty;
+
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.VariableNode;

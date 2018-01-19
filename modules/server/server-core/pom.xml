@@ -5,7 +5,7 @@
     <parent>
         <artifactId>composer-server-parent</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.95.1-SNAPSHOT</version>
+        <version>0.95.8-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>

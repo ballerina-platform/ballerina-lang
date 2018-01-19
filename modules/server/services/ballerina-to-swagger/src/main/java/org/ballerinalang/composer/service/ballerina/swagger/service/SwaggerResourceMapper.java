@@ -42,7 +42,6 @@ import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeVal
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.net.http.Constants;
 
-import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -53,6 +52,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.ws.rs.core.MediaType;
 
 /**
  * This class will do resource mapping from ballerina to swagger.
