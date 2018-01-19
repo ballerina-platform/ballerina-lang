@@ -171,48 +171,29 @@ class FinallyStatementDecorator extends React.Component {
 
         const viewState = bBox;
         const titleH = this.context.designer.config.statement.height;
-        const titleW = this.context.designer.config.compoundStatement.heading.width;
         const statementBBox = viewState.components['statement-box'];
         const gapLeft = viewState.components['left-margin'].w;
-        // const gapTop = this.context.designer.config.compoundStatement.padding.top;
-
 
         // Defining coordinates of the diagram
         // (x,y)
-        // (P1)        (P2)|---------|(P3)      (P4)
-        //       |---------| finally |----------|
-        // (P11) |         |____ ____|__________| (statementBox)
+        // (P1)
+        //       | finally ---------------------|
+        // (P11) |              |               | (statementBox)
         //       |              |(p8)           |
         //       |              |               |
         //       |         true |               |
-        //       |            __|__ (p12)     __|__
-        //       |            a = 1;           a = 5;
+        //       |            __|__ (p12)       |
+        //       |            a = 1;            |
         //       |              |               |
-        //       |               (p10)          |
         //       |                              |
-        //  (P7) |_____________(P6)_____________| (P5)
+        //       |                              |
+        //  (P7) |_____________(P6)_____________|(P5)
         //                      |
 
         const p1X = bBox.x - gapLeft;
         const p1Y = bBox.y; // + gapTop;
 
-        const p2X = bBox.x - (titleW / 2);
         const p2Y = p1Y + (titleH / 2);
-
-        const p3X = bBox.x + (titleW / 2);
-        const p3Y = p2Y;
-
-        const p4X = p1X + gapLeft + statementBBox.w;
-        const p4Y = p2Y;
-
-        const p5X = p4X;
-        const p5Y = bBox.y + bBox.h;
-
-        const p6X = bBox.x;
-        const p6Y = p5Y;
-
-        const p7X = p1X;
-        const p7Y = p5Y;
 
         const p8X = bBox.x;
         const p8Y = p2Y + (titleH / 2);

@@ -178,19 +178,18 @@ class TryStatementDecorator extends React.Component {
         const titleW = this.context.designer.config.compoundStatement.heading.width;
         const statementBBox = viewState.components['statement-box'];
         const gapLeft = viewState.components['left-margin'].w;
-        const gapTop = 0; // this.context.designer.config.compoundStatement.padding.top;
 
         const finallyStmt = model.finallyBody;
 
 
         // Defining coordinates of the diagram
         // (x,y)
-        // (P1)        (P2)|---------|(P3)      (P4)
-        //       |---------|   try   |----------|
-        // (P11) |         |____ ____|__________|(statementBox)
+        // (P1)
+        //       |   try   | -------------------|(p4X)
+        // (P2Y) |              |               |
         //       |              |(p8)           |
         //       |              |               |---------------[catch]
-        //       |            __|__ (p12)       |(p9)
+        //       |            __|__ (p12)       |
         //       |            a = 1;            |
         //       |              |               |
         //       |               (p10)          |
@@ -199,26 +198,11 @@ class TryStatementDecorator extends React.Component {
         //                      |
 
         const p1X = bBox.x - gapLeft;
-        const p1Y = bBox.y + gapTop;
+        const p1Y = bBox.y;
 
-        const p2X = bBox.x - (titleW / 2);
         const p2Y = p1Y + (titleH / 2);
 
-        const p3X = bBox.x + (titleW / 2);
-        const p3Y = p2Y;
-
         const p4X = p1X + gapLeft + statementBBox.w;
-        const p4Y = p2Y;
-
-        const p5X = p4X;
-        let p5Y = statementBBox.y + statementBBox.h;
-
-        if (model.catchBlocks.length === 0 && finallyStmt) {
-            p5Y += titleH / 2;
-        }
-
-        const p7X = p1X;
-        const p7Y = p5Y;
 
         const p8X = bBox.x;
         const p8Y = p2Y + (titleH / 2);
