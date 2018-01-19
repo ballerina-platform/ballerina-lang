@@ -2466,8 +2466,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangNext continueNode) {
-        generateFinallyInstructions(continueNode, NodeKind.WHILE);
+    public void visit(BLangNext nextNode) {
+        generateFinallyInstructions(nextNode, NodeKind.WHILE);
         this.emit(this.loopResetInstructionStack.peek());
     }
 
