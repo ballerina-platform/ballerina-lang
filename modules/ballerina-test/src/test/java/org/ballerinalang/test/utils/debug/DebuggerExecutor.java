@@ -30,7 +30,6 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.debugger.DebugContext;
-import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -45,17 +44,14 @@ import java.util.List;
 public class DebuggerExecutor implements Runnable {
     private CompileResult result;
     private String[] args;
-    private TestDebugClientHandler clientHandler;
-    private TestDebugServer debugServer;
+    private TestDebugger debugger;
     private List<BreakPointDTO> breakPoints;
     private PackageInfo mainPkgInfo;
 
-    public DebuggerExecutor(CompileResult result, String[] args, TestDebugClientHandler clientHandler,
-                            TestDebugServer debugServer, List<BreakPointDTO> breakPoints) {
+    DebuggerExecutor(CompileResult result, String[] args, TestDebugger debugger, List<BreakPointDTO> breakPoints) {
         this.result = result;
         this.args = args;
-        this.clientHandler = clientHandler;
-        this.debugServer = debugServer;
+        this.debugger = debugger;
         this.breakPoints = breakPoints;
         init();
     }
@@ -81,16 +77,14 @@ public class DebuggerExecutor implements Runnable {
         // Non blocking is not supported in the main program flow..
         Context bContext = new Context(programFile);
 
-        VMDebugManager debugManager = programFile.getDebugManager();
-        if (debugManager.isDebugEnabled()) {
-            DebugContext debugContext = new DebugContext();
-            bContext.setDebugContext(debugContext);
-            debugManager.init(programFile, clientHandler, debugServer);
-            debugManager.addDebugPoints(breakPoints);
-            debugManager.addDebugContext(debugContext);
-            debugServer.releaseLock();
-            debugManager.waitTillDebuggeeResponds();
-        }
+        programFile.setDebugger(debugger);
+        DebugContext debugContext = new DebugContext();
+        bContext.setDebugContext(debugContext);
+        debugger.init();
+        debugger.addDebugPoints(breakPoints);
+        debugger.addDebugContext(debugContext);
+        debugger.releaseLock();
+        debugger.waitTillDebuggeeResponds();
 
         // Invoke package init function
         FunctionInfo mainFuncInfo = BLangProgramRunner.getMainFunction(mainPkgInfo);
@@ -119,6 +113,6 @@ public class DebuggerExecutor implements Runnable {
         BLangVM bLangVM = new BLangVM(programFile);
         bLangVM.run(bContext);
         bContext.await();
-        debugManager.notifyExit();
+        debugger.notifyExit();
     }
 }

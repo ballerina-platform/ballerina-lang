@@ -18,7 +18,13 @@
 
 package org.ballerinalang.util.debugger.dto;
 
-import org.ballerinalang.util.debugger.info.VariableInfo;
+import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BNewArray;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueType;
+import org.ballerinalang.model.values.BXML;
 
 /**
  * DTO class representing variables in the stack upon a debug hit.
@@ -30,46 +36,61 @@ public class VariableDTO {
     private String scope, name;
     private String type, value;
 
-    public VariableDTO() {
+    public VariableDTO(String name, String scope) {
+        this.scope = scope;
+        this.name = name;
     }
-
-    public VariableDTO(VariableInfo vinfo) {
-        this.scope = vinfo.getScope();
-        this.name = vinfo.getName();
-        this.type = vinfo.getType();
-        this.value = vinfo.getbValueSting();
-    }
-
 
     public String getScope() {
         return scope;
-    }
-
-    public void setScope(String scope) {
-        this.scope = scope;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getType() {
         return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     public String getValue() {
         return value;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setBValue(BValue bValue) {
+        if (bValue == null) {
+            type = "null";
+            value = "null";
+            return;
+        }
+        type = bValue.getType().toString();
+        value = getStringValue(bValue);
+    }
+
+    private String getStringValue(BValue bValue) {
+        String bValueString;
+        if (bValue instanceof BValueType || bValue instanceof BXML || bValue instanceof BJSON) {
+            bValueString = bValue.stringValue();
+        } else if (bValue instanceof BNewArray) {
+            BNewArray bArray = (BNewArray) bValue;
+            bValueString = "Array[" + bArray.size() + "] ";
+            bValueString = bValueString + bArray.stringValue();
+        } else if (bValue instanceof BMap) {
+            BMap bmap = (BMap) bValue;
+            bValueString = "Map[" + bmap.size() + "] ";
+            bValueString = bValueString + bmap.stringValue();
+        } else if (bValue instanceof BStruct) {
+            BStruct bStruct = (BStruct) bValue;
+            bValueString = "struct " + bStruct.getType().getName() + " ";
+            bValueString = bValueString + bStruct.stringValue();
+        } else {
+            bValueString = "<Complex_Value>";
+        }
+        return bValueString;
+    }
+
+    @Override
+    public String toString() {
+        return "(" + scope + ") " + name + " = " + value + " {" + type + "}";
     }
 }
