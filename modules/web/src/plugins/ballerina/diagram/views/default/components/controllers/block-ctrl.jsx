@@ -58,6 +58,12 @@ class BlockCtrl extends React.Component {
             if (TreeUtil.isElseBlock(node) && TreeUtil.isEmptyBlock(node)) {
                 bBox.y -= this.context.config.statement.height * 2;
             }
+        } else if (TreeUtil.isTry(node.parent)) {
+            // do nothing
+        } else if (TreeUtil.isCatch(node.parent)) {
+            // do nothing
+        } else if (TreeUtil.isCatch(node.parent)) {
+            // do nothing
         } else {
             bBox.h += this.context.config.statement.height * 1.5;
             button.y += this.context.config.statement.height * 1.5;
