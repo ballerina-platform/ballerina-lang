@@ -17,11 +17,12 @@
  */
 
 import _ from 'lodash';
-import SimpleBBox from './../../model/view/simple-bounding-box';
+import { DiagramUtil } from '../diagram-util';
 
 class ControllerVisitor {
 
-    constructor() {
+    constructor(mode) {
+        this.mode = mode;
         this.components = [];
     }
 
@@ -29,16 +30,16 @@ class ControllerVisitor {
         this.util = controllerUtil;
     }
 
-    beginVisit() {
-        // do nothing.
+    beginVisit(node) {
+        const components = DiagramUtil.getNodeControllers(node, this.mode);
+        if (components) {
+            this.components = _.concat(this.components, components);
+        }
         return undefined;
     }
 
     endVisit(node) {
-        if (_.isFunction(this.util[`position${node.getKind()}NodeControllers`])) {
-            const elements = this.util[`position${node.getKind()}NodeControllers`](node);
-            this.components = _.concat(this.components, elements);
-        }
+        // do nothing.
         return undefined;
     }
 

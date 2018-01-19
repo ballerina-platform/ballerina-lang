@@ -602,7 +602,13 @@ class TreeUtil extends AbstractTreeUtil {
         return this.getClientInvokableParentNode(node.parent);
     }
 
-
+    /**
+     * Check if function is an initialization function.
+     *
+     * @param {any} node tree node.
+     * @returns {bool} true if it is a init function.
+     * @memberof TreeUtil
+     */
     isInitFunction(node) {
         const regex = /\.\<init\>$/g;
         return regex.test(node.name.value);
@@ -620,6 +626,60 @@ class TreeUtil extends AbstractTreeUtil {
         } else {
             return this.getCurrentEndpoints(model.parent);
         }
+    }
+
+    /**
+     * Check if the block is part of a lifeline in diagram.
+     *
+     * @param {any} node tree node.
+     * @returns {bool} true if block is on a lifeline.
+     * @memberof TreeUtil
+     */
+    isLineBlock(node) {
+        if (this.isFunction(node.parent) ||
+            this.isResource(node.parent) ||
+            this.isAction(node.parent)) {
+            if (this.isInitFunction(node.parent)) {
+                return false;
+            }
+            if (node.parent.workers.length > 0) {
+                if (node.parent.body) {
+                    return !(node.parent.body.id === node.id);
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     *  Check if block node has statements.
+     *
+     * @param {any} node tree node.
+     * @returns {bool} true if block is empty
+     * @memberof TreeUtil
+     */
+    isEmptyBlock(node) {
+        if (this.isBlock(node)) {
+            return node.statements.length === 0;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Check if the block node is an else blocl
+     *
+     * @param {any} node tree node.
+     * @returns {bool} true if block is an else block;
+     * @memberof TreeUtil
+     */
+    isElseBlock(node) {
+        if (this.isIf(node.parent)
+            && node.parent.elseStatement
+            && this.isBlock(node.parent.elseStatement)) {
+            return node.parent.elseStatement.id === node.id;
+        }
+        return false;
     }
 }
 
