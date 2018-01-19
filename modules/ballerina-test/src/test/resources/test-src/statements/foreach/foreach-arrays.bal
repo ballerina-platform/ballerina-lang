@@ -285,3 +285,21 @@ function testThrow2Callee () {
         concatString(i, v.toUpperCase());
     }
 }
+
+function testNestedWithBreakNext () (string){
+    output = "";
+    string[] sArray = ["d0", "d1", "d2", "d3"];
+    foreach i, v in sArray {
+        concatString(i, v);
+        foreach j in 1..5 {
+            if (j == 4) {
+                break;
+            } else if (j == 2) {
+                next;
+            }
+            output = output + j;
+        }
+        output = output + " ";
+    }
+    return output;
+}
