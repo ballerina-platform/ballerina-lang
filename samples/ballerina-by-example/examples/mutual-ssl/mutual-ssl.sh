@@ -3,7 +3,7 @@ $ ballerina run mutual-ssl.bal -s
 ballerina: deploying service(s) in 'mutual-ssl.bal'
 ballerina: started HTTPS/WSS server connector http-9095
 
-#Run the main function containing ballerina client
+#Run the main function containing the client
 $ ballerina run mutual-ssl.bal
 Response code: 200
-Response: Successful
+Response: Hello World!
