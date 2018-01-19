@@ -59,7 +59,7 @@ class PositioningUtil {
 
             arrowStartBBox.x = viewState.bBox.x;
             arrowStartBBox.y = viewState.components['statement-box'].y
-                                + this.config.actionInvocationStatement.textHeight;
+                                + this.config.actionInvocationStatement.text.height;
 
             dropDown.x = arrowStartBBox.x;
             dropDown.y = viewState.components['statement-box'].y
@@ -91,7 +91,7 @@ class PositioningUtil {
 
             arrowStartBBox.x = viewState.components['statement-box'].x;
             arrowStartBBox.y = viewState.components['statement-box'].y
-                                + this.config.actionInvocationStatement.textHeight;
+                                + this.config.actionInvocationStatement.text.height;
 
             if (parentConstructNode) {
                 viewState.components.invocation = {
@@ -1413,7 +1413,7 @@ class PositioningUtil {
 
         // position catch nodes
         const catchStartX = node.viewState.bBox.x + this.config.compoundStatement.gap.left;
-        const catchStartY = node.viewState.bBox.y + (3 * this.config.compoundStatement.padding.top);
+        const catchStartY = node.viewState.bBox.y + this.config.compoundStatement.padding.top;
 
         let catchStmtWidth = node.viewState.components['statement-box'].w;
         let catchHeight = node.viewState.components['statement-box'].h;
@@ -1442,8 +1442,7 @@ class PositioningUtil {
             if (catchBlocks.length > 0) {
                 finallyY = catchBlocks[0].viewState.bBox.y + catchBlocks[0].viewState.bBox.h;
             } else {
-                finallyY = node.viewState.components['statement-box'].y + node.viewState.components['statement-box'].h -
-                            this.config.statement.gutter.h;
+                finallyY = node.viewState.components['statement-box'].y + node.viewState.components['statement-box'].h;
             }
 
             // Position the finally block

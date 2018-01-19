@@ -174,23 +174,25 @@ class TryStatementDecorator extends React.Component {
 
         const model = this.props.model;
         const viewState = model.viewState;
-        const titleH = this.context.designer.config.compoundStatement.heading.height;
-        const titleW = this.context.designer.config.compoundStatement.heading.width;
+        const titleH = designer.config.statement.height;
+        const titleW = designer.config.compoundStatement.heading.width;
         const statementBBox = viewState.components['statement-box'];
         const gapLeft = viewState.components['left-margin'].w;
-        const gapTop = this.context.designer.config.compoundStatement.padding.top;
+        const gapTop = designer.config.compoundStatement.padding.top;
 
         const finallyStmt = model.finallyBody;
+        const blockHeaderHeight = viewState.components['block-header'].h -
+                                    designer.config.compoundStatement.padding.top;
 
 
         // Defining coordinates of the diagram
         // (x,y)
-        // (P1)        (P2)|---------|(P3)      (P4)
-        //       |---------|   try   |----------|
-        // (P11) |         |____ ____|__________|(statementBox)
+        // (P1)
+        //       |   try   | -------------------|(p4X)
+        // (P2Y) |              |               |
         //       |              |(p8)           |
         //       |              |               |---------------[catch]
-        //       |            __|__ (p12)       |(p9)
+        //       |            __|__ (p12)       |
         //       |            a = 1;            |
         //       |              |               |
         //       |               (p10)          |
@@ -201,24 +203,9 @@ class TryStatementDecorator extends React.Component {
         const p1X = bBox.x - gapLeft;
         const p1Y = bBox.y + gapTop;
 
-        const p2X = bBox.x - (titleW / 2);
         const p2Y = p1Y + (titleH / 2);
 
-        const p3X = bBox.x + (titleW / 2);
-        const p3Y = p2Y;
-
         const p4X = p1X + gapLeft + statementBBox.w;
-        const p4Y = p2Y;
-
-        const p5X = p4X;
-        let p5Y = statementBBox.y + statementBBox.h;
-
-        if (model.catchBlocks.length === 0 && finallyStmt) {
-            p5Y += titleH / 2;
-        }
-
-        const p7X = p1X;
-        const p7Y = p5Y;
 
         const p8X = bBox.x;
         const p8Y = p2Y + (titleH / 2);
@@ -232,7 +219,7 @@ class TryStatementDecorator extends React.Component {
         actionBoxBbox.x = p8X - (actionBoxBbox.w / 2);
         actionBoxBbox.y = p8Y;
 
-        let statementRectClass = 'statement-title-rect';
+        let statementRectClass = 'compound-statment-rect';
         if (isDebugHit) {
             statementRectClass = `${statementRectClass} debug-hit`;
         }
@@ -240,6 +227,18 @@ class TryStatementDecorator extends React.Component {
         const body = getComponentForNodeArray(this.props.model.body);
         const disableDeleteForFinally = model.catchBlocks.length <= 0 && model.finallyBody;
         const disableDeleteForCatch = model.catchBlocks.length === 1 && (!model.finallyBody);
+
+        const blockBox = {
+            w: statementBBox.w + gapLeft,
+            h: statementBBox.h + blockHeaderHeight,
+        };
+
+        let onlyFinally = false;
+        if (model.catchBlocks.length === 0 && finallyStmt) {
+            // if there are no catch blocks, the block box is drawn together for try and catch
+            onlyFinally = true;
+            blockBox.h += viewState.components['finally-block'].h;
+        }
 
         return (
             <g
@@ -249,23 +248,28 @@ class TryStatementDecorator extends React.Component {
                     this.myRoot = group;
                 }}
             >
-                <polyline
-                    points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y} ${p7X},${p7Y} ${p11X},${p11Y} ${p2X},${p2Y}`}
-                    className='background-empty-rect'
-                />
                 <rect
-                    x={p2X}
+                    x={p1X}
                     y={p1Y}
-                    width={titleW}
-                    height={titleH}
+                    width={blockBox.w}
+                    height={blockBox.h}
                     className={statementRectClass}
                     rx='5'
                     ry='5'
                 />
+                {onlyFinally &&
+                    <line
+                        x1={p1X}
+                        y1={p1Y + statementBBox.h + blockHeaderHeight}
+                        x2={p1X + blockBox.w}
+                        y2={p1Y + statementBBox.h + blockHeaderHeight}
+                        className={statementRectClass}
+                    />
+                }
                 <text
-                    x={p8X}
+                    x={p1X + designer.config.compoundStatement.text.padding}
                     y={p2Y}
-                    className='statement-title-text'
+                    className='statement-title-text-left'
                 >try
                 </text>
                 <DropZone
@@ -347,8 +351,9 @@ class TryStatementDecorator extends React.Component {
                         let connectorLineComp;
                         if (finallyStmt) {
                             const arrowY = finallyStmt.viewState.bBox.y - designer.config.statement.gutter.h;
-                            // for arrow head add 5 when there are statements, as the start and end x positions overlap
-                            const arrowStartX = (finallyStmt.statements.length === 0) ? p4X : p4X + 5;
+                            // for arrow head add 5 when try and finally ends are on same X line
+                            // because the start and end x positions overlap
+                            const arrowStartX = (statementBBox.w === finallyStmt.viewState.bBox.w) ? p4X + 5 : p4X;
                             connectorLineComp = (
                                 <g>
                                     <ArrowDecorator
@@ -392,6 +397,7 @@ class TryStatementDecorator extends React.Component {
                     model={finallyStmt}
                     body={finallyStmt}
                     disableButtons={{ delete: disableDeleteForFinally }}
+                    drawBox={!onlyFinally}
                 />}
             </g>);
     }
