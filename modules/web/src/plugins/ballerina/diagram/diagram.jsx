@@ -41,7 +41,6 @@ import {
 import ActiveArbiter from './views/default/components/decorators/active-arbiter';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import TopLevelNodes from './views/default/components/nodes/top-level-nodes';
-import ControllerPositioningUtil from './views/default/controller-positioning-util';
 import ControllerVisitor from './visitors/controller-visitor';
 
 const padding = 5;
@@ -78,6 +77,7 @@ class Diagram extends React.Component {
             activeArbiter: new ActiveArbiter(),
             mode: this.props.mode,
             designer: getSizingUtil(this.props.mode),
+            config: getConfig(this.props.mode),
         };
     }
 
@@ -144,12 +144,13 @@ class Diagram extends React.Component {
         } */
 
         // Filter out the overlay components so we can overlay html on top of svg.
+        /*
         const overlayCompRender = new OverlayComponentsRenderingVisitor();
         this.props.model.accept(overlayCompRender);
         let overlayComponents = [];
         if (overlayCompRender.getOverlayComponents()) {
             overlayComponents = getOverlayComponent(overlayCompRender.getOverlayComponents(), this.props.mode);
-        }
+        } */
 
         // Filter out the errors collected so we can show them near the specific components
         /* const errorCollector = new ErrorCollectorVisitor();
@@ -159,16 +160,9 @@ class Diagram extends React.Component {
             errorList = getOverlayComponent(errorCollector.getErrors(), this.props.mode);
         } */
 
-        const controllerVisitor = new ControllerVisitor();
-        const cu = new ControllerPositioningUtil();
-        cu.setContext(this.context);
-        cu.setMode(this.props.mode);
-        cu.setConfig(getConfig(this.props.mode));
-        controllerVisitor.setControllerUtil(cu);
+        const controllerVisitor = new ControllerVisitor(this.props.mode);
         this.props.model.accept(controllerVisitor);
-        let controllers = controllerVisitor.getComponents();
-
-        controllers = _.merge(controllers, overlayComponents);
+        const controllers = controllerVisitor.getComponents();
 
         const tln = (this.props.model.getTopLevelNodes()) ? this.props.model.getTopLevelNodes() : [];
         const children = getComponentForNodeArray(tln, this.props.mode);
@@ -209,6 +203,7 @@ Diagram.childContextTypes = {
     mode: PropTypes.string,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     designer: PropTypes.instanceOf(Object).isRequired,
+    config: PropTypes.instanceOf(Object).isRequired,
 };
 
 Diagram.defaultProps = {
