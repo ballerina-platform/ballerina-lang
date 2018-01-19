@@ -332,8 +332,9 @@ class TryStatementDecorator extends React.Component {
                         let connectorLineComp;
                         if (finallyStmt) {
                             const arrowY = finallyStmt.viewState.bBox.y - designer.config.statement.gutter.h;
-                            // for arrow head add 5 when there are statements, as the start and end x positions overlap
-                            const arrowStartX = (finallyStmt.statements.length === 0) ? p4X : p4X + 5;
+                            // for arrow head add 5 when try and finally ends are on same X line
+                            // because the start and end x positions overlap
+                            const arrowStartX = (statementBBox.w === finallyStmt.viewState.bBox.w) ? p4X + 5 : p4X;
                             connectorLineComp = (
                                 <g>
                                     <ArrowDecorator
