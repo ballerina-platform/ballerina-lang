@@ -46,10 +46,10 @@ export function fetchConfigs() {
     /* eslint-disable no-undef */
     if (PRODUCTION !== undefined && PRODUCTION) {
     /* eslint-enable no-undef */
-        configUrl = '/config';
+        configUrl = '/composer/config';
     } else {
         // following is to support development mode where the config service is on 9091
-        configUrl = 'http://localhost:9091/config';
+        configUrl = 'http://localhost:9091/composer/config';
     }
     return new Promise((resolve, reject) => {
         axios(configUrl)
@@ -76,7 +76,7 @@ export function parseFile(file) {
         includePackageInfo: true,
         includeProgramDir: true,
     };
-    const endpoint = getServiceEndpoint('parser');
+    const endpoint = getServiceEndpoint('ballerina-parser') + '/file/validate-and-parse';
     const headers = {
         'content-type': 'application/json; charset=utf-8',
     };
@@ -103,7 +103,7 @@ export function parseContent(content) {
         includePackageInfo: true,
         content,
     };
-    const endpoint = getServiceEndpoint('parser');
+    const endpoint = getServiceEndpoint('ballerina-parser') + '/file/validate-and-parse';
     const headers = {
         'content-type': 'application/json; charset=utf-8',
     };
@@ -120,7 +120,7 @@ export function parseContent(content) {
  * Invoke packages service and returns a promise with available packages
  */
 export function getPackages() {
-    const endpoint = getServiceEndpoint('packages');
+    const endpoint = getServiceEndpoint('ballerina-parser') + '/built-in-packages';
     const headers = {
         'content-type': 'application/json; charset=utf-8',
     };
@@ -138,7 +138,7 @@ export function getPackages() {
  */
 export function getFSRoots(extensions) {
     const exts = _.join(extensions, ',');
-    const endpoint = `${getServiceEndpoint('workspace')}/root?extensions=${exts}`;
+    const endpoint = `${getServiceEndpoint('filesystem')}/root?extensions=${exts}`;
     const headers = {
         'content-type': 'application/json; charset=utf-8',
     };
@@ -155,7 +155,7 @@ export function getFSRoots(extensions) {
  * Get File List
  */
 export function listFiles(path, extensions) {
-    const endpoint = `${getServiceEndpoint('workspace')}/listFiles`;
+    const endpoint = `${getServiceEndpoint('filesystem')}/listFiles`;
     const headers = {
         'content-type': 'application/json; charset=utf-8',
     };
@@ -174,7 +174,7 @@ export function listFiles(path, extensions) {
 
 
 export function getSwaggerDefinition(ballerinaSource, serviceName) {
-    const endpoint = `${getServiceEndpoint('swagger')}/ballerina-to-swagger?serviceName=${serviceName}`;
+    const endpoint = `${getServiceEndpoint('ballerina-to-swagger')}/ballerina-to-swagger?serviceName=${serviceName}`;
     const headers = {
         'content-type': 'application/json; charset=utf-8',
     };
@@ -250,7 +250,7 @@ export function parseFragment(fragment) {
     $.ajax({
         type: 'POST',
         context: this,
-        url: getServiceEndpoint('fragmentParser'),
+        url: getServiceEndpoint('ballerina-parser') + '/model/parse-fragment',
         data: JSON.stringify(fragment),
         contentType: 'application/json; charset=utf-8',
         async: false,
@@ -279,7 +279,7 @@ export function getPathSeperator() {
  * @returns {Object} The response.
  */
 export function invokeTryIt(tryItPayload, protocol) {
-    const endpoint = getServiceEndpoint('tryItService') + '/' + protocol;
+    const endpoint = getServiceEndpoint('try-it') + '/' + protocol;
     const headers = {
         'Content-Type': 'text/plain; charset=utf-8',
     };
@@ -298,7 +298,7 @@ export function invokeTryIt(tryItPayload, protocol) {
  * @returns {Object} The object.
  */
 export function getTryItUrl() {
-    const endpoint = `${getServiceEndpoint('tryItService')}/url`;
+    const endpoint = `${getServiceEndpoint('try-it')}/url`;
     return new Promise((resolve, reject) => {
         axios.get(endpoint, {})
             .then((response) => {
@@ -313,7 +313,7 @@ export function getTryItUrl() {
  * @returns {Promise} Resolves string path
  */
 export function getUserHome() {
-    const endpoint = `${getServiceEndpoint('workspace')}/userHome`;
+    const endpoint = `${getServiceEndpoint('filesystem')}/userHome`;
     return new Promise((resolve, reject) => {
         axios.get(endpoint, {})
             .then((response) => {

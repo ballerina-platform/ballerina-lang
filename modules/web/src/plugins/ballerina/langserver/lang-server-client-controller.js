@@ -52,7 +52,7 @@ class LangServerClientController extends EventChannel {
         return new Promise((resolve, reject) => {
             this.langserverChannel = new LangserverChannel({
                 /** fetch endpoint from util */
-                endpoint: getServiceEndpoint('langserver'),
+                endpoint: getServiceEndpoint('ballerina-langserver'),
                 clientController: this });
             this.langserverChannel.on('connected', () => {
                 this.initializeRequest()

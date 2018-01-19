@@ -51,7 +51,11 @@ class LangserverChannel extends EventChannel {
     }
 
     parseMessage(strMessage) {
-        const message = JSON.parse(strMessage.data);
+        let json = strMessage.data;
+        if (json.startsWith('Content-Length')) {
+            json = json.split(/Content-Length:\s[\d]*\s\n/)[1];
+        }
+        const message = JSON.parse(json);
         this.clientController.processMessage(message);
     }
 

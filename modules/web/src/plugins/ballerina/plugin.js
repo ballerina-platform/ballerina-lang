@@ -100,7 +100,7 @@ class BallerinaPlugin extends Plugin {
             debug: false,
         };
         // create the web socket
-        const url = getServiceEndpoint('wslangserver');
+        const url = getServiceEndpoint('ballerina-langserver');
         const webSocket = new ReconnectingWebSocket(url, undefined, socketOptions);
         // listen when the web socket is opened
         listen({

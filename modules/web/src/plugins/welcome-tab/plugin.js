@@ -97,7 +97,7 @@ class WelcomeTabPlugin extends Plugin {
                             openFile: this.openFileHandler.bind(this),
                             openDirectory: this.openDirectoryHandler.bind(this),
                             userGuide: this.config.userGuide,
-                            balHome: this.config.balHome,
+                            balHome: this.appContext.balHome,
                             samples: this.config.samples,
                             commandManager: command,
                         };

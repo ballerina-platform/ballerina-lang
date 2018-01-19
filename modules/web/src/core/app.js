@@ -58,6 +58,7 @@ class Application {
             pluginContexts: {
             },
             services: config.services,
+            balHome: config.balHome,
         };
 
         // Initialize core plugins first

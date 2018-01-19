@@ -28,7 +28,7 @@ const FORM_CONTENT_COMMON_HEADERS = {
     'content-type': 'application/x-www-form-urlencoded; charset=utf-8',
 };
 
-const WORKSPACE_SERVICE = 'workspace';
+const FS_SERVICE = 'filesystem';
 
 /**
  * Reads a file from file system.
@@ -37,7 +37,7 @@ const WORKSPACE_SERVICE = 'workspace';
  * @returns {Promise} Resolves {File} or reject with error.
  */
 export function read(targetFilePath) {
-    const serviceEP = `${getServiceEndpoint(WORKSPACE_SERVICE)}/read`;
+    const serviceEP = `${getServiceEndpoint(FS_SERVICE)}/read`;
     return axios.post(serviceEP, targetFilePath, { headers: COMMON_HEADERS })
                 .then((response) => {
                     const { fileContent, fileName, filePath, fileFullPath, extension } = response.data;
@@ -68,7 +68,7 @@ export function read(targetFilePath) {
  * @returns {Promise} Resolves file path or reject with error.
  */
 export function createOrUpdate(path, name, content, isCustomContent) {
-    const serviceEP = `${getServiceEndpoint(WORKSPACE_SERVICE)}/write`;
+    const serviceEP = `${getServiceEndpoint(FS_SERVICE)}/write`;
     // FIXME: Refactor backend params
     const data = isCustomContent ? content : `location=${btoa(path)}&configName=${btoa(name)}&config=${
                             encodeURIComponent(content)}`;
@@ -85,7 +85,7 @@ export function createOrUpdate(path, name, content, isCustomContent) {
  * @returns {Promise} Resolves status or reject with error.
  */
 export function remove(path) {
-    const serviceEP = `${getServiceEndpoint(WORKSPACE_SERVICE)}/delete`;
+    const serviceEP = `${getServiceEndpoint(FS_SERVICE)}/delete`;
     const data = `path=${btoa(path)}`;
     return axios.post(serviceEP, data, { headers: FORM_CONTENT_COMMON_HEADERS })
         .then((response) => {
@@ -104,7 +104,7 @@ export function remove(path) {
  * @returns {Promise} Resolves created file path or reject with error.
  */
 export function create(path, type, content) {
-    const serviceEP = `${getServiceEndpoint(WORKSPACE_SERVICE)}/create`;
+    const serviceEP = `${getServiceEndpoint(FS_SERVICE)}/create`;
     // FIXME: Refactor backend params
     const data = `path=${btoa(path)}&type=${btoa(type)}&content=${btoa(content)}`;
     return axios.post(serviceEP, data, { headers: FORM_CONTENT_COMMON_HEADERS })
@@ -123,7 +123,7 @@ export function create(path, type, content) {
  * @returns {Promise} Resolves status or reject with error.
  */
 export function move(srcPath, destPath) {
-    const serviceEP = `${getServiceEndpoint(WORKSPACE_SERVICE)}/move`;
+    const serviceEP = `${getServiceEndpoint(FS_SERVICE)}/move`;
     const data = `srcPath=${btoa(srcPath)}&destPath=${btoa(destPath)}`;
     return axios.post(serviceEP, data, { headers: FORM_CONTENT_COMMON_HEADERS })
             .then((response) => {
@@ -140,7 +140,7 @@ export function move(srcPath, destPath) {
  * @returns {Promise} Resolves status or reject with error.
  */
 export function copy(srcPath, destPath) {
-    const serviceEP = `${getServiceEndpoint(WORKSPACE_SERVICE)}/copy`;
+    const serviceEP = `${getServiceEndpoint(FS_SERVICE)}/copy`;
     const data = `srcPath=${btoa(srcPath)}&destPath=${btoa(destPath)}`;
     return axios.post(serviceEP, data, { headers: FORM_CONTENT_COMMON_HEADERS })
             .then((response) => {
@@ -154,7 +154,7 @@ export function copy(srcPath, destPath) {
  * @returns {Promise} Resolves boolean file exists
  */
 export function exists(path) {
-    const endpoint = `${getServiceEndpoint(WORKSPACE_SERVICE)}/exists?path=${btoa(path)}`;
+    const endpoint = `${getServiceEndpoint(FS_SERVICE)}/exists?path=${btoa(path)}`;
     return new Promise((resolve, reject) => {
         axios.get(endpoint, { headers: COMMON_HEADERS })
             .then((response) => {

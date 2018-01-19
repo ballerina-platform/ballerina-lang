@@ -11,6 +11,7 @@ public class WSRPCMessageProducer implements MessageProducer {
 
     private final MessageJsonHandler jsonHandler;
     private final BallerinaLangServerService wsLangServer;
+    private static final String CONTENT_LENGTH = "Content-Length:\\s[\\d]*\\s\\n";
 
     public WSRPCMessageProducer(BallerinaLangServerService wsLangServer, MessageJsonHandler jsonHandler) {
         this.jsonHandler = jsonHandler;
@@ -20,8 +21,11 @@ public class WSRPCMessageProducer implements MessageProducer {
     @Override
     public void listen(MessageConsumer messageConsumer) {
         this.wsLangServer.addTextMessageListener((message, session) -> {
-            // TODO Fix the logic for message which does not send Content-Length
-            String json = message.split("Content-Length:\\s[\\d]*\\s\\n")[1];
+            String json = message;
+            // if content length prefix is present, stripe it out
+            if (message.startsWith("Content-Length")) {
+                json = message.split(CONTENT_LENGTH)[1];
+            }
             messageConsumer.consume(this.jsonHandler.parseMessage(json));
         });
     }
