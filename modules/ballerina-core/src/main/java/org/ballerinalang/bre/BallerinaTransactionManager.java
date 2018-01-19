@@ -19,14 +19,14 @@ package org.ballerinalang.bre;
 
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.util.HashMap;
-import java.util.Map;
 import javax.transaction.RollbackException;
 import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * {@code BallerinaTransactionManager} manages local and distributed transactions in ballerina.
@@ -39,7 +39,7 @@ public class BallerinaTransactionManager {
     private int transactionLevel; //level of the nested transaction
     private Map<Integer, Integer> allowedTransactionRetryCounts;
     private Map<Integer, Integer> currentTransactionRetryCounts;
-    private MicroTransactionContext microTransactionContext;
+    private TransportTransactionManager transportTransactionManager;
 
     public BallerinaTransactionManager() {
         this.transactionContextStore = new HashMap<>();
@@ -97,7 +97,9 @@ public class BallerinaTransactionManager {
     }
 
     public void commitTransactionBlock() {
-        microTransactionContext.commit();
+        if (isTransportTransactionMangerExist()) {
+            transportTransactionManager.commit();
+        }
         if (transactionLevel == 1) {
             commitNonXAConnections();
             commitXATransaction();
@@ -108,7 +110,9 @@ public class BallerinaTransactionManager {
     }
 
     public void rollbackTransactionBlock() {
-        microTransactionContext.abort();
+        if (isTransportTransactionMangerExist()) {
+            transportTransactionManager.abort();
+        }
         if (transactionLevel == 1) {
             rollbackNonXAConnections();
             rollbackXATransaction();
@@ -216,11 +220,15 @@ public class BallerinaTransactionManager {
         transactionContextStore.clear();
     }
 
-    public MicroTransactionContext getMicroTransactionContext() {
-        return microTransactionContext;
+    public TransportTransactionManager getTransportTransactionManager() {
+        return transportTransactionManager;
     }
 
-    public void setMicroTransactionContext(MicroTransactionContext microTransactionContext) {
-        this.microTransactionContext = microTransactionContext;
+    public void setTransportTransactionManager(TransportTransactionManager transportTransactionManager) {
+        this.transportTransactionManager = transportTransactionManager;
+    }
+
+    private boolean isTransportTransactionMangerExist() {
+        return transportTransactionManager != null;
     }
 }

@@ -9,7 +9,7 @@ const string coordinatorHost = getCoordinatorHost();
 const int coordinatorPort = getCoordinatorPort();
 
 function getCoordinatorHost () returns (string host) {
-    host = config:getInstanceValue("http", "coordinator.host");
+    host = config:getGlobalValue("coordinator.host");
     if (host == null || host == "") {
         host = "localhost";
     }
@@ -17,7 +17,7 @@ function getCoordinatorHost () returns (string host) {
 }
 
 function getCoordinatorPort () returns (int port) {
-    var p, e = <int>config:getInstanceValue("http", "coordinator.port");
+    var p, e = <int>config:getGlobalValue("coordinator.port");
     if (e != null) {
         port = 8080;
     } else {

@@ -61,8 +61,6 @@ public function commitTransactionFunction(http:Request req) (http:Response) {
     if (e != null) {
         respondToBadRequest(res, "Malformed request");
     } else {
-        println("transactions---------------------------");
-        println(transactions);
         string txnId = commitReq.transactionId;
         var txn, _ = (TwoPhaseCommitTransaction)transactions[txnId];
         if (txn == null) {

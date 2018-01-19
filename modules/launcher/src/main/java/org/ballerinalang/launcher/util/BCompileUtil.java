@@ -188,7 +188,7 @@ public class BCompileUtil {
      * @param sourceFilePath Path to source package/file
      * @return Semantic errors
      */
-    public static CompileResult compileInternalPackage(String sourceFilePath, String packageName){
+    public static CompileResult compileInternalPackage(String sourceFilePath, String packageName) {
         String effectiveSource;
         Path sourcePath = Paths.get(sourceFilePath);
         Path rootPath = Paths.get(System.getProperty(Constants.BALLERINA_HOME))

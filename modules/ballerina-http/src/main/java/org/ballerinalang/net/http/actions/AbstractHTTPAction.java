@@ -29,7 +29,7 @@ import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.RetryConfig;
-import org.ballerinalang.net.http.transactions.MicroTransactionManager;
+import org.ballerinalang.net.http.transactions.MicroTransactionCoordinator;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
@@ -186,7 +186,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     context.getProperty(Constants.SRC_HANDLER));
         }
         if (context.isInTransaction()) {
-            MicroTransactionManager.getInstance().initAndRegister(context, httpRequestMsg);
+            MicroTransactionCoordinator.getInstance().initAndRegister(context, httpRequestMsg);
         }
         executeNonBlocking(context, httpRequestMsg, httpClientConnectorLister);
         return ballerinaFuture;

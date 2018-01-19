@@ -128,10 +128,9 @@ public class LauncherUtils {
         ServerConnectorRegistry serverConnectorRegistry = context.getProgramFile().getServerConnectorRegistry() == null
                 ? new ServerConnectorRegistry() : context.getProgramFile().getServerConnectorRegistry();
         programFile.setServerConnectorRegistry(serverConnectorRegistry);
+
         serverConnectorRegistry.initServerConnectors();
-
         BLangProgramRunner.runInternalService(programFile);
-
         serverConnectorRegistry.deploymentComplete();
     }
 
