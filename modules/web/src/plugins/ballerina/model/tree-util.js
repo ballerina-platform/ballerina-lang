@@ -20,6 +20,7 @@ import { getLangServerClientInstance } from 'plugins/ballerina/langserver/lang-s
 import AbstractTreeUtil from './abstract-tree-util';
 import TreeBuilder from './tree-builder';
 import FragmentUtils from '../utils/fragment-utils';
+import { statement } from 'plugins/ballerina/diagram/views/default/designer-defaults';
 
 /**
  * Util class for tree related functionality.
@@ -623,8 +624,21 @@ class TreeUtil extends AbstractTreeUtil {
         if (this.isResource(model) || this.isFunction(model)) {
             return model.getBody().getStatements()
             .filter(stmt => this.isVariableDef(stmt) && this.isEndpointType(stmt.getVariable().getTypeNode()));
-        } else {
+        } else if (this.isConnector(model)) {
+            const statements = [];
+            model.getActions().forEach((action) => {
+                action.getBody().getStatements().forEach((stmt) => {
+                    if (this.isVariableDef(stmt)
+                        && this.isEndpointType(stmt.getVariable().getTypeNode())) {
+                        statements.push(stmt);
+                    }
+                });
+            });
+            return statements;
+        } else if (model.parent) {
             return this.getCurrentEndpoints(model.parent);
+        } else {
+            return [];
         }
     }
 
