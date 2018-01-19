@@ -1413,7 +1413,7 @@ class PositioningUtil {
 
         // position catch nodes
         const catchStartX = node.viewState.bBox.x + this.config.compoundStatement.gap.left;
-        const catchStartY = node.viewState.bBox.y;
+        const catchStartY = node.viewState.bBox.y + this.config.compoundStatement.padding.top;
 
         let catchStmtWidth = node.viewState.components['statement-box'].w;
         let catchHeight = node.viewState.components['statement-box'].h;

@@ -174,12 +174,15 @@ class TryStatementDecorator extends React.Component {
 
         const model = this.props.model;
         const viewState = model.viewState;
-        const titleH = this.context.designer.config.statement.height;
-        const titleW = this.context.designer.config.compoundStatement.heading.width;
+        const titleH = designer.config.statement.height;
+        const titleW = designer.config.compoundStatement.heading.width;
         const statementBBox = viewState.components['statement-box'];
         const gapLeft = viewState.components['left-margin'].w;
+        const gapTop = designer.config.compoundStatement.padding.top;
 
         const finallyStmt = model.finallyBody;
+        const blockHeaderHeight = viewState.components['block-header'].h -
+                                    designer.config.compoundStatement.padding.top;
 
 
         // Defining coordinates of the diagram
@@ -198,7 +201,7 @@ class TryStatementDecorator extends React.Component {
         //                      |
 
         const p1X = bBox.x - gapLeft;
-        const p1Y = bBox.y;
+        const p1Y = bBox.y + gapTop;
 
         const p2Y = p1Y + (titleH / 2);
 
@@ -227,7 +230,7 @@ class TryStatementDecorator extends React.Component {
 
         const blockBox = {
             w: statementBBox.w + gapLeft,
-            h: statementBBox.h + viewState.components['block-header'].h,
+            h: statementBBox.h + blockHeaderHeight,
         };
 
         let onlyFinally = false;
@@ -257,9 +260,9 @@ class TryStatementDecorator extends React.Component {
                 {onlyFinally &&
                     <line
                         x1={p1X}
-                        y1={p1Y + statementBBox.h + viewState.components['block-header'].h}
+                        y1={p1Y + statementBBox.h + blockHeaderHeight}
                         x2={p1X + blockBox.w}
-                        y2={p1Y + statementBBox.h + viewState.components['block-header'].h}
+                        y2={p1Y + statementBBox.h + blockHeaderHeight}
                         className={statementRectClass}
                     />
                 }
