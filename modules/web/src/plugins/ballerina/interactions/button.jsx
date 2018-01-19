@@ -123,7 +123,7 @@ class Button extends React.Component {
             <div
                 ref={this.setWrapperRef}
                 className={menuCss}
-                style={{ left: btnX, top: btnY, '--button-size': buttonArea + 'px' }}
+                style={{ position: 'absolute', left: btnX, top: btnY, '--button-size': buttonArea + 'px' }}
             >
                 <div style={{ fontSize: btnRadius }} className='button-panel'>
                     <span
