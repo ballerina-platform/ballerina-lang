@@ -321,7 +321,7 @@ public class Generator {
      */
     public static StructDoc createDocForNode(BLangStruct structNode) {
         String structName = structNode.getName().value;
-        // Check if its an anonymus struct
+        // Check if its an anonymous struct
         if (structName.contains(ANONYMOUS_STRUCT)) {
             structName = "Anonymous Struct";
         }

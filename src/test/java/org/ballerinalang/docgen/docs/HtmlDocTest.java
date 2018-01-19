@@ -368,6 +368,32 @@ public class HtmlDocTest {
         Assert.assertEquals(personStructDoc.fields.get(1).defaultValue, "20,Palm Grove",
                 "Unexpected address value found.");
     }
+    
+    @Test(description = "Tests whether anonymous structs are documented.")
+    public void testAnonymousStructs() {
+        BLangPackage bLangPackage = createPackage("package x.y; " +
+                                                  "@Description { value:\"Represents a person\"}" +
+                                                  "@Field {value:\"id: The identification number\"}\n" +
+                                                  "@Field {value:\"address: The address of the person.\"}" +
+                                                  "public struct Person {" +
+                                                  "  string id;" +
+                                                  "  struct {" +
+                                                  "     string address1;" +
+                                                  "     string address2;" +
+                                                  "     string state = \"MN\";" +
+                                                  "  } address;" +
+                                                  "}");
+        Page page = generatePage(bLangPackage);
+        Assert.assertEquals(page.constructs.size(), 1);
+        Assert.assertTrue(page.constructs.get(0) instanceof StructDoc, "Documentable of type StructDoc expected.");
+        StructDoc personStructDoc = (StructDoc) page.constructs.get(0);
+        Assert.assertEquals(personStructDoc.fields.size(), 2, "2 fields are expected.");
+        Assert.assertEquals(personStructDoc.fields.get(0).name, "id", "Field \"id\" expected.");
+        Assert.assertEquals(personStructDoc.fields.get(1).name, "address", "Field \"address\" expected.");
+        Assert.assertEquals(personStructDoc.fields.get(1).description, "The address of the person.");
+        Assert.assertEquals(personStructDoc.fields.get(1).dataType,
+                "struct {string address1, string address2, string state}");
+    }
 
     /**
      * Create the package from the bal file
