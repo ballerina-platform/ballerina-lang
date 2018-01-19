@@ -695,6 +695,15 @@ class TreeUtil extends AbstractTreeUtil {
         }
         return false;
     }
+
+    isFinally(node) {
+        if (this.isTry(node.parent)
+            && node.parent.finallyBody
+            && node.parent.finallyBody.id === node.id) {
+            return true;
+        }
+        return false;
+    }
 }
 
 export default new TreeUtil();

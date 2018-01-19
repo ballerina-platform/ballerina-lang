@@ -62,7 +62,7 @@ class BlockCtrl extends React.Component {
             // do nothing
         } else if (TreeUtil.isCatch(node.parent)) {
             // do nothing
-        } else if (TreeUtil.isCatch(node.parent)) {
+        } else if (TreeUtil.isFinally(node)) {
             // do nothing
         } else {
             bBox.h += this.context.config.statement.height * 1.5;
