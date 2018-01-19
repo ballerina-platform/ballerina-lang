@@ -203,3 +203,85 @@ function testArrayInsertInForeach () (string) {
     }
     return output;
 }
+
+function testBreak () (string) {
+    string[] sArray = ["d0", "d1", "d2"];
+    output = "";
+    foreach i, v in sArray {
+        if (i == 1) {
+            output = output + "break";
+            break;
+        }
+        concatString(i, v);
+    }
+    return output;
+}
+
+function testNext () (string) {
+    string[] sArray = ["d0", "d1", "d2"];
+    output = "";
+    foreach i, v in sArray {
+        if (i == 1) {
+            output = output + "next ";
+            next;
+        }
+        concatString(i, v);
+    }
+    return output;
+}
+
+function testReturn () (string) {
+    string[] sArray = ["d0", "d1", "d2"];
+    output = "";
+    foreach i, v in sArray {
+        if (v == "d1") {
+            return output;
+        }
+        concatString(i, v);
+    }
+    return output;
+}
+
+function testThrow1 () (string) {
+    output = "";
+    try {
+        testThrow1Callee();
+    } catch (error e) {
+        output = output + e.msg;
+    }
+    return output;
+}
+
+function testThrow1Callee () {
+    string[] sArray = ["d0"];
+    sArray[1] = "d1";
+    sArray[3] = "d3";
+    foreach i, v in sArray {
+        if (v == "d1") {
+            error e = {msg:"d1 found"};
+            throw e;
+        }
+        concatString(i, v);
+    }
+}
+
+function testThrow2 () (string) {
+    output = "";
+    try {
+        testThrow2Callee();
+    } catch (error e) {
+        output = output + e.msg;
+    } catch (NullReferenceException e){
+        output = output + "found null";
+    }
+    return output;
+}
+
+function testThrow2Callee () {
+    string[] sArray = ["d0"];
+    sArray[1] = "d1";
+    sArray[3] = "d3";
+    foreach i, v in sArray {
+        concatString(i, v.toUpperCase());
+    }
+}

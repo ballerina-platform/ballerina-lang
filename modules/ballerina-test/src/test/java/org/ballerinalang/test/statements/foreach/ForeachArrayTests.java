@@ -235,4 +235,38 @@ public class ForeachArrayTests {
         Assert.assertEquals(returns[0].stringValue(), sb.toString());
     }
 
+    @Test
+    public void testBreak() {
+        BValue[] returns = BRunUtil.invoke(program, "testBreak");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:d0 break");
+    }
+
+    @Test
+    public void testNext() {
+        BValue[] returns = BRunUtil.invoke(program, "testNext");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:d0 next 2:d2 ");
+    }
+
+    @Test
+    public void testReturn() {
+        BValue[] returns = BRunUtil.invoke(program, "testReturn");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:d0 ");
+    }
+
+    @Test
+    public void testThrow1() {
+        BValue[] returns = BRunUtil.invoke(program, "testThrow1");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:d0 d1 found");
+    }
+
+    @Test
+    public void testThrow2() {
+        BValue[] returns = BRunUtil.invoke(program, "testThrow2");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:D0 1:D1 found null");
+    }
 }
