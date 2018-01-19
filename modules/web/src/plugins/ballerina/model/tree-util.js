@@ -629,8 +629,10 @@ class TreeUtil extends AbstractTreeUtil {
                 });
             });
             return statements;
-        } else {
+        } else if (model.parent) {
             return this.getCurrentEndpoints(model.parent);
+        } else {
+            return [];
         }
     }
 }

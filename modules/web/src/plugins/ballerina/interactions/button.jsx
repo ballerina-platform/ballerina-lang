@@ -24,6 +24,10 @@ import './interaction.scss';
  */
 class Button extends React.Component {
 
+    /**
+     * Initialize functions and default states
+     * @param {*} props component props for default states
+     */
     constructor(props) {
         super();
         this.state = { mouseClicked: false, showAlways: props.showAlways };
@@ -32,22 +36,35 @@ class Button extends React.Component {
         this.handleClickOutside = this.handleClickOutside.bind(this);
     }
 
+    /**
+     * Bind mouse down event to handle out side click events
+     */
     componentDidMount() {
         if (this.props.enableMouseClick) {
             document.addEventListener('mousedown', this.handleClickOutside);
         }
     }
-
+    /**
+     * remove mouse down event bound  when mounting component
+     */
     componentWillUnmount() {
         if (this.props.enableMouseClick) {
             document.removeEventListener('mousedown', this.handleClickOutside);
         }
     }
 
+    /**
+     * Set specified node as wrapper reference for check outside clicks
+     * @param {*} node node click event needs to be detected
+     */
     setWrapperRef(node) {
         this.wrapperRef = node;
     }
 
+    /**
+     * Handle outside click event and close menu accordingly
+     * @param {*} event triggerred event
+     */
     handleClickOutside(event) {
         if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
             this.setState({ mouseClicked: false, showAlways: this.props.showAlways });
@@ -56,6 +73,9 @@ class Button extends React.Component {
         }
     }
 
+    /**
+     * Handles button click event
+     */
     buttonClick() {
         if (this.props.enableMouseClick) {
             this.setState({ mouseClicked: true, showAlways: true });
