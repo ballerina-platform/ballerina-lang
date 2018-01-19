@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>composer-server-parent</artifactId>
+        <groupId>org.ballerinalang</groupId>
+        <version>0.95.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>composer-services-parent</artifactId>
+    <name>Ballerina Composer - Services Parent</name>
+    <packaging>pom</packaging>
+    <modules>
+        <module>file-system</module>
+        <module>logging</module>
+        <module>ballerina-parser</module>
+        <module>ballerina-launcher</module>
+        <module>ballerina-to-swagger</module>
+        <module>ballerina-tryit</module>
+        <module>ballerina-langserver</module>
+    </modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>composer-server-core</artifactId>
+            <version>${ballerina.composer.server.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.msf4j</groupId>
+            <artifactId>msf4j-core</artifactId>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.bsc.maven</groupId>
+                <artifactId>maven-processor-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
