@@ -127,6 +127,7 @@ class Button extends React.Component {
             >
                 <div style={{ fontSize: btnRadius }} className='button-panel'>
                     <span
+                        onClick={this.props.onClick}
                         className={(this.state.showAlways ? 'button-show-always' : 'button') + ' fw-stack fw-lg'}
                         title={this.props.tooltip}
                     >
