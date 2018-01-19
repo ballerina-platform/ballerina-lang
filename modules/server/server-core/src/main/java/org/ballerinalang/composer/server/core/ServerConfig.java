@@ -30,6 +30,8 @@ public class ServerConfig {
 
     private String publicPath;
 
+    private String debuggerPath;
+
     private Map<String, Map<String, String>> customConfigs;
 
     public int getPort() {
@@ -62,6 +64,14 @@ public class ServerConfig {
 
     public void setPublicPath(String publicPath) {
         this.publicPath = publicPath;
+    }
+
+    public String getDebuggerPath() {
+        return debuggerPath;
+    }
+
+    public void setDebuggerPath(String debuggerPath) {
+        this.debuggerPath = debuggerPath;
     }
 
     public Map<String, Map<String, String>> getCustomConfigs() {

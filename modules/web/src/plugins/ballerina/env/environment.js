@@ -18,8 +18,7 @@
 import log from 'log';
 import _ from 'lodash';
 import EventChannel from 'event_channel';
-import { getTypeLattice, getOperatorLattice } from 'api-client/api-client';
-import { getLangServerClientInstance } from 'plugins/ballerina/langserver/lang-server-client-controller';
+import { getTypeLattice, getOperatorLattice, getPackages } from 'api-client/api-client';
 import TypeLattice from 'plugins/ballerina/type-lattice/type-lattice';
 import OperatorLattice from 'plugins/ballerina/type-lattice/operator-lattice';
 import BallerinaEnvFactory from './ballerina-env-factory';
@@ -57,28 +56,18 @@ class BallerinaEnvironment extends EventChannel {
             if (!this.initialized) {
                 this.initPending = true;
                 this.initializeAnnotationAttachmentPoints();
-
-                getLangServerClientInstance()
-                    .then((langServerClient) => {
-                        langServerClient.workspaceSymbolRequest('builtinTypes', (data) => {
-                            if (!data) {
-                                reject();
-                                return;
-                            }
-
-                            this.initializeBuiltinTypes(data.result);
-                            Promise.all([
-                                this.initializePackages(),
-                                this.initializeTypeLattice(),
-                                this.initializeOperatorLattice(),
-                            ]).then(() => {
-                                this.initialized = true;
-                                this.initPending = false;
-                                this.trigger('initialized');
-                                resolve();
-                            }).catch(reject);
-                        });
-                    }).catch(reject);
+                // FIXME Get built in types
+                // this.initializeBuiltinTypes(data.result);
+                Promise.all([
+                    this.initializePackages(),
+                    this.initializeTypeLattice(),
+                    this.initializeOperatorLattice(),
+                ]).then(() => {
+                    this.initialized = true;
+                    this.initPending = false;
+                    this.trigger('initialized');
+                    resolve();
+                }).catch(reject);
             } else {
                 resolve();
             }
@@ -157,30 +146,21 @@ class BallerinaEnvironment extends EventChannel {
      * Initialize packages from BALLERINA_HOME and/or Ballerina Repo
      */
     initializePackages() {
-        return new Promise((resolve, reject) => {
-            getLangServerClientInstance()
-                .then((langserverClient) => {
-                    langserverClient.getBuiltInPackages()
-                        .then((data) => {
-                            if (data.error && !data.result) {
-                                reject(data);
-                                return;
-                            }
-                            if (_.isArray(data.result.packages)) {
-                                data.result.packages.forEach((packageNode) => {
-                                    const pckg = BallerinaEnvFactory.createPackage();
-                                    pckg.initFromJson(packageNode);
-                                    this._packages.push(pckg);
-                                });
-                                resolve();
-                            } else {
-                                log.error('Error while fetching packages');
-                                resolve();
-                            }
-                        });
-                })
-                .catch(error => reject(error));
-        });
+        return getPackages()
+            .then((data) => {
+                if (data.error && !data.result) {
+                    throw new Error(data.error);
+                }
+                if (_.isArray(data.packages)) {
+                    data.packages.forEach((packageNode) => {
+                        const pckg = BallerinaEnvFactory.createPackage();
+                        pckg.initFromJson(packageNode);
+                        this._packages.push(pckg);
+                    });
+                } else {
+                    throw new Error('Error while fetching packages');
+                }
+            });
     }
 
     /**

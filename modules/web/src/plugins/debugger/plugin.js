@@ -101,7 +101,8 @@ class DebuggerPlugin extends Plugin {
                     component: DebuggerPanel,
                     propsProvider: () => {
                         LaunchManager.init(getServiceEndpoint('ballerina-launcher'));
-                        // FIXME DebugManager.init(this.appContext.services.debugger.endpoint);
+                        // TODO Fix this and get from config service/or another solution
+                        DebugManager.init(this.appContext.debuggerPath);
                         return {
                             debuggerPlugin: this,
                             commandProxy: this.appContext.command,

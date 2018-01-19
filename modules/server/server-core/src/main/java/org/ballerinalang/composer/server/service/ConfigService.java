@@ -95,7 +95,12 @@ public class ConfigService implements ComposerService {
         JsonObject config = new JsonObject();
         config.add("services", getEndpoints());
         config.addProperty("pathSeparator", File.separator);
+        // FIXME Provide a config contributing mechanism so that the other
+        // modules are to contribute returned config to front-end
+        // DO NOT put all configs(related to other modules) here
+        // move below configs to a proper module
         config.addProperty("balHome", serverConfig.getBallerinaHome());
+        config.addProperty("debuggerPath", serverConfig.getDebuggerPath());
         return config;
     }
 

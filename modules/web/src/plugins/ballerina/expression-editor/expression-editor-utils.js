@@ -23,7 +23,6 @@ import 'plugins/ballerina/utils/ace-mode';
 import DesignViewCompleterFactory from 'plugins/ballerina/utils/design-view-completer-factory';
 import TreeUtil from 'plugins/ballerina/model/tree-util';
 import splitVariableDefByLambda from 'plugins/ballerina/model/lambda-util';
-import { getLangServerClientInstance } from 'plugins/ballerina/langserver/lang-server-client-controller';
 
 const ace = global.ace;
 const Range = ace.acequire('ace/range');
@@ -117,15 +116,6 @@ class ExpressionEditor {
         this.designViewCompleterFactory = new DesignViewCompleterFactory();
 
         langTools.setCompleters([]);
-        getLangServerClientInstance()
-            .then((langserverClient) => {
-                // Set design view completer
-                const designViewCompleterFactory = this.designViewCompleterFactory;
-                const completer = designViewCompleterFactory.getDesignViewCompleter(langserverClient,
-                    this.file, props.model);
-                langTools.setCompleters(completer);
-            })
-            .catch(error => log.error(error));
 
         this._editor.setOptions({
             enableBasicAutocompletion: true,
