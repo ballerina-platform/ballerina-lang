@@ -9,8 +9,6 @@
     clip-path: circle(var(--button-size) at var(--button-size) var(--button-size));
     -webkit-transition: -webkit-clip-path 0.5, clip-path 0.1;
     transition: -webkit-clip-path 0.5, clip-path 0.1;
-    width:224px;
-    overflow: hidden;
 }
 
 .button-panel {
@@ -54,6 +52,7 @@
     100% { opacity: 1; font-size:100% }
 }
 
+
 .interaction-menu-area:hover, .interaction-menu-area-clicked  {
     z-index:51;
     background: none;
@@ -63,6 +62,7 @@
     transition-duration: 0.5s;
     -webkit-clip-path: circle(390px at 225px 24px);
     clip-path: circle(390px at 150px 24px);
+    width:241px;
 }
 
 .interaction-menu-area-hidden .interaction-menu {
@@ -72,9 +72,10 @@
 .interaction-menu-area:hover .interaction-menu, .interaction-menu-area-clicked .interaction-menu {
     opacity: 1;
     display: block;
-    background: #eeeeee;
     position: relative;
     float:left;
+    background: #fff;
+    overflow: visible;
 }
 
 .interaction-menu-area:hover .interaction-menu-item, .interaction-menu-area-clicked .interaction-menu-item {
@@ -97,11 +98,13 @@
 }
 
 .interaction-menu-item:hover {
-    background: #ffe082;
+    background: #eee;
+    font-weight: 400;
+    color: #111;
 }
 
 .interaction-menu-item:active {
-    background: #ffca28;
+    background: #eee;
 }
 
 .button-icon {
@@ -109,8 +112,10 @@
 }
 
 .interaction-menu {
-    width: 224px;
+    width: auto;
     padding: 5px 0;
+    min-width: 220px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 }
 
 .interaction-menu hr {
@@ -119,7 +124,6 @@
 }
 
 .connector-list {
-    width:224px;
     overflow-y: hidden;
     height: 60px;
 	transition-property: all;
@@ -169,10 +173,16 @@
 .connector-select input{
     width:214px;
     margin: 5px;
+    background-color: #f1f1f1;
+    border: 1px solid #f1f1f1;
+}
+
+.connector-select ul{
+    height: auto;
 }
 
 .connector-select ul li {
-    background: #eeeeee;
+    background-color: #fff;
     padding: 5px 15px !important;
 }
 
@@ -186,8 +196,9 @@
 }
 
 .react-autosuggest__suggestion--highlighted{
-    background: #ffe082 !important;
-    color: #6d550c !important;
+    background: #eee !important;
+    font-weight: 400;
+    color: #111 !important;
 }
 
 .connector-select-close {
