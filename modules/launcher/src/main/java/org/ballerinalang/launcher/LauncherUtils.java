@@ -123,13 +123,14 @@ public class LauncherUtils {
     }
 
     public static void runInternalServices(ProgramFile programFile, Context context) {
-
+        PrintStream outStream = System.out;
         //TODO: Think of avoiding taking program file from context
         ServerConnectorRegistry serverConnectorRegistry = context.getProgramFile().getServerConnectorRegistry() == null
                 ? new ServerConnectorRegistry() : context.getProgramFile().getServerConnectorRegistry();
         programFile.setServerConnectorRegistry(serverConnectorRegistry);
 
         serverConnectorRegistry.initServerConnectors();
+        outStream.println("ballerina: deploying transaction coordinator service");
         BLangProgramRunner.runInternalService(programFile);
         serverConnectorRegistry.deploymentComplete();
     }

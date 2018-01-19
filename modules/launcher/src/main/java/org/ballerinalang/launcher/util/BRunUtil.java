@@ -100,11 +100,12 @@ public class BRunUtil {
     }
 
     /**
-     * Invoke a ballerina function with state. Need to use compileAndSetup method in BCompileUtil to use this.
+     * Invoke a ballerina function with state with context.
      *
      * @param programFile CompileResult instance
      * @param packageName   Name of the package to invoke
      * @param functionName  Name of the function to invoke
+     * @param balContext  state of the program file
      * @return return values of the function
      */
     public static BValue[] invokeStateful(ProgramFile programFile, String packageName,
@@ -114,12 +115,13 @@ public class BRunUtil {
     }
 
     /**
-     * Invoke a ballerina function with state. Need to use compileAndSetup method in BCompileUtil to use this.
+     * Invoke a ballerina function with state.
      *
      * @param programFile CompileResult instance
      * @param packageName   Name of the package to invoke
      * @param functionName  Name of the function to invoke
      * @param args          Input parameters for the function
+     * @param balContext  state of the program file
      * @return return values of the function
      */
     public static BValue[] invokeStateful(ProgramFile programFile, String packageName,

@@ -34,7 +34,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
- * {@code MicroTransactionCoordinator} represents the request of create-context.
+ * {@code MicroTransactionCoordinator} represents the coordinator internal service.
  *
  *  @since 0.96.0
  */
@@ -61,9 +61,9 @@ public class MicroTransactionCoordinator {
         }
         //register initiator
         if (balTransactionManager.getTransportTransactionManager() == null) {
-            BValue[] resultValues = BRunUtil.invokeStateful(getTxnCoordinatorProgramFile(), "transactions.coordinator"
-                    , "beginTransaction", getTxnCoordinatorContext());
-            balTransactionManager.setTransportTransactionManager(new HttpTransactionManager(createdContext = resultValues[0]));
+            createdContext = BRunUtil.invokeStateful(getTxnCoordinatorProgramFile(), "transactions.coordinator"
+                    , "beginTransaction", getTxnCoordinatorContext())[0];
+            balTransactionManager.setTransportTransactionManager(new HttpTransactionManager(createdContext));
         } else {
             createdContext = balTransactionManager.getTransportTransactionManager().getCreatedContext();
         }
@@ -85,9 +85,8 @@ public class MicroTransactionCoordinator {
             resetCoordinatorState();
             throw new BallerinaException("Failed to deploy transaction coordinator service");
         }
-
-        txnCoordinatorProgramFile = compileResult.getProgFile();
-        txnCoordinatorContext = compileResult.getContext();
+        this.txnCoordinatorProgramFile = compileResult.getProgFile();
+        this.txnCoordinatorContext = compileResult.getContext();
         try {
             LauncherUtils.runInternalServices(getTxnCoordinatorProgramFile(), context);
         } catch (BallerinaConnectorException ex) {
@@ -97,8 +96,8 @@ public class MicroTransactionCoordinator {
     }
 
     private void resetCoordinatorState() {
-        txnCoordinatorProgramFile = null;
-        txnCoordinatorContext = null;
+        this.txnCoordinatorProgramFile = null;
+        this.txnCoordinatorContext = null;
     }
 
     private boolean isProgramFileAvailable() {
@@ -106,11 +105,11 @@ public class MicroTransactionCoordinator {
     }
 
     public ProgramFile getTxnCoordinatorProgramFile() {
-        return txnCoordinatorProgramFile;
+        return this.txnCoordinatorProgramFile;
     }
 
     public Context getTxnCoordinatorContext() {
-        return txnCoordinatorContext;
+        return this.txnCoordinatorContext;
     }
 }
 

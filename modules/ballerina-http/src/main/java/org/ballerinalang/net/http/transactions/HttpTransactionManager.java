@@ -23,7 +23,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * {@code HttpTransactionManager} represents micro-transaction context which returned by coordinator.
+ * {@code HttpTransactionManager} manages Http related transactions in ballerina.
  *
  * @since 0.96.0
  */

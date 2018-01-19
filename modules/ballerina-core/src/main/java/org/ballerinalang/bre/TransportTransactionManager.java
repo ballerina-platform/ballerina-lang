@@ -20,7 +20,7 @@ package org.ballerinalang.bre;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * {@code TransportTransactionManager} represents the context associated with a micro-transaction.
+ * {@code TransportTransactionManager} manages transport related transactions in ballerina.
  *
  * @since 0.96.0
  */

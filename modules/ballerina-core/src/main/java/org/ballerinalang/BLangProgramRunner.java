@@ -97,35 +97,24 @@ public class BLangProgramRunner {
         if (!programFile.isServiceEPAvailable()) {
             throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
         }
-
-        // Get the service package
         PackageInfo servicesPackage = programFile.getEntryPackage();
         if (servicesPackage == null) {
             throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
         }
-
-        // This is required to invoke package/service init functions;
         Context bContext = new Context(programFile);
-
-        // Invoke package init function
         BLangFunctions.invokePackageInitFunction(programFile, servicesPackage.getInitFunctionInfo(), bContext);
 
         int serviceCount = 0;
         for (ServiceInfo serviceInfo : servicesPackage.getServiceInfoEntries()) {
-            // Invoke service init function
-            //TODO check this to pass a Service
             bContext.setServiceInfo(serviceInfo);
             BLangFunctions.invokeFunction(programFile, serviceInfo.getInitFunctionInfo(), bContext);
             if (bContext.getError() != null) {
                 String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
                 throw new BLangRuntimeException("error: " + stackTraceStr);
             }
-
-            // Deploy service
             programFile.getServerConnectorRegistry().registerService(serviceInfo);
             serviceCount++;
         }
-
         if (serviceCount == 0) {
             throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
         }

@@ -185,7 +185,8 @@ public class BCompileUtil {
     /**
      * Compile and return the semantic errors of a internal ballerina file.
      *
-     * @param sourceFilePath Path to source package/file
+     * @param sourceFilePath path to source package/file
+     * @param packageName name of the package to compile
      * @return Semantic errors
      */
     public static CompileResult compileInternalPackage(String sourceFilePath, String packageName) {
