@@ -341,8 +341,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForeach foreach) {
+        this.loopWithintransactionCheckStack.push(true);
         this.checkStatementExecutionValidity(foreach);
+        this.loopCount++;
         foreach.body.stmts.forEach(e -> e.accept(this));
+        this.loopCount--;
+        this.resetLastStatement();
+        this.loopWithintransactionCheckStack.pop();
     }
 
     @Override
