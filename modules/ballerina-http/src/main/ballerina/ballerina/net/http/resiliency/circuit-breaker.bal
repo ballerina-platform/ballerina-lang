@@ -3,7 +3,7 @@ package ballerina.net.http.resiliency;
 import ballerina.net.http;
 
 enum CircuitState {
-    OPEN, CLOSE, HALF_OPEN
+    OPEN, CLOSED, HALF_OPEN
 }
 
 struct CircuitHealth {
@@ -25,7 +25,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
 
     CircuitHealth circuitHealth = {};
     // TODO: once enum init inside a struct is do-able, move this inside circuitHealth (issue #4340)
-    CircuitState currentState = CircuitState.CLOSE;
+    CircuitState currentState = CircuitState.CLOSED;
 
     @Description {value:"The POST action implementation of the Circuit Breaker. Protects the invocation of the POST action of the underlying HTTP client connector."}
     @Param {value:"path: Resource path"}
@@ -235,7 +235,7 @@ function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentSt
             currentState = CircuitState.OPEN;
         } else {
             // If the trial run was successful reset the circuit
-            currentState = CircuitState.CLOSE;
+            currentState = CircuitState.CLOSED;
         }
     } else {
         float currentFailureRate = 0;
