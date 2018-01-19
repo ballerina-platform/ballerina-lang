@@ -662,6 +662,9 @@ class TreeUtil extends AbstractTreeUtil {
                 }
             }
         }
+        if (this.isChildOfTransformer(node)) {
+            return false;
+        }
         return true;
     }
 
@@ -692,6 +695,26 @@ class TreeUtil extends AbstractTreeUtil {
             && node.parent.elseStatement
             && this.isBlock(node.parent.elseStatement)) {
             return node.parent.elseStatement.id === node.id;
+        }
+        return false;
+    }
+
+    isFinally(node) {
+        if (this.isTry(node.parent)
+            && node.parent.finallyBody
+            && node.parent.finallyBody.id === node.id) {
+            return true;
+        }
+        return false;
+    }
+
+    isChildOfTransformer(node) {
+        if (node.parent) {
+            if (this.isTransformer(node.parent)) {
+                return true;
+            } else {
+                return this.isChildOfTransformer(node.parent);
+            }
         }
         return false;
     }
