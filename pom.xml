@@ -27,7 +27,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ballerina-composer-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.95.8-SNAPSHOT</version>
+    <version>0.95.8</version>
     <name>Ballerina Composer - Parent</name>
 
     <scm>
@@ -35,7 +35,7 @@
         <developerConnection>scm:git:https://github.com/ballerinalang/composer.git
         </developerConnection>
         <connection>scm:git:https://github.com/ballerinalang/composer.git</connection>
-        <tag>HEAD</tag>
+        <tag>v0.95.8</tag>
     </scm>
 
     <repositories>
