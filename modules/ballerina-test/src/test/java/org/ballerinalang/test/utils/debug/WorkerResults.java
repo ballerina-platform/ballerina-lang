@@ -37,15 +37,22 @@ public class WorkerResults {
         this.steps = steps;
     }
 
-    public boolean allPointsHit() {
-        return pointer == expBreakPoints.length;
-    }
-
     public BreakPointDTO getCurrentLocation() {
         if (expBreakPoints.length <= pointer) {
             return null;
         }
         return expBreakPoints[pointer];
+    }
+
+    public BreakPointDTO findDebugPoint(BreakPointDTO halt) {
+        //TODO consider thread id when matching debug points
+        for (int i = 0; i < expBreakPoints.length; i++) {
+            if (halt.equals(expBreakPoints[i])) {
+                pointer = i + 1;
+                return expBreakPoints[i];
+            }
+        }
+        return null;
     }
 
     public Step getNextStep() {
