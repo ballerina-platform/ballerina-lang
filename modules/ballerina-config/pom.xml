@@ -21,7 +21,7 @@
     <parent>
         <artifactId>ballerina-parent</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.95.8</version>
+        <version>0.95.9-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
