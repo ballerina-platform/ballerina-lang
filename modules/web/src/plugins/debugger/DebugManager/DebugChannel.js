@@ -16,7 +16,6 @@
  * under the License.
  */
 
-import _ from 'lodash';
 import EventChannel from 'event_channel';
 import log from 'log';
 
@@ -114,7 +113,6 @@ class DebugChannel extends EventChannel {
      */
     onOpen() {
         this.trigger('connected');
-        this.startPing();
     }
 
     /**
