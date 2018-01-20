@@ -107,7 +107,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.95.8</ballerina.version>
+        <ballerina.version>0.95.9-SNAPSHOT</ballerina.version>
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
         <maven.findbugsplugin.version>3.0.3</maven.findbugsplugin.version>
         <lsp4j.version>0.3.0</lsp4j.version>
