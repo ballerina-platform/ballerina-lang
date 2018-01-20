@@ -26,7 +26,7 @@
 
   <groupId>org.ballerinalang</groupId>
   <artifactId>ballerina-maven-plugins</artifactId>
-  <version>0.95.8-SNAPSHOT</version>
+  <version>0.95.8</version>
   <packaging>pom</packaging>
 
   <name>Ballerina Maven Plugins - Parent Pom</name>
@@ -36,7 +36,7 @@
     <url>https://github.com/ballerinalang/plugin-maven.git</url>
     <developerConnection>scm:git:https://github.com/ballerinalang/plugin-maven.git</developerConnection>
     <connection>scm:git:https://github.com/ballerinalang/plugin-maven.git</connection>
-    <tag>HEAD</tag>
+    <tag>v0.95.8</tag>
   </scm>
 
   <repositories>
