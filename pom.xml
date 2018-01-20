@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerinalang</artifactId>
-        <version>0.95.8-SNAPSHOT</version>
+        <version>0.95.8</version>
     </parent>
 
     <name>WSO2 Language Server</name>
