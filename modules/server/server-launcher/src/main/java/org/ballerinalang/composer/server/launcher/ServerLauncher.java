@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.ballerinalang.composer.server.core.Server;
 import org.ballerinalang.composer.server.core.ServerConfig;
+import org.ballerinalang.composer.server.launcher.browser.BrowserLauncher;
 import org.ballerinalang.composer.server.launcher.command.ServerCommand;
 import org.ballerinalang.composer.server.launcher.log.LogManagerUtils;
 import org.slf4j.Logger;
@@ -136,8 +137,9 @@ public class ServerLauncher {
         Server server = new Server(config);
         try {
             server.start();
-            logger.info("Composer started successfully at http://" + config.getHost()
-                    + ":" + config.getPort());
+            String uRL = "http://" + config.getHost() + ":" + config.getPort();
+            logger.info("Composer started successfully at " + uRL);
+            BrowserLauncher.startInDefaultBrowser(uRL);
         } catch (Exception e) {
             logger.error("Error while starting Composer Backend Server.", e);
         }
