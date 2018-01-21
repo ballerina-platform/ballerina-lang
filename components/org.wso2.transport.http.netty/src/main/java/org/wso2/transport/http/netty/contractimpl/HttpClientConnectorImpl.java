@@ -67,7 +67,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
 
     @Override
     public HttpResponseFuture send(HTTPCarbonMessage httpOutboundRequest) {
-        HttpResponseFuture httpResponseFuture = new HttpResponseFutureImpl();
+        HttpResponseFuture httpResponseFuture = new DefaultHttpResponseFuture();
 
         SourceHandler srcHandler = (SourceHandler) httpOutboundRequest.getProperty(Constants.SRC_HANDLER);
         if (srcHandler == null) {

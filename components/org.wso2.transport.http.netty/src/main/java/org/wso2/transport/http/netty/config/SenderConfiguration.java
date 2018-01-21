@@ -70,7 +70,7 @@ public class SenderConfiguration {
     private String certPass;
 
     @XmlAttribute
-    private int socketIdleTimeout;
+    private int socketIdleTimeout = 60000;
 
     @XmlAttribute
     private boolean httpTraceLogEnabled;

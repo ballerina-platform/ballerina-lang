@@ -298,11 +298,36 @@ public final class Constants {
     public static final String COLON = ":";
     public static final int MAX_REDIRECT_COUNT = 5;
 
-    public static final int ENDPOINT_TIMEOUT = 60000;
+    public static final int ENDPOINT_TIMEOUT = 5 * 60000;
     public static final String ENDPOINT_TIMEOUT_MSG = "Endpoint timed out";
     public static final String CHUNKED = "chunked";
 
     public static final String LISTENER_PORT = "LISTENER_PORT";
+
+
+    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST
+            = "Idle timeout triggered while reading inbound request";
+    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE
+            = "Idle timeout triggered while writing outbound response";
+    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE
+            = "Idle timeout triggered while reading inbound response";
+    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE
+            = "Idle timeout triggered before reading inbound response";
+
+    public static final String EXCEPTION_CAUGHT_WHILE_READING_REQUEST
+            = "Exception caught while reading inbound request";
+    public static final String EXCEPTION_CAUGHT_WHILE_READING_RESPONSE
+            = "Exception caught while reading inbound response";
+
+    public static final String REMOTE_CLIENT_ABRUPTLY_CLOSE_CONNECTION
+            = "Remote client closed the connection without completing inbound request";
+    public static final String REMOTE_SERVER_ABRUPTLY_CLOSE_RESPONSE_CONNECTION
+            = "Remote host closed the connection without completing inbound response";
+
+    public static final String REMOTE_SERVER_ABRUPTLY_CLOSE_REQUEST_CONNECTION
+            = "Remote host closed the connection before completing outbound request";
+    public static final String REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION
+            = "Remote client closed the connection before completing outbound response";
 
     private Constants() {
     }

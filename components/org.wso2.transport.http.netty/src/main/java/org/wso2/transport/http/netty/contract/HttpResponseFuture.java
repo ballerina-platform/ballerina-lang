@@ -47,4 +47,17 @@ public interface HttpResponseFuture {
      * @param throwable contains the data related to the error.
      */
     void notifyHttpListener(Throwable throwable);
+
+    /**
+     * Rerun the status of the future.
+     * @return status
+     */
+    OperationStatus getStatus();
+
+    /**
+     * Let make the async operation sync.
+     * @return Status future
+     * @throws InterruptedException
+     */
+    HttpResponseFuture sync() throws InterruptedException;
 }
