@@ -304,7 +304,6 @@ public final class Constants {
 
     public static final String LISTENER_PORT = "LISTENER_PORT";
 
-
     public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST
             = "Idle timeout triggered while reading inbound request";
     public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE

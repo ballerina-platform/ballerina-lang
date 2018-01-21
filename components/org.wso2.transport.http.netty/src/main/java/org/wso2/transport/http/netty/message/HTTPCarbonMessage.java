@@ -231,7 +231,7 @@ public class HTTPCarbonMessage {
      *
      * @return httpOutboundRespStatusFuture.
      */
-    public DefaultHttpResponseFuture getHttpOutboundRespStatusFuture() {
+    public HttpResponseFuture getHttpOutboundRespStatusFuture() {
         return httpOutboundRespStatusFuture;
     }
 

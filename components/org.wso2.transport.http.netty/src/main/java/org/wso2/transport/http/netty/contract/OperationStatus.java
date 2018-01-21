@@ -31,7 +31,7 @@ public interface OperationStatus {
     Throwable getCause();
 
     /**
-     * Return the status of operation
+     * Return the status of operation.
      * @return status
      */
     boolean isSuccess();

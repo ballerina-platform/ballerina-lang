@@ -29,7 +29,7 @@ import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
 /**
- * A Class responsible for handle  incoming message through netty inbound pipeline.
+ * Class responsible for handle  incoming message through netty inbound pipeline.
  */
 public class AggregatorSourceHandler extends SourceHandler {
     private static Logger log = LoggerFactory.getLogger(AggregatorSourceHandler.class);
