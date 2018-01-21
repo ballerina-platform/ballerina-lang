@@ -125,18 +125,6 @@ public class HttpUtil {
         return AbstractNativeFunction.VOID_RETURN;
     }
 
-    public static BValue[] getHeader(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-        HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-
-        String headerName = abstractNativeFunction.getStringArgument(context, 0);
-        String headerValue = httpCarbonMessage.getHeader(headerName);
-
-        return abstractNativeFunction.getBValues(new BString(headerValue));
-    }
-
     public static BValue[] getProperty(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);

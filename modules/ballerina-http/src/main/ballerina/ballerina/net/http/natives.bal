@@ -109,6 +109,13 @@ public native function <OutRequest req> setEntity (mime:Entity entity);
 @Param { value:"propertyValue: The value of the property" }
 public native function <OutRequest req> setProperty (string propertyName, string propertyValue);
 
+
+@Description { value:"Retrieves the named property from the request"}
+@Param { value:"req: The outbound request message" }
+@Param { value:"propertyName: The name of the property" }
+@Return { value:"The property value" }
+public native function <OutRequest req> getProperty (string propertyName) (string);
+
 @Description { value:"Represents an HTTP Inbound response message"}
 @Field {value:"statusCode: The response status code"}
 @Field {value:"reasonPhrase: The status code reason phrase"}
@@ -173,6 +180,12 @@ public native function <OutResponse res> setEntity (mime:Entity entity);
 @Param { value:"propertyName: The name of the property" }
 @Param { value:"propertyValue: The value of the property" }
 public native function <OutResponse res> setProperty (string propertyName, string propertyValue);
+
+@Description { value:"Retrieve a response property"}
+@Param { value:"res: The outbound response message" }
+@Param { value:"propertyName: The name of the property" }
+@Return { value:"The property value" }
+public native function <OutResponse res> getProperty (string propertyName) (string);
 
 @Description { value:"Represents an HTTP Session"}
 public struct Session {

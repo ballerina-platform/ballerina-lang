@@ -15,8 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.ballerinalang.net.http.nativeimpl.inbound.response;
+package org.ballerinalang.net.http.nativeimpl.outbound.request;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -29,21 +28,23 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
 
 /**
- * Get the Headers of the Message.
+ * Ballerina function to set a message property.
+ * <br>
+ * ballerina.model.messages:getProperty
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
-        functionName = "getHeader",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "InResponse",
+        functionName = "getProperty",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "OutRequest",
                              structPackage = "ballerina.net.http"),
-        args = {@Argument(name = "headerName", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        args = {@Argument(name = "propertyName", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING)}, // TODO: Ballerina only supports string properties ATM
         isPublic = true
 )
-public class GetHeader extends AbstractNativeFunction {
+public class GetProperty extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return HttpUtil.getHeader(context, this, false);
+        return HttpUtil.getProperty(context, this, true);
     }
 }

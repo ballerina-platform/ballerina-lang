@@ -3,7 +3,7 @@ import ballerina.net.http;
 import ballerina.mime;
 import ballerina.file;
 
-function testAddHeader (http:Request req, string key, string value) (http:Request) {
+function testAddHeader (http:OutRequest req, string key, string value) (http:OutRequest) {
     req.addHeader(key, value);
     return req;
 }
