@@ -46,7 +46,6 @@
                             <groupId>org.ballerinalang</groupId>
                             <artifactId>composer-server-distribution</artifactId>
                             <version>${project.version}</version>
-                            <classifier>jar-with-dependencies</classifier>
                         </artifactItem>
                     </artifactItems>
                     <outputDirectory>${project.build.directory}/lib</outputDirectory>
@@ -149,7 +148,7 @@
                                 <argument>-Dbal.composer.home=.</argument>
                                 <argument>-jar</argument>
                                 <argument>
-                                    ${project.build.directory}/lib/composer-server-distribution-${project.version}-jar-with-dependencies.jar
+                                    ${project.build.directory}/lib/composer-server-distribution-${project.version}.jar
                                 </argument>
                             </arguments>
                         </configuration>
