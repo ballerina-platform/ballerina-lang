@@ -1,8 +1,6 @@
 .design-view-error {
-    position: relative;
-    margin-top: 100%;
+    position: absolute;
+    top: 50%;
+    width: 100%;
     text-align: center;
-    -webkit-transform: translateY(-50%);
-    -ms-transform: translateY(-50%);
-    transform: translateY(-50%);
 }
