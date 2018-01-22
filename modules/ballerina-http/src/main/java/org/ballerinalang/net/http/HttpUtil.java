@@ -267,7 +267,7 @@ public class HttpUtil {
             populateEntityBody(context, httpMessageStruct, entity, isRequest);
         }
         if (entity == null) {
-            setNewEntitiyToStruct(context, httpMessageStruct);
+            entity = setNewEntitiyToStruct(context, httpMessageStruct);
         }
         return abstractNativeFunction.getBValues(entity);
     }
@@ -805,17 +805,17 @@ public class HttpUtil {
 
     /**
      * Set new entity to in/out request/response struct.
-     *
-     * @param context ballerina context.
+     *  @param context ballerina context.
      * @param struct request/response struct.
      */
-    public static void setNewEntitiyToStruct(Context context, BStruct struct) {
+    public static BStruct setNewEntitiyToStruct(Context context, BStruct struct) {
         BStruct entity = ConnectorUtils.createAndGetStruct(context
                 , org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME
                 , org.ballerinalang.mime.util.Constants.ENTITY);
         entity.setRefField(ENTITY_HEADERS_INDEX, new BMap<>());
         struct.addNativeData(MESSAGE_ENTITY, entity);
         struct.addNativeData(IS_ENTITY_BODY_PRESENT, false);
+        return entity;
     }
 
     /**
@@ -1044,17 +1044,9 @@ public class HttpUtil {
         return httpCarbonMessage;
     }
 
-    public static void checkFunctionValidity(BStruct connectionStruct, HTTPCarbonMessage reqMsg,
-                                             BStruct responseStruct) {
+    public static void checkFunctionValidity(BStruct connectionStruct, HTTPCarbonMessage reqMsg) {
         serverConnectionStructCheck(reqMsg);
-        responseStructCheck(responseStruct);
         methodInvocationCheck(connectionStruct, reqMsg);
-    }
-
-    private static void responseStructCheck(BStruct bStruct) {
-        if (bStruct.getNativeData(Constants.TRANSPORT_MESSAGE) == null) {
-            throw new BallerinaException("operation failed: empty response parameter");
-        }
     }
 
     private static void methodInvocationCheck(BStruct bStruct, HTTPCarbonMessage reqMsg) {

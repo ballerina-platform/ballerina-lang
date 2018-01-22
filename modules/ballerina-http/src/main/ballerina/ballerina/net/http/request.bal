@@ -12,7 +12,8 @@ const string HEADER_KEY_EXPECT = "Expect";
 @Return {value:"The first header value struct for the provided header name. Returns null if the header does not exist."}
 public function <InRequest req> getHeader (string headerName) (mime:HeaderValue) {
     mime:Entity entity = req.getEntityWithoutBody();
-    return getHeadersFromEntity(entity, headerName)[0];
+    mime:HeaderValue[] headerValues = getHeadersFromEntity(entity, headerName);
+    return headerValues != null ? headerValues[0] : null;
 }
 
 @Description {value:"Gets a transport header from the outbound request"}
@@ -21,7 +22,8 @@ public function <InRequest req> getHeader (string headerName) (mime:HeaderValue)
 @Return {value:"The first header value struct for the provided header name. Returns null if the header does not exist."}
 public function <OutRequest req> getHeader (string headerName) (mime:HeaderValue) {
     mime:Entity entity = req.getEntityWithoutBody();
-    return getHeadersFromEntity(entity, headerName)[0];
+    mime:HeaderValue[] headerValues = getHeadersFromEntity(entity, headerName);
+    return headerValues != null ? headerValues[0] : null;
 }
 
 @Description {value:"Adds the specified key/value pair as an HTTP header to the outbound request"}
@@ -30,17 +32,7 @@ public function <OutRequest req> getHeader (string headerName) (mime:HeaderValue
 @Param {value:"headerValue: The header value"}
 public function <OutRequest req> addHeader (string headerName, string headerValue) {
     mime:Entity entity = req.getEntityWithoutBody();
-    if (entity.headers == null) {
-        entity.headers = {};
-    }
-    var headerValues = entity.headers[headerName];
-    if (headerValues == null) {
-        mime:HeaderValue[] headers = [{value:headerValue}];
-        entity.headers[headerName] = headers;
-    } else {
-        var valueArray = getHeaderValueArray(headerValues, headerName);
-        valueArray[lengthof valueArray] = {value:headerValue};
-    }
+    addHeaderToEntity(entity, headerName, headerValue);
 }
 
 @Description {value:"Gets transport headers from the inbound request"}
@@ -121,12 +113,7 @@ public function <InRequest req> expects100Continue () (boolean) {
 public function <InRequest request> getContentLength () (int) {
     if (request.getHeader(CONTENT_LENGTH) != null) {
         string strContentLength = request.getHeader(CONTENT_LENGTH).value;
-        var contentLength, conversionErr = <int>strContentLength;
-        if (conversionErr != null) {
-            contentLength = -1;
-            throw conversionErr;
-        }
-        return contentLength;
+        return getContentLengthIntValue(strContentLength);
     }
     return -1;
 }

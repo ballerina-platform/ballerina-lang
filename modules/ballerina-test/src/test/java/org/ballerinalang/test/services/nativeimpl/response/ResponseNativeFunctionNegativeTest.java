@@ -222,10 +222,10 @@ public class ResponseNativeFunctionNegativeTest {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
         //testResponseSetStatusCodeWithString
         BAssertUtil.validateError(resultNegative, 0,
-                "incompatible types: expected 'int', found 'string'", 4, 23);
+                "incompatible types: expected 'int', found 'string'", 4, 22);
         //testResponseGetMethod
         BAssertUtil.validateError(resultNegative, 1,
-                "undefined function 'getMethod' in struct 'ballerina.net.http:Response'",
+                "undefined function 'getMethod' in struct 'ballerina.net.http:InResponse'",
                 9, 21);
     }
 }

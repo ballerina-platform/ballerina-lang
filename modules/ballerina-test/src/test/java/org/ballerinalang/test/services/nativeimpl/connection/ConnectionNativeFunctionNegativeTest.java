@@ -67,16 +67,6 @@ public class ConnectionNativeFunctionNegativeTest {
                 .contains("error, message: operation not allowed:invalid Connection variable"));
     }
 
-    @Test(description = "Test respond with invalid connection struct")
-    public void testRespondWithInvalidResponseStruct() {
-        String path = "/hello/12";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-        Assert.assertTrue(StringUtils
-                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
-                .contains("operation failed: empty response parameter"));
-    }
-
     @Test(description = "Test forward with null parameter")
     public void testForwardWithNullParameter() {
         String path = "/hello/20";
@@ -98,15 +88,5 @@ public class ConnectionNativeFunctionNegativeTest {
         Assert.assertTrue(StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
                 .contains("error, message: operation not allowed:invalid Connection variable"));
-    }
-
-    @Test(description = "Test forward with invalid connection struct")
-    public void testForwardWithInvalidResponseStruct() {
-        String path = "/hello/22";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-        Assert.assertTrue(StringUtils
-                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
-                .contains("operation failed: empty response parameter"));
     }
 }

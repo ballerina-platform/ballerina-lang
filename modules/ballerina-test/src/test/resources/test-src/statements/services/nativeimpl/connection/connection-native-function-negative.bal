@@ -21,13 +21,6 @@ service<http> helloServer {
     }
 
     @http:resourceConfig {
-        path:"/12"
-    }
-    resource echo12 (http:Connection conn, http:InRequest req) {
-        _ = conn.respond({});
-    }
-
-    @http:resourceConfig {
         path:"/20"
     }
     resource echo20 (http:Connection conn, http:InRequest req) {
@@ -43,10 +36,4 @@ service<http> helloServer {
         _ = connn.forward(resp);
     }
 
-    @http:resourceConfig {
-        path:"/22"
-    }
-    resource echo22 (http:Connection conn, http:InRequest req) {
-        _ = conn.forward({});
-    }
 }
