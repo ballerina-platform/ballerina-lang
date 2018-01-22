@@ -95,10 +95,10 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
 
         try {
             List<URL> filesToLoad = new LinkedList<>();
-            File[] files = new File(sdkHome + "/bre/lib").listFiles();
+            File[] files = new File(sdkHome + BallerinaConstants.BALLERINA_SDK_LIB_DIR).listFiles();
             if (files != null) {
                 for (File f : files) {
-                    if (f.isFile() && f.getName().endsWith(".jar")) {
+                    if (f.isFile() && f.getName().endsWith(BallerinaConstants.BALLERINA_SDK_LIB_FILE_EXTENTION)) {
                         filesToLoad.add(f.toURI().toURL());
                     }
                 }

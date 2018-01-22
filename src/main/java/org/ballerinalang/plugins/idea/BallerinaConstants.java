@@ -47,4 +47,7 @@ public class BallerinaConstants {
     public static final String BALLERINA_LIBRARIES_SERVICE_NAME = "BallerinaLibraries";
     public static final String BALLERINA_LIBRARIES_CONFIG_FILE = "BallerinaLibraries.xml";
     public static final String BALLERINA_MODULE_SESTTINGS_SERVICE_NAME = "Ballerina";
+
+    public static final String BALLERINA_SDK_LIB_DIR = "/bre/lib";
+    public static final String BALLERINA_SDK_LIB_FILE_EXTENTION = ".jar";
 }
