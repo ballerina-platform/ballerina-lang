@@ -120,6 +120,35 @@ public class BallerinaParserService implements ComposerService {
                 .header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
     }
 
+    @OPTIONS
+    @Path("/built-in-types")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBuiltInTypesOptions() {
+        return Response.ok()
+                .header("Access-Control-Max-Age", "600 ")
+                .header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Credentials",
+                        "true").header("Access-Control-Allow-Methods", "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
+                .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
+    }
+
+    @GET
+    @Path("/built-in-types")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBuiltInTypes() {
+        JsonObject response = new JsonObject();
+        // add package info into response
+        Gson gson = new Gson();
+        String json = gson.toJson(ParserUtils.getBuiltinTypes());
+        JsonParser parser = new JsonParser();
+        JsonArray packagesArray = parser.parse(json).getAsJsonArray();
+        response.add("types", packagesArray);
+        return Response.status(Response.Status.OK)
+                .entity(response)
+                .header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
+    }
+
     @POST
     @Path("/file/validate-and-parse")
     @Consumes(MediaType.APPLICATION_JSON)

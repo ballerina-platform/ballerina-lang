@@ -134,6 +134,23 @@ export function getPackages() {
 }
 
 /**
+ * Invoke parser service and returns a promise with available types
+ */
+export function getBuiltInTypes() {
+    const endpoint = getServiceEndpoint('ballerina-parser') + '/built-in-types';
+    const headers = {
+        'content-type': 'application/json; charset=utf-8',
+    };
+
+    return new Promise((resolve, reject) => {
+        axios.get(endpoint, { headers })
+            .then((response) => {
+                resolve(response.data);
+            }).catch(error => reject(error));
+    });
+}
+
+/**
  * Get FS Roots
  */
 export function getFSRoots(extensions) {

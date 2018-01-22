@@ -18,7 +18,7 @@
 import log from 'log';
 import _ from 'lodash';
 import EventChannel from 'event_channel';
-import { getTypeLattice, getOperatorLattice, getPackages } from 'api-client/api-client';
+import { getTypeLattice, getOperatorLattice, getPackages, getBuiltInTypes } from 'api-client/api-client';
 import TypeLattice from 'plugins/ballerina/type-lattice/type-lattice';
 import OperatorLattice from 'plugins/ballerina/type-lattice/operator-lattice';
 import BallerinaEnvFactory from './ballerina-env-factory';
@@ -56,9 +56,8 @@ class BallerinaEnvironment extends EventChannel {
             if (!this.initialized) {
                 this.initPending = true;
                 this.initializeAnnotationAttachmentPoints();
-                // FIXME Get built in types
-                // this.initializeBuiltinTypes(data.result);
                 Promise.all([
+                    this.initializeBuiltinTypes(),
                     this.initializePackages(),
                     this.initializeTypeLattice(),
                     this.initializeOperatorLattice(),
@@ -192,22 +191,32 @@ class BallerinaEnvironment extends EventChannel {
     /**
      * Initialize builtin types from Ballerina Program
      */
-    initializeBuiltinTypes(builtinTypes) {
-        _.each(builtinTypes, (builtinType) => {
-            if (!_.isNil(builtinType)) {
-                this._types.push(builtinType.name);
-                if (_.isNil(builtinType.defaultValue)) {
-                    this._defaultValues[builtinType.name] = 'null';
-                } else if (builtinType.name === 'string') {
-                    this._defaultValues[builtinType.name] = '"' + builtinType.defaultValue + '"';
-                } else {
-                    this._defaultValues[builtinType.name] = builtinType.defaultValue;
+    initializeBuiltinTypes() {
+        return getBuiltInTypes()
+            .then((data) => {
+                if (data.error && !data.result) {
+                    throw new Error(data.error);
                 }
-            }
-        });
-        this._types = _.sortBy(this._types, [function (type) {
-            return type;
-        }]);
+                if (_.isArray(data.types)) {
+                    _.each(data.types, (builtinType) => {
+                        if (!_.isNil(builtinType)) {
+                            this._types.push(builtinType.name);
+                            if (_.isNil(builtinType.defaultValue)) {
+                                this._defaultValues[builtinType.name] = 'null';
+                            } else if (builtinType.name === 'string') {
+                                this._defaultValues[builtinType.name] = '"' + builtinType.defaultValue + '"';
+                            } else {
+                                this._defaultValues[builtinType.name] = builtinType.defaultValue;
+                            }
+                        }
+                    });
+                    this._types = _.sortBy(this._types, [function (type) {
+                        return type;
+                    }]);
+                } else {
+                    throw new Error('Error while fetching built in types');
+                }
+            });
     }
 
     /**
