@@ -29,12 +29,14 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.runconfig.application.BallerinaApplicationConfiguration;
+import org.ballerinalang.plugins.idea.runconfig.test.BallerinaTestConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,16 +50,65 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
     @Override
     protected boolean setupConfigurationFromContext(@NotNull T configuration, @NotNull ConfigurationContext context,
                                                     Ref<PsiElement> sourceElement) {
+        // This method will be called with each configuration type. So we need to return true for correct
+        // configuration type after updating the configurations.
         PsiFile file = getFileFromContext(context);
         if (file == null) {
             return false;
         }
+
         // Get the element. This will be an identifier element.
         PsiElement element = sourceElement.get();
         // Get the FunctionDefinitionNode parent from element (if exists).
         FunctionDefinitionNode functionNode = PsiTreeUtil.getParentOfType(element, FunctionDefinitionNode.class);
         // Get the ServiceDefinitionNode parent from element (if exists).
         ServiceDefinitionNode serviceDefinitionNode = PsiTreeUtil.getParentOfType(element, ServiceDefinitionNode.class);
+
+        // Setup configuration for Ballerina test files.
+        if (file.getName().endsWith(BallerinaConstants.BALLERINA_TEST_FILE_SUFFIX) && functionNode != null &&
+                BallerinaRunUtil.isTestFunction(functionNode)) {
+            if (!(configuration instanceof BallerinaTestConfiguration)) {
+                return false;
+            }
+            PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(file,
+                    PackageDeclarationNode.class);
+            // Get the package path node. We need this to get the package path of the file.
+            FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode = PsiTreeUtil.findChildOfType
+                    (packageDeclarationNode, FullyQualifiedPackageNameNode.class);
+            String packageInFile = "";
+            if (fullyQualifiedPackageNameNode != null) {
+                // Regardless of the OS, separator character will be "/".
+                packageInFile = fullyQualifiedPackageNameNode.getText().replaceAll("\\.", "/");
+            }
+
+            RunnerAndConfigurationSettings existingConfigurations = context.findExisting();
+            if (existingConfigurations != null) {
+                // Get the RunConfiguration.
+                RunConfiguration existingConfiguration = existingConfigurations.getConfiguration();
+                // Run configuration might be an application configuration. So we need to check the type.
+                if (existingConfiguration instanceof BallerinaTestConfiguration) {
+                    // Set other configurations.
+                    setTestConfigurations((BallerinaTestConfiguration) existingConfiguration, file, packageInFile);
+                    return true;
+                }
+                return false;
+            } else {
+                // If an existing configuration is not found and the configuration provided is of correct type.
+                String configName = getConfigurationName(file);
+                // Set the config name. This will be the file name.
+                configuration.setName(configName);
+                // Set the file path.
+                configuration.setFilePath(file.getVirtualFile().getPath());
+                // Set the module.
+                Module module = context.getModule();
+                if (module != null) {
+                    configuration.setModule(module);
+                }
+                // Set other configurations.
+                setTestConfigurations((BallerinaTestConfiguration) configuration, file, packageInFile);
+                return true;
+            }
+        }
 
         // Get the declared package in the file if available.
         String packageInFile = "";
@@ -138,11 +189,31 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
             return;
         }
         String workingDirectory = moduleFile.getParent().getPath();
-        if (workingDirectory.endsWith(".idea")) {
-            workingDirectory = workingDirectory.replace(".idea", "");
+        if (workingDirectory.endsWith(BallerinaConstants.IDEA_CONFIG_DIRECTORY)) {
+            workingDirectory = workingDirectory.replace(BallerinaConstants.IDEA_CONFIG_DIRECTORY, "");
         }
         configuration.setWorkingDirectory(workingDirectory);
     }
+
+    private void setTestConfigurations(@NotNull BallerinaTestConfiguration configuration, @NotNull PsiFile file,
+                                       @NotNull String packageInFile) {
+        configuration.setPackage(packageInFile);
+        // Set the working directory. If this is not set, package in sub modules will not run properly.
+        Module module = ModuleUtilCore.findModuleForPsiElement(file);
+        if (module == null) {
+            return;
+        }
+        VirtualFile moduleFile = module.getModuleFile();
+        if (moduleFile == null) {
+            return;
+        }
+        String workingDirectory = moduleFile.getParent().getPath();
+        if (workingDirectory.endsWith(BallerinaConstants.IDEA_CONFIG_DIRECTORY)) {
+            workingDirectory = workingDirectory.replace(BallerinaConstants.IDEA_CONFIG_DIRECTORY, "");
+        }
+        configuration.setWorkingDirectory(workingDirectory);
+    }
+
 
     @NotNull
     protected abstract String getConfigurationName(@NotNull PsiFile file);

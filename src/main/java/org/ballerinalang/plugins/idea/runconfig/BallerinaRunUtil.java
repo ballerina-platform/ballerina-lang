@@ -116,9 +116,22 @@ public class BallerinaRunUtil {
                 isMainBallerinaFile(PsiManager.getInstance(project).findFile(file)));
     }
 
+    public static void installBallerinTestFileChooser(Project project, @NotNull TextFieldWithBrowseButton fileField) {
+        installFileChooser(project, fileField, file ->
+                isBallerinaTestFile(PsiManager.getInstance(project).findFile(file)));
+    }
+
     @Contract("null -> false")
     private static boolean isMainBallerinaFile(@Nullable PsiFile psiFile) {
         return hasMainFunction(psiFile);
+    }
+
+    @Contract("null -> false")
+    private static boolean isBallerinaTestFile(@Nullable PsiFile psiFile) {
+        if (psiFile == null) {
+            return false;
+        }
+        return psiFile.getName().endsWith(BallerinaConstants.BALLERINA_TEST_FILE_SUFFIX);
     }
 
     @Contract("null -> false")
@@ -189,6 +202,20 @@ public class BallerinaRunUtil {
         }
         // Get the text (string) and check and return the result.
         return valueTypeNameNode.getText() != null && "string".equals(valueTypeNameNode.getText());
+    }
+
+    @Contract("null -> false")
+    static boolean isTestFunction(FunctionDefinitionNode functionDefinitionNode) {
+        // Get the function name.
+        PsiElement functionName = functionDefinitionNode.getNameIdentifier();
+        if (functionName == null) {
+            return false;
+        }
+        // Check whether the function name is "main".
+        if (functionName.getText().startsWith(BallerinaConstants.BALLERINA_TEST_FUNCTION_PREFIX)) {
+            return true;
+        }
+        return false;
     }
 
     @Contract("null -> false")
