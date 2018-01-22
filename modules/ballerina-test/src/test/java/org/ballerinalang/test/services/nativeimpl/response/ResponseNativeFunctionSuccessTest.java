@@ -301,15 +301,12 @@ public class ResponseNativeFunctionSuccessTest {
     @Test(description = "Test GetJsonPayload function within a service")
     public void testServiceGetJsonPayload() {
         String value = "ballerina";
-        String jsonString = "{'lang':'value'}";
         String path = "/hello/getJsonPayload/" + value;
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         HTTPCarbonMessage responseMsg = Services.invokeNew(serviceResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "Response message not found");
-        Assert.assertTrue(
-                StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream())
-                        .contains(org.ballerinalang.mime.util.Constants.APPLICATION_JSON));
+        Assert.assertEquals(new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream()).stringValue(), value);
     }
 
     @Test
@@ -370,9 +367,8 @@ public class ResponseNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertTrue(
-                StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
-                        .contains(org.ballerinalang.mime.util.Constants.TEXT_PLAIN));
+        Assert.assertEquals(
+                StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), value);
     }
 
     @Test
@@ -399,15 +395,13 @@ public class ResponseNativeFunctionSuccessTest {
     @Test(description = "Test GetXmlPayload function within a service")
     public void testServiceGetXmlPayload() {
         String value = "ballerina";
-        String xmlString = "<name>ballerina</name>";
         String path = "/hello/GetXmlPayload";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertTrue(
-                StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
-                        .contains(org.ballerinalang.mime.util.Constants.APPLICATION_XML));
+        Assert.assertEquals(
+                StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), value);
     }
 
     @Test

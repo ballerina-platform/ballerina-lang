@@ -109,7 +109,6 @@ public native function <OutRequest req> setEntity (mime:Entity entity);
 @Param { value:"propertyValue: The value of the property" }
 public native function <OutRequest req> setProperty (string propertyName, string propertyValue);
 
-
 @Description { value:"Retrieves the named property from the request"}
 @Param { value:"req: The outbound request message" }
 @Param { value:"propertyName: The name of the property" }

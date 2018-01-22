@@ -619,8 +619,7 @@ public class RequestNativeFunctionSuccessTest {
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("contentType").asText(),
-                org.ballerinalang.mime.util.Constants.APPLICATION_JSON);
+        Assert.assertEquals(bJson.value().get("lang").asText(), value);
     }
 
     @Test
@@ -680,8 +679,7 @@ public class RequestNativeFunctionSuccessTest {
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("contentType").asText(),
-                org.ballerinalang.mime.util.Constants.TEXT_PLAIN);
+        Assert.assertEquals(bJson.value().get("lang").asText(), value);
     }
 
     @Test
@@ -710,8 +708,7 @@ public class RequestNativeFunctionSuccessTest {
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("contentType").asText(),
-                org.ballerinalang.mime.util.Constants.APPLICATION_XML);
+        Assert.assertEquals(bJson.value().get("lang").asText(), value);
     }
 
     @Test
@@ -747,8 +744,7 @@ public class RequestNativeFunctionSuccessTest {
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("contentType").asText(),
-                org.ballerinalang.mime.util.Constants.OCTET_STREAM);
+        Assert.assertEquals(bJson.value().get("lang").asText(), value);
     }
 
     @Test(description = "Test getBinaryPayload() function within a service")

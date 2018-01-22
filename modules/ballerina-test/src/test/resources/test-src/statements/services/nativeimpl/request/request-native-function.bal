@@ -386,10 +386,9 @@ service<http> helloServer {
         http:OutRequest req = {};
         json jsonStr = {lang:value};
         req.setJsonPayload(jsonStr);
-        string contentType = req.getHeader("Content-Type").value;
-
+        json result = req.getJsonPayload();
         http:OutResponse res = {};
-        res.setJsonPayload({contentType:contentType});
+        res.setJsonPayload(result);
         _ = conn.respond(res);
     }
 
@@ -411,10 +410,9 @@ service<http> helloServer {
     resource SetStringPayload (http:Connection conn, http:InRequest inReq, string value) {
         http:OutRequest req = {};
         req.setStringPayload(value);
-        string contentType = req.getHeader("Content-Type").value;
-
+        string result = req.getStringPayload();
         http:OutResponse res = {};
-        res.setJsonPayload({contentType:contentType});
+        res.setJsonPayload({lang:result});
         _ = conn.respond(res);
     }
 
@@ -425,10 +423,11 @@ service<http> helloServer {
         http:OutRequest req = {};
         xml xmlStr = xml `<name>Ballerina</name>`;
         req.setXmlPayload(xmlStr);
-        string contentType = req.getHeader("Content-Type").value;
+        xml value = req.getXmlPayload();
+        string name = value.getTextValue();
 
         http:OutResponse res = {};
-        res.setJsonPayload({contentType:contentType});
+        res.setJsonPayload({lang:name});
         _ = conn.respond(res);
     }
 
@@ -440,10 +439,11 @@ service<http> helloServer {
         string text = "Ballerina";
         blob payload = text.toBlob("UTF-8");
         req.setBinaryPayload(payload);
-        string contentType = req.getHeader("Content-Type").value;
+        blob value = req.getBinaryPayload();
+        string name = value.toString("UTF-8");
 
         http:OutResponse res = {};
-        res.setJsonPayload({contentType:contentType});
+        res.setJsonPayload({lang:name});
         _ = conn.respond(res);
     }
 

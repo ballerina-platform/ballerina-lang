@@ -112,10 +112,26 @@ public function <InResponse response> getJsonPayload () (json) {
     return mime:getJson(entity);
 }
 
+@Description {value:"Gets the outbound response payload in JSON format"}
+@Param {value:"response: The outbound response message"}
+@Return {value:"The JSON reresentation of the message payload"}
+public function <OutResponse response> getJsonPayload () (json) {
+    mime:Entity entity = response.getEntity();
+    return mime:getJson(entity);
+}
+
 @Description {value:"Gets the inbound response payload in XML format"}
 @Param {value:"response: The inbound response message"}
 @Return {value:"The XML representation of the message payload"}
 public function <InResponse response> getXmlPayload () (xml) {
+    mime:Entity entity = response.getEntity();
+    return mime:getXml(entity);
+}
+
+@Description {value:"Gets the outbound response payload in XML format"}
+@Param {value:"response: The outbound response message"}
+@Return {value:"The XML representation of the message payload"}
+public function <OutResponse response> getXmlPayload () (xml) {
     mime:Entity entity = response.getEntity();
     return mime:getXml(entity);
 }
@@ -128,10 +144,26 @@ public function <InResponse response> getStringPayload () (string) {
     return mime:getText(entity);
 }
 
+@Description {value:"Gets the outbound response payload as a string"}
+@Param {value:"response: The outbound response message"}
+@Return {value:"The string representation of the message payload"}
+public function <OutResponse response> getStringPayload () (string) {
+    mime:Entity entity = response.getEntity();
+    return mime:getText(entity);
+}
+
 @Description {value:"Gets the inbound response payload in blob format"}
 @Param {value:"response: The inbound response message"}
 @Return {value:"The blob representation of the message payload"}
 public function <InResponse response> getBinaryPayload () (blob) {
+    mime:Entity entity = response.getEntity();
+    return mime:getBlob(entity);
+}
+
+@Description {value:"Gets the outbound response payload in blob format"}
+@Param {value:"response: The outbound response message"}
+@Return {value:"The blob representation of the message payload"}
+public function <OutResponse response> getBinaryPayload () (blob) {
     mime:Entity entity = response.getEntity();
     return mime:getBlob(entity);
 }

@@ -118,7 +118,7 @@ public function <InRequest request> getContentLength () (int) {
     return -1;
 }
 
-@Description {value:"Gets the request payload in JSON format"}
+@Description {value:"Gets the inbound request payload in JSON format"}
 @Param {value:"request: The inbound request message"}
 @Return {value:"The JSON reresentation of the message payload"}
 public function <InRequest request> getJsonPayload () (json) {
@@ -126,7 +126,15 @@ public function <InRequest request> getJsonPayload () (json) {
     return mime:getJson(entity);
 }
 
-@Description {value:"Gets the request payload in XML format"}
+@Description {value:"Gets the outbound request payload in JSON format"}
+@Param {value:"request: The outbound request message"}
+@Return {value:"The JSON reresentation of the message payload"}
+public function <OutRequest request> getJsonPayload () (json) {
+    mime:Entity entity = request.getEntity();
+    return mime:getJson(entity);
+}
+
+@Description {value:"Gets the inbound request payload in XML format"}
 @Param {value:"request: The inbound request message"}
 @Return {value:"The XML representation of the message payload"}
 public function <InRequest request> getXmlPayload () (xml) {
@@ -134,7 +142,15 @@ public function <InRequest request> getXmlPayload () (xml) {
     return mime:getXml(entity);
 }
 
-@Description {value:"Gets the request payload as a string"}
+@Description {value:"Gets the outbound request payload in XML format"}
+@Param {value:"request: The outbound request message"}
+@Return {value:"The XML representation of the message payload"}
+public function <OutRequest request> getXmlPayload () (xml) {
+    mime:Entity entity = request.getEntity();
+    return mime:getXml(entity);
+}
+
+@Description {value:"Gets the inbound request payload as a string"}
 @Param {value:"request: inbound request message"}
 @Return {value:"The string representation of the message payload"}
 public function <InRequest request> getStringPayload () (string) {
@@ -142,10 +158,26 @@ public function <InRequest request> getStringPayload () (string) {
     return mime:getText(entity);
 }
 
-@Description {value:"Gets the request payload in blob format"}
+@Description {value:"Gets the outbound request payload as a string"}
+@Param {value:"request: outbound request message"}
+@Return {value:"The string representation of the message payload"}
+public function <OutRequest request> getStringPayload () (string) {
+    mime:Entity entity = request.getEntity();
+    return mime:getText(entity);
+}
+
+@Description {value:"Gets the inboundrequest payload in blob format"}
 @Param {value:"request: The inbound request message"}
 @Return {value:"The blob representation of the message payload"}
 public function <InRequest request> getBinaryPayload () (blob) {
+    mime:Entity entity = request.getEntity();
+    return mime:getBlob(entity);
+}
+
+@Description {value:"Gets the outbound request payload in blob format"}
+@Param {value:"request: The outbound request message"}
+@Return {value:"The blob representation of the message payload"}
+public function <OutRequest request> getBinaryPayload () (blob) {
     mime:Entity entity = request.getEntity();
     return mime:getBlob(entity);
 }

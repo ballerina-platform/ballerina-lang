@@ -245,8 +245,9 @@ service<http> helloServer {
         http:OutResponse res = {};
         json jsonStr = {lang:value};
         res.setJsonPayload(jsonStr);
-        string contentType = res.getHeader("Content-Type").value;
-        res.setJsonPayload(contentType);
+        json result = res.getJsonPayload();
+        json lang = result.lang;
+        res.setJsonPayload(lang);
         _ = conn.respond(res);
     }
 
@@ -267,8 +268,8 @@ service<http> helloServer {
     resource GetStringPayload(http:Connection conn, http:InRequest req, string valueStr) {
         http:OutResponse res = {};
         res.setStringPayload(valueStr);
-        string contentType = res.getHeader("Content-Type").value;
-        res.setJsonPayload(contentType);
+        string value = res.getStringPayload();
+        res.setStringPayload(value);
         _ = conn.respond(res);
     }
 
@@ -279,8 +280,9 @@ service<http> helloServer {
         http:OutResponse res = {};
         xml xmlStr = xml `<name>ballerina</name>`;
         res.setXmlPayload(xmlStr);
-        string contentType = res.getHeader("Content-Type").value;
-        res.setJsonPayload(contentType);
+        xml value = res.getXmlPayload();
+        string name = value.getTextValue();
+        res.setStringPayload(name);
         _ = conn.respond(res);
     }
 
