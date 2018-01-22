@@ -20,6 +20,7 @@ import com.intellij.execution.lineMarker.ExecutorAction;
 import com.intellij.execution.lineMarker.RunLineMarkerContributor;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.Function;
+import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
@@ -32,9 +33,13 @@ public class BallerinaTestLineMarkerProvider extends RunLineMarkerContributor {
     @Nullable
     @Override
     public Info getInfo(PsiElement element) {
+        if (element == null || !element.getContainingFile().getName().endsWith(
+                BallerinaConstants.BALLERINA_TEST_FILE_SUFFIX)) {
+            return null;
+        }
         // We only need to add Run line marker to functions and services. So we check whether the element is an
         // identifier.
-        if (element != null && element.getNode().getElementType() == BallerinaTypes.IDENTIFIER) {
+        if (element.getNode().getElementType() == BallerinaTypes.IDENTIFIER) {
             // Get the parent element.
             PsiElement parent = element.getParent();
             if (parent instanceof FunctionDefinitionNode) {
