@@ -224,28 +224,39 @@ function testSetArrayOutofBoundElement () (json) {
     return j;
 }
 
-function testSetToNonArrayWithIndex () (json) {
-    json j = {name:"supun"};
-    j[7] = 8;
-    return j;
+function testSetToNonArrayWithIndex () (json, json, json) {
+    json j1 = {name:"supun"};
+    json j2 = "foo";
+    json j3 = true;
+    j1[7] = 8;
+    j2[7] = 8;
+    j3[7] = 8;
+    return j1, j2, j3;
 }
 
-function testGetFromNonArrayWithIndex () (string) {
-    json j = {name:"supun"};
-    string name;
-    name, _ = (string)j[7];
-    return name;
+function testGetFromNonArrayWithIndex () (json, json, json) {
+    json j1 = {name:"supun"};
+	json j2 = "foo";
+    json j3 = true;
+    return j1[7], j2[7], j3[7];
 }
 
-function testSetToNonObjectWithKey () (json) {
-    json j = [1, 2, 3];
-    j["name"] = "Supun";
-    return j;
+function testSetToNonObjectWithKey () (json, json, json) {
+    json j1 = [1, 2, 3];
+	json j2 = "foo";
+    json j3 = true;
+    
+    j1["name"] = "Supun";
+    j2["name"] = "Supun";
+    j3["name"] = "Supun";
+    return j1, j2, j3;
 }
 
-function testGetFromNonObjectWithKey () (any) {
-    json j = [1, 2, 3];
-    return j["name"];
+function testGetFromNonObjectWithKey () (json, json, json) {
+    json j1 = [1, 2, 3];
+	json j2 = "foo";
+    json j3 = true;
+    return j1.name, j2.name, j3.name;
 }
 
 function testGetStringInArray () (string) {
@@ -262,11 +273,9 @@ function testGetArrayOutofBoundElement () (string) {
     return value;
 }
 
-function testGetStringFromPrimitive () (string) {
+function testGetElementFromPrimitive () (json) {
     json j = {name:"Supun"};
-    string name;
-    name, _ = (string)j.name.fname;
-    return name;
+    return j.name.fname;
 }
 
 function testUpdateNestedElement () (json) {
