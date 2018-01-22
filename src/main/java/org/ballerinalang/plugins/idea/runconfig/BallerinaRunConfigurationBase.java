@@ -39,6 +39,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.PathUtil;
 import com.intellij.util.containers.ContainerUtil;
+import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkUtil;
 import org.jdom.Element;
@@ -82,7 +83,8 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
 
         if (module != null) {
             if (FileUtil.exists(module.getModuleFilePath())) {
-                myWorkingDirectory = StringUtil.trimEnd(PathUtil.getParentPath(module.getModuleFilePath()), ".idea");
+                myWorkingDirectory = StringUtil.trimEnd(PathUtil.getParentPath(module.getModuleFilePath()),
+                        BallerinaConstants.IDEA_CONFIG_DIRECTORY);
             }
         } else {
             myWorkingDirectory = StringUtil.notNullize(configurationModule.getProject().getBasePath());

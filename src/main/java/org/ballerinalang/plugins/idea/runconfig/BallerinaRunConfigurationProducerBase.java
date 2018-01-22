@@ -189,8 +189,8 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
             return;
         }
         String workingDirectory = moduleFile.getParent().getPath();
-        if (workingDirectory.endsWith(".idea")) {
-            workingDirectory = workingDirectory.replace(".idea", "");
+        if (workingDirectory.endsWith(BallerinaConstants.IDEA_CONFIG_DIRECTORY)) {
+            workingDirectory = workingDirectory.replace(BallerinaConstants.IDEA_CONFIG_DIRECTORY, "");
         }
         configuration.setWorkingDirectory(workingDirectory);
     }
@@ -208,8 +208,8 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
             return;
         }
         String workingDirectory = moduleFile.getParent().getPath();
-        if (workingDirectory.endsWith(".idea")) {
-            workingDirectory = workingDirectory.replace(".idea", "");
+        if (workingDirectory.endsWith(BallerinaConstants.IDEA_CONFIG_DIRECTORY)) {
+            workingDirectory = workingDirectory.replace(BallerinaConstants.IDEA_CONFIG_DIRECTORY, "");
         }
         configuration.setWorkingDirectory(workingDirectory);
     }
