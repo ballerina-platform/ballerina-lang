@@ -710,7 +710,7 @@ class BallerinaFileEditor extends React.Component {
             || ((!this.state.parseFailed)
                 && _.isEmpty(this.state.syntaxErrors)
                 && this.state.activeView === DESIGN_VIEW);
-        const showSourceView = !this.props.isPreviewViewEnabled && (this.state.parseFailed
+        const showSourceView = (this.state.parseFailed
             || !_.isEmpty(this.state.syntaxErrors)
             || this.state.activeView === SOURCE_VIEW
             || this.state.activeView === SPLIT_VIEW);
