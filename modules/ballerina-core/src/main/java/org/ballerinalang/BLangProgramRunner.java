@@ -86,6 +86,33 @@ public class BLangProgramRunner {
         }
     }
 
+    public static void runInternalService(ProgramFile programFile) {
+        if (!programFile.isServiceEPAvailable()) {
+            throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
+        }
+        PackageInfo servicesPackage = programFile.getEntryPackage();
+        if (servicesPackage == null) {
+            throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
+        }
+        Context bContext = new Context(programFile);
+        BLangFunctions.invokePackageInitFunction(programFile, servicesPackage.getInitFunctionInfo(), bContext);
+
+        int serviceCount = 0;
+        for (ServiceInfo serviceInfo : servicesPackage.getServiceInfoEntries()) {
+            bContext.setServiceInfo(serviceInfo);
+            BLangFunctions.invokeFunction(programFile, serviceInfo.getInitFunctionInfo(), bContext);
+            if (bContext.getError() != null) {
+                String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
+                throw new BLangRuntimeException("error: " + stackTraceStr);
+            }
+            programFile.getServerConnectorRegistry().registerService(serviceInfo);
+            serviceCount++;
+        }
+        if (serviceCount == 0) {
+            throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
+        }
+    }
+
     public static void runMain(ProgramFile programFile, String[] args) {
         if (!programFile.isMainEPAvailable()) {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");

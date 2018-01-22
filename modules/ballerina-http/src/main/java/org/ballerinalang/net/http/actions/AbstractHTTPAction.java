@@ -29,6 +29,7 @@ import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.RetryConfig;
+import org.ballerinalang.net.http.transactions.MicroTransactionCoordinator;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
@@ -65,7 +66,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         // Extract Argument values
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String path = getStringArgument(context, 0);
-        BStruct requestStruct  = ((BStruct) getRefArgument(context, 1));
+        BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
         HTTPCarbonMessage requestMsg = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
 
@@ -75,7 +76,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     }
 
     protected void prepareRequest(BConnector connector, String path, HTTPCarbonMessage outboundRequest,
-            BStruct requestStruct) {
+                                  BStruct requestStruct) {
 
         validateParams(connector);
         HttpUtil.populateOutboundRequest(requestStruct, outboundRequest);
@@ -183,6 +184,9 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         if (sourceHandler == null) {
             httpRequestMsg.setProperty(Constants.SRC_HANDLER,
                     context.getProperty(Constants.SRC_HANDLER));
+        }
+        if (context.isInTransaction()) {
+            MicroTransactionCoordinator.getInstance().initAndRegister(context, httpRequestMsg);
         }
         executeNonBlocking(context, httpRequestMsg, httpClientConnectorLister);
         return ballerinaFuture;

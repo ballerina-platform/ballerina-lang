@@ -39,6 +39,7 @@ public class BallerinaTransactionManager {
     private int transactionLevel; //level of the nested transaction
     private Map<Integer, Integer> allowedTransactionRetryCounts;
     private Map<Integer, Integer> currentTransactionRetryCounts;
+    private TransportTransactionManager transportTransactionManager;
 
     public BallerinaTransactionManager() {
         this.transactionContextStore = new HashMap<>();
@@ -96,6 +97,9 @@ public class BallerinaTransactionManager {
     }
 
     public void commitTransactionBlock() {
+        if (isTransportTransactionMangerExist()) {
+            transportTransactionManager.commit();
+        }
         if (transactionLevel == 1) {
             commitNonXAConnections();
             commitXATransaction();
@@ -105,6 +109,9 @@ public class BallerinaTransactionManager {
     }
 
     public void rollbackTransactionBlock() {
+        if (isTransportTransactionMangerExist()) {
+            transportTransactionManager.abort();
+        }
         if (transactionLevel == 1) {
             rollbackNonXAConnections();
             rollbackXATransaction();
@@ -210,5 +217,17 @@ public class BallerinaTransactionManager {
             v.done();
         });
         transactionContextStore.clear();
+    }
+
+    public TransportTransactionManager getTransportTransactionManager() {
+        return transportTransactionManager;
+    }
+
+    public void setTransportTransactionManager(TransportTransactionManager transportTransactionManager) {
+        this.transportTransactionManager = transportTransactionManager;
+    }
+
+    private boolean isTransportTransactionMangerExist() {
+        return transportTransactionManager != null;
     }
 }

@@ -26,6 +26,9 @@ public class Constants {
     // Ballerina version system property name
     public static final String BALLERINA_VERSION = "ballerina.version";
 
+    // Ballerina home system property name
+    public static final String BALLERINA_HOME = "ballerina.home";
+
     // Name of the system property to hold the debug port
     public static final String SYSTEM_PROP_BAL_DEBUG = "debug";
 }

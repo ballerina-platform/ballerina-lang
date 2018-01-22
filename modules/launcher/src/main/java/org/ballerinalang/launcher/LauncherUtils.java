@@ -19,6 +19,7 @@ package org.ballerinalang.launcher;
 
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.config.utils.ConfigFileParserException;
@@ -118,6 +119,19 @@ public class LauncherUtils {
         outStream.println("ballerina: deploying service(s) in '" + programFile.getProgramFilePath() + "'");
         BLangProgramRunner.runService(programFile);
 
+        serverConnectorRegistry.deploymentComplete();
+    }
+
+    public static void runInternalServices(ProgramFile programFile, Context context) {
+        PrintStream outStream = System.out;
+        //TODO: Think of avoiding taking program file from context
+        ServerConnectorRegistry serverConnectorRegistry = context.getProgramFile().getServerConnectorRegistry() == null
+                ? new ServerConnectorRegistry() : context.getProgramFile().getServerConnectorRegistry();
+        programFile.setServerConnectorRegistry(serverConnectorRegistry);
+
+        serverConnectorRegistry.initServerConnectors();
+        outStream.println("ballerina: deploying transaction coordinator service");
+        BLangProgramRunner.runInternalService(programFile);
         serverConnectorRegistry.deploymentComplete();
     }
 
