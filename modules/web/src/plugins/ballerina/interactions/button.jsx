@@ -23,6 +23,67 @@ import './interaction.scss';
  * Interaction button component
  */
 class Button extends React.Component {
+
+    /**
+     * Initialize functions and default states
+     * @param {*} props component props for default states
+     */
+    constructor(props) {
+        super();
+        this.state = { mouseClicked: false, showAlways: props.showAlways };
+        this.buttonClick = this.buttonClick.bind(this);
+        this.setWrapperRef = this.setWrapperRef.bind(this);
+        this.handleClickOutside = this.handleClickOutside.bind(this);
+    }
+
+    /**
+     * Bind mouse down event to handle out side click events
+     */
+    componentDidMount() {
+        if (this.props.enableMouseClick) {
+            document.addEventListener('mousedown', this.handleClickOutside);
+        }
+    }
+    /**
+     * remove mouse down event bound  when mounting component
+     */
+    componentWillUnmount() {
+        if (this.props.enableMouseClick) {
+            document.removeEventListener('mousedown', this.handleClickOutside);
+        }
+    }
+
+    /**
+     * Set specified node as wrapper reference for check outside clicks
+     * @param {*} node node click event needs to be detected
+     */
+    setWrapperRef(node) {
+        this.wrapperRef = node;
+    }
+
+    /**
+     * Handle outside click event and close menu accordingly
+     * @param {*} event triggerred event
+     */
+    handleClickOutside(event) {
+        if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
+            this.setState({ mouseClicked: false, showAlways: this.props.showAlways });
+        } else {
+            this.buttonClick();
+        }
+    }
+
+    /**
+     * Handles button click event
+     */
+    buttonClick() {
+        if (this.props.enableMouseClick) {
+            this.setState({ mouseClicked: true, showAlways: true });
+        } else {
+            this.props.onClick();
+        }
+    }
+
     /**
      * render hover button
      * @return {object} button rendering object
@@ -36,6 +97,7 @@ class Button extends React.Component {
         const IconOpacity = this.props.hideIconBackground ? 0 : 1;
         const buttonArea = btnRadius + 2 + (btnRadius / 4);
         const topPadding = (-3 * btnRadius) + (btnRadius / 2);
+        let menuCss = 'interaction-menu-area';
         const menuStyle = {
             left: buttonArea,
             top: topPadding,
@@ -49,15 +111,24 @@ class Button extends React.Component {
             menuStyle.left = 0;
         }
 
+        if (this.props.enableMouseClick) {
+            if (this.state.mouseClicked) {
+                menuCss = 'interaction-menu-area-clicked';
+            } else {
+                menuCss = 'interaction-menu-area-hidden';
+            }
+        }
+
         return (
             <div
-                className='interaction-menu-area'
-                style={{ left: btnX, top: btnY, '--button-size': buttonArea + 'px' }}
+                ref={this.setWrapperRef}
+                className={menuCss}
+                style={{ position: 'absolute', left: btnX, top: btnY, '--button-size': buttonArea + 'px' }}
             >
                 <div style={{ fontSize: btnRadius }} className='button-panel'>
                     <span
-                        className={(this.props.showAlways ? 'button-show-always' : 'button') + ' fw-stack fw-lg'}
                         onClick={this.props.onClick}
+                        className={(this.state.showAlways ? 'button-show-always' : 'button') + ' fw-stack fw-lg'}
                         title={this.props.tooltip}
                     >
                         <i
@@ -88,6 +159,7 @@ Button.propTypes = {
     onClick: PropTypes.func,
     tooltip: PropTypes.string,
     menuOverButton: PropTypes.bool,
+    enableMouseClick: PropTypes.bool,
 };
 
 Button.defaultProps = {
@@ -102,6 +174,7 @@ Button.defaultProps = {
     onClick: () => {},
     tooltip: '',
     menuOverButton: false,
+    enableMouseClick: false,
 };
 
 export default Button;

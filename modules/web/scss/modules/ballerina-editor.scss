@@ -1323,7 +1323,7 @@
         font-style: italic;
     }
 
-    .compound-statement-title-text {
+    .statement-title-text-left {
         text-anchor: start;
         dominant-baseline: central;
         fill: #777;
@@ -2351,6 +2351,12 @@
         fill: none;
         stroke: #ff0202;
     }
+
+    .compound-statment-rect {
+        fill: none;
+        stroke: #777;
+        stroke-dasharray: 3,3;
+    }
     
     .arguments-main-action-wrapper {
         width: 435px;
@@ -3012,6 +3018,7 @@
     
     .canvas-container {
         float: left;
+        height: 100%;
         position: relative;
     }
     
@@ -4448,4 +4455,3 @@
           color: #a3a3a3 !important;
       }
   }
-

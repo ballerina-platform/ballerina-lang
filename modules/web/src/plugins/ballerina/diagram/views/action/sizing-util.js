@@ -60,7 +60,8 @@ class SizingUtil extends DefaultSizingUtil {
             TreeUtil.isIf(node) ||
             TreeUtil.isWhile(node) ||
             TreeUtil.isEndpointTypeVariableDef(node) ||
-            TreeUtil.statementIsClientResponder(node)
+            TreeUtil.statementIsClientResponder(node) ||
+            TreeUtil.isTry(node)
         ) {
             return true;
         }

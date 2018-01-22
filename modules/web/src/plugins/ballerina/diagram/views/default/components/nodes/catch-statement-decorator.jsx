@@ -313,9 +313,9 @@ class CatchStatementDecorator extends React.Component {
                     </text>
                 }
                 <text
-                    x={p2X + 2}
+                    x={p2X + designer.config.compoundStatement.text.padding}
                     y={(p1Y + p2Y) / 2}
-                    className='compound-statement-title-text'
+                    className='statement-title-text-left'
                 >catch
                 </text>
                 <DropZone

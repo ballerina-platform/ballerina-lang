@@ -236,9 +236,9 @@ class LifelineButton extends React.Component {
         return (
             <Area bBox={this.props.bBox}>
                 <Button
-                    buttonX={0}
-                    buttonY={0}
-                    showAlways
+                    buttonX={this.props.button.x}
+                    buttonY={this.props.button.y}
+                    showAlways={this.props.showAlways}
                     buttonRadius={8}
                     menuOverButton
                 >
@@ -310,7 +310,8 @@ LifelineButton.propTypes = {
 };
 
 LifelineButton.defaultProps = {
-
+    button: { x: 0, y: 0 },
+    showAlways: false,
 };
 
 LifelineButton.contextTypes = {

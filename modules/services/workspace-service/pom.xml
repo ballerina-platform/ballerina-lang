@@ -18,9 +18,9 @@
 
     <parent>
         <groupId>org.ballerinalang</groupId>
-        <artifactId>composer-server-parent</artifactId>
-        <version>0.95.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <artifactId>ballerina-composer-parent</artifactId>
+        <version>0.95.9-SNAPSHOT</version>
+        <relativePath>../../../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>

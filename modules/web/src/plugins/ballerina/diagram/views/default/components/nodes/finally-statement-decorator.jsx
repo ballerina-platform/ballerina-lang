@@ -170,49 +170,30 @@ class FinallyStatementDecorator extends React.Component {
         const { designer } = this.context;
 
         const viewState = bBox;
-        const titleH = this.context.designer.config.compoundStatement.heading.height;
-        const titleW = this.context.designer.config.compoundStatement.heading.width;
+        const titleH = this.context.designer.config.statement.height;
         const statementBBox = viewState.components['statement-box'];
         const gapLeft = viewState.components['left-margin'].w;
-        const gapTop = this.context.designer.config.compoundStatement.padding.top;
-
 
         // Defining coordinates of the diagram
         // (x,y)
-        // (P1)        (P2)|---------|(P3)      (P4)
-        //       |---------| finally |----------|
-        // (P11) |         |____ ____|__________| (statementBox)
+        // (P1)
+        //       | finally ---------------------|
+        // (P11) |              |               | (statementBox)
         //       |              |(p8)           |
         //       |              |               |
         //       |         true |               |
-        //       |            __|__ (p12)     __|__
-        //       |            a = 1;           a = 5;
+        //       |            __|__ (p12)       |
+        //       |            a = 1;            |
         //       |              |               |
-        //       |               (p10)          |
         //       |                              |
-        //  (P7) |_____________(P6)_____________| (P5)
+        //       |                              |
+        //  (P7) |_____________(P6)_____________|(P5)
         //                      |
 
         const p1X = bBox.x - gapLeft;
-        const p1Y = bBox.y + gapTop;
+        const p1Y = bBox.y; // + gapTop;
 
-        const p2X = bBox.x - (titleW / 2);
         const p2Y = p1Y + (titleH / 2);
-
-        const p3X = bBox.x + (titleW / 2);
-        const p3Y = p2Y;
-
-        const p4X = p1X + gapLeft + statementBBox.w;
-        const p4Y = p2Y;
-
-        const p5X = p4X;
-        const p5Y = bBox.y + bBox.h;
-
-        const p6X = bBox.x;
-        const p6Y = p5Y;
-
-        const p7X = p1X;
-        const p7Y = p5Y;
 
         const p8X = bBox.x;
         const p8Y = p2Y + (titleH / 2);
@@ -226,12 +207,18 @@ class FinallyStatementDecorator extends React.Component {
         actionBoxBbox.x = p8X - (actionBoxBbox.w / 2);
         actionBoxBbox.y = p8Y;
 
-        let statementRectClass = 'statement-title-rect';
+        let statementRectClass = 'compound-statment-rect';
         if (isDebugHit) {
             statementRectClass = `${statementRectClass} debug-hit`;
         }
 
         const body = getComponentForNodeArray(this.props.model);
+
+        const blockBox = {
+            w: statementBBox.w + gapLeft,
+            h: statementBBox.h + viewState.components['block-header'].h,
+        };
+
 
         return (
             <g
@@ -241,24 +228,19 @@ class FinallyStatementDecorator extends React.Component {
                     this.myRoot = group;
                 }}
             >
-                <polyline
-                    points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y} ${p6X},${p6Y} 
-                                ${p7X},${p7Y} ${p11X},${p11Y} ${p2X},${p2Y}`}
-                    className='background-empty-rect'
-                />
-                <rect
-                    x={p2X}
+                {this.props.drawBox && <rect
+                    x={p1X}
                     y={p1Y}
-                    width={titleW}
-                    height={titleH}
+                    width={blockBox.w}
+                    height={blockBox.h}
                     className={statementRectClass}
                     rx='5'
                     ry='5'
-                />
+                />}
                 <text
-                    x={p8X}
+                    x={p1X + designer.config.compoundStatement.text.padding}
                     y={p2Y}
-                    className='statement-title-text'
+                    className='statement-title-text-left'
                 >finally
                 </text>
                 <DropZone
@@ -302,6 +284,7 @@ FinallyStatementDecorator.defaultProps = {
     },
     disableDropzoneMiddleLineOverlay: false,
     isDebugHit: false,
+    drawBox: true,
 };
 
 FinallyStatementDecorator.propTypes = {
@@ -317,6 +300,7 @@ FinallyStatementDecorator.propTypes = {
     }),
     disableDropzoneMiddleLineOverlay: PropTypes.bool,
     isDebugHit: PropTypes.bool,
+    drawBox: PropTypes.bool,
 };
 
 FinallyStatementDecorator.contextTypes = {

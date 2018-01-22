@@ -34,7 +34,7 @@ class DesignView extends React.Component {
         super(props);
         this.state = {
             isTransformActive: false,
-            mode: 'default',
+            mode: 'action',
         };
         this.overlayContainer = undefined;
         this.diagramContainer = undefined;
