@@ -29,7 +29,6 @@ import org.ballerinalang.net.http.HttpUtil;
 
 /**
  * Native function to remove given header to carbon message.
- * ballerina.model.messages:removeHeader
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",

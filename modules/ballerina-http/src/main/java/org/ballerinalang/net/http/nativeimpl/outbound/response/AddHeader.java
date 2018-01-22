@@ -29,7 +29,6 @@ import org.ballerinalang.net.http.HttpUtil;
 
 /**
  * Native function to add given header to carbon message.
- * ballerina.model.messages:addHeader
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",

@@ -29,7 +29,6 @@ import org.ballerinalang.net.http.HttpUtil;
 
 /**
  * Native function to set given header to carbon message.
- * ballerina.model.messages:setHeader
  */
 
 @BallerinaFunction(

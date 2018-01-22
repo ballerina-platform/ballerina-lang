@@ -33,7 +33,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 
 /**
- * Native function to respond back the caller.
+ * Native function to respond back the caller with outbound response.
  *
  * @since 0.95.6
  */
@@ -63,7 +63,7 @@ public class Respond extends AbstractNativeFunction {
 
         BStruct entity = (BStruct) outboundResponseStruct.getNativeData(MESSAGE_ENTITY);
         if (entity == null) {
-            HttpUtil.setNewEntitiyToStruct(context, outboundResponseStruct);
+            HttpUtil.setNewEntityToStruct(context, outboundResponseStruct);
         }
         HttpUtil.enrichOutboundMessage(responseMessage, outboundResponseStruct);
 

@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
 
 /**
- * Get the 'Entity' of the response.
+ * Get the 'Entity' of the outbound response.
  *
  * @since 0.96.0
  */

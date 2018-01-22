@@ -33,9 +33,9 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 
 /**
- * Native function to respond back the caller.
+ * Native function to respond back the caller with inbound response.
  *
- * @since 0.95.6
+ * @since 0.96
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
@@ -63,7 +63,7 @@ public class Forward extends AbstractNativeFunction {
 
         BStruct entity = (BStruct) inboundResponseStruct.getNativeData(MESSAGE_ENTITY);
         if (entity == null) {
-            HttpUtil.setNewEntitiyToStruct(context, inboundResponseStruct);
+            HttpUtil.setNewEntityToStruct(context, inboundResponseStruct);
         }
         HttpUtil.setHeadersToTransportMessage(responseMessage, inboundResponseStruct);
 

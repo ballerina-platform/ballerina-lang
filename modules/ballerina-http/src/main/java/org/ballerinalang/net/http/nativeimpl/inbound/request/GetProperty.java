@@ -29,8 +29,6 @@ import org.ballerinalang.net.http.HttpUtil;
 
 /**
  * Ballerina function to set a message property.
- * <br>
- * ballerina.model.messages:getProperty
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",

@@ -267,7 +267,7 @@ public class HttpUtil {
             populateEntityBody(context, httpMessageStruct, entity, isRequest);
         }
         if (entity == null) {
-            entity = setNewEntitiyToStruct(context, httpMessageStruct);
+            entity = setNewEntityToStruct(context, httpMessageStruct);
         }
         return abstractNativeFunction.getBValues(entity);
     }
@@ -805,10 +805,11 @@ public class HttpUtil {
 
     /**
      * Set new entity to in/out request/response struct.
-     *  @param context ballerina context.
+     *
+     * @param context ballerina context.
      * @param struct request/response struct.
      */
-    public static BStruct setNewEntitiyToStruct(Context context, BStruct struct) {
+    public static BStruct setNewEntityToStruct(Context context, BStruct struct) {
         BStruct entity = ConnectorUtils.createAndGetStruct(context
                 , org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME
                 , org.ballerinalang.mime.util.Constants.ENTITY);

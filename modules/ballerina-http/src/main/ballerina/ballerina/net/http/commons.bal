@@ -44,5 +44,3 @@ function addHeaderToEntity(mime:Entity entity, string headerName, string headerV
         valueArray[lengthof valueArray] = {value:headerValue};
     }
 }
-
-

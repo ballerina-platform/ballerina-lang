@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpUtil;
 
 /**
- * Set the entity of the response.
+ * Set the entity of the outbound response.
  *
  * @since 0.96.0
  */
