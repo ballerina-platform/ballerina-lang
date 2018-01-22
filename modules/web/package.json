@@ -1,6 +1,6 @@
 {
   "name": "ballerina-composer",
-  "version": "0.95.7",
+  "version": "0.95.8",
   "description": "A web based tool for creating integrations in ballerina language.",
   "scripts": {
     "clean": "rimraf dist",
