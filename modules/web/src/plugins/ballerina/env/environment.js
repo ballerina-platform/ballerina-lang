@@ -18,8 +18,7 @@
 import log from 'log';
 import _ from 'lodash';
 import EventChannel from 'event_channel';
-import { getTypeLattice, getOperatorLattice } from 'api-client/api-client';
-import { getLangServerClientInstance } from 'plugins/ballerina/langserver/lang-server-client-controller';
+import { getTypeLattice, getOperatorLattice, getPackages, getBuiltInTypes } from 'api-client/api-client';
 import TypeLattice from 'plugins/ballerina/type-lattice/type-lattice';
 import OperatorLattice from 'plugins/ballerina/type-lattice/operator-lattice';
 import BallerinaEnvFactory from './ballerina-env-factory';
@@ -57,28 +56,17 @@ class BallerinaEnvironment extends EventChannel {
             if (!this.initialized) {
                 this.initPending = true;
                 this.initializeAnnotationAttachmentPoints();
-
-                getLangServerClientInstance()
-                    .then((langServerClient) => {
-                        langServerClient.workspaceSymbolRequest('builtinTypes', (data) => {
-                            if (!data) {
-                                reject();
-                                return;
-                            }
-
-                            this.initializeBuiltinTypes(data.result);
-                            Promise.all([
-                                this.initializePackages(),
-                                this.initializeTypeLattice(),
-                                this.initializeOperatorLattice(),
-                            ]).then(() => {
-                                this.initialized = true;
-                                this.initPending = false;
-                                this.trigger('initialized');
-                                resolve();
-                            }).catch(reject);
-                        });
-                    }).catch(reject);
+                Promise.all([
+                    this.initializeBuiltinTypes(),
+                    this.initializePackages(),
+                    this.initializeTypeLattice(),
+                    this.initializeOperatorLattice(),
+                ]).then(() => {
+                    this.initialized = true;
+                    this.initPending = false;
+                    this.trigger('initialized');
+                    resolve();
+                }).catch(reject);
             } else {
                 resolve();
             }
@@ -157,30 +145,21 @@ class BallerinaEnvironment extends EventChannel {
      * Initialize packages from BALLERINA_HOME and/or Ballerina Repo
      */
     initializePackages() {
-        return new Promise((resolve, reject) => {
-            getLangServerClientInstance()
-                .then((langserverClient) => {
-                    langserverClient.getBuiltInPackages()
-                        .then((data) => {
-                            if (data.error && !data.result) {
-                                reject(data);
-                                return;
-                            }
-                            if (_.isArray(data.result.packages)) {
-                                data.result.packages.forEach((packageNode) => {
-                                    const pckg = BallerinaEnvFactory.createPackage();
-                                    pckg.initFromJson(packageNode);
-                                    this._packages.push(pckg);
-                                });
-                                resolve();
-                            } else {
-                                log.error('Error while fetching packages');
-                                resolve();
-                            }
-                        });
-                })
-                .catch(error => reject(error));
-        });
+        return getPackages()
+            .then((data) => {
+                if (data.error && !data.result) {
+                    throw new Error(data.error);
+                }
+                if (_.isArray(data.packages)) {
+                    data.packages.forEach((packageNode) => {
+                        const pckg = BallerinaEnvFactory.createPackage();
+                        pckg.initFromJson(packageNode);
+                        this._packages.push(pckg);
+                    });
+                } else {
+                    throw new Error('Error while fetching packages');
+                }
+            });
     }
 
     /**
@@ -212,22 +191,32 @@ class BallerinaEnvironment extends EventChannel {
     /**
      * Initialize builtin types from Ballerina Program
      */
-    initializeBuiltinTypes(builtinTypes) {
-        _.each(builtinTypes, (builtinType) => {
-            if (!_.isNil(builtinType)) {
-                this._types.push(builtinType.name);
-                if (_.isNil(builtinType.defaultValue)) {
-                    this._defaultValues[builtinType.name] = 'null';
-                } else if (builtinType.name === 'string') {
-                    this._defaultValues[builtinType.name] = '"' + builtinType.defaultValue + '"';
-                } else {
-                    this._defaultValues[builtinType.name] = builtinType.defaultValue;
+    initializeBuiltinTypes() {
+        return getBuiltInTypes()
+            .then((data) => {
+                if (data.error && !data.result) {
+                    throw new Error(data.error);
                 }
-            }
-        });
-        this._types = _.sortBy(this._types, [function (type) {
-            return type;
-        }]);
+                if (_.isArray(data.types)) {
+                    _.each(data.types, (builtinType) => {
+                        if (!_.isNil(builtinType)) {
+                            this._types.push(builtinType.name);
+                            if (_.isNil(builtinType.defaultValue)) {
+                                this._defaultValues[builtinType.name] = 'null';
+                            } else if (builtinType.name === 'string') {
+                                this._defaultValues[builtinType.name] = '"' + builtinType.defaultValue + '"';
+                            } else {
+                                this._defaultValues[builtinType.name] = builtinType.defaultValue;
+                            }
+                        }
+                    });
+                    this._types = _.sortBy(this._types, [function (type) {
+                        return type;
+                    }]);
+                } else {
+                    throw new Error('Error while fetching built in types');
+                }
+            });
     }
 
     /**

@@ -33,7 +33,6 @@ import { PLUGIN_ID, EDITOR_ID, DOC_VIEW_ID, COMMANDS as COMMAND_IDS, TOOLS as TO
             DIALOGS as DIALOG_IDS, EVENTS } from './constants';
 import OpenProgramDirConfirmDialog from './dialogs/OpenProgramDirConfirmDialog';
 import FixPackageNameOrPathConfirmDialog from './dialogs/FixPackageNameOrPathConfirmDialog';
-import { getLangServerClientInstance } from './langserver/lang-server-client-controller';
 import { isInCorrectPath, getCorrectPackageForPath, getCorrectPathForPackage } from './utils/program-dir-utils';
 import TreeBuilder from './model/tree-builder';
 import FragmentUtils from './utils/fragment-utils';
@@ -100,7 +99,7 @@ class BallerinaPlugin extends Plugin {
             debug: false,
         };
         // create the web socket
-        const url = getServiceEndpoint('wslangserver');
+        const url = getServiceEndpoint('ballerina-langserver');
         const webSocket = new ReconnectingWebSocket(url, undefined, socketOptions);
         // listen when the web socket is opened
         listen({
@@ -268,13 +267,6 @@ class BallerinaPlugin extends Plugin {
                 {
                     cmdID: WORKSPACE_EVENTS.FILE_OPENED,
                     handler: ({ file }) => {
-                        getLangServerClientInstance()
-                            .then((langServerClient) => {
-                                langServerClient.documentDidOpenNotification({
-                                    file,
-                                    text: file.content,
-                                });
-                            });
                         parseFile(file)
                             .then(({ programDirPath = undefined }) => {
                                 const { workspace, command: { dispatch } } = this.appContext;
@@ -290,41 +282,6 @@ class BallerinaPlugin extends Plugin {
                                         },
                                     });
                                 }
-                            });
-                    },
-                },
-                {
-                    cmdID: WORKSPACE_EVENTS.FILE_UPDATED,
-                    handler: ({ file }) => {
-                        getLangServerClientInstance()
-                            .then((langServerClient) => {
-                                langServerClient.documentDidChangeNotification({
-                                    file,
-                                    text: file.content,
-                                });
-                            });
-                    },
-                },
-                {
-                    cmdID: WORKSPACE_EVENTS.FILE_SAVED,
-                    handler: ({ file }) => {
-                        getLangServerClientInstance()
-                            .then((langServerClient) => {
-                                langServerClient.documentDidSaveNotification({
-                                    file,
-                                    text: file.content,
-                                });
-                            });
-                    },
-                },
-                {
-                    cmdID: WORKSPACE_EVENTS.FILE_CLOSED,
-                    handler: ({ file }) => {
-                        getLangServerClientInstance()
-                            .then((langServerClient) => {
-                                langServerClient.documentDidCloseNotification({
-                                    file,
-                                });
                             });
                     },
                 },

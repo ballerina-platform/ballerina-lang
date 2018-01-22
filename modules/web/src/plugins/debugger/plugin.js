@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { getServiceEndpoint } from 'api-client/api-client';
 import Plugin from 'core/plugin/plugin';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
 
@@ -99,8 +100,9 @@ class DebuggerPlugin extends Plugin {
                     id: VIEW_IDS.DEBUGGER_PANEL,
                     component: DebuggerPanel,
                     propsProvider: () => {
-                        LaunchManager.init(this.appContext.services.launcher.endpoint);
-                        DebugManager.init(this.appContext.services.debugger.endpoint);
+                        LaunchManager.init(getServiceEndpoint('ballerina-launcher'));
+                        // TODO Fix this and get from config service/or another solution
+                        DebugManager.init(this.appContext.debuggerPath);
                         return {
                             debuggerPlugin: this,
                             commandProxy: this.appContext.command,
@@ -138,7 +140,7 @@ class DebuggerPlugin extends Plugin {
                     id: VIEW_IDS.DEBUGGER_CONSOLE,
                     component: DebuggerConsole,
                     propsProvider: () => {
-                        LaunchManager.init(this.appContext.services.launcher.endpoint);
+                        LaunchManager.init(getServiceEndpoint('ballerina-launcher'));
                         return {
                             debuggerPlugin: this,
                             LaunchManager,

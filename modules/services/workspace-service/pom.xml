@@ -24,7 +24,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>workspace-service</artifactId>
+    <artifactId>composer-workspace-service</artifactId>
     <name>Ballerina Composer - Workspace Service</name>
     <url>http://ballerinalang.org</url>
 

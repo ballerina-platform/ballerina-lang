@@ -58,6 +58,9 @@ class Application {
             pluginContexts: {
             },
             services: config.services,
+            // TODO avoid hardcoding, provide a config contributing mechanism from BE
+            balHome: config.balHome,
+            debuggerPath: config.debuggerPath,
         };
 
         // Initialize core plugins first

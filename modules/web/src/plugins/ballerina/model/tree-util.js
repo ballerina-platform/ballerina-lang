@@ -16,7 +16,6 @@
  * under the License.
  */
 import _ from 'lodash';
-import { getLangServerClientInstance } from 'plugins/ballerina/langserver/lang-server-client-controller';
 import AbstractTreeUtil from './abstract-tree-util';
 import TreeBuilder from './tree-builder';
 import FragmentUtils from '../utils/fragment-utils';
@@ -512,44 +511,45 @@ class TreeUtil extends AbstractTreeUtil {
 
     getNewTempVarName(node, varPrefix, numberOfVars = 1) {
         const fileData = node.getRoot().getFile();
-        return getLangServerClientInstance()
-            .then((client) => {
-                const position = node.parent.getPosition() || node.getPosition();
-                const options = {
-                    textDocument: fileData.content,
-                    position: {
-                        line: position.endLine,
-                        character: position.endColumn,
-                    },
-                    fileName: fileData.name,
-                    filePath: fileData.path,
-                    fullPath: fileData.fullPath,
-                    packageName: fileData.packageName,
-                };
+        // FIXME
+        // return getLangServerClientInstance()
+        //     .then((client) => {
+        //         const position = node.parent.getPosition() || node.getPosition();
+        //         const options = {
+        //             textDocument: fileData.content,
+        //             position: {
+        //                 line: position.endLine,
+        //                 character: position.endColumn,
+        //             },
+        //             fileName: fileData.name,
+        //             filePath: fileData.path,
+        //             fullPath: fileData.fullPath,
+        //             packageName: fileData.packageName,
+        //         };
 
-                return client.getCompletions(options);
-            })
-            .then((response) => {
-                if (!response || response.error) {
-                    return Array(numberOfVars).fill().map((el, index) => (`${varPrefix}${index + 1}`));
-                }
+        //         return client.getCompletions(options);
+        //     })
+        //     .then((response) => {
+        //         if (!response || response.error) {
+        //             return Array(numberOfVars).fill().map((el, index) => (`${varPrefix}${index + 1}`));
+        //         }
 
-                const varNameRegex = new RegExp(varPrefix + '[\\d]*');
-                const completions = response.result.left.filter((completionItem) => {
-                    // all variables have type as 9 as per the declaration in lang server
-                    return (completionItem.kind === 9) && varNameRegex.test(completionItem.label);
-                });
-                const tempVarSuffixes = completions.map((varName) => {
-                    return Number.parseInt(varName.label.substring(varPrefix.length), 10) || 0;
-                });
+        //         const varNameRegex = new RegExp(varPrefix + '[\\d]*');
+        //         const completions = response.result.left.filter((completionItem) => {
+        //             // all variables have type as 9 as per the declaration in lang server
+        //             return (completionItem.kind === 9) && varNameRegex.test(completionItem.label);
+        //         });
+        //         const tempVarSuffixes = completions.map((varName) => {
+        //             return Number.parseInt(varName.label.substring(varPrefix.length), 10) || 0;
+        //         });
 
-                tempVarSuffixes.sort((a, b) => (a - b));
-                const varNames = [];
-                for (let i = 0; i < numberOfVars; i++) {
-                    varNames.push(`${varPrefix}${(tempVarSuffixes[tempVarSuffixes.length - 1] || 0) + i + 1}`);
-                }
-                return varNames;
-            });
+        //         tempVarSuffixes.sort((a, b) => (a - b));
+        //         const varNames = [];
+        //         for (let i = 0; i < numberOfVars; i++) {
+        //             varNames.push(`${varPrefix}${(tempVarSuffixes[tempVarSuffixes.length - 1] || 0) + i + 1}`);
+        //         }
+        //         return varNames;
+        //     });
     }
 
     /**

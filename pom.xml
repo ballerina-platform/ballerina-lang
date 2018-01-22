@@ -168,7 +168,7 @@
     </properties>
 
     <modules>
-        <module>modules/services/workspace-service</module>
+        <module>modules/server</module>
         <module>modules/web</module>
         <module>modules/js-tests</module>
         <module>integration-tests</module>

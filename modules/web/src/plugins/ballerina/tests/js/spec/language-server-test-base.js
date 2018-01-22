@@ -19,7 +19,6 @@
 import log from 'log';
 import path from 'path';
 import fs from 'fs';
-import { getLangServerClientInstance } from 'plugins/ballerina/langserver/lang-server-client-controller';
 import SourceViewCompleterFactory from 'plugins/ballerina/utils/source-view-completer-factory';
 
 /**
