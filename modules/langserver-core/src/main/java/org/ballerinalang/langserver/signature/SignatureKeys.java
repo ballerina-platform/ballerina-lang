@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.signature;
 import org.ballerinalang.langserver.LanguageServerContext;
 
 /**
- * Text Document Service context keys for the signature help operation context
+ * Text Document Service context keys for the signature help operation context.
  * @since 0.95.6
  */
 public class SignatureKeys {

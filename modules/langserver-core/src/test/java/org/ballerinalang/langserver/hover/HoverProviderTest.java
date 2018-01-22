@@ -27,6 +27,9 @@ import java.util.concurrent.ExecutionException;
 
 import static java.lang.Thread.sleep;
 
+/**
+ * Tests hover feature.
+ */
 public class HoverProviderTest {
     private static final String TESTS_SAMPLES = "src" + File.separator + "test" + File.separator + "resources"
             + File.separator + "hover";

@@ -29,7 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 /**
- * Test Case to verify the Signature help utility functions
+ * Test Case to verify the Signature help utility functions.
  */
 public class SignatureHelpUtilTest {
     private static final ClassLoader CLASS_LOADER = SignatureHelpUtilTest.class.getClassLoader();

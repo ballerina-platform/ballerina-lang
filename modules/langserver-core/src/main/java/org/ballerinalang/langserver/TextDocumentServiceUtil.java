@@ -126,8 +126,12 @@ public class TextDocumentServiceUtil {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         String fileContent = docManager.getFileContent(Paths.get(URI.create(uri)));
         Path filePath = getPath(uri);
-        String[] pathComponents = uri.split("\\" + File.separator);
-        String fileName = pathComponents[pathComponents.length - 1];
+        Path fileNamePath = filePath.getFileName();
+        String fileName = "";
+        if (fileNamePath != null) {
+            fileName = fileNamePath.toString();
+        }
+
         String pkgName = TextDocumentServiceUtil.getPackageFromContent(fileContent);
         String sourceRoot = TextDocumentServiceUtil.getSourceRoot(filePath, pkgName);
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, docManager);
@@ -152,7 +156,12 @@ public class TextDocumentServiceUtil {
         return (BLangPackage) compiler.getAST();
     }
 
-    private static Path getPath(String uri) {
+    /**
+     *  Get Path from URI.
+     * @param uri               Path URI String
+     * @return                  File Path
+     */
+    public static Path getPath(String uri) {
         Path path = null;
         try {
             path = Paths.get(new URL(uri).toURI());

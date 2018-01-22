@@ -110,7 +110,7 @@ public class CompletionTestUtil {
     }
 
     /**
-     * Get the completions list
+     * Get the completions list.
      * @param documentManager   Document manager instance
      * @param pos               {@link TextDocumentPositionParams} position params
      */
@@ -138,7 +138,7 @@ public class CompletionTestUtil {
     }
 
     /**
-     * Prepare the Document manager instance with the given file and issue the did open operation
+     * Prepare the Document manager instance with the given file and issue the did open operation.
      * @param uri           File Uri
      * @param balContent    File Content
      * @return  {@link WorkspaceDocumentManagerImpl}
