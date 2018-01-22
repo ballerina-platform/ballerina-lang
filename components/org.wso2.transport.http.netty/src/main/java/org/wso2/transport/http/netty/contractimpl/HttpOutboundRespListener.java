@@ -30,6 +30,7 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.listener.RequestDataHolder;
@@ -120,7 +121,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                     Util.setupChunkedRequest(outboundResponseMsg);
                     writeOutboundResponseHeaders(outboundResponseMsg, keepAlive);
                 }
-                DefaultHttpResponseFuture outboundRespStatusFuture =
+                HttpResponseFuture outboundRespStatusFuture =
                         inboundRequestMsg.getHttpOutboundRespStatusFuture();
                 ChannelFuture outboundResponseChannelFuture = sourceContext.writeAndFlush(httpContent);
                 notifyIfFailure(outboundRespStatusFuture, outboundResponseChannelFuture);
@@ -132,7 +133,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     }
 
     private ChannelFuture writeOutboundResponseBody(HttpContent lastHttpContent) {
-        DefaultHttpResponseFuture outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
+        HttpResponseFuture outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
         if (chunkConfig == ChunkConfig.NEVER) {
             for (HttpContent cachedHttpContent : contentList) {
                 ChannelFuture outboundResponseChannelFuture = sourceContext.writeAndFlush(cachedHttpContent);
@@ -155,7 +156,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         return outboundChannelFuture;
     }
 
-    private void notifyIfFailure(DefaultHttpResponseFuture outboundRespStatusFuture,
+    private void notifyIfFailure(HttpResponseFuture outboundRespStatusFuture,
             ChannelFuture outboundResponseChannelFuture) {
         outboundResponseChannelFuture.addListener(writeOperationPromise -> {
             Throwable throwable = writeOperationPromise.cause();

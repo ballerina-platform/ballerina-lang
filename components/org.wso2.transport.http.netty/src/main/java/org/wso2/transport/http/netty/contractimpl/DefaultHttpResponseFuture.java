@@ -37,24 +37,22 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
 
     @Override
     public void notifyHttpListener(HTTPCarbonMessage httpCarbonMessage) {
+        this.httpCarbonMessage = httpCarbonMessage;
         if (executionWaitSem != null) {
             executionWaitSem.release();
         }
-        if (httpConnectorListener == null) {
-            this.httpCarbonMessage = httpCarbonMessage;
-        } else {
+        if (httpConnectorListener != null) {
             httpConnectorListener.onMessage(httpCarbonMessage);
         }
     }
 
     @Override
     public void notifyHttpListener(Throwable throwable) {
+        this.throwable = throwable;
         if (executionWaitSem != null) {
             executionWaitSem.release();
         }
-        if (httpConnectorListener == null) {
-            this.throwable = throwable;
-        } else {
+        if (httpConnectorListener != null) {
             httpConnectorListener.onError(throwable);
         }
     }
