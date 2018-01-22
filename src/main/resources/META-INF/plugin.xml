@@ -98,7 +98,15 @@
 
         <completion.confidence language="Ballerina"
                                implementationClass="org.ballerinalang.plugins.idea.codeInsight.completion.SkipAutoPopupInFloatingPointLiterals"
+                               id="ballerinaSkipAutoPopupInFloats"/>
+
+        <completion.confidence language="Ballerina"
+                               implementationClass="org.ballerinalang.plugins.idea.codeInsight.completion.SkipAutoPopupInStrings"
                                id="ballerinaSkipAutoPopupInStrings"/>
+
+        <completion.confidence language="Ballerina"
+                               implementationClass="org.ballerinalang.plugins.idea.codeInsight.completion.SkipAutoPopupInComments"
+                               id="ballerinaSkipAutoPopupInComments"/>
 
         <!--line marker-->
         <codeInsight.lineMarkerProvider language="Ballerina"
@@ -171,6 +179,9 @@
 
         <runLineMarkerContributor language="Ballerina"
                                   implementationClass="org.ballerinalang.plugins.idea.runconfig.BallerinaRunLineMarkerProvider"/>
+        <runLineMarkerContributor language="Ballerina"
+                                  implementationClass="org.ballerinalang.plugins.idea.runconfig.BallerinaTestLineMarkerProvider"/>
+
         <console.folding implementation="org.ballerinalang.plugins.idea.runconfig.BallerinaConsoleFolding"/>
 
         <!--remote-->
@@ -178,6 +189,12 @@
                 implementation="org.ballerinalang.plugins.idea.runconfig.remote.BallerinaRemoteRunConfigurationType"/>
         <runConfigurationProducer
                 implementation="org.ballerinalang.plugins.idea.runconfig.remote.BallerinaRemoteRunConfigurationProducer"/>
+
+        <!--test-->
+        <configurationType
+                implementation="org.ballerinalang.plugins.idea.runconfig.test.BallerinaTestRunConfigurationType"/>
+        <runConfigurationProducer
+                implementation="org.ballerinalang.plugins.idea.runconfig.test.BallerinaTestRunConfigurationProducer"/>
 
         <!-- debugger -->
         <programRunner id="ballerinaDebugger"

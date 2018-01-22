@@ -44,10 +44,16 @@ public class BallerinaConstants {
             NotificationGroup.toolWindowGroup("Ballerina Execution", ToolWindowId.RUN);
 
     public static final String BALLERINA_REPOSITORY = "BALLERINA_REPOSITORY";
+    public static final String BALLERINA_REPOSITORY_SOURCE_DIRECTORY = "artifacts/src";
     public static final String BALLERINA_LIBRARIES_SERVICE_NAME = "BallerinaLibraries";
     public static final String BALLERINA_LIBRARIES_CONFIG_FILE = "BallerinaLibraries.xml";
     public static final String BALLERINA_MODULE_SESTTINGS_SERVICE_NAME = "Ballerina";
 
     public static final String BALLERINA_SDK_LIB_DIR = "/bre/lib";
     public static final String BALLERINA_SDK_LIB_FILE_EXTENTION = ".jar";
+
+    public static final String IDEA_CONFIG_DIRECTORY = ".idea";
+
+    public static final String BALLERINA_TEST_FUNCTION_PREFIX = "test";
+    public static final String BALLERINA_TEST_FILE_SUFFIX = "_test.bal";
 }

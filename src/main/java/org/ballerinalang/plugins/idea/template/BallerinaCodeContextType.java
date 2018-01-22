@@ -102,13 +102,6 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
 
         @Override
         protected boolean isInContext(@NotNull PsiElement element) {
-            if (element instanceof LeafPsiElement) {
-                IElementType elementType = ((LeafPsiElement) element).getElementType();
-                if (elementType == BallerinaTypes.QUOTED_STRING) {
-                    return false;
-                }
-            }
-
             PsiFile originalFile = element.getContainingFile().getOriginalFile();
             PsiElement originalElement = originalFile.findElementAt(element.getTextOffset());
 
@@ -172,13 +165,6 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
 
         @Override
         protected boolean isInContext(@NotNull PsiElement element) {
-            if (element instanceof LeafPsiElement) {
-                IElementType elementType = ((LeafPsiElement) element).getElementType();
-                if (elementType == BallerinaTypes.QUOTED_STRING) {
-                    return false;
-                }
-            }
-
             PsiFile originalFile = element.getContainingFile().getOriginalFile();
             PsiElement originalElement = originalFile.findElementAt(element.getTextOffset());
             CallableUnitBodyNode callableUnitBodyNode;
@@ -229,13 +215,6 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
 
         @Override
         protected boolean isInContext(@NotNull PsiElement element) {
-            if (element instanceof LeafPsiElement) {
-                IElementType elementType = ((LeafPsiElement) element).getElementType();
-                if (elementType == BallerinaTypes.QUOTED_STRING) {
-                    return false;
-                }
-            }
-
             PsiFile originalFile = element.getContainingFile().getOriginalFile();
             PsiElement originalElement = originalFile.findElementAt(element.getTextOffset());
 
@@ -290,12 +269,6 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
 
         @Override
         protected boolean isInContext(@NotNull PsiElement element) {
-            if (element instanceof LeafPsiElement) {
-                IElementType elementType = ((LeafPsiElement) element).getElementType();
-                if (elementType == BallerinaTypes.QUOTED_STRING) {
-                    return false;
-                }
-            }
             PsiFile originalFile = element.getContainingFile().getOriginalFile();
             PsiElement originalElement = originalFile.findElementAt(element.getTextOffset());
             CallableUnitBodyNode callableUnitBodyNode;
@@ -349,12 +322,6 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
 
         @Override
         protected boolean isInContext(@NotNull PsiElement element) {
-            if (element instanceof LeafPsiElement) {
-                IElementType elementType = ((LeafPsiElement) element).getElementType();
-                if (elementType == BallerinaTypes.QUOTED_STRING) {
-                    return false;
-                }
-            }
             PsiFile originalFile = element.getContainingFile().getOriginalFile();
             PsiElement originalElement = originalFile.findElementAt(element.getTextOffset());
             CallableUnitBodyNode callableUnitBodyNode;

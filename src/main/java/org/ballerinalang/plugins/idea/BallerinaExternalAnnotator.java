@@ -142,7 +142,8 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
 
             // If we are currently in a module, we need to set the module root as the source root.
             if (module != null && FileUtil.exists(module.getModuleFilePath())) {
-                sourceRoot = StringUtil.trimEnd(PathUtil.getParentPath(module.getModuleFilePath()), ".idea");
+                sourceRoot = StringUtil.trimEnd(PathUtil.getParentPath(module.getModuleFilePath()),
+                        BallerinaConstants.IDEA_CONFIG_DIRECTORY);
             }
 
             try {
@@ -195,7 +196,8 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
         // Calculate the source root. This is used to get the relative directory path.
         String sourceRoot = file.getProject().getBasePath();
         if (module != null && FileUtil.exists(module.getModuleFilePath())) {
-            sourceRoot = StringUtil.trimEnd(PathUtil.getParentPath(module.getModuleFilePath()), ".idea");
+            sourceRoot = StringUtil.trimEnd(PathUtil.getParentPath(module.getModuleFilePath()),
+                    BallerinaConstants.IDEA_CONFIG_DIRECTORY);
         }
 
         // Get the package according to the directory structure.
