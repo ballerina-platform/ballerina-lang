@@ -195,7 +195,8 @@ done
     -Djava.io.tmpdir="$BAL_COMPOSER_HOME/tmp" \
     -Djava.command="$JAVACMD" \
     -Dballerina.home="$BAL_COMPOSER_HOME" \
-    -Dbal.composer.home="$BAL_COMPOSER_HOME" \
+    -Dcomposer.config.path="$BAL_COMPOSER_HOME/bre/conf/composer-config.yml" \
+    -Dcomposer.public.path="$BAL_COMPOSER_HOME/resources/composer/web/public" \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
     -Dcomposer.port=9091 \
@@ -203,5 +204,5 @@ done
     -Dworkspace.port=8289 \
     -Dtransports.netty.conf=./resources/composer/services/netty-transports.yml \
     -Dmsf4j.conf=./resources/composer/services/deployment.yaml \
-    org.ballerinalang.composer.service.workspace.app.WorkspaceServiceRunner $@
+    org.ballerinalang.composer.server.launcher.ServerLauncher $@
 

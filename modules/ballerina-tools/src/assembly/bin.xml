@@ -91,7 +91,7 @@
         <!-- Composer specific files -->
         <file>
             <source>
-                ${project.build.directory}/extracted-distributions/workspace-service-jar/netty-transports.yml
+                ${project.build.directory}/extracted-distributions/composer-server-distribution-jar/netty-transports.yml
             </source>
             <outputDirectory>resources/composer/services</outputDirectory>
             <filtered>true</filtered>
@@ -99,14 +99,20 @@
         </file>
         <file>
             <source>
-                ${project.build.directory}/extracted-distributions/workspace-service-jar/deployment.yaml
+                ${project.build.directory}/extracted-distributions/composer-server-distribution-jar/deployment.yaml
             </source>
             <outputDirectory>resources/composer/services</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>${project.build.directory}/extracted-distributions/workspace-service-jar/composer-logging.properties</source>
+            <source>${project.build.directory}/extracted-distributions/composer-server-distribution-jar/composer-logging.properties</source>
+            <outputDirectory>bre/conf</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>conf/composer-config.yml</source>
             <outputDirectory>bre/conf</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
@@ -134,7 +140,7 @@
         <dependencySet>
             <outputDirectory>resources/composer/services</outputDirectory>
             <includes>
-                <include>org.ballerinalang:workspace-service:jar</include>
+                <include>org.ballerinalang:composer-server-distribution:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

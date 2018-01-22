@@ -115,7 +115,7 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>workspace-service</artifactId>
+                <artifactId>composer-server-distribution</artifactId>
                 <version>${ballerina.composer.version}</version>
             </dependency>
             <dependency>
