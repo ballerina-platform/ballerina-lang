@@ -26,6 +26,7 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -289,6 +290,22 @@ public class BallerinaPsiImplUtil {
         if (match != null) {
             results.add(PsiManager.getInstance(project).findDirectory(match));
         }
+
+        // Find matching packages in BALLERINA_REPOSITORY.
+        // Todo - This can be used to find all matching packages in SDK, BALLERINA_REPOSITORY, etc.
+        OrderEntry[] entries = ModuleRootManager.getInstance(module).getOrderEntries();
+        for (OrderEntry entry : entries) {
+            for (VirtualFile file : entry.getFiles(OrderRootType.SOURCES)) {
+                virtualFile = LocalFileSystem.getInstance().findFileByPath(file.getPath());
+                if (virtualFile != null) {
+                    match = getMatchingDirectory(virtualFile, packages);
+                    if (match != null) {
+                        results.add(PsiManager.getInstance(project).findDirectory(match));
+                    }
+                }
+            }
+        }
+
         return results;
     }
 

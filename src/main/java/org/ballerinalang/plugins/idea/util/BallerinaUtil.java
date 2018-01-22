@@ -21,6 +21,7 @@ import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -129,6 +130,17 @@ public class BallerinaUtil {
                 String root = getImportPath(directory, currentDirectory, moduleSdk);
                 if (root != null) {
                     return root;
+                }
+
+                // Suggest package name for packages in BALLERINA_REPOSITORY.
+                // Todo - This can be used to get package names for packages in SDK, BALLERINA_REPO, etc.
+                OrderEntry[] entries = ModuleRootManager.getInstance(module).getOrderEntries();
+                for (OrderEntry entry : entries) {
+                    for (VirtualFile file : entry.getFiles(OrderRootType.SOURCES)) {
+                        if(currentDirectory.getPath().startsWith(file.getPath())){
+                            return getImportPath(currentDirectory, file);
+                        }
+                    }
                 }
             }
 

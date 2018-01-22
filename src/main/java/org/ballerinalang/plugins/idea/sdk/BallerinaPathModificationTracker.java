@@ -27,6 +27,7 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.VirtualFileMoveEvent;
 import com.intellij.util.SystemProperties;
 import com.intellij.util.containers.ContainerUtil;
+import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -38,12 +39,12 @@ public class BallerinaPathModificationTracker {
 
     private final Set<String> pathsToTrack = ContainerUtil.newHashSet();
     private final Collection<VirtualFile> ballerinaPathRoots = ContainerUtil.newLinkedHashSet();
-    private static final String SOURCE_DIRECTORY = "artifacts/src";
 
     public BallerinaPathModificationTracker() {
         String ballerinaRepository = BallerinaEnvironmentUtil.retrieveRepositoryPathFromEnvironment();
         if (ballerinaRepository != null) {
-            ballerinaRepository = Paths.get(ballerinaRepository, SOURCE_DIRECTORY).toAbsolutePath().toString();
+            ballerinaRepository = Paths.get(ballerinaRepository,
+                    BallerinaConstants.BALLERINA_REPOSITORY_SOURCE_DIRECTORY).toAbsolutePath().toString();
             String home = SystemProperties.getUserHome();
             for (String s : StringUtil.split(ballerinaRepository, File.pathSeparator)) {
                 if (s.contains("$HOME")) {
