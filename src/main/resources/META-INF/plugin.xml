@@ -116,6 +116,10 @@
         <spellchecker.support language="Ballerina"
                               implementationClass="org.ballerinalang.plugins.idea.spellchecker.BallerinaSpellcheckingStrategy"/>
 
+        <!--import optimizer-->
+        <lang.importOptimizer language="Ballerina"
+                              implementationClass="org.ballerinalang.plugins.idea.lang.BallerinaImportOptimizer"/>
+
         <!--find usage-->
         <lang.findUsagesProvider language="Ballerina"
                                  implementationClass="org.ballerinalang.plugins.idea.usage.BallerinaFindUsageProvider"/>

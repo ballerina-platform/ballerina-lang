@@ -20,9 +20,14 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
-public class ImportDeclarationNode extends ANTLRPsiNode {
+public class ImportDeclarationNode extends ANTLRPsiNode implements Comparable<ImportDeclarationNode> {
 
     public ImportDeclarationNode(@NotNull ASTNode node) {
         super(node);
+    }
+
+    @Override
+    public int compareTo(@NotNull ImportDeclarationNode o) {
+        return this.getText().compareTo(o.getText());
     }
 }
