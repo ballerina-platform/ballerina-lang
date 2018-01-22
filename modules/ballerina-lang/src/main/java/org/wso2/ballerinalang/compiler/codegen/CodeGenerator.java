@@ -2913,6 +2913,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         List<Operand> nextOperands = new ArrayList<>();
         nextOperands.add(iteratorIndex);
         nextOperands.add(new Operand(variables.size()));
+        foreach.varTypes.forEach(v -> nextOperands.add(new Operand(v.tag)));
+        nextOperands.add(new Operand(variables.size()));
         for (int i = 0; i < variables.size(); i++) {
             BLangVariableReference varRef = variables.get(i);
             nextOperands.add(Optional.ofNullable(varRef.symbol.varIndex)

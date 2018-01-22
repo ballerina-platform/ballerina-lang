@@ -36,14 +36,6 @@ public interface BIterator extends BRefType {
     BValue[] getNext(int arity);
 
     /**
-     * Get the array of types supported for given argument arity.
-     *
-     * @param arity Number of arguments
-     * @return supported types as an array
-     */
-    BType[] getParamType(int arity);
-
-    /**
      * Checks collection has a next value.
      *
      * @return true, if has a next value, false otherwise
