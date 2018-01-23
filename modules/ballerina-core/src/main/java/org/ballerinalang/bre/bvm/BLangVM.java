@@ -2281,18 +2281,17 @@ public class BLangVM {
                 if (iterator == null) {
                     return;
                 }
-                BType[] varTypes = iterator.getParamType(nextInstruction.arity);
                 BValue[] values = iterator.getNext(nextInstruction.arity);
-                copyValuesToRegistries(sf, varTypes, values, nextInstruction.retRegs);
+                copyValuesToRegistries(nextInstruction.typeTags, nextInstruction.retRegs, values, sf);
                 break;
         }
     }
 
-    private void copyValuesToRegistries(StackFrame sf, BType[] varTypes, BValue[] values, int[] targets) {
-        for (int i = 0; i < varTypes.length; i++) {
+    private void copyValuesToRegistries(int[] typeTags, int[] targetReg, BValue[] values, StackFrame sf) {
+        for (int i = 0; i < typeTags.length; i++) {
             BValue source = values[i];
-            int target = targets[i];
-            switch (varTypes[i].getTag()) {
+            int target = targetReg[i];
+            switch (typeTags[i]) {
                 case TypeTags.INT_TAG:
                     sf.longRegs[target] = ((BInteger) source).intValue();
                     break;
