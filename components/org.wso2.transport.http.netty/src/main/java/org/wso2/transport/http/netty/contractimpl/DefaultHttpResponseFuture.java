@@ -74,8 +74,8 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     }
 
     public DefaultOperationStatus getStatus() {
-        return this.returnError != null ? new DefaultOperationStatus(this.returnError, false)
-                : new DefaultOperationStatus(null, true);
+        return this.returnError != null ? new DefaultOperationStatus(this.returnError)
+                : new DefaultOperationStatus(null);
     }
 
     @Override

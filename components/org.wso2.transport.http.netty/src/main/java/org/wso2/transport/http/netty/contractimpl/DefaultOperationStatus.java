@@ -7,11 +7,9 @@ import org.wso2.transport.http.netty.contract.OperationStatus;
  */
 public class DefaultOperationStatus implements OperationStatus {
     private Throwable cause;
-    private boolean isSuccess;
 
-    public DefaultOperationStatus(Throwable throwable, boolean isSuccess) {
+    public DefaultOperationStatus(Throwable throwable) {
         this.cause = throwable;
-        this.isSuccess = isSuccess;
     }
 
     @Override
@@ -21,6 +19,6 @@ public class DefaultOperationStatus implements OperationStatus {
 
     @Override
     public boolean isSuccess() {
-        return this.isSuccess;
+        return this.cause == null;
     }
 }
