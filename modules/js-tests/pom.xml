@@ -71,7 +71,7 @@
                             <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
                             <stripVersion>true</stripVersion>
                             <includes>
-                                */resources/composer/web/public/vendor.js,*/resources/composer/web/public/testable.js,*/resources/composer/web/public/tree.js
+                                */resources/composer/web/public/vendor-*.js,*/resources/composer/web/public/testable-*.js,*/resources/composer/web/public/tree-*.js
                             </includes>
                         </configuration>
                     </execution>
@@ -95,6 +95,10 @@
                                     <fileset dir="${build.directory}/extracted-web/">
                                         <include name="**/*.js" />
                                     </fileset>
+                                    <chainedmapper>
+                                        <flattenmapper/>
+                                        <regexpmapper from="(.+)-([0-9a-f]+).js" to="\1.js"/>
+                                    </chainedmapper>
                                 </copy>
                             </target>
                         </configuration>
