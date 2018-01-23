@@ -42,8 +42,13 @@ class Area extends React.Component {
 }
 
 Area.propTypes = {
-    children: PropTypes.isRequired,
-    bBox: PropTypes.valueOf(PropTypes.object).isRequired,
+    children: PropTypes.node.isRequired,
+    bBox: PropTypes.shape({
+        x: PropTypes.number.isRequired,
+        y: PropTypes.number.isRequired,
+        w: PropTypes.number.isRequired,
+        h: PropTypes.number.isRequired,
+    }).isRequired,
 };
 
 export default Area;

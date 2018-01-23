@@ -38,7 +38,7 @@ class Item extends React.Component {
 Item.propTypes = {
     icon: PropTypes.string,
     label: PropTypes.string.isRequired,
-    callback: PropTypes.function,
+    callback: PropTypes.func,
     data: PropTypes.object,
 };
 

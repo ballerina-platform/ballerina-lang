@@ -147,7 +147,7 @@ class Button extends React.Component {
 }
 
 Button.propTypes = {
-    children: PropTypes.isRequired,
+    children: PropTypes.node,
     icon: PropTypes.string,
     buttonX: PropTypes.number,
     buttonY: PropTypes.number,
@@ -175,6 +175,7 @@ Button.defaultProps = {
     tooltip: '',
     menuOverButton: false,
     enableMouseClick: false,
+    children: null,
 };
 
 export default Button;

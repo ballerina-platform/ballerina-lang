@@ -42,12 +42,13 @@ class ControllerUtil {
             };
 
             if (element.seperator) {
-                return <hr />;
+                return <hr key={index} />;
             }
 
             return (
                 <Item
                     label={element.name}
+                    key={element.name}
                     icon={`fw fw-${element.icon}`}
                     callback={(menuItem) => {
                         const newNode = menuItem.item.nodeFactoryMethod();
