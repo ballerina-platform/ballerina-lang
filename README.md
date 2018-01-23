@@ -4,8 +4,18 @@
 A Language Server Implementation for [Ballerina](https://ballerinalang.org/); a general purpose, concurrent and strongly typed programming language with both textual and graphical syntax, optimized for integration. With this implementation we expose the language support for Ballerina in various IDEs by adhering to the [Language Server Protocol](https://github.com/Microsoft/language-server-protocol).
 
 ## Features
-In the current implementation we support _Auto completion_ and _program level symbol table support_ for Ballerina programs.
-
+In the current implementation we support following language features.
+ * _Auto completion_
+ ![alt text](./docs/images/autocompletion.gif?raw=true "Auto Completion")
+ * _Hover provider_
+ ![alt text](./docs/images/hoverProvider.gif?raw=true "Hover Provider")
+ * _Signature help_
+ ![alt text](./docs/images/signatureHelp.gif?raw=true "Signature Help")
+ * _Go to definition_
+ ![alt text](./docs/images/gotodef.gif?raw=true "Go to Definition")
+ * _Diagnostics_
+ ![alt text](./docs/images/diagnostics.gif?raw=true "Diagnostics")
+ 
 ## Installation
 You can find the Language server integrated VSCode plugin for Ballerina at [marketplace](https://marketplace.visualstudio.com/items?itemName=WSO2.Ballerina). Also Language server support for [Ballerina Composer](https://github.com/ballerinalang/composer) has been integrated to composer itself.
 
