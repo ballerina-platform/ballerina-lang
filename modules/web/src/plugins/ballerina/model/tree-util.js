@@ -550,6 +550,7 @@ class TreeUtil extends AbstractTreeUtil {
         //         }
         //         return varNames;
         //     });
+        return varPrefix + 1;
     }
 
     /**
