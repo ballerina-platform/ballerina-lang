@@ -148,36 +148,6 @@ function testJSONArrayToCJsonArrayCastNegative() (json<Student>[], TypeCastError
     return j3, e;
 }
 
-function testIntArrayToJsonAssignment() (json) {
-    int[] a = [1, 5, 9];
-    json j = a;
-    return j;
-}
-
-function testFloatArrayToJsonAssignment() (json) {
-    float[] f = [1.3, 5.4, 9.4];
-    json j = f;
-    return j;
-}
-
-function testStringArrayToJsonAssignment() (json) {
-    string[] s = ["apple", "orange"];
-    json j = s;
-    return j;
-}
-
-function testBooleanArrayToJsonAssignment() (json) {
-    boolean[] b = [true, true, false];
-    json j = b;
-    return j;
-}
-
-function testJSONArrayToJsonAssignment() (json) {
-    json[] j1 = [{"a":"b"}, {"c":"d"}];
-    json j2 = j1;
-    return j2;
-}
-
 function testCJSONArrayToJsonAssignment() (json) {
     json<Person> tempJ = getPerson();
     tempJ.age = 40; 

@@ -45,16 +45,30 @@ public class BJSONValueTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/types/jsontype/json-value.bal");
-        negativeResult = BCompileUtil.compile("test-src/types/jsontype/json-literal-negative.bal");
+        negativeResult = BCompileUtil.compile("test-src/types/jsontype/json-value-negative.bal");
     }
 
     @Test
     public void testJsonInitWithUnsupportedtypes() {
+        Assert.assertEquals(negativeResult.getErrorCount(), 6);
+
         // testJsonArrayWithUnsupportedtypes
         BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'json', found 'datatable'", 3, 30);
-        
+
         // testJsonInitWithUnsupportedtypes
         BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'json', found 'datatable'", 9, 39);
+
+        // testIntArrayToJsonAssignment
+        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'json', found 'int[]'", 15, 14);
+
+        // testFloatArrayToJsonAssignment
+        BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'json', found 'float[]'", 21, 14);
+
+        // testStringArrayToJsonAssignment
+        BAssertUtil.validateError(negativeResult, 4, "incompatible types: expected 'json', found 'string[]'", 27, 14);
+
+        // testBooleanArrayToJsonAssignment
+        BAssertUtil.validateError(negativeResult, 5, "incompatible types: expected 'json', found 'boolean[]'", 33, 14);
     }
 
     @Test
@@ -464,5 +478,17 @@ public class BJSONValueTest {
 
         Assert.assertTrue(returns[1] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
+    public void testGetFromNull() {
+        BRunUtil.invoke(compileResult, "testGetFromNull");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
+    public void testAddToNull() {
+        BRunUtil.invoke(compileResult, "testAddToNull");
     }
 }
