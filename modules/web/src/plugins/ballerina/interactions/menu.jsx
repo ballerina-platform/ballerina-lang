@@ -41,7 +41,7 @@ class Menu extends React.Component {
 }
 
 Menu.propTypes = {
-    children: PropTypes.isRequired,
+    children: PropTypes.node.isRequired,
     maxHeight: PropTypes.number,
 };
 

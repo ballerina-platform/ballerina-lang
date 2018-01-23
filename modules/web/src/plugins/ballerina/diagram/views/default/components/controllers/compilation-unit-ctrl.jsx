@@ -31,6 +31,31 @@ import Item from '../../../../../interactions/item';
  * */
 class CompilationUnitCtrl extends React.Component {
 
+    convertToAddItems(tools, node) {
+        return tools.map((element, index) => {
+            const data = {
+                node,
+                item: element,
+            };
+
+            if (element.seperator) {
+                return <hr key={index} />;
+            }
+            return (
+                <Item
+                    key={element.name}
+                    label={element.name}
+                    icon={`fw fw-${element.icon}`}
+                    callback={(menuItem) => {
+                        const newNode = menuItem.item.nodeFactoryMethod();
+                        menuItem.node.acceptDrop(newNode);
+                    }}
+                    data={data}
+                />
+            );
+        });
+    }
+
     /**
      * Render Function for the Next statement.
      * @return {React.Component} next node react component.
@@ -50,7 +75,7 @@ class CompilationUnitCtrl extends React.Component {
         }
         const items = this.convertToAddItems(TopLevelElements, node);
         return [
-            <Area bBox={{ x, y, w, h }}>
+            <Area bBox={{ x, y, w, h }} key='add-item'>
                 <Button
                     buttonX={0}
                     buttonY={0}
@@ -62,7 +87,7 @@ class CompilationUnitCtrl extends React.Component {
                     </Menu>
                 </Button>
             </Area>,
-            <Area bBox={{ x: x + 40, y, w, h }}>
+            <Area bBox={{ x: x + 40, y, w, h }} key='mode-switch'>
                 <Button
                     icon={this.mode === 'default' ? 'default-view' : 'action-view'}
                     buttonX={0}
@@ -82,30 +107,6 @@ class CompilationUnitCtrl extends React.Component {
         ];
     }
 
-    convertToAddItems(tools, node, index) {
-        return tools.map((element) => {
-            const data = {
-                node,
-                item: element,
-            };
-
-            if (element.seperator) {
-                return <hr />;
-            }
-
-            return (
-                <Item
-                    label={element.name}
-                    icon={`fw fw-${element.icon}`}
-                    callback={(menuItem) => {
-                        const newNode = menuItem.item.nodeFactoryMethod();
-                        menuItem.node.acceptDrop(newNode);
-                    }}
-                    data={data}
-                />
-            );
-        });
-    }
 }
 
 CompilationUnitCtrl.propTypes = {
