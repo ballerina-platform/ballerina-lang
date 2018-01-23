@@ -5,17 +5,19 @@ A Language Server Implementation for [Ballerina](https://ballerinalang.org/); a 
 
 ## Features
 In the current implementation we support following language features.
- * _Auto completion_
+ * *Auto completion*
+ 
  ![alt text](./docs/images/autocompletion.gif?raw=true "Auto Completion")
- * _Hover provider_
+ * *Hover provider*
+ 
  ![alt text](./docs/images/hoverProvider.gif?raw=true "Hover Provider")
- * _Signature help_
+ * *Signature Help*
  
  ![alt text](./docs/images/signatureHelp.gif?raw=true "Signature Help")
- * _Go to definition_
+ * *Go to Definition*
  
  ![alt text](./docs/images/gotodef.gif?raw=true "Go to Definition")
- * _Diagnostics_
+ * *Diagnostics*
  
  ![alt text](./docs/images/diagnostics.gif?raw=true "Diagnostics")
  
