@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-~   Copyright (c) 2016, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+~   Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
 ~
 ~   Licensed under the Apache License, Version 2.0 (the "License");
 ~   you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@
 
     <link href="css/preloader.css" rel="stylesheet" type="text/css"/>
 
-    <link rel="stylesheet" type="text/css" href="bundle-bundle.css"/>
-    <link rel="stylesheet" type="text/css" href="bundle-vendor.css"/>
+    <link rel="stylesheet" type="text/css" href=<%=JSON.stringify("bundle-bundle-" + webpack.hash + ".css")%>/>
+    <link rel="stylesheet" type="text/css" href=<%=JSON.stringify("bundle-vendor-" + webpack.hash + ".css")%>/>
     <link rel="stylesheet" type="text/css" href="css/preloader.css"/>
     <link rel="stylesheet" href="themes/default.css" title="default"/>
     <link rel="stylesheet" href="themes/light.css" title="light" disabled/>
@@ -144,10 +144,9 @@
 <div id="alert-container"></div>
 <div id="app-container"></div>
 <div id="dialog-container"></div>
-</body>
-
 <script src="vs/loader.js"></script>
-<script src="vendor.js"></script>
-<script src="tree.js"></script>
-<script src="bundle.js"></script>
+<script src=<%=JSON.stringify("vendor-" + webpack.hash + ".js")%> ></script>
+<script src=<%=JSON.stringify("tree-" + webpack.hash + ".js")%> ></script>
+<script src=<%=JSON.stringify("bundle-" + webpack.hash + ".js")%> ></script>
+</body>
 </html>
