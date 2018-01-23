@@ -114,7 +114,7 @@ label.thin-text{
     width: 82%;
     height: 96%;
     position: fixed;
-    overflow: scroll;
+    overflow: hidden;
 }
 
 .main-content-wrapper {
@@ -219,7 +219,7 @@ td, th{
     width: 17%;
     height: 96%;
     position: fixed;
-    overflow: scroll;
+    overflow: hidden;
     background-color: #f0f0f0;
 }
 
