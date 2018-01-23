@@ -10,10 +10,13 @@ In the current implementation we support following language features.
  * _Hover provider_
  ![alt text](./docs/images/hoverProvider.gif?raw=true "Hover Provider")
  * _Signature help_
+ 
  ![alt text](./docs/images/signatureHelp.gif?raw=true "Signature Help")
  * _Go to definition_
+ 
  ![alt text](./docs/images/gotodef.gif?raw=true "Go to Definition")
  * _Diagnostics_
+ 
  ![alt text](./docs/images/diagnostics.gif?raw=true "Diagnostics")
  
 ## Installation
