@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
@@ -219,14 +218,6 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
                 return new BValue[] {next.getValue()};
             }
             return new BValue[] {new BString((String) next.getKey()), next.getValue()};
-        }
-
-        @Override
-        public BType[] getParamType(int arity) {
-            if (arity == 1) {
-                return new BType[] {((BMapType) collection.getType()).getElementType()};
-            }
-            return new BType[] {BTypes.typeString, ((BMapType) collection.getType()).getElementType()};
         }
 
         @Override
