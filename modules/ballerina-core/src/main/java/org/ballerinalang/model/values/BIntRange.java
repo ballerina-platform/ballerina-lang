@@ -18,7 +18,6 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
 
 /**
  * {@code {@link BIntRange}} represents integer range in Ballerina.
@@ -67,14 +66,6 @@ public class BIntRange implements BRefType, BCollection {
                 return new BValue[]{new BInteger(currentValue)};
             }
             return new BValue[]{new BInteger(cursor), new BInteger(currentValue)};
-        }
-
-        @Override
-        public BType[] getParamType(int arity) {
-            if (arity == 1) {
-                return new BType[]{BTypes.typeInt};
-            }
-            return new BType[]{BTypes.typeInt, BTypes.typeInt};
         }
 
         @Override

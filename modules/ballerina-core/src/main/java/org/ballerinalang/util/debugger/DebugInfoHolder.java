@@ -37,16 +37,20 @@ import java.util.stream.Collectors;
  *
  * @since 0.88
  */
-public class DebugInfoHolder {
+class DebugInfoHolder {
 
     private Map<String, DebuggerPkgInfo> packageInfoMap = new HashMap<>();
 
-    public void init(ProgramFile programFile) {
+    DebugInfoHolder(ProgramFile programFile) {
+        this.init(programFile);
+    }
+
+    private void init(ProgramFile programFile) {
         processPkgInfos(programFile.getPackageInfoEntries());
     }
 
     private void processPkgInfos(PackageInfo[] pkgInfos) {
-        Arrays.stream(pkgInfos).forEach(p -> processPkgInfo(p));
+        Arrays.stream(pkgInfos).forEach(this::processPkgInfo);
     }
 
     /**
@@ -54,8 +58,8 @@ public class DebugInfoHolder {
      *
      * @param packageInfo   To extract relevant information.
      */
-    public void processPkgInfo(PackageInfo packageInfo) {
-        DebuggerPkgInfo debuggerPkgInfo = new DebuggerPkgInfo();
+    private void processPkgInfo(PackageInfo packageInfo) {
+        DebuggerPkgInfo debuggerPkgInfo = new DebuggerPkgInfo(packageInfo.getInstructionCount());
 
         LineNumberTableAttributeInfo lineNumberTableAttributeInfo = (LineNumberTableAttributeInfo) packageInfo
                 .getAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE);
@@ -72,8 +76,10 @@ public class DebugInfoHolder {
             debuggerPkgInfo.addLineNumberInfo(currentLineNoInfo.getIp(), lineNoInfo.getIp(), currentLineNoInfo);
             currentLineNoInfo = lineNoInfo;
         }
-        debuggerPkgInfo.addLineNumberInfo(currentLineNoInfo.getIp(),
-                packageInfo.getInstructionCount(), currentLineNoInfo);
+        if (currentLineNoInfo != null) {
+            debuggerPkgInfo.addLineNumberInfo(currentLineNoInfo.getIp(),
+                    packageInfo.getInstructionCount(), currentLineNoInfo);
+        }
         packageInfoMap.put(packageInfo.getPkgPath(), debuggerPkgInfo);
     }
 
@@ -84,46 +90,45 @@ public class DebugInfoHolder {
         packageInfoMap.get(breakPointDTO.getPackagePath()).markDebugPoint(breakPointDTO);
     }
 
-    public void addDebugPoints(List<BreakPointDTO> breakPointDTOS) {
-        packageInfoMap.values().stream().forEach(p -> p.clearDebugPoints());
+    void addDebugPoints(List<BreakPointDTO> breakPointDTOS) {
+        packageInfoMap.values().forEach(DebuggerPkgInfo::clearDebugPoints);
         for (BreakPointDTO nodeLocation : breakPointDTOS) {
             addDebugPoint(nodeLocation);
         }
     }
 
-    public void clearDebugLocations() {
-        packageInfoMap.values().stream().forEach(p -> p.clearDebugPoints());
+    void clearDebugLocations() {
+        packageInfoMap.values().forEach(DebuggerPkgInfo::clearDebugPoints);
     }
 
-    public LineNumberInfo getLineNumber(String packagePath, int ip) {
+    LineNumberInfo getLineNumber(String packagePath, int ip) {
         return packageInfoMap.get(packagePath).getLineNumberInfo(ip);
     }
 
-    class DebuggerPkgInfo {
-        //key - ip, value - ipRange
-        Map<Integer, IpRange> ipRangeMap = new HashMap<>();
-        //key - ipRange, value linenumber info
-        Map<IpRange, LineNumberInfo> rangeLineNoMap = new HashMap<>();
-        //key - fileName:ln, value - ipRange
-        Map<String, IpRange> lineNumRangeMap = new HashMap<>();
+    static class DebuggerPkgInfo {
+        LineNumberInfo[] ipLineNos;
+        //key - fileName:ln, value - LineNumberInfo
+        Map<String, LineNumberInfo> lineNumbers = new HashMap<>();
 
-        public void addLineNumberInfo(int beginIp, int endIp, LineNumberInfo lineNumberInfo) {
-            IpRange ipRange = new IpRange(beginIp, endIp);
+        DebuggerPkgInfo(int instructionCount) {
+            this.ipLineNos = new LineNumberInfo[instructionCount];
+        }
+
+        void addLineNumberInfo(int beginIp, int endIp, LineNumberInfo lineNumberInfo) {
             for (int i = beginIp; i < endIp; i++) {
-                ipRangeMap.put(i, ipRange);
+                ipLineNos[i] = lineNumberInfo;
             }
             lineNumberInfo.setEndIp(endIp);
-            rangeLineNoMap.put(ipRange, lineNumberInfo);
             String fileName = lineNumberInfo.getFileName();
             if (fileName.contains(File.separator)) {
                 String[] pathArray = fileName.split(File.separatorChar == '\\' ? "\\\\" : File.separator);
                 fileName = pathArray[pathArray.length - 1];
             }
             String fileNameAndNo = fileName + ":" + lineNumberInfo.getLineNumber();
-            lineNumRangeMap.put(fileNameAndNo, ipRange);
+            lineNumbers.put(fileNameAndNo, lineNumberInfo);
         }
 
-        public void markDebugPoint(BreakPointDTO breakPointDTO) {
+        void markDebugPoint(BreakPointDTO breakPointDTO) {
             String fileName = breakPointDTO.getFileName();
             if (fileName.contains("/")) {
                 String[] pathArray = fileName.split("/");
@@ -133,34 +138,19 @@ public class DebugInfoHolder {
                 fileName = pathArray[pathArray.length - 1];
             }
             String fileNameAndNo = fileName + ":" + breakPointDTO.getLineNumber();
-            IpRange range = lineNumRangeMap.get(fileNameAndNo);
-            if (range == null) {
-                return;
-            }
-            LineNumberInfo lineNumberInfo = rangeLineNoMap.get(range);
+            LineNumberInfo lineNumberInfo = lineNumbers.get(fileNameAndNo);
             if (lineNumberInfo == null) {
                 return;
             }
             lineNumberInfo.setDebugPoint(true);
         }
 
-        public void clearDebugPoints() {
-            rangeLineNoMap.values().stream().forEach(l -> l.setDebugPoint(false));
+        void clearDebugPoints() {
+            lineNumbers.values().forEach(l -> l.setDebugPoint(false));
         }
 
-        public LineNumberInfo getLineNumberInfo(int ip) {
-            return rangeLineNoMap.get(ipRangeMap.get(ip));
+        LineNumberInfo getLineNumberInfo(int ip) {
+            return ipLineNos[ip];
         }
-
-    }
-
-    class IpRange {
-        int fromIp;
-        int toIp;
-        public IpRange(int fromIp, int toIp) {
-            this.fromIp = fromIp;
-            this.toIp = toIp;
-        }
-
     }
 }

@@ -37,11 +37,11 @@ import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
-import org.ballerinalang.util.debugger.DebugCommand;
-import org.ballerinalang.util.debugger.DebugContext;
-import org.ballerinalang.util.debugger.VMDebugManager;
+import org.ballerinalang.util.debugger.Debugger;
+import org.ballerinalang.util.debugger.DebuggerUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -65,6 +65,7 @@ public class ResourceExecutor {
                                Map<String, Object> properties, BValue... bValues) {
         if (resource == null) {
             connectorFuture.notifyFailure(new BallerinaException("trying to execute a null resource"));
+            return;
         }
         ResourceInfo resourceInfo = ((BResource) resource).getResourceInfo();
         ServiceInfo serviceInfo = resourceInfo.getServiceInfo();
@@ -78,7 +79,7 @@ public class ResourceExecutor {
 
         //TODO remove this with a proper way
         if (properties != null) {
-            properties.forEach((k, v) -> context.setProperty(k, v));
+            properties.forEach(context::setProperty);
         }
 
         ControlStack controlStack = context.getControlStack();
@@ -92,6 +93,7 @@ public class ResourceExecutor {
         context.setStartIP(codeAttribInfo.getCodeAddrs());
 
         String[] stringReg = new String[codeAttribInfo.getMaxStringRegs()];
+        Arrays.fill(stringReg, BLangConstants.STRING_NULL_VALUE);
         int[] intRegs = new int[codeAttribInfo.getMaxIntRegs()];
         long[] longRegs = new long[codeAttribInfo.getMaxLongRegs()];
         double[] doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
@@ -110,10 +112,7 @@ public class ResourceExecutor {
                 BValue value = bValues[i];
 
                 // Set default values
-                if (value == null || "".equals(value)) {
-                    if (btype == BTypes.typeString) {
-                        stringReg[stringParamCount++] = BLangConstants.STRING_NULL_VALUE;
-                    }
+                if (value == null) {
                     continue;
                 }
 
@@ -128,7 +127,7 @@ public class ResourceExecutor {
                         throw new BallerinaException("Unsupported parameter type for parameter " + value);
                     }
                 } else if (btype == BTypes.typeFloat) {
-                    doubleRegs[doubleParamCount++] = new Double(((BFloat) value).floatValue());
+                    doubleRegs[doubleParamCount++] = ((BFloat) value).floatValue();
                 } else if (btype == BTypes.typeInt) {
                     longRegs[longParamCount++] = ((BInteger) value).intValue();
                 } else if (value instanceof BStruct) {
@@ -159,12 +158,9 @@ public class ResourceExecutor {
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
         context.setAsResourceContext();
         context.startTrackWorker();
-        VMDebugManager debugManager = programFile.getDebugManager();
-        if (debugManager.isDebugEnabled()) {
-            DebugContext debugContext = new DebugContext();
-            debugContext.setCurrentCommand(DebugCommand.RESUME);
-            context.setDebugContext(debugContext);
-            debugManager.addDebugContext(debugContext);
+        Debugger debugger = programFile.getDebugger();
+        if (debugger.isDebugEnabled()) {
+            DebuggerUtil.initDebugContext(context, debugger);
         }
         bLangVM.run(context);
     }

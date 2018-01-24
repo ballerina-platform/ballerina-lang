@@ -19,13 +19,13 @@ package org.ballerinalang.test.utils.debug;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.NodeLocation;
-import org.ballerinalang.util.debugger.VMDebugManager;
+import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.testng.Assert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Test Util class to test debug scenarios.
@@ -34,30 +34,62 @@ import java.util.Arrays;
  */
 public class VMDebuggerUtil {
 
-    public static void startDebug(String sourceFilePath, BreakPointDTO[] breakPoints, BreakPointDTO[] expectedPoints,
-                                  Step[] debugCommand) {
-        TestDebugClientHandler debugClientHandler = new TestDebugClientHandler();
-        TestDebugServer debugServer = new TestDebugServer();
-        VMDebugManager debugManager = setupProgram(sourceFilePath, debugClientHandler, debugServer, breakPoints);
+    public static void startDebug(String srcPath, BreakPointDTO[] bPoints, ExpectedResults expRes) {
 
-        if (!debugServer.tryAcquireLock(1000)) {
+        TestDebugger debugger = setupProgram(srcPath, bPoints);
+
+        if (!debugger.tryAcquireLock(1000)) {
             Assert.fail("VM doesn't start within 1000ms");
         }
 
-        debugManager.resume(debugClientHandler.getThreadId());
+        debugger.startDebug();
 
-        for (int i = 0; i <= expectedPoints.length; i++) {
-            debugClientHandler.aquireSem();
-            if (i < expectedPoints.length) {
-                NodeLocation expected = new NodeLocation(expectedPoints[i].getFileName(),
-                        expectedPoints[i].getLineNumber());
-                Assert.assertEquals(debugClientHandler.haltPosition, expected,
-                        "Unexpected halt position for debug step " + (i + 1));
-                executeDebuggerCmd(debugManager, debugClientHandler, debugCommand[i]);
-            } else {
-                Assert.assertTrue(debugClientHandler.isExit, "Debugger didn't exit as expected.");
+        Step currentStep = Step.RESUME;
+        while (true) {
+            debugger.getClientHandler().aquireSem();
+            if (debugger.getClientHandler().isExit) {
+                break;
+            }
+            checkDebugPointHit(expRes, debugger.getClientHandler().haltPosition, currentStep);
+            currentStep = expRes.getCurrentWorkerResult().getNextStep();
+            executeDebuggerCmd(debugger, debugger.getClientHandler(), currentStep);
+        }
+    }
+
+    private static void checkDebugPointHit(ExpectedResults expRes, BreakPointDTO halt, Step crntStep) {
+        BreakPointDTO expLocation;
+        if (!expRes.isMultiThreaded() || !Step.RESUME.equals(crntStep)) {
+            expLocation = expRes.getCurrentWorkerResult().getCurrentLocation();
+            expRes.getCurrentWorkerResult().incrementPointer();
+        } else {
+            expLocation = findDebugPoint(expRes, halt);
+        }
+        Assert.assertEquals(halt, expLocation, "Unexpected halt location expected location - "
+                + expLocation + ", actual location - " + halt);
+    }
+
+    private static BreakPointDTO findDebugPoint(ExpectedResults expRes, BreakPointDTO halt) {
+        BreakPointDTO expLocation;
+        List<WorkerResults> workerResults = expRes.getWorkerResults();
+        for (WorkerResults workerRes : workerResults) {
+            expLocation = workerRes.findDebugPoint(halt);
+            if (expLocation != null) {
+                expRes.setCurrentWorkerResult(workerRes);
+                return expLocation;
             }
         }
+        expRes.setCurrentWorkerResult(null);
+        return null;
+    }
+
+    public static BreakPointDTO[] createWorkerBreakPoints(String packagePath, String fileName, int... lineNos) {
+        BreakPointDTO[] breakPointDTOS = new BreakPointDTO[lineNos.length];
+        int i = 0;
+        for (int line : lineNos) {
+            breakPointDTOS[i] = new BreakPointDTO(packagePath, fileName, line);
+            i++;
+        }
+        return breakPointDTOS;
     }
 
     public static BreakPointDTO[] createBreakNodeLocations(String packagePath, String fileName, int... lineNos) {
@@ -70,8 +102,8 @@ public class VMDebuggerUtil {
         return breakPointDTOS;
     }
 
-    public static void executeDebuggerCmd(VMDebugManager debugManager,
-                                          TestDebugClientHandler debugClientHandler, Step cmd) {
+    private static void executeDebuggerCmd(Debugger debugManager,
+                                           TestDebugClientHandler debugClientHandler, Step cmd) {
         switch (cmd) {
             case STEP_IN:
                 debugManager.stepIn(debugClientHandler.getThreadId());
@@ -83,24 +115,24 @@ public class VMDebuggerUtil {
                 debugManager.stepOut(debugClientHandler.getThreadId());
                 break;
             case RESUME:
-                debugManager.resume(debugClientHandler.getThreadId());
+                debugManager.resume();
                 break;
             default:
                 throw new IllegalStateException("Unknown Command");
         }
     }
 
-    private static VMDebugManager setupProgram(String sourceFilePath, TestDebugClientHandler clientHandler,
-                                               TestDebugServer debugServer, BreakPointDTO[] breakPoints) {
+    private static TestDebugger setupProgram(String sourceFilePath, BreakPointDTO[] breakPoints) {
         CompileResult result = BCompileUtil.compile(sourceFilePath);
 
-        VMDebugManager debugManager = result.getProgFile().getDebugManager();
-        debugManager.setDebugEnabled(true);
+        TestDebugger debugger = new TestDebugger(result.getProgFile());
+        result.getProgFile().setDebugger(debugger);
+        debugger.setDebugEnabled();
 
         String[] args = {"Hello", "World"};
-        DebuggerExecutor executor = new DebuggerExecutor(result, args, clientHandler, debugServer,
+        DebuggerExecutor executor = new DebuggerExecutor(result, args, debugger,
                 new ArrayList<>(Arrays.asList(breakPoints)));
         (new Thread(executor)).start();
-        return debugManager;
+        return debugger;
     }
 }

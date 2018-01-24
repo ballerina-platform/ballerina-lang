@@ -224,10 +224,11 @@ public class Types {
         } else if (source.tag == TypeTags.ARRAY) {
             // Only the right-hand side is an array type
 
-            // if the target type is a json, then element type of the rhs array
-            // can be a string|int|float|boolean|json
+            // If the target type is a JSON, then element type of the rhs array
+            // should only be JSON. This is to avoid assigning of value-type arrays
+            // to JSON.
             if (target.tag == TypeTags.JSON) {
-                return isJSONAssignableType(source);
+                return getElementType(source).tag == TypeTags.JSON;
             }
 
             // Then lhs type should 'any' type
@@ -591,11 +592,6 @@ public class Types {
         }
 
         return false;
-    }
-    
-    private boolean isJSONAssignableType(BType type) {
-        int typeTag = getElementType(type).tag; 
-        return typeTag <= TypeTags.BOOLEAN || typeTag == TypeTags.JSON;
     }
 
     private boolean checkStructFieldToJSONConvertibility(BType structType, BType fieldType) {
