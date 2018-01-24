@@ -82,7 +82,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         validateParams(connector);
 
-        HttpUtil.populateOutboundRequest(requestStruct, outboundRequest);
+        HttpUtil.enrichOutboundMessage(outboundRequest, requestStruct);
         try {
             String uri = connector.getStringField(0) + path;
             URL url = new URL(uri);
@@ -256,12 +256,13 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         @Override
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-            BStruct response = createStruct(this.context, Constants.RESPONSE, Constants.PROTOCOL_PACKAGE_HTTP);
+            BStruct inboundResponse = createStruct(this.context, Constants.IN_RESPONSE,
+                    Constants.PROTOCOL_PACKAGE_HTTP);
             BStruct entity = createStruct(this.context, Constants.ENTITY, PROTOCOL_PACKAGE_MIME);
             BStruct mediaType = createStruct(this.context, MEDIA_TYPE, PROTOCOL_PACKAGE_MIME);
             HttpUtil.setHeaderValueStructType(createStruct(this.context, HEADER_VALUE_STRUCT, PROTOCOL_PACKAGE_MIME));
-            HttpUtil.populateInboundResponse(response, entity, mediaType, httpCarbonMessage);
-            ballerinaFuture.notifyReply(response);
+            HttpUtil.populateInboundResponse(inboundResponse, entity, mediaType, httpCarbonMessage);
+            ballerinaFuture.notifyReply(inboundResponse);
         }
 
         @Override

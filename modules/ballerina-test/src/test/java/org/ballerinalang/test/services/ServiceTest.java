@@ -163,9 +163,6 @@ public class ServiceTest {
     @Test(description = "Test remove headers native function")
     public void testRemoveHeadersNativeFunction() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/removeHeaders", "GET");
-        requestMsg.setHeader("header1", "wso2");
-        requestMsg.setHeader("header2", "ballerina");
-        requestMsg.setHeader("header3", "hello");
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
         Assert.assertNotNull(responseMsg);
 
@@ -237,7 +234,7 @@ public class ServiceTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertEquals(responseMsg.getProperty(Constants.HTTP_STATUS_CODE), 204);
+        Assert.assertEquals(responseMsg.getProperty(Constants.HTTP_STATUS_CODE), (long) 204);
     }
 
     @Test(description = "Test Http PATCH verb dispatching without a responseMsgPayload")
@@ -247,7 +244,7 @@ public class ServiceTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertEquals(responseMsg.getProperty(Constants.HTTP_STATUS_CODE), 204);
+        Assert.assertEquals(responseMsg.getProperty(Constants.HTTP_STATUS_CODE), (long) 204);
     }
 
     //TODO: add more test cases

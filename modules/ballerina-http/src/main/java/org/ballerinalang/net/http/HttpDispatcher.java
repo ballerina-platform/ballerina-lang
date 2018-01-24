@@ -136,8 +136,8 @@ public class HttpDispatcher {
         //TODO Think of keeping struct type globally rather than creating for each request
         BStruct connection = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.CONNECTION);
-        BStruct request = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                Constants.PROTOCOL_PACKAGE_HTTP, Constants.REQUEST);
+        BStruct inRequest = ConnectorUtils.createStruct(httpResource.getBalResource(),
+                Constants.PROTOCOL_PACKAGE_HTTP, Constants.IN_REQUEST);
         HttpUtil.setHeaderValueStructType(ConnectorUtils.createStruct(httpResource.getBalResource(),
                 PROTOCOL_PACKAGE_MIME, HEADER_VALUE_STRUCT));
 
@@ -150,7 +150,7 @@ public class HttpDispatcher {
                 org.ballerinalang.mime.util.Constants.MEDIA_TYPE);
 
         HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage);
-        HttpUtil.populateInboundRequest(request, entityForRequest, mediaType, httpCarbonMessage);
+        HttpUtil.populateInboundRequest(inRequest, entityForRequest, mediaType, httpCarbonMessage);
 
         List<ParamDetail> paramDetails = httpResource.getParamDetails();
         Map<String, String> resourceArgumentValues =
@@ -158,7 +158,7 @@ public class HttpDispatcher {
 
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connection;
-        bValues[1] = request;
+        bValues[1] = inRequest;
         if (paramDetails.size() <= 2) {
             return bValues;
         }

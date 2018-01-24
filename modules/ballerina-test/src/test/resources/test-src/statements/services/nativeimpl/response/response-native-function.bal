@@ -3,94 +3,94 @@ import ballerina.net.http;
 import ballerina.mime;
 import ballerina.file;
 
-function testAddHeader (http:Response res, string key, string value) (http:Response) {
+function testAddHeader (http:OutResponse res, string key, string value) (http:OutResponse) {
     res.addHeader(key, value);
     return res;
 }
 
-function testGetContentLength (http:Response res) (int) {
+function testGetContentLength (http:InResponse res) (int) {
     int length = res.getContentLength();
     return length;
 }
 
-function testGetHeader (http:Response res, string key) (string) {
+function testGetHeader (http:InResponse res, string key) (string) {
     string contentType = res.getHeader(key).value;
     return contentType;
 }
 
-function testGetHeaders (http:Response res, string key) (string) {
+function testGetHeaders (http:InResponse res, string key) (string) {
     var headers = res.getHeaders(key);
     var contentType, _ = (string)headers[1].value;
     return contentType;
 }
 
-function testGetJsonPayload (http:Response res) (json) {
+function testGetJsonPayload (http:InResponse res) (json) {
     json payload = res.getJsonPayload();
     return payload;
 }
 
-function testGetProperty (http:Response res, string propertyName) (string) {
+function testGetProperty (http:InResponse res, string propertyName) (string) {
     string payload = res.getProperty(propertyName);
     return payload;
 }
 
-function testGetStringPayload (http:Response res) (string) {
+function testGetStringPayload (http:InResponse res) (string) {
     string payload = res.getStringPayload();
     return payload;
 }
 
-function testGetBinaryPayload (http:Response res) (blob) {
+function testGetBinaryPayload (http:InResponse res) (blob) {
     blob payload = res.getBinaryPayload();
     return payload;
 }
 
-function testGetXmlPayload (http:Response res) (xml) {
+function testGetXmlPayload (http:InResponse res) (xml) {
     xml payload = res.getXmlPayload();
     return payload;
 }
 
-function testRemoveHeader (http:Response res, string key) (http:Response) {
+function testRemoveHeader (http:OutResponse res, string key) (http:OutResponse) {
     res.removeHeader(key);
     return res;
 }
 
-function testRemoveAllHeaders (http:Response res) (http:Response) {
+function testRemoveAllHeaders (http:OutResponse res) (http:OutResponse) {
     res.removeAllHeaders();
     return res;
 }
 
-function testSetHeader (http:Response res, string key, string value) (http:Response) {
+function testSetHeader (http:OutResponse res, string key, string value) (http:OutResponse) {
     res.setHeader(key, value);
     return res;
 }
 
-function testSetHeaderStruct (http:Response res, string key, string value) (http:Response) {
+function testSetHeaderStruct (http:OutResponse res, string key, string value) (http:OutResponse) {
     mime:HeaderValue[] headers = [{value:value, param:{b:"6", c:7}}, {value:value, param:{a:6}}];
     res.setHeaders(key, headers);
     return res;
 }
 
-function testSetJsonPayload (http:Response res, json value) (http:Response) {
+function testSetJsonPayload (http:OutResponse res, json value) (http:OutResponse) {
     res.setJsonPayload(value);
     return res;
 }
 
-function testSetProperty (http:Response res, string name, string value) (http:Response) {
+function testSetProperty (http:OutResponse res, string name, string value) (http:OutResponse) {
     res.setProperty(name, value);
     return res;
 }
 
-function testSetStringPayload (http:Response res, string value) (http:Response) {
+function testSetStringPayload (http:OutResponse res, string value) (http:OutResponse) {
     res.setStringPayload(value);
     return res;
 }
 
-function testSetXmlPayload (http:Response res, xml value) (http:Response) {
+function testSetXmlPayload (http:OutResponse res, xml value) (http:OutResponse) {
     res.setXmlPayload(value);
     return res;
 }
 
-function testSetEntityBody(http:Response res, file:File content, string contentType) (http:Response) {
+function testSetEntityBody(http:OutResponse res, file:File content, string contentType) (http:OutResponse) {
     res.setEntityBody(content, contentType);
     return res;
 }
@@ -101,34 +101,34 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/11"
     }
-    resource echo1 (http:Connection conn, http:Request req) {
-        http:Response res = {};
-        _ = conn.respond(res);
+    resource echo1 (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
+        _ = conn.respond({});
     }
 
     @http:resourceConfig {
         path:"/12/{phase}"
     }
-    resource echo2 (http:Connection conn, http:Request req, string phase) {
-        http:Response res = {};
-        res.setReasonPhrase(phase);
+    resource echo2 (http:Connection conn, http:InRequest req, string phase) {
+        http:OutResponse res = {};
+        res.reasonPhrase = phase;
         _ = conn.respond(res);
     }
 
     @http:resourceConfig {
         path:"/13"
     }
-    resource echo3 (http:Connection conn, http:Request req) {
-        http:Response res = {};
-        res.setStatusCode(203);
+    resource echo3 (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
+        res.statusCode = 203;
         _ = conn.respond(res);
     }
 
     @http:resourceConfig {
         path:"/addheader/{key}/{value}"
     }
-    resource addheader (http:Connection conn, http:Request req, string key, string value) {
-        http:Response res = {};
+    resource addheader (http:Connection conn, http:InRequest req, string key, string value) {
+        http:OutResponse res = {};
         res.addHeader(key, value);
         string result = res.getHeader(key).value;
         res.setJsonPayload({lang:result});
@@ -138,8 +138,8 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/addResHeader"
     }
-    resource addResHeader (http:Connection conn, http:Request req) {
-        http:Response res = {};
+    resource addResHeader (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         mime:HeaderValue[] headers = [{value:"ballerina", param:{b:"6", c:7}}, {value:"transport", param:{a:6}}];
         res.setHeaders("wso2", headers);
 
@@ -157,13 +157,13 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/addResHeaderFunc"
     }
-    resource addResHeaderFunc (http:Connection conn, http:Request req) {
-        http:Response res = {};
+    resource addResHeaderFunc (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         mime:HeaderValue[] headers = [{value:"ballerina", param:{b:"6", c:7}}, {value:"transport", param:{a:6}}];
-        req.setHeaders("wso2", headers);
-        req.addHeader("wso2", "chamil");
+        res.setHeaders("wso2", headers);
+        res.addHeader("wso2", "chamil");
 
-        var values = req.getHeaders("wso2");
+        var values = res.getHeaders("wso2");
         var valueArr,_ = (mime:HeaderValue[]) values;
         int size =  lengthof valueArr;
         string header = valueArr[2].value;
@@ -175,8 +175,8 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/addResHeaderWithoutParam"
     }
-    resource addResHeaderNoParam (http:Connection conn, http:Request req) {
-        http:Response res = {};
+    resource addResHeaderNoParam (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         mime:HeaderValue[] headers = [{value:"ballerina", param:{}}, {value:"transport", param:{a:6}}];
         res.setHeaders("wso2", headers);
 
@@ -195,21 +195,10 @@ service<http> helloServer {
     }
 
     @http:resourceConfig {
-        path:"/getContentLength/{header}/{length}"
-    }
-    resource GetContentLength (http:Connection conn, http:Request req, string header, string length) {
-        http:Response res = {};
-        res.setHeader(header, length);
-        int result = res.getContentLength();
-        res.setJsonPayload({value:result});
-        _ = conn.respond(res);
-    }
-
-    @http:resourceConfig {
         path:"/getHeader/{header}/{value}"
     }
-    resource getHeader (http:Connection conn, http:Request req, string header, string value) {
-        http:Response res = {};
+    resource getHeader (http:Connection conn, http:InRequest req, string header, string value) {
+        http:OutResponse res = {};
         res.setHeader(header, value);
         string result = res.getHeader(header).value;
         res.setJsonPayload({value:result});
@@ -219,8 +208,8 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/getResHeader"
     }
-    resource getResHeader (http:Connection conn, http:Request req) {
-        http:Response res = {};
+    resource getResHeader (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         mime:HeaderValue[] headers = [{value:"ballerina"}, {value:"transport", param:{a:6}}];
         res.setHeaders("wso2", headers);
         var values  = res.getHeaders("wso2");
@@ -234,8 +223,8 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/getHeaders"
     }
-    resource getHeaders (http:Connection conn, http:Request req) {
-        http:Response res = {};
+    resource getHeaders (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         mime:HeaderValue[] headers = [{value:"ballerina"}, {value:"transport", param:{a:"6"}}];
         res.setHeaders("wso2", headers);
 
@@ -252,8 +241,8 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/getJsonPayload/{value}"
     }
-    resource GetJsonPayload(http:Connection conn, http:Request req, string value) {
-        http:Response res = {};
+    resource GetJsonPayload(http:Connection conn, http:InRequest req, string value) {
+        http:OutResponse res = {};
         json jsonStr = {lang:value};
         res.setJsonPayload(jsonStr);
         json result = res.getJsonPayload();
@@ -265,8 +254,8 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/GetProperty/{key}/{value}"
     }
-    resource GetProperty (http:Connection conn, http:Request req,string key, string value) {
-        http:Response res = {};
+    resource GetProperty (http:Connection conn, http:InRequest req,string key, string value) {
+        http:OutResponse res = {};
         res.setProperty(key, value);
         string property = res.getProperty(key);
         res.setJsonPayload({value:property});
@@ -276,8 +265,8 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/GetStringPayload/{valueStr}"
     }
-    resource GetStringPayload(http:Connection conn, http:Request req, string valueStr) {
-        http:Response res = {};
+    resource GetStringPayload(http:Connection conn, http:InRequest req, string valueStr) {
+        http:OutResponse res = {};
         res.setStringPayload(valueStr);
         string value = res.getStringPayload();
         res.setStringPayload(value);
@@ -287,8 +276,8 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/GetXmlPayload"
     }
-    resource GetXmlPayload(http:Connection conn, http:Request req) {
-        http:Response res = {};
+    resource GetXmlPayload(http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         xml xmlStr = xml `<name>ballerina</name>`;
         res.setXmlPayload(xmlStr);
         xml value = res.getXmlPayload();
@@ -300,8 +289,8 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/RemoveHeader/{key}/{value}"
     }
-    resource RemoveHeader (http:Connection conn, http:Request req, string key, string value) {
-        http:Response res = {};
+    resource RemoveHeader (http:Connection conn, http:InRequest req, string key, string value) {
+        http:OutResponse res = {};
         res.setHeader(key, value);
         res.removeHeader(key);
         var headerValue = res.getHeader(key);
@@ -316,8 +305,8 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/RemoveAllHeaders"
     }
-    resource RemoveAllHeaders (http:Connection conn, http:Request req) {
-        http:Response res = {};
+    resource RemoveAllHeaders (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setHeader("Expect", "100-continue");
         res.setHeader("Range", "bytes=500-999");
         res.removeAllHeaders();

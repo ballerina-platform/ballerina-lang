@@ -4,8 +4,8 @@ package ballerina.net.http;
 @Param { value:"conn: The server connector connection" }
 @Return { value:"Returns an HttpConnectorError if there was any issue in sending the response." }
 public function <Connection conn> respondContinue() (HttpConnectorError) {
-    Response res = {};
-    res.setStatusCode(100);
+    OutResponse res = {};
+    res.statusCode = 100;
     HttpConnectorError err = conn.respond(res);
     return err;
 }

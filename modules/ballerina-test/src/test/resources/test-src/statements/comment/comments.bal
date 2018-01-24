@@ -54,8 +54,8 @@ service<http> FooService {
                           // http resource path 
                           path:"/fooResource/" 
                         }
-        resource fooResource (http:Connection conn, http:Request req) {
-            http:Response res = {};
+        resource fooResource (http:Connection conn, http:InRequest req) {
+            http:OutResponse res = {};
             var xmlpayload = req.getXmlPayload();
             res.setXmlPayload(xmlpayload);
             _ = conn.respond(res);
