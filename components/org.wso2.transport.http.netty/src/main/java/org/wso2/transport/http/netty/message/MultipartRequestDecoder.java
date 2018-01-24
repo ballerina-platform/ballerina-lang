@@ -148,7 +148,7 @@ public class MultipartRequestDecoder {
     /**
      * Reset request decoder.
      */
-    public void resetPostRequestDecoder() {
+    private void resetPostRequestDecoder() {
         nettyRequestDecoder.destroy();
         nettyRequestDecoder = null;
     }
