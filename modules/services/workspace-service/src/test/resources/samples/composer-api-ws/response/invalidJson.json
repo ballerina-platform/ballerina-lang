@@ -1,4 +1,0 @@
-{
-  "error":{"code":-32700,"message":"Parse error : Invalid JSON was received by the server"},
-  "jsonrpc":"2.0"
-}
