@@ -1,6 +1,0 @@
-{
-  "jsonrpc": "2.0",
-  "method": "dogs/getDogs",
-  "params": {"breed":"Golden Retriever","color":"Black"},
-  "id" : "2"
-}
