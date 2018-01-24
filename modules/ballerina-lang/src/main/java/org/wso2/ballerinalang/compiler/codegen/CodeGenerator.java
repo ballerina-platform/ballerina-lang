@@ -616,7 +616,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Emit create array instruction
         int opcode = getOpcode(etype.tag, InstructionCodes.INEWARRAY);
         Operand arrayVarRegIndex = calcAndGetExprRegIndex(arrayLiteral);
-        Operand typeCPIndex = getOperand(getTypeCPIndex(arrayLiteral));
+        Operand typeCPIndex = getTypeCPIndex(arrayLiteral.type);
         emit(opcode, arrayVarRegIndex, typeCPIndex);
 
         // Emit instructions populate initial array values;
@@ -663,7 +663,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     @Override
     public void visit(BLangJSONLiteral jsonLiteral) {
         jsonLiteral.regIndex = calcAndGetExprRegIndex(jsonLiteral);
-        Operand typeCPIndex = getOperand(getTypeCPIndex(jsonLiteral));
+        Operand typeCPIndex = getTypeCPIndex(jsonLiteral.type);
         emit(InstructionCodes.NEWJSON, jsonLiteral.regIndex, typeCPIndex);
 
         for (BLangRecordKeyValue keyValue : jsonLiteral.keyValuePairs) {
@@ -875,9 +875,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangEnumeratorAccessExpr enumeratorAccessExpr) {
-        int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, enumeratorAccessExpr.type.getDesc());
-        TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
-        Operand typeCPIndex = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
+        Operand typeCPIndex = getTypeCPIndex(enumeratorAccessExpr.type);
         Operand varIndex = enumeratorAccessExpr.symbol.varIndex;
         emit(InstructionCodes.ENUMERATORLOAD, typeCPIndex, varIndex,
                 calcAndGetExprRegIndex(enumeratorAccessExpr));
@@ -1092,9 +1090,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 opcode == InstructionCodes.ANY2C ||
                 opcode == InstructionCodes.ANY2E ||
                 opcode == InstructionCodes.CHECKCAST) {
-            int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, castExpr.type.getDesc());
-            TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
-            Operand typeCPIndex = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
+            Operand typeCPIndex = getTypeCPIndex(castExpr.type);
             emit(opcode, castExpr.expr.regIndex, typeCPIndex, castExprRegIndex, errorRegIndex);
         } else {
             emit(opcode, castExpr.expr.regIndex, castExprRegIndex, errorRegIndex);
@@ -1127,9 +1123,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         genNode(convExpr.expr, this.env);
         if (opcode == InstructionCodes.MAP2T || opcode == InstructionCodes.JSON2T) {
-            int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, convExpr.type.getDesc());
-            TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
-            Operand typeCPIndex = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
+            Operand typeCPIndex = getTypeCPIndex(convExpr.type);
             emit(opcode, convExpr.expr.regIndex, typeCPIndex, convExprRegIndex, errorRegIndex);
 
         } else {
@@ -1165,34 +1159,35 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeofExpr accessExpr) {
-        int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, accessExpr.resolvedType.getDesc());
-        TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
-        Operand typeCPIndex = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
+        Operand typeCPIndex = getTypeCPIndex(accessExpr.resolvedType);
         emit(InstructionCodes.TYPELOAD, typeCPIndex, calcAndGetExprRegIndex(accessExpr));
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {
         RegIndex exprIndex = calcAndGetExprRegIndex(unaryExpr);
 
-        int opcode;
-        if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
+        if (OperatorKind.ADD.equals(unaryExpr.operator)) {
+            unaryExpr.expr.regIndex = createLHSRegIndex(unaryExpr.regIndex);
             genNode(unaryExpr.expr, this.env);
+            return;
+        }
+
+        int opcode;
+        genNode(unaryExpr.expr, this.env);
+        if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
             if (unaryExpr.expr.type.tag == TypeTags.ANY || unaryExpr.expr.type.tag == TypeTags.JSON) {
                 opcode = unaryExpr.opSymbol.opcode;
                 emit(opcode, unaryExpr.expr.regIndex, exprIndex);
             } else {
-                int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, unaryExpr.expr.type.getDesc());
-                TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
-                Operand typeCPIndex = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
-
+                Operand typeCPIndex = getTypeCPIndex(unaryExpr.expr.type);
                 opcode = unaryExpr.opSymbol.opcode;
                 emit(opcode, typeCPIndex, exprIndex);
             }
-        } else if (OperatorKind.ADD.equals(unaryExpr.operator)) {
-            unaryExpr.expr.regIndex = createLHSRegIndex(unaryExpr.regIndex);
-            genNode(unaryExpr.expr, this.env);
+        } else if (OperatorKind.LENGTHOF.equals(unaryExpr.operator)) {
+            Operand typeCPIndex = getTypeCPIndex(unaryExpr.expr.type);
+            opcode = unaryExpr.opSymbol.opcode;
+            emit(opcode, unaryExpr.expr.regIndex, typeCPIndex, exprIndex);
         } else {
-            genNode(unaryExpr.expr, this.env);
             opcode = unaryExpr.opSymbol.opcode;
             emit(opcode, unaryExpr.expr.regIndex, exprIndex);
         }
@@ -2766,8 +2761,9 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        stringTemplateLiteral.concatExpr.regIndex = createLHSRegIndex(stringTemplateLiteral.regIndex);
+        stringTemplateLiteral.concatExpr.regIndex = calcAndGetExprRegIndex(stringTemplateLiteral);
         genNode(stringTemplateLiteral.concatExpr, env);
+        stringTemplateLiteral.regIndex = stringTemplateLiteral.concatExpr.regIndex;
     }
 
     @Override
@@ -3082,9 +3078,15 @@ public class CodeGenerator extends BLangNodeVisitor {
         return startTagNameRegIndex;
     }
 
-    private int getTypeCPIndex(BLangExpression expr) {
-        int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, expr.type.getDesc());
+    /**
+     * Get the constant pool entry index of a given type.
+     * 
+     * @param type Type to get the constant pool entry index
+     * @return constant pool entry index of the type
+     */
+    private Operand getTypeCPIndex(BType type) {
+        int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, type.getDesc());
         TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
-        return currentPkgInfo.addCPEntry(typeRefCPEntry);
+        return getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
     }
 }

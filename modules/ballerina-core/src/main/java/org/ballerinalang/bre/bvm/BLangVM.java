@@ -415,14 +415,26 @@ public class BLangVM {
 
                 case InstructionCodes.LENGTHOF:
                     i = operands[0];
-                    j = operands[1];
-                    if (sf.refRegs[i] == null) {
-                        handleNullRefError();
+                    cpIndex = operands[1];
+                    j = operands[2];
+
+                    typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
+                    int typeTag = typeRefCPEntry.getType().getTag();
+                    if (typeTag == TypeTags.STRING_TAG) {
+                        sf.longRegs[j] = sf.stringRegs[i].length();
+                        break;
+                    } else if (typeTag == TypeTags.BLOB_TAG) {
+                        sf.longRegs[j] = sf.byteRegs[i].length;
                         break;
                     }
 
                     BValue entity = sf.refRegs[i];
-                    if (entity.getType().getTag() == TypeTags.XML_TAG) {
+                    if (entity == null) {
+                        handleNullRefError();
+                        break;
+                    }
+
+                    if (typeTag == TypeTags.XML_TAG) {
                         sf.longRegs[j] = ((BXML) entity).length();
                         break;
                     } else if (entity instanceof BJSON) {
@@ -432,7 +444,7 @@ public class BLangVM {
                             sf.longRegs[j] = -1;
                         }
                         break;
-                    } else if (entity.getType().getTag() == TypeTags.MAP_TAG) {
+                    } else if (typeTag == TypeTags.MAP_TAG) {
                         sf.longRegs[j] = ((BMap) entity).size();
                         break;
                     }

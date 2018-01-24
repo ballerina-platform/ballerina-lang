@@ -268,5 +268,19 @@ public class LengthOfOperatorTest {
         int expected = 0;
         Assert.assertEquals(actual, expected);
     }
+    
+    @Test(description = "Test lengthof string")
+    public void lengthOfString() {
+        BValue[] returns = BRunUtil.invoke(result, "lengthOfString");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 11);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 4);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 10);
+    }
 
+    @Test(description = "Test lengthof blob")
+    public void lengthOfBlob() {
+        BValue[] returns = BRunUtil.invoke(result, "lengthOfBlob");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+    }
 }

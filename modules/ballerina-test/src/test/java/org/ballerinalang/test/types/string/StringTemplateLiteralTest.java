@@ -229,4 +229,12 @@ public class StringTemplateLiteralTest {
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "");
     }
+
+    @Test
+    public void concatStringTemplateExprs() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "concatStringTemplateExprs", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "FirstName: John. Second name: Doe");
+    }
 }
