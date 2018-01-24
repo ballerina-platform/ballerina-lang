@@ -328,14 +328,13 @@ public class JSONUtils {
      * 
      * @param json JSON object to get the element from
      * @param elementName Name of the element to be retrieved
-     * @return Element of JSON having the provided name
+     * @return Element of JSON having the provided name, if the JSON is object type. Null otherwise.
      */
     public static BJSON getElement(BJSON json, String elementName) {
         JsonNode jsonNode = json.value();
         
         if (!jsonNode.isObject()) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CANNOT_GET_VALUE_INCOMPATIBLE_TYPES,
-                    elementName, getComplexObjectTypeName(Type.OBJECT), getTypeName(jsonNode));
+            return null;
         }
         
         try {
@@ -352,11 +351,12 @@ public class JSONUtils {
     /**
      * Set an element in a JSON. If an element with the given name already exists,
      * this method will update the existing element. Otherwise, a new element with
-     * the given name will be added.
+     * the given name will be added. If the JSON is not object type, then this
+     * operation has no effect.
      * 
      * @param json JSON object to set the element
      * @param elementName Name of the element to be set
-     * @param element json element
+     * @param element JSON element
      */
     public static void setElement(BJSON json, String elementName, BJSON element) {
         if (json == null) {
@@ -367,8 +367,7 @@ public class JSONUtils {
         JsonNode jsonElement = element == null ? null : element.value();
 
         if (!jsonNode.isObject()) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CANNOT_SET_VALUE_INCOMPATIBLE_TYPES,
-                    elementName, getComplexObjectTypeName(Type.OBJECT), getTypeName(jsonNode));
+            return;
         }
 
         try {
@@ -411,14 +410,13 @@ public class JSONUtils {
      * 
      * @param json JSON array to get the element from
      * @param index Index of the element needed
-     * @return Element at the given index, if the provided JSON is an array. Error, otherwise. 
+     * @return Element at the given index, if the provided JSON is an array. Null, otherwise. 
      */
     public static BJSON getArrayElement(BJSON json, long index) {
         JsonNode jsonNode = json.value();
 
         if (!jsonNode.isArray()) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CANNOT_GET_VALUE_INCOMPATIBLE_TYPES,
-                    index, getComplexObjectTypeName(Type.ARRAY), getTypeName(jsonNode));
+            return null;
         }
 
         try {
@@ -438,6 +436,7 @@ public class JSONUtils {
     
     /**
      * Set an element in the given position of a JSON array. This method will update the existing value.
+     * If the JSON is not array type, then this operation has no effect.
      * 
      * @param json JSON array to set the element
      * @param index Index of the element to be set
@@ -451,8 +450,7 @@ public class JSONUtils {
         JsonNode arrayNode = json.value();
 
         if (!arrayNode.isArray()) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CANNOT_SET_VALUE_INCOMPATIBLE_TYPES, index,
-                    getComplexObjectTypeName(Type.ARRAY), getTypeName(arrayNode));
+            return;
         }
 
         JsonNode jsonElement = element == null ? null : element.value();
