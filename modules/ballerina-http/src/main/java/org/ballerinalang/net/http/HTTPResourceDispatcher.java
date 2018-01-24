@@ -21,8 +21,6 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplateException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.HashMap;
@@ -32,8 +30,6 @@ import java.util.Map;
  * Resource level dispatchers handler for HTTP protocol.
  */
 public class HTTPResourceDispatcher {
-
-    private static final Logger log = LoggerFactory.getLogger(HTTPResourceDispatcher.class);
 
     public static HttpResource findResource(HttpService service, HTTPCarbonMessage inboundRequest)
             throws BallerinaConnectorException {

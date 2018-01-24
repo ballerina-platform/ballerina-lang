@@ -28,7 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.Map;
 
@@ -41,33 +43,22 @@ public class HttpDispatcher {
 
     private static final Logger breLog = LoggerFactory.getLogger(HttpDispatcher.class);
 
-    private static HttpService findService(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage cMsg) {
+    private static HttpService findService(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage inboundReqMsg) {
         try {
-            String interfaceId = getInterface(cMsg);
-            Map<String, HttpService> servicesOnInterface = servicesRegistry.getServicesInfoByInterface(interfaceId);
-            if (servicesOnInterface == null) {
-                throw new BallerinaConnectorException("No services found for interface : " + interfaceId);
-            }
-            String uriStr = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
-            //replace multiple slashes from single slash if exist in request path to enable
-            // dispatchers when request path contains multiple slashes
-            URI requestUri = URI.create(uriStr.replaceAll("//+", Constants.DEFAULT_BASE_PATH));
+            Map<String, HttpService> servicesOnInterface = getServicesOnInterface(servicesRegistry, inboundReqMsg);
+            URI requestUri = getValidateURI(inboundReqMsg);
 
             // Most of the time we will find service from here
             String basePath =
                     servicesRegistry.findTheMostSpecificBasePath(requestUri.getPath(), servicesOnInterface);
             HttpService service = servicesOnInterface.get(basePath);
             if (service == null) {
-                cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
-                throw new BallerinaConnectorException("no matching service found for path : " + uriStr);
+                inboundReqMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
+                throw new BallerinaConnectorException("no matching service found for path : " +
+                        requestUri.getRawPath());
             }
 
-            String subPath = URIUtil.getSubPath(requestUri.getPath(), basePath);
-            cMsg.setProperty(Constants.BASE_PATH, basePath);
-            cMsg.setProperty(Constants.SUB_PATH, subPath);
-            cMsg.setProperty(Constants.QUERY_STR, requestUri.getQuery());
-            //store query params comes with request as it is
-            cMsg.setProperty(Constants.RAW_QUERY_STR, requestUri.getRawQuery());
+            setInboundReqProperties(inboundReqMsg, requestUri, basePath);
 
             return service;
         } catch (Throwable e) {
@@ -75,7 +66,37 @@ public class HttpDispatcher {
         }
     }
 
-    protected static String getInterface(HTTPCarbonMessage inboundRequest) {
+    private static Map<String, HttpService> getServicesOnInterface(HTTPServicesRegistry servicesRegistry,
+            HTTPCarbonMessage inboundReqMsg) {
+        String interfaceId = getInterface(inboundReqMsg);
+        Map<String, HttpService> servicesOnInterface = servicesRegistry.getServicesInfoByInterface(interfaceId);
+        if (servicesOnInterface == null) {
+            throw new BallerinaConnectorException("no services found for interface : " + interfaceId);
+        }
+        return servicesOnInterface;
+    }
+
+    private static void setInboundReqProperties(HTTPCarbonMessage inboundReqMsg, URI requestUri, String basePath) {
+        String subPath = URIUtil.getSubPath(requestUri.getPath(), basePath);
+        inboundReqMsg.setProperty(Constants.BASE_PATH, basePath);
+        inboundReqMsg.setProperty(Constants.SUB_PATH, subPath);
+        inboundReqMsg.setProperty(Constants.QUERY_STR, requestUri.getQuery());
+        //store query params comes with request as it is
+        inboundReqMsg.setProperty(Constants.RAW_QUERY_STR, requestUri.getRawQuery());
+    }
+
+    private static URI getValidateURI(HTTPCarbonMessage inboundReqMsg) {
+        URI requestUri;
+        String uriStr = (String) inboundReqMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
+        try {
+            requestUri = URI.create(uriStr);
+        } catch (IllegalArgumentException e) {
+            throw new BallerinaConnectorException(e.getMessage());
+        }
+        return requestUri;
+    }
+
+    private static String getInterface(HTTPCarbonMessage inboundRequest) {
         String interfaceId = (String) inboundRequest.getProperty(Constants.LISTENER_INTERFACE_ID);
         if (interfaceId == null) {
             if (breLog.isDebugEnabled()) {
@@ -87,7 +108,7 @@ public class HttpDispatcher {
         return interfaceId;
     }
 
-    public static void handleError(HTTPCarbonMessage cMsg, Throwable throwable) {
+    private static void handleError(HTTPCarbonMessage cMsg, Throwable throwable) {
         String errorMsg = throwable.getMessage();
 
         // bre log should contain bre stack trace, not the ballerina stack trace
@@ -135,25 +156,35 @@ public class HttpDispatcher {
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.REQUEST);
         BStruct response = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.RESPONSE);
+
         HttpUtil.setHeaderValueStructType(ConnectorUtils.createStruct(httpResource.getBalResource(),
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.HEADER_VALUE_STRUCT));
         HttpUtil.populateInboundRequest(request, httpCarbonMessage);
         HttpUtil.populateOutboundResponse(response, HttpUtil.createHttpCarbonMessage(false), httpCarbonMessage);
 
         List<ParamDetail> paramDetails = httpResource.getParamDetails();
-        Map<String, String> resourceArgumentValues =
-                (Map<String, String>) httpCarbonMessage.getProperty(Constants.RESOURCE_ARGS);
-
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = request;
         bValues[1] = response;
         if (paramDetails.size() <= 2) {
             return bValues;
         }
+
+        Map<String, String> resourceArgumentValues =
+                (Map<String, String>) httpCarbonMessage.getProperty(Constants.RESOURCE_ARGS);
         for (int i = 2; i < paramDetails.size(); i++) {
-            //No need for validation(validation already happened at deployment time),
-            //only string parameters can be found here,
-            bValues[i] = new BString(resourceArgumentValues.get(paramDetails.get(i).getVarName()));
+            //No need for validation as validation already happened at deployment time,
+            //only string parameters can be found here.
+            String argumentValue = resourceArgumentValues.get(paramDetails.get(i).getVarName());
+            if (argumentValue != null) {
+                try {
+                    argumentValue = URLDecoder.decode(argumentValue, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    // we can simply ignore and send the value to application and let the
+                    // application deal with the value.
+                }
+            }
+            bValues[i] = new BString(argumentValue);
         }
         return bValues;
     }

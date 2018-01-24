@@ -20,6 +20,9 @@ package org.ballerinalang.net.uri.parser;
 
 import org.ballerinalang.net.uri.URITemplateException;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 /**
  * URITemplateParser parses the provided uri-template and build the tree.
  *
@@ -41,7 +44,7 @@ public class URITemplateParser<DataType, InboundMgsType> {
     }
 
     public Node<DataElement<DataType, InboundMgsType>> parse(String template, DataType resource)
-            throws URITemplateException {
+            throws URITemplateException, UnsupportedEncodingException {
         if (!"/".equals(template) && template.endsWith("/")) {
             template = template.substring(0, template.length() - 1);
         }
@@ -102,6 +105,7 @@ public class URITemplateParser<DataType, InboundMgsType> {
                             if (expression) {
                                 createExpressionNode(tokenVal, maxIndex, pointerIndex);
                             } else {
+                                tokenVal = URLDecoder.decode(tokenVal, "UTF-8");
                                 addNode(new Literal<>(createElement(), tokenVal));
                             }
                         }
@@ -121,44 +125,19 @@ public class URITemplateParser<DataType, InboundMgsType> {
     }
 
     private void createExpressionNode(String expression, int maxIndex, int pointerIndex) throws URITemplateException {
-        Node<DataElement<DataType, InboundMgsType>> node = null;
-        if (isSimpleString(expression)) {
-            if (maxIndex == pointerIndex) {
-                node = new SimpleStringExpression<>(createElement(), expression);
-            } else {
-                node = new SimpleSplitStringExpression<>(createElement(), expression);
-            }
+        Node<DataElement<DataType, InboundMgsType>> node;
+
+        if (maxIndex == pointerIndex) {
+            node = new SimpleStringExpression<>(createElement(), expression);
+        } else {
+            node = new SimpleSplitStringExpression<>(createElement(), expression);
         }
 
         if (expression.length() <= 1) {
             throw new URITemplateException("Invalid template expression: {" + expression + "}");
         }
 
-        // TODO: Re-verify the usage of these nodes
-        if (expression.startsWith("#")) {
-            node = new FragmentExpression<>(createElement(), expression.substring(1));
-        } else if (expression.startsWith("+")) {
-            node = new ReservedStringExpression<>(createElement(), expression.substring(1));
-        } else if (expression.startsWith(".")) {
-            node = new LabelExpression<>(createElement(), expression.substring(1));
-        } else if (expression.startsWith("/")) {
-            node = new PathSegmentExpression<>(createElement(), expression.substring(1));
-        }
-
-        if (node != null) {
-            addNode(node);
-        } else {
-            throw new URITemplateException("Unsupported template expression: {" + expression + "}");
-        }
-    }
-
-    private boolean isSimpleString(String expression) {
-        for (char op : operators) {
-            if (expression.indexOf(op) == 0) {
-                return false;
-            }
-        }
-        return true;
+        addNode(node);
     }
 
     private DataElement<DataType, InboundMgsType> createElement() {

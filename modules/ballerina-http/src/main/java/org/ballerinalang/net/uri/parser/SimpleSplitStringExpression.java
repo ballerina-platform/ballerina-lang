@@ -74,7 +74,7 @@ public class SimpleSplitStringExpression<DataElementType extends DataElement> ex
         int length = uriFragment.length();
         for (int i = 0; i < length; i++) {
             char ch = uriFragment.charAt(i);
-            if (isReserved(ch) || isEndCharacter(ch)) {
+            if (isEndCharacter(ch)) {
                 if (ch == getSeparator() && variableList.size() > 0) {
                     continue;
                 }

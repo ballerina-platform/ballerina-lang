@@ -75,7 +75,6 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -521,30 +520,25 @@ public class HttpUtil {
         String errorMsg = ex.getMessage();
         log.error(errorMsg);
         ErrorHandlerUtils.printError(ex);
-        if (statusCode == 404) {
-            sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
-        } else {
-            sendOutboundResponse(requestMessage, createErrorMessage("", statusCode));
-        }
+        sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
     public static HTTPCarbonMessage createErrorMessage(String payload, int statusCode) {
         HTTPCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
         response.waitAndReleaseAllEntities();
-        response.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(payload.getBytes())));
-        setHttpStatusCodes(payload, statusCode, response);
+        if (payload != null) {
+            response.addHttpContent(new DefaultLastHttpContent(Unpooled
+                    .wrappedBuffer(payload.toLowerCase().getBytes())));
+        }
+        setHttpStatusCodes(statusCode, response);
 
         return response;
     }
 
-    private static void setHttpStatusCodes(String payload, int statusCode, HTTPCarbonMessage response) {
+    private static void setHttpStatusCodes(int statusCode, HTTPCarbonMessage response) {
         HttpHeaders httpHeaders = response.getHeaders();
         httpHeaders.set(org.wso2.transport.http.netty.common.Constants.HTTP_CONTENT_TYPE,
                         org.wso2.transport.http.netty.common.Constants.TEXT_PLAIN);
-
-        byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
-        httpHeaders.set(org.wso2.transport.http.netty.common.Constants.HTTP_CONTENT_LENGTH,
-                        (String.valueOf(errorMessageBytes.length)));
 
         response.setProperty(org.wso2.transport.http.netty.common.Constants.HTTP_STATUS_CODE, statusCode);
     }
@@ -1017,7 +1011,7 @@ public class HttpUtil {
         outboundResponseStructCheck(bStruct);
     }
 
-    public static void methodInvocationCheck(BStruct bStruct, HTTPCarbonMessage httpMsg) {
+    private static void methodInvocationCheck(BStruct bStruct, HTTPCarbonMessage httpMsg) {
         if (bStruct.getNativeData(METHOD_ACCESSED) != null || httpMsg == null) {
             throw new IllegalStateException("illegal function invocation");
         }
@@ -1027,7 +1021,7 @@ public class HttpUtil {
         }
     }
 
-    public static void outboundResponseStructCheck(BStruct bStruct) {
+    private static void outboundResponseStructCheck(BStruct bStruct) {
         if (bStruct.getNativeData(Constants.OUTBOUND_RESPONSE) == null) {
             throw new BallerinaException("operation not allowed");
         }

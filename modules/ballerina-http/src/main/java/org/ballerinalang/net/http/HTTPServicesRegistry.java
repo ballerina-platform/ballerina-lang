@@ -31,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -90,6 +92,7 @@ public class HTTPServicesRegistry {
                                                                     Constants.HTTP_PACKAGE_PATH);
 
         String basePath = discoverBasePathFrom(service, annotation);
+        basePath = urlDecode(basePath);
         service.setBasePath(basePath);
         Set<ListenerConfiguration> listenerConfigurationSet = HttpUtil.getDefaultOrDynamicListenerConfig(annotation);
 
@@ -167,7 +170,7 @@ public class HTTPServicesRegistry {
             try {
                 httpService.getUriTemplate().parse(httpResource.getPath(), httpResource,
                                                    new HttpResourceElementFactory());
-            } catch (URITemplateException e) {
+            } catch (URITemplateException | UnsupportedEncodingException e) {
                 throw new BallerinaConnectorException(e.getMessage());
             }
             CorsPopulator.processResourceCors(httpResource, httpService);
@@ -178,6 +181,15 @@ public class HTTPServicesRegistry {
         //basePath will get cached after registering service
         sortedServiceURIs.add(httpService.getBasePath());
         sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
+    }
+
+    private String urlDecode(String basePath) {
+        try {
+            basePath = URLDecoder.decode(basePath, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new BallerinaConnectorException(e.getMessage());
+        }
+        return basePath;
     }
 
     private HttpResource buildHttpResource(Resource resource) {
