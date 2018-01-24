@@ -536,9 +536,11 @@ public class HttpUtil {
     }
 
     private static String lowerCaseTheFirstLetter(String payload) {
-        char[] characters = payload.toCharArray();
-        characters[0] = Character.toLowerCase(characters[0]);
-        payload = new String(characters);
+        if (!payload.isEmpty()) {
+            char[] characters = payload.toCharArray();
+            characters[0] = Character.toLowerCase(characters[0]);
+            payload = new String(characters);
+        }
         return payload;
     }
 
