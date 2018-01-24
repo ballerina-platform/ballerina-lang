@@ -151,6 +151,19 @@ CREATE PROCEDURE TestDateTimeOutParams (IN id INT, IN dateVal DATE, IN timeVal T
   SELECT timestamp_type INTO timestOut FROM DateTimeTypes where row_id = id;
   END
 /
+CREATE PROCEDURE TestDateINOUTParams (IN id INT, INOUT dateVal DATE, INOUT timeVal TIME, INOUT datetimeVal DATETIME,
+  INOUT timestampVal TIMESTAMP)
+  MODIFIES SQL DATA
+  BEGIN ATOMIC
+  insert into DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type) values
+  (id, dateVal, timeVal, datetimeVal, timestampVal);
+
+  SELECT date_type INTO dateVal FROM DateTimeTypes where row_id = id;
+  SELECT time_type INTO timeVal FROM DateTimeTypes where row_id = id;
+  SELECT datetime_type INTO datetimeVal FROM DateTimeTypes where row_id = id;
+  SELECT timestamp_type INTO timestampVal FROM DateTimeTypes where row_id = id;
+  END
+/
 CREATE PROCEDURE TestArrayINOutParams (IN id INT, OUT insertedCount INTEGER, INOUT intArray INTEGER ARRAY,
   INOUT longArray BIGINT ARRAY, INOUT floatArray FLOAT ARRAY, INOUT doubleArray DOUBLE ARRAY,
   INOUT boolArray BOOLEAN ARRAY, INOUT varcharArray VARCHAR(50) ARRAY)

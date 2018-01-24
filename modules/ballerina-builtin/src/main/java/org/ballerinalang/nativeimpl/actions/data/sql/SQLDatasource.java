@@ -388,11 +388,7 @@ public class SQLDatasource implements BValue {
     
     private boolean isXADataSource() {
         try {
-            if (hikariDataSource.isWrapperFor(XADataSource.class)) {
-                return true;
-            } else {
-                return false;
-            }
+            return hikariDataSource.isWrapperFor(XADataSource.class);
         } catch (SQLException e) {
             throw new BallerinaException("error in check distributed data source: " + e.getCause().getMessage());
         }

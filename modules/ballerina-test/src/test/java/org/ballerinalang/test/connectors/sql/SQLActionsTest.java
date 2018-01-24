@@ -408,6 +408,32 @@ public class SQLActionsTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
+    @Test(groups = "ConnectorTest", description = "Check date time null in values")
+    public void testDateTimeNullInValues() {
+        BValue[] returns = BRunUtil.invoke(result, "testDateTimeNullInValues");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals((returns[0]).stringValue(), "[{\"DATE_TYPE\":null,\"TIME_TYPE\":null,"
+                + "\"TIMESTAMP_TYPE\":null,\"DATETIME_TYPE\":null}]");
+    }
+
+    @Test(groups = "ConnectorTest", description = "Check date time null out values")
+    public void testDateTimeNullOutValues() {
+        BValue[] returns = BRunUtil.invoke(result, "testDateTimeNullOutValues");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
+    @Test(groups = "ConnectorTest", description = "Check date time null inout values")
+    public void testDateTimeNullInOutValues() {
+        BValue[] returns = BRunUtil.invoke(result, "testDateTimeNullInOutValues");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns[0].stringValue(), null);
+        Assert.assertEquals(returns[1].stringValue(), null);
+        Assert.assertEquals(returns[2].stringValue(), null);
+        Assert.assertEquals(returns[3].stringValue(), null);
+    }
+
+
     @Test(groups = "ConnectorTest")
     public void testStructOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testStructOutParameters");
