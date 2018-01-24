@@ -107,7 +107,7 @@ public abstract class Node<DataElementType extends DataElement> {
     }
 
     private void setUriPostFix(Map<String, String> variables, String subUriFragment) {
-        variables.putIfAbsent(Constants.REST_URI_POSTFIX, "/" + subUriFragment);
+        variables.putIfAbsent(Constants.EXTRA_PATH_INFO, "/" + subUriFragment);
     }
 
     abstract String expand(Map<String, String> variables);

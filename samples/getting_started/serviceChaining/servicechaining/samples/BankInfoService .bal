@@ -8,7 +8,7 @@ service<http> Bankinfo {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource product (http:Connection conn, http:Request req) {
+    resource product (http:Connection conn, http:InRequest req) {
         json jsonRequest = req.getJsonPayload();
         string branchCode;
         branchCode, _ = (string)jsonRequest.BranchInfo.BranchCode;
@@ -19,7 +19,7 @@ service<http> Bankinfo {
             payload = {"ABC Bank":{"error":"No branches found."}};
         }
 
-        http:Response res = {};
+        http:OutResponse res = {};
         res.setJsonPayload(payload);
         _ = conn.respond(res);
     }

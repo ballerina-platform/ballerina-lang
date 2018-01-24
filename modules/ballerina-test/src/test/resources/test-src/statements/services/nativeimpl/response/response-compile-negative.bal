@@ -1,11 +1,11 @@
 import ballerina.net.http;
 
-function testResponseSetStatusCode (http:Response res, string statusCode) (http:Response) {
-    res.setStatusCode(statusCode);
+function testResponseSetStatusCode (http:OutResponse res, string statusCode) (http:OutResponse) {
+    res.statusCode = statusCode;
     return res;
 }
 
-function testResponseGetMethod (http:Response res) (string) {
+function testResponseGetMethod (http:InResponse res) (string) {
     string method = res.getMethod();
     return method;
 }

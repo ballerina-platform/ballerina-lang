@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.http;
 
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpRequest;
@@ -27,6 +28,9 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
+import io.netty.handler.codec.http.multipart.HttpDataFactory;
+import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
@@ -52,6 +56,8 @@ import org.ballerinalang.runtime.message.BlobDataSource;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.services.ErrorHandlerUtils;
+import org.ballerinalang.util.codegen.AnnAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -61,12 +67,13 @@ import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
-import org.wso2.transport.http.netty.contractimpl.HttpResponseStatusFuture;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpBodyPart;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
+import org.wso2.transport.http.netty.message.MultipartRequestDecoder;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
@@ -81,16 +88,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
+import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.HEADER_VALUE_STRUCT;
 import static org.ballerinalang.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
-import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
-import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
+import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
+import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
-import static org.ballerinalang.mime.util.Constants.SUBTYPE_INDEX;
+import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 import static org.ballerinalang.net.http.Constants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.Constants.HTTP_MESSAGE_INDEX;
 
@@ -121,18 +131,6 @@ public class HttpUtil {
         }
 
         return AbstractNativeFunction.VOID_RETURN;
-    }
-
-    public static BValue[] getHeader(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-        HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-
-        String headerName = abstractNativeFunction.getStringArgument(context, 0);
-        String headerValue = httpCarbonMessage.getHeader(headerName);
-
-        return abstractNativeFunction.getBValues(new BString(headerValue));
     }
 
     public static BValue[] getProperty(Context context,
@@ -223,37 +221,65 @@ public class HttpUtil {
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         httpCarbonMessage.waitAndReleaseAllEntities();
-
-        OutputStream messageOutputStream = new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream();
         BStruct entity = (BStruct) abstractNativeFunction.getRefArgument(context, ENTITY_INDEX);
-        String baseType = getContentType(entity);
-        boolean isBodyAvailable;
-
-        if (baseType != null) {
-            switch (baseType) {
-                case org.ballerinalang.mime.util.Constants.TEXT_PLAIN:
-                    isBodyAvailable = MimeUtil.isTextBodyPresent(entity);
-                    break;
-                case org.ballerinalang.mime.util.Constants.APPLICATION_JSON:
-                    isBodyAvailable = MimeUtil.isJsonBodyPresent(entity);
-                    break;
-                case org.ballerinalang.mime.util.Constants.APPLICATION_XML:
-                    isBodyAvailable = MimeUtil.isXmlBodyPresent(entity);
-                    break;
-                default:
-                    isBodyAvailable = MimeUtil.isBinaryBodyPresent(entity);
-                    break;
-            }
-        } else {
-            baseType = org.ballerinalang.mime.util.Constants.OCTET_STREAM;
-            isBodyAvailable = MimeUtil.isBinaryBodyPresent(entity);
+        String baseType = MimeUtil.getContentType(entity);
+        if (baseType == null) {
+            baseType = OCTET_STREAM;
         }
         HttpUtil.setHeaderToStruct(context, entity, CONTENT_TYPE, baseType);
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
-        if (isBodyAvailable) {
+        if (MimeUtil.checkEntityBodyAvailability(entity, baseType)) {
             httpMessageStruct.addNativeData(IS_ENTITY_BODY_PRESENT, true);
         }
         return AbstractNativeFunction.VOID_RETURN;
+    }
+
+    /**
+     * Prepare carbon request message with multiparts.
+     *
+     * @param outboundRequest Represent outbound carbon request
+     * @param requestStruct   Ballerina request struct which contains multipart data
+     */
+    public static void prepareRequestWithMultiparts(HTTPCarbonMessage outboundRequest, BStruct requestStruct) {
+        BStruct entityStruct = requestStruct.getNativeData(MESSAGE_ENTITY) != null ?
+                (BStruct) requestStruct.getNativeData(MESSAGE_ENTITY) : null;
+        if (entityStruct != null) {
+            BRefValueArray bodyParts = entityStruct.getRefField(MULTIPART_DATA_INDEX) != null ?
+                    (BRefValueArray) entityStruct.getRefField(MULTIPART_DATA_INDEX) : null;
+            if (bodyParts != null) {
+                HttpDataFactory dataFactory = new DefaultHttpDataFactory(DefaultHttpDataFactory.MINSIZE);
+                MimeUtil.setDataFactory(dataFactory);
+                try {
+                    HttpPostRequestEncoder nettyEncoder = new HttpPostRequestEncoder(dataFactory,
+                            outboundRequest.getNettyHttpRequest(), true);
+                    for (int i = 0; i < bodyParts.size(); i++) {
+                        BStruct bodyPart = (BStruct) bodyParts.get(i);
+                        MimeUtil.encodeBodyPart(nettyEncoder, outboundRequest.getNettyHttpRequest(),
+                                bodyPart);
+                    }
+                    nettyEncoder.finalizeRequest();
+                    requestStruct.addNativeData(MULTIPART_ENCODER, nettyEncoder);
+                } catch (HttpPostRequestEncoder.ErrorDataEncoderException e) {
+                    log.error("Error occurred while creating netty request encoder for multipart data binding",
+                            e.getMessage());
+                }
+            }
+        }
+    }
+
+    /**
+     * Read http content chunk by chunk from netty encoder and add it to carbon message.
+     *
+     * @param httpRequestMsg Represent carbon message that the content should be added to
+     * @param nettyEncoder   Represent netty encoder that holds the actual http content
+     * @throws Exception In case content cannot be read from netty encoder
+     */
+    public static void addMultipartsToCarbonMessage(HTTPCarbonMessage httpRequestMsg,
+                                                    HttpPostRequestEncoder nettyEncoder) throws Exception {
+        while (!nettyEncoder.isEndOfInput()) {
+            httpRequestMsg.addHttpContent(nettyEncoder.readChunk(ByteBufAllocator.DEFAULT));
+        }
+        nettyEncoder.cleanFiles();
     }
 
     /**
@@ -270,6 +296,7 @@ public class HttpUtil {
         BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, HTTP_MESSAGE_INDEX);
         BStruct entity = (BStruct) httpMessageStruct.getNativeData(MESSAGE_ENTITY);
         boolean isEntityBodyAvailable = false;
+
         if (httpMessageStruct.getNativeData(IS_ENTITY_BODY_PRESENT) != null) {
             isEntityBodyAvailable = (Boolean) httpMessageStruct.getNativeData(IS_ENTITY_BODY_PRESENT);
         }
@@ -277,63 +304,51 @@ public class HttpUtil {
             populateEntityBody(context, httpMessageStruct, entity, isRequest);
         }
         if (entity == null) {
-            entity = ConnectorUtils
-                    .createAndGetStruct(context, org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
-                            org.ballerinalang.mime.util.Constants.ENTITY);
-            entity.setRefField(ENTITY_HEADERS_INDEX, new BMap<>());
-            httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
-            httpMessageStruct.addNativeData(IS_ENTITY_BODY_PRESENT, false);
+            entity = setNewEntityToStruct(context, httpMessageStruct);
         }
         return abstractNativeFunction.getBValues(entity);
     }
 
     /**
-     * Populate the entity with the entity body.
+     * Populate entity with the relevant body content.
      *
      * @param context           Represent ballerina context
-     * @param httpMessageStruct Represent ballerina request/response message
-     * @param entity            Represent a ballerina entity
+     * @param httpMessageStruct Represent ballerina request/response
+     * @param entity            Represent an entity
      * @param isRequest         boolean representing whether the message is a request or a response
      */
-    private static void populateEntityBody(Context context, BStruct httpMessageStruct, BStruct entity,
-                                           boolean isRequest) {
+    public static void populateEntityBody(Context context, BStruct httpMessageStruct, BStruct entity,
+                                          boolean isRequest) {
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
-        InputStream inputStream = httpMessageDataStreamer.getInputStream();
-        String baseType = getContentType(entity);
-        long contentLength = entity.getIntField(SIZE_INDEX);
-        if (baseType != null) {
-            switch (baseType) {
-                case org.ballerinalang.mime.util.Constants.TEXT_PLAIN:
-                case org.ballerinalang.mime.util.Constants.APPLICATION_FORM:
-                    MimeUtil.readAndSetStringPayload(context, entity, inputStream, contentLength);
-                    break;
-                case org.ballerinalang.mime.util.Constants.APPLICATION_JSON:
-                    MimeUtil.readAndSetJsonPayload(context, entity, inputStream, contentLength);
-                    break;
-                case org.ballerinalang.mime.util.Constants.APPLICATION_XML:
-                    MimeUtil.readAndSetXmlPayload(context, entity, inputStream, contentLength);
-                    break;
-                default:
-                    MimeUtil.readAndSetBinaryPayload(context, entity, inputStream, contentLength);
-                    break;
+        MultipartRequestDecoder multipartRequestDecoder = new MultipartRequestDecoder(httpCarbonMessage);
+        if (isRequest && multipartRequestDecoder.isMultipartRequest()) {
+            try {
+                multipartRequestDecoder.parseBody();
+                List<HttpBodyPart> multiparts = multipartRequestDecoder.getMultiparts();
+                if (multiparts != null) {
+                    MimeUtil.handleCompositeMediaTypeContent(context, entity, multiparts);
+                }
+            } catch (IOException e) {
+                log.error("Error occurred while parsing multipart body in populateEntityBody", e);
             }
         } else {
-            MimeUtil.readAndSetBinaryPayload(context, entity, inputStream, contentLength);
+            int contentLength = NO_CONTENT_LENGTH_FOUND;
+            String lengthStr = httpCarbonMessage.getHeader(Constants.HTTP_CONTENT_LENGTH);
+            try {
+                contentLength = lengthStr != null ? Integer.parseInt(lengthStr) : contentLength;
+                if (contentLength == NO_CONTENT_LENGTH_FOUND) {
+                    contentLength = httpCarbonMessage.getFullMessageLength();
+                }
+                MimeUtil.setContentLength(entity, contentLength);
+            } catch (NumberFormatException e) {
+                throw new BallerinaException("Invalid content length");
+            }
+            MimeUtil.handleDiscreteMediaTypeContent(context, entity, httpMessageDataStreamer.getInputStream());
         }
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
         httpMessageStruct.addNativeData(IS_ENTITY_BODY_PRESENT, true);
-    }
-
-    private static String getContentType(BStruct entity) {
-        if (entity.getRefField(MEDIA_TYPE_INDEX) != null) {
-            BStruct mediaType = (BStruct) entity.getRefField(MEDIA_TYPE_INDEX);
-            if (mediaType != null) {
-                return mediaType.getStringField(PRIMARY_TYPE_INDEX) + "/" + mediaType.getStringField(SUBTYPE_INDEX);
-            }
-        }
-        return null;
     }
 
     public static void closeMessageOutputStream(OutputStream messageOutputStream) {
@@ -383,7 +398,7 @@ public class HttpUtil {
             , HTTPCarbonMessage requestMessage, HTTPCarbonMessage responseMessage, BStruct httpMessageStruct) {
         addHTTPSessionAndCorsHeaders(requestMessage, responseMessage);
         MessageDataSource outboundMessageSource = readMessageDataSource(httpMessageStruct);
-        HttpResponseStatusFuture outboundResponseStatusFuture = sendOutboundResponse(requestMessage, responseMessage);
+        HttpResponseFuture outboundResponseStatusFuture = sendOutboundResponse(requestMessage, responseMessage);
 
         if (outboundMessageSource != null) {
             OutputStream messageOutputStream = new HttpMessageDataStreamer(responseMessage).getOutputStream();
@@ -413,19 +428,19 @@ public class HttpUtil {
         boolean isEntityBodyAvailable = (Boolean) httpMessageStruct.getNativeData(IS_ENTITY_BODY_PRESENT);
         if (isEntityBodyAvailable) {
             BStruct entity = (BStruct) httpMessageStruct.getNativeData(MESSAGE_ENTITY);
-            String baseType = getContentType(entity);
+            String baseType = MimeUtil.getContentType(entity);
             if (baseType != null) {
                 switch (baseType) {
-                    case org.ballerinalang.mime.util.Constants.TEXT_PLAIN:
+                    case TEXT_PLAIN:
                         String textPayload = MimeUtil.getTextPayload(entity);
                         return new StringDataSource(textPayload);
-                    case org.ballerinalang.mime.util.Constants.APPLICATION_JSON:
+                    case APPLICATION_JSON:
                         BJSON jsonPayload = MimeUtil.getJsonPayload(entity);
                         if (jsonPayload != null) {
                             return jsonPayload;
                         }
                         break;
-                    case org.ballerinalang.mime.util.Constants.APPLICATION_XML:
+                    case APPLICATION_XML:
                         BXML xmlPayload = MimeUtil.getXmlPayload(entity);
                         if (xmlPayload != null) {
                             return xmlPayload;
@@ -433,11 +448,15 @@ public class HttpUtil {
                         break;
                     default:
                         byte[] binaryPayload = MimeUtil.getBinaryPayload(entity);
-                        return new BlobDataSource(binaryPayload);
+                        if (binaryPayload != null) {
+                            return new BlobDataSource(binaryPayload);
+                        }
                 }
             } else {
                 byte[] binaryPayload = MimeUtil.getBinaryPayload(entity);
-                return new BlobDataSource(binaryPayload);
+                if (binaryPayload != null) {
+                    return new BlobDataSource(binaryPayload);
+                }
             }
         }
         return null;
@@ -468,9 +487,9 @@ public class HttpUtil {
         }
     }
 
-    public static HttpResponseStatusFuture sendOutboundResponse(HTTPCarbonMessage requestMsg,
-            HTTPCarbonMessage responseMsg) {
-        HttpResponseStatusFuture responseFuture;
+    public static HttpResponseFuture sendOutboundResponse(HTTPCarbonMessage requestMsg,
+                                                          HTTPCarbonMessage responseMsg) {
+        HttpResponseFuture responseFuture;
         try {
             responseFuture = requestMsg.respond(responseMsg);
         } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
@@ -547,37 +566,37 @@ public class HttpUtil {
     public static void populateInboundRequest(BStruct inboundRequestStruct, BStruct entity, BStruct mediaType,
                                               HTTPCarbonMessage inboundRequestMsg) {
         inboundRequestStruct.addNativeData(Constants.TRANSPORT_MESSAGE, inboundRequestMsg);
-        inboundRequestStruct.addNativeData(Constants.INBOUND_REQUEST, true);
+        inboundRequestStruct.addNativeData(Constants.IN_REQUEST, true);
 
-        enrichWithInboundRequestInfo(inboundRequestStruct, entity, mediaType, inboundRequestMsg);
+        populateEntity(entity, mediaType, inboundRequestMsg);
+        inboundRequestStruct.addNativeData(MESSAGE_ENTITY, entity);
+        inboundRequestStruct.addNativeData(IS_ENTITY_BODY_PRESENT, false);
+
+        enrichWithInboundRequestInfo(inboundRequestStruct, inboundRequestMsg);
         enrichWithInboundRequestHeaders(inboundRequestStruct, inboundRequestMsg);
     }
 
     private static void enrichWithInboundRequestHeaders(BStruct inboundRequestStruct,
             HTTPCarbonMessage inboundRequestMsg) {
         if (inboundRequestMsg.getHeader(Constants.USER_AGENT_HEADER) != null) {
-            inboundRequestStruct.setStringField(Constants.REQUEST_USER_AGENT_INDEX,
+            inboundRequestStruct.setStringField(Constants.IN_REQUEST_USER_AGENT_INDEX,
                     inboundRequestMsg.getHeader(Constants.USER_AGENT_HEADER));
             inboundRequestMsg.removeHeader(Constants.USER_AGENT_HEADER);
         }
     }
 
-    private static void enrichWithInboundRequestInfo(BStruct inboundRequestStruct, BStruct entity, BStruct mediaType,
-            HTTPCarbonMessage inboundRequestMsg) {
-        inboundRequestStruct.setStringField(Constants.REQUEST_PATH_INDEX,
+    private static void enrichWithInboundRequestInfo(BStruct inboundRequestStruct,
+                                                     HTTPCarbonMessage inboundRequestMsg) {
+        inboundRequestStruct.setStringField(Constants.IN_REQUEST_PATH_INDEX,
                 (String) inboundRequestMsg.getProperty(Constants.REQUEST_URL));
-        inboundRequestStruct.setStringField(Constants.REQUEST_METHOD_INDEX,
+        inboundRequestStruct.setStringField(Constants.IN_REQUEST_METHOD_INDEX,
                 (String) inboundRequestMsg.getProperty(Constants.HTTP_METHOD));
-        inboundRequestStruct.setStringField(Constants.REQUEST_VERSION_INDEX,
+        inboundRequestStruct.setStringField(Constants.IN_REQUEST_VERSION_INDEX,
                 (String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION));
         Map<String, String> resourceArgValues =
                 (Map<String, String>) inboundRequestMsg.getProperty(Constants.RESOURCE_ARGS);
-        inboundRequestStruct.setStringField(Constants.REQUEST_REST_URI_POSTFIX_INDEX,
-                resourceArgValues.get(Constants.REST_URI_POSTFIX));
-
-        populateEntity(entity, mediaType, inboundRequestMsg);
-        inboundRequestStruct.addNativeData(MESSAGE_ENTITY, entity);
-        inboundRequestStruct.addNativeData(IS_ENTITY_BODY_PRESENT, false);
+        inboundRequestStruct.setStringField(Constants.IN_REQUEST_EXTRA_PATH_INFO_INDEX,
+                resourceArgValues.get(Constants.EXTRA_PATH_INFO));
     }
 
     public static void enrichConnectionInfo(BStruct connection, HTTPCarbonMessage cMsg) {
@@ -590,26 +609,27 @@ public class HttpUtil {
     /**
      * Populate inbound response with headers and entity.
      *
-     * @param response  Ballerina struct to represent response
+     * @param inboundResponse  Ballerina struct to represent response
      * @param entity    Entity of the response
      * @param mediaType Content type of the response
-     * @param cMsg      Represent carbon message.
+     * @param inboundResponseMsg      Represent carbon message.
      */
-    public static void populateInboundResponse(BStruct response, BStruct entity, BStruct mediaType, HTTPCarbonMessage
-            cMsg) {
-        response.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
-        int statusCode = (Integer) cMsg.getProperty(Constants.HTTP_STATUS_CODE);
-        response.setIntField(Constants.RESPONSE_STATUS_CODE_INDEX, statusCode);
-        response.setStringField(Constants.RESPONSE_REASON_PHRASE_INDEX,
+    public static void populateInboundResponse(BStruct inboundResponse, BStruct entity, BStruct mediaType,
+                                               HTTPCarbonMessage inboundResponseMsg) {
+        inboundResponse.addNativeData(Constants.TRANSPORT_MESSAGE, inboundResponseMsg);
+        int statusCode = (Integer) inboundResponseMsg.getProperty(Constants.HTTP_STATUS_CODE);
+        inboundResponse.setIntField(Constants.IN_RESPONSE_STATUS_CODE_INDEX, statusCode);
+        inboundResponse.setStringField(Constants.IN_RESPONSE_REASON_PHRASE_INDEX,
                 HttpResponseStatus.valueOf(statusCode).reasonPhrase());
 
-        if (cMsg.getHeader(Constants.SERVER_HEADER) != null) {
-            response.setStringField(Constants.RESPONSE_SERVER_INDEX, cMsg.getHeader(Constants.SERVER_HEADER));
-            cMsg.removeHeader(Constants.SERVER_HEADER);
+        if (inboundResponseMsg.getHeader(Constants.SERVER_HEADER) != null) {
+            inboundResponse.setStringField(Constants.IN_RESPONSE_SERVER_INDEX,
+                    inboundResponseMsg.getHeader(Constants.SERVER_HEADER));
+            inboundResponseMsg.removeHeader(Constants.SERVER_HEADER);
         }
-        populateEntity(entity, mediaType, cMsg);
-        response.addNativeData(MESSAGE_ENTITY, entity);
-        response.addNativeData(IS_ENTITY_BODY_PRESENT, false);
+        populateEntity(entity, mediaType, inboundResponseMsg);
+        inboundResponse.addNativeData(MESSAGE_ENTITY, entity);
+        inboundResponse.addNativeData(IS_ENTITY_BODY_PRESENT, false);
     }
 
     /**
@@ -631,11 +651,6 @@ public class HttpUtil {
             throw new BallerinaException("Invalid content length");
         }
         entity.setRefField(ENTITY_HEADERS_INDEX, prepareHeaderMap(cMsg.getHeaders(), new BMap<>()));
-    }
-
-    @SuppressWarnings("unchecked")
-    public static void populateOutboundRequest(BStruct message, HTTPCarbonMessage reqMsg) {
-        setHeadersToTransportMessage(reqMsg, message);
     }
 
     private static BMap<String, BValue> prepareHeaderMap(HttpHeaders headers, BMap<String, BValue> headerMap) {
@@ -702,12 +717,23 @@ public class HttpUtil {
         return paramMap;
     }
 
-    public static void setHeadersToTransportMessage(HTTPCarbonMessage outboundRequest, BStruct messageStruct) {
-        BStruct entityStruct = (BStruct) messageStruct.getNativeData(MESSAGE_ENTITY);
-        outboundRequest.getHeaders().clear();
-        HttpHeaders removedHeaders = messageStruct.getType().getName().equals(Constants.REQUEST) ?
-                getRequestStructHeaders(messageStruct) : getResponseStructHeaders(messageStruct);
+    /**
+     * Set headers and properties of request/response struct to the outbound transport message.
+     *
+     * @param outboundMsg transport Http carbon message.
+     * @param struct      req/resp struct.
+     */
+    public static void enrichOutboundMessage(HTTPCarbonMessage outboundMsg, BStruct struct) {
+        setHeadersToTransportMessage(outboundMsg, struct);
+        setPropertiesToTransportMessage(outboundMsg, struct);
+    }
 
+    public static void setHeadersToTransportMessage(HTTPCarbonMessage outboundMsg, BStruct struct) {
+        BStruct entityStruct = (BStruct) struct.getNativeData(MESSAGE_ENTITY);
+        HttpHeaders removedHeaders = new DefaultHttpHeaders();
+        if (isInboundRequestStruct(struct) || isInboundResponseStruct(struct)) {
+            addRemovedPropertiesBackToHeadersMap(struct, removedHeaders);
+        }
         BMap<String, BValue> headers = getEntityStructHeaders(entityStruct, removedHeaders);
         if (headers == null) {
             return;
@@ -715,7 +741,32 @@ public class HttpUtil {
         Set<String> keys = headers.keySet();
         for (String key : keys) {
             String headerValue = buildHeaderValue(headers, key);
-            outboundRequest.setHeader(key, headerValue);
+            outboundMsg.setHeader(key, headerValue);
+        }
+    }
+
+    private static boolean isInboundRequestStruct(BStruct struct) {
+        return struct.getType().getName().equals(Constants.IN_REQUEST);
+    }
+
+    private static boolean isInboundResponseStruct(BStruct struct) {
+        return struct.getType().getName().equals(Constants.IN_RESPONSE);
+    }
+
+    private static boolean isOutboundResponseStruct(BStruct struct) {
+        return struct.getType().getName().equals(Constants.OUT_RESPONSE);
+    }
+
+    private static void addRemovedPropertiesBackToHeadersMap(BStruct struct, HttpHeaders removedHeaders) {
+        if (isInboundRequestStruct(struct)) {
+            if (!struct.getStringField(Constants.IN_REQUEST_USER_AGENT_INDEX).isEmpty()) {
+                removedHeaders.add(Constants.USER_AGENT_HEADER,
+                        struct.getStringField(Constants.IN_REQUEST_USER_AGENT_INDEX));
+            }
+        } else {
+            if (!struct.getStringField(Constants.IN_RESPONSE_SERVER_INDEX).isEmpty()) {
+                removedHeaders.add(Constants.SERVER_HEADER, struct.getStringField(Constants.IN_RESPONSE_SERVER_INDEX));
+            }
         }
     }
 
@@ -726,24 +777,6 @@ public class HttpUtil {
             return null;
         }
         return prepareHeaderMap(removedHeaders, headers);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static HttpHeaders getRequestStructHeaders(BStruct struct) {
-        HttpHeaders removedHeaders = new DefaultHttpHeaders();
-        if (!struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX).isEmpty()) {
-            removedHeaders.add(Constants.USER_AGENT_HEADER, struct.getStringField(Constants.REQUEST_USER_AGENT_INDEX));
-        }
-        return removedHeaders;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static HttpHeaders getResponseStructHeaders(BStruct struct) {
-        HttpHeaders removedHeaders = new DefaultHttpHeaders();
-        if (!struct.getStringField(Constants.RESPONSE_SERVER_INDEX).isEmpty()) {
-            removedHeaders.add(Constants.SERVER_HEADER, struct.getStringField(Constants.RESPONSE_SERVER_INDEX));
-        }
-        return removedHeaders;
     }
 
     private static String buildHeaderValue(BMap<String, BValue> headers, String key) {
@@ -783,12 +816,65 @@ public class HttpUtil {
         return headerValue;
     }
 
+    private static void setPropertiesToTransportMessage(HTTPCarbonMessage cMsg, BStruct struct) {
+        if (isOutboundResponseStruct(struct)) {
+            if (struct.getIntField(Constants.OUT_RESPONSE_STATUS_CODE_INDEX) != 0) {
+                cMsg.setProperty(Constants.HTTP_STATUS_CODE,
+                        struct.getIntField(Constants.OUT_RESPONSE_STATUS_CODE_INDEX));
+            }
+            if (!struct.getStringField(Constants.OUT_RESPONSE_REASON_PHRASE_INDEX).isEmpty()) {
+                cMsg.setProperty(Constants.HTTP_REASON_PHRASE,
+                        struct.getStringField(Constants.OUT_RESPONSE_REASON_PHRASE_INDEX));
+            }
+        }
+    }
+
     private static void setHeaderToStruct(Context context, BStruct struct, String key, String value) {
         headerValueStructType = headerValueStructType == null ? ConnectorUtils.createAndGetStruct(context,
                 PROTOCOL_PACKAGE_MIME, HEADER_VALUE_STRUCT).getType() : headerValueStructType;
         BMap<String, BValue> headerMap = struct.getRefField(ENTITY_HEADERS_INDEX) != null ?
                 (BMap) struct.getRefField(ENTITY_HEADERS_INDEX) : new BMap<>();
         struct.setRefField(ENTITY_HEADERS_INDEX, prepareHeaderMap(new DefaultHttpHeaders().add(key, value), headerMap));
+    }
+
+    /**
+     * Set new entity to in/out request/response struct.
+     *
+     * @param context ballerina context.
+     * @param struct request/response struct.
+     */
+    public static BStruct setNewEntityToStruct(Context context, BStruct struct) {
+        BStruct entity = ConnectorUtils.createAndGetStruct(context
+                , org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME
+                , org.ballerinalang.mime.util.Constants.ENTITY);
+        entity.setRefField(ENTITY_HEADERS_INDEX, new BMap<>());
+        struct.addNativeData(MESSAGE_ENTITY, entity);
+        struct.addNativeData(IS_ENTITY_BODY_PRESENT, false);
+        return entity;
+    }
+
+    /**
+     * Set connection Keep-Alive headers to transport message.
+     *
+     * @param context ballerina context.
+     * @param outboundMessage transport message.
+     */
+    public static void setKeepAliveHeader(Context context, HTTPCarbonMessage outboundMessage) {
+        AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
+                Constants.PROTOCOL_PACKAGE_HTTP, Constants.ANN_NAME_CONFIG);
+        if (configAnn != null) {
+            AnnAttributeValue keepAliveAttrVal = configAnn.getAttributeValue(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE);
+
+            if (keepAliveAttrVal != null && !keepAliveAttrVal.getBooleanValue()) {
+                outboundMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_CLOSE);
+            } else {
+                // default behaviour: keepAlive = true
+                outboundMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
+            }
+        } else {
+            // default behaviour: keepAlive = true
+            outboundMessage.setHeader(Constants.CONNECTION_HEADER, Constants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
+        }
     }
 
     /**
@@ -993,9 +1079,9 @@ public class HttpUtil {
         return httpCarbonMessage;
     }
 
-    public static void checkFunctionValidity(BStruct bStruct, HTTPCarbonMessage reqMsg) {
+    public static void checkFunctionValidity(BStruct connectionStruct, HTTPCarbonMessage reqMsg) {
         serverConnectionStructCheck(reqMsg);
-        methodInvocationCheck(bStruct, reqMsg);
+        methodInvocationCheck(connectionStruct, reqMsg);
     }
 
     private static void methodInvocationCheck(BStruct bStruct, HTTPCarbonMessage reqMsg) {

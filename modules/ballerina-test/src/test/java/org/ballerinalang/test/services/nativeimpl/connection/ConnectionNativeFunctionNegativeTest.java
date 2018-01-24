@@ -44,7 +44,7 @@ public class ConnectionNativeFunctionNegativeTest {
         serviceResult = BServiceUtil.setupProgramFile(this, filePath);
     }
 
-    @Test
+    @Test(description = "Test respond with null parameter")
     public void testRespondWithNullParameter() {
         String path = "/hello/10";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
@@ -57,9 +57,32 @@ public class ConnectionNativeFunctionNegativeTest {
                 .contains("argument 1 is null"));
     }
 
-    @Test(description = "Test invalid connection struct")
-    public void testInvalidConnectionStruct() {
+    @Test(description = "Test respond with invalid connection struct")
+    public void testRespondWithInvalidConnectionStruct() {
         String path = "/hello/11";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        Assert.assertTrue(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
+                .contains("error, message: operation not allowed:invalid Connection variable"));
+    }
+
+    @Test(description = "Test forward with null parameter")
+    public void testForwardWithNullParameter() {
+        String path = "/hello/20";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
+        Assert.assertTrue(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
+                .contains("argument 1 is null"));
+    }
+
+    @Test(description = "Test forward with invalid connection struct")
+    public void testForwardWithInvalidConnectionStruct() {
+        String path = "/hello/21";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
         Assert.assertTrue(StringUtils
