@@ -1419,7 +1419,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean argsAvailable = ctx.invocation().expressionList() != null;
-        String invocation = ctx.invocation().Identifier().getText();
+        String invocation = ctx.invocation().anyIdentifierName().getText();
         this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable);
     }
 
