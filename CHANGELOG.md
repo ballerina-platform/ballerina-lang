@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.95.8 - 2018-01-24
+
+### Added
+- Updated language server to v0.95.8 supporting ballerina v0.95.8
+
 ## 0.95.7 - 2018-01-18
 
 ### Added
