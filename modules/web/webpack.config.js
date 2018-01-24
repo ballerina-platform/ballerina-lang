@@ -104,7 +104,7 @@ const config = [{
     },
     plugins: [
         new ProgressBarPlugin(),
-        new CleanWebpackPlugin(['dist'], {watch: true}),
+        new CleanWebpackPlugin(['dist'], {watch: true, exclude:['themes']}),
         new webpack.optimize.CommonsChunkPlugin({
             name: 'tree',
             chunks: ['bundle', 'tree', 'testable'],
