@@ -14,14 +14,11 @@ function testGetContentLength (http:InRequest req) (int) {
 }
 
 function testGetHeader (http:InRequest req, string key) (string) {
-    string contentType = req.getHeader(key).value;
-    return contentType;
+    return req.getHeader(key);
 }
 
 function testGetHeaders (http:InRequest req, string key) (string) {
-    var headers = req.getHeaders(key);
-    var contentType, _ = (string)headers[1].value;
-    return contentType;
+    return req.getHeaders(key);
 }
 
 function testGetJsonPayload (http:InRequest req) (json) {
@@ -66,12 +63,6 @@ function testRemoveAllHeaders (http:OutRequest req) (http:OutRequest) {
 
 function testSetHeader (http:OutRequest req, string key, string value) (http:OutRequest) {
     req.setHeader(key, value);
-    return req;
-}
-
-function testSetHeaderStruct (http:OutRequest req, string key, string value) (http:OutRequest) {
-    mime:HeaderValue[] headers = [{value:value, param:{b:"6", c:7}}, {value:value, param:{a:6}}];
-    req.setHeaders(key, headers);
     return req;
 }
 
@@ -145,70 +136,8 @@ service<http> helloServer {
         http:OutResponse res = {};
         http:OutRequest req = {};
         req.addHeader(key, value);
-        string result = req.getHeader(key).value;
+        string result = req.getHeader(key);
         res.setJsonPayload({lang:result});
-        _ = conn.respond(res);
-    }
-
-    @http:resourceConfig {
-        path:"/addReqHeader"
-    }
-    resource addReqHeader (http:Connection conn, http:InRequest inReq) {
-        http:OutRequest req = {};
-        mime:HeaderValue[] headers = [{value:"ballerina", param:{b:"6", c:7}}, {value:"transport", param:{a:6}}];
-        req.setHeaders("wso2", headers);
-
-        var values = req.getHeaders("wso2");
-        var valueArr,_ = (mime:HeaderValue[]) values;
-        string header = valueArr[0].value;
-
-        map param = valueArr[0].param;
-        var paramVal,_ = (string)param["b"];
-
-        http:OutResponse res = {};
-        res.setJsonPayload({headerValue:header, paramValue:paramVal});
-        _ = conn.respond(res);
-    }
-
-    @http:resourceConfig {
-        path:"/addReqHeaderFunc"
-    }
-    resource addReqHeaderFunc (http:Connection conn, http:InRequest inReq) {
-        http:OutRequest req = {};
-        mime:HeaderValue[] headers = [{value:"ballerina", param:{b:"6", c:7}}, {value:"transport", param:{a:6}}];
-        req.setHeaders("wso2", headers);
-        req.addHeader("wso2", "chamil");
-
-        var values = req.getHeaders("wso2");
-        var valueArr,_ = (mime:HeaderValue[]) values;
-        int size =  lengthof valueArr;
-        string header = valueArr[2].value;
-
-        http:OutResponse res = {};
-        res.setJsonPayload({headerValue:header, size:size});
-        _ = conn.respond(res);
-    }
-
-    @http:resourceConfig {
-        path:"/addReqHeaderWithoutParam"
-    }
-    resource addReqHeaderNoParam (http:Connection conn, http:InRequest inReq) {
-        http:OutRequest req = {};
-        mime:HeaderValue[] headers = [{value:"ballerina", param:{}}, {value:"transport", param:{a:6}}];
-        req.setHeaders("wso2", headers);
-
-        var values = req.getHeaders("wso2");
-        var valueArr,_ = (mime:HeaderValue[]) values;
-        string header = valueArr[0].value;
-
-        map param = valueArr[0].param;
-        var paramVal,err = (string)param["b"];
-
-        if (err != null) {
-            paramVal = "param is null";
-        }
-        http:OutResponse res = {};
-        res.setJsonPayload({headerValue:header, paramValue:paramVal});
         _ = conn.respond(res);
     }
 
@@ -227,7 +156,7 @@ service<http> helloServer {
     }
     resource getHeader (http:Connection conn, http:InRequest req) {
         http:OutResponse res = {};
-        string header = req.getHeader("Content-Type").value;
+        string header = req.getHeader("Content-Type");
         res.setJsonPayload({value:header});
         _ = conn.respond(res);
     }
@@ -236,43 +165,10 @@ service<http> helloServer {
         path:"/getReqHeader"
     }
     resource getReqHeader (http:Connection conn, http:InRequest req) {
-        var values = req.getHeaders("test-header");
-        var valueArr,_ = (mime:HeaderValue[]) values;
-        string header = valueArr[0].value;
+        string header = req.getHeaders("test-header");
 
         http:OutResponse res = {};
         res.setJsonPayload({value:header});
-        _ = conn.respond(res);
-    }
-
-    @http:resourceConfig {
-        path:"/getHeaders"
-    }
-    resource getHeaders (http:Connection conn, http:InRequest req) {
-        var headers = req.getHeaders("test-header");
-        var headerValue, _ = (string)headers[1].value;
-
-        map param = headers[1].param;
-        var paramVal,err = (string)param["b"];
-
-        http:OutResponse res = {};
-        res.setJsonPayload({value:headerValue, paramValue:paramVal});
-        _ = conn.respond(res);
-    }
-
-    @http:resourceConfig {
-        path:"/getReqHeaders"
-    }
-    resource getReqHeadersStruct (http:Connection conn, http:InRequest inReq) {
-        http:OutRequest req = {};
-        mime:HeaderValue[] headers = [{value:"ballerina"}, {value:"transport", param:{a:6}}];
-        req.setHeaders("wso2", headers);
-
-        var headerValues = req.getHeaders("wso2");
-        var headerValue, _ = (string)headerValues[1].value;
-
-        http:OutResponse res = {};
-        res.setJsonPayload({value:headerValue});
         _ = conn.respond(res);
     }
 
@@ -361,20 +257,7 @@ service<http> helloServer {
         http:OutResponse res = {};
         http:OutRequest req = {};
         req.setHeader(key, value);
-        string result = req.getHeader(key).value;
-        res.setJsonPayload({value:result});
-        _ = conn.respond(res);
-    }
-
-    @http:resourceConfig {
-        path:"/setHeaderStruct/{key}/{value}"
-    }
-    resource setHeaderStruct (http:Connection conn, http:InRequest inReq, string key, string value) {
-        http:OutRequest req = {};
-        mime:HeaderValue[] headers = [{value:value, param:{b:"6", c:7}}, {value:value, param:{a:6}}];
-        req.setHeaders(key, headers);
-        string result = req.getHeader(key).value;
-        http:OutResponse res = {};
+        string result = req.getHeader(key);
         res.setJsonPayload({value:result});
         _ = conn.respond(res);
     }

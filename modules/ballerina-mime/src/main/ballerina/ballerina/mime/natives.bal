@@ -28,7 +28,7 @@ level message and an entity(body part) inside of a multipart entity."}
 @Field {value:"contentType: Describes the data contained in the body of the entity"}
 @Field {value:"contentId: Helps one body of an entity to make a reference to another"}
 @Field {value:"headers: Denote general, request/response and entity related headers. Keys of the header map
-should represent the header name and value will be the 'HeaderValue' struct"}
+should represent the header name and value will be a string"}
 @Field {value:"isInMemory: A boolean to represent whether the body of the entity is in memory or in a temporary file"}
 @Field {value:"textData: Contents of the body in string form if the content is of text type"}
 @Field {value:"jsonData: Contents of the body in json form if the content is of json type"}

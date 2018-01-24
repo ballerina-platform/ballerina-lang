@@ -19,8 +19,8 @@ function main (string[] args) {
         string consumerSecret = args[1];
         string accessToken = args[2];
         string accessTokenSecret = args[3];
-        http:Request request = {};
-        http:Response mediumResponse = {};
+        http:OutRequest request = {};
+        http:InResponse mediumResponse = {};
         http:HttpConnectorError err;
         mediumResponse, err = mediumEP.get("/feed/@wso2", request);
         xml feedXML = mediumResponse.getXmlPayload();
@@ -28,10 +28,10 @@ function main (string[] args) {
 
         string oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, title);
 
-        http:Request twitterRequest = {};
+        http:OutRequest twitterRequest = {};
         twitterRequest.setHeader("Authorization", oauthHeader);
         string tweetPath = "/1.1/statuses/update.json?status=" + uri:encode(title);
-        http:Response response = {};
+        http:InResponse response = {};
         response, err = tweeterEP.post(tweetPath, twitterRequest);
 
         int statusCd = response.getStatusCode();

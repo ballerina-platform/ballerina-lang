@@ -186,6 +186,12 @@ public native function <OutResponse res> setProperty (string propertyName, strin
 @Return { value:"The property value" }
 public native function <OutResponse res> getProperty (string propertyName) (string);
 
+@Description { value:"Parse headerValue to return the value and parameter map"}
+@Param { value:"headerValue: The header value" }
+@Return { value:"The header value" }
+@Return { value:"The header value parameter map" }
+public native function parseHeaderValue (string headerValue)(string, map);
+
 @Description { value:"Represents an HTTP Session"}
 public struct Session {
 }

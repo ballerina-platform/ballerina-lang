@@ -16,7 +16,7 @@ function testGetHeader (http:InResponse res, string key) (string) {
     if (contentType == null) {
         return null;
     }
-    return contentType.value;
+    return contentType;
 }
 
 function testGetEntity (http:InResponse response) (mime:Entity) {

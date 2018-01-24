@@ -35,13 +35,9 @@ import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -534,12 +530,12 @@ public class HttpUtil {
         inboundRequestStruct.addNativeData(Constants.TRANSPORT_MESSAGE, inboundRequestMsg);
         inboundRequestStruct.addNativeData(Constants.IN_REQUEST, true);
 
+        enrichWithInboundRequestInfo(inboundRequestStruct, inboundRequestMsg);
+        enrichWithInboundRequestHeaders(inboundRequestStruct, inboundRequestMsg);
+
         populateEntity(entity, mediaType, inboundRequestMsg);
         inboundRequestStruct.addNativeData(MESSAGE_ENTITY, entity);
         inboundRequestStruct.addNativeData(IS_ENTITY_BODY_PRESENT, false);
-
-        enrichWithInboundRequestInfo(inboundRequestStruct, inboundRequestMsg);
-        enrichWithInboundRequestHeaders(inboundRequestStruct, inboundRequestMsg);
     }
 
     private static void enrichWithInboundRequestHeaders(BStruct inboundRequestStruct,
@@ -620,60 +616,58 @@ public class HttpUtil {
     }
 
     private static BMap<String, BValue> prepareHeaderMap(HttpHeaders headers, BMap<String, BValue> headerMap) {
-        Map<String, ArrayList> headerStructHolder = new HashMap<>();
+        Map<String, ArrayList> headerValues = new HashMap<>();
         for (Map.Entry<String, String> headerEntry : headers) {
             String headerKey = headerEntry.getKey().trim();
             String headerValue = headerEntry.getValue().trim();
-            //Get the list of HeaderStruct for a given key
-            ArrayList<BStruct> headerValueList = headerStructHolder.get(headerKey) != null ?
-                    headerStructHolder.get(headerKey) : new ArrayList<>();
-            if (headerValue.contains(",")) {
-                List<String> valueList = Arrays.stream(headerValue.split(",")).map(String::trim)
-                        .collect(Collectors.toList());
-                for (String value : valueList) {
-                    populateHeaderStruct(headerValueList, value);
-                }
-            } else {
-                populateHeaderStruct(headerValueList, headerValue);
-            }
-            headerStructHolder.put(headerKey, headerValueList);
+            //Get the list of existing header values for a given key
+            ArrayList<String> headerValueList = headerValues.get(headerKey) != null ?
+                    headerValues.get(headerKey) : new ArrayList<>();
+            headerValueList.add(headerValue);
+            headerValues.put(headerKey, headerValueList);
         }
-        //create BMap of BRefValueArray
-        for (Map.Entry<String, ArrayList> structHolder : headerStructHolder.entrySet()) {
-            headerMap.put(structHolder.getKey(), new BRefValueArray((BRefType[]) structHolder.getValue()
-                    .toArray(new BRefType[0]), new BArrayType(headerValueStructType)));
+        //create header map
+        for (Map.Entry<String, ArrayList> headerValue : headerValues.entrySet()) {
+            List<String> headerValueList = headerValue.getValue();
+            String commaSeparatedHeaderValue = headerValueList.stream().collect(Collectors.joining(", "));
+            headerMap.put(headerValue.getKey(), new BString(commaSeparatedHeaderValue));
         }
         return headerMap;
     }
 
     @SuppressWarnings("unchecked")
     private static void populateHeaderStruct(ArrayList headerValueList, String value) {
-        if (value.contains(";")) {
-            headerValueList.add(populateWithHeaderValueAndParams(new BStruct(headerValueStructType), value));
-        } else {
-            headerValueList.add(populateWithHeaderValue(new BStruct(headerValueStructType), value));
-        }
+//        if (value.contains(";")) {
+//            headerValueList.add(populateWithHeaderValueAndParams(new BStruct(headerValueStructType), value));
+//        } else {
+//            headerValueList.add(populateWithHeaderValue(new BStruct(headerValueStructType), value));
+//        }
     }
 
     private static BStruct populateWithHeaderValueAndParams(BStruct headerStruct, String headerValue) {
-        String value = headerValue.substring(0, headerValue.indexOf(";")).trim();
-        List<String> paramList = Arrays.stream(headerValue.substring(headerValue.indexOf(";") + 1)
-                .split(";")).map(String::trim).collect(Collectors.toList());
-        headerStruct.setStringField(Constants.HEADER_VALUE_INDEX, value);
-        headerStruct.setRefField(Constants.HEADER_PARAM_INDEX, createParamBMap(paramList));
-        return headerStruct;
+//        String value = headerValue.substring(0, headerValue.indexOf(";")).trim();
+//        List<String> paramList = Arrays.stream(headerValue.substring(headerValue.indexOf(";") + 1)
+//                .split(";")).map(String::trim).collect(Collectors.toList());
+//        headerStruct.setStringField(Constants.HEADER_VALUE_INDEX, value);
+//        headerStruct.setRefField(Constants.HEADER_PARAM_INDEX, createParamBMap(paramList));
+//        return headerStruct;
+        return null;
     }
 
     private static BStruct populateWithHeaderValue(BStruct headerStruct, String headerValue) {
-        headerStruct.setStringField(0, headerValue.trim());
-        return headerStruct;
+//        headerStruct.setStringField(0, headerValue.trim());
+//        return headerStruct;
+        return null;
     }
 
-    private static BMap<String, BValue> createParamBMap(List<String> paramList) {
+    public static BMap<String, BValue> createParamBMap(List<String> paramList) {
         BMap<String, BValue> paramMap = new BMap<>();
         for (String param : paramList) {
             if (param.contains("=")) {
                 String[] keyValuePair = param.split("=");
+                if (keyValuePair.length != 2 && !keyValuePair[0].isEmpty()) {
+                    throw new BallerinaException("Invalid header parameter: " + param);
+                }
                 paramMap.put(keyValuePair[0].trim(), new BString(keyValuePair[1].trim()));
             } else {
                 //handle when parameter value is optional
@@ -696,18 +690,18 @@ public class HttpUtil {
 
     public static void setHeadersToTransportMessage(HTTPCarbonMessage outboundMsg, BStruct struct) {
         BStruct entityStruct = (BStruct) struct.getNativeData(MESSAGE_ENTITY);
-        HttpHeaders removedHeaders = new DefaultHttpHeaders();
+        HttpHeaders transportHeaders = outboundMsg.getHeaders();
         if (isInboundRequestStruct(struct) || isInboundResponseStruct(struct)) {
-            addRemovedPropertiesBackToHeadersMap(struct, removedHeaders);
+            addRemovedPropertiesBackToHeadersMap(struct, transportHeaders);
         }
-        BMap<String, BValue> headers = getEntityStructHeaders(entityStruct, removedHeaders);
-        if (headers == null) {
+        BMap<String, BValue> headerss = getEntityStructHeaders(entityStruct, transportHeaders);
+        if (headerss == null) {
             return;
         }
-        Set<String> keys = headers.keySet();
+        Set<String> keys = headerss.keySet();
         for (String key : keys) {
-            String headerValue = buildHeaderValue(headers, key);
-            outboundMsg.setHeader(key, headerValue);
+//            String headerValue = buildHeaderValue(headers, key);
+            outboundMsg.setHeader(key, String.valueOf(headerss.get(key)));
         }
     }
 
@@ -723,63 +717,66 @@ public class HttpUtil {
         return struct.getType().getName().equals(Constants.OUT_RESPONSE);
     }
 
-    private static void addRemovedPropertiesBackToHeadersMap(BStruct struct, HttpHeaders removedHeaders) {
+    private static void addRemovedPropertiesBackToHeadersMap(BStruct struct, HttpHeaders transportHeaders) {
         if (isInboundRequestStruct(struct)) {
             if (!struct.getStringField(Constants.IN_REQUEST_USER_AGENT_INDEX).isEmpty()) {
-                removedHeaders.add(Constants.USER_AGENT_HEADER,
+                transportHeaders.add(Constants.USER_AGENT_HEADER,
                         struct.getStringField(Constants.IN_REQUEST_USER_AGENT_INDEX));
             }
         } else {
             if (!struct.getStringField(Constants.IN_RESPONSE_SERVER_INDEX).isEmpty()) {
-                removedHeaders.add(Constants.SERVER_HEADER, struct.getStringField(Constants.IN_RESPONSE_SERVER_INDEX));
+                transportHeaders.add(Constants.SERVER_HEADER,
+                        struct.getStringField(Constants.IN_RESPONSE_SERVER_INDEX));
             }
         }
     }
 
     @SuppressWarnings("unchecked")
-    private static BMap<String, BValue> getEntityStructHeaders(BStruct struct, HttpHeaders removedHeaders) {
+    private static BMap<String, BValue> getEntityStructHeaders(BStruct struct, HttpHeaders transportHeaders) {
         BMap<String, BValue> headers = (BMap) struct.getRefField(ENTITY_HEADERS_INDEX);
         if (headers == null) {
             return null;
         }
-        return prepareHeaderMap(removedHeaders, headers);
+        return prepareHeaderMap(transportHeaders, headers);
     }
 
     private static String buildHeaderValue(BMap<String, BValue> headers, String key) {
-        StringBuilder headerValue = new StringBuilder();
-        if (headers.get(key).getType().getTag() != TypeTags.ARRAY_TAG) {
-            throw new BallerinaException("expects an array as header value for header : " + key);
-        }
-        BRefValueArray headerValues = (BRefValueArray) headers.get(key);
-        for (int index = 0; index < headerValues.size(); index++) {
-            //TODO remove this check when map supports exact type
-            if (headerValues.get(index).getType().getTag() == TypeTags.STRUCT_TAG) {
-                BStruct headerStruct = (BStruct) headerValues.get(index);
-                String value = headerStruct.getStringField(Constants.HEADER_VALUE_INDEX);
-                headerValue.append(index > 0 ? "," + value : value);
-                BMap paramMap = (BMap) headerStruct.getRefField(Constants.HEADER_PARAM_INDEX);
-                headerValue = paramMap != null ? concatParams(headerValue, paramMap) : headerValue;
-            } else if (headerValues.get(index).getType().getTag() == TypeTags.MAP_TAG) {
-                BMap headerMap = (BMap) headerValues.get(index);
-                String value = headerMap.get(Constants.HEADER_VALUE).stringValue();
-                headerValue.append(index > 0 ? "," + value : value);
-                BMap paramMap = (BMap) headerMap.get(Constants.HEADER_PARAM);
-                headerValue = paramMap != null ? concatParams(headerValue, paramMap) : headerValue;
-            } else {
-                throw new BallerinaException("invalid header assignment for key : " + key);
-            }
-        }
-        return headerValue.toString();
+//        StringBuilder headerValue = new StringBuilder();
+//        if (headers.get(key).getType().getTag() != TypeTags.ARRAY_TAG) {
+//            throw new BallerinaException("expects an array as header value for header : " + key);
+//        }
+//        BRefValueArray headerValues = (BRefValueArray) headers.get(key);
+//        for (int index = 0; index < headerValues.size(); index++) {
+//            //TODO remove this check when map supports exact type
+//            if (headerValues.get(index).getType().getTag() == TypeTags.STRUCT_TAG) {
+//                BStruct headerStruct = (BStruct) headerValues.get(index);
+//                String value = headerStruct.getStringField(Constants.HEADER_VALUE_INDEX);
+//                headerValue.append(index > 0 ? "," + value : value);
+//                BMap paramMap = (BMap) headerStruct.getRefField(Constants.HEADER_PARAM_INDEX);
+//                headerValue = paramMap != null ? concatParams(headerValue, paramMap) : headerValue;
+//            } else if (headerValues.get(index).getType().getTag() == TypeTags.MAP_TAG) {
+//                BMap headerMap = (BMap) headerValues.get(index);
+//                String value = headerMap.get(Constants.HEADER_VALUE).stringValue();
+//                headerValue.append(index > 0 ? "," + value : value);
+//                BMap paramMap = (BMap) headerMap.get(Constants.HEADER_PARAM);
+//                headerValue = paramMap != null ? concatParams(headerValue, paramMap) : headerValue;
+//            } else {
+//                throw new BallerinaException("invalid header assignment for key : " + key);
+//            }
+//        }
+//        return headerValue.toString();
+        return null;
     }
 
     @SuppressWarnings("unchecked")
     private static StringBuilder concatParams(StringBuilder headerValue, BMap paramMap) {
-        Set<String> paramKeys = paramMap.keySet();
-        for (String paramKey : paramKeys) {
-            String paramValue = paramMap.get(paramKey) != null ? paramMap.get(paramKey).stringValue() : null;
-            headerValue.append(paramValue == null ? ";" + paramKey : ";" + paramKey + "=" + paramValue);
-        }
-        return headerValue;
+//        Set<String> paramKeys = paramMap.keySet();
+//        for (String paramKey : paramKeys) {
+//            String paramValue = paramMap.get(paramKey) != null ? paramMap.get(paramKey).stringValue() : null;
+//            headerValue.append(paramValue == null ? ";" + paramKey : ";" + paramKey + "=" + paramValue);
+//        }
+//        return headerValue;
+        return null;
     }
 
     private static void setPropertiesToTransportMessage(HTTPCarbonMessage cMsg, BStruct struct) {

@@ -7,20 +7,20 @@ import ballerina.file;
 @Param {value:"res: The inbound response struct"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The first header value struct for the provided header name. Returns null if the header does not exist."}
-public function <InResponse res> getHeader (string headerName) (mime:HeaderValue) {
+public function <InResponse res> getHeader (string headerName) (string) {
     mime:Entity entity = res.getEntityWithoutBody();
-    mime:HeaderValue[] headerValues = getHeadersFromEntity(entity, headerName);
-    return headerValues != null ? headerValues[0] : null;
+    string headerValue = getHeadersFromEntity(entity, headerName);
+    return getFirstHeaderValue(headerValue);
 }
 
 @Description {value:"Gets the named HTTP header from the outbound response"}
 @Param {value:"res: The outbound response struct"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The first header value struct for the provided header name. Returns null if the header does not exist."}
-public function <OutResponse res> getHeader (string headerName) (mime:HeaderValue) {
+public function <OutResponse res> getHeader (string headerName) (string) {
     mime:Entity entity = res.getEntityWithoutBody();
-    mime:HeaderValue[] headerValues = getHeadersFromEntity(entity, headerName);
-    return headerValues != null ? headerValues[0] : null;
+    string headerValue = getHeadersFromEntity(entity, headerName);
+    return getFirstHeaderValue(headerValue);
 }
 
 @Description {value:"Adds the specified key/value pair as an HTTP header to the outbound response"}
@@ -36,7 +36,7 @@ public function <OutResponse res> addHeader (string headerName, string headerVal
 @Param {value:"res: The inbound response message"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The header values struct array for a given header name"}
-public function <InResponse res> getHeaders (string headerName) (mime:HeaderValue[]) {
+public function <InResponse res> getHeaders (string headerName) (string) {
     mime:Entity entity = res.getEntityWithoutBody();
     return getHeadersFromEntity(entity, headerName);
 }
@@ -45,34 +45,21 @@ public function <InResponse res> getHeaders (string headerName) (mime:HeaderValu
 @Param {value:"res: The outbound response message"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The header values struct array for a given header name"}
-public function <OutResponse res> getHeaders (string headerName) (mime:HeaderValue[]) {
+public function <OutResponse res> getHeaders (string headerName) (string) {
     mime:Entity entity = res.getEntityWithoutBody();
     return getHeadersFromEntity(entity, headerName);
 }
 
 @Description {value:"Sets the value of a transport header"}
 @Param {value:"res: The outbound response message"}
-@Param {value:"key: The header name"}
-@Param {value:"value: The header value"}
-public function <OutResponse res> setHeader (string key, string value) {
-    mime:Entity entity = res.getEntityWithoutBody();
-    if (entity.headers == null) {
-        entity.headers = {};
-    }
-    mime:HeaderValue[] header = [{value:value}];
-    entity.headers[key] = header;
-}
-
-@Description {value:"Sets the value of a transport header with multiple header values"}
-@Param {value:"res: The outbound response message"}
 @Param {value:"headerName: The header name"}
-@Param {value:"headerValues: An array of header values"}
-public function <OutResponse res> setHeaders (string headerName, mime:HeaderValue[] headerValues) {
+@Param {value:"headerValue: The header value"}
+public function <OutResponse res> setHeader (string headerName, string headerValue) {
     mime:Entity entity = res.getEntityWithoutBody();
     if (entity.headers == null) {
         entity.headers = {};
     }
-    entity.headers[headerName] = headerValues;
+    entity.headers[headerName] = headerValue;
 }
 
 @Description {value:"Removes a transport header from the response"}
@@ -98,7 +85,18 @@ public function <OutResponse res> removeAllHeaders () {
 @Return {value:"length of the message"}
 public function <InResponse response> getContentLength () (int) {
     if (response.getHeader(CONTENT_LENGTH) != null) {
-        string strContentLength = response.getHeader(CONTENT_LENGTH).value;
+        string strContentLength = response.getHeader(CONTENT_LENGTH);
+        return getContentLengthIntValue(strContentLength);
+    }
+    return -1;
+}
+
+@Description {value:"Gets the Content-Length header value from the outbound response"}
+@Param {value:"response: The outbound response message"}
+@Return {value:"length of the message"}
+public function <OutResponse response> getContentLength () (int) {
+    if (response.getHeader(CONTENT_LENGTH) != null) {
+        string strContentLength = response.getHeader(CONTENT_LENGTH);
         return getContentLengthIntValue(strContentLength);
     }
     return -1;

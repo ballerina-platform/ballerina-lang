@@ -2,24 +2,28 @@ package ballerina.net.http;
 
 import ballerina.mime;
 
-function getHeadersFromEntity (mime:Entity entity, string headerName)(mime:HeaderValue[]) {
+function getHeadersFromEntity (mime:Entity entity, string headerName)(string) {
     if (entity.headers == null) {
         return null;
     }
-    var headerValues = entity.headers[headerName];
-    if (headerValues == null) {
+    var headerValue, _ = (string)entity.headers[headerName];
+    if (headerValue == null) {
         return null;
     }
-    return getHeaderValueArray(headerValues, headerName);
+    return headerValue;
 }
 
-function getHeaderValueArray (any headerValues, string headerName)(mime:HeaderValue[]) {
-    var valueArray, err = (mime:HeaderValue[]) headerValues;
-    if (err != null) {
-        error errMsg = {msg:"expect 'ballerina.net.mime:HeaderValue[]' as header value type of : " + headerName};
-        throw errMsg;
+function getFirstHeaderValue(string headerValue)(string) {
+    if (headerValue == null) {
+        return null;
     }
-    return valueArray;
+    //Multiple message-header fields with the same field-name MAY be present in a message if and only if the entire
+    //field-value for that header field is defined as a comma-separated list.
+    //(https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2)
+    if (headerValue.contains(",")) {
+        headerValue = headerValue.subString(0, headerValue.indexOf(","));
+    }
+    return headerValue;
 }
 
 function getContentLengthIntValue(string strContentLength)(int) {
@@ -35,12 +39,11 @@ function addHeaderToEntity(mime:Entity entity, string headerName, string headerV
     if (entity.headers == null) {
         entity.headers = {};
     }
-    var headerValues = entity.headers[headerName];
-    if (headerValues == null) {
-        mime:HeaderValue[] headers = [{value:headerValue}];
-        entity.headers[headerName] = headers;
+    var existingValues = entity.headers[headerName];
+    if (existingValues == null) {
+        entity.headers[headerName] = headerValue;
     } else {
-        var valueArray = getHeaderValueArray(headerValues, headerName);
-        valueArray[lengthof valueArray] = {value:headerValue};
+        var values, err = (string) existingValues;
+        entity.headers[headerName] = values + ", " + headerValue;
     }
 }

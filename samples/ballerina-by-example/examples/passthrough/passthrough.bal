@@ -6,7 +6,7 @@ service<http> passthrough {
     @http:resourceConfig {
         path:"/"
     }
-    resource passthrough (http:Connection conn, http:Request req) {
+    resource passthrough (http:Connection conn, http:InRequest req) {
         endpoint<http:HttpClient> endPoint {
             create http:HttpClient("http://localhost:9090/echo", {});
         }
@@ -35,7 +35,7 @@ service<http> echo {
         methods:["POST", "PUT", "GET"],
         path:"/"
     }
-    resource echoResource (http:Connection conn, http:Request req) {
+    resource echoResource (http:Connection conn, http:InRequest req) {
         http:Response res = {};
         res.setStringPayload("Resource is invoked");
         _ = conn.respond(res);

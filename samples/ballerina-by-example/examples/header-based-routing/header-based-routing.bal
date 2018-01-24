@@ -8,7 +8,7 @@ service<http> headerBasedRouting {
         methods:["GET"],
         path:"/route"
     }
-    resource hbrResource (http:Connection conn, http:Request req) {
+    resource hbrResource (http:Connection conn, http:InRequest req) {
         endpoint<http:HttpClient> locationEP {
             create http:HttpClient("http://www.mocky.io", {});
         }

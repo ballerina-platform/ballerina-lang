@@ -11,7 +11,7 @@ function testGetHeader (http:InRequest req, string key) (string) {
     if (contentType == null) {
         return null;
     }
-    return contentType.value;
+    return contentType;
 }
 
 function testGetJsonPayload (http:InRequest req) (json) {
