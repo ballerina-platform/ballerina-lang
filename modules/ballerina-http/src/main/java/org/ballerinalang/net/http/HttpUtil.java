@@ -527,12 +527,19 @@ public class HttpUtil {
         HTTPCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
         response.waitAndReleaseAllEntities();
         if (payload != null) {
-            response.addHttpContent(new DefaultLastHttpContent(Unpooled
-                    .wrappedBuffer(payload.toLowerCase().getBytes())));
+            payload = lowerCaseTheFirstLetter(payload);
+            response.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(payload.getBytes())));
         }
         setHttpStatusCodes(statusCode, response);
 
         return response;
+    }
+
+    private static String lowerCaseTheFirstLetter(String payload) {
+        char[] characters = payload.toCharArray();
+        characters[0] = Character.toLowerCase(characters[0]);
+        payload = new String(characters);
+        return payload;
     }
 
     private static void setHttpStatusCodes(int statusCode, HTTPCarbonMessage response) {
