@@ -72,12 +72,10 @@ import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
@@ -100,7 +98,6 @@ public class HttpUtil {
 
     private static final String METHOD_ACCESSED = "isMethodAccessed";
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
-    private static BStructType headerValueStructType;
 
     public static BValue[] addHeader(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
@@ -521,10 +518,6 @@ public class HttpUtil {
         struct.addNativeData(Constants.TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
-    public static void setHeaderValueStructType(BStruct struct) {
-        headerValueStructType = struct.getType();
-    }
-
     public static void populateInboundRequest(BStruct inboundRequestStruct, BStruct entity, BStruct mediaType,
                                               HTTPCarbonMessage inboundRequestMsg) {
         inboundRequestStruct.addNativeData(Constants.TRANSPORT_MESSAGE, inboundRequestMsg);
@@ -612,26 +605,14 @@ public class HttpUtil {
         } catch (NumberFormatException e) {
             throw new BallerinaException("Invalid content length");
         }
-        entity.setRefField(ENTITY_HEADERS_INDEX, prepareHeaderMap(cMsg.getHeaders(), new BMap<>()));
+        entity.setRefField(ENTITY_HEADERS_INDEX, prepareEntityHeaderMap(cMsg.getHeaders(), new BMap<>()));
     }
 
-    private static BMap<String, BValue> prepareHeaderMap(HttpHeaders headers, BMap<String, BValue> headerMap) {
-        Map<String, ArrayList> headerValues = new HashMap<>();
-        for (Map.Entry<String, String> headerEntry : headers) {
-            String headerKey = headerEntry.getKey().trim();
-            String headerValue = headerEntry.getValue().trim();
-            //Get the list of existing header values for a given key
-            ArrayList<String> headerValueList = headerValues.get(headerKey) != null ?
-                    headerValues.get(headerKey) : new ArrayList<>();
-            headerValueList.add(headerValue);
-            headerValues.put(headerKey, headerValueList);
+    private static BMap<String, BValue> prepareEntityHeaderMap(HttpHeaders headers, BMap<String, BValue> headerMap) {
+        for (Map.Entry<String, String> header : headers.entries()) {
+            headerMap.put(header.getKey(), new BString(header.getValue()));
         }
-        //create header map
-        for (Map.Entry<String, ArrayList> headerValue : headerValues.entrySet()) {
-            List<String> headerValueList = headerValue.getValue();
-            String commaSeparatedHeaderValue = headerValueList.stream().collect(Collectors.joining(", "));
-            headerMap.put(headerValue.getKey(), new BString(commaSeparatedHeaderValue));
-        }
+//        headers.entries().stream()
         return headerMap;
     }
 
@@ -694,7 +675,7 @@ public class HttpUtil {
         if (isInboundRequestStruct(struct) || isInboundResponseStruct(struct)) {
             addRemovedPropertiesBackToHeadersMap(struct, transportHeaders);
         }
-        BMap<String, BValue> headerss = getEntityStructHeaders(entityStruct, transportHeaders);
+        BMap<String, BValue> headerss = getEntityHeaders(entityStruct, transportHeaders);
         if (headerss == null) {
             return;
         }
@@ -732,12 +713,12 @@ public class HttpUtil {
     }
 
     @SuppressWarnings("unchecked")
-    private static BMap<String, BValue> getEntityStructHeaders(BStruct struct, HttpHeaders transportHeaders) {
+    private static BMap<String, BValue> getEntityHeaders(BStruct struct, HttpHeaders transportHeaders) {
         BMap<String, BValue> headers = (BMap) struct.getRefField(ENTITY_HEADERS_INDEX);
         if (headers == null) {
             return null;
         }
-        return prepareHeaderMap(transportHeaders, headers);
+        return prepareEntityHeaderMap(transportHeaders, headers);
     }
 
     private static String buildHeaderValue(BMap<String, BValue> headers, String key) {
@@ -793,11 +774,9 @@ public class HttpUtil {
     }
 
     private static void setHeaderToStruct(Context context, BStruct struct, String key, String value) {
-        headerValueStructType = headerValueStructType == null ? ConnectorUtils.createAndGetStruct(context,
-                PROTOCOL_PACKAGE_MIME, HEADER_VALUE_STRUCT).getType() : headerValueStructType;
         BMap<String, BValue> headerMap = struct.getRefField(ENTITY_HEADERS_INDEX) != null ?
                 (BMap) struct.getRefField(ENTITY_HEADERS_INDEX) : new BMap<>();
-        struct.setRefField(ENTITY_HEADERS_INDEX, prepareHeaderMap(new DefaultHttpHeaders().add(key, value), headerMap));
+        struct.setRefField(ENTITY_HEADERS_INDEX, prepareEntityHeaderMap(new DefaultHttpHeaders().add(key, value), headerMap));
     }
 
     /**

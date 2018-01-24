@@ -15,14 +15,6 @@ public struct MediaType {
     map parameters;
 }
 
-@Description {value:"Represents a header value."}
-@Field {value:"value: The value of header"}
-@Field {value:"param: The param map of header"}
-public struct HeaderValue {
-    string value;
-    map param;
-}
-
 @Description {value:"Represent the headers and body of a message. This can be used to represent both the entity of a top
 level message and an entity(body part) inside of a multipart entity."}
 @Field {value:"contentType: Describes the data contained in the body of the entity"}

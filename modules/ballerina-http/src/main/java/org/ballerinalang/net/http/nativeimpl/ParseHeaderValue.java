@@ -44,8 +44,8 @@ import java.util.stream.Collectors;
 )
 public class ParseHeaderValue extends AbstractNativeFunction {
 
-    private final String SEMICOLON = ";";
-    private final String COMMA = ",";
+    private static final String SEMICOLON = ";";
+    private static final String COMMA = ",";
 
     @Override
     public BValue[] execute(Context context) {
