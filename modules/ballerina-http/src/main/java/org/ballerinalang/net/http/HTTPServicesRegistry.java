@@ -33,6 +33,7 @@ import org.wso2.transport.http.netty.config.ListenerConfiguration;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -185,7 +186,7 @@ public class HTTPServicesRegistry {
 
     private String urlDecode(String basePath) {
         try {
-            basePath = URLDecoder.decode(basePath, "UTF-8");
+            basePath = URLDecoder.decode(basePath, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
             throw new BallerinaConnectorException(e.getMessage());
         }

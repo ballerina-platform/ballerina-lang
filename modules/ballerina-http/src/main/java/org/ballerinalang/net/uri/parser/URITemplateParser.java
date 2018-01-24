@@ -22,6 +22,7 @@ import org.ballerinalang.net.uri.URITemplateException;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * URITemplateParser parses the provided uri-template and build the tree.
@@ -105,7 +106,7 @@ public class URITemplateParser<DataType, InboundMgsType> {
                             if (expression) {
                                 createExpressionNode(tokenVal, maxIndex, pointerIndex);
                             } else {
-                                tokenVal = URLDecoder.decode(tokenVal, "UTF-8");
+                                tokenVal = URLDecoder.decode(tokenVal, StandardCharsets.UTF_8.name());
                                 addNode(new Literal<>(createElement(), tokenVal));
                             }
                         }
