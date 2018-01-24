@@ -27,6 +27,7 @@ import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.StaticCaption;
+import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,7 +102,9 @@ public class BallerinaDocGenerator {
                     docsMap = generatePackageDocsFromBallerina(parentDir.toString(), fileName, packageFilter, isNative);
                 } else {
                     Path dirPath = Paths.get(source);
-                    docsMap = generatePackageDocsFromBallerina(dirPath.toString(), dirPath, packageFilter, isNative);
+                    Path sourceRootPath = LauncherUtils.getSourceRootPath(dirPath.toString());
+                    docsMap = generatePackageDocsFromBallerina(sourceRootPath.toString(), dirPath, packageFilter,
+                            isNative);
                 }
                 if (docsMap.size() == 0) {
                     out.println("docerina: no package definitions found!");
