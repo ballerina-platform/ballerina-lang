@@ -33,14 +33,14 @@ import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING_7_
  */
 public class FileUploadContentHolder {
 
-    private HttpRequest request; //Netty Http request
-    private String bodyPartName; //Name for the body part
-    private String fileName; //File name to be used for file upload
-    private String contentType; //Content-Type of the actual content
-    private String contentTransferEncoding; //What sort of encoding transformation the body was subjected to
-    private Charset charset; //Charset used in the content
-    private long size; //Size of the file upload
-    private InputStream inputStream; //When the content is given as an input stream
+    private HttpRequest request;
+    private String bodyPartName;
+    private String fileName;
+    private String contentType;
+    private String contentTransferEncoding;
+    private Charset charset;
+    private long fileSize;
+    private InputStream contentStream;
     private File file; //When the content is given as a file
     private Constants.BodyPartForm bodyPartFormat; //Type of the body part
 
@@ -76,20 +76,20 @@ public class FileUploadContentHolder {
         this.contentType = contentType;
     }
 
-    public long getSize() {
-        return size;
+    public long getFileSize() {
+        return fileSize;
     }
 
-    public void setSize(long size) {
-        this.size = size;
+    public void setFileSize(long size) {
+        this.fileSize = size;
     }
 
-    public InputStream getInputStream() {
-        return inputStream;
+    public InputStream getContentStream() {
+        return contentStream;
     }
 
-    public void setInputStream(InputStream inputStream) {
-        this.inputStream = inputStream;
+    public void setContentStream(InputStream inputStream) {
+        this.contentStream = inputStream;
     }
 
     public String getContentTransferEncoding() {

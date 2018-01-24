@@ -721,8 +721,8 @@ public class MimeUtil {
             contentHolder.setBodyPartName(bodyPartName);
             contentHolder.setFileName(TEMP_FILE_NAME + TEMP_FILE_EXTENSION);
             contentHolder.setContentType(OCTET_STREAM);
-            contentHolder.setSize(binaryPayload.length);
-            contentHolder.setInputStream(inputStream);
+            contentHolder.setFileSize(binaryPayload.length);
+            contentHolder.setContentStream(inputStream);
             contentHolder.setBodyPartFormat(Constants.BodyPartForm.INPUTSTREAM);
             String contentTransferHeaderValue = getHeaderValue(bodyPart, CONTENT_TRANSFER_ENCODING);
             if (contentTransferHeaderValue != null) {
@@ -791,8 +791,8 @@ public class MimeUtil {
                     contentHolder.setBodyPartName(bodyPartName);
                     contentHolder.setFileName(fileName.toString());
                     contentHolder.setContentType(contentType);
-                    contentHolder.setSize(size);
-                    contentHolder.setInputStream(inputStream);
+                    contentHolder.setFileSize(size);
+                    contentHolder.setContentStream(inputStream);
                     contentHolder.setBodyPartFormat(Constants.BodyPartForm.INPUTSTREAM);
                     String contentTransferHeaderValue = getHeaderValue(bodyPart, CONTENT_TRANSFER_ENCODING);
                     if (contentTransferHeaderValue != null) {
@@ -829,7 +829,7 @@ public class MimeUtil {
         contentHolder.setBodyPartName(bodyPartName);
         contentHolder.setFileName(file.getName());
         contentHolder.setContentType(contentType);
-        contentHolder.setSize(file.length());
+        contentHolder.setFileSize(file.length());
         contentHolder.setFile(file);
         contentHolder.setBodyPartFormat(Constants.BodyPartForm.FILE);
         String contentTransferHeaderValue = getHeaderValue(bodyPart, CONTENT_TRANSFER_ENCODING);
@@ -850,10 +850,10 @@ public class MimeUtil {
             throws IOException {
         FileUpload fileUpload = dataFactory.createFileUpload(contentHolder.getRequest(), contentHolder.getBodyPartName()
                 , contentHolder.getFileName(), contentHolder.getContentType(),
-                contentHolder.getContentTransferEncoding(), contentHolder.getCharset(), contentHolder.getSize());
+                contentHolder.getContentTransferEncoding(), contentHolder.getCharset(), contentHolder.getFileSize());
         switch (contentHolder.getBodyPartFormat()) {
             case INPUTSTREAM:
-                fileUpload.setContent(contentHolder.getInputStream());
+                fileUpload.setContent(contentHolder.getContentStream());
                 break;
             case FILE:
                 fileUpload.setContent(contentHolder.getFile());
