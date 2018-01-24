@@ -21,14 +21,14 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerinalang</artifactId>
-        <version>0.95.8-SNAPSHOT</version>
+        <version>0.95.9-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.ballerinalang.tools</groupId>
     <artifactId>tools-distribution</artifactId>
     <packaging>pom</packaging>
-    <version>0.95.8-SNAPSHOT</version>
+    <version>0.95.9-SNAPSHOT</version>
     <name>Ballerina - Tools</name>
     <description>Ballerina - Tools</description>
 
@@ -120,7 +120,7 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>workspace-service</artifactId>
+                <artifactId>composer-server-distribution</artifactId>
                 <version>${ballerina.composer.version}</version>
             </dependency>
             <dependency>
