@@ -67,7 +67,7 @@ export const LABELS = {
 
 export const HISTORY = {
     ACTIVE_EDITOR: 'composer.plugin.editor.active-editor',
-    PREVIEW_VIEW_IS_ACTIVE: 'preview-panel-is-active',
+    PREVIEW_VIEW_IS_ACTIVE: 'preview-view-pane-is-active',
     PREVIEW_VIEW_PANEL_SIZE: 'preview-view-pane-size',
 };
 

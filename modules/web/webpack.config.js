@@ -28,22 +28,23 @@ const WebfontPlugin = require('webpack-webfont').default;
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const WriteFilePlugin = require('write-file-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 const extractThemes = new ExtractTextPlugin({ filename: './[name].css', allChunks: true });
-const extractCSSBundle = new ExtractTextPlugin({ filename: './bundle-[name].css', allChunks: true });
+const extractCSSBundle = new ExtractTextPlugin({ filename: './bundle-[name]-[hash].css', allChunks: true });
 
 const isProductionBuild = process.env.NODE_ENV === 'production';
 let exportConfig = {};
 const config = [{
     target: 'web',
     entry: {
-        bundle: './src/index.js',
         tree: './src/plugins/ballerina/model/tree-builder.js',
+        bundle: './src/index.js',
         testable: './src/plugins/ballerina/tests/testable.js',
-        'worker-ballerina': './src/plugins/ballerina/utils/ace-worker.js',
     },
     output: {
-        filename: '[name].js',
+        filename: '[name]-[hash].js',
         path: path.resolve(__dirname, 'dist'),
     },
     module: {
@@ -103,6 +104,7 @@ const config = [{
     },
     plugins: [
         new ProgressBarPlugin(),
+        new CleanWebpackPlugin(['dist'], {watch: true}),
         new webpack.optimize.CommonsChunkPlugin({
             name: 'tree',
             chunks: ['bundle', 'tree', 'testable'],
@@ -155,6 +157,10 @@ const config = [{
                 to: 'vs',
             },
         ]),
+        new HtmlWebpackPlugin({
+            template: 'src/index.ejs',
+            inject: false,
+        })
         /*
         new CircularDependencyPlugin({
             exclude: /a\.css|node_modules/,

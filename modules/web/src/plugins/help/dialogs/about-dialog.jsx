@@ -57,29 +57,29 @@ class AboutDialog extends React.Component {
                 show={this.state.showDialog}
                 title={
                     <div>
-                        <div className="brand">
-                        <img
-                            src="images/BallerinaLogo.svg"
-                            alt="Ballerina Composer"
-                            className="logo"
-                        />
-                        <span className="appname">Composer</span>
+                        <div className='brand'>
+                            <img
+                                src='images/BallerinaLogo.svg'
+                                alt='Ballerina Composer'
+                                className='logo'
+                            />
+                            <span className='appname'>Composer</span>
                         </div>
                         <div className="version">v0.95.9.SNAPSHOT</div>
                     </div>
                 }
                 onHide={this.onDialogHide}
-                className="modal-about"
+                className='modal-about'
                 actions={
                     <div>
                         © {new Date().getFullYear()}
                         &nbsp;
                         <a
-                            href="http://wso2.com/"
-                            rel="noopener noreferrer"
-                            target="_blank"
+                            href='http://wso2.com/'
+                            rel='noopener noreferrer'
+                            target='_blank'
                         >
-                            <i className="fw fw-wso2 icon" /> Inc.
+                            <i className='fw fw-wso2 icon' /> Inc.
                         </a>
                     </div>
 
@@ -95,9 +95,9 @@ class AboutDialog extends React.Component {
                     <br /><br />
                     Please use &nbsp;
                     <a
-                        rel="noopener noreferrer"
-                        target="_blank"
-                        href="https://github.com/ballerinalang/composer/issues"
+                        rel='noopener noreferrer'
+                        target='_blank'
+                        href='https://github.com/ballerinalang/composer/issues'
                     >
                         GitHub issues
                     </a>

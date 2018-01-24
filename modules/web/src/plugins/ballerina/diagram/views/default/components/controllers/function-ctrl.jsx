@@ -63,7 +63,7 @@ class FunctionCtrl extends React.Component {
 
         const items = ControllerUtil.convertToAddItems(LifelineTools, node);
 
-        return [<LifelineButton bBox={{ x, y, w, h }} model={node} items={items} />];
+        return <LifelineButton bBox={{ x, y, w, h }} model={node} items={items} />;
     }
 }
 

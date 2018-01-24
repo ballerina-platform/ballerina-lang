@@ -199,10 +199,10 @@ class LifelineButton extends React.Component {
                         <div className={connectorListCssClass}>
                             {this.props.items}
                             <Item
-                            label='Endpoint'
-                            icon='fw fw-endpoint'
-                            callback={this.showConnectors}
-                        />
+                                label='Endpoint'
+                                icon='fw fw-endpoint'
+                                callback={this.showConnectors}
+                            />
                         </div>
 
                         <div
@@ -233,7 +233,12 @@ class LifelineButton extends React.Component {
 }
 
 LifelineButton.propTypes = {
-    bBox: PropTypes.valueOf(PropTypes.object).isRequired,
+    bBox: PropTypes.shape({
+        x: PropTypes.number.isRequired,
+        y: PropTypes.number.isRequired,
+        w: PropTypes.number.isRequired,
+        h: PropTypes.number.isRequired,
+    }).isRequired,
 };
 
 LifelineButton.defaultProps = {
