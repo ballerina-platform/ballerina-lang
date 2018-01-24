@@ -176,7 +176,6 @@ public function <OutResponse response> setJsonPayload (json payload) {
     entity.jsonData = payload;
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_JSON);
     entity.contentType = mediaType;
-    entity.isInMemory = true;
     response.setEntity(entity);
 }
 
@@ -188,7 +187,6 @@ public function <OutResponse response> setXmlPayload (xml payload) {
     entity.xmlData = payload;
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_XML);
     entity.contentType = mediaType;
-    entity.isInMemory = true;
     response.setEntity(entity);
 }
 
@@ -200,7 +198,6 @@ public function <OutResponse response> setStringPayload (string payload) {
     entity.textData = payload;
     mime:MediaType mediaType = mime:getMediaType(mime:TEXT_PLAIN);
     entity.contentType = mediaType;
-    entity.isInMemory = true;
     response.setEntity(entity);
 }
 
@@ -212,7 +209,6 @@ public function <OutResponse response> setBinaryPayload (blob payload) {
     entity.byteData = payload;
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
     entity.contentType = mediaType;
-    entity.isInMemory = true;
     response.setEntity(entity);
 }
 
@@ -224,7 +220,6 @@ public function <OutResponse response> setEntityBody(file:File content, string c
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = response.getEntityWithoutBody();
     entity.contentType = mediaType;
-    entity.isInMemory = false;
     entity.overflowData = content;
     response.setEntity(entity);
 }

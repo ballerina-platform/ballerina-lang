@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http.actions;
 
 import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -45,9 +46,14 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
 
+import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.HEADER_VALUE_STRUCT;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
@@ -73,7 +79,16 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
 
         prepareRequest(bConnector, path, requestMsg, requestStruct);
-
+        try {
+            String contentType = requestMsg.getHeader(CONTENT_TYPE);
+            if (contentType != null) {
+                if (MULTIPART_FORM_DATA.equals(new MimeType(contentType).getBaseType())) {
+                    HttpUtil.prepareRequestWithMultiparts(requestMsg, requestStruct);
+                }
+            }
+        } catch (MimeTypeParseException e) {
+            logger.error("Error occurred while parsing Content-Type header in createCarbonMsg", e.getMessage());
+        }
         return requestMsg;
     }
 
@@ -199,7 +214,13 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     (HttpClientConnector) bConnector.getnativeData(Constants.CONNECTOR_NAME);
             HttpResponseFuture future = clientConnector.send(httpRequestMsg);
             future.setHttpConnectorListener(httpClientConnectorLister);
-            serializeDataSource(context, httpRequestMsg);
+            if (MULTIPART_FORM_DATA.equals(new MimeType(httpRequestMsg.getHeader(CONTENT_TYPE)).getBaseType())) {
+                BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
+                HttpUtil.addMultipartsToCarbonMessage(httpRequestMsg,
+                        (HttpPostRequestEncoder) requestStruct.getNativeData(MULTIPART_ENCODER));
+            } else {
+                serializeDataSource(context, httpRequestMsg);
+            }
         } catch (BallerinaConnectorException e) {
             throw new BallerinaException(e.getMessage(), e, context);
         } catch (Exception e) {

@@ -29,7 +29,6 @@ level message and an entity(body part) inside of a multipart entity."}
 @Field {value:"contentId: Helps one body of an entity to make a reference to another"}
 @Field {value:"headers: Denote general, request/response and entity related headers. Keys of the header map
 should represent the header name and value will be the 'HeaderValue' struct"}
-@Field {value:"isInMemory: A boolean to represent whether the body of the entity is in memory or in a temporary file"}
 @Field {value:"textData: Contents of the body in string form if the content is of text type"}
 @Field {value:"jsonData: Contents of the body in json form if the content is of json type"}
 @Field {value:"xmlData: Contents of the body in xml form if the content is of xml type"}
@@ -47,7 +46,6 @@ public struct Entity {
     MediaType contentType;
     string contentId;
     map headers;
-    boolean isInMemory;
     string textData;
     json jsonData;
     xml xmlData;
@@ -74,7 +72,7 @@ public enum Disposition {
 @Param {value:"entity: Represent mime Entity"}
 @Return {value:"return text data"}
 public function getText (Entity entity) (string) {
-    if (entity.isInMemory) {
+    if (entity.textData != null && entity.textData != "") {
         return entity.textData;
     } else {
         file:File overFlowData = entity.overflowData;
@@ -93,7 +91,7 @@ public function getText (Entity entity) (string) {
 @Param {value:"entity: Represent mime Entity"}
 @Return {value:"return json data"}
 public function getJson (Entity entity) (json) {
-    if (entity.isInMemory) {
+    if (entity.jsonData != null) {
         return entity.jsonData;
     } else {
         file:File overFlowData = entity.overflowData;
@@ -113,7 +111,7 @@ public function getJson (Entity entity) (json) {
 @Param {value:"entity: Represent mime Entity"}
 @Return {value:"return xml data"}
 public function getXml (Entity entity) (xml) {
-    if (entity.isInMemory) {
+    if (entity.xmlData != null) {
         return entity.xmlData;
     } else {
         file:File overFlowData = entity.overflowData;
@@ -134,16 +132,12 @@ handler."}
 @Param {value:"entity: Represent mime Entity"}
 @Return {value:"return byte array"}
 public function getBlob (Entity entity) (blob) {
-    if (entity.isInMemory) {
-        return entity.byteData;
+    file:File overFlowData = entity.overflowData;
+    if (overFlowData != null) {
+        io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
+        return readAll(channel);
     } else {
-        file:File overFlowData = entity.overflowData;
-        if (overFlowData != null) {
-            io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
-            return readAll(channel);
-        }
-        blob emptyBytes;
-        return emptyBytes;
+        return entity.byteData;
     }
 }
 

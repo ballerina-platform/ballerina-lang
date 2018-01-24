@@ -1,3 +1,4 @@
+import ballerina.net.http;
 import ballerina.mime;
 
 function testGetTextFromFile(mime:Entity entity) (string) {
@@ -46,4 +47,18 @@ function testMimeBase64Decode (blob value) (blob)  {
 function testMimeBase64DecodeString (string content, string charset) (string) {
     mime:MimeBase64Decoder decoder = {};
     return decoder.decodeString(content, charset);
+}
+
+@http:configuration {basePath:"/test"}
+service<http> helloServer {
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/largepayload"
+    }
+    resource keepPayloadInTempFile (http:Connection conn, http:InRequest request) {
+        mime:Entity entity = request.getEntity();
+        http:OutResponse response = {};
+        response.setStringPayload(entity.overflowData.path);
+        _ = conn.respond(response);
+    }
 }

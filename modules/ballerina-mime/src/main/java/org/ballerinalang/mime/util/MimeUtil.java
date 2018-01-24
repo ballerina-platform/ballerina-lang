@@ -18,12 +18,20 @@
 
 package org.ballerinalang.mime.util;
 
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.multipart.FileUpload;
+import io.netty.handler.codec.http.multipart.HttpDataFactory;
+import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
+import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -31,43 +39,68 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.message.HttpBodyPart;
 
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.UUID;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
 import javax.activation.MimeTypeParseException;
 
+import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
+import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
+import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.Constants.BALLERINA_BINARY_DATA;
 import static org.ballerinalang.mime.util.Constants.BALLERINA_JSON_DATA;
 import static org.ballerinalang.mime.util.Constants.BALLERINA_TEXT_DATA;
 import static org.ballerinalang.mime.util.Constants.BALLERINA_XML_DATA;
 import static org.ballerinalang.mime.util.Constants.BYTE_DATA_INDEX;
-import static org.ballerinalang.mime.util.Constants.FALSE;
+import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING;
+import static org.ballerinalang.mime.util.Constants.ENTITY;
+import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
+import static org.ballerinalang.mime.util.Constants.ENTITY_NAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.FILE_PATH_INDEX;
-import static org.ballerinalang.mime.util.Constants.IS_IN_MEMORY_INDEX;
+import static org.ballerinalang.mime.util.Constants.FILE_SIZE;
+import static org.ballerinalang.mime.util.Constants.HEADER_VALUE_INDEX;
 import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
+import static org.ballerinalang.mime.util.Constants.JSON_EXTENSION;
+import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
+import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.OVERFLOW_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
+import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
 import static org.ballerinalang.mime.util.Constants.SUBTYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.SUFFIX_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEMP_FILE_EXTENSION;
+import static org.ballerinalang.mime.util.Constants.TEMP_FILE_NAME;
 import static org.ballerinalang.mime.util.Constants.TEMP_FILE_PATH_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEXT_DATA_INDEX;
-import static org.ballerinalang.mime.util.Constants.TRUE;
+import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
+import static org.ballerinalang.mime.util.Constants.TEXT_XML;
 import static org.ballerinalang.mime.util.Constants.UTF_8;
 import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
+import static org.ballerinalang.mime.util.Constants.XML_EXTENSION;
 
 /**
  * Entity related operations and mime utility functions are included here.
@@ -76,6 +109,7 @@ import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
  */
 public class MimeUtil {
     private static final Logger LOG = LoggerFactory.getLogger(MimeUtil.class);
+    private static HttpDataFactory dataFactory = null;
 
     /**
      * Read the string payload from input stream and set it into request or response's entity struct. If the content
@@ -88,15 +122,13 @@ public class MimeUtil {
      * @param contentLength Content length of the request
      */
     public static void readAndSetStringPayload(Context context, BStruct entityStruct, InputStream inputStream,
-            long contentLength) {
+                                               long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = writeToTemporaryFile(inputStream, BALLERINA_TEXT_DATA);
             createBallerinaFileHandler(context, entityStruct, temporaryFilePath);
-            entityStruct.setBooleanField(IS_IN_MEMORY_INDEX, FALSE);
         } else {
             String payload = StringUtils.getStringFromInputStream(inputStream);
             entityStruct.setStringField(TEXT_DATA_INDEX, payload);
-            entityStruct.setBooleanField(IS_IN_MEMORY_INDEX, TRUE);
         }
     }
 
@@ -111,15 +143,13 @@ public class MimeUtil {
      * @param contentLength Content length of the request
      */
     public static void readAndSetJsonPayload(Context context, BStruct entityStruct, InputStream inputStream,
-            long contentLength) {
+                                             long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = writeToTemporaryFile(inputStream, BALLERINA_JSON_DATA);
             createBallerinaFileHandler(context, entityStruct, temporaryFilePath);
-            entityStruct.setBooleanField(IS_IN_MEMORY_INDEX, FALSE);
         } else {
             BJSON payload = new BJSON(inputStream);
             entityStruct.setRefField(JSON_DATA_INDEX, payload);
-            entityStruct.setBooleanField(IS_IN_MEMORY_INDEX, TRUE);
         }
     }
 
@@ -134,15 +164,13 @@ public class MimeUtil {
      * @param contentLength Content length of the request
      */
     public static void readAndSetXmlPayload(Context context, BStruct entityStruct, InputStream inputStream,
-            long contentLength) {
+                                            long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = writeToTemporaryFile(inputStream, BALLERINA_XML_DATA);
             createBallerinaFileHandler(context, entityStruct, temporaryFilePath);
-            entityStruct.setBooleanField(IS_IN_MEMORY_INDEX, FALSE);
         } else {
             BXML payload = XMLUtils.parse(inputStream);
             entityStruct.setRefField(XML_DATA_INDEX, payload);
-            entityStruct.setBooleanField(IS_IN_MEMORY_INDEX, TRUE);
         }
     }
 
@@ -157,11 +185,10 @@ public class MimeUtil {
      * @param contentLength Content length of the request
      */
     public static void readAndSetBinaryPayload(Context context, BStruct entityStruct, InputStream inputStream,
-            long contentLength) {
+                                               long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = writeToTemporaryFile(inputStream, BALLERINA_BINARY_DATA);
             createBallerinaFileHandler(context, entityStruct, temporaryFilePath);
-            entityStruct.setBooleanField(IS_IN_MEMORY_INDEX, FALSE);
         } else {
             byte[] payload;
             try {
@@ -170,7 +197,6 @@ public class MimeUtil {
                 throw new BallerinaException("Error while converting inputstream to a byte array: " + e.getMessage());
             }
             entityStruct.setBlobField(BYTE_DATA_INDEX, payload);
-            entityStruct.setBooleanField(IS_IN_MEMORY_INDEX, TRUE);
         }
     }
 
@@ -181,19 +207,12 @@ public class MimeUtil {
      * @return a boolean denoting the availability of text payload
      */
     public static boolean isTextBodyPresent(BStruct entity) {
-        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1;
-        if (isInMemory) {
-            String textPayload = entity.getStringField(TEXT_DATA_INDEX);
-            if (textPayload != null) {
-                return true;
-            }
+        String textPayload = entity.getStringField(TEXT_DATA_INDEX);
+        if (isNotNullAndEmpty(textPayload)) {
+            return true;
         } else {
-            BStruct overFlowData = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-            if (overFlowData != null) {
-                return true;
-            }
+            return isOverFlowDataNotNull(entity);
         }
-        return false;
     }
 
     /**
@@ -203,17 +222,14 @@ public class MimeUtil {
      * @return a boolean denoting the availability of json payload
      */
     public static boolean isJsonBodyPresent(BStruct entity) {
-        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1;
-        if (isInMemory) {
+        BRefType jsonRefType = entity.getRefField(JSON_DATA_INDEX);
+        if (jsonRefType != null) {
             BJSON jsonPayload = (BJSON) entity.getRefField(JSON_DATA_INDEX);
             if (jsonPayload != null) {
                 return true;
             }
         } else {
-            BStruct overFlowData = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-            if (overFlowData != null) {
-                return true;
-            }
+            return isOverFlowDataNotNull(entity);
         }
         return false;
     }
@@ -225,17 +241,14 @@ public class MimeUtil {
      * @return a boolean denoting the availability of xml payload
      */
     public static boolean isXmlBodyPresent(BStruct entity) {
-        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1;
-        if (isInMemory) {
+        BRefType xmlRefType = entity.getRefField(XML_DATA_INDEX);
+        if (xmlRefType != null) {
             BXML xmlPayload = (BXML) entity.getRefField(XML_DATA_INDEX);
             if (xmlPayload != null) {
                 return true;
             }
         } else {
-            BStruct overFlowData = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-            if (overFlowData != null) {
-                return true;
-            }
+            return isOverFlowDataNotNull(entity);
         }
         return false;
     }
@@ -247,17 +260,23 @@ public class MimeUtil {
      * @return a boolean denoting the availability of binary payload
      */
     public static boolean isBinaryBodyPresent(BStruct entity) {
-        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1;
-        if (isInMemory) {
-            byte[] binaryPayload = entity.getBlobField(BYTE_DATA_INDEX);
-            if (binaryPayload != null) {
-                return true;
-            }
+        byte[] binaryPayload = entity.getBlobField(BYTE_DATA_INDEX);
+        if (binaryPayload != null) {
+            return true;
         } else {
-            BStruct overFlowData = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-            if (overFlowData != null) {
-                return true;
-            }
+            return isOverFlowDataNotNull(entity);
+        }
+    }
+
+    /**
+     * Check whether the 'Entity' body is present as multi parts.
+     *
+     * @param entity Represent 'Entity' struct
+     * @return a boolean denoting the availability of binary payload
+     */
+    public static boolean isMultipartsAvailable(BStruct entity) {
+        if (entity.getRefField(MULTIPART_DATA_INDEX) != null) {
+            return true;
         }
         return false;
     }
@@ -269,20 +288,19 @@ public class MimeUtil {
      * @return string containing text payload
      */
     public static String getTextPayload(BStruct entity) {
-        String returnValue = null;
-        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1;
-        if (isInMemory) {
-            return entity.getStringField(TEXT_DATA_INDEX);
+        String returnValue = entity.getStringField(TEXT_DATA_INDEX);
+        if (isNotNullAndEmpty(returnValue)) {
+            return returnValue;
         } else {
             BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
             String filePath = fileHandler.getStringField(FILE_PATH_INDEX);
             try {
-                returnValue = new String(readFromFile(filePath), UTF_8);
+                return new String(readFromFile(filePath), UTF_8);
             } catch (UnsupportedEncodingException e) {
                 LOG.error("Error occured while extracting text payload from entity", e.getMessage());
             }
         }
-        return returnValue;
+        return null;
     }
 
     /**
@@ -292,8 +310,8 @@ public class MimeUtil {
      * @return json content in BJSON form
      */
     public static BJSON getJsonPayload(BStruct entity) {
-        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1;
-        if (isInMemory) {
+        BRefType jsonRefType = entity.getRefField(JSON_DATA_INDEX);
+        if (jsonRefType != null) {
             return (BJSON) entity.getRefField(JSON_DATA_INDEX);
         } else {
             BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
@@ -314,9 +332,9 @@ public class MimeUtil {
      * @return xml content in BXML form
      */
     public static BXML getXmlPayload(BStruct entity) {
-        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1;
-        if (isInMemory) {
-            return  (BXML) entity.getRefField(XML_DATA_INDEX);
+        BRefType xmlRefType = entity.getRefField(XML_DATA_INDEX);
+        if (xmlRefType != null) {
+            return (BXML) entity.getRefField(XML_DATA_INDEX);
         } else {
             BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
             String filePath = fileHandler.getStringField(FILE_PATH_INDEX);
@@ -336,8 +354,8 @@ public class MimeUtil {
      * @return entity body as a byte array
      */
     public static byte[] getBinaryPayload(BStruct entity) {
-        boolean isInMemory = entity.getBooleanField(IS_IN_MEMORY_INDEX) == 1;
-        if (isInMemory) {
+        byte[] byteData = entity.getBlobField(BYTE_DATA_INDEX);
+        if (byteData != null) {
             return entity.getBlobField(BYTE_DATA_INDEX);
         } else {
             BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
@@ -477,7 +495,7 @@ public class MimeUtil {
      *
      * @param input Represent an input stream
      * @return a byte array
-     * @throws IOException
+     * @throws IOException In case an error occurs while reading input stream
      */
     private static byte[] getByteArray(InputStream input) throws IOException {
         try (ByteArrayOutputStream output = new ByteArrayOutputStream();) {
@@ -487,5 +505,422 @@ public class MimeUtil {
             }
             return output.toByteArray();
         }
+    }
+
+    /**
+     * Handle discrete media type content. This method populates ballerina entity with the relevant payload.
+     *
+     * @param context     Represent ballerina context
+     * @param entity      Represent an 'Entity'
+     * @param inputStream Represent input stream coming from the request/response
+     */
+    public static void handleDiscreteMediaTypeContent(Context context, BStruct entity, InputStream inputStream) {
+        String baseType = getContentType(entity);
+        long contentLength = entity.getIntField(SIZE_INDEX);
+        if (baseType != null) {
+            switch (baseType) {
+                case TEXT_PLAIN:
+                case APPLICATION_FORM:
+                    MimeUtil.readAndSetStringPayload(context, entity, inputStream, contentLength);
+                    break;
+                case APPLICATION_JSON:
+                    MimeUtil.readAndSetJsonPayload(context, entity, inputStream, contentLength);
+                    break;
+                case TEXT_XML:
+                case APPLICATION_XML:
+                    MimeUtil.readAndSetXmlPayload(context, entity, inputStream, contentLength);
+                    break;
+                default:
+                    MimeUtil.readAndSetBinaryPayload(context, entity, inputStream, contentLength);
+                    break;
+            }
+        } else {
+            MimeUtil.readAndSetBinaryPayload(context, entity, inputStream, contentLength);
+        }
+    }
+
+    /**
+     * Handle composite media type content. This method populates a set of body parts as an array of ballerina entities
+     * and set them into the top level entity. Nested parts are not covered yet.
+     *
+     * @param context    Represent ballerina context
+     * @param entity     Represent an 'Entity'
+     * @param multiparts Represent a list of body parts
+     */
+    public static void handleCompositeMediaTypeContent(Context context, BStruct entity, List<HttpBodyPart> multiparts) {
+        ArrayList<BStruct> bodyParts = new ArrayList<>();
+        for (HttpBodyPart bodyPart : multiparts) {
+            BStruct partStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, ENTITY);
+            String baseType = bodyPart.getContentType();
+            partStruct.setIntField(SIZE_INDEX, bodyPart.getSize());
+            BStruct mediaType = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
+            setContentType(mediaType, partStruct, baseType);
+            handleDiscreteMediaTypeContent(context, partStruct, new ByteArrayInputStream(bodyPart.getContent()));
+            bodyParts.add(partStruct);
+        }
+        if (!bodyParts.isEmpty()) {
+            BStructType typeOfBodyPart = bodyParts.get(0).getType();
+            BStruct[] result = bodyParts.toArray(new BStruct[bodyParts.size()]);
+            BRefValueArray partsArray = new BRefValueArray(result, typeOfBodyPart);
+            entity.setRefField(MULTIPART_DATA_INDEX, partsArray);
+        }
+    }
+
+    /**
+     * Given a ballerina entity, get the content-type as a base type.
+     *
+     * @param entity Represent an 'Entity'
+     * @return content-type in 'primarytype/subtype' format
+     */
+    public static String getContentType(BStruct entity) {
+        if (entity.getRefField(MEDIA_TYPE_INDEX) != null) {
+            BStruct mediaType = (BStruct) entity.getRefField(MEDIA_TYPE_INDEX);
+            if (mediaType != null) {
+                return mediaType.getStringField(PRIMARY_TYPE_INDEX) + "/" + mediaType.getStringField(SUBTYPE_INDEX);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Check whether the entity body is present.
+     *
+     * @param entity   Represent an 'Entity'
+     * @param baseType Content type that describes the entity body
+     * @return a boolean indicating entity body availability
+     */
+    public static boolean checkEntityBodyAvailability(BStruct entity, String baseType) {
+        switch (baseType) {
+            case TEXT_PLAIN:
+                return MimeUtil.isTextBodyPresent(entity);
+            case APPLICATION_JSON:
+                return MimeUtil.isJsonBodyPresent(entity);
+            case APPLICATION_XML:
+                return MimeUtil.isXmlBodyPresent(entity);
+            case MULTIPART_FORM_DATA:
+                return MimeUtil.isMultipartsAvailable(entity);
+            default:
+                return MimeUtil.isBinaryBodyPresent(entity);
+        }
+    }
+
+    /**
+     * Encode a given body part and add it to multipart request encoder.
+     *
+     * @param nettyEncoder Helps encode multipart/form-data
+     * @param httpRequest  Represent top level http request that should hold multiparts
+     * @param bodyPart     Represent a ballerina body part
+     * @throws HttpPostRequestEncoder.ErrorDataEncoderException when an error occurs while encoding
+     */
+    public static void encodeBodyPart(HttpPostRequestEncoder nettyEncoder, HttpRequest httpRequest,
+                                      BStruct bodyPart) throws HttpPostRequestEncoder.ErrorDataEncoderException {
+        try {
+            InterfaceHttpData encodedData;
+            String baseType = MimeUtil.getContentType(bodyPart);
+            if (baseType != null) {
+                switch (baseType) {
+                    case TEXT_PLAIN:
+                        encodedData = getEncodedTextBodyPart(httpRequest, bodyPart);
+                        break;
+                    case APPLICATION_JSON:
+                        encodedData = getEncodedJsonBodyPart(httpRequest, bodyPart);
+                        break;
+                    case APPLICATION_XML:
+                        encodedData = getEncodedXmlBodyPart(httpRequest, bodyPart);
+                        break;
+                    default:
+                        encodedData = getEncodedBinaryBodyPart(httpRequest, bodyPart);
+                        break;
+                }
+            } else {
+                encodedData = getEncodedBinaryBodyPart(httpRequest, bodyPart);
+            }
+            if (encodedData != null) {
+                nettyEncoder.addBodyHttpData(encodedData);
+            }
+        } catch (IOException e) {
+            LOG.error("Error occurred while encoding body part in ", e.getMessage());
+        }
+    }
+
+    /**
+     * Encode a text body part.
+     *
+     * @param httpRequest Represent the top level http request that should hold the body part
+     * @param bodyPart    Represent a ballerina body part
+     * @return InterfaceHttpData which represent an encoded file upload part
+     * @throws IOException When an error occurs while encoding text body part
+     */
+    private static InterfaceHttpData getEncodedTextBodyPart(HttpRequest httpRequest, BStruct bodyPart) throws
+            IOException {
+        String bodyPartName = getBodyPartName(bodyPart);
+        if (isNotNullAndEmpty(bodyPart.getStringField(TEXT_DATA_INDEX))) {
+            return getAttribute(httpRequest, bodyPartName,
+                    bodyPart.getStringField(TEXT_DATA_INDEX));
+        } else {
+            return readFromFile(httpRequest, bodyPart, bodyPartName, TEXT_PLAIN);
+        }
+    }
+
+    /**
+     * Get an encoded body part from json content.
+     *
+     * @param httpRequest Represent the top level http request that should hold the body part
+     * @param bodyPart    Represent a ballerina body part
+     * @return InterfaceHttpData which represent an encoded file upload part with json content
+     * @throws IOException When an error occurs while encoding json body part
+     */
+    private static InterfaceHttpData getEncodedJsonBodyPart(HttpRequest httpRequest, BStruct bodyPart)
+            throws IOException {
+        String bodyPartName = getBodyPartName(bodyPart);
+        if (bodyPart.getRefField(JSON_DATA_INDEX) != null) {
+            BJSON jsonContent = (BJSON) bodyPart.getRefField(JSON_DATA_INDEX);
+            return readFromMemory(httpRequest, bodyPart, bodyPartName, APPLICATION_JSON, JSON_EXTENSION,
+                    jsonContent.getMessageAsString());
+        } else {
+            return readFromFile(httpRequest, bodyPart, bodyPartName, APPLICATION_JSON);
+        }
+    }
+
+    /**
+     * Get an encoded body part from xml content.
+     *
+     * @param httpRequest Represent the top level http request that should hold the body part
+     * @param bodyPart    Represent a ballerina body part
+     * @return InterfaceHttpData which represent an encoded file upload part with xml content
+     * @throws IOException When an error occurs while encoding xml body part
+     */
+    private static InterfaceHttpData getEncodedXmlBodyPart(HttpRequest httpRequest, BStruct bodyPart)
+            throws IOException {
+        String bodyPartName = getBodyPartName(bodyPart);
+        if (bodyPart.getRefField(XML_DATA_INDEX) != null) {
+            BXML xmlPayload = (BXML) bodyPart.getRefField(XML_DATA_INDEX);
+            return readFromMemory(httpRequest, bodyPart, bodyPartName, APPLICATION_XML, XML_EXTENSION,
+                    xmlPayload.getMessageAsString());
+        } else {
+            return readFromFile(httpRequest, bodyPart, bodyPartName, getContentType(bodyPart));
+        }
+    }
+
+    /**
+     * Get an encoded body part from binary content.
+     *
+     * @param httpRequest Represent the top level http request that should hold the body part
+     * @param bodyPart    Represent a ballerina body part
+     * @return InterfaceHttpData which represent an encoded file upload part with xml content
+     * @throws IOException When an error occurs while encoding binary body part
+     */
+    private static InterfaceHttpData getEncodedBinaryBodyPart(HttpRequest httpRequest, BStruct bodyPart)
+            throws IOException {
+        String bodyPartName = getBodyPartName(bodyPart);
+        byte[] binaryPayload = bodyPart.getBlobField(BYTE_DATA_INDEX);
+        if (binaryPayload != null) {
+            InputStream inputStream = new ByteArrayInputStream(binaryPayload);
+            FileUploadContentHolder contentHolder = new FileUploadContentHolder();
+            contentHolder.setRequest(httpRequest);
+            contentHolder.setBodyPartName(bodyPartName);
+            contentHolder.setFileName(TEMP_FILE_NAME + TEMP_FILE_EXTENSION);
+            contentHolder.setContentType(OCTET_STREAM);
+            contentHolder.setFileSize(binaryPayload.length);
+            contentHolder.setContentStream(inputStream);
+            contentHolder.setBodyPartFormat(Constants.BodyPartForm.INPUTSTREAM);
+            String contentTransferHeaderValue = getHeaderValue(bodyPart, CONTENT_TRANSFER_ENCODING);
+            if (contentTransferHeaderValue != null) {
+                contentHolder.setContentTransferEncoding(contentTransferHeaderValue);
+            }
+            return getFileUpload(contentHolder);
+        } else {
+            return readFromFile(httpRequest, bodyPart, bodyPartName, getContentType(bodyPart));
+        }
+    }
+
+    /**
+     * Get the header value for a given header name from a body part.
+     *
+     * @param bodyPart   Represent a ballerina body part.
+     * @param headerName Represent an http header name
+     * @return a header value for the given header name
+     */
+    private static String getHeaderValue(BStruct bodyPart, String headerName) {
+        BMap<String, BValue> headerMap = bodyPart.getRefField(ENTITY_HEADERS_INDEX) != null ?
+                (BMap<String, BValue>) bodyPart.getRefField(ENTITY_HEADERS_INDEX) : null;
+        if (headerMap != null) {
+            BStruct headerValue = (BStruct) headerMap.get(headerName);
+            return headerValue.getStringField(HEADER_VALUE_INDEX);
+        }
+        return null;
+    }
+
+    /**
+     * Create an encoded body part from a given string.
+     *
+     * @param request         Represent the top level http request that should hold the body part
+     * @param bodyPartName    Represent body part's name
+     * @param bodyPartContent Actual content that needs to be encoded
+     * @return InterfaceHttpData which represent an encoded attribute
+     * @throws IOException When an error occurs while encoding a text string
+     */
+    private static InterfaceHttpData getAttribute(HttpRequest request, String bodyPartName, String bodyPartContent)
+            throws IOException {
+        return dataFactory.createAttribute(request, bodyPartName, bodyPartContent);
+    }
+
+    /**
+     * Get a body part as a file upload.
+     *
+     * @param httpRequest  Represent the top level http request that should hold the body part
+     * @param bodyPart     Represent a ballerina body part
+     * @param bodyPartName Represent body part's name
+     * @param contentType  Content-Type of the body part
+     * @return InterfaceHttpData which represent an encoded file upload part
+     * @throws IOException When an error occurs while creating a file upload
+     */
+    private static InterfaceHttpData readFromFile(HttpRequest httpRequest, BStruct bodyPart, String bodyPartName,
+                                                  String contentType) throws IOException {
+        BStruct fileHandler = (BStruct) bodyPart.getRefField(OVERFLOW_DATA_INDEX);
+        if (fileHandler != null) {
+            String filePath = fileHandler.getStringField(FILE_PATH_INDEX);
+            if (filePath != null) {
+                Path path = Paths.get(filePath);
+                Path fileName = path != null ? path.getFileName() : null;
+                if (fileName != null) {
+                    InputStream inputStream = Files.newInputStream(path);
+                    long size = (long) Files.getAttribute(path, FILE_SIZE);
+                    FileUploadContentHolder contentHolder = new FileUploadContentHolder();
+                    contentHolder.setRequest(httpRequest);
+                    contentHolder.setBodyPartName(bodyPartName);
+                    contentHolder.setFileName(fileName.toString());
+                    contentHolder.setContentType(contentType);
+                    contentHolder.setFileSize(size);
+                    contentHolder.setContentStream(inputStream);
+                    contentHolder.setBodyPartFormat(Constants.BodyPartForm.INPUTSTREAM);
+                    String contentTransferHeaderValue = getHeaderValue(bodyPart, CONTENT_TRANSFER_ENCODING);
+                    if (contentTransferHeaderValue != null) {
+                        contentHolder.setContentTransferEncoding(contentTransferHeaderValue);
+                    }
+                    return getFileUpload(contentHolder);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Create an encoded body part from the data in memory.
+     *
+     * @param request       Represent the top level http request that should hold the body part
+     * @param bodyPart      Represent a ballerina body part
+     * @param bodyPartName  Represent body part's name
+     * @param contentType   Content-Type of the data in memory
+     * @param fileExtension File extension to be used when writing data in the memory to temp file
+     * @param actualContent Actual content in the memory
+     * @return InterfaceHttpData which represent an encoded file upload part for the given
+     * @throws IOException When an error occurs while creating a file upload from data read from memory
+     */
+    private static InterfaceHttpData readFromMemory(HttpRequest request, BStruct bodyPart, String bodyPartName,
+                                                    String contentType, String fileExtension,
+                                                    String actualContent)
+            throws IOException {
+        File file = File.createTempFile(TEMP_FILE_NAME, fileExtension);
+        file.deleteOnExit();
+        writeToTempFile(file, actualContent);
+        FileUploadContentHolder contentHolder = new FileUploadContentHolder();
+        contentHolder.setRequest(request);
+        contentHolder.setBodyPartName(bodyPartName);
+        contentHolder.setFileName(file.getName());
+        contentHolder.setContentType(contentType);
+        contentHolder.setFileSize(file.length());
+        contentHolder.setFile(file);
+        contentHolder.setBodyPartFormat(Constants.BodyPartForm.FILE);
+        String contentTransferHeaderValue = getHeaderValue(bodyPart, CONTENT_TRANSFER_ENCODING);
+        if (contentTransferHeaderValue != null) {
+            contentHolder.setContentTransferEncoding(contentTransferHeaderValue);
+        }
+        return getFileUpload(contentHolder);
+    }
+
+    /**
+     * Get a body part as a file upload.
+     *
+     * @param contentHolder Holds attributes required for creating a body part
+     * @return InterfaceHttpData which represent an encoded file upload part for the given
+     * @throws IOException In case an error occurs while creating file part
+     */
+    private static InterfaceHttpData getFileUpload(FileUploadContentHolder contentHolder)
+            throws IOException {
+        FileUpload fileUpload = dataFactory.createFileUpload(contentHolder.getRequest(), contentHolder.getBodyPartName()
+                , contentHolder.getFileName(), contentHolder.getContentType(),
+                contentHolder.getContentTransferEncoding(), contentHolder.getCharset(), contentHolder.getFileSize());
+        switch (contentHolder.getBodyPartFormat()) {
+            case INPUTSTREAM:
+                fileUpload.setContent(contentHolder.getContentStream());
+                break;
+            case FILE:
+                fileUpload.setContent(contentHolder.getFile());
+                break;
+        }
+        return fileUpload;
+    }
+
+    /**
+     * Get the body part name and if the user hasn't set a name set a random string as the part name.
+     *
+     * @param bodyPart Represent a ballerina body part
+     * @return a string denoting the body part's name
+     */
+    private static String getBodyPartName(BStruct bodyPart) {
+        String bodyPartName = bodyPart.getStringField(ENTITY_NAME_INDEX);
+        if (bodyPartName == null || bodyPartName.isEmpty()) {
+            bodyPartName = UUID.randomUUID().toString();
+        }
+        return bodyPartName;
+    }
+
+    /**
+     * Write content to temp file through a file writer.
+     *
+     * @param file            Represent the file that the content needs to be written to
+     * @param messageAsString Actual content that needs to be written
+     * @throws IOException In case an exception occurs when writing to temp file
+     */
+    private static void writeToTempFile(File file, String messageAsString) throws IOException {
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), UTF_8);
+             BufferedWriter bufferedWriter = new BufferedWriter(writer);) {
+            bufferedWriter.write(messageAsString);
+            bufferedWriter.close();
+        }
+    }
+
+    /**
+     * Set the data factory that needs to be used for encoding body parts.
+     *
+     * @param dataFactory which enables creation of InterfaceHttpData objects
+     */
+    public static void setDataFactory(HttpDataFactory dataFactory) {
+        MimeUtil.dataFactory = dataFactory;
+    }
+
+    /**
+     * Check whether the given string is not null and empty.
+     *
+     * @param textPayload Represent a text value
+     * @return a boolean indicating the status of nullability and emptiness
+     */
+    private static boolean isNotNullAndEmpty(String textPayload) {
+        return textPayload != null && !textPayload.isEmpty();
+    }
+
+    /**
+     * Check whether the file handler which indicates the overflow data is null or not.
+     *
+     * @param entity Represent ballerina entity
+     * @return a boolean indicating nullability of the overflow data
+     */
+    private static boolean isOverFlowDataNotNull(BStruct entity) {
+        BStruct overFlowData = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
+        if (overFlowData != null) {
+            return true;
+        }
+        return false;
     }
 }
