@@ -236,14 +236,14 @@ function testSetToNonArrayWithIndex () (json, json, json) {
 
 function testGetFromNonArrayWithIndex () (json, json, json) {
     json j1 = {name:"supun"};
-	json j2 = "foo";
+    json j2 = "foo";
     json j3 = true;
     return j1[7], j2[7], j3[7];
 }
 
 function testSetToNonObjectWithKey () (json, json, json) {
     json j1 = [1, 2, 3];
-	json j2 = "foo";
+    json j2 = "foo";
     json j3 = true;
     
     j1["name"] = "Supun";
@@ -254,7 +254,7 @@ function testSetToNonObjectWithKey () (json, json, json) {
 
 function testGetFromNonObjectWithKey () (json, json, json) {
     json j1 = [1, 2, 3];
-	json j2 = "foo";
+    json j2 = "foo";
     json j3 = true;
     return j1.name, j2.name, j3.name;
 }
