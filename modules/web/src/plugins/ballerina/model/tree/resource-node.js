@@ -303,11 +303,8 @@ class ResourceNode extends AbstractResourceNode {
             if (lastIndexOfConnectors !== -1) {
                 index = lastIndexOfConnectors + 1;
             }
-            TreeUtil.getNewTempVarName(this.getBody(), 'endpoint')
-                .then((varNames) => {
-                    node.getVariable().getName().setValue(varNames[0]);
-                    this.getBody().addStatements(node, index);
-                });
+            node.getVariable().getName().setValue(TreeUtil.getNewTempVarName(this.getBody(), 'endpoint'));
+            this.getBody().addStatements(node, index);
         }
     }
 }
