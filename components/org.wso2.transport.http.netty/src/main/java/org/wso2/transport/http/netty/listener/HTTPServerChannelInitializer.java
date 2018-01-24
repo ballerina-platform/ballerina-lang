@@ -106,9 +106,13 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
                          new WebSocketServerHandshakeHandler(this.serverConnectorFuture, this.interfaceId));
 
         try {
-            pipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
-                             new SourceHandler(this.serverConnectorFuture, this.interfaceId,
-                                     this.chunkConfig));
+            if (requestSizeValidationConfig != null && requestSizeValidationConfig.isRequestSizeValidation()) {
+                pipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
+                        new AggregatorSourceHandler(this.serverConnectorFuture, this.interfaceId, this.chunkConfig));
+            } else {
+                pipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
+                        new SourceHandler(this.serverConnectorFuture, this.interfaceId, this.chunkConfig));
+            }
         } catch (Exception e) {
             log.error("Cannot Create SourceHandler ", e);
         }

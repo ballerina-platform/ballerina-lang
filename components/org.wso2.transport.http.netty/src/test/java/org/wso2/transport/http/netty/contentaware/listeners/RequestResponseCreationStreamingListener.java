@@ -67,10 +67,10 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
             try {
                 HttpMessageDataStreamer streamer = new HttpMessageDataStreamer(httpRequest);
                 InputStream inputStream = streamer.getInputStream();
+                byte[] bytes = IOUtils.toByteArray(inputStream);
 
                 HTTPCarbonMessage newMsg = httpRequest.cloneCarbonMessageWithOutData();
                 OutputStream outputStream = new HttpMessageDataStreamer(newMsg).getOutputStream();
-                byte[] bytes = IOUtils.toByteArray(inputStream);
                 outputStream.write(bytes);
                 outputStream.flush();
                 outputStream.close();
@@ -97,12 +97,11 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
                     @Override
                     public void onMessage(HTTPCarbonMessage httpMessage) {
                         executor.execute(() -> {
-                            HttpMessageDataStreamer streamer = new HttpMessageDataStreamer(httpMessage);
-                            InputStream inputStream = streamer.getInputStream();
-
                             HTTPCarbonMessage newMsg = httpMessage.cloneCarbonMessageWithOutData();
                             OutputStream outputStream = new HttpMessageDataStreamer(newMsg).getOutputStream();
                             try {
+                                HttpMessageDataStreamer streamer = new HttpMessageDataStreamer(httpMessage);
+                                InputStream inputStream = streamer.getInputStream();
                                 byte[] bytes = IOUtils.toByteArray(inputStream);
                                 outputStream.write(bytes);
                                 outputStream.flush();

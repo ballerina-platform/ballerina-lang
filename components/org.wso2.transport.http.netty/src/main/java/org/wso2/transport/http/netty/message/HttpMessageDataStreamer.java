@@ -21,6 +21,8 @@ package org.wso2.transport.http.netty.message;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.DecoderException;
+import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
@@ -45,10 +47,11 @@ public class HttpMessageDataStreamer {
 
     private HTTPCarbonMessage httpCarbonMessage;
 
-    private ByteBufAllocator pooledByteBufAllocator;
     private int contentBufferSize = 8192;
+    private ByteBufAllocator pooledByteBufAllocator;
     private HttpMessageDataStreamer.ByteBufferInputStream byteBufferInputStream;
     private HttpMessageDataStreamer.ByteBufferOutputStream byteBufferOutputStream;
+    private IOException ioException;
 
     public HttpMessageDataStreamer(HTTPCarbonMessage httpCarbonMessage) {
         this.httpCarbonMessage = httpCarbonMessage;
@@ -73,14 +76,12 @@ public class HttpMessageDataStreamer {
         private HttpContent httpContent;
 
         @Override
-        public int read() throws IOException {
+        public int read() throws IOException, DecoderException {
             if ((httpContent instanceof LastHttpContent) && chunkFinished) {
                 return -1;
             } else if (chunkFinished) {
                 httpContent = httpCarbonMessage.getHttpContent();
-                if (httpContent == null) {
-                    throw new IOException("No entity was added to the queue before the timeout");
-                }
+                validateHttpContent();
                 byteBuffer = httpContent.content().nioBuffer();
                 count = 0;
                 limit = byteBuffer.limit();
@@ -100,6 +101,14 @@ public class HttpMessageDataStreamer {
             }
             return byteBuffer.get() & 0xff;
         }
+
+        private void validateHttpContent() throws DecoderException {
+            if (httpContent == null) {
+                throw new DecoderException("No entity was added to the queue before the timeout");
+            } else if (httpContent.decoderResult().isFailure()) {
+                throw new DecoderException(httpContent.decoderResult().cause().getMessage());
+            }
+        }
     }
 
     /**
@@ -113,7 +122,10 @@ public class HttpMessageDataStreamer {
         private ByteBuf dataHolder;
 
         @Override
-        public void write(int b) throws IOException {
+        public void write(int b) throws IOException, EncoderException {
+            if (ioException != null) {
+                throw new EncoderException(ioException.getMessage());
+            }
             if (dataHolder == null) {
                 dataHolder = getBuffer();
             }
@@ -128,7 +140,7 @@ public class HttpMessageDataStreamer {
         }
 
         @Override
-        public void flush() throws IOException {
+        public void flush() throws IOException, EncoderException {
             if (dataHolder != null && dataHolder.readableBytes() > 0) {
                 httpCarbonMessage.addHttpContent(new DefaultHttpContent(dataHolder));
                 dataHolder = getBuffer();
@@ -190,5 +202,9 @@ public class HttpMessageDataStreamer {
         } else {
             return pooledByteBufAllocator.directBuffer(contentBufferSize);
         }
+    }
+
+    public void setIoException(IOException ioException) {
+        this.ioException = ioException;
     }
 }
