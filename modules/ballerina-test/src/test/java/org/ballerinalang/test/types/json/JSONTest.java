@@ -471,4 +471,11 @@ public class JSONTest {
         Assert.assertEquals(returns[0].stringValue(), "{\"foo\":\"bar\"}");
         Assert.assertNull(returns[1]);
     }
+
+    @Test
+    public void testJSONArrayToJsonAssignment() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToJsonAssignment");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "[{\"a\":\"b\"},{\"c\":\"d\"}]");
+    }
 }

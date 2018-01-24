@@ -46,7 +46,7 @@ function testCallProcedure () (string firstName) {
         bind con with testDB;
 
         _ = testDB.call("{call InsertPersonDataInfo(100,'James')}", null, null);
-        datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 100", null,null);
+        datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 100", null, null);
         var j, _ = <json>dt;
         firstName = j.toString();
     } finally {

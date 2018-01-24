@@ -63,4 +63,24 @@ public class BreakPointDTO {
     public void setLineNumber(int lineNumber) {
         this.lineNumber = lineNumber;
     }
+
+    @Override
+    public String toString() {
+        return fileName + ":" + lineNumber;
+    }
+
+    public boolean equals(Object obj) {
+        if (!(obj instanceof BreakPointDTO)) {
+            return false;
+        }
+
+        BreakPointDTO other = (BreakPointDTO) obj;
+        return (this.fileName.equals(other.getFileName()) && this.lineNumber == other.getLineNumber());
+    }
+
+    public int hashCode() {
+        int result = this.fileName.hashCode() + lineNumber;
+        result = 31 * result;
+        return result;
+    }
 }

@@ -19,7 +19,6 @@ package org.ballerinalang.model.values;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.util.BLangConstants;
@@ -411,6 +410,16 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         return this.sequence.size;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void build() {
+        for (int i = 0; i < sequence.size(); i++) {
+            ((BXML<?>) sequence.get(i)).build();
+        }
+    }
+
     @Override
     public void removeAttribute(String qname) {
         if (sequence.size() != 1) {
@@ -442,18 +451,10 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         @Override
         public BValue[] getNext(int arity) {
             if (arity == 1) {
-                return new BValue[]{value.sequence.get(cursor++)};
+                return new BValue[] {value.sequence.get(cursor++)};
             }
             int cursor = this.cursor++;
-            return new BValue[]{new BInteger(cursor), value.sequence.get(cursor)};
-        }
-
-        @Override
-        public BType[] getParamType(int arity) {
-            if (arity == 1) {
-                return new BType[]{BTypes.typeXML};
-            }
-            return new BType[]{BTypes.typeInt, BTypes.typeXML};
+            return new BValue[] {new BInteger(cursor), value.sequence.get(cursor)};
         }
 
         @Override

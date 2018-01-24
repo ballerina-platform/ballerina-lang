@@ -266,7 +266,7 @@ public struct HttpConnectorError {
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retries"}
 @Field {value:"interval: Retry interval in millisecond"}
-struct Retry {
+public struct Retry {
     int count;
     int interval;
 }
@@ -279,7 +279,7 @@ struct Retry {
 @Field {value:"sslEnabledProtocols: SSL/TLS protocols to be enabled. eg: TLSv1,TLSv1.1,TLSv1.2"}
 @Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
 @Field {value:"sslProtocol: SSL Protocol to be used. eg: TLS1.2"}
-struct SSL {
+public struct SSL {
     string trustStoreFile;
     string trustStorePassword;
     string keyStoreFile;
@@ -292,7 +292,7 @@ struct SSL {
 @Description { value:"FollowRedirects struct represents HTTP redirect related options to be used for HTTP client invocation" }
 @Field {value:"enabled: Enable redirect"}
 @Field {value:"maxCount: Maximun number of redirects to follow"}
-struct FollowRedirects {
+public struct FollowRedirects {
     boolean enabled = false;
     int maxCount = 5;
 }
@@ -302,7 +302,7 @@ struct FollowRedirects {
 @Field {value:"proxyPort: proxy server port"}
 @Field {value:"proxyUserName: Proxy server user name"}
 @Field {value:"proxyPassword: proxy server password"}
-struct Proxy {
+public struct Proxy {
     string host;
     int port;
     string userName;
@@ -335,8 +335,8 @@ public struct Options {
     Proxy proxy;
 }
 
-@Description { value:"Http client connector for outbound HTTP requests"}
-@Param { value:"serviceUri: Url of the service" }
+@Description { value:"HTTP client connector for outbound HTTP requests"}
+@Param { value:"serviceUri: URI of the service" }
 @Param { value:"connectorOptions: connector options" }
 public connector HttpClient (string serviceUri, Options connectorOptions) {
 
@@ -362,12 +362,12 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	native action put (string path, OutRequest req) (InResponse, HttpConnectorError);
 
 	@Description { value:"Invokes an HTTP call with the specified HTTP verb."}
-	@Param { value:"HTTPVerb: HTTP verb value" }
+	@Param { value:"httpVerb: HTTP verb value" }
 	@Param { value:"path: Resource path " }
 	@Param { value:"req: An HTTP outbound request message" }
 	@Return { value:"The inbound response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
-	native action execute (string HTTPVerb, string path, OutRequest req) (InResponse, HttpConnectorError);
+	native action execute (string httpVerb, string path, OutRequest req) (InResponse, HttpConnectorError);
 
 	@Description { value:"The PATCH action implementation of the HTTP Connector."}
 	@Param { value:"path: Resource path " }
@@ -397,7 +397,7 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	@Return { value:"Error occured during HTTP client invocation" }
 	native action options (string path, OutRequest req) (InResponse, HttpConnectorError);
 
-	@Description { value:"forward action can be used to invoke an HTTP call with inbound request HTTPVerb"}
+	@Description { value:"Forward action can be used to invoke an HTTP call with inbound request's HTTP verb"}
 	@Param { value:"path: Request path" }
 	@Param { value:"req: An HTTP inbound request message" }
 	@Return { value:"The inbound response message" }

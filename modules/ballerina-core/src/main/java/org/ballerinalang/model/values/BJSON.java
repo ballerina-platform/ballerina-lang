@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.StringJoiner;
 
 /**
@@ -270,7 +271,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
 
         BJSON collection;
         // Fields for JSON Object iteration.
-        Iterator iterator;
+        Iterator<Map.Entry<String, JsonNode>> iterator;
         // Fields for JSON Array iteration.
         boolean isJSONArray;
         int size, cursor = 0;
@@ -281,7 +282,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
                 isJSONArray = true;     // This is a JSON Array. Index will be a int.
                 size = collection.value().size();
             } else {
-                iterator = collection.value().fieldNames(); // This is a JSON Object or other type.
+                iterator = collection.value().fields(); // This is a JSON Object or other type.
             }
         }
 
@@ -290,24 +291,13 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
             if (isJSONArray) {
                 long cursor = this.cursor++;
                 if (arity == 1) {
-                    return new BValue[]{new BJSON(collection.value.get((int) cursor))};
+                    return new BValue[] {new BJSON(collection.value.get((int) cursor))};
                 } else {
-                    return new BValue[]{new BInteger(cursor), new BJSON(collection.value.get((int) cursor))};
+                    return new BValue[] {new BInteger(cursor), new BJSON(collection.value.get((int) cursor))};
                 }
             }
             if (arity == 1) {
-                return new BValue[]{new BJSON(collection.value.get((String) iterator.next()))};
-            }
-            return null;
-        }
-
-        @Override
-        public BType[] getParamType(int arity) {
-            if (arity == 1) {
-                return new BType[]{BTypes.typeJSON};
-            }
-            if (arity == 2 && isJSONArray) {
-                return new BType[]{BTypes.typeInt, BTypes.typeJSON};
+                return new BValue[] {new BJSON(iterator.next().getValue())};
             }
             return null;
         }

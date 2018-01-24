@@ -1601,9 +1601,10 @@ public class ProgramFileReader {
                     break;
                 case InstructionCodes.ITR_NEXT:
                     int iteratorIndex = codeStream.readInt();
+                    int[] typeTags = getArgRegs(codeStream);
                     retRegs = getArgRegs(codeStream);
                     packageInfo.addInstruction(new InstructionIteratorNext(opcode, iteratorIndex, retRegs.length,
-                            retRegs));
+                            typeTags, retRegs));
                     break;
                 default:
                     throw new ProgramFileFormatException("unknown opcode " + opcode +
