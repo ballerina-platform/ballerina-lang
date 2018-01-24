@@ -18,7 +18,6 @@
 
 package org.ballerinalang.mime.util;
 
-
 import io.netty.handler.codec.http.HttpRequest;
 
 import java.io.File;
@@ -29,6 +28,8 @@ import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING_7_
 
 /**
  * This class holds attributes required for creating a body part as a file upload.
+ *
+ * @since 0.96
  */
 public class FileUploadContentHolder {
 

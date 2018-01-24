@@ -208,15 +208,11 @@ public class MimeUtil {
      */
     public static boolean isTextBodyPresent(BStruct entity) {
         String textPayload = entity.getStringField(TEXT_DATA_INDEX);
-        if (textPayload != null && !textPayload.isEmpty()) {
+        if (isNotNullAndEmpty(textPayload)) {
             return true;
         } else {
-            BStruct overFlowData = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-            if (overFlowData != null) {
-                return true;
-            }
+            return isOverFlowDataNotNull(entity);
         }
-        return false;
     }
 
     /**
@@ -233,10 +229,7 @@ public class MimeUtil {
                 return true;
             }
         } else {
-            BStruct overFlowData = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-            if (overFlowData != null) {
-                return true;
-            }
+            return isOverFlowDataNotNull(entity);
         }
         return false;
     }
@@ -255,10 +248,7 @@ public class MimeUtil {
                 return true;
             }
         } else {
-            BStruct overFlowData = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-            if (overFlowData != null) {
-                return true;
-            }
+            return isOverFlowDataNotNull(entity);
         }
         return false;
     }
@@ -274,12 +264,8 @@ public class MimeUtil {
         if (binaryPayload != null) {
             return true;
         } else {
-            BStruct overFlowData = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-            if (overFlowData != null) {
-                return true;
-            }
+            return isOverFlowDataNotNull(entity);
         }
-        return false;
     }
 
     /**
@@ -303,7 +289,7 @@ public class MimeUtil {
      */
     public static String getTextPayload(BStruct entity) {
         String returnValue = entity.getStringField(TEXT_DATA_INDEX);
-        if (returnValue != null && !returnValue.isEmpty()) {
+        if (isNotNullAndEmpty(returnValue)) {
             return returnValue;
         } else {
             BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
@@ -668,8 +654,7 @@ public class MimeUtil {
     private static InterfaceHttpData getEncodedTextBodyPart(HttpRequest httpRequest, BStruct bodyPart) throws
             IOException {
         String bodyPartName = getBodyPartName(bodyPart);
-        if (bodyPart.getStringField(TEXT_DATA_INDEX) != null &&
-                !bodyPart.getStringField(TEXT_DATA_INDEX).isEmpty()) {
+        if (isNotNullAndEmpty(bodyPart.getStringField(TEXT_DATA_INDEX))) {
             return getAttribute(httpRequest, bodyPartName,
                     bodyPart.getStringField(TEXT_DATA_INDEX));
         } else {
@@ -913,5 +898,29 @@ public class MimeUtil {
      */
     public static void setDataFactory(HttpDataFactory dataFactory) {
         MimeUtil.dataFactory = dataFactory;
+    }
+
+    /**
+     * Check whether the given string is not null and empty.
+     *
+     * @param textPayload Represent a text value
+     * @return a boolean indicating the status of nullability and emptiness
+     */
+    private static boolean isNotNullAndEmpty(String textPayload) {
+        return textPayload != null && !textPayload.isEmpty();
+    }
+
+    /**
+     * Check whether the file handler which indicates the overflow data is null or not.
+     *
+     * @param entity Represent ballerina entity
+     * @return a boolean indicating nullability of the overflow data
+     */
+    private static boolean isOverFlowDataNotNull(BStruct entity) {
+        BStruct overFlowData = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
+        if (overFlowData != null) {
+            return true;
+        }
+        return false;
     }
 }
