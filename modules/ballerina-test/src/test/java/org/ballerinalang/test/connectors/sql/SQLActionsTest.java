@@ -427,10 +427,10 @@ public class SQLActionsTest {
     public void testDateTimeNullInOutValues() {
         BValue[] returns = BRunUtil.invoke(result, "testDateTimeNullInOutValues");
         Assert.assertEquals(returns.length, 4);
-        Assert.assertEquals(returns[0].stringValue(), null);
-        Assert.assertEquals(returns[1].stringValue(), null);
-        Assert.assertEquals(returns[2].stringValue(), null);
-        Assert.assertEquals(returns[3].stringValue(), null);
+        Assert.assertNull(returns[0].stringValue());
+        Assert.assertNull(returns[1].stringValue());
+        Assert.assertNull(returns[2].stringValue());
+        Assert.assertNull(returns[3].stringValue());
     }
 
 
