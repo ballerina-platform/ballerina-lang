@@ -28,9 +28,10 @@ import java.util.concurrent.Semaphore;
 /**
  * Implementation of the response returnError future.
  */
-public class HttpResponseStatusFuture implements HttpResponseFuture {
+public class DefaultHttpResponseFuture implements HttpResponseFuture {
 
     private HTTPCarbonMessage httpCarbonMessage;
+    private HttpConnectorListener httpConnectorListener;
     private Throwable throwable, returnError;
     private Semaphore executionWaitSem;
 
@@ -40,6 +41,9 @@ public class HttpResponseStatusFuture implements HttpResponseFuture {
         if (executionWaitSem != null) {
             executionWaitSem.release();
         }
+        if (httpConnectorListener != null) {
+            httpConnectorListener.onMessage(httpCarbonMessage);
+        }
     }
 
     @Override
@@ -48,9 +52,12 @@ public class HttpResponseStatusFuture implements HttpResponseFuture {
         if (executionWaitSem != null) {
             executionWaitSem.release();
         }
+        if (httpConnectorListener != null) {
+            httpConnectorListener.onError(throwable);
+        }
     }
 
-    public HttpResponseStatusFuture sync() throws InterruptedException {
+    public HttpResponseFuture sync() throws InterruptedException {
         executionWaitSem = new Semaphore(0);
         if (this.httpCarbonMessage == null && this.throwable == null) {
             executionWaitSem.acquire();
@@ -66,15 +73,26 @@ public class HttpResponseStatusFuture implements HttpResponseFuture {
         return this;
     }
 
-    public HttpResponseStatus getStatus() {
-        return this.returnError != null ? new HttpResponseStatus(this.returnError) : new HttpResponseStatus(null);
+    public DefaultOperationStatus getStatus() {
+        return this.returnError != null ? new DefaultOperationStatus(this.returnError)
+                : new DefaultOperationStatus(null);
     }
 
     @Override
     public void setHttpConnectorListener(HttpConnectorListener connectorListener) {
+        this.httpConnectorListener = connectorListener;
+        if (httpCarbonMessage != null) {
+            notifyHttpListener(httpCarbonMessage);
+            httpCarbonMessage = null;
+        }
+        if (this.throwable != null) {
+            notifyHttpListener(this.throwable);
+            this.throwable =  null;
+        }
     }
 
     @Override
     public void removeHttpListener() {
+        this.httpConnectorListener = null;
     }
 }

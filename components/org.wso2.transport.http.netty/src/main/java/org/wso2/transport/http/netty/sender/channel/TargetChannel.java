@@ -37,6 +37,8 @@ import org.wso2.transport.http.netty.sender.HTTPClientInitializer;
 import org.wso2.transport.http.netty.sender.TargetHandler;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 
+import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -59,6 +61,7 @@ public class TargetChannel {
     private boolean isRequestWritten = false;
     private String httpVersion;
     private ChunkConfig chunkConfig;
+    private HttpResponseFuture httpInboundResponseFuture;
     private HandlerExecutor handlerExecutor;
 
     private List<HttpContent> contentList = new ArrayList<>();
@@ -87,7 +90,7 @@ public class TargetChannel {
         this.targetHandler = targetHandler;
     }
 
-    public HTTPClientInitializer getHTTPClientInitializer() {
+    public HTTPClientInitializer getHttpClientInitializer() {
         return httpClientInitializer;
     }
 
@@ -123,13 +126,15 @@ public class TargetChannel {
         this.chunkConfig = chunkConfig;
     }
 
-    public void configTargetHandler(HTTPCarbonMessage httpCarbonMessage, HttpResponseFuture httpResponseFuture) {
-        this.setTargetHandler(this.getHTTPClientInitializer().getTargetHandler());
+    public void configTargetHandler(HTTPCarbonMessage httpCarbonMessage, HttpResponseFuture httpInboundResponseFuture) {
+        this.setTargetHandler(this.getHttpClientInitializer().getTargetHandler());
         TargetHandler targetHandler = this.getTargetHandler();
-        targetHandler.setHttpResponseFuture(httpResponseFuture);
+        targetHandler.setHttpResponseFuture(httpInboundResponseFuture);
         targetHandler.setIncomingMsg(httpCarbonMessage);
         this.getTargetHandler().setConnectionManager(connectionManager);
         targetHandler.setTargetChannel(this);
+
+        this.httpInboundResponseFuture = httpInboundResponseFuture;
     }
 
     public void setEndPointTimeout(int socketIdleTimeout, boolean followRedirect) {
@@ -162,7 +167,7 @@ public class TargetChannel {
             handlerExecutor.executeAtTargetRequestReceiving(httpOutboundRequest);
         }
 
-        httpOutboundRequest.getHttpContentAsync().setMessageListener(httpContent ->
+        httpOutboundRequest.getHttpContentAsync().setMessageListener((httpContent ->
                 this.channel.eventLoop().execute(() -> {
                     try {
                         writeOutboundRequest(httpOutboundRequest, httpContent);
@@ -172,7 +177,7 @@ public class TargetChannel {
                         log.error(errorMsg, exception);
                         this.targetHandler.getHttpResponseFuture().notifyHttpListener(exception);
                     }
-                }));
+                })));
     }
 
     private void writeOutboundRequest(HTTPCarbonMessage httpOutboundRequest, HttpContent httpContent) throws Exception {
@@ -191,16 +196,9 @@ public class TargetChannel {
                 writeOutboundRequestHeaders(httpOutboundRequest);
             }
 
-            if (chunkConfig == ChunkConfig.NEVER) {
-                for (HttpContent cachedHttpContent : contentList) {
-                    this.getChannel().writeAndFlush(cachedHttpContent);
-                }
-            }
-            this.getChannel().writeAndFlush(httpContent);
+            writeOutboundRequestBody(httpContent);
 
-            httpOutboundRequest.removeHttpContentAsyncFuture();
-            contentList.clear();
-            contentLength = 0;
+            resetState(httpOutboundRequest);
 
             if (handlerExecutor != null) {
                 handlerExecutor.executeAtTargetRequestSending(httpOutboundRequest);
@@ -212,12 +210,43 @@ public class TargetChannel {
                     Util.setupChunkedRequest(httpOutboundRequest);
                     writeOutboundRequestHeaders(httpOutboundRequest);
                 }
-                this.getChannel().writeAndFlush(httpContent);
+                ChannelFuture outboundRequestChannelFuture = this.getChannel().writeAndFlush(httpContent);
+                notifyIfFailure(outboundRequestChannelFuture);
             } else {
                 this.contentList.add(httpContent);
                 contentLength += httpContent.content().readableBytes();
             }
         }
+    }
+
+    private void writeOutboundRequestBody(HttpContent lastHttpContent) {
+        if (chunkConfig == ChunkConfig.NEVER) {
+            for (HttpContent cachedHttpContent : contentList) {
+                ChannelFuture outboundRequestChannelFuture = this.getChannel().writeAndFlush(cachedHttpContent);
+                notifyIfFailure(outboundRequestChannelFuture);
+            }
+        }
+        ChannelFuture outboundRequestChannelFuture = this.getChannel().writeAndFlush(lastHttpContent);
+        notifyIfFailure(outboundRequestChannelFuture);
+    }
+
+    private void notifyIfFailure(ChannelFuture outboundRequestChannelFuture) {
+        outboundRequestChannelFuture.addListener(writeOperationPromise -> {
+            if (writeOperationPromise.cause() != null) {
+                Throwable throwable = writeOperationPromise.cause();
+                if (throwable instanceof ClosedChannelException) {
+                    throwable = new IOException(Constants.REMOTE_SERVER_ABRUPTLY_CLOSE_REQUEST_CONNECTION);
+                }
+                log.error(Constants.REMOTE_SERVER_ABRUPTLY_CLOSE_REQUEST_CONNECTION, throwable);
+                httpInboundResponseFuture.notifyHttpListener(throwable);
+            }
+        });
+    }
+
+    private void resetState(HTTPCarbonMessage httpOutboundRequest) {
+        httpOutboundRequest.removeHttpContentAsyncFuture();
+        contentList.clear();
+        contentLength = 0;
     }
 
     private String getHttpMethod(HTTPCarbonMessage httpOutboundRequest) throws Exception {

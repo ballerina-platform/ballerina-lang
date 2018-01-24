@@ -18,7 +18,6 @@
 
 package org.wso2.transport.http.netty;
 
-import io.netty.handler.codec.http.HttpResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
@@ -88,7 +87,7 @@ public class ClientConnectorTimeoutTestCase {
             assertNotNull(response);
             String result = response.getMessage();
 
-            assertEquals(HttpResponseStatus.GATEWAY_TIMEOUT.reasonPhrase(), result);
+            assertEquals(Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE, result);
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running httpsGetTest", e);
         }

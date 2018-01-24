@@ -30,11 +30,14 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.listener.RequestDataHolder;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -118,7 +121,10 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                     Util.setupChunkedRequest(outboundResponseMsg);
                     writeOutboundResponseHeaders(outboundResponseMsg, keepAlive);
                 }
-                sourceContext.writeAndFlush(httpContent);
+                HttpResponseFuture outboundRespStatusFuture =
+                        inboundRequestMsg.getHttpOutboundRespStatusFuture();
+                ChannelFuture outboundResponseChannelFuture = sourceContext.writeAndFlush(httpContent);
+                notifyIfFailure(outboundRespStatusFuture, outboundResponseChannelFuture);
             } else {
                 this.contentList.add(httpContent);
                 contentLength += httpContent.content().readableBytes();
@@ -126,23 +132,42 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         }
     }
 
-    private ChannelFuture writeOutboundResponseBody(HttpContent httpContent) {
+    private ChannelFuture writeOutboundResponseBody(HttpContent lastHttpContent) {
+        HttpResponseFuture outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
         if (chunkConfig == ChunkConfig.NEVER) {
             for (HttpContent cachedHttpContent : contentList) {
-                sourceContext.writeAndFlush(cachedHttpContent);
+                ChannelFuture outboundResponseChannelFuture = sourceContext.writeAndFlush(cachedHttpContent);
+                notifyIfFailure(outboundRespStatusFuture, outboundResponseChannelFuture);
             }
         }
-        ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(httpContent);
-        HttpResponseStatusFuture outboundRespStatusFuture =
-                inboundRequestMsg.getHttpOutboundRespStatusFuture();
-        outboundChannelFuture.addListener(genericFutureListener -> {
-            if (genericFutureListener.cause() != null) {
-                outboundRespStatusFuture.notifyHttpListener(genericFutureListener.cause());
+        ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(lastHttpContent);
+        outboundChannelFuture.addListener(writeOperationPromise -> {
+            Throwable throwable = writeOperationPromise.cause();
+            if (throwable != null) {
+                if (throwable instanceof ClosedChannelException) {
+                    throwable = new IOException(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
+                }
+                log.error(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION, throwable);
+                outboundRespStatusFuture.notifyHttpListener(throwable);
             } else {
                 outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
             }
         });
         return outboundChannelFuture;
+    }
+
+    private void notifyIfFailure(HttpResponseFuture outboundRespStatusFuture,
+            ChannelFuture outboundResponseChannelFuture) {
+        outboundResponseChannelFuture.addListener(writeOperationPromise -> {
+            Throwable throwable = writeOperationPromise.cause();
+            if (throwable != null) {
+                if (throwable instanceof ClosedChannelException) {
+                    throwable = new IOException(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
+                }
+                log.error(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION, throwable);
+                outboundRespStatusFuture.notifyHttpListener(throwable);
+            }
+        });
     }
 
     private void resetState(HTTPCarbonMessage outboundResponseMsg) {

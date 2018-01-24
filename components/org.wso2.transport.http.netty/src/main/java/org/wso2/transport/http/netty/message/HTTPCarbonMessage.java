@@ -29,9 +29,10 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.HttpResponseStatusFuture;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
 
 import java.nio.ByteBuffer;
@@ -51,7 +52,7 @@ public class HTTPCarbonMessage {
 
     private MessageFuture messageFuture;
     private final ServerConnectorFuture httpOutboundRespFuture = new HttpWsServerConnectorFuture();
-    private final HttpResponseStatusFuture httpOutboundRespStatusFuture = new HttpResponseStatusFuture();
+    private final DefaultHttpResponseFuture httpOutboundRespStatusFuture = new DefaultHttpResponseFuture();
 
     public HTTPCarbonMessage(HttpMessage httpMessage) {
         this.httpMessage = httpMessage;
@@ -230,11 +231,11 @@ public class HTTPCarbonMessage {
      *
      * @return httpOutboundRespStatusFuture.
      */
-    public HttpResponseStatusFuture getHttpOutboundRespStatusFuture() {
+    public HttpResponseFuture getHttpOutboundRespStatusFuture() {
         return httpOutboundRespStatusFuture;
     }
 
-    public HttpResponseStatusFuture respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {
+    public HttpResponseFuture respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {
         httpOutboundRespFuture.notifyHttpListener(httpCarbonMessage);
         return httpOutboundRespStatusFuture;
     }

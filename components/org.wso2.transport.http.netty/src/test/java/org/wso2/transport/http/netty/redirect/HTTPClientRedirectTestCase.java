@@ -36,7 +36,7 @@ import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.HttpResponseFutureImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
@@ -156,7 +156,7 @@ public class HTTPClientRedirectTestCase {
         response.headers().set(HttpHeaderNames.LOCATION, FINAL_DESTINATION);
         embeddedChannel.attr(Constants.ORIGINAL_REQUEST)
                 .set(createHttpRequest(Constants.HTTP_GET_METHOD, FINAL_DESTINATION));
-        embeddedChannel.attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(new HttpResponseFutureImpl());
+        embeddedChannel.attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(new DefaultHttpResponseFuture());
         TargetChannel targetChannel = new TargetChannel(null, null);
         targetChannel.setChannel(embeddedChannel);
         embeddedChannel.attr(Constants.TARGET_CHANNEL_REFERENCE).set(targetChannel);
@@ -500,7 +500,7 @@ public class HTTPClientRedirectTestCase {
             Throwable response = listener.getHttpErrorMessage();
             assertNotNull(response);
             String result = response.getMessage();
-            assertEquals(HttpResponseStatus.GATEWAY_TIMEOUT.reasonPhrase(), result);
+            assertEquals(Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE, result);
             redirectServer2.shutdown();
             httpServer.shutdown();
         } catch (Exception e) {
