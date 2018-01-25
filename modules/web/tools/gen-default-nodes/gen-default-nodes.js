@@ -26,7 +26,7 @@ import defToFragment from './def-to-fragment';
  * @return {object} fragment details to be sent to fragment parser.
  */
 
-const CONFIG_URL = 'http://localhost:9091/config';
+const CONFIG_URL = 'http://localhost:9091/composer/config';
 const fileLocation = 'src/plugins/ballerina/model/default-nodes.js';
 
 /**
@@ -58,7 +58,8 @@ function getConfigs() {
  */
 function generateNodes() {
     getConfigs().then((configs) => {
-        const { endpoint } = configs.services.fragmentParser;
+        const parserEndpoint = configs.services['ballerina-parser'].endpoint;
+        const endpoint = parserEndpoint + '/model/parse-fragment';
 
         const promises = [];
         const fragmentsCache = {};
