@@ -29,14 +29,14 @@ service<http> headerBasedRouting {
             clientResponse, err = weatherEP.get("/data/2.5/weather?lat=35&lon=139&appid=b1b1", newRequest);
         }
 
-        //Native function "respond" sends back the clientResponse to the caller if no any error is found.
+        //Native function "forward" sends back the inbound clientResponse to the caller if no any error is found.
         http:OutResponse res = {};
         if (err != null) {
             res.statusCode = 500;
             res.setStringPayload(err.msg);
             _ = conn.respond(res);
         } else {
-            _ = conn.respond(clientResponse);
+            _ = conn.forward(clientResponse);
         }
     }
 }

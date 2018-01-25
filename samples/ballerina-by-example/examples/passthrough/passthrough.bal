@@ -19,7 +19,7 @@ service<http> passthrough {
         //Native function "forward" sends back the clientResponse to the caller if no any error is found.
         http:OutResponse res = {};
         if (err != null) {
-            res.setStatusCode(500);
+            res.statusCode = 500;
             res.setStringPayload(err.msg);
             _ = conn.respond(res);
         } else {
