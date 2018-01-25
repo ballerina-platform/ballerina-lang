@@ -46,9 +46,10 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
             String relativePath = "echoService" + File.separator + "echoService.bal";
             startServer(relativePath, true);
             Map<String, String> headers = new HashMap<>();
-            headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+            headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_TEXT_PLAIN);
             HttpResponse response = HttpClientRequest.doPost(ballerinaServer
                     .getServiceURLHttp("echo"), requestMessage, headers);
+            Assert.assertNotNull(response);
             Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
             Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
                     , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");

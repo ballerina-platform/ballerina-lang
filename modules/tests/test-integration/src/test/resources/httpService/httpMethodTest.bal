@@ -6,50 +6,52 @@ service<http> headQuoteService {
     @http:resourceConfig {
         path:"/default"
     }
-    resource defaultResource (http:Request req, http:Response resp) {
+    resource defaultResource (http:Connection conn, http:InRequest req) {
         endpoint<http:HttpClient> endPoint {
             create http:HttpClient("http://localhost:9090", {});
         }
         string method = req.getMethod();
-        http:Response clientResponse;
-        clientResponse, _ = endPoint.execute(method, "/getQuote/stocks", req);
-        _ = resp.forward(clientResponse);
+        http:OutRequest clientRequest = {};
+        http:InResponse clientResponse = {};
+        clientResponse, _ = endPoint.execute(method, "/getQuote/stocks", clientRequest);
+        _ = conn.forward(clientResponse);
     }
 
     @http:resourceConfig {
         path:"/forward11"
     }
-    resource forwardRes11 (http:Request req, http:Response resp) {
+    resource forwardRes11 (http:Connection conn, http:InRequest req) {
         endpoint<http:HttpClient> endPoint {
               create http:HttpClient("http://localhost:9090", {});
         }
-        http:Response clientResponse;
+        http:InResponse clientResponse = {};
         clientResponse, _ = endPoint.forward("/getQuote/stocks", req);
-        _ = resp.forward(clientResponse);
+        _ = conn.forward(clientResponse);
     }
 
     @http:resourceConfig {
         path:"/forward22"
     }
-    resource forwardRes22 (http:Request req, http:Response resp) {
+    resource forwardRes22 (http:Connection conn, http:InRequest req) {
         endpoint<http:HttpClient> endPoint {
               create http:HttpClient("http://localhost:9090", {});
         }
-        http:Response clientResponse;
+        http:InResponse clientResponse = {};
         clientResponse, _ = endPoint.forward("/getQuote/stocks", req);
-        _ = resp.forward(clientResponse);
+        _ = conn.forward(clientResponse);
     }
 
     @http:resourceConfig {
         path:"/getStock/{method}"
     }
-    resource commonResource (http:Request req, http:Response resp, string method) {
+    resource commonResource (http:Connection conn, http:InRequest req, string method) {
         endpoint<http:HttpClient> endPoint {
             create http:HttpClient("http://localhost:9090", {});
         }
-        http:Response clientResponse;
-        clientResponse, _ = endPoint.execute(method, "/getQuote/stocks", req);
-        _ = resp.forward(clientResponse);
+        http:OutRequest clientRequest = {};
+        http:InResponse clientResponse = {};
+        clientResponse, _ = endPoint.execute(method, "/getQuote/stocks", clientRequest);
+        _ = conn.forward(clientResponse);
     }
 }
 
@@ -60,13 +62,14 @@ service<http> testClientConHEAD {
         methods:["HEAD"],
         path:"/"
     }
-    resource passthrough (http:Request req, http:Response resp) {
+    resource passthrough (http:Connection conn, http:InRequest req) {
         endpoint<http:HttpClient> quoteEP {
             create http:HttpClient("http://localhost:9090", {});
         }
-        http:Response clientResponse;
-        clientResponse, _ = quoteEP.get("/getQuote/stocks", req);
-        _ = resp.forward(clientResponse);
+        http:OutRequest clientRequest = {};
+        http:InResponse clientResponse = {};
+        clientResponse, _ = quoteEP.get("/getQuote/stocks", clientRequest);
+        _ = conn.forward(clientResponse);
     }
 }
 
@@ -77,26 +80,29 @@ service<http> quoteService {
         methods:["GET"],
         path:"/stocks"
     }
-    resource company (http:Request req, http:Response res) {
+    resource company (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setStringPayload("wso2");
-        _ = res.send();
+        _ = conn.respond(res);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/stocks"
     }
-    resource product (http:Request req, http:Response res) {
+    resource product (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setStringPayload("ballerina");
-        _ = res.send();
+        _ = conn.respond(res);
     }
 
     @http:resourceConfig {
         path:"/stocks"
     }
-    resource defaultStock (http:Request req, http:Response res) {
+    resource defaultStock (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setHeader("Method", "any");
         res.setStringPayload("default");
-        _ = res.send();
+        _ = conn.respond(res);
     }
 }
