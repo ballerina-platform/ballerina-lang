@@ -1,12 +1,12 @@
 /**
  * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,12 +25,16 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -59,7 +63,10 @@ public class HoverUtil {
                         .findAny().orElse(null);
                 if (bLangFunction != null) {
                     hover = getAnnotationContent(bLangFunction.annAttachments);
+                } else {
+                    hover = getDefaultHoverObject();
                 }
+
                 break;
             case HoverConstants.STRUCT:
                 BLangStruct bLangStruct = bLangPackage.structs.stream()
@@ -68,7 +75,10 @@ public class HoverUtil {
                         .findAny().orElse(null);
                 if (bLangStruct != null) {
                     hover = getAnnotationContent(bLangStruct.annAttachments);
+                } else {
+                    hover = getDefaultHoverObject();
                 }
+
                 break;
             case HoverConstants.ENUM:
                 BLangEnum bLangEnum = bLangPackage.enums.stream()
@@ -77,7 +87,51 @@ public class HoverUtil {
                         .findAny().orElse(null);
                 if (bLangEnum != null) {
                     hover = getAnnotationContent(bLangEnum.annAttachments);
+                } else {
+                    hover = getDefaultHoverObject();
                 }
+
+                break;
+            case HoverConstants.TRANSFORMER:
+                BLangTransformer bLangTransformer = bLangPackage.transformers.stream()
+                        .filter(bTransformer -> bTransformer.name.getValue()
+                                .equals(hoverContext.get(HoverKeys.NAME_OF_HOVER_NODE_KEY).getValue()))
+                        .findAny().orElse(null);
+                if (bLangTransformer != null) {
+                    hover = getAnnotationContent(bLangTransformer.annAttachments);
+                } else {
+                    hover = getDefaultHoverObject();
+                }
+
+                break;
+
+            case HoverConstants.CONNECTOR:
+                BLangConnector bLangConnector = bLangPackage.connectors.stream()
+                        .filter(bConnector -> bConnector.name.getValue()
+                                .equals(hoverContext.get(HoverKeys.NAME_OF_HOVER_NODE_KEY).getValue()))
+                        .findAny().orElse(null);
+                if (bLangConnector != null) {
+                    hover = getAnnotationContent(bLangConnector.annAttachments);
+                } else {
+                    hover = getDefaultHoverObject();
+                }
+
+                break;
+            case HoverConstants.ACTION:
+                BLangAction bLangAction = bLangPackage.connectors.stream()
+                        .filter(bConnector -> bConnector.name.getValue()
+                                .equals(((BLangInvocation) hoverContext.get(HoverKeys.PREVIOUSLY_VISITED_NODE_KEY))
+                                        .symbol.owner.name.getValue()))
+                        .flatMap(connector -> connector.actions.stream())
+                        .filter(bAction -> bAction.name.getValue()
+                                .equals(hoverContext.get(HoverKeys.NAME_OF_HOVER_NODE_KEY).getValue()))
+                        .findAny().orElse(null);
+                if (bLangAction != null) {
+                    hover = getAnnotationContent(bLangAction.annAttachments);
+                } else {
+                    hover = getDefaultHoverObject();
+                }
+
                 break;
             default:
                 hover = new Hover();
@@ -214,6 +268,20 @@ public class HoverUtil {
 
         List<Either<String, MarkedString>> contents = new ArrayList<>();
         contents.add(Either.forLeft(content.toString()));
+        hover.setContents(contents);
+
+        return hover;
+    }
+
+    /**
+     * Get the default hover object.
+     *
+     * @return hover default hover object.
+     */
+    private static Hover getDefaultHoverObject() {
+        Hover hover = new Hover();
+        List<Either<String, MarkedString>> contents = new ArrayList<>();
+        contents.add(Either.forLeft(""));
         hover.setContents(contents);
 
         return hover;
