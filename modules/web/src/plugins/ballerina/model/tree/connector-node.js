@@ -83,7 +83,7 @@ class ConnectorNode extends AbstractConnectorNode {
             if (lastIndexOfEndpoints !== -1) {
                 index = lastIndexOfEndpoints + 1;
             }
-            node.getVariable().getName().setValue(TreeUtil.getNewTempVarName(this.getBody(), 'endpoint'));
+            TreeUtil.generateEndpointName(this.getBody(), node);
             this.getBody().addStatements(node, index);
         } else if (TreeUtil.isAction(node)) {
             const index = !_.isNil(dropBefore) ? this.getIndexOfActions(dropBefore) : -1;

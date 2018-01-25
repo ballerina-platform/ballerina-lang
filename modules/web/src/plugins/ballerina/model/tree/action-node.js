@@ -64,7 +64,7 @@ class ActionNode extends AbstractActionNode {
             if (lastIndexOfConnectors !== -1) {
                 index = lastIndexOfConnectors + 1;
             }
-            node.getVariable().getName().setValue(TreeUtil.getNewTempVarName(this.getBody(), 'endpoint'));
+            TreeUtil.generateEndpointName(this.getBody(), node);
             this.getBody().addStatements(node, index);
         }
     }

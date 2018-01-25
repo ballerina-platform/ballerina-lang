@@ -749,6 +749,29 @@ class TreeUtil extends AbstractTreeUtil {
         }
         return undefined;
     }
+
+    /**
+     * Generate default name for endpoints
+     * @param {Node} parent - parent node.
+     * @param {Node} node - current node.
+     * */
+    generateEndpointName(parent, node) {
+        const defaultName = 'endpoint';
+        let defaultIndex = 0;
+        const names = this.getCurrentEndpoints(parent)
+                        .map((endpoint) => { return endpoint.getVariableName().getValue(); })
+                        .sort();
+        names.every((endpoint, i) => {
+            if (names[i] !== defaultName + (i + 1)) {
+                defaultIndex = i + 1;
+                return false;
+            } else {
+                return true;
+            }
+        });
+        node.getVariableName()
+        .setValue(`${defaultName + (defaultIndex === 0 ? names.length + 1 : defaultIndex)}`, true);
+    }
 }
 
 export default new TreeUtil();
