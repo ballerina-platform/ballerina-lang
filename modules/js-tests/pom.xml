@@ -140,24 +140,6 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>run backend</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>java</executable>
-                            <async>true</async>
-                            <arguments>
-                                <argument>-Dbal.composer.home=.</argument>
-                                <argument>-jar</argument>
-                                <argument>
-                                    ${project.build.directory}/lib/composer-server-distribution-${project.version}.jar
-                                </argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>npm test</id>
                         <goals>
                             <goal>exec</goal>
@@ -167,6 +149,8 @@
                             <executable>${npm.executable}</executable>
                             <arguments>
                                 <argument>test</argument>
+                                <argument>--</argument>
+                                <argument>--projectVersion=${project.version}</argument>
                             </arguments>
                         </configuration>
                     </execution>

@@ -28,6 +28,7 @@ import { expect } from 'chai';
 import _ from 'lodash';
 import path from 'path';
 import chalk from 'chalk';
+import { spawn } from 'child_process';
 
 const jsdom = require('jsdom-global')(undefined, { url: 'http://localhost:9091' });
 require('composer/vendor.js');
@@ -133,10 +134,26 @@ function findBalFilesInDirSync(dir, filelist) {
 
 describe('Ballerina Composer Test Suite', () => {
     // fetch configs before proceeding
-    before((beforeAllDone) => {
-        fetchConfigs()
-            .then(() => beforeAllDone())
-            .catch(beforeAllDone);
+    let backEndProcess;
+    before(function (beforeAllDone) {
+        this.timeout(10000);
+
+        const projectVersionParam = process.argv[process.argv.length - 1];
+        const projectVersion = projectVersionParam.split('=')[1];
+
+        const targetPath = path.join(__dirname, '..', '..', 'lib', `composer-server-distribution-${projectVersion}.jar`);
+        backEndProcess = spawn('java', ['-Dbal.composer.home', '-jar', targetPath]);
+        let data = '';
+        backEndProcess.stdout.on('data', (data) => {
+            data += data;
+            if (data.indexOf("Composer started successfully") < 0) {
+                return;
+            }
+
+            fetchConfigs()
+                .then(() => beforeAllDone())
+                .catch(beforeAllDone);
+        });
     });
     const testResDir = path.resolve(path.join(directory, 'src', 'test', 'resources', 'passing'));
     const testFiles = findBalFilesInDirSync(testResDir);
@@ -252,6 +269,7 @@ describe('Ballerina Composer Test Suite', () => {
     });
 
     after((done) => {
+        backEndProcess.kill();
         done();
     });
 });
