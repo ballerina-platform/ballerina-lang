@@ -55,19 +55,13 @@ class BlockNode extends AbstractBlockNode {
         const index = !_.isNil(dropBefore) ? this.getIndexOfStatements(dropBefore) : -1;
         if (TreeUtil.isAssignment(node)) {
             const variables = node.getVariables();
-            TreeUtil.getNewTempVarName(this, 'var', variables.length)
-                .then((varNames) => {
-                    variables.forEach((variable, i) => {
-                        variable.getVariableName().setValue(varNames[i]);
-                    });
-                    this.addStatements(node, index);
-                });
+            variables.forEach((variable, i) => {
+                variable.getVariableName().setValue(TreeUtil.getNewTempVarName(this, 'var', variables.length));
+            });
+            this.addStatements(node, index);
         } else if (TreeUtil.isVariableDef(node)) {
-            TreeUtil.getNewTempVarName(this, 'var')
-                .then((varNames) => {
-                    node.getVariable().getName().setValue(varNames[0]);
-                    this.addStatements(node, index);
-                });
+            node.getVariable().getName().setValue(TreeUtil.getNewTempVarName(this, 'var'));
+            this.addStatements(node, index);
         } else {
             this.addStatements(node, index);
         }

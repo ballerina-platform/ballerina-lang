@@ -26,36 +26,6 @@ import TreeUtil from './../tree-util';
  * @extends {AbstractResourceNode}
  */
 class ResourceNode extends AbstractResourceNode {
-
-    /**
-     * Generate default name for workers
-     * @param {Node} parent - parent node.
-     * @param {Node} node - current node.
-     * @return {Object} undefined if unsuccessful.
-     * */
-    generateWorkerName(parent, node) {
-        const workerDefaultName = 'worker';
-        const workers = parent.getWorkers();
-        const names = {};
-        for (let i = 0; i < workers.length; i++) {
-            const name = workers[i].getName().value;
-            names[name] = name;
-        }
-
-        if (workers.length > 0) {
-            for (let j = 1; j <= workers.length; j++) {
-                if (!names[`${workerDefaultName}${j}`]) {
-                    node.getName().setValue(`${workerDefaultName}${j}`, true);
-                    node.setName(node.getName(), false);
-                    break;
-                }
-            }
-        } else {
-            node.getName().setValue(`${workerDefaultName}1`, true);
-            node.setName(node.getName(), false);
-        }
-        return undefined;
-    }
     /**
      * Gets the path value in the @http:resourceConfig annotation.
      *
@@ -293,7 +263,7 @@ class ResourceNode extends AbstractResourceNode {
                 this.addWorkers(defaultWorker, -1, true);
             }
             const index = !_.isNil(dropBefore) ? this.getIndexOfWorkers(dropBefore) : -1;
-            this.generateWorkerName(this, node);
+            TreeUtil.generateWorkerName(this, node);
             this.addWorkers(node, index);
         } else if (TreeUtil.isEndpointTypeVariableDef(node)) {
             // If there are no statements we'll add it to 0
@@ -303,7 +273,7 @@ class ResourceNode extends AbstractResourceNode {
             if (lastIndexOfConnectors !== -1) {
                 index = lastIndexOfConnectors + 1;
             }
-            node.getVariable().getName().setValue(TreeUtil.getNewTempVarName(this.getBody(), 'endpoint'));
+            TreeUtil.generateEndpointName(this.getBody(), node);
             this.getBody().addStatements(node, index);
         }
     }
