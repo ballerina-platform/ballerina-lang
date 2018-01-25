@@ -5,6 +5,7 @@ import org.ballerinalang.langserver.completions.util.positioning.resolvers.Curso
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.PackageNodeScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ResourceParamScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ServiceScopeResolver;
+import org.ballerinalang.langserver.completions.util.positioning.resolvers.TopLevelNodeScopeResolver;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -18,7 +19,8 @@ enum CursorScopeResolver {
     BLOCK_STMT_SCOPE(BlockStatementScopeResolver.class, new BlockStatementScopeResolver()),
     RESOURCE_PARAM_SCOPE(ResourceParamScopeResolver.class, new ResourceParamScopeResolver()),
     PACKAGE_NODE_SCOPE(PackageNodeScopeResolver.class, new PackageNodeScopeResolver()),
-    service_SCOPE(ServiceScopeResolver.class, new ServiceScopeResolver());
+    SERVICE_SCOPE(ServiceScopeResolver.class, new ServiceScopeResolver()),
+    TOP_LEVEL_SCOPE(TopLevelNodeScopeResolver.class, new TopLevelNodeScopeResolver());
 
     private final Class context;
     private final CursorPositionResolver cursorPositionResolver;
