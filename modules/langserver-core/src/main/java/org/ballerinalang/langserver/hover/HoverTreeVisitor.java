@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -367,11 +367,39 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangConnector connectorNode) {
-        // TODO: implement support for hover.
+        previousNode = connectorNode;
+
+        if (!connectorNode.params.isEmpty()) {
+            connectorNode.params.forEach(this::acceptNode);
+        }
+
+        if (!connectorNode.varDefs.isEmpty()) {
+            connectorNode.varDefs.forEach(this::acceptNode);
+        }
+
+        if (!connectorNode.actions.isEmpty()) {
+            connectorNode.actions.forEach(this::acceptNode);
+        }
     }
 
     public void visit(BLangAction actionNode) {
-        // TODO: implement support for hover.
+        previousNode = actionNode;
+
+        if (!actionNode.params.isEmpty()) {
+            actionNode.params.forEach(this::acceptNode);
+        }
+
+        if (!actionNode.retParams.isEmpty()) {
+            actionNode.retParams.forEach(this::acceptNode);
+        }
+
+        if (actionNode.body != null) {
+            acceptNode(actionNode.body);
+        }
+
+        if (!actionNode.workers.isEmpty()) {
+            actionNode.workers.forEach(this::acceptNode);
+        }
     }
 
     public void visit(BLangService serviceNode) {
@@ -430,7 +458,18 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        // TODO: implement support for hover.
+        previousNode = transactionNode;
+        if (transactionNode.transactionBody != null) {
+            acceptNode(transactionNode.transactionBody);
+        }
+
+        if (transactionNode.failedBody != null) {
+            acceptNode(transactionNode.failedBody);
+        }
+
+        if (transactionNode.retryCount != null) {
+            acceptNode(transactionNode.retryCount);
+        }
     }
 
     @Override
@@ -445,7 +484,22 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorker workerNode) {
-        // TODO: implement support for hover.
+        previousNode = workerNode;
+        if (!workerNode.params.isEmpty()) {
+            workerNode.params.forEach(this::acceptNode);
+        }
+
+        if (!workerNode.retParams.isEmpty()) {
+            workerNode.retParams.forEach(this::acceptNode);
+        }
+
+        if (workerNode.body != null) {
+            acceptNode(workerNode.body);
+        }
+
+        if (!workerNode.workers.isEmpty()) {
+            workerNode.workers.forEach(this::acceptNode);
+        }
     }
 
     @Override
