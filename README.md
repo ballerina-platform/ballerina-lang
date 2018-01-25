@@ -1,8 +1,8 @@
 # Ballerina plugin for IntelliJ IDEA
 
 [![Build Status](https://travis-ci.org/ballerinalang/ballerina.svg?branch=master)](https://travis-ci.org/ballerinalang/ballerina)
-[![Version](http://phpstorm.espend.de/badge/9520/version)][plugin-website]
-[![Downloads](http://phpstorm.espend.de/badge/9520/downloads)][plugin-website]
+[![Version](https://img.shields.io/jetbrains/plugin/v/9520-ballerina.svg)](https://plugins.jetbrains.com/plugin/9520-ballerina)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/9520-ballerina.svg)](https://plugins.jetbrains.com/plugin/9520-ballerina)
 
 ## Building from the source
 
@@ -51,5 +51,3 @@ Ballerina IDEA plugin source is available under the Apache 2.0 License.
 
 ## Copyright
 Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-
-[plugin-website]: https://plugins.jetbrains.com/plugin/9520-ballerina
