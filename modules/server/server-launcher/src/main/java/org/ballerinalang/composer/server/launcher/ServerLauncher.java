@@ -53,7 +53,7 @@ public class ServerLauncher {
             composerLogManagerUtils.updateLogManager();
             logger = LoggerFactory.getLogger(ServerLauncher.class);
         } catch (IOException e) {
-            logger.error("Error occurred while setting logging properties.", e);
+            logger.debug("Error occurred while setting logging properties.", e);
         }
     }
 
@@ -99,7 +99,7 @@ public class ServerLauncher {
                 try {
                     config = mapper.readValue(configFile, ServerConfig.class);
                 } catch (IOException e) {
-                    logger.error("Error while reading config file.", e);
+                    logger.debug("Error while reading config file.", e);
                 }
             }
         }
