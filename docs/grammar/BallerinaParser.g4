@@ -490,6 +490,7 @@ expression
     |   expression (ADD | SUB) expression                                   # binaryAddSubExpression
     |   expression (LT_EQUAL | GT_EQUAL | GT | LT) expression               # binaryCompareExpression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
+    |   expression (DEEP_EQUAL | DEEP_NOT_EQUAL) expression                 # binaryDeepEqualExpression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression

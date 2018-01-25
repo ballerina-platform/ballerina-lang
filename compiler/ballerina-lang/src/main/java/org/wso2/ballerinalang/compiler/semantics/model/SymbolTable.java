@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
@@ -87,6 +88,8 @@ public class SymbolTable {
     public final BType xmlAttributesType = new BXMLAttributesType(TypeTags.XML_ATTRIBUTES);
     public final BType connectorType = new BConnectorType(null, null);
     public final BType arrayType = new BArrayType(noType);
+    public final BType structType = new BStructType(null, null);
+    public final BType enumType = new BEnumType(null, null);
 
     public final BTypeSymbol errSymbol;
     public final BType errType;
@@ -271,7 +274,87 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, nullType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, stringType, nullType, booleanType, InstructionCodes.SNE_NULL);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, stringType, booleanType, InstructionCodes.SNE_NULL);
-
+    
+        //// Binary deep equality operators ===
+        // Primitives
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, intType, intType, booleanType, InstructionCodes.IEQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, floatType, floatType, booleanType, InstructionCodes.FEQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, booleanType, booleanType, booleanType, InstructionCodes.BEQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, stringType, stringType, booleanType, InstructionCodes.SEQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, typeType, typeType, booleanType, InstructionCodes.TEQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, jsonType, nullType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, nullType, jsonType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, xmlType, nullType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, nullType, xmlType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, datatableType, nullType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, nullType, datatableType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, anyType, nullType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, nullType, anyType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, mapType, nullType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, nullType, mapType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, connectorType, nullType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, nullType, connectorType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, nullType, arrayType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, arrayType, nullType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, nullType, nullType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, stringType, nullType, booleanType, InstructionCodes.SEQ_NULL);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, nullType, stringType, booleanType, InstructionCodes.SEQ_NULL);
+        // Refs
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, structType, structType, booleanType, InstructionCodes.RDEQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, structType, nullType, booleanType, InstructionCodes.RDEQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, nullType, structType, booleanType, InstructionCodes.RDEQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, arrayType, arrayType, booleanType, InstructionCodes.RDEQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, mapType, mapType, booleanType, InstructionCodes.RDEQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, anyType, anyType, booleanType, InstructionCodes.RDEQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, jsonType, jsonType, booleanType, InstructionCodes.RDEQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, xmlType, xmlType, booleanType, InstructionCodes.RDEQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, connectorType, connectorType, booleanType, InstructionCodes.RDEQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, datatableType, datatableType, booleanType, InstructionCodes.RDEQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, enumType, enumType, booleanType, InstructionCodes.RDEQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, enumType, nullType, booleanType, InstructionCodes.RDEQ);
+        defineBinaryOperator(OperatorKind.DEEP_EQUAL, nullType, enumType, booleanType, InstructionCodes.RDEQ);
+    
+        //// Binary deep not equality operators !==
+        // Primitives
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, intType, intType, booleanType, InstructionCodes.INE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, floatType, floatType, booleanType, InstructionCodes.FNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, booleanType, booleanType, booleanType, InstructionCodes.BNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, stringType, stringType, booleanType, InstructionCodes.SNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, typeType, typeType, booleanType, InstructionCodes.TNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, jsonType, nullType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, nullType, jsonType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, xmlType, nullType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, nullType, xmlType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, datatableType, nullType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, nullType, datatableType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, anyType, nullType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, nullType, anyType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, mapType, nullType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, nullType, mapType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, connectorType, nullType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, nullType, connectorType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, nullType, arrayType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, arrayType, nullType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, nullType, nullType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, stringType, nullType, booleanType, InstructionCodes.SNE_NULL);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, nullType, stringType, booleanType, InstructionCodes.SNE_NULL);
+        // Refs
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, structType, structType, booleanType, InstructionCodes.RDNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, structType, nullType, booleanType, InstructionCodes.RDNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, nullType, structType, booleanType, InstructionCodes.RDNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, arrayType, arrayType, booleanType, InstructionCodes.RDNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, mapType, mapType, booleanType, InstructionCodes.RDNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, anyType, anyType, booleanType, InstructionCodes.RDNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, jsonType, jsonType, booleanType, InstructionCodes.RDNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, xmlType, xmlType, booleanType, InstructionCodes.RDNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, connectorType, connectorType, booleanType,
+                                                                                                InstructionCodes.RDNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, datatableType, datatableType, booleanType,
+                                                                                                InstructionCodes.RDNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, enumType, enumType, booleanType, InstructionCodes.RDNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, enumType, nullType, booleanType, InstructionCodes.RDNE);
+        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, nullType, enumType, booleanType, InstructionCodes.RDNE);
+        
         // Binary comparison operators <=, <, >=, >
         defineBinaryOperator(OperatorKind.LESS_THAN, intType, intType, booleanType, InstructionCodes.ILT);
         defineBinaryOperator(OperatorKind.LESS_THAN, intType, floatType, booleanType, InstructionCodes.FLT);

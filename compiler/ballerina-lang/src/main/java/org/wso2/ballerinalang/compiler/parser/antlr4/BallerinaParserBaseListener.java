@@ -1612,6 +1612,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterBinaryDeepEqualExpression(BallerinaParser.BinaryDeepEqualExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBinaryDeepEqualExpression(BallerinaParser.BinaryDeepEqualExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterTernaryExpression(BallerinaParser.TernaryExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}

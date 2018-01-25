@@ -1422,6 +1422,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitUnaryExpression(BallerinaParser.UnaryExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code binaryDeepEqualExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterBinaryDeepEqualExpression(BallerinaParser.BinaryDeepEqualExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code binaryDeepEqualExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitBinaryDeepEqualExpression(BallerinaParser.BinaryDeepEqualExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ternaryExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
