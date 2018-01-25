@@ -166,7 +166,7 @@ public class HttpDispatcher {
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = request;
         bValues[1] = response;
-        if (paramDetails.size() <= 2) {
+        if (paramDetails.size() == 2) {
             return bValues;
         }
 
