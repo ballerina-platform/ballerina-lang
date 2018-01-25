@@ -394,7 +394,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangService serviceNode) {
-        /* ignore */
+        serviceNode.resources.forEach(res -> res.accept(this));
     }
 
     public void visit(BLangResource resourceNode) {

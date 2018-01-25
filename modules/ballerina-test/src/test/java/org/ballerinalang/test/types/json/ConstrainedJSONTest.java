@@ -257,41 +257,6 @@ public class ConstrainedJSONTest {
     }
 
     @Test
-    public void testIntArrayToJsonAssignment() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIntArrayToJsonAssignment");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "[1, 5, 9]");
-    }
-
-    @Test
-    public void testFloatArrayToJsonAssignment() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatArrayToJsonAssignment");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "[1.3, 5.4, 9.4]");
-    }
-
-    @Test
-    public void testStringArrayToJsonAssignment() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStringArrayToJsonAssignment");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "[\"apple\", \"orange\"]");
-    }
-
-    @Test
-    public void testBooleanArrayToJsonAssignment() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanArrayToJsonAssignment");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "[true, true, false]");
-    }
-
-    @Test
-    public void testJSONArrayToJsonAssignment() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToJsonAssignment");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "[{\"a\":\"b\"},{\"c\":\"d\"}]");
-    }
-
-    @Test
     public void testCJSONArrayToJsonAssignment() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCJSONArrayToJsonAssignment");
         Assert.assertNotNull(returns[0]);

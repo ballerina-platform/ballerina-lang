@@ -51,7 +51,7 @@ public class VMDebuggerUtil {
                 break;
             }
             checkDebugPointHit(expRes, debugger.getClientHandler().haltPosition, currentStep);
-            currentStep = expRes.getCurrent().getNextStep();
+            currentStep = expRes.getCurrentWorkerResult().getNextStep();
             executeDebuggerCmd(debugger, debugger.getClientHandler(), currentStep);
         }
     }
@@ -59,8 +59,8 @@ public class VMDebuggerUtil {
     private static void checkDebugPointHit(ExpectedResults expRes, BreakPointDTO halt, Step crntStep) {
         BreakPointDTO expLocation;
         if (!expRes.isMultiThreaded() || !Step.RESUME.equals(crntStep)) {
-            expLocation = expRes.getCurrent().getCurrentLocation();
-            expRes.getCurrent().incrementPointer();
+            expLocation = expRes.getCurrentWorkerResult().getCurrentLocation();
+            expRes.getCurrentWorkerResult().incrementPointer();
         } else {
             expLocation = findDebugPoint(expRes, halt);
         }
@@ -69,32 +69,17 @@ public class VMDebuggerUtil {
     }
 
     private static BreakPointDTO findDebugPoint(ExpectedResults expRes, BreakPointDTO halt) {
-        BreakPointDTO expLocation = findDebugPointInWorkerRes(expRes.getCurrent());
-        if (halt.equals(expLocation)) {
-            expRes.getCurrent().incrementPointer();
-            return expLocation;
-        }
+        BreakPointDTO expLocation;
         List<WorkerResults> workerResults = expRes.getWorkerResults();
         for (WorkerResults workerRes : workerResults) {
-            if (workerRes == expRes.getCurrent()) {
-                continue;
-            }
-            expLocation = findDebugPointInWorkerRes(workerRes);
-            if (halt.equals(expLocation)) {
-                workerRes.incrementPointer();
-                expRes.setCurrent(workerRes);
+            expLocation = workerRes.findDebugPoint(halt);
+            if (expLocation != null) {
+                expRes.setCurrentWorkerResult(workerRes);
                 return expLocation;
             }
         }
-        expRes.setCurrent(null);
+        expRes.setCurrentWorkerResult(null);
         return null;
-    }
-
-    private static BreakPointDTO findDebugPointInWorkerRes(WorkerResults workerRes) {
-        if (workerRes == null) {
-            return null;
-        }
-        return workerRes.getCurrentLocation();
     }
 
     public static BreakPointDTO[] createWorkerBreakPoints(String packagePath, String fileName, int... lineNos) {

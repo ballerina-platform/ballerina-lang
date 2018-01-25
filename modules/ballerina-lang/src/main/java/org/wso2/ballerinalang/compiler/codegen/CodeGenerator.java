@@ -2560,8 +2560,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
-        Operand failedTransBlockEndAddr = getOperand(-1);
-        Instruction gotoFailedTransBlockEnd = InstructionFactory.get(InstructionCodes.GOTO, failedTransBlockEndAddr);
+        Operand transStmtEndAddr = getOperand(-1);
+        Instruction gotoFailedTransBlockEnd = InstructionFactory.get(InstructionCodes.GOTO, transStmtEndAddr);
         abortInstructions.push(gotoFailedTransBlockEnd);
 
         //start transaction
@@ -2581,7 +2581,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         abortInstructions.pop();
 
-        Operand transStmtEndAddr = getOperand(-1);
         emit(InstructionCodes.GOTO, transStmtEndAddr);
 
         // CodeGen for error handling.
@@ -2592,16 +2591,13 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         }
         emit(InstructionCodes.GOTO, transBlockStartAddr);
-        int ifIP = nextIP();
-        retryInsAddr.value = ifIP;
+        retryInsAddr.value = nextIP();
+        emit(InstructionCodes.TR_END, getOperand(TransactionStatus.END.value()));
 
         emit(InstructionCodes.THROW, getOperand(-1));
         ErrorTableEntry errorTableEntry = new ErrorTableEntry(transBlockStartAddr.value,
                 transBlockEndAddr, errorTargetIP, 0, -1);
         errorTable.addErrorTableEntry(errorTableEntry);
-
-        failedTransBlockEndAddr.value = nextIP();
-        emit(InstructionCodes.TR_END, getOperand(TransactionStatus.FAILED.value()));
 
         transStmtEndAddr.value = nextIP();
         emit(InstructionCodes.TR_END, getOperand(TransactionStatus.END.value()));
@@ -2919,6 +2915,8 @@ public class CodeGenerator extends BLangNodeVisitor {
                 .forEach(varRef -> visitVarSymbol(varRef.symbol, lvIndexes, localVarAttrInfo));
         List<Operand> nextOperands = new ArrayList<>();
         nextOperands.add(iteratorIndex);
+        nextOperands.add(new Operand(variables.size()));
+        foreach.varTypes.forEach(v -> nextOperands.add(new Operand(v.tag)));
         nextOperands.add(new Operand(variables.size()));
         for (int i = 0; i < variables.size(); i++) {
             BLangVariableReference varRef = variables.get(i);

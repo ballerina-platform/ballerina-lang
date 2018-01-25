@@ -19,7 +19,6 @@ package org.ballerinalang.model.values;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.util.BLangConstants;
@@ -456,14 +455,6 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
             }
             int cursor = this.cursor++;
             return new BValue[] {new BInteger(cursor), value.sequence.get(cursor)};
-        }
-
-        @Override
-        public BType[] getParamType(int arity) {
-            if (arity == 1) {
-                return new BType[] {BTypes.typeXML};
-            }
-            return new BType[] {BTypes.typeInt, BTypes.typeXML};
         }
 
         @Override

@@ -303,17 +303,6 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
         }
 
         @Override
-        public BType[] getParamType(int arity) {
-            if (arity == 1) {
-                return new BType[] {BTypes.typeJSON};
-            }
-            if (arity == 2 && isJSONArray) {
-                return new BType[] {BTypes.typeInt, BTypes.typeJSON};
-            }
-            return null;
-        }
-
-        @Override
         public boolean hasNext() {
             return isJSONArray ? cursor < size : iterator.hasNext();
         }

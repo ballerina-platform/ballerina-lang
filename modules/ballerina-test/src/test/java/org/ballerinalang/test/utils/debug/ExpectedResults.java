@@ -40,15 +40,6 @@ public class ExpectedResults {
         this.multiThreaded = multiThreaded;
     }
 
-    public boolean checkDebugSuccess() {
-        for (WorkerResults r : workerResults) {
-            if (!r.allPointsHit()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public void addWorkerResults(WorkerResults workerResults) {
         this.workerResults.add(workerResults);
     }
@@ -57,15 +48,11 @@ public class ExpectedResults {
         return workerResults;
     }
 
-    public void setWorkerResults(List<WorkerResults> workerResults) {
-        this.workerResults = workerResults;
-    }
-
-    public WorkerResults getCurrent() {
+    public WorkerResults getCurrentWorkerResult() {
         return current;
     }
 
-    public void setCurrent(WorkerResults current) {
+    public void setCurrentWorkerResult(WorkerResults current) {
         this.current = current;
     }
 
