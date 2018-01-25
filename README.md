@@ -1,5 +1,6 @@
 # Ballerina plugin for IntelliJ IDEA
 
+[![Build Status](https://travis-ci.org/ballerinalang/ballerina.svg?branch=master)](https://travis-ci.org/ballerinalang/ballerina)
 [![Version](http://phpstorm.espend.de/badge/9520/version)][plugin-website]
 [![Downloads](http://phpstorm.espend.de/badge/9520/downloads)][plugin-website]
 
