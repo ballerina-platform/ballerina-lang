@@ -13,10 +13,10 @@ service<http> echo {
         methods:["POST"],
         path:"/"
     }
-    resource echo (http:Request req, http:Response res) {
+    resource echo (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setStringPayload("hello world");
-        _ = res.send();
-
+        _ = conn.respond(res);
     }
 }
 
@@ -34,10 +34,10 @@ service<http> echoOne {
         methods:["POST"],
         path:"/abc"
     }
-    resource echoAbc (http:Request req, http:Response res) {
+    resource echoAbc (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setStringPayload("hello world");
-        _ = res.send();
-
+        _ = conn.respond(res);
     }
 }
 
@@ -51,10 +51,9 @@ service<http> echoDummy {
         methods:["POST"],
         path:"/"
     }
-    resource echoDummy (http:Request req, http:Response res) {
+    resource echoDummy (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setStringPayload("hello world");
-        _ = res.send();
-
+        _ = conn.respond(res);
     }
-
 }
