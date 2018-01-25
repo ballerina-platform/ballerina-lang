@@ -237,7 +237,7 @@ public class ServiceTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertEquals(responseMsg.getProperty(Constants.HTTP_STATUS_CODE), (long) 204);
+        Assert.assertEquals(responseMsg.getProperty(Constants.HTTP_STATUS_CODE), 204);
     }
 
     @Test(description = "Test Http PATCH verb dispatching without a responseMsgPayload")
@@ -247,7 +247,7 @@ public class ServiceTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertEquals(responseMsg.getProperty(Constants.HTTP_STATUS_CODE), (long) 204);
+        Assert.assertEquals(responseMsg.getProperty(Constants.HTTP_STATUS_CODE), 204);
     }
 
     //TODO: add more test cases

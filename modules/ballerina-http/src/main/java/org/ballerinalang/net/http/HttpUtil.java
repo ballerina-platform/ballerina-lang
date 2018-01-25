@@ -766,7 +766,7 @@ public class HttpUtil {
         if (isOutboundResponseStruct(struct)) {
             if (struct.getIntField(Constants.OUT_RESPONSE_STATUS_CODE_INDEX) != 0) {
                 cMsg.setProperty(Constants.HTTP_STATUS_CODE,
-                        struct.getIntField(Constants.OUT_RESPONSE_STATUS_CODE_INDEX));
+                        getIntValue(struct.getIntField(Constants.OUT_RESPONSE_STATUS_CODE_INDEX)));
             }
             if (!struct.getStringField(Constants.OUT_RESPONSE_REASON_PHRASE_INDEX).isEmpty()) {
                 cMsg.setProperty(Constants.HTTP_REASON_PHRASE,
@@ -1092,5 +1092,15 @@ public class HttpUtil {
         }
 
         return annotationList.isEmpty() ? null : annotationList.get(0);
+    }
+
+    private static int getIntValue(long val) {
+        int intVal = (int) val;
+
+        if (intVal != val) {
+            throw new IllegalArgumentException("invalid argument: " + val);
+        }
+
+        return intVal;
     }
 }

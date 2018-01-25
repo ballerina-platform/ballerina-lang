@@ -30,8 +30,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
-
 /**
  * Native function to respond back the caller with outbound response.
  *
