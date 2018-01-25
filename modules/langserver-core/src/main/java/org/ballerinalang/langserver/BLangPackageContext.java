@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver;
 
 import org.ballerinalang.model.Name;
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Package context to keep the builtin and the current package.
@@ -33,6 +35,8 @@ import java.util.Map;
 public class BLangPackageContext {
 
     private Map<String, BLangPackage> packageMap = new HashMap<>();
+    
+    private ArrayList<PackageID> sdkPackages = new ArrayList<>();
 
     public BLangPackageContext() {
         List<BLangPackage> builtInPackages = BallerinaPackageLoader.getBuiltinPackages();
@@ -118,5 +122,13 @@ public class BLangPackageContext {
      */
     public boolean containsPackage(String packageName) {
         return this.packageMap.containsKey(packageName);
+    }
+    
+    public ArrayList<PackageID> getSDKPackages(CompilerContext context) {
+        if (sdkPackages.isEmpty()) {
+            Set<PackageID> pkgList = BallerinaPackageLoader.getPackageList(context, -1);
+            sdkPackages.addAll(pkgList);
+        }
+        return sdkPackages;
     }
 }
