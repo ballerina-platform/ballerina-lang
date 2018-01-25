@@ -1,0 +1,2 @@
+//This example demonstrates how the HTTP client connector can be configured to connect to and invoke an HTTPS service through
+//1-way SSL connection (server is verified by the client).

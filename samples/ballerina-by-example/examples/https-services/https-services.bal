@@ -1,6 +1,6 @@
 import ballerina.net.http;
 
-@Description {value:"Ballerina server connector can be used to connect to a https client. If client needs to verify server authenticity when establishing the connection, server needs to provide keyStoreFile, keyStorePassword and certificate password as given here."}
+@Description {value:"Services can be configured to listen to and serve HTTPS requests. To do so, a keystore (containing a certificate and a key) has to be provided."}
 @http:configuration {
     basePath:"/hello",
     httpsPort:9095,
@@ -16,7 +16,7 @@ service<http> helloWorld {
     }
 
     resource sayHello (http:Request req, http:Response res) {
-        res.setStringPayload("Successful");
+        res.setStringPayload("Hello World!");
         _ = res.send();
     }
 }

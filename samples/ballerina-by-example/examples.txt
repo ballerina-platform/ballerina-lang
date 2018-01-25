@@ -61,8 +61,8 @@ HTTP Sessions
 HTTP Client Connector
 HTTP Trace Logs
 HTTP 100 Continue
-HTTPS Server Connector
-HTTPS Server/Client Connectors
+HTTPS Services
+HTTPS Service Invocation
 HTTP Disable Chunking
 HTTP to WebSocket Upgrade
 HTTP CORS

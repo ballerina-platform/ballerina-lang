@@ -1,1 +1,2 @@
-//The passthrough sample exhibits the process of HTTP client connector. Echo Service is used as a sample backend.
+//This example demonstrates how a Ballerina service can be used in between an upstream service and a client, as a proxy/gateway.
+//A simple echo service is used as a sample upstream service.
