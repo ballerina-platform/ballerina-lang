@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
@@ -26,6 +27,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
@@ -35,6 +37,8 @@ import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
  * Loads the Ballerina builtin core and builtin packages.
  */
 public class BallerinaPackageLoader {
+    
+    private static final int MAX_DEPTH = 10;
 
     /**
      * Get the Builtin Package.
@@ -72,5 +76,16 @@ public class BallerinaPackageLoader {
         options.put(PRESERVE_WHITESPACE, "false");
         
         return context;
+    }
+
+    /**
+     * Get the packages set.
+     * @param context       Current CompilerContext
+     * @param maxDepth      Max depth to be searched
+     * @return              {@link Set} set of packages
+     */
+    public static Set<PackageID> getPackageList(CompilerContext context, int maxDepth) {
+        PackageLoader pkgLoader = PackageLoader.getInstance(context);
+        return pkgLoader.listPackages(Math.max(MAX_DEPTH, maxDepth));
     }
 }

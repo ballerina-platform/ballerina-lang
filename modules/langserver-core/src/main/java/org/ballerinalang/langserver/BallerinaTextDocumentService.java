@@ -106,6 +106,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             TextDocumentServiceContext completionContext = new TextDocumentServiceContext();
             completionContext.put(DocumentServiceKeys.POSITION_KEY, position);
             completionContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
+            completionContext.put(DocumentServiceKeys.B_LANG_PACKAGE_CONTEXT_KEY, bLangPackageContext);
             try {
                 BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext, documentManager);
                 // Visit the package to resolve the symbols

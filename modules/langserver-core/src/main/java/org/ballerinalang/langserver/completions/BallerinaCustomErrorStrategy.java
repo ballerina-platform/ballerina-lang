@@ -127,7 +127,9 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
             return;
         }
 
-        setContextIfConnectorInit(context, e);
+        if (context instanceof BallerinaParser.NameReferenceContext) {
+            setContextIfConnectorInit(context, e);
+        }
     }
 
     /**
@@ -137,8 +139,7 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
      */
     private void setContextIfConnectorInit(ParserRuleContext context, InputMismatchException e) {
         ParserRuleContext connectorInitContext = context.getParent().getParent().getParent();
-        if (context instanceof BallerinaParser.NameReferenceContext
-                && connectorInitContext instanceof BallerinaParser.ConnectorInitExpressionContext) {
+        if (connectorInitContext instanceof BallerinaParser.ConnectorInitExpressionContext) {
             ParserRuleContext tempContext = context;
             while (true) {
                 tempContext.exception = e;
