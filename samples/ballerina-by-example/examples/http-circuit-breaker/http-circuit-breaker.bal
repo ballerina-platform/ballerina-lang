@@ -11,28 +11,29 @@ service<http> circuitBreakerDemo {
     // * If a request comes when it is in half-open state, it is sent to the backend and if it does not result in an error, the circuit state goes to 'close'.<br>
     // * If it fails though, the circuit goes back to 'open' state, and the above process repeats.<br>
     endpoint<resiliency:CircuitBreaker> circuitBreakerEP {
-        create resiliency:CircuitBreaker(create http:HttpClient("http://localhost:8080", {endpointTimeout:2000}), 30, 20000);
+        create resiliency:CircuitBreaker(create http:HttpClient("http://localhost:8080", {endpointTimeout:2000}), 0.3, 20000);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/"
     }
-    resource sayHello (http:Request request, http:Response response) {
-        http:Response clientRes;
+    resource sayHello (http:Connection conn, http:InRequest req) {
+        http:InResponse clientRes;
         http:HttpConnectorError err;
-        clientRes, err = circuitBreakerEP.forward("/hello", request);
+        clientRes, err = circuitBreakerEP.forward("/hello", req);
 
         if (err != null) {
             println(err);
             if (clientRes == null) {
-                clientRes = {};
-                clientRes.setStatusCode(err.statusCode);
+                http:OutResponse res = {};
+                res.statusCode = err.statusCode;
+                _ = conn.respond(res);
             }
         } else {
             println(clientRes.getStringPayload());
+            _ = conn.forward(clientRes);
         }
-        _ = response.forward(clientRes);
     }
 }
 
@@ -47,13 +48,13 @@ service<http> helloWorld {
         methods:["GET"],
         path:"/"
     }
-    resource sayHello (http:Request request, http:Response response) {
+    resource sayHello (http:Connection conn, http:InRequest req) {
         if (counter % 3 == 0) {
             sleep(5000);
         }
         counter = counter + 1;
-
-        response.setStringPayload("Hello World!!!");
-        _ = response.send();
+        http:OutResponse res = {};
+        res.setStringPayload("Hello World!!!");
+        _ = conn.respond(res);
     }
 }
