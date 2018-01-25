@@ -8,7 +8,8 @@ service<http> helloWorld {
     @http:resourceConfig {
         path: "/"
     }
-    resource sayHello (http:Request req, http:Response res) {
+    resource sayHello (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         // Check if the client expects a 100-continue response.
         if (req.expects100Continue()) {
             // Send a 100-continue response to the client.
@@ -24,6 +25,6 @@ service<http> helloWorld {
         res.setStatusCode(200);
         res.setStringPayload("Hello World!\n");
 
-        _ = res.send();
+        _ = conn.respond(res);
     }
 }

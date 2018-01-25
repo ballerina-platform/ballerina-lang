@@ -15,8 +15,8 @@ service<http> helloWorld {
         path:"/"
     }
 
-    resource sayHello (http:Connection conn, http:Request req) {
-        http:Response res = {};
+    resource sayHello (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setStringPayload("Successful");
         _ = conn.respond(res);
     }

@@ -78,6 +78,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         HTTPCarbonMessage requestMsg = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
 
+        HttpUtil.checkEntityAvailability(context, requestStruct);
+        HttpUtil.enrichOutboundMessage(requestMsg, requestStruct);
         prepareRequest(bConnector, path, requestMsg, requestStruct);
         try {
             String contentType = requestMsg.getHeader(CONTENT_TYPE);
@@ -96,8 +98,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             BStruct requestStruct) {
 
         validateParams(connector);
-
-        HttpUtil.enrichOutboundMessage(outboundRequest, requestStruct);
         try {
             String uri = connector.getStringField(0) + path;
             URL url = new URL(uri);
@@ -214,7 +214,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     (HttpClientConnector) bConnector.getnativeData(Constants.CONNECTOR_NAME);
             HttpResponseFuture future = clientConnector.send(httpRequestMsg);
             future.setHttpConnectorListener(httpClientConnectorLister);
-            if (MULTIPART_FORM_DATA.equals(new MimeType(httpRequestMsg.getHeader(CONTENT_TYPE)).getBaseType())) {
+            if (httpRequestMsg.getHeader(CONTENT_TYPE) != null &&
+                    MULTIPART_FORM_DATA.equals(new MimeType(httpRequestMsg.getHeader(CONTENT_TYPE)).getBaseType())) {
                 BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
                 HttpUtil.addMultipartsToCarbonMessage(httpRequestMsg,
                         (HttpPostRequestEncoder) requestStruct.getNativeData(MULTIPART_ENCODER));
