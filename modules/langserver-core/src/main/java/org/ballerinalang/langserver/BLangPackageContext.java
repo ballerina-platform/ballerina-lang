@@ -123,7 +123,12 @@ public class BLangPackageContext {
     public boolean containsPackage(String packageName) {
         return this.packageMap.containsKey(packageName);
     }
-    
+
+    /**
+     * Get the SDK packages
+     * @param context   CompletionContext
+     * @return          {@link List} list of packages visible in the SDK
+     */
     public ArrayList<PackageID> getSDKPackages(CompilerContext context) {
         if (sdkPackages.isEmpty()) {
             Set<PackageID> pkgList = BallerinaPackageLoader.getPackageList(context, -1);
