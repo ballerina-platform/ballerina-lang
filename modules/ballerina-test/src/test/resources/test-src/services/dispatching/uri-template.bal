@@ -222,10 +222,11 @@ service<http> echo113 {
         methods:["GET"],
         path:"/ech[o/{foo}"
     }
-    resource productsInfo (http:Request req, http:Response res, string foo) {
+    resource productsInfo (http:Connection conn, http:InRequest req, string foo) {
+        http:OutResponse res = {};
         json responseJson = {"echo113": foo};
         res.setJsonPayload(responseJson);
-        _ = res.send();
+        _ = conn.respond(res);
     }
 }
 
@@ -238,9 +239,10 @@ service<http> echo114 {
         methods:["GET"],
         path:"/ech%5Bo14/{foo}"
     }
-    resource productsInfo (http:Request req, http:Response res, string foo) {
+    resource productsInfo (http:Connection conn, http:InRequest req, string foo) {
+        http:OutResponse res = {};
         json responseJson = {"echo114": foo};
         res.setJsonPayload(responseJson);
-        _ = res.send();
+        _ = conn.respond(res);
     }
 }
