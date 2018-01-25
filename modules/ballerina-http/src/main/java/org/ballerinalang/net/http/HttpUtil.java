@@ -78,7 +78,6 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -508,30 +507,34 @@ public class HttpUtil {
         String errorMsg = ex.getMessage();
         log.error(errorMsg);
         ErrorHandlerUtils.printError(ex);
-        if (statusCode == 404) {
-            sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
-        } else {
-            sendOutboundResponse(requestMessage, createErrorMessage("", statusCode));
-        }
+        sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
     public static HTTPCarbonMessage createErrorMessage(String payload, int statusCode) {
         HTTPCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
         response.waitAndReleaseAllEntities();
-        response.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(payload.getBytes())));
-        setHttpStatusCodes(payload, statusCode, response);
+        if (payload != null) {
+            payload = lowerCaseTheFirstLetter(payload);
+            response.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(payload.getBytes())));
+        }
+        setHttpStatusCodes(statusCode, response);
 
         return response;
     }
 
-    private static void setHttpStatusCodes(String payload, int statusCode, HTTPCarbonMessage response) {
+    private static String lowerCaseTheFirstLetter(String payload) {
+        if (!payload.isEmpty()) {
+            char[] characters = payload.toCharArray();
+            characters[0] = Character.toLowerCase(characters[0]);
+            payload = new String(characters);
+        }
+        return payload;
+    }
+
+    private static void setHttpStatusCodes(int statusCode, HTTPCarbonMessage response) {
         HttpHeaders httpHeaders = response.getHeaders();
         httpHeaders.set(org.wso2.transport.http.netty.common.Constants.HTTP_CONTENT_TYPE,
                         org.wso2.transport.http.netty.common.Constants.TEXT_PLAIN);
-
-        byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
-        httpHeaders.set(org.wso2.transport.http.netty.common.Constants.HTTP_CONTENT_LENGTH,
-                        (String.valueOf(errorMessageBytes.length)));
 
         response.setProperty(org.wso2.transport.http.netty.common.Constants.HTTP_STATUS_CODE, statusCode);
     }

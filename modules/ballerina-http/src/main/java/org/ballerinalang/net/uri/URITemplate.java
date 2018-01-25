@@ -23,6 +23,7 @@ import org.ballerinalang.net.uri.parser.DataElementFactory;
 import org.ballerinalang.net.uri.parser.Node;
 import org.ballerinalang.net.uri.parser.URITemplateParser;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 /**
@@ -39,10 +40,6 @@ public class URITemplate<DataType, InboundMsgType> {
         this.syntaxTree = syntaxTree;
     }
 
-    public String expand(Map<String, String> variables) {
-        return null;
-    }
-
     public DataType matches(String uri, Map<String, String> variables, InboundMsgType inboundMsg) {
         DataElement<DataType, InboundMsgType> dataElement = syntaxTree.matchAll(uri, variables, 0);
         if (dataElement == null) {
@@ -53,14 +50,14 @@ public class URITemplate<DataType, InboundMsgType> {
 
     public void parse(String uriTemplate, DataType resource,
                       DataElementFactory<? extends DataElement<DataType, InboundMsgType>>
-                              elementCreator) throws URITemplateException {
+                              elementCreator) throws URITemplateException, UnsupportedEncodingException {
         uriTemplate = removeTheFirstAndLastBackSlash(uriTemplate);
 
         URITemplateParser<DataType, InboundMsgType> parser = new URITemplateParser<>(syntaxTree, elementCreator);
         parser.parse(uriTemplate, resource);
     }
 
-    public String removeTheFirstAndLastBackSlash(String template) throws URITemplateException {
+    private String removeTheFirstAndLastBackSlash(String template) throws URITemplateException {
         String uri = template;
         if ("/".equals(uri)) {
             return uri;
