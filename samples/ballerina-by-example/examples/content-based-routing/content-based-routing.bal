@@ -24,14 +24,14 @@ service<http> contentBasedRouting {
         } else {
             clientResponse, err = locationEP.post("/v2/594e026c1100004011d6d39c", {});
         }
-        //Native function "respond" sends back the clientResponse to the caller.
+        //Native function "forward" sends back the clientResponse to the caller.
         http:OutResponse res = {};
         if (err != null) {
             res.statusCode = 500;
             res.setStringPayload(err.msg);
             _ = conn.respond(res);
         } else {
-            _ = conn.respond(clientResponse);
+            _ = conn.forward(clientResponse);
         }
     }
 }

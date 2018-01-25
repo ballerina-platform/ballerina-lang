@@ -113,25 +113,6 @@ public class HttpUtil {
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
     private static BStructType headerValueStructType;
 
-    public static BValue[] addHeader(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BStruct httpMessageStruct = ((BStruct) abstractNativeFunction.getRefArgument(context, 0));
-        HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-
-        String headerName = abstractNativeFunction.getStringArgument(context, 0);
-        String headerValue = abstractNativeFunction.getStringArgument(context, 1);
-
-        HttpHeaders httpHeaders = httpCarbonMessage.getHeaders();
-        httpHeaders.add(headerName, headerValue);
-
-        if (log.isDebugEnabled()) {
-            log.debug("Add " + headerName + " to header with value: " + headerValue);
-        }
-
-        return AbstractNativeFunction.VOID_RETURN;
-    }
-
     public static BValue[] getProperty(Context context,
             AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
@@ -150,45 +131,6 @@ public class HttpUtil {
         } else {
             throw new BallerinaException("Property value is of unknown type : " + propertyValue.getClass().getName());
         }
-    }
-
-    public static BValue[] removeAllHeaders(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-        HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-        httpCarbonMessage.getHeaders().clear();
-        return AbstractNativeFunction.VOID_RETURN;
-    }
-
-    public static BValue[] removeHeader(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-        String headerName = abstractNativeFunction.getStringArgument(context, 0);
-
-        HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-        httpCarbonMessage.removeHeader(headerName);
-        if (log.isDebugEnabled()) {
-            log.debug("Remove header:" + headerName);
-        }
-        return AbstractNativeFunction.VOID_RETURN;
-    }
-
-    public static BValue[] setHeader(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-        String headerName = abstractNativeFunction.getStringArgument(context, 0);
-        String headerValue = abstractNativeFunction.getStringArgument(context, 1);
-
-        HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-        httpCarbonMessage.setHeader(headerName, headerValue);
-
-        if (log.isDebugEnabled()) {
-            log.debug("Set " + headerName + " header with value: " + headerValue);
-        }
-        return AbstractNativeFunction.VOID_RETURN;
     }
 
     public static BValue[] setProperty(Context context,
