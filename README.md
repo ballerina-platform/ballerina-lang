@@ -1,5 +1,8 @@
 # Ballerina plugin for IntelliJ IDEA
 
+[![Version](http://phpstorm.espend.de/badge/9520/version)][plugin-website]
+[![Downloads](http://phpstorm.espend.de/badge/9520/downloads)][plugin-website]
+
 ## Building from the source
 
 1. Clone the repository using the following command.
@@ -47,3 +50,5 @@ Ballerina IDEA plugin source is available under the Apache 2.0 License.
 
 ## Copyright
 Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+
+[plugin-website]: https://plugins.jetbrains.com/plugin/9520-ballerina
