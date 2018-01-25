@@ -26,8 +26,8 @@ function main (string[] args) {
             repo = "wso2-synapse";
         }
         string repoPRpath = "/repos/wso2/" + repo + "/pulls";
-        http:Request request = {};
-        http:Response gitHubResponse = {};
+        http:OutRequest request = {};
+        http:InResponse gitHubResponse = {};
         http:HttpConnectorError err;
         gitHubResponse, err = gitHubEP.get(repoPRpath, request);
         json gitHubJsonResponse = gitHubResponse.getJsonPayload();
@@ -37,7 +37,7 @@ function main (string[] args) {
         string oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, textMsg);
         request.setHeader("Authorization", oauthHeader);
         string tweetPath = "/1.1/statuses/update.json?status=" + uri:encode(textMsg);
-        http:Response response = {};
+        http:InResponse response = {};
         response, err = tweeterEP.post(tweetPath, request);
         println("Successfully tweeted: '" + textMsg + "'");
     }

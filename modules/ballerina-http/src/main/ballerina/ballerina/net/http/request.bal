@@ -228,7 +228,7 @@ public function <OutRequest request> getMultiparts () (mime:Entity[]) {
 @Param {value:"request: The outbound request message"}
 @Param {value:"payload: The JSON payload to be set to the request"}
 public function <OutRequest request> setJsonPayload (json payload) {
-    mime:Entity entity = {};
+    mime:Entity entity = request.getEntity();
     entity.jsonData = payload;
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_JSON);
     entity.contentType = mediaType;
@@ -239,7 +239,7 @@ public function <OutRequest request> setJsonPayload (json payload) {
 @Param {value:"request: The outbound request message"}
 @Param {value:"payload: The XML payload object"}
 public function <OutRequest request> setXmlPayload (xml payload) {
-    mime:Entity entity = {};
+    mime:Entity entity = request.getEntity();
     entity.xmlData = payload;
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_XML);
     entity.contentType = mediaType;
@@ -250,7 +250,7 @@ public function <OutRequest request> setXmlPayload (xml payload) {
 @Param {value:"request: The outbound request message"}
 @Param {value:"payload: The payload to be set to the request as a string"}
 public function <OutRequest request> setStringPayload (string payload) {
-    mime:Entity entity = {};
+    mime:Entity entity = request.getEntity();
     entity.textData = payload;
     mime:MediaType mediaType = mime:getMediaType(mime:TEXT_PLAIN);
     entity.contentType = mediaType;
@@ -261,7 +261,7 @@ public function <OutRequest request> setStringPayload (string payload) {
 @Param {value:"request: outbound request message"}
 @Param {value:"payload: The blob representation of the message payload"}
 public function <OutRequest request> setBinaryPayload (blob payload) {
-    mime:Entity entity = {};
+    mime:Entity entity = request.getEntity();
     entity.byteData = payload;
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
     entity.contentType = mediaType;
@@ -272,7 +272,7 @@ public function <OutRequest request> setBinaryPayload (blob payload) {
 @Param {value:"request: The request message"}
 @Param {value:"bodyParts: Represent body parts that needs to be set to the request"}
 public function <OutRequest request> setMultiparts (mime:Entity[] bodyParts) {
-    mime:Entity entity = {};
+    mime:Entity entity = request.getEntity();
     entity.multipartData = bodyParts;
     mime:MediaType mediaType = mime:getMediaType(mime:MULTIPART_FORM_DATA);
     entity.contentType = mediaType;

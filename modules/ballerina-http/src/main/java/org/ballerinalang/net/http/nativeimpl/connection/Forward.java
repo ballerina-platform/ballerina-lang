@@ -59,13 +59,6 @@ public class Forward extends AbstractNativeFunction {
         HttpUtil.checkFunctionValidity(connectionStruct, requestMessage);
         HTTPCarbonMessage responseMessage = HttpUtil
                 .getCarbonMsg(inboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
-        HttpUtil.setKeepAliveHeader(context, responseMessage);
-
-        BStruct entity = (BStruct) inboundResponseStruct.getNativeData(MESSAGE_ENTITY);
-        if (entity == null) {
-            HttpUtil.setNewEntityToStruct(context, inboundResponseStruct);
-        }
-        HttpUtil.setHeadersToTransportMessage(responseMessage, inboundResponseStruct);
 
         return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage,
                 inboundResponseStruct);

@@ -6,24 +6,24 @@ service<http> passthrough {
     @http:resourceConfig {
         path:"/"
     }
-    resource passthrough (http:Connection conn, http:Request req) {
+    resource passthrough (http:Connection conn, http:InRequest req) {
         endpoint<http:HttpClient> endPoint {
             create http:HttpClient("http://localhost:9090/echo", {});
         }
         //Extract HTTP method from the inbound request.
         string method = req.getMethod();
-        http:Response clientResponse = {};
+        http:InResponse clientResponse = {};
         http:HttpConnectorError err;
-        //Action execute() does a backend client call and returns the response. It includes endPoint, HTTP method, resource path and request as parameters.
-        clientResponse, err = endPoint.execute(method, "/", req);
-        //Native function "respond" sends back the clientResponse to the caller if no any error is found.
-        http:Response res = {};
+        //Action forward() does a backend client call and returns the response. It includes endPoint, resource path and inbound request as parameters.
+        clientResponse, err = endPoint.forward("/", req);
+        //Native function "forward" sends back the clientResponse to the caller if no any error is found.
+        http:OutResponse res = {};
         if (err != null) {
             res.setStatusCode(500);
             res.setStringPayload(err.msg);
             _ = conn.respond(res);
         } else {
-            _ = conn.respond(clientResponse);
+            _ = conn.forward(clientResponse);
         }
     }
 }
@@ -35,8 +35,8 @@ service<http> echo {
         methods:["POST", "PUT", "GET"],
         path:"/"
     }
-    resource echoResource (http:Connection conn, http:Request req) {
-        http:Response res = {};
+    resource echoResource (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setStringPayload("Resource is invoked");
         _ = conn.respond(res);
     }

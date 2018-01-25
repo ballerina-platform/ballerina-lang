@@ -59,13 +59,6 @@ public class Respond extends AbstractNativeFunction {
         HttpUtil.checkFunctionValidity(connectionStruct, requestMessage);
         HTTPCarbonMessage responseMessage = HttpUtil
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
-        HttpUtil.setKeepAliveHeader(context, responseMessage);
-
-        BStruct entity = (BStruct) outboundResponseStruct.getNativeData(MESSAGE_ENTITY);
-        if (entity == null) {
-            HttpUtil.setNewEntityToStruct(context, outboundResponseStruct);
-        }
-        HttpUtil.enrichOutboundMessage(responseMessage, outboundResponseStruct);
 
         return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage,
                 outboundResponseStruct);

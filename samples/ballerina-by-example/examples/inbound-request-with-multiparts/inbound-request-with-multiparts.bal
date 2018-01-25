@@ -8,7 +8,7 @@ service<http> echo {
     @http:resourceConfig {
         methods:["POST"],
         path:"/receivableParts"
-    }
+    }r
     resource echo (http:Connection conn, http:InRequest req) {
         //Extract multiparts from the inbound request
         mime:Entity[] bodyParts = req.getMultiparts();
