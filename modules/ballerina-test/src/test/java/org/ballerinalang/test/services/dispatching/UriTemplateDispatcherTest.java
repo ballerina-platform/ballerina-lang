@@ -363,4 +363,30 @@ public class UriTemplateDispatcherTest {
         Assert.assertEquals(bJson.value().get("echo").asText(), "sanitized"
                 , "Resource dispatched to wrong template");
     }
+
+    @Test(description = "Test dispatching with OPTIONS request with wildcard")
+    public void testSpecialCharacterURI() {
+        String path = "/ech%5Bo/ech%5Bo/b%5Bar";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET", null);
+        HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(bJson.value().get("echo113").asText(), "b[ar"
+                , "Resource dispatched to wrong template");
+    }
+
+    @Test(description = "Test dispatching with OPTIONS request with wildcard")
+    public void testSpecialCharacterEscapedURI() {
+        String path = "/ech%5Bo14/ech%5Bo14/b%5Bar14";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET", null);
+        HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(bJson.value().get("echo114").asText(), "b[ar14"
+                , "Resource dispatched to wrong template");
+    }
 }
