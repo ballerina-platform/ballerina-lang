@@ -571,7 +571,7 @@ public class ResponseNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), (long) 203);
+        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 203);
     }
 
     @Test
