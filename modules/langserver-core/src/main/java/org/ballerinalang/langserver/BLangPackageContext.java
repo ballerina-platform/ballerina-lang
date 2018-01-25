@@ -125,7 +125,7 @@ public class BLangPackageContext {
     }
 
     /**
-     * Get the SDK packages
+     * Get the SDK packages.
      * @param context   CompletionContext
      * @return          {@link List} list of packages visible in the SDK
      */
