@@ -38,12 +38,13 @@ $ curl -v http://localhost:9090/cb
 > User-Agent: curl/7.47.0
 > Accept: */*
 >
-< HTTP/1.1 504 Gateway Timeout
+< HTTP/1.1 500 Internal Server Error
+< Connection: Keep-Alive
 < Content-Type: text/plain
-< Content-Length: 15
+< Content-Length: 54
 <
 * Connection #0 to host localhost left intact
-Gateway Timeout
+Idle timeout triggered before reading inbound response
 
 # Subsequent requests fail immediately since the reset timeout period has not elapsed.
 $ curl -v http://localhost:9090/cb
@@ -54,9 +55,10 @@ $ curl -v http://localhost:9090/cb
 > User-Agent: curl/7.47.0
 > Accept: */*
 >
-< HTTP/1.1 503 Service Unavailable
+< HTTP/1.1 500 Internal Server Error
+< Connection: Keep-Alive
 < Content-Type: text/plain
-< Content-Length: 99
+< Content-Length: 100
 <
 * Connection #0 to host localhost left intact
 Upstream service unavailable. Requests to upstream service will be suspended for 14061 milliseconds
@@ -69,9 +71,10 @@ $ curl -v http://localhost:9090/cb
 > User-Agent: curl/7.47.0
 > Accept: */*
 >
-< HTTP/1.1 503 Service Unavailable
+< HTTP/1.1 500 Internal Server Error
+< Connection: Keep-Alive
 < Content-Type: text/plain
-< Content-Length: 98
+< Content-Length: 99
 <
 * Connection #0 to host localhost left intact
 Upstream service unavailable. Requests to upstream service will be suspended for 5398 milliseconds
@@ -84,9 +87,10 @@ $ curl -v http://localhost:9090/cb
 > User-Agent: curl/7.47.0
 > Accept: */*
 >
-< HTTP/1.1 503 Service Unavailable
+< HTTP/1.1 500 Internal Server Error
+< Connection: Keep-Alive
 < Content-Type: text/plain
-< Content-Length: 98
+< Content-Length: 99
 <
 * Connection #0 to host localhost left intact
 Upstream service unavailable. Requests to upstream service will be suspended for 1753 milliseconds
