@@ -719,6 +719,36 @@ class TreeUtil extends AbstractTreeUtil {
         }
         return false;
     }
+
+    /**
+     * Generate default name for workers
+     * @param {Node} parent - parent node.
+     * @param {Node} node - current node.
+     * @return {Object} undefined if unsuccessful.
+     * */
+    generateWorkerName(parent, node) {
+        const workerDefaultName = 'worker';
+        const workers = parent.getWorkers();
+        const names = {};
+        for (let i = 0; i < workers.length; i++) {
+            const name = workers[i].getName().value;
+            names[name] = name;
+        }
+
+        if (workers.length > 0) {
+            for (let j = 1; j <= workers.length; j++) {
+                if (!names[`${workerDefaultName}${j}`]) {
+                    node.getName().setValue(`${workerDefaultName}${j}`, true);
+                    node.setName(node.getName(), false);
+                    break;
+                }
+            }
+        } else {
+            node.getName().setValue(`${workerDefaultName}1`, true);
+            node.setName(node.getName(), false);
+        }
+        return undefined;
+    }
 }
 
 export default new TreeUtil();

@@ -21,35 +21,6 @@ import TreeUtil from './../tree-util';
 
 class ActionNode extends AbstractActionNode {
     /**
-     * Generate default name for workers
-     * @param {Node} parent - parent node.
-     * @param {Node} node - current node.
-     * @return {Object} undefined if unsuccessful.
-     * */
-    generateWorkerName(parent, node) {
-        const workerDefaultName = 'worker';
-        const workers = parent.getWorkers();
-        const names = {};
-        for (let i = 0; i < workers.length; i++) {
-            const name = workers[i].getName().value;
-            names[name] = name;
-        }
-
-        if (workers.length > 0) {
-            for (let j = 1; j <= workers.length; j++) {
-                if (!names[`${workerDefaultName}${j}`]) {
-                    node.getName().setValue(`${workerDefaultName}${j}`, true);
-                    node.setName(node.getName(), false);
-                    break;
-                }
-            }
-        } else {
-            node.getName().setValue(`${workerDefaultName}1`, true);
-            node.setName(node.getName(), false);
-        }
-        return undefined;
-    }
-    /**
      * Indicates whether the given instance of node can be accepted when dropped
      * on top of this node.
      *
@@ -83,7 +54,7 @@ class ActionNode extends AbstractActionNode {
                 this.addWorkers(defaultWorker, -1, true);
             }
             const index = !_.isNil(dropBefore) ? this.getIndexOfWorkers(dropBefore) : -1;
-            this.generateWorkerName(this, node);
+            TreeUtil.generateWorkerName(this, node);
             this.addWorkers(node, index);
         } else if (TreeUtil.isEndpointTypeVariableDef(node)) {
             // If there are no statements we'll add it to 0
