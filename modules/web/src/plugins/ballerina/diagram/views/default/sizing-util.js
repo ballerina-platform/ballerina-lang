@@ -1165,6 +1165,17 @@ class SizingUtil {
 
 
     /**
+     * Calculate dimention of TypeofExpression nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeTypeofExpressionNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
      * Calculate dimention of TypeCastExpr nodes.
      *
      * @param {object} node
@@ -1365,6 +1376,17 @@ class SizingUtil {
         this.sizeStatement(node.getSource(true), viewState);
         this.sizeActionInvocationStatement(node);
         this.sizeClientResponderStatement(node);
+    }
+
+
+    /**
+     * Calculate dimention of Foreach nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeForeachNode(node) {
+        // Not implemented.
     }
 
 
