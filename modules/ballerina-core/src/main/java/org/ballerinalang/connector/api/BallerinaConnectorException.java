@@ -26,10 +26,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  * @since 0.94
  */
 public class BallerinaConnectorException extends BallerinaException {
-    public BallerinaConnectorException() {
-        super();
-    }
-
     /**
      * Constructs a new {@link BallerinaConnectorException} with the specified detail message.
      *

@@ -192,3 +192,35 @@ service<http> serviceHello {
         _ = res.send();
     }
 }
+
+@http:configuration {
+    basePath:"ech[o"
+}
+service<http> echo113 {
+
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/ech[o/{foo}"
+    }
+    resource productsInfo (http:Request req, http:Response res, string foo) {
+        json responseJson = {"echo113": foo};
+        res.setJsonPayload(responseJson);
+        _ = res.send();
+    }
+}
+
+@http:configuration {
+    basePath:"ech%5Bo14"
+}
+service<http> echo114 {
+
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/ech%5Bo14/{foo}"
+    }
+    resource productsInfo (http:Request req, http:Response res, string foo) {
+        json responseJson = {"echo114": foo};
+        res.setJsonPayload(responseJson);
+        _ = res.send();
+    }
+}

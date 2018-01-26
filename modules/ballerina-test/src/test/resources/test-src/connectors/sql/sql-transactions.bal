@@ -305,3 +305,37 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
     testDB.close();
     return a, count;
 }
+
+function testLocalTransactonFailedWithNextupdate () (int i) {
+    endpoint<sql:ClientConnector> testDB1 {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
+    }
+
+    endpoint<sql:ClientConnector> testDB2 {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
+    }
+    i = 0;
+    try {
+        transaction {
+            _ = testDB1.update("Insert into Customers (firstNamess,lastName,registrationID,creditLimit,country)
+                            values ('James', 'Clerk', 1234, 5000.75, 'USA')", null);
+        }
+    } catch (error e){
+        i = -1;
+    }
+    _ = testDB1.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                            values ('James', 'Clerk', 12343, 5000.75, 'USA')", null);
+
+    testDB1.close();
+
+    datatable dt = testDB2.select("Select COUNT(*) as countval from Customers where registrationID = 12343", null,
+                                  typeof ResultCount);
+    while (dt.hasNext()) {
+        var rs, err = (ResultCount)dt.getNext();
+        i = rs.COUNTVAL;
+    }
+    testDB2.close();
+    return;
+}
