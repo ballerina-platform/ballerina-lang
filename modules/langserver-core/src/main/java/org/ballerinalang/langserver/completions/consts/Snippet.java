@@ -38,10 +38,10 @@ public enum Snippet {
     MAIN_FUNCTION("function main (string[] args) {\n\t${1}\n}"),
     NAMESPACE_DECLARATION("xmlns \"${1}\" as ${2:ns};"),
     REPLY("reply ${1};"),
-    RESOURCE("resource ${1:name} (http:Request req,http:Response res) {\n\t${2}\n}"),
+    RESOURCE("resource ${1:name} (http:Connection conn, http:InRequest inRequest) {\n\t${2}\n}"),
     RETURN("return;"),
     SERVICE("service<${1:http}> ${2:serviceName}{\n\tresource ${3:resourceName}" +
-            " (http:Request req,http:Response res) {\n\t}\n}"),
+            " (http:Connection conn, http:InRequest inRequest) {\n\t}\n}"),
     STRUCT_DEFINITION("struct ${1:name}{\n\t${2}\n}"),
     TRANSACTION("transaction with retries(${1}) {\n\t${2}\n} failed {\n\t${3}\n}"),
     TRIGGER_WORKER("${1} -> ${2};"),
