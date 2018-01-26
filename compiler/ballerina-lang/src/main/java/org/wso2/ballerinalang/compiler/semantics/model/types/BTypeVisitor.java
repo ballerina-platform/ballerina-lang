@@ -18,29 +18,32 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 /**
+ * @param <T> the argument type of the visit methods.
  * @param <R> the return type of the visit methods.
  * @since 0.94
  */
-public interface BTypeVisitor<R> {
-    R visit(BType t, BType s);
+public interface BTypeVisitor<T, R> {
+    R visit(BType t, T s);
 
-    R visit(BBuiltInRefType t, BType s);
+    R visit(BBuiltInRefType t, T s);
 
-    R visit(BAnyType t, BType s);
+    R visit(BAnyType t, T s);
 
-    R visit(BMapType t, BType s);
+    R visit(BMapType t, T s);
 
-    R visit(BJSONType t, BType s);
+    R visit(BXMLType t, T s);
 
-    R visit(BArrayType t, BType s);
+    R visit(BJSONType t, T s);
 
-    R visit(BStructType t, BType s);
+    R visit(BArrayType t, T s);
 
-    R visit(BConnectorType t, BType s);
+    R visit(BStructType t, T s);
 
-    R visit(BEnumType t, BType s);
+    R visit(BConnectorType t, T s);
 
-    R visit(BInvokableType t, BType s);
+    R visit(BEnumType t, T s);
 
-    R visit(BErrorType t, BType s);
+    R visit(BInvokableType t, T s);
+
+    R visit(BErrorType t, T s);
 }

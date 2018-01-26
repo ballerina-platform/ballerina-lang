@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
@@ -617,7 +618,7 @@ public class Types {
 
     }
 
-    private BTypeVisitor<BSymbol> castVisitor = new BTypeVisitor<BSymbol>() {
+    private BTypeVisitor<BType, BSymbol> castVisitor = new BTypeVisitor<BType, BSymbol>() {
 
         @Override
         public BSymbol visit(BType t, BType s) {
@@ -641,6 +642,11 @@ public class Types {
         @Override
         public BSymbol visit(BMapType t, BType s) {
             return symResolver.resolveOperator(Names.CAST_OP, Lists.of(s, t));
+        }
+
+        @Override
+        public BSymbol visit(BXMLType t, BType s) {
+            return visit((BBuiltInRefType) t, s);
         }
 
         @Override
@@ -718,7 +724,7 @@ public class Types {
         }
     };
 
-    private BTypeVisitor<BSymbol> conversionVisitor = new BTypeVisitor<BSymbol>() {
+    private BTypeVisitor<BType, BSymbol> conversionVisitor = new BTypeVisitor<BType, BSymbol>() {
 
         @Override
         public BSymbol visit(BType t, BType s) {
@@ -742,6 +748,11 @@ public class Types {
             }
 
             return symResolver.resolveOperator(Names.CONVERSION_OP, Lists.of(s, t));
+        }
+
+        @Override
+        public BSymbol visit(BXMLType t, BType s) {
+            return visit((BBuiltInRefType) t, s);
         }
 
         @Override
@@ -794,7 +805,7 @@ public class Types {
         }
     };
 
-    private BTypeVisitor<Boolean> sameTypeVisitor = new BTypeVisitor<Boolean>() {
+    private BTypeVisitor<BType, Boolean> sameTypeVisitor = new BTypeVisitor<BType, Boolean>() {
         @Override
         public Boolean visit(BType t, BType s) {
             return t == s;
@@ -814,6 +825,11 @@ public class Types {
         @Override
         public Boolean visit(BMapType t, BType s) {
             return t == s;
+        }
+
+        @Override
+        public Boolean visit(BXMLType t, BType s) {
+            return visit((BBuiltInRefType) t, s);
         }
 
         @Override
