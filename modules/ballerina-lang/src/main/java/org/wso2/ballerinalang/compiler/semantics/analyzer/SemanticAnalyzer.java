@@ -924,7 +924,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return analyzeNode(node, env, symTable.noType, null);
     }
 
-    public void visit(BLangNext continueNode) {
+    public void visit(BLangNext nextNode) {
         /* ignore */
     }
 
