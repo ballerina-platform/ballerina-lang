@@ -503,16 +503,16 @@ class NodeFactory {
         return node;
     }
 
-    createTypeofExpression(json = {}){
+    createTypeofExpression(json = {}) {
         json.kind = 'TypeofExpression';
         let node = new TypeofExpressionNode();
         node.typeNode = new TypeNode();
         node = Object.assign(node, json);
-        // Set any aditional default properties below. 
+        // Set any aditional default properties below.
         return node;
     }
 
-    createTypeCastExpr(json = {}){
+    createTypeCastExpr(json = {}) {
         json.kind = 'TypeCastExpr';
         let node = new TypeCastExprNode();
         node.typeNode = new TypeNode();
@@ -672,18 +672,18 @@ class NodeFactory {
         return node;
     }
 
-    createForeach(json = {}){
+    createForeach(json = {}) {
         json.kind = 'Foreach';
         let node = new ForeachNode();
         node.variables = [];
         node.body = new BlockNode();
         node.collection = new ExpressionNode();
         node = Object.assign(node, json);
-        // Set any aditional default properties below. 
+        // Set any aditional default properties below.
         return node;
     }
 
-    createForkJoin(json = {}){
+    createForkJoin(json = {}) {
         json.kind = 'ForkJoin';
         let node = new ForkJoinNode();
         node.workers = [];

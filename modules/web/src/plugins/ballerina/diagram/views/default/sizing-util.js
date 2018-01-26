@@ -1164,17 +1164,15 @@ class SizingUtil {
     }
 
 
-
     /**
      * Calculate dimention of TypeofExpression nodes.
      *
      * @param {object} node
-     * 
+     *
      */
     sizeTypeofExpressionNode(node) {
         // Not implemented.
     }
-
 
 
     /**
@@ -1385,7 +1383,7 @@ class SizingUtil {
      * Calculate dimention of Foreach nodes.
      *
      * @param {object} node
-     * 
+     *
      */
     sizeForeachNode(node) {
         // Not implemented.
