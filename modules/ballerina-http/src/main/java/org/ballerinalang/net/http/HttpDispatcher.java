@@ -34,6 +34,9 @@ import java.net.URLDecoder;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.mime.util.Constants.HEADER_VALUE_STRUCT;
+import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+
 /**
  * {@code HttpDispatcher} is responsible for dispatching incoming http requests to the correct resource.
  *
@@ -152,20 +155,28 @@ public class HttpDispatcher {
 
     public static BValue[] getSignatureParameters(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
         //TODO Think of keeping struct type globally rather than creating for each request
-        BStruct request = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                Constants.PROTOCOL_PACKAGE_HTTP, Constants.REQUEST);
-        BStruct response = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                Constants.PROTOCOL_PACKAGE_HTTP, Constants.RESPONSE);
-
+        BStruct connection = ConnectorUtils.createStruct(httpResource.getBalResource(),
+                Constants.PROTOCOL_PACKAGE_HTTP, Constants.CONNECTION);
+        BStruct inRequest = ConnectorUtils.createStruct(httpResource.getBalResource(),
+                Constants.PROTOCOL_PACKAGE_HTTP, Constants.IN_REQUEST);
         HttpUtil.setHeaderValueStructType(ConnectorUtils.createStruct(httpResource.getBalResource(),
-                Constants.PROTOCOL_PACKAGE_HTTP, Constants.HEADER_VALUE_STRUCT));
-        HttpUtil.populateInboundRequest(request, httpCarbonMessage);
-        HttpUtil.populateOutboundResponse(response, HttpUtil.createHttpCarbonMessage(false), httpCarbonMessage);
+                PROTOCOL_PACKAGE_MIME, HEADER_VALUE_STRUCT));
+
+        BStruct entityForRequest = ConnectorUtils.createStruct(httpResource.getBalResource(),
+                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
+                org.ballerinalang.mime.util.Constants.ENTITY);
+
+        BStruct mediaType = ConnectorUtils.createStruct(httpResource.getBalResource(),
+                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
+                org.ballerinalang.mime.util.Constants.MEDIA_TYPE);
+
+        HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage);
+        HttpUtil.populateInboundRequest(inRequest, entityForRequest, mediaType, httpCarbonMessage);
 
         List<ParamDetail> paramDetails = httpResource.getParamDetails();
         BValue[] bValues = new BValue[paramDetails.size()];
-        bValues[0] = request;
-        bValues[1] = response;
+        bValues[0] = connection;
+        bValues[1] = inRequest;
         if (paramDetails.size() == 2) {
             return bValues;
         }

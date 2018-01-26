@@ -14,63 +14,62 @@ service<http> Ecommerce {
         methods:["GET"],
         path:"/products/{prodId}"
     }
-    resource productsInfo (http:Request req, http:Response resp, string prodId) {
+    resource productsInfo (http:Connection conn, http:InRequest req, string prodId) {
         string reqPath = "/productsservice/" + prodId;
-        http:Response clientResponse = {};
-        clientResponse, err = productsService.get(reqPath, req);
-        _ = resp.forward(clientResponse);
+        http:OutRequest clientRequest = {};
+        var clientResponse, _ = productsService.get(reqPath, clientRequest);
+        _ = conn.forward(clientResponse);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/products"
     }
-    resource productMgt (http:Request req, http:Response resp) {
-        http:Response clientResponse = {};
-        clientResponse, err = productsService.post("/productsservice", req);
-        _ = resp.forward(clientResponse);
+    resource productMgt (http:Connection conn, http:InRequest req) {
+        http:OutRequest clientRequest = {};
+        json jsonReq = req.getJsonPayload();
+        clientRequest.setJsonPayload(jsonReq);
+        var clientResponse, _ = productsService.post("/productsservice", clientRequest);
+        _ = conn.forward(clientResponse);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/orders"
     }
-    resource ordersInfo (http:Request req, http:Response resp) {
-        endpoint<http:HttpClient> productsService {
-            create http:HttpClient("http://localhost:9090", {});
-        }
-        http:Response clientResponse = {};
-        clientResponse, err = productsService.get("/orderservice/orders", req);
-        _ = resp.forward(clientResponse);
+    resource ordersInfo (http:Connection conn, http:InRequest req) {
+        http:OutRequest clientRequest = {};
+        var clientResponse, _ = productsService.get("/orderservice/orders", clientRequest);
+        _ = conn.forward(clientResponse);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/orders"
     }
-    resource ordersMgt (http:Request req, http:Response resp) {
-        http:Response clientResponse = {};
-        clientResponse, err = productsService.post("/orderservice/orders", req);
-        _ = resp.forward(clientResponse);
+    resource ordersMgt (http:Connection conn, http:InRequest req) {
+        http:OutRequest clientRequest = {};
+        var clientResponse, _ = productsService.post("/orderservice/orders", clientRequest);
+        _ = conn.forward(clientResponse);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/customers"
     }
-    resource customersInfo (http:Request req, http:Response resp) {
-        http:Response clientResponse = {};
-        clientResponse, err = productsService.get("/customerservice/customers", req);
-        _ = resp.forward(clientResponse);
+    resource customersInfo (http:Connection conn, http:InRequest req) {
+        http:OutRequest clientRequest = {};
+        var clientResponse, _ = productsService.get("/customerservice/customers", clientRequest);
+        _ = conn.forward(clientResponse);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/customers"
     }
-    resource customerMgt (http:Request req, http:Response resp) {
-        http:Response clientResponse = {};
-        clientResponse, err = productsService.post("/customerservice/customers", req);
-        _ = resp.forward(clientResponse);
+    resource customerMgt (http:Connection conn, http:InRequest req) {
+        http:OutRequest clientRequest = {};
+        var clientResponse, _ = productsService.post("/customerservice/customers", clientRequest);
+        _ = conn.forward(clientResponse);
     }
 }

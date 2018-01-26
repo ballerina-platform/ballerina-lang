@@ -45,18 +45,18 @@ import java.util.Locale;
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "path", type = TypeKind.STRING),
-                @Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
+                @Argument(name = "req", type = TypeKind.STRUCT, structType = "InRequest",
                         structPackage = "ballerina.net.http")
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "Response", structPackage = "ballerina.net.http"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "InResponse", structPackage = "ballerina.net.http"),
                 @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
                         structPackage = "ballerina.net.http"),
         },
         connectorArgs = {
                 @Argument(name = "serviceUri", type = TypeKind.STRING),
                 @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
-                          structPackage = "ballerina.net.http")
+                        structPackage = "ballerina.net.http")
         }
 )
 public class Forward extends AbstractHTTPAction {
@@ -82,11 +82,11 @@ public class Forward extends AbstractHTTPAction {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String path = getStringArgument(context, 0);
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
-        
-        if (requestStruct.getNativeData(Constants.INBOUND_REQUEST) == null) {
+
+        if (requestStruct.getNativeData(Constants.IN_REQUEST) == null) {
             throw new BallerinaException("invalid inbound request parameter");
         }
-        
+
         HTTPCarbonMessage outboundRequestMsg = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
         prepareRequest(bConnector, path, outboundRequestMsg, requestStruct);

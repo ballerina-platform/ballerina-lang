@@ -8,7 +8,7 @@ service<http> OrderMgtService {
     @http:resourceConfig {
         methods:["GET", "POST"]
     }
-    resource orders (http:Request req, http:Response res) {
+    resource orders (http:Connection conn, http:InRequest req) {
         json payload = {};
         string httpMethod = req.getMethod();
         if (httpMethod.equalsIgnoreCase("GET")) {
@@ -16,7 +16,9 @@ service<http> OrderMgtService {
         } else {
             payload = {"Status":"Order is successfully added."};
         }
+
+        http:OutResponse res = {};
         res.setJsonPayload(payload);
-        _ = res.send();
+        _ = conn.respond(res);
     }
 }

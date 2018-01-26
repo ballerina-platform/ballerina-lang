@@ -6,9 +6,9 @@ service<http> sessionTest {
     @http:resourceConfig {
         methods:["GET"]
     }
-    resource sayHello (http:Request req, http:Response res) {
+    resource sayHello (http:Connection conn, http:InRequest req) {
         //createSessionIfAbsent() function returns an existing session for a valid session id, otherwise it returns a new session.
-        http:Session session = req.createSessionIfAbsent();
+        http:Session session = conn.createSessionIfAbsent();
         string result;
         //Session status(new or already existing) is informed by isNew() as boolean value.
         if (session.isNew()) {
@@ -18,16 +18,17 @@ service<http> sessionTest {
         }
         //Binds a string attribute to this session with a key(string).
         session.setAttribute(key, "Session sample");
+        http:OutResponse res = {};
         res.setStringPayload(result);
-        _ = res.send();
+        _ = conn.respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET"]
     }
-    resource doTask (http:Request req, http:Response res) {
+    resource doTask (http:Connection conn, http:InRequest req) {
         //getSession() returns an existing session for a valid session id. otherwise null.
-        http:Session session = req.getSession();
+        http:Session session = conn.getSession();
         string attributeValue;
         if (session != null) {
             //Returns the object bound with the specified key.
@@ -35,15 +36,17 @@ service<http> sessionTest {
         } else {
             attributeValue = "Session unavailable";
         }
+        http:OutResponse res = {};
         res.setStringPayload(attributeValue);
-        _ = res.send();
+        _ = conn.respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET"]
     }
-    resource sayBye (http:Request req, http:Response res) {
-        http:Session session = req.getSession();
+    resource sayBye (http:Connection conn, http:InRequest req) {
+        http:Session session = conn.getSession();
+        http:OutResponse res = {};
         if (session != null) {
             //Returns session id.
             string id = session.getId();
@@ -53,6 +56,6 @@ service<http> sessionTest {
         } else {
             res.setStringPayload("Session unavailable");
         }
-        _ = res.send();
+        _ = conn.respond(res);
     }
 }

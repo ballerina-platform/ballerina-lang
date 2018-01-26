@@ -35,7 +35,7 @@ public class UriTemplateDispatcherNegativeTest {
 
     @Test(expectedExceptions = BallerinaException.class,
           expectedExceptionsMessageRegExp = "Two resources have the same addressable URI, echo2 and echo1")
-    public void testTwoResourcesWithSamePathWithPathParam1() {
+    public void testTwoResourcesWithSamePathWithPathParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/dispatching/uri-template-matching-negative-1.bal").getPath());
         BServiceUtil.runService(compileResult);

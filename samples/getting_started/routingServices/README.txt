@@ -16,8 +16,8 @@ Here the 'nyseStockQuote' and 'nasdaqStocksQuote' will act as backend.
 
 Invoking the service
 ====================
-curl -v http://localhost:9090/cbr -d '{"name" : "nyse"}'
-curl -v http://localhost:9090/cbr -d '{"name" : "nasdaq"}'
+curl -v http://localhost:9090/cbr -d '{"name" : "nyse"}' -H "Content-Type:application/json"
+curl -v http://localhost:9090/cbr -d '{"name" : "nasdaq"}' -H "Content-Type:application/json"
 
 curl -v http://localhost:9090/hbr -H "name: nyse"
 curl -v http://localhost:9090/hbr -H "name: nasdaq"

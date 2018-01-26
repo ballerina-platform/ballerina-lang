@@ -37,14 +37,16 @@ function testVariableWhileScope() {
 service<http> myService {
     int a = 20;
 
-    resource myResource1(http:Request req, http:Response res) {
+    resource myResource1(http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         int b = a + 50;
-        _ = res.send();
+        _ = conn.respond(res);
     }
 
-    resource myResource2(http:Request req, http:Response res) {
+    resource myResource2(http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         int c = b + 50;
-        _ = res.send();
+        _ = conn.respond(res);
     }
 }
 
