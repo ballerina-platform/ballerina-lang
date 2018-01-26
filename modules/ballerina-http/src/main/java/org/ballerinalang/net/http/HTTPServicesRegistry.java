@@ -248,19 +248,16 @@ public class HTTPServicesRegistry {
             throw new BallerinaConnectorException("resource signature parameter count should be more than two");
         }
 
-        //validate connection parameter
-        if (isValidParam(paramDetails.get(0), Constants.CONNECTION)) {
+        if (!isValidResourceParam(paramDetails.get(0), Constants.CONNECTION)) {
             throw new BallerinaConnectorException("first parameter should be of type - "
                     + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.CONNECTION);
         }
 
-        //Validate request parameter
-        if (isValidParam(paramDetails.get(1), Constants.IN_REQUEST)) {
+        if (!isValidResourceParam(paramDetails.get(1), Constants.IN_REQUEST)) {
             throw new BallerinaConnectorException("second parameter should be of type - "
                     + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.IN_REQUEST);
         }
 
-        //validate rest of the parameters
         for (int i = 2; i < paramDetails.size(); i++) {
             ParamDetail paramDetail = paramDetails.get(i);
             if (!paramDetail.getVarType().getName().equals(Constants.TYPE_STRING)) {
@@ -269,10 +266,10 @@ public class HTTPServicesRegistry {
         }
     }
 
-    private boolean isValidParam(ParamDetail paramDetail, String varTypeName) {
-        return paramDetail.getVarType().getPackagePath() == null
-                || !paramDetail.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)
-                || !paramDetail.getVarType().getName().equals(varTypeName);
+    private boolean isValidResourceParam(ParamDetail paramDetail, String varTypeName) {
+        return paramDetail.getVarType().getPackagePath() != null
+                && paramDetail.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)
+                && paramDetail.getVarType().getName().equals(varTypeName);
     }
 
     public String findTheMostSpecificBasePath(String requestURIPath, Map<String, HttpService> services) {

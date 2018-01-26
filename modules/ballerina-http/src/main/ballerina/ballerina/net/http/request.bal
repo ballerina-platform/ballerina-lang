@@ -191,18 +191,18 @@ public function <InRequest request> getFormParams () (map) {
     map parameters = {};
     if (formData != null && formData != "") {
         string[] entries = formData.split("&");
-        int i = 0;
-        while (i < lengthof entries) {
-            int index = entries[i].indexOf("=");
+        int entryIndex = 0;
+        while (entryIndex < lengthof entries) {
+            int index = entries[entryIndex].indexOf("=");
             if (index != -1) {
-                string name = entries[i].subString(0, index).trim();
-                int size = entries[i].length();
-                string value = entries[i].subString(index + 1, size).trim();
+                string name = entries[entryIndex].subString(0, index).trim();
+                int size = entries[entryIndex].length();
+                string value = entries[entryIndex].subString(index + 1, size).trim();
                 if (value != "") {
                     parameters[name] = value;
                 }
             }
-            i = i + 1;
+            entryIndex = entryIndex + 1;
         }
     }
     return parameters;

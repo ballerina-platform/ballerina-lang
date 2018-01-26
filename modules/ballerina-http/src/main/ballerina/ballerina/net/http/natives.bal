@@ -13,16 +13,16 @@ public struct Connection {
 	int port;
 }
 
-@Description { value:"Sends response to the caller"}
+@Description { value:"Sends outbound response to the caller"}
 @Param { value:"conn: The server connector connection" }
-@Param { value:"res: A outbound response message" }
+@Param { value:"res: The outbound response message" }
 @Return { value:"Error occured during HTTP server connector respond" }
 public native function <Connection conn> respond (OutResponse res) (HttpConnectorError);
 
-@Description { value:"Forwards response to the caller"}
+@Description { value:"Forwards inbound response to the caller"}
 @Param { value:"conn: The server connector connection" }
-@Param { value:"res: A inbound response message" }
-@Return { value:"Error occured during HTTP server connector respond" }
+@Param { value:"res: The inbound response message" }
+@Return { value:"Error occured during HTTP server connector forward" }
 public native function <Connection conn> forward (InResponse res) (HttpConnectorError);
 
 @Description { value:"Gets the Session struct for a valid session cookie from the connection. Otherwise creates a new Session struct." }
