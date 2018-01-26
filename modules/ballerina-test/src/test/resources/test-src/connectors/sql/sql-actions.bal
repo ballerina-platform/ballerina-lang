@@ -32,6 +32,13 @@ struct ResultArrayType {
     map FLOAT_ARRAY;
 }
 
+struct ResultDates {
+    string DATE_TYPE;
+    string TIME_TYPE;
+    string TIMESTAMP_TYPE;
+    string DATETIME_TYPE;
+}
+
 function testInsertTableData () (int) {
     endpoint<sql:ClientConnector> testDB {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
@@ -516,6 +523,81 @@ function testDateTimeInParameters () (int[]) {
 
     testDB.close();
     return returnValues;
+}
+
+function testDateTimeNullInValues () (string data) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
+    }
+    sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:33};
+    sql:Parameter para1 = {sqlType:sql:Type.DATE, value:null};
+    sql:Parameter para2 = {sqlType:sql:Type.TIME, value:null};
+    sql:Parameter para3 = {sqlType:sql:Type.TIMESTAMP, value:null};
+    sql:Parameter para4 = {sqlType:sql:Type.DATETIME, value:null};
+    sql:Parameter[] parameters = [para0, para1, para2, para3, para4];
+
+    _ = testDB.update("Insert into DateTimeTypes
+        (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)", parameters);
+
+    datatable dt = testDB.select("SELECT date_type, time_type, timestamp_type, datetime_type
+                from DateTimeTypes where row_id = 33", null, typeof ResultDates);
+    var j, _ = <json>dt;
+    data = j.toString();
+
+    testDB.close();
+    return;
+}
+
+
+function testDateTimeNullOutValues () (int count) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
+    }
+
+    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:123};
+    sql:Parameter para2 = {sqlType:sql:Type.DATE, value:null};
+    sql:Parameter para3 = {sqlType:sql:Type.TIME, value:null};
+    sql:Parameter para4 = {sqlType:sql:Type.TIMESTAMP, value:null};
+    sql:Parameter para5 = {sqlType:sql:Type.DATETIME, value:null};
+
+    sql:Parameter para6 = {sqlType:sql:Type.DATE, direction:sql:Direction.OUT};
+    sql:Parameter para7 = {sqlType:sql:Type.TIME, direction:sql:Direction.OUT};
+    sql:Parameter para8 = {sqlType:sql:Type.TIMESTAMP, direction:sql:Direction.OUT};
+    sql:Parameter para9 = {sqlType:sql:Type.DATETIME, direction:sql:Direction.OUT};
+
+    sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8, para9];
+
+    _ = testDB.call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", parameters, null);
+
+    datatable dt = testDB.select("SELECT count(*) as countval from DateTimeTypes where row_id = 123", null,
+                                 typeof ResultCount);
+    while (dt.hasNext()) {
+        var rs, _ = (ResultCount)dt.getNext();
+        count = rs.COUNTVAL;
+    }
+    testDB.close();
+    return;
+}
+
+function testDateTimeNullInOutValues () (any, any, any, any) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
+    }
+
+    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:124};
+    sql:Parameter para2 = {sqlType:sql:Type.DATE, value:null, direction:sql:Direction.INOUT};
+    sql:Parameter para3 = {sqlType:sql:Type.TIME, value:null, direction:sql:Direction.INOUT};
+    sql:Parameter para4 = {sqlType:sql:Type.TIMESTAMP, value:null, direction:sql:Direction.INOUT};
+    sql:Parameter para5 = {sqlType:sql:Type.DATETIME, value:null, direction:sql:Direction.INOUT};
+
+    sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
+
+    _ = testDB.call("{call TestDateINOUTParams(?,?,?,?,?)}", parameters, null);
+    testDB.close();
+    return para2.value, para3.value, para4.value, para5.value;
 }
 
 function testSelectIntFloatData () (int int_type, int long_type, float float_type, float double_type) {
