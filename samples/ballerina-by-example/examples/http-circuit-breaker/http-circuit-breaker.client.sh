@@ -38,7 +38,7 @@ $ curl -v http://localhost:9090/cb
 > User-Agent: curl/7.47.0
 > Accept: */*
 >
-< HTTP/1.1 504 Gateway Timeout
+< HTTP/1.1 500 Internal Server Error
 < Content-Type: text/plain
 < Content-Length: 15
 <
@@ -54,12 +54,27 @@ $ curl -v http://localhost:9090/cb
 > User-Agent: curl/7.47.0
 > Accept: */*
 >
-< HTTP/1.1 503 Service Unavailable
+< HTTP/1.1 500 Internal Server Error
+< Content-Type: text/plain
+< Content-Length: 100
+<
+* Connection #0 to host localhost left intact
+Upstream service unavailable. Requests to upstream service will be suspended for 14309 milliseconds.
+
+$ curl -v http://localhost:9090/cb
+*   Trying 127.0.0.1...
+* Connected to localhost (127.0.0.1) port 9090 (#0)
+> GET /cb HTTP/1.1
+> Host: localhost:9090
+> User-Agent: curl/7.47.0
+> Accept: */*
+>
+< HTTP/1.1 500 Internal Server Error
 < Content-Type: text/plain
 < Content-Length: 99
 <
 * Connection #0 to host localhost left intact
-Upstream service unavailable. Requests to upstream service will be suspended for 14061 milliseconds
+Upstream service unavailable. Requests to upstream service will be suspended for 6978 milliseconds.
 
 $ curl -v http://localhost:9090/cb
 *   Trying 127.0.0.1...
@@ -69,27 +84,12 @@ $ curl -v http://localhost:9090/cb
 > User-Agent: curl/7.47.0
 > Accept: */*
 >
-< HTTP/1.1 503 Service Unavailable
+< HTTP/1.1 500 Internal Server Error
 < Content-Type: text/plain
-< Content-Length: 98
+< Content-Length: 99
 <
 * Connection #0 to host localhost left intact
-Upstream service unavailable. Requests to upstream service will be suspended for 5398 milliseconds
-
-$ curl -v http://localhost:9090/cb
-*   Trying 127.0.0.1...
-* Connected to localhost (127.0.0.1) port 9090 (#0)
-> GET /cb HTTP/1.1
-> Host: localhost:9090
-> User-Agent: curl/7.47.0
-> Accept: */*
->
-< HTTP/1.1 503 Service Unavailable
-< Content-Type: text/plain
-< Content-Length: 98
-<
-* Connection #0 to host localhost left intact
-Upstream service unavailable. Requests to upstream service will be suspended for 1753 milliseconds
+Upstream service unavailable. Requests to upstream service will be suspended for 3598 milliseconds.
 
 # The request sent immediately after the timeout period expires is the trial request, to see if the backend service is back to normal.
 # If this succeeds, the circuit is set to 'close' and normal functionality resumes.
