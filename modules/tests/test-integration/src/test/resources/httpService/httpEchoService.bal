@@ -5,17 +5,15 @@ import ballerina.net.http;
     port:9094
 }
 service<http> echo {
-
     @http:resourceConfig {
         methods:["POST"],
         path:"/"
     }
-    resource echo (http:Request req, http:Response res) {
+    resource echo (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setStringPayload("hello world");
-        _ = res.send();
-    
+        _ = conn.respond(res);
     }
-    
 }
 
 @http:configuration {
@@ -23,15 +21,14 @@ service<http> echo {
     port:9094
 }
 service<http> echoOne {
-
     @http:resourceConfig {
         methods:["POST"],
         path:"/abc"
     }
-    resource echoAbc (http:Request req, http:Response res) {
+    resource echoAbc (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setStringPayload("hello world");
-        _ = res.send();
-
+        _ = conn.respond(res);
     }
 }
 
@@ -44,17 +41,19 @@ service<http> echoDummy {
         methods:["POST"],
         path:"/"
     }
-    resource echoDummy (http:Request req, http:Response res) {
+    resource echoDummy (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setStringPayload("hello world");
-        _ = res.send();
+        _ = conn.respond(res);
     }
 
     @http:resourceConfig {
         methods:["OPTIONS"],
         path:"/getOptions"
     }
-    resource echoOptions (http:Request req, http:Response res) {
+    resource echoOptions (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setStringPayload("hello Options");
-        _ = res.send();
+        _ = conn.respond(res);
     }
 }
