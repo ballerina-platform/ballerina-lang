@@ -20,15 +20,11 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.HttpUtil;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * Native function to respond back the caller with inbound response.
@@ -46,19 +42,10 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
                                  structPackage = "ballerina.net.http"),
         isPublic = true
 )
-public class Forward extends AbstractNativeFunction {
+public class Forward extends ConnectionAction {
 
     @Override
     public BValue[] execute(Context context) {
-        BStruct connectionStruct = (BStruct) getRefArgument(context, 0);
-        BStruct inboundResponseStruct = (BStruct) getRefArgument(context, 1);
-        HTTPCarbonMessage requestMessage = HttpUtil.getCarbonMsg(connectionStruct, null);
-
-        HttpUtil.checkFunctionValidity(connectionStruct, requestMessage);
-        HTTPCarbonMessage responseMessage = HttpUtil
-                .getCarbonMsg(inboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
-
-        return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage,
-                inboundResponseStruct);
+        return super.execute(context);
     }
 }

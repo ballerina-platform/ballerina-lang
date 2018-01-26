@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
 
 /**
- * Ballerina function to set a message property.
+ * Ballerina function to get a message property.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
