@@ -37,7 +37,7 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
     private LanguageClient client = null;
     private TextDocumentService textService;
     private WorkspaceService workspaceService;
-    private boolean shutdown = false;
+    private int shutdown = 1;
 
     public BallerinaLanguageServer() {
         textService = new BallerinaTextDocumentService(this);
@@ -62,16 +62,12 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
     }
 
     public CompletableFuture<Object> shutdown() {
-        shutdown = true;
+        shutdown = 0;
         return CompletableFuture.supplyAsync(Object::new);
     }
 
     public void exit() {
-        if (shutdown) {
-            System.exit(0);
-        } else {
-            System.exit(1);
-        }
+        System.exit(shutdown);
     }
 
     public TextDocumentService getTextDocumentService() {
