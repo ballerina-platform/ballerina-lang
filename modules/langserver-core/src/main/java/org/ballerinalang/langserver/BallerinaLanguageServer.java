@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,6 +37,7 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
     private LanguageClient client = null;
     private TextDocumentService textService;
     private WorkspaceService workspaceService;
+    private int shutdown = 1;
 
     public BallerinaLanguageServer() {
         textService = new BallerinaTextDocumentService(this);
@@ -61,12 +62,14 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
     }
 
     public CompletableFuture<Object> shutdown() {
-        return CompletableFuture.supplyAsync(() -> Boolean.TRUE);
+        shutdown = 0;
+        return CompletableFuture.supplyAsync(Object::new);
     }
 
     public void exit() {
+        System.exit(shutdown);
     }
-    
+
     public TextDocumentService getTextDocumentService() {
         return this.textService;
     }
