@@ -414,51 +414,8 @@ public class BLangVM {
                     break;
 
                 case InstructionCodes.LENGTHOF:
-                    i = operands[0];
-                    cpIndex = operands[1];
-                    j = operands[2];
-
-                    typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
-                    int typeTag = typeRefCPEntry.getType().getTag();
-                    if (typeTag == TypeTags.STRING_TAG) {
-                        String value = sf.stringRegs[i];
-                        if (value == null) {
-                            handleNullRefError();
-                        } else {
-                            sf.longRegs[j] = value.length();
-                        }
-                        break;
-                    } else if (typeTag == TypeTags.BLOB_TAG) {
-                        // Here it is assumed null is not supported for blob type
-                        sf.longRegs[j] = sf.byteRegs[i].length;
-                        break;
-                    }
-
-                    BValue entity = sf.refRegs[i];
-                    if (entity == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    if (typeTag == TypeTags.XML_TAG) {
-                        sf.longRegs[j] = ((BXML) entity).length();
-                        break;
-                    } else if (entity instanceof BJSON) {
-                        if (JSONUtils.isJSONArray((BJSON) entity)) {
-                            sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
-                        } else {
-                            sf.longRegs[j] = -1;
-                        }
-                        break;
-                    } else if (typeTag == TypeTags.MAP_TAG) {
-                        sf.longRegs[j] = ((BMap) entity).size();
-                        break;
-                    }
-
-                    BNewArray newArray = (BNewArray) entity;
-                    sf.longRegs[j] = newArray.size();
+                    calculateLength(operands, sf);
                     break;
-
                 case InstructionCodes.TYPELOAD:
                     cpIndex = operands[0];
                     j = operands[1];
@@ -3804,5 +3761,52 @@ public class BLangVM {
 
     private boolean isWaitingOnNonBlockingAction() {
         return context.nonBlockingContext != null;
+    }
+
+    private void calculateLength(int[] operands, StackFrame sf) {
+        int i = operands[0];
+        int cpIndex = operands[1];
+        int j = operands[2];
+
+        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
+        int typeTag = typeRefCPEntry.getType().getTag();
+        if (typeTag == TypeTags.STRING_TAG) {
+            String value = sf.stringRegs[i];
+            if (value == null) {
+                handleNullRefError();
+            } else {
+                sf.longRegs[j] = value.length();
+            }
+            return;
+        } else if (typeTag == TypeTags.BLOB_TAG) {
+            // Here it is assumed null is not supported for blob type
+            sf.longRegs[j] = sf.byteRegs[i].length;
+            return;
+        }
+
+        BValue entity = sf.refRegs[i];
+        if (entity == null) {
+            handleNullRefError();
+            return;
+        }
+
+        if (typeTag == TypeTags.XML_TAG) {
+            sf.longRegs[j] = ((BXML) entity).length();
+            return;
+        } else if (entity instanceof BJSON) {
+            if (JSONUtils.isJSONArray((BJSON) entity)) {
+                sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
+            } else {
+                sf.longRegs[j] = -1;
+            }
+            return;
+        } else if (typeTag == TypeTags.MAP_TAG) {
+            sf.longRegs[j] = ((BMap) entity).size();
+            return;
+        }
+
+        BNewArray newArray = (BNewArray) entity;
+        sf.longRegs[j] = newArray.size();
+        return;
     }
 }
