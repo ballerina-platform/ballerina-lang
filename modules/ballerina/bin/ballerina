@@ -154,8 +154,6 @@ do
     fi
 done
 
-JAVA_ENDORSED_DIRS="$BALLERINA_HOME/bin/bootstrap/endorsed":"$JAVA_HOME/jre/lib/endorsed":"$JAVA_HOME/lib/endorsed"
-
 BALLERINA_CLASSPATH=""
 if [ -e "$BALLERINA_HOME/bre/lib/bootstrap/tools.jar" ]; then
     BALLERINA_CLASSPATH="$JAVA_HOME/lib/tools.jar"
@@ -178,7 +176,6 @@ if $cygwin; then
   JAVA_HOME=`cygpath --absolute --windows "$JAVA_HOME"`
   BALLERINA_HOME=`cygpath --absolute --windows "$BALLERINA_HOME"`
   CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
-  JAVA_ENDORSED_DIRS=`cygpath --path --windows "$JAVA_ENDORSED_DIRS"`
   BALLERINA_CLASSPATH=`cygpath --path --windows "$BALLERINA_CLASSPATH"`
   BALLERINA_XBOOTCLASSPATH=`cygpath --path --windows "$BALLERINA_XBOOTCLASSPATH"`
 fi
@@ -197,7 +194,6 @@ $JAVACMD \
 	-XX:HeapDumpPath="$BALLERINA_HOME/heap-dump.hprof" \
 	$JAVA_OPTS \
 	-classpath "$BALLERINA_CLASSPATH" \
-	-Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" \
 	-Dballerina.home=$BALLERINA_HOME \
 	-Dballerina.version=${project.version} \
 	-Djava.util.logging.config.file="$BALLERINA_HOME/bre/conf/logging.properties" \
