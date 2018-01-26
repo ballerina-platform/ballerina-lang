@@ -772,6 +772,41 @@ class TreeUtil extends AbstractTreeUtil {
         node.getVariableName()
         .setValue(`${defaultName + (defaultIndex === 0 ? names.length + 1 : defaultIndex)}`, true);
     }
+
+    /**
+     * Generate default name for endpoints
+     * @param {Node} node - current node.
+     * @param {string} defaultName - default variable name.
+     * @param {number} indexIncreament - increase variable name index.
+     * @return {string} undefined if unsuccessful.
+     * */
+    generateVariableName(node, defaultName, indexIncreament = 0) {
+        let defaultIndex = 0;
+        const names = [];
+        node.getStatements().forEach((currentStatement) => {
+            if (this.isVariableDef(currentStatement)) {
+                if (currentStatement.getVariableName().getValue().startsWith(defaultName)) {
+                    names.push(currentStatement.getVariableName().getValue());
+                }
+            } else if (this.isAssignment(currentStatement)) {
+                currentStatement.getVariables().forEach((variable) => {
+                    if (variable.getVariableName().getValue().startsWith(defaultName)) {
+                        names.push(variable.getVariableName().getValue());
+                    }
+                });
+            }
+        });
+        names.every((endpoint, i) => {
+            if (names[i] !== defaultName + (i + 1)) {
+                defaultIndex = i + 1;
+                return false;
+            } else {
+                return true;
+            }
+        });
+        return `${defaultName
+            + (defaultIndex === 0 ? names.length + 1 + indexIncreament : defaultIndex + indexIncreament)}`;
+    }
 }
 
 export default new TreeUtil();
