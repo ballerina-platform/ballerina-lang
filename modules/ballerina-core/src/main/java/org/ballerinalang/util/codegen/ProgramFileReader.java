@@ -1398,7 +1398,6 @@ public class ProgramFileReader {
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
                 case InstructionCodes.XMLSTORE:
-                case InstructionCodes.LENGTHOF:
                 case InstructionCodes.TYPEOF:
                 case InstructionCodes.TYPELOAD:
                 case InstructionCodes.SEQ_NULL:
@@ -1524,6 +1523,7 @@ public class ProgramFileReader {
                 case InstructionCodes.S2JSONX:
                 case InstructionCodes.NULL2S:
                 case InstructionCodes.NEW_INT_RANGE:
+                case InstructionCodes.LENGTHOF:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
