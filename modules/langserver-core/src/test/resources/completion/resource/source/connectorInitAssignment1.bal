@@ -1,7 +1,7 @@
 import ballerina.net.http;
 
 service<http> service1 {
-    resource echo1 (http:Request req,http:Response res) {
+    resource echo1 (http:Connection conn, http:InRequest inRequest) {
         http:HttpClient c;
         c = create http:
     }

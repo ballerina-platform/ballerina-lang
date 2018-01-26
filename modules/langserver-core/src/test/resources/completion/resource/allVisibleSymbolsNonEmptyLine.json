@@ -82,43 +82,17 @@
         }
       }
     }, {
-      "label": "req",
-      "kind": 9,
-      "detail": "ballerina.net.http:Request",
-      "documentation": null,
-      "sortText": 7,
-      "insertText": "req",
-      "data": {
-        "data": {
-          "type": {
-            "isArrayType": false,
-            "constraint": false,
-            "arrayType": null,
-            "pkgName": ".",
-            "constraintName": null,
-            "constraintPkgName": null
-          }
-        }
-      }
+      "label": "inRequest",
+      "kind": "Unit",
+      "detail": "ballerina.net.http:InRequest",
+      "sortText": "PRIORITY7",
+      "insertText": "inRequest"
     }, {
-      "label": "res",
-      "kind": 9,
-      "detail": "ballerina.net.http:Response",
-      "documentation": null,
-      "sortText": 7,
-      "insertText": "res",
-      "data": {
-        "data": {
-          "type": {
-            "isArrayType": false,
-            "constraint": false,
-            "arrayType": null,
-            "pkgName": ".",
-            "constraintName": null,
-            "constraintPkgName": null
-          }
-        }
-      }
+      "label": "conn",
+      "kind": "Unit",
+      "detail": "ballerina.net.http:Connection",
+      "sortText": "PRIORITY7",
+      "insertText": "conn"
     }
   ]
 }
