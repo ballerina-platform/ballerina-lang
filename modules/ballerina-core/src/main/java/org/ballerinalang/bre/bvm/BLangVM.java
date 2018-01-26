@@ -421,9 +421,15 @@ public class BLangVM {
                     typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
                     int typeTag = typeRefCPEntry.getType().getTag();
                     if (typeTag == TypeTags.STRING_TAG) {
-                        sf.longRegs[j] = sf.stringRegs[i].length();
+                        String value = sf.stringRegs[i];
+                        if (value == null) {
+                            handleNullRefError();
+                        } else {
+                            sf.longRegs[j] = value.length();
+                        }
                         break;
                     } else if (typeTag == TypeTags.BLOB_TAG) {
+                        // Here it is assumed null is not supported for blob type
                         sf.longRegs[j] = sf.byteRegs[i].length;
                         break;
                     }

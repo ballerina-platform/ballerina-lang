@@ -171,3 +171,8 @@ function lengthOfBlob() (int, int) {
     
     return l1, l2;
 }
+
+function lengthOfNullString() (int) {
+    string foo;
+    return lengthof foo;
+}
