@@ -2466,13 +2466,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangNext continueNode) {
-        generateFinallyInstructions(continueNode, NodeKind.WHILE);
+    public void visit(BLangNext nextNode) {
+        generateFinallyInstructions(nextNode, NodeKind.WHILE, NodeKind.FOREACH);
         this.emit(this.loopResetInstructionStack.peek());
     }
 
     public void visit(BLangBreak breakNode) {
-        generateFinallyInstructions(breakNode, NodeKind.WHILE);
+        generateFinallyInstructions(breakNode, NodeKind.WHILE, NodeKind.FOREACH);
         this.emit(this.loopExitInstructionStack.peek());
     }
 
@@ -2513,6 +2513,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         Operand foreachStartAddress = new Operand(nextIP());
         Operand foreachEndAddress = new Operand(-1);
+        Instruction gotoStartInstruction = InstructionFactory.get(InstructionCodes.GOTO, foreachStartAddress);
+        Instruction gotoEndInstruction = InstructionFactory.get(InstructionCodes.GOTO, foreachEndAddress);
 
         // Checks given iterator has a next value.
         this.emit(InstructionCodes.ITR_HAS_NEXT, iteratorVar, conditionVar);
@@ -2521,8 +2523,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         // assign variables.
         generateForeachVarAssignment(foreach, iteratorVar);
 
+        this.loopResetInstructionStack.push(gotoStartInstruction);
+        this.loopExitInstructionStack.push(gotoEndInstruction);
         this.genNode(foreach.body, env);                        // generate foreach body.
-        this.emit(InstructionCodes.GOTO, foreachStartAddress);  // move to next iteration.
+        this.loopResetInstructionStack.pop();
+        this.loopExitInstructionStack.pop();
+
+        this.emit(gotoStartInstruction);  // move to next iteration.
         foreachEndAddress.value = this.nextIP();
     }
 
@@ -2930,15 +2937,17 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private void generateFinallyInstructions(BLangStatement statement) {
-        generateFinallyInstructions(statement, null);
+        generateFinallyInstructions(statement, new NodeKind[0]);
     }
 
-    private void generateFinallyInstructions(BLangStatement statement, NodeKind targetStatementKind) {
+    private void generateFinallyInstructions(BLangStatement statement, NodeKind... expectedParentKinds) {
         BLangStatement current = statement;
         while (current != null && current.statementLink.parent != null) {
             BLangStatement parent = current.statementLink.parent.statement;
-            if (targetStatementKind != null && targetStatementKind == parent.getKind()) {
-                return;
+            for (NodeKind expected : expectedParentKinds) {
+                if (expected == parent.getKind()) {
+                    return;
+                }
             }
             if (NodeKind.TRY == parent.getKind()) {
                 BLangTryCatchFinally tryCatchFinally = (BLangTryCatchFinally) parent;

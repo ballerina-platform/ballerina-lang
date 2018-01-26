@@ -341,8 +341,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForeach foreach) {
+        this.loopWithintransactionCheckStack.push(true);
         this.checkStatementExecutionValidity(foreach);
+        this.loopCount++;
         foreach.body.stmts.forEach(e -> e.accept(this));
+        this.loopCount--;
+        this.resetLastStatement();
+        this.loopWithintransactionCheckStack.pop();
     }
 
     @Override
@@ -357,14 +362,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
     
     @Override
-    public void visit(BLangNext continueNode) {
-        this.checkStatementExecutionValidity(continueNode);
+    public void visit(BLangNext nextNode) {
+        this.checkStatementExecutionValidity(nextNode);
         if (this.loopCount == 0) {
-            this.dlog.error(continueNode.pos, DiagnosticCode.NEXT_CANNOT_BE_OUTSIDE_LOOP);
+            this.dlog.error(nextNode.pos, DiagnosticCode.NEXT_CANNOT_BE_OUTSIDE_LOOP);
             return;
         }
         if (checkNextBreakValidityInTransaction()) {
-            this.dlog.error(continueNode.pos, DiagnosticCode.NEXT_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
+            this.dlog.error(nextNode.pos, DiagnosticCode.NEXT_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
         }
         this.lastStatement = true;
