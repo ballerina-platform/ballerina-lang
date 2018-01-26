@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.hover.HoverTreeVisitor;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
+import org.ballerinalang.langserver.util.Debouncer;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
@@ -85,17 +86,22 @@ import java.util.stream.Collectors;
  * Text document service implementation for ballerina.
  */
 public class BallerinaTextDocumentService implements TextDocumentService {
+    // indicates the frequency to send diagnostics to server upon document did change
+    private static final int DIAG_PUSH_DEBOUNCE_DELAY = 500;
 
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
     private Map<String, List<Diagnostic>> lastDiagnosticMap;
     private BLangPackageContext bLangPackageContext;
 
+    private final Debouncer diagPushDebouncer;
+
     public BallerinaTextDocumentService(BallerinaLanguageServer ballerinaLanguageServer) {
         this.ballerinaLanguageServer = ballerinaLanguageServer;
         this.documentManager = new WorkspaceDocumentManagerImpl();
         this.lastDiagnosticMap = new HashMap<>();
         this.bLangPackageContext = new BLangPackageContext();
+        this.diagPushDebouncer = new Debouncer(DIAG_PUSH_DEBOUNCE_DELAY);
     }
 
     @Override
@@ -308,7 +314,12 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         String content = params.getContentChanges().get(0).getText();
         this.documentManager.updateFile(changedPath, content);
 
-        compileAndSendDiagnostics(content, changedPath);
+        this.diagPushDebouncer.call(new Runnable() {
+            @Override
+            public void run() {
+                compileAndSendDiagnostics(content, changedPath);
+            }
+        });
     }
 
     private void compileAndSendDiagnostics(String content, Path path) {
