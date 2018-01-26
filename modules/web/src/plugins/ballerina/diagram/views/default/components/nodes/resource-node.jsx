@@ -129,7 +129,7 @@ class ResourceNode extends React.Component {
                     packageIdentifier={protocolPkgIdentifier}
                 >
                     <Client
-                        title={protocolPkgIdentifier + ' client'}
+                        title={protocolPkgIdentifier + ' conn'}
                         bBox={this.props.model.viewState.components.client}
                     />
                     <g>

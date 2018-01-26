@@ -439,7 +439,12 @@ class SizingUtil {
         cmp.client.w = this.config.clientLine.width;
         cmp.client.h = maxWorkerHeight;
         cmp.client.arrowLine = (cmp.client.w / 2);
-        const paramText = node.parameters.map((param) => {
+        const paramText = node.parameters.filter((param) => {
+            // skip connection on client invocation arrow
+            param.typeNode = param.typeNode || {};
+            param.typeNode.typeName = param.typeNode.typeName || {};
+            return param.typeNode.typeName.value !== 'Connection';
+        }).map((param) => {
             return param.name.value;
         }).join(', ');
         const paramTextWidth = this.getTextWidth(paramText, 0,
