@@ -927,6 +927,16 @@ class PositioningUtil {
 
 
     /**
+     * Calculate position of TypeofExpression nodes.
+     *
+     * @param {object} node TypeofExpression object
+     */
+    positionTypeofExpressionNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
      * Calculate position of TypeCastExpr nodes.
      *
      * @param {object} node TypeCastExpr object
@@ -1101,6 +1111,16 @@ class PositioningUtil {
      */
     positionExpressionStatementNode(node) {
         this.positionStatementComponents(node);
+    }
+
+
+    /**
+     * Calculate position of Foreach nodes.
+     *
+     * @param {object} node Foreach object
+     */
+    positionForeachNode(node) {
+        // Not implemented.
     }
 
 

@@ -54,6 +54,7 @@ import RecordLiteralExprNode from './tree/record-literal-expr-node';
 import SimpleVariableRefNode from './tree/simple-variable-ref-node';
 import StringTemplateLiteralNode from './tree/string-template-literal-node';
 import TernaryExprNode from './tree/ternary-expr-node';
+import TypeofExpressionNode from './tree/typeof-expression-node';
 import TypeCastExprNode from './tree/type-cast-expr-node';
 import TypeConversionExprNode from './tree/type-conversion-expr-node';
 import UnaryExprNode from './tree/unary-expr-node';
@@ -71,6 +72,7 @@ import BlockNode from './tree/block-node';
 import BreakNode from './tree/break-node';
 import NextNode from './tree/next-node';
 import ExpressionStatementNode from './tree/expression-statement-node';
+import ForeachNode from './tree/foreach-node';
 import ForkJoinNode from './tree/fork-join-node';
 import IfNode from './tree/if-node';
 import ReplyNode from './tree/reply-node';
@@ -501,7 +503,16 @@ class NodeFactory {
         return node;
     }
 
-    createTypeCastExpr(json = {}) {
+    createTypeofExpression(json = {}){
+        json.kind = 'TypeofExpression';
+        let node = new TypeofExpressionNode();
+        node.typeNode = new TypeNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
+    createTypeCastExpr(json = {}){
         json.kind = 'TypeCastExpr';
         let node = new TypeCastExprNode();
         node.typeNode = new TypeNode();
@@ -661,7 +672,18 @@ class NodeFactory {
         return node;
     }
 
-    createForkJoin(json = {}) {
+    createForeach(json = {}){
+        json.kind = 'Foreach';
+        let node = new ForeachNode();
+        node.variables = [];
+        node.body = new BlockNode();
+        node.collection = new ExpressionNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
+    createForkJoin(json = {}){
         json.kind = 'ForkJoin';
         let node = new ForkJoinNode();
         node.workers = [];
@@ -726,10 +748,8 @@ class NodeFactory {
         json.kind = 'Transaction';
         let node = new TransactionNode();
         node.condition = new ExpressionNode();
-        node.transactionBody = new BlockNode();
         node.failedBody = new BlockNode();
-        node.committedBody = new BlockNode();
-        node.abortedBody = new BlockNode();
+        node.transactionBody = new BlockNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
