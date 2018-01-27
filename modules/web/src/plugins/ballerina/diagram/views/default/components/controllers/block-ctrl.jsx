@@ -64,10 +64,14 @@ class BlockCtrl extends React.Component {
             // do nothing
         } else if (TreeUtil.isFinally(node)) {
             // do nothing
+        } else if (TreeUtil.isForeach(node.parent)) {
+            // do nothing
         } else {
-            bBox.y += bBox.h - (this.context.config.statement.height * 0.5);
-            bBox.h = this.context.config.statement.height * 1.5;
-            button.y = 0;
+            if (!TreeUtil.isWorker(node.parent)) {
+                bBox.y += bBox.h - (this.context.config.statement.height * 0.5);
+                bBox.h = this.context.config.statement.height * 1.5;
+                button.y = 0;
+            }
             showAlways = true;
         }
         // positioning changes to + button.
