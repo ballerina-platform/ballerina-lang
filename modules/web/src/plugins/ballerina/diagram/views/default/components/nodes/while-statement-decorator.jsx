@@ -21,6 +21,7 @@ import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-edi
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
 import Node from '../../../../../model/tree/node';
+import TreeUtil from '../../../../../model/tree-util';
 import DropZone from '../../../../../drag-drop/DropZone';
 import './compound-statement-decorator.css';
 import ActionBox from '../decorators/action-box';
@@ -300,10 +301,18 @@ class WhileStatementDecorator extends React.Component {
                     points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y} ${p6X}, ${p6Y}`}
                     className='flowchart-background-empty-rect'
                 />
+                { TreeUtil.isForeach(this.props.model) &&
+                <polyline
+                    points={`${p2X},${p8Y - 10} ${p3X},${p8Y - 10} ${p3X},${p9Y + 10} ${p2X},${p9Y + 10} ${p2X},${p8Y - 10}`}
+                    className={statementRectClass}
+                />
+                }
+                { TreeUtil.isWhile(this.props.model) &&
                 <polyline
                     points={`${p2X},${p2Y} ${p8X},${p8Y} ${p3X},${p3Y} ${p9X}, ${p9Y} ${p2X},${p2Y}`}
                     className={statementRectClass}
                 />
+                }
                 <line
                     x1={p10X}
                     y1={p10Y + 0.5}
@@ -311,6 +320,7 @@ class WhileStatementDecorator extends React.Component {
                     y2={p6Y - 0.5}
                     className='flowchart-separator-line'
                 />
+                { TreeUtil.isWhile(this.props.model) &&
                 <text
                     x={p9X}
                     y={p9Y + 14}
@@ -318,10 +328,29 @@ class WhileStatementDecorator extends React.Component {
                 >
                     while
                 </text>
-                {expression &&
+                }
+                { TreeUtil.isForeach(this.props.model) &&
+                <text
+                    x={p9X}
+                    y={p9Y + 24}
+                    className='statement-title-text'
+                >
+                    foreach
+                </text>
+                }
+                { TreeUtil.isWhile(this.props.model) && expression &&
                     <text
                         x={p8X}
                         y={p2Y}
+                        className='condition-text'
+                    >
+                        {displayExpression.text}
+                    </text>
+                }
+                { TreeUtil.isForeach(this.props.model) && expression &&
+                    <text
+                        x={p8X}
+                        y={p2Y + 10}
                         className='condition-text'
                     >
                         {displayExpression.text}

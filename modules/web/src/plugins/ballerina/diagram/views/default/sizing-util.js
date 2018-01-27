@@ -1391,7 +1391,7 @@ class SizingUtil {
      *
      */
     sizeForeachNode(node) {
-        // Not implemented.
+        this.sizeWhileNode(node);
     }
 
 
@@ -1898,7 +1898,7 @@ class SizingUtil {
      *
      */
     sizeWhileNode(node) {
-        const expression = node.getCondition();
+        const expression = (TreeUtil.isWhile(node)) ? node.getCondition() : node.getCollection();
         const viewState = node.viewState;
         const components = viewState.components;
         const dropZoneHeight = TreeUtil.isBlock(node.parent) ? this.config.statement.gutter.v : 0;

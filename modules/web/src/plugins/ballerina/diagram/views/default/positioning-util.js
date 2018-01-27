@@ -1120,7 +1120,7 @@ class PositioningUtil {
      * @param {object} node Foreach object
      */
     positionForeachNode(node) {
-        // Not implemented.
+        this.positionWhileNode(node);
     }
 
 

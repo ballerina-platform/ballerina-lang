@@ -61,7 +61,8 @@ class SizingUtil extends DefaultSizingUtil {
             TreeUtil.isWhile(node) ||
             TreeUtil.isEndpointTypeVariableDef(node) ||
             TreeUtil.statementIsClientResponder(node) ||
-            TreeUtil.isTry(node)
+            TreeUtil.isTry(node) ||
+            TreeUtil.isForeach(node)
         ) {
             return true;
         }

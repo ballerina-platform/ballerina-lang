@@ -83,10 +83,6 @@ class AbstractTreeUtil {
         return node.kind === 'Resource';
     }
 
-    isRetry(node) {
-        return node.kind === 'Retry';
-    }
-
     isService(node) {
         return node.kind === 'Service';
     }
@@ -167,6 +163,10 @@ class AbstractTreeUtil {
         return node.kind === 'TernaryExpr';
     }
 
+    isTypeofExpression(node) {
+        return node.kind === 'TypeofExpression';
+    }
+
     isTypeCastExpr(node) {
         return node.kind === 'TypeCastExpr';
     }
@@ -235,6 +235,10 @@ class AbstractTreeUtil {
         return node.kind === 'ExpressionStatement';
     }
 
+    isForeach(node) {
+        return node.kind === 'Foreach';
+    }
+
     isForkJoin(node) {
         return node.kind === 'ForkJoin';
     }
@@ -249,10 +253,6 @@ class AbstractTreeUtil {
 
     isReturn(node) {
         return node.kind === 'Return';
-    }
-
-    isComment(node) {
-        return node.kind === 'Comment';
     }
 
     isThrow(node) {
