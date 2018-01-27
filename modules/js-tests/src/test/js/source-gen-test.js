@@ -143,13 +143,16 @@ describe('Ballerina Composer Test Suite', () => {
 
         const targetPath = path.join(__dirname, '..', '..', 'lib', `composer-server-distribution-${projectVersion}.jar`);
         backEndProcess = spawn('java', ['-Dbal.composer.home', '-jar', targetPath]);
-        let data = '';
+        backEndProcess.stderr.pipe(process.stderr)
+
+        let stdIndata = '';
         backEndProcess.stdout.on('data', (data) => {
-            data += data;
-            if (data.indexOf("Composer started successfully") < 0) {
+            stdIndata += data;
+            if (stdIndata.indexOf("Composer started successfully") < 0) {
                 return;
             }
-
+            console.log(stdIndata);
+            stdIndata = '';
             fetchConfigs()
                 .then(() => beforeAllDone())
                 .catch(beforeAllDone);

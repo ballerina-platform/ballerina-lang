@@ -159,6 +159,21 @@
         </plugins>
     </build>
 
+    <profiles>
+        <profile>
+            <id>platform-windows</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <properties>
+                <!-- Override the executable names for Windows -->
+                <npm.executable>npm.cmd</npm.executable>
+            </properties>
+        </profile>
+    </profiles>
+
     <properties>
         <npm.executable>npm</npm.executable>
     </properties>
