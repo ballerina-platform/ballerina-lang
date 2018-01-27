@@ -19,19 +19,21 @@ atomikos-3.8.0.wso2v1.jar                                                       
 axiom-api-1.2.20.jar                                                            bundle         apache2   2111
 axiom-dom-1.2.20.jar                                                            bundle         apache2   2219
 axiom-impl-1.2.20.jar                                                           bundle         apache2   2110
-ballerina-builtin-0.95.8.jar                                                    jar            apache2   2818
-ballerina-config-0.95.8.jar                                                     jar            apache2   2817
-ballerina-container-support-0.95.8.jar                                          jar            apache2   2823
-ballerina-core-0.95.8.jar                                                       jar            apache2   2816
-ballerina-http-0.95.8.jar                                                       jar            apache2   2815
-ballerina-lang-0.95.8.jar                                                       jar            apache2   2814
-ballerina-launcher-0.95.8.jar                                                   jar            apache2   2813
-ballerina-logging-0.95.8.jar                                                    jar            apache2   2812
-ballerina-packerina-0.95.8.jar                                                  jar            apache2   2822
+ballerina-builtin-0.96.0.jar                                                    jar            apache2   2844
+ballerina-config-0.96.0.jar                                                     jar            apache2   2843
+ballerina-container-support-0.96.0.jar                                          jar            apache2   2849
+ballerina-core-0.96.0.jar                                                       jar            apache2   2842
+ballerina-http-0.96.0.jar                                                       jar            apache2   2841
+ballerina-lang-0.96.0.jar                                                       jar            apache2   2840
+ballerina-launcher-0.96.0.jar                                                   jar            apache2   2839
+ballerina-logging-0.96.0.jar                                                    jar            apache2   2838
+ballerina-mime-0.96.0.jar                                                       jar            apache2   2837
+ballerina-packerina-0.96.0.jar                                                  jar            apache2   2848
 commons-lang3-3.5.jar                                                           bundle         apache2   2105
 commons-logging-1.2.jar                                                         bundle         apache2   1702
 commons-pool-1.5.6.wso2v1.jar                                                   bundle         apache2   5589
-docerina-0.95.8.jar                                                             jar            apache2   2821
+composer-server-distribution-0.96.0.jar                                         jar            apache2   2850
+docerina-0.96.0.jar                                                             jar            apache2   2847
 geronimo-activation_1.1_spec-1.1.jar                                            bundle         apache2   2103
 geronimo-stax-api_1.0_spec-1.0.1.jar                                            bundle         apache2   635
 HikariCP-2.5.1.jar                                                              bundle         apache2   2101
@@ -54,7 +56,7 @@ netty-resolver-4.1.19.Final.jar                                                 
 netty-transport-4.1.19.Final.jar                                                bundle         apache2   2762
 org.wso2.carbon.core-5.1.0.jar                                                  bundle         apache2   11763
 org.wso2.carbon.messaging-2.3.7.jar                                             bundle         apache2   12373
-org.wso2.transport.http.netty-6.0.74.jar                                        bundle         apache2   15323
+org.wso2.transport.http.netty-6.0.76.jar                                        bundle         apache2   15664
 quartz-2.3.0.jar                                                                bundle         apache2   2337
 quartz-jobs-2.3.0.jar                                                           jar            apache2   2338
 Saxon-HE-9.7.0.wso2v1.jar                                                       bundle         mpl10     11756
@@ -62,9 +64,8 @@ slf4j-api-1.7.22.jar                                                            
 slf4j-jdk14-1.7.22.jar                                                          bundle         mit       2131
 snakeyaml-1.16.0.wso2v1.jar                                                     bundle         apache2   11755
 staxon-core-1.2.0.wso2v2.jar                                                    bundle         apache2   11754
-swagger-ballerina-generator-0.95.8.jar                                          jar            apache2   2820
-testerina-core-0.95.8.jar                                                       jar            apache2   2819
-workspace-service-0.95.8.jar                                                    jar            apache2   2824
+swagger-ballerina-generator-0.96.0.jar                                          jar            apache2   2846
+testerina-core-0.96.0.jar                                                       jar            apache2   2845
 xml-resolver-1.2.jar                                                            jarinbundle    apache2   431
 
 
