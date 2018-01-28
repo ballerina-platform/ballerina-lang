@@ -27,7 +27,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>docerina</artifactId>
     <packaging>jar</packaging>
-    <version>0.95.9-SNAPSHOT</version>
+    <version>0.96.0</version>
 
     <name>WSO2 Docerina - Ballerina Documentation Generation</name>
     <url>http://wso2.org</url>
@@ -36,7 +36,7 @@
         <url>https://github.com/wso2/docerina.git</url>
         <developerConnection>scm:git:https://github.com/wso2/docerina.git</developerConnection>
         <connection>scm:git:https://github.com/wso2/docerina.git</connection>
-        <tag>HEAD</tag>
+        <tag>v0.96.0</tag>
     </scm>
 
     <repositories>
