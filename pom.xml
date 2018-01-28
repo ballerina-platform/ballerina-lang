@@ -295,7 +295,7 @@
 
     <properties>
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
-        <ballerina.launcher.version>${project.version}</ballerina.launcher.version>
+        <ballerina.launcher.version>0.96.0</ballerina.launcher.version>
         <surefireArgLine>-Dfile.encoding=UTF-8</surefireArgLine>
         <jackson.version>2.6.1</jackson.version>
         <replacer.plugin.version>1.5.3</replacer.plugin.version>
