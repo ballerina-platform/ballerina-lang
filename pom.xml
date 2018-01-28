@@ -293,6 +293,6 @@
 
     <properties>
         <cobertura.version>2.7</cobertura.version>
-        <ballerina.version>${project.version}</ballerina.version>
+        <ballerina.version>0.96.0</ballerina.version>
     </properties>
 </project>
