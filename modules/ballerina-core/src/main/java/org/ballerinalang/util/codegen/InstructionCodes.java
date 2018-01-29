@@ -282,5 +282,8 @@ public interface InstructionCodes {
     int TEQ = 252;
     int TNE = 253;
 
-    int INSTRUCTION_CODE_COUNT = 254;
+    int LOCK = 254;
+    int UNLOCK = 255;
+
+    int INSTRUCTION_CODE_COUNT = 256;
 }

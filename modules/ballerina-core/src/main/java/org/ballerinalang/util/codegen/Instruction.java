@@ -227,4 +227,21 @@ public class Instruction {
             this.retRegs = retRegs;
         }
     }
+
+    /**
+     * {@code {@link InstructionLock}} represents the LOCK/UNLOCK instruction in Ballerina bytecode.
+     *
+     * @since 0.96.9
+     */
+    public static class InstructionLock extends Instruction {
+
+        public BType[] types;
+        public int[] varRegs;
+
+        InstructionLock(int opcode, BType[] types, int[] varRegs) {
+            super(opcode);
+            this.types = types;
+            this.varRegs = varRegs;
+        }
+    }
 }

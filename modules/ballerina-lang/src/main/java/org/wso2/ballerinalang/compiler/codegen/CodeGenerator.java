@@ -122,6 +122,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn.BLangWorkerReturn;
@@ -2542,6 +2543,28 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.emit(gotoTopJumpInstr);
 
         exitLoopJumpAddr.value = nextIP();
+    }
+
+    public void visit(BLangLock lockNode) {
+        Operand[] operands = getOperands(lockNode);
+        emit((InstructionCodes.LOCK), operands);
+
+        this.genNode(lockNode.body, this.env);
+
+        emit((InstructionCodes.UNLOCK), operands);
+    }
+
+    private Operand[] getOperands(BLangLock lockNode) {
+        Operand[] operands = new Operand[(lockNode.lockVariables.size() * 2) + 1];
+        int i = 0;
+        operands[i++] = new Operand(lockNode.lockVariables.size());
+        for (BVarSymbol varSymbol : lockNode.lockVariables) {
+            int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.getType().getDesc());
+            TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
+            operands[i++] = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
+            operands[i++] = varSymbol.varIndex;
+        }
+        return operands;
     }
 
     public void visit(BLangTransaction transactionNode) {
