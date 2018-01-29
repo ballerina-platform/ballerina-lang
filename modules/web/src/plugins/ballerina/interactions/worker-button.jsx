@@ -17,11 +17,11 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import Autosuggest from 'react-autosuggest';
 import Area from './area';
 import Button from './button';
 import Menu from './menu';
 import Item from './item';
+import Search from './search';
 import DefaultNodeFactory from '../model/default-node-factory';
 import TreeUtil from '../model/tree-util';
 import ConnectorAction from '../env/connector-action';
@@ -250,6 +250,7 @@ class LifelineButton extends React.Component {
                                 label='Action'
                                 icon='fw fw-action'
                                 callback={this.showActions}
+                                closeMenu={false}
                             />
                             }
                             {this.props.items}
@@ -270,6 +271,7 @@ class LifelineButton extends React.Component {
                                     callback={() => this.showConnectors(
                                         statement.getVariable().getTypeNode().getConstraint().getTypeName().getValue()
                                         , statement.getVariable().getName().getValue())}
+                                    closeMenu={false}
                                 />);
                             })
                             }
@@ -286,7 +288,7 @@ class LifelineButton extends React.Component {
                                         Select an action
                                     </div>
                                 </div>
-                                <Autosuggest
+                                <Search
                                     suggestions={suggestions}
                                     onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
                                     onSuggestionSelected={this.onSuggestionSelected}

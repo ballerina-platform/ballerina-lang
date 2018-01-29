@@ -17,11 +17,11 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import Autosuggest from 'react-autosuggest';
 import Area from './area';
 import Button from './button';
 import Menu from './menu';
 import Item from './item';
+import Search from './search';
 import DefaultNodeFactory from '../model/default-node-factory';
 import Connector from '../env/connector';
 
@@ -202,6 +202,7 @@ class LifelineButton extends React.Component {
                                 label='Endpoint'
                                 icon='fw fw-endpoint'
                                 callback={this.showConnectors}
+                                closeMenu={false}
                             />
                         </div>
 
@@ -214,7 +215,7 @@ class LifelineButton extends React.Component {
                                     Select a connector
                                 </div>
                             </div>
-                            <Autosuggest
+                            <Search
                                 suggestions={suggestions}
                                 onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
                                 onSuggestionSelected={this.onSuggestionSelected}

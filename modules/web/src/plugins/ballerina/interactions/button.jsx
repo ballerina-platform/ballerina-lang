@@ -37,6 +37,15 @@ class Button extends React.Component {
     }
 
     /**
+     * Include menu close call back to the context
+     * @return {object} context object
+     */
+    getChildContext() {
+        return ({ menuCloseCallback:
+            () => { this.setState({ mouseClicked: false, showAlways: this.props.showAlways }); } });
+    }
+
+    /**
      * Bind mouse down event to handle out side click events
      */
     componentDidMount() {
@@ -174,8 +183,12 @@ Button.defaultProps = {
     onClick: () => {},
     tooltip: '',
     menuOverButton: false,
-    enableMouseClick: false,
+    enableMouseClick: true,
     children: null,
+};
+
+Button.childContextTypes = {
+    menuCloseCallback: PropTypes.func,
 };
 
 export default Button;

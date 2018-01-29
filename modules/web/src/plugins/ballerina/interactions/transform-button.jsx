@@ -17,11 +17,11 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import Autosuggest from 'react-autosuggest';
 import Area from './area';
 import Button from './button';
 import Menu from './menu';
 import Item from './item';
+import Search from './search';
 import DefaultNodeFactory from '../model/default-node-factory';
 
 // When suggestion is clicked, Autosuggest needs to populate the input
@@ -160,6 +160,7 @@ class TransformButton extends React.Component {
                                 label='Function'
                                 icon='fw fw-function'
                                 callback={this.showConnectors}
+                                closeMenu={false}
                             />
                             {this.props.children}
                         </div>
@@ -174,7 +175,7 @@ class TransformButton extends React.Component {
                                         Select a connector
                                     </div>
                                 </div>
-                                <Autosuggest
+                                <Search
                                     suggestions={suggestions}
                                     onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
                                     onSuggestionSelected={this.onSuggestionSelected}
