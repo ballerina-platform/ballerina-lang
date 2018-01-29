@@ -11,8 +11,9 @@
     ```
     git clone --recursive https://github.com/ballerinalang/plugin-intellij.git
     ```
-2. Install latest version of [Gradle](https://gradle.org/) if you don't have it installed already.
-3. Navigate into the cloned repository and run `gradle buildPlugin`. In the **build/distributions** directory, **Ballerina-Intellij-Plugin.zip** will be created.
+2. Navigate into the cloned repository and run `./gradlew buildPlugin`. In the **build/distributions** directory, **Ballerina-Intellij-Plugin.zip** will be created.
+
+   **Note:** On Windows, you don’t need the leading `./` in front of the gradlew command
 
 ## Installing the plugin to IDEA
 
