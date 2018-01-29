@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-composer-parent</artifactId>
-        <version>0.95.9-SNAPSHOT</version>
+        <version>0.96.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <packaging>pom</packaging>
@@ -96,8 +96,8 @@
                                         <include name="**/*.js" />
                                     </fileset>
                                     <chainedmapper>
-                                        <flattenmapper/>
-                                        <regexpmapper from="(.+)-([0-9a-f]+).js" to="\1.js"/>
+                                        <flattenmapper />
+                                        <regexpmapper from="(.+)-([0-9a-f]+).js" to="\1.js" />
                                     </chainedmapper>
                                 </copy>
                             </target>
