@@ -72,7 +72,7 @@ class AboutDialog extends React.Component {
                 className='modal-about'
                 actions={
                     <div>
-                        ?? {new Date().getFullYear()}
+                        © {new Date().getFullYear()}
                         &nbsp;
                         <a
                             href='http://wso2.com/'
