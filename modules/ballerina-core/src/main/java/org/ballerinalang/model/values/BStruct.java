@@ -193,20 +193,6 @@ public final class BStruct implements BRefType, StructureType {
         longLocks[index].unlock();
     }
 
-    public void lockIntField(int index, String workerName) {
-        if (longLocks == null || longLocks[index] == null) {
-            initIntLocks(index);
-        }
-        logBeforeLock(index, workerName, "int");
-        longLocks[index].lock();
-        logAfterLock(index, workerName, "int");
-    }
-
-    public void unlockIntField(int index, String workerName) {
-        longLocks[index].unlock();
-        logLockReleased(index, workerName, "int");
-    }
-
     @Override
     public void lockFloatField(int index) {
         if (doubleLocks == null || doubleLocks[index] == null) {
@@ -218,20 +204,6 @@ public final class BStruct implements BRefType, StructureType {
     @Override
     public void unlockFloatField(int index) {
         doubleLocks[index].unlock();
-    }
-
-    public void lockFloatField(int index, String workerName) {
-        if (doubleLocks == null || doubleLocks[index] == null) {
-            initFloatLocks(index);
-        }
-        logBeforeLock(index, workerName, "float");
-        doubleLocks[index].lock();
-        logAfterLock(index, workerName, "float");
-    }
-
-    public void unlockFloatField(int index, String workerName) {
-        doubleLocks[index].unlock();
-        logLockReleased(index, workerName, "float");
     }
 
     @Override
@@ -247,20 +219,6 @@ public final class BStruct implements BRefType, StructureType {
         stringLocks[index].unlock();
     }
 
-    public void lockStringField(int index, String workerName) {
-        if (stringLocks == null || stringLocks[index] == null) {
-            initStringLocks(index);
-        }
-        logBeforeLock(index, workerName, "string");
-        stringLocks[index].lock();
-        logAfterLock(index, workerName, "string");
-    }
-
-    public void unlockStringField(int index, String workerName) {
-        stringLocks[index].unlock();
-        logLockReleased(index, workerName, "string");
-    }
-
     @Override
     public void lockBooleanField(int index) {
         if (intLocks == null || intLocks[index] == null) {
@@ -272,20 +230,6 @@ public final class BStruct implements BRefType, StructureType {
     @Override
     public void unlockBooleanField(int index) {
         intLocks[index].unlock();
-    }
-
-    public void lockBooleanField(int index, String workerName) {
-        if (intLocks == null || intLocks[index] == null) {
-            initBooleanLocks(index);
-        }
-        logBeforeLock(index, workerName, "boolean");
-        intLocks[index].lock();
-        logAfterLock(index, workerName, "string");
-    }
-
-    public void unlockBooleanField(int index, String workerName) {
-        intLocks[index].unlock();
-        logLockReleased(index, workerName, "boolean");
     }
 
     @Override
@@ -301,20 +245,6 @@ public final class BStruct implements BRefType, StructureType {
         byteLocks[index].unlock();
     }
 
-    public void lockBlobField(int index, String workerName) {
-        if (byteLocks == null || byteLocks[index] == null) {
-            initBlobLocks(index);
-        }
-        logBeforeLock(index, workerName, "blob");
-        byteLocks[index].lock();
-        logAfterLock(index, workerName, "blob");
-    }
-
-    public void unlockBlobField(int index, String workerName) {
-        byteLocks[index].unlock();
-        logLockReleased(index, workerName, "blob");
-    }
-
     @Override
     public void lockRefField(int index) {
         if (refLocks == null || refLocks[index] == null) {
@@ -326,38 +256,6 @@ public final class BStruct implements BRefType, StructureType {
     @Override
     public void unlockRefField(int index) {
         refLocks[index].unlock();
-    }
-
-    public void lockRefField(int index, String workerName) {
-        if (refLocks == null || refLocks[index] == null) {
-            initRefLocks(index);
-        }
-        logBeforeLock(index, workerName, "ref");
-        refLocks[index].lock();
-        logAfterLock(index, workerName, "ref");
-    }
-
-    public void unlockRefField(int index, String workerName) {
-        refLocks[index].unlock();
-        logLockReleased(index, workerName, "ref");
-    }
-
-    private void logBeforeLock(int index, String workerName, String varType) {
-        String threadId = Thread.currentThread().getName() + ":" + Thread.currentThread().getId();
-        System.out.println(System.nanoTime() + ", ******** trying to lock index of, '" + varType + "', " + index
-                + ", worker, " + workerName + ", thread id, " + threadId);
-    }
-
-    private void logAfterLock(int index, String workerName, String varType) {
-        String threadId = Thread.currentThread().getName() + ":" + Thread.currentThread().getId();
-        System.out.println(System.nanoTime() + ", ******** lock acquired index of, '" + varType + "', " + index
-                + ", worker, " + workerName + ", thread id, " + threadId);
-    }
-
-    private void logLockReleased(int index, String workerName, String varType) {
-        String threadId = Thread.currentThread().getName() + ":" + Thread.currentThread().getId();
-        System.out.println(System.nanoTime() + ", ******** lock released index of, '" + varType + "', " + index
-                + ", worker, " + workerName + ", thread id, " + threadId);
     }
 
     private synchronized void initIntLocks(int index) {

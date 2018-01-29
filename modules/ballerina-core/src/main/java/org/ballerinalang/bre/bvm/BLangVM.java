@@ -84,7 +84,6 @@ import org.ballerinalang.util.codegen.Instruction.InstructionTCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
-import org.ballerinalang.util.codegen.Mnemonics;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructFieldInfo;
@@ -95,18 +94,14 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
-import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
-import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
-import org.ballerinalang.util.codegen.cpentries.PackageRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
-import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import org.ballerinalang.util.debugger.DebugCommand;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.Debugger;
@@ -121,7 +116,6 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -163,73 +157,7 @@ public class BLangVM {
     private void traceCode(PackageInfo packageInfo) {
         PrintStream printStream = System.out;
         for (int i = 0; i < code.length; i++) {
-            printStream.println(i + ": " + Mnemonics.getMnem(code[i].getOpcode()) + " " +
-                    getOperandsLine(code[i].getOperands()));
-        }
-
-        LineNumberTableAttributeInfo lineNumberTableAttributeInfo = (LineNumberTableAttributeInfo) packageInfo
-                .getAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE);
-        List<LineNumberInfo> lineNumberInfos = lineNumberTableAttributeInfo.getLineNumberInfoList();
-        lineNumberInfos.forEach(l -> {
-            printStream.println(l.getFileName() + " - " + l.getLineNumber() + ", ip " + l.getIp());
-        });
-
-        int index = 0;
-        String val = "entry not added";
-        for (ConstantPoolEntry entry : constPool) {
-            val = "entry not added";
-            switch (entry.getEntryType()) {
-                case CP_ENTRY_UTF8:
-                    val = "index - " + index + " type - CP_ENTRY_UTF8, value - " + ((UTF8CPEntry) entry).getValue();
-                    break;
-                case CP_ENTRY_INTEGER:
-                    val = "index - " + index + " type - CP_ENTRY_INTEGER, value - "
-                            + ((IntegerCPEntry) entry).getValue();
-                    break;
-                case CP_ENTRY_FLOAT:
-                    val = "index - " + index + " type - CP_ENTRY_FLOAT, value - "
-                            + ((FloatCPEntry) entry).getValue();
-                    break;
-                case CP_ENTRY_STRING:
-                    val = "index - " + index + " type - CP_ENTRY_STRING, value - "
-                            + ((StringCPEntry) entry).getValue();
-                    break;
-                case CP_ENTRY_PACKAGE:
-                    val = "index - " + index + " type - CP_ENTRY_PACKAGE, value - "
-                            + ((PackageRefCPEntry) entry).getPackageName();
-                    break;
-                case CP_ENTRY_FUNCTION_REF:
-                    FunctionRefCPEntry fRef = (FunctionRefCPEntry) entry;
-                    val = "index - " + index + " type - CP_ENTRY_FUNCTION_REF, value - "
-                            + fRef.getPackagePath() + ":" + fRef.getFunctionName();
-                    break;
-                case CP_ENTRY_ACTION_REF:
-                    ActionRefCPEntry aRef = (ActionRefCPEntry) entry;
-                    val = "index - " + index + " type - CP_ENTRY_ACTION_REF, value - "
-                            + aRef.getPackagePath() + ":" + aRef.getActionName();
-                    break;
-                case CP_ENTRY_FUNCTION_CALL_ARGS:
-                    FunctionCallCPEntry fCall = (FunctionCallCPEntry) entry;
-                    val = "index - " + index + " type - CP_ENTRY_FUNCTION_CALL_ARGS, value - "
-                            +  Arrays.toString(fCall.getArgRegs()) + ":" + Arrays.toString(fCall.getRetRegs());
-                    break;
-                case CP_ENTRY_STRUCTURE_REF:
-                    StructureRefCPEntry sRef = (StructureRefCPEntry) entry;
-                    val = "index - " + index + " type - CP_ENTRY_STRUCTURE_REF, value - "
-                            + sRef.getPackagePath() + ":" + sRef.getStructureName();
-                    break;
-                case CP_ENTRY_TYPE_REF:
-                    TypeRefCPEntry tRef = (TypeRefCPEntry) entry;
-                    val = "index - " + index + " type - CP_ENTRY_TYPE_REF, value - "
-                            + tRef.getTypeSig();
-                    break;
-                case CP_ENTRY_FORK_JOIN:
-
-                case CP_ENTRY_WRKR_DATA_CHNL_REF:
-
-            }
-            printStream.println(val);
-            index++;
+            printStream.println(i + ": " + code[i].toString());
         }
     }
 
@@ -257,7 +185,6 @@ public class BLangVM {
         }
 
         try {
-            traceCode(currentFrame.packageInfo);
             exec();
         } catch (Throwable e) {
             String message;
@@ -2441,55 +2368,53 @@ public class BLangVM {
     }
 
     private void handleVariableLock(BType[] types, int[] varRegs) {
-        String workerName = controlStack.currentFrame.workerInfo.getWorkerName();
         for (int i = 0; i < varRegs.length; i++) {
             BType paramType = types[i];
             int regIndex = varRegs[i];
             switch (paramType.getTag()) {
                 case TypeTags.INT_TAG:
-                    ((BStruct) globalMemBlock).lockIntField(regIndex, workerName);
+                    globalMemBlock.lockIntField(regIndex);
                     break;
                 case TypeTags.FLOAT_TAG:
-                    ((BStruct) globalMemBlock).lockFloatField(regIndex, workerName);
+                    globalMemBlock.lockFloatField(regIndex);
                     break;
                 case TypeTags.STRING_TAG:
-                    ((BStruct) globalMemBlock).lockRefField(regIndex, workerName);
+                    globalMemBlock.lockStringField(regIndex);
                     break;
                 case TypeTags.BOOLEAN_TAG:
-                    ((BStruct) globalMemBlock).lockBooleanField(regIndex, workerName);
+                    globalMemBlock.lockBooleanField(regIndex);
                     break;
                 case TypeTags.BLOB_TAG:
-                    ((BStruct) globalMemBlock).lockBlobField(regIndex, workerName);
+                    globalMemBlock.lockBlobField(regIndex);
                     break;
                 default:
-                    ((BStruct) globalMemBlock).lockRefField(regIndex, workerName);
+                    globalMemBlock.lockRefField(regIndex);
             }
         }
     }
 
     private void handleVariableUnlockLock(BType[] types, int[] varRegs) {
-        String workerName = controlStack.currentFrame.workerInfo.getWorkerName();
         for (int i = varRegs.length - 1; i > -1; i--) {
             BType paramType = types[i];
             int regIndex = varRegs[i];
             switch (paramType.getTag()) {
                 case TypeTags.INT_TAG:
-                    ((BStruct) globalMemBlock).unlockIntField(regIndex, workerName);
+                    globalMemBlock.unlockIntField(regIndex);
                     break;
                 case TypeTags.FLOAT_TAG:
-                    ((BStruct) globalMemBlock).unlockFloatField(regIndex, workerName);
+                    globalMemBlock.unlockFloatField(regIndex);
                     break;
                 case TypeTags.STRING_TAG:
-                    ((BStruct) globalMemBlock).unlockRefField(regIndex, workerName);
+                    globalMemBlock.unlockStringField(regIndex);
                     break;
                 case TypeTags.BOOLEAN_TAG:
-                    ((BStruct) globalMemBlock).unlockBooleanField(regIndex, workerName);
+                    globalMemBlock.unlockBooleanField(regIndex);
                     break;
                 case TypeTags.BLOB_TAG:
-                    ((BStruct) globalMemBlock).unlockBlobField(regIndex, workerName);
+                    globalMemBlock.unlockBlobField(regIndex);
                     break;
                 default:
-                    ((BStruct) globalMemBlock).unlockRefField(regIndex, workerName);
+                    globalMemBlock.unlockRefField(regIndex);
             }
         }
     }

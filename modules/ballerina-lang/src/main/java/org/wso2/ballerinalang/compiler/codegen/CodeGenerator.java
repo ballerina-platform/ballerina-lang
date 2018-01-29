@@ -2548,12 +2548,30 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangLock lockNode) {
+        if (lockNode.lockVariables.isEmpty()) {
+            this.genNode(lockNode.body, this.env);
+            return;
+        }
+        Operand gotoLockEndAddr = getOperand(-1);
+        Instruction instructGotoLockEnd = InstructionFactory.get(InstructionCodes.GOTO, gotoLockEndAddr);
         Operand[] operands = getOperands(lockNode);
+        ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
+
+        int fromIP = nextIP();
         emit((InstructionCodes.LOCK), operands);
 
         this.genNode(lockNode.body, this.env);
+        int toIP = nextIP() - 1;
 
         emit((InstructionCodes.UNLOCK), operands);
+        emit(instructGotoLockEnd);
+
+        ErrorTableEntry errorTableEntry = new ErrorTableEntry(fromIP, toIP, nextIP(), 0, -1);
+        errorTable.addErrorTableEntry(errorTableEntry);
+
+        emit((InstructionCodes.UNLOCK), operands);
+        emit(InstructionFactory.get(InstructionCodes.THROW, getOperand(-1)));
+        gotoLockEndAddr.value = nextIP();
     }
 
     private Operand[] getOperands(BLangLock lockNode) {

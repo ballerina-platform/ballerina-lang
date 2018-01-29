@@ -244,5 +244,15 @@ public class Instruction {
             this.types = types;
             this.varRegs = varRegs;
         }
+
+        @Override
+        public String toString() {
+            StringJoiner sj = new StringJoiner(" ");
+            for (int i = 0; i < varRegs.length; i++) {
+                sj.add(types[i].toString());
+                sj.add(String.valueOf(varRegs[i]));
+            }
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
+        }
     }
 }

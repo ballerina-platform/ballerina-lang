@@ -428,13 +428,11 @@ public class Desugar extends BLangNodeVisitor {
         enclLocks.push(lockNode);
         lockNode.body = rewrite(lockNode.body);
         enclLocks.pop();
-        if (enclLocks.isEmpty()) {
-            lockNode.lockVariables = lockNode.lockVariables.stream().sorted((o1, o2) -> {
-                String o1FullName = String.join(":", o1.pkgID.getName().getValue(), o1.name.getValue());
-                String o2FullName = String.join(":", o2.pkgID.getName().getValue(), o2.name.getValue());
-                return o1FullName.compareTo(o2FullName);
-            }).collect(Collectors.toSet());
-        }
+        lockNode.lockVariables = lockNode.lockVariables.stream().sorted((o1, o2) -> {
+            String o1FullName = String.join(":", o1.pkgID.getName().getValue(), o1.name.getValue());
+            String o2FullName = String.join(":", o2.pkgID.getName().getValue(), o2.name.getValue());
+            return o1FullName.compareTo(o2FullName);
+        }).collect(Collectors.toSet());
         result = lockNode;
     }
 
@@ -547,7 +545,7 @@ public class Desugar extends BLangNodeVisitor {
 
             //Only locking service level and package level variables
             if (!enclLocks.isEmpty()) {
-                enclLocks.firstElement().addLockVariable(varRefExpr.symbol);
+                enclLocks.peek().addLockVariable(varRefExpr.symbol);
             }
         }
 
