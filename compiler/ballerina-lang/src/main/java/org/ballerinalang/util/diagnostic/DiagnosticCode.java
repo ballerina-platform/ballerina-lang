@@ -140,6 +140,13 @@ public enum DiagnosticCode {
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("iterable.not.supported.collection"),
     ITERABLE_TOO_MANY_VARIABLES("iterable.too.many.variables"),
+    ITERABLE_NOT_ENOUGH_VARIABLES("iterable.not.enough.variables"),
+    ITERABLE_TOO_MANY_RETURN_VARIABLES("iterable.too.many.return.args"),
+    ITERABLE_NOT_ENOUGH_RETURN_VARIABLES("iterable.not.enough.return.args"),
+    ITERABLE_LAMBDA_REQUIRED("iterable.lambda.required"),
+    ITERABLE_NO_ARGS_REQUIRED("iterable.no.args.required"),
+    ITERABLE_LAMBDA_INCOMPATIBLE_TYPES("iterable.lambda.incompatible.types"),
+    ITERABLE_SHOULD_END_WITH_TERMINAL("iterable.should.end.with.terminal"),
 
     // Parser error diagnostic codes
     INVALID_TOKEN("invalid.token"),

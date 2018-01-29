@@ -26,6 +26,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -99,6 +100,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -164,6 +166,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
         analyzeDef(pkgNode.initFunction, pkgEnv);
+        validateIterableContexts(pkgNode);
 
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
@@ -1102,5 +1105,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         dlog.error(param.pos, DiagnosticCode.TRANSFORMER_UNSUPPORTED_TYPES, type);
+    }
+
+    private void validateIterableContexts(BLangPackage pkgNode) {
+        pkgNode.iterableContexts.stream()
+                .filter(((Predicate<IterableContext>) IterableContext::isLastOperationTerminal).negate())
+                .forEach(ctx -> dlog.error(ctx.operations.getLast().pos,
+                        DiagnosticCode.ITERABLE_SHOULD_END_WITH_TERMINAL, ctx.operations.getLast().kind));
     }
 }
