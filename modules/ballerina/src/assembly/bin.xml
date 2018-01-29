@@ -64,6 +64,12 @@
         </fileSet>
         <fileSet>
             <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-mime-jar/META-INF/natives
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
                 ${project.build.directory}/extracted-distributions/ballerina-samples-zip/ballerina-samples-${ballerina.runtime.version}
             </directory>
             <outputDirectory>samples</outputDirectory>
