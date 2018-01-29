@@ -259,7 +259,7 @@ class TreeUtil extends AbstractTreeUtil {
         if (this.isAssignment(node) && this.isInvocation(node.getExpression())) {
             const exp = node.getExpression();
             if ((exp.invocationType === 'FUNCTION')
-                && ((exp.name.value === 'forward') || (exp.name.value === 'send'))) {
+                && ((exp.name.value === 'forward') || (exp.name.value === 'send') || (exp.name.value === 'respond'))) {
                 return true;
             }
             return false;
