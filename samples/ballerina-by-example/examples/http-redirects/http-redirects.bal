@@ -7,7 +7,8 @@ function main (string[] args) {
     http:OutRequest req = {};
 
     //Send a GET request to the specified endpoint
-    var resp,_ = httpEndoint.get("/v2/59d590762700000a049cd694", req);
+    http:InResponse resp;
+    resp, _ = httpEndoint.get("/v2/59d590762700000a049cd694", req);
 
     println("Response received for the GET request is : " + resp.getStringPayload());
 }

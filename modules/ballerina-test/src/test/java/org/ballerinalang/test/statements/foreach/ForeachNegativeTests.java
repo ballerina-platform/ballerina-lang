@@ -20,6 +20,7 @@ package org.ballerinalang.test.statements.foreach;
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -32,6 +33,7 @@ public class ForeachNegativeTests {
     @Test
     public void testSemanticErrors() {
         CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-negative.bal");
+        Assert.assertEquals(compile.getErrorCount(), 13);
         BAssertUtil.validateError(compile, 0, "too many variables are defined for iterable type 'string[]'", 3, 24);
         BAssertUtil.validateError(compile, 1, "redeclared symbol 'i'", 12, 13);
         BAssertUtil.validateError(compile, 2, "redeclared symbol 's'", 12, 16);
@@ -43,5 +45,8 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, 8, "incompatible types: expected 'int', found 'string'", 54, 23);
         BAssertUtil.validateError(compile, 9,
                 "incompatible types: 'json' cannot be convert to 'json[]', use cast expression", 61, 15);
+        BAssertUtil.validateError(compile, 10, "unreachable code", 73, 9);
+        BAssertUtil.validateError(compile, 11, "unreachable code", 78, 9);
+        BAssertUtil.validateError(compile, 12, "next cannot be used outside of a loop", 80, 5);
     }
 }

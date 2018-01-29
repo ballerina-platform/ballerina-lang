@@ -62,3 +62,9 @@ function testStringToJSONConversion() (json, TypeConversionError) {
     var j, e = <json> s;
     return j, e;
 }
+
+function testJSONArrayToJsonAssignment() (json) {
+    json[] j1 = [{"a":"b"}, {"c":"d"}];
+    json j2 = j1;
+    return j2;
+}

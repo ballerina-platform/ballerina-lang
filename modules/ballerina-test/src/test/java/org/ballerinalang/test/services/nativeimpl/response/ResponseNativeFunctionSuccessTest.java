@@ -49,7 +49,6 @@ import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.HEADER_VALUE_STRUCT;
 import static org.ballerinalang.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
-import static org.ballerinalang.mime.util.Constants.IS_IN_MEMORY_INDEX;
 import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -124,7 +123,6 @@ public class ResponseNativeFunctionSuccessTest {
         String contentType = OCTET_STREAM;
         MimeUtil.setContentType(mediaType, entity, contentType);
         entity.setBlobField(BYTE_DATA_INDEX, payload.getBytes());
-        entity.setBooleanField(IS_IN_MEMORY_INDEX, 1);
         response.addNativeData(MESSAGE_ENTITY, entity);
         response.addNativeData(IS_ENTITY_BODY_PRESENT, true);
 
@@ -223,7 +221,6 @@ public class ResponseNativeFunctionSuccessTest {
         HttpUtil.addCarbonMsg(response, cMsg);
         MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
         entity.setRefField(JSON_DATA_INDEX, new BJSON(payload));
-        entity.setBooleanField(IS_IN_MEMORY_INDEX, 1);
         response.addNativeData(MESSAGE_ENTITY, entity);
         response.addNativeData(IS_ENTITY_BODY_PRESENT, true);
         BValue[] inputArg = { response };
@@ -284,7 +281,6 @@ public class ResponseNativeFunctionSuccessTest {
         String contentType = TEXT_PLAIN;
         MimeUtil.setContentType(mediaType, entity, contentType);
         entity.setStringField(TEXT_DATA_INDEX, payload);
-        entity.setBooleanField(IS_IN_MEMORY_INDEX, 1);
         response.addNativeData(MESSAGE_ENTITY, entity);
         response.addNativeData(IS_ENTITY_BODY_PRESENT, true);
         BValue[] inputArg = { response };
@@ -317,7 +313,6 @@ public class ResponseNativeFunctionSuccessTest {
         String contentType = APPLICATION_XML;
         MimeUtil.setContentType(mediaType, entity, contentType);
         entity.setRefField(XML_DATA_INDEX, new BXMLItem(payload));
-        entity.setBooleanField(IS_IN_MEMORY_INDEX, 1);
         response.addNativeData(MESSAGE_ENTITY, entity);
         response.addNativeData(IS_ENTITY_BODY_PRESENT, true);
         BValue[] inputArg = { response };
@@ -483,7 +478,7 @@ public class ResponseNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), (long) 203);
+        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 203);
     }
 
     @Test

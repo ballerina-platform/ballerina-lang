@@ -21,7 +21,7 @@ service<http> infoService {
         string payload = "<name>" + nameString + "</name>";
         var name, _ = <xml>payload;
 
-        http:Response res = {};
+        http:OutResponse res = {};
         res.setXmlPayload(name);
         _ = conn.respond(res);
     }

@@ -119,6 +119,12 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
+    @Test
+    public void testLocalTransactonFailedWithNextupdate() {
+        BValue[] returns = BRunUtil.invoke(result, "testLocalTransactonFailedWithNextupdate");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
     @AfterSuite
     public void cleanup() {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));

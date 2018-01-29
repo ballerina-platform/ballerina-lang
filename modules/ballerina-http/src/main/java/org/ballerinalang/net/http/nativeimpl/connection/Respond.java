@@ -20,22 +20,16 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.HttpUtil;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-
-import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 
 /**
  * Native function to respond back the caller with outbound response.
  *
- * @since 0.95.6
+ * @since 0.96
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
@@ -48,26 +42,10 @@ import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
                                  structPackage = "ballerina.net.http"),
         isPublic = true
 )
-public class Respond extends AbstractNativeFunction {
+public class Respond extends ConnectionAction {
 
     @Override
     public BValue[] execute(Context context) {
-        BStruct connectionStruct = (BStruct) getRefArgument(context, 0);
-        BStruct outboundResponseStruct = (BStruct) getRefArgument(context, 1);
-        HTTPCarbonMessage requestMessage = HttpUtil.getCarbonMsg(connectionStruct, null);
-
-        HttpUtil.checkFunctionValidity(connectionStruct, requestMessage);
-        HTTPCarbonMessage responseMessage = HttpUtil
-                .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
-        HttpUtil.setKeepAliveHeader(context, responseMessage);
-
-        BStruct entity = (BStruct) outboundResponseStruct.getNativeData(MESSAGE_ENTITY);
-        if (entity == null) {
-            HttpUtil.setNewEntityToStruct(context, outboundResponseStruct);
-        }
-        HttpUtil.enrichOutboundMessage(responseMessage, outboundResponseStruct);
-
-        return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage,
-                outboundResponseStruct);
+        return super.execute(context);
     }
 }

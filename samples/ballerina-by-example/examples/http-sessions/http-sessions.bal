@@ -18,7 +18,7 @@ service<http> sessionTest {
         }
         //Binds a string attribute to this session with a key(string).
         session.setAttribute(key, "Session sample");
-        http:Response res = {};
+        http:OutResponse res = {};
         res.setStringPayload(result);
         _ = conn.respond(res);
     }
@@ -36,7 +36,7 @@ service<http> sessionTest {
         } else {
             attributeValue = "Session unavailable";
         }
-        http:Response res = {};
+        http:OutResponse res = {};
         res.setStringPayload(attributeValue);
         _ = conn.respond(res);
     }
@@ -46,7 +46,7 @@ service<http> sessionTest {
     }
     resource sayBye (http:Connection conn, http:InRequest req) {
         http:Session session = conn.getSession();
-        http:Response res = {};
+        http:OutResponse res = {};
         if (session != null) {
             //Returns session id.
             string id = session.getId();

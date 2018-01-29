@@ -88,10 +88,6 @@ public class StackFrame {
         this.retRegIndexes = retRegIndexes;
     }
 
-    public CallableUnitInfo getCallableUnitInfo() {
-        return callableUnitInfo;
-    }
-
     public StackFrame(CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, int retAddrs, int[] retRegIndexes,
                       BValue[] returnValues) {
         this.callableUnitInfo = callableUnitInfo;
@@ -160,12 +156,28 @@ public class StackFrame {
         this.refRegs = refRegs;
     }
 
+    public int getRetAddrs() {
+        return retAddrs;
+    }
+
     public BStruct getErrorThrown() {
         return errorThrown;
     }
 
     public void setErrorThrown(BStruct errorThrown) {
         this.errorThrown = errorThrown;
+    }
+
+    public CallableUnitInfo getCallableUnitInfo() {
+        return callableUnitInfo;
+    }
+
+    public PackageInfo getPackageInfo() {
+        return packageInfo;
+    }
+
+    public WorkerInfo getWorkerInfo() {
+        return workerInfo;
     }
 
     public boolean tryReturn() {

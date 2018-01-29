@@ -15,7 +15,7 @@ service<http> httpService {
         methods:["POST","GET","PUT","My"]
     }
     resource testResource(http:Connection conn, http:InRequest req) {
-        http:Response resp = {};
+        http:OutResponse resp = {};
         string payload = req.getStringPayload();
         println(payload);
         resp.setStringPayload("I received");

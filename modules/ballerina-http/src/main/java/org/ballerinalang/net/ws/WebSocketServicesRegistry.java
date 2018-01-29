@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -151,7 +152,7 @@ public class WebSocketServicesRegistry {
 
         try {
             servicesOnInterface.parse(basePath, service, new WsDataElementFactory());
-        } catch (URITemplateException e) {
+        } catch (URITemplateException | UnsupportedEncodingException e) {
             throw new BallerinaConnectorException(e.getMessage());
         }
     }

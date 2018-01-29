@@ -24,7 +24,6 @@ import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.impl.BClientConnectorFutureListener;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
-import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
@@ -94,7 +93,6 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
-import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
@@ -105,10 +103,8 @@ import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.debugger.DebugCommand;
 import org.ballerinalang.util.debugger.DebugContext;
-import org.ballerinalang.util.debugger.VMDebugManager;
-import org.ballerinalang.util.debugger.info.BreakPointInfo;
-import org.ballerinalang.util.debugger.info.FrameInfo;
-import org.ballerinalang.util.debugger.info.VariableInfo;
+import org.ballerinalang.util.debugger.Debugger;
+import org.ballerinalang.util.debugger.DebuggerUtil;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -198,6 +194,11 @@ public class BLangVM {
             context.setError(BLangVMErrors.createError(context, ip, message));
             handleError();
         } finally {
+            Debugger debugger = programFile.getDebugger();
+            if (debugger.isDebugEnabled() && debugger.isClientSessionActive() && context.getDebugContext().isAtive()) {
+                context.getDebugContext().setActive(false);
+                debugger.releaseDebugSessionLock();
+            }
             if (!isWaitingOnNonBlockingAction() || context.getError() != null) {
                 // end of the active worker from the VM. ( graceful or forced exit on unhandled error. )
                 // Doesn't count non-blocking action invocation.
@@ -208,12 +209,9 @@ public class BLangVM {
 
     public void execWorker(Context context, int startIP) {
         context.setStartIP(startIP);
-        VMDebugManager debugManager = programFile.getDebugManager();
-        if (debugManager.isDebugEnabled() && debugManager.isDebugSessionActive()) {
-            DebugContext debugContext = new DebugContext();
-            debugContext.setCurrentCommand(DebugCommand.RESUME);
-            context.setDebugContext(debugContext);
-            debugManager.addDebugContext(debugContext);
+        Debugger debugger = programFile.getDebugger();
+        if (debugger.isDebugEnabled() && debugger.isClientSessionActive()) {
+            DebuggerUtil.initDebugContext(context, debugger);
         }
         run(context);
     }
@@ -231,15 +229,15 @@ public class BLangVM {
         FunctionInfo functionInfo;
         InstructionCALL callIns;
 
-        boolean isDebugging = programFile.getDebugManager().isDebugEnabled();
+        boolean debugEnabled = programFile.getDebugger().isDebugEnabled();
 
         StackFrame currentSF, callersSF;
         int callersRetRegIndex;
 
         while (ip >= 0 && ip < code.length && controlStack.currentFrame != null) {
 
-            if (isDebugging) {
-                debugging(ip);
+            if (debugEnabled) {
+                debug();
             }
             Instruction instruction = code[ip];
             int opcode = instruction.getOpcode();
@@ -416,33 +414,8 @@ public class BLangVM {
                     break;
 
                 case InstructionCodes.LENGTHOF:
-                    i = operands[0];
-                    j = operands[1];
-                    if (sf.refRegs[i] == null) {
-                        handleNullRefError();
-                        break;
-                    }
-
-                    BValue entity = sf.refRegs[i];
-                    if (entity.getType().getTag() == TypeTags.XML_TAG) {
-                        sf.longRegs[j] = ((BXML) entity).length();
-                        break;
-                    } else if (entity instanceof BJSON) {
-                        if (JSONUtils.isJSONArray((BJSON) entity)) {
-                            sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
-                        } else {
-                            sf.longRegs[j] = -1;
-                        }
-                        break;
-                    } else if (entity.getType().getTag() == TypeTags.MAP_TAG) {
-                        sf.longRegs[j] = ((BMap) entity).size();
-                        break;
-                    }
-
-                    BNewArray newArray = (BNewArray) entity;
-                    sf.longRegs[j] = newArray.size();
+                    calculateLength(operands, sf);
                     break;
-
                 case InstructionCodes.TYPELOAD:
                     cpIndex = operands[0];
                     j = operands[1];
@@ -2283,18 +2256,17 @@ public class BLangVM {
                 if (iterator == null) {
                     return;
                 }
-                BType[] varTypes = iterator.getParamType(nextInstruction.arity);
                 BValue[] values = iterator.getNext(nextInstruction.arity);
-                copyValuesToRegistries(sf, varTypes, values, nextInstruction.retRegs);
+                copyValuesToRegistries(nextInstruction.typeTags, nextInstruction.retRegs, values, sf);
                 break;
         }
     }
 
-    private void copyValuesToRegistries(StackFrame sf, BType[] varTypes, BValue[] values, int[] targets) {
-        for (int i = 0; i < varTypes.length; i++) {
+    private void copyValuesToRegistries(int[] typeTags, int[] targetReg, BValue[] values, StackFrame sf) {
+        for (int i = 0; i < typeTags.length; i++) {
             BValue source = values[i];
-            int target = targets[i];
-            switch (varTypes[i].getTag()) {
+            int target = targetReg[i];
+            switch (typeTags[i]) {
                 case TypeTags.INT_TAG:
                     sf.longRegs[target] = ((BInteger) source).intValue();
                     break;
@@ -2387,67 +2359,84 @@ public class BLangVM {
 
     /**
      * Method to calculate and detect debug points when the instruction point is given.
-     *
-     * @param cp Current instruction point.
      */
-    private void debugging(int cp) {
-        VMDebugManager debugManager = programFile.getDebugManager();
-        try {
-            debugManager.acquireDebugLock();
-            processDebugging(cp, debugManager);
-        } finally {
-            debugManager.releaseDebugLock();
+    private void debug() {
+        Debugger debugger = programFile.getDebugger();
+        if (!debugger.isClientSessionActive()) {
+            return;
         }
-    }
-
-    /**
-     * Method which process debug related operations.
-     *
-     * @param cp            Current cp.
-     * @param debugManager  Debug manager object.
-     */
-    private void processDebugging(int cp, VMDebugManager debugManager) {
         DebugContext debugContext = context.getDebugContext();
-        LineNumberInfo currentExecLine = debugManager
-                .getLineNumber(controlStack.currentFrame.packageInfo.getPkgPath(), cp);
+
+        LineNumberInfo currentExecLine = debugger
+                .getLineNumber(controlStack.currentFrame.packageInfo.getPkgPath(), ip);
+        /*
+         Below if check stops hitting the same debug line again and again in case that single line has
+         multiple instructions.
+         */
         if (currentExecLine.equals(debugContext.getLastLine())
-                || debugPointCheck(currentExecLine, debugManager, debugContext)) {
+                || debugPointCheck(currentExecLine, debugger, debugContext)) {
             return;
         }
 
         switch (debugContext.getCurrentCommand()) {
             case RESUME:
-                debugContext.setLastLine(null);
+                /*
+                 In case of a for loop, need to clear the last hit line, so that, same line can get hit again.
+                 */
+                debugContext.clearLastDebugLine();
                 break;
             case STEP_IN:
-                debugHit(currentExecLine, debugManager, debugContext);
+                debugHit(currentExecLine, debugger, debugContext);
                 break;
             case STEP_OVER:
-                if (controlStack.currentFrame == debugContext.getSF()) {
-                    debugHit(currentExecLine, debugManager, debugContext);
+                if (controlStack.currentFrame == debugContext.getStackFrame()) {
+                    debugHit(currentExecLine, debugger, debugContext);
                     return;
                 }
+                /*
+                 This is either,
+                 1) function call (instruction of the next function)
+                 2) returning to the previous function
+                 below if condition checks the 2nd possibility, and if that's the case, then it's a debug hit.
+                 To check that, it needs to check whether last line contains return instruction or not. (return
+                 line may have multiple instructions, ex - return v1 + v2 * v3 + v4;
+                 */
                 if (debugContext.getLastLine().checkIpRangeForInstructionCode(code, InstructionCodes.RET)
-                        && controlStack.currentFrame == debugContext.getSF().prevStackFrame) {
-                    debugHit(currentExecLine, debugManager, debugContext);
+                        && controlStack.currentFrame == debugContext.getStackFrame().prevStackFrame) {
+                    debugHit(currentExecLine, debugger, debugContext);
                     return;
                 }
+                /*
+                 This means it's a function call. So using intermediate step to wait until
+                 returning from that function call.
+                 */
                 debugContext.setCurrentCommand(DebugCommand.STEP_OVER_INTMDT);
                 break;
             case STEP_OVER_INTMDT:
-                if (controlStack.currentFrame != debugContext.getSF()) {
-                    return;
-                }
-                debugHit(currentExecLine, debugManager, debugContext);
+                /*
+                 Here it checks whether it has returned to the previous stack frame (that is previous function) if so,
+                 then debug hit.
+                 */
+                interMediateDebugCheck(currentExecLine, debugger, debugContext);
                 break;
             case STEP_OUT:
+                /*
+                 This is the first instruction of immediate next line of the last debug hit point. So next debug hit
+                 point should be when it comes to the "previousStackFrame" of the "stackFrame" relevant to the
+                 last debug hit point. So here that stack frame is saved and using intermediate step to wait until
+                 a instruction for that stack frame.
+                 */
                 debugContext.setCurrentCommand(DebugCommand.STEP_OUT_INTMDT);
-                debugContext.setSF(debugContext.getSF().prevStackFrame);
-                interMediateDebugCheck(currentExecLine, debugManager, debugContext);
+                debugContext.setStackFrame(debugContext.getStackFrame().prevStackFrame);
+                interMediateDebugCheck(currentExecLine, debugger, debugContext);
                 break;
             case STEP_OUT_INTMDT:
-                interMediateDebugCheck(currentExecLine, debugManager, debugContext);
+                interMediateDebugCheck(currentExecLine, debugger, debugContext);
                 break;
+            default:
+                logger.warn("invalid debug command, exiting from debugging");
+                debugger.notifyExit();
+                debugger.stopDebugging();
         }
     }
 
@@ -2455,15 +2444,15 @@ public class BLangVM {
      * Inter mediate debug check to avoid switch case falling through.
      *
      * @param currentExecLine   Current execution line.
-     * @param debugManager      Debug manager object.
+     * @param debugger          Debugger object.
      * @param debugContext      Current debug context.
      */
-    private void interMediateDebugCheck(LineNumberInfo currentExecLine, VMDebugManager debugManager,
+    private void interMediateDebugCheck(LineNumberInfo currentExecLine, Debugger debugger,
                                         DebugContext debugContext) {
-        if (controlStack.currentFrame != debugContext.getSF()) {
+        if (controlStack.currentFrame != debugContext.getStackFrame()) {
             return;
         }
-        debugHit(currentExecLine, debugManager, debugContext);
+        debugHit(currentExecLine, debugger, debugContext);
     }
 
     /**
@@ -2471,16 +2460,15 @@ public class BLangVM {
      * If it's a debug point, then notify the debugger.
      *
      * @param currentExecLine   Current execution line.
-     * @param debugManager      Debug manager object.
+     * @param debugger          Debugger object.
      * @param debugContext      Current debug context.
      * @return Boolean true if it's a debug point, false otherwise.
      */
-    private boolean debugPointCheck(LineNumberInfo currentExecLine, VMDebugManager debugManager,
-                                    DebugContext debugContext) {
+    private boolean debugPointCheck(LineNumberInfo currentExecLine, Debugger debugger, DebugContext debugContext) {
         if (!currentExecLine.isDebugPoint()) {
             return false;
         }
-        debugHit(currentExecLine, debugManager, debugContext);
+        debugHit(currentExecLine, debugger, debugContext);
         return true;
     }
 
@@ -2489,73 +2477,22 @@ public class BLangVM {
      * And also to notify the debugger.
      *
      * @param currentExecLine   Current execution line.
-     * @param debugManager      Debug manager object.
+     * @param debugger          Debugger object.
      * @param debugContext      Current debug context.
      */
-    private void debugHit(LineNumberInfo currentExecLine, VMDebugManager debugManager,
-                          DebugContext debugContext) {
-        debugContext.setLastLine(currentExecLine);
-        debugContext.setSF(controlStack.currentFrame);
-        debugManager.notifyDebugHit(getBreakPointInfo(currentExecLine, debugManager, debugContext));
-        debugManager.waitTillDebuggeeResponds();
-    }
-
-    /**
-     * Helper method to get breakpoint information.
-     *
-     * @param currentExecLine   Current execution line.
-     * @param debugManager      Debug manager object.
-     * @param debugContext      Current debug context.
-     * @return
-     */
-    private BreakPointInfo getBreakPointInfo(LineNumberInfo currentExecLine, VMDebugManager debugManager,
-                                             DebugContext debugContext) {
-        NodeLocation location = new NodeLocation(currentExecLine.getPackageInfo().getPkgPath(),
-                currentExecLine.getFileName(), currentExecLine.getLineNumber());
-        BreakPointInfo breakPointInfo = new BreakPointInfo(location);
-        breakPointInfo.setThreadId(debugContext.getThreadId());
-
-        int callingIp = currentExecLine.getIp();
-        StackFrame frame = controlStack.currentFrame;
-        while (frame != null) {
-            String pck = frame.packageInfo.getPkgPath();
-            String functionName = frame.callableUnitInfo.getName();
-            LineNumberInfo callingLine = debugManager.getLineNumber(frame.packageInfo.getPkgPath(), callingIp);
-            FrameInfo frameInfo = new FrameInfo(pck, functionName, callingLine.getFileName(),
-                    callingLine.getLineNumber());
-            LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) frame.callableUnitInfo
-                    .getDefaultWorkerInfo().getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
-            if (localVarAttrInfo == null) {
-                frame = frame.prevStackFrame;
-                continue;
-            }
-            final StackFrame fcp = frame;
-            localVarAttrInfo.getLocalVariables().forEach(localVarInfo -> {
-                VariableInfo variableInfo = new VariableInfo(localVarInfo.getVariableName(), "Local");
-                if (BTypes.typeInt.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BInteger(fcp.longRegs[localVarInfo.getVariableIndex()]));
-                } else if (BTypes.typeFloat.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BFloat(fcp.doubleRegs[localVarInfo.getVariableIndex()]));
-                } else if (BTypes.typeString.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BString(fcp.stringRegs[localVarInfo.getVariableIndex()]));
-                } else if (BTypes.typeBoolean.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BBoolean(fcp.intRegs[localVarInfo
-                            .getVariableIndex()] == 1 ? true : false));
-                } else if (BTypes.typeBlob.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BBlob(fcp.byteRegs[localVarInfo.getVariableIndex()]));
-                } else {
-                    variableInfo.setBValue(fcp.refRegs[localVarInfo.getVariableIndex()]);
-                }
-                frameInfo.addVariableInfo(variableInfo);
-            });
-            callingIp = frame.retAddrs - 1;
-            if (callingIp < 0) {
-                callingIp = 0;
-            }
-            breakPointInfo.addFrameInfo(frameInfo);
-            frame = frame.prevStackFrame;
+    private void debugHit(LineNumberInfo currentExecLine, Debugger debugger, DebugContext debugContext) {
+        if (!debugContext.isAtive() && !debugger.tryAcquireDebugSessionLock()) {
+            return;
         }
-        return breakPointInfo;
+        debugContext.setActive(true);
+        debugContext.setLastLine(currentExecLine);
+        debugContext.setStackFrame(controlStack.currentFrame);
+        debugger.notifyDebugHit(controlStack.currentFrame, currentExecLine, debugContext.getThreadId());
+        debugger.waitTillDebuggeeResponds();
+        if (debugContext.getCurrentCommand() == DebugCommand.RESUME && debugContext.isAtive()) {
+            debugContext.setActive(false);
+            debugger.releaseDebugSessionLock();
+        }
     }
 
     private void handleAnyToRefTypeCast(StackFrame sf, int[] operands, BType targetType) {
@@ -3824,5 +3761,52 @@ public class BLangVM {
 
     private boolean isWaitingOnNonBlockingAction() {
         return context.nonBlockingContext != null;
+    }
+
+    private void calculateLength(int[] operands, StackFrame sf) {
+        int i = operands[0];
+        int cpIndex = operands[1];
+        int j = operands[2];
+
+        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
+        int typeTag = typeRefCPEntry.getType().getTag();
+        if (typeTag == TypeTags.STRING_TAG) {
+            String value = sf.stringRegs[i];
+            if (value == null) {
+                handleNullRefError();
+            } else {
+                sf.longRegs[j] = value.length();
+            }
+            return;
+        } else if (typeTag == TypeTags.BLOB_TAG) {
+            // Here it is assumed null is not supported for blob type
+            sf.longRegs[j] = sf.byteRegs[i].length;
+            return;
+        }
+
+        BValue entity = sf.refRegs[i];
+        if (entity == null) {
+            handleNullRefError();
+            return;
+        }
+
+        if (typeTag == TypeTags.XML_TAG) {
+            sf.longRegs[j] = ((BXML) entity).length();
+            return;
+        } else if (entity instanceof BJSON) {
+            if (JSONUtils.isJSONArray((BJSON) entity)) {
+                sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
+            } else {
+                sf.longRegs[j] = -1;
+            }
+            return;
+        } else if (typeTag == TypeTags.MAP_TAG) {
+            sf.longRegs[j] = ((BMap) entity).size();
+            return;
+        }
+
+        BNewArray newArray = (BNewArray) entity;
+        sf.longRegs[j] = newArray.size();
+        return;
     }
 }

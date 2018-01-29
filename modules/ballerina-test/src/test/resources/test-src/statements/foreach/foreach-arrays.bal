@@ -170,3 +170,136 @@ function testStructArrayWithArityTwo()(string){
     }
     return output;
 }
+
+function testArrayInsertInt () (string) {
+    int[] iArray = [0];
+    iArray[3] = 3;
+    iArray[6] = 6;
+    output = "";
+    foreach i, v in iArray {
+        concatInt(i, v);
+    }
+    return output;
+}
+
+function testArrayInsertString () (string) {
+    string[] sArray = ["d0"];
+    sArray[3] = "d3";
+    sArray[6] = "d6";
+    output = "";
+    foreach i, v in sArray {
+        concatString(i, v);
+    }
+    return output;
+}
+
+function testArrayInsertInForeach () (string) {
+    string[] sArray = ["d0", "d1", "d2"];
+    output = "";
+    foreach i, v in sArray {
+        int j = i + 5;
+        sArray[j] = "d" + j;
+        concatString(i, v);
+    }
+    return output;
+}
+
+function testBreak () (string) {
+    string[] sArray = ["d0", "d1", "d2"];
+    output = "";
+    foreach i, v in sArray {
+        if (i == 1) {
+            output = output + "break";
+            break;
+        }
+        concatString(i, v);
+    }
+    return output;
+}
+
+function testNext () (string) {
+    string[] sArray = ["d0", "d1", "d2"];
+    output = "";
+    foreach i, v in sArray {
+        if (i == 1) {
+            output = output + "next ";
+            next;
+        }
+        concatString(i, v);
+    }
+    return output;
+}
+
+function testReturn () (string) {
+    string[] sArray = ["d0", "d1", "d2"];
+    output = "";
+    foreach i, v in sArray {
+        if (v == "d1") {
+            return output;
+        }
+        concatString(i, v);
+    }
+    return output;
+}
+
+function testThrow1 () (string) {
+    output = "";
+    try {
+        testThrow1Callee();
+    } catch (error e) {
+        output = output + e.msg;
+    }
+    return output;
+}
+
+function testThrow1Callee () {
+    string[] sArray = ["d0"];
+    sArray[1] = "d1";
+    sArray[3] = "d3";
+    foreach i, v in sArray {
+        if (v == "d1") {
+            error e = {msg:"d1 found"};
+            throw e;
+        }
+        concatString(i, v);
+    }
+}
+
+function testThrow2 () (string) {
+    output = "";
+    try {
+        testThrow2Callee();
+    } catch (error e) {
+        output = output + e.msg;
+    } catch (NullReferenceException e){
+        output = output + "found null";
+    }
+    return output;
+}
+
+function testThrow2Callee () {
+    string[] sArray = ["d0"];
+    sArray[1] = "d1";
+    sArray[3] = "d3";
+    foreach i, v in sArray {
+        concatString(i, v.toUpperCase());
+    }
+}
+
+function testNestedWithBreakNext () (string){
+    output = "";
+    string[] sArray = ["d0", "d1", "d2", "d3"];
+    foreach i, v in sArray {
+        concatString(i, v);
+        foreach j in 1..5 {
+            if (j == 4) {
+                break;
+            } else if (j == 2) {
+                next;
+            }
+            output = output + j;
+        }
+        output = output + " ";
+    }
+    return output;
+}

@@ -4,7 +4,7 @@ import ballerina.net.http;
 service<http> helloWorld {
     @Description {value:"All resources are invoked with arguments of server connection and request"}
     resource sayHello (http:Connection conn, http:InRequest req) {
-        http:Response res = {};
+        http:OutResponse res = {};
         // A util method that can be used to set string payload.
         res.setStringPayload("Hello, World!");
         // Sends the response back to the client.

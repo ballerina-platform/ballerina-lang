@@ -18,9 +18,6 @@
 
 package org.ballerinalang.util.debugger.dto;
 
-import org.ballerinalang.model.NodeLocation;
-import org.ballerinalang.util.debugger.info.FrameInfo;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,22 +36,19 @@ public class MessageDTO {
 
     private BreakPointDTO location;
 
-    private List<FrameDTO> frames = new ArrayList<FrameDTO>();
+    private List<FrameDTO> frames = new ArrayList<>();
+
+    public MessageDTO(String code, String message) {
+        this.code = code;
+        this.message = message;
+    }
 
     public String getCode() {
         return code;
     }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
-
     public String getMessage() {
         return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     public String getThreadId() {
@@ -69,22 +63,39 @@ public class MessageDTO {
         return location;
     }
 
-    public void setLocation(NodeLocation location) {
-        this.location = new BreakPointDTO(location.getPackageDirPath(), location.getFileName(),
-                location.getLineNumber());
-    }
-
     public void setLocation(BreakPointDTO location) {
         this.location = location;
     }
 
-    public void setFrames(FrameInfo[] frameInfos) {
-        for (FrameInfo frame: frameInfos) {
-            frames.add(new FrameDTO(frame));
-        }
+    public void addFrame(FrameDTO frameDTO) {
+        frames.add(frameDTO);
     }
 
     public List<FrameDTO> getFrames() {
         return frames;
+    }
+
+    /**
+     * Generates textual representation of the current debug point.
+     *
+     * @return textual representation.
+     */
+    @Override
+    public String toString() {
+        StringBuilder br = new StringBuilder();
+        br.append("====BreakPointInfo {").append(location.toString()).append("}====\n");
+        br.append("Frames ->\n");
+        for (FrameDTO frame : frames) {
+            br.append("    ").append(frame.toString()).append("\n");
+        }
+        br.append("Last Frame variables->\n");
+        if (frames.size() > 0) {
+            FrameDTO frame = frames.get(frames.size() - 1);
+            for (VariableDTO var : frame.getVariables()) {
+                br.append("    ").append(var.toString()).append("\n");
+            }
+        }
+        br.append("====End Break Point Info====");
+        return br.toString();
     }
 }

@@ -33,9 +33,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.debugger.DebugContext;
-import org.ballerinalang.util.debugger.VMDebugClientHandler;
-import org.ballerinalang.util.debugger.VMDebugManager;
-import org.ballerinalang.util.debugger.VMDebugServer;
+import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -61,13 +59,8 @@ public class BLangProgramRunner {
         // This is required to invoke package/service init functions;
         Context bContext = new Context(programFile);
 
-        VMDebugManager debugManager = programFile.getDebugManager();
-        if (debugManager.isDebugEnabled()) {
-            DebugContext debugContext = new DebugContext();
-            bContext.setDebugContext(debugContext);
-            debugManager.init(programFile, new VMDebugClientHandler(), new VMDebugServer());
-            debugManager.addDebugContextAndWait(debugContext);
-        }
+        Debugger debugger = new Debugger(programFile);
+        initDebugger(bContext, debugger);
 
         // Invoke package init function
         BLangFunctions.invokePackageInitFunction(programFile, servicesPackage.getInitFunctionInfo(), bContext);
@@ -107,13 +100,8 @@ public class BLangProgramRunner {
         // Non blocking is not supported in the main program flow..
         Context bContext = new Context(programFile);
 
-        VMDebugManager debugManager = programFile.getDebugManager();
-        if (debugManager.isDebugEnabled()) {
-            DebugContext debugContext = new DebugContext();
-            bContext.setDebugContext(debugContext);
-            debugManager.init(programFile, new VMDebugClientHandler(), new VMDebugServer());
-            debugManager.addDebugContextAndWait(debugContext);
-        }
+        Debugger debugger = new Debugger(programFile);
+        initDebugger(bContext, debugger);
 
         // Invoke package init function
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
@@ -142,12 +130,22 @@ public class BLangProgramRunner {
         BLangVM bLangVM = new BLangVM(programFile);
         bLangVM.run(bContext);
         bContext.await();
-        if (debugManager.isDebugEnabled()) {
-            debugManager.notifyExit();
+        if (debugger.isDebugEnabled()) {
+            debugger.notifyExit();
         }
         if (bContext.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);
+        }
+    }
+
+    private static void initDebugger(Context bContext, Debugger debugger) {
+        bContext.getProgramFile().setDebugger(debugger);
+        if (debugger.isDebugEnabled()) {
+            DebugContext debugContext = new DebugContext();
+            bContext.setDebugContext(debugContext);
+            debugger.init();
+            debugger.addDebugContextAndWait(debugContext);
         }
     }
 

@@ -45,16 +45,30 @@ public class BJSONValueTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/types/jsontype/json-value.bal");
-        negativeResult = BCompileUtil.compile("test-src/types/jsontype/json-literal-negative.bal");
+        negativeResult = BCompileUtil.compile("test-src/types/jsontype/json-value-negative.bal");
     }
 
     @Test
     public void testJsonInitWithUnsupportedtypes() {
+        Assert.assertEquals(negativeResult.getErrorCount(), 6);
+
         // testJsonArrayWithUnsupportedtypes
         BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'json', found 'datatable'", 3, 30);
-        
+
         // testJsonInitWithUnsupportedtypes
         BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'json', found 'datatable'", 9, 39);
+
+        // testIntArrayToJsonAssignment
+        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'json', found 'int[]'", 15, 14);
+
+        // testFloatArrayToJsonAssignment
+        BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'json', found 'float[]'", 21, 14);
+
+        // testStringArrayToJsonAssignment
+        BAssertUtil.validateError(negativeResult, 4, "incompatible types: expected 'json', found 'string[]'", 27, 14);
+
+        // testBooleanArrayToJsonAssignment
+        BAssertUtil.validateError(negativeResult, 5, "incompatible types: expected 'json', found 'boolean[]'", 33, 14);
     }
 
     @Test
@@ -334,30 +348,41 @@ public class BJSONValueTest {
         Assert.assertEquals(json.toString(), "[1,2,3,null,null,null,null,8]");
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*cannot set value to '7': expected a 'json-array', but found " +
-                    "'json-object'.*")
+    @Test
     public void testSetToNonArrayWithIndex() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetToNonArrayWithIndex");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[1] instanceof BJSON);
+        Assert.assertTrue(returns[2] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"supun\"}");
+        Assert.assertEquals(returns[1].stringValue(), "foo");
+        Assert.assertEquals(returns[2].stringValue(), "true");
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*cannot get value from '7': expected a 'json-array', but found " +
-                    "'json-object'.*")
+    @Test
     public void testGetFromNonArrayWithIndex() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetFromNonArrayWithIndex");
+        Assert.assertNull(returns[0]);
+        Assert.assertNull(returns[1]);
+        Assert.assertNull(returns[2]);
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*cannot set value to 'name': expected a 'json-object', but found " +
-                    "'json-array'.*")
+    @Test
     public void testSetToNonObjectWithKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetToNonObjectWithKey");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[1] instanceof BJSON);
+        Assert.assertTrue(returns[2] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "[1,2,3]");
+        Assert.assertEquals(returns[1].stringValue(), "foo");
+        Assert.assertEquals(returns[2].stringValue(), "true");
     }
 
     public void testGetFromNonObjectWithKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetFromNonObjectWithKey");
         Assert.assertEquals(returns[0], null);
+        Assert.assertEquals(returns[1], null);
+        Assert.assertEquals(returns[2], null);
     }
 
     @Test
@@ -374,11 +399,10 @@ public class BJSONValueTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetArrayOutofBoundElement");
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*cannot get value from 'fname': expected a 'json-object', but found " +
-                    "'string'.*")
-    public void testGetStringFromPrimitive() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGetStringFromPrimitive");
+    @Test
+    public void testGetElementFromPrimitive() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetElementFromPrimitive");
+        Assert.assertNull(returns[0]);
     }
 
 //    @Test
@@ -454,5 +478,17 @@ public class BJSONValueTest {
 
         Assert.assertTrue(returns[1] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
+    public void testGetFromNull() {
+        BRunUtil.invoke(compileResult, "testGetFromNull");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
+    public void testAddToNull() {
+        BRunUtil.invoke(compileResult, "testAddToNull");
     }
 }

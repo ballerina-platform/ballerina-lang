@@ -33,7 +33,6 @@ import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
 import org.apache.axiom.om.util.AXIOMUtil;
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.model.util.XMLValidationUtils;
@@ -721,6 +720,14 @@ public final class BXMLItem extends BXML<OMNode> {
      * {@inheritDoc}
      */
     @Override
+    public void build() {
+        this.omNode.build();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void removeAttribute(String qname) {
         if (nodeType != XMLNodeType.ELEMENT || qname.isEmpty()) {
             return;
@@ -768,17 +775,9 @@ public final class BXMLItem extends BXML<OMNode> {
         @Override
         public BValue[] getNext(int arity) {
             if (arity == 1) {
-                return cursor++ == 0 ? new BValue[]{value} : null;
+                return cursor++ == 0 ? new BValue[] {value} : null;
             }
-            return cursor++ == 0 ? new BValue[]{new BInteger(0), value} : null;
-        }
-
-        @Override
-        public BType[] getParamType(int arity) {
-            if (arity == 1) {
-                return new BType[]{BTypes.typeXML};
-            }
-            return new BType[]{BTypes.typeInt, BTypes.typeXML};
+            return cursor++ == 0 ? new BValue[] {new BInteger(0), value} : null;
         }
 
         @Override

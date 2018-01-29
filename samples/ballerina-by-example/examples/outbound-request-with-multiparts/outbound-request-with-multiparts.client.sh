@@ -1,0 +1,1 @@
+$ curl -X POST http://localhost:9092/foo/multiparts

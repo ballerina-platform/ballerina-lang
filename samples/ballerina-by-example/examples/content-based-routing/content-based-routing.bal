@@ -16,7 +16,7 @@ service<http> contentBasedRouting {
         //Get the string value relevant to the key "name".
         string nameString;
         nameString, _ = (string)jsonMsg["name"];
-        http:Response clientResponse;
+        http:InResponse clientResponse;
         http:HttpConnectorError err;
         if (nameString == "sanFrancisco") {
             //"post" represent the POST action of HTTP connector. Route payload to relevant service as the server accept the entity enclosed.
@@ -24,14 +24,14 @@ service<http> contentBasedRouting {
         } else {
             clientResponse, err = locationEP.post("/v2/594e026c1100004011d6d39c", {});
         }
-        //Native function "respond" sends back the clientResponse to the caller.
-        http:Response res = {};
+        //Native function "forward" sends back the clientResponse to the caller.
+        http:OutResponse res = {};
         if (err != null) {
-            res.setStatusCode(500);
+            res.statusCode = 500;
             res.setStringPayload(err.msg);
             _ = conn.respond(res);
         } else {
-            _ = conn.respond(clientResponse);
+            _ = conn.forward(clientResponse);
         }
     }
 }

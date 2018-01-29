@@ -15,7 +15,7 @@ service<http> helloWorld {
     }
 
     resource sayHello (http:Connection conn, http:InRequest req) {
-        http:Response res = {};
+        http:OutResponse res = {};
         res.setStringPayload("Successful");
         _ = conn.respond(res);
     }
@@ -26,11 +26,11 @@ function main (string[] args) {
     endpoint<http:HttpClient> httpEndpoint {
         create http:HttpClient("https://localhost:9095", getConnectorConfigs());
     }
-    //Creates a request.
-    http:Request req = {};
-    http:Response resp = {};
+    //Creates an outbound request.
+    http:OutRequest req = {};
+    http:InResponse resp = {};
     resp, _ = httpEndpoint.get("/hello/", req);
-    println("Response code: " + resp.getStatusCode());
+    println("Response code: " + resp.statusCode);
     println("Response: " + resp.getStringPayload());
 }
 

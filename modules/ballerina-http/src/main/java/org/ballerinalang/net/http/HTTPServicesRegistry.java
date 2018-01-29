@@ -31,6 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -90,6 +93,7 @@ public class HTTPServicesRegistry {
                                                                     Constants.HTTP_PACKAGE_PATH);
 
         String basePath = discoverBasePathFrom(service, annotation);
+        basePath = urlDecode(basePath);
         service.setBasePath(basePath);
         Set<ListenerConfiguration> listenerConfigurationSet = HttpUtil.getDefaultOrDynamicListenerConfig(annotation);
 
@@ -167,7 +171,7 @@ public class HTTPServicesRegistry {
             try {
                 httpService.getUriTemplate().parse(httpResource.getPath(), httpResource,
                                                    new HttpResourceElementFactory());
-            } catch (URITemplateException e) {
+            } catch (URITemplateException | UnsupportedEncodingException e) {
                 throw new BallerinaConnectorException(e.getMessage());
             }
             CorsPopulator.processResourceCors(httpResource, httpService);
@@ -178,6 +182,15 @@ public class HTTPServicesRegistry {
         //basePath will get cached after registering service
         sortedServiceURIs.add(httpService.getBasePath());
         sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
+    }
+
+    private String urlDecode(String basePath) {
+        try {
+            basePath = URLDecoder.decode(basePath, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new BallerinaConnectorException(e.getMessage());
+        }
+        return basePath;
     }
 
     private HttpResource buildHttpResource(Resource resource) {
@@ -235,19 +248,16 @@ public class HTTPServicesRegistry {
             throw new BallerinaConnectorException("resource signature parameter count should be more than two");
         }
 
-        //validate connection parameter
-        if (isValidParam(paramDetails.get(0), Constants.CONNECTION)) {
+        if (!isValidResourceParam(paramDetails.get(0), Constants.CONNECTION)) {
             throw new BallerinaConnectorException("first parameter should be of type - "
                     + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.CONNECTION);
         }
 
-        //Validate request parameter
-        if (isValidParam(paramDetails.get(1), Constants.IN_REQUEST)) {
+        if (!isValidResourceParam(paramDetails.get(1), Constants.IN_REQUEST)) {
             throw new BallerinaConnectorException("second parameter should be of type - "
                     + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.IN_REQUEST);
         }
 
-        //validate rest of the parameters
         for (int i = 2; i < paramDetails.size(); i++) {
             ParamDetail paramDetail = paramDetails.get(i);
             if (!paramDetail.getVarType().getName().equals(Constants.TYPE_STRING)) {
@@ -256,10 +266,10 @@ public class HTTPServicesRegistry {
         }
     }
 
-    private boolean isValidParam(ParamDetail paramDetail, String varTypeName) {
-        return paramDetail.getVarType().getPackagePath() == null
-                || !paramDetail.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)
-                || !paramDetail.getVarType().getName().equals(varTypeName);
+    private boolean isValidResourceParam(ParamDetail paramDetail, String varTypeName) {
+        return paramDetail.getVarType().getPackagePath() != null
+                && paramDetail.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)
+                && paramDetail.getVarType().getName().equals(varTypeName);
     }
 
     public String findTheMostSpecificBasePath(String requestURIPath, Map<String, HttpService> services) {

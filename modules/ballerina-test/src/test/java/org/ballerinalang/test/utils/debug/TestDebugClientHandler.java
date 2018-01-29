@@ -18,16 +18,15 @@
 package org.ballerinalang.test.utils.debug;
 
 import io.netty.channel.Channel;
-import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.util.debugger.DebugClientHandler;
 import org.ballerinalang.util.debugger.DebugCommand;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.DebugException;
+import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
-import org.ballerinalang.util.debugger.info.BreakPointInfo;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -37,17 +36,17 @@ import java.util.concurrent.Semaphore;
  */
 public class TestDebugClientHandler implements DebugClientHandler {
 
-        boolean isExit;
+        volatile boolean isExit;
         int hitCount = -1;
-        NodeLocation haltPosition;
+        BreakPointDTO haltPosition;
         private volatile Semaphore executionSem;
-        private String threadId;
+        private volatile String threadId;
 
         //key - threadid
         private Map<String, DebugContext> contextMap;
 
         TestDebugClientHandler() {
-            this.contextMap = new HashMap<>();
+            this.contextMap = new ConcurrentHashMap<>();
             this.executionSem = new Semaphore(0);
         }
 
@@ -66,7 +65,7 @@ public class TestDebugClientHandler implements DebugClientHandler {
         @Override
         public void addContext(DebugContext debugContext) {
             //for debugging tests, only single threaded execution supported
-            threadId = Thread.currentThread().getName() + ":" + Thread.currentThread().getId();
+            String threadId = Thread.currentThread().getName() + ":" + Thread.currentThread().getId();
             debugContext.setThreadId(threadId);
             //TODO check if that thread id already exist in the map
             this.contextMap.put(threadId, debugContext);
@@ -79,6 +78,7 @@ public class TestDebugClientHandler implements DebugClientHandler {
 
         @Override
         public void updateAllDebugContexts(DebugCommand debugCommand) {
+            contextMap.forEach((k, v) -> v.setCurrentCommand(debugCommand));
         }
 
         @Override
@@ -95,19 +95,16 @@ public class TestDebugClientHandler implements DebugClientHandler {
         }
 
         @Override
-        public void notifyComplete() {
-        }
-
-        @Override
         public void notifyExit() {
             isExit = true;
             executionSem.release();
         }
 
         @Override
-        public void notifyHalt(BreakPointInfo breakPointInfo) {
+        public void notifyHalt(MessageDTO message) {
             hitCount++;
-            haltPosition = breakPointInfo.getHaltLocation();
+            haltPosition = message.getLocation();
+            threadId = message.getThreadId();
             executionSem.release();
         }
 

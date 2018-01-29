@@ -57,6 +57,26 @@ public class MessageUtils {
 
     public static HTTPTestRequest generateHTTPMessage(String path, String method, List<Header> headers,
             String payload) {
+        HTTPTestRequest carbonMessage = getHttpTestRequest(path, method);
+        HttpHeaders httpHeaders = carbonMessage.getHeaders();
+        if (headers != null) {
+            for (Header header : headers) {
+                httpHeaders.set(header.getName(), header.getValue());
+            }
+        }
+        if (payload != null) {
+            carbonMessage.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(payload.getBytes())));
+        } else {
+            carbonMessage.setEndOfMsgAdded(true);
+        }
+        return carbonMessage;
+    }
+
+    public static HTTPTestRequest generateHTTPMessageForMultiparts(String path, String method) {
+        return getHttpTestRequest(path, method);
+    }
+
+    private static HTTPTestRequest getHttpTestRequest(String path, String method) {
         HTTPTestRequest carbonMessage = new HTTPTestRequest();
         carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL,
                 Constants.PROTOCOL_HTTP);
@@ -69,17 +89,6 @@ public class MessageUtils {
                 new InetSocketAddress(Constants.HTTP_DEFAULT_HOST, 9090));
         carbonMessage.setProperty(Constants.LISTENER_PORT, 9090);
         carbonMessage.setProperty(Constants.RESOURCE_ARGS, new HashMap<String, String>());
-        HttpHeaders httpHeaders = carbonMessage.getHeaders();
-        if (headers != null) {
-            for (Header header : headers) {
-                httpHeaders.set(header.getName(), header.getValue());
-            }
-        }
-        if (payload != null) {
-            carbonMessage.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(payload.getBytes())));
-        } else {
-            carbonMessage.setEndOfMsgAdded(true);
-        }
         return carbonMessage;
     }
 

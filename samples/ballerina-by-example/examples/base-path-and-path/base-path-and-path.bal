@@ -12,7 +12,7 @@ service<http> echo {
     resource echo (http:Connection conn, http:InRequest req) {
         // A util method that can get the request payload.
         json payload = req.getJsonPayload();
-        http:Response res = {};
+        http:OutResponse res = {};
         res.setJsonPayload(payload);
         // Respond client with the response.
         _ = conn.respond(res);

@@ -15,9 +15,9 @@ service<http> headerBasedRouting {
         endpoint<http:HttpClient> weatherEP {
             create http:HttpClient("http://samples.openweathermap.org", {});
         }
-        //Create new request and response to handle client call.
-        http:Request newRequest = {};
-        http:Response clientResponse = {};
+        //Create new outbound request and inbound response to handle client call.
+        http:OutRequest newRequest = {};
+        http:InResponse clientResponse = {};
         http:HttpConnectorError err;
         //Native function getHeader() returns header value of a specified header name.
         string nameString = req.getHeader("type").value;
@@ -29,14 +29,14 @@ service<http> headerBasedRouting {
             clientResponse, err = weatherEP.get("/data/2.5/weather?lat=35&lon=139&appid=b1b1", newRequest);
         }
 
-        //Native function "respond" sends back the clientResponse to the caller if no any error is found.
-        http:Response res = {};
+        //Native function "forward" sends back the inbound clientResponse to the caller if no any error is found.
+        http:OutResponse res = {};
         if (err != null) {
-            res.setStatusCode(500);
+            res.statusCode = 500;
             res.setStringPayload(err.msg);
             _ = conn.respond(res);
         } else {
-            _ = conn.respond(clientResponse);
+            _ = conn.forward(clientResponse);
         }
     }
 }

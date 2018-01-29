@@ -18,6 +18,8 @@
 
 package org.ballerinalang.test.services;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
+import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.StringUtils;
@@ -47,11 +49,12 @@ import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
  */
 public class ServiceTest {
 
-    CompileResult compileResult;
+    CompileResult compileResult, negativeResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BServiceUtil.setupProgramFile(this, "test-src/services/echo-service.bal");
+        negativeResult = BCompileUtil.compile("test-src/services/service-negative.bal");
     }
 
     @Test
@@ -234,7 +237,7 @@ public class ServiceTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertEquals(responseMsg.getProperty(Constants.HTTP_STATUS_CODE), (long) 204);
+        Assert.assertEquals(responseMsg.getProperty(Constants.HTTP_STATUS_CODE), 204);
     }
 
     @Test(description = "Test Http PATCH verb dispatching without a responseMsgPayload")
@@ -244,9 +247,20 @@ public class ServiceTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertEquals(responseMsg.getProperty(Constants.HTTP_STATUS_CODE), (long) 204);
+        Assert.assertEquals(responseMsg.getProperty(Constants.HTTP_STATUS_CODE), 204);
     }
 
     //TODO: add more test cases
 
+
+    /* Negative cases */
+    @Test(description = "verify code analyzer errors in services.")
+    public void testCheckCodeAnalyzerErrors() {
+        BAssertUtil.validateError(negativeResult, 0, "break cannot be used outside of a loop", 7, 9);
+        BAssertUtil.validateError(negativeResult, 1, "next cannot be used outside of a loop", 13, 9);
+        BAssertUtil.validateError(negativeResult, 2, "abort cannot be used outside of a transaction block", 19, 9);
+        BAssertUtil.validateError(negativeResult, 3, "unreachable code", 26, 9);
+        BAssertUtil.validateError(negativeResult, 4, "worker send/receive interactions are invalid; worker(s) cannot " +
+                "move onwards from the state: '{w1=[a] -> w2, w2=[b] -> w1}'", 30, 9);
+    }
 }

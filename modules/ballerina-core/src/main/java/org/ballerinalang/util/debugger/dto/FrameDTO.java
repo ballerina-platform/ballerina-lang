@@ -18,9 +18,6 @@
 
 package org.ballerinalang.util.debugger.dto;
 
-import org.ballerinalang.util.debugger.info.FrameInfo;
-import org.ballerinalang.util.debugger.info.VariableInfo;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,11 +28,7 @@ public class FrameDTO {
 
     private String packageName, frameName, fileName;
     private int lineID;
-    private List<VariableDTO> variables = new ArrayList<VariableDTO>();
-
-    public FrameDTO(){
-
-    }
+    private List<VariableDTO> variables = new ArrayList<>();
 
     public FrameDTO(String packageName, String frameName, String fileName, int lineID) {
         this.packageName = packageName;
@@ -44,54 +37,37 @@ public class FrameDTO {
         this.lineID = lineID;
     }
 
-    public FrameDTO(FrameInfo frame) {
-        this.packageName = frame.getPackageName();
-        this.frameName = frame.getFrameName();
-        this.fileName = frame.getFileName();
-        this.lineID = frame.getLineID();
-        for (VariableInfo vinfo: frame.getVariableInfo()) {
-            variables.add(new VariableDTO(vinfo));
-        }
-    }
-
-
     public String getPackageName() {
         return packageName;
-    }
-
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
     }
 
     public String getFrameName() {
         return frameName;
     }
 
-    public void setFrameName(String frameName) {
-        this.frameName = frameName;
-    }
-
     public String getFileName() {
         return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
     }
 
     public int getLineID() {
         return lineID;
     }
 
-    public void setLineID(int lineID) {
-        this.lineID = lineID;
-    }
-
     public List<VariableDTO> getVariables() {
         return variables;
     }
 
-    public void setVariables(List<VariableDTO> variables) {
-        this.variables = variables;
+    public void addVariable(VariableDTO variableDTO) {
+        this.variables.add(variableDTO);
+    }
+
+    /**
+     * Generates textual representation of the frame.
+     *
+     * @return textual representation.
+     */
+    @Override
+    public String toString() {
+        return frameName + "(" + packageName + ") " + fileName + ":" + lineID;
     }
 }

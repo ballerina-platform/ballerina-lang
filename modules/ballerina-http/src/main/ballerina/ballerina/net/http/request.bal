@@ -187,34 +187,49 @@ public function <InRequest request> getFormParams () (map) {
     mime:Entity entity = request.getEntity();
     string formData = mime:getText(entity);
     map parameters = {};
-    if (formData != null) {
+    if (formData != null && formData != "") {
         string[] entries = formData.split("&");
-        int i = 0;
-        while (i < lengthof entries) {
-            int index = entries[i].indexOf("=");
+        int entryIndex = 0;
+        while (entryIndex < lengthof entries) {
+            int index = entries[entryIndex].indexOf("=");
             if (index != -1) {
-                string name = entries[i].subString(0, index).trim();
-                int size = entries[i].length();
-                string value = entries[i].subString(index + 1, size).trim();
+                string name = entries[entryIndex].subString(0, index).trim();
+                int size = entries[entryIndex].length();
+                string value = entries[entryIndex].subString(index + 1, size).trim();
                 if (value != "") {
                     parameters[name] = value;
                 }
             }
-            i = i + 1;
+            entryIndex = entryIndex + 1;
         }
     }
     return parameters;
+}
+
+@Description {value:"Get multiparts from inbound request"}
+@Param {value:"req: The request message"}
+@Return {value:"Returns the body parts as an array of entities"}
+public function <InRequest request> getMultiparts () (mime:Entity[]) {
+    mime:Entity entity = request.getEntity();
+    return entity.multipartData;
+}
+
+@Description {value:"Get multiparts from outbound request"}
+@Param {value:"req: The request message"}
+@Return {value:"Returns the body parts as an array of entities"}
+public function <OutRequest request> getMultiparts () (mime:Entity[]) {
+    mime:Entity entity = request.getEntity();
+    return entity.multipartData;
 }
 
 @Description {value:"Sets a JSON as the outbound request payload"}
 @Param {value:"request: The outbound request message"}
 @Param {value:"payload: The JSON payload to be set to the request"}
 public function <OutRequest request> setJsonPayload (json payload) {
-    mime:Entity entity = {};
+    mime:Entity entity = request.getEntityWithoutBody();
     entity.jsonData = payload;
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_JSON);
     entity.contentType = mediaType;
-    entity.isInMemory = true;
     request.setEntity(entity);
 }
 
@@ -222,11 +237,10 @@ public function <OutRequest request> setJsonPayload (json payload) {
 @Param {value:"request: The outbound request message"}
 @Param {value:"payload: The XML payload object"}
 public function <OutRequest request> setXmlPayload (xml payload) {
-    mime:Entity entity = {};
+    mime:Entity entity = request.getEntityWithoutBody();
     entity.xmlData = payload;
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_XML);
     entity.contentType = mediaType;
-    entity.isInMemory = true;
     request.setEntity(entity);
 }
 
@@ -234,11 +248,10 @@ public function <OutRequest request> setXmlPayload (xml payload) {
 @Param {value:"request: The outbound request message"}
 @Param {value:"payload: The payload to be set to the request as a string"}
 public function <OutRequest request> setStringPayload (string payload) {
-    mime:Entity entity = {};
+    mime:Entity entity = request.getEntityWithoutBody();
     entity.textData = payload;
     mime:MediaType mediaType = mime:getMediaType(mime:TEXT_PLAIN);
     entity.contentType = mediaType;
-    entity.isInMemory = true;
     request.setEntity(entity);
 }
 
@@ -246,11 +259,21 @@ public function <OutRequest request> setStringPayload (string payload) {
 @Param {value:"request: outbound request message"}
 @Param {value:"payload: The blob representation of the message payload"}
 public function <OutRequest request> setBinaryPayload (blob payload) {
-    mime:Entity entity = {};
+    mime:Entity entity = request.getEntityWithoutBody();
     entity.byteData = payload;
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
     entity.contentType = mediaType;
-    entity.isInMemory = true;
+    request.setEntity(entity);
+}
+
+@Description {value:"Set multiparts as the request payload"}
+@Param {value:"request: The request message"}
+@Param {value:"bodyParts: Represent body parts that needs to be set to the request"}
+public function <OutRequest request> setMultiparts (mime:Entity[] bodyParts) {
+    mime:Entity entity = request.getEntityWithoutBody();
+    entity.multipartData = bodyParts;
+    mime:MediaType mediaType = mime:getMediaType(mime:MULTIPART_FORM_DATA);
+    entity.contentType = mediaType;
     request.setEntity(entity);
 }
 
@@ -262,7 +285,6 @@ public function <OutRequest request> setEntityBody (file:File content, string co
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = request.getEntityWithoutBody();
     entity.contentType = mediaType;
-    entity.isInMemory = false;
     entity.overflowData = content;
     request.setEntity(entity);
 }

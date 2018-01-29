@@ -269,4 +269,25 @@ public class LengthOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test lengthof string")
+    public void lengthOfString() {
+        BValue[] returns = BRunUtil.invoke(result, "lengthOfString");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 11);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 4);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 10);
+    }
+
+    @Test(description = "Test lengthof blob")
+    public void lengthOfBlob() {
+        BValue[] returns = BRunUtil.invoke(result, "lengthOfBlob");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+    }
+
+    @Test(description = "Test lengthof string", 
+            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
+    public void lengthOfNullString() {
+        BRunUtil.invoke(result, "lengthOfNullString");
+    }
 }

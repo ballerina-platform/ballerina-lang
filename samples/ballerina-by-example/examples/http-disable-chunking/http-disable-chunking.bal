@@ -11,7 +11,7 @@ service<http> chunkingSample {
         endpoint<http:HttpClient> endPoint {
             create http:HttpClient("http://localhost:9090", {chunking:"never"});
         }
-        //Create new request and set payload.
+        //Create new outbound request and set payload.
         http:OutRequest newReq = {};
         newReq.setJsonPayload({"hello":"world!"});
         var clientResponse, _ = endPoint.post("/echo/", newReq);
@@ -27,13 +27,13 @@ service<http> echo {
     }
     resource echoResource (http:Connection conn, http:InRequest req) {
         string value;
-        http:OutResponse res = {};
         //Set response according to the request headers.
         if (req.getHeader("Content-Length") != null) {
             value = "Lenght-" + req.getHeader("Content-Length").value;
         } else {
             value = req.getHeader("Transfer-Encoding").value;
         }
+        http:OutResponse res = {};
         res.setJsonPayload({"Outbound request content":value});
         _ = conn.respond(res);
     }

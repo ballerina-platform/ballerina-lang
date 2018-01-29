@@ -198,4 +198,82 @@ public class ForeachArrayTests {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), sb.toString());
     }
+
+    @Test
+    public void testArrayInsertInt() {
+        int[] values = new int[]{0, 0, 0, 3, 0, 0, 6};
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < values.length; i++) {
+            sb.append(i).append(":").append(values[i]).append(" ");
+        }
+        BValue[] returns = BRunUtil.invoke(program, "testArrayInsertInt");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), sb.toString());
+    }
+
+    @Test
+    public void testArrayInsertString() {
+        String[] values = new String[]{"d0", null, null, "d3", null, null, "d6"};
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < values.length; i++) {
+            sb.append(i).append(":").append(values[i]).append(" ");
+        }
+        BValue[] returns = BRunUtil.invoke(program, "testArrayInsertString");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), sb.toString());
+    }
+
+    @Test
+    public void testArrayInsertInForeach() {
+        String[] values = new String[]{"d0", "d1", "d2"};
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < values.length; i++) {
+            sb.append(i).append(":").append(values[i]).append(" ");
+        }
+        BValue[] returns = BRunUtil.invoke(program, "testArrayInsertInForeach");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), sb.toString());
+    }
+
+    @Test
+    public void testBreak() {
+        BValue[] returns = BRunUtil.invoke(program, "testBreak");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:d0 break");
+    }
+
+    @Test
+    public void testNext() {
+        BValue[] returns = BRunUtil.invoke(program, "testNext");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:d0 next 2:d2 ");
+    }
+
+    @Test
+    public void testReturn() {
+        BValue[] returns = BRunUtil.invoke(program, "testReturn");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:d0 ");
+    }
+
+    @Test
+    public void testThrow1() {
+        BValue[] returns = BRunUtil.invoke(program, "testThrow1");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:d0 d1 found");
+    }
+
+    @Test
+    public void testThrow2() {
+        BValue[] returns = BRunUtil.invoke(program, "testThrow2");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:D0 1:D1 found null");
+    }
+
+    @Test
+    public void testNestedBreakContinue() {
+        BValue[] returns = BRunUtil.invoke(program, "testNestedWithBreakNext");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:d0 13 1:d1 13 2:d2 13 3:d3 13 ");
+    }
 }
