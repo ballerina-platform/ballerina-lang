@@ -334,13 +334,19 @@ public class TreeVisitor extends BLangNodeVisitor {
             if (connectorNode.actions.isEmpty() && connectorNode.varDefs.isEmpty()) {
                 this.isCursorWithinBlock(connectorNode.getPosition(), connectorEnv);
             } else {
-                // Cursor position is calculated against the resource parameter scope resolver
-                cursorPositionResolver = ConnectorScopeResolver.class;
                 // Since the connector def does not contains a block statement, we consider the block owner only.
                 // Here it is Connector Definition
                 this.blockOwnerStack.push(connectorNode);
-                connectorNode.varDefs.forEach(varDef -> this.acceptNode(varDef, connectorEnv));
-                connectorNode.actions.forEach(action -> this.acceptNode(action, connectorEnv));
+                connectorNode.varDefs.forEach(varDef -> {
+                    // Cursor position is calculated against the resource parameter scope resolver
+                    cursorPositionResolver = ConnectorScopeResolver.class;
+                    this.acceptNode(varDef, connectorEnv);
+                });
+                connectorNode.actions.forEach(action -> {
+                    // Cursor position is calculated against the resource parameter scope resolver
+                    cursorPositionResolver = ConnectorScopeResolver.class;
+                    this.acceptNode(action, connectorEnv);
+                });
                 if (terminateVisitor) {
                     this.acceptNode(null, null);
                 }
@@ -376,12 +382,17 @@ public class TreeVisitor extends BLangNodeVisitor {
             if (serviceNode.resources.isEmpty() && serviceNode.vars.isEmpty()) {
                 this.isCursorWithinBlock(serviceNode.getPosition(), serviceEnv);
             } else {
-                this.cursorPositionResolver = ServiceScopeResolver.class;
                 // Since the service does not contains a block statement, we consider the block owner only.
                 // Here it is service
                 this.blockOwnerStack.push(serviceNode);
-                serviceNode.vars.forEach(v -> this.acceptNode(v, serviceEnv));
-                serviceNode.resources.forEach(r -> this.acceptNode(r, serviceEnv));
+                serviceNode.vars.forEach(v -> {
+                    this.cursorPositionResolver = ServiceScopeResolver.class;
+                    this.acceptNode(v, serviceEnv);
+                });
+                serviceNode.resources.forEach(r -> {
+                    this.cursorPositionResolver = ServiceScopeResolver.class;
+                    this.acceptNode(r, serviceEnv);
+                });
                 if (terminateVisitor) {
                     this.acceptNode(null, null);
                 }
