@@ -142,3 +142,9 @@ function emptyStringTemplate () (string) {
     string s = string ``;
     return s;
 }
+
+function concatStringTemplateExprs() (string) {
+    string s1 = "John";
+    string s2 = "Doe";
+    return string `FirstName: {{s1}}.` + string ` Second name: {{s2}}`;
+}

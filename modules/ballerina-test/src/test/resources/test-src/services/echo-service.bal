@@ -13,17 +13,19 @@ service<http> echo {
         methods:["GET"],
         path:"/message"
     }
-    resource echo (http:Request req, http:Response res) {
-        _ = res.send();
+    resource echo (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
+        _ = conn.respond(res);
     }
     
     @http:resourceConfig {
         methods:["GET"],
         path:"/message_worker"
     }
-    resource echo_worker (http:Request req, http:Response res) {
+    resource echo_worker (http:Connection conn, http:InRequest req) {
         worker w1 {
-            _ = res.send();
+            http:OutResponse res = {};
+            _ = conn.respond(res);
         }
         worker w2 {
             int x = 0;
@@ -35,75 +37,86 @@ service<http> echo {
         methods:["POST"],
         path:"/setString"
     }
-    resource setString (http:Request req, http:Response res) {
+    resource setString (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         serviceLevelStr = req.getStringPayload();
         //res.setStringPayload(res, serviceLevelStr);
-        _ = res.send();
+        _ = conn.respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/getString"
     }
-    resource getString (http:Request req, http:Response res) {
+    resource getString (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setStringPayload(serviceLevelStr);
-        _ = res.send();
+        _ = conn.respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET"]
     }
-    resource removeHeaders (http:Request req, http:Response res) {
-        req.removeAllHeaders();
-        _ = res.send();
+    resource removeHeaders (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
+        res.setHeader("header1", "wso2");
+        res.setHeader("header2", "ballerina");
+        res.setHeader("header3", "hello");
+        res.removeAllHeaders();
+        _ = conn.respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/getServiceLevelString"
     }
-    resource getServiceLevelString (http:Request req, http:Response res) {
+    resource getServiceLevelString (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setStringPayload(serviceLevelStringVar);
-        _ = res.send();
+        _ = conn.respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:constPath
     }
-    resource constValueAsAttributeValue (http:Request req, http:Response res) {
+    resource connstValueAsAttributeValue (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setStringPayload("constant path test");
-        _ = res.send();
+        _ = conn.respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/testEmptyResourceBody"
     }
-    resource testEmptyResourceBody (http:Request req, http:Response res) {
+    resource testEmptyResourceBody (http:Connection conn, http:InRequest req) {
     }
 
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource getFormParams (http:Request req, http:Response res) {
+    resource getFormParams (http:Connection conn, http:InRequest req) {
         map params = req.getFormParams();
         string name;
         name,_ = (string)params.firstName;
         string team;
         team,_ = (string)params.team;
         json responseJson = {"Name":name , "Team":team};
+
+        http:OutResponse res = {};
         res.setJsonPayload(responseJson);
-        _ = res.send();
+        _ = conn.respond(res);
     }
 
     @http:resourceConfig {
         methods:["PATCH"],
         path:"/modify"
     }
-    resource modify11 (http:Request req, http:Response res) {
-        res.setStatusCode(204);
-        _ = res.send();
+    resource modify11 (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
+        res.statusCode = 204;
+        _ = conn.respond(res);
     }
 }
 

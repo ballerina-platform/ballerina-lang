@@ -1399,7 +1399,6 @@ public class ProgramFileReader {
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
                 case InstructionCodes.XMLSTORE:
-                case InstructionCodes.LENGTHOF:
                 case InstructionCodes.TYPEOF:
                 case InstructionCodes.TYPELOAD:
                 case InstructionCodes.SEQ_NULL:
@@ -1525,6 +1524,7 @@ public class ProgramFileReader {
                 case InstructionCodes.S2JSONX:
                 case InstructionCodes.NULL2S:
                 case InstructionCodes.NEW_INT_RANGE:
+                case InstructionCodes.LENGTHOF:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1602,9 +1602,10 @@ public class ProgramFileReader {
                     break;
                 case InstructionCodes.ITR_NEXT:
                     int iteratorIndex = codeStream.readInt();
+                    int[] typeTags = getArgRegs(codeStream);
                     retRegs = getArgRegs(codeStream);
                     packageInfo.addInstruction(new InstructionIteratorNext(opcode, iteratorIndex, retRegs.length,
-                            retRegs));
+                            typeTags, retRegs));
                     break;
                 case InstructionCodes.LOCK:
                 case InstructionCodes.UNLOCK:

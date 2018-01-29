@@ -331,8 +331,8 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangNext continueNode) {
-        result = continueNode;
+    public void visit(BLangNext nextNode) {
+        result = nextNode;
     }
 
     @Override

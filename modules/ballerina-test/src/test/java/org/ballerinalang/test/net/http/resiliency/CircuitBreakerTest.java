@@ -24,11 +24,9 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.Constants;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * Test cases for the Circuit Breaker
@@ -58,17 +56,17 @@ public class CircuitBreakerTest {
         BRefValueArray errs = (BRefValueArray) returnVals[1];
 
         for (int i = 0; i < responses.size(); i++) {
-            // TODO: remove this Carbon message usage once status code bug is fixed (issue #4448)
-            HTTPCarbonMessage res = getCarbonMessage((BStruct) responses.get(i));
+            BStruct res = (BStruct) responses.get(i);
+            long statusCode;
 
             if (res != null) {
-                Assert.assertEquals(
-                        Integer.parseInt(res.getProperty(Constants.HTTP_STATUS_CODE).toString()),
-                        expectedStatusCodes[i]);
+                statusCode = res.getIntField(0);
+
+                Assert.assertEquals(statusCode, expectedStatusCodes[i]);
             } else {
                 Assert.assertNotNull(errs.get(i)); // the request which resulted in an error
                 BStruct err = (BStruct) errs.get(i);
-                long statusCode = err.getIntField(0);
+                statusCode = err.getIntField(0);
 
                 // Status code of 0 means it is not an error related to HTTP. In this case, it is the Circuit Breaker
                 // error for requests which were failed immediately.
@@ -101,12 +99,11 @@ public class CircuitBreakerTest {
         BRefValueArray errs = (BRefValueArray) returnVals[1];
 
         for (int i = 0; i < responses.size(); i++) {
-            // TODO: remove this Carbon message usage once status code bug is fixed (issue #4448)
-            HTTPCarbonMessage res = getCarbonMessage((BStruct) responses.get(i));
+            BStruct res = (BStruct) responses.get(i);
             long statusCode;
 
             if (res != null) {
-                statusCode = Integer.parseInt(res.getProperty(Constants.HTTP_STATUS_CODE).toString());
+                statusCode = res.getIntField(0);
 
                 Assert.assertEquals(statusCode, expectedStatusCodes[i]);
             } else {
@@ -124,13 +121,5 @@ public class CircuitBreakerTest {
                 }
             }
         }
-    }
-
-    private HTTPCarbonMessage getCarbonMessage(BStruct response) {
-        if (response != null) {
-            return (HTTPCarbonMessage) response.getNativeData(Constants.TRANSPORT_MESSAGE);
-        }
-
-        return null;
     }
 }

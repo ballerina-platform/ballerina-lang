@@ -18,10 +18,11 @@ service<http> crossOriginService {
         allowCredentials : true,
         allowHeaders: ["X-Content-Type-Options", "X-PINGOTHER"]
     }
-    resource companyInfo (http:Request req, http:Response res) {
+    resource companyInfo (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         json responseJson = {"type":"middleware"};
         res.setJsonPayload(responseJson);
-        _ = res.send();
+        _ = conn.respond(res);
     }
 
     @Description {value:"Service level CORS headers are applies to this resource as cors are not defined at resource level"}
@@ -29,9 +30,10 @@ service<http> crossOriginService {
         methods:["POST"],
         path:"/lang"
     }
-    resource langInfo (http:Request req, http:Response res) {
+    resource langInfo (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         json responseJson = {"lang":"Ballerina"};
         res.setJsonPayload(responseJson);
-        _ = res.send();
+        _ = conn.respond(res);
     }
 }

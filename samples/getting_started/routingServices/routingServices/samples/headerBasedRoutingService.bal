@@ -9,7 +9,7 @@ service<http> headerBasedRouting {
         methods:["GET"],
         path:"/"
     }
-    resource hbrResource (http:Request req, http:Response resp) {
+    resource hbrResource (http:Connection conn, http:InRequest req) {
         endpoint<http:HttpClient> nasdaqEP {
             create http:HttpClient("http://localhost:9090/nasdaqStocks", {});
         }
@@ -18,13 +18,15 @@ service<http> headerBasedRouting {
         }
         string nyseString = "nyse";
         var nameString = req.getHeader("name");
-        http:Response clientResponse = {};
+
+        http:OutRequest clientRequest = {};
+        http:InResponse clientResponse = {};
         http:HttpConnectorError err;
         if (nameString.value == nyseString) {
-            clientResponse, err = nyseEP.post("/stocks", req);
+            clientResponse, err = nyseEP.post("/stocks", clientRequest);
         } else {
-            clientResponse, err = nasdaqEP.post("/stocks", req);
+            clientResponse, err = nasdaqEP.post("/stocks", clientRequest);
         }
-        _ = resp.forward(clientResponse);
+        _ = conn.forward(clientResponse);
     }
 }

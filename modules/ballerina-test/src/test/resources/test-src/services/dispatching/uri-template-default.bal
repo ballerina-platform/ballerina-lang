@@ -9,10 +9,11 @@ service<http> serviceName {
         methods:["GET"],
         path:""
     }
-    resource test1 (http:Request req, http:Response res) {
+    resource test1 (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         json responseJson = {"echo":"dispatched to service name"};
         res.setJsonPayload(responseJson);
-        _ = res.send();
+        _ = conn.respond(res);
     }
 }
 
@@ -21,18 +22,20 @@ service<http> serviceName {
 }
 service<http> serviceEmptyName {
 
-    resource test1 (http:Request req, http:Response res) {
+    resource test1 (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         json responseJson = {"echo":"dispatched to empty service name"};
         res.setJsonPayload(responseJson);
-        _ = res.send();
+        _ = conn.respond(res);
     }
 }
 
 service<http> serviceWithNoAnnotation {
 
-    resource test1 (http:Request req, http:Response res) {
+    resource test1 (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         json responseJson = {"echo":"dispatched to a service without an annotation"};
         res.setJsonPayload(responseJson);
-        _ = res.send();
+        _ = conn.respond(res);
     }
 }

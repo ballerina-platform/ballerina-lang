@@ -17,9 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
@@ -147,14 +145,6 @@ public abstract class BNewArray implements BRefType, BCollection {
                 return new BValue[] {array.getBValue(cursor)};
             }
             return new BValue[] {new BInteger(cursor), array.getBValue(cursor)};
-        }
-
-        @Override
-        public BType[] getParamType(int arity) {
-            if (arity == 1) {
-                return new BType[] {((BArrayType) array.getType()).getElementType()};
-            }
-            return new BType[] {BTypes.typeInt, ((BArrayType) array.getType()).getElementType()};
         }
 
         @Override

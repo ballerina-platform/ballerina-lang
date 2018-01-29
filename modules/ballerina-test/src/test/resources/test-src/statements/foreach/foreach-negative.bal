@@ -65,6 +65,22 @@ function test8(){
     }
 }
 
+function test9(){
+    string[] slist = ["a" , "b", "c"];
+    foreach v in slist {
+        println(v);
+        break;
+        println(v);
+    }
+    foreach y in slist {
+        println(y);
+        next;
+        println(y);
+    }
+    next;
+    println("done");
+}
+
 function main () {
    println("done");
 }

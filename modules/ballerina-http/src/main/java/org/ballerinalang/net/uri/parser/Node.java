@@ -107,7 +107,7 @@ public abstract class Node<DataElementType extends DataElement> {
     }
 
     private void setUriPostFix(Map<String, String> variables, String subUriFragment) {
-        variables.putIfAbsent(Constants.REST_URI_POSTFIX, "/" + subUriFragment);
+        variables.putIfAbsent(Constants.EXTRA_PATH_INFO, "/" + subUriFragment);
     }
 
     abstract String expand(Map<String, String> variables);
@@ -141,12 +141,6 @@ public abstract class Node<DataElementType extends DataElement> {
                 return 0;
             }
             return node.getToken().length() + 5;
-        } else if (node instanceof FragmentExpression) {
-            return 4;
-        } else if (node instanceof ReservedStringExpression) {
-            return 3;
-        } else if (node instanceof LabelExpression) {
-            return 2;
         } else {
             return 1;
         }

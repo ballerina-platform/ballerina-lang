@@ -208,7 +208,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangNext continueNode) {
+    public void visit(BLangNext nextNode) {
         throw new AssertionError();
     }
 

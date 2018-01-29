@@ -9,11 +9,12 @@ service<http> echo {
         methods:["POST"],
         path:"/bar"
     }
-    resource echo (http:Request req, http:Response res) {
+    resource echo (http:Connection conn, http:InRequest req) {
         // A util method that can get the request payload.
         json payload = req.getJsonPayload();
+        http:OutResponse res = {};
         res.setJsonPayload(payload);
-        // Send back the response to the client.
-        _ = res.send();
+        // Respond client with the response.
+        _ = conn.respond(res);
     }
 }

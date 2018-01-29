@@ -15,7 +15,7 @@ This starts the ATMLocatorService as well as the two backend services required t
 
 Invoking the service
 ====================
-Request : curl -X POST -d '{"ATMLocator": {"ZipCode": "95999"}}' -v "http://localhost:9090/ABCBank/locator"
+Request : curl -X POST -d '{"ATMLocator": {"ZipCode": "95999"}}' -v "http://localhost:9090/ABCBank/locator" -H "Content-Type:application/json"
 
 
 

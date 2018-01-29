@@ -8,7 +8,7 @@ service<http> CustomerMgtService {
     @http:resourceConfig {
         methods:["GET", "POST"]
     }
-    resource customers (http:Request req, http:Response res) {
+    resource customers (http:Connection conn, http:InRequest req) {
         json payload = {};
         string httpMethod = req.getMethod();
         if (httpMethod.equalsIgnoreCase("GET")) {
@@ -16,7 +16,9 @@ service<http> CustomerMgtService {
         } else {
             payload = {"Status":"Customer is successfully added."};
         }
+
+        http:OutResponse res = {};
         res.setJsonPayload(payload);
-        _ = res.send();
+        _ = conn.respond(res);
     }
 }

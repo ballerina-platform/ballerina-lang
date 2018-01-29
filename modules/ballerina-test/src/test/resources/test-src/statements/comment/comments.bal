@@ -54,10 +54,11 @@ service<http> FooService {
                           // http resource path 
                           path:"/fooResource/" 
                         }
-        resource fooResource (http:Request req, http:Response res) {
+        resource fooResource (http:Connection conn, http:InRequest req) {
+            http:OutResponse res = {};
             var xmlpayload = req.getXmlPayload();
             res.setXmlPayload(xmlpayload);
-            _ = res.send();
+            _ = conn.respond(res);
     }
 }
 

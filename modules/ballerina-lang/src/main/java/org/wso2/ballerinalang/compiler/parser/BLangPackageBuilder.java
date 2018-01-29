@@ -1320,10 +1320,10 @@ public class BLangPackageBuilder {
     }
 
     public void addNextStatement(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangNext continueNode = (BLangNext) TreeBuilder.createNextNode();
-        continueNode.pos = pos;
-        continueNode.addWS(ws);
-        addStmtToCurrentBlock(continueNode);
+        BLangNext nextNode = (BLangNext) TreeBuilder.createNextNode();
+        nextNode.pos = pos;
+        nextNode.addWS(ws);
+        addStmtToCurrentBlock(nextNode);
     }
 
     public void addBreakStatement(DiagnosticPos pos, Set<Whitespace> ws) {
