@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang.tools</groupId>
         <artifactId>tools-distribution</artifactId>
-        <version>0.95.9-SNAPSHOT</version>
+        <version>0.96.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
