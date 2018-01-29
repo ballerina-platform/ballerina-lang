@@ -145,7 +145,7 @@
 
     <properties>
 
-        <ballerina.version>0.96.1-SNAPSHOT</ballerina.version>
+        <ballerina.version>${project.version}</ballerina.version>
         <docerina.maven.plugin.version>${ballerina.version}</docerina.maven.plugin.version>
         <mvn.exec.plugin.version>1.1.1</mvn.exec.plugin.version>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
