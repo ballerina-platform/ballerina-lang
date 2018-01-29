@@ -488,8 +488,8 @@ class BallerinaFileEditor extends React.Component {
      * @param {number} offset Line offset
      */
     jumpToSourcePosition(line, offset) {
-        const { isPreviewViewEnabled } = this.props;
-        if (!isPreviewViewEnabled) {
+        const { activeView } = this.state;
+        if (activeView === DESIGN_VIEW) {
             this.setActiveView(SOURCE_VIEW);
         }
         this.props.commandProxy
@@ -497,7 +497,6 @@ class BallerinaFileEditor extends React.Component {
                 file: this.props.file,
                 row: line,
                 column: offset,
-                isPreviewViewEnabled,
             });
     }
 
