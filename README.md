@@ -1,5 +1,9 @@
 # Ballerina plugin for IntelliJ IDEA
 
+[![Build Status](https://travis-ci.org/ballerinalang/ballerina.svg?branch=master)](https://travis-ci.org/ballerinalang/ballerina)
+[![Version](https://img.shields.io/jetbrains/plugin/v/9520-ballerina.svg)](https://plugins.jetbrains.com/plugin/9520-ballerina)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/9520-ballerina.svg)](https://plugins.jetbrains.com/plugin/9520-ballerina)
+
 ## Building from the source
 
 1. Clone the repository using the following command.
@@ -7,8 +11,9 @@
     ```
     git clone --recursive https://github.com/ballerinalang/plugin-intellij.git
     ```
-2. Install latest version of [Gradle](https://gradle.org/) if you don't have it installed already.
-3. Navigate into the cloned repository and run `gradle buildPlugin`. In the **build/distributions** directory, **Ballerina-Plugin.zip** will be created.
+2. Navigate into the cloned repository and run `./gradlew buildPlugin`. In the **build/distributions** directory, **Ballerina-Plugin.zip** will be created.
+
+   **Note:** On Windows, you don’t need the leading `./` in front of the `gradlew` command
 
 ## Installing the plugin to IDEA
 
