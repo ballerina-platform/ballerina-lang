@@ -20,8 +20,8 @@ function showUsageAndExit() {
     echo
     echo "USAGE: ./build.sh -d <ballerina-distribution> -v <image-version> -o <organization-name>"
     echo
-    echo "Ex: Create a Ballerina Docker image tagged \"ballerina:latest\" with Ballerina 0.95.9-SNAPSHOT distribution."
-    echo "    ./build.sh -d ballerina-0.95.9-SNAPSHOT.zip"
+    echo "Ex: Create a Ballerina Docker image tagged \"ballerina:latest\" with Ballerina 0.96.1-SNAPSHOT distribution."
+    echo "    ./build.sh -d ballerina-0.96.1-SNAPSHOT.zip"
     echo
 
     exit
