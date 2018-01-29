@@ -21,13 +21,13 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerinalang</artifactId>
-        <version>0.95.9-SNAPSHOT</version>
+        <version>0.96.1-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>docerina</artifactId>
     <packaging>jar</packaging>
-    <version>0.95.9-SNAPSHOT</version>
+    <version>0.96.1-SNAPSHOT</version>
 
     <name>WSO2 Docerina - Ballerina Documentation Generation</name>
     <url>http://wso2.org</url>
