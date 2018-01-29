@@ -141,6 +141,11 @@
                         <artifactId>ballerina-http</artifactId>
                         <version>${ballerina.runtime.version}</version>
                     </dependency>
+                    <dependency>
+                        <groupId>org.ballerinalang</groupId>
+                        <artifactId>ballerina-mime</artifactId>
+                        <version>${ballerina.runtime.version}</version>
+                    </dependency>
                 </dependencies>
             </plugin>
 
