@@ -80,7 +80,7 @@ abstract class SymbolFilter {
             symbolInfo.getScopeEntry().symbol.scope.entries.forEach((name, value) -> {
                 if ((value.symbol instanceof BInvokableSymbol
                         && ((BInvokableSymbol) value.symbol).receiverSymbol == null)
-                        || value.symbol instanceof BTypeSymbol) {
+                        || (value.symbol instanceof BTypeSymbol && !(value.symbol instanceof BPackageSymbol))) {
                     SymbolInfo actionFunctionSymbol = new SymbolInfo(name.toString(), value);
                     actionFunctionList.add(actionFunctionSymbol);
                 }

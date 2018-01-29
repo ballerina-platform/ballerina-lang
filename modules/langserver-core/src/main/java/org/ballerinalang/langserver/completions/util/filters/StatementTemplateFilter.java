@@ -62,7 +62,7 @@ public class StatementTemplateFilter extends SymbolFilter {
         bindItem.setSortText(Priority.PRIORITY6.name());
         completionItems.add(bindItem);
 
-        // Populate Bind Statement template
+        // Populate Endpoint Statement template
         CompletionItem endpointItem = new CompletionItem();
         endpointItem.setLabel(ItemResolverConstants.ENDPOINT);
         endpointItem.setInsertText(Snippet.ENDPOINT.toString());

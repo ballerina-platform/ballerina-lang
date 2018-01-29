@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langserver.completions.resolvers;
 
+import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.consts.Priority;
@@ -37,6 +38,10 @@ public class ConnectorDefinitionContextResolver extends AbstractItemResolver {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         if (!this.isAnnotationContext(completionContext)) {
+            // Add types
+            this.populateBasicTypes(completionItems, completionContext.get(DocumentServiceKeys.SYMBOL_TABLE_KEY));
+            
+            // Add Action snippet
             CompletionItem connectorActionItem = new CompletionItem();
             connectorActionItem.setLabel(ItemResolverConstants.ACTION);
             connectorActionItem.setInsertText(Snippet.CONNECTOR_ACTION.toString());
@@ -44,6 +49,15 @@ public class ConnectorDefinitionContextResolver extends AbstractItemResolver {
             connectorActionItem.setDetail(ItemResolverConstants.ACTION_TYPE);
             connectorActionItem.setSortText(Priority.PRIORITY4.name());
             completionItems.add(connectorActionItem);
+
+            // Add Endpoint snippet
+            CompletionItem endpointItem = new CompletionItem();
+            endpointItem.setLabel(ItemResolverConstants.ENDPOINT);
+            endpointItem.setInsertText(Snippet.ENDPOINT.toString());
+            endpointItem.setInsertTextFormat(InsertTextFormat.Snippet);
+            endpointItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
+            endpointItem.setSortText(Priority.PRIORITY7.name());
+            completionItems.add(endpointItem);
         }
 
         return completionItems;
