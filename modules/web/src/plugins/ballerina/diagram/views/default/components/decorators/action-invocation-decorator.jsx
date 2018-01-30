@@ -210,6 +210,8 @@ class ActionInvocationDecorator extends React.Component {
         const hiderTop = viewState.components['statement-box'].y + viewState.components['statement-box'].h + 1;
         let children = [];
         let hiderBottom = hiderTop;
+        const invocationComponent = viewState.components.invocation ?
+                            viewState.components.invocation : { start: { x: 0, y: 0 }, end: { x: 0, y: 0 } };
         if (lambdas.length) {
             children = getComponentForNodeArray(lambdas);
             hiderBottom = lambdas[lambdas.length - 1].viewState.bBox.getBottom();
@@ -249,7 +251,7 @@ class ActionInvocationDecorator extends React.Component {
                     x={statementBox.x +
                         (designer.config.actionInvocationStatement.width / 2) +
                         designer.config.statement.gutter.h}
-                    y={viewState.components.invocation.start.y
+                    y={invocationComponent.start.y
                          - (designer.config.actionInvocationStatement.text.height / 2)}
                     className='action-invocation-text'
                     onClick={e => this.openEditor(e)}
@@ -257,8 +259,8 @@ class ActionInvocationDecorator extends React.Component {
                     {expression}
                 </text>
                 <rect
-                    x={viewState.components.invocation.end.x}
-                    y={viewState.components.invocation.end.y}
+                    x={invocationComponent.end.x}
+                    y={invocationComponent.end.y}
                     width={designer.config.actionInvocationStatement.width}
                     height={designer.config.actionInvocationStatement.timelineHeight}
                     className='action-invocation-statement-rect'
@@ -275,8 +277,8 @@ class ActionInvocationDecorator extends React.Component {
                 />
                 <g>
                     <ArrowDecorator
-                        start={viewState.components.invocation.start}
-                        end={viewState.components.invocation.end}
+                        start={invocationComponent.start}
+                        end={invocationComponent.end}
                     />
                     <ArrowDecorator
                         start={backwardArrowStart}
