@@ -214,9 +214,7 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
             this.acceptNode(varNode.expr);
         }
 
-        if (varNode.getTypeNode() != null
-                && (varNode.getTypeNode() instanceof BLangUserDefinedType
-                || varNode.getTypeNode() instanceof BLangEndpointTypeNode)) {
+        if (varNode.getTypeNode() != null) {
             this.acceptNode(varNode.getTypeNode());
         }
     }
@@ -614,7 +612,10 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangArrayLiteral arrayLiteral) {
-
+        previousNode = arrayLiteral;
+        if (!arrayLiteral.exprs.isEmpty()) {
+            arrayLiteral.exprs.forEach(this::acceptNode);
+        }
     }
 
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
@@ -699,7 +700,11 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
+        previousNode = stringTemplateLiteral;
 
+        if (!stringTemplateLiteral.exprs.isEmpty()) {
+            stringTemplateLiteral.exprs.forEach(this::acceptNode);
+        }
     }
 
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
@@ -715,7 +720,10 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangArrayType arrayType) {
-
+        previousNode = arrayType;
+        if (arrayType.elemtype != null) {
+            acceptNode(arrayType.elemtype);
+        }
     }
 
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
