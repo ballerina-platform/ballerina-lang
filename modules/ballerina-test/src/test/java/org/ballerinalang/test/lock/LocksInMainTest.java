@@ -105,7 +105,7 @@ public class LocksInMainTest {
         assertSame(returns[1].getClass(), BString.class);
 
         assertEquals(((BInteger) returns[0]).intValue(), 53);
-        assertEquals(returns[1].stringValue(), "worker 2 sets the string value");
+        assertEquals(returns[1].stringValue(), "worker 2 sets the string value after try catch finally");
     }
 
     @Test(description = "Tests throwing an error inside try catch finally block inside a lock")
