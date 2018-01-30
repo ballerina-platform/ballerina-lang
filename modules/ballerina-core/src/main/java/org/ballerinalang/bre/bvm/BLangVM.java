@@ -161,7 +161,6 @@ public class BLangVM {
         }
     }
 
-
     public void run(Context ctx) {
         StackFrame currentFrame = ctx.getControlStack().getCurrentFrame();
         this.constPool = currentFrame.packageInfo.getConstPoolEntries();
