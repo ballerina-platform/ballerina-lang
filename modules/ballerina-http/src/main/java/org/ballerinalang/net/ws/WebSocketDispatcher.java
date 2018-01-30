@@ -33,8 +33,10 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import javax.websocket.Session;
 
 /**
  * {@code WebSocketDispatcher} This is the web socket request dispatcher implementation which finds
@@ -141,6 +143,13 @@ public class WebSocketDispatcher {
         WebSocketService wsService = connectionInfo.getService();
         Resource onPingMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_PING);
         if (onPingMessageResource == null) {
+            // If onPing Resource is not available auto send the pong message.
+            Session session = controlMessage.getChannelSession();
+            try {
+                session.getBasicRemote().sendPong(controlMessage.getPayload());
+            } catch (IOException ex) {
+                ErrorHandlerUtils.printError(ex);
+            }
             return;
         }
         List<ParamDetail> paramDetails = onPingMessageResource.getParamDetails();
