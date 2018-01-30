@@ -22,7 +22,7 @@
 }
 
 .button-area:hover .button {
-    z-index:50;
+    z-index:20;
     display: block;
     left:2px;
     top:2px;
@@ -32,7 +32,7 @@
 }
 
 .button-show-always{
-    z-index:50;
+    z-index:20;
     display: block;
     left:2px;
     top:2px;
@@ -54,7 +54,7 @@
 
 
 .interaction-menu-area:hover, .interaction-menu-area-clicked  {
-    z-index:51;
+    z-index:21;
     background: none;
     -webkit-transition-timing-function: ease-out;
     transition-timing-function: ease-out;

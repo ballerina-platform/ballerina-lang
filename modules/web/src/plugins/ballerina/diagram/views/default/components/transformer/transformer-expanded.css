@@ -1,5 +1,6 @@
 .transformOverlay {
     font-size: 13px;
+    z-index: 30;
 }
 
 .left-content {
