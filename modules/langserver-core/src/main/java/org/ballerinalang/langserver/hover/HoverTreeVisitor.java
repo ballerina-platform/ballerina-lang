@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -82,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
@@ -541,6 +542,22 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
             this.context.put(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY, invocationExpr.symbol.pkgID);
             this.context.put(HoverKeys.SYMBOL_KIND_OF_HOVER_NODE_KEY, invocationExpr.symbol.kind);
             this.terminateVisitor = true;
+        }
+    }
+
+    public void visit(BLangForeach foreach) {
+        previousNode = foreach;
+
+        if (foreach.collection != null) {
+            acceptNode(foreach.collection);
+        }
+
+        if (!foreach.varRefs.isEmpty()) {
+            foreach.varRefs.forEach(this::acceptNode);
+        }
+
+        if (foreach.body != null) {
+            acceptNode(foreach.body);
         }
     }
 
