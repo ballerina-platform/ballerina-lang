@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.ballerinalang</id>
     <name>Ballerina</name>
-    <version>0.9.9</version>
+    <version>0.9.10</version>
     <vendor email="ballerinalang@wso2.com" url="http://wso2.org">WSO2 Inc.</vendor>
 
     <description><![CDATA[
@@ -11,12 +11,11 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Ballerina 0.95.8 grammar support.</li>
-        <li>Ballerina test run support.</li>
-        <li>Ballerina user repository support improvements.</li>
-        <li>Code completion improvements.</li>
+        <li>Ballerina 0.96.0 grammar support.</li>
+        <li>New WebSocket file template.</li>
+        <li>Quick fix improvements.</li>
       </ul>
-      <a href="https://github.com/ballerinalang/plugin-intellij/milestone/20?closed=1">View all changes and bug fixes.</a>
+      <a href="https://github.com/ballerinalang/plugin-intellij/milestone/21?closed=1">View all changes and bug fixes.</a>
     ]]>
     </change-notes>
 
