@@ -1564,7 +1564,7 @@ class TransformerNodeMapper {
      * @memberof TransformerNodeMapper
      */
     getMappingStatements() {
-        return this._transformStmt.body.filterStatements(_.negate(TreeUtil.isComment));
+        return this._transformStmt.body.getStatements();
     }
 
     /**

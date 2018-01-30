@@ -167,11 +167,6 @@ class TransformerExpanded extends React.Component {
 
     createConnection(statement) {
         const viewId = this.props.model.getID();
-
-        if (TreeUtil.isComment(statement)) {
-            return;
-        }
-
         let variables = [];
         let stmtExp;
 
