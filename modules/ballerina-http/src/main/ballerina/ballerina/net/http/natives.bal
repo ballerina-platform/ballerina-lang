@@ -186,7 +186,7 @@ public native function <OutResponse res> setProperty (string propertyName, strin
 @Return { value:"The property value" }
 public native function <OutResponse res> getProperty (string propertyName) (string);
 
-@Description { value:"Parse headerValue to return the value and parameter map"}
+@Description { value:"Parse headerValue and return value with parameter map"}
 @Param { value:"headerValue: The header value" }
 @Return { value:"The header value" }
 @Return { value:"The header value parameter map" }

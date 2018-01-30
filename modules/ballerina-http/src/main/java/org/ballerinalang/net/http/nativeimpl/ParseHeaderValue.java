@@ -27,40 +27,52 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.util.exceptions.BLangNullReferenceException;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Ballerina function to set a message property.
+ * Native function to parse header value and get value with parameter map.
+ *
+ * @since 0.96.1
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "parseHeaderValue",
         args = {@Argument(name = "headerValue", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING),
+                @ReturnType(type = TypeKind.MAP, elementType = TypeKind.STRING)},
         isPublic = true
 )
 public class ParseHeaderValue extends AbstractNativeFunction {
 
     private static final String SEMICOLON = ";";
     private static final String COMMA = ",";
+    private static final String PARSER_ERROR = "failed to parse: ";
 
     @Override
     public BValue[] execute(Context context) {
-        String headerValue = getStringArgument(context, 0);
-        if (headerValue.contains(COMMA)) {
-            headerValue = headerValue.substring(0, headerValue.indexOf(COMMA));
+        try {
+            String headerValue = getStringArgument(context, 0);
+            if (headerValue.contains(COMMA)) {
+                headerValue = headerValue.substring(0, headerValue.indexOf(COMMA));
+            }
+            return getValueAndParamMap(headerValue);
+        } catch (BLangNullReferenceException ex) {
+            throw new BallerinaException(PARSER_ERROR + "header value cannot be null");
+        } catch (BallerinaException ex) {
+            throw new BallerinaException(PARSER_ERROR + ex.getMessage());
         }
-        return getValueAndParamMap(headerValue);
     }
 
     private BValue[] getValueAndParamMap(String headerValue) {
         String value = headerValue;
         BMap<String, BValue> paramMap = null;
         if (headerValue.contains(SEMICOLON)) {
-            value = headerValue.substring(0, headerValue.indexOf(SEMICOLON)).trim();
+            value = extractValue(headerValue);
             List<String> paramList = Arrays.stream(headerValue.substring(headerValue.indexOf(SEMICOLON) + 1)
                     .split(SEMICOLON)).map(String::trim).collect(Collectors.toList());
             paramMap = validateParams(paramList) ? HttpUtil.createParamBMap(paramList) : null;
@@ -68,12 +80,19 @@ public class ParseHeaderValue extends AbstractNativeFunction {
         return getBValues(new BString(value), paramMap);
     }
 
+    private String extractValue(String headerValue) {
+        String value = headerValue.substring(0, headerValue.indexOf(SEMICOLON)).trim();
+        if (value.isEmpty()) {
+            throw new BallerinaException("invalid header value: " + headerValue);
+        }
+        return value;
+    }
+
     private boolean validateParams(List<String> paramList) {
+        //validate header values which ends with semicolon without params
         if (paramList.size() == 1 && paramList.get(0).isEmpty()) {
             return false;
         }
-
-
         return true;
     }
 }

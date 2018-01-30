@@ -2,27 +2,13 @@ package ballerina.net.http;
 
 import ballerina.mime;
 
-function getHeadersFromEntity (mime:Entity entity, string headerName)(string) {
-    if (entity.headers == null) {
-        return null;
-    }
-    var headerValue, _ = (string)entity.headers[headerName];
-    if (headerValue == null) {
-        return null;
-    }
-    return headerValue;
+function getFirstHeaderFromEntity(mime:Entity entity, string headerName)(string) {
+    var headerValue, _ = (string[]) entity.headers[headerName];
+    return headerValue == null ? null : headerValue[0];
 }
 
-function getFirstHeaderValue(string headerValue)(string) {
-    if (headerValue == null) {
-        return null;
-    }
-    //Multiple message-header fields with the same field-name MAY be present in a message if and only if the entire
-    //field-value for that header field is defined as a comma-separated list.
-    //(https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2)
-    if (headerValue.contains(",")) {
-        headerValue = headerValue.subString(0, headerValue.indexOf(","));
-    }
+function getHeadersFromEntity (mime:Entity entity, string headerName)(string[]) {
+    var headerValue, _ = (string[]) entity.headers[headerName];
     return headerValue;
 }
 
@@ -36,14 +22,17 @@ function getContentLengthIntValue(string strContentLength)(int) {
 }
 
 function addHeaderToEntity(mime:Entity entity, string headerName, string headerValue){
-    if (entity.headers == null) {
-        entity.headers = {};
-    }
     var existingValues = entity.headers[headerName];
     if (existingValues == null) {
-        entity.headers[headerName] = headerValue;
+        setHeaderToEntity(entity, headerName, headerValue);
     } else {
-        var values, err = (string) existingValues;
-        entity.headers[headerName] = values + ", " + headerValue;
+        var valueArray, _ = (string[]) existingValues;
+        valueArray[lengthof valueArray] = headerValue;
+        entity.headers[headerName] = valueArray;
     }
+}
+
+function setHeaderToEntity(mime:Entity entity, string headerName, string headerValue) {
+    string[] valueArray = [headerValue];
+    entity.headers[headerName] = valueArray;
 }

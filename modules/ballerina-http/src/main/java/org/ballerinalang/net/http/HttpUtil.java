@@ -39,10 +39,11 @@ import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
@@ -85,14 +86,12 @@ import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
-import static org.ballerinalang.mime.util.Constants.HEADER_VALUE_STRUCT;
 import static org.ballerinalang.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
-import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 import static org.ballerinalang.net.http.Constants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.Constants.HTTP_MESSAGE_INDEX;
@@ -593,9 +592,14 @@ public class HttpUtil {
 
     private static BMap<String, BValue> prepareEntityHeaderMap(HttpHeaders headers, BMap<String, BValue> headerMap) {
         for (Map.Entry<String, String> header : headers.entries()) {
-            headerMap.put(header.getKey(), new BString(header.getValue()));
+            if (headerMap.keySet().contains(header.getKey())) {
+                BStringArray valueArray = (BStringArray) headerMap.get(header.getKey());
+                valueArray.add(valueArray.size(), header.getValue());
+            } else {
+                BStringArray valueArray = new BStringArray(new String[] {header.getValue()});
+                headerMap.put(header.getKey(), valueArray);
+            }
         }
-//        headers.entries().stream()
         return headerMap;
     }
 
@@ -629,7 +633,7 @@ public class HttpUtil {
         for (String param : paramList) {
             if (param.contains("=")) {
                 String[] keyValuePair = param.split("=");
-                if (keyValuePair.length != 2 && !keyValuePair[0].isEmpty()) {
+                if (keyValuePair.length != 2 || keyValuePair[0].isEmpty()) {
                     throw new BallerinaException("Invalid header parameter: " + param);
                 }
                 paramMap.put(keyValuePair[0].trim(), new BString(keyValuePair[1].trim()));
@@ -658,14 +662,13 @@ public class HttpUtil {
         if (isInboundRequestStruct(struct) || isInboundResponseStruct(struct)) {
             addRemovedPropertiesBackToHeadersMap(struct, transportHeaders);
         }
-        BMap<String, BValue> headerss = getEntityHeaders(entityStruct, transportHeaders);
-        if (headerss == null) {
+        BMap<String, BValue> entityHeaders = getEntityHeaders(entityStruct, transportHeaders);
+        if (entityHeaders == null) {
             return;
         }
-        Set<String> keys = headerss.keySet();
+        Set<String> keys = entityHeaders.keySet();
         for (String key : keys) {
-//            String headerValue = buildHeaderValue(headers, key);
-            outboundMsg.setHeader(key, String.valueOf(headerss.get(key)));
+            outboundMsg.setHeader(key, String.valueOf(entityHeaders.get(key)));
         }
     }
 
@@ -759,7 +762,8 @@ public class HttpUtil {
     private static void setHeaderToStruct(Context context, BStruct struct, String key, String value) {
         BMap<String, BValue> headerMap = struct.getRefField(ENTITY_HEADERS_INDEX) != null ?
                 (BMap) struct.getRefField(ENTITY_HEADERS_INDEX) : new BMap<>();
-        struct.setRefField(ENTITY_HEADERS_INDEX, prepareEntityHeaderMap(new DefaultHttpHeaders().add(key, value), headerMap));
+        struct.setRefField(ENTITY_HEADERS_INDEX,
+                prepareEntityHeaderMap(new DefaultHttpHeaders().add(key, value), headerMap));
     }
 
     /**

@@ -50,7 +50,6 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
-import static org.ballerinalang.mime.util.Constants.HEADER_VALUE_STRUCT;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
@@ -282,7 +281,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     Constants.PROTOCOL_PACKAGE_HTTP);
             BStruct entity = createStruct(this.context, Constants.ENTITY, PROTOCOL_PACKAGE_MIME);
             BStruct mediaType = createStruct(this.context, MEDIA_TYPE, PROTOCOL_PACKAGE_MIME);
-            HttpUtil.setHeaderValueStructType(createStruct(this.context, HEADER_VALUE_STRUCT, PROTOCOL_PACKAGE_MIME));
             HttpUtil.populateInboundResponse(inboundResponse, entity, mediaType, httpCarbonMessage);
             ballerinaFuture.notifyReply(inboundResponse);
         }

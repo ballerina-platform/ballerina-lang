@@ -6,24 +6,22 @@ import ballerina.file;
 const string HEADER_VAL_100_CONTINUE = "100-continue";
 const string HEADER_KEY_EXPECT = "Expect";
 
-@Description {value:"Gets a transport header from the inbound request"}
+@Description {value:"Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned."}
 @Param {value:"req: A inbound request message"}
 @Param {value:"headerName: The header name"}
-@Return {value:"The first header value struct for the provided header name. Returns null if the header does not exist."}
+@Return {value:"The first header value for the provided header name. Returns null if the header does not exist."}
 public function <InRequest req> getHeader (string headerName) (string) {
     mime:Entity entity = req.getEntityWithoutBody();
-    string headerValue = getHeadersFromEntity(entity, headerName);
-    return getFirstHeaderValue(headerValue);
+    return getFirstHeaderFromEntity(entity, headerName);
 }
 
-@Description {value:"Gets a transport header from the outbound request"}
+@Description {value:"Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned."}
 @Param {value:"req: A outbound request message"}
 @Param {value:"headerName: The header name"}
-@Return {value:"The first header value struct for the provided header name. Returns null if the header does not exist."}
+@Return {value:"The first header value for the provided header name. Returns null if the header does not exist."}
 public function <OutRequest req> getHeader (string headerName) (string) {
     mime:Entity entity = req.getEntityWithoutBody();
-    string headerValue = getHeadersFromEntity(entity, headerName);
-    return getFirstHeaderValue(headerValue);
+    return getFirstHeaderFromEntity(entity, headerName);
 }
 
 @Description {value:"Adds the specified key/value pair as an HTTP header to the outbound request"}
@@ -39,7 +37,7 @@ public function <OutRequest req> addHeader (string headerName, string headerValu
 @Param {value:"req: A inbound request message"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The header values struct array for a given header name"}
-public function <InRequest req> getHeaders (string headerName) (string) {
+public function <InRequest req> getHeaders (string headerName) (string[]) {
     mime:Entity entity = req.getEntityWithoutBody();
     return getHeadersFromEntity(entity, headerName);
 }
@@ -48,7 +46,7 @@ public function <InRequest req> getHeaders (string headerName) (string) {
 @Param {value:"req: A outbound request message"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The header values struct array for a given header name"}
-public function <OutRequest req> getHeaders (string headerName) (string) {
+public function <OutRequest req> getHeaders (string headerName) (string[]) {
     mime:Entity entity = req.getEntityWithoutBody();
     return getHeadersFromEntity(entity, headerName);
 }
@@ -59,10 +57,7 @@ public function <OutRequest req> getHeaders (string headerName) (string) {
 @Param {value:"headerValue: The header value"}
 public function <OutRequest req> setHeader (string headerName, string headerValue) {
     mime:Entity entity = req.getEntityWithoutBody();
-    if (entity.headers == null) {
-        entity.headers = {};
-    }
-    entity.headers[headerName] = headerValue;
+    setHeaderToEntity(entity, headerName, headerValue);
 }
 
 @Description {value:"Removes a transport header from the outbound request"}
@@ -70,9 +65,6 @@ public function <OutRequest req> setHeader (string headerName, string headerValu
 @Param {value:"key: The header name"}
 public function <OutRequest req> removeHeader (string key) {
     mime:Entity entity = req.getEntityWithoutBody();
-    if (entity.headers == null) {
-        return;
-    }
     entity.headers.remove(key);
 }
 
