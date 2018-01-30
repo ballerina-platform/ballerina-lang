@@ -38,13 +38,6 @@ public class IterableContext {
         operations.add(operation);
     }
 
-    public boolean isLastOperationTerminal() {
-        if (operations.size() == 0) {
-            return false;
-        }
-        return operations.getLast().kind.isTerminal();
-    }
-
     public boolean isProcessed() {
         return processed;
     }

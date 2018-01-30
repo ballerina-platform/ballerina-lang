@@ -42,6 +42,8 @@ import java.util.List;
 
 /**
  * {@code {@link IterableAnalyzer}} validates iterable collection related semantics.
+ *
+ * @since 0.961.0
  */
 public class IterableAnalyzer {
 
@@ -56,7 +58,7 @@ public class IterableAnalyzer {
     private TypeChecker typeChecker;
     private DiagnosticLog dlog;
 
-    private final BIterableTypeVisitor foreachTypeChecker;
+    private final BIterableTypeVisitor foreachTypeChecker, mapTypeChecker, filterTypeChecker;
 
     private IterableAnalyzer(CompilerContext context) {
         context.put(ITERABLE_ANALYZER_KEY, this);
@@ -69,6 +71,8 @@ public class IterableAnalyzer {
         this.typeChecker = TypeChecker.getInstance(context);
 
         this.foreachTypeChecker = new ForeachTypeChecker(dlog, symTable);
+        this.mapTypeChecker = new MapTypeChecker(dlog, symTable);
+        this.filterTypeChecker = new FilterTypeChecker(dlog, symTable);
     }
 
     public static IterableAnalyzer getInstance(CompilerContext context) {
@@ -79,26 +83,20 @@ public class IterableAnalyzer {
         return iterableAnalyzer;
     }
 
-    public void handlerIterableOperation(BLangInvocation iExpr, SymbolEnv env) {
+    public void handlerIterableOperation(BLangInvocation iExpr, List<BType> expTypes, SymbolEnv env) {
         final IterableContext context;
 
         if (iExpr.expr.type.tag != TypeTags.TUPLE_COLLECTION) {
             context = new IterableContext();   // This is a new iteration chain.
+            env.enclPkg.iterableContexts.add(context);
         } else {
             context = ((BLangInvocation) iExpr.expr).iContext; // Get context from previous invocation.
         }
         iExpr.iContext = context;
-        env.enclPkg.iterableContexts.add(context);
 
         final IterableKind iterableKind = IterableKind.getFromString(iExpr.name.value);
 
-        if (iExpr.iContext.isLastOperationTerminal()) {
-            // TODO: validate this usecase.
-            // TODO: Log error. You can't have another operation after terminal.
-            return;
-        }
-
-        final Operation iOperation = new Operation(iExpr, iterableKind, env);
+        final Operation iOperation = new Operation(iterableKind, iExpr, expTypes, env);
         iExpr.iContext.addOperation(iOperation);
 
         if (iterableKind.isLambdaRequired()) {
@@ -108,22 +106,8 @@ public class IterableAnalyzer {
         }
     }
 
-    private void handleFaultyOperation(Operation operation) {
-        handleFaultyOperation(operation, Lists.of(symTable.errType));
-    }
-
-    private void handleFaultyOperation(Operation operation, List<BType> types) {
-        if (types.size() == 0) {
-            operation.iExpr.type = symTable.noType;
-            return;
-        }
-        operation.iExpr.types = types;
-        operation.iExpr.type = types.get(0);
-    }
-
     private void handleSimpleOperations(IterableContext ctx, Operation operation) {
         if (operation.iExpr.argExprs.size() > 0) {
-            handleFaultyOperation(operation, Lists.of(symTable.errType));
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_NO_ARGS_REQUIRED, operation.kind);
             return;
         }
@@ -142,7 +126,6 @@ public class IterableAnalyzer {
 
     private void handleLambdaBasedIterableOperation(IterableContext ctx, Operation operation) {
         if (operation.iExpr.argExprs.size() == 0 || operation.iExpr.argExprs.size() > 1) {
-            handleFaultyOperation(operation);
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_REQUIRED);
             return;
         }
@@ -150,45 +133,48 @@ public class IterableAnalyzer {
         operation.lambda = operation.iExpr.argExprs.get(0);
         final List<BType> bTypes = typeChecker.checkExpr(operation.lambda, operation.env);
         if (bTypes.size() != 1 || bTypes.get(0).tag != TypeTags.INVOKABLE) {
-            handleFaultyOperation(operation);
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_REQUIRED);
             return;
         }
 
         operation.lambdaType = (BInvokableType) bTypes.get(0);
         operation.arity = operation.lambdaType.getParameterTypes().size();
-        final List<BType> supportedArgTypes, supportedRetTypes;
+        final List<BType> supportedArgTypes, supportedRetTypes, givenRetTypes;
         // Define new iterable operation here.
+        givenRetTypes = operation.lambdaType.getReturnTypes();
         switch (operation.kind) {
             case FOREACH:
                 supportedArgTypes = operation.collectionType.accept(foreachTypeChecker, operation);
                 supportedRetTypes = Collections.emptyList();
                 break;
+            case MAP:
+                supportedArgTypes = operation.collectionType.accept(mapTypeChecker, operation);
+                supportedRetTypes = givenRetTypes;
+                break;
+            case FILTER:
+                supportedArgTypes = operation.collectionType.accept(filterTypeChecker, operation);
+                supportedRetTypes = Lists.of(symTable.booleanType);
+                break;
             default:
-                handleFaultyOperation(operation);
                 return;
         }
         validateLambdaArgs(operation, supportedArgTypes);
-        validateLambdaReturnArgs(operation, supportedRetTypes);
+        validateLambdaReturnArgs(operation, supportedRetTypes, givenRetTypes);
         assignInvocationType(operation, supportedArgTypes, supportedRetTypes);
     }
 
     private void validateLambdaArgs(Operation operation, List<BType> supportedTypes) {
         final List<BType> givenTypes = operation.lambdaType.getParameterTypes();
         if (givenTypes.size() < supportedTypes.size()) {
-            handleFaultyOperation(operation);
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_NOT_ENOUGH_VARIABLES, operation.collectionType,
                     supportedTypes.size());
             return;
         } else if (givenTypes.size() > supportedTypes.size()) {
-            handleFaultyOperation(operation);
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_TOO_MANY_VARIABLES, operation.collectionType);
             return;
         }
         for (int i = 0; i < givenTypes.size(); i++) {
             if (supportedTypes.get(i).tag == TypeTags.ERROR || givenTypes.get(i).tag == TypeTags.ERROR) {
-                operation.iExpr.types = Lists.of(symTable.errType);
-                handleFaultyOperation(operation);
                 return;
             }
             types.checkType(operation.lambda, givenTypes.get(i), supportedTypes.get(i),
@@ -196,25 +182,20 @@ public class IterableAnalyzer {
         }
     }
 
-    private void validateLambdaReturnArgs(Operation operation, List<BType> supportedTypes) {
-        final List<BType> givenTypes = operation.lambdaType.getReturnTypes();
+    private void validateLambdaReturnArgs(Operation operation, List<BType> supportedTypes, List<BType> givenTypes) {
         if (supportedTypes == givenTypes) {
             // Ignore this validation.
             return;
         }
         if (givenTypes.size() < supportedTypes.size()) {
-            handleFaultyOperation(operation, supportedTypes);
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_TOO_MANY_RETURN_VARIABLES, operation.kind);
             return;
         } else if (givenTypes.size() > supportedTypes.size()) {
-            handleFaultyOperation(operation);
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_NOT_ENOUGH_RETURN_VARIABLES, operation.kind);
             return;
         }
         for (int i = 0; i < givenTypes.size(); i++) {
             if (supportedTypes.get(i).tag == TypeTags.ERROR || givenTypes.get(i).tag == TypeTags.ERROR) {
-                operation.iExpr.types = Lists.of(symTable.errType);
-                handleFaultyOperation(operation, supportedTypes);
                 return;
             }
             types.checkType(operation.lambda, givenTypes.get(i), supportedTypes.get(i),
@@ -226,15 +207,11 @@ public class IterableAnalyzer {
         operation.argTypes = argTypes;
         if (operation.kind.isTerminal()) {
             operation.resultTypes = supportedRetTypes;
-            if (supportedRetTypes.size() > 0) {
-                operation.iExpr.type = supportedRetTypes.get(0);
-            }
             return;
         }
         if (supportedRetTypes.size() > 0) {
             BTupleCollectionType resultType = new BTupleCollectionType(supportedRetTypes);
             operation.resultTypes = Lists.of(resultType);
-            operation.iExpr.type = resultType;
             return;
         }
         operation.resultTypes = Collections.emptyList();
@@ -245,7 +222,7 @@ public class IterableAnalyzer {
     /**
      * Type checker for Foreach Operation.
      *
-     * @since 0.96.1
+     * @since 0.961.0
      */
     private static class ForeachTypeChecker extends BIterableTypeVisitor {
 
@@ -308,4 +285,31 @@ public class IterableAnalyzer {
         }
     }
 
+    /**
+     * Type checker for Map Operation.
+     *
+     * @since 0.961.0
+     */
+    private static class MapTypeChecker extends ForeachTypeChecker {
+
+        MapTypeChecker(DiagnosticLog dlog, SymbolTable symTable) {
+            super(dlog, symTable);
+        }
+
+        /* override methods to extend Map functionality. Otherwise it will have same behaviour as foreach */
+    }
+
+    /**
+     * Type checker for Filter Operation.
+     *
+     * @since 0.961.0
+     */
+    private static class FilterTypeChecker extends ForeachTypeChecker {
+
+        FilterTypeChecker(DiagnosticLog dlog, SymbolTable symTable) {
+            super(dlog, symTable);
+        }
+
+        /* override methods to extend filter functionality. Otherwise it will have same behaviour as foreach */
+    }
 }

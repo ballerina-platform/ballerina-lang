@@ -27,6 +27,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
+import org.wso2.ballerinalang.compiler.semantics.model.iterable.Operation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -36,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
@@ -100,7 +102,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -1108,9 +1109,40 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateIterableContexts(BLangPackage pkgNode) {
-        pkgNode.iterableContexts.stream()
-                .filter(((Predicate<IterableContext>) IterableContext::isLastOperationTerminal).negate())
-                .forEach(ctx -> dlog.error(ctx.operations.getLast().pos,
-                        DiagnosticCode.ITERABLE_SHOULD_END_WITH_TERMINAL, ctx.operations.getLast().kind));
+        for (IterableContext context : pkgNode.iterableContexts) {
+            final Operation lastOperation = context.operations.getLast();
+            final List<BType> expectedTypes = lastOperation.expectedTypes;
+            final List<BType> resultTypes = lastOperation.resultTypes;
+            if (expectedTypes.size() == 0 && resultTypes.size() > 0) {
+                dlog.error(lastOperation.pos, DiagnosticCode.ASSIGNMENT_REQUIRED);
+                continue;
+            }
+            if (expectedTypes.size() > 1) {
+                // Iterable collection always return a single value.
+                dlog.error(lastOperation.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, 1, expectedTypes.size());
+                continue;
+            }
+            if (expectedTypes.get(0) == symTable.noType || expectedTypes.get(0) == symTable.errType) {
+                // Accepts given value or if it is an error, just ignore it.
+                continue;
+            }
+            if (resultTypes.size() == 0) {
+                dlog.error(lastOperation.pos, DiagnosticCode.DOES_NOT_RETURN_VALUE, lastOperation.kind);
+                continue;
+            }
+            if (resultTypes.get(0).tag == TypeTags.TUPLE_COLLECTION) {
+                final BTupleCollectionType tupleType = (BTupleCollectionType) resultTypes.get(0);
+                if (expectedTypes.get(0).tag == TypeTags.ARRAY && tupleType.tupleTypes.size() == 1) {
+                    lastOperation.resultTypes = Lists.of(new BArrayType(tupleType.tupleTypes.get(0)));
+                    continue;
+                } else if (expectedTypes.get(0).tag == TypeTags.MAP && tupleType.tupleTypes.size() == 2
+                        && tupleType.tupleTypes.get(0).tag == TypeTags.STRING) {
+                    lastOperation.resultTypes = Lists.of(symTable.mapType);
+                    continue;
+                }
+                dlog.error(lastOperation.pos, DiagnosticCode.ITERABLE_RETURN_TYPE_MISMATCH, lastOperation.kind,
+                        expectedTypes.get(0));
+            }
+        }
     }
 }

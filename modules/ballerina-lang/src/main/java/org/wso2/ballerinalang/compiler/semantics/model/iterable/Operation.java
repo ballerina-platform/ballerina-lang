@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.iterable;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -38,6 +39,7 @@ public class Operation {
     public SymbolEnv env;
 
     public BType collectionType;
+    public List<BType> expectedTypes;
     public List<BType> argTypes;
     public List<BType> resultTypes;
 
@@ -48,11 +50,15 @@ public class Operation {
 
     Operation previous, next;
 
-    public Operation(BLangInvocation iExpr, IterableKind iterableKind, SymbolEnv env) {
+    /* fields required for code generation. */
+    public List<BLangVariable> variableList;
+
+    public Operation(IterableKind iterableKind, BLangInvocation iExpr, List<BType> expTypes, SymbolEnv env) {
         this.iExpr = iExpr;
         this.pos = iExpr.pos;
         this.collectionType = iExpr.expr.type;
         this.kind = iterableKind;
+        this.expectedTypes = expTypes;
         this.env = env;
     }
 }

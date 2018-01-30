@@ -146,7 +146,7 @@ public enum DiagnosticCode {
     ITERABLE_LAMBDA_REQUIRED("iterable.lambda.required"),
     ITERABLE_NO_ARGS_REQUIRED("iterable.no.args.required"),
     ITERABLE_LAMBDA_INCOMPATIBLE_TYPES("iterable.lambda.incompatible.types"),
-    ITERABLE_SHOULD_END_WITH_TERMINAL("iterable.should.end.with.terminal"),
+    ITERABLE_RETURN_TYPE_MISMATCH("iterable.return.type.mismatch"),
 
     // Parser error diagnostic codes
     INVALID_TOKEN("invalid.token"),

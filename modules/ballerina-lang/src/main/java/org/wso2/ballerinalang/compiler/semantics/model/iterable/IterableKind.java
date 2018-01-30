@@ -42,16 +42,6 @@ public enum IterableKind {
     FILTER("filter", true, false),
 
     /**
-     * TODO: Add doc.
-     */
-    TO_MAP("toMap", false, true),
-
-    /**
-     * TODO: Add doc.
-     */
-    TO_ARRAY("toArray", false, true),
-
-    /**
      * Return the number of items in the iterable collection.
      */
     COUNT("count", false, true),
