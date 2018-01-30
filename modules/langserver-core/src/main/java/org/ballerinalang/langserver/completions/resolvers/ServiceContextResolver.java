@@ -17,19 +17,16 @@
 */
 package org.ballerinalang.langserver.completions.resolvers;
 
+import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.consts.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * ServiceContextResolver.
@@ -40,12 +37,12 @@ public class ServiceContextResolver extends AbstractItemResolver {
     public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         // TODO: Add annotations
-        this.addResourceCompletionItem(completionItems);
-        this.addTypes(completionItems, completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
+        this.addSnippets(completionItems);
+        this.populateBasicTypes(completionItems, completionContext.get(DocumentServiceKeys.SYMBOL_TABLE_KEY));
         return completionItems;
     }
 
-    private void addResourceCompletionItem(List<CompletionItem> completionItems) {
+    private void addSnippets(List<CompletionItem> completionItems) {
         CompletionItem resource = new CompletionItem();
         resource.setLabel(ItemResolverConstants.RESOURCE_TYPE);
         resource.setInsertText(Snippet.RESOURCE.toString());
@@ -53,12 +50,14 @@ public class ServiceContextResolver extends AbstractItemResolver {
         resource.setDetail(ItemResolverConstants.SNIPPET_TYPE);
         resource.setSortText(Priority.PRIORITY7.name());
         completionItems.add(resource);
-    }
 
-    private void addTypes(List<CompletionItem> completionItems, List<SymbolInfo> symbols) {
-        List<SymbolInfo> filteredSymbols = symbols.stream()
-                .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
-                .collect(Collectors.toList());
-        this.populateCompletionItemList(filteredSymbols, completionItems);
+        // Add Endpoint snippet
+        CompletionItem endpointItem = new CompletionItem();
+        endpointItem.setLabel(ItemResolverConstants.ENDPOINT);
+        endpointItem.setInsertText(Snippet.ENDPOINT.toString());
+        endpointItem.setInsertTextFormat(InsertTextFormat.Snippet);
+        endpointItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
+        endpointItem.setSortText(Priority.PRIORITY7.name());
+        completionItems.add(endpointItem);
     }
 }

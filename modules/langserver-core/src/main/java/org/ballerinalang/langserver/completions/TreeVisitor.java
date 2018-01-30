@@ -21,6 +21,7 @@ package org.ballerinalang.langserver.completions;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.BlockStatementScopeResolver;
+import org.ballerinalang.langserver.completions.util.positioning.resolvers.ConnectorScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.PackageNodeScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ResourceParamScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ServiceScopeResolver;
@@ -330,27 +331,46 @@ public class TreeVisitor extends BLangNodeVisitor {
             SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, symbolEnv);
 
             // TODO: Handle Annotation attachments
-
-            // Cursor position is calculated against the resource parameter scope resolver
-            cursorPositionResolver = ResourceParamScopeResolver.class;
-            connectorNode.params.forEach(param -> this.acceptNode(param, connectorEnv));
-            connectorNode.varDefs.forEach(varDef -> this.acceptNode(varDef, connectorEnv));
-            connectorNode.actions.forEach(action -> this.acceptNode(action, connectorEnv));
+            if (connectorNode.actions.isEmpty() && connectorNode.varDefs.isEmpty()) {
+                this.isCursorWithinBlock(connectorNode.getPosition(), connectorEnv);
+            } else {
+                // Since the connector def does not contains a block statement, we consider the block owner only.
+                // Here it is Connector Definition
+                this.blockOwnerStack.push(connectorNode);
+                connectorNode.varDefs.forEach(varDef -> {
+                    // Cursor position is calculated against the Connector scope resolver
+                    cursorPositionResolver = ConnectorScopeResolver.class;
+                    this.acceptNode(varDef, connectorEnv);
+                });
+                connectorNode.actions.forEach(action -> {
+                    // Cursor position is calculated against the Connector scope resolver
+                    cursorPositionResolver = ConnectorScopeResolver.class;
+                    this.acceptNode(action, connectorEnv);
+                });
+                if (terminateVisitor) {
+                    this.acceptNode(null, null);
+                }
+                this.blockOwnerStack.pop();
+            }
         }
     }
 
     public void visit(BLangAction actionNode) {
-        BSymbol actionSymbol = actionNode.symbol;
+        if (!CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(actionNode.getPosition(), actionNode, this, this.documentServiceContext)) {
+            BSymbol actionSymbol = actionNode.symbol;
+            SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, symbolEnv);
 
-        SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, symbolEnv);
-
-        // TODO: Handle Annotation attachments
-        // Cursor position is calculated against the resource parameter scope resolver
-        cursorPositionResolver = ResourceParamScopeResolver.class;
-        actionNode.params.forEach(p -> this.acceptNode(p, actionEnv));
-        this.blockOwnerStack.push(actionNode);
-        acceptNode(actionNode.body, actionEnv);
-        this.blockOwnerStack.pop();
+            // TODO: Handle Annotation attachments
+            // Cursor position is calculated against the resource parameter scope resolver since both are similar
+            cursorPositionResolver = ResourceParamScopeResolver.class;
+            actionNode.workers.forEach(w -> this.acceptNode(w, actionEnv));
+            // Cursor position is calculated against the Block statement scope resolver
+            cursorPositionResolver = BlockStatementScopeResolver.class;
+            this.blockOwnerStack.push(actionNode);
+            acceptNode(actionNode.body, actionEnv);
+            this.blockOwnerStack.pop();
+        }
     }
 
     public void visit(BLangService serviceNode) {
@@ -358,16 +378,26 @@ public class TreeVisitor extends BLangNodeVisitor {
                 .isCursorBeforeNode(serviceNode.getPosition(), serviceNode, this, this.documentServiceContext)) {
             BSymbol serviceSymbol = serviceNode.symbol;
             SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, symbolEnv);
-            this.cursorPositionResolver = ServiceScopeResolver.class;
-            // Since the service does not contains a block statement, we consider the block owner only.
-            // Here it is service
-            this.blockOwnerStack.push(serviceNode);
-            serviceNode.vars.forEach(v -> this.acceptNode(v, serviceEnv));
-            serviceNode.resources.forEach(r -> this.acceptNode(r, serviceEnv));
-            if (terminateVisitor) {
-                this.acceptNode(null, null);
+            
+            if (serviceNode.resources.isEmpty() && serviceNode.vars.isEmpty()) {
+                this.isCursorWithinBlock(serviceNode.getPosition(), serviceEnv);
+            } else {
+                // Since the service does not contains a block statement, we consider the block owner only.
+                // Here it is service
+                this.blockOwnerStack.push(serviceNode);
+                serviceNode.vars.forEach(v -> {
+                    this.cursorPositionResolver = ServiceScopeResolver.class;
+                    this.acceptNode(v, serviceEnv);
+                });
+                serviceNode.resources.forEach(r -> {
+                    this.cursorPositionResolver = ServiceScopeResolver.class;
+                    this.acceptNode(r, serviceEnv);
+                });
+                if (terminateVisitor) {
+                    this.acceptNode(null, null);
+                }
+                this.blockOwnerStack.pop();
             }
-            this.blockOwnerStack.pop();
         }
     }
 
@@ -379,10 +409,8 @@ public class TreeVisitor extends BLangNodeVisitor {
                     resourceSymbol.scope, symbolEnv);
 
             // TODO:Handle Annotation attachments
-
             // Cursor position is calculated against the resource parameter scope resolver
             cursorPositionResolver = ResourceParamScopeResolver.class;
-            resourceNode.params.forEach(p -> this.acceptNode(p, resourceEnv));
             resourceNode.workers.forEach(w -> this.acceptNode(w, resourceEnv));
             this.blockOwnerStack.push(resourceNode);
             // Cursor position is calculated against the Block statement scope resolver
