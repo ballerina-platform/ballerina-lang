@@ -338,12 +338,12 @@ public class TreeVisitor extends BLangNodeVisitor {
                 // Here it is Connector Definition
                 this.blockOwnerStack.push(connectorNode);
                 connectorNode.varDefs.forEach(varDef -> {
-                    // Cursor position is calculated against the resource parameter scope resolver
+                    // Cursor position is calculated against the Connector scope resolver
                     cursorPositionResolver = ConnectorScopeResolver.class;
                     this.acceptNode(varDef, connectorEnv);
                 });
                 connectorNode.actions.forEach(action -> {
-                    // Cursor position is calculated against the resource parameter scope resolver
+                    // Cursor position is calculated against the Connector scope resolver
                     cursorPositionResolver = ConnectorScopeResolver.class;
                     this.acceptNode(action, connectorEnv);
                 });
