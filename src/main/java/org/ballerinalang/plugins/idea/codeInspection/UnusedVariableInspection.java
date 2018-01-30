@@ -74,6 +74,9 @@ public class UnusedVariableInspection extends LocalInspectionTool {
                 List<IdentifierPSINode> identifiers =
                         BallerinaPsiImplUtil.getVariablesFromVarAssignment(assignmentStatementNode);
                 for (IdentifierPSINode identifier : identifiers) {
+                    if (BallerinaPsiImplUtil.isRedeclaredVar(identifier)) {
+                        continue;
+                    }
                     Query<PsiReference> psiReferences = ReferencesSearch.search(identifier);
                     PsiReference firstReference = psiReferences.findFirst();
                     if (firstReference == null && !"_".equals(identifier.getText())) {

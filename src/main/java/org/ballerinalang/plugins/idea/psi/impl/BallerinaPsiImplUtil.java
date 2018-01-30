@@ -2791,4 +2791,65 @@ public class BallerinaPsiImplUtil {
         }
         return null;
     }
+
+    /**
+     * Used to identify variables used in var assignment statements are redeclared variables or not.
+     *
+     * @param identifier an identifier
+     * @return {@code true} if the variable is declared before in a resolvable scope, {@code false} otherwise.
+     */
+    public static boolean isRedeclaredVar(@NotNull IdentifierPSINode identifier) {
+        ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CodeBlockScope.class, VariableContainer.class,
+                TopLevelDefinition.class, LowerLevelDefinition.class);
+        if (scope != null) {
+            int caretOffset = identifier.getStartOffset();
+            List<IdentifierPSINode> variables =
+                    BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope, caretOffset);
+            for (IdentifierPSINode variable : variables) {
+                if (variable != null && variable.getText().equals(identifier.getText())) {
+                    return true;
+                }
+            }
+
+            List<IdentifierPSINode> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope,
+                    caretOffset);
+            for (IdentifierPSINode parameter : parameters) {
+                if (parameter != null && parameter.getText().equals(identifier.getText())) {
+                    return true;
+                }
+            }
+
+            List<IdentifierPSINode> globalVariables =
+                    BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope(scope);
+            for (IdentifierPSINode variable : globalVariables) {
+                if (variable != null && variable.getText().equals(identifier.getText())) {
+                    return true;
+                }
+            }
+
+            List<IdentifierPSINode> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
+            for (IdentifierPSINode constant : constants) {
+                if (constant != null && constant.getText().equals(identifier.getText())) {
+                    return true;
+                }
+            }
+
+            List<PsiElement> namespaces = BallerinaPsiImplUtil.getAllXmlNamespacesInResolvableScope(scope,
+                    caretOffset);
+            for (PsiElement namespace : namespaces) {
+                if (namespace != null && namespace.getText().equals(identifier.getText())) {
+                    return true;
+                }
+            }
+
+            List<IdentifierPSINode> endpoints = BallerinaPsiImplUtil.getAllEndpointsInResolvableScope(scope,
+                    caretOffset);
+            for (IdentifierPSINode endpoint : endpoints) {
+                if (endpoint != null && endpoint.getText().equals(identifier.getText())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

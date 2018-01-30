@@ -134,6 +134,9 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                         if (assignmentStatementNode != null
                                 && BallerinaPsiImplUtil.isVarAssignmentStatement(assignmentStatementNode)) {
                             IdentifierPSINode identifier = (IdentifierPSINode) element;
+                            if (BallerinaPsiImplUtil.isRedeclaredVar(identifier)) {
+                                return new NameReference(this);
+                            }
                             if (BallerinaPsiImplUtil.isValidVarVariable(assignmentStatementNode, identifier)) {
                                 return null;
                             }
