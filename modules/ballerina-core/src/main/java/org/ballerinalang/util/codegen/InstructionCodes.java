@@ -224,6 +224,9 @@ public interface InstructionCodes {
     int S2JSONX = 183;
     int NULL2S = 184;
 
+    int LOCK = 185;
+    int UNLOCK = 186;
+
     // Transactions
     int TR_BEGIN = 188;
     int TR_END = 189;
@@ -282,8 +285,5 @@ public interface InstructionCodes {
     int TEQ = 252;
     int TNE = 253;
 
-    int LOCK = 254;
-    int UNLOCK = 255;
-
-    int INSTRUCTION_CODE_COUNT = 256;
+    int INSTRUCTION_CODE_COUNT = 254;
 }

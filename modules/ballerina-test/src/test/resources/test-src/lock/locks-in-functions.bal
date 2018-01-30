@@ -3,6 +3,10 @@ int lockWithinLockInt1 = 0;
 
 string lockWithinLockString1 = "";
 
+blob blobValue;
+
+boolean boolValue;
+
 function lockWithinLock() (int, string) {
     lock {
         lockWithinLockInt1 = 50;
@@ -245,4 +249,33 @@ function throwErrorInsideTryCatchInsideLock() (int, string) {
     }
 }
 
+
+function lockWithinLockInWorkersForBlobAndBoolean() (boolean, blob) {
+    worker w1 {
+        lock {
+            boolValue = true;
+            string strVal = "sample blob output";
+            blobValue = strVal.toBlob("UTF-8");
+            lock {
+                boolValue = true;
+            }
+            sleep(100);
+        }
+    }
+    worker w2 {
+        sleep(20);
+        lock {
+            boolValue = false;
+            lock {
+                string wrongStr = "wrong output";
+                blobValue = wrongStr.toBlob("UTF-8");
+            }
+            boolValue = false;
+        }
+    }
+    worker w3 {
+        sleep(30);
+        return boolValue, blobValue;
+    }
+}
 

@@ -752,7 +752,7 @@ public class BLangVM {
                     break;
                 case InstructionCodes.UNLOCK:
                     InstructionLock instructionUnLock = (InstructionLock) instruction;
-                    handleVariableUnlockLock(instructionUnLock.types, instructionUnLock.varRegs);
+                    handleVariableUnlock(instructionUnLock.types, instructionUnLock.varRegs);
                     break;
                 default:
                     throw new UnsupportedOperationException();
@@ -2392,7 +2392,7 @@ public class BLangVM {
         }
     }
 
-    private void handleVariableUnlockLock(BType[] types, int[] varRegs) {
+    private void handleVariableUnlock(BType[] types, int[] varRegs) {
         for (int i = varRegs.length - 1; i > -1; i--) {
             BType paramType = types[i];
             int regIndex = varRegs[i];

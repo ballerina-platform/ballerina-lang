@@ -27,7 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @since 0.97
+ * @since 0.96.1
  */
 public class BLangLock extends BLangStatement implements LockNode {
 
