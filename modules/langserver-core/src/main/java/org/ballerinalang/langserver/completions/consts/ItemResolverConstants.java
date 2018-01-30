@@ -55,6 +55,7 @@ public class ItemResolverConstants {
     public static final String WORKER_REPLY = "<-";
     public static final String ATTACH = "attach";
     public static final String RETRY = "retry";
+    public static final String FOREACH = "foreach";
 
     public static final String FUNCTION = "function";
     public static final String MAIN_FUNCTION = "main function";

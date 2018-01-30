@@ -65,6 +65,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -91,6 +92,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
@@ -866,6 +868,21 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess.BLangEnumeratorAccessExpr enumeratorAccessExpr) {
+        // No Implementation
+    }
+
+    @Override
+    public void visit(BLangForeach foreach) {
+        if (!CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(foreach.getPosition(), foreach, this, this.documentServiceContext)) {
+            this.blockOwnerStack.push(foreach);
+            this.acceptNode(foreach.body, symbolEnv);
+            this.blockOwnerStack.pop();
+        }
+    }
+
+    @Override
+    public void visit(BLangIntRangeExpression intRangeExpression) {
         // No Implementation
     }
 

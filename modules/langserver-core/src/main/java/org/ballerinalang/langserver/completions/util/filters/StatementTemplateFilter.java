@@ -54,6 +54,14 @@ public class StatementTemplateFilter extends SymbolFilter {
         whileItem.setSortText(Priority.PRIORITY6.name());
         completionItems.add(whileItem);
 
+        // Populate Foreach Statement template
+        CompletionItem forEachItem = new CompletionItem();
+        forEachItem.setLabel(ItemResolverConstants.FOREACH);
+        forEachItem.setInsertText(Snippet.FOREACH.toString());
+        forEachItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+        forEachItem.setSortText(Priority.PRIORITY6.name());
+        completionItems.add(forEachItem);
+
         // Populate Bind Statement template
         CompletionItem bindItem = new CompletionItem();
         bindItem.setLabel(ItemResolverConstants.BIND);
