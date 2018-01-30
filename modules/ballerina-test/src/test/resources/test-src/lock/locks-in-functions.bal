@@ -279,3 +279,88 @@ function lockWithinLockInWorkersForBlobAndBoolean() (boolean, blob) {
     }
 }
 
+function returnInsideLock() (int, string) {
+    worker w1 {
+        string value = returnInsideLockPart();
+    }
+    worker w2 {
+        sleep(10);
+        lock {
+            if (lockWithinLockInt1 == 44) {
+                lockWithinLockString1 = "changed value11";
+                lockWithinLockInt1 = 88;
+            } else {
+                lockWithinLockString1 = "wrong value";
+                lockWithinLockInt1 = 34;
+            }
+        }
+        return lockWithinLockInt1, lockWithinLockString1;
+    }
+}
+
+function returnInsideLockPart() (string) {
+    lock {
+        lockWithinLockInt1 = 44;
+        lockWithinLockString1 = "value1";
+        return lockWithinLockString1;
+    }
+}
+
+function breakInsideLock() (int, string) {
+    worker w1 {
+        int i = 0;
+        while (i < 3) {
+            lock {
+                lockWithinLockInt1 = 40;
+                lockWithinLockString1 = "lock value inside while";
+                if (i == 0) {
+                    break;
+                }
+            }
+            i = i + 1;
+        }
+    }
+    worker w2 {
+        sleep(20);
+        lock {
+            if (lockWithinLockInt1 == 40) {
+                lockWithinLockInt1 = 657;
+                lockWithinLockString1 = "lock value inside second worker after while";
+            } else {
+                lockWithinLockInt1 = 3454;
+                lockWithinLockString1 = "wrong value";
+            }
+        }
+        return lockWithinLockInt1, lockWithinLockString1;
+    }
+}
+
+function nextInsideLock() (int, string) {
+    worker w1 {
+        int i = 0;
+        while (i < 1) {
+            i = i + 1;
+            lock {
+                lockWithinLockInt1 = 40;
+                lockWithinLockString1 = "lock value inside while";
+                if (i == 0) {
+                    next;
+                }
+            }
+        }
+    }
+    worker w2 {
+        sleep(20);
+        lock {
+            if (lockWithinLockInt1 == 40) {
+                lockWithinLockInt1 = 657;
+                lockWithinLockString1 = "lock value inside second worker after while";
+            } else {
+                lockWithinLockInt1 = 3454;
+                lockWithinLockString1 = "wrong value";
+            }
+        }
+        return lockWithinLockInt1, lockWithinLockString1;
+    }
+}
+

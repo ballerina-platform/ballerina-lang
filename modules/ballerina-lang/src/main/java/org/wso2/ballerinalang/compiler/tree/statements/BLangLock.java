@@ -55,7 +55,7 @@ public class BLangLock extends BLangStatement implements LockNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.WHILE;
+        return NodeKind.LOCK;
     }
 
     public boolean addLockVariable(BVarSymbol variable) {

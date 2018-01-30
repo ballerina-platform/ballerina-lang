@@ -2989,9 +2989,14 @@ public class CodeGenerator extends BLangNodeVisitor {
             if (NodeKind.TRY == parent.getKind()) {
                 BLangTryCatchFinally tryCatchFinally = (BLangTryCatchFinally) parent;
                 final BLangStatement body = current;
-                if (tryCatchFinally.finallyBody != null && (current == tryCatchFinally.tryBody
-                        || tryCatchFinally.catchBlocks.stream().anyMatch(c -> c.body == body))) {
+                if (tryCatchFinally.finallyBody != null && current != tryCatchFinally.finallyBody) {
                     genNode(tryCatchFinally.finallyBody, env);
+                }
+            } else if (NodeKind.LOCK == parent.getKind()) {
+                BLangLock lockNode = (BLangLock) parent;
+                if (!lockNode.lockVariables.isEmpty()) {
+                    Operand[] operands = getOperands(lockNode);
+                    emit((InstructionCodes.UNLOCK), operands);
                 }
             }
             current = parent;

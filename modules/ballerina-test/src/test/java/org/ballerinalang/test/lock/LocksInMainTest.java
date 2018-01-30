@@ -198,6 +198,51 @@ public class LocksInMainTest {
 
     }
 
+    @Test(description = "Tests returning inside lock statement")
+    public void testReturnInsideLock() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
+
+        BValue[] returns =
+                BRunUtil.invoke(compileResult, "returnInsideLock");
+        assertEquals(returns.length, 2);
+        assertSame(returns[0].getClass(), BInteger.class);
+        assertSame(returns[1].getClass(), BString.class);
+
+        assertEquals(((BInteger) returns[0]).intValue(), 88);
+        assertEquals(returns[1].stringValue(), "changed value11");
+
+    }
+
+    @Test(description = "Tests break inside lock statement")
+    public void testBreakInsideLock() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
+
+        BValue[] returns =
+                BRunUtil.invoke(compileResult, "breakInsideLock");
+        assertEquals(returns.length, 2);
+        assertSame(returns[0].getClass(), BInteger.class);
+        assertSame(returns[1].getClass(), BString.class);
+
+        assertEquals(((BInteger) returns[0]).intValue(), 657);
+        assertEquals(returns[1].stringValue(), "lock value inside second worker after while");
+
+    }
+
+    @Test(description = "Tests next inside lock statement")
+    public void testNextInsideLock() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
+
+        BValue[] returns =
+                BRunUtil.invoke(compileResult, "nextInsideLock");
+        assertEquals(returns.length, 2);
+        assertSame(returns[0].getClass(), BInteger.class);
+        assertSame(returns[1].getClass(), BString.class);
+
+        assertEquals(((BInteger) returns[0]).intValue(), 657);
+        assertEquals(returns[1].stringValue(), "lock value inside second worker after while");
+
+    }
+
     @Test(description = "Test lock negative cases")
     public void testLockNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions-negative.bal");
