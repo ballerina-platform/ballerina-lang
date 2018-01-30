@@ -126,7 +126,7 @@
         <lang.findUsagesProvider language="Ballerina"
                                  implementationClass="org.ballerinalang.plugins.idea.usage.BallerinaFindUsageProvider"/>
 
-        <!-- templates -->
+        <!-- file templates -->
         <internalFileTemplate name="Ballerina File"/>
         <internalFileTemplate name="Ballerina Main"/>
         <internalFileTemplate name="Ballerina Service"/>
