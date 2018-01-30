@@ -329,7 +329,10 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangStruct structNode) {
-
+        previousNode = structNode;
+        if (!structNode.fields.isEmpty()) {
+            structNode.fields.forEach(this::acceptNode);
+        }
     }
 
     public void visit(BLangWhile whileNode) {
@@ -478,7 +481,31 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        // TODO: implement support for hover.
+        previousNode = forkJoin;
+
+        if (!forkJoin.workers.isEmpty()) {
+            forkJoin.workers.forEach(this::acceptNode);
+        }
+
+        if (forkJoin.joinedBody != null) {
+            acceptNode(forkJoin.joinedBody);
+        }
+
+        if (forkJoin.joinResultVar != null) {
+            acceptNode(forkJoin.joinResultVar);
+        }
+
+        if (forkJoin.timeoutBody != null) {
+            acceptNode(forkJoin.timeoutBody);
+        }
+
+        if (forkJoin.timeoutExpression != null) {
+            acceptNode(forkJoin.timeoutExpression);
+        }
+
+        if (forkJoin.timeoutVariable != null) {
+            acceptNode(forkJoin.timeoutVariable);
+        }
     }
 
     @Override
@@ -503,12 +530,18 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        // TODO: implement support for hover.
+        previousNode = workerSendNode;
+        if (!workerSendNode.exprs.isEmpty()) {
+            workerSendNode.exprs.forEach(this::acceptNode);
+        }
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        // TODO: implement support for hover.
+        previousNode = workerReceiveNode;
+        if (!workerReceiveNode.exprs.isEmpty()) {
+            workerReceiveNode.exprs.forEach(this::acceptNode);
+        }
     }
 
     @Override
