@@ -126,11 +126,12 @@
         <lang.findUsagesProvider language="Ballerina"
                                  implementationClass="org.ballerinalang.plugins.idea.usage.BallerinaFindUsageProvider"/>
 
-        <!-- templates -->
+        <!-- file templates -->
         <internalFileTemplate name="Ballerina File"/>
         <internalFileTemplate name="Ballerina Main"/>
         <internalFileTemplate name="Ballerina Service"/>
         <internalFileTemplate name="Ballerina Connector"/>
+        <internalFileTemplate name="Ballerina WebSocket"/>
 
         <defaultTemplatePropertiesProvider
                 implementation="org.ballerinalang.plugins.idea.actions.BallerinaTemplatePropertiesProvider"/>
