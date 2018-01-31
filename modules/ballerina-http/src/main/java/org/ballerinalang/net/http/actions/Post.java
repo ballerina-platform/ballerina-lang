@@ -65,16 +65,16 @@ public class Post extends AbstractHTTPAction {
         }
         try {
             // Execute the operation
-            return executeNonBlockingAction(context, createCarbonMsg(context));
+            return executeNonBlockingAction(context, createOutboundRequestMsg(context));
         } catch (ClientConnectorException clientConnectorException) {
             throw new BallerinaException("Failed to invoke 'post' action in " + Constants.CONNECTOR_NAME
                     + ". " + clientConnectorException.getMessage(), context);
         }
     }
 
-    protected HTTPCarbonMessage createCarbonMsg(Context context) {
-        HTTPCarbonMessage cMsg = super.createCarbonMsg(context);
-        cMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_METHOD_POST);
-        return cMsg;
+    protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
+        HTTPCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
+        outboundRequestMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_METHOD_POST);
+        return outboundRequestMsg;
     }
 }

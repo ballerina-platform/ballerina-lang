@@ -63,7 +63,7 @@ public class Get extends AbstractHTTPAction {
             logger.debug("Executing Native Action : {}", this.getName());
         }
         try {
-            return executeNonBlockingAction(context, createCarbonMsg(context));
+            return executeNonBlockingAction(context, createOutboundRequestMsg(context));
         } catch (ClientConnectorException clientConnectorException) {
             // This is should be a JavaError. Need to handle this properly.
             throw new BallerinaException("Failed to invoke 'get' action in " + Constants.CONNECTOR_NAME
@@ -71,10 +71,9 @@ public class Get extends AbstractHTTPAction {
         }
     }
 
-    protected HTTPCarbonMessage createCarbonMsg(Context context) {
-        HTTPCarbonMessage cMsg = super.createCarbonMsg(context);
-        cMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_METHOD_GET);
-        return cMsg;
+    protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
+        HTTPCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);
+        outboundReqMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_METHOD_GET);
+        return outboundReqMsg;
     }
-
 }
