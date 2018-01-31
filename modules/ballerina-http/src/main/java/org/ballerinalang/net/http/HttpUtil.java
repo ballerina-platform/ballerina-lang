@@ -603,31 +603,6 @@ public class HttpUtil {
         return headerMap;
     }
 
-    @SuppressWarnings("unchecked")
-    private static void populateHeaderStruct(ArrayList headerValueList, String value) {
-//        if (value.contains(";")) {
-//            headerValueList.add(populateWithHeaderValueAndParams(new BStruct(headerValueStructType), value));
-//        } else {
-//            headerValueList.add(populateWithHeaderValue(new BStruct(headerValueStructType), value));
-//        }
-    }
-
-    private static BStruct populateWithHeaderValueAndParams(BStruct headerStruct, String headerValue) {
-//        String value = headerValue.substring(0, headerValue.indexOf(";")).trim();
-//        List<String> paramList = Arrays.stream(headerValue.substring(headerValue.indexOf(";") + 1)
-//                .split(";")).map(String::trim).collect(Collectors.toList());
-//        headerStruct.setStringField(Constants.HEADER_VALUE_INDEX, value);
-//        headerStruct.setRefField(Constants.HEADER_PARAM_INDEX, createParamBMap(paramList));
-//        return headerStruct;
-        return null;
-    }
-
-    private static BStruct populateWithHeaderValue(BStruct headerStruct, String headerValue) {
-//        headerStruct.setStringField(0, headerValue.trim());
-//        return headerStruct;
-        return null;
-    }
-
     public static BMap<String, BValue> createParamBMap(List<String> paramList) {
         BMap<String, BValue> paramMap = new BMap<>();
         for (String param : paramList) {

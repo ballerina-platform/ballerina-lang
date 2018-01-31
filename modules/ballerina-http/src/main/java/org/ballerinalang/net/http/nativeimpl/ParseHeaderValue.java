@@ -69,7 +69,7 @@ public class ParseHeaderValue extends AbstractNativeFunction {
     }
 
     private BValue[] getValueAndParamMap(String headerValue) {
-        String value = headerValue;
+        String value = headerValue.trim();
         BMap<String, BValue> paramMap = null;
         if (headerValue.contains(SEMICOLON)) {
             value = extractValue(headerValue);
