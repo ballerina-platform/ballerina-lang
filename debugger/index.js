@@ -22,7 +22,9 @@ const {
 const DebugManager = require('./DebugManager');
 const fs = require('fs');
 const path = require('path');
-
+const { spawn } = require('child_process');
+const openport = require('openport');
+ 
 class BallerinaDebugSession extends LoggingDebugSession {
     initializeRequest(response, args) {
         response.body = response.body || {};
@@ -48,12 +50,68 @@ class BallerinaDebugSession extends LoggingDebugSession {
         });
 
         this.sendResponse(response);
-  }
+    }
 
     attachRequest(response, args) {
         this.debugManager.connect(`ws://${args.host}:${args.port}/debug`, () => {
             this.sendResponse(response);
             this.sendEvent(new InitializedEvent());
+        });
+    }
+
+    launchRequest(response, args) {
+        if (!args['ballerina.sdk']) {
+            this.sendEvent(new OutputEvent(
+                "Couldn't start the debug server. Please set ballerina.sdk."));
+            this.sendEvent(new TerminatedEvent());
+            return;
+        }
+        
+        const openFile = args.script;
+        let cwd = path.dirname(openFile);
+        let fileName = path.basename(openFile);
+        
+        const content = fs.readFileSync(openFile);
+        const pkgMatch = content.toString().match('package\\s+([a-zA_Z_][\\.\\w]*);');
+        if (pkgMatch && pkgMatch[1]) {
+            const pkg = pkgMatch[1];
+            const pkgParts = pkg.split('.');
+            for(let i=0; i<pkgParts.length; i++) {
+                cwd = path.dirname(cwd);
+            }
+            fileName = path.join(...pkgParts);
+        }
+
+        let executable = path.join(args['ballerina.sdk'], 'bin', 'ballerina');
+        if (process.platform === 'win32') {
+            executable += '.bat';
+        }
+
+        // find an open port 
+        openport.find((err, port) => {
+            if(err) { 
+                console.log(err);
+                return;
+            }
+            const debugServer = this.debugServer = spawn(
+                executable,
+                ['run', fileName, '--debug', port],
+                { cwd }
+            );
+    
+            debugServer.stdout.on('data', (data) => {
+                if (`${data}`.indexOf('Ballerina remote debugger is activated on port') > -1){
+                    this.debugManager.connect(`ws://127.0.0.1:${port}/debug`, () => {
+                        this.sendResponse(response);
+                        this.sendEvent(new InitializedEvent());
+                    });
+                }
+                
+                this.sendEvent(new OutputEvent(`${data}`));
+            });
+            debugServer.stderr.on('data', (data) => {
+                this.sendEvent(new OutputEvent(`${data}`));
+            });
         });
     }
 
@@ -183,8 +241,12 @@ class BallerinaDebugSession extends LoggingDebugSession {
         this.sendResponse(response);
     }
 
-    evaluateRequest(response, args) {
-        const a = args;
+    disconnectRequest(response) {
+        if (this.debugServer) {
+            this.debugManager.stop();
+            this.debugServer.kill();
+        }
+        this.sendResponse(response);
     }
 }
 
