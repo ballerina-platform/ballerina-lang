@@ -27,6 +27,7 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
@@ -300,9 +301,7 @@ public class MultipartRequestTest {
             bodyPart.setStringField(ENTITY_NAME_INDEX, "Text File Part");
             MimeUtil.setContentType(getMediaTypeStruct(), bodyPart, TEXT_PLAIN);
             BMap<String, BValue> headerMap = new BMap<>();
-            BStruct headerStruct = getHeaderValueStruct();
-            headerStruct.setStringField(0, contentTransferEncoding);
-            headerMap.put(CONTENT_TRANSFER_ENCODING, headerStruct);
+            headerMap.put(CONTENT_TRANSFER_ENCODING, new BStringArray(new String[]{contentTransferEncoding}));
             bodyPart.setRefField(ENTITY_HEADERS_INDEX, headerMap);
             return bodyPart;
         } catch (IOException e) {
@@ -509,10 +508,5 @@ public class MultipartRequestTest {
     private BStruct getMediaTypeStruct() {
         return BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime,
                 mediaTypeStruct);
-    }
-
-    private BStruct getHeaderValueStruct() {
-        return BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime,
-                "headerValueStruct");
     }
 }

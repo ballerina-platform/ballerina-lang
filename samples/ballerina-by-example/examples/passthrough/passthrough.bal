@@ -6,7 +6,7 @@ service<http> passthrough {
     @http:resourceConfig {
         path:"/"
     }
-    resource passthrough (http:Connection conn, http:Request req) {
+    resource passthrough (http:Connection conn, http:InRequest req) {
         endpoint<http:HttpClient> endPoint {
             create http:HttpClient("http://localhost:9090/echo", {});
         }

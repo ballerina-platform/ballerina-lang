@@ -37,8 +37,6 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -46,9 +44,6 @@ import org.wso2.carbon.messaging.Header;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,14 +61,12 @@ import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.TEXT_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
-import static org.ballerinalang.mime.util.Constants.UTF_8;
 import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
 
 /**
  * Test cases for ballerina.net.http inbound inRequest success native functions.
  */
 public class InRequestNativeFunctionSuccessTest {
-    private static final Logger LOG = LoggerFactory.getLogger(InRequestNativeFunctionSuccessTest.class);
 
     private CompileResult result, serviceResult;
     private final String inReqStruct = Constants.IN_REQUEST;
@@ -224,7 +217,7 @@ public class InRequestNativeFunctionSuccessTest {
                 .generateHTTPMessage(path, Constants.HTTP_METHOD_POST, headers, jsonString);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(new BJSON(getReturnValue(response)).value().stringValue(), value);
+        Assert.assertEquals(new BJSON(MessageUtils.getReturnValue(response)).value().stringValue(), value);
     }
 
     @Test
@@ -286,7 +279,7 @@ public class InRequestNativeFunctionSuccessTest {
                 .generateHTTPMessage(path, Constants.HTTP_METHOD_POST, headers, value);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(getReturnValue(response), value);
+        Assert.assertEquals(MessageUtils.getReturnValue(response), value);
     }
 
     @Test
@@ -319,7 +312,7 @@ public class InRequestNativeFunctionSuccessTest {
                 .generateHTTPMessage(path, Constants.HTTP_METHOD_POST, headers, bxmlItemString);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(getReturnValue(response), value);
+        Assert.assertEquals(MessageUtils.getReturnValue(response), value);
     }
 
     @Test
@@ -343,31 +336,5 @@ public class InRequestNativeFunctionSuccessTest {
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(
                 StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), path);
-    }
-
-    /**
-     * Get the response value from input stream.
-     *
-     * @param response carbon response
-     * @return return value from  input stream as a string
-     */
-    private String getReturnValue(HTTPCarbonMessage response) {
-        Reader reader;
-        final int bufferSize = 1024;
-        final char[] buffer = new char[bufferSize];
-        final StringBuilder out = new StringBuilder();
-        try {
-            reader = new InputStreamReader(new HttpMessageDataStreamer(response).getInputStream(), UTF_8);
-            while (true) {
-                int size = reader.read(buffer, 0, buffer.length);
-                if (size < 0) {
-                    break;
-                }
-                out.append(buffer, 0, size);
-            }
-        } catch (IOException e) {
-            LOG.error("Error occured while reading the response value in getReturnValue", e.getMessage());
-        }
-        return out.toString();
     }
 }

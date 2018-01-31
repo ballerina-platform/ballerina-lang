@@ -682,45 +682,6 @@ public class HttpUtil {
         return prepareEntityHeaderMap(transportHeaders, headers);
     }
 
-    private static String buildHeaderValue(BMap<String, BValue> headers, String key) {
-//        StringBuilder headerValue = new StringBuilder();
-//        if (headers.get(key).getType().getTag() != TypeTags.ARRAY_TAG) {
-//            throw new BallerinaException("expects an array as header value for header : " + key);
-//        }
-//        BRefValueArray headerValues = (BRefValueArray) headers.get(key);
-//        for (int index = 0; index < headerValues.size(); index++) {
-//            //TODO remove this check when map supports exact type
-//            if (headerValues.get(index).getType().getTag() == TypeTags.STRUCT_TAG) {
-//                BStruct headerStruct = (BStruct) headerValues.get(index);
-//                String value = headerStruct.getStringField(Constants.HEADER_VALUE_INDEX);
-//                headerValue.append(index > 0 ? "," + value : value);
-//                BMap paramMap = (BMap) headerStruct.getRefField(Constants.HEADER_PARAM_INDEX);
-//                headerValue = paramMap != null ? concatParams(headerValue, paramMap) : headerValue;
-//            } else if (headerValues.get(index).getType().getTag() == TypeTags.MAP_TAG) {
-//                BMap headerMap = (BMap) headerValues.get(index);
-//                String value = headerMap.get(Constants.HEADER_VALUE).stringValue();
-//                headerValue.append(index > 0 ? "," + value : value);
-//                BMap paramMap = (BMap) headerMap.get(Constants.HEADER_PARAM);
-//                headerValue = paramMap != null ? concatParams(headerValue, paramMap) : headerValue;
-//            } else {
-//                throw new BallerinaException("invalid header assignment for key : " + key);
-//            }
-//        }
-//        return headerValue.toString();
-        return null;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static StringBuilder concatParams(StringBuilder headerValue, BMap paramMap) {
-//        Set<String> paramKeys = paramMap.keySet();
-//        for (String paramKey : paramKeys) {
-//            String paramValue = paramMap.get(paramKey) != null ? paramMap.get(paramKey).stringValue() : null;
-//            headerValue.append(paramValue == null ? ";" + paramKey : ";" + paramKey + "=" + paramValue);
-//        }
-//        return headerValue;
-        return null;
-    }
-
     private static void setPropertiesToTransportMessage(HTTPCarbonMessage cMsg, BStruct struct) {
         if (isOutboundResponseStruct(struct)) {
             if (struct.getIntField(Constants.OUT_RESPONSE_STATUS_CODE_INDEX) != 0) {

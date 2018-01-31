@@ -50,8 +50,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -121,7 +119,7 @@ public class OutRequestNativeFunctionSuccessTest {
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(getReturnValue(response));
+        BJSON bJson = new BJSON(MessageUtils.getReturnValue(response));
         Assert.assertEquals(bJson.value().get(key).asText(), value);
     }
 
@@ -251,7 +249,7 @@ public class OutRequestNativeFunctionSuccessTest {
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(new BJSON(getReturnValue(response)).value().stringValue(), value);
+        Assert.assertEquals(new BJSON(MessageUtils.getReturnValue(response)).value().stringValue(), value);
     }
 
     @Test
@@ -338,7 +336,7 @@ public class OutRequestNativeFunctionSuccessTest {
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(getReturnValue(response), "ballerina");
+        Assert.assertEquals(MessageUtils.getReturnValue(response), "ballerina");
     }
 
     @Test
@@ -654,31 +652,5 @@ public class OutRequestNativeFunctionSuccessTest {
         } catch (IOException e) {
             LOG.error("Error occured while creating a temporary file in testSetEntityBody", e.getMessage());
         }
-    }
-
-    /**
-     * Get the response value from input stream.
-     *
-     * @param response carbon response
-     * @return return value from  input stream as a string
-     */
-    private String getReturnValue(HTTPCarbonMessage response) {
-        Reader reader;
-        final int bufferSize = 1024;
-        final char[] buffer = new char[bufferSize];
-        final StringBuilder out = new StringBuilder();
-        try {
-            reader = new InputStreamReader(new HttpMessageDataStreamer(response).getInputStream(), UTF_8);
-            while (true) {
-                int size = reader.read(buffer, 0, buffer.length);
-                if (size < 0) {
-                    break;
-                }
-                out.append(buffer, 0, size);
-            }
-        } catch (IOException e) {
-            LOG.error("Error occured while reading the response value in getReturnValue", e.getMessage());
-        }
-        return out.toString();
     }
 }
