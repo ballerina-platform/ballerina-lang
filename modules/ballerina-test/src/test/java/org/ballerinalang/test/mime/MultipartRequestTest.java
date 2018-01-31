@@ -61,7 +61,6 @@ import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.ENTITY_NAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.FILE;
 import static org.ballerinalang.mime.util.Constants.FILE_PATH_INDEX;
-import static org.ballerinalang.mime.util.Constants.HEADER_VALUE_STRUCT;
 import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -88,7 +87,6 @@ public class MultipartRequestTest {
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
     private final String protocolPackageFile = PROTOCOL_PACKAGE_FILE;
     private final String entityStruct = Constants.ENTITY;
-    private final String headerValueStruct = HEADER_VALUE_STRUCT;
     private final String mediaTypeStruct = MEDIA_TYPE;
     private String sourceFilePath = "test-src/mime/multipart-request.bal";
     private final String carbonMessage = "CarbonMessage";
@@ -515,6 +513,6 @@ public class MultipartRequestTest {
 
     private BStruct getHeaderValueStruct() {
         return BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime,
-                headerValueStruct);
+                "headerValueStruct");
     }
 }

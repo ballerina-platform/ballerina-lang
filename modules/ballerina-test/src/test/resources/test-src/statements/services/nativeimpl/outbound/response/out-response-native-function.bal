@@ -1,6 +1,4 @@
 import ballerina.net.http;
-
-import ballerina.mime;
 import ballerina.file;
 
 function testAddHeader (http:OutResponse res, string key, string value) (http:OutResponse) {
@@ -8,41 +6,41 @@ function testAddHeader (http:OutResponse res, string key, string value) (http:Ou
     return res;
 }
 
-function testGetContentLength (http:InResponse res) (int) {
+function testGetContentLength (http:OutResponse res) (int) {
     int length = res.getContentLength();
     return length;
 }
 
-function testGetHeader (http:InResponse res, string key) (string) {
+function testGetHeader (http:OutResponse res, string key) (string) {
     string contentType = res.getHeader(key);
     return contentType;
 }
 
-function testGetHeaders (http:InResponse res, string key) (string) {
+function testGetHeaders (http:OutResponse res, string key) (string[]) {
     return res.getHeaders(key);
 }
 
-function testGetJsonPayload (http:InResponse res) (json) {
+function testGetJsonPayload (http:OutResponse res) (json) {
     json payload = res.getJsonPayload();
     return payload;
 }
 
-function testGetProperty (http:InResponse res, string propertyName) (string) {
+function testGetProperty (http:OutResponse res, string propertyName) (string) {
     string payload = res.getProperty(propertyName);
     return payload;
 }
 
-function testGetStringPayload (http:InResponse res) (string) {
+function testGetStringPayload (http:OutResponse res) (string) {
     string payload = res.getStringPayload();
     return payload;
 }
 
-function testGetBinaryPayload (http:InResponse res) (blob) {
+function testGetBinaryPayload (http:OutResponse res) (blob) {
     blob payload = res.getBinaryPayload();
     return payload;
 }
 
-function testGetXmlPayload (http:InResponse res) (xml) {
+function testGetXmlPayload (http:OutResponse res) (xml) {
     xml payload = res.getXmlPayload();
     return payload;
 }
@@ -57,32 +55,38 @@ function testRemoveAllHeaders (http:OutResponse res) (http:OutResponse) {
     return res;
 }
 
-function testSetHeader (http:OutResponse res, string key, string value) (http:OutResponse) {
+function testSetHeader (string key, string value) (http:OutResponse) {
+    http:OutResponse res = {};
     res.setHeader(key, value);
     return res;
 }
 
-function testSetJsonPayload (http:OutResponse res, json value) (http:OutResponse) {
+function testSetJsonPayload (json value) (http:OutResponse) {
+    http:OutResponse res = {};
     res.setJsonPayload(value);
     return res;
 }
 
-function testSetProperty (http:OutResponse res, string name, string value) (http:OutResponse) {
+function testSetProperty (string name, string value) (http:OutResponse) {
+    http:OutResponse res = {};
     res.setProperty(name, value);
     return res;
 }
 
-function testSetStringPayload (http:OutResponse res, string value) (http:OutResponse) {
+function testSetStringPayload (string value) (http:OutResponse) {
+    http:OutResponse res = {};
     res.setStringPayload(value);
     return res;
 }
 
-function testSetXmlPayload (http:OutResponse res, xml value) (http:OutResponse) {
+function testSetXmlPayload (xml value) (http:OutResponse) {
+    http:OutResponse res = {};
     res.setXmlPayload(value);
     return res;
 }
 
-function testSetEntityBody(http:OutResponse res, file:File content, string contentType) (http:OutResponse) {
+function testSetEntityBody(file:File content, string contentType) (http:OutResponse) {
+    http:OutResponse res = {};
     res.setEntityBody(content, contentType);
     return res;
 }
@@ -95,7 +99,7 @@ service<http> helloServer {
     }
     resource echo1 (http:Connection conn, http:InRequest req) {
         http:OutResponse res = {};
-        _ = conn.respond({});
+        _ = conn.respond(res);
     }
 
     @http:resourceConfig {

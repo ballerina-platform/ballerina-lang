@@ -3,7 +3,9 @@ import ballerina.net.http;
 import ballerina.mime;
 import ballerina.file;
 
-function testAddHeader (http:OutRequest req, string key, string value) (http:OutRequest) {
+function testAddHeader (string key, string value) (http:OutRequest) {
+    http:OutRequest req = {};
+    req.setHeader(key, "1stHeader");
     req.addHeader(key, value);
     return req;
 }
@@ -13,22 +15,17 @@ function testGetContentLength (http:InRequest req) (int) {
     return length;
 }
 
-function testGetHeader (http:InRequest req, string key) (string) {
+function testGetHeader (http:OutRequest req, string key) (string) {
     return req.getHeader(key);
 }
 
-function testGetHeaders (http:InRequest req, string key) (string) {
+function testGetHeaders (http:OutRequest req, string key) (string[]) {
     return req.getHeaders(key);
 }
 
-function testGetJsonPayload (http:InRequest req) (json) {
+function testGetJsonPayload (http:OutRequest req) (json) {
     json payload = req.getJsonPayload();
     return payload;
-}
-
-function testGetMethod (http:InRequest req) (string) {
-    string method = req.getMethod();
-    return method;
 }
 
 function testGetProperty (http:InRequest req, string propertyName) (string) {
@@ -41,12 +38,12 @@ function testGetStringPayload (http:InRequest req) (string) {
     return payload;
 }
 
-function testGetBinaryPayload (http:InRequest req) (blob) {
+function testGetBinaryPayload (http:OutRequest req) (blob) {
     blob payload = req.getBinaryPayload();
     return payload;
 }
 
-function testGetXmlPayload (http:InRequest req) (xml) {
+function testGetXmlPayload (http:OutRequest req) (xml) {
     xml payload = req.getXmlPayload();
     return payload;
 }
@@ -61,37 +58,45 @@ function testRemoveAllHeaders (http:OutRequest req) (http:OutRequest) {
     return req;
 }
 
-function testSetHeader (http:OutRequest req, string key, string value) (http:OutRequest) {
+function testSetHeader (string key, string value) (http:OutRequest) {
+    http:OutRequest req = {};
+    req.setHeader(key, "abc");
     req.setHeader(key, value);
     return req;
 }
 
-function testSetJsonPayload (http:OutRequest req, json value) (http:OutRequest) {
+function testSetJsonPayload (json value) (http:OutRequest) {
+    http:OutRequest req = {};
     req.setJsonPayload(value);
     return req;
 }
 
-function testSetProperty (http:OutRequest req, string name, string value) (http:OutRequest) {
+function testSetProperty (string name, string value) (http:OutRequest) {
+    http:OutRequest req = {};
     req.setProperty(name, value);
     return req;
 }
 
-function testSetStringPayload (http:OutRequest req, string value) (http:OutRequest) {
+function testSetStringPayload (string value) (http:OutRequest) {
+    http:OutRequest req = {};
     req.setStringPayload(value);
     return req;
 }
 
-function testSetXmlPayload (http:OutRequest req, xml value) (http:OutRequest) {
+function testSetXmlPayload (xml value) (http:OutRequest) {
+    http:OutRequest req = {};
     req.setXmlPayload(value);
     return req;
 }
 
-function testSetBinaryPayload(http:OutRequest req, blob value) (http:OutRequest) {
+function testSetBinaryPayload(blob value) (http:OutRequest) {
+    http:OutRequest req = {};
     req.setBinaryPayload(value);
     return req;
 }
 
-function testSetEntityBody(http:OutRequest req, file:File content, string contentType) (http:OutRequest) {
+function testSetEntityBody(file:File content, string contentType) (http:OutRequest) {
+    http:OutRequest req = {};
     req.setEntityBody(content, contentType);
     return req;
 }
@@ -133,10 +138,11 @@ service<http> helloServer {
         path:"/addheader/{key}/{value}"
     }
     resource addheader (http:Connection conn, http:InRequest inReq, string key, string value) {
-        http:OutResponse res = {};
         http:OutRequest req = {};
         req.addHeader(key, value);
         string result = req.getHeader(key);
+
+        http:OutResponse res = {};
         res.setJsonPayload({lang:result});
         _ = conn.respond(res);
     }
@@ -144,9 +150,12 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/getContentLength"
     }
-    resource GetContentLength (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource GetContentLength (http:Connection conn, http:InRequest inReq) {
+        http:OutRequest req = {};
+        req.setHeader("Content-Length", "15");
         int length = req.getContentLength();
+
+        http:OutResponse res = {};
         res.setJsonPayload({value:length});
         _ = conn.respond(res);
     }
@@ -154,18 +163,10 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/getHeader"
     }
-    resource getHeader (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource getHeader (http:Connection conn, http:InRequest inReq) {
+        http:OutRequest req = {};
+        req.setHeader("Content-Type", "application/x-www-form-urlencoded");
         string header = req.getHeader("Content-Type");
-        res.setJsonPayload({value:header});
-        _ = conn.respond(res);
-    }
-
-    @http:resourceConfig {
-        path:"/getReqHeader"
-    }
-    resource getReqHeader (http:Connection conn, http:InRequest req) {
-        string header = req.getHeaders("test-header");
 
         http:OutResponse res = {};
         res.setJsonPayload({value:header});
@@ -175,10 +176,13 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/getJsonPayload"
     }
-    resource GetJsonPayload(http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource GetJsonPayload(http:Connection conn, http:InRequest inReq) {
+        http:OutRequest req = {};
+        req.setJsonPayload({lang:"ballerina"});
         json value = req.getJsonPayload();
         json lang = value.lang;
+
+        http:OutResponse res = {};
         res.setJsonPayload(lang);
         _ = conn.respond(res);
     }
@@ -186,9 +190,12 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/GetProperty"
     }
-    resource GetProperty (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource GetProperty (http:Connection conn, http:InRequest inReq) {
+        http:OutRequest req = {};
+        req.setProperty("wso2", "Ballerina");
         string property = req.getProperty("wso2");
+
+        http:OutResponse res = {};
         res.setJsonPayload({value:property});
         _ = conn.respond(res);
     }
@@ -196,9 +203,12 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/GetStringPayload"
     }
-    resource GetStringPayload(http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource GetStringPayload(http:Connection conn, http:InRequest inReq) {
+        http:OutRequest req = {};
+        req.setStringPayload("ballerina");
         string value = req.getStringPayload();
+
+        http:OutResponse res = {};
         res.setStringPayload(value);
         _ = conn.respond(res);
     }
@@ -206,10 +216,14 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/GetXmlPayload"
     }
-    resource GetXmlPayload(http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource GetXmlPayload(http:Connection conn, http:InRequest inReq) {
+        http:OutRequest req = {};
+        xml xmlStr = xml `<name>ballerina</name>`;
+        req.setXmlPayload(xmlStr);
         xml value = req.getXmlPayload();
         string name = value.getTextValue();
+
+        http:OutResponse res = {};
         res.setStringPayload(name);
         _ = conn.respond(res);
     }
@@ -254,10 +268,12 @@ service<http> helloServer {
         path:"/setHeader/{key}/{value}"
     }
     resource setHeader (http:Connection conn, http:InRequest inReq, string key, string value) {
-        http:OutResponse res = {};
         http:OutRequest req = {};
+        req.setHeader(key, "abc");
         req.setHeader(key, value);
         string result = req.getHeader(key);
+
+        http:OutResponse res = {};
         res.setJsonPayload({value:result});
         _ = conn.respond(res);
     }
@@ -270,6 +286,7 @@ service<http> helloServer {
         json jsonStr = {lang:value};
         req.setJsonPayload(jsonStr);
         json result = req.getJsonPayload();
+
         http:OutResponse res = {};
         res.setJsonPayload(result);
         _ = conn.respond(res);
@@ -282,6 +299,7 @@ service<http> helloServer {
         http:OutRequest req = {};
         req.setProperty(key, value);
         string result = req.getProperty(key);
+
         http:OutResponse res = {};
         res.setJsonPayload({value:result});
         _ = conn.respond(res);
@@ -294,6 +312,7 @@ service<http> helloServer {
         http:OutRequest req = {};
         req.setStringPayload(value);
         string result = req.getStringPayload();
+
         http:OutResponse res = {};
         res.setJsonPayload({lang:result});
         _ = conn.respond(res);
@@ -334,9 +353,10 @@ service<http> helloServer {
         path:"/GetBinaryPayload"
     }
     resource GetBinaryPayload(http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
         blob value = req.getBinaryPayload();
         string name = value.toString("UTF-8");
+
+        http:OutResponse res = {};
         res.setStringPayload(name);
         _ = conn.respond(res);
     }
