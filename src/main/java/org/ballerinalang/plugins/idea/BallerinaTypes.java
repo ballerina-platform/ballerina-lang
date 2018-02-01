@@ -162,11 +162,11 @@ public class BallerinaTypes {
     public static final TokenIElementType JOIN = tokenIElementTypes.get(BallerinaLexer.JOIN);
     public static final TokenIElementType JSON = tokenIElementTypes.get(BallerinaLexer.TYPE_JSON);
     public static final TokenIElementType LENGTHOF = tokenIElementTypes.get(BallerinaLexer.LENGTHOF);
+    public static final TokenIElementType LOCK = tokenIElementTypes.get(BallerinaLexer.LOCK);
     public static final TokenIElementType MAP = tokenIElementTypes.get(BallerinaLexer.TYPE_MAP);
     public static final TokenIElementType NATIVE = tokenIElementTypes.get(BallerinaLexer.NATIVE);
     public static final TokenIElementType PACKAGE = tokenIElementTypes.get(BallerinaLexer.PACKAGE);
     public static final TokenIElementType PUBLIC = tokenIElementTypes.get(BallerinaLexer.PUBLIC);
-    public static final TokenIElementType REPLY = tokenIElementTypes.get(BallerinaLexer.REPLY);
     public static final TokenIElementType RETRIES = tokenIElementTypes.get(BallerinaLexer.RETRIES);
     public static final TokenIElementType RESOURCE = tokenIElementTypes.get(BallerinaLexer.RESOURCE);
     public static final TokenIElementType RETURN = tokenIElementTypes.get(BallerinaLexer.RETURN);

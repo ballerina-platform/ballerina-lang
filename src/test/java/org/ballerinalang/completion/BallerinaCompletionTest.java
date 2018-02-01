@@ -266,6 +266,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("finally");
         expectedLookups.add("while");
         expectedLookups.add("failed");
+        expectedLookups.add("in");
         doTest("function test () { i<caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
