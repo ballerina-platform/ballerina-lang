@@ -71,14 +71,14 @@ public class Execute extends AbstractHTTPAction {
         }
         try {
             // Execute the operation
-            return executeNonBlockingAction(context, createCarbonMsg(context));
+            return executeNonBlockingAction(context, createOutboundRequestMsg(context));
         } catch (ClientConnectorException clientConnectorException) {
             throw new BallerinaException("Failed to invoke 'execute' action in " + Constants.CONNECTOR_NAME
                     + ". " + clientConnectorException.getMessage(), context);
         }
     }
 
-    protected HTTPCarbonMessage createCarbonMsg(Context context) {
+    protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
         // Extract Argument values
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String httpVerb = getStringArgument(context, 0);
@@ -86,14 +86,14 @@ public class Execute extends AbstractHTTPAction {
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
         //TODO check below line
         HTTPCarbonMessage defaultCarbonMsg = HttpUtil.createHttpCarbonMessage(true);
-        HTTPCarbonMessage cMsg = HttpUtil.getCarbonMsg(requestStruct, defaultCarbonMsg);
-        prepareRequest(bConnector, path, cMsg, requestStruct);
+        HTTPCarbonMessage outboundRequestMsg = HttpUtil.getCarbonMsg(requestStruct, defaultCarbonMsg);
+        prepareOutboundRequest(bConnector, path, outboundRequestMsg);
 
         // If the verb is not specified, use the verb in incoming message
         if (httpVerb == null || "".equals(httpVerb)) {
-            httpVerb = (String) cMsg.getProperty(Constants.HTTP_METHOD);
+            httpVerb = (String) outboundRequestMsg.getProperty(Constants.HTTP_METHOD);
         }
-        cMsg.setProperty(Constants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
-        return cMsg;
+        outboundRequestMsg.setProperty(Constants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
+        return outboundRequestMsg;
     }
 }

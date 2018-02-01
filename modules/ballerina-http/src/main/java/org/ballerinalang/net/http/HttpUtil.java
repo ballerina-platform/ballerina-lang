@@ -333,32 +333,14 @@ public class HttpUtil {
         }
     }
 
-    public static BValue[] prepareResponseAndSend(Context context, AbstractNativeFunction abstractNativeFunction
-            , HTTPCarbonMessage requestMessage, HTTPCarbonMessage responseMessage, BStruct httpMessageStruct) {
+    public static void prepareOutboundResponse(Context context, HTTPCarbonMessage inboundRequestMsg,
+            HTTPCarbonMessage outboundResponseMsg, BStruct outboundResponseStruct) {
 
-        HttpUtil.setKeepAliveHeader(context, responseMessage);
-        HttpUtil.checkEntityAvailability(context, httpMessageStruct);
-        HttpUtil.enrichOutboundMessage(responseMessage, httpMessageStruct);
+        HttpUtil.checkEntityAvailability(context, outboundResponseStruct);
 
-        addHTTPSessionAndCorsHeaders(requestMessage, responseMessage);
-        MessageDataSource outboundMessageSource = readMessageDataSource(httpMessageStruct);
-        HttpResponseFuture outboundResponseStatusFuture = sendOutboundResponse(requestMessage, responseMessage);
-
-        if (outboundMessageSource != null) {
-            OutputStream messageOutputStream = new HttpMessageDataStreamer(responseMessage).getOutputStream();
-            outboundMessageSource.serializeData(messageOutputStream);
-            HttpUtil.closeMessageOutputStream(messageOutputStream);
-        }
-        try {
-            outboundResponseStatusFuture = outboundResponseStatusFuture.sync();
-        } catch (InterruptedException e) {
-            throw new BallerinaException("interrupted sync: " + e.getMessage());
-        }
-        if (outboundResponseStatusFuture.getStatus().getCause() != null) {
-            return abstractNativeFunction.getBValues(getServerConnectorError(context
-                    , outboundResponseStatusFuture.getStatus().getCause()));
-        }
-        return abstractNativeFunction.VOID_RETURN;
+        HttpUtil.setKeepAliveHeader(context, outboundResponseMsg);
+        addHTTPSessionAndCorsHeaders(inboundRequestMsg, outboundResponseMsg);
+        HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseStruct);
     }
 
     /**
@@ -432,8 +414,7 @@ public class HttpUtil {
         }
     }
 
-    public static HttpResponseFuture sendOutboundResponse(HTTPCarbonMessage requestMsg,
-                                                          HTTPCarbonMessage responseMsg) {
+    public static HttpResponseFuture sendOutboundResponse(HTTPCarbonMessage requestMsg, HTTPCarbonMessage responseMsg) {
         HttpResponseFuture responseFuture;
         try {
             responseFuture = requestMsg.respond(responseMsg);
@@ -765,14 +746,14 @@ public class HttpUtil {
         return headerValue;
     }
 
-    private static void setPropertiesToTransportMessage(HTTPCarbonMessage cMsg, BStruct struct) {
+    private static void setPropertiesToTransportMessage(HTTPCarbonMessage outboundResponseMsg, BStruct struct) {
         if (isOutboundResponseStruct(struct)) {
             if (struct.getIntField(Constants.OUT_RESPONSE_STATUS_CODE_INDEX) != 0) {
-                cMsg.setProperty(Constants.HTTP_STATUS_CODE,
+                outboundResponseMsg.setProperty(Constants.HTTP_STATUS_CODE,
                         getIntValue(struct.getIntField(Constants.OUT_RESPONSE_STATUS_CODE_INDEX)));
             }
             if (!struct.getStringField(Constants.OUT_RESPONSE_REASON_PHRASE_INDEX).isEmpty()) {
-                cMsg.setProperty(Constants.HTTP_REASON_PHRASE,
+                outboundResponseMsg.setProperty(Constants.HTTP_REASON_PHRASE,
                         struct.getStringField(Constants.OUT_RESPONSE_REASON_PHRASE_INDEX));
             }
         }
