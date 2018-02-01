@@ -220,11 +220,23 @@ public class BallerinaPsiImplUtil {
         Module[] dependencies = ModuleRootManager.getInstance(module).getDependencies();
         for (Module dependency : dependencies) {
             contentRoots = ModuleRootManager.getInstance(dependency).getSourceRoots();
-            results.addAll(getMatchingPackagesFromContentRoots(contentRoots, packages, project));
+            List<PsiDirectory> matchingPackages = getMatchingPackagesFromContentRoots(contentRoots, packages, project);
+            // Need to make sure not to add duplicate entries.
+            for (PsiDirectory matchingPackage : matchingPackages) {
+                if (!results.contains(matchingPackage)) {
+                    results.add(matchingPackage);
+                }
+            }
         }
 
         // Get all matching packages from the SDK.
-        results.addAll(getMatchingPackagesFromSDK(project, module, packages));
+        List<PsiDirectory> matchingPackages = getMatchingPackagesFromSDK(project, module, packages);
+        // Need to make sure not to add duplicate entries.
+        for (PsiDirectory matchingPackage : matchingPackages) {
+            if (!results.contains(matchingPackage)) {
+                results.add(matchingPackage);
+            }
+        }
         return results;
     }
 
