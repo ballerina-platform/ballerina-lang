@@ -207,4 +207,12 @@ public class Symbols {
     public static boolean isPublic(BSymbol sym) {
         return (sym.flags & Flags.PUBLIC) == Flags.PUBLIC;
     }
+
+    public static boolean isPrivate(BSymbol sym) {
+        return (sym.flags & Flags.PUBLIC) != Flags.PUBLIC;
+    }
+
+    public static boolean isFlagOn(int mask, int flag) {
+        return (mask & flag) == flag;
+    }
 }

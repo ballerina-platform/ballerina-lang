@@ -15,19 +15,25 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.model.util;
+package org.wso2.ballerinalang.programfile;
 
 /**
- * This class contains the list of symbol flags.
+ * {@code AttachedFunctionInfo} represents an attached function in the program file.
+ * <p>
+ * In Ballerina, you can attach functions to types, hence the name.
  *
- * @since 0.95.7
+ * @since 0.96
  */
-public class Flags {
-    public static final int PUBLIC = 1;
-    public static final int NATIVE = 2;
-    public static final int CONST = 3;
+public class AttachedFunctionInfo {
+    public int nameCPIndex;
+    public int signatureCPIndex;
+    public int flags;
 
-    public static boolean isFlagOn(int bitmask, int flag) {
-        return (bitmask & flag) == flag;
+    public AttachedFunctionInfo(int nameCPIndex, int signatureCPIndex, int flags) {
+        this.nameCPIndex = nameCPIndex;
+        this.signatureCPIndex = signatureCPIndex;
+        this.flags = flags;
     }
+
+    // TODO We've got too many small classes in the current design. It is time to refactor!!!
 }

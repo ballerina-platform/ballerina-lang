@@ -417,7 +417,10 @@ public class BLangPackageBuilder {
         BLangStruct structNode = (BLangStruct) this.structStack.peek();
         structNode.addWS(wsForSemiColon);
         BLangVariable field = addVar(pos, ws, identifier, exprAvailable, annotCount);
-        field.flagSet.add(isPrivate ? Flag.PRIVATE : Flag.PUBLIC);
+        
+        if (!isPrivate) {
+            field.flagSet.add(Flag.PUBLIC);
+        }
     }
 
     public void addVarToAnnotation(DiagnosticPos pos,

@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
@@ -48,6 +49,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
+import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -289,27 +291,14 @@ public class Types {
 
         BStructType lhsStructType = (BStructType) lhsType;
         BStructType rhsStructType = (BStructType) rhsType;
-        if (lhsStructType.fields.size() > rhsStructType.fields.size()) {
+        if (lhsStructType.fields.size() > rhsStructType.fields.size() ||
+                lhsStructType.attachedFunctions.size() > rhsStructType.attachedFunctions.size()) {
             return false;
         }
 
-        for (int i = 0; i < lhsStructType.fields.size(); i++) {
-            // If rhs and lhs packages are not equal, then the lhs filed cannot be private.
-            BStructField lhsStructField = lhsStructType.fields.get(i);
-            if (rhsType.tsymbol.pkgID != lhsType.tsymbol.pkgID &&
-                    !Symbols.isPublic(lhsStructField.symbol)) {
-                return false;
-            }
-
-            BStructField rhsStructField = rhsStructType.fields.get(i);
-            if (lhsStructField.name.equals(rhsStructField.name) &&
-                    isSameType(rhsStructField.type, lhsStructField.type)) {
-                continue;
-            }
-            return false;
-        }
-
-        return true;
+        return rhsType.tsymbol.pkgID == lhsType.tsymbol.pkgID ?
+                checkEquivalencyOfStructsInSamePackage(lhsStructType, rhsStructType) :
+                checkEquivalencyOfStructsInDifferentPackages(lhsStructType, rhsStructType);
     }
 
     public boolean checkConnectorEquivalency(BType actualType, BType expType) {
@@ -403,10 +392,8 @@ public class Types {
     }
 
     private boolean checkActionTypeEquality(BInvokableSymbol source, BInvokableSymbol target) {
-        if (!source.name.equals(target.name)) {
-            return false;
-        }
-        return checkFunctionTypeEquality((BInvokableType) source.type, (BInvokableType) target.type);
+        return source.name.equals(target.name) &&
+                checkFunctionTypeEquality((BInvokableType) source.type, (BInvokableType) target.type);
     }
 
     public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType expType) {
@@ -872,4 +859,81 @@ public class Types {
             return true;
         }
     };
+
+    private boolean checkEquivalencyOfStructsInSamePackage(BStructType lhsType, BStructType rhsType) {
+        for (int i = 0; i < lhsType.fields.size(); i++) {
+            BStructField lhsField = lhsType.fields.get(i);
+            BStructField rhsField = rhsType.fields.get(i);
+            if (isBothPublicOrPrivate(lhsField.symbol, rhsField.symbol) &&
+                    lhsField.name.equals(rhsField.name) &&
+                    isSameType(rhsField.type, lhsField.type)) {
+                continue;
+            }
+            return false;
+        }
+
+        List<BAttachedFunction> lhsFuncs = lhsType.attachedFunctions;
+        List<BAttachedFunction> rhsFuncs = rhsType.attachedFunctions;
+        for (BAttachedFunction lhsFunc : lhsFuncs) {
+            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
+            if (rhsFunc == null || !isBothPublicOrPrivate(lhsFunc.symbol, rhsFunc.symbol)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean checkEquivalencyOfStructsInDifferentPackages(BStructType lhsType, BStructType rhsType) {
+        for (int i = 0; i < lhsType.fields.size(); i++) {
+            // Return false if either field is private
+            BStructField lhsField = lhsType.fields.get(i);
+            BStructField rhsField = rhsType.fields.get(i);
+            if (Symbols.isPrivate(lhsField.symbol) ||
+                    Symbols.isPrivate(rhsField.symbol)) {
+                return false;
+            }
+
+            if (lhsField.name.equals(rhsField.name) &&
+                    isSameType(rhsField.type, lhsField.type)) {
+                continue;
+            }
+            return false;
+        }
+
+        List<BAttachedFunction> lhsFuncs = lhsType.attachedFunctions;
+        List<BAttachedFunction> rhsFuncs = rhsType.attachedFunctions;
+        for (BAttachedFunction lhsFunc : lhsFuncs) {
+            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
+            if (rhsFunc == null || Symbols.isPrivate(rhsFunc.symbol) ||
+                    Symbols.isPrivate(lhsFunc.symbol)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Returns whether both symbols are public or private.
+     *
+     * @param lhsSymbol left-hand side symbol
+     * @param rhsSymbol right-hand side symbol
+     * @return whether both symbols are public or private
+     */
+    private boolean isBothPublicOrPrivate(BSymbol lhsSymbol, BSymbol rhsSymbol) {
+        // Get the XOR of both flags(masks)
+        // If both are public, then public bit should be 0;
+        // If both are private, then public bit should be 0;
+        // The public bit is on means, one is public, and the other one is private.
+        return !Symbols.isFlagOn(lhsSymbol.flags ^ rhsSymbol.flags, Flags.PUBLIC);
+    }
+
+    private BAttachedFunction getMatchingInvokableType(List<BAttachedFunction> rhsFuncList,
+                                                       BAttachedFunction lhsFunc) {
+        return rhsFuncList.stream()
+                .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
+                .filter(rhsFunc -> checkFunctionTypeEquality(lhsFunc.type, rhsFunc.type))
+                .findFirst()
+                .orElse(null);
+    }
 }

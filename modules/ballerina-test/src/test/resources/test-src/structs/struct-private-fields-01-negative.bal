@@ -14,7 +14,7 @@ public struct userB {
         string zipcode;
 }
 
-public function testRuntimeTimeStructEqNegative() returns (string) {
+public function testRuntimeStructEqNegative() returns (string) {
     foo:user u = foo:newUser();
 
     // This is a safe cast

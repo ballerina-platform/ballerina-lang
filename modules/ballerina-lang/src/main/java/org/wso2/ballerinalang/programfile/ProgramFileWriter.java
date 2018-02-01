@@ -300,10 +300,17 @@ public class ProgramFileWriter {
     private static void writeStructInfo(DataOutputStream dataOutStream,
                                         StructInfo structInfo) throws IOException {
         dataOutStream.writeInt(structInfo.nameCPIndex);
-        StructFieldInfo[] structFieldInfoEntries = structInfo.fieldInfoEntries.toArray(new StructFieldInfo[0]);
-        dataOutStream.writeShort(structFieldInfoEntries.length);
-        for (StructFieldInfo structFieldInfoEntry : structFieldInfoEntries) {
+
+        // Write struct field info entries
+        dataOutStream.writeShort(structInfo.fieldInfoEntries.size());
+        for (StructFieldInfo structFieldInfoEntry : structInfo.fieldInfoEntries) {
             writeStructFieldInfo(dataOutStream, structFieldInfoEntry);
+        }
+
+        // Write attached function info entries
+        dataOutStream.writeShort(structInfo.attachedFuncInfoEntries.size());
+        for (AttachedFunctionInfo attachedFuncInfo : structInfo.attachedFuncInfoEntries) {
+            writeAttachedFunctionInfo(dataOutStream, attachedFuncInfo);
         }
 
         // Write attribute info
@@ -576,6 +583,13 @@ public class ProgramFileWriter {
 
         // Write attribute info
         writeAttributeInfoEntries(dataOutStream, structFieldInfo.getAttributeInfoEntries());
+    }
+
+    private static void writeAttachedFunctionInfo(DataOutputStream dataOutStream,
+                                                  AttachedFunctionInfo attachedFuncInfo) throws IOException {
+        dataOutStream.writeInt(attachedFuncInfo.nameCPIndex);
+        dataOutStream.writeInt(attachedFuncInfo.signatureCPIndex);
+        dataOutStream.writeInt(attachedFuncInfo.flags);
     }
 
     private static void writeAnnAttachmentInfo(DataOutputStream dataOutStream,

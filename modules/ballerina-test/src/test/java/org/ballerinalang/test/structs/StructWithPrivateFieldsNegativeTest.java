@@ -47,10 +47,10 @@ public class StructWithPrivateFieldsNegativeTest {
     }
 
     @Test(description = "Test runtime struct equivalence  field access")
-    public void testRuntimeTimeStructEqNegative() {
+    public void testRuntimeStructEqNegative() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/structs/struct-private-fields-01-negative.bal");
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeTimeStructEqNegative");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeStructEqNegative");
 
         Assert.assertEquals(returns[0].stringValue(), "'org.foo:user' cannot be cast to 'userB'");
     }

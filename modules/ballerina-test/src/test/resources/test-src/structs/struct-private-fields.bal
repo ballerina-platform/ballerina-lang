@@ -62,7 +62,7 @@ public function testCompileTimeStructEqWithPrivateFieldsTwoPackages() returns  (
     return u.age, u.name, u.zipcode;
 }
 
-public function testRuntimeTimeStructEqWithPrivateFields() returns (string, string, string, int, int) {
+public function testRuntimeStructEqWithPrivateFields() returns (string, string, string, int, int) {
     employee e = {age:24, name:"jay", ssn:"123-56-7890", employeeId:123};
     e.id = 458;
 
@@ -76,7 +76,7 @@ public function testRuntimeTimeStructEqWithPrivateFields() returns (string, stri
     return e1.name, e1.zipcode, e1.ssn, e1.id, e1.employeeId;
 }
 
-public function testRuntimeTimeStructEqWithPrivateFieldsTwoPackages1() returns (string, string, string, int) {
+public function testRuntimeStructEqWithPrivateFieldsTwoPackages1() returns (string, string, string, int) {
     employee e = {age:24, name:"jay", ssn:"123-56-7890"};
     e.id = 458;
 
@@ -90,7 +90,7 @@ public function testRuntimeTimeStructEqWithPrivateFieldsTwoPackages1() returns (
     return p.name, p.zipcode, p.ssn, p.id;
 }
 
-public function testRuntimeTimeStructEqWithPrivateFieldsTwoPackages2() returns (string, int) {
+public function testRuntimeStructEqWithPrivateFieldsTwoPackages2() returns (string, int) {
     foo:user u = foo:newUser();
 
     // This is a safe cast
