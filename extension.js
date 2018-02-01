@@ -23,6 +23,20 @@ const path = require('path');
 
 let oldConfig;
 
+const debugConfigResolver = {
+	resolveDebugConfiguration(folder, config) {
+		if (!config['ballerina.sdk']) {
+			// If ballerina.sdk is not defined in in debug config get it from workspace configs
+			const workspaceConfig = workspace.getConfiguration('ballerina');
+			if (workspaceConfig.sdk) {
+				config['ballerina.sdk'] = workspaceConfig.sdk;
+			}
+		}
+
+		return config;
+	}
+}
+
 exports.activate = function(context) {
 	// The server is implemented in java
 	let serverModule = context.asAbsolutePath(path.join('server-build', 'langserver.jar'));
@@ -64,6 +78,8 @@ exports.activate = function(context) {
 	// Push the disposable to the context's subscriptions so that the 
 	// client can be deactivated on extension deactivation
 	context.subscriptions.push(disposable);
+	context.subscriptions.push(debug.registerDebugConfigurationProvider(
+		'ballerina', debugConfigResolver));
 }
 
 workspace.onDidChangeConfiguration(params => {
