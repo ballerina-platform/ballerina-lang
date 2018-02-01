@@ -41,14 +41,14 @@ import org.ballerinalang.plugins.idea.psi.references.ConnectorReference;
 import org.ballerinalang.plugins.idea.psi.references.EnumFieldReference;
 import org.ballerinalang.plugins.idea.psi.references.FieldReference;
 import org.ballerinalang.plugins.idea.psi.references.FunctionReference;
+import org.ballerinalang.plugins.idea.psi.references.InvocationReference;
+import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.ballerinalang.plugins.idea.psi.references.NameSpaceReference;
 import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
-import org.ballerinalang.plugins.idea.psi.references.NameReference;
-import org.ballerinalang.plugins.idea.psi.references.StatementReference;
 import org.ballerinalang.plugins.idea.psi.references.RecordKeyReference;
-import org.ballerinalang.plugins.idea.psi.references.StructReference;
 import org.ballerinalang.plugins.idea.psi.references.RecordValueReference;
-import org.ballerinalang.plugins.idea.psi.references.InvocationReference;
+import org.ballerinalang.plugins.idea.psi.references.StatementReference;
+import org.ballerinalang.plugins.idea.psi.references.StructReference;
 import org.ballerinalang.plugins.idea.psi.references.TransformerReference;
 import org.ballerinalang.plugins.idea.psi.references.TypeReference;
 import org.ballerinalang.plugins.idea.psi.references.WorkerReference;
@@ -58,7 +58,20 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.*;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationAttribute;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationReference;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_attachmentPoint;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_connectorReference;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_field;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_functionReference;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_invocation;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_nameReference;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_packageName;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_recordKey;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_statement;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_structReference;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_transformerReference;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_workerReference;
 
 public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedElement, PsiNameIdentifierOwner {
 

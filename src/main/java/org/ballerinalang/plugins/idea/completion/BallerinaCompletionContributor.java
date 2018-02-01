@@ -36,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.*;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.getPackageAsLookups;
 
 public class BallerinaCompletionContributor extends CompletionContributor {
 

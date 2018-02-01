@@ -37,8 +37,8 @@ import com.intellij.util.Function;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
-import org.ballerinalang.plugins.idea.project.BallerinaLibrariesService;
 import org.ballerinalang.plugins.idea.project.BallerinaApplicationLibrariesService;
+import org.ballerinalang.plugins.idea.project.BallerinaLibrariesService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -25,9 +25,9 @@ import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Icon;
-
 import java.util.Map;
+
+import javax.swing.Icon;
 
 public class BallerinaColorSettingsPage implements ColorSettingsPage {
 
