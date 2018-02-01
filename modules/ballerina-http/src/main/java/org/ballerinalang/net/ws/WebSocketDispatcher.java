@@ -143,13 +143,7 @@ public class WebSocketDispatcher {
         WebSocketService wsService = connectionInfo.getService();
         Resource onPingMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_PING);
         if (onPingMessageResource == null) {
-            // If onPing Resource is not available auto send the pong message.
-            Session session = controlMessage.getChannelSession();
-            try {
-                session.getBasicRemote().sendPong(controlMessage.getPayload());
-            } catch (IOException ex) {
-                ErrorHandlerUtils.printError(ex);
-            }
+            pingAutomatically(controlMessage);
             return;
         }
         List<ParamDetail> paramDetails = onPingMessageResource.getParamDetails();
@@ -227,6 +221,15 @@ public class WebSocketDispatcher {
             for (int i = defaultArgSize; i < parameterDetailsSize; i++) {
                 bValues[i]  = new BString(variables.get(paramDetails.get(i).getVarName()));
             }
+        }
+    }
+
+    private static void pingAutomatically(WebSocketControlMessage controlMessage) {
+        Session session = controlMessage.getChannelSession();
+        try {
+            session.getBasicRemote().sendPong(controlMessage.getPayload());
+        } catch (IOException ex) {
+            ErrorHandlerUtils.printError(ex);
         }
     }
 }
