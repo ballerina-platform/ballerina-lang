@@ -36,12 +36,12 @@ import java.util.Map;
 
 public class BallerinaCreateFileAction extends CreateFileFromTemplateAction implements DumbAware {
 
-    private static final String FILE_TEMPLATE_NAME = "Ballerina File";
-    private static final String MAIN_TEMPLATE_NAME = "Ballerina Main";
-    private static final String SERVICE_TEMPLATE_NAME = "Ballerina Service";
-    private static final String CONNECTOR_TEMPLATE_NAME = "Ballerina Connector";
-    private static final String WEBSOCKET_TEMPLATE_NAME = "Ballerina WebSocket";
-    private static final String TEST_NAME = "Ballerina Test";
+    private static final String BALLERINA_EMPTY_FILE = "Ballerina File";
+    private static final String BALLERINA_MAIN = "Ballerina Main";
+    private static final String BALLERINA_SERVICE = "Ballerina Service";
+    private static final String BALLERINA_CONNECTOR = "Ballerina Connector";
+    private static final String BALLERINA_WEBSOCKET = "Ballerina WebSocket";
+    private static final String BALLERINA_TEST = "Ballerina Test";
 
     private static final String NEW_BALLERINA_FILE = "New Ballerina File";
     private static final String DEFAULT_BALLERINA_TEMPLATE_PROPERTY = "Empty file";
@@ -53,12 +53,12 @@ public class BallerinaCreateFileAction extends CreateFileFromTemplateAction impl
     @Override
     protected void buildDialog(Project project, PsiDirectory directory,
                                @NotNull CreateFileFromTemplateDialog.Builder builder) {
-        builder.setTitle(NEW_BALLERINA_FILE).addKind("Ballerina Main", BallerinaIcons.ICON, MAIN_TEMPLATE_NAME)
-                .addKind("Ballerina Service", BallerinaIcons.ICON, SERVICE_TEMPLATE_NAME)
-                .addKind("Ballerina Connector", BallerinaIcons.ICON, CONNECTOR_TEMPLATE_NAME)
-                .addKind("Ballerina WebSocket", BallerinaIcons.ICON, WEBSOCKET_TEMPLATE_NAME)
-                .addKind("Ballerina Test", BallerinaIcons.ICON, TEST_NAME)
-                .addKind("Empty File", BallerinaIcons.ICON, FILE_TEMPLATE_NAME);
+        builder.setTitle(NEW_BALLERINA_FILE).addKind(BALLERINA_MAIN, BallerinaIcons.ICON, BALLERINA_MAIN)
+                .addKind(BALLERINA_SERVICE, BallerinaIcons.ICON, BALLERINA_SERVICE)
+                .addKind(BALLERINA_CONNECTOR, BallerinaIcons.ICON, BALLERINA_CONNECTOR)
+                .addKind(BALLERINA_WEBSOCKET, BallerinaIcons.ICON, BALLERINA_WEBSOCKET)
+                .addKind(BALLERINA_TEST, BallerinaIcons.ICON, BALLERINA_TEST)
+                .addKind(BALLERINA_EMPTY_FILE, BallerinaIcons.ICON, BALLERINA_EMPTY_FILE);
     }
 
     @Nullable
