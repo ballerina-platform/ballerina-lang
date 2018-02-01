@@ -23,7 +23,15 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.runtime.message.MessageDataSource;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * {@code {@link ConnectionAction}} represents a Abstract implementation of Native Ballerina Connection Function.
@@ -35,14 +43,72 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct connectionStruct = (BStruct) getRefArgument(context, 0);
-        BStruct responseStruct = (BStruct) getRefArgument(context, 1);
-        HTTPCarbonMessage requestMessage = HttpUtil.getCarbonMsg(connectionStruct, null);
+        HTTPCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
+        HttpUtil.checkFunctionValidity(connectionStruct, inboundRequestMsg);
 
-        HttpUtil.checkFunctionValidity(connectionStruct, requestMessage);
-        HTTPCarbonMessage responseMessage = HttpUtil
-                .getCarbonMsg(responseStruct, HttpUtil.createHttpCarbonMessage(false));
+        BStruct outboundResponseStruct = (BStruct) getRefArgument(context, 1);
+        HTTPCarbonMessage outboundResponseMsg = HttpUtil
+                .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
 
-        return HttpUtil.prepareResponseAndSend(context, this, requestMessage, responseMessage,
-                responseStruct);
+        HttpUtil.prepareOutboundResponse(context, inboundRequestMsg, outboundResponseMsg, outboundResponseStruct);
+
+        BValue[] outboundResponseStatus = sendOutboundResponseRobust(context, inboundRequestMsg,
+                outboundResponseStruct, outboundResponseMsg);
+        return outboundResponseStatus;
+    }
+
+    private BValue[] sendOutboundResponseRobust(Context context, HTTPCarbonMessage requestMessage,
+            BStruct outboundResponseStruct, HTTPCarbonMessage responseMessage) {
+        MessageDataSource outboundMessageSource = HttpUtil.readMessageDataSource(outboundResponseStruct);
+        HttpResponseFuture outboundRespStatusFuture = HttpUtil.sendOutboundResponse(requestMessage, responseMessage);
+        serializeMsgDataSource(responseMessage, outboundMessageSource, outboundRespStatusFuture);
+
+        return handleResponseStatus(context, outboundRespStatusFuture);
+    }
+
+    private BValue[] handleResponseStatus(Context context, HttpResponseFuture outboundResponseStatusFuture) {
+        try {
+            outboundResponseStatusFuture = outboundResponseStatusFuture.sync();
+        } catch (InterruptedException e) {
+            throw new BallerinaException("interrupted sync: " + e.getMessage());
+        }
+        if (outboundResponseStatusFuture.getStatus().getCause() != null) {
+            return this.getBValues(HttpUtil.getServerConnectorError(context
+                    , outboundResponseStatusFuture.getStatus().getCause()));
+        }
+        return AbstractNativeFunction.VOID_RETURN;
+    }
+
+    private void serializeMsgDataSource(HTTPCarbonMessage responseMessage, MessageDataSource outboundMessageSource,
+            HttpResponseFuture outboundResponseStatusFuture) {
+        if (outboundMessageSource != null) {
+            HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(responseMessage);
+            HttpConnectorListener outboundResStatusConnectorListener =
+                    new HttpResponseConnectorListener(outboundMsgDataStreamer);
+            outboundResponseStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
+            OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
+            outboundMessageSource.serializeData(messageOutputStream);
+            HttpUtil.closeMessageOutputStream(messageOutputStream);
+        }
+    }
+
+    private static class HttpResponseConnectorListener implements HttpConnectorListener {
+
+        private HttpMessageDataStreamer outboundMsgDataStreamer;
+
+        HttpResponseConnectorListener(HttpMessageDataStreamer outboundMsgDataStreamer) {
+            this.outboundMsgDataStreamer = outboundMsgDataStreamer;
+        }
+
+        @Override
+        public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+            if (throwable instanceof IOException) {
+                outboundMsgDataStreamer.setIoException((IOException) throwable);
+            }
+        }
     }
 }

@@ -65,7 +65,7 @@ public class Delete extends AbstractHTTPAction {
         }
         try {
             // Execute the operation
-            return executeNonBlockingAction(context, createCarbonMsg(context));
+            return executeNonBlockingAction(context, createOutboundRequestMsg(context));
         } catch (ClientConnectorException clientConnectorException) {
             throw new BallerinaException("Failed to invoke 'delete' action in " + Constants.CONNECTOR_NAME
                     + ". " + clientConnectorException.getMessage(), context);
@@ -73,9 +73,9 @@ public class Delete extends AbstractHTTPAction {
     }
 
 
-    protected HTTPCarbonMessage createCarbonMsg(Context context) {
+    protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
         // Extract Argument values
-        HTTPCarbonMessage cMsg = super.createCarbonMsg(context);
+        HTTPCarbonMessage cMsg = super.createOutboundRequestMsg(context);
         cMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_METHOD_DELETE);
         return cMsg;
     }

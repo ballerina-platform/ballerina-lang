@@ -71,14 +71,14 @@ public class Forward extends AbstractHTTPAction {
         }
         try {
             // Execute the operation
-            return executeNonBlockingAction(context, createCarbonMsg(context));
+            return executeNonBlockingAction(context, createOutboundRequestMsg(context));
         } catch (Throwable t) {
             throw new BallerinaException("Failed to invoke 'forward' action in " + Constants.CONNECTOR_NAME
                     + ". " + t.getMessage(), context);
         }
     }
 
-    protected HTTPCarbonMessage createCarbonMsg(Context context) {
+    protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String path = getStringArgument(context, 0);
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
@@ -89,7 +89,7 @@ public class Forward extends AbstractHTTPAction {
 
         HTTPCarbonMessage outboundRequestMsg = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
-        prepareRequest(bConnector, path, outboundRequestMsg, requestStruct);
+        prepareOutboundRequest(bConnector, path, outboundRequestMsg);
 
         String httpVerb = (String) outboundRequestMsg.getProperty(Constants.HTTP_METHOD);
         outboundRequestMsg.setProperty(Constants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
