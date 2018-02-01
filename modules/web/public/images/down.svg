@@ -18,9 +18,6 @@
 
 <svg version="1.1" id="down" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
-<style type="text/css">
-	.color{fill:#FFFFFF;}
-</style>
-<polygon class="color" points="6.9931641,10.9621382 0.0265438,4.1903424 1.0665829,3.1083114 7.0126953,8.8996382 13.0067463,3.2053921 
+<polygon points="6.9931641,10.9621382 0.0265438,4.1903424 1.0665829,3.1083114 7.0126953,8.8996382 13.0067463,3.2053921 
 	14.0262775,4.3069549 "/>
 </svg>

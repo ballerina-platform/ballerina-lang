@@ -31,7 +31,7 @@ class ViewButton extends React.Component {
                 onClick={this.props.onClick}
             >
                 <div className='bottom-label-icon-wrapper'>
-                    <i className={`fw fw-${this.props.icon} fw-inverse`} />
+                    <i className={`fw fw-${this.props.icon}`} />
                 </div>
                 <div
                     className='bottom-view-label'
