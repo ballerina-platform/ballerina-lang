@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.96.0 - 2018-02-01
+
+### Added
+- Support debugging ballerina programs
+    - Stopping in debug points
+    - Stepping over, stepping in, stepping out
+    - Callstacks and variable values
+- Updated language server to v0.96.0
+
 ## 0.95.8 - 2018-01-24
 
 ### Added
