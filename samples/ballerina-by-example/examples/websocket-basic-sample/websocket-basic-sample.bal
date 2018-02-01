@@ -62,7 +62,7 @@ service<ws> SimpleSecureServer {
         conn.pushBinary(b);
     }
 
-    @Description {value:"This resource is triggered when a ping message is received from the client."}
+    @Description {value:"This resource is triggered when a ping message is received from the client. If this resource is not implemented then pong message will be sent automatically to the connected endpoint when a ping is received."}
     resource onPing(ws:Connection conn, ws:PingFrame frame) {
         conn.pong(frame.data);
     }
