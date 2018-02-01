@@ -21,6 +21,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.debugger.DebugContext;
+import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
@@ -78,6 +80,8 @@ public class TesterinaFunction {
      */
     public BValue[] invoke(BValue[] args) {
         Context ctx = new Context(programFile);
+        Debugger debugger = new Debugger(programFile);
+        initDebugger(ctx, debugger);
         return BLangFunctions.invokeNew(programFile, bFunction.getPackageInfo().getPkgPath(), bFunction.getName(),
                 args, ctx);
     }
@@ -105,6 +109,16 @@ public class TesterinaFunction {
 
     public void setbFunctionInfo(FunctionInfo bFunction) {
         this.bFunction = bFunction;
+    }
+
+    private static void initDebugger(Context bContext, Debugger debugger) {
+        bContext.getProgramFile().setDebugger(debugger);
+        if (debugger.isDebugEnabled()) {
+            DebugContext debugContext = new DebugContext();
+            bContext.setDebugContext(debugContext);
+            debugger.init();
+            debugger.addDebugContextAndWait(debugContext);
+        }
     }
 
 }
