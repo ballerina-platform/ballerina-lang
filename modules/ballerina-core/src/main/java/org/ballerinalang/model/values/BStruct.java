@@ -258,57 +258,69 @@ public final class BStruct implements BRefType, StructureType {
         refLocks[index].unlock();
     }
 
-    private synchronized void initIntLocks(int index) {
-        if (longLocks == null) {
-            longLocks = new VarLock[longFields.length];
-        }
-        if (longLocks[index] == null) {
-            longLocks[index] = new VarLock();
-        }
-    }
-
-    private synchronized void initFloatLocks(int index) {
-        if (doubleLocks == null) {
-            doubleLocks = new VarLock[doubleFields.length];
-        }
-        if (doubleLocks[index] == null) {
-            doubleLocks[index] = new VarLock();
+    private void initIntLocks(int index) {
+        synchronized (this.longFields) {
+            if (this.longLocks == null) {
+                this.longLocks = new VarLock[this.longFields.length];
+            }
+            if (this.longLocks[index] == null) {
+                this.longLocks[index] = new VarLock();
+            }
         }
     }
 
-    private synchronized void initStringLocks(int index) {
-        if (stringLocks == null) {
-            stringLocks = new VarLock[stringFields.length];
-        }
-        if (stringLocks[index] == null) {
-            stringLocks[index] = new VarLock();
-        }
-    }
-
-    private synchronized void initBooleanLocks(int index) {
-        if (intLocks == null) {
-            intLocks = new VarLock[intFields.length];
-        }
-        if (intLocks[index] == null) {
-            intLocks[index] = new VarLock();
+    private void initFloatLocks(int index) {
+        synchronized (this.doubleFields) {
+            if (this.doubleLocks == null) {
+                this.doubleLocks = new VarLock[this.doubleFields.length];
+            }
+            if (this.doubleLocks[index] == null) {
+                this.doubleLocks[index] = new VarLock();
+            }
         }
     }
 
-    private synchronized void initBlobLocks(int index) {
-        if (byteLocks == null) {
-            byteLocks = new VarLock[byteFields.length];
-        }
-        if (byteLocks[index] == null) {
-            byteLocks[index] = new VarLock();
+    private void initStringLocks(int index) {
+        synchronized (this.stringFields) {
+            if (this.stringLocks == null) {
+                this.stringLocks = new VarLock[this.stringFields.length];
+            }
+            if (this.stringLocks[index] == null) {
+                this.stringLocks[index] = new VarLock();
+            }
         }
     }
 
-    private synchronized void initRefLocks(int index) {
-        if (refLocks == null) {
-            refLocks = new VarLock[refFields.length];
+    private void initBooleanLocks(int index) {
+        synchronized (this.intFields) {
+            if (this.intLocks == null) {
+                this.intLocks = new VarLock[this.intFields.length];
+            }
+            if (this.intLocks[index] == null) {
+                this.intLocks[index] = new VarLock();
+            }
         }
-        if (refLocks[index] == null) {
-            refLocks[index] = new VarLock();
+    }
+
+    private void initBlobLocks(int index) {
+        synchronized (this.byteFields) {
+            if (this.byteLocks == null) {
+                this.byteLocks = new VarLock[this.byteFields.length];
+            }
+            if (this.byteLocks[index] == null) {
+                this.byteLocks[index] = new VarLock();
+            }
+        }
+    }
+
+    private void initRefLocks(int index) {
+        synchronized (this.refFields) {
+            if (this.refLocks == null) {
+                this.refLocks = new VarLock[this.refFields.length];
+            }
+            if (this.refLocks[index] == null) {
+                this.refLocks[index] = new VarLock();
+            }
         }
     }
 
