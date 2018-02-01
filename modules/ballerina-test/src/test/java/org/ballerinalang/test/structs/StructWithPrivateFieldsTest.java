@@ -78,8 +78,8 @@ public class StructWithPrivateFieldsTest {
     }
 
     @Test(description = "Test compile time struct equivalence with private fields")
-    public void testRuntimeTimeStructEqWithPrivateFields() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeTimeStructEqWithPrivateFields");
+    public void testRuntimeStructEqWithPrivateFields() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeStructEqWithPrivateFields");
 
         Assert.assertEquals(returns[0].stringValue(), "jay");
         Assert.assertEquals(returns[1].stringValue(), "95134");
@@ -90,8 +90,8 @@ public class StructWithPrivateFieldsTest {
 
     @Test(description = "Test runtime time struct equivalence with private fields. " +
             "Structs are in different packages")
-    public void testRuntimeTimeStructEqWithPrivateFieldsTwoPackages1() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeTimeStructEqWithPrivateFieldsTwoPackages1");
+    public void testRuntimeStructEqWithPrivateFieldsTwoPackages1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeStructEqWithPrivateFieldsTwoPackages1");
 
         Assert.assertEquals(returns[0].stringValue(), "jay");
         Assert.assertEquals(returns[1].stringValue(), "95134");
@@ -101,8 +101,8 @@ public class StructWithPrivateFieldsTest {
 
     @Test(description = "Test runtime time struct equivalence with private fields. " +
             "Structs are in different packages")
-    public void testRuntimeTimeStructEqWithPrivateFieldsTwoPackages2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeTimeStructEqWithPrivateFieldsTwoPackages2");
+    public void testRuntimeStructEqWithPrivateFieldsTwoPackages2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeStructEqWithPrivateFieldsTwoPackages2");
 
         Assert.assertEquals(returns[0].stringValue(), "mal");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 56);

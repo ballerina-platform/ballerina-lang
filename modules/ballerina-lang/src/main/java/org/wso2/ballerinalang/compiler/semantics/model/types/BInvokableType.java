@@ -31,7 +31,7 @@ public class BInvokableType extends BType implements InvokableType {
 
     public List<BType> paramTypes;
     public List<BType> retTypes;
-    public String typeDescriptor;
+    private String typeDescriptor = TypeDescriptor.SIG_FUNCTION;
 
     // This field is only applicable for functions and actions at the moment.
     private BType receiverType;

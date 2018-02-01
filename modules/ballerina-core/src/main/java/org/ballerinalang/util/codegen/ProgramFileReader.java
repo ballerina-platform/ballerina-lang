@@ -112,16 +112,9 @@ public class ProgramFileReader {
     }
 
     public ProgramFile readProgram(InputStream programFileInStream) throws IOException {
-        InputStream fileIS = null;
-        try {
-            programFile = new ProgramFile();
-            DataInputStream dataInStream = new DataInputStream(programFileInStream);
-            return readProgramInternal(dataInStream);
-        } finally {
-            if (fileIS != null) {
-                fileIS.close();
-            }
-        }
+        programFile = new ProgramFile();
+        DataInputStream dataInStream = new DataInputStream(programFileInStream);
+        return readProgramInternal(dataInStream);
     }
 
     private ProgramFile readProgramInternal(DataInputStream dataInStream) throws IOException {
@@ -409,6 +402,23 @@ public class ProgramFileReader {
                 structInfo.addFieldInfo(fieldInfo);
 
                 readAttributeInfoEntries(dataInStream, packageInfo, fieldInfo);
+            }
+
+            // Read attached function info entries
+            int attachedFuncCount = dataInStream.readShort();
+            for (int j = 0; j < attachedFuncCount; j++) {
+                // Read function name
+                int nameCPIndex = dataInStream.readInt();
+                UTF8CPEntry nameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(nameCPIndex);
+
+                // Read function type signature
+                int typeSigCPIndex = dataInStream.readInt();
+                UTF8CPEntry typeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(typeSigCPIndex);
+
+                int flags = dataInStream.readInt();
+                AttachedFunctionInfo functionInfo = new AttachedFunctionInfo(nameCPIndex, nameUTF8Entry.getValue(),
+                        typeSigCPIndex, typeSigUTF8Entry.getValue(), flags);
+                structInfo.attachedFuncInfoEntries.add(functionInfo);
             }
 
             // Read attributes of the struct info
@@ -760,21 +770,19 @@ public class ProgramFileReader {
     }
 
     private void setCallableUnitSignature(CallableUnitInfo callableUnitInfo, String sig, PackageInfo packageInfo) {
+        BFunctionType funcType = getFunctionType(sig, packageInfo);
+        callableUnitInfo.setParamTypes(funcType.paramTypes);
+        callableUnitInfo.setRetParamTypes(funcType.retParamTypes);
+    }
+
+    private BFunctionType getFunctionType(String sig, PackageInfo packageInfo) {
         int indexOfSep = sig.indexOf(")(");
         String paramSig = sig.substring(1, indexOfSep);
         String retParamSig = sig.substring(indexOfSep + 2, sig.length() - 1);
 
-        if (paramSig.length() == 0) {
-            callableUnitInfo.setParamTypes(new BType[0]);
-        } else {
-            callableUnitInfo.setParamTypes(getParamTypes(paramSig, packageInfo));
-        }
-
-        if (retParamSig.length() == 0) {
-            callableUnitInfo.setRetParamTypes(new BType[0]);
-        } else {
-            callableUnitInfo.setRetParamTypes(getParamTypes(retParamSig, packageInfo));
-        }
+        BType[] paramTypes = getParamTypes(paramSig, packageInfo);
+        BType[] retParamTypes = getParamTypes(retParamSig, packageInfo);
+        return new BFunctionType(paramTypes, retParamTypes);
     }
 
     private BType[] getParamTypes(String signature, PackageInfo packageInfo) {
@@ -1677,6 +1685,20 @@ public class ProgramFileReader {
                     structInfo.getAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE);
             structType.setFieldTypeCount(attributeInfo.getVarTypeCount());
             structType.setStructFields(structFields);
+
+            // Resolve attached function signature
+            int attachedFuncCount = structInfo.attachedFuncInfoEntries.size();
+            BStructType.AttachedFunction[] attachedFunctions = new BStructType.AttachedFunction[attachedFuncCount];
+            for (int i = 0; i < attachedFuncCount; i++) {
+                AttachedFunctionInfo attachedFuncInfo = structInfo.attachedFuncInfoEntries.get(i);
+
+                BFunctionType funcType = getFunctionType(attachedFuncInfo.typeSignature, packageInfo);
+
+                BStructType.AttachedFunction attachedFunction = new BStructType.AttachedFunction(
+                        attachedFuncInfo.name, funcType, attachedFuncInfo.flags);
+                attachedFunctions[i] = attachedFunction;
+                structType.setAttachedFunctions(attachedFunctions);
+            }
         }
     }
 

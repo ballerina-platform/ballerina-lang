@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -27,6 +27,7 @@ import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
+import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -116,6 +117,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -3227,29 +3229,133 @@ public class BLangVM {
     public static boolean checkStructEquivalency(BStructType rhsType, BStructType lhsType) {
         // Struct Type equivalency
         BStructType.StructField[] rhsFields = rhsType.getStructFields();
-        BStructType.StructField[] lhsFields = lhsType.getStructFields();
+        BStructType.AttachedFunction[] rhsAttachedFuncs = rhsType.getAttachedFunctions();
 
-        if (lhsFields.length > rhsFields.length) {
+        BStructType.StructField[] lhsFields = lhsType.getStructFields();
+        BStructType.AttachedFunction[] lhsAttachedFuncs = lhsType.getAttachedFunctions();
+
+        if (lhsFields.length > rhsFields.length ||
+                lhsAttachedFuncs.length > rhsAttachedFuncs.length) {
             return false;
         }
 
-        for (int i = 0; i < lhsFields.length; i++) {
-            // If rhs and lhs packages are not equal, then the lhs filed cannot be private.
-            String rhsFieldPkgPath = rhsType.getPackagePath() != null ? rhsType.getPackagePath() : "";
-            String lhsFieldPkgPath = lhsType.getPackagePath() != null ? lhsType.getPackagePath() : "";
-            if (!(rhsFieldPkgPath.equals(lhsFieldPkgPath)) &&
-                    Flags.isFlagOn(lhsFields[i].flags, Flags.PRIVATE)) {
-                return false;
-            }
+        return rhsType.getPackagePath().equals(lhsType.getPackagePath()) ?
+                checkEquivalencyOfStructsInSamePackage(lhsType, rhsType) :
+                checkEquivalencyOfStructsInDifferentPackages(lhsType, rhsType);
+    }
 
-            if (isAssignable(lhsFields[i].getFieldType(), rhsFields[i].getFieldType()) &&
-                    lhsFields[i].getFieldName().equals(rhsFields[i].getFieldName())) {
+    private static boolean checkEquivalencyOfStructsInSamePackage(BStructType lhsType, BStructType rhsType) {
+        for (int i = 0; i < lhsType.getStructFields().length; i++) {
+            BStructType.StructField lhsField = lhsType.getStructFields()[i];
+            BStructType.StructField rhsField = rhsType.getStructFields()[i];
+            if (isBothPublicOrPrivate(lhsField.flags, rhsField.flags) &&
+                    lhsField.fieldName.equals(rhsField.fieldName) &&
+                    isSameType(rhsField.fieldType, lhsField.fieldType)) {
                 continue;
             }
             return false;
         }
 
+        BStructType.AttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
+        BStructType.AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
+        for (BStructType.AttachedFunction lhsFunc : lhsFuncs) {
+            BStructType.AttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
+            if (rhsFunc == null || !isBothPublicOrPrivate(lhsFunc.flags, rhsFunc.flags)) {
+                return false;
+            }
+        }
         return true;
+    }
+
+    private static boolean checkEquivalencyOfStructsInDifferentPackages(BStructType lhsType, BStructType rhsType) {
+        for (int i = 0; i < lhsType.getStructFields().length; i++) {
+            // Return false if either field is private
+            BStructType.StructField lhsField = lhsType.getStructFields()[i];
+            BStructType.StructField rhsField = rhsType.getStructFields()[i];
+            if (!Flags.isFlagOn(lhsField.flags, Flags.PUBLIC) ||
+                    !Flags.isFlagOn(rhsField.flags, Flags.PUBLIC)) {
+                return false;
+            }
+
+            if (lhsField.fieldName.equals(rhsField.fieldName) &&
+                    isSameType(rhsField.fieldType, lhsField.fieldType)) {
+                continue;
+            }
+            return false;
+        }
+
+        BStructType.AttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
+        BStructType.AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
+        for (BStructType.AttachedFunction lhsFunc : lhsFuncs) {
+            BStructType.AttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
+            if (rhsFunc == null || !Flags.isFlagOn(rhsFunc.flags, Flags.PUBLIC) ||
+                    !Flags.isFlagOn(lhsFunc.flags, Flags.PUBLIC)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static boolean checkFunctionTypeEquality(BFunctionType source, BFunctionType target) {
+        if (source.paramTypes.length != target.paramTypes.length ||
+                source.retParamTypes.length != target.retParamTypes.length) {
+            return false;
+        }
+
+        for (int i = 0; i < source.paramTypes.length; i++) {
+            if (!isSameType(source.paramTypes[i], target.paramTypes[i])) {
+                return false;
+            }
+        }
+
+        for (int i = 0; i < source.retParamTypes.length; i++) {
+            if (!isSameType(source.retParamTypes[i], target.retParamTypes[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Returns whether both symbols are public or private.
+     *
+     * @param lhsFlags left-hand side symbol
+     * @param rhsFlags right-hand side symbol
+     * @return whether both symbols are public or private
+     */
+    private static boolean isBothPublicOrPrivate(int lhsFlags, int rhsFlags) {
+        // Get the XOR of both flags(masks)
+        // If both are public, then public bit should be 0;
+        // If both are private, then public bit should be 0;
+        // The public bit is on means, one is public, and the other one is private.
+        return !Flags.isFlagOn(lhsFlags ^ rhsFlags, Flags.PUBLIC);
+    }
+
+    private static BStructType.AttachedFunction getMatchingInvokableType(BStructType.AttachedFunction[] rhsFuncs,
+                                                                         BStructType.AttachedFunction lhsFunc) {
+        return Arrays.stream(rhsFuncs)
+                .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
+                .filter(rhsFunc -> checkFunctionTypeEquality(lhsFunc.type, rhsFunc.type))
+                .findFirst()
+                .orElse(null);
+    }
+
+
+    private static boolean isSameType(BType rhsType, BType lhsType) {
+        // First check whether both references points to the same object.
+        if (rhsType == lhsType) {
+            return true;
+        }
+
+        if (rhsType.getTag() == lhsType.getTag() && rhsType.getTag() == TypeTags.ARRAY_TAG) {
+            return checkArrayEquivalent(rhsType, lhsType);
+        }
+
+        // TODO Support function types, json/map constrained types etc.
+
+        return false;
     }
 
     private static boolean isAssignable(BType actualType, BType expType) {
@@ -3468,8 +3574,8 @@ public class BLangVM {
 
     /**
      * Check the compatibility of casting a JSON to a target type.
-     * 
-     * @param json JSON to cast
+     *
+     * @param json       JSON to cast
      * @param sourceType Type of the source JSON
      * @param targetType Target type
      * @return Runtime compatibility for casting

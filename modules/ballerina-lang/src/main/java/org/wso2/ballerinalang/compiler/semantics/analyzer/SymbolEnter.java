@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -89,13 +90,11 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NodeUtils;
-import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -341,7 +340,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineSymbol(structNode.pos, structSymbol);
 
         // Create struct type
-        structNode.symbol.type = new BStructType((BTypeSymbol) structNode.symbol, new ArrayList<>());
+        structNode.symbol.type = new BStructType((BTypeSymbol) structNode.symbol);
     }
 
     @Override
@@ -398,24 +397,31 @@ public class SymbolEnter extends BLangNodeVisitor {
                 getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
-        ((BInvokableType) funcSymbol.type).typeDescriptor = TypeDescriptor.SIG_FUNCTION;
+        BInvokableType funcType = (BInvokableType) funcSymbol.type;
 
         // Define function receiver if any.
         if (funcNode.receiver != null) {
             BTypeSymbol structSymbol = funcNode.receiver.type.tsymbol;
+
             // Check whether there exists a struct field with the same name as the function name.
-            if (structSymbol.tag == TypeTags.STRUCT) {
-                BSymbol symbol = symResolver.lookupMemberSymbol(funcNode.receiver.pos, structSymbol.scope, invokableEnv,
+            if (structSymbol.tag == SymTag.STRUCT) {
+                BSymbol symbol = symResolver.lookupMemberSymbol(
+                        funcNode.receiver.pos, structSymbol.scope, invokableEnv,
                         names.fromIdNode(funcNode.name), SymTag.VARIABLE);
                 if (symbol != symTable.notFoundSymbol) {
                     dlog.error(funcNode.pos, DiagnosticCode.STRUCT_FIELD_AND_FUNC_WITH_SAME_NAME,
                             funcNode.name.value, funcNode.receiver.type.toString());
+                } else {
+                    BStructType structType = (BStructType) funcNode.receiver.type;
+                    BAttachedFunction attachedFunc = new BAttachedFunction(
+                            names.fromIdNode(funcNode.name), funcSymbol, funcType);
+                    structType.attachedFunctions.add(attachedFunc);
                 }
             }
 
             defineNode(funcNode.receiver, invokableEnv);
             funcSymbol.receiverSymbol = funcNode.receiver.symbol;
-            ((BInvokableType) funcSymbol.type).setReceiverType(funcNode.receiver.symbol.type);
+            funcType.setReceiverType(funcNode.receiver.symbol.type);
         }
     }
 
@@ -969,9 +975,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         transformers.forEach(transformer -> {
             SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformer, transformer.symbol.scope, pkgEnv);
             defineInvokableSymbolParams(transformer, transformer.symbol, transformerEnv);
-
-            BInvokableType transformerSymType = ((BInvokableType) transformer.symbol.type);
-            transformerSymType.typeDescriptor = TypeDescriptor.SIG_FUNCTION;
         });
     }
 
