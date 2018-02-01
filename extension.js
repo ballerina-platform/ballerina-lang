@@ -17,7 +17,7 @@
  *
  */
 
-const { workspace, commands, window, ExtensionContext } = require('vscode');
+const { workspace, commands, window, ExtensionContext, debug } = require('vscode');
 const { LanguageClient, LanguageClientOptions, ServerOptions } = require('vscode-languageclient');
 const path = require('path');
 

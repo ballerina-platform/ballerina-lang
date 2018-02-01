@@ -243,7 +243,7 @@ class BallerinaDebugSession extends LoggingDebugSession {
 
     disconnectRequest(response) {
         if (this.debugServer) {
-            this.debugManager.stop();
+            this.debugManager.kill();
             this.debugServer.kill();
         }
         this.sendResponse(response);
