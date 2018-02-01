@@ -111,6 +111,17 @@ class DebugManager extends EventEmitter {
         this.channel.sendMessage(message);
         this.emit('debugging-started');
     }
+
+    /**
+     * Send call to backend to kill debug server
+     *
+     * @memberof DebugManager
+     */
+    kill() {
+        const message = { command: 'KILL' };
+        this.channel.sendMessage(message);
+    }
+
     /**
      * @param {Object} message - Process message from backend
      *
