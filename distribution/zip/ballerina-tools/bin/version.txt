@@ -1,0 +1,1 @@
+Ballerina Tools version: ${project.version}

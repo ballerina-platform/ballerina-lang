@@ -1,0 +1,190 @@
+<!--
+  ~ /*
+  ~ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ *
+  ~ * Licensed under the Apache License, Version 2.0 (the "License");
+  ~ * you may not use this file except in compliance with the License.
+  ~ * You may obtain a copy of the License at
+  ~ *
+  ~ * http://www.apache.org/licenses/LICENSE-2.0
+  ~ *
+  ~ * Unless required by applicable law or agreed to in writing, software
+  ~ * distributed under the License is distributed on an "AS IS" BASIS,
+  ~ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ * See the License for the specific language governing permissions and
+  ~ * limitations under the License.
+  ~ */
+  -->
+<assembly>
+    <includeBaseDirectory>true</includeBaseDirectory>
+    <baseDirectory>ballerina-${project.version}</baseDirectory>
+    <id>Ballerina Distribution</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+
+    <fileSets>
+        <fileSet>
+            <directory>./</directory>
+            <outputDirectory>.</outputDirectory>
+            <includes>
+                <include>LICENSE</include>
+            </includes>
+        </fileSet>
+
+        <fileSet>
+            <directory>conf</directory>
+            <outputDirectory>bre/conf</outputDirectory>
+            <fileMode>644</fileMode>
+        </fileSet>
+
+        <fileSet>
+            <directory>logs</directory>
+            <outputDirectory>logs</outputDirectory>
+            <fileMode>644</fileMode>
+        </fileSet>
+
+        <fileSet>
+            <directory>../../ballerina-home/resources/security</directory>
+            <outputDirectory>bre/security</outputDirectory>
+            <fileMode>644</fileMode>
+        </fileSet>
+
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-builtin-jar/META-INF/ballerina
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-http-jar/META-INF/natives
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-mime-jar/META-INF/natives
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-samples-zip/ballerina-samples-${ballerina.runtime.version}
+            </directory>
+            <outputDirectory>samples</outputDirectory>
+            <excludes>
+                <exclude>target/**</exclude>
+                <exclude>scripts/**</exclude>
+                <exclude>pom.xml</exclude>
+                <exclude>README.txt</exclude>
+                <exclude>LICENSE.txt</exclude>
+                <exclude>release-notes.html</exclude>
+                <exclude>**/*.ipr</exclude>
+                <exclude>**/*.iwr</exclude>
+                <exclude>**/*.eclipse</exclude>
+                <exclude>**/*.iml</exclude>
+            </excludes>
+            <fileMode>644</fileMode>
+        </fileSet>
+    </fileSets>
+
+    <files>
+        <file>
+            <source>${project.build.directory}/extracted-distributions/ballerina-logging-jar/logging.properties</source>
+            <outputDirectory>bre/conf/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>bin/version.txt</source>
+            <outputDirectory>bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>bin/ballerina</source>
+            <outputDirectory>bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>755</fileMode>
+        </file>
+        <file>
+            <source>bin/ballerina.bat</source>
+            <outputDirectory>bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>LICENSE.txt</source>
+            <outputDirectory>.</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>../../COPYRIGHT.txt</source>
+            <outputDirectory>.</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>README.txt</source>
+            <outputDirectory>.</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+    </files>
+
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>bre/lib</outputDirectory>
+            <scope>runtime</scope>
+            <includes>
+                <include>org.ballerinalang:ballerina-config:jar</include>
+                <include>org.ballerinalang:ballerina-core:jar</include>
+                <include>org.ballerinalang:ballerina-lang:jar</include>
+                <include>org.ballerinalang:ballerina-launcher:jar</include>
+                <include>org.ballerinalang:ballerina-builtin:jar</include>
+                <include>org.ballerinalang:ballerina-logging:jar</include>
+                <include>org.ballerinalang:ballerina-http:jar</include>
+                <include>org.ballerinalang:ballerina-mime:jar</include>
+                <include>org.wso2.orbit.org.antlr:antlr4-runtime</include>
+                <include>org.wso2.transport.http:org.wso2.transport.http.netty</include>
+                <include>org.wso2.carbon.messaging:org.wso2.carbon.messaging</include>
+                <include>org.wso2.orbit.net.sf.saxon:Saxon-HE</include>
+                <include>org.apache.ws.commons.axiom:axiom-api</include>
+                <include>org.apache.ws.commons.axiom:axiom-impl</include>
+                <include>org.apache.ws.commons.axiom:axiom-dom</include>
+                <include>jaxen:jaxen</include>
+                <include>org.apache.geronimo.specs:geronimo-activation_1.1_spec</include>
+                <include>org.apache.geronimo.specs:geronimo-stax-api_1.0_spec</include>
+                <include>org.apache.james:apache-mime4j-core</include>
+                <include>com.beust:jcommander</include>
+                <include>org.slf4j:slf4j-api</include>
+                <include>org.slf4j:slf4j-jdk14</include>
+                <include>io.netty:netty-common</include>
+                <include>io.netty:netty-buffer</include>
+                <include>io.netty:netty-transport</include>
+                <include>io.netty:netty-handler</include>
+                <include>io.netty:netty-codec</include>
+                <include>io.netty:netty-codec-http</include>
+                <include>io.netty:netty-codec-http2</include>
+                <include>io.netty:netty-handler-proxy</include>
+                <include>io.netty:netty-resolver</include>
+                <include>commons-pool.wso2:commons-pool</include>
+                <include>org.apache.commons:commons-pool2</include>
+                <include>org.wso2.orbit.org.yaml:snakeyaml</include>
+                <include>commons-logging:commons-logging</include>
+                <include>org.wso2.staxon:staxon-core</include>
+                <include>org.apache.commons:commons-lang3</include>
+                <include>javax.websocket:javax.websocket-api</include>
+                <include>org.wso2.carbon:org.wso2.carbon.core:jar</include>
+                <include>com.zaxxer:HikariCP</include>
+                <include>javax.transaction:javax.transaction-api</include>
+                <include>org.atomikos.wso2:atomikos</include>
+                <include>org.quartz-scheduler:quartz</include>
+                <include>org.quartz-scheduler:quartz-jobs</include>
+            </includes>
+        </dependencySet>
+
+    </dependencySets>
+</assembly>

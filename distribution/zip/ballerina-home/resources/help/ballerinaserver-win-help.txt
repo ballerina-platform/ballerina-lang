@@ -1,0 +1,14 @@
+
+Ballerina is a new programming language for integration built on a sequence diagram metaphor.
+This command is mainly used to start the ballerina in server mode.
+
+Usage:
+    ballerinaserver.bat [option] ballerina-file1 ballerina-file2 ...
+
+Examples:
+    ballerinaserver.bat passthrough.bal
+    ballerinaserver.bat passthrough.bal echo.bal
+    
+Available Options:
+    -version     Print Ballerina Tools version.
+    -help        Print this help message.

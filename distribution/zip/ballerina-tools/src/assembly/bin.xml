@@ -1,0 +1,147 @@
+<!--
+  ~ /*
+  ~ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ *
+  ~ * Licensed under the Apache License, Version 2.0 (the "License");
+  ~ * you may not use this file except in compliance with the License.
+  ~ * You may obtain a copy of the License at
+  ~ *
+  ~ * http://www.apache.org/licenses/LICENSE-2.0
+  ~ *
+  ~ * Unless required by applicable law or agreed to in writing, software
+  ~ * distributed under the License is distributed on an "AS IS" BASIS,
+  ~ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ * See the License for the specific language governing permissions and
+  ~ * limitations under the License.
+  ~ */
+  -->
+<assembly>
+    <includeBaseDirectory>true</includeBaseDirectory>
+    <baseDirectory>ballerina-tools-${project.version}</baseDirectory>
+    <id>Ballerina Tools</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+
+    <fileSets>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${project.version}
+            </directory>
+            <outputDirectory>.</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-composer-web-zip/ballerina-composer-web-${ballerina.composer.version}
+            </directory>
+            <outputDirectory>.</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/natives
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/api-docs
+            </directory>
+            <outputDirectory>docs/api</outputDirectory>
+        </fileSet>
+    </fileSets>
+
+    <files>
+        <file>
+            <source>bin/version.txt</source>
+            <outputDirectory>bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>bin/composer</source>
+            <outputDirectory>bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>755</fileMode>
+        </file>
+        <file>
+            <source>bin/composer.bat</source>
+            <outputDirectory>bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>LICENSE.txt</source>
+            <outputDirectory>.</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>README.txt</source>
+            <outputDirectory>.</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>../../COPYRIGHT.txt</source>
+            <outputDirectory>.</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+
+        <!-- Composer specific files -->
+        <file>
+            <source>
+                ${project.build.directory}/extracted-distributions/composer-server-distribution-jar/netty-transports.yml
+            </source>
+            <outputDirectory>resources/composer/services</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>
+                ${project.build.directory}/extracted-distributions/composer-server-distribution-jar/deployment.yaml
+            </source>
+            <outputDirectory>resources/composer/services</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>${project.build.directory}/extracted-distributions/composer-server-distribution-jar/composer-logging.properties</source>
+            <outputDirectory>bre/conf</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>conf/composer-config.yml</source>
+            <outputDirectory>bre/conf</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+    </files>
+
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>bre/lib</outputDirectory>
+            <includes>
+                <include>org.ballerinalang:ballerina-packerina:jar</include>
+                <include>org.ballerinalang:testerina-core:jar</include>
+                <include>org.ballerinalang:swagger-ballerina-generator:jar</include>
+                <include>org.ballerinalang:ballerina-container-support:jar</include>
+                <include>org.ballerinalang:docerina:jar</include>
+                <include>com.fasterxml.jackson.core:jackson-databind</include>
+                <include>com.fasterxml.jackson.core:jackson-core</include>
+                <include>com.fasterxml.jackson.core:jackson-annotations</include>
+                <include>com.fasterxml.jackson.dataformat:jackson-dataformat-yaml</include>
+            </includes>
+            <unpack>false</unpack>
+        </dependencySet>
+
+        <!-- Composer specific artifacts -->
+        <dependencySet>
+            <outputDirectory>resources/composer/services</outputDirectory>
+            <includes>
+                <include>org.ballerinalang:composer-server-distribution:jar</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
+</assembly>

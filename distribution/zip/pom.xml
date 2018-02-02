@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ /*
+  ~ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ *
+  ~ * Licensed under the Apache License, Version 2.0 (the "License");
+  ~ * you may not use this file except in compliance with the License.
+  ~ * You may obtain a copy of the License at
+  ~ *
+  ~ * http://www.apache.org/licenses/LICENSE-2.0
+  ~ *
+  ~ * Unless required by applicable law or agreed to in writing, software
+  ~ * distributed under the License is distributed on an "AS IS" BASIS,
+  ~ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ * See the License for the specific language governing permissions and
+  ~ * limitations under the License.
+  ~ */
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <parent>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerinalang</artifactId>
+        <version>0.96.1-SNAPSHOT</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.ballerinalang.tools</groupId>
+    <artifactId>tools-distribution</artifactId>
+    <packaging>pom</packaging>
+    <version>0.96.1-SNAPSHOT</version>
+    <name>Ballerina - Tools</name>
+    <description>Ballerina - Tools</description>
+
+    <scm>
+        <url>//github.com/ballerinalang/distribution.git</url>
+        <developerConnection>scm:git:https://github.com/ballerinalang/distribution.git
+        </developerConnection>
+        <connection>scm:git:https://github.com/ballerinalang/distribution.git</connection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <repositories>
+        <repository>
+            <id>wso2.releases</id>
+            <name>WSO2 Releases Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </repository>
+        <repository>
+            <id>wso2.snapshots</id>
+            <name>WSO2 Snapshot Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-core</artifactId>
+                <version>${ballerina.runtime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-config</artifactId>
+                <version>${ballerina.runtime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-lang</artifactId>
+                <version>${ballerina.runtime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-builtin</artifactId>
+                <version>${ballerina.runtime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-packerina</artifactId>
+                <version>${ballerina.runtime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-launcher</artifactId>
+                <version>${ballerina.runtime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-logging</artifactId>
+                <version>${ballerina.runtime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-http</artifactId>
+                <version>${ballerina.runtime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-mime</artifactId>
+                <version>${ballerina.runtime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-samples</artifactId>
+                <version>${ballerina.runtime.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>composer-server-distribution</artifactId>
+                <version>${ballerina.composer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-composer-web</artifactId>
+                <version>${ballerina.composer.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>testerina-core</artifactId>
+                <version>${testerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>swagger-ballerina-generator</artifactId>
+                <version>${tool.swagger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-container-support</artifactId>
+                <version>${ballerina.container.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>docerina</artifactId>
+                <version>${docerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${org.snakeyaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.quartz-scheduler</groupId>
+                <artifactId>quartz</artifactId>
+                <version>${quartz.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.quartz-scheduler</groupId>
+                <artifactId>quartz-jobs</artifactId>
+                <version>${quartz.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <modules>
+        <module>modules/ballerina</module>
+        <module>modules/tests/test-integration</module>
+        <module>modules/ballerina-tools</module>
+    </modules>
+
+    <properties>
+        <ballerina.runtime.version>${project.version}</ballerina.runtime.version>
+        <ballerina.composer.version>${ballerina.runtime.version}</ballerina.composer.version>
+        <testerina.version>${ballerina.runtime.version}</testerina.version>
+        <tool.swagger.version>${ballerina.runtime.version}</tool.swagger.version>
+        <ballerina.container.version>${ballerina.runtime.version}</ballerina.container.version>
+        <docerina.version>${ballerina.runtime.version}</docerina.version>
+        <docerina.maven.plugin.version>${ballerina.runtime.version}</docerina.maven.plugin.version>
+        <commons-net.version>3.6</commons-net.version>
+    </properties>
+</project>
