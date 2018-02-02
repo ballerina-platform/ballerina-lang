@@ -21,18 +21,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Documentable node for Annotations
+ * Documentable node for Annotations.
  */
 public class AnnotationDoc extends Documentable {
     public final boolean isAnnotation;
     public final List<Variable> attributes;
 
     /**
-     * Constructor
-     * @param name annotation name
-     * @param description description
-     * @param children if there are any children
-     * @param attributes annotation attributes
+     * Constructor.
+     * @param name annotation name.
+     * @param description description.
+     * @param children if there are any children.
+     * @param attributes annotation attributes.
      */
     public AnnotationDoc(String name, String description, ArrayList<Documentable> children,
                          List<Variable> attributes) {

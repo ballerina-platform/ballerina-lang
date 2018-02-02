@@ -20,18 +20,18 @@ package org.ballerinalang.docgen.model;
 import java.util.ArrayList;
 
 /**
- * Documentable node for Global Variables
+ * Documentable node for Global Variables.
  */
 public class GlobalVariableDoc extends Documentable {
     public final boolean isGlobalVariable;
     public final String dataType;
 
     /**
-     * Construct
-     * @param name global variable name
-     * @param description description
-     * @param children children if any
-     * @param dataType data type of the global variable
+     * Construct.
+     * @param name global variable name.
+     * @param description description.
+     * @param children children if any.
+     * @param dataType data type of the global variable.
      */
     public GlobalVariableDoc(String name, String description, ArrayList<Documentable> children, String dataType) {
         super(name, "fw-globe", description, children);

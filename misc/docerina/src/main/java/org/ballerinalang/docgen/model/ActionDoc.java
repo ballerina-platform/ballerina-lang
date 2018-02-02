@@ -22,19 +22,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Documentable node for Actions
+ * Documentable node for Actions.
  */
 public class ActionDoc extends Documentable {
     public final List<Variable> parameters;
     public final List<Variable> returnParams;
 
     /**
-     * Constructor
-     * @param name action name
-     * @param description description
-     * @param children if there are any children
-     * @param parameters parameters of the action
-     * @param returnParams return parameters of the action
+     * Constructor.
+     * @param name action name.
+     * @param description description.
+     * @param children if there are any children.
+     * @param parameters parameters of the action.
+     * @param returnParams return parameters of the action.
      */
     public ActionDoc(String name, String description, ArrayList<Documentable> children,
                      List<Variable> parameters, List<Variable> returnParams) {

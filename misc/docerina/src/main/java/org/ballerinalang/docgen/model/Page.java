@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Page created by traversing the bal package
+ * Page created by traversing the bal package.
  */
 public class Page {
 
@@ -31,9 +31,9 @@ public class Page {
 
     /**
      *
-     * @param heading name of the bal package
-     * @param constructs constructs in the package
-     * @param links links to the other packages
+     * @param heading name of the bal package.
+     * @param constructs constructs in the package.
+     * @param links links to the other packages.
      */
     public Page(Caption heading, ArrayList<Documentable> constructs, List<Link> links) {
         this.heading = heading;

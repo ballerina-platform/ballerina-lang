@@ -33,16 +33,16 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 
 /**
- * Generates the HTML pages from the Page objects
+ * Generates the HTML pages from the Page objects.
  */
 public class Writer {
     private static PrintStream out = System.out;
 
     /**
-     * Write the HTML document from the Page object for a bal package
-     * @param object Page object which is generated from the bal package
-     * @param packageTemplateName hbs template file to be used
-     * @param filePath path of the file to write the output
+     * Write the HTML document from the Page object for a bal package.
+     * @param object Page object which is generated from the bal package.
+     * @param packageTemplateName hbs template file to be used.
+     * @param filePath path of the file to write the output.
      */
     public static void writeHtmlDocument(Object object, String packageTemplateName, String filePath) {
         String templatesFolderPath =

@@ -27,8 +27,8 @@ public class PrimitiveTypeDoc extends Documentable {
     public final boolean isPrimitiveType;
     
     /**
-     * @param name        name of the node
-     * @param children    children of the node if any
+     * @param name        name of the node.
+     * @param children    children of the node if any.
      */
     public PrimitiveTypeDoc(String name, List<Documentable> children) {
         super(name, "fw-variable", "", children);

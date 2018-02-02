@@ -21,17 +21,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Documentable node for enums
+ * Documentable node for enums.
  */
 public class EnumDoc extends Documentable {
     public final boolean isEnum;
     public final List<Variable> enumerators;
     /**
-     * Constructor
-     * @param name enum name
-     * @param description description
-     * @param children children if any
-     * @param enumerators enumerators of the enum
+     * Constructor.
+     * @param name enum name.
+     * @param description description.
+     * @param children children if any.
+     * @param enumerators enumerators of the enum.
      */
     public EnumDoc(String name, String description, ArrayList<Documentable> children, List<Variable> enumerators) {
         super(name, "fw-constant", description, children);

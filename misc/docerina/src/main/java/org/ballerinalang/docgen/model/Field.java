@@ -25,11 +25,11 @@ public class Field extends Variable {
     public final String defaultValue;
     
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param name        variable name
-     * @param dataType    data type of the variable
-     * @param description description of the variable
+     * @param name        variable name.
+     * @param dataType    data type of the variable.
+     * @param description description of the variable.
      */
     public Field(String name, String dataType, String description, String defaultValue) {
         super(name, dataType, description);

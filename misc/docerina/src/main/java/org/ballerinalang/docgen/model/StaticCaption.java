@@ -19,7 +19,7 @@
 package org.ballerinalang.docgen.model;
 
 /**
- * Represents a regular text which can be the value of a {@link Link}
+ * Represents a regular text which can be the value of a {@link Link}.
  */
 public class StaticCaption extends Caption {
     public final boolean isStaticCaption;

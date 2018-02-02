@@ -21,17 +21,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Documentable node for Structs
+ * Documentable node for Structs.
  */
 public class StructDoc extends Documentable {
     public final List<Field> fields;
     public final boolean isStruct;
     /**
-     * Constructor
-     * @param name struct name
-     * @param description description
-     * @param children children if any
-     * @param fields struct fields
+     * Constructor.
+     * @param name struct name.
+     * @param description description.
+     * @param children children if any.
+     * @param fields struct fields.
      */
     public StructDoc(String name, String description, ArrayList<Documentable> children, List<Field> fields) {
         super(name, "fw-struct", description, children);

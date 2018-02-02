@@ -60,14 +60,14 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Generates the Page objects for bal packages
+ * Generates the Page objects for bal packages.
  */
 public class Generator {
     private static HashSet<String> processedReturnAnnots = new HashSet<>();
     private static final String ANONYMOUS_STRUCT = "$anonStruct$";
 
     /**
-     * Generate the page when the bal package is passed
+     * Generate the page when the bal package is passed.
      * @param balPackage The current package that is being viewed.
      * @param packages List of available packages.
      * @return A page model for the current package.
@@ -219,9 +219,9 @@ public class Generator {
     }
 
     /**
-     * Create documentation for annotations
+     * Create documentation for annotations.
      * @param annotationNode ballerina annotation node.
-     * @return documentation for annotation
+     * @return documentation for annotation.
      */
     public static AnnotationDoc createDocForNode(BLangAnnotation annotationNode) {
         String annotationName = annotationNode.getName().getValue();
@@ -240,9 +240,9 @@ public class Generator {
     }
 
     /**
-     * Create documentation for global variables
+     * Create documentation for global variables.
      * @param bLangVariable ballerina variable node.
-     * @return documentation for global variables
+     * @return documentation for global variables.
      */
     public static GlobalVariableDoc createDocForNode(BLangVariable bLangVariable) {
         String globalVarName = bLangVariable.getName().getValue();
@@ -252,9 +252,9 @@ public class Generator {
     }
 
     /**
-     * Create documentation for functions
+     * Create documentation for functions.
      * @param functionNode ballerina function node.
-     * @return documentation for functions
+     * @return documentation for functions.
      */
     public static FunctionDoc createDocForNode(BLangFunction functionNode) {
         String functionName = functionNode.getName().value;
@@ -283,9 +283,9 @@ public class Generator {
     }
 
     /**
-     * Create documentation for actions
+     * Create documentation for actions.
      * @param actionNode ballerina action node.
-     * @return documentation for actions
+     * @return documentation for actions.
      */
     public static ActionDoc createDocForNode(BLangAction actionNode) {
         String actionName = actionNode.getName().value;
@@ -315,9 +315,9 @@ public class Generator {
     }
 
     /**
-     * Create documentation for structs
+     * Create documentation for structs.
      * @param structNode ballerina struct node.
-     * @return documentation for structs
+     * @return documentation for structs.
      */
     public static StructDoc createDocForNode(BLangStruct structNode) {
         String structName = structNode.getName().value;
@@ -345,9 +345,9 @@ public class Generator {
     }
 
     /**
-     * Create documentation for connectors
+     * Create documentation for connectors.
      * @param connectorNode ballerina connector node.
-     * @return documentation for connectors
+     * @return documentation for connectors.
      */
     public static ConnectorDoc createDocForNode(BLangConnector connectorNode) {
         String connectorName = connectorNode.getName().value;
@@ -374,9 +374,9 @@ public class Generator {
     }
 
     /**
-     * Get the type of the variable
+     * Get the type of the variable.
      * @param bLangVariable
-     * @return data type of the variable
+     * @return data type of the variable.
      */
     private static String type(final BLangVariable bLangVariable) {
         if (bLangVariable.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
@@ -388,9 +388,9 @@ public class Generator {
     }
 
     /**
-     * Get the type name of the type node
+     * Get the type name of the type node.
      * @param bLangType
-     * @return type name
+     * @return type name.
      */
     private static String getTypeName(BLangType bLangType) {
         return (bLangType instanceof BLangUserDefinedType ?
@@ -398,19 +398,19 @@ public class Generator {
     }
 
     /**
-     * Get the annotation attachments for the node
+     * Get the annotation attachments for the node.
      * @param node
-     * @return list of annotation attachments
+     * @return list of annotation attachments.
      */
     private static List<? extends AnnotationAttachmentNode> getAnnotationAttachments(BLangNode node) {
         return ((AnnotatableNode) node).getAnnotationAttachments();
     }
 
     /**
-     * Get description annotation of the parameter
-     * @param node parent node
-     * @param param parameter
-     * @return description of the parameter
+     * Get description annotation of the parameter.
+     * @param node parent node.
+     * @param param parameter.
+     * @return description of the parameter.
      */
     private static String paramAnnotation(BLangNode node, BLangVariable param) {
         String subName =
@@ -430,9 +430,9 @@ public class Generator {
     }
 
     /**
-     * Get description annotation of the return parameter
-     * @param node parent node
-     * @return description of the return parameter
+     * Get description annotation of the return parameter.
+     * @param node parent node.
+     * @return description of the return parameter.
      */
     private static String returnParamAnnotation(BLangNode node) {
         for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
@@ -449,10 +449,10 @@ public class Generator {
     }
 
     /**
-     * Get description annotation of the field
-     * @param node parent node
-     * @param param field
-     * @return description of the field
+     * Get description annotation of the field.
+     * @param node parent node.
+     * @param param field.
+     * @return description of the field.
      */
     private static String fieldAnnotation(BLangNode node, BLangNode param) {
         String subName = "";
@@ -488,10 +488,10 @@ public class Generator {
     }
 
     /**
-     * Get description annotation of the annotation attribute
-     * @param annotationNode parent node
-     * @param annotAttribute annotation attribute
-     * @return description of the annotation attribute
+     * Get description annotation of the annotation attribute.
+     * @param annotationNode parent node.
+     * @param annotAttribute annotation attribute.
+     * @return description of the annotation attribute.
      */
     private static String annotFieldAnnotation(BLangAnnotation annotationNode, BLangAnnotAttribute annotAttribute) {
         List<? extends AnnotationAttachmentNode> annotationAttachments = getAnnotationAttachments(annotationNode);
@@ -509,9 +509,9 @@ public class Generator {
     }
 
     /**
-     * Get the description annotation of the node
-     * @param node top level node
-     * @return description of the node
+     * Get the description annotation of the node.
+     * @param node top level node.
+     * @return description of the node.
      */
     private static String description(BLangNode node) {
         if (getAnnotationAttachments(node).size() == 0) {
@@ -529,9 +529,9 @@ public class Generator {
     }
 
     /**
-     * Get the anonymous struct string
-     * @param type struct type
-     * @return anonymous struct string
+     * Get the anonymous struct string.
+     * @param type struct type.
+     * @return anonymous struct string.
      */
     private static String getAnonStructString(BStructType type) {
         StringBuilder builder = new StringBuilder();
