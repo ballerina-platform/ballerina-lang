@@ -309,4 +309,13 @@ public class TextRecordChannel {
     public void close() {
         channel.close();
     }
+
+    /**
+     * Check whether there are more records or not.
+     *
+     * @return true if more records in the channel else false.
+     */
+    public boolean hasNext() {
+        return remaining;
+    }
 }

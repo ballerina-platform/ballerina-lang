@@ -10,8 +10,8 @@ function initFileChannel(string filePath,string permission,string encoding,strin
     textRecordChannel = characterChannel.toTextRecordChannel(rs,fs);
 }
 
-function readRecord () (string[]) {
-    string[] fields = textRecordChannel.readTextRecord();
+function nextRecord () (string[]) {
+    string[] fields = textRecordChannel.nextTextRecord();
     return fields;
 }
 
@@ -21,4 +21,8 @@ function writeRecord (string[] fields) {
 
 function close(){
     textRecordChannel.closeTextRecordChannel();
+}
+
+function hasNextRecord () (boolean) {
+    return textRecordChannel.hasNextTextRecord();
 }

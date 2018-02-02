@@ -30,7 +30,7 @@ public native function <CharacterChannel channel> toTextRecordChannel(string rec
 @Description {value:"Function to read text records"}
 @Param {value:"channel: The TextRecordChannel to read text records from"}
 @Return {value:"Fields listed in the record"}
-public native function <TextRecordChannel channel> readTextRecord()(string []);
+public native function <TextRecordChannel channel> nextTextRecord()(string []);
 
 @Description {value:"Function to write text records"}
 @Param {value:"channel: The TextRecordChannel to write text records to"}
@@ -83,3 +83,8 @@ public native function <ByteChannel channel> writeBytes(blob content,int startOf
 @Description { value:"Function to close a byte channel"}
 @Param {value:"channel: The ByteChannel to be closed"}
 public native function <ByteChannel channel> close();
+
+@Description {value:"Function to check whether next record is available or not"}
+@Param {value:"channel: The TextRecordChannel to read text records from"}
+@Return {value:"True if the channel has more records; false otherwise"}
+public native function <TextRecordChannel channel> hasNextTextRecord () (boolean);
