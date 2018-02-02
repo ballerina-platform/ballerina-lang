@@ -38,6 +38,13 @@ public class BTypes {
     public static BType typeNull = new BNullType(TypeConstants.NULL_TNAME, null);
     public static BType typeXMLAttributes = new BXMLAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME, null);
     public static BType typeIterator = new BIteratorType(TypeConstants.ITERATOR_TNAME, null);
+    public static BArrayType typeBlobArray = new BArrayType(BTypes.typeBlob);
+    public static BArrayType typeBooleanArray = new BArrayType(BTypes.typeBoolean);
+    public static BArrayType typeFloatArray = new BArrayType(BTypes.typeFloat);
+    public static BArrayType typeIntArray = new BArrayType(BTypes.typeInt);
+    public static BArrayType typeJSONArray = new BArrayType(typeJSON);
+    public static BArrayType typeStringArray = new BArrayType(BTypes.typeString);
+    public static BArrayType typeXMLArray = new BArrayType(typeXML);
 
     private BTypes() {
     }

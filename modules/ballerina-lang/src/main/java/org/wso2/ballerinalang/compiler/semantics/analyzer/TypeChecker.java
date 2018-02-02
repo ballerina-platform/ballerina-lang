@@ -195,13 +195,23 @@ public class TypeChecker extends BLangNodeVisitor {
         if (expTypeTag == TypeTags.NONE) {
             dlog.error(arrayLiteral.pos, DiagnosticCode.ARRAY_LITERAL_NOT_ALLOWED);
 
-        } else if (expTypeTag == TypeTags.JSON || expTypeTag == TypeTags.ANY) {
+        } else if (expTypeTag == TypeTags.ANY) {
+            if (arrayLiteral.exprs.size() > 0 && arrayLiteral.exprs.get(0) != null) {
+                BLangExpression expr = arrayLiteral.exprs.get(0);
+                // Allows only homogeneous arrays.
+                BType itemType = checkExpr(expr, this.env).get(0);
+                if (arrayLiteral.exprs.size() > 1) {
+                    checkExprs(arrayLiteral.exprs.subList(1, arrayLiteral.exprs.size()), this.env, itemType);
+                }
+                actualType = new BArrayType(itemType);
+            } else {
+                dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expTypes.get(0));
+            }
+        } else if (expTypeTag == TypeTags.JSON) {
             checkExprs(arrayLiteral.exprs, this.env, expTypes.get(0));
-            actualType = expTypes.get(0);
-
+            actualType = new BArrayType(expTypes.get(0));
         } else if (expTypeTag != TypeTags.ARRAY && expTypeTag != TypeTags.ERROR) {
             dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expTypes.get(0));
-
         } else if (expTypeTag != TypeTags.ERROR) {
             BArrayType arrayType = (BArrayType) expTypes.get(0);
             checkExprs(arrayLiteral.exprs, this.env, arrayType.eType);

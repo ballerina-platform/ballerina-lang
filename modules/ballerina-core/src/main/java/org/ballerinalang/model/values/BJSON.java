@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BStructType.StructField;
@@ -331,7 +330,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     private void setType() {
         switch (this.value.getType()) {
             case ARRAY:
-                this.type = new BArrayType(BTypes.typeJSON);
+                this.type = BTypes.typeJSONArray;
                 break;
             case BOOLEAN:
                 this.type =  BTypes.typeBoolean;

@@ -78,7 +78,7 @@ public class BIntRange implements BRefType, BCollection {
 
     @Override
     public BType getType() {
-        return BIntArray.arrayType;
+        return BTypes.typeIntArray;
     }
 
     @Override

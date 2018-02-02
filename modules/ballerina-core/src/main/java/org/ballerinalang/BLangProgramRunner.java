@@ -160,7 +160,7 @@ public class BLangProgramRunner {
 
         BType[] paramTypes = mainFuncInfo.getParamTypes();
         BType[] retParamTypes = mainFuncInfo.getRetParamTypes();
-        BArrayType argsType = new BArrayType(BTypes.typeString);
+        BArrayType argsType = BTypes.typeStringArray;
         if (paramTypes.length != 1 || !paramTypes[0].equals(argsType) || retParamTypes.length != 0) {
             throw new BallerinaException(errorMsg);
         }

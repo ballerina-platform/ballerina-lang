@@ -640,7 +640,7 @@ public class BLangVM {
                     i = operands[0];
                     cpIndex = operands[1];
                     typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
-                    sf.refRegs[i] = new BRefValueArray(typeRefCPEntry.getType());
+                    sf.refRegs[i] = new BRefValueArray((BArrayType) typeRefCPEntry.getType());
                     break;
                 case InstructionCodes.JSONNEWARRAY:
                     i = operands[0];

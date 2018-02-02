@@ -486,7 +486,7 @@ public class JSONUtils {
             xml = omElementArrayList.get(0);
         } else {
             // There is a multi rooted node and create xml sequence from it
-            BRefValueArray elementsSeq = new BRefValueArray();
+            BRefValueArray elementsSeq = new BRefValueArray(BTypes.typeJSONArray);
             int count = omElementArrayList.size();
             for (int i = 0; i < count; i++) {
                 elementsSeq.add(i, omElementArrayList.get(i));
@@ -799,7 +799,7 @@ public class JSONUtils {
     /**
      * Convert a JSON node to an array.
      *
-     * @param jsonNode JSON to convert
+     * @param arrayNode JSON to convert
      * @param targetArrayType Type of the target array
      * @return If the provided JSON is of array type, this method will return a {@link BArrayType} containing the values
      *         of the JSON array. Otherwise the method will throw a {@link BallerinaException}.
@@ -824,14 +824,14 @@ public class JSONUtils {
             case TypeTags.BOOLEAN_TAG:
                 return jsonNodeToBBooleanArray(arrayNode);
             case TypeTags.ANY_TAG:
-                refValueArray = new BRefValueArray(elementType);
+                refValueArray = new BRefValueArray(new BArrayType(elementType));
                 for (int i = 0; i < arrayNode.size(); i++) {
                     JsonNode element = arrayNode.get(i);
                     refValueArray.add(i, (BRefType) getBValue(element));
                 }
                 return refValueArray;
             default:
-                refValueArray = new BRefValueArray(elementType);
+                refValueArray = new BRefValueArray(new BArrayType(elementType));
                 for (int i = 0; i < arrayNode.size(); i++) {
                     JsonNode element = arrayNode.get(i);
                     if (elementType == BTypes.typeMap) {

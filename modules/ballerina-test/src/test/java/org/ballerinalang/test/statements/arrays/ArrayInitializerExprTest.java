@@ -147,11 +147,11 @@ public class ArrayInitializerExprTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAnyAsArray", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BRefValueArray.class);
+        Assert.assertSame(returns[0].getClass(), BIntArray.class);
 
-        BRefValueArray arrayValue = (BRefValueArray) returns[0];
+        BIntArray arrayValue = (BIntArray) returns[0];
         Assert.assertEquals(arrayValue.size(), 3);
-        Assert.assertEquals(((Long) arrayValue.get(0).value()).longValue(), 1);
+        Assert.assertEquals(arrayValue.get(0), 1);
     }
 
     @Test(description = "Test float array initialization with integer values")
