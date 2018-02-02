@@ -2776,11 +2776,11 @@ public class BLangVM {
                 mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
             }
             this.controlStack.currentFrame.getRefRegs()[offsetTimeout] = mbMap;
-        }     
+        }
     }
-    
-    private boolean invokeJoinWorkers(Map<String, BLangVMWorkers.WorkerExecutor> workers, 
-            Set<String> joinWorkerNames, int joinCount, long timeout) {
+
+    private boolean invokeJoinWorkers(Map<String, BLangVMWorkers.WorkerExecutor> workers,
+                                      Set<String> joinWorkerNames, int joinCount, long timeout) {
         ExecutorService exec = ThreadPoolFactory.getInstance().getWorkerExecutor();
         Semaphore resultCounter = new Semaphore(-joinCount + 1);
         workers.forEach((k, v) -> {
