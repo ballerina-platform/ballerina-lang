@@ -131,6 +131,7 @@
         <internalFileTemplate name="Ballerina Service"/>
         <internalFileTemplate name="Ballerina Connector"/>
         <internalFileTemplate name="Ballerina WebSocket"/>
+        <internalFileTemplate name="Ballerina Test"/>
 
         <defaultTemplatePropertiesProvider
                 implementation="org.ballerinalang.plugins.idea.actions.BallerinaTemplatePropertiesProvider"/>
