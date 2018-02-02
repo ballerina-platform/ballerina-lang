@@ -1,7 +1,7 @@
 
 import org.foo;
 
-struct person {
+public struct employee01 {
     int age;
     string name;
     string address;
@@ -9,14 +9,23 @@ struct person {
     private:
         string ssn;
         int id;
+        int employeeId = 123456;
 }
 
-struct employee {
+public struct person {
     int age;
     string name;
     string address;
     string zipcode = "95134";
-    private:
+        string ssn;
+        int id;
+}
+
+public struct employee {
+    int age;
+    string name;
+    string address;
+    string zipcode = "95134";
         string ssn;
         int id;
         int employeeId = 123456;
@@ -34,7 +43,7 @@ public struct userB {
 }
 
 public function textPrivateFieldAccess1() returns (string, string, string, int, int) {
-    employee e = {age:14, name:"sam", ssn:"234-56-7890"};
+    employee01 e = {age:14, name:"sam", ssn:"234-56-7890"};
     e.id = 45034;
     return e.name, e.zipcode, e.ssn, e.id, e.employeeId;
 }

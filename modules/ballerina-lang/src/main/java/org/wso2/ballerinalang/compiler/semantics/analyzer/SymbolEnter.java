@@ -415,7 +415,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     BStructType structType = (BStructType) funcNode.receiver.type;
                     BAttachedFunction attachedFunc = new BAttachedFunction(
                             names.fromIdNode(funcNode.name), funcSymbol, funcType);
-                    structType.attachedFunctions.add(attachedFunc);
+                    structType.attachedFuncs.add(attachedFunc);
                 }
             }
 

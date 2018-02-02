@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.model.types.BFunctionType;
-
 /**
  * {@code AttachedFunctionInfo} represents an attached function in the program file.
  * <p>
@@ -34,8 +32,6 @@ public class AttachedFunctionInfo {
     public String typeSignature;
 
     public int flags;
-
-    public BFunctionType funcType;
 
     public AttachedFunctionInfo(int nameCPIndex, String name, int signatureCPIndex,
                                 String typeSignature, int flags) {

@@ -374,14 +374,15 @@ public class ProgramFileReader {
         for (int i = 0; i < structCount; i++) {
             // Create struct info entry
             int structNameCPIndex = dataInStream.readInt();
+            int flags = dataInStream.readInt();
             UTF8CPEntry structNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(structNameCPIndex);
             String structName = structNameUTF8Entry.getValue();
             StructInfo structInfo = new StructInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
-                    structNameCPIndex, structName);
+                    structNameCPIndex, structName, flags);
             packageInfo.addStructInfo(structName, structInfo);
 
             // Set struct type
-            BStructType bStructType = new BStructType(structName, packageInfo.getPkgPath());
+            BStructType bStructType = new BStructType(structName, packageInfo.getPkgPath(), flags);
             structInfo.setType(bStructType);
 
             // Read struct field info entries
@@ -395,10 +396,10 @@ public class ProgramFileReader {
                 int fieldTypeSigCPIndex = dataInStream.readInt();
                 UTF8CPEntry fieldTypeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(fieldTypeSigCPIndex);
 
-                int flags = dataInStream.readInt();
+                int fieldFlags = dataInStream.readInt();
 
                 StructFieldInfo fieldInfo = new StructFieldInfo(fieldNameCPIndex, fieldNameUTF8Entry.getValue(),
-                        fieldTypeSigCPIndex, fieldTypeSigUTF8Entry.getValue(), flags);
+                        fieldTypeSigCPIndex, fieldTypeSigUTF8Entry.getValue(), fieldFlags);
                 structInfo.addFieldInfo(fieldInfo);
 
                 readAttributeInfoEntries(dataInStream, packageInfo, fieldInfo);
@@ -415,9 +416,9 @@ public class ProgramFileReader {
                 int typeSigCPIndex = dataInStream.readInt();
                 UTF8CPEntry typeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(typeSigCPIndex);
 
-                int flags = dataInStream.readInt();
+                int funchFlags = dataInStream.readInt();
                 AttachedFunctionInfo functionInfo = new AttachedFunctionInfo(nameCPIndex, nameUTF8Entry.getValue(),
-                        typeSigCPIndex, typeSigUTF8Entry.getValue(), flags);
+                        typeSigCPIndex, typeSigUTF8Entry.getValue(), funchFlags);
                 structInfo.attachedFuncInfoEntries.add(functionInfo);
             }
 
@@ -433,10 +434,11 @@ public class ProgramFileReader {
 
             // Create enum info entry
             int enumNameCPIndex = dataInStream.readInt();
+            int flags = dataInStream.readInt();
             UTF8CPEntry enumNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(enumNameCPIndex);
             String enumName = enumNameUTF8Entry.getValue();
             EnumInfo enumInfo = new EnumInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
-                    enumNameCPIndex, enumName);
+                    enumNameCPIndex, enumName, flags);
             packageInfo.addEnumInfo(enumName, enumInfo);
 
             // Set enum type
@@ -467,14 +469,12 @@ public class ProgramFileReader {
             int connectorNameCPIndex = dataInStream.readInt();
             UTF8CPEntry connectorNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(connectorNameCPIndex);
 
-            // Read connector signature cp index;
-            int connectorSigCPIndex = dataInStream.readInt();
-            UTF8CPEntry connectorSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(connectorSigCPIndex);
+            int flags = dataInStream.readInt();
 
             // Create connector info
             String connectorName = connectorNameUTF8Entry.getValue();
-            ConnectorInfo connectorInfo = new ConnectorInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
-                    connectorNameCPIndex, connectorName, connectorSigCPIndex, connectorSigUTF8Entry.getValue());
+            ConnectorInfo connectorInfo = new ConnectorInfo(packageInfo.getPkgNameCPIndex(),
+                    packageInfo.getPkgPath(), connectorNameCPIndex, connectorName, flags);
             packageInfo.addConnectorInfo(connectorName, connectorInfo);
 
             // Set connector type
@@ -559,13 +559,14 @@ public class ProgramFileReader {
             // Read connector name cp index
             int serviceNameCPIndex = dataInStream.readInt();
             UTF8CPEntry serviceNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(serviceNameCPIndex);
+            int flags = dataInStream.readInt();
 
             // Read connector signature cp index;
             int serviceProtocolCPIndex = dataInStream.readInt();
             UTF8CPEntry serviceProtocolUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(serviceProtocolCPIndex);
 
             ServiceInfo serviceInfo = new ServiceInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
-                    serviceNameCPIndex, serviceNameUTF8Entry.getValue(),
+                    serviceNameCPIndex, serviceNameUTF8Entry.getValue(), flags,
                     serviceProtocolCPIndex, serviceProtocolUTF8Entry.getValue());
             serviceInfo.setPackageInfo(packageInfo);
             packageInfo.addServiceInfo(serviceInfo.getName(), serviceInfo);
@@ -1696,8 +1697,8 @@ public class ProgramFileReader {
                 BStructType.AttachedFunction attachedFunction = new BStructType.AttachedFunction(
                         attachedFuncInfo.name, funcType, attachedFuncInfo.flags);
                 attachedFunctions[i] = attachedFunction;
-                structType.setAttachedFunctions(attachedFunctions);
             }
+            structType.setAttachedFunctions(attachedFunctions);
         }
     }
 
