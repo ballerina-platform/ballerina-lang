@@ -25,7 +25,6 @@ import org.antlr.jetbrains.adaptor.lexer.TokenIElementType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
 import org.ballerinalang.plugins.idea.grammar.BallerinaLexer;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;

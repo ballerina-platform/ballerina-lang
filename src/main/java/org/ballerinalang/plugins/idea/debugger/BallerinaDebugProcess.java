@@ -51,7 +51,6 @@ import com.intellij.xdebugger.stepping.XSmartStepIntoHandler;
 import com.intellij.xdebugger.ui.XDebugTabLayouter;
 import org.ballerinalang.plugins.idea.debugger.breakpoint.BallerinaBreakPointType;
 import org.ballerinalang.plugins.idea.debugger.breakpoint.BallerinaBreakpointProperties;
-
 import org.ballerinalang.plugins.idea.debugger.dto.BreakPoint;
 import org.ballerinalang.plugins.idea.debugger.dto.Message;
 import org.ballerinalang.plugins.idea.debugger.protocol.Command;
