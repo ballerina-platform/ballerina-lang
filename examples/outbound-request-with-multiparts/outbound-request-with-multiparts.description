@@ -1,0 +1,3 @@
+//With Ballerina http client connector, you can send multiparts via outbound requests. First build the body parts
+//that needs to be send out with mime entities and set those body parts to the outbound request.
+
