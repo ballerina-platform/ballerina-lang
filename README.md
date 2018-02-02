@@ -41,6 +41,10 @@ To get to the settings in vscode use `Ctrl` + `,` in Windows and Linux and `⌘`
 
 ![set sdk](docs/set-sdk.png)
 
+## Using the debugger
+
+See the [wiki page](https://github.com/ballerina-lang/plugin-vscode/wiki/Debugging)
+
 vscode need to be restarted for a new configuration to take effect.
 
 ## Running the plugin for development
