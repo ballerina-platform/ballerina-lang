@@ -144,13 +144,13 @@ class Diagram extends React.Component {
         } */
 
         // Filter out the overlay components so we can overlay html on top of svg.
-        /*
+
         const overlayCompRender = new OverlayComponentsRenderingVisitor();
         this.props.model.accept(overlayCompRender);
         let overlayComponents = [];
         if (overlayCompRender.getOverlayComponents()) {
             overlayComponents = getOverlayComponent(overlayCompRender.getOverlayComponents(), this.props.mode);
-        } */
+        }
 
         // Filter out the errors collected so we can show them near the specific components
         /* const errorCollector = new ErrorCollectorVisitor();
@@ -162,10 +162,12 @@ class Diagram extends React.Component {
 
         const controllerVisitor = new ControllerVisitor(this.props.mode);
         this.props.model.accept(controllerVisitor);
-        const controllers = controllerVisitor.getComponents();
+        let controllers = controllerVisitor.getComponents();
 
         const tln = (this.props.model.getTopLevelNodes()) ? this.props.model.getTopLevelNodes() : [];
         const children = getComponentForNodeArray(tln, this.props.mode);
+
+        controllers = _.concat(controllers, overlayComponents);
 
         // 4. Ok we are all set, now lets render the diagram with React. We will create
         //    a CsnvasDecorator and pass child components for that.

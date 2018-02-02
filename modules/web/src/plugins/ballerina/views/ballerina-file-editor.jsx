@@ -815,13 +815,13 @@ class BallerinaFileEditor extends React.Component {
                     />
                     <ViewButton
                         label='Source View'
-                        icon='code-view'
+                        icon='code'
                         onClick={() => { this.setActiveView(SOURCE_VIEW); }}
                         active={this.state.activeView === SOURCE_VIEW}
                     />
                     <ViewButton
                         label='Split View'
-                        icon='code'
+                        icon='split-view'
                         onClick={() => { this.setActiveView(SPLIT_VIEW); }}
                         active={this.state.activeView === SPLIT_VIEW}
                     />

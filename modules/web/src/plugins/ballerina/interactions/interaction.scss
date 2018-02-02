@@ -74,9 +74,10 @@
     display: block;
     position: relative;
     float:left;
-    background: #fff;
+    background: #f1f1f1;
     overflow: visible;
     margin-left: 1px;
+    color: #333;
 }
 
 .interaction-menu-area:hover .interaction-menu-item, .interaction-menu-area-clicked .interaction-menu-item {
