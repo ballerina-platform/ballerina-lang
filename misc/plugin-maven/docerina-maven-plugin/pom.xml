@@ -27,7 +27,7 @@
   <artifactId>docerina-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
 
-  <name>Docerina Maven Plugin</name>
+  <name>Ballerina - Docerina Maven Plugin</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -9,6 +9,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>language-server-stdio-launcher</artifactId>
+    <name>Ballerina - Language server - Stdio launcher</name>
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>

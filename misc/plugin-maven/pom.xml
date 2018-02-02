@@ -31,7 +31,7 @@
     <version>0.96.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Ballerina Maven Plugins - Parent Pom</name>
+    <name>Ballerina - Maven Plugins - Parent</name>
 
     <modules>
         <module>docerina-maven-plugin</module>

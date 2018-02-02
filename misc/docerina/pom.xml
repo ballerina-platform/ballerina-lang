@@ -31,7 +31,7 @@
     <packaging>jar</packaging>
     <version>0.96.1-SNAPSHOT</version>
 
-    <name>WSO2 Docerina - Ballerina Documentation Generation</name>
+    <name>Ballerina - Docerina</name>
 
     <dependencies>
         <dependency>

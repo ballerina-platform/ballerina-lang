@@ -30,7 +30,7 @@
     <packaging>pom</packaging>
     <version>0.96.1-SNAPSHOT</version>
 
-    <name>Testerina - Test Framework for Ballerina Language</name>
+    <name>Ballerina - Testerina - Parent</name>
 
     <properties>
 

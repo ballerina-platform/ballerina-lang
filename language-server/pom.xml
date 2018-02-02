@@ -12,7 +12,7 @@
     <packaging>pom</packaging>
     <version>0.96.1-SNAPSHOT</version>
 
-    <name>WSO2 Language Server</name>
+    <name>Ballerina - Language Server - Parent</name>
     <url>http://ballerinalang.org</url>
 
     <dependencyManagement>

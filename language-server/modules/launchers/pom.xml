@@ -9,6 +9,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>language-server-launchers</artifactId>
+    <name>Ballerina - Language server - Launchers</name>
     <packaging>pom</packaging>
     <modules>
         <module>stdio-launcher</module>

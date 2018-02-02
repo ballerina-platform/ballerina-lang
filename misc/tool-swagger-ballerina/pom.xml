@@ -30,7 +30,7 @@
     <artifactId>swagger-ballerina</artifactId>
     <packaging>pom</packaging>
     <version>0.96.1-SNAPSHOT</version>
-    <name>Ballerina Swagger Tooling - Parent</name>
+    <name>Ballerina - Swagger Tooling - Parent</name>
 
     <properties>
         <ballerina.version>${project.version}</ballerina.version>
