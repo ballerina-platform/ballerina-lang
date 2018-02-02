@@ -31,3 +31,4 @@ public native function base16ToBase64Encode (string baseString) (string);
 @Param {value:"s: string to be encoded"}
 @Return {value:"the encoded string."}
 public native function base64ToBase16Encode (string baseString) (string);
+

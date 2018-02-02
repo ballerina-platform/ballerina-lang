@@ -20,3 +20,9 @@ public native function getHash (string baseString, Algorithm algorithm) (string)
 @Param {value:"algorithm: The hashing algorithm to be used"}
 @Return {value:"The hashed string"}
 public native function getHmac (string baseString, string keyString, Algorithm algorithm) (string);
+
+@Description { value:"Verify given JWT token according to the given key"}
+@Param { value:"jwToken: JSON Web Token" }
+@Param { value:"key: (if JWT encrypt with RSA algorithm this is the public key, if JWT hashed this is the secret key)" }
+@Return { value:"boolean: Returns JWT is valid or not" }
+public native function verifyJwt (string jwToken, string key) (boolean);

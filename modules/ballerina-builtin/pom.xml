@@ -79,7 +79,7 @@
             <artifactId>ballerina-config</artifactId>
         </dependency>
     </dependencies>
-    
+
     <build>
         <resources>
             <resource>
@@ -94,7 +94,7 @@
                 <directory>${ballerina.source.directory}</directory>
                 <targetPath>META-INF/ballerina</targetPath>
             </resource>
-    	</resources>
+        </resources>
         <plugins>
             <!-- For ballerina annotation processing -->
             <plugin>
@@ -124,7 +124,7 @@
     </build>
 
     <properties>
-      <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
+        <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
     </properties>
-    
+
 </project>
