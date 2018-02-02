@@ -115,7 +115,7 @@ class Button extends React.Component {
             float: 'left' };
 
         if (this.props.menuOverButton) {
-            menuStyle.zIndex = 52;
+            menuStyle.zIndex = 22;
             menuStyle.top = (-3 * btnRadius) + 10;
             menuStyle.left = 0;
         }
