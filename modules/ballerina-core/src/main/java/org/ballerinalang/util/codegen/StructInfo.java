@@ -34,8 +34,8 @@ public class StructInfo extends StructureTypeInfo {
     private List<StructFieldInfo> fieldInfoEntries = new ArrayList<>();
     public List<AttachedFunctionInfo> attachedFuncInfoEntries = new ArrayList<>();
 
-    public StructInfo(int pkgPathCPIndex, String packagePath, int nameCPIndex, String name) {
-        super(pkgPathCPIndex, packagePath, nameCPIndex, name);
+    public StructInfo(int pkgPathCPIndex, String packagePath, int nameCPIndex, String name, int flags) {
+        super(pkgPathCPIndex, packagePath, nameCPIndex, name, flags);
     }
 
     public BStructType getType() {

@@ -300,6 +300,7 @@ public class ProgramFileWriter {
     private static void writeStructInfo(DataOutputStream dataOutStream,
                                         StructInfo structInfo) throws IOException {
         dataOutStream.writeInt(structInfo.nameCPIndex);
+        dataOutStream.writeInt(structInfo.flags);
 
         // Write struct field info entries
         dataOutStream.writeShort(structInfo.fieldInfoEntries.size());
@@ -320,6 +321,7 @@ public class ProgramFileWriter {
     private static void writeEnumInfo(DataOutputStream dataOutStream,
                                         EnumInfo enumInfo) throws IOException {
         dataOutStream.writeInt(enumInfo.nameCPIndex);
+        dataOutStream.writeInt(enumInfo.flags);
         EnumeratorInfo[] enumeratorInfoEntries = enumInfo.enumeratorInfoList.toArray(new EnumeratorInfo[0]);
         dataOutStream.writeShort(enumeratorInfoEntries.length);
         for (EnumeratorInfo enumeratorInfo : enumeratorInfoEntries) {
@@ -334,8 +336,8 @@ public class ProgramFileWriter {
     private static void writeConnectorInfo(DataOutputStream dataOutStream,
                                            ConnectorInfo connectorInfo) throws IOException {
         dataOutStream.writeInt(connectorInfo.nameCPIndex);
-        // TODO write property flags  e.g. public
-        dataOutStream.writeInt(connectorInfo.signatureCPIndex);
+        dataOutStream.writeInt(connectorInfo.flags);
+//        dataOutStream.writeInt(connectorInfo.signatureCPIndex);
     }
 
     private static void writeConnectorActionInfo(DataOutputStream dataOutStream,
@@ -353,6 +355,7 @@ public class ProgramFileWriter {
     private static void writeServiceInfo(DataOutputStream dataOutStream,
                                          ServiceInfo serviceInfo) throws IOException {
         dataOutStream.writeInt(serviceInfo.nameCPIndex);
+        dataOutStream.writeInt(serviceInfo.flags);
         dataOutStream.writeInt(serviceInfo.protocolPkgPathCPIndex);
 
         ResourceInfo[] resourceInfoEntries = serviceInfo.resourceInfoMap.values().toArray(new ResourceInfo[0]);

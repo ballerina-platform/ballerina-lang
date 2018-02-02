@@ -3227,29 +3227,37 @@ public class BLangVM {
     }
 
     public static boolean checkStructEquivalency(BStructType rhsType, BStructType lhsType) {
-        // Struct Type equivalency
-        BStructType.StructField[] rhsFields = rhsType.getStructFields();
-        BStructType.AttachedFunction[] rhsAttachedFuncs = rhsType.getAttachedFunctions();
-
-        BStructType.StructField[] lhsFields = lhsType.getStructFields();
-        BStructType.AttachedFunction[] lhsAttachedFuncs = lhsType.getAttachedFunctions();
-
-        if (lhsFields.length > rhsFields.length ||
-                lhsAttachedFuncs.length > rhsAttachedFuncs.length) {
+        // Both structs should be public or private.
+        // Get the XOR of both flags(masks)
+        // If both are public, then public bit should be 0;
+        // If both are private, then public bit should be 0;
+        // The public bit is on means, one is public, and the other one is private.
+        if (Flags.isFlagOn(lhsType.flags ^ rhsType.flags, Flags.PUBLIC)) {
             return false;
         }
 
-        return rhsType.getPackagePath().equals(lhsType.getPackagePath()) ?
-                checkEquivalencyOfStructsInSamePackage(lhsType, rhsType) :
-                checkEquivalencyOfStructsInDifferentPackages(lhsType, rhsType);
+        // If both structs are private, they should be in the same package.
+        if (!Flags.isFlagOn(lhsType.flags, Flags.PUBLIC) &&
+                !rhsType.getPackagePath().equals(lhsType.getPackagePath())) {
+            return false;
+        }
+
+        if (lhsType.getStructFields().length > rhsType.getStructFields().length ||
+                lhsType.getAttachedFunctions().length > rhsType.getAttachedFunctions().length) {
+            return false;
+        }
+
+        return !Flags.isFlagOn(lhsType.flags, Flags.PUBLIC) &&
+                rhsType.getPackagePath().equals(lhsType.getPackagePath()) ?
+                checkEquivalencyOfTwoPrivateStructs(lhsType, rhsType) :
+                checkEquivalencyOfPublicStructs(lhsType, rhsType);
     }
 
-    private static boolean checkEquivalencyOfStructsInSamePackage(BStructType lhsType, BStructType rhsType) {
-        for (int i = 0; i < lhsType.getStructFields().length; i++) {
-            BStructType.StructField lhsField = lhsType.getStructFields()[i];
-            BStructType.StructField rhsField = rhsType.getStructFields()[i];
-            if (isBothPublicOrPrivate(lhsField.flags, rhsField.flags) &&
-                    lhsField.fieldName.equals(rhsField.fieldName) &&
+    private static boolean checkEquivalencyOfTwoPrivateStructs(BStructType lhsType, BStructType rhsType) {
+        for (int fieldCounter = 0; fieldCounter < lhsType.getStructFields().length; fieldCounter++) {
+            BStructType.StructField lhsField = lhsType.getStructFields()[fieldCounter];
+            BStructType.StructField rhsField = rhsType.getStructFields()[fieldCounter];
+            if (lhsField.fieldName.equals(rhsField.fieldName) &&
                     isSameType(rhsField.fieldType, lhsField.fieldType)) {
                 continue;
             }
@@ -3260,18 +3268,19 @@ public class BLangVM {
         BStructType.AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
         for (BStructType.AttachedFunction lhsFunc : lhsFuncs) {
             BStructType.AttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
-            if (rhsFunc == null || !isBothPublicOrPrivate(lhsFunc.flags, rhsFunc.flags)) {
+            if (rhsFunc == null) {
                 return false;
             }
         }
         return true;
     }
 
-    private static boolean checkEquivalencyOfStructsInDifferentPackages(BStructType lhsType, BStructType rhsType) {
-        for (int i = 0; i < lhsType.getStructFields().length; i++) {
+    private static boolean checkEquivalencyOfPublicStructs(BStructType lhsType, BStructType rhsType) {
+        int fieldCounter = 0;
+        for (; fieldCounter < lhsType.getStructFields().length; fieldCounter++) {
             // Return false if either field is private
-            BStructType.StructField lhsField = lhsType.getStructFields()[i];
-            BStructType.StructField rhsField = rhsType.getStructFields()[i];
+            BStructType.StructField lhsField = lhsType.getStructFields()[fieldCounter];
+            BStructType.StructField rhsField = rhsType.getStructFields()[fieldCounter];
             if (!Flags.isFlagOn(lhsField.flags, Flags.PUBLIC) ||
                     !Flags.isFlagOn(rhsField.flags, Flags.PUBLIC)) {
                 return false;
@@ -3284,12 +3293,22 @@ public class BLangVM {
             return false;
         }
 
+        // Check the rest of the fields in RHS type
+        for (; fieldCounter < rhsType.getStructFields().length; fieldCounter++) {
+            if (!Flags.isFlagOn(rhsType.getStructFields()[fieldCounter].flags, Flags.PUBLIC)) {
+                return false;
+            }
+        }
+
         BStructType.AttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
         BStructType.AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
         for (BStructType.AttachedFunction lhsFunc : lhsFuncs) {
+            if (!Flags.isFlagOn(lhsFunc.flags, Flags.PUBLIC)) {
+                return false;
+            }
+
             BStructType.AttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
-            if (rhsFunc == null || !Flags.isFlagOn(rhsFunc.flags, Flags.PUBLIC) ||
-                    !Flags.isFlagOn(lhsFunc.flags, Flags.PUBLIC)) {
+            if (rhsFunc == null || !Flags.isFlagOn(rhsFunc.flags, Flags.PUBLIC)) {
                 return false;
             }
         }

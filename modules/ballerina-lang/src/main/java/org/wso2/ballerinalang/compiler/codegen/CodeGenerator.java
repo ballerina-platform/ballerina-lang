@@ -1774,7 +1774,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         BTypeSymbol structSymbol = (BTypeSymbol) structNode.symbol;
         // Add Struct name as an UTFCPEntry to the constant pool
         int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
-        StructInfo structInfo = new StructInfo(currentPackageRefCPIndex, structNameCPIndex);
+        StructInfo structInfo = new StructInfo(currentPackageRefCPIndex, structNameCPIndex, structSymbol.flags);
         currentPkgInfo.addStructInfo(structSymbol.name.value, structInfo);
         structInfo.structType = (BStructType) structSymbol.type;
 
@@ -1806,7 +1806,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         fieldIndexes = new VariableIndex(FIELD);
 
         // Create attached function info entries
-        for (BAttachedFunction attachedFunc : structInfo.structType.attachedFunctions) {
+        for (BAttachedFunction attachedFunc : structInfo.structType.attachedFuncs) {
             int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, attachedFunc.funcName.value);
 
             // Remove the first type. The first type is always the type to which the function is attached to
@@ -1828,7 +1828,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         BTypeSymbol enumSymbol = (BTypeSymbol) enumNode.symbol;
         // Add Enum name as an UTFCPEntry to the constant pool
         int enumNameCPIndex = addUTF8CPEntry(currentPkgInfo, enumSymbol.name.value);
-        EnumInfo enumInfo = new EnumInfo(currentPackageRefCPIndex, enumNameCPIndex);
+        EnumInfo enumInfo = new EnumInfo(currentPackageRefCPIndex, enumNameCPIndex, enumSymbol.flags);
         currentPkgInfo.addEnumInfo(enumSymbol.name.value, enumInfo);
         enumInfo.enumType = (BEnumType) enumSymbol.type;
 
@@ -1899,7 +1899,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add connector name as an UTFCPEntry to the constant pool
         int connectorNameCPIndex = addUTF8CPEntry(currentPkgInfo, connectorNode.name.value);
         //Create connector info
-        ConnectorInfo connectorInfo = new ConnectorInfo(currentPackageRefCPIndex, connectorNameCPIndex);
+        ConnectorInfo connectorInfo = new ConnectorInfo(currentPackageRefCPIndex,
+                connectorNameCPIndex, connectorNode.symbol.flags);
         connectorInfo.paramTypes = connectorType.paramTypes.toArray(new BType[0]);
         connectorInfo.signatureCPIndex = addUTF8CPEntry(this.currentPkgInfo, generateConnectorSig(connectorInfo));
         // Add connector level variables
@@ -1953,7 +1954,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (protocolPkgId != null) {
             String protocolPkg = protocolPkgId.getName().value;
             int protocolPkgCPIndex = addUTF8CPEntry(currentPkgInfo, protocolPkg);
-            ServiceInfo serviceInfo = new ServiceInfo(currentPackageRefCPIndex, serviceNameCPIndex, protocolPkgCPIndex);
+            ServiceInfo serviceInfo = new ServiceInfo(currentPackageRefCPIndex, serviceNameCPIndex,
+                    serviceNode.symbol.flags, protocolPkgCPIndex);
             // Add service level variables
             int localVarAttNameIndex = addUTF8CPEntry(currentPkgInfo,
                     AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.value());

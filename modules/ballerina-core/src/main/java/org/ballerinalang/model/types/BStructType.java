@@ -30,6 +30,7 @@ public class BStructType extends BType {
     private StructField[] structFields;
     private AttachedFunction[] attachedFunctions;
     private int[] fieldTypeCount;
+    public int flags;
 
     /**
      * Create a {@code BStructType} which represents the user defined struct type.
@@ -37,8 +38,9 @@ public class BStructType extends BType {
      * @param typeName string name of the type
      * @param pkgPath  package of the struct
      */
-    public BStructType(String typeName, String pkgPath) {
+    public BStructType(String typeName, String pkgPath, int flags) {
         super(typeName, pkgPath, BStruct.class);
+        this.flags = flags;
     }
 
     public StructField[] getStructFields() {

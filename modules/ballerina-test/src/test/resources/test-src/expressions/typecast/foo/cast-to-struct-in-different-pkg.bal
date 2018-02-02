@@ -2,7 +2,7 @@ package expressions.typecast.foo;
 
 import expressions.typecast.foo.bar;
 
-struct Person {
+public struct Person {
     string name;
     int age;
     Person parent;

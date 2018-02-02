@@ -34,8 +34,8 @@ public class StructInfo extends StructureTypeInfo {
     public List<StructFieldInfo> fieldInfoEntries = new ArrayList<>();
     public List<AttachedFunctionInfo> attachedFuncInfoEntries = new ArrayList<>();
 
-    public StructInfo(int pkgNameCPIndex, int nameCPIndex) {
-        super(pkgNameCPIndex, nameCPIndex);
+    public StructInfo(int pkgNameCPIndex, int nameCPIndex, int flags) {
+        super(pkgNameCPIndex, nameCPIndex, flags);
     }
 
     @Override

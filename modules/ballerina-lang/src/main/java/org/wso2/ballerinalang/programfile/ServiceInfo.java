@@ -36,9 +36,10 @@ public class ServiceInfo extends StructureTypeInfo {
 
     public ServiceInfo(int pkgPathCPIndex,
                        int nameCPIndex,
+                       int flags,
                        int protocolPkgPathCPIndex) {
 
-        super(pkgPathCPIndex, nameCPIndex);
+        super(pkgPathCPIndex, nameCPIndex, flags);
         this.protocolPkgPathCPIndex = protocolPkgPathCPIndex;
     }
 

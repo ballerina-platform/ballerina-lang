@@ -31,12 +31,14 @@ public class StructureTypeInfo implements AttributeInfoPool {
 
     public int pkgNameCPIndex;
     public int nameCPIndex;
+    public int flags;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public StructureTypeInfo(int pkgNameCPIndex, int nameCPIndex) {
+    public StructureTypeInfo(int pkgNameCPIndex, int nameCPIndex, int flags) {
         this.pkgNameCPIndex = pkgNameCPIndex;
         this.nameCPIndex = nameCPIndex;
+        this.flags = flags;
     }
 
     @Override

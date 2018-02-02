@@ -38,33 +38,67 @@ public class StructEquivalencyTest {
     }
 
     @Test(description = "Test equivalence of structs that are in the same package")
-    public void testEquivalenceOfStructsInSamePackage() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEquivalenceOfStructsInSamePackage");
+    public void testEqOfPrivateStructsInSamePackage() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEquivalenceOfPrivateStructsInSamePackage");
 
         Assert.assertEquals(returns[0].stringValue(), "234-56-7890");
     }
 
-    @Test(description = "Test equivalence of structs that are in the same package from a third package")
-    public void testEquivalenceOfStructsInSamePackageFromDifferentPackage() {
+    @Test(description = "Test equivalence of public structs that are in the same package")
+    public void testEqOfPublicStructsInSamePackage() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEquivalenceOfPublicStructsInSamePackage");
+
+        Assert.assertEquals(returns[0].stringValue(), "234-56-7890");
+    }
+
+    @Test(description = "Test equivalence of public structs that are in the same package. " +
+            "Equivalency test is performed in another package.")
+    public void testEqOfPublicStructs() {
         BValue[] returns = BRunUtil.invoke(compileResult,
-                "testEquivalenceOfStructsInSamePackageFromDifferentPackage");
+                "testEqOfPublicStructs");
 
         Assert.assertEquals(returns[0].stringValue(), "234-56-7890");
     }
 
-    @Test(description = "Test struct equivalency in structs that are in two different packages. " +
-            "This test function is in another package.")
-    public void testStructEqViewFromThirdPackage() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructEqViewFromThirdPackage");
+    @Test(description = "Test equivalency of public structs that are in two different packages")
+    public void testEqOfPublicStructs1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEqOfPublicStructs1");
 
-        Assert.assertEquals(returns[0].stringValue(), "ball");
+        Assert.assertEquals(returns[0].stringValue(), "234-56-7890");
     }
 
-    @Test(description = "Test struct equivalency in structs that are in two different packages. " +
-            "This test function is in another package.")
-    public void testStructEqRuntime() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeStructEq");
+    @Test(description = "Test equivalency of public structs that are in two different packages")
+    public void testEqOfPublicStructs2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEqOfPublicStructs2");
+
+        Assert.assertEquals(returns[0].stringValue(), "234-56-7890");
+    }
+
+    @Test(description = "Test runtime equivalency of structs")
+    public void testRuntimeEqPrivateStructsInSamePackage() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeEqPrivateStructsInSamePackage");
 
         Assert.assertEquals(returns[0].stringValue(), "ttt");
+    }
+
+    @Test(description = "Test runtime equivalency of structs")
+    public void testRuntimeEqPublicStructsInSamePackage() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicStructsInSamePackage");
+
+        Assert.assertEquals(returns[0].stringValue(), "Skyhigh");
+    }
+
+    @Test(description = "Test runtime equivalency of structs")
+    public void testRuntimeEqPublicStructs() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicStructs");
+
+        Assert.assertEquals(returns[0].stringValue(), "Skytop");
+    }
+
+    @Test(description = "Test runtime equivalency of structs")
+    public void testRuntimeEqPublicStructs1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicStructs1");
+
+        Assert.assertEquals(returns[0].stringValue(), "Brandon");
     }
 }

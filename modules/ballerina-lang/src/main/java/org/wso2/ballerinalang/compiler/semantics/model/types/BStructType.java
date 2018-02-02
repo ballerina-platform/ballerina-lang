@@ -39,12 +39,12 @@ import java.util.List;
 public class BStructType extends BType implements StructType {
 
     public List<BStructField> fields;
-    public List<BAttachedFunction> attachedFunctions;
+    public List<BAttachedFunction> attachedFuncs;
 
     public BStructType(BTypeSymbol tSymbol) {
         super(TypeTags.STRUCT, tSymbol);
         this.fields = new ArrayList<>();
-        this.attachedFunctions = new ArrayList<>(0);
+        this.attachedFuncs = new ArrayList<>(0);
     }
 
     public String getDesc() {

@@ -34,8 +34,8 @@ public class EnumInfo extends StructureTypeInfo {
 
     public List<EnumeratorInfo> enumeratorInfoList = new ArrayList<>();
 
-    public EnumInfo(int pkgNameCPIndex, int nameCPIndex) {
-        super(pkgNameCPIndex, nameCPIndex);
+    public EnumInfo(int pkgNameCPIndex, int nameCPIndex, int flags) {
+        super(pkgNameCPIndex, nameCPIndex, flags);
     }
 
     @Override

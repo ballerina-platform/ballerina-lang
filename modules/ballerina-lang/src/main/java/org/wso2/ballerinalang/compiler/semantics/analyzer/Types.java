@@ -290,16 +290,31 @@ public class Types {
             return false;
         }
 
-        BStructType lhsStructType = (BStructType) lhsType;
-        BStructType rhsStructType = (BStructType) rhsType;
-        if (lhsStructType.fields.size() > rhsStructType.fields.size() ||
-                lhsStructType.attachedFunctions.size() > rhsStructType.attachedFunctions.size()) {
+        // Both structs should be public or private.
+        // Get the XOR of both flags(masks)
+        // If both are public, then public bit should be 0;
+        // If both are private, then public bit should be 0;
+        // The public bit is on means, one is public, and the other one is private.
+        if (Symbols.isFlagOn(lhsType.tsymbol.flags ^ rhsType.tsymbol.flags, Flags.PUBLIC)) {
             return false;
         }
 
-        return rhsType.tsymbol.pkgID == lhsType.tsymbol.pkgID ?
-                checkEquivalencyOfStructsInSamePackage(lhsStructType, rhsStructType) :
-                checkEquivalencyOfStructsInDifferentPackages(lhsStructType, rhsStructType);
+        // If both structs are private, they should be in the same package.
+        if (Symbols.isPrivate(lhsType.tsymbol) && rhsType.tsymbol.pkgID != lhsType.tsymbol.pkgID) {
+            return false;
+        }
+
+        //RHS type should have at least all the fields as well attached functions of LHS type.
+        BStructType lhsStructType = (BStructType) lhsType;
+        BStructType rhsStructType = (BStructType) rhsType;
+        if (lhsStructType.fields.size() > rhsStructType.fields.size() ||
+                lhsStructType.attachedFuncs.size() > rhsStructType.attachedFuncs.size()) {
+            return false;
+        }
+
+        return Symbols.isPrivate(lhsType.tsymbol) && rhsType.tsymbol.pkgID == lhsType.tsymbol.pkgID ?
+                checkEquivalencyOfTwoPrivateStructs(lhsStructType, rhsStructType) :
+                checkEquivalencyOfPublicStructs(lhsStructType, rhsStructType);
     }
 
     public boolean checkConnectorEquivalency(BType actualType, BType expType) {
@@ -861,34 +876,33 @@ public class Types {
         }
     };
 
-    private boolean checkEquivalencyOfStructsInSamePackage(BStructType lhsType, BStructType rhsType) {
-        for (int i = 0; i < lhsType.fields.size(); i++) {
-            BStructField lhsField = lhsType.fields.get(i);
-            BStructField rhsField = rhsType.fields.get(i);
-            if (isBothPublicOrPrivate(lhsField.symbol, rhsField.symbol) &&
-                    lhsField.name.equals(rhsField.name) &&
+    private boolean checkEquivalencyOfTwoPrivateStructs(BStructType lhsType, BStructType rhsType) {
+        for (int fieldCounter = 0; fieldCounter < lhsType.fields.size(); fieldCounter++) {
+            BStructField lhsField = lhsType.fields.get(fieldCounter);
+            BStructField rhsField = rhsType.fields.get(fieldCounter);
+            if (lhsField.name.equals(rhsField.name) &&
                     isSameType(rhsField.type, lhsField.type)) {
                 continue;
             }
             return false;
         }
 
-        List<BAttachedFunction> lhsFuncs = lhsType.attachedFunctions;
-        List<BAttachedFunction> rhsFuncs = rhsType.attachedFunctions;
+        List<BAttachedFunction> lhsFuncs = lhsType.attachedFuncs;
+        List<BAttachedFunction> rhsFuncs = rhsType.attachedFuncs;
         for (BAttachedFunction lhsFunc : lhsFuncs) {
             BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
-            if (rhsFunc == null || !isBothPublicOrPrivate(lhsFunc.symbol, rhsFunc.symbol)) {
+            if (rhsFunc == null) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean checkEquivalencyOfStructsInDifferentPackages(BStructType lhsType, BStructType rhsType) {
-        for (int i = 0; i < lhsType.fields.size(); i++) {
-            // Return false if either field is private
-            BStructField lhsField = lhsType.fields.get(i);
-            BStructField rhsField = rhsType.fields.get(i);
+    private boolean checkEquivalencyOfPublicStructs(BStructType lhsType, BStructType rhsType) {
+        int fieldCounter = 0;
+        for (; fieldCounter < lhsType.fields.size(); fieldCounter++) {
+            BStructField lhsField = lhsType.fields.get(fieldCounter);
+            BStructField rhsField = rhsType.fields.get(fieldCounter);
             if (Symbols.isPrivate(lhsField.symbol) ||
                     Symbols.isPrivate(rhsField.symbol)) {
                 return false;
@@ -901,32 +915,34 @@ public class Types {
             return false;
         }
 
-        List<BAttachedFunction> lhsFuncs = lhsType.attachedFunctions;
-        List<BAttachedFunction> rhsFuncs = rhsType.attachedFunctions;
+        // Check the rest of the fields in RHS type
+        for (; fieldCounter < rhsType.fields.size(); fieldCounter++) {
+            if (Symbols.isPrivate(rhsType.fields.get(fieldCounter).symbol)) {
+                return false;
+            }
+        }
+
+        List<BAttachedFunction> lhsFuncs = lhsType.attachedFuncs;
+        List<BAttachedFunction> rhsFuncs = rhsType.attachedFuncs;
         for (BAttachedFunction lhsFunc : lhsFuncs) {
+            if (Symbols.isPrivate(lhsFunc.symbol)) {
+                return false;
+            }
+
             BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
-            if (rhsFunc == null || Symbols.isPrivate(rhsFunc.symbol) ||
-                    Symbols.isPrivate(lhsFunc.symbol)) {
+            if (rhsFunc == null || Symbols.isPrivate(rhsFunc.symbol)) {
+                return false;
+            }
+        }
+
+        // Check for private attached function of the RHS type
+        for (BAttachedFunction rhsFunc : rhsFuncs) {
+            if (Symbols.isPrivate(rhsFunc.symbol)) {
                 return false;
             }
         }
 
         return true;
-    }
-
-    /**
-     * Returns whether both symbols are public or private.
-     *
-     * @param lhsSymbol left-hand side symbol
-     * @param rhsSymbol right-hand side symbol
-     * @return whether both symbols are public or private
-     */
-    private boolean isBothPublicOrPrivate(BSymbol lhsSymbol, BSymbol rhsSymbol) {
-        // Get the XOR of both flags(masks)
-        // If both are public, then public bit should be 0;
-        // If both are private, then public bit should be 0;
-        // The public bit is on means, one is public, and the other one is private.
-        return !Symbols.isFlagOn(lhsSymbol.flags ^ rhsSymbol.flags, Flags.PUBLIC);
     }
 
     private BAttachedFunction getMatchingInvokableType(List<BAttachedFunction> rhsFuncList,
