@@ -162,3 +162,14 @@ function testMixedTypeJSONArrayToCJsonArrayCastNegative() (json<Student>[], Type
     var j3, e = (json<Student>[]) j2;
     return j3, e;
 }
+
+function testConstrainedJsonWithFunctions() (string s){
+    json<Person> j = {name:"John Doe", age:30, address:"London"};
+    return j.toString();
+}
+
+function testConstrainedJsonWithFunctionGetKeys() (string[] s){
+    json<Person> j = {name:"John Doe", age:30, address:"London"};
+    return j.getKeys();
+}
+
