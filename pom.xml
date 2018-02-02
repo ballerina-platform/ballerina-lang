@@ -1114,8 +1114,8 @@
     <modules>
         <module>bvm/ballerina-core</module>
         <module>bvm/ballerina-logging</module>
-        <module>cli/launcher</module>
-        <module>cli/packerina</module>
+        <module>cli/ballerina-launcher</module>
+        <module>cli/ballerina-packerina</module>
         <module>compiler/ballerina-lang</module>
 
 
@@ -1123,10 +1123,10 @@
         <!--<module>distribution/zip/ballerina</module>-->
 
         <module>language-server</module>
+        <module>misc/ballerina-maven-plugin</module>
         <module>misc/docerina</module>
-        <module>misc/plugin-maven</module>
+        <module>misc/swagger-ballerina</module>
         <module>misc/testerina</module>
-        <module>misc/tool-swagger-ballerina</module>
 
         <module>stdlib/ballerina-builtin</module>
         <module>stdlib/ballerina-config</module>

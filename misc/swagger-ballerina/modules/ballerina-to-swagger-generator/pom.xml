@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ballerina-to-swagger-generator</artifactId>
     <packaging>jar</packaging>
-    <name>Ballerina - Swagger Tooling - Ballerina to Swagger Generator</name>
+    <name>Ballerina - Swagger Tooling - Ballerina to Swagger</name>
     <url>http://ballerinalang.org</url>
 
     <dependencies>
