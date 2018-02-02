@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -176,8 +177,8 @@ public class BallerinaMockServiceCodeGenerator extends DefaultCodegen implements
      */
     @Override
     public String getHelp() {
-        return "Generates a Go server library using the swagger-tools project.  By default, " +
-                "it will also generate service classes--which you can disable with the `-Dnoservice` environment variable.";
+        return "Generates a Go server library using the swagger-tools project.  By default, it will also " +
+                "generate service classes--which you can disable with the `-Dnoservice` environment variable.";
     }
 
     @Override
@@ -211,7 +212,7 @@ public class BallerinaMockServiceCodeGenerator extends DefaultCodegen implements
             if (operations != null) {
                 List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
                 for (CodegenOperation operation : ops) {
-                    operation.httpMethod = operation.httpMethod.toUpperCase();
+                    operation.httpMethod = operation.httpMethod.toUpperCase(Locale.ENGLISH);
                 }
             }
         }
@@ -238,7 +239,8 @@ public class BallerinaMockServiceCodeGenerator extends DefaultCodegen implements
     public String toOperationId(String operationId) {
         // method name cannot use reserved keyword, e.g. return
         if (isReservedWord(operationId)) {
-            LOGGER.warn(operationId + " (reserved word) cannot be used as method name. Renamed to " + camelize(sanitizeName("call_" + operationId)));
+            LOGGER.warn(operationId + " (reserved word) cannot be used as method name. Renamed to "
+                    + camelize(sanitizeName("call_" + operationId)));
             operationId = "call_" + operationId;
         }
 

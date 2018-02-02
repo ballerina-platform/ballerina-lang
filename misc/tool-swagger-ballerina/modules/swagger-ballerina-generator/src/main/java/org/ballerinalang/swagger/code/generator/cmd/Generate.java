@@ -23,7 +23,12 @@ import io.swagger.codegen.config.CodegenConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.swagger.codegen.config.CodegenConfiguratorUtils.*;
+import static io.swagger.codegen.config.CodegenConfiguratorUtils.applyAdditionalPropertiesKvp;
+import static io.swagger.codegen.config.CodegenConfiguratorUtils.applyImportMappingsKvp;
+import static io.swagger.codegen.config.CodegenConfiguratorUtils.applyInstantiationTypesKvp;
+import static io.swagger.codegen.config.CodegenConfiguratorUtils.applyLanguageSpecificPrimitivesCsv;
+import static io.swagger.codegen.config.CodegenConfiguratorUtils.applySystemPropertiesKvp;
+import static io.swagger.codegen.config.CodegenConfiguratorUtils.applyTypeMappingsKvp;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 /**
@@ -43,7 +48,7 @@ public class Generate implements Runnable {
     private String output = "";
 
 
-   private String spec;
+    private String spec;
 
     private String templateDir;
 
@@ -134,7 +139,7 @@ public class Generate implements Runnable {
 
         if (isNotEmpty(apiPackage)) {
             configurator.setApiPackage(apiPackage);
-            configurator.setOutputDir(output + "/"+apiPackage.replace(".","/"));
+            configurator.setOutputDir(output + "/" + apiPackage.replace(".", "/"));
         }
 
         if (isNotEmpty(modelPackage)) {

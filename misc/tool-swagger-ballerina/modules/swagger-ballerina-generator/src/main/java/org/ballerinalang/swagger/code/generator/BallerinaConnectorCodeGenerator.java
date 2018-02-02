@@ -25,6 +25,7 @@ import io.swagger.codegen.CodegenType;
 import io.swagger.codegen.DefaultCodegen;
 import io.swagger.codegen.SupportingFile;
 import io.swagger.models.Operation;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,9 +34,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * This the ballerina connector generator class. Here we can add/update templates to generate
@@ -178,8 +178,8 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
      */
     @Override
     public String getHelp() {
-        return "Generates a Go server library using the swagger-tools project.  By default, " +
-                "it will also generate service classes--which you can disable with the `-Dnoservice` environment variable.";
+        return "Generates a Go server library using the swagger-tools project.  By default, it will also generate " +
+                "service classes--which you can disable with the `-Dnoservice` environment variable.";
     }
 
     @Override
@@ -213,7 +213,7 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
             if (operations != null) {
                 List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
                 for (CodegenOperation operation : ops) {
-                    operation.httpMethod = operation.httpMethod.toLowerCase();
+                    operation.httpMethod = operation.httpMethod.toLowerCase(Locale.ENGLISH);
                 }
             }
         }
@@ -240,7 +240,8 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
     public String toOperationId(String operationId) {
         // method name cannot use reserved keyword, e.g. return
         if (isReservedWord(operationId)) {
-            LOGGER.warn(operationId + " (reserved word) cannot be used as method name. Renamed to " + camelize(sanitizeName("call_" + operationId)));
+            LOGGER.warn(operationId + " (reserved word) cannot be used as method name. Renamed to "
+                    + camelize(sanitizeName("call_" + operationId)));
             operationId = "call_" + operationId;
         }
         String name = camelize(operationId);
@@ -314,7 +315,8 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
             }
 
             operationId = this.sanitizeName(builder.toString());
-            LOGGER.warn("Empty operationId found for path: " + httpMethod + " " + path + ". Renamed to auto-generated operationId: " + operationId);
+            LOGGER.warn("Empty operationId found for path: " + httpMethod + " " + path
+                    + ". Renamed to auto-generated operationId: " + operationId);
         }
 
         return operationId;

@@ -34,9 +34,9 @@ import java.util.List;
  */
 @Parameters(commandNames = "swagger", commandDescription = "Generate connector/service using swagger definition")
 public class SwaggerCmd implements BLauncherCmd {
-    private final String CONNECTOR = "connector";
-    private final String SKELETON = "skeleton";
-    private final String MOCK = "mock";
+    private static final String connector = "connector";
+    private static final String skeleton = "skeleton";
+    private static final String mock = "mock";
 
     private static final PrintStream outStream = System.err;
 
@@ -73,15 +73,15 @@ public class SwaggerCmd implements BLauncherCmd {
         String action = argList.get(0);
         StringBuilder msg = new StringBuilder("successfully generated ballerina ");
         switch (action) {
-            case CONNECTOR:
+            case connector:
                 generateFromSwagger("ballerina-connector");
                 msg.append("connector");
                 break;
-            case SKELETON:
+            case skeleton:
                 generateFromSwagger("ballerina-skeleton");
                 msg.append("skeleton");
                 break;
-            case MOCK:
+            case mock:
                 generateFromSwagger("ballerina-mock-service");
                 msg.append("mock service");
                 break;
@@ -100,8 +100,8 @@ public class SwaggerCmd implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Generates ballerina connector, service skeleton and mock service"+ System.lineSeparator());
-        out.append("for a given swagger definition"+ System.lineSeparator());
+        out.append("Generates ballerina connector, service skeleton and mock service" + System.lineSeparator());
+        out.append("for a given swagger definition" + System.lineSeparator());
         out.append(System.lineSeparator());
     }
 
@@ -114,7 +114,7 @@ public class SwaggerCmd implements BLauncherCmd {
         stringBuilder.append("\tmock      : generates a ballerina mock service with sample responses\n");
     }
 
-    private void generateFromSwagger(String targetLanguage){
+    private void generateFromSwagger(String targetLanguage) {
         Generate generate = new Generate();
         generate.setSpec(argList.get(1));   //set swagger specification
         generate.setLang(targetLanguage);
@@ -125,7 +125,7 @@ public class SwaggerCmd implements BLauncherCmd {
         } catch (Exception e) {
             String causeMessage = "";
             Throwable rootCause = ExceptionUtils.getRootCause(e);
-            if(rootCause != null){
+            if (rootCause != null) {
                 causeMessage = rootCause.getMessage();
             }
             throw LauncherUtils.createUsageException("Error occurred when generating " + targetLanguage + " for " +

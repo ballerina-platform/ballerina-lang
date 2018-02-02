@@ -53,13 +53,13 @@ import java.util.Map;
  * This class will do resource mapping from ballerina to swagger.
  */
 class SwaggerResourceMapper {
-    
+
     private final Swagger swaggerDefinition;
-    
+
     SwaggerResourceMapper(Swagger swagger) {
         this.swaggerDefinition = swagger;
     }
-    
+
     /**
      * This method will convert ballerina resource to swagger path objects.
      *
@@ -125,7 +125,7 @@ class SwaggerResourceMapper {
             op.getOperation().response(200, response);
             op.getOperation().setOperationId(resource.getName());
             op.getOperation().setParameters(null);
-    
+
             // Parsing annotations.
             this.parsePathAnnotationAttachment(resource, op);
             this.parseHttpMethodAnnotationAttachment(resource, op);
@@ -136,16 +136,17 @@ class SwaggerResourceMapper {
             this.addResourceParameters(resource, op);
             this.parseParametersInfoAnnotationAttachment(resource, op.getOperation());
             this.parseResponsesAnnotationAttachment(resource, op.getOperation());
-            
+
         }
         return op;
 
     }
-    
+
     /**
      * Parses the 'Responses' annotation attachment and build swagger operation.
+     *
      * @param resource The ballerina resource definition.
-     * @param op The swagger operation.
+     * @param op       The swagger operation.
      */
     private void parseResponsesAnnotationAttachment(ResourceInfo resource, Operation op) {
         AnnAttachmentInfo responsesAnnotationAttachment =
@@ -179,11 +180,12 @@ class SwaggerResourceMapper {
             }
         }
     }
-    
+
     /**
      * Creates headers definitions for swagger response.
+     *
      * @param annotationAttributeValue The annotation attribute value which has the headers.
-     * @param response The swagger response.
+     * @param response                 The swagger response.
      */
     private void createHeadersModel(AnnAttributeValue annotationAttributeValue, Response response) {
         if (null != annotationAttributeValue) {
@@ -194,7 +196,7 @@ class SwaggerResourceMapper {
                         (headerAnnotationAttachment);
                 Map<String, Property> headers = new HashMap<>();
                 if (null != headerAnnAttributeValueMap.get("name") &&
-                    null != headerAnnAttributeValueMap.get("headerType")) {
+                        null != headerAnnAttributeValueMap.get("headerType")) {
                     String headerName = headerAnnAttributeValueMap.get("name").getStringValue();
                     String type = headerAnnAttributeValueMap.get("headerType").getStringValue();
                     Property property = null;
@@ -218,15 +220,16 @@ class SwaggerResourceMapper {
             }
         }
     }
-    
+
     /**
      * Creates parameters in the swagger operation using the parameters in the ballerina resource definition.
-     * @param resource The ballerina resource definition.
+     *
+     * @param resource         The ballerina resource definition.
      * @param operationAdaptor The swagger operation.
      */
     private void addResourceParameters(ResourceInfo resource, OperationAdaptor operationAdaptor) {
         if (!"get".equalsIgnoreCase(operationAdaptor.getHttpOperation())) {
-    
+
             // Creating message body - required.
             ModelImpl messageModel = new ModelImpl();
             messageModel.setType("object");
@@ -235,7 +238,7 @@ class SwaggerResourceMapper {
                 definitions.put("Message", messageModel);
                 this.swaggerDefinition.setDefinitions(definitions);
             }
-    
+
             // Creating "Message m" parameter
             BodyParameter messageParameter = new BodyParameter();
             messageParameter.setName(resource.getParamNames()[0]);
@@ -244,7 +247,7 @@ class SwaggerResourceMapper {
             messageParameter.setSchema(refModel);
             operationAdaptor.getOperation().addParameter(messageParameter);
         }
-        
+
         // Creating query params and path params
         AttributeInfo attributeInfo = resource.getAttributeInfo(AttributeInfo.Kind.PARAMETER_ANNOTATIONS_ATTRIBUTE);
         if (attributeInfo instanceof ParamAnnotationAttributeInfo) {
@@ -271,7 +274,7 @@ class SwaggerResourceMapper {
                             // Note: 'description' to be added using annotations, hence skipped here.
                             // Setting false to required(as per swagger spec). This can be overridden while parsing
                             // annotations.
-                            
+
                             queryParameter.required(false);
                             // Note: 'allowEmptyValue' to be added using annotations, hence skipped here.
                             // Set type
@@ -283,7 +286,7 @@ class SwaggerResourceMapper {
                                 queryParameter.setType(paramType);
                             }
                             // Note: 'format' to be added using annotations, hence skipped here.
-        
+
                             operationAdaptor.getOperation().addParameter(queryParameter);
                         }
                         if (annAttachmentInfo.getName().equalsIgnoreCase("PathParam")) {
@@ -314,10 +317,11 @@ class SwaggerResourceMapper {
             }
         }
     }
-    
+
     /**
      * Parses the 'ParametersInfo' annotation and build swagger operation.
-     * @param resource The ballerina resource definition.
+     *
+     * @param resource  The ballerina resource definition.
      * @param operation The swagger operation.
      */
     private void parseParametersInfoAnnotationAttachment(ResourceInfo resource, Operation operation) {
@@ -350,10 +354,11 @@ class SwaggerResourceMapper {
             }
         }
     }
-    
+
     /**
      * Parses the 'ResourceInfo' annotation and builds swagger operation.
-     * @param resource The resource definition.
+     *
+     * @param resource  The resource definition.
      * @param operation The swagger operation.
      */
     private void parseResourceInfoAnnotationAttachment(ResourceInfo resource, Operation operation) {
@@ -363,7 +368,7 @@ class SwaggerResourceMapper {
             Map<String, AnnAttributeValue> resourceConfigAnnAttributeValueMap = SwaggerUtils.convertToAttributeMap
                     (resourceConfigAnnotationAttachment);
             this.createTagModel(resourceConfigAnnAttributeValueMap.get("tag"), operation);
-            
+
             if (null != resourceConfigAnnAttributeValueMap.get("summary")) {
                 operation.setSummary(resourceConfigAnnAttributeValueMap.get("summary").getStringValue());
             }
@@ -373,11 +378,12 @@ class SwaggerResourceMapper {
             this.createExternalDocsModel(resourceConfigAnnAttributeValueMap.get("externalDoc"), operation);
         }
     }
-    
+
     /**
      * Creates external docs swagger definitions.
+     *
      * @param annotationAttributeValue The annotation attribute value for external docs.
-     * @param operation The swagger operation.
+     * @param operation                The swagger operation.
      */
     private void createExternalDocsModel(AnnAttributeValue annotationAttributeValue, Operation operation) {
         if (null != annotationAttributeValue) {
@@ -391,15 +397,16 @@ class SwaggerResourceMapper {
             if (null != externalDocsAnnAttributeValueMap.get("url")) {
                 externalDocs.setUrl(externalDocsAnnAttributeValueMap.get("url").getStringValue());
             }
-    
+
             operation.setExternalDocs(externalDocs);
         }
     }
-    
+
     /**
      * Creates tag model for swagger operation.
+     *
      * @param annotationAttributeValue The annotation attribute value which has tags.
-     * @param operation The swagger operation.
+     * @param operation                The swagger operation.
      */
     private void createTagModel(AnnAttributeValue annotationAttributeValue, Operation operation) {
         if (null != annotationAttributeValue) {
@@ -412,10 +419,11 @@ class SwaggerResourceMapper {
             }
         }
     }
-    
+
     /**
      * Parses the produces annotation attachments and updates the swagger operation.
-     * @param resource The ballerina resource definition.
+     *
+     * @param resource  The ballerina resource definition.
      * @param operation The swagger operation.
      */
     private void parseProducesAnnotationAttachment(ResourceInfo resource, Operation operation) {
@@ -427,7 +435,7 @@ class SwaggerResourceMapper {
         AnnAttributeValue producesAttrVal = rConfigAnnAtchmnt
                 .getAttributeValue(Constants.ANN_RESOURCE_ATTR_PRODUCES);
         if (producesAttrVal == null) {
-            return ;
+            return;
         }
         List<String> produces = getStringList(producesAttrVal.getAttributeValueArray());
         operation.setProduces(produces);
@@ -440,10 +448,11 @@ class SwaggerResourceMapper {
         }
         return produces;
     }
-    
+
     /**
      * Parses the consumes annotation attachments and updates the swagger operation.
-     * @param resource The ballerina resource definition.
+     *
+     * @param resource  The ballerina resource definition.
      * @param operation The swagger operation.
      */
     private void parseConsumesAnnotationAttachment(ResourceInfo resource, Operation operation) {
@@ -455,15 +464,16 @@ class SwaggerResourceMapper {
         AnnAttributeValue consumesAttrVal = rConfigAnnAtchmnt
                 .getAttributeValue(Constants.ANN_RESOURCE_ATTR_CONSUMES);
         if (consumesAttrVal == null) {
-            return ;
+            return;
         }
         List<String> consumes = getStringList(consumesAttrVal.getAttributeValueArray());
         operation.setConsumes(consumes);
     }
-    
+
     /**
      * Parses the 'ballerina.net.http@path' annotation and update the operation adaptor.
-     * @param resource The ballerina resource definition.
+     *
+     * @param resource         The ballerina resource definition.
      * @param operationAdaptor The operation adaptor.
      */
     private void parsePathAnnotationAttachment(ResourceInfo resource, OperationAdaptor operationAdaptor) {
@@ -479,39 +489,41 @@ class SwaggerResourceMapper {
             operationAdaptor.setPath(pathAttrVal.getStringValue());
         }
     }
-    
+
     /**
      * Parse the http method and update the operation adaptor. There can only be one http method annotation.
-     * @param resource The ballerina resource definition.
+     *
+     * @param resource         The ballerina resource definition.
      * @param operationAdaptor The operation adaptor which stored the http method.
      */
     private void parseHttpMethodAnnotationAttachment(ResourceInfo resource, OperationAdaptor operationAdaptor) {
-        if (null != resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, Constants.HTTP_METHOD_GET)){
+        if (null != resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, Constants.HTTP_METHOD_GET)) {
             operationAdaptor.setHttpOperation(Constants.HTTP_METHOD_GET);
         } else if (null != resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                Constants.HTTP_METHOD_POST)){
+                Constants.HTTP_METHOD_POST)) {
             operationAdaptor.setHttpOperation(Constants.HTTP_METHOD_POST);
         } else if (null != resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                Constants.HTTP_METHOD_PUT)){
+                Constants.HTTP_METHOD_PUT)) {
             operationAdaptor.setHttpOperation(Constants.HTTP_METHOD_PUT);
         } else if (null != resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                Constants.HTTP_METHOD_DELETE)){
+                Constants.HTTP_METHOD_DELETE)) {
             operationAdaptor.setHttpOperation(Constants.HTTP_METHOD_DELETE);
         } else if (null != resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                Constants.HTTP_METHOD_HEAD)){
+                Constants.HTTP_METHOD_HEAD)) {
             operationAdaptor.setHttpOperation(Constants.HTTP_METHOD_HEAD);
         }
     }
-    
+
     /**
      * Parse 'ResourceConfig' annotation attachment and build a resource operation.
-     * @param resource The ballerina resource definition.
+     *
+     * @param resource  The ballerina resource definition.
      * @param operation The swagger operation.
      */
     private void parseResourceConfigAnnotationAttachment(ResourceInfo resource, Operation operation) {
         AnnAttachmentInfo resourceConfigAnnotation = resource.getAnnotationAttachmentInfo(
                 SwaggerConstants.SWAGGER_PACKAGE_PATH, "ResourceConfig");
-    
+
         if (null != resourceConfigAnnotation) {
             Map<String, AnnAttributeValue> resourceConfigAnnAttributeValueMap = SwaggerUtils.convertToAttributeMap
                     (resourceConfigAnnotation);
