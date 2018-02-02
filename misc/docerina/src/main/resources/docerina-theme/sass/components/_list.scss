@@ -1,0 +1,255 @@
+///
+/// Editorial by HTML5 UP
+/// html5up.net | @ajlkn
+/// Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+///
+
+/* List */
+
+	ol {
+		list-style: decimal;
+		margin: 0 0 _size(element-margin) 0;
+		padding-left: 1.25em;
+
+		li {
+			padding-left: 0.25em;
+		}
+	}
+
+	ul {
+		list-style: disc;
+		margin: 0 0 _size(element-margin) 0;
+		padding-left: 1em;
+
+		li {
+			padding-left: 0.5em;
+		}
+
+		&.alt {
+			list-style: none;
+			padding-left: 0;
+
+			li {
+				border-top: solid 1px _palette(border);
+				padding: 0.5em 0;
+
+				&:first-child {
+					border-top: 0;
+					padding-top: 0;
+				}
+			}
+		}
+
+		&.icons {
+			cursor: default;
+			list-style: none;
+			padding-left: 0;
+
+			li {
+				display: inline-block;
+				padding: 0 1em 0 0;
+
+				&:last-child {
+					padding-right: 0;
+				}
+
+				.icon {
+					color: inherit;
+
+					&:before {
+						font-size: 1.25em;
+					}
+				}
+			}
+		}
+
+		&.contact {
+			list-style: none;
+			padding: 0;
+
+			li {
+				@include icon;
+				border-top: solid 1px _palette(border);
+				margin: 1.5em 0 0 0;
+				padding: 1.5em 0 0 3em;
+				position: relative;
+
+				&:before {
+					color: _palette(accent);
+					display: inline-block;
+					font-size: 1.5em;
+					height: 1.125em;
+					left: 0;
+					line-height: 1.125em;
+					position: absolute;
+					text-align: center;
+					top: (1.5em / 1.5);
+					width: 1.5em;
+				}
+
+				&:first-child {
+					border-top: 0;
+					margin-top: 0;
+					padding-top: 0;
+
+					&:before {
+						top: 0;
+					}
+				}
+
+				a {
+					color: inherit;
+				}
+			}
+		}
+
+		&.actions {
+			cursor: default;
+			list-style: none;
+			padding-left: 0;
+
+			li {
+				display: inline-block;
+				padding: 0 (_size(element-margin) * 0.5) 0 0;
+				vertical-align: middle;
+
+				&:last-child {
+					padding-right: 0;
+				}
+			}
+
+			&.small {
+				li {
+					padding: 0 (_size(element-margin) * 0.25) 0 0;
+				}
+			}
+
+			&.vertical {
+				li {
+					display: block;
+					padding: (_size(element-margin) * 0.5) 0 0 0;
+
+					&:first-child {
+						padding-top: 0;
+					}
+
+					> * {
+						margin-bottom: 0;
+					}
+				}
+
+				&.small {
+					li {
+						padding: (_size(element-margin) * 0.25) 0 0 0;
+
+						&:first-child {
+							padding-top: 0;
+						}
+					}
+				}
+			}
+
+			&.fit {
+				display: table;
+				margin-left: (_size(element-margin) * -0.5);
+				padding: 0;
+				table-layout: fixed;
+				width: calc(100% + #{(_size(element-margin) * 0.5)});
+
+				li {
+					display: table-cell;
+					padding: 0 0 0 (_size(element-margin) * 0.5);
+
+					> * {
+						margin-bottom: 0;
+					}
+				}
+
+				&.small {
+					margin-left: (_size(element-margin) * -0.25);
+					width: calc(100% + #{(_size(element-margin) * 0.25)});
+
+					li {
+						padding: 0 0 0 (_size(element-margin) * 0.25);
+					}
+				}
+			}
+		}
+
+		&.pagination {
+			cursor: default;
+			list-style: none;
+			padding-left: 0;
+
+			li {
+				display: inline-block;
+				padding-left: 0;
+				vertical-align: middle;
+
+				> .page {
+					@include vendor('transition', (
+						'background-color #{_duration(transition)} ease-in-out',
+						'color #{_duration(transition)} ease-in-out'
+					));
+					border-bottom: 0;
+					border-radius: _size(border-radius);
+					display: inline-block;
+					font-size: 0.8em;
+					font-weight: _font(weight-bold);
+					height: 2em;
+					line-height: 2em;
+					margin: 0 0.125em;
+					min-width: 2em;
+					padding: 0 0.5em;
+					text-align: center;
+
+					&.active {
+						background-color: _palette(accent);
+						color: _palette(bg) !important;
+
+						&:hover {
+							background-color: lighten(_palette(accent), 3);
+						}
+
+						&:active {
+							background-color: darken(_palette(accent), 3);
+						}
+					}
+				}
+
+				&:first-child {
+					padding-right: 0.75em;
+				}
+
+				&:last-child {
+					padding-left: 0.75em;
+				}
+			}
+
+			@include breakpoint(xsmall) {
+				li {
+					&:nth-child(n+2):nth-last-child(n+2) {
+						display: none;
+					}
+
+					&:first-child {
+						padding-right: 0;
+					}
+				}
+			}
+		}
+	}
+
+	dl {
+		margin: 0 0 _size(element-margin) 0;
+
+		dt {
+			display: block;
+			font-weight: _font(weight-bold);
+			margin: 0 0 (_size(element-margin) * 0.5) 0;
+		}
+
+		dd {
+			margin-left: _size(element-margin);
+		}
+	}
