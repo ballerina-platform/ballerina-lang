@@ -1,0 +1,14 @@
+#debugger-tools {
+    width: 100%;
+}
+
+#debugger-tools .toolbar-icons{
+    width: 20%;
+    background-color: inherit;
+    color: inherit;
+}
+
+
+#debugger-tools .toolbar-icons:hover {
+    color: inherit;
+}

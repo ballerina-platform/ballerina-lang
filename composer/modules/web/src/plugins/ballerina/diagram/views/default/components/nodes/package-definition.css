@@ -1,0 +1,20 @@
+.package-definition-header {
+    fill: #eee;
+}
+
+.package-definition-text {
+    dominant-baseline: central;
+}
+
+.package-definition-label {
+    dominant-baseline: central;
+    fill: #333;
+}
+
+.pkg-name-Undefined{
+     fill: #999;
+}
+
+.package-definitions-collection react{
+    fill: #eee;
+}
