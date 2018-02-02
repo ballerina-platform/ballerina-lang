@@ -124,7 +124,8 @@
     </build>
 
     <properties>
-      <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
+        <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
+        <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
     </properties>
     
 </project>

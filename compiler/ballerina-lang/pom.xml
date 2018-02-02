@@ -45,7 +45,14 @@
     </dependencies>
 
     <properties>
-        <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
+        <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
+        <maven.checkstyleplugin.excludes>
+            **org/wso2/ballerinalang/compiler/parser/antlr4/*,
+            **/util/parser/*,
+            **/${native.constructs.provider.class}.java,
+            **/${ballerina.package.repository.provider.class}.java,
+            **/generated/**
+        </maven.checkstyleplugin.excludes>
     </properties>
 
 </project>

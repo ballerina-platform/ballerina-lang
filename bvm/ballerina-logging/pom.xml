@@ -38,4 +38,8 @@
             <artifactId>ballerina-config</artifactId>
         </dependency>
     </dependencies>
+
+    <properties>
+        <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
+    </properties>
 </project>

@@ -13,8 +13,6 @@
     <packaging>jar</packaging>
     <name>Testerina - Core</name>
 
-    <url>http://wso2.org</url>
-
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>

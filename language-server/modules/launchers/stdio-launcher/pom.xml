@@ -89,7 +89,7 @@
     </build>
 
     <properties>
-        <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
+        <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
         <maven.shadeplugin.version>2.4.1</maven.shadeplugin.version>
     </properties>
 </project>

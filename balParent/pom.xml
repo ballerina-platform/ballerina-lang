@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~ WSO2 Inc. licenses this file to you under the Apache License,
   ~ Version 2.0 (the "License"); you may not use this file except
@@ -15,16 +16,15 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.ballerinalang</groupId>
-    <artifactId>ballerina-parent</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>ballerinalang</artifactId>
     <version>0.96.1-SNAPSHOT</version>
-    <name>Ballerina - Parent</name>
+    <packaging>pom</packaging>
 
+    <name>Ballerina</name>
     <description>
         Ballerina is a general purpose, concurrent and strongly typed programming language
         with both textual and graphical syntaxes, optimized for integration.
@@ -49,13 +49,6 @@
             <organizationUrl>http://www.wso2.org/</organizationUrl>
         </developer>
     </developers>
-
-    <scm>
-        <url>https://github.com/ballerinalang/ballerina.git</url>
-        <developerConnection>scm:git:https://github.com/ballerinalang/ballerina.git</developerConnection>
-        <connection>scm:git:https://github.com/ballerinalang/ballerina.git</connection>
-        <tag>HEAD</tag>
-    </scm>
 
     <repositories>
         <repository>
@@ -147,60 +140,17 @@
         </mailingList>
     </mailingLists>
 
+    <scm>
+        <connection>scm:git:https://github.com/ballerinalang/ballerina-parent.git</connection>
+        <url>https://github.com/ballerinalang/ballerina-parent.git</url>
+        <developerConnection>scm:git:https://github.com/ballerinalang/ballerina-parent.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+
+
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-config</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-core</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-lang</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-mime</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-http</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-builtin</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-launcher</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-packerina</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-logging</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-test</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-
-
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.core</artifactId>
@@ -402,7 +352,7 @@
                 <artifactId>netty-codec-http2</artifactId>
                 <version>${netty.version}</version>
             </dependency>
-            <dependency>
+	    <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-handler-proxy</artifactId>
                 <version>${netty.version}</version>
@@ -718,30 +668,6 @@
         </extensions>
         <pluginManagement>
             <plugins>
-                <!-- ANTLR Plugin -->
-                <plugin>
-                    <groupId>org.antlr</groupId>
-                    <artifactId>antlr4-maven-plugin</artifactId>
-                    <version>4.5.1</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>antlr4</goal>
-                            </goals>
-                            <configuration>
-                                <listener>true</listener>
-                                <visitor>false</visitor>
-                                <encoding>${file.encoding}</encoding>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <version>${mvn.exec.plugin.version}</version>
-                </plugin>
-
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-antrun-plugin</artifactId>
@@ -994,23 +920,6 @@
     </build>
 
     <properties>
-        <ballerina.version>0.96.1-SNAPSHOT</ballerina.version>
-        <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
-
-        <commons-net.version>3.6</commons-net.version>
-        <cobertura.version>2.7</cobertura.version>
-
-        <native.constructs.provider.package>org.ballerinalang.nativeimpl</native.constructs.provider.package>
-        <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
-        <ballerina.package.repository.provider.class>BallerinaBuiltinPackageRepository
-        </ballerina.package.repository.provider.class>
-        <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
-        <mvn.exec.plugin.version>1.6.0</mvn.exec.plugin.version>
-        <ant.contrib.plugin.version>1.0b3</ant.contrib.plugin.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-
-
         <docker.client.version>1.2.1</docker.client.version>
         <testng.version>6.9.4</testng.version>
         <commons.io.version>2.5</commons.io.version>
@@ -1110,30 +1019,4 @@
         <apache.source.release.assembly.descriptor.version>1.0.5</apache.source.release.assembly.descriptor.version>
         <awaitility.version>3.0.0</awaitility.version>
     </properties>
-
-    <modules>
-        <module>bvm/ballerina-core</module>
-        <module>bvm/ballerina-logging</module>
-        <module>cli/launcher</module>
-        <module>cli/packerina</module>
-        <module>compiler/ballerina-lang</module>
-
-
-
-        <!--<module>distribution/zip/ballerina</module>-->
-
-        <module>language-server</module>
-        <module>misc/docerina</module>
-        <module>misc/plugin-maven</module>
-        <module>misc/testerina</module>
-        <module>misc/tool-swagger-ballerina</module>
-
-        <module>stdlib/ballerina-builtin</module>
-        <module>stdlib/ballerina-config</module>
-        <module>stdlib/ballerina-http</module>
-        <module>stdlib/ballerina-mime</module>
-        <module>tests/ballerina-test</module>
-        <!--<module>tests/ballerina-test-integration</module>-->
-    </modules>
-
 </project>

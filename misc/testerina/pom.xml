@@ -20,8 +20,9 @@
 
     <parent>
         <groupId>org.ballerinalang</groupId>
-        <artifactId>ballerinalang</artifactId>
+        <artifactId>ballerina-parent</artifactId>
         <version>0.96.1-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -30,118 +31,6 @@
     <version>0.96.1-SNAPSHOT</version>
 
     <name>Testerina - Test Framework for Ballerina Language</name>
-    <url>http://wso2.org</url>
-
-    <scm>
-        <url>https://github.com/ballerinalang/testerina.git</url>
-        <developerConnection>scm:git:https://github.com/ballerinalang/testerina.git</developerConnection>
-        <connection>scm:git:https://github.com/ballerinalang/testerina.git</connection>
-        <tag>HEAD</tag>
-    </scm>
-
-    <repositories>
-        <repository>
-            <id>wso2.releases</id>
-            <name>WSO2 Releases Repository</name>
-            <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-        </repository>
-        <repository>
-            <id>wso2.snapshots</id>
-            <name>WSO2 Snapshot Repository</name>
-            <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-    </repositories>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-lang</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-core</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-builtin</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-launcher</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-http</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
-    <build>
-        <plugins>
-            <!--<plugin>-->
-                <!--<groupId>org.owasp</groupId>-->
-                <!--<artifactId>dependency-check-maven</artifactId>-->
-                <!--<version>${owasp.dependency.check.maven.version}</version>-->
-                <!--<configuration>-->
-                    <!--<cveValidForHours>12</cveValidForHours>-->
-                    <!--<failBuildOnCVSS>4</failBuildOnCVSS>-->
-                <!--</configuration>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<goals>-->
-                            <!--<goal>check</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
-            <plugin><!-- Overridden from parent pom to exclude generated sources -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>validate</id>
-                        <phase>validate</phase>
-                        <configuration>
-                            <configLocation>
-                                https://raw.githubusercontent.com/wso2/code-quality-tools/master/checkstyle/checkstyle.xml
-                            </configLocation>
-                            <suppressionsLocation>
-                                https://raw.githubusercontent.com/wso2/code-quality-tools/master/checkstyle/suppressions.xml
-                            </suppressionsLocation>
-                            <encoding>UTF-8</encoding>
-                            <consoleOutput>true</consoleOutput>
-                            <failsOnError>true</failsOnError>
-                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                            <!--Exclude generated sources-->
-                            <excludes>**/util/parser/*</excludes>
-                            <excludes>org/ballerinalang/testerina/generated/providers/*</excludes>
-                        </configuration>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 
     <properties>
 
@@ -151,6 +40,8 @@
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
         <mvn.resource.plugins.version>3.0.2</mvn.resource.plugins.version>
         <testerina.source.directory>${project.build.directory}/../src/main/ballerina</testerina.source.directory>
+
+        <maven.checkstyleplugin.excludes>**/parser/*</maven.checkstyleplugin.excludes>
 
         <!-- Path to the generated natives ballerina files temp directory -->
         <generated.testerina.source.directory>${project.build.directory}/natives/</generated.testerina.source.directory>

@@ -32,4 +32,8 @@
     <name>Ballerina - Config API</name>
     <url>http://ballerinalang.org</url>
 
+    <properties>
+        <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
+    </properties>
+
 </project>
