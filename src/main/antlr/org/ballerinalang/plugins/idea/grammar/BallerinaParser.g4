@@ -253,6 +253,7 @@ statement
     |   expressionStmt
     |   transactionStatement
     |   abortStatement
+    |   lockStatement
     |   namespaceDeclarationStatement
     ;
 
@@ -445,6 +446,10 @@ transactionPropertyInitStatement
 
 transactionPropertyInitStatementList
     : transactionPropertyInitStatement (COMMA transactionPropertyInitStatement)*
+    ;
+
+lockStatement
+    : LOCK LEFT_BRACE codeBlockBody RIGHT_BRACE
     ;
 
 failedClause

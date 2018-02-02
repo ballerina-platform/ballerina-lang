@@ -122,6 +122,7 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder THROW;
     private static final LookupElementBuilder FOREACH;
     private static final LookupElementBuilder IN;
+    private static final LookupElementBuilder LOCK;
 
     private static final LookupElementBuilder TRUE;
     private static final LookupElementBuilder FALSE;
@@ -186,6 +187,7 @@ public class BallerinaCompletionUtils {
         THROW = createKeywordLookupElement("throw");
         FOREACH = createKeywordLookupElement("foreach");
         IN = createKeywordLookupElement("in");
+        LOCK = createKeywordLookupElement("lock");
 
         TRUE = createKeywordLookupElement("true", null);
         FALSE = createKeywordLookupElement("false", null);
@@ -388,6 +390,8 @@ public class BallerinaCompletionUtils {
         lookupElements.add(createKeywordAsLookup(BREAK));
         lookupElements.add(createKeywordAsLookup(THROW));
         lookupElements.add(createKeywordAsLookup(FOREACH));
+        lookupElements.add(createKeywordAsLookup(IN));
+        lookupElements.add(createKeywordAsLookup(LOCK));
         return lookupElements;
     }
 
