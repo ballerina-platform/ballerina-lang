@@ -114,6 +114,7 @@ service<http> sample2 {
     map mapVal = {name:""};
 
     resource echo(http:Connection conn, http:InRequest req) {
+        println("************************* echo");
         lock {
             requestCount = requestCount + 1;
             price = price + 2;
@@ -129,6 +130,7 @@ service<http> sample2 {
     }
 
     resource echo1(http:Connection conn, http:InRequest req) {
+        println("************************* echo1");
         lock {
             floatArr1[1] = floatArr1[1] + 2;
             finalText1 = finalText1 + "3";
@@ -144,6 +146,7 @@ service<http> sample2 {
     }
 
     resource echo2(http:Connection conn, http:InRequest req) {
+        println("************************* echo2");
         lock {
             person1.age = person1.age + 1;
             requestCount = requestCount + 1;

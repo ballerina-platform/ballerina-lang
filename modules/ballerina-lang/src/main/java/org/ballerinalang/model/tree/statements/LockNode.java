@@ -22,7 +22,7 @@ package org.ballerinalang.model.tree.statements;
  *     body.
  * }.
  *
- * @since 0.96.1
+ * @since 0.961.0
  */
 public interface LockNode extends StatementNode {
 

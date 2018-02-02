@@ -27,7 +27,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @since 0.96.1
+ * Implementation for the lock tree node.
+ *
+ * @since 0.961.0
  */
 public class BLangLock extends BLangStatement implements LockNode {
 

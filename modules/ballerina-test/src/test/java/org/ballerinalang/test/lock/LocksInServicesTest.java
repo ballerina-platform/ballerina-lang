@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test class Ballerina locks in services.
  *
- * @since 0.96.1
+ * @since 0.961.0
  */
 public class LocksInServicesTest {
 
@@ -91,7 +91,7 @@ public class LocksInServicesTest {
 
         try {
             if (!semaphore.tryAcquire(500, TimeUnit.MILLISECONDS)) {
-                Assert.fail("request execution not finished within 100ms");
+                Assert.fail("request execution not finished within 500ms");
             }
             String path = "/sample1/getResult";
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
@@ -121,7 +121,7 @@ public class LocksInServicesTest {
 
         try {
             if (!semaphore.tryAcquire(500, TimeUnit.MILLISECONDS)) {
-                Assert.fail("request execution not finished within 100ms");
+                Assert.fail("request execution not finished within 500ms");
             }
             String path = "/sample2/getResult";
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");

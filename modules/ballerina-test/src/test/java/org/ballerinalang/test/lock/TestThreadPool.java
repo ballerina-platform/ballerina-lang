@@ -27,7 +27,7 @@ import java.util.concurrent.Executors;
 /**
  * {@code TestThreadPool} holds the thread pools in Ballerina tests.
  *
- * @since 0.96.1
+ * @since 0.961.0
  */
 public class TestThreadPool {
 

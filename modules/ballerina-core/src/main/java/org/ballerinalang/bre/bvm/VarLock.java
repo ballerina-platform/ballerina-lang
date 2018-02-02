@@ -23,7 +23,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * {@code VarLock} represents lock object for variables.
  *
- * @since 0.96.1
+ * @since 0.961.0
  */
 public class VarLock {
     private Lock lock;

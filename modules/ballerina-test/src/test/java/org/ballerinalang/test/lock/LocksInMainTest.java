@@ -36,7 +36,7 @@ import static org.testng.Assert.assertSame;
 /**
  * Tests for Ballerina locks.
  *
- * @since 0.96.1
+ * @since 0.961.0
  */
 public class LocksInMainTest {
 
