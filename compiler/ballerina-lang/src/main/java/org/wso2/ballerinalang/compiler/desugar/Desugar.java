@@ -107,6 +107,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn.BLangWorkerReturn;
@@ -130,6 +131,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 /**
  * @since 0.94
@@ -147,6 +149,8 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangStatementLink currentLink;
     private Stack<BLangWorker> workerStack = new Stack<>();
+
+    public Stack<BLangLock> enclLocks = new Stack<>();
 
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
@@ -420,6 +424,19 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangLock lockNode) {
+        enclLocks.push(lockNode);
+        lockNode.body = rewrite(lockNode.body);
+        enclLocks.pop();
+        lockNode.lockVariables = lockNode.lockVariables.stream().sorted((o1, o2) -> {
+            String o1FullName = String.join(":", o1.pkgID.getName().getValue(), o1.name.getValue());
+            String o2FullName = String.join(":", o2.pkgID.getName().getValue(), o2.name.getValue());
+            return o1FullName.compareTo(o2FullName);
+        }).collect(Collectors.toSet());
+        result = lockNode;
+    }
+
+    @Override
     public void visit(BLangTransaction transactionNode) {
         transactionNode.transactionBody = rewrite(transactionNode.transactionBody);
         transactionNode.failedBody = rewrite(transactionNode.failedBody);
@@ -525,6 +542,11 @@ public class Desugar extends BLangNodeVisitor {
             // Package variable | service variable
             // We consider both of them as package level variables
             genVarRefExpr = new BLangPackageVarRef(varRefExpr.symbol);
+
+            //Only locking service level and package level variables
+            if (!enclLocks.isEmpty()) {
+                enclLocks.peek().addLockVariable(varRefExpr.symbol);
+            }
         }
 
         genVarRefExpr.type = varRefExpr.type;

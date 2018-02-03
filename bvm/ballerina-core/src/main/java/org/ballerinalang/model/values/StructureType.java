@@ -45,4 +45,28 @@ public interface StructureType {
     BRefType getRefField(int index);
 
     void setRefField(int index, BRefType value);
+
+    void lockIntField(int index);
+
+    void unlockIntField(int index);
+
+    void lockFloatField(int index);
+
+    void unlockFloatField(int index);
+
+    void lockStringField(int index);
+
+    void unlockStringField(int index);
+
+    void lockBooleanField(int index);
+
+    void unlockBooleanField(int index);
+
+    void lockBlobField(int index);
+
+    void unlockBlobField(int index);
+
+    void lockRefField(int index);
+
+    void unlockRefField(int index);
 }

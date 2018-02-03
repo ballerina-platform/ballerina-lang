@@ -154,6 +154,66 @@ public final class BConnector implements BRefType, StructureType {
     }
 
     @Override
+    public void lockIntField(int index) {
+
+    }
+
+    @Override
+    public void unlockIntField(int index) {
+
+    }
+
+    @Override
+    public void lockFloatField(int index) {
+
+    }
+
+    @Override
+    public void unlockFloatField(int index) {
+
+    }
+
+    @Override
+    public void lockStringField(int index) {
+
+    }
+
+    @Override
+    public void unlockStringField(int index) {
+
+    }
+
+    @Override
+    public void lockBooleanField(int index) {
+
+    }
+
+    @Override
+    public void unlockBooleanField(int index) {
+
+    }
+
+    @Override
+    public void lockBlobField(int index) {
+
+    }
+
+    @Override
+    public void unlockBlobField(int index) {
+
+    }
+
+    @Override
+    public void lockRefField(int index) {
+
+    }
+
+    @Override
+    public void unlockRefField(int index) {
+
+    }
+
+    @Override
     public BValue copy() {
         return null;
     }

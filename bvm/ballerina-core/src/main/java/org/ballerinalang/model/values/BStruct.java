@@ -16,6 +16,7 @@
 
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.VarLock;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BStructType.StructField;
 import org.ballerinalang.model.types.BType;
@@ -37,11 +38,17 @@ public final class BStruct implements BRefType, StructureType {
     private HashMap<String, Object> nativeData = new HashMap<>();
 
     private long[] longFields;
+    private VarLock[] longLocks;
     private double[] doubleFields;
+    private VarLock[] doubleLocks;
     private String[] stringFields;
+    private VarLock[] stringLocks;
     private int[] intFields;
+    private VarLock[] intLocks;
     private byte[][] byteFields;
+    private VarLock[] byteLocks;
     private BRefType[] refFields;
+    private VarLock[] refLocks;
 
     private BStructType structType;
 
@@ -171,6 +178,188 @@ public final class BStruct implements BRefType, StructureType {
     @Override
     public void setRefField(int index, BRefType value) {
         refFields[index] = value;
+    }
+
+    @Override
+    public void lockIntField(int index) {
+        /*
+        TODO below synchronization is done on non final variable(which is getting changed in copy method)
+        This is ok for the time being as below synchronizations are only valid for global memory block which is
+        not getting copied, even in that case there shouldn't be a problem as synchronization always happens after
+        copying, but look into that when implementing locking support for struct fields and connector variables.
+         */
+        if (longLocks == null) {
+            synchronized (longFields) {
+                if (longLocks == null) {
+                    longLocks = new VarLock[longFields.length];
+                }
+            }
+        }
+        if (longLocks[index] == null) {
+            //locking the whole field array
+            synchronized (longFields) {
+                if (longLocks[index] == null) {
+                    longLocks[index] = new VarLock();
+                }
+            }
+        }
+        longLocks[index].lock();
+    }
+
+    @Override
+    public void unlockIntField(int index) {
+        longLocks[index].unlock();
+    }
+
+    @Override
+    public void lockFloatField(int index) {
+        /*
+        TODO below synchronization is done on non final variable(which is getting changed in copy method)
+        This is ok for the time being as below synchronizations are only valid for global memory block which is
+        not getting copied, even in that case there shouldn't be a problem as synchronization always happens after
+        copying, but look into that when implementing locking support for struct fields and connector variables.
+         */
+        if (doubleLocks == null) {
+            synchronized (doubleFields) {
+                if (doubleLocks == null) {
+                    doubleLocks = new VarLock[doubleFields.length];
+                }
+            }
+        }
+        if (doubleLocks[index] == null) {
+            //locking the whole field array
+            synchronized (doubleFields) {
+                if (doubleLocks[index] == null) {
+                    doubleLocks[index] = new VarLock();
+                }
+            }
+        }
+        doubleLocks[index].lock();
+    }
+
+    @Override
+    public void unlockFloatField(int index) {
+        doubleLocks[index].unlock();
+    }
+
+    @Override
+    public void lockStringField(int index) {
+        /*
+        TODO below synchronization is done on non final variable(which is getting changed in copy method)
+        This is ok for the time being as below synchronizations are only valid for global memory block which is
+        not getting copied, even in that case there shouldn't be a problem as synchronization always happens after
+        copying, but look into that when implementing locking support for struct fields and connector variables.
+         */
+        if (stringLocks == null) {
+            synchronized (stringFields) {
+                if (stringLocks == null) {
+                    stringLocks = new VarLock[stringFields.length];
+                }
+            }
+        }
+        if (stringLocks[index] == null) {
+            synchronized (stringFields) {
+                if (stringLocks[index] == null) {
+                    stringLocks[index] = new VarLock();
+                }
+            }
+        }
+        stringLocks[index].lock();
+    }
+
+    @Override
+    public void unlockStringField(int index) {
+        stringLocks[index].unlock();
+    }
+
+    @Override
+    public void lockBooleanField(int index) {
+        /*
+        TODO below synchronization is done on non final variable(which is getting changed in copy method)
+        This is ok for the time being as below synchronizations are only valid for global memory block which is
+        not getting copied, even in that case there shouldn't be a problem as synchronization always happens after
+        copying, but look into that when implementing locking support for struct fields and connector variables.
+         */
+        if (intLocks == null) {
+            synchronized (intFields) {
+                if (intLocks == null) {
+                    intLocks = new VarLock[intFields.length];
+                }
+            }
+        }
+        if (intLocks[index] == null) {
+            synchronized (intFields) {
+                if (intLocks[index] == null) {
+                    intLocks[index] = new VarLock();
+                }
+            }
+        }
+        intLocks[index].lock();
+    }
+
+    @Override
+    public void unlockBooleanField(int index) {
+        intLocks[index].unlock();
+    }
+
+    @Override
+    public void lockBlobField(int index) {
+        /*
+        TODO below synchronization is done on non final variable(which is getting changed in copy method)
+        This is ok for the time being as below synchronizations are only valid for global memory block which is
+        not getting copied, even in that case there shouldn't be a problem as synchronization always happens after
+        copying, but look into that when implementing locking support for struct fields and connector variables.
+         */
+        if (byteLocks == null) {
+            synchronized (byteFields) {
+                if (byteLocks == null) {
+                    byteLocks = new VarLock[byteFields.length];
+                }
+            }
+        }
+        if (byteLocks[index] == null) {
+            synchronized (byteFields) {
+                if (byteLocks[index] == null) {
+                    byteLocks[index] = new VarLock();
+                }
+            }
+        }
+        byteLocks[index].lock();
+    }
+
+    @Override
+    public void unlockBlobField(int index) {
+        byteLocks[index].unlock();
+    }
+
+    @Override
+    public void lockRefField(int index) {
+        /*
+        TODO below synchronization is done on non final variable(which is getting changed in copy method)
+        This is ok for the time being as below synchronizations are only valid for global memory block which is
+        not getting copied, even in that case there shouldn't be a problem as synchronization always happens after
+        copying, but look into that when implementing locking support for struct fields and connector variables.
+         */
+        if (refLocks == null) {
+            synchronized (refFields) {
+                if (refLocks == null) {
+                    refLocks = new VarLock[refFields.length];
+                }
+            }
+        }
+        if (refLocks[index] == null) {
+            synchronized (refFields) {
+                if (refLocks[index] == null) {
+                    refLocks[index] = new VarLock();
+                }
+            }
+        }
+        refLocks[index].lock();
+    }
+
+    @Override
+    public void unlockRefField(int index) {
+        refLocks[index].unlock();
     }
 
     @Override
