@@ -749,6 +749,7 @@
                 </plugins>
             </build>
         </profile>
+        
     </profiles>
 
     <build>
@@ -1180,7 +1181,7 @@
         <module>stdlib/ballerina-http</module>
         <module>stdlib/ballerina-mime</module>
         <module>tests/ballerina-test</module>
-        <!--<module>tests/ballerina-test-integration</module>-->
+        <module>tests/ballerina-test-integration</module>
     </modules>
 
 </project>

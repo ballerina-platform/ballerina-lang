@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <groupId>org.ballerinalang.tools</groupId>
-        <artifactId>tools-distribution</artifactId>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-parent</artifactId>
         <version>0.96.1-SNAPSHOT</version>
-        <relativePath>../../../pom.xml</relativePath>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -81,7 +81,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <server.zip>
-                            ${basedir}/../../ballerina/target/ballerina-${project.version}.zip
+                            ${basedir}/../../distribution/zip/ballerina/target/ballerina-${project.version}.zip
                         </server.zip>
                         <project.build.directory>${project.build.directory}</project.build.directory>
                         <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties</java.util.logging.config.file>
