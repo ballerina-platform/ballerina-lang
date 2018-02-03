@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ ~   Copyright (c) WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ ~
+ ~   Licensed under the Apache License, Version 2.0 (the "License");
+ ~   you may not use this file except in compliance with the License.
+ ~   You may obtain a copy of the License at
+ ~
+ ~        http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~   Unless required by applicable law or agreed to in writing, software
+ ~   distributed under the License is distributed on an "AS IS" BASIS,
+ ~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~   See the License for the specific language governing permissions and
+ ~   limitations under the License.
+-->
+
+<svg version="1.1" id="console" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
+<path d="M6.453125,7.6884766l-4.9257812,3.2714844c-0.1464844,0.0976562-0.3686523,0.2460938-0.6538086,0.2460938
+	C0.4082031,11.2060547,0,10.7802734,0,10.2958984c0.0180664-0.4462891,0.2680664-0.6650391,0.5102539-0.8212891l3.9770508-2.644043
+	L0.5317383,4.2075195C0.2543945,4.0185547,0,3.7871094,0,3.3642578c0.0180664-0.4995117,0.4150391-0.8984375,0.8857422-0.8984375
+	c0.2011719,0,0.4072266,0.0727539,0.6308594,0.2231445l4.9384766,3.2841797
+	C6.6987305,6.128418,7.0307617,6.3413086,7.012207,6.8393555C7.012207,7.3320312,6.7021484,7.5297852,6.453125,7.6884766z
+	 M13.8517456,9.8085938l-0.0058594-0.0087891c-0.2529297-0.3515625-0.5595703-0.3896484-0.8701172-0.3945312L7.3966675,9.4003906
+	c-0.1791992,0-0.4418945-0.0019531-0.6821289,0.15625c-0.3876953,0.2568359-0.4931641,0.8369141-0.2197266,1.2490234
+	c0.2543945,0.3525391,0.5727539,0.3935547,0.8706055,0.3945312l5.5800781,0.0058594c0.0126953,0,0.0263672,0,0.0410156,0
+	c0.1669922,0,0.4179688-0.0097656,0.6396484-0.1572266c0.1904297-0.125,0.3212891-0.3369141,0.3613281-0.5791016
+	C14.0255737,10.2363281,13.975769,9.9951172,13.8517456,9.8085938z"/>
+</svg>

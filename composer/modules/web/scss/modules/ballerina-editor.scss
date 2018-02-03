@@ -1,0 +1,200 @@
+.editor-area {
+    .rc-tabs-tab-active {
+        .tab-title-wrapper {
+            &.ballerina-design-view {
+                background-color: white;
+                color: #7D7D7D;
+                .close-tab {
+                    color: #7D7D7D;
+                    &:hover{
+                        color: #474747;
+                    }
+                }
+            }
+        }
+    }
+    .rc-tabs-bar {
+        .split-view-icon {
+            font-size: 20px;
+            margin-right: 20px;
+            opacity: 0.6;
+        }
+        .split-view-icon:hover {
+            opacity: 1;
+            cursor: pointer;
+        }
+    }
+}
+.ballerina-editor{
+    .design-view-container {
+        background-color: #f5f5f5;
+    }
+    .protocol-http{
+        .panel{
+            /* -- Service herder Styles -- */
+            .panel-header{
+                fill: #f3faff;
+                .headingRect{
+                    stroke-width: 1;
+                    stroke:#c4d5e2;
+                }
+                .editable-text-label{
+                    fill:#333;
+                    stroke-width: 0.5px;
+                    stroke:#333;
+                }
+                .panel-header-controls-wrapper{
+                    fill: rgba(255, 255, 255, 0.1);
+                }
+            }
+            .panel-body{
+                .panel-body-rect{
+                    stroke-width: 1px;
+                    stroke: #c4d5e2;
+                }
+                .statement-title-rect {
+                    fill: #f5f5f5;
+                    stroke: #000;
+                }
+                .statement-title-text, .condition-text{
+                    text-anchor: middle;
+                    dominant-baseline: central;
+                    text-transform: lowercase;
+                }
+                .statement-title-text{
+                    text-anchor: middle;
+                    dominant-baseline: central;
+                    fill: #777;
+                    font-style: italic;
+                }
+                .statement-title-text-left{
+                    text-anchor: start;
+                    dominant-baseline: central;
+                    fill: #777;
+                    font-style: italic;
+                }
+                .flowchart-background-empty-rect {
+                    fill: #f5f5f5;
+                    fill-opacity: 0;
+                    stroke: #1b79b4;
+                    stroke-width: 1;
+                }
+                .flowchart-background-empty-rect {
+                    fill: #f5f5f5;
+                    fill-opacity: 0;
+                    stroke: #1b79b4;
+                    stroke-width: 1;
+                }
+                .flowchart-action-arrow {
+                    fill: #0070af;
+                    stroke: #0070af;
+                    stroke-width: 1;
+                }
+                .flowchart-action-arrow-head {
+                    fill: #0070af;
+                    stroke: #0070af;
+                }
+                .compound-statment-rect{
+                    fill: none;
+                    stroke: #777;
+                    stroke-dasharray: 3,3;
+                }
+                .flowchart-separator-line {
+                    stroke: #f5f5f5;
+                    stroke-width: 2;
+                }
+                .flowchart-true-text {
+                    text-anchor: end;
+                    font-style: italic;
+                    font-weight: bolder;
+                }
+                .flowchart-false-text {
+                    text-anchor: start;
+                    font-style: italic;
+                    font-weight: bolder;
+                }
+                .property-pane-action-button-wrapper{
+                    fill: #e9e9e9;
+                }
+                .property-pane-action-button-delete, .property-pane-action-button-jump{
+                    opacity: 0.4;
+                    &:hover{
+                        opacity: 1;
+                        fill: red;
+                    }
+                }
+            }
+        }
+    }
+
+    .panel-body{
+        .panel {
+            .panel-header {
+                fill: #f5f5f5;
+                .headingRect {
+                    stroke-width: 1px;
+                    stroke: #e4e4e4;
+                    .panel-header-controls {
+                        .panel-header-controls-wrapper {
+                            fill: rgba(255, 255, 255, 0.1);
+                        }
+                    }
+                }
+                .parameter-text, .parameter-bracket-text {
+                    fill: #333;
+                    dominant-baseline: text-before-edge;
+                    cursor: default;
+                }
+            }
+            .client-line-group{
+                .client-line-header{
+                    fill: #f5f5f5;
+                    stroke: #303030;
+                    stroke-width: 1px;
+                }
+                .client-life-line, .worker-life-line, .client-invocation-arrow {
+                    stroke: #303030;
+                    stroke-width: 1px;
+                }
+                .client-line-text{
+                    text-anchor: middle;
+                    dominant-baseline: central;
+                    text-transform: lowercase;
+                }
+            }
+            .default-worker-life-line, .worker-life-line {
+                stroke: #1b79b4;
+                stroke-width: 1;
+            }
+            .connector-life-line {
+                stroke: #17a085;
+                stroke-width: 1;
+            }
+        }
+    }
+    .bottom-right-controls-container{
+        position: absolute;
+        bottom: 20px;
+        right: 50px;
+        z-index: 30;
+        color: #f5f5f5;
+        padding: 0;
+        line-height: 30px;
+        width: 120px;
+        .bottom-label-icon-wrapper{
+            height: 30px;
+            width: 30px;
+            background-color: #e8e8e8;
+            margin:0  5px;
+            float: left;
+            padding: 2px 8px;
+            border: 1px solid #c1c1c1;
+            color: #333;
+        }
+        .bottom-view-label{
+            display: none;
+        }
+    }
+}
+
+

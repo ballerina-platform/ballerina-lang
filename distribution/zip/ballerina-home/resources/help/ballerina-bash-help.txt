@@ -1,0 +1,15 @@
+
+Ballerina is a new programming language for integration built on a sequence diagram metaphor.
+This command mainly used to execute the main function of a ballerina program.
+
+Usage:
+    ballerina [options] ballerina-file [args...]
+
+Examples:
+    ballerina hello-world.bal WSO2
+    ballerina hello-world.bal "WSO2 Inc"  (If the argument value contains a space, use double quote to enclose it)
+    ballerina multiplier.bal 5 10
+
+Available Options are:
+    -version     Print Ballerina Tools version.
+    -help        Print this help message.

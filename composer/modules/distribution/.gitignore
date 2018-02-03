@@ -1,0 +1,4 @@
+#Resources & build files for electron distribution
+resources/
+dist/
+logs/
