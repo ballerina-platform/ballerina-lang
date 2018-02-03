@@ -65,16 +65,16 @@ public class Options extends AbstractHTTPAction {
             logger.debug("Executing Native Action : {}", this.getName());
         }
         try {
-            return executeNonBlockingAction(context, createCarbonMsg(context));
+            return executeNonBlockingAction(context, createOutboundRequestMsg(context));
         } catch (ClientConnectorException clientConnectorException) {
             throw new BallerinaException("Failed to invoke 'options' action in " + Constants.CONNECTOR_NAME
                     + ". " + clientConnectorException.getMessage(), context);
         }
     }
 
-    protected HTTPCarbonMessage createCarbonMsg(Context context) {
-        HTTPCarbonMessage cMsg = super.createCarbonMsg(context);
-        cMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_METHOD_OPTIONS);
-        return cMsg;
+    protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
+        HTTPCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
+        outboundRequestMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_METHOD_OPTIONS);
+        return outboundRequestMsg;
     }
 }

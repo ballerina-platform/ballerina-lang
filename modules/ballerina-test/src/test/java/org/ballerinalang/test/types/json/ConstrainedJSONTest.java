@@ -24,6 +24,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -270,5 +271,19 @@ public class ConstrainedJSONTest {
         Assert.assertNull(returns[0]);
         Assert.assertNotNull(returns[1]);
         Assert.assertEquals(((BStruct) returns[1]).getStringField(0), "'json[]' cannot be cast to 'json<Student>[]'");
+    }
+
+    @Test
+    public void testConstrainedJsonWithFunctionToString() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedJsonWithFunctions");
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\",\"age\":30,\"address\":\"London\"}");
+    }
+
+    @Test
+    public void testConstrainedJsonWithFunctionGetKeys() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedJsonWithFunctionGetKeys");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "name");
+        Assert.assertEquals(((BStringArray) returns[0]).get(1), "age");
+        Assert.assertEquals(((BStringArray) returns[0]).get(2), "address");
     }
 }
