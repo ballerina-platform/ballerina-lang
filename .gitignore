@@ -23,3 +23,5 @@ target
 
 # mac
 .DS_Store
+
+.idea

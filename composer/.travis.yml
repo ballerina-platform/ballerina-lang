@@ -1,0 +1,12 @@
+language: java
+
+install:
+  - . $HOME/.nvm/nvm.sh
+  - nvm install 8.9.0
+  - nvm use 8.9.0
+  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+
+cache:
+  directories:
+  - $HOME/.m2
+  - modules/web/node_modules

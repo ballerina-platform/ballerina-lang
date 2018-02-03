@@ -1,0 +1,14 @@
+{
+  "presets": [
+    ["env", {
+      "targets": {
+        "node": "current"
+      }
+    }]
+  ],
+  "plugins": [
+    ["module-alias", [
+      { "src": "target/js-files-from-web", "expose": "composer" },
+    ]]
+  ]
+}

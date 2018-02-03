@@ -1,0 +1,80 @@
+$brand-primary: #f17b31;
+
+$header-bgcolor: #1e1e1e;
+$header-brand-color: #fff;
+
+$footer-bgcolor: #151515;
+$footer-color: #6d6d6d;
+
+$menubar-link-color: #c7c7c7;
+$menubar-link-hover-color: #fff;
+$menubar-link-disabled-color: #afafaf;
+$menubar-link-hover-bgcolor: #707276;
+$menubar-file-dropdown-menu-bgcolor: #3c3c3c;
+$menubar-file-dropdown-menu-link-hover-color: $menubar-file-dropdown-menu-bgcolor;
+$menubar-file-dropdown-menu-link-hover-bgcolor: #d4d4d4;
+
+$breadcrumb-bgcolor: #151515;
+$breadcrumb-active-color: #fff;
+
+$left-toolbar-bgcolor: #151515;
+$left-toolbar-link-color: #999999;
+
+$tab-container-bgcolor: #fff;
+$tab-header-bgcolor: #282828;
+$tab-header-active-tab-bgcolor: #fff;
+$tab-header-inactive-tab-bgcolor: #565656;
+$tab-header-active-inverse-tab-bgcolor: #3c3c3c;
+$tab-content-wrapper-bgcolor: #141414;
+$tab-content-wrapper-grid-color: #202020;
+
+$bottom-right-controls-bgcolor: #565656;
+
+$source-editor-color: #F8F8F8;
+$source-editor-bgcolor: $tab-header-active-inverse-tab-bgcolor;
+$source-editor-gutter-color: #E2E2E2;
+$source-editor-gutter-bgcolor: #313131;
+
+$tool-palette-container-bgcolor: #1e1e1e;
+$tool-group-header-bgcolor: #3c3c3c;
+$tool-group-header-text-color: #cccccc;
+$tool-title-color: $tool-group-header-text-color;
+$tool-separator-color: $tool-group-header-bgcolor;
+
+$panel-header-bgcolor: #3c3c3c;
+$panel-header-border-color: $panel-header-bgcolor;
+$panel-header-color: #b5b5b5;
+$panel-body-bgcolor: #3c3c3c;
+$panel-body-border-color: $panel-header-border-color;
+$panel-body-dropzone-bgcolor: #fff;
+
+$package-configs-bgcolor: #3c3c3c;
+$worker-life-line-color: #fff;
+$package-definition-color: #fff;
+
+$btn-primary-bgcolor: #5b5b5b;
+$btn-secondary-bgcolor: #858585;
+
+$welcome-details-content-wrapper-bgcolor: transparentize(#e4e4e4, 0.5);
+$welcome-tile-view-wrapper-bgcolor: #ffffff;
+
+$modal-btn-default-bgcolor: #2c2c2c;
+$modal-btn-default-color: #fff;
+$modal-btn-default-hover-bgcolor: lighten($modal-btn-default-bgcolor, 10%);
+$modal-btn-default-hover-color: #fff;
+$modal-btn-primary-bgcolor: #F57E30;
+$modal-btn-primary-color: #fff;
+$modal-btn-primary-hover-bgcolor: darken($modal-btn-primary-bgcolor, 10%);
+$modal-btn-primary-hover-color: #fff;
+
+$primary-line-bgcolor: #666769;
+$default-worker-lifeline-color: #0070af;
+$worker-lifeline-color: #0070af;
+$connector-lifeline-color: #26A69A;
+
+$annotation-wrapper-bgcolor: #eee;
+$annotation-wrapper-text-color: #666769;
+$argument-parameter-group-wrapper-bgcolor:#ccc;
+
+@import '../layout.scss';
+@import '../main.scss';
