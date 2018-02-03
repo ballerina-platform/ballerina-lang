@@ -3337,21 +3337,6 @@ public class BLangVM {
         return true;
     }
 
-    /**
-     * Returns whether both symbols are public or private.
-     *
-     * @param lhsFlags left-hand side symbol
-     * @param rhsFlags right-hand side symbol
-     * @return whether both symbols are public or private
-     */
-    private static boolean isBothPublicOrPrivate(int lhsFlags, int rhsFlags) {
-        // Get the XOR of both flags(masks)
-        // If both are public, then public bit should be 0;
-        // If both are private, then public bit should be 0;
-        // The public bit is on means, one is public, and the other one is private.
-        return !Flags.isFlagOn(lhsFlags ^ rhsFlags, Flags.PUBLIC);
-    }
-
     private static BStructType.AttachedFunction getMatchingInvokableType(BStructType.AttachedFunction[] rhsFuncs,
                                                                          BStructType.AttachedFunction lhsFunc) {
         return Arrays.stream(rhsFuncs)
@@ -3374,28 +3359,6 @@ public class BLangVM {
 
         // TODO Support function types, json/map constrained types etc.
 
-        return false;
-    }
-
-    private static boolean isAssignable(BType actualType, BType expType) {
-        // First check whether both references points to the same object.
-        if (actualType == expType) {
-            return true;
-        }
-
-        // If the both type tags are equal, then perform following checks.
-        if (actualType.getTag() == expType.getTag() && isValueType(actualType)) {
-            return true;
-        } else if (actualType.getTag() == expType.getTag() &&
-                !isUserDefinedType(actualType) && !isConstrainedType(actualType)) {
-            return true;
-        } else if (actualType.getTag() == expType.getTag() && actualType.getTag() == TypeTags.ARRAY_TAG) {
-            return checkArrayEquivalent(actualType, expType);
-        } else if (actualType.getTag() == expType.getTag() && actualType.getTag() == TypeTags.STRUCT_TAG &&
-                checkStructEquivalency((BStructType) actualType, (BStructType) expType)) {
-            // If both types are structs then check for their equivalency
-            return true;
-        }
         return false;
     }
 
