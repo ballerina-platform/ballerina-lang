@@ -79,6 +79,7 @@ import org.ballerinalang.util.codegen.Instruction.InstructionACALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
+import org.ballerinalang.util.codegen.Instruction.InstructionLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionTCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
@@ -744,6 +745,14 @@ public class BLangVM {
                 case InstructionCodes.ITR_NEXT:
                 case InstructionCodes.ITR_HAS_NEXT:
                     execIteratorOperation(sf, instruction);
+                    break;
+                case InstructionCodes.LOCK:
+                    InstructionLock instructionLock = (InstructionLock) instruction;
+                    handleVariableLock(instructionLock.types, instructionLock.varRegs);
+                    break;
+                case InstructionCodes.UNLOCK:
+                    InstructionLock instructionUnLock = (InstructionLock) instruction;
+                    handleVariableUnlock(instructionUnLock.types, instructionUnLock.varRegs);
                     break;
                 default:
                     throw new UnsupportedOperationException();
@@ -2354,6 +2363,58 @@ public class BLangVM {
                 BXML<?> child = (BXML<?>) sf.refRegs[j];
                 xmlVal.addChildren(child);
                 break;
+        }
+    }
+
+    private void handleVariableLock(BType[] types, int[] varRegs) {
+        for (int i = 0; i < varRegs.length; i++) {
+            BType paramType = types[i];
+            int regIndex = varRegs[i];
+            switch (paramType.getTag()) {
+                case TypeTags.INT_TAG:
+                    globalMemBlock.lockIntField(regIndex);
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    globalMemBlock.lockFloatField(regIndex);
+                    break;
+                case TypeTags.STRING_TAG:
+                    globalMemBlock.lockStringField(regIndex);
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    globalMemBlock.lockBooleanField(regIndex);
+                    break;
+                case TypeTags.BLOB_TAG:
+                    globalMemBlock.lockBlobField(regIndex);
+                    break;
+                default:
+                    globalMemBlock.lockRefField(regIndex);
+            }
+        }
+    }
+
+    private void handleVariableUnlock(BType[] types, int[] varRegs) {
+        for (int i = varRegs.length - 1; i > -1; i--) {
+            BType paramType = types[i];
+            int regIndex = varRegs[i];
+            switch (paramType.getTag()) {
+                case TypeTags.INT_TAG:
+                    globalMemBlock.unlockIntField(regIndex);
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    globalMemBlock.unlockFloatField(regIndex);
+                    break;
+                case TypeTags.STRING_TAG:
+                    globalMemBlock.unlockStringField(regIndex);
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    globalMemBlock.unlockBooleanField(regIndex);
+                    break;
+                case TypeTags.BLOB_TAG:
+                    globalMemBlock.unlockBlobField(regIndex);
+                    break;
+                default:
+                    globalMemBlock.unlockRefField(regIndex);
+            }
         }
     }
 

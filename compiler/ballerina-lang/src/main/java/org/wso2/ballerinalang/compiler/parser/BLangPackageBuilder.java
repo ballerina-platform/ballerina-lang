@@ -113,6 +113,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -1301,6 +1302,20 @@ public class BLangPackageBuilder {
         BLangBlockStmt whileBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         whileBlock.pos = pos;
         whileNode.setBody(whileBlock);
+        addStmtToCurrentBlock(whileNode);
+    }
+
+    public void startLockStmt() {
+        startBlock();
+    }
+
+    public void addLockStmt(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangLock whileNode = (BLangLock) TreeBuilder.createLockNode();
+        whileNode.pos = pos;
+        whileNode.addWS(ws);
+        BLangBlockStmt lockBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        lockBlock.pos = pos;
+        whileNode.setBody(lockBlock);
         addStmtToCurrentBlock(whileNode);
     }
 
