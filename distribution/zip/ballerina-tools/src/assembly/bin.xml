@@ -32,7 +32,7 @@
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-composer-web-zip/ballerina-composer-web-${ballerina.composer.version}
+                ${project.build.directory}/extracted-distributions/ballerina-composer-web-zip/ballerina-composer-web-${project.version}
             </directory>
             <outputDirectory>.</outputDirectory>
         </fileSet>
@@ -82,7 +82,7 @@
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>../../COPYRIGHT.txt</source>
+            <source>../COPYRIGHT.txt</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>

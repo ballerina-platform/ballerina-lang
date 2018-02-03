@@ -29,6 +29,8 @@
     <artifactId>ballerina</artifactId>
     <packaging>pom</packaging>
 
+    <name>Ballerina - Distribution</name>
+
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>

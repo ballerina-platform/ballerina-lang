@@ -45,7 +45,7 @@
         </fileSet>
 
         <fileSet>
-            <directory>../../ballerina-home/resources/security</directory>
+            <directory>resources/security</directory>
             <outputDirectory>bre/security</outputDirectory>
             <fileMode>644</fileMode>
         </fileSet>
@@ -70,7 +70,7 @@
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-samples-zip/ballerina-samples-${ballerina.runtime.version}
+                ${project.build.directory}/extracted-distributions/ballerina-samples-zip/ballerina-samples-${project.version}
             </directory>
             <outputDirectory>samples</outputDirectory>
             <excludes>
@@ -121,7 +121,7 @@
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>../../COPYRIGHT.txt</source>
+            <source>../COPYRIGHT.txt</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>

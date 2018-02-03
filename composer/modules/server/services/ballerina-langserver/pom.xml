@@ -25,7 +25,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>composer-ballerina-langserver-service</artifactId>
-    <name>Ballerina Composer - Ballerina LangServer Service</name>
+    <name>Ballerina - Composer - Ballerina LangServer Service</name>
     <dependencies>
         <dependency>
             <groupId>org.eclipse.lsp4j</groupId>

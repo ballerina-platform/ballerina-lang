@@ -20,81 +20,24 @@
 
     <parent>
         <groupId>org.ballerinalang</groupId>
-        <artifactId>ballerinalang</artifactId>
+        <artifactId>ballerina-parent</artifactId>
         <version>0.96.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>ballerina-composer-parent</artifactId>
+    <artifactId>composer</artifactId>
     <packaging>pom</packaging>
     <version>0.96.1-SNAPSHOT</version>
-    <name>Ballerina Composer - Parent</name>
-
-    <scm>
-        <url>https://github.com/ballerinalang/composer.git</url>
-        <developerConnection>scm:git:https://github.com/ballerinalang/composer.git
-        </developerConnection>
-        <connection>scm:git:https://github.com/ballerinalang/composer.git</connection>
-        <tag>HEAD</tag>
-    </scm>
-
-    <repositories>
-        <repository>
-            <id>wso2.releases</id>
-            <name>WSO2 Releases Repository</name>
-            <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-        </repository>
-        <repository>
-            <id>wso2.snapshots</id>
-            <name>WSO2 Snapshot Repository</name>
-            <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-    </repositories>
+    <name>Ballerina - Composer</name>
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-core</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-lang</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-builtin</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-http</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.wso2.msf4j.example</groupId>
                 <artifactId>stockquote-fatjar</artifactId>
                 <version>${msf4j.examples.version}</version>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>language-server-core</artifactId>
-                <version>${ballerina.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -112,28 +55,6 @@
 
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>findbugs-maven-plugin</artifactId>
-                    <configuration>
-                        <effort>Max</effort>
-                        <threshold>Low</threshold>
-                        <xmlOutput>true</xmlOutput>
-                        <findbugsXmlOutputDirectory>${project.build.directory}/findbugs
-                        </findbugsXmlOutputDirectory>
-                        <excludeFilterFile>${maven.findbugsplugin.version.exclude}</excludeFilterFile>
-                    </configuration>
-                    <version>${maven.findbugsplugin.version}</version>
-                    <executions>
-                        <execution>
-                            <id>analyze-compile</id>
-                            <phase>compile</phase>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
                 <plugin>
                     <groupId>org.antlr</groupId>
                     <artifactId>antlr4-maven-plugin</artifactId>
@@ -162,7 +83,7 @@
         <maven.checkstyleplugin.excludes>**/parser/*,**/${native.constructs.provider.class}.java</maven.checkstyleplugin.excludes>
 
         <!-- Maven plugins -->
-        <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
+        <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
         <native.constructs.provider.package>org.ballerinalang.nativeimpl</native.constructs.provider.package>
         <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
     </properties>

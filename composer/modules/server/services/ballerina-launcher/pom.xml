@@ -25,7 +25,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>composer-ballerina-launcher-service</artifactId>
-    <name>Ballerina Composer - Ballerina Launcher Service</name>
+    <name>Ballerina - Composer - Ballerina Launcher Service</name>
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>

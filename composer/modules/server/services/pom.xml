@@ -24,7 +24,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>composer-services-parent</artifactId>
-    <name>Ballerina Composer - Services Parent</name>
+    <name>Ballerina - Composer - Services Parent</name>
     <packaging>pom</packaging>
     <modules>
         <module>file-system</module>

@@ -19,15 +19,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <groupId>org.ballerinalang.tools</groupId>
-        <artifactId>tools-distribution</artifactId>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-parent</artifactId>
         <version>0.96.1-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../../../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ballerina-tools</artifactId>
     <packaging>pom</packaging>
+
+    <name>Ballerina - Tools Distribution</name>
 
     <dependencies>
         <dependency>
@@ -81,9 +83,8 @@
             <artifactId>jackson-dataformat-yaml</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.ballerinalang.tools</groupId>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina</artifactId>
-            <version>${project.version}</version>
             <type>zip</type>
         </dependency>
     </dependencies>
@@ -119,7 +120,7 @@
             <plugin>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>docerina-maven-plugin</artifactId>
-                <version>${docerina.maven.plugin.version}</version>
+                <version>${project.version}</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -129,7 +130,7 @@
                         <configuration>
                             <outputDir>${project.build.directory}/api-docs</outputDir>
                             <sourceDir>
-                                ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${ballerina.runtime.version}/src,${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/natives
+                                ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${project.version}/src,${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/natives
                             </sourceDir>
                             <nativeCode>true</nativeCode>
                         </configuration>
@@ -139,12 +140,12 @@
                     <dependency>
                         <groupId>org.ballerinalang</groupId>
                         <artifactId>ballerina-http</artifactId>
-                        <version>${ballerina.runtime.version}</version>
+                        <version>${project.version}</version>
                     </dependency>
                     <dependency>
                         <groupId>org.ballerinalang</groupId>
                         <artifactId>ballerina-mime</artifactId>
-                        <version>${ballerina.runtime.version}</version>
+                        <version>${project.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>

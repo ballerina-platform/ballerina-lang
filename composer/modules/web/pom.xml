@@ -20,14 +20,14 @@
 
     <parent>
         <groupId>org.ballerinalang</groupId>
-        <artifactId>ballerina-composer-parent</artifactId>
+        <artifactId>composer</artifactId>
         <version>0.96.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>ballerina-composer-web</artifactId>
     <packaging>pom</packaging>
-    <name>Ballerina Composer - Web</name>
+    <name>Ballerina - Composer - Web</name>
     <description>Ballerina Composer Web</description>
 
     <build>

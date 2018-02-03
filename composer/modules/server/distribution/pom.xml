@@ -24,7 +24,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>composer-server-distribution</artifactId>
-    <name>Ballerina Composer - Server Distribution</name>
+    <name>Ballerina - Composer - Server Distribution</name>
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>

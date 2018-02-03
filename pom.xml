@@ -196,8 +196,51 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-test</artifactId>
+                <artifactId>language-server-core</artifactId>
                 <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-samples</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>composer-server-distribution</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-composer-web</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>testerina-core</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>swagger-ballerina-generator</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-container-support</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>docerina</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
             </dependency>
 
 
@@ -1118,12 +1161,16 @@
         <module>cli/ballerina-packerina</module>
         <module>compiler/ballerina-lang</module>
 
+        <module>composer</module>
 
-
-        <!--<module>distribution/zip/ballerina</module>-->
+        <module>distribution/docker</module>
+        <module>distribution/zip/ballerina</module>
+        <module>distribution/zip/ballerina-tools</module>
 
         <module>language-server</module>
-        <module>misc/ballerina-maven-plugin</module>
+
+        <module>misc/ballerina-maven-plugins</module>
+        <module>misc/ballerina-samples</module>
         <module>misc/docerina</module>
         <module>misc/swagger-ballerina</module>
         <module>misc/testerina</module>
