@@ -207,7 +207,6 @@ public class IterableCodeDesugar {
             defineVariable(variable, packageSymbol.pkgID, funcNode);
             createVariableDefStmt(pos, funcNode.body).var = variable;
         });
-        ctx.resultOfStream = assignmentVars;
 
         // Generate foreach iteration.
         // TODO : Future improvement:- optimize single operation invocation, which doesn't need a stream function.

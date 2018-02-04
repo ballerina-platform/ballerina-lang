@@ -54,7 +54,7 @@ public class IterableAnalyzer {
     private TypeChecker typeChecker;
     private DiagnosticLog dlog;
 
-    private final BIterableTypeVisitor foreachTypeChecker, mapTypeChecker, filterTypeChecker;
+    private final BIterableTypeVisitor lambdaTypeChecker;
 
     private IterableAnalyzer(CompilerContext context) {
         context.put(ITERABLE_ANALYZER_KEY, this);
@@ -63,9 +63,7 @@ public class IterableAnalyzer {
         this.dlog = DiagnosticLog.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
 
-        this.foreachTypeChecker = new ForeachTypeChecker(dlog, symTable);
-        this.mapTypeChecker = new MapTypeChecker(dlog, symTable);
-        this.filterTypeChecker = new FilterTypeChecker(dlog, symTable);
+        this.lambdaTypeChecker = new LambdaBasedTypeChecker(dlog, symTable);
     }
 
     public static IterableAnalyzer getInstance(CompilerContext context) {
@@ -112,8 +110,6 @@ public class IterableAnalyzer {
             case AVERAGE:
             case COUNT:
                 break;
-            default:
-                // TODO: Log Error. Unsupported Operation.
         }
     }
 
@@ -137,15 +133,15 @@ public class IterableAnalyzer {
         givenRetTypes = operation.lambdaType.getReturnTypes();
         switch (operation.kind) {
             case FOREACH:
-                supportedArgTypes = operation.collectionType.accept(foreachTypeChecker, operation);
+                supportedArgTypes = operation.collectionType.accept(lambdaTypeChecker, operation);
                 supportedRetTypes = Collections.emptyList();
                 break;
             case MAP:
-                supportedArgTypes = operation.collectionType.accept(mapTypeChecker, operation);
+                supportedArgTypes = operation.collectionType.accept(lambdaTypeChecker, operation);
                 supportedRetTypes = givenRetTypes;
                 break;
             case FILTER:
-                supportedArgTypes = operation.collectionType.accept(filterTypeChecker, operation);
+                supportedArgTypes = operation.collectionType.accept(lambdaTypeChecker, operation);
                 supportedRetTypes = Lists.of(symTable.booleanType);
                 break;
             default:
@@ -217,13 +213,13 @@ public class IterableAnalyzer {
     /* Iterable Operation type checkers */
 
     /**
-     * Type checker for Foreach Operation.
+     * Type checker for Lambda based operations.
      *
      * @since 0.961.0
      */
-    private static class ForeachTypeChecker extends BIterableTypeVisitor {
+    private static class LambdaBasedTypeChecker extends BIterableTypeVisitor {
 
-        ForeachTypeChecker(DiagnosticLog dlog, SymbolTable symTable) {
+        LambdaBasedTypeChecker(DiagnosticLog dlog, SymbolTable symTable) {
             super(dlog, symTable);
         }
 
@@ -282,31 +278,4 @@ public class IterableAnalyzer {
         }
     }
 
-    /**
-     * Type checker for Map Operation.
-     *
-     * @since 0.961.0
-     */
-    private static class MapTypeChecker extends ForeachTypeChecker {
-
-        MapTypeChecker(DiagnosticLog dlog, SymbolTable symTable) {
-            super(dlog, symTable);
-        }
-
-        /* override methods to extend Map functionality. Otherwise it will have same behaviour as foreach */
-    }
-
-    /**
-     * Type checker for Filter Operation.
-     *
-     * @since 0.961.0
-     */
-    private static class FilterTypeChecker extends ForeachTypeChecker {
-
-        FilterTypeChecker(DiagnosticLog dlog, SymbolTable symTable) {
-            super(dlog, symTable);
-        }
-
-        /* override methods to extend filter functionality. Otherwise it will have same behaviour as foreach */
-    }
 }

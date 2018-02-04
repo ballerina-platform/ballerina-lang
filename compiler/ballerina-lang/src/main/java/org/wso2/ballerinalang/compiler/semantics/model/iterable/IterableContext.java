@@ -23,7 +23,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Represents Chain of Iterable Operation.
@@ -38,7 +37,6 @@ public class IterableContext {
 
     /* Filed used for code generation */
     public BLangVariable countVar, skipVar, resultVar;
-    public List<BLangVariable> resultOfStream;
     public BLangExpression collectionExpr;
     public BLangInvocation iteratorCaller;
 
