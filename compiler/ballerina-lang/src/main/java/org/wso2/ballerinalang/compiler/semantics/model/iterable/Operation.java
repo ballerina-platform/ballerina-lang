@@ -39,17 +39,18 @@ public class Operation {
     public IterableKind kind;
     public SymbolEnv env;
 
+    public Operation previous;
+
     public BType collectionType;
     public List<BType> expectedTypes;
-    public List<BType> argTypes;
     public List<BType> resultTypes;
+    public List<BType> argTypes, retArgTypes;
 
     /* variables for lambda based operations. */
     public int arity;
     public BLangExpression lambda;
     public BInvokableType lambdaType;
 
-    public Operation previous;
 
     /* fields required for code generation. */
     public List<BLangVariable> argVars;

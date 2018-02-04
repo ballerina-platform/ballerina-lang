@@ -198,16 +198,20 @@ public class IterableAnalyzer {
 
     private void assignInvocationType(Operation operation, List<BType> argTypes, List<BType> supportedRetTypes) {
         operation.argTypes = argTypes;
+        operation.retArgTypes = supportedRetTypes;
         if (operation.kind.isTerminal()) {
             operation.resultTypes = supportedRetTypes;
             return;
         }
-        if (supportedRetTypes.size() > 0) {
-            BTupleCollectionType resultType = new BTupleCollectionType(supportedRetTypes);
-            operation.resultTypes = Lists.of(resultType);
+        if (supportedRetTypes.size() == 0) {
+            operation.resultTypes = Collections.emptyList();
             return;
         }
-        operation.resultTypes = Collections.emptyList();
+        if (operation.kind == IterableKind.FILTER) {
+            operation.resultTypes = Lists.of(new BTupleCollectionType(argTypes));
+            return;
+        }
+        operation.resultTypes = Lists.of(new BTupleCollectionType(supportedRetTypes));
     }
 
     /* Iterable Operation type checkers */

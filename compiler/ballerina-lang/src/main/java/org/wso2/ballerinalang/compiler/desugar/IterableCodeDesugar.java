@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -144,13 +145,14 @@ public class IterableCodeDesugar {
             }
         } else {
             Operation lastOperation = operation.previous;
-            while (lastOperation.kind == IterableKind.FILTER) {
-                lastOperation = lastOperation.previous;
+            if (lastOperation.kind == IterableKind.FILTER) {
+                operation.argVars.addAll(lastOperation.argVars);
+            } else {
+                operation.argVars.addAll(lastOperation.retVars);
             }
-            operation.argVars.addAll(lastOperation.retVars);
         }
         // Add output types.
-        for (BType varType : operation.resultTypes) {
+        for (BType varType : operation.retArgTypes) {
             operation.retVars.add(createVariable(operation.pos, VAR_ARG + variableCount++, varType));
         }
     }
@@ -161,6 +163,11 @@ public class IterableCodeDesugar {
         return copy;
     }
 
+    private void defineVariable(BLangVariable variable, PackageID pkgID, BLangFunction funcNode) {
+        variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name), pkgID, variable.type, funcNode.symbol);
+        funcNode.symbol.scope.define(variable.symbol.name, variable.symbol);
+    }
+
     private void generateIteratorFunction(IterableContext ctx) {
         final Operation firstOperation = ctx.getFirstOperation();
         final Operation lastOperation = ctx.getLastOperation();
@@ -169,7 +176,7 @@ public class IterableCodeDesugar {
         // Create and define function signature.
         final BLangFunction funcNode = createFunction(pos, FUNC_CALLER);
         funcNode.params.add(createVariable(pos, VAR_COLLECTION, ctx.collectionExpr.type));
-        if (isFunctionReturns(ctx)) {
+        if (checkFunctionReturn(ctx)) {
             funcNode.retParams.add(createVariable(ctx.getLastOperation().pos, VAR_RESULT, ctx.resultType));
         }
 
@@ -181,7 +188,7 @@ public class IterableCodeDesugar {
         packageEnv.enclPkg.topLevelNodes.add(funcNode);
 
         // Generate function Body.
-        if (isFunctionReturns(ctx)) {
+        if (checkFunctionReturn(ctx)) {
             final BLangVariable counterVar = createVariable(ctx.getLastOperation().pos, VAR_COUNT, symTable.intType);
             counterVar.expr = createLiteral(ctx.getLastOperation().pos, symTable.intType, 0);
             defineVariable(counterVar, packageSymbol.pkgID, funcNode);
@@ -217,7 +224,7 @@ public class IterableCodeDesugar {
         assignment.expr = iExpr;
         assignment.varRefs.addAll(createVariableReferences(pos, assignmentVars));
 
-        if (isFunctionReturns(ctx)) {
+        if (checkFunctionReturn(ctx)) {
             generateSkipCondition(foreach.body, ctx);
             generateAggregator(foreach.body, ctx, funcNode.retParams.get(0));
         }
@@ -225,12 +232,7 @@ public class IterableCodeDesugar {
         createReturnStmt(lastOperation.pos, funcNode.body);
     }
 
-    private void defineVariable(BLangVariable variable, PackageID pkgID, BLangFunction funcNode) {
-        variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name), pkgID, variable.type, funcNode.symbol);
-        funcNode.symbol.scope.define(variable.symbol.name, variable.symbol);
-    }
-
-    private boolean isFunctionReturns(IterableContext ctx) {
+    private boolean checkFunctionReturn(IterableContext ctx) {
         return ctx.resultType != symTable.noType;
     }
 
@@ -390,14 +392,18 @@ public class IterableCodeDesugar {
         packageEnv.enclPkg.topLevelNodes.add(funcNode);
 
         // Define all undefined variables.
-        Set<BLangVariable> usedVars = new HashSet<>();
+        Set<BLangVariable> unusedVars = new HashSet<>();
         ctx.operations.forEach(operation -> {
-            usedVars.addAll(operation.argVars);
-            usedVars.addAll(operation.retVars);
+            unusedVars.addAll(operation.argVars);
+            unusedVars.addAll(operation.retVars);
         });
-        usedVars.removeAll(funcNode.params);
-        usedVars.removeAll(funcNode.retParams);
-        usedVars.forEach(variable -> defineVariable(variable, packageSymbol.pkgID, funcNode));
+        unusedVars.removeAll(funcNode.params);
+        unusedVars.removeAll(funcNode.retParams);
+        unusedVars.forEach(variable -> defineVariable(variable, packageSymbol.pkgID, funcNode));
+        unusedVars.forEach(variable -> {
+            BLangVariableDef variableDefStmt = createVariableDefStmt(ctx.getFirstOperation().pos, funcNode.body);
+            variableDefStmt.var = variable;
+        });
         // Generate function Body.
         ctx.operations.forEach(operation -> generateOperationCode(funcNode.body, operation, ctx));
         generateStreamReturnStmt(funcNode.body, ctx.getLastOperation().retVars);
@@ -480,6 +486,7 @@ public class IterableCodeDesugar {
                 symTable.booleanType);
         notExpr.expr = createInvocationExpr(pos, (BInvokableSymbol) ((BLangSimpleVarRef) operation.lambda).symbol,
                 operation.argVars);
+        notExpr.type = symTable.booleanType;
         ifNode.expr = notExpr;
         ifNode.body = createBlockStmt(pos);
 
@@ -581,7 +588,7 @@ public class IterableCodeDesugar {
         invokeLambda.pos = pos;
         invokeLambda.argExprs.addAll(createVariableReferences(pos, args));
         invokeLambda.symbol = invokableSymbol;
-        invokableSymbol.retParams.forEach(symbol -> invokeLambda.types.add(symbol.type));
+        invokeLambda.types.addAll(((BInvokableType) invokableSymbol.type).retTypes);
         return invokeLambda;
     }
 
