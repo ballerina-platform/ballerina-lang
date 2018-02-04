@@ -178,7 +178,7 @@ public class InResponseNativeFunctionNegativeTest {
                 "incompatible types: expected 'int', found 'string'", 4, 22);
         //testInResponseGetMethod
         BAssertUtil.validateError(resultNegative, 1,
-                "undefined function 'getMethod' in struct 'ballerina.net.http:InResponse'",
+                "undefined field 'method' in struct 'ballerina.net.http:InResponse'",
                 9, 21);
         //testInResponseAddHeader
         BAssertUtil.validateError(resultNegative, 2,

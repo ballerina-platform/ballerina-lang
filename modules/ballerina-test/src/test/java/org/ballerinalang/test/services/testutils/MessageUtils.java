@@ -22,19 +22,12 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.net.http.Constants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.StatusCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -43,15 +36,12 @@ import java.util.Locale;
 import java.util.Map;
 import javax.websocket.Session;
 
-import static org.ballerinalang.mime.util.Constants.UTF_8;
-
 /**
  * RequestResponseUtil Class contains method for generating a message.
  *
  * @since 0.8.0
  */
 public class MessageUtils {
-    private static final Logger LOG = LoggerFactory.getLogger(MessageUtils.class);
 
     public static CarbonMessage generateRawMessage() {
         return new DefaultCarbonMessage();
@@ -94,6 +84,7 @@ public class MessageUtils {
                 Constants.DEFAULT_INTERFACE);
         // Set url
         carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.TO, path);
+        carbonMessage.setProperty(Constants.REQUEST_URL, path);
         carbonMessage.setProperty(Constants.HTTP_METHOD, method.trim().toUpperCase(Locale.getDefault()));
         carbonMessage.setProperty(Constants.LOCAL_ADDRESS,
                 new InetSocketAddress(Constants.HTTP_DEFAULT_HOST, 9090));
@@ -150,31 +141,5 @@ public class MessageUtils {
         carbonMessage.setProperty(org.ballerinalang.net.ws.Constants.WEBSOCKET_CLIENT_SESSIONS_LIST,
                                   new LinkedList<>());
         return carbonMessage;
-    }
-
-    /**
-     * Get the response value from input stream.
-     *
-     * @param response carbon response
-     * @return return value from  input stream as a string
-     */
-    public static String getReturnValue(HTTPCarbonMessage response) {
-        Reader reader;
-        final int bufferSize = 1024;
-        final char[] buffer = new char[bufferSize];
-        final StringBuilder out = new StringBuilder();
-        try {
-            reader = new InputStreamReader(new HttpMessageDataStreamer(response).getInputStream(), UTF_8);
-            while (true) {
-                int size = reader.read(buffer, 0, buffer.length);
-                if (size < 0) {
-                    break;
-                }
-                out.append(buffer, 0, size);
-            }
-        } catch (IOException e) {
-            LOG.error("Error occured while reading the response value in getReturnValue", e.getMessage());
-        }
-        return out.toString();
     }
 }

@@ -41,7 +41,7 @@ public native function <Connection conn> getSession () (Session);
 @Field {value:"httpVersion: The version of HTTP"}
 @Field {value:"userAgent: User-Agent request header"}
 public struct InRequest {
-	string path;
+	string rawPath;
 	string method;
 	string httpVersion;
 	string userAgent;
@@ -62,16 +62,6 @@ native function <InRequest req> getEntityWithoutBody () (mime:Entity);
 @Param { value:"req: The inbound request message" }
 @Return { value:"Entity of the request" }
 public native function <InRequest req> setEntity (mime:Entity entity);
-
-@Description { value:"Gets the request URL from the request"}
-@Param { value:"req: The inbound request message" }
-@Return { value:"The request URL value" }
-public native function <InRequest req> getRequestURL () (string);
-
-@Description { value:"Gets the HTTP method from the request"}
-@Param { value:"req: The inbound request message" }
-@Return { value:"The HTTP request method associated with the request" }
-public native function <InRequest req> getMethod () (string);
 
 @Description { value:"Gets the query parameters from the HTTP request as a map"}
 @Param { value:"req: The inbound request message" }
@@ -139,11 +129,6 @@ native function <InResponse res> getEntityWithoutBody () (mime:Entity);
 @Param { value:"res: The inbound response message" }
 @Return { value:"Entity of the response" }
 public native function <InResponse res> setEntity (mime:Entity entity);
-
-@Description { value:"Gets the HTTP status code from the response"}
-@Param { value:"res: The inbound response message" }
-@Return { value:"HTTP status code of the response" }
-public native function <InResponse res> getStatusCode () (int);
 
 @Description { value:"Retrieve a response property"}
 @Param { value:"res: The inbound response message" }

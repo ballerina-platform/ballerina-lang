@@ -6,7 +6,7 @@ function testResponseSetStatusCode (http:InResponse res, string statusCode) (htt
 }
 
 function testResponseGetMethod (http:InResponse res) (string) {
-    string method = res.getMethod();
+    string method = res.method;
     return method;
 }
 

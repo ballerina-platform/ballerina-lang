@@ -37,6 +37,7 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
+import org.ballerinalang.test.utils.ResponseReader;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -217,7 +218,7 @@ public class InRequestNativeFunctionSuccessTest {
                 .generateHTTPMessage(path, Constants.HTTP_METHOD_POST, headers, jsonString);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(new BJSON(MessageUtils.getReturnValue(response)).value().stringValue(), value);
+        Assert.assertEquals(new BJSON(ResponseReader.getReturnValue(response)).value().stringValue(), value);
     }
 
     @Test
@@ -279,7 +280,7 @@ public class InRequestNativeFunctionSuccessTest {
                 .generateHTTPMessage(path, Constants.HTTP_METHOD_POST, headers, value);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(MessageUtils.getReturnValue(response), value);
+        Assert.assertEquals(ResponseReader.getReturnValue(response), value);
     }
 
     @Test
@@ -312,7 +313,7 @@ public class InRequestNativeFunctionSuccessTest {
                 .generateHTTPMessage(path, Constants.HTTP_METHOD_POST, headers, bxmlItemString);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(MessageUtils.getReturnValue(response), value);
+        Assert.assertEquals(ResponseReader.getReturnValue(response), value);
     }
 
     @Test

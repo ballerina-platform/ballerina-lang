@@ -38,6 +38,7 @@ import org.ballerinalang.runtime.message.BlobDataSource;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
+import org.ballerinalang.test.utils.ResponseReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -119,7 +120,7 @@ public class OutRequestNativeFunctionSuccessTest {
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(MessageUtils.getReturnValue(response));
+        BJSON bJson = new BJSON(ResponseReader.getReturnValue(response));
         Assert.assertEquals(bJson.value().get(key).asText(), value);
     }
 
@@ -249,7 +250,7 @@ public class OutRequestNativeFunctionSuccessTest {
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(new BJSON(MessageUtils.getReturnValue(response)).value().stringValue(), value);
+        Assert.assertEquals(new BJSON(ResponseReader.getReturnValue(response)).value().stringValue(), value);
     }
 
     @Test
@@ -336,7 +337,7 @@ public class OutRequestNativeFunctionSuccessTest {
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(MessageUtils.getReturnValue(response), "ballerina");
+        Assert.assertEquals(ResponseReader.getReturnValue(response), "ballerina");
     }
 
     @Test
@@ -563,29 +564,6 @@ public class OutRequestNativeFunctionSuccessTest {
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("lang").asText(), value);
-    }
-
-    @Test
-    public void testGetMethod() {
-        String path = "/hello/11";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(
-                StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()),
-                Constants.HTTP_METHOD_GET);
-    }
-
-    @Test
-    public void testGetRequestURL() {
-        String path = "/hello/12";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(
-                StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), path);
     }
 
     @Test(description = "Test setBinaryPayload() function within a service")

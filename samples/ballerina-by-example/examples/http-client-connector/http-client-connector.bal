@@ -57,6 +57,6 @@ function main (string[] args) {
     string contentType = resp.getHeader("Content-Type");
     println("\nContent-Type: " + contentType);
 
-    int statusCode = resp.getStatusCode();
+    int statusCode = resp.statusCode;
     println("Status code: " + statusCode);
 }

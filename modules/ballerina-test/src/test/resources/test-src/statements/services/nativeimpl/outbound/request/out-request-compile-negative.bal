@@ -7,12 +7,12 @@ function testRequestSetStatusCode (http:OutRequest req, string statusCode) (http
 }
 
 function testGetMethod (http:OutRequest req) (string ) {
-    string method = req.getMethod();
+    string method = req.method;
     return method;
 }
 
 function testGetRequestURL (http:OutRequest req) (string) {
-    string url = req.getRequestURL();
+    string url = req.rawPath;
     if (url == "") {
         url = "no url";
     }

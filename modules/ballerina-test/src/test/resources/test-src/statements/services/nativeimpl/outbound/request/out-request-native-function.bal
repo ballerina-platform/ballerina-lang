@@ -105,36 +105,6 @@ function testSetEntityBody(file:File content, string contentType) (http:OutReque
 service<http> helloServer {
 
     @http:resourceConfig {
-        path:"/11"
-    }
-    resource echo1 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
-        string method = req.getMethod();
-        res.setStringPayload(method);
-        _ = conn.respond(res);
-    }
-
-    @http:resourceConfig {
-        path:"/12"
-    }
-    resource echo2 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
-        string url = req.getRequestURL();
-        res.setStringPayload(url);
-        _ = conn.respond(res);
-    }
-
-    @http:resourceConfig {
-        path:"/13"
-    }
-    resource echo3 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
-        string url = req.getRequestURL();
-        res.setStringPayload(url);
-        _ = conn.respond(res);
-    }
-
-    @http:resourceConfig {
         path:"/addheader/{key}/{value}"
     }
     resource addheader (http:Connection conn, http:InRequest inReq, string key, string value) {

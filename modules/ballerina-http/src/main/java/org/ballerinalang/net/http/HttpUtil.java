@@ -159,7 +159,7 @@ public class HttpUtil {
         if (baseType == null) {
             baseType = OCTET_STREAM;
         }
-        HttpUtil.setHeaderToStruct(context, entity, CONTENT_TYPE, baseType);
+        HttpUtil.setHeaderToEntity(entity, CONTENT_TYPE, baseType);
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
         httpMessageStruct.addNativeData(IS_ENTITY_BODY_PRESENT, MimeUtil.checkEntityBodyAvailability(entity, baseType));
         return AbstractNativeFunction.VOID_RETURN;
@@ -524,7 +524,7 @@ public class HttpUtil {
 
     private static void enrichWithInboundRequestInfo(BStruct inboundRequestStruct,
                                                      HTTPCarbonMessage inboundRequestMsg) {
-        inboundRequestStruct.setStringField(Constants.IN_REQUEST_PATH_INDEX,
+        inboundRequestStruct.setStringField(Constants.IN_REQUEST_RAW_PATH_INDEX,
                 (String) inboundRequestMsg.getProperty(Constants.REQUEST_URL));
         inboundRequestStruct.setStringField(Constants.IN_REQUEST_METHOD_INDEX,
                 (String) inboundRequestMsg.getProperty(Constants.HTTP_METHOD));
@@ -631,19 +631,24 @@ public class HttpUtil {
         setPropertiesToTransportMessage(outboundMsg, outboundStruct);
     }
 
-    public static void setHeadersToTransportMessage(HTTPCarbonMessage outboundMsg, BStruct struct) {
+    @SuppressWarnings("unchecked")
+    private static void setHeadersToTransportMessage(HTTPCarbonMessage outboundMsg, BStruct struct) {
         BStruct entityStruct = (BStruct) struct.getNativeData(MESSAGE_ENTITY);
         HttpHeaders transportHeaders = outboundMsg.getHeaders();
         if (isInboundRequestStruct(struct) || isInboundResponseStruct(struct)) {
             addRemovedPropertiesBackToHeadersMap(struct, transportHeaders);
+            return;
         }
-        BMap<String, BValue> entityHeaders = getEntityHeaders(entityStruct, transportHeaders);
+        BMap<String, BValue> entityHeaders = (BMap) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
         if (entityHeaders == null) {
             return;
         }
         Set<String> keys = entityHeaders.keySet();
         for (String key : keys) {
-            outboundMsg.setHeader(key, String.valueOf(entityHeaders.get(key)));
+            BStringArray headerValues = (BStringArray) entityHeaders.get(key);
+            for (int i = 0; i < headerValues.size(); i++) {
+                transportHeaders.add(key, headerValues.get(i));
+            }
         }
     }
 
@@ -673,15 +678,6 @@ public class HttpUtil {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private static BMap<String, BValue> getEntityHeaders(BStruct struct, HttpHeaders transportHeaders) {
-        BMap<String, BValue> headers = (BMap) struct.getRefField(ENTITY_HEADERS_INDEX);
-        if (headers == null) {
-            return null;
-        }
-        return prepareEntityHeaderMap(transportHeaders, headers);
-    }
-
     private static void setPropertiesToTransportMessage(HTTPCarbonMessage cMsg, BStruct struct) {
         if (isOutboundResponseStruct(struct)) {
             if (struct.getIntField(Constants.OUT_RESPONSE_STATUS_CODE_INDEX) != 0) {
@@ -695,7 +691,7 @@ public class HttpUtil {
         }
     }
 
-    private static void setHeaderToStruct(Context context, BStruct struct, String key, String value) {
+    private static void setHeaderToEntity(BStruct struct, String key, String value) {
         BMap<String, BValue> headerMap = struct.getRefField(ENTITY_HEADERS_INDEX) != null ?
                 (BMap) struct.getRefField(ENTITY_HEADERS_INDEX) : new BMap<>();
         struct.setRefField(ENTITY_HEADERS_INDEX,
@@ -703,7 +699,7 @@ public class HttpUtil {
     }
 
     /**
-     * Check the existance of entity. Set new entity of not present.
+     * Check the existence of entity. Set new entity of not present.
      *
      * @param context ballerina context.
      * @param struct request/response struct.

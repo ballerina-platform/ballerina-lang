@@ -20,7 +20,7 @@ function testGetJsonPayload (http:InRequest req) (json) {
 }
 
 function testGetMethod (http:InRequest req) (string ) {
-    string method = req.getMethod();
+    string method = req.method;
     return method;
 }
 
@@ -30,7 +30,7 @@ function testGetProperty (http:InRequest req, string propertyName) (string) {
 }
 
 function testGetRequestURL (http:InRequest req) (string) {
-    string url = req.getRequestURL();
+    string url = req.rawPath;
     if (url == "") {
         url = "no url";
     }

@@ -1,5 +1,4 @@
 import ballerina.net.http;
-import ballerina.file;
 
 function testGetContentLength (http:InRequest req) (int) {
     int length = req.getContentLength();
@@ -20,7 +19,7 @@ function testGetJsonPayload (http:InRequest req) (json) {
 }
 
 function testGetMethod (http:InRequest req) (string) {
-    string method = req.getMethod();
+    string method = req.method;
     return method;
 }
 
@@ -52,7 +51,7 @@ service<http> helloServer {
     }
     resource echo1 (http:Connection conn, http:InRequest req) {
         http:OutResponse res = {};
-        string method = req.getMethod();
+        string method = req.method;
         res.setStringPayload(method);
         _ = conn.respond(res);
     }
@@ -62,7 +61,7 @@ service<http> helloServer {
     }
     resource echo2 (http:Connection conn, http:InRequest req) {
         http:OutResponse res = {};
-        string url = req.getRequestURL();
+        string url = req.rawPath;
         res.setStringPayload(url);
         _ = conn.respond(res);
     }
@@ -72,7 +71,7 @@ service<http> helloServer {
     }
     resource echo3 (http:Connection conn, http:InRequest req) {
         http:OutResponse res = {};
-        string url = req.getRequestURL();
+        string url = req.rawPath;
         res.setStringPayload(url);
         _ = conn.respond(res);
     }
