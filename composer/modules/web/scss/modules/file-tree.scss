@@ -1,0 +1,28 @@
+.file-tree {
+    .rc-tree {
+        .rc-tree-node-selected {
+            border: none;
+            opacity: 1;
+        }
+    }
+    .file-tree-item:hover .whole-row {
+        width: calc(100% + 600px);
+        background: #2E2E2E;
+        height: 24px;
+        position: absolute;
+        margin-left: -300px;
+        z-index: -2; 
+    }
+    .file-tree-item:hover {
+        background-color: #2E2E2E;
+    }
+
+    .active-file-node {
+        width: calc(100% + 600px);
+        background: #232323;
+        height: 24px;
+        position: absolute;
+        margin-left: -600px;
+        z-index: -2;    
+    }
+}

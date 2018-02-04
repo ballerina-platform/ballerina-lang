@@ -1,0 +1,298 @@
+@font-face{
+     font-family: {{ fontName }};
+        {% if formats.indexOf('eot')>-1 -%}
+            src: url("{{ fontPath }}{{ fontName }}.eot?{{hash}}");
+        {%- endif %}
+        {%- set eotIndex = formats.indexOf('eot') -%}
+        {%- set woff2Index = formats.indexOf('woff2') -%}
+        {%- set woffIndex = formats.indexOf('woff') -%}
+        {%- set ttfIndex = formats.indexOf('ttf') -%}
+        {%- set svgIndex = formats.indexOf('svg') %}
+        src: {% if eotIndex != -1 -%}
+                url("{{ fontPath }}{{ fontName }}.eot?#iefix") format("embedded-opentype")
+                {%- set nothing = formats.splice(eotIndex, 1) -%}
+                {%- if formats.length != 0 -%}, {% else -%}; {% endif -%}
+            {%- endif -%}
+            {%- if woff2Index != -1 -%}
+                url("{{ fontPath }}{{ fontName }}.woff2?{{hash}}") format("woff2")
+                {%- set nothing = formats.splice(woff2Index, 1) -%}
+                {%- if formats.length != 0 -%}, {% else -%}; {% endif -%}
+            {%- endif -%}
+            {%- if woffIndex != -1 -%}
+                url("{{ fontPath }}{{ fontName }}.woff?{{hash}}") format("woff")
+                {%- set nothing = formats.splice(woffIndex, 1) -%}
+                {%- if formats.length != 0 -%}, {% else -%}; {% endif -%}
+            {%- endif -%}
+            {%- if ttfIndex != -1 -%}
+                url("{{ fontPath }}{{ fontName }}.ttf?{{hash}}") format("truetype")
+                {%- set nothing = formats.splice(ttfIndex, 1) -%}
+                {%- if formats.length != 0 -%}, {% else -%}; {% endif -%}
+            {%- endif -%}
+            {%- if svgIndex != -1 -%}
+                url("{{ fontPath }}{{ fontName }}.svg?{{hash}}#{{ fontName }}") format("svg");
+            {%- endif %}
+   	font-weight:normal;
+   	font-style:normal;
+}
+
+.{{ className }}, [class^="{{ className }}-"], [class*=" {{ className }}-"] {
+    font: normal normal normal 14px/1 {{ fontName }};
+    display: inline-block;
+    font-weight: normal;
+    font-style: normal;
+    font-size: inherit;
+    font-variant: normal;
+    speak: none;
+    text-decoration: inherit;
+
+    /* Better Font Rendering =========== */
+    text-transform: none;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ========================================================================
+ * font options
+ * ======================================================================== */
+
+.{{ className }}-lg {
+    font-size: 1.33333333em;
+    line-height: 0.75em;
+    vertical-align: -15%;
+}
+.{{ className }}-2x {
+    font-size: 2em;
+}
+.{{ className }}-3x {
+    font-size: 3em;
+}
+.{{ className }}-4x {
+    font-size: 4em;
+}
+.{{ className }}-5x {
+    font-size: 5em;
+}
+.{{ className }}-{{ className }} {
+    width: 1.28571429em;
+    text-align: center;
+}
+.{{ className }}-ul {
+    padding-left: 0;
+    margin-left: 2.14285714em;
+    list-style-type: none;
+}
+.{{ className }}-ul > li {
+    position: relative;
+}
+.{{ className }}-li {
+    position: absolute;
+    left: -2.14285714em;
+    width: 2.14285714em;
+    top: 0.14285714em;
+    text-align: center;
+}
+.{{ className }}-li.{{ className }}-lg {
+    left: -1.85714286em;
+}
+.{{ className }}-border {
+    padding: .2em .25em .15em;
+    border: solid 0.08em #eeeeee;
+    border-radius: .1em;
+}
+.{{ className }}-background {
+    background: #888;
+    border-radius: .3em;
+    padding: .4em .50em .45em;
+}
+.{{ className }}-pull-left {
+    float: left;
+}
+.{{ className }}-pull-right {
+    float: right;
+}
+.{{ className }}.{{ className }}-pull-left {
+    margin-right: .3em;
+}
+.{{ className }}.{{ className }}-pull-right {
+    margin-left: .3em;
+}
+.{{ className }}-spin {
+    -webkit-animation: {{ className }}-spin 2s infinite linear;
+    animation: {{ className }}-spin 2s infinite linear;
+}
+@-webkit-keyframes {{ className }}-spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+@keyframes {{ className }}-spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+.{{ className }}-pulse {
+    -webkit-animation: {{ className }}-pulse 2s ease-out infinite;
+    animation: {{ className }}-pulse 2s ease-out infinite;
+}
+@-webkit-keyframes {{ className }}-pulse {
+    0%, 30%  {
+        opacity: 0.3;
+    }
+    40% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.3;
+    }
+}
+@keyframes {{ className }}-pulse {
+    0%, 30%  {
+        opacity: 0.3;
+    }
+    40% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.3;
+    }
+}
+.{{ className }}-rotate-90 {
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
+    -webkit-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+.{{ className }}-rotate-180 {
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2);
+    -webkit-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+.{{ className }}-rotate-270 {
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+    -webkit-transform: rotate(270deg);
+    -ms-transform: rotate(270deg);
+    transform: rotate(270deg);
+}
+.{{ className }}-flip-horizontal {
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=0, mirror=1);
+    -webkit-transform: scale(-1, 1);
+    -ms-transform: scale(-1, 1);
+    transform: scale(-1, 1);
+}
+.{{ className }}-flip-vertical {
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1);
+    -webkit-transform: scale(1, -1);
+    -ms-transform: scale(1, -1);
+    transform: scale(1, -1);
+}
+:root .{{ className }}-rotate-90,
+:root .{{ className }}-rotate-180,
+:root .{{ className }}-rotate-270,
+:root .{{ className }}-flip-horizontal,
+:root .{{ className }}-flip-vertical {
+    filter: none;
+}
+.{{ className }}-stack,
+.{{ className }}-helper {
+    position: relative;
+    display: inline-block;
+    width: 2em;
+    height: 2em;
+    line-height: 1.85em;
+    vertical-align: middle;
+}
+.{{ className }}-stack-1x,
+.{{ className }}-stack-2x,
+.{{ className }}-helper:before,
+.{{ className }}-helper:after {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    text-align: center;
+}
+.{{ className }}-stack-1x,
+.{{ className }}-helper:before {
+    line-height: inherit;
+}
+.{{ className }}-stack-2x,
+.{{ className }}-helper:after {
+    font-size: 1.9em;
+}
+.{{ className }}-helper-slash:before {
+    font-size: 1.4em;
+}
+.{{ className }}-helper-circle:before,
+.{{ className }}-helper-square:before {
+    z-index: 1;
+}
+.{{ className }}-helper-circle-outline:after {
+    content: "\e61f";
+}
+.{{ className }}-helper-circle:after {
+    content: "\e61a";
+}
+.{{ className }}-helper-square-outline:after {
+    content: "\e6b2";
+}
+.{{ className }}-helper-square:after {
+    content: "\e6b1";
+}
+.{{ className }}-helper-slash:after {
+    content: "\e6e1";
+}
+.{{ className }}-stack > .{{ className }}-stack {
+    position: absolute;
+    font-size: 0.5em;
+}
+.{{ className }}-stack > .{{ className }}-stack.{{ className }}-move-top {
+    top: -0.2em;
+}
+.{{ className }}-stack > .{{ className }}-stack.{{ className }}-move-bottom {
+    bottom: -0.2em;
+}
+.{{ className }}-stack > .{{ className }}.stack.{{ className }}-move-left {
+    left: -0.5em;
+}
+.{{ className }}-stack > .{{ className }}-stack.{{ className }}-move-right {
+    right: -0.5em;
+}
+.{{ className }}-inverse:before,
+.{{ className }}-helper-inverse:after,
+.{{ className }}-number {
+    color: #ffffff;
+}
+.{{ className }}-shadow:before,
+.{{ className }}-helper-shadow:after {
+    text-shadow: #ffffff 1px 1px 0;
+}
+.{{ className }}-stroke:before,
+.{{ className }}-helper-stroke:after {
+    text-shadow: -2px -2px 0 #ffffff,
+                 2px -2px 0 #ffffff,
+                 -2px 2px 0 #ffffff,
+                 2px 2px 0 #ffffff;
+}
+.{{ className }}-number {
+    line-height: 2em;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ========================================================================
+ * font icons
+ * ======================================================================== */
+{% for glyph in glyphs%}
+.{{ className }}-{{ glyph.name }}::before {
+    content: "\{{ glyph.unicode[0].charCodeAt(0).toString(16) }}";
+}{% endfor %}

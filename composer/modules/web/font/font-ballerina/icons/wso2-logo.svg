@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ ~   Copyright 2017, WSO2 Inc. (http://www.wso2.com)
+ ~
+ ~   Licensed under the Apache License, Version 2.0 (the "License");
+ ~   you may not use this file except in compliance with the License.
+ ~   You may obtain a copy of the License at
+ ~
+ ~        http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~   Unless required by applicable law or agreed to in writing, software
+ ~   distributed under the License is distributed on an "AS IS" BASIS,
+ ~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~   See the License for the specific language governing permissions and
+ ~   limitations under the License.
+-->
+
+<svg version="1.1" id="wso2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 14 14" enable-background="new 0 0 14 14" xml:space="preserve">
+<path d="M4.834,7.435c0.724-1.569,1.42-3.151,2.135-4.724C7.791,4.693,8.6,6.68,9.421,8.662c0.359-0.645,0.715-1.292,1.078-1.934
+	c0.687,0.001,1.374-0.001,2.062,0.001c0.015,0.181,0.021,0.362,0.006,0.543c-0.582-0.001-1.164-0.001-1.746,0
+	C10.33,8.155,9.84,9.04,9.344,9.92C8.542,7.981,7.751,6.038,6.947,4.1c-0.586,1.29-1.163,2.585-1.748,3.875
+	c-1.235,0-2.47-0.001-3.705,0.001C1.467,7.794,1.439,7.612,1.436,7.428C2.569,7.436,3.702,7.424,4.834,7.435z M1.429,2.777
+	C0.429,4.074-0.083,5.736,0.011,7.371c0.062,1.372,0.55,2.721,1.376,3.819c0.778,1.048,1.86,1.868,3.077,2.338
+	c1.261,0.49,2.664,0.6,3.987,0.322c2.012-0.411,3.8-1.766,4.747-3.585c0.725-1.362,0.965-2.969,0.694-4.486
+	c-0.386-2.269-1.983-4.281-4.1-5.179c-1.035-0.46-2.183-0.632-3.31-0.559C4.508,0.174,2.62,1.199,1.429,2.777z M8.578,1.685
+	c1.181,0.348,2.238,1.102,2.952,2.106c0.619,0.861,0.978,1.904,1.032,2.962c0.015,0.181,0.021,0.362,0.006,0.543
+	c-0.045,1.047-0.39,2.08-0.994,2.939c-0.682,0.976-1.679,1.732-2.812,2.103c-1.354,0.46-2.886,0.361-4.172-0.264
+	C2.984,11.318,1.8,9.749,1.505,8C1.479,7.818,1.451,7.636,1.448,7.453H1.433c-0.05-1.054,0.153-2.128,0.661-3.058
+	c0.725-1.366,2.046-2.4,3.549-2.77C6.603,1.379,7.629,1.402,8.578,1.685z"/>
+</svg>

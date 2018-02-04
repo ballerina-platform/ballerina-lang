@@ -1,0 +1,63 @@
+{
+  "name": "BallerinaComposer",
+  "version": "0.9.0",
+  "description": "Electron based standalone distribution of Ballerina Composer",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "install-app-deps",
+    "pack": "npm run pre-build && build --dir",
+    "dist": "npm run pre-build && build",
+    "dist-all": "npm run pre-build && build --mac --win --linux",
+    "pre-build": "node pre-build.js",
+    "start": "cross-env NODE_ENV=electron-dev electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "build": {
+    "appId": "org.ballerinalang.composer",
+    "asar": true,
+    "asarUnpack": ["**/*.jar", "conf/", "resources/"],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": "zip"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "target": [
+        "deb"
+      ]
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ballerinalang/composer.git"
+  },
+  "keywords": [
+    "Ballerina",
+    "BallerinaLang",
+    "Composer"
+  ],
+  "author": {
+    "name": "ballerinalang.org",
+    "email": "https://groups.google.com/forum/#!forum/ballerina-dev",
+    "url": "https://groups.google.com/forum/#!forum/ballerina-dev"
+  },
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/ballerinalang/composer/issues"
+  },
+  "homepage": "https://github.com/ballerinalang/composer#readme",
+  "devDependencies": {
+    "cross-env": "^3.2.3",
+    "decompress": "^4.0.0",
+    "electron": "^1.6.2",
+    "electron-builder": "^16.4.2",
+    "glob": "^7.1.1"
+  },
+  "dependencies": {
+    "log": "^1.4.0"
+  }
+}

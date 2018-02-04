@@ -1,0 +1,3 @@
+function exceptionTest() {
+    exception exception = {};
+}
