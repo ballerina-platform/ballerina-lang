@@ -1113,7 +1113,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             final Operation lastOperation = context.operations.getLast();
             final List<BType> expectedTypes = lastOperation.expectedTypes;
             final List<BType> resultTypes = lastOperation.resultTypes;
-            if(expectedTypes.size() == 0 && resultTypes.size() == 0){
+            if (expectedTypes.size() == 0 && resultTypes.size() == 0) {
                 context.resultType = symTable.noType;
                 continue;
             }

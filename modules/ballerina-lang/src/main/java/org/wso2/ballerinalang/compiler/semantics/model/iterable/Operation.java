@@ -49,7 +49,7 @@ public class Operation {
     public BLangExpression lambda;
     public BInvokableType lambdaType;
 
-    public Operation previous, next;
+    public Operation previous;
 
     /* fields required for code generation. */
     public List<BLangVariable> argVars;

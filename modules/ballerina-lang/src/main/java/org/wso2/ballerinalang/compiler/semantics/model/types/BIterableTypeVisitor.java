@@ -40,8 +40,6 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
         this.symTable = symTable;
     }
 
-    public abstract List<BType> visit(BTupleCollectionType type, Operation op);
-
     @Override
     public List<BType> visit(BType type, Operation op) {
         dlog.error(op.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION, op.collectionType);

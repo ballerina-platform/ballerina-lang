@@ -109,12 +109,12 @@ public class IterableCodeDesugar {
 
     public void desugar(IterableContext ctx) {
         rewrite(ctx);
-        final BInvokableSymbol bInvokableSymbol = generateIteratorFunction(ctx);
+        generateIteratorFunction(ctx);
         final BLangSimpleVarRef collectionRef = (BLangSimpleVarRef) ctx.collectionExpr;
         final BLangVariable collectionVar = createVariable(collectionRef.pos, collectionRef.variableName.value,
                 collectionRef.type);
         collectionVar.symbol = collectionRef.symbol;
-        ctx.iteratorCaller = createInvocationExpr(collectionRef.pos, bInvokableSymbol, Lists.of(collectionVar));
+        ctx.iteratorCaller = createInvocationExpr(collectionRef.pos, ctx.iteratorFuncSymbol, Lists.of(collectionVar));
     }
 
     private void rewrite(IterableContext ctx) {
@@ -161,7 +161,7 @@ public class IterableCodeDesugar {
         return copy;
     }
 
-    private BInvokableSymbol generateIteratorFunction(IterableContext ctx) {
+    private void generateIteratorFunction(IterableContext ctx) {
         final Operation firstOperation = ctx.getFirstOperation();
         final Operation lastOperation = ctx.getLastOperation();
         final DiagnosticPos pos = firstOperation.pos;
@@ -176,7 +176,7 @@ public class IterableCodeDesugar {
         final BPackageSymbol packageSymbol = firstOperation.env.enclPkg.symbol;
         final SymbolEnv packageEnv = symbolEnter.packageEnvs.get(packageSymbol);
         symbolEnter.defineNode(funcNode, packageEnv);
-        ctx.iteratorFunctionSymbol = funcNode.symbol;
+        ctx.iteratorFuncSymbol = funcNode.symbol;
         packageEnv.enclPkg.functions.add(funcNode);
         packageEnv.enclPkg.topLevelNodes.add(funcNode);
 
@@ -212,7 +212,7 @@ public class IterableCodeDesugar {
         ctx.resultOfStream = assignmentVars;
 
         generateStreamFunction(ctx);
-        final BLangInvocation iExpr = createInvocationExpr(pos, ctx.streamFunctionSymbol, foreachVars);
+        final BLangInvocation iExpr = createInvocationExpr(pos, ctx.streamFuncSymbol, foreachVars);
         BLangAssignment assignment = createAssignmentStmt(pos, foreach.body);
         assignment.expr = iExpr;
         assignment.varRefs.addAll(createVariableReferences(pos, assignmentVars));
@@ -223,7 +223,6 @@ public class IterableCodeDesugar {
         }
 
         createReturnStmt(lastOperation.pos, funcNode.body);
-        return funcNode.symbol;
     }
 
     private void defineVariable(BLangVariable variable, PackageID pkgID, BLangFunction funcNode) {
@@ -290,7 +289,7 @@ public class IterableCodeDesugar {
     private void generateSkipCondition(BLangBlockStmt blockStmt, IterableContext ctx) {
         final DiagnosticPos pos = ctx.getLastOperation().pos;
         final BLangIf ifNode = createIfStmt(pos, blockStmt);
-        ifNode.expr = createVariableRef(pos, ctx.streamFunctionSymbol.retParams.get(0));
+        ifNode.expr = createVariableRef(pos, ctx.streamFuncSymbol.retParams.get(0));
         ifNode.body = createBlockStmt(pos);
         createNextStmt(pos, ifNode.body);
     }
@@ -386,7 +385,7 @@ public class IterableCodeDesugar {
         final BPackageSymbol packageSymbol = ctx.getFirstOperation().env.enclPkg.symbol;
         final SymbolEnv packageEnv = symbolEnter.packageEnvs.get(packageSymbol);
         symbolEnter.defineNode(funcNode, packageEnv);
-        ctx.streamFunctionSymbol = funcNode.symbol;
+        ctx.streamFuncSymbol = funcNode.symbol;
         packageEnv.enclPkg.functions.add(funcNode);
         packageEnv.enclPkg.topLevelNodes.add(funcNode);
 
@@ -485,7 +484,7 @@ public class IterableCodeDesugar {
         ifNode.body = createBlockStmt(pos);
 
         final BLangAssignment assignment = createAssignmentStmt(pos, ifNode.body);
-        assignment.varRefs.add(createVariableRef(pos, ctx.streamFunctionSymbol.retParams.get(0)));
+        assignment.varRefs.add(createVariableRef(pos, ctx.streamFuncSymbol.retParams.get(0)));
         assignment.expr = createLiteral(pos, symTable.booleanType, true);
 
         createReturnStmt(pos, ifNode.body);

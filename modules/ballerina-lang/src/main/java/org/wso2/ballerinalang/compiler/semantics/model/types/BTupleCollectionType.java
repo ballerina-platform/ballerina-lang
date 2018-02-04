@@ -18,7 +18,6 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.TupleCollectionType;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.iterable.Operation;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
@@ -46,8 +45,7 @@ public class BTupleCollectionType extends BType implements TupleCollectionType {
 
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
-        final List<BType> bTypes = ((BIterableTypeVisitor) visitor).visit(this, (Operation) t);
-        return (R) bTypes;
+        return visitor.visit(this, t);
     }
 
     @Override

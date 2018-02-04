@@ -42,7 +42,7 @@ public class IterableContext {
     public BLangExpression collectionExpr;
     public BLangInvocation iteratorCaller;
 
-    public BInvokableSymbol streamFunctionSymbol, iteratorFunctionSymbol;
+    public BInvokableSymbol streamFuncSymbol, iteratorFuncSymbol;
 
     public IterableContext(BLangExpression collectionExpr) {
         this.operations = new LinkedList<>();
@@ -50,11 +50,7 @@ public class IterableContext {
     }
 
     public void addOperation(Operation operation) {
-        Operation prv = operations.size() > 0 ? operations.getLast() : null;
-        operation.previous = prv;
-        if (operation.previous != null) {
-            prv.next = operation;
-        }
+        operation.previous = operations.size() > 0 ? operations.getLast() : null;
         operations.add(operation);
     }
 
