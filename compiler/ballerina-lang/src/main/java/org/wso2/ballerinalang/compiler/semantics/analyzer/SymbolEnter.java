@@ -480,8 +480,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangVariable varNode) {
         // assign the type to var type node
-        BType varType = symResolver.resolveTypeNode(varNode.typeNode, env);
-        varNode.type = varType;
+        if (varNode.type == null) {
+            BType varType = symResolver.resolveTypeNode(varNode.typeNode, env);
+            varNode.type = varType;
+        }
 
         Name varName = names.fromIdNode(varNode.name);
         if (varName == Names.EMPTY) {
@@ -490,7 +492,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        varNode.symbol = defineVarSymbol(varNode.pos, varNode.flagSet, varType, varName, env);
+        varNode.symbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, varName, env);
     }
 
     public void visit(BLangXMLAttribute bLangXMLAttribute) {
@@ -708,7 +710,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .map(paramSym -> paramSym.type)
                 .collect(Collectors.toList());
         List<BType> retTypes = invokableNode.retParams.stream()
-                .map(varNode -> varNode.typeNode.type)
+                .map(varNode -> varNode.type != null ? varNode.type : varNode.typeNode.type)
                 .collect(Collectors.toList());
 
         symbol.type = new BInvokableType(paramTypes, retTypes, null);

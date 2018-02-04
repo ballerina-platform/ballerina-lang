@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.util.Lists;
@@ -50,10 +49,7 @@ public class IterableAnalyzer {
     private static final CompilerContext.Key<IterableAnalyzer> ITERABLE_ANALYZER_KEY =
             new CompilerContext.Key<>();
 
-    private Names names;
     private SymbolTable symTable;
-    private SymbolEnter symbolEnter;
-    private SymbolResolver symResolver;
     private Types types;
     private TypeChecker typeChecker;
     private DiagnosticLog dlog;
@@ -62,10 +58,7 @@ public class IterableAnalyzer {
 
     private IterableAnalyzer(CompilerContext context) {
         context.put(ITERABLE_ANALYZER_KEY, this);
-        this.names = Names.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
-        this.symbolEnter = SymbolEnter.getInstance(context);
-        this.symResolver = SymbolResolver.getInstance(context);
         this.types = Types.getInstance(context);
         this.dlog = DiagnosticLog.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
@@ -87,7 +80,7 @@ public class IterableAnalyzer {
         final IterableContext context;
 
         if (iExpr.expr.type.tag != TypeTags.TUPLE_COLLECTION) {
-            context = new IterableContext();   // This is a new iteration chain.
+            context = new IterableContext(iExpr.expr);   // This is a new iteration chain.
             env.enclPkg.iterableContexts.add(context);
         } else {
             context = ((BLangInvocation) iExpr.expr).iContext; // Get context from previous invocation.
@@ -100,13 +93,13 @@ public class IterableAnalyzer {
         iExpr.iContext.addOperation(iOperation);
 
         if (iterableKind.isLambdaRequired()) {
-            handleLambdaBasedIterableOperation(iExpr.iContext, iOperation);
+            handleLambdaBasedIterableOperation(iOperation);
         } else {
-            handleSimpleOperations(iExpr.iContext, iOperation);
+            handleSimpleOperations(iOperation);
         }
     }
 
-    private void handleSimpleOperations(IterableContext ctx, Operation operation) {
+    private void handleSimpleOperations(Operation operation) {
         if (operation.iExpr.argExprs.size() > 0) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_NO_ARGS_REQUIRED, operation.kind);
             return;
@@ -124,7 +117,7 @@ public class IterableAnalyzer {
         }
     }
 
-    private void handleLambdaBasedIterableOperation(IterableContext ctx, Operation operation) {
+    private void handleLambdaBasedIterableOperation(Operation operation) {
         if (operation.iExpr.argExprs.size() == 0 || operation.iExpr.argExprs.size() > 1) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_REQUIRED);
             return;

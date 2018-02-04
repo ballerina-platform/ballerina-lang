@@ -142,6 +142,7 @@ public class Desugar extends BLangNodeVisitor {
     private SymbolTable symTable;
     private SymbolResolver symResolver;
     private SymbolEnter symbolEnter;
+    private IterableCodeDesugar iterableCodeDesugar;
 
     private BLangNode result;
 
@@ -163,6 +164,7 @@ public class Desugar extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
+        this.iterableCodeDesugar = IterableCodeDesugar.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -592,6 +594,9 @@ public class Desugar extends BLangNodeVisitor {
         if (iExpr.functionPointerInvocation) {
             visitFunctionPointerInvocation(iExpr);
             return;
+        } else if (iExpr.iterableOperationInvocation) {
+            visitIterableOperationInvocation(iExpr);
+            return;
         }
         iExpr.expr = rewriteExpr(iExpr.expr);
         result = genIExpr;
@@ -901,6 +906,15 @@ public class Desugar extends BLangNodeVisitor {
         expr.type = iExpr.symbol.type;
         expr = rewriteExpr(expr);
         result = new BFunctionPointerInvocation(iExpr, expr);
+    }
+
+    private void visitIterableOperationInvocation(BLangInvocation iExpr) {
+        if (iExpr.iContext.operations.getLast().iExpr != iExpr) {
+            result = null;
+            return;
+        }
+        iterableCodeDesugar.desugar(iExpr.iContext);
+        result = rewrite(iExpr.iContext.iteratorCaller);
     }
 
     @SuppressWarnings("unchecked")

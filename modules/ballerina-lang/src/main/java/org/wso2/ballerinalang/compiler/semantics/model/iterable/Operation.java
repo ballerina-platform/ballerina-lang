@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,10 +49,11 @@ public class Operation {
     public BLangExpression lambda;
     public BInvokableType lambdaType;
 
-    Operation previous, next;
+    public Operation previous, next;
 
     /* fields required for code generation. */
-    public List<BLangVariable> variableList;
+    public List<BLangVariable> argVars;
+    public List<BLangVariable> retVars;
 
     public Operation(IterableKind iterableKind, BLangInvocation iExpr, List<BType> expTypes, SymbolEnv env) {
         this.iExpr = iExpr;
@@ -60,5 +62,7 @@ public class Operation {
         this.kind = iterableKind;
         this.expectedTypes = expTypes;
         this.env = env;
+        this.argVars = new ArrayList<>();
+        this.retVars = new ArrayList<>();
     }
 }

@@ -16,7 +16,14 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.iterable;
 
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Represents Chain of Iterable Operation.
@@ -26,8 +33,21 @@ import java.util.LinkedList;
  */
 public class IterableContext {
 
-    public LinkedList<Operation> operations = new LinkedList<>();
-    public boolean processed;
+    public LinkedList<Operation> operations;
+    public BType resultType;
+
+    /* Filed used for code generation */
+    public BLangVariable countVar;
+    public List<BLangVariable> resultOfStream;
+    public BLangExpression collectionExpr;
+    public BLangInvocation iteratorCaller;
+
+    public BInvokableSymbol streamFunctionSymbol, iteratorFunctionSymbol;
+
+    public IterableContext(BLangExpression collectionExpr) {
+        this.operations = new LinkedList<>();
+        this.collectionExpr = collectionExpr;
+    }
 
     public void addOperation(Operation operation) {
         Operation prv = operations.size() > 0 ? operations.getLast() : null;
@@ -38,7 +58,11 @@ public class IterableContext {
         operations.add(operation);
     }
 
-    public boolean isProcessed() {
-        return processed;
+    public Operation getFirstOperation() {
+        return this.operations.getFirst();
+    }
+
+    public Operation getLastOperation() {
+        return this.operations.getLast();
     }
 }

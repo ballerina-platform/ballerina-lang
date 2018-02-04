@@ -1113,7 +1113,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             final Operation lastOperation = context.operations.getLast();
             final List<BType> expectedTypes = lastOperation.expectedTypes;
             final List<BType> resultTypes = lastOperation.resultTypes;
-            if (expectedTypes.size() == 0 && resultTypes.size() > 0) {
+            if(expectedTypes.size() == 0 && resultTypes.size() == 0){
+                context.resultType = symTable.noType;
+                continue;
+            }
+            if (expectedTypes.size() == 0) {
                 dlog.error(lastOperation.pos, DiagnosticCode.ASSIGNMENT_REQUIRED);
                 continue;
             }
@@ -1122,8 +1126,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(lastOperation.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, 1, expectedTypes.size());
                 continue;
             }
-            if (expectedTypes.get(0) == symTable.noType || expectedTypes.get(0) == symTable.errType) {
-                // Accepts given value or if it is an error, just ignore it.
+            if (expectedTypes.get(0) == symTable.noType) {
+                // Accepts given value
+                context.resultType = symTable.noType;
+                continue;
+            }
+            if (expectedTypes.get(0) == symTable.errType) {
+                //  it is an error, just ignore it.
                 continue;
             }
             if (resultTypes.size() == 0) {
@@ -1133,13 +1142,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (resultTypes.get(0).tag == TypeTags.TUPLE_COLLECTION) {
                 final BTupleCollectionType tupleType = (BTupleCollectionType) resultTypes.get(0);
                 if (expectedTypes.get(0).tag == TypeTags.ARRAY && tupleType.tupleTypes.size() == 1) {
-                    lastOperation.resultTypes = Lists.of(new BArrayType(tupleType.tupleTypes.get(0)));
+                    context.resultType = new BArrayType(tupleType.tupleTypes.get(0));
+                    lastOperation.resultTypes = Lists.of(context.resultType);
                     continue;
                 } else if (expectedTypes.get(0).tag == TypeTags.MAP && tupleType.tupleTypes.size() == 2
                         && tupleType.tupleTypes.get(0).tag == TypeTags.STRING) {
-                    lastOperation.resultTypes = Lists.of(symTable.mapType);
+                    context.resultType = symTable.mapType;
+                    lastOperation.resultTypes = Lists.of(context.resultType);
                     continue;
                 }
+                context.resultType = symTable.errType;
                 dlog.error(lastOperation.pos, DiagnosticCode.ITERABLE_RETURN_TYPE_MISMATCH, lastOperation.kind,
                         expectedTypes.get(0));
             }
