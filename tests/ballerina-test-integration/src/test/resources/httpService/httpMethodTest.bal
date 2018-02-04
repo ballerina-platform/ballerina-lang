@@ -10,7 +10,7 @@ service<http> headQuoteService {
         endpoint<http:HttpClient> endPoint {
             create http:HttpClient("http://localhost:9090", {});
         }
-        string method = req.getMethod();
+        string method = req.method;
         http:OutRequest clientRequest = {};
         http:InResponse clientResponse = {};
         clientResponse, _ = endPoint.execute(method, "/getQuote/stocks", clientRequest);
