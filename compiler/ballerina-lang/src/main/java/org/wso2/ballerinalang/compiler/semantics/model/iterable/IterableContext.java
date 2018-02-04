@@ -37,7 +37,7 @@ public class IterableContext {
     public BType resultType;
 
     /* Filed used for code generation */
-    public BLangVariable countVar;
+    public BLangVariable countVar, skipVar, resultVar;
     public List<BLangVariable> resultOfStream;
     public BLangExpression collectionExpr;
     public BLangInvocation iteratorCaller;

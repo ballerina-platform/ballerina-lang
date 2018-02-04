@@ -1118,7 +1118,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 continue;
             }
             if (expectedTypes.size() == 0) {
-                dlog.error(lastOperation.pos, DiagnosticCode.ASSIGNMENT_REQUIRED);
+                // This error already logged.
                 continue;
             }
             if (expectedTypes.size() > 1) {
