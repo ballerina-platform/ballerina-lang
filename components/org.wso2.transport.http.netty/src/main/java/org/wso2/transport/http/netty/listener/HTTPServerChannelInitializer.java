@@ -88,8 +88,8 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
     public void configureHTTPPipeline(ChannelPipeline pipeline) {
 
         pipeline.addLast("decoder",
-                new HttpRequestDecoder(reqSizeValidationConfig.getUriMaxSize(),
-                        reqSizeValidationConfig.getHeaderMaxSize(), reqSizeValidationConfig.getMaxChunkSize()));
+                new HttpRequestDecoder(reqSizeValidationConfig.getMaxUriLength(),
+                        reqSizeValidationConfig.getMaxHeaderSize(), reqSizeValidationConfig.getMaxChunkSize()));
         pipeline.addLast("compressor", new CustomHttpContentCompressor());
         pipeline.addLast("chunkWriter", new ChunkedWriteHandler());
 
@@ -99,9 +99,9 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         }
 
         pipeline.addLast("uriLengthValidator", new UriLengthValidator(this.serverName));
-        if (reqSizeValidationConfig.getEntityBodyMaxSize() > -1) {
+        if (reqSizeValidationConfig.getMaxEntityBodySize() > -1) {
             pipeline.addLast("maxEntityBodyValidator", new MaxEntityBodyValidator(this.serverName,
-                    reqSizeValidationConfig.getEntityBodyMaxSize()));
+                    reqSizeValidationConfig.getMaxEntityBodySize()));
         }
 
         pipeline.addLast(Constants.WEBSOCKET_SERVER_HANDSHAKE_HANDLER,

@@ -69,7 +69,7 @@ public class UriLengthValidationTest {
     public void setUp() {
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
         listenerConfiguration.setServerHeader(TestUtil.TEST_SERVER);
-        listenerConfiguration.getRequestSizeValidationConfig().setEntityBodyMaxSize(1024);
+        listenerConfiguration.getRequestSizeValidationConfig().setMaxEntityBodySize(1024);
 
         ServerBootstrapConfiguration serverBootstrapConfig = new ServerBootstrapConfiguration(new HashMap<>());
         HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();

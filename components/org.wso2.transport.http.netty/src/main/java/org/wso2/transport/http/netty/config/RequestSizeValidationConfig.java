@@ -23,25 +23,25 @@ package org.wso2.transport.http.netty.config;
  */
 public class RequestSizeValidationConfig {
 
-    private int uriMaxSize = 4096;
-    private int headerMaxSize = 8192;
+    private int maxUriLength = 4096;
+    private int maxHeaderSize = 8192;
     private int maxChunkSize = 8192;
-    private int entityBodyMaxSize = -1;
+    private int maxEntityBodySize = -1;
 
-    public int getUriMaxSize() {
-        return uriMaxSize;
+    public int getMaxUriLength() {
+        return maxUriLength;
     }
 
-    public void setUriMaxSize(int uriMaxSize) {
-        this.uriMaxSize = uriMaxSize;
+    public void setMaxUriLength(int maxUriLength) {
+        this.maxUriLength = maxUriLength;
     }
 
-    public int getHeaderMaxSize() {
-        return headerMaxSize;
+    public int getMaxHeaderSize() {
+        return maxHeaderSize;
     }
 
-    public void setHeaderMaxSize(int headerMaxSize) {
-        this.headerMaxSize = headerMaxSize;
+    public void setMaxHeaderSize(int maxHeaderSize) {
+        this.maxHeaderSize = maxHeaderSize;
     }
 
     public int getMaxChunkSize() {
@@ -52,11 +52,11 @@ public class RequestSizeValidationConfig {
         this.maxChunkSize = maxChunkSize;
     }
 
-    public int getEntityBodyMaxSize() {
-        return entityBodyMaxSize;
+    public int getMaxEntityBodySize() {
+        return maxEntityBodySize;
     }
 
-    public void setEntityBodyMaxSize(int entityBodyMaxSize) {
-        this.entityBodyMaxSize = entityBodyMaxSize;
+    public void setMaxEntityBodySize(int maxEntityBodySize) {
+        this.maxEntityBodySize = maxEntityBodySize;
     }
 }
