@@ -37,6 +37,9 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.jvnet.mimepull.MIMEConfig;
+import org.jvnet.mimepull.MIMEMessage;
+import org.jvnet.mimepull.MIMEPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HttpBodyPart;
@@ -68,9 +71,11 @@ import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.Constants.BALLERINA_BINARY_DATA;
 import static org.ballerinalang.mime.util.Constants.BALLERINA_JSON_DATA;
+import static org.ballerinalang.mime.util.Constants.BALLERINA_MIME_BODY;
 import static org.ballerinalang.mime.util.Constants.BALLERINA_TEXT_DATA;
 import static org.ballerinalang.mime.util.Constants.BALLERINA_XML_DATA;
 import static org.ballerinalang.mime.util.Constants.BYTE_DATA_INDEX;
+import static org.ballerinalang.mime.util.Constants.BYTE_LIMIT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING;
 import static org.ballerinalang.mime.util.Constants.ENTITY;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
@@ -547,7 +552,7 @@ public class MimeUtil {
      * @param entity     Represent an 'Entity'
      * @param multiparts Represent a list of body parts
      */
-    public static void handleCompositeMediaTypeContent(Context context, BStruct entity, List<HttpBodyPart> multiparts) {
+    public static void handleMultipartFormData(Context context, BStruct entity, List<HttpBodyPart> multiparts) {
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         for (HttpBodyPart bodyPart : multiparts) {
             BStruct partStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, ENTITY);
@@ -558,12 +563,7 @@ public class MimeUtil {
             handleDiscreteMediaTypeContent(context, partStruct, new ByteArrayInputStream(bodyPart.getContent()));
             bodyParts.add(partStruct);
         }
-        if (!bodyParts.isEmpty()) {
-            BStructType typeOfBodyPart = bodyParts.get(0).getType();
-            BStruct[] result = bodyParts.toArray(new BStruct[bodyParts.size()]);
-            BRefValueArray partsArray = new BRefValueArray(result, typeOfBodyPart);
-            entity.setRefField(MULTIPART_DATA_INDEX, partsArray);
-        }
+        setPartsToTopLevelEntity(entity, bodyParts);
     }
 
     /**
@@ -906,7 +906,7 @@ public class MimeUtil {
      * @param textPayload Represent a text value
      * @return a boolean indicating the status of nullability and emptiness
      */
-    private static boolean isNotNullAndEmpty(String textPayload) {
+    public static boolean isNotNullAndEmpty(String textPayload) {
         return textPayload != null && !textPayload.isEmpty();
     }
 
@@ -922,5 +922,92 @@ public class MimeUtil {
             return true;
         }
         return false;
+    }
+
+    public static void decodeMultiparts(Context context, BStruct entity, String contentType, InputStream inputStream) {
+        try {
+            MimeType mimeType = new MimeType(contentType);
+            final MIMEMessage mimeMessage = new MIMEMessage(inputStream,
+                    mimeType.getParameter("boundary"),
+                    getMimeConfig());
+            populateBallerinaParts(context, entity, mimeMessage.getAttachments());
+        } catch (MimeTypeParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static MIMEConfig getMimeConfig() {
+        MIMEConfig mimeConfig = new MIMEConfig();
+        mimeConfig.setMemoryThreshold(BYTE_LIMIT);
+        return mimeConfig;
+    }
+
+    private static void populateBallerinaParts(Context context, BStruct entity, List<MIMEPart> mimeParts) {
+        ArrayList<BStruct> bodyParts = new ArrayList<>();
+        for (final MIMEPart mimePart : mimeParts) {
+            BStruct partStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, ENTITY);
+            BStruct mediaType = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
+            // partStruct.setIntField(SIZE_INDEX, bodyPart.getSize());
+            setContentType(mediaType, partStruct, mimePart.getContentType());
+            populateMimeBody(context, partStruct, mimePart);
+            bodyParts.add(partStruct);
+            setPartsToTopLevelEntity(entity, bodyParts);
+        }
+    }
+
+    private static void setPartsToTopLevelEntity(BStruct entity, ArrayList<BStruct> bodyParts) {
+        if (!bodyParts.isEmpty()) {
+            BStructType typeOfBodyPart = bodyParts.get(0).getType();
+            BStruct[] result = bodyParts.toArray(new BStruct[bodyParts.size()]);
+            BRefValueArray partsArray = new BRefValueArray(result, typeOfBodyPart);
+            entity.setRefField(MULTIPART_DATA_INDEX, partsArray);
+        }
+    }
+
+    public static void populateMimeBody(Context context, BStruct entity, MIMEPart mimePart) {
+        String baseType = getContentType(entity);
+        long contentLength = entity.getIntField(SIZE_INDEX);
+        if (contentLength > Constants.BYTE_LIMIT) {
+            writeToTempFile(context, entity, mimePart);
+        } else {
+            saveInMemory(entity, mimePart, baseType);
+        }
+    }
+
+    private static void saveInMemory(BStruct entity, MIMEPart mimePart, String baseType) {
+        try {
+            if (baseType != null) {
+                switch (baseType) {
+                    case TEXT_PLAIN:
+                    case APPLICATION_FORM:
+                        entity.setStringField(TEXT_DATA_INDEX, StringUtils.getStringFromInputStream(mimePart.read()));
+                        break;
+                    case APPLICATION_JSON:
+                        entity.setRefField(JSON_DATA_INDEX, new BJSON(mimePart.read()));
+                        break;
+                    case TEXT_XML:
+                    case APPLICATION_XML:
+                        entity.setRefField(XML_DATA_INDEX, XMLUtils.parse(mimePart.read()));
+                        break;
+                    default:
+                        entity.setBlobField(BYTE_DATA_INDEX, getByteArray(mimePart.read()));
+                        break;
+                }
+            } else {
+                entity.setBlobField(BYTE_DATA_INDEX, getByteArray(mimePart.read()));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void writeToTempFile(Context context, BStruct entity, MIMEPart mimePart) {
+        try {
+            File tempFile = File.createTempFile(BALLERINA_MIME_BODY, TEMP_FILE_EXTENSION);
+            mimePart.moveTo(tempFile);
+            createBallerinaFileHandler(context, entity, tempFile.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

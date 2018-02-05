@@ -74,6 +74,7 @@ public class Constants {
      * Content-type multipart/form-data.
      */
     public static final String MULTIPART_FORM_DATA = "multipart/form-data";
+    public static final String MULTIPART_AS_PRIMARY_TYPE = "multipart";
 
     public static final String DEFAULT_PRIMARY_TYPE = "application";
     public static final String DEFAULT_SUB_TYPE = "octet-stream";
@@ -127,6 +128,7 @@ public class Constants {
     public static final String BALLERINA_JSON_DATA = "ballerinaJsonPayload";
     public static final String BALLERINA_XML_DATA = "ballerinaXmlPayload";
     public static final String BALLERINA_BINARY_DATA = "ballerinaBinaryPayload";
+    public static final String BALLERINA_MIME_BODY = "ballerinaMimeBody";
 
     public static final int NO_CONTENT_LENGTH_FOUND = -1;
     /**
