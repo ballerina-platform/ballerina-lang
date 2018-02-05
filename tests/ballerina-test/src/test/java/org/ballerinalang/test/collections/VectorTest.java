@@ -55,7 +55,6 @@ public class VectorTest {
         long vectorSize = vector.getIntField(0);
 
         Assert.assertEquals(vectorSize, args.length);
-//        Assert.assertEquals(vectorEntries.size(), args.length);
 
         for (int i = 0; i < args.length; i++) {
             Assert.assertEquals(vectorEntries.get(i).value(), args[i]);
@@ -91,7 +90,6 @@ public class VectorTest {
         long finalVectorSize = vector.getIntField(0);
 
         Assert.assertEquals(finalVectorSize, vectorSize + values.length);
-//        Assert.assertEquals(vectorEntries.size(), vectorSize + values.length);
 
         for (int i = 0; i < indices.length; i++) {
             Assert.assertEquals(vectorEntries.get(indices[i]).value(), values[i]);
@@ -112,7 +110,6 @@ public class VectorTest {
         long finalVectorSize = vector.getIntField(0);
 
         Assert.assertEquals(finalVectorSize, expectedVals.length);
-//        Assert.assertEquals(vectorEntries.size(), expectedVals.length);
 
         for (int i = 0; i < removedVals.length; i++) {
             Assert.assertEquals(((BInteger) returns[i + 1]).intValue(), removedVals[i]);

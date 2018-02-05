@@ -112,7 +112,7 @@ function shiftLeft (Vector v, int index) {
 
 function validateRange (int vectorSize, int index) (IndexOutOfRangeError) {
     if (index >= vectorSize || index < 0) {
-        IndexOutOfRangeError err = {msg:"Index out of bounds: " + index};
+        IndexOutOfRangeError err = {msg:"Index out of range: " + index};
         return err;
     }
 

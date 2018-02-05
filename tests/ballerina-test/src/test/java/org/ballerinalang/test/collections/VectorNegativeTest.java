@@ -46,7 +46,7 @@ public class VectorNegativeTest {
     public void testGetIndexOutOfRange() {
         long[] expectedVals = new long[]{10, 30};
         long vectorSize = 10;
-        String[] expectedErrMsgs = new String[]{"Index out of bounds: 15", "Index out of bounds: -1"};
+        String[] expectedErrMsgs = new String[]{"Index out of range: 15", "Index out of range: -1"};
 
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetIndexOutOfRange",
                                            new BValue[]{new BInteger(vectorSize)});
@@ -69,7 +69,7 @@ public class VectorNegativeTest {
         long[] indices = new long[]{3, 20, -1}; // 1 valid index and 2 invalid indices
         int vectorSize = 10;
         long[] expectedFinalValues = new long[]{10, 20, 30, 100, 40, 50, 60, 70, 80, 90, 100};
-        String[] expectedErrMsgs = new String[]{"Index out of bounds: 20", "Index out of bounds: -1"};
+        String[] expectedErrMsgs = new String[]{"Index out of range: 20", "Index out of range: -1"};
 
         BValue[] returns = BRunUtil.invoke(compileResult, "testInsertIndexOutOfRange",
                                            new BValue[]{buildIntArray(values), buildIntArray(indices),
@@ -100,7 +100,7 @@ public class VectorNegativeTest {
         long removedVal = 10;
         long vectorSize = 10;
         long[] expectedFinalValues = new long[]{20, 30, 40, 50, 60, 70, 80, 90, 100};
-        String[] expectedErrMsgs = new String[]{"Index out of bounds: 20", "Index out of bounds: -1"};
+        String[] expectedErrMsgs = new String[]{"Index out of range: 20", "Index out of range: -1"};
 
         BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveIndexOutOfRange",
                                            new BValue[]{new BInteger(vectorSize)});
