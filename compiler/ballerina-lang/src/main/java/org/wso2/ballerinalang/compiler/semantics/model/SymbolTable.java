@@ -307,7 +307,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.DEEP_EQUAL, mapType, mapType, booleanType, InstructionCodes.RDEQ);
         defineBinaryOperator(OperatorKind.DEEP_EQUAL, anyType, anyType, booleanType, InstructionCodes.RDEQ);
         defineBinaryOperator(OperatorKind.DEEP_EQUAL, jsonType, jsonType, booleanType, InstructionCodes.RDEQ);
-        defineBinaryOperator(OperatorKind.DEEP_EQUAL, xmlType, xmlType, booleanType, InstructionCodes.RDEQ);
         defineBinaryOperator(OperatorKind.DEEP_EQUAL, connectorType, connectorType, booleanType, InstructionCodes.RDEQ);
         defineBinaryOperator(OperatorKind.DEEP_EQUAL, datatableType, datatableType, booleanType, InstructionCodes.RDEQ);
         defineBinaryOperator(OperatorKind.DEEP_EQUAL, enumType, enumType, booleanType, InstructionCodes.RDEQ);
@@ -346,7 +345,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, mapType, mapType, booleanType, InstructionCodes.RDNE);
         defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, anyType, anyType, booleanType, InstructionCodes.RDNE);
         defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, jsonType, jsonType, booleanType, InstructionCodes.RDNE);
-        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, xmlType, xmlType, booleanType, InstructionCodes.RDNE);
         defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, connectorType, connectorType, booleanType,
                                                                                                 InstructionCodes.RDNE);
         defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, datatableType, datatableType, booleanType,
