@@ -20,6 +20,7 @@ Structs
 Maps
 Arrays
 Array of Arrays
+Vector
 Lengthof
 Identifier Literals
 JSON
