@@ -52,7 +52,7 @@ public class HttpConnectorPortBindingListener implements PortBindingEventListene
         } else {
             console.println("ballerina: started HTTP/WS server connector " + serverConnectorId);
         }
-        connectorStartupSynchronizer.getCountDownLatch().countDown();
+        connectorStartupSynchronizer.addServerConnector(serverConnectorId);
     }
 
     @Override
@@ -70,7 +70,6 @@ public class HttpConnectorPortBindingListener implements PortBindingEventListene
 
         if (throwable instanceof BindException) {
             connectorStartupSynchronizer.addException(serverConnectorId, (BindException) throwable);
-            connectorStartupSynchronizer.getCountDownLatch().countDown();
         }
     }
 }

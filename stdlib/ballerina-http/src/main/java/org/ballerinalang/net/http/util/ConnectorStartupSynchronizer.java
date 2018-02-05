@@ -18,7 +18,10 @@
 
 package org.ballerinalang.net.http.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
@@ -30,22 +33,37 @@ import java.util.concurrent.CountDownLatch;
  */
 public class ConnectorStartupSynchronizer {
 
+    private List<String> inUseConnectors = new ArrayList<>();
     private Map<String, Exception> exceptions = new HashMap<>();
     private CountDownLatch countDownLatch;
 
-    public ConnectorStartupSynchronizer(CountDownLatch countDownLatch) {
-        this.countDownLatch = countDownLatch;
+    public ConnectorStartupSynchronizer(int noOfConnectors) {
+        this.countDownLatch = new CountDownLatch(noOfConnectors);
+    }
+
+    public void addServerConnector(String connectorId) {
+        inUseConnectors.add(connectorId);
+        countDownLatch.countDown();
+    }
+
+    public Iterator<String> inUseConnectorsIterator() {
+        return inUseConnectors.iterator();
     }
 
     public void addException(String connectorId, Exception ex) {
         exceptions.put(connectorId, ex);
+        countDownLatch.countDown();
     }
 
-    public Map<String, Exception> getExceptions() {
-        return exceptions;
+    public Iterator<Map.Entry<String, Exception>> failedConnectorsIterator() {
+        return exceptions.entrySet().iterator();
     }
 
-    public CountDownLatch getCountDownLatch() {
-        return countDownLatch;
+    public int getNoOfFailedConnectors() {
+        return exceptions.size();
+    }
+
+    public void syncConnectors() throws InterruptedException {
+        countDownLatch.await();
     }
 }
