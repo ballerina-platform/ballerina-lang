@@ -227,9 +227,13 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         sourceReqCmsg.setProperty(Constants.SRC_HANDLER, this);
         sourceReqCmsg.setProperty(Constants.HTTP_VERSION, httpRequest.protocolVersion().text());
         sourceReqCmsg.setProperty(Constants.HTTP_METHOD, httpRequest.method().name());
+        InetSocketAddress localAddress = null;
 
-        InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
-        sourceReqCmsg.setProperty(Constants.LISTENER_PORT, localAddress.getPort());
+        //This check was added because in case of netty embedded channel, this could be of type 'EmbeddedSocketAddress'.
+        if (ctx.channel().localAddress() instanceof InetSocketAddress) {
+            localAddress = (InetSocketAddress) ctx.channel().localAddress();
+        }
+        sourceReqCmsg.setProperty(Constants.LISTENER_PORT, localAddress != null ? localAddress.getPort() : null);
         sourceReqCmsg.setProperty(Constants.LISTENER_INTERFACE_ID, interfaceId);
         sourceReqCmsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
 

@@ -80,7 +80,7 @@ public class Util {
             outboundResponseMsg.setHeader(Constants.HTTP_CONNECTION, Constants.CONNECTION_CLOSE);
         }
 
-        outboundNettyResponse.headers().setAll(outboundResponseMsg.getHeaders());
+        outboundNettyResponse.headers().add(outboundResponseMsg.getHeaders());
 
         return outboundNettyResponse;
     }
@@ -104,7 +104,7 @@ public class Util {
         outboundNettyRequest.setProtocolVersion(httpVersion);
         outboundNettyRequest.setUri(requestPath);
 
-        outboundNettyRequest.headers().setAll(outboundRequestMsg.getHeaders());
+        outboundNettyRequest.headers().add(outboundRequestMsg.getHeaders());
 
         return outboundNettyRequest;
     }
