@@ -76,8 +76,8 @@ public class VectorTest {
 
     @Test(description = "Test case for testing insertion of elements to a vector.")
     public void testInsert() {
-        long[] values = new long[]{100, 110, 120};
-        long[] indices = new long[]{3, 4, 5};
+        long[] values = new long[]{0, 100, 110, 120, 130};
+        long[] indices = new long[]{0, 3, 4, 5, 13};
         int vectorSize = 10;
         BValue[] returns = BRunUtil.invoke(compileResult, "testInsert",
                                            new BValue[]{buildIntArray(values), buildIntArray(indices),
@@ -98,8 +98,8 @@ public class VectorTest {
 
     @Test(description = "Test case for testing removal of elements from a vector.")
     public void testRemove() {
-        long[] expectedVals = new long[]{20, 30, 50, 60, 80, 90, 100};
-        long[] removedVals = new long[]{10, 40, 70};
+        long[] expectedVals = new long[]{20, 30, 50, 60, 70, 80, 90};
+        long[] removedVals = new long[]{10, 40, 100};
         long vectorSize = 10;
         BValue[] returns = BRunUtil.invoke(compileResult, "testRemove", new BValue[]{new BInteger(vectorSize)});
 
@@ -118,6 +118,61 @@ public class VectorTest {
         for (int i = 0; i < finalVectorSize; i++) {
             Assert.assertEquals(vectorEntries.get(i).value(), expectedVals[i]);
         }
+    }
+
+    @Test(description = "Test case for testing clearing of the vector.")
+    public void testClear() {
+        long initialSize = 10;
+        BValue[] returns = BRunUtil.invoke(compileResult, "testClear", new BValue[]{new BInteger(initialSize)});
+
+        Assert.assertNotNull(returns);
+
+        BStruct vector = (BStruct) returns[0];
+        BRefValueArray vectorEntries = (BRefValueArray) vector.getRefField(0);
+        long vectorSize = vector.getIntField(0);
+
+        Assert.assertEquals(vectorSize, 0);
+        // Since the array is reinitialized in clear(), this should be 0
+        Assert.assertEquals(vectorEntries.size(), 0);
+
+        BStruct vectorRef = (BStruct) returns[1];
+        BRefValueArray vectorEntriesRef = (BRefValueArray) vectorRef.getRefField(0);
+        long vectorRefSize = vectorRef.getIntField(0);
+
+        Assert.assertEquals(vectorRefSize, 0);
+        // Since the second return value is a reference to the original vector, this should also be empty
+        Assert.assertEquals(vectorEntriesRef.size(), 0);
+    }
+
+    @Test(description = "Test case for testing replacement of elements in a vector.")
+    public void testReplace() {
+        long[] values = new long[]{100, 110, 120};
+        long[] indices = new long[]{3, 4, 9};
+        int vectorSize = 10;
+        long[] expectedFinalValues = new long[]{10, 20, 30, 100, 110, 60, 70, 80, 90, 120};
+
+        BValue[] returns = BRunUtil.invoke(compileResult, "testReplace",
+                                           new BValue[]{buildIntArray(values), buildIntArray(indices),
+                                                   new BInteger(vectorSize)});
+
+        Assert.assertNotNull(returns);
+
+        BStruct vector = (BStruct) returns[0];
+        BRefValueArray vectorEntries = (BRefValueArray) vector.getRefField(0);
+        long finalVectorSize = vector.getIntField(0);
+
+        Assert.assertEquals(finalVectorSize, vectorSize);
+
+        for (int i = 0; i < expectedFinalValues.length; i++) {
+            Assert.assertEquals(vectorEntries.get(i).value(), expectedFinalValues[i]);
+        }
+
+        BRefValueArray replacedVals = (BRefValueArray) returns[1];
+
+        Assert.assertEquals(replacedVals.size(), values.length);
+        Assert.assertEquals(((BInteger) replacedVals.get(0)).intValue(), 40);
+        Assert.assertEquals(((BInteger) replacedVals.get(1)).intValue(), 50);
+        Assert.assertEquals(((BInteger) replacedVals.get(2)).intValue(), 100);
     }
 
     private BStringArray buildStringArray(String[] args) {

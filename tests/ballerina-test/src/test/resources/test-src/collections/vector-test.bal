@@ -12,6 +12,16 @@ function testAdd (string[] values) (collections:Vector) {
     return vector;
 }
 
+function testClear (int size) (collections:Vector, collections:Vector) {
+    collections:Vector vector = {vec:[]};
+    populateVector(vector, size);
+
+    collections:Vector vectorRef = vector;
+    vector.clear();
+
+    return vector, vectorRef;
+}
+
 function testGet (int size) (any x1, any x2, any x3, any x4) {
     collections:Vector vector = {vec:[]};
     populateVector(vector, size);
@@ -43,9 +53,23 @@ function testRemove (int size) (collections:Vector vector, any x1, any x2, any x
 
     x1, _ = vector.remove(0);
     x2, _ = vector.remove(2);
-    x3, _ = vector.remove(4);
+    x3, _ = vector.remove(size - 3);
 
     return;
+}
+
+function testReplace (int[] values, int[] indices, int size) (collections:Vector, any[]) {
+    collections:Vector vector = {vec:[]};
+    any[] replacedVals = [];
+    populateVector(vector, size);
+
+    int i = 0;
+    while (i < lengthof values) {
+        replacedVals[i], _ = vector.replace(values[i], indices[i]);
+        i = i + 1;
+    }
+
+    return vector, replacedVals;
 }
 
 function testGetIndexOutOfRange(int size) (any x1, any x2, any x3, any x4, collections:IndexOutOfRangeError e1, collections:IndexOutOfRangeError e2) {
@@ -54,7 +78,7 @@ function testGetIndexOutOfRange(int size) (any x1, any x2, any x3, any x4, colle
 
     x1, _ = vector.get(0);
     x2, _ = vector.get(2);
-    x3, e1 = vector.get(15);
+    x3, e1 = vector.get(size);
     x4, e2 = vector.get(-1);
 
     return;
@@ -80,10 +104,24 @@ function testRemoveIndexOutOfRange (int size) (collections:Vector vector, any x1
     errs = [];
 
     x1, errs[0] = vector.remove(0);
-    x2, errs[1] = vector.remove(20);
+    x2, errs[1] = vector.remove(size - 1);
     x3, errs[2] = vector.remove(-1);
 
     return;
+}
+
+function testReplaceIndexOutOfRange (int[] values, int[] indices, int size) (collections:Vector vector, collections:IndexOutOfRangeError[] errs) {
+    vector = {vec:[]};
+    populateVector(vector, size);
+    errs = [];
+
+    int i = 0;
+    while (i < lengthof values) {
+        _, errs[i] = vector.replace(values[i], indices[i]);
+        i = i + 1;
+    }
+
+    return vector, errs;
 }
 
 function populateVector (collections:Vector vector, int size) {

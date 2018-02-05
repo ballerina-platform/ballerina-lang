@@ -17,7 +17,7 @@ public struct IndexOutOfRangeError {
     StackFrame[] stackTrace;
 }
 
-@Description { value:"Adds the specified element to the end of the list."}
+@Description { value:"Adds the specified element to the end of the vector."}
 @Param { value: "v: The vector to which the element will be added"}
 @Param { value: "element: The element to be added"}
 public function <Vector v> add (any element) {
@@ -25,11 +25,18 @@ public function <Vector v> add (any element) {
     v.size = v.size + 1;
 }
 
+@Description { value:"Clears all the elements from the vector."}
+@Param { value: "v: The vector to be cleared"}
+public function <Vector v> clear() {
+    v.vec = [];
+    v.size = 0;
+}
+
 @Description { value:"Retrieves the element at the specified position of the vector."}
 @Param { value: "v: The vector from which the element will be retrieved"}
 @Param { value: "index: The position of the element to retrieve"}
-@Return { value:"Returns the element at the specified position."}
-@Return { value:"Returns an IndexOutOfRangeError if the specifed index is not within 0 and the size of the vector (both inclusive)."}
+@Return { value:"The element at the specified position."}
+@Return { value:"Returned if the specified index is not within 0 (inclusive) and the size of the vector (exclusive)."}
 public function <Vector v> get (int index) (any, IndexOutOfRangeError) {
     IndexOutOfRangeError err = validateRange(v.size, index);
 
@@ -44,9 +51,9 @@ public function <Vector v> get (int index) (any, IndexOutOfRangeError) {
 @Param { value: "v: The vector to which the element will be inserted"}
 @Param { value: "element: The element to insert"}
 @Param { value: "index: The position to insert the element to"}
-@Return { value:"Returns an IndexOutOfRangeError if the specifed index is not within 0 and the size of the vector (both inclusive)."}
+@Return { value:"Returned if the specified index is not within 0 and the size of the vector (both inclusive)."}
 public function <Vector v> insert (any element, int index) (IndexOutOfRangeError) {
-    IndexOutOfRangeError err = validateRange(v.size, index);
+    IndexOutOfRangeError err = validateRange(v.size + 1, index); // range validated for the new vector size
 
     if (err != null) {
         return err;
@@ -61,8 +68,8 @@ public function <Vector v> insert (any element, int index) (IndexOutOfRangeError
 @Description { value:"Removes and returns the element at the position specified. All the elements to the right of the specified position are shifted to the left."}
 @Param { value: "v: The vector from which the element will be removed"}
 @Param { value: "index: The position to remove the element from"}
-@Return { value:"Returns the element at the specified position."}
-@Return { value:"Returns an IndexOutOfRangeError if the specifed index is not within 0 and the size of the vector (both inclusive)."}
+@Return { value:"The element at the specified position."}
+@Return { value:"Returned if the specified index is not within 0 (inclusive) and the size of the vector (exclusive)."}
 public function <Vector v> remove (int index) (any, IndexOutOfRangeError) {
     IndexOutOfRangeError err = validateRange(v.size, index);
 
@@ -76,6 +83,25 @@ public function <Vector v> remove (int index) (any, IndexOutOfRangeError) {
     return element, null;
 }
 
+@Description { value:"Replaces the element at the position specified with the provided element."}
+@Param { value: "v: The vector in which the element will be replaced"}
+@Param { value: "element: The replacement element"}
+@Param { value: "index: The position of the element to be replaced"}
+@Return { value:"The element which was originally at the specified position"}
+@Return { value:"Returned if the specified index is not within 0 (inclusive) and the size of the vector (exclusive)."}
+public function <Vector v> replace(any element, int index) (any, IndexOutOfRangeError) {
+    IndexOutOfRangeError err = validateRange(v.size, index);
+
+    if (err != null) {
+        return null, err;
+    }
+
+    any currentElement = v.vec[index];
+    v.vec[index] = element;
+
+    return currentElement, null;
+}
+
 @Description { value:"Returns the size of the vector."}
 @Param { value: "v: The vector of which to look-up the size"}
 @Return { value:"The size of the vector"}
@@ -84,6 +110,7 @@ public function <Vector v> size() (int) {
 }
 
 function shiftRight (Vector v, int index) {
+    v.vec[v.size] = null; // assigning null so that v.size-th array index is valid
     int i = index + 1;
     any current = v.vec[index];
     any previous;
@@ -95,7 +122,7 @@ function shiftRight (Vector v, int index) {
         i = i + 1;
     }
 
-    v.vec[index] = null;
+    v.vec[index] = null; // Since the element at index-th position was shifted to right, the index-th position should be empty
     v.vec[i] = current;
 }
 
