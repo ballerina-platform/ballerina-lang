@@ -137,7 +137,6 @@ public class DeepEqualHelper {
                         return false;
                     }
                 }
-                
                 break;
             case TypeTags.MAP_TAG:
                 BMap lhMap = (BMap) lhVal;
@@ -177,7 +176,6 @@ public class DeepEqualHelper {
                         }
                     }
                 }
-                
                 break;
             case TypeTags.JSON_TAG:
                 JsonNode lhJSON = ((BJSON) lhVal).value();
@@ -221,7 +219,7 @@ public class DeepEqualHelper {
      * @param rhJson The right side value.
      * @return True if values are equal, else false.
      */
-    public static boolean isDeepEqual(JsonNode lhJson, JsonNode rhJson) {
+    private static boolean isDeepEqual(JsonNode lhJson, JsonNode rhJson) {
         if (lhJson.getType() == JsonNode.Type.OBJECT) {
             // Converting iterators to maps as iterators are ordered.
             Iterator<Map.Entry<String, JsonNode>> lhJsonFieldsIterator = lhJson.fields();
@@ -260,20 +258,14 @@ public class DeepEqualHelper {
                 return false;
             }
             
-            if (lhJson.size() > 0) {
-                for (int i = 0; i < lhJson.size(); i++) {
-                    if (!isDeepEqual(lhJson.get(i), rhJson.get(i))) {
-                        return false;
-                    }
+            for (int i = 0; i < lhJson.size(); i++) {
+                if (!isDeepEqual(lhJson.get(i), rhJson.get(i))) {
+                    return false;
                 }
             }
         }
         
         // If it is a value type, then equalize their text values.
-        if (!lhJson.asText().equals(rhJson.asText())) {
-            return false;
-        }
-        
-        return true;
+        return lhJson.asText().equals(rhJson.asText());
     }
 }
