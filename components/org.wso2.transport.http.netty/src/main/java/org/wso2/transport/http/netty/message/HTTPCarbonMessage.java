@@ -265,7 +265,7 @@ public class HTTPCarbonMessage {
             httpHeaders = new DefaultHttpHeaders();
             List<Map.Entry<String, String>> headerList = this.httpMessage.headers().entries();
             for (Map.Entry<String, String> entry : headerList) {
-                httpHeaders.set(entry.getKey(), entry.getValue());
+                httpHeaders.add(entry.getKey(), entry.getValue());
             }
         } else {
             HttpResponse httpResponse = (HttpResponse) this.httpMessage;
@@ -274,11 +274,11 @@ public class HTTPCarbonMessage {
             httpHeaders = new DefaultHttpHeaders();
             List<Map.Entry<String, String>> headerList = this.httpMessage.headers().entries();
             for (Map.Entry<String, String> entry : headerList) {
-                httpHeaders.set(entry.getKey(), entry.getValue());
+                httpHeaders.add(entry.getKey(), entry.getValue());
             }
         }
         HTTPCarbonMessage httpCarbonMessage = new HTTPCarbonMessage(newHttpMessage);
-        httpCarbonMessage.setHeaders(httpHeaders);
+        httpCarbonMessage.getHeaders().set(httpHeaders);
         return httpCarbonMessage;
     }
 
